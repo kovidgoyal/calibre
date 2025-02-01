@@ -28,7 +28,7 @@ def node_mountpoint(node):
 
 
 def basic_mount_options():
-    return ['rw', 'noexec', 'nosuid', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
+    return ['rw', 'noexec', 'nosuid', 'nodev', f'uid={os.geteuid()}', f'gid={os.getegid()}']
 
 
 class UDisks:

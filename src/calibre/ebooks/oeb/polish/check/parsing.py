@@ -146,7 +146,7 @@ class EscapedName(BaseError):
         c = 0
         while self.sname in all_names:
             c += 1
-            self.sname = '%s_%d.%s' % (bn, c, ext)
+            self.sname = f'{bn}_{c}.{ext}'
         rename_files(container, {self.name:self.sname})
         return True
 

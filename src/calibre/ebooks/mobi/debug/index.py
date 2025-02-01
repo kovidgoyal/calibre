@@ -100,14 +100,14 @@ class Index:
         ans.extend(['', ''])
         ans += ['*'*10 + f' Index Record Headers ({len(self.index_headers)} records) ' + '*'*10]
         for i, header in enumerate(self.index_headers):
-            ans += ['*'*10 + ' Index Record %d ' % i + '*'*10]
+            ans += ['*'*10 + f' Index Record {i} ' + '*'*10]
             for field in INDEX_HEADER_FIELDS:
                 a('%-12s: %r'%(FIELD_NAMES.get(field, field), header[field]))
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)
             for offset, val in iteritems(self.cncx):
-                a('%10s: %s'%(offset, val))
+                a(f'{offset:10}: {val}')
             ans.extend(['', ''])
 
         if self.table is not None:

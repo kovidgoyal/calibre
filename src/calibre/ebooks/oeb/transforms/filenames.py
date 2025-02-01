@@ -132,7 +132,7 @@ class UniqueFilenames:  # {{{
         c = 0
         while True:
             c += 1
-            suffix = '_u%d'%c
+            suffix = f'_u{c}'
             candidate = base + suffix + ext
             if candidate not in self.seen_filenames:
                 return suffix

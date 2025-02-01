@@ -23,13 +23,13 @@ class SchemaUpgrade:
         try:
             while True:
                 uv = next(self.db.execute('pragma user_version'))[0]
-                meth = getattr(self, 'upgrade_version_%d'%uv, None)
+                meth = getattr(self, f'upgrade_version_{uv}', None)
                 if meth is None:
                     break
                 else:
-                    prints('Upgrading database to version %d...'%(uv+1))
+                    prints(f'Upgrading database to version {uv + 1}...')
                     meth()
-                    self.db.execute('pragma user_version=%d'%(uv+1))
+                    self.db.execute(f'pragma user_version={uv + 1}')
         except:
             self.db.execute('ROLLBACK')
             raise

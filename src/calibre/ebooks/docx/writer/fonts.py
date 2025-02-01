@@ -67,8 +67,8 @@ class FontsManager:
             item = ef['item']
             rid = rel_map.get(item)
             if rid is None:
-                rel_map[item] = rid = 'rId%d' % num
-                fname = 'fonts/font%d.odttf' % num
+                rel_map[item] = rid = f'rId{num}'
+                fname = f'fonts/font{num}.odttf'
                 makeelement(embed_relationships, 'Relationship', Id=rid, Type=self.namespace.names['EMBEDDED_FONT'], Target=fname)
                 font_data_map['word/' + fname] = obfuscate_font_data(item.data, key)
             makeelement(font, 'w:embed' + tag, r_id=rid,

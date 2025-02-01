@@ -16,8 +16,7 @@ from polyglot.urllib import urlsplit
 class HTTPError(ValueError):
 
     def __init__(self, url, code):
-        msg = '%s returned an unsupported http response code: %d (%s)' % (
-                url, code, http_client.responses.get(code, None))
+        msg = f'{url} returned an unsupported http response code: {code} ({http_client.responses.get(code, None)})'
         ValueError.__init__(self, msg)
         self.code = code
         self.url = url

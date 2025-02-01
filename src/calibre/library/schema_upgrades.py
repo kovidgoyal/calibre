@@ -17,11 +17,11 @@ class SchemaUpgrade:
         # Upgrade database
         while True:
             uv = self.user_version
-            meth = getattr(self, 'upgrade_version_%d'%uv, None)
+            meth = getattr(self, f'upgrade_version_{uv}', None)
             if meth is None:
                 break
             else:
-                print('Upgrading database to version %d...'%(uv+1))
+                print(f'Upgrading database to version {uv + 1}...')
                 meth()
                 self.user_version = uv+1
 

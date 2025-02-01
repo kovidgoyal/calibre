@@ -51,7 +51,7 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
         spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
     spine = ''.join(f'<itemref idref="{name}"/>' for name in spine)
     guide = ''.join(f'<reference href="{name}" type="{typ}" title="{title}"/>' for name, typ, title in guide)
-    opf = OPF_TEMPLATE.format(manifest=mo, ver='%d.0'%ver, metadata=metadata, spine=spine, guide=guide)
+    opf = OPF_TEMPLATE.format(manifest=mo, ver=f'{ver}.0', metadata=metadata, spine=spine, guide=guide)
     buf = BytesIO()
     with ZipFile(buf, 'w', ZIP_STORED) as zf:
         zf.writestr('META-INF/container.xml', b'''
@@ -79,7 +79,7 @@ class Structure(BaseTest):
         ep = os.path.join(self.tdir, str(n) + 'book.epub')
         with open(ep, 'wb') as f:
             f.write(create_epub(*args, **kw).getvalue())
-        c = get_container(ep, tdir=os.path.join(self.tdir, 'container%d' % n), tweak_mode=True)
+        c = get_container(ep, tdir=os.path.join(self.tdir, f'container{n}'), tweak_mode=True)
         return c
 
     def test_toc_detection(self):

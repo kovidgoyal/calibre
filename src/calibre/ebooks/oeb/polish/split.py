@@ -215,7 +215,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     nname, s = None, 0
     while not nname or container.exists(nname):
         s += 1
-        nname = '%s_split%d.%s' % (base, s, ext)
+        nname = f'{base}_split{s}.{ext}'
     manifest_item = container.generate_item(nname, media_type=container.mime_map[name])
     bottom_name = container.href_to_name(manifest_item.get('href'), container.opf_name)
 
@@ -287,7 +287,7 @@ def multisplit(container, name, xpath, before=True):
     current = name
     all_names = [name]
     for i in range(len(nodes)):
-        current = split(container, current, '//*[@calibre-split-point="%d"]' % i, before=before)
+        current = split(container, current, f'//*[@calibre-split-point="{i}"]', before=before)
         all_names.append(current)
 
     for x in all_names:
@@ -345,7 +345,7 @@ def unique_anchor(seen_anchors, current):
     ans = current
     while ans in seen_anchors:
         c += 1
-        ans = '%s_%d' % (current, c)
+        ans = f'{current}_{c}'
     return ans
 
 

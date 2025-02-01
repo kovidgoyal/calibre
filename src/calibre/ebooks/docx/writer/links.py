@@ -92,7 +92,7 @@ class LinksManager:
         i, bname = 0, name
         while name in self.used_bookmark_names:
             i += 1
-            name  = bname + ('_%d' % i)
+            name  = bname + f'_{i}'
         self.anchor_map[key] = name
         self.used_bookmark_names.add(name)
         return name

@@ -76,8 +76,7 @@ class Sendmail:
         try_count = 0
         while True:
             if try_count > 0:
-                log('\nRetrying in %d seconds...\n' %
-                        self.rate_limit)
+                log(f'\nRetrying in {self.rate_limit} seconds...\n')
             worker = Worker(self.sendmail,
                     (attachment, aname, to, subject, text, log))
             worker.start()

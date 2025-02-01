@@ -137,7 +137,7 @@ def sony_metadata(oeb):
     for i, section in enumerate(toc):
         if not section.href:
             continue
-        secid = 'section%d'%i
+        secid = f'section{i}'
         sectitle = section.title
         if not sectitle:
             sectitle = _('Unknown')
@@ -170,7 +170,7 @@ def sony_metadata(oeb):
             desc = section.description
             if not desc:
                 desc = ''
-            aid = 'article%d'%j
+            aid = f'article{j}'
 
             entries.append(SONY_ATOM_ENTRY.format(
                 title=xml(atitle),

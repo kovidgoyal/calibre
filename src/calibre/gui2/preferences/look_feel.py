@@ -816,7 +816,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         name = str(fi.family())
 
         self.font_display.setFont(font)
-        self.font_display.setText(name + ' [%dpt]'%fi.pointSize())
+        self.font_display.setText(name + f' [{fi.pointSize()}pt]')
 
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)

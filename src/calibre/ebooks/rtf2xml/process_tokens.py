@@ -680,10 +680,10 @@ class ProcessTokens:
 
     def ob_func(self, pre, token, num=None):
         self.__bracket_count += 1
-        return 'ob<nu<open-brack<%04d\n' % self.__bracket_count
+        return f'ob<nu<open-brack<{self.__bracket_count:04}\n'
 
     def cb_func(self, pre, token, num=None):
-        line = 'cb<nu<clos-brack<%04d\n' % self.__bracket_count
+        line = f'cb<nu<clos-brack<{self.__bracket_count:04}\n'
         self.__bracket_count -= 1
         return line
 
@@ -799,8 +799,7 @@ class ProcessTokens:
 
                     the_index = token.find('\\ ')
                     if token is not None and the_index > -1:
-                        msg = '\nInvalid RTF: token "\\ " not valid.\nError at line %d'\
-                            % line_count
+                        msg = f'\nInvalid RTF: token "\\ " not valid.\nError at line {line_count}'
                         raise self.__exception_handler(msg)
                     elif token[:1] == '\\':
                         line = self.process_cw(token)

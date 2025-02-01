@@ -338,7 +338,7 @@ def draw_size(p, rect, w, h):
     f = p.font()
     f.setBold(True)
     p.setFont(f)
-    sz = '\u00a0%d x %d\u00a0'%(w, h)
+    sz = f'\xa0{w} x {h}\xa0'
     flags = Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine
     szrect = p.boundingRect(rect, flags, sz)
     p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))

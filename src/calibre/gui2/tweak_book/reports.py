@@ -504,7 +504,7 @@ class ImagesModel(FileCollection):
             if col == 2:
                 return str(len(entry.usage))
             if col == 3:
-                return '%d x %d' % (entry.width, entry.height)
+                return f'{entry.width} x {entry.height}'
         elif role == Qt.ItemDataRole.UserRole:
             try:
                 return self.files[index.row()]
@@ -1402,7 +1402,7 @@ class ReportsWidget(QWidget):
             self.stack.widget(i)(data)
             if DEBUG:
                 category = self.reports.item(i).data(Qt.ItemDataRole.DisplayRole)
-                print('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
+                print(f'Widget time for {category:12}: {time.time() - st:.2f}s seconds')
 
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
@@ -1504,7 +1504,7 @@ class Reports(Dialog):
         data, timing = data
         if DEBUG:
             for x, t in sorted(iteritems(timing), key=itemgetter(1)):
-                print('Time for %6s data: %.3f seconds' % (x, t))
+                print(f'Time for {x:6} data: {t:.3f} seconds')
         self.reports(data)
 
     def accept(self):

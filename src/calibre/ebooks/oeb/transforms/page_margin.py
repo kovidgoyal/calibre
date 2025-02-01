@@ -143,7 +143,7 @@ class RemoveFakeMargins:
 
             for p in paras(body):
                 level = level_of(p, body)
-                level = '%s_%d'%(barename(p.tag), level)
+                level = f'{barename(p.tag)}_{level}'
                 if level not in self.levels:
                     self.levels[level] = []
                 self.levels[level].append(p)
@@ -151,7 +151,7 @@ class RemoveFakeMargins:
         remove = set()
         for k, v in iteritems(self.levels):
             num = len(v)
-            self.log.debug('Found %d items of level:'%num, k)
+            self.log.debug(f'Found {num} items of level:', k)
             level = int(k.split('_')[-1])
             tag = k.split('_')[0]
             if tag == 'p' and num < 25:

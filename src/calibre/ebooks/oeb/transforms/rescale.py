@@ -80,8 +80,7 @@ class RescaleImages:
                 if scaled:
                     new_width = max(1, new_width)
                     new_height = max(1, new_height)
-                    self.log('Rescaling image from %dx%d to %dx%d'%(
-                        width, height, new_width, new_height), item.href)
+                    self.log(f'Rescaling image from {width}x{height} to {new_width}x{new_height}', item.href)
                     try:
                         img = img.resize((new_width, new_height))
                     except Exception:

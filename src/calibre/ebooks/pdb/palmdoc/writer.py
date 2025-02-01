@@ -33,7 +33,7 @@ class Writer(FormatWriter):
         section_lengths = [len(header_record)]
         self.log.info('Compessing data...')
         for i in range(len(txt_records)):
-            self.log.debug('\tCompressing record %i' % i)
+            self.log.debug(f'\tCompressing record {i}')
             txt_records[i] = compress_doc(txt_records[i])
             section_lengths.append(len(txt_records[i]))
 

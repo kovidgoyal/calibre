@@ -16,7 +16,7 @@ PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
 INDEX_HEADER_FIELDS = (
             'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
             'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
-    ) + tuple('unknown%d'%i for i in range(27)) + ('ocnt', 'oentries',
+    ) + tuple(f'unknown{i}' for i in range(27)) + ('ocnt', 'oentries',
             'ordt1', 'ordt2', 'tagx')
 
 
@@ -47,7 +47,7 @@ def parse_indx_header(data):
     check_signature(data, b'INDX')
     words = INDEX_HEADER_FIELDS
     num = len(words)
-    values = struct.unpack('>%dL' % num, data[4:4*(num+1)])
+    values = struct.unpack(f'>{num}L', data[4:4*(num+1)])
     ans = dict(zip(words, values))
     ans['idx_header_end_pos'] = 4 * (num+1)
     ordt1, ordt2 = ans['ordt1'], ans['ordt2']
@@ -103,8 +103,7 @@ class CNCX:  # {{{
                     except:
                         byts = raw[pos:]
                         r = format_bytes(byts)
-                        print('CNCX entry at offset %d has unknown format %s'%(
-                            pos+record_offset, r))
+                        print(f'CNCX entry at offset {pos + record_offset} has unknown format {r}')
                         self.records[pos+record_offset] = r
                         pos = len(raw)
                 pos += consumed+length

@@ -585,7 +585,7 @@ def find_nsmap(elems):
                 ans[pp] = ns
             else:
                 i += 1
-                ans['ns%d' % i] = ns
+                ans[f'ns{i}'] = ns
     return ans
 
 

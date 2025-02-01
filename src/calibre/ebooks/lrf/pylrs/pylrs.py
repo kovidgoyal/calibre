@@ -341,7 +341,7 @@ class LrsObject:
         if labelName is None:
             labelName = name
         if labelDecorate:
-            label = '%s.%d' % (labelName, self.objId)
+            label = f'{labelName}.{self.objId}'
         else:
             label = str(self.objId)
         element.attrib[objlabel] = label

@@ -138,9 +138,9 @@ class TextBlock(etree.XSLTExtension):
         classes = []
         bs = node.get('blockstyle')
         if bs in self.styles.block_style_map:
-            classes.append('bs%d'%self.styles.block_style_map[bs])
+            classes.append(f'bs{self.styles.block_style_map[bs]}')
         if ts in self.styles.text_style_map:
-            classes.append('ts%d'%self.styles.text_style_map[ts])
+            classes.append(f'ts{self.styles.text_style_map[ts]}')
         if classes:
             root.set('class', ' '.join(classes))
         objid = node.get('objid', None)
@@ -218,7 +218,7 @@ class TextBlock(etree.XSLTExtension):
     def process_container(self, child, tgt):
         idx = self.styles.get_text_styles(child)
         if idx is not None:
-            tgt.set('class', 'ts%d'%idx)
+            tgt.set('class', f'ts{idx}')
         self.parent.append(tgt)
         orig_parent = self.parent
         self.parent = tgt
@@ -305,7 +305,7 @@ class Styles(etree.XSLTExtension):
                 for i, s in enumerate(w):
                     if not s:
                         continue
-                    rsel = '.%s%d'%(sel, i)
+                    rsel = f'.{sel}{i}'
                     s = join(s)
                     f.write(as_bytes(rsel + ' {\n\t' + s + '\n}\n\n'))
 
@@ -331,8 +331,8 @@ class Styles(etree.XSLTExtension):
             if a == 255:
                 return None
             if a == 0:
-                return 'rgb(%d,%d,%d)'%(r,g,b)
-            return 'rgba(%d,%d,%d,%f)'%(r,g,b,1.-a/255.)
+                return f'rgb({r},{g},{b})'
+            return f'rgba({r},{g},{b},{1.0 - a / 255.0:f})'
         except:
             return None
 

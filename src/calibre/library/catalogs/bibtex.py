@@ -390,7 +390,7 @@ class BIBTEX(CatalogPlugin):
             if bib_entry == 'book':
                 nb_books = len(list(filter(check_entry_book_valid, data)))
                 if nb_books < nb_entries:
-                    log.warn('Only %d entries in %d are book compatible' % (nb_books, nb_entries))
+                    log.warn(f'Only {nb_books} entries in {nb_entries} are book compatible')
                     nb_entries = nb_books
 
             # If connected device, add 'On Device' values to data

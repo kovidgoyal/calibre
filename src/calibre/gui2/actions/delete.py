@@ -46,7 +46,7 @@ class MultiDeleter(QObject):  # {{{
             self.cleanup()
             return
         id_ = self.ids.pop()
-        title = 'id:%d'%id_
+        title = f'id:{id_}'
         try:
             title_ = self.model.db.title(id_, index_is_id=True)
             if title_:

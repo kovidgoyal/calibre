@@ -110,7 +110,7 @@ class Fields:
         c = 0
         while self.index_bookmark_prefix in all_ids:
             c += 1
-            self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', '%d-' % c)
+            self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', f'{c}-')
         stack = []
         for elem in self.namespace.XPath(
             '//*[name()="w:p" or name()="w:r" or'
@@ -209,7 +209,7 @@ class Fields:
             def WORD(x):
                 return self.namespace.expand('w:' + x)
             self.index_bookmark_counter += 1
-            bmark = xe['anchor'] = '%s%d' % (self.index_bookmark_prefix, self.index_bookmark_counter)
+            bmark = xe['anchor'] = f'{self.index_bookmark_prefix}{self.index_bookmark_counter}'
             p = field.start.getparent()
             bm = p.makeelement(WORD('bookmarkStart'))
             bm.set(WORD('id'), bmark), bm.set(WORD('name'), bmark)

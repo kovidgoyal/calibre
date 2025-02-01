@@ -333,7 +333,7 @@ class FeedCollection(list):
         for article, feed in self.duplicates:
             art = copy.deepcopy(article)
             j, i = self.find_article(article)
-            art.url = '../feed_%d/article_%d/index.html'%(j, i)
+            art.url = f'../feed_{j}/article_{i}/index.html'
             temp.append((feed, art))
         for feed, art in temp:
             feed.articles.append(art)

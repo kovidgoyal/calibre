@@ -423,7 +423,7 @@ class IdentifyWorker(Thread):  # {{{
         m1.has_cached_cover_url = True
         m2.has_cached_cover_url = False
         m1.comments  = 'Some comments '*10
-        m1.tags = ['tag%d'%i for i in range(20)]
+        m1.tags = [f'tag{i}' for i in range(20)]
         m1.rating = 4.4
         m1.language = 'en'
         m2.language = 'fr'
@@ -679,7 +679,7 @@ class CoversModel(QAbstractListModel):  # {{{
             self.beginResetModel(), self.endResetModel()
 
     def get_item(self, src, pmap, waiting=False):
-        sz = '%dx%d'%(pmap.width(), pmap.height())
+        sz = f'{pmap.width()}x{pmap.height()}'
         text = (src + '\n' + sz)
         scaled = pmap.scaled(
             int(CoverDelegate.ICON_SIZE[0] * pmap.devicePixelRatio()), int(CoverDelegate.ICON_SIZE[1] * pmap.devicePixelRatio()),

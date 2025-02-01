@@ -992,7 +992,7 @@ class Cache:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
         except:
-            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+            raise NoSuchFormat(f'Record {book_id} has no fmt: {fmt}')
         return self.backend.format_hash(book_id, fmt, name, path)
 
     @api
@@ -1222,7 +1222,7 @@ class Cache:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
         except (KeyError, AttributeError):
-            raise NoSuchFormat('Record %d has no %s file'%(book_id, fmt))
+            raise NoSuchFormat(f'Record {book_id} has no {fmt} file')
 
         return self.backend.copy_format_to(book_id, fmt, name, path, dest,
                                                use_hardlink=use_hardlink, report_file_size=report_file_size)
@@ -2374,7 +2374,7 @@ class Cache:
         removed. '''
         missing = frozenset(val_map) - self._all_book_ids()
         if missing:
-            raise ValueError('add_custom_book_data: no such book_ids: %d'%missing)
+            raise ValueError(f'add_custom_book_data: no such book_ids: {missing}')
         self.backend.add_custom_data(name, val_map, delete_first)
 
     @read_api

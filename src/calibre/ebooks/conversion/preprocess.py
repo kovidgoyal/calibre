@@ -498,7 +498,7 @@ class HTMLPreProcessor:
 
         # search / replace using the sr?_search / sr?_replace options
         for i in range(1, 4):
-            search, replace = 'sr%d_search'%i, 'sr%d_replace'%i
+            search, replace = f'sr{i}_search', f'sr{i}_replace'
             search_pattern = getattr(self.extra_opts, search, '')
             replace_txt = getattr(self.extra_opts, replace, '')
             if search_pattern:
@@ -559,7 +559,7 @@ class HTMLPreProcessor:
                     name, i = None, 0
                     while not name or os.path.exists(os.path.join(odir, name)):
                         i += 1
-                        name = '%04d.html'%i
+                        name = f'{i:04}.html'
                     with open(os.path.join(odir, name), 'wb') as f:
                         f.write(raw.encode('utf-8'))
 

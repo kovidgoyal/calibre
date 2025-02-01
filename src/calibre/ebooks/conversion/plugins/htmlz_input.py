@@ -89,7 +89,7 @@ class HTMLZInput(InputFormatPlugin):
         c = 0
         while os.path.exists(htmlfile):
             c += 1
-            htmlfile = 'index%d.html'%c
+            htmlfile = f'index{c}.html'
         with open(htmlfile, 'wb') as f:
             f.write(html.encode('utf-8'))
         odi = options.debug_pipeline

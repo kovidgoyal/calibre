@@ -93,7 +93,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         'languages'}.union(set(fdata))
     for x, data in iteritems(fdata):
         if data['datatype'] == 'series':
-            FIELDS.add('%d_index'%x)
+            FIELDS.add(f'{x}_index')
     data = []
     for record in self.data:
         if record is None:

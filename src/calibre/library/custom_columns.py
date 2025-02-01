@@ -25,7 +25,7 @@ class CustomColumns:
         'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     def custom_table_names(self, num):
-        return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
+        return f'custom_column_{num}', f'books_custom_column_{num}_link'
 
     @property
     def custom_tables(self):

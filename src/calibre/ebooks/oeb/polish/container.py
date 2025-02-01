@@ -344,7 +344,7 @@ class Container(ContainerBase):  # {{{
         item_id = 'id'
         while item_id in all_ids:
             c += 1
-            item_id = 'id' + '%d'%c
+            item_id = 'id' + f'{c}'
         manifest = self.opf_xpath('//opf:manifest')[0]
         href = self.name_to_href(name, self.opf_name)
         item = manifest.makeelement(OPF('item'),
@@ -369,7 +369,7 @@ class Container(ContainerBase):  # {{{
             base, ext = name.rpartition('.')[::2]
             if c > 1:
                 base = base.rpartition('-')[0]
-            name = '%s-%d.%s' % (base, c, ext)
+            name = f'{base}-{c}.{ext}'
         return name
 
     def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):

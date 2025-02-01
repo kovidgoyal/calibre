@@ -118,7 +118,7 @@ class Server(Thread):
     def launch_worker(self, gui=False, redirect_output=None, job_name=None):
         start = time.monotonic()
         id = next(self.launched_worker_counter)
-        fd, rfile = tempfile.mkstemp(prefix='ipc_result_%d_%d_'%(self.id, id),
+        fd, rfile = tempfile.mkstemp(prefix=f'ipc_result_{self.id}_{id}_',
                 dir=base_dir(), suffix='.pickle')
         os.close(fd)
         if redirect_output is None:

@@ -153,7 +153,7 @@ class HTMLFile:
         return hash(self.path)
 
     def __str__(self):
-        return 'HTMLFile:%d:%s:%r'%(self.level, 'b' if self.is_binary else 'a', self.path)
+        return f"HTMLFile:{self.level}:{'b' if self.is_binary else 'a'}:{self.path!r}"
 
     def __repr__(self):
         return str(self)

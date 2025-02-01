@@ -231,7 +231,7 @@ class MimetypeMismatch(BaseError):
             c = 0
             while container.has_name(new_name):
                 c += 1
-                new_name = self.file_name.rpartition('.')[0] + ('%d.' % c) + self.change_ext_to
+                new_name = self.file_name.rpartition('.')[0] + f'{c}.' + self.change_ext_to
             rename_files(container, {self.file_name:new_name})
             changed = True
         else:

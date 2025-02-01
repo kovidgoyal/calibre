@@ -48,7 +48,7 @@ class Footnotes:
         note = notes.get(fid, None)
         if note is not None and note.type == 'normal':
             self.counter += 1
-            anchor = 'note_%d' % self.counter
+            anchor = f'note_{self.counter}'
             self.notes[anchor] = (str(self.counter), note)
             return anchor, str(self.counter)
         return None, None

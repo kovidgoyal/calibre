@@ -38,7 +38,7 @@ class DIBHeader:
                 'bits_per_pixel')):
                 setattr(self, attr, parts[i])
         else:
-            raise ValueError('Unsupported DIB header type of size: %d'%hsize)
+            raise ValueError(f'Unsupported DIB header type of size: {hsize}')
 
         self.bitmasks_size = 12 if getattr(self, 'compression', 0) == 3 else 0
         self.color_table_size = 0

@@ -112,7 +112,7 @@ def register_text_editor_actions(_reg, palette):
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):
         text = ('&' + name) if name == 'p' else (name[0] + '&' + name[1])
         desc = _('Convert the paragraph to &lt;%s&gt;') % name
-        ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, 'Ctrl+%d' % (i + 1), desc, syntaxes=())
+        ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, f'Ctrl+{i + 1}', desc, syntaxes=())
         ac.setToolTip(desc)
 
     for transform, text in [
@@ -423,7 +423,7 @@ class Editor(QMainWindow):
                     # For some unknown reason this button is occasionally a
                     # QPushButton instead of a QToolButton
                     ch.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-                for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
+                for name in tuple(f'h{d}' for d in range(1, 7)) + ('p',):
                     m.addAction(actions[f'rename-block-tag-{name}'])
 
         for name in tprefs.get('editor_common_toolbar', ()):

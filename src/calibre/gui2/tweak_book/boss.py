@@ -273,7 +273,7 @@ class Boss(QObject):
 
     def mkdtemp(self, prefix=''):
         self.container_count += 1
-        return tempfile.mkdtemp(prefix='%s%05d-' % (prefix, self.container_count), dir=self.tdir)
+        return tempfile.mkdtemp(prefix=f'{prefix}{self.container_count:05}-', dir=self.tdir)
 
     def _check_before_open(self):
         if self.gui.action_save.isEnabled():
@@ -585,7 +585,7 @@ class Boss(QObject):
                 while c.exists(name) or c.manifest_has_name(name) or c.has_name_case_insensitive(name):
                     i += 1
                     name, ext = name.rpartition('.')[0::2]
-                    name = '%s_%d.%s' % (name, i, ext)
+                    name = f'{name}_{i}.{ext}'
                 try:
                     with open(path, 'rb') as f:
                         c.add_file(name, f.read())

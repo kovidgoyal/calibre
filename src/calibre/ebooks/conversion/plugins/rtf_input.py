@@ -141,7 +141,7 @@ class RTFInput(InputFormatPlugin):
             if fmt is None:
                 fmt = 'wmf'
             count += 1
-            name = '%04d.%s' % (count, fmt)
+            name = f'{count:04}.{fmt}'
             with open(name, 'wb') as f:
                 f.write(data)
             imap[count] = name
@@ -243,7 +243,7 @@ class RTFInput(InputFormatPlugin):
             if style not in border_styles:
                 border_styles.append(style)
             idx = border_styles.index(style)
-            cls = 'border_style%d'%idx
+            cls = f'border_style{idx}'
             style_map[cls] = style
             elem.set('class', cls)
         return style_map

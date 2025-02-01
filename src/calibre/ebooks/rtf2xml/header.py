@@ -65,9 +65,9 @@ class Header:
         self.__cb_count = 0
         self.__header_bracket_count = self.__ob_count
         self.__write_obj.write(
-        'mi<mk<header-ind<%04d\n' % self.__header_count)
+        f'mi<mk<header-ind<{self.__header_count:04}\n')
         self.__write_to_head_obj.write(
-        'mi<mk<header-ope<%04d\n' % self.__header_count)
+        f'mi<mk<header-ope<{self.__header_count:04}\n')
         info = line[6:16]
         type = self.__head_dict.get(info)
         if type:

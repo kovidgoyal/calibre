@@ -302,7 +302,7 @@ class KF8Writer:
                         # https://bugs.launchpad.net/bugs/1489495
                         if id_:
                             cid += 1
-                            val = 'c%d' % cid
+                            val = f'c{cid}'
                             self.id_map[(item.href, id_)] = val
                             tag.set('cid', val)
                     else:

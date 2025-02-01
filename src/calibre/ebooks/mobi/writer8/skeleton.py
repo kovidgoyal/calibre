@@ -341,7 +341,7 @@ class Chunker:
         for s in self.skeletons:
             s.start_pos = sp
             sp += len(s)
-        self.skel_table = [Skel(s.file_number, 'SKEL%010d'%s.file_number,
+        self.skel_table = [Skel(s.file_number, f'SKEL{s.file_number:010}',
             len(s.chunks), s.start_pos, len(s.skeleton)) for s in self.skeletons]
 
         Chunk = namedtuple('Chunk',
@@ -426,13 +426,13 @@ class Chunker:
         error = False
         for i, skeleton in enumerate(self.skeletons):
             for j, chunk in enumerate(skeleton.chunks):
-                with open(os.path.join(chunks, 'file-%d-chunk-%d.html'%(i, j)),
+                with open(os.path.join(chunks, f'file-{i}-chunk-{j}.html'),
                         'wb') as f:
                     f.write(chunk.raw)
             oraw, rraw = orig_dumps[i], skeleton.rebuild()
-            with open(os.path.join(orig, '%04d.html'%i), 'wb') as f:
+            with open(os.path.join(orig, f'{i:04}.html'), 'wb') as f:
                 f.write(oraw)
-            with open(os.path.join(rebuilt, '%04d.html'%i), 'wb') as f:
+            with open(os.path.join(rebuilt, f'{i:04}.html'), 'wb') as f:
                 f.write(rraw)
             if oraw != rraw:
                 error = True

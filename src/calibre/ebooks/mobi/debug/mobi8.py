@@ -53,7 +53,7 @@ class FDST:
 class File:
 
     def __init__(self, skel, skeleton, text, first_aid, sections):
-        self.name = 'part%04d'%skel.file_number
+        self.name = f'part{skel.file_number:04}'
         self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
         self.sections = sections
 
@@ -66,7 +66,7 @@ class File:
             with open('skeleton.html', 'wb') as f:
                 f.write(self.skeleton)
             for i, text in enumerate(self.sections):
-                with open('sect-%04d.html'%i, 'wb') as f:
+                with open(f'sect-{i:04}.html', 'wb') as f:
                     f.write(text)
 
 
@@ -101,7 +101,7 @@ class MOBIFile:
         p()
         p('Record headers:')
         for i, r in enumerate(self.mf.records):
-            p('%6d. %s'%(i, r.header))
+            p(f'{i:6}. {r.header}')
 
         p()
         p(str(self.mf.mobi8_header))
@@ -151,7 +151,7 @@ class MOBIFile:
         for i, x in enumerate(boundaries):
             start, end = x
             raw = self.raw_text[start:end]
-            with open(os.path.join(ddir, 'flow%04d.txt'%i), 'wb') as f:
+            with open(os.path.join(ddir, f'flow{i:04}.txt'), 'wb') as f:
                 f.write(raw)
 
     def extract_resources(self, records):
@@ -221,7 +221,7 @@ class MOBIFile:
                 elif sig in known_types:
                     suffix = '-' + sig.decode('ascii')
 
-            self.resource_map.append(('%s/%06d%s.%s'%(prefix, resource_index, suffix, ext),
+            self.resource_map.append((f'{prefix}/{resource_index:06}{suffix}.{ext}',
                 payload))
 
     def read_tbs(self):
@@ -260,9 +260,9 @@ class MOBIFile:
         for i, strands in enumerate(indexing_data):
             rec = self.text_records[i]
             tbs_bytes = rec.trailing_data.get('indexing', b'')
-            desc = ['Record #%d'%i]
+            desc = [f'Record #{i}']
             for s, strand in enumerate(strands):
-                desc.append('Strand %d'%s)
+                desc.append(f'Strand {s}')
                 for entries in itervalues(strand):
                     for e in entries:
                         desc.append(
@@ -284,7 +284,7 @@ class MOBIFile:
                 extra = {bin(k):v for k, v in iteritems(extra)}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
-                desc.append('Sequence #%d: %r %r'%(j, seq[0], seq[1]))
+                desc.append(f'Sequence #{j}: {seq[0]!r} {seq[1]!r}')
             if tbs_bytes:
                 desc.append(f'Remaining bytes: {format_bytes(tbs_bytes)}')
             calculated_sequences = encode_strands_as_sequences(strands,
@@ -294,7 +294,7 @@ class MOBIFile:
             except:
                 calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
-                print('WARNING: TBS mismatch for record %d'%i)
+                print(f'WARNING: TBS mismatch for record {i}')
                 desc.append('WARNING: TBS mismatch!')
                 desc.append(f'Calculated sequences: {calculated_sequences!r}')
             desc.append('')
@@ -321,7 +321,7 @@ def inspect_mobi(mobi_file, ddir):
             fo.write(payload)
 
     for i, container in enumerate(f.containers):
-        with open(os.path.join(ddir, 'container%d.txt' % (i + 1)), 'wb') as cf:
+        with open(os.path.join(ddir, f'container{i + 1}.txt'), 'wb') as cf:
             cf.write(str(container).encode('utf-8'))
 
     if f.fdst:

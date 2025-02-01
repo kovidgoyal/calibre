@@ -808,7 +808,7 @@ def initialize_plugins(perf=False):
     sys.stdout, sys.stderr = ostdout, ostderr
     if perf:
         for x in sorted(times, key=lambda x: times[x]):
-            print('%50s: %.3f'%(x, times[x]))
+            print(f'{x:50}: {times[x]:.3f}')
     _initialized_plugins.sort(key=lambda x: x.priority, reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

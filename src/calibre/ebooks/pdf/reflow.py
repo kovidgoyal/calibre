@@ -226,8 +226,7 @@ class Text(Element):
 
     def coalesce(self, other, page_number, left_margin, right_margin):
         if self.opts.verbose > 2:
-            self.log.debug('Coalescing %r with %r on page %d'%(self.text_as_string,
-                other.text_as_string, page_number))
+            self.log.debug(f'Coalescing {self.text_as_string!r} with {other.text_as_string!r} on page {page_number}')
         # Need to work out how to decide this
         # For elements of the same line, is there a space between?
         has_float = ''
@@ -534,7 +533,7 @@ class Column:
         return self.elements[idx-1]
 
     def dump(self, f, num):
-        f.write('******** Column %d\n\n'%num)
+        f.write(f'******** Column {num}\n\n')
         for elem in self.elements:
             elem.dump(f)
 
@@ -548,7 +547,7 @@ class Box(list):
         ans = [f'<{self.tag}>']
         for elem in self:
             if isinstance(elem, int):
-                ans.append('<a name="page_%d"/>'%elem)
+                ans.append(f'<a name="page_{elem}"/>')
             else:
                 ans.append(elem.to_html()+' ')
         ans.append(f'</{self.tag}>')
@@ -568,7 +567,7 @@ class ImageBox(Box):
             ans.append('<br/>')
             for elem in self:
                 if isinstance(elem, int):
-                    ans.append('<a name="page_%d"/>'%elem)
+                    ans.append(f'<a name="page_{elem}"/>')
                 else:
                     ans.append(elem.to_html()+' ')
         ans.append('</div>')
@@ -759,7 +758,7 @@ class Page:
         self.number = int(page.get('number'))
         self.odd_even = self.number % 2    # Odd = 1
         self.top, self.left, self.width, self.height = map(float, map(page.get, ('top', 'left', 'width', 'height')))
-        self.id = 'page%d'%self.number
+        self.id = f'page{self.number}'
         self.page_break_after = False
 
         self.texts = []
@@ -1210,7 +1209,7 @@ class Page:
             self.regions.append(current_region)
 
         if self.opts.verbose > 2:
-            self.debug_dir = 'page-%d'%self.number
+            self.debug_dir = f'page-{self.number}'
             os.mkdir(self.debug_dir)
             self.dump_regions('pre-coalesce')
 
@@ -1221,7 +1220,7 @@ class Page:
     def dump_regions(self, fname):
         fname = 'regions-'+fname+'.txt'
         with open(os.path.join(self.debug_dir, fname), 'wb') as f:
-            f.write('Page #%d\n\n'%self.number)
+            f.write(f'Page #{self.number}\n\n')
             for region in self.regions:
                 region.dump(f)
 
@@ -1369,7 +1368,7 @@ class Page:
                     ans[-1] += ' style="text-align:center"'
                 if self.id_used == 0:
                     self.id_used = 1
-                    ans[-1] += ' id="page_%d"'%self.number
+                    ans[-1] += f' id="page_{self.number}"'
                 ans[-1] += '>'
                 ans[-1] += self.imgs[iind].to_html()
                 ans[-1] += '</p>'
@@ -1382,7 +1381,7 @@ class Page:
             #   and  text.tag[0] == 'h'
             if self.id_used == 0:
                 self.id_used = 1
-                ans[-1] += ' id="page_%d"'%self.number
+                ans[-1] += f' id="page_{self.number}"'
             if text.align == 'C':
                 ans[-1] += ' style="text-align:center"'
             elif text.align == 'R':
@@ -1414,7 +1413,7 @@ class Page:
                 ans[-1] += ' style="text-align:center"'
             if self.id_used == 0:
                 self.id_used = 1
-                ans[-1] += ' id="page_%d"'%self.number
+                ans[-1] += f' id="page_{self.number}"'
             ans[-1] += '>'
             ans[-1] += self.imgs[iind].to_html()
             ans[-1] += '</p>'

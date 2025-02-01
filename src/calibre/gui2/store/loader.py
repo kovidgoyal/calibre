@@ -200,4 +200,4 @@ if __name__ == '__main__':
         print(name)
         print(code.encode('utf-8'))
         print('\n', '_'*80, '\n', sep='')
-    print('Time to download all %d plugins: %.2f seconds'%(count, time.time() - st))
+    print(f'Time to download all {count} plugins: {time.time() - st:.2f} seconds')

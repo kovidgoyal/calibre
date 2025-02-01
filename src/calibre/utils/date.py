@@ -294,22 +294,22 @@ def fd_format_hour(dt, ampm, hr):
     if ampm:
         h = h%12
     if l == 1:
-        return '%d'%h
-    return '%02d'%h
+        return f'{h}'
+    return f'{h:02}'
 
 
 def fd_format_minute(dt, ampm, min):
     l = len(min)
     if l == 1:
-        return '%d'%dt.minute
-    return '%02d'%dt.minute
+        return f'{dt.minute}'
+    return f'{dt.minute:02}'
 
 
 def fd_format_second(dt, ampm, sec):
     l = len(sec)
     if l == 1:
-        return '%d'%dt.second
-    return '%02d'%dt.second
+        return f'{dt.second}'
+    return f'{dt.second:02}'
 
 
 def fd_format_ampm(dt, ampm, ap):
@@ -322,25 +322,25 @@ def fd_format_ampm(dt, ampm, ap):
 def fd_format_day(dt, ampm, dy):
     l = len(dy)
     if l == 1:
-        return '%d'%dt.day
+        return f'{dt.day}'
     if l == 2:
-        return '%02d'%dt.day
+        return f'{dt.day:02}'
     return lcdata['abday' if l == 3 else 'day'][(dt.weekday() + 1) % 7]
 
 
 def fd_format_month(dt, ampm, mo):
     l = len(mo)
     if l == 1:
-        return '%d'%dt.month
+        return f'{dt.month}'
     if l == 2:
-        return '%02d'%dt.month
+        return f'{dt.month:02}'
     return lcdata['abmon' if l == 3 else 'mon'][dt.month - 1]
 
 
 def fd_format_year(dt, ampm, yr):
     if len(yr) == 2:
-        return '%02d'%(dt.year % 100)
-    return '%04d'%dt.year
+        return f'{dt.year % 100:02}'
+    return f'{dt.year:04}'
 
 
 fd_function_index = {

@@ -245,7 +245,7 @@ class CatalogBuilder:
             index = book['series_index']
             integer = int(index)
             fraction = index - integer
-            series_index = '%04d%s' % (integer, str(f'{fraction:0.4f}').lstrip('0'))
+            series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
             key = '{} ~{} {}'.format(self._kf_author_to_author_sort(book['author']),
                                     self.generate_sort_title(book['series']),
                                     series_index)
@@ -271,7 +271,7 @@ class CatalogBuilder:
             index = book['series_index']
             integer = int(index)
             fraction = index - integer
-            series_index = '%04d%s' % (integer, str(f'{fraction:0.4f}').lstrip('0'))
+            series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
             fs = '{:<%d}~{!s}{!s}' % longest_author_sort
             key = fs.format(capitalize(book['author_sort']),
                             self.generate_sort_title(book['series']),
@@ -282,7 +282,7 @@ class CatalogBuilder:
         index = book['series_index']
         integer = int(index)
         fraction = index - integer
-        series_index = '%04d%s' % (integer, str(f'{fraction:0.4f}').lstrip('0'))
+        series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
         key = '{} {}'.format(self.generate_sort_title(book['series']),
                          series_index)
         return key
@@ -382,8 +382,7 @@ class CatalogBuilder:
                 break
         if self.opts.verbose:
             self.opts.log(' Thumbnails:')
-            self.opts.log('  DPI = %d; thumbnail dimensions: %d x %d' %
-                            (x.dpi, self.thumb_width, self.thumb_height))
+            self.opts.log(f'  DPI = {x.dpi}; thumbnail dimensions: {self.thumb_width} x {self.thumb_height}')
 
     def compute_total_steps(self):
         ''' Calculate number of build steps to generate catalog.
@@ -1843,9 +1842,9 @@ class CatalogBuilder:
         for i, date in enumerate(self.DATE_RANGE):
             date_range_limit = self.DATE_RANGE[i]
             if i:
-                date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
+                date_range = f'{self.DATE_RANGE[i - 1]} to {self.DATE_RANGE[i]} days ago'
             else:
-                date_range = 'Last %d days' % (self.DATE_RANGE[i])
+                date_range = f'Last {self.DATE_RANGE[i]} days'
 
             for book in self.books_by_date_range:
                 book_time = book['timestamp']
@@ -2830,9 +2829,7 @@ class CatalogBuilder:
         self.update_progress_full_step(_('Descriptions HTML'))
 
         for title_num, title in enumerate(self.books_by_title):
-            self.update_progress_micro_step('%s %d of %d' %
-                                            (_('Description HTML'),
-                                            title_num, len(self.books_by_title)),
+            self.update_progress_micro_step(f"{_('Description HTML')} {title_num} of {len(self.books_by_title)}",
                                             float(title_num * 100 / len(self.books_by_title)) / 100)
 
             # Generate the header from user-customizable template
@@ -3378,9 +3375,9 @@ class CatalogBuilder:
         today_time = datetime.datetime(today.year, today.month, today.day)
         for i, date in enumerate(self.DATE_RANGE):
             if i:
-                date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
+                date_range = f'{self.DATE_RANGE[i - 1]} to {self.DATE_RANGE[i]} days ago'
             else:
-                date_range = 'Last %d days' % (self.DATE_RANGE[i])
+                date_range = f'Last {self.DATE_RANGE[i]} days'
             date_range_limit = self.DATE_RANGE[i]
             for book in self.books_by_date_range:
                 book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
@@ -3400,8 +3397,8 @@ class CatalogBuilder:
             sec_text = books_by_date_range[1]
             content_src = '{}#bda_{}'.format(HTML_file,
                 books_by_date_range[1].replace(' ', ''))
-            navStr = '%d titles' % books_by_date_range[2] if books_by_date_range[2] > 1 else \
-                        '%d title' % books_by_date_range[2]
+            navStr = f'{books_by_date_range[2]} titles' if books_by_date_range[2] > 1 else \
+                        f'{books_by_date_range[2]} title'
             cm_tags = {'description': books_by_date_range[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
@@ -3435,8 +3432,8 @@ class CatalogBuilder:
             sec_id = f'bda_{books_by_month[1].year}-{books_by_month[1].month}-ID'
             sec_text = datestr
             content_src = f'{HTML_file}#bda_{books_by_month[1].year}-{books_by_month[1].month}'
-            navStr = '%d titles' % books_by_month[2] if books_by_month[2] > 1 else \
-                        '%d title' % books_by_month[2]
+            navStr = f'{books_by_month[2]} titles' if books_by_month[2] > 1 else \
+                        f'{books_by_month[2]} title'
             cm_tags = {'description': books_by_month[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
@@ -3486,9 +3483,9 @@ class CatalogBuilder:
         today_time = datetime.datetime(today.year, today.month, today.day)
         for i, date in enumerate(self.DATE_RANGE):
             if i:
-                date_range = '%d to %d days ago' % (self.DATE_RANGE[i - 1], self.DATE_RANGE[i])
+                date_range = f'{self.DATE_RANGE[i - 1]} to {self.DATE_RANGE[i]} days ago'
             else:
-                date_range = 'Last %d days' % (self.DATE_RANGE[i])
+                date_range = f'Last {self.DATE_RANGE[i]} days'
             date_range_limit = self.DATE_RANGE[i]
             for book in self.bookmarked_books_by_date_read:
                 bookmark_time = utcfromtimestamp(book['bookmark_timestamp'])
@@ -3533,8 +3530,8 @@ class CatalogBuilder:
             sec_id = f'bdr_{books_by_day[1].year}-{books_by_day[1].month}-{books_by_day[1].day}ID'
             sec_text = datestr
             content_src = f'{HTML_file}#bdr_{books_by_day[1].year}-{books_by_day[1].month}-{books_by_day[1].day}'
-            navStr = '%d titles' % books_by_day[2] if books_by_day[2] > 1 else \
-                        '%d title' % books_by_day[2]
+            navStr = f'{books_by_day[2]} titles' if books_by_day[2] > 1 else \
+                        f'{books_by_day[2]} title'
             cm_tags = {'description': books_by_day[0], 'author': navStr}
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
@@ -3919,8 +3916,7 @@ class CatalogBuilder:
         image_dir = f'{self.catalog_path}/images'
         for i, title in enumerate(self.books_by_title):
             # Update status
-            self.update_progress_micro_step('%s %d of %d' %
-                (_('Thumbnail'), i, len(self.books_by_title)),
+            self.update_progress_micro_step(f"{_('Thumbnail')} {i} of {len(self.books_by_title)}",
                  i / float(len(self.books_by_title)))
 
             thumb_file = 'thumbnail_{}.jpg'.format(int(title['id']))
@@ -3940,7 +3936,7 @@ class CatalogBuilder:
                 thumb_generated = False
 
             if not thumb_generated:
-                self.opts.log.warn("     using default cover for '%s' (%d)" % (title['title'], title['id']))
+                self.opts.log.warn(f"     using default cover for '{title['title']}' ({title['id']})")
                 # Confirm thumb exists, default is current
                 default_thumb_fp = os.path.join(image_dir, 'thumbnail_default.jpg')
                 cover = os.path.join(self.catalog_path, 'DefaultCover.png')

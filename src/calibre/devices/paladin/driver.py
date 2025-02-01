@@ -122,7 +122,7 @@ class PALADIN(USBMS):
 
                 try:
                     device_offset = max(time_offsets, key=lambda a: time_offsets.get(a))
-                    debug_print('Device Offset: %d ms'%device_offset)
+                    debug_print(f'Device Offset: {device_offset} ms')
                     self.device_offset = device_offset
                 except ValueError:
                     debug_print('No Books To Detect Device Offset.')
@@ -249,7 +249,7 @@ class PALADIN(USBMS):
         sequence_max = sequence_min
         sequence_dirty = 0
 
-        debug_print('Book Sequence Min: %d, Source Id: %d'%(sequence_min,source_id))
+        debug_print(f'Book Sequence Min: {sequence_min}, Source Id: {source_id}')
 
         try:
             cursor = connection.cursor()
@@ -283,7 +283,7 @@ class PALADIN(USBMS):
 
         # If the database is 'dirty', then we should fix up the Ids and the sequence number
         if sequence_dirty == 1:
-            debug_print('Book Sequence Dirty for Source Id: %d'%source_id)
+            debug_print(f'Book Sequence Dirty for Source Id: {source_id}')
             sequence_max = sequence_max + 1
             for book, bookId in db_books.items():
                 if bookId < sequence_min:
@@ -302,7 +302,7 @@ class PALADIN(USBMS):
                     cursor.execute(query, t)
 
             self.set_database_sequence_id(connection, 'books', sequence_max)
-            debug_print('Book Sequence Max: %d, Source Id: %d'%(sequence_max,source_id))
+            debug_print(f'Book Sequence Max: {sequence_max}, Source Id: {source_id}')
 
         cursor.close()
         return db_books
@@ -355,7 +355,7 @@ class PALADIN(USBMS):
                         book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
                 book.bookId = connection.last_insert_rowid()
-                debug_print('Inserted New Book: (%u) '%book.bookId + book.title)
+                debug_print(f'Inserted New Book: ({book.bookId}) ' + book.title)
             else:
                 query = '''
                 UPDATE books
@@ -386,7 +386,7 @@ class PALADIN(USBMS):
         sequence_max = sequence_min
         sequence_dirty = 0
 
-        debug_print('Collection Sequence Min: %d, Source Id: %d'%(sequence_min,source_id))
+        debug_print(f'Collection Sequence Min: {sequence_min}, Source Id: {source_id}')
 
         try:
             cursor = connection.cursor()
@@ -415,7 +415,7 @@ class PALADIN(USBMS):
 
         # If the database is 'dirty', then we should fix up the Ids and the sequence number
         if sequence_dirty == 1:
-            debug_print('Collection Sequence Dirty for Source Id: %d'%source_id)
+            debug_print(f'Collection Sequence Dirty for Source Id: {source_id}')
             sequence_max = sequence_max + 1
             for collection, collectionId in db_collections.items():
                 if collectionId < sequence_min:
@@ -434,13 +434,13 @@ class PALADIN(USBMS):
                     cursor.execute(query, t)
 
             self.set_database_sequence_id(connection, 'tags', sequence_max)
-            debug_print('Collection Sequence Max: %d, Source Id: %d'%(sequence_max,source_id))
+            debug_print(f'Collection Sequence Max: {sequence_max}, Source Id: {source_id}')
 
         # Fix up the collections table now...
         sequence_dirty = 0
         sequence_max = sequence_min
 
-        debug_print('Collections Sequence Min: %d, Source Id: %d'%(sequence_min,source_id))
+        debug_print(f'Collections Sequence Min: {sequence_min}, Source Id: {source_id}')
 
         query = 'SELECT _id FROM booktags'
         cursor.execute(query)
@@ -454,7 +454,7 @@ class PALADIN(USBMS):
                 sequence_max = max(sequence_max, row[0])
 
         if sequence_dirty == 1:
-            debug_print('Collections Sequence Dirty for Source Id: %d'%source_id)
+            debug_print(f'Collections Sequence Dirty for Source Id: {source_id}')
             sequence_max = sequence_max + 1
             for pairId in db_collection_pairs:
                 if pairId < sequence_min:
@@ -465,7 +465,7 @@ class PALADIN(USBMS):
                     sequence_max = sequence_max + 1
 
             self.set_database_sequence_id(connection, 'booktags', sequence_max)
-            debug_print('Collections Sequence Max: %d, Source Id: %d'%(sequence_max,source_id))
+            debug_print(f'Collections Sequence Max: {sequence_max}, Source Id: {source_id}')
 
         cursor.close()
         return db_collections
@@ -483,7 +483,7 @@ class PALADIN(USBMS):
                     t = (collection,)
                     cursor.execute(query, t)
                     db_collections[collection] = connection.last_insert_rowid()
-                    debug_print('Inserted New Collection: (%u) '%db_collections[collection] + collection)
+                    debug_print(f'Inserted New Collection: ({db_collections[collection]}) ' + collection)
 
                 # Get existing books in collection
                 query = '''

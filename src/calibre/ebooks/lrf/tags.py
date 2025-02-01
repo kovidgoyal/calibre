@@ -188,7 +188,7 @@ class Tag:
         self.offset = stream.tell()
         tag_id = struct.unpack('<BB', stream.read(2))
         if tag_id[1] != 0xF5:
-            raise LRFParseError('Bad tag ID %02X at %d'%(tag_id[1], self.offset))
+            raise LRFParseError(f'Bad tag ID {tag_id[1]:02X} at {self.offset}')
         if tag_id[0] not in self.__class__.tags:
             raise LRFParseError(f'Unknown tag ID: F5{tag_id[0]:02X}')
 

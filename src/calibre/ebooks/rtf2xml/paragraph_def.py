@@ -620,7 +620,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__style_num_strings.append(my_string)
             num = len(self.__style_num_strings)
             new_style = 1
-        num = '%04d' % num
+        num = f'{num:04}'
         self.__att_val_dict['style-num'] = 's' + str(num)
         if new_style:
             self.__write_body_styles()

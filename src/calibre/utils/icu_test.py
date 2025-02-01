@@ -245,7 +245,7 @@ class TestICU(unittest.TestCase):
                 ('a-b-c-', 'a-b-c-d a-b-c- d', 8),
         ):
             fpos = index_of(needle, haystack)
-            self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
+            self.ae(pos, fpos, f'Failed to find index of {needle!r} in {haystack!r} ({pos} != {fpos})')
 
     def test_remove_accents(self):
         for func in (icu.remove_accents_icu, icu.remove_accents_regex):

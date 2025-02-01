@@ -614,11 +614,11 @@ class DB:
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
             for i in range(1, 6):
-                col = self.prefs.get('column_color_name_%d' % i, None)
-                templ = self.prefs.get('column_color_template_%d' % i, None)
+                col = self.prefs.get(f'column_color_name_{i}', None)
+                templ = self.prefs.get(f'column_color_template_{i}', None)
                 if col and templ:
                     try:
-                        del self.prefs['column_color_name_%d' % i]
+                        del self.prefs[f'column_color_name_{i}']
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
@@ -1410,7 +1410,7 @@ class DB:
                 with closing(Connection(tmpdb)) as conn:
                     shell = Shell(db=conn, encoding='utf-8')
                     shell.process_command('.read ' + fname.replace(os.sep, '/'))
-                    conn.execute('PRAGMA user_version=%d;'%uv)
+                    conn.execute(f'PRAGMA user_version={uv};')
 
                 self.close(unload_formatter_functions=False)
                 try:
@@ -1495,7 +1495,7 @@ class DB:
         # windows).
         l = (self.PATH_LIMIT - (extlen // 2) - 2) if iswindows else ((self.PATH_LIMIT - extlen - 2) // 2)
         if l < 5:
-            raise ValueError('Extension length too long: %d' % extlen)
+            raise ValueError(f'Extension length too long: {extlen}')
         author = ascii_filename(author)[:l]
         title  = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
@@ -1510,7 +1510,7 @@ class DB:
     # Database layer API {{{
 
     def custom_table_names(self, num):
-        return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
+        return f'custom_column_{num}', f'books_custom_column_{num}_link'
 
     @property
     def custom_tables(self):
@@ -1628,7 +1628,7 @@ class DB:
     def format_hash(self, book_id, fmt, fname, path):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
-            raise NoSuchFormat('Record %d has no fmt: %s'%(book_id, fmt))
+            raise NoSuchFormat(f'Record {book_id} has no fmt: {fmt}')
         sha = hashlib.sha256()
         with open(path, 'rb') as f:
             while True:

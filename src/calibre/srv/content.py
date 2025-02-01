@@ -283,7 +283,7 @@ def icon(ctx, rd, which):
         except OSError:
             raise HTTPNotFound()
     with lock:
-        cached = os.path.join(rd.tdir, 'icons', '%d-%s.png' % (sz, which))
+        cached = os.path.join(rd.tdir, 'icons', f'{sz}-{which}.png')
         try:
             return share_open(cached, 'rb')
         except OSError:

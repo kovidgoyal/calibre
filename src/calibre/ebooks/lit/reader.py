@@ -242,7 +242,7 @@ class UnBinary:
                     if flags & FLAG_ATOM:
                         if not self.tag_atoms or tag not in self.tag_atoms:
                             raise LitError(
-                                'atom tag %d not in atom tag list' % tag)
+                                f'atom tag {tag} not in atom tag list')
                         tag_name = self.tag_atoms[tag]
                         current_map = self.attr_atoms
                     elif tag < len(self.tag_map):
@@ -257,8 +257,7 @@ class UnBinary:
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
-                        raise LitError('Extra closing tag %s at %d'%(tag_name,
-                            self.cpos))
+                        raise LitError(f'Extra closing tag {tag_name} at {self.cpos}')
                     break
 
             elif state == 'get attr':
@@ -290,7 +289,7 @@ class UnBinary:
                         attr = self.attr_map[oc]
                     if not attr or not isinstance(attr, string_or_bytes):
                         raise LitError(
-                            'Unknown attribute %d in tag %s' % (oc, tag_name))
+                            f'Unknown attribute {oc} in tag {tag_name}')
                     if attr.startswith('%'):
                         in_censorship = True
                         state = 'get value length'
@@ -315,7 +314,7 @@ class UnBinary:
                 if oc == 0xffff:
                     continue
                 if count < 0 or count > (len(bin) - self.cpos):
-                    raise LitError('Invalid character count %d' % count)
+                    raise LitError(f'Invalid character count {count}')
 
             elif state == 'get value':
                 if count == 0xfffe:
@@ -342,7 +341,7 @@ class UnBinary:
             elif state == 'get custom length':
                 count = oc - 1
                 if count <= 0 or count > len(bin)-self.cpos:
-                    raise LitError('Invalid character count %d' % count)
+                    raise LitError(f'Invalid character count {count}')
                 dynamic_tag += 1
                 state = 'get custom'
                 tag_name = ''
@@ -357,7 +356,7 @@ class UnBinary:
             elif state == 'get attr length':
                 count = oc - 1
                 if count <= 0 or count > (len(bin) - self.cpos):
-                    raise LitError('Invalid character count %d' % count)
+                    raise LitError(f'Invalid character count {count}')
                 buf.write(b' ')
                 state = 'get custom attr'
 
@@ -371,7 +370,7 @@ class UnBinary:
             elif state == 'get href length':
                 count = oc - 1
                 if count <= 0 or count > (len(bin) - self.cpos):
-                    raise LitError('Invalid character count %d' % count)
+                    raise LitError(f'Invalid character count {count}')
                 href = ''
                 state = 'get href'
 
@@ -397,8 +396,7 @@ class DirectoryEntry:
         self.size = size
 
     def __repr__(self):
-        return 'DirectoryEntry(name=%s, section=%d, offset=%d, size=%d)' \
-            % (repr(self.name), self.section, self.offset, self.size)
+        return f'DirectoryEntry(name={repr(self.name)}, section={self.section}, offset={self.offset}, size={self.size})'
 
     def __str__(self):
         return repr(self)
@@ -429,9 +427,7 @@ class ManifestItem:
         return self.internal == other
 
     def __repr__(self):
-        return (
-            'ManifestItem(internal=%r, path=%r, mime_type=%r, offset=%d, root=%r, state=%r)'
-            ) % (self.internal, self.path, self.mime_type, self.offset, self.root, self.state)
+        return f"ManifestItem(internal={self.internal!r}, path={self.path!r}, mime_type={self.mime_type!r}, offset={self.offset}, root={self.root!r}, state={self.state!r})"
 
 
 def preserve(function):
@@ -462,7 +458,7 @@ class LitFile:
         if self.magic != b'ITOLITLS':
             raise LitError('Not a valid LIT file')
         if self.version != 1:
-            raise LitError('Unknown LIT version %d' % (self.version,))
+            raise LitError(f'Unknown LIT version {self.version}')
         self.read_secondary_header()
         self.read_header_pieces()
         self.read_section_names()
@@ -553,7 +549,7 @@ class LitFile:
             if blocktype == b'CAOL':
                 if blockver != 2:
                     raise LitError(
-                        'Unknown CAOL block format %d' % blockver)
+                        f'Unknown CAOL block format {blockver}')
                 self.creator_id     = u32(byts[offset+12:])
                 self.entry_chunklen = u32(byts[offset+20:])
                 self.count_chunklen = u32(byts[offset+24:])
@@ -563,7 +559,7 @@ class LitFile:
             elif blocktype == b'ITSF':
                 if blockver != 4:
                     raise LitError(
-                        'Unknown ITSF block format %d' % blockver)
+                        f'Unknown ITSF block format {blockver}')
                 if u32(byts[offset+4+16:]):
                     raise LitError('This file has a 64bit content offset')
                 self.content_offset = u32(byts[offset+16:])

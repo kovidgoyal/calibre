@@ -442,16 +442,16 @@ class Editor(QFrame):  # {{{
             la = QLabel(text)
             la.setStyleSheet('QLabel { margin-left: 1.5em }')
             l.addWidget(la, off+which, 0, 1, 3)
-            setattr(self, 'label%d'%which, la)
+            setattr(self, f'label{which}', la)
             button = QPushButton(_('None'), self)
             button.setObjectName(_('None'))
             button.clicked.connect(partial(self.capture_clicked, which=which))
             button.installEventFilter(self)
-            setattr(self, 'button%d'%which, button)
+            setattr(self, f'button{which}', button)
             clear = QToolButton(self)
             clear.setIcon(QIcon.ic('clear_left.png'))
             clear.clicked.connect(partial(self.clear_clicked, which=which))
-            setattr(self, 'clear%d'%which, clear)
+            setattr(self, f'clear{which}', clear)
             l.addWidget(button, off+which, 1, 1, 1)
             l.addWidget(clear, off+which, 2, 1, 1)
             la.setBuddy(button)
@@ -488,7 +488,7 @@ class Editor(QFrame):  # {{{
         else:
             self.use_custom.setChecked(True)
             for key, which in zip(self.current_keys, [1,2]):
-                button = getattr(self, 'button%d'%which)
+                button = getattr(self, f'button{which}')
                 ns = key.toString(QKeySequence.SequenceFormat.NativeText)
                 button.setText(ns.replace('&', '&&'))
                 button.setObjectName(ns)
@@ -500,13 +500,13 @@ class Editor(QFrame):  # {{{
 
     def capture_clicked(self, which=1):
         self.capture = which
-        button = getattr(self, 'button%d'%which)
+        button = getattr(self, f'button{which}')
         button.setText(_('Press a key...'))
         button.setFocus(Qt.FocusReason.OtherFocusReason)
         button.setStyleSheet('QPushButton { font-weight: bold}')
 
     def clear_clicked(self, which=0):
-        button = getattr(self, 'button%d'%which)
+        button = getattr(self, f'button{which}')
         button.setText(_('None'))
         button.setObjectName(_('None'))
 
@@ -529,7 +529,7 @@ class Editor(QFrame):  # {{{
             return QWidget.keyPressEvent(self, ev)
         ev.accept()
 
-        button = getattr(self, 'button%d'%which)
+        button = getattr(self, f'button{which}')
         button.setStyleSheet('QPushButton { font-weight: normal}')
         ns = sequence.toString(QKeySequence.SequenceFormat.NativeText)
         button.setText(ns.replace('&', '&&'))
@@ -556,7 +556,7 @@ class Editor(QFrame):  # {{{
             return None
         ans = []
         for which in (1, 2):
-            button = getattr(self, 'button%d'%which)
+            button = getattr(self, f'button{which}')
             t = button.objectName()
             if not t or t == _('None'):
                 continue

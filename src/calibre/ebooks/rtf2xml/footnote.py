@@ -83,9 +83,9 @@ class Footnote:
         self.__cb_count = 0
         self.__footnote_bracket_count = self.__ob_count
         self.__write_obj.write(
-        'mi<mk<footnt-ind<%04d\n' % self.__footnote_count)
+        f'mi<mk<footnt-ind<{self.__footnote_count:04}\n')
         self.__write_to_foot_obj.write(
-        'mi<mk<footnt-ope<%04d\n' % self.__footnote_count)
+        f'mi<mk<footnt-ope<{self.__footnote_count:04}\n')
 
     def __default_sep(self, line):
         '''Handle all tokens that are not footnote tokens'''

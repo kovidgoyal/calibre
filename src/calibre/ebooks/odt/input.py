@@ -200,7 +200,7 @@ class Extract(ODF2XHTML):
                 # Replace all the class selectors with a single class selector
                 # This will be added to the class attribute of all elements
                 # that have one of these selectors.
-                replace_name = 'c_odt%d'%count
+                replace_name = f'c_odt{count}'
                 count += 1
                 for sel in r.selectorList:
                     s = sel.selectorText[1:]

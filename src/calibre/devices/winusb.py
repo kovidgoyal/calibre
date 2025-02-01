@@ -179,10 +179,7 @@ class USB_DEVICE_DESCRIPTOR(Structure):
     )
 
     def __repr__(self):
-        return 'USBDevice(class=0x%x sub_class=0x%x protocol=0x%x vendor_id=0x%x product_id=0x%x bcd=0x%x manufacturer=%d product=%d serial_number=%d)' % (
-            self.bDeviceClass, self.bDeviceSubClass, self.bDeviceProtocol,
-            self.idVendor, self.idProduct, self.bcdDevice, self.iManufacturer,
-            self.iProduct, self.iSerialNumber)
+        return f'USBDevice(class=0x{self.bDeviceClass:x} sub_class=0x{self.bDeviceSubClass:x} protocol=0x{self.bDeviceProtocol:x} vendor_id=0x{self.idVendor:x} product_id=0x{self.idProduct:x} bcd=0x{self.bcdDevice:x} manufacturer={self.iManufacturer} product={self.iProduct} serial_number={self.iSerialNumber})'
 
 
 class USB_ENDPOINT_DESCRIPTOR(Structure):
@@ -935,7 +932,7 @@ def get_usb_info(usbdev, debug=False):  # {{{
                             # randomly after some time of my Kindle being
                             # connected. Disconnecting and reconnecting causes
                             # it to start working again.
-                            prints('Failed to read %s from device, with error: [%d] %s' % (name, err.winerror, as_unicode(err)))
+                            prints(f'Failed to read {name} from device, with error: [{err.winerror}] {as_unicode(err)}')
     finally:
         CloseHandle(handle)
     return ans

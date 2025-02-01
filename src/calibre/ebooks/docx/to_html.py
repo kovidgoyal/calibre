@@ -518,7 +518,7 @@ class Convert:
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:
             n = min(6, max(1, int(m.group(1))))
-            dest.tag = 'h%d' % n
+            dest.tag = f'h{n}'
             dest.set('data-heading-level', str(n))
 
         if style.bidi is True:

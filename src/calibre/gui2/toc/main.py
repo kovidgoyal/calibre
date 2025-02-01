@@ -74,7 +74,7 @@ class XPathDialog(QDialog):  # {{{
         l.addWidget(la)
         self.widgets = []
         for i in range(5):
-            la = _('Level %s ToC:')%('&%d'%(i+1))
+            la = _('Level %s ToC:')%(f'&{i + 1}')
             xp = XPathEdit(self)
             xp.set_msg(la)
             self.widgets.append(xp)
@@ -363,10 +363,10 @@ class ItemView(QStackedWidget):  # {{{
         self.prefs.set('toc_from_headings_prefer_title', d.prefer_title_cb.isChecked())
 
     def create_from_major_headings(self):
-        self.headings_question(['//h:h%d'%i for i in range(1, 4)])
+        self.headings_question([f'//h:h{i}' for i in range(1, 4)])
 
     def create_from_all_headings(self):
-        self.headings_question(['//h:h%d'%i for i in range(1, 7)])
+        self.headings_question([f'//h:h{i}' for i in range(1, 7)])
 
     def create_from_user_xpath(self):
         d = XPathDialog(self, self.prefs)

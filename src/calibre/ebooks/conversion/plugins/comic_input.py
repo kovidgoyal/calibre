@@ -175,7 +175,7 @@ class ComicInput(InputFormatPlugin):
         num_pages_per_comic = []
         for i, x in enumerate(comics_):
             title, fname = x
-            cdir = 'comic_%d'%(i+1) if len(comics_) > 1 else '.'
+            cdir = f'comic_{i + 1}' if len(comics_) > 1 else '.'
             cdir = os.path.abspath(cdir)
             if not os.path.exists(cdir):
                 os.makedirs(cdir)
@@ -228,11 +228,11 @@ class ComicInput(InputFormatPlugin):
                 wrapper_page_href = href(wrappers[0])
                 for i in range(num_pages_per_comic[0]):
                     toc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
-                        _('Page')+' %d'%(i+1), play_order=i)
+                        _('Page')+f' {i + 1}', play_order=i)
 
             else:
                 for i, x in enumerate(wrappers):
-                    toc.add_item(href(x), None, _('Page')+' %d'%(i+1),
+                    toc.add_item(href(x), None, _('Page')+f' {i + 1}',
                             play_order=i)
         else:
             po = 0
@@ -246,12 +246,12 @@ class ComicInput(InputFormatPlugin):
                         wrapper_page_href = href(wrappers[0])
                         for i in range(num_pages):
                             stoc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
-                                    _('Page')+' %d'%(i+1), play_order=po)
+                                    _('Page')+f' {i + 1}', play_order=po)
                             po += 1
                     else:
                         for i, x in enumerate(wrappers):
                             stoc.add_item(href(x), None,
-                                    _('Page')+' %d'%(i+1), play_order=po)
+                                    _('Page')+f' {i + 1}', play_order=po)
                             po += 1
         opf.set_toc(toc)
         with open('metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
@@ -282,7 +282,7 @@ class ComicInput(InputFormatPlugin):
         dir = os.path.dirname(pages[0])
         for i, page in enumerate(pages):
             wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
-            page = os.path.join(dir, 'page_%d.xhtml'%(i+1))
+            page = os.path.join(dir, f'page_{i + 1}.xhtml')
             with open(page, 'wb') as f:
                 f.write(wrapper.encode('utf-8'))
             wrappers.append(page)

@@ -156,8 +156,7 @@ def test_decint(num):
         raw = encint(num, forward=d)
         sz = len(raw)
         if (num, sz) != decint(raw, forward=d):
-            raise ValueError('Failed for num %d, forward=%r: %r != %r' % (
-                num, d, (num, sz), decint(raw, forward=d)))
+            raise ValueError(f'Failed for num {num}, forward={d!r}: {num, sz!r} != {decint(raw, forward=d)!r}')
 
 
 def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):

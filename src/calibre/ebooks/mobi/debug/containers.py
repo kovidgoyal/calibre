@@ -46,19 +46,19 @@ class ContainerHeader:
     def __str__(self):
         ans = [('*'*10) + ' Container Header ' + ('*'*10)]
         a = ans.append
-        a('Record size: %d' % self.record_size)
-        a('Type: %d' % self.type)
-        a('Total number of records in this container: %d' % self.count)
+        a(f'Record size: {self.record_size}')
+        a(f'Type: {self.type}')
+        a(f'Total number of records in this container: {self.count}')
         a(f'Encoding: {self.encoding}')
         a(f'Unknowns1: {self.unknowns1}')
-        a('Num of resource records: %d' % self.num_of_resource_records)
-        a('Num of non-dummy resource records: %d' % self.num_of_non_dummy_resource_records)
-        a('Offset to href record: %d' % self.offset_to_href_record)
+        a(f'Num of resource records: {self.num_of_resource_records}')
+        a(f'Num of non-dummy resource records: {self.num_of_non_dummy_resource_records}')
+        a(f'Offset to href record: {self.offset_to_href_record}')
         a(f'Unknowns2: {self.unknowns2}')
-        a('Header length: %d' % self.header_length)
+        a(f'Header length: {self.header_length}')
         a(f'Title Length: {self.title_length}')
         a(f'hrefs: {self.hrefs}')
-        a('Null bytes after EXTH: %d' % self.null_bytes_after_exth)
+        a(f'Null bytes after EXTH: {self.null_bytes_after_exth}')
         if len(self.bytes_after_exth) != self.null_bytes_after_exth:
             a('Non-null bytes present after EXTH header!!!!')
         return '\n'.join(ans) + '\n\n' + str(self.exth) + '\n\n' + (f'Title: {self.title}')

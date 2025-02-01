@@ -42,7 +42,7 @@ def ensure_unique_components(data):  # {{{
     for book_ids in itervalues(cmap):
         if len(book_ids) > 1:
             for i, book_id in enumerate(sorted(book_ids)[1:]):
-                suffix = ' (%d)' % (i + 1)
+                suffix = f' ({i + 1})'
                 components = bid_map[book_id]
                 components[-1] = components[-1] + suffix
 # }}}
@@ -124,7 +124,7 @@ class Saver(QObject):
             try:
                 ans = BookId(self.db.field_for('title', book_id), self.db.field_for('authors', book_id))
             except Exception:
-                ans = BookId((_('Unknown') + ' (%d)' % book_id), (_('Unknown'),))
+                ans = BookId((_('Unknown') + f' ({book_id})'), (_('Unknown'),))
             self._book_id_data[book_id] = ans
         return ans
 
@@ -251,7 +251,7 @@ class Saver(QObject):
                 fname = base_path + os.extsep + 'jpg'
                 mi.cover = os.path.basename(fname)
             elif self.opts.update_metadata:
-                fname = os.path.join(self.tdir, '%d.jpg' % book_id)
+                fname = os.path.join(self.tdir, f'{book_id}.jpg')
 
             if fname:
                 with open(fname, 'wb') as f:
@@ -263,7 +263,7 @@ class Saver(QObject):
         if self.opts.write_opf:
             fname = base_path + os.extsep + 'opf'
         elif self.opts.update_metadata:
-            fname = os.path.join(self.tdir, '%d.opf' % book_id)
+            fname = os.path.join(self.tdir, f'{book_id}.opf')
         if fname:
             opf = metadata_to_opf(mi)
             with open(fname, 'wb') as f:

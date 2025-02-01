@@ -238,7 +238,7 @@ class GroupBorders:
     def __write_start_border_tag(self, the_string):
         self.__write_obj.write('mi<mk<start-brdg\n')
         self.__border_num += 1
-        num = '%04d' % self.__border_num
+        num = f'{self.__border_num:04}'
         num_string = f's{num}'
         the_string += f'<num>{num_string}'
         self.__write_obj.write(f'mi<tg<open-att__<border-group{the_string}\n')

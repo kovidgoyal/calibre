@@ -20,7 +20,7 @@ class Worker(Thread):
         self.notify_server = notify_server
         self.log = log
         self.working = False
-        Thread.__init__(self, name='ServerWorker%d' % num)
+        Thread.__init__(self, name=f'ServerWorker{num}')
 
     def run(self):
         while True:

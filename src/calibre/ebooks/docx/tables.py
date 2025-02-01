@@ -460,9 +460,9 @@ class Table:
             return (m - (m % n)) // n
         if c is not None:
             odd_column_band = (divisor(c, self.table_style.col_band_size) % 2) == 1
-            overrides.append('band%dVert' % (1 if odd_column_band else 2))
+            overrides.append(f'band{1 if odd_column_band else 2}Vert')
         odd_row_band = (divisor(r, self.table_style.row_band_size) % 2) == 1
-        overrides.append('band%dHorz' % (1 if odd_row_band else 2))
+        overrides.append(f'band{1 if odd_row_band else 2}Horz')
 
         # According to the OOXML spec columns should have higher override
         # priority than rows, but Word seems to do it the other way around.

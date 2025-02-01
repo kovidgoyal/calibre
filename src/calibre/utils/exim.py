@@ -377,9 +377,7 @@ class Importer:
                     raise ValueError(f'The exported data in {name} is not valid, tail too small')
                 part_num, version, is_last = struct.unpack(Exporter.TAIL_FMT, raw)
                 if version > Exporter.VERSION:
-                    raise ValueError('The exported data in %s is not valid,'
-                                     ' version (%d) is higher than maximum supported version.'
-                                     ' You might need to upgrade calibre first.' % (name, version))
+                    raise ValueError(f'The exported data in {name} is not valid, version ({version}) is higher than maximum supported version. You might need to upgrade calibre first.')
                 part_map[part_num] = path, is_last, size_of_part
                 if self.version == -1:
                     self.version = version

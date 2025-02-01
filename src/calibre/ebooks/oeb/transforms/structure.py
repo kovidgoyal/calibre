@@ -69,8 +69,7 @@ class DetectStructure:
                 self.oeb.toc = orig_toc
             else:
                 self.oeb.auto_generated_toc = True
-                self.log('Auto generated TOC with %d entries.' %
-                        self.oeb.toc.count())
+                self.log(f'Auto generated TOC with {self.oeb.toc.count()} entries.')
 
         if opts.toc_filter is not None:
             regexp = re.compile(opts.toc_filter)
@@ -249,7 +248,7 @@ class DetectStructure:
             text = elem.get('alt', '')
         text = re.sub(r'\s+', ' ', text.strip())
         text = text[:1000].strip()
-        id = elem.get('id', 'calibre_toc_%d'%counter)
+        id = elem.get('id', f'calibre_toc_{counter}')
         elem.set('id', id)
         href = '#'.join((item.href, id))
         return text, href

@@ -114,7 +114,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.series_map_rules:
             self.selected_options += 1
         if DEBUG:
-            print('Number of steps for bulk metadata: %d' % self.selected_options)
+            print(f'Number of steps for bulk metadata: {self.selected_options}')
             print('Optionslist: ')
             print(options)
 
@@ -805,13 +805,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.testgrid.addWidget(w, i+offset, 0, 1, 1)
             w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
-            name = 'book_%d_text'%i
+            name = f'book_{i}_text'
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 1, 1, 1)
             w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
-            name = 'book_%d_result'%i
+            name = f'book_{i}_result'
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 2, 1, 1)
@@ -991,7 +991,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_src_ident.setVisible(True)
 
         for i in range(self.s_r_number_of_books):
-            w = getattr(self, 'book_%d_text'%(i+1))
+            w = getattr(self, f'book_{i + 1}_text')
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
             src = self.s_r_sf_itemdata(idx)
             t = self.s_r_get_field(mi, src)
@@ -1061,7 +1061,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.test_result.setText(tt)
         update_status_actions(self.test_result, self.s_r_error is None, tt)
         for i in range(self.s_r_number_of_books):
-            getattr(self, 'book_%d_result'%(i+1)).setText('')
+            getattr(self, f'book_{i + 1}_result').setText('')
 
     def s_r_func(self, match):
         rfunc = self.s_r_functions[str(self.replace_func.currentText())]
@@ -1186,7 +1186,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         for i in range(self.s_r_number_of_books):
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
-            wr = getattr(self, 'book_%d_result'%(i+1))
+            wr = getattr(self, f'book_{i + 1}_result')
             try:
                 result = self.s_r_do_regexp(mi)
                 t = self.s_r_do_destination(mi, result)

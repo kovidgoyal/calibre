@@ -164,7 +164,7 @@ class Route:
         self.required_names = self.all_names - frozenset(self.defaults)
         argspec = inspect.getfullargspec(self.endpoint)
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
-            raise route_error('Function must take %d non-default arguments' % (len(self.names) + 2))
+            raise route_error(f'Function must take {len(self.names) + 2} non-default arguments')
         if argspec.args[2:len(self.names)+2] != self.names:
             raise route_error("Function's argument names do not match the variable names in the route")
         if not frozenset(self.type_checkers).issubset(frozenset(self.names)):
@@ -331,14 +331,14 @@ class Router:
                 outheaders['Pragma'] = 'no-cache'
             elif isinstance(cc, numbers.Number):
                 cc = int(60 * 60 * cc)
-                outheaders['Cache-Control'] = 'public, max-age=%d' % cc
+                outheaders['Cache-Control'] = f'public, max-age={cc}'
                 if cc == 0:
                     cc -= 100000
                 outheaders['Expires'] = http_date(cc + time.time())
             else:
                 ctype, max_age = cc
                 max_age = int(60 * 60 * max_age)
-                outheaders['Cache-Control'] = '%s, max-age=%d' % (ctype, max_age)
+                outheaders['Cache-Control'] = f'{ctype}, max-age={max_age}'
                 if max_age == 0:
                     max_age -= 100000
                 outheaders['Expires'] = http_date(max_age + time.time())

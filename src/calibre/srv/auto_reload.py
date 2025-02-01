@@ -284,7 +284,7 @@ class Worker:
             if join_process(self.p) is None:
                 self.p.kill()
                 self.p.wait()
-            self.log('Killed server process %d with return code: %d' % (self.p.pid, self.p.returncode))
+            self.log(f'Killed server process {self.p.pid} with return code: {self.p.returncode}')
             self.p = None
 
     def restart(self, forced=False):

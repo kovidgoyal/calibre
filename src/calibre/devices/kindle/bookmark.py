@@ -153,7 +153,7 @@ class Bookmark:  # {{{
                         marker_found = 0
                         text = ''
                         search_str1 = f'{mi.title}'
-                        search_str2 = '- Highlight Loc. %d' % (displayed_location)
+                        search_str2 = f'- Highlight Loc. {displayed_location}'
                         for line in f2:
                             if marker_found == 0:
                                 if line.startswith(search_str1):

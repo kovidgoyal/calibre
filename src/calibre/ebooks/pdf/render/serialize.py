@@ -43,7 +43,7 @@ class IndirectObjects:
     def write_obj(self, stream, num, obj):
         stream.write(EOL)
         self._offsets[num-1] = stream.tell()
-        stream.write('%d 0 obj'%num)
+        stream.write(f'{num} 0 obj')
         stream.write(EOL)
         serialize(obj, stream)
         if stream.last_char != EOL:
@@ -66,13 +66,13 @@ class IndirectObjects:
     def write_xref(self, stream):
         self.xref_offset = stream.tell()
         stream.write(b'xref'+EOL)
-        stream.write('0 %d'%(1+len(self._offsets)))
+        stream.write(f'0 {1 + len(self._offsets)}')
         stream.write(EOL)
         stream.write('%010d 65535 f '%0)
         stream.write(EOL)
 
         for offset in self._offsets:
-            line = '%010d 00000 n '%offset
+            line = f'{offset:010} 00000 n '
             stream.write(line.encode('ascii') + EOL)
         return self.xref_offset
 
@@ -526,5 +526,5 @@ class PDFStream:
                               'ID':Array([file_id, file_id]), 'Info':inforef})
         serialize(trailer, self.stream)
         self.write_line('startxref')
-        self.write_line('%d'%startxref)
+        self.write_line(f'{startxref}')
         self.stream.write('%%EOF')

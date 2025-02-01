@@ -861,7 +861,7 @@ class CoverView(QWidget):  # {{{
             f = p.font()
             f.setBold(True)
             p.setFont(f)
-            sz = '\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
+            sz = f'\xa0{self.pixmap.width()} x {self.pixmap.height()}\xa0'
             flags = Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))

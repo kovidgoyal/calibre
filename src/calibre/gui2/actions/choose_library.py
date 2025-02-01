@@ -325,7 +325,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_actions = []
         for i in range(5):
             ac = self.create_action(spec=('', None, None, None),
-                    attr='switch_action%d'%i)
+                    attr=f'switch_action{i}')
             ac.setObjectName(str(i))
             self.switch_actions.append(ac)
             ac.setVisible(False)

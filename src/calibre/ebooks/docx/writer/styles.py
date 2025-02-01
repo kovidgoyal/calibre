@@ -744,7 +744,7 @@ class StylesManager:
                 if style.outline_level is None:
                     val = f'Para %0{snum}d' % i
                 else:
-                    val = 'Heading %d' % (style.outline_level + 1)
+                    val = f'Heading {style.outline_level + 1}'
                     heading_styles.append(style)
                 style.id = style.name = val
             style.seq = i
@@ -764,7 +764,7 @@ class StylesManager:
                         ds_counts[run.descendant_style] += run.style_weight
         rnum = len(str(max(1, len(ds_counts) - 1)))
         for i, (text_style, count) in enumerate(ds_counts.most_common()):
-            text_style.id = 'Text%d' % i
+            text_style.id = f'Text{i}'
             text_style.name = f'%0{rnum}d Text' % i
             text_style.seq = i
         self.descendant_text_styles = sorted(descendant_style_map, key=attrgetter('seq'))

@@ -436,7 +436,7 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         except (TypeError, ValueError):
             percent = 0
         opts.progress = percent
-        opts.text = (_('Unavailable') if percent == 0 else '%d%%'%percent)
+        opts.text = (_('Unavailable') if percent == 0 else f'{percent}%')
         QApplication.style().drawControl(QStyle.ControlElement.CE_ProgressBar, opts, painter)
 # }}}
 

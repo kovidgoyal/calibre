@@ -72,7 +72,7 @@ class NumberToText:  # {{{
         elif hundredsComponent and tensComponent:
             result = hundredsComponentString + ' ' + tensComponentString
         else:
-            prints(' NumberToText.stringFromInt(): empty result translating %d' % intToTranslate)
+            prints(f' NumberToText.stringFromInt(): empty result translating {intToTranslate}')
         return result
 
     def numberTranslate(self):
@@ -175,7 +175,7 @@ class NumberToText:  # {{{
                 return
 
             if number > 10**9:
-                self.text = '%d out of range' % number
+                self.text = f'{number} out of range'
                 return
 
             if number == 10**9:

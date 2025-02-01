@@ -126,8 +126,7 @@ class ReadingTest(BaseTest):
                 if isinstance(val, tuple) and 'authors' not in field and 'languages' not in field:
                     val, expected_val = set(val), set(expected_val)
                 self.assertEqual(expected_val, val,
-                        'Book id: %d Field: %s failed: %r != %r'%(
-                            book_id, field, expected_val, val))
+                        f'Book id: {book_id} Field: {field} failed: {expected_val!r} != {val!r}')
         # }}}
 
     def test_sorting(self):  # {{{
@@ -206,7 +205,7 @@ class ReadingTest(BaseTest):
             ('title', True)]), 'Subsort failed')
         from calibre.ebooks.metadata.book.base import Metadata
         for i in range(7):
-            cache.create_book_entry(Metadata('title%d' % i), apply_import_tags=False)
+            cache.create_book_entry(Metadata(f'title{i}'), apply_import_tags=False)
         cache.create_custom_column('one', 'CC1', 'int', False)
         cache.create_custom_column('two', 'CC2', 'int', False)
         cache.create_custom_column('three', 'CC3', 'int', False)

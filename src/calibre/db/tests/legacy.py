@@ -544,7 +544,7 @@ class LegacyTest(BaseTest):
         n = now()
         ndb = self.init_legacy(self.cloned_library)
         amap = ndb.new_api.get_id_map('authors')
-        sorts = [(aid, 's%d' % aid) for aid in amap]
+        sorts = [(aid, f's{aid}') for aid in amap]
         db = self.init_old(self.cloned_library)
         run_funcs(self, db, ndb, (
             ('+format_metadata', 1, 'FMT1', itemgetter('size')),

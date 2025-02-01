@@ -40,7 +40,7 @@ def alphabet(val, lower=True):
 alphabet_map = {
     'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
     'lower-roman':lambda x: roman(x).lower(), 'upper-roman':roman,
-    'decimal-leading-zero': lambda x: '0%d' % x
+    'decimal-leading-zero': lambda x: f'0{x}'
 }
 
 
@@ -73,7 +73,7 @@ class Level:
             if x > ilvl or x not in counter:
                 return ''
             val = counter[x] - (0 if x == ilvl else 1)
-            formatter = alphabet_map.get(self.fmt, lambda x: '%d' % x)
+            formatter = alphabet_map.get(self.fmt, lambda x: f'{x}')
             return formatter(val)
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 

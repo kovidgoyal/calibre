@@ -89,12 +89,12 @@ def get_opf2_tag_index():
     base = 'http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#'
     ans = {}
     for i, tag in enumerate(('package', 'metadata', 'manifest', 'spine', 'tours', 'guide')):
-        ans[tag] = base + 'Section2.%d' % (i + 1)
+        ans[tag] = base + f'Section2.{i + 1}'
     for i, tag in enumerate((
             'title', 'creator', 'subject', 'description', 'publisher',
             'contributor', 'date', 'type', 'format', 'identifier', 'source',
             'language', 'relation', 'coverage', 'rights')):
-        ans[tag] = base + 'Section2.2.%d' % (i + 1)
+        ans[tag] = base + f'Section2.2.{i + 1}'
     ans['item'] = ans['manifest']
     ans['itemref'] = ans['spine']
     ans['reference'] = ans['guide']

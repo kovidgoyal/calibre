@@ -140,7 +140,7 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
             self.gui.setCursor(Qt.CursorShape.BusyCursor)
             if tprefs['update_metadata_from_calibre']:
                 db.new_api.embed_metadata((book_id,), only_fmts={fmt})
-            notify = '%d:%s:%s:%s' % (book_id, fmt, db.library_id, db.library_path)
+            notify = f'{book_id}:{fmt}:{db.library_id}:{db.library_path}'
             self.gui.job_manager.launch_gui_app('ebook-edit', kwargs=dict(path=path, notify=notify))
             time.sleep(2)
         finally:

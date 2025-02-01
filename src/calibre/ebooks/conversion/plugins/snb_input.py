@@ -90,7 +90,7 @@ class SNBInput(InputFormatPlugin):
                 for ch in toc.find('.//body'):
                     chapterName = ch.text
                     chapterSrc = ch.get('src')
-                    fname = 'ch_%d.htm' % i
+                    fname = f'ch_{i}.htm'
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
                     if data is None:
                         continue

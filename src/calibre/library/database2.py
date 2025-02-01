@@ -622,7 +622,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             author = author[:-1]
         if not author:
             author = ascii_filename(_('Unknown'))
-        path = author + '/' + title + ' (%d)'%id
+        path = author + '/' + title + f' ({id})'
         return path
 
     def construct_file_name(self, id):
@@ -994,7 +994,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             row = None
 
         if row is None:
-            raise ValueError('No book with id: %d'%idx)
+            raise ValueError(f'No book with id: {idx}')
 
         fm = self.FIELD_MAP
         mi = Metadata(None, template_cache=self.formatter_template_cache)
@@ -1318,7 +1318,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def format_hash(self, id_, fmt):
         path = self.format_abspath(id_, fmt, index_is_id=True)
         if path is None:
-            raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
+            raise NoSuchFormat(f'Record {id_} has no fmt: {fmt}')
         sha = hashlib.sha256()
         with open(path, 'rb') as f:
             while True:
@@ -1339,7 +1339,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
-            raise NoSuchFormat('Record %d has no format: %s'%(id_, fmt))
+            raise NoSuchFormat(f'Record {id_} has no format: {fmt}')
         return path
 
     def format_abspath(self, index, format, index_is_id=False):
@@ -1399,7 +1399,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
-            raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
+            raise NoSuchFormat(f'Record {id_} has no {fmt} file')
         if windows_atomic_move is not None:
             if not isinstance(dest, string_or_bytes):
                 raise Exception('Error, you must pass the dest as a path when'
@@ -1758,8 +1758,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.id = id
 
         def __unicode_representation__(self):
-            return 'n=%s s=%s c=%d rt=%d rc=%d id=%s' % (
-                self.n, self.s, self.c, self.rt, self.rc, self.id)
+            return f'n={self.n} s={self.s} c={self.c} rt={self.rt} rc={self.rc} id={self.id}'
 
         __str__ = __unicode_representation__
 
@@ -3677,7 +3676,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_custom_book_data(self, book_id, name, val):
         x = self.conn.get('SELECT id FROM books WHERE ID=?', (book_id,), all=False)
         if x is None:
-            raise ValueError('add_custom_book_data: no such book_id %d'%book_id)
+            raise ValueError(f'add_custom_book_data: no such book_id {book_id}')
         # Do the json encode first, in case it throws an exception
         s = json.dumps(val, default=to_json)
         self.conn.execute('''INSERT OR REPLACE INTO books_plugin_data(book, name, val)

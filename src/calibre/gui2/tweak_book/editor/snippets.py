@@ -159,8 +159,7 @@ class TabStop(str):
         return self
 
     def __repr__(self):
-        return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
-            str.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
+        return f'TabStop(text={str.__repr__(self)} num={self.num} start={self.start} is_mirror={self.is_mirror} takes_selection={self.takes_selection} is_toplevel={self.is_toplevel})'
 
 
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):

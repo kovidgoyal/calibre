@@ -597,7 +597,7 @@ class Device(DeviceConfig, DevicePlugin):
                 continue
             mp, ret = mount(card, typ)
             if mp is None:
-                print('Unable to mount card (Error code: %d)'%ret, file=sys.stderr)
+                print(f'Unable to mount card (Error code: {ret})', file=sys.stderr)
             else:
                 if not mp.endswith('/'):
                     mp += '/'

@@ -93,7 +93,7 @@ def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
     c = 1
     while y in existing:
-        y = '%s_%d' % (x, c)
+        y = f'{x}_{c}'
         c += 1
     return y
 

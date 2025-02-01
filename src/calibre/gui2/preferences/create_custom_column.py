@@ -978,7 +978,7 @@ class CreateNewCustomColumn:
             if not generate_unused_lookup_name:
                 return (self.Result.DUPLICATE_KEY, _('The custom column %s already exists') % lookup_name)
             for suffix_number in range(suffix_number, 100000):
-                nk = '%s_%d'%(lookup_name, suffix_number)
+                nk = f'{lookup_name}_{suffix_number}'
                 if nk not in self.custcols:
                     lookup_name = nk
                     break
@@ -989,7 +989,7 @@ class CreateNewCustomColumn:
                     return (self.Result.DUPLICATE_HEADING,
                            _('The column heading %s already exists') % column_heading)
                 for i in range(suffix_number, 100000):
-                    nh = '%s_%d'%(column_heading, i)
+                    nh = f'{column_heading}_{i}'
                     if nh not in headings:
                         column_heading = nh
                         break

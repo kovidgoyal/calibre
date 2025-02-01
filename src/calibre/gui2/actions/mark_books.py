@@ -147,7 +147,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         db = self.gui.current_db
         marked_ids = db.data.marked_ids
         num = len(frozenset(marked_ids).intersection(db.new_api.all_book_ids()))
-        text = _('Show marked book') if num == 1 else (_('Show marked books') + (' (%d)' % num))
+        text = _('Show marked book') if num == 1 else (_('Show marked books') + f' ({num})')
         self.show_marked_action.setText(text)
         counts = {}
         for v in marked_ids.values():

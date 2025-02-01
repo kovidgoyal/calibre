@@ -142,7 +142,7 @@ class CoverManager:
             # if self.preserve_aspect_ratio:
             #     width, height = 600, 800
             self.svg_template = self.svg_template.replace('__viewbox__',
-                    '0 0 %d %d'%(width, height))
+                    f'0 0 {width} {height}')
             self.svg_template = self.svg_template.replace('__width__',
                     str(width))
             self.svg_template = self.svg_template.replace('__height__',

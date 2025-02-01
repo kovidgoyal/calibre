@@ -39,7 +39,7 @@ def read_info(outputdir, get_cover):
     try:
         raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', '-isodates', 'src.pdf'])
     except subprocess.CalledProcessError as e:
-        prints('pdfinfo errored out with return code: %d'%e.returncode)
+        prints(f'pdfinfo errored out with return code: {e.returncode}')
         return None
     try:
         info_raw = raw.decode('utf-8')
@@ -63,7 +63,7 @@ def read_info(outputdir, get_cover):
     try:
         raw = subprocess.check_output([pdfinfo, '-meta', 'src.pdf']).strip()
     except subprocess.CalledProcessError as e:
-        prints('pdfinfo failed to read XML metadata with return code: %d'%e.returncode)
+        prints(f'pdfinfo failed to read XML metadata with return code: {e.returncode}')
     else:
         parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
         if len(parts) > 1:
@@ -77,7 +77,7 @@ def read_info(outputdir, get_cover):
             subprocess.check_call([pdftoppm, '-singlefile', '-jpeg', '-cropbox',
                 'src.pdf', 'cover'])
         except subprocess.CalledProcessError as e:
-            prints('pdftoppm errored out with return code: %d'%e.returncode)
+            prints(f'pdftoppm errored out with return code: {e.returncode}')
 
     return ans
 

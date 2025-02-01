@@ -73,7 +73,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         logf.close()
         out = open(logf.name, 'rb').read().decode('utf-8', 'replace').strip()
         if ret != 0:
-            raise ConversionError('pdftohtml failed with return code: %d\n%s' % (ret, out))
+            raise ConversionError(f'pdftohtml failed with return code: {ret}\n{out}')
         if out:
             prints('pdftohtml log:')
             prints(out)

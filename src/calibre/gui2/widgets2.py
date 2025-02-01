@@ -382,7 +382,7 @@ class RatingEditor(QComboBox):
             self.redo()
             return ev.accept()
         k = ev.key()
-        num = {getattr(Qt, 'Key_%d'%i):i for i in range(6)}.get(k)
+        num = {getattr(Qt, f'Key_{i}'):i for i in range(6)}.get(k)
         if num is None:
             return QComboBox.keyPressEvent(self, ev)
         ev.accept()

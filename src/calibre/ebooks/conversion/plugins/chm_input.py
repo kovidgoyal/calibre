@@ -131,7 +131,7 @@ class CHMInput(InputFormatPlugin):
         # print('Printing hhcroot')
         # print(etree.tostring(hhcroot, pretty_print=True))
         # print('=============================')
-        log.debug('Found %d section nodes' % toc.count())
+        log.debug(f'Found {toc.count()} section nodes')
         htmlpath = os.path.splitext(hhcpath)[0] + '.html'
         base = os.path.dirname(os.path.abspath(htmlpath))
 

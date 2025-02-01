@@ -79,7 +79,7 @@ def basename(url):
     except:
         global bad_url_counter
         bad_url_counter += 1
-        return 'bad_url_%d.html'%bad_url_counter
+        return f'bad_url_{bad_url_counter}.html'
     if not os.path.splitext(res)[1]:
         return 'index.html'
     return res

@@ -101,18 +101,18 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 
 def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
-    tagline = E.span('Books %d to %d of %d'%(start, end, total),
+    tagline = E.span(f'Books {start} to {end} of {total}',
             style='display: block; text-align: center;')
     left_buttons = E.td(class_='button', style='text-align:left')
     right_buttons = E.td(class_='button', style='text-align:right')
 
     if start > 1:
         for t,s in [('First', 1), ('Previous', max(start-num, 1))]:
-            left_buttons.append(E.a(t, href='%s&start=%d'%(url_base, s)))
+            left_buttons.append(E.a(t, href=f'{url_base}&start={s}'))
 
     if total > start + num:
         for t,s in [('Next', start+num), ('Last', total-num+1)]:
-            right_buttons.append(E.a(t, href='%s&start=%d'%(url_base, s)))
+            right_buttons.append(E.a(t, href=f'{url_base}&start={s}'))
 
     buttons = E.table(
             E.tr(left_buttons, right_buttons),

@@ -267,7 +267,7 @@ class ChunkIndex(Index):
         self.cncx = CNCX(c.selector for c in chunk_table)
 
         self.entries = [
-                ('%010d'%c.insert_pos, {
+                (f'{c.insert_pos:010}', {
 
                     'cncx_offset':self.cncx[c.selector],
                     'file_number':c.file_number,
@@ -378,7 +378,7 @@ if __name__ == '__main__':
     import os
     import subprocess
     os.chdir('/t')
-    paras = ['<p>%d</p>' % i for i in range(4000)]
+    paras = [f'<p>{i}</p>' for i in range(4000)]
     raw = '<html><body>' + '\n\n'.join(paras) + '</body></html>'
 
     src = 'index.html'

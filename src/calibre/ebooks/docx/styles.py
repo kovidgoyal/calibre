@@ -427,7 +427,7 @@ class Styles:
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
-            ans = '%s_%d' % (prefix, self.counter[prefix])
+            ans = f'{prefix}_{self.counter[prefix]}'
             self.classes[h] = (ans, css)
         return ans
 

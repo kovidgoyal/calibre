@@ -116,7 +116,7 @@ class LRFDocument(LRFMetaFile):
                 close = '</Main>\n'
                 pt_id = page_tree.id
             else:
-                pages += '<PageTree objid="%d">\n'%(page_tree.id,)
+                pages += f'<PageTree objid="{page_tree.id}">\n'
                 close = '</PageTree>\n'
             for page in page_tree:
                 pages += str(page)

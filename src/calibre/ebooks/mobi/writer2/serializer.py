@@ -390,4 +390,4 @@ class Serializer:
                     self.start_offset = ioff
                 for hoff in hoffs:
                     buf.seek(hoff)
-                    buf.write(('%010d' % ioff).encode('utf-8'))
+                    buf.write(f'{ioff:010}'.encode('utf-8'))

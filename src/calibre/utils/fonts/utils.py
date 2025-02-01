@@ -174,7 +174,7 @@ def decode_name_record(recs):
             if codec is None:
                 continue
             try:
-                windows_names[language_id] = src.decode('utf-%d-be'%codec)
+                windows_names[language_id] = src.decode(f'utf-{codec}-be')
             except ValueError:
                 continue
 

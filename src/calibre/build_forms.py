@@ -87,7 +87,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
             open(compiled_form, 'wb').write(dat)
             num += 1
     if num:
-        info('Compiled %d forms' % num)
+        info(f'Compiled {num} forms')
     if check_icons:
         resource_dir = os.path.join(os.path.dirname(srcdir), 'resources')
         ensure_icons_built(resource_dir, force_compile, info)

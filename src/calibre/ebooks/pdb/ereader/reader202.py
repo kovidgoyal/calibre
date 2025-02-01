@@ -45,7 +45,7 @@ class Reader202(FormatReader):
         self.header_record = HeaderRecord(self.section_data(0))
 
         if self.header_record.version not in (2, 4):
-            raise EreaderError('Unknown book version %i.' % self.header_record.version)
+            raise EreaderError(f'Unknown book version {self.header_record.version}.')
 
         from calibre.ebooks.metadata.pdb import get_metadata
         self.mi = get_metadata(stream, False)
@@ -91,7 +91,7 @@ class Reader202(FormatReader):
 
         pml = ''
         for i in range(1, self.header_record.num_text_pages + 1):
-            self.log.debug('Extracting text page %i' % i)
+            self.log.debug(f'Extracting text page {i}')
             pml += self.get_text_page(i)
 
         title = self.mi.title

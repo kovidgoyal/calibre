@@ -226,7 +226,7 @@ class ManifestItem(Resource):  # {{{
             return self.href()
         if index == 1:
             return self.media_type
-        raise IndexError('%d out of bounds.'%index)
+        raise IndexError(f'{index} out of bounds.')
 
 # }}}
 
@@ -237,7 +237,7 @@ class Manifest(ResourceCollection):  # {{{
         self.append(ManifestItem.from_opf_manifest_item(item, dir))
         id = item.get('id', '')
         if not id:
-            id = 'id%d'%self.next_id
+            id = f'id{self.next_id}'
         self[-1].id = id
         self.next_id += 1
 
@@ -261,7 +261,7 @@ class Manifest(ResourceCollection):  # {{{
             mi = ManifestItem(path, is_path=True)
             if mt:
                 mi.mime_type = mt
-            mi.id = 'id%d'%m.next_id
+            mi.id = f'id{m.next_id}'
             m.next_id += 1
             m.append(mi)
         return m
@@ -270,7 +270,7 @@ class Manifest(ResourceCollection):  # {{{
         mi = ManifestItem(path, is_path=True)
         if mime_type:
             mi.mime_type = mime_type
-        mi.id = 'id%d'%self.next_id
+        mi.id = f'id{self.next_id}'
         self.next_id += 1
         self.append(mi)
         return mi.id
@@ -787,7 +787,7 @@ class OPF:  # {{{
         c = 1
         while manifest_id in ids:
             c += 1
-            manifest_id = 'id%d'%c
+            manifest_id = f'id{c}'
         if not media_type:
             media_type = 'application/xhtml+xml'
         ans = etree.Element('{{{}}}item'.format(self.NAMESPACES['opf']),
@@ -801,7 +801,7 @@ class OPF:  # {{{
     def replace_manifest_item(self, item, items):
         items = [self.create_manifest_item(*i) for i in items]
         for i, item2 in enumerate(items):
-            item2.set('id', item.get('id')+'.%d'%(i+1))
+            item2.set('id', item.get('id')+f'.{i + 1}')
         manifest = item.getparent()
         index = manifest.index(item)
         manifest[index:index+1] = items

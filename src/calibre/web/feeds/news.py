@@ -1196,7 +1196,7 @@ class BasicNewsRecipe(Recipe):
                 if bn:
                     bn = bn.rpartition('/')[-1]
                     if bn:
-                        img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)[-1]))
+                        img = os.path.join(imgdir, f'feed_image_{self.image_counter}{os.path.splitext(bn)[-1]}')
                         try:
                             with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url, timeout=self.timeout)) as r:
                                 fi.write(r.read())
@@ -1336,14 +1336,14 @@ class BasicNewsRecipe(Recipe):
 
         self.feed_objects = feeds
         for f, feed in enumerate(feeds):
-            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            feed_dir = os.path.join(self.output_dir, f'feed_{f}')
             if not os.path.isdir(feed_dir):
                 os.makedirs(feed_dir)
 
             for a, article in enumerate(feed):
                 if a >= self.max_articles_per_feed:
                     break
-                art_dir = os.path.join(feed_dir, 'article_%d'%a)
+                art_dir = os.path.join(feed_dir, f'article_{a}')
                 if not os.path.isdir(art_dir):
                     os.makedirs(art_dir)
                 try:
@@ -1385,7 +1385,7 @@ class BasicNewsRecipe(Recipe):
 
         for f, feed in enumerate(feeds):
             html = self.feed2index(f, feeds)
-            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            feed_dir = os.path.join(self.output_dir, f'feed_{f}')
             with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
                 fi.write(html)
         self.create_opf(feeds)
@@ -1583,7 +1583,7 @@ class BasicNewsRecipe(Recipe):
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
 
-        manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
+        manifest = [os.path.join(dir, f'feed_{i}') for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         manifest.append(os.path.join(dir, 'index.ncx'))
 
@@ -1620,7 +1620,7 @@ class BasicNewsRecipe(Recipe):
             f = feeds[num]
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/'%(num, j)
+                    adir = f'feed_{num}/article_{j}/'
                     auth = a.author
                     if not auth:
                         auth = None
@@ -1678,7 +1678,7 @@ class BasicNewsRecipe(Recipe):
 
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
-                entries.append('feed_%d/index.html'%i)
+                entries.append(f'feed_{i}/index.html')
                 po = self.play_order_map.get(entries[-1], None)
                 if po is None:
                     self.play_order_counter += 1
@@ -1689,7 +1689,7 @@ class BasicNewsRecipe(Recipe):
                 desc = getattr(f, 'description', None)
                 if not desc:
                     desc = None
-                feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
+                feed_index(i, toc.add_item(f'feed_{i}/index.html', None,
                     f.title, play_order=po, description=desc, author=auth))
 
         else:
@@ -1715,7 +1715,7 @@ class BasicNewsRecipe(Recipe):
         article = request.article
         self.log.debug('Downloaded article:', article.title, 'from', article.url)
         article.orig_url = article.url
-        article.url = 'article_%d/index.html'%a
+        article.url = f'article_{a}/index.html'
         article.downloaded = True
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1

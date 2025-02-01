@@ -188,7 +188,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.graphics_view.show()
             self.spin_box.setRange(1, self.document.num_of_pages)
             self.slider.setRange(1, self.document.num_of_pages)
-            self.spin_box.setSuffix(' of %d'%(self.document.num_of_pages,))
+            self.spin_box.setSuffix(f' of {self.document.num_of_pages}')
             self.spin_box.updateGeometry()
             self.stack.setCurrentIndex(0)
             self.graphics_view.setFocus(Qt.FocusReason.OtherFocusReason)

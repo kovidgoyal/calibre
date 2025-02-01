@@ -28,7 +28,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         # Dummy attributes to fool the Widget() option handler code. We handle
         # everything in our *handler methods.
         for i in range(1, 4):
-            x = 'sr%d_'%i
+            x = f'sr{i}_'
             for y in ('search', 'replace'):
                 z = x + y
                 setattr(self, 'opt_'+z, z)
@@ -282,7 +282,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         self.set_value(self.opt_search_replace, None)
         if new_val is None and legacy:
             for i in range(1, 4):
-                x = 'sr%d'%i
+                x = f'sr{i}'
                 s, r = x+'_search', x+'_replace'
                 s, r = legacy.get(s, ''), legacy.get(r, '')
                 if s:

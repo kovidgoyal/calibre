@@ -283,7 +283,7 @@ class SNBFile:
         if self.fileName:
             print('File Name:\t', self.fileName)
         print('File Count:\t', self.fileCount)
-        print('VFAT Size(Compressed):\t%d(%d)' % (self.vfatSize, self.vfatCompressed))
+        print(f'VFAT Size(Compressed):\t{self.vfatSize}({self.vfatCompressed})')
         print('Binary Stream Size:\t', self.binStreamSize)
         print('Plain Stream Uncompressed Size:\t', self.plainStreamSizeUncompressed)
         print('Binary Block Count:\t', self.binBlock)

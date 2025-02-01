@@ -430,7 +430,7 @@ class SchedulerConfig:
             text = '%d:%d:%d'%schedule
         elif typ in ('days_of_week', 'days_of_month'):
             dw = ','.join(map(str, map(int, schedule[0])))
-            text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
+            text = f'{dw}:{schedule[1]}:{schedule[2]}'
         else:
             raise ValueError(f'Unknown schedule type: {typ!r}')
         s.text = text

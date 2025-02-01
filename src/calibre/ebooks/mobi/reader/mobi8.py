@@ -200,7 +200,7 @@ class Mobi8Reader:
                                     self.elems[divptr]
                 if i == 0:
                     aidtext = idtext[12:-2]
-                    filename = 'part%04d.html' % filenum
+                    filename = f'part{filenum:04}.html'
                 part = text[baseptr:baseptr + length]
                 insertpos = insertpos - skelpos
                 head = skeleton[:insertpos]
@@ -256,7 +256,7 @@ class Mobi8Reader:
         image_tag_pattern = re.compile(br'''(<(?:svg:)?image[^>]*>)''', re.IGNORECASE)
         for j in range(1, len(self.flows)):
             flowpart = self.flows[j]
-            nstr = '%04d' % j
+            nstr = f'{j:04}'
             m = svg_tag_pattern.search(flowpart)
             if m is not None:
                 # svg
@@ -320,7 +320,7 @@ class Mobi8Reader:
         # pos
         fi = self.get_file_info(pos)
         if fi.num is None and fi.start is None:
-            raise ValueError('No file contains pos: %d'%pos)
+            raise ValueError(f'No file contains pos: {pos}')
         textblock = self.parts[fi.num]
         npos = pos - fi.start
         pgt = textblock.find(b'>', npos)
@@ -391,7 +391,7 @@ class Mobi8Reader:
                 pos = entry['pos']
                 fi = self.get_file_info(pos)
                 if fi.filename is None:
-                    raise ValueError('Index entry has invalid pos: %d'%pos)
+                    raise ValueError(f'Index entry has invalid pos: {pos}')
                 idtag = self.get_id_tag(pos)
                 href = f'{fi.type}/{fi.filename}'
             else:
@@ -429,10 +429,9 @@ class Mobi8Reader:
                     pass  # Ignore these records
                 elif typ == b'FONT':
                     font = read_font_record(data)
-                    href = 'fonts/%05d.%s' % (fname_idx, font['ext'])
+                    href = f"fonts/{fname_idx:05}.{font['ext']}"
                     if font['err']:
-                        self.log.warn('Reading font record %d failed: %s'%(
-                            fname_idx, font['err']))
+                        self.log.warn(f"Reading font record {fname_idx} failed: {font['err']}")
                         if font['headers']:
                             self.log.debug('Font record headers: {}'.format(font['headers']))
                     with open(href.replace('/', os.sep), 'wb') as f:
@@ -448,7 +447,7 @@ class Mobi8Reader:
                 elif typ == b'CRES':
                     data, imgtype = container.load_image(data)
                     if data is not None:
-                        href = 'images/%05d.%s'%(container.resource_index, imgtype)
+                        href = f'images/{container.resource_index:05}.{imgtype}'
                         with open(href.replace('/', os.sep), 'wb') as f:
                             f.write(data)
                 elif typ == b'\xa0\xa0\xa0\xa0' and len(data) == 4 and container is not None:
@@ -456,7 +455,7 @@ class Mobi8Reader:
                 elif container is None:
                     if not (len(data) == len(PLACEHOLDER_GIF) and data == PLACEHOLDER_GIF):
                         imgtype = find_imgtype(data)
-                        href = 'images/%05d.%s'%(fname_idx, imgtype)
+                        href = f'images/{fname_idx:05}.{imgtype}'
                         with open(href.replace('/', os.sep), 'wb') as f:
                             f.write(data)
 

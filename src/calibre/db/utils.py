@@ -295,9 +295,7 @@ class ThumbnailCache:
                 self._load_index()
             self._invalidate_sizes()
             ts = (f'{timestamp:.2f}').replace('.00', '')
-            path = '%s%s%s%s%d-%s-%d-%dx%d' % (
-                self.group_id, os.sep, book_id % 100, os.sep,
-                book_id, ts, len(data), self.thumbnail_size[0], self.thumbnail_size[1])
+            path = f'{self.group_id}{os.sep}{book_id % 100}{os.sep}{book_id}-{ts}-{len(data)}-{self.thumbnail_size[0]}x{self.thumbnail_size[1]}'
             path = os.path.join(self.location, path)
             key = (self.group_id, book_id)
             e = self.items.pop(key, None)
@@ -371,7 +369,7 @@ class ThumbnailCache:
                     self._remove((self.group_id, book_id))
             elif os.path.exists(self.location):
                 try:
-                    raw = '\n'.join('%s %d' % (self.group_id, book_id) for book_id in book_ids)
+                    raw = '\n'.join(f'{self.group_id} {book_id}' for book_id in book_ids)
                     with open(os.path.join(self.location, 'invalidate'), 'ab') as f:
                         f.write(raw.encode('ascii'))
                 except OSError as err:

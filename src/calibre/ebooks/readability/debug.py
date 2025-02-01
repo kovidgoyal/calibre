@@ -22,7 +22,7 @@ def describe(node, depth=2):
             uid = uids[node] = len(uids)+1
         else:
             uid = uids.get(node)
-        name += '%02d' % (uid)
+        name += f'{uid:02}'
     if depth and node.getparent() is not None:
         return name+' - '+describe(node.getparent(), depth-1)
     return name

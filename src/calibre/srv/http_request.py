@@ -310,8 +310,7 @@ class HTTPRequest(Connection):
         request_content_length = int(inheaders.get('Content-Length', 0))
         if request_content_length > self.max_request_body_size:
             return self.simple_response(http_client.REQUEST_ENTITY_TOO_LARGE,
-                'The entity sent with the request exceeds the maximum '
-                'allowed bytes (%d).' % self.max_request_body_size)
+                f'The entity sent with the request exceeds the maximum allowed bytes ({self.max_request_body_size}).')
         # Persistent connection support
         if self.response_protocol is HTTP11:
             # Both server and client are HTTP/1.1
@@ -374,7 +373,7 @@ class HTTPRequest(Connection):
             return self.simple_response(http_client.BAD_REQUEST, f'{reprlib.repr(line.strip())} is not a valid chunk size')
         if bytes_read[0] + chunk_size + 2 > self.max_request_body_size:
             return self.simple_response(http_client.REQUEST_ENTITY_TOO_LARGE,
-                                        'Chunked request is larger than %d bytes' % self.max_request_body_size)
+                                        f'Chunked request is larger than {self.max_request_body_size} bytes')
         if chunk_size == 0:
             self.set_state(READ, self.read_chunk_separator, inheaders, Accumulator(), buf, bytes_read, last=True)
         else:
@@ -395,7 +394,7 @@ class HTTPRequest(Connection):
         bytes_read[0] += len(line)
         if bytes_read[0] > self.max_request_body_size:
             return self.simple_response(http_client.REQUEST_ENTITY_TOO_LARGE,
-                                        'Chunked request is larger than %d bytes' % self.max_request_body_size)
+                                        f'Chunked request is larger than {self.max_request_body_size} bytes')
         if last:
             self.prepare_response(inheaders, buf)
         else:

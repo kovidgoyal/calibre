@@ -57,7 +57,7 @@ class BookmarksMixin:
         dat = []
         for bm in bookmarks:
             if bm['type'] == 'legacy':
-                rec = '%s^%d#%s'%(bm['title'], bm['spine'], bm['pos'])
+                rec = f"{bm['title']}^{bm['spine']}#{bm['pos']}"
             else:
                 pos = bm['pos']
                 if isinstance(pos, numbers.Number):

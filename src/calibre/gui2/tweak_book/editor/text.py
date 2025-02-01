@@ -908,9 +908,9 @@ class TextEdit(PlainTextEdit):
                 return
             r, g, b, a = color.getRgb()
             if a == 255:
-                color = 'rgb(%d, %d, %d)' % (r, g, b)
+                color = f'rgb({r}, {g}, {b})'
             else:
-                color = 'rgba(%d, %d, %d, %.2g)' % (r, g, b, a/255)
+                color = f'rgba({r}, {g}, {b}, {a / 255:.2g})'
         prefix, suffix = {
             'bold': ('<b>', '</b>'),
             'italic': ('<i>', '</i>'),

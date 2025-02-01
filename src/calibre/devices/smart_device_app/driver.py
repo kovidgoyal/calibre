@@ -853,7 +853,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
                     json_metadata[key]['last_used'] = book['last_used']
                     result = as_bytes(json.dumps(json_metadata, indent=2, default=to_json))
-                    fd.write(('%0.7d\n'%(len(result)+1)).encode('ascii'))
+                    fd.write(f'{len(result) + 1:007}\n'.encode('ascii'))
                     fd.write(result)
                     fd.write(b'\n')
                     count += 1
@@ -1943,7 +1943,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 self.listen_socket.listen(1)
             except:
-                message = 'listen on port %d failed' % port
+                message = f'listen on port {port} failed'
                 self._debug(message)
                 self._close_listen_socket()
                 return message

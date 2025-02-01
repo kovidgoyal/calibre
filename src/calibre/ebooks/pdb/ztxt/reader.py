@@ -48,13 +48,12 @@ class Reader(FormatReader):
         vmajor = (self.header_record.version & 0x0000FF00) >> 8
         vminor = self.header_record.version & 0x000000FF
         if vmajor < 1 or (vmajor == 1 and vminor < 40):
-            raise zTXTError('Unsupported ztxt version (%i.%i). Only versions newer than %i.%i are supported.' %
-                            (vmajor, vminor, SUPPORTED_VERSION[0], SUPPORTED_VERSION[1]))
+            raise zTXTError(f'Unsupported ztxt version ({vmajor}.{vminor}). Only versions newer than {SUPPORTED_VERSION[0]}.{SUPPORTED_VERSION[1]} are supported.')
 
         if (self.header_record.flags & 0x01) == 0:
             raise zTXTError('Only compression method 1 (random access) is supported')
 
-        self.log.debug('Foud ztxt version: %i.%i' % (vmajor, vminor))
+        self.log.debug(f'Foud ztxt version: {vmajor}.{vminor}')
 
         # Initialize the decompressor
         self.uncompressor = zlib.decompressobj()
@@ -73,7 +72,7 @@ class Reader(FormatReader):
 
         self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
-            self.log.debug('\tDecompressing text section %i' % i)
+            self.log.debug(f'\tDecompressing text section {i}')
             raw_txt += self.decompress_text(i)
 
         self.log.info('Converting text to OEB...')

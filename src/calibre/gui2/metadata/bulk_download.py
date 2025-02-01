@@ -264,7 +264,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
             failed_covers = failed_covers.union(fcovs)
             ans = ans.union(set(ids) - fids)
             for book_id in ids:
-                lp = os.path.join(tdir, '%d.log'%book_id)
+                lp = os.path.join(tdir, f'{book_id}.log')
                 if os.path.exists(lp):
                     with open(tf, 'ab') as dest, open(lp, 'rb') as src:
                         dest.write(('\n'+'#'*20 + f' Log for {title_map[book_id]} ' +

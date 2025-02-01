@@ -1428,8 +1428,7 @@ class DeviceMixin:  # {{{
                 if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, book_id,
-                    os.path.splitext(files[-1])[1]))
+                names.append(f'{prefix}_{book_id}{os.path.splitext(files[-1])[1]}')
                 self.update_thumbnail(mi)
             dynamic.set('catalogs_to_be_synced', set())
             if files:
@@ -1506,8 +1505,7 @@ class DeviceMixin:  # {{{
                 if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, book_id,
-                    os.path.splitext(files[-1])[1]))
+                names.append(f'{prefix}_{book_id}{os.path.splitext(files[-1])[1]}')
                 self.update_thumbnail(mi)
             self.news_to_be_synced = set()
             if config['upload_news_to_device'] and files:
@@ -1585,7 +1583,7 @@ class DeviceMixin:  # {{{
                 if not isinstance(prefix, str):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
+                names.append(f'{prefix}_{id}{os.path.splitext(f)[1]}')
         remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.show_message(_('Sending books to device.'), 5000)

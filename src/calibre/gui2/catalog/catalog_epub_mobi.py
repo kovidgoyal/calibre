@@ -976,7 +976,7 @@ class GenericRulesTable(QTableWidget):
         self.setFocus()
         row = self.last_row_selected + 1
         if self.DEBUG:
-            print('%s:add_row(): at row: %d' % (self.objectName(), row))
+            print(f'{self.objectName()}:add_row(): at row: {row}')
         self.insertRow(row)
         self.populate_table_row(row, self.create_blank_row_data())
         self.select_and_scroll_to_row(row)
@@ -1029,8 +1029,7 @@ class GenericRulesTable(QTableWidget):
             self.select_and_scroll_to_row(row)
             self.settings_changed('enabled_state_changed')
             if self.DEBUG:
-                print('%s:enabled_state_changed(): row %d col %d' %
-                      (self.objectName(), row, col))
+                print(f'{self.objectName()}:enabled_state_changed(): row {row} col {col}')
 
     def focusInEvent(self, e):
         if self.DEBUG:
@@ -1042,7 +1041,7 @@ class GenericRulesTable(QTableWidget):
         self.last_rows_selected = self.selectionModel().selectedRows()
         self.clearSelection()
         if self.DEBUG:
-            print('%s:focusOutEvent(): self.last_row_selected: %d' % (self.objectName(),self.last_row_selected))
+            print(f'{self.objectName()}:focusOutEvent(): self.last_row_selected: {self.last_row_selected}')
 
     def move_row_down(self):
         self.setFocus()
@@ -1058,7 +1057,7 @@ class GenericRulesTable(QTableWidget):
             dest_row = selrow.row() + 1
             src_row = selrow.row()
             if self.DEBUG:
-                print('%s:move_row_down() %d -> %d' % (self.objectName(),src_row, dest_row))
+                print(f'{self.objectName()}:move_row_down() {src_row} -> {dest_row}')
 
             # Save the contents of the destination row
             saved_data = self.convert_row_to_data(dest_row)
@@ -1088,7 +1087,7 @@ class GenericRulesTable(QTableWidget):
 
         for selrow in rows:
             if self.DEBUG:
-                print('%s:move_row_up() %d -> %d' % (self.objectName(),selrow.row(), selrow.row()-1))
+                print(f'{self.objectName()}:move_row_up() {selrow.row()} -> {selrow.row() - 1}')
 
             # Save the row above
             saved_data = self.convert_row_to_data(selrow.row() - 1)
@@ -1150,8 +1149,7 @@ class GenericRulesTable(QTableWidget):
                 break
 
         if self.DEBUG:
-            print('%s:_source_index_changed(): calling source_index_changed with row: %d ' %
-                  (self.objectName(), row))
+            print(f'{self.objectName()}:_source_index_changed(): calling source_index_changed with row: {row} ')
 
         self.source_index_changed(combo, row)
 
@@ -1191,8 +1189,7 @@ class GenericRulesTable(QTableWidget):
                 break
 
         if self.DEBUG:
-            print('%s:values_index_changed(): row %d ' %
-                  (self.objectName(), row))
+            print(f'{self.objectName()}:values_index_changed(): row {row} ')
 
 
 class ExclusionRules(GenericRulesTable):

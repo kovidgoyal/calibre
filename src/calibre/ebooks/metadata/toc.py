@@ -263,7 +263,7 @@ class TOC(list):
             if not text:
                 text = ''
             c[1] += 1
-            item_id = 'num_%d'%c[1]
+            item_id = f'num_{c[1]}'
             text = clean_xml_chars(text)
             elem = E.navPoint(
                     E.navLabel(E.text(re.sub(r'\s+', ' ', text))),

@@ -218,7 +218,7 @@ def replace_file(container, name, path, basename, force_mt=None):
             b, e = nname.rpartition('.')[0::2]
             while container.exists(nname):
                 count += 1
-                nname = b + ('_%d.%s' % (count, e))
+                nname = b + f'_{count}.{e}'
             rename_files(container, {name:nname})
             mt = force_mt or container.guess_type(nname)
             container.mime_map[nname] = mt
@@ -308,7 +308,7 @@ def rationalize_folders(container, folder_type_map):
                 while new_name in all_names or new_name in new_names:
                     c += 1
                     n, ext = bn.rpartition('.')[0::2]
-                    new_name = posixpath.join(folder, '%s_%d.%s' % (n, c, ext))
+                    new_name = posixpath.join(folder, f'{n}_{c}.{ext}')
                 name_map[name] = new_name
                 new_names.add(new_name)
     return name_map

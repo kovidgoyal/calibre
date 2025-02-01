@@ -84,7 +84,7 @@ class NumberingDefinition:
         makeelement = self.namespace.makeelement
         an = makeelement(parent, 'w:abstractNum', w_abstractNumId=str(self.num_id))
         makeelement(an, 'w:multiLevelType', w_val='hybridMultilevel')
-        makeelement(an, 'w:name', w_val='List %d' % (self.num_id + 1))
+        makeelement(an, 'w:name', w_val=f'List {self.num_id + 1}')
         for level in self.levels:
             level.serialize(an, makeelement)
 

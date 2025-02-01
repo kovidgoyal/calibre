@@ -622,7 +622,7 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     def process_node(xml_parent, toc_parent):
         for child in toc_parent:
             play_order['c'] += 1
-            point = etree.SubElement(xml_parent, NCX('navPoint'), id='num_%d' % play_order['c'],
+            point = etree.SubElement(xml_parent, NCX('navPoint'), id=f"num_{play_order['c']}",
                             playOrder=str(play_order['c']))
             label = etree.SubElement(point, NCX('navLabel'))
             title = child.title
@@ -853,7 +853,7 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
         li.append(a)
         if len(toc) > 0:
             parent = li.makeelement(XHTML('ul'))
-            parent.set('class', 'level%d' % (style_level))
+            parent.set('class', f'level{style_level}')
             li.append(parent)
             a.tail = '\n\n' + (indent*(level+2))
             parent.text = '\n'+(indent*(level+3))
@@ -909,7 +909,7 @@ def create_inline_toc(container, title=None):
         name, c = 'toc.xhtml', 0
         while container.has_name(name):
             c += 1
-            name = 'toc%d.xhtml' % c
+            name = f'toc{c}.xhtml'
         container.add_file(name, raw, spine_index=0)
     else:
         with container.open(name, 'wb') as f:

@@ -194,7 +194,7 @@ def compress_readable_output(src_file, compress_level=6):
 def get_range_parts(ranges, content_type, content_length):  # {{{
 
     def part(r):
-        ans = [f'--{MULTIPART_SEPARATOR}', 'Content-Range: bytes %d-%d/%d' % (r.start, r.stop, content_length)]
+        ans = [f'--{MULTIPART_SEPARATOR}', f'Content-Range: bytes {r.start}-{r.stop}/{content_length}']
         if content_type:
             ans.append(f'Content-Type: {content_type}')
         ans.append('')
@@ -418,7 +418,7 @@ class HTTPConnection(HTTPRequest):
         msg = msg.encode('utf-8')
         ct = 'http' if self.method == 'TRACE' else 'plain'
         buf = [
-            '%s %d %s' % (self.response_protocol, status_code, http_client.responses[status_code]),
+            f'{self.response_protocol} {status_code} {http_client.responses[status_code]}',
             f'Content-Length: {len(msg)}',
             f'Content-Type: text/{ct}; charset=UTF-8',
             'Date: ' + http_date(),
@@ -456,12 +456,9 @@ class HTTPConnection(HTTPRequest):
 
     def send_range_not_satisfiable(self, content_length):
         buf = [
-            '%s %d %s' % (
-                self.response_protocol,
-                http_client.REQUESTED_RANGE_NOT_SATISFIABLE,
-                http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            f'{self.response_protocol} {http_client.REQUESTED_RANGE_NOT_SATISFIABLE} {http_client.responses[http_client.REQUESTED_RANGE_NOT_SATISFIABLE]}',
             'Date: ' + http_date(),
-            'Content-Range: bytes */%d' % content_length,
+            f'Content-Range: bytes */{content_length}',
         ]
         response_data = header_list_to_file(buf)
         self.log_access(status_code=http_client.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
@@ -469,7 +466,7 @@ class HTTPConnection(HTTPRequest):
 
     def send_not_modified(self, etag=None):
         buf = [
-            '%s %d %s' % (self.response_protocol, http_client.NOT_MODIFIED, http_client.responses[http_client.NOT_MODIFIED]),
+            f'{self.response_protocol} {http_client.NOT_MODIFIED} {http_client.responses[http_client.NOT_MODIFIED]}',
             'Content-Length: 0',
             'Date: ' + http_date(),
         ]
@@ -519,7 +516,7 @@ class HTTPConnection(HTTPRequest):
         if ct.startswith('text/') and 'charset=' not in ct:
             outheaders.set('Content-Type', ct + '; charset=UTF-8', replace_all=True)
 
-        buf = [HTTP11 + (' %d ' % data.status_code) + http_client.responses[data.status_code]]
+        buf = [HTTP11 + f' {data.status_code} ' + http_client.responses[data.status_code]]
         for header, value in sorted(iteritems(outheaders), key=itemgetter(0)):
             buf.append(f'{header}: {value}')
         for morsel in itervalues(data.outcookie):
@@ -710,10 +707,10 @@ class HTTPConnection(HTTPRequest):
         if compressible and not ranges:
             outheaders.set('Content-Encoding', 'gzip', replace_all=True)
             if getattr(output, 'content_length', None):
-                outheaders.set('Calibre-Uncompressed-Length', '%d' % output.content_length)
+                outheaders.set('Calibre-Uncompressed-Length', f'{output.content_length}')
             output = GeneratedOutput(compress_readable_output(output.src_file), etag=output.etag)
         if output.content_length is not None and not compressible and not ranges:
-            outheaders.set('Content-Length', '%d' % output.content_length, replace_all=True)
+            outheaders.set('Content-Length', f'{output.content_length}', replace_all=True)
 
         if compressible or output.content_length is None:
             outheaders.set('Transfer-Encoding', 'chunked', replace_all=True)
@@ -721,13 +718,13 @@ class HTTPConnection(HTTPRequest):
         if ranges:
             if len(ranges) == 1:
                 r = ranges[0]
-                outheaders.set('Content-Length', '%d' % r.size, replace_all=True)
-                outheaders.set('Content-Range', 'bytes %d-%d/%d' % (r.start, r.stop, output.content_length), replace_all=True)
+                outheaders.set('Content-Length', f'{r.size}', replace_all=True)
+                outheaders.set('Content-Range', f'bytes {r.start}-{r.stop}/{output.content_length}', replace_all=True)
                 output.ranges = r
             else:
                 range_parts = get_range_parts(ranges, outheaders.get('Content-Type'), output.content_length)
                 size = sum(map(len, range_parts)) + sum(r.size + 4 for r in ranges)
-                outheaders.set('Content-Length', '%d' % size, replace_all=True)
+                outheaders.set('Content-Length', f'{size}', replace_all=True)
                 outheaders.set('Content-Type', 'multipart/byteranges; boundary=' + MULTIPART_SEPARATOR, replace_all=True)
                 output.ranges = zip_longest(ranges, range_parts)
             request.status_code = http_client.PARTIAL_CONTENT

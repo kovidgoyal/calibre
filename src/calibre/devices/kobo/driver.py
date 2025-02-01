@@ -830,7 +830,7 @@ class KOBO(USBMS):
             cursor.close()
 
     def set_readstatus(self, connection, ContentID, ReadStatus):
-        debug_print('Kobo::set_readstatus - ContentID=%s, ReadStatus=%d' % (ContentID, ReadStatus))
+        debug_print(f'Kobo::set_readstatus - ContentID={ContentID}, ReadStatus={ReadStatus}')
         cursor = connection.cursor()
         t = (ContentID,)
         cursor.execute('select DateLastRead, ReadStatus  from Content where BookID is Null and ContentID = ?', t)
@@ -851,7 +851,7 @@ class KOBO(USBMS):
             t = (ReadStatus, datelastread, ContentID,)
 
             try:
-                debug_print('Kobo::set_readstatus - Making change - ContentID=%s, ReadStatus=%d, DateLastRead=%s' % (ContentID, ReadStatus, datelastread))
+                debug_print(f'Kobo::set_readstatus - Making change - ContentID={ContentID}, ReadStatus={ReadStatus}, DateLastRead={datelastread}')
                 cursor.execute("update content set ReadStatus=?,FirstTimeReading='false',DateLastRead=? where BookID is Null and ContentID = ?", t)
             except:
                 debug_print('    Database Exception: Unable to update ReadStatus')
@@ -1742,8 +1742,7 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print(f"KoboTouch:update_booklist - title='{title}'", f'ContentType={ContentType}', 'isdownloaded=', isdownloaded)
                 debug_print(
-                    '         prefix=%s, DateCreated=%s, readstatus=%d, MimeType=%s, expired=%d, favouritesindex=%d, accessibility=%d, isdownloaded=%s'%
-                (prefix, DateCreated, readstatus, MimeType, expired, favouritesindex, accessibility, isdownloaded,))
+                    f'         prefix={prefix}, DateCreated={DateCreated}, readstatus={readstatus}, MimeType={MimeType}, expired={expired}, favouritesindex={favouritesindex}, accessibility={accessibility}, isdownloaded={isdownloaded}')
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -1845,7 +1844,7 @@ class KOBOTOUCH(KOBO):
                 if idx is not None:  # and not (accessibility == 1 and isdownloaded == 'false'):
                     if show_debug:
                         self.debug_index = idx
-                        debug_print('KoboTouch:update_booklist - idx=%d'%idx)
+                        debug_print(f'KoboTouch:update_booklist - idx={idx}')
                         debug_print(f'KoboTouch:update_booklist - lpath={lpath}')
                         debug_print('KoboTouch:update_booklist - bl[idx].device_collections=', bl[idx].device_collections)
                         debug_print('KoboTouch:update_booklist - playlist_map=', playlist_map)
@@ -2090,7 +2089,7 @@ class KOBOTOUCH(KOBO):
                 # self.report_progress((i) / float(books_on_device), _('Getting list of books on device...'))
                 show_debug = self.is_debugging_title(row['Title'])
                 if show_debug:
-                    debug_print('KoboTouch:books - looping on database - row=%d' % i)
+                    debug_print(f'KoboTouch:books - looping on database - row={i}')
                     debug_print("KoboTouch:books - title='{}'".format(row['Title']), 'authors=', row['Attribution'])
                     debug_print('KoboTouch:books - row=', row)
                 if not hasattr(row['ContentID'], 'startswith') or row['ContentID'].lower().startswith(
@@ -2506,7 +2505,7 @@ class KOBOTOUCH(KOBO):
             if self._card_a_prefix is not None:
                 ContentID = ContentID.replace(self._card_a_prefix, 'file:///mnt/sd/')
         else:  # ContentType = 16
-            debug_print("KoboTouch:contentid_from_path ContentType other than 6 - ContentType='%d'"%ContentType, f"path='{path}'")
+            debug_print(f"KoboTouch:contentid_from_path ContentType other than 6 - ContentType='{ContentType}'", f"path='{path}'")
             ContentID = path
             ContentID = ContentID.replace(self._main_prefix, 'file:///mnt/onboard/')
             if self._card_a_prefix is not None:
@@ -2720,9 +2719,8 @@ class KOBOTOUCH(KOBO):
                 if not prefs['manage_device_metadata'] == 'manual' and delete_empty_collections:
                     debug_print('KoboTouch:update_device_database_collections - about to clear empty bookshelves')
                     self.delete_empty_bookshelves(connection)
-                debug_print('KoboTouch:update_device_database_collections - Number of series set=%d Number of books=%d' % (self.series_set, books_in_library))
-                debug_print('KoboTouch:update_device_database_collections - Number of core metadata set=%d Number of books=%d' % (
-                    self.core_metadata_set, books_in_library))
+                debug_print(f'KoboTouch:update_device_database_collections - Number of series set={self.series_set} Number of books={books_in_library}')
+                debug_print(f'KoboTouch:update_device_database_collections - Number of core metadata set={self.core_metadata_set} Number of books={books_in_library}')
 
                 self.dump_bookshelves(connection)
 
@@ -2916,8 +2914,7 @@ class KOBOTOUCH(KOBO):
                 for ending, cover_options in self.cover_file_endings().items():
                     kobo_size, min_dbversion, max_dbversion, is_full_size = cover_options
                     if show_debug:
-                        debug_print('KoboTouch:_upload_cover - library_cover_size=%s -> kobo_size=%s, min_dbversion=%d max_dbversion=%d, is_full_size=%s' % (
-                            library_cover_size, kobo_size, min_dbversion, max_dbversion, is_full_size))
+                        debug_print(f'KoboTouch:_upload_cover - library_cover_size={library_cover_size} -> kobo_size={kobo_size}, min_dbversion={min_dbversion} max_dbversion={max_dbversion}, is_full_size={is_full_size}')
 
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:
@@ -4229,7 +4226,7 @@ class KOBOTOUCH(KOBO):
         if i == 0:
             prints('No shelves found!!')
         else:
-            prints('Number of shelves=%d'%i)
+            prints(f'Number of shelves={i}')
 
         prints('\nBooks on shelves on device:')
         cursor.execute(shelfcontent_query)
@@ -4241,7 +4238,7 @@ class KOBOTOUCH(KOBO):
         if i == 0:
             prints('No books are on any shelves!!')
         else:
-            prints('Number of shelved books=%d'%i)
+            prints(f'Number of shelved books={i}')
 
         cursor.close()
         debug_print('KoboTouch:dump_bookshelves - end')

@@ -235,8 +235,8 @@ def print_stats(old_stats, new_stats):
         suffix = ' | same size'
         if nsz != osz:
             suffix = f' | reduced to {nsz/osz*100:.1f} %'
-        prints('%4s'%table, '  ', '%10s'%osz, '  ', f'{op:5.1f} %', '   ',
-                '%10s'%nsz, '  ', f'{np:5.1f} %', suffix)
+        prints(f'{table:4}', '  ', f'{osz:10}', '  ', f'{op:5.1f} %', '   ',
+                f'{nsz:10}', '  ', f'{np:5.1f} %', suffix)
     prints('='*80)
 
 

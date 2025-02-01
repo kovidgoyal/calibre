@@ -48,7 +48,7 @@ def add_page_map(opfpath, opts):
     oeb = OEBBook(opfpath)
     selector = XPath(opts.page, namespaces=NSMAP)
     name_for = build_name_for(opts.page_names)
-    idgen = ('calibre-page-%d' % n for n in count(1))
+    idgen = (f'calibre-page-{n}' for n in count(1))
     for item in oeb.spine:
         data = item.data
         for elem in selector(data):

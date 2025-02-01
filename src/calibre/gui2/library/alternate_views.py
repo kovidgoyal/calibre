@@ -540,7 +540,7 @@ class CoverDelegate(QStyledItemDelegate):
         ans = None
         if mi is None:
             mi = db.get_proxy_metadata(book_id)
-        ans = formatter.safe_format(rule, mi, '', mi, column_name='cover_grid%d' % rule_index, template_cache=template_cache) or None
+        ans = formatter.safe_format(rule, mi, '', mi, column_name=f'cover_grid{rule_index}', template_cache=template_cache) or None
         cache[book_id][rule] = ans
         return ans, mi
 

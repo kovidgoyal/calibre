@@ -565,9 +565,7 @@ class Textile:
                 h_match = re.search(r'h([1-6])', tag)
                 if h_match:
                     head_level, = h_match.groups()
-                    tag = 'h%i' % max(1,
-                                      min(int(head_level) + head_offset,
-                                          6))
+                    tag = f'h{max(1, min(int(head_level) + head_offset, 6))}'
                 o1, o2, content, c2, c1 = self.fBlock(tag, atts, ext,
                                                       cite, graf)
                 # leave off c1 if this block is extended,

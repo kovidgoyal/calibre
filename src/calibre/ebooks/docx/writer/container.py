@@ -134,7 +134,7 @@ class DocumentRelationships:
     def add_relationship(self, target, rtype, target_mode=None):
         ans = self.get_relationship_id(target, rtype, target_mode)
         if ans is None:
-            ans = 'rId%d' % (len(self.rmap) + 1)
+            ans = f'rId{len(self.rmap) + 1}'
             self.rmap[(target, rtype, target_mode)] = ans
         return ans
 

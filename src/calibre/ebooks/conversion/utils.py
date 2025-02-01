@@ -140,7 +140,7 @@ class HeuristicProcessor:
                 name, i = None, 0
                 while not name or os.path.exists(os.path.join(odir, name)):
                     i += 1
-                    name = '%04d.html'%i
+                    name = f'{i:04}.html'
                 with open(os.path.join(odir, name), 'wb') as f:
                     f.write(raw.encode('utf-8'))
 

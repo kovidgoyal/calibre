@@ -183,7 +183,7 @@ class Images:
         name = base
         while name in exists:
             n, e = base.rpartition('.')[0::2]
-            name = '%s-%d.%s' % (n, c, e)
+            name = f'{n}-{c}.{e}'
             c += 1
         return name
 
@@ -191,7 +191,7 @@ class Images:
         resized, img = resize_to_fit(raw, max_width, max_height)
         if resized:
             base, ext = os.path.splitext(base)
-            base = base + '-%dx%d%s' % (max_width, max_height, ext)
+            base = base + f'-{max_width}x{max_height}{ext}'
             raw = image_to_data(img, fmt=ext[1:])
         return raw, base, resized
 

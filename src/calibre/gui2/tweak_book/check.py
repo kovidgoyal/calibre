@@ -197,8 +197,7 @@ class Check(QSplitter):
             ifix = ''
             loc = loc_to_string(err.line, err.col)
             if err.INDIVIDUAL_FIX:
-                ifix = '<a href="fix:error,%d" title="%s">%s</a><br><br>' % (
-                    self.items.currentRow(), _('Try to fix only this error'), err.INDIVIDUAL_FIX)
+                ifix = f"<a href=\"fix:error,{self.items.currentRow()}\" title=\"{_('Try to fix only this error')}\">{err.INDIVIDUAL_FIX}</a><br><br>"
             open_tt = _('Click to open in editor')
             fix_tt = _('Try to fix all fixable errors automatically. Only works for some types of error.')
             fix_msg = _('Try to correct all fixable errors automatically')
@@ -210,8 +209,7 @@ class Check(QSplitter):
             if err.has_multiple_locations:
                 activate = []
                 for i, (name, lnum, col) in enumerate(err.all_locations):
-                    activate.append('<a href="activate:item:%d" title="%s">%s %s</a>' % (
-                        i, open_tt, name, loc_to_string(lnum, col)))
+                    activate.append(f'<a href="activate:item:{i}" title="{open_tt}">{name} {loc_to_string(lnum, col)}</a>')
                 many = len(activate) > 2
                 activate = '<div>{}</div>'.format('<br>'.join(activate))
                 if many:

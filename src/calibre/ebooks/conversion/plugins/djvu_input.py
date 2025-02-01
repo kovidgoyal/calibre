@@ -41,7 +41,7 @@ class DJVUInput(InputFormatPlugin):
         c = 0
         while os.path.exists(htmlfile):
             c += 1
-            htmlfile = os.path.join(base, 'index%d.html'%c)
+            htmlfile = os.path.join(base, f'index{c}.html')
         with open(htmlfile, 'wb') as f:
             f.write(html.encode('utf-8'))
         odi = options.debug_pipeline

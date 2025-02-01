@@ -81,7 +81,7 @@ def ensure_unique(template, existing):
     c = 0
     while q in existing:
         c += 1
-        q = '%s-%d%s' % (b, c, e)
+        q = f'{b}-{c}{e}'
     return q
 
 

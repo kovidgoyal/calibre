@@ -30,7 +30,7 @@ class CheckEncoding:
                         if len(line) < 1000:
                             self.__get_position_error(line, encoding, line_num)
                         else:
-                            sys.stderr.write('line: %d has bad encoding\n' % line_num)
+                            sys.stderr.write(f'line: {line_num} has bad encoding\n')
                     return True
         return False
 

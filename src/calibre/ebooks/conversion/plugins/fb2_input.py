@@ -110,10 +110,10 @@ class FB2Input(InputFormatPlugin):
             note = notes.get(cite, None)
             if note:
                 c = 1
-                while 'cite%d' % c in all_ids:
+                while f'cite{c}' in all_ids:
                     c += 1
                 if not note.get('id', None):
-                    note.set('id', 'cite%d' % c)
+                    note.set('id', f'cite{c}')
                     all_ids.add(note.get('id'))
                 a.set('href', '#{}'.format(note.get('id')))
         for x in result.xpath('//*[@link_note or @link_cite]'):

@@ -177,12 +177,12 @@ class Coverage:
         if self.format not in {1, 2}:
             raise UnsupportedFont(f'Unknown Coverage format: 0x{self.format:x} in {parent_table_name}')
         if self.format == 1:
-            self.glyph_ids = data.unpack('%dH'%count, single_special=False)
+            self.glyph_ids = data.unpack(f'{count}H', single_special=False)
             self.glyph_ids_map = {gid:i for i, gid in
                     enumerate(self.glyph_ids)}
         else:
             self.ranges = []
-            ranges = data.unpack('%dH'%(3*count), single_special=False)
+            ranges = data.unpack(f'{3 * count}H', single_special=False)
             for i in range(count):
                 start, end, start_coverage_index = ranges[i*3:(i+1)*3]
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
@@ -229,13 +229,13 @@ class UnknownLookupSubTable:
 
     def read_sets(self, data, read_item=None, set_is_index=False):
         count = data.unpack('H')
-        sets = data.unpack('%dH'%count, single_special=False)
+        sets = data.unpack(f'{count}H', single_special=False)
         coverage_to_items_map = []
         for offset in sets:
             # Read items in the set
             data.offset = start_pos = offset + data.start_pos
             count = data.unpack('H')
-            item_offsets = data.unpack('%dH'%count, single_special=False)
+            item_offsets = data.unpack(f'{count}H', single_special=False)
             items = []
             for offset in item_offsets:
                 data.offset = offset + start_pos

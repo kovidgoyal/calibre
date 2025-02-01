@@ -236,7 +236,7 @@ class PageProcessor(list):  # {{{
                     final_fmt = QImage.Format.Format_Indexed8 if uses_256_colors else QImage.Format.Format_Grayscale16
                     if img.format() != final_fmt:
                         img = img.convertToFormat(final_fmt)
-            dest = '%d_%d.%s'%(self.num, i, self.opts.output_format)
+            dest = f'{self.num}_{i}.{self.opts.output_format}'
             dest = os.path.join(self.dest, dest)
             with open(dest, 'wb') as f:
                 f.write(image_to_data(img, fmt=self.opts.output_format))

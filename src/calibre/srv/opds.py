@@ -313,13 +313,13 @@ class NavFeed(Feed):
     def __init__(self, id_, updated, request_context, offsets, page_url, up_url, title=None):
         kwargs = {'up_link': up_url}
         kwargs['first_link'] = page_url
-        kwargs['last_link']  = page_url+'&offset=%d'%offsets.last_offset
+        kwargs['last_link']  = page_url+f'&offset={offsets.last_offset}'
         if offsets.offset > 0:
             kwargs['previous_link'] = \
-                page_url+'&offset=%d'%offsets.previous_offset
+                page_url+f'&offset={offsets.previous_offset}'
         if offsets.next_offset > -1:
             kwargs['next_link'] = \
-                page_url+'&offset=%d'%offsets.next_offset
+                page_url+f'&offset={offsets.next_offset}'
         if title:
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, request_context, **kwargs)

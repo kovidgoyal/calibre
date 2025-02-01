@@ -387,7 +387,7 @@ class WritingTest(BaseTest):
         for book_id in book_ids:
             raw = cache.read_backup(book_id)
             opf = OPF(BytesIO(raw))
-            ae(opf.title, 'title%d'%book_id)
+            ae(opf.title, f'title{book_id}')
             ae(opf.authors, ['author1', 'author2'])
         tested_fields = 'title authors tags'.split()
         before = {f:cache.all_field_for(f, book_ids) for f in tested_fields}
@@ -439,9 +439,9 @@ class WritingTest(BaseTest):
         ae(cache.set_cover({bid:img for bid in (1, 2, 3)}), {1, 2, 3})
         old = self.init_old()
         for book_id in (1, 2, 3):
-            ae(cache.cover(book_id), img, 'Cover was not set correctly for book %d' % book_id)
+            ae(cache.cover(book_id), img, f'Cover was not set correctly for book {book_id}')
             ae(cache.field_for('cover', book_id), 1)
-            ae(old.cover(book_id, index_is_id=True), img, 'Cover was not set correctly for book %d' % book_id)
+            ae(old.cover(book_id, index_is_id=True), img, f'Cover was not set correctly for book {book_id}')
             self.assertTrue(old.has_cover(book_id))
         old.close()
         old.break_cycles()
@@ -771,9 +771,9 @@ class WritingTest(BaseTest):
         conn.execute('INSERT INTO publishers (name) VALUES ("MŪS")')
         uid = conn.last_insert_rowid()
         conn.execute('DELETE FROM books_publishers_link')
-        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (1, %d)' % lid)
-        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (2, %d)' % uid)
-        conn.execute('INSERT INTO books_publishers_link (book,publisher) VALUES (3, %d)' % uid)
+        conn.execute(f'INSERT INTO books_publishers_link (book,publisher) VALUES (1, {lid})')
+        conn.execute(f'INSERT INTO books_publishers_link (book,publisher) VALUES (2, {uid})')
+        conn.execute(f'INSERT INTO books_publishers_link (book,publisher) VALUES (3, {uid})')
         cache.reload_from_db()
         t = cache.fields['publisher'].table
         for x in (lid, uid):

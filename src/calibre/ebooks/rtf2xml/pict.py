@@ -122,7 +122,7 @@ class Pict:
             self.__pict_count += 1
             # write_obj.write("mi<tg<em<at<pict<num>%03d\n" % self.__pict_count)
             write_obj.write('mi<mk<pict-start\n')
-            write_obj.write('mi<tg<empty-att_<pict<num>%03d\n' % self.__pict_count)
+            write_obj.write(f'mi<tg<empty-att_<pict<num>{self.__pict_count:03}\n')
             write_obj.write('mi<mk<pict-end__\n')
             if not self.__already_found_pict:
                 self.__create_pict_file()

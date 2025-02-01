@@ -419,17 +419,17 @@ class Graphics:
         # Line cap
         cap = {Qt.PenCapStyle.FlatCap:0, Qt.PenCapStyle.RoundCap:1, Qt.PenCapStyle.SquareCap:
                2}.get(pen.capStyle(), 0)
-        pdf.current_page.write('%d J '%cap)
+        pdf.current_page.write(f'{cap} J ')
 
         # Line join
         join = {Qt.PenJoinStyle.MiterJoin:0, Qt.PenJoinStyle.RoundJoin:1,
                 Qt.PenJoinStyle.BevelJoin:2}.get(pen.joinStyle(), 0)
-        pdf.current_page.write('%d j '%join)
+        pdf.current_page.write(f'{join} j ')
 
         # Dash pattern
         if pen.style() == Qt.PenStyle.CustomDashLine:
             pdf.serialize(Array(pen.dashPattern()))
-            pdf.current_page.write(' %d d ' % pen.dashOffset())
+            pdf.current_page.write(f' {pen.dashOffset()} d ')
         else:
             ps = {Qt.PenStyle.DashLine:[3], Qt.PenStyle.DotLine:[1,2], Qt.PenStyle.DashDotLine:[3,2,1,2],
                   Qt.PenStyle.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])

@@ -54,7 +54,7 @@ def unipmlcode(char):
     try:
         val = ord(char.encode('cp1252'))
         if val in A_CHARS:
-            return '\\a%i' % val
+            return f'\\a{val}'
     except Exception:
         pass
     val = ord(char)

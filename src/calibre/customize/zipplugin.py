@@ -350,7 +350,7 @@ class CalibrePluginFinder:
             c = 0
             while True:
                 c += 1
-                plugin_name = 'dummy%d'%c
+                plugin_name = f'dummy{c}'
                 if plugin_name not in self.loaded_plugins:
                     break
         else:

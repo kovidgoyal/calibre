@@ -654,7 +654,7 @@ class LibraryDatabase:
         book_id = index if index_is_id else self.id(index)
         ans = self.new_api.format_abspath(book_id, fmt)
         if ans is None:
-            raise NoSuchFormat('Record %d has no format: %s'%(book_id, fmt))
+            raise NoSuchFormat(f'Record {book_id} has no format: {fmt}')
         return ans
 
     def format_files(self, index, index_is_id=False):

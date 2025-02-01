@@ -59,7 +59,7 @@ def make_library_id_unique(library_id, existing):
     c = 0
     while library_id in existing:
         c += 1
-        library_id = bname + ('%d' % c)
+        library_id = bname + f'{c}'
     return library_id
 
 

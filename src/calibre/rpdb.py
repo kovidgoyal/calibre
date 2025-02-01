@@ -29,7 +29,7 @@ class RemotePdb(pdb.Pdb):
         self.sock.bind((addr, port))
         self.sock.listen(1)
         with suppress(OSError):
-            print('pdb is running on %s:%d' % (addr, port), file=sys.stderr)
+            print(f'pdb is running on {addr}:{port}', file=sys.stderr)
         clientsocket, address = self.sock.accept()
         clientsocket.setblocking(True)
         self.clientsocket = clientsocket
@@ -100,7 +100,7 @@ def set_trace(port=4444, skip=None):
 
 
 def cli(port=4444):
-    print('Connecting to remote debugger on port %d...' % port)
+    print(f'Connecting to remote debugger on port {port}...')
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     for i in range(20):
         try:

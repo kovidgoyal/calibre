@@ -26,7 +26,7 @@ if iswindows:
 
 
 def fmt(code):
-    return '\033[%dm' % code
+    return f'\x1b[{code}m'
 
 
 def polyglot_write(stream, is_binary, encoding, text):

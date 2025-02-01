@@ -57,7 +57,7 @@ class FileSystemImages(pictureflow.FlowImages):
             if not img.isNull():
                 self.images.append(img)
                 self.captions.append(os.path.basename(f))
-                self.subtitles.append('%d bytes'%os.stat(f).st_size)
+                self.subtitles.append(f'{os.stat(f).st_size} bytes')
 
     def count(self):
         return len(self.images)
@@ -91,7 +91,7 @@ class DummyImageList(pictureflow.FlowImages):
         return self.images[index%2]
 
     def caption(self, index):
-        return 'Number: %d'%index
+        return f'Number: {index}'
 
     def subtitle(self, index):
         return ''

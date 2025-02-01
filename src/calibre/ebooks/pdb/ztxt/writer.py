@@ -33,7 +33,7 @@ class Writer(FormatWriter):
         compressor = zlib.compressobj(9)
         self.log.info('Compressing data...')
         for i in range(len(txt_records)):
-            self.log.debug('\tCompressing record %i' % i)
+            self.log.debug(f'\tCompressing record {i}')
             txt_records[i] = compressor.compress(txt_records[i])
             txt_records[i] = txt_records[i] + compressor.flush(zlib.Z_FULL_FLUSH)
             section_lengths.append(len(txt_records[i]))

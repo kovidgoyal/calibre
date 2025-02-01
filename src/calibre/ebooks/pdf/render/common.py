@@ -226,11 +226,11 @@ class Reference:
         self.num, self.obj = num, obj
 
     def pdf_serialize(self, stream):
-        raw = '%d 0 R'%self.num
+        raw = f'{self.num} 0 R'
         stream.write(raw.encode('ascii'))
 
     def __repr__(self):
-        return '%d 0 R'%self.num
+        return f'{self.num} 0 R'
 
     def __str__(self):
         return repr(self)

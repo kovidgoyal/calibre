@@ -261,7 +261,7 @@ class Color:
         return (self.r, self.g, self.b, 0xff-self.a)[i]  # In Qt 0xff is opaque while in LRS 0x00 is opaque
 
     def to_html(self):
-        return 'rgb(%d, %d, %d)'%(self.r, self.g, self.b)
+        return f'rgb({self.r}, {self.g}, {self.b})'
 
 
 class EmptyPageElement:
@@ -303,7 +303,7 @@ class Wait(EmptyPageElement):
         self.time = time
 
     def __str__(self):
-        return '\n<Wait time="%d" />\n'%(self.time)
+        return f'\n<Wait time="{self.time}" />\n'
 
 
 class Locate(EmptyPageElement):
@@ -323,8 +323,7 @@ class BlockSpace(EmptyPageElement):
         self.xspace, self.yspace = xspace, yspace
 
     def __str__(self):
-        return '\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
-                (self.xspace, self.yspace)
+        return f'\n<BlockSpace xspace="{self.xspace}" yspace="{self.yspace}" />\n'
 
 
 class Page(LRFStream):
@@ -420,7 +419,7 @@ class Page(LRFStream):
         yield from self.content
 
     def __str__(self):
-        s = '\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
+        s = f'\n<Page pagestyle="{self.style_id}" objid="{self.id}">\n'
         for i in self:
             s += str(i)
         s += '\n</Page>\n'
@@ -470,11 +469,11 @@ class BlockAttr(StyleObject, LRFObject):
             margin = str(obj.sidemargin) + 'px'
             ans += item('margin-left: {m}; margin-right: {m};'.format(**dict(m=margin)))
         if hasattr(obj, 'topskip'):
-            ans += item('margin-top: %dpx;'%obj.topskip)
+            ans += item(f'margin-top: {obj.topskip}px;')
         if hasattr(obj, 'footskip'):
-            ans += item('margin-bottom: %dpx;'%obj.footskip)
+            ans += item(f'margin-bottom: {obj.footskip}px;')
         if hasattr(obj, 'framewidth'):
-            ans += item('border: solid %dpx'%obj.framewidth)
+            ans += item(f'border: solid {obj.framewidth}px')
         if hasattr(obj, 'framecolor') and obj.framecolor.a < 255:
             ans += item(f'border-color: {obj.framecolor.to_html()};')
         if hasattr(obj, 'bgcolor') and obj.bgcolor.a < 255:
@@ -602,9 +601,9 @@ class Block(LRFStream, TextCSS):
                 self.attrs[attr] = getattr(self, attr)
 
     def __str__(self):
-        s = '\n<%s objid="%d" blockstyle="%s" '%(self.name, self.id, getattr(self, 'style_id', ''))
+        s = f"\n<{self.name} objid=\"{self.id}\" blockstyle=\"{getattr(self, 'style_id', '')}\" "
         if hasattr(self, 'textstyle_id'):
-            s += 'textstyle="%d" '%(self.textstyle_id,)
+            s += f'textstyle="{self.textstyle_id}" '
         for attr in self.attrs:
             s += f'{attr}="{self.attrs[attr]}" '
         if self.name != 'ImageBlock':
@@ -933,8 +932,7 @@ class Image(LRFObject):
     data = property(fget=lambda self: self._document.objects[self.refstream].stream)
 
     def __str__(self):
-        return '<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
-        (self.id, self.x0, self.y0, self.x1, self.y1, self.xsize, self.ysize, self.refstream)
+        return f'<Image objid="{self.id}" x0="{self.x0}" y0="{self.y0}" x1="{self.x1}" y1="{self.y1}" xsize="{self.xsize}" ysize="{self.ysize}" refstream="{self.refstream}" />\n'
 
 
 class PutObj(EmptyPageElement):
@@ -944,7 +942,7 @@ class PutObj(EmptyPageElement):
         self.object = objects[refobj]
 
     def __str__(self):
-        return '<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
+        return f'<PutObj x1="{self.x1}" y1="{self.y1}" refobj="{self.refobj}" />'
 
 
 class Canvas(LRFStream):

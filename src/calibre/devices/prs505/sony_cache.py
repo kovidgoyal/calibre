@@ -434,8 +434,7 @@ class XMLCache:
                             book.lpath, book.thumbnail)
                     self.periodicalize_book(book, ext_record)
 
-            debug_print('Timezone votes: %d GMT, %d LTZ, use_tz_var=%s'%
-                                        (gtz_count, ltz_count, use_tz_var))
+            debug_print(f'Timezone votes: {gtz_count} GMT, {ltz_count} LTZ, use_tz_var={use_tz_var}')
             self.update_playlists(i, root, booklist, collections_attributes)
         # Update the device collections because update playlist could have added
         # some new ones.

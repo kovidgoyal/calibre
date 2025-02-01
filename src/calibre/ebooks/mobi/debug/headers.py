@@ -116,8 +116,7 @@ class Record:  # {{{
 
     @property
     def header(self):
-        return 'Offset: %d Flags: %d UID: %d First 4 bytes: %r Size: %d'%(self.offset, self.flags,
-                self.uid, self.raw[:4], len(self.raw))
+        return f'Offset: {self.offset} Flags: {self.flags} UID: {self.uid} First 4 bytes: {self.raw[:4]!r} Size: {len(self.raw)}'
 # }}}
 
 
@@ -213,7 +212,7 @@ class EXTHRecord:
             self.data = binascii.hexlify(self.data)
 
     def __str__(self):
-        return '%s (%d): %r'%(self.name, self.type, self.data)
+        return f'{self.name} ({self.type}): {self.data!r}'
 
 
 class EXTHHeader:
@@ -254,8 +253,8 @@ class EXTHHeader:
 
     def __str__(self):
         ans = ['*'*20 + ' EXTH Header '+ '*'*20]
-        ans.append('EXTH header length: %d'%self.length)
-        ans.append('Number of EXTH records: %d'%self.count)
+        ans.append(f'EXTH header length: {self.length}')
+        ans.append(f'Number of EXTH records: {self.count}')
         ans.append('EXTH records...')
         for r in self.records:
             ans.append(str(r))
@@ -416,7 +415,7 @@ class MOBIHeader:  # {{{
                 self.last_resource_record = self.exth.kf8_header_index - 2
 
     def __str__(self):
-        ans = ['*'*20 + ' MOBI %d Header '%self.file_version+ '*'*20]
+        ans = ['*'*20 + f' MOBI {self.file_version} Header '+ '*'*20]
 
         a = ans.append
 
@@ -427,39 +426,39 @@ class MOBIHeader:  # {{{
         def r(d, attr):
             x = getattr(self, attr)
             if attr in self.relative_records and x != NULL_INDEX:
-                a('%s: Absolute: %d Relative: %d'%(d, x, x-self.header_offset))
+                a(f'{d}: Absolute: {x} Relative: {x - self.header_offset}')
             else:
                 i(d, x)
 
         a(f'Compression: {self.compression}')
         a(f'Unused: {self.unused!r}')
-        a('Text length: %d'%self.text_length)
-        a('Number of text records: %d'%self.number_of_text_records)
-        a('Text record size: %d'%self.text_record_size)
+        a(f'Text length: {self.text_length}')
+        a(f'Number of text records: {self.number_of_text_records}')
+        a(f'Text record size: {self.text_record_size}')
         a(f'Encryption: {self.encryption_type}')
         a(f'Unknown: {self.unknown!r}')
         a(f'Identifier: {self.identifier!r}')
-        a('Header length: %d'% self.length)
+        a(f'Header length: {self.length}')
         a(f'Type: {self.type}')
         a(f'Encoding: {self.encoding}')
         a(f'UID: {self.uid!r}')
-        a('File version: %d'%self.file_version)
+        a(f'File version: {self.file_version}')
         r('Meta Orth Index', 'meta_orth_indx')
         r('Meta Infl Index', 'meta_infl_indx')
         r('Secondary index record', 'secondary_index_record')
         a(f'Reserved: {self.reserved!r}')
         r('First non-book record', 'first_non_book_record')
-        a('Full name offset: %d'%self.fullname_offset)
-        a('Full name length: %d bytes'%self.fullname_length)
+        a(f'Full name offset: {self.fullname_offset}')
+        a(f'Full name length: {self.fullname_length} bytes')
         a(f'Langcode: {self.locale_raw!r}')
         a(f'Language: {self.language}')
         a(f'Sub language: {self.sublanguage}')
         a(f'Input language: {self.input_language!r}')
         a(f'Output language: {self.output_langauage!r}')
-        a('Min version: %d'%self.min_version)
+        a(f'Min version: {self.min_version}')
         r('First Image index', 'first_image_index')
         r('Huffman record offset', 'huffman_record_offset')
-        a('Huffman record count: %d'%self.huffman_record_count)
+        a(f'Huffman record count: {self.huffman_record_count}')
         r('Huffman table offset', 'datp_record_offset')
         a(f'Huffman table length: {self.datp_record_count!r}')
         a(f'EXTH flags: {bin(self.exth_flags)[2:]} ({self.has_exth})')
@@ -472,18 +471,18 @@ class MOBIHeader:  # {{{
         if self.has_extra_data_flags:
             a(f'Unknown4: {self.unknown4!r}')
             if hasattr(self, 'first_text_record'):
-                a('First content record: %d'%self.first_text_record)
-                a('Last content record: %d'%self.last_text_record)
+                a(f'First content record: {self.first_text_record}')
+                a(f'Last content record: {self.last_text_record}')
             else:
                 r('FDST Index', 'fdst_idx')
-            a('FDST Count: %d'% self.fdst_count)
+            a(f'FDST Count: {self.fdst_count}')
             r('FCIS number', 'fcis_number')
-            a('FCIS count: %d'% self.fcis_count)
+            a(f'FCIS count: {self.fcis_count}')
             r('FLIS number', 'flis_number')
-            a('FLIS count: %d'% self.flis_count)
+            a(f'FLIS count: {self.flis_count}')
             a(f'Unknown6: {self.unknown6!r}')
             r('SRCS record index', 'srcs_record_index')
-            a('Number of SRCS records?: %d'%self.num_srcs_records)
+            a(f'Number of SRCS records?: {self.num_srcs_records}')
             a(f'Unknown7: {self.unknown7!r}')
             a(f'Extra data flags: {bin(self.extra_data_flags)} (has multibyte: {self.has_multibytes}) '
                 f'(has indexing: {self.has_indexing_bytes}) (has uncrossable breaks: {self.has_uncrossable_breaks})')
@@ -502,8 +501,7 @@ class MOBIHeader:  # {{{
             ans += '\n\n' + str(self.exth)
             ans += f'\n\nBytes after EXTH ({len(self.bytes_after_exth)} bytes): {format_bytes(self.bytes_after_exth)}'
 
-        ans += '\nNumber of bytes after full name: %d' % (len(self.raw) - (self.fullname_offset +
-                self.fullname_length))
+        ans += f'\nNumber of bytes after full name: {len(self.raw) - (self.fullname_offset + self.fullname_length)}'
 
         ans += f'\nRecord 0 length: {len(self.raw)}'
         return ans
@@ -599,13 +597,12 @@ class TextRecord:  # {{{
 
         for typ, val in iteritems(self.trailing_data):
             if isinstance(typ, numbers.Integral):
-                print('Record %d has unknown trailing data of type: %d : %r'%
-                        (idx, typ, val))
+                print(f'Record {idx} has unknown trailing data of type: {typ} : {val!r}')
 
         self.idx = idx
 
     def dump(self, folder):
-        name = '%06d'%self.idx
+        name = f'{self.idx:06}'
         with open(os.path.join(folder, name+'.txt'), 'wb') as f:
             f.write(self.raw)
         with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:

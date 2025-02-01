@@ -211,7 +211,7 @@ class Colors:
         if hex_num is None:
             hex_num = '0'
             if self.__run_level > 3:
-                msg = 'no value in self.__color_dict for key %s at line %d\n' % (num, self.__line)
+                msg = f'no value in self.__color_dict for key {num} at line {self.__line}\n'
                 raise self.__bug_handler(msg)
         return hex_num
 

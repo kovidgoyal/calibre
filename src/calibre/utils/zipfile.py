@@ -1457,8 +1457,7 @@ class ZipFile:
             # check for valid comment length
             if len(self.comment) >= ZIP_MAX_COMMENT:
                 if self.debug > 0:
-                    msg = 'Archive comment is too long; truncating to %d bytes' \
-                          % ZIP_MAX_COMMENT
+                    msg = f'Archive comment is too long; truncating to {ZIP_MAX_COMMENT} bytes'
                     print(msg)
                 self.comment = self.comment[:ZIP_MAX_COMMENT]
 

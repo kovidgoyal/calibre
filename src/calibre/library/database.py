@@ -814,11 +814,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         i = 0
         while True:
             i += 1
-            func = getattr(LibraryDatabase, 'upgrade_version%d'%i, None)
+            func = getattr(LibraryDatabase, f'upgrade_version{i}', None)
             if func is None:
                 break
             if self.user_version == i:
-                print('Upgrading database from version: %d'%i)
+                print(f'Upgrading database from version: {i}')
                 func(self.conn)
 
     def close(self):
@@ -1057,15 +1057,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.get('SELECT id, name FROM series')]
 
     def series_name(self, series_id):
-        return self.conn.get('SELECT name FROM series WHERE id=%d'%series_id,
+        return self.conn.get(f'SELECT name FROM series WHERE id={series_id}',
                 all=False)
 
     def author_name(self, author_id):
-        return self.conn.get('SELECT name FROM authors WHERE id=%d'%author_id,
+        return self.conn.get(f'SELECT name FROM authors WHERE id={author_id}',
                 all=False)
 
     def tag_name(self, tag_id):
-        return self.conn.get('SELECT name FROM tags WHERE id=%d'%tag_id,
+        return self.conn.get(f'SELECT name FROM tags WHERE id={tag_id}',
                 all=False)
 
     def all_authors(self):
@@ -1102,7 +1102,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if len(ids) > 50000:
             return True
         if len(ids) == 1:
-            ids = '(%d)'%ids[0]
+            ids = f'({ids[0]})'
         else:
             ids = repr(ids)
         return self.conn.get(f'''
@@ -1385,7 +1385,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         yield from feeds
 
     def get_feed(self, id):
-        return self.conn.get('SELECT script FROM feeds WHERE id=%d'%id,
+        return self.conn.get(f'SELECT script FROM feeds WHERE id={id}',
                 all=False)
 
     def update_feed(self, id, script, title):

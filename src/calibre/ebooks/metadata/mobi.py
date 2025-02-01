@@ -227,7 +227,7 @@ class MetadataUpdater:
         # Fetch the existing title
         title_offset, = unpack('>L', self.record0[0x54:0x58])
         title_length, = unpack('>L', self.record0[0x58:0x5c])
-        title_in_file, = unpack('%ds' % (title_length), self.record0[title_offset:title_offset + title_length])
+        title_in_file, = unpack(f'{title_length}s', self.record0[title_offset:title_offset + title_length])
 
         # Adjust length to accommodate PrimaryINDX if necessary
         mobi_header_length, = unpack('>L', self.record0[0x14:0x18])
