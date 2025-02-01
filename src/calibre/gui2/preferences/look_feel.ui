@@ -1410,7 +1410,7 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
   <customwidget>
    <class>QuickviewTab</class>
    <extends>ConfigWidget</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.tb_quickview.h</header>
+   <header>calibre/gui2/preferences/look_feel_tabs.quickview.h</header>
   </customwidget>
  </customwidgets>
  <resources>
