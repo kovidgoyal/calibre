@@ -114,7 +114,7 @@ class MTP_DEVICE(BASE):
             'pictures', 'ringtones', 'samsung', 'sony', 'htc', 'bluetooth', 'fonts',
             'games', 'lost.dir', 'video', 'whatsapp', 'image', 'com.zinio.mobile.android.reader'}:
             return True
-        if lpath[0].startswith('.') and lpath[0] != '.tolino' and lpath[0] != '.notebooks':
+        if lpath[0].startswith('.') and lpath[0] not in ('.tolino', '.notebooks'):
             # apparently the Tolino for some reason uses a hidden folder for its library, sigh.
             # Kindle Scribe stores user notebooks in subfolders of '.notebooks'
             return True
