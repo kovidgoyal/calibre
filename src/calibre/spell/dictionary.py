@@ -37,7 +37,7 @@ class UserDictionary:
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.is_active = kwargs['is_active']
-        self.words = set(kwargs['words'])
+        self.words = set(map(tuple, kwargs['words']))
 
     def serialize(self):
         return {'name':self.name, 'is_active': self.is_active, 'words': list(self.words)}
