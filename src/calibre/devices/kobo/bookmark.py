@@ -168,7 +168,7 @@ class Bookmark:  # {{{
         ans = ['Kobo bookmark:']
 
         def fmt(x, y):
-            ans.append('%-20s: %s'%(str(x), str(y)))
+            ans.append(f'{x:<20}: {y}')
 
         if self.contentId:
             fmt('ContentID', self.contentId)

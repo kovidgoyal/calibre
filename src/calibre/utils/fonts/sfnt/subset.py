@@ -220,8 +220,7 @@ def option_parser():
 def print_stats(old_stats, new_stats):
     from calibre import prints
     prints('========= Table comparison (original vs. subset) =========')
-    prints('Table', ' ', '%10s'%'Size', '  ', 'Percent', '   ', '%10s'%'New Size',
-            ' New Percent')
+    prints('Table', ' ', f"{'Size':>10}", '  ', 'Percent', '   ', f"{'New Size':>10}", ' New Percent')
     prints('='*80)
     old_total = sum(itervalues(old_stats))
     new_total = sum(itervalues(new_stats))
@@ -235,8 +234,8 @@ def print_stats(old_stats, new_stats):
         suffix = ' | same size'
         if nsz != osz:
             suffix = f' | reduced to {nsz/osz*100:.1f} %'
-        prints(f'{table:4}', '  ', f'{osz:10}', '  ', f'{op:5.1f} %', '   ',
-                f'{nsz:10}', '  ', f'{np:5.1f} %', suffix)
+        prints(f'{table:>4}', '  ', f'{osz:>10}', '  ', f'{op:5.1f} %', '   ',
+               f'{nsz:>10}', '  ', f'{np:5.1f} %', suffix)
     prints('='*80)
 
 

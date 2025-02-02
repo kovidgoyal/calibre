@@ -366,8 +366,7 @@ class Document:
             tag = el.tag
 
             if weight + content_score < 0:
-                self.debug('Cleaned %s with score %6.3f and weight %-3s' %
-                    (describe(el), content_score, weight, ))
+                self.debug(f'Cleaned {describe(el)} with score {content_score:6.3f} and weight {weight:<3}')
                 el.drop_tree()
             elif el.text_content().count(',') < 10:
                 counts = {}

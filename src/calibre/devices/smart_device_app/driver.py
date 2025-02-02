@@ -484,7 +484,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             except:
                 today = time.localtime()
                 date = (today[0], today[1], today[2])
-            template = '{title}_%d-%d-%d' % date
+            template = f'{{title}}_{date[0]}-{date[1]}-{date[2]}'
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         from calibre.library.save_to_disk import config, get_components

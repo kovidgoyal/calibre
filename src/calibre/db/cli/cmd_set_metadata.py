@@ -118,9 +118,9 @@ def get_fields(dbctx):
 def main(opts, args, dbctx):
     if opts.list_fields:
         ans = get_fields(dbctx)
-        prints('%-40s' % _('Title'), _('Field name'), '\n')
+        prints('{:<40}'.format(_('Title')), _('Field name'), '\n')
         for key, m in ans:
-            prints('%-40s' % m['name'], key)
+            prints('{:<40}'.format(m['name']), key)
         return 0
 
     def verify_int(x):

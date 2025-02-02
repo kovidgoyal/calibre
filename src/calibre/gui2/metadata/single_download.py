@@ -90,7 +90,7 @@ class RichTextDelegate(QStyledItemDelegate):  # {{{
             group = (QPalette.ColorGroup.Active if option.state & QStyle.StateFlag.State_Active else
                     QPalette.ColorGroup.Inactive)
             c = p.color(group, QPalette.ColorRole.HighlightedText)
-            c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
+            c = 'rgb({}, {}, {})'.format(*c.getRgb()[:3])
             doc.setDefaultStyleSheet(f' * {{ color: {c} }}')
         doc.setHtml(index.data() or '')
         return doc

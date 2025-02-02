@@ -91,7 +91,7 @@ def create_upload_path(mdata, fname, template, sanitize,
         except:
             today = time.localtime()
             date = (today[0], today[1], today[2])
-        template = '{title}_%d-%d-%d' % date
+        template = f'{{title}}_{date[0]}-{date[1]}-{date[2]}'
 
     fname = sanitize(fname)
     ext = path_type.splitext(fname)[1]

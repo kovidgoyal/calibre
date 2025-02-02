@@ -971,10 +971,11 @@ class ZipFile:
 
     def printdir(self):
         '''Print a table of contents for the zip file.'''
-        print('%-46s %19s %12s' % ('File Name', 'Modified    ', 'Size'))
+        print(f"{'File Name':<46} {'Modified    ':>19} {'Size':>12}")
         for zinfo in self.filelist:
-            date = '%d-%02d-%02d %02d:%02d:%02d' % zinfo.date_time[:6]
-            print('%-46s %s %12d' % (zinfo.filename, date, zinfo.file_size))
+            date = (f'{zinfo.date_time[0]}-{zinfo.date_time[1]:02}-{zinfo.date_time[2]:02} '
+                    f'{zinfo.date_time[3]:02}:{zinfo.date_time[4]:02}:{zinfo.date_time[5]:02}')
+            print(f'{zinfo.filename:<46} {date:>19} {zinfo.file_size:>12}')
 
     def testzip(self):
         '''Read all the files and check the CRC.'''

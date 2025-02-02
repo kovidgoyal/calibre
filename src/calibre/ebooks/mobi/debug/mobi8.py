@@ -45,7 +45,7 @@ class FDST:
         a('Number of section records', self.num_sections)
         ans.append(f'**** {len(self.sections)} Sections ****')
         for sec in self.sections:
-            ans.append('Start: %20d End: %d'%sec)
+            ans.append(f'Start: {sec[0]:>20} End: {sec[1]}')
 
         return '\n'.join(ans)
 
@@ -266,7 +266,7 @@ class MOBIFile:
                 for entries in itervalues(strand):
                     for e in entries:
                         desc.append(
-                        ' %s%d [%-9s] parent: %s (%d) Geometry: (%d, %d)'%(
+                        ' {}{} [{:<9}] parent: {} ({}) Geometry: ({}, {})'.format(
                             e.depth * ('  ') + '- ', e.index, e.action, e.parent,
                             e.index-(e.parent or 0), e.start-i*RECORD_SIZE,
                             e.start+e.length-i*RECORD_SIZE))

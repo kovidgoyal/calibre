@@ -231,7 +231,7 @@ def do_list(
 
     widths = list(base_widths)
     titles = map(
-        lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths,
+        lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths,  # noqa: UP031
         [template_title if v == 'template' else v for v in fields]
     )
     with ColoredStream(sys.stdout, fg='green'):
@@ -251,7 +251,7 @@ def do_list(
                 ft = text[i][l] if l < len(text[i]) else ''
                 stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = ('%*s' % (widths[i] - str_width(ft) - 1, ''))
+                    filler = ' '*(widths[i] - str_width(ft) - 1)
                     stdout.write((filler + separator).encode('utf-8'))
             stdout.write(linesep)
 

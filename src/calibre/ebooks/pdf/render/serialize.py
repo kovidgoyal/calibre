@@ -68,7 +68,7 @@ class IndirectObjects:
         stream.write(b'xref'+EOL)
         stream.write(f'0 {1 + len(self._offsets)}')
         stream.write(EOL)
-        stream.write('%010d 65535 f '%0)
+        stream.write(f'{0:010} 65535 f ')
         stream.write(EOL)
 
         for offset in self._offsets:

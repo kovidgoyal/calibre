@@ -264,7 +264,7 @@ class CatalogBuilder:
          (str): sort key
         '''
         if not book['series']:
-            fs = '{:<%d}!{!s}' % longest_author_sort
+            fs = '{:<%d}!{!s}' % longest_author_sort  # noqa: UP031
             key = fs.format(capitalize(book['author_sort']),
                             capitalize(book['title_sort']))
         else:
@@ -272,7 +272,7 @@ class CatalogBuilder:
             integer = int(index)
             fraction = index - integer
             series_index = f"{integer:04}{str(f'{fraction:0.4f}').lstrip('0')}"
-            fs = '{:<%d}~{!s}{!s}' % longest_author_sort
+            fs = '{:<%d}~{!s}{!s}' % longest_author_sort  # noqa: UP031
             key = fs.format(capitalize(book['author_sort']),
                             self.generate_sort_title(book['series']),
                             series_index)
@@ -653,9 +653,8 @@ class CatalogBuilder:
             self.opts.log.info(' Custom fields:')
             all_custom_fields = self.db.custom_field_keys()
             for cf in all_custom_fields:
-                self.opts.log.info('  %-20s %-20s %s' %
-                    (cf, "'{}'".format(self.db.metadata_for_field(cf)['name']),
-                     self.db.metadata_for_field(cf)['datatype']))
+                self.opts.log.info('  {:<20} {!r:<20} {}'.format(
+                    cf, self.db.metadata_for_field(cf)['name'], self.db.metadata_for_field(cf)['datatype']))
 
     def establish_equivalencies(self, item_list, key=None):
         ''' Return icu equivalent sort letter.
@@ -786,7 +785,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             tl = [i['title'] for i in books_by_author]
             lt = max(tl, key=len)
-            fs = '{:<6}{:<%d} {:<%d} {}' % (len(lt), len(las))
+            fs = '{:<6}{:<%d} {:<%d} {}' % (len(lt), len(las))  # noqa: UP031
             print(fs.format('', 'Title', 'Author', 'Series'))
             for i in books_by_author:
                 print(fs.format('', i['title'], i['author_sort'], i['series']))
@@ -835,8 +834,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             self.opts.log.info(f'\nfetch_books_by_author(): {len(unique_authors)} unique authors')
             for author in unique_authors:
-                self.opts.log.info((' %-50s %-25s %2d' % (author[0][0:45], author[1][0:20],
-                    author[2])).encode('utf-8'))
+                self.opts.log.info(f' {author[0][0:45]:<50} {author[1][0:20]:<25} {author[2]:>2}')
             self.opts.log.info(f'\nfetch_books_by_author(): {len(individual_authors)} individual authors')
             for author in sorted(individual_authors):
                 self.opts.log.info(f'{author}')
@@ -865,10 +863,9 @@ class CatalogBuilder:
 
             if self.DEBUG and self.opts.verbose:
                 self.opts.log.info(f'fetch_books_by_title(): {len(self.books_by_title)} books')
-                self.opts.log.info(' %-40s %-40s' % ('title', 'title_sort'))
+                self.opts.log.info(' {:<40} {:<40}'.format('title', 'title_sort'))
                 for title in self.books_by_title:
-                    self.opts.log.info((' %-40s %-40s' % (title['title'][0:40],
-                                                            title['title_sort'][0:40])).encode('utf-8'))
+                    self.opts.log.info(' {:<40} {:<40}'.format(title['title'][0:40], title['title_sort'][0:40]))
         else:
             error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in the E-book options.\n")
             self.opts.log.error('*** ' + error_msg + ' ***')

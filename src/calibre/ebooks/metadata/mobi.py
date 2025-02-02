@@ -286,7 +286,7 @@ class MetadataUpdater:
             s, src = src[:length],src[length:]
             hexa = ' '.join([f'{ord(x):02X}' for x in s])
             s = s.translate(FILTER)
-            result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
+            result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)  # noqa: UP031
             N+=length
         print(result)
 
@@ -308,7 +308,7 @@ class MetadataUpdater:
     def dump_pdbrecords(self):
         # Diagnostic
         print('MetadataUpdater.dump_pdbrecords()')
-        print('%10s %10s %10s' % ('offset','flags','val'))
+        print(f"{'offset':>10} {'flags':>10} {'val':>10}")
         for i in range(len(self.pdbrecords)):
             pdbrecord = self.pdbrecords[i]
             print(f'{pdbrecord[0]:10X} {pdbrecord[1]:10X} {pdbrecord[2]:10X}')

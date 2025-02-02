@@ -769,8 +769,7 @@ class StylesManager:
             text_style.seq = i
         self.descendant_text_styles = sorted(descendant_style_map, key=attrgetter('seq'))
 
-        self.log.debug('%d Text Styles %d Combined styles' % tuple(map(len, (
-            self.descendant_text_styles, self.combined_styles))))
+        self.log.debug(f'{len(self.descendant_text_styles)} Text Styles {len(self.combined_styles)} Combined styles')
 
         self.primary_heading_style = None
         if heading_styles:

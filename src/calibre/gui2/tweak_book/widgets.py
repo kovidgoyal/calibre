@@ -547,7 +547,7 @@ class NamesDelegate(QStyledItemDelegate):
             positions = sorted(set(positions) - {-1}, reverse=True)
             text = f'<body>{make_highlighted_text(emphasis_style(), text, positions)}</body>'
             doc = QTextDocument()
-            c = 'rgb(%d, %d, %d)'%c.getRgb()[:3]
+            c = 'rgb({}, {}, {})'.format(*c.getRgb()[:3])
             doc.setDefaultStyleSheet(f' body {{ color: {c} }}')
             doc.setHtml(text)
             doc.setDefaultFont(option.font)

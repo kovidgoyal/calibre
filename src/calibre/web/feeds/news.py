@@ -1693,7 +1693,7 @@ class BasicNewsRecipe(Recipe):
                     f.title, play_order=po, description=desc, author=auth))
 
         else:
-            entries.append('feed_%d/index.html'%0)
+            entries.append('feed_0/index.html')
             feed_index(0, toc)
 
         for i, p in enumerate(entries):

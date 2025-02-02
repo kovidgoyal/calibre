@@ -98,8 +98,8 @@ class SecondaryIndexHeader:  # {{{
         a = ans.append
 
         def u(w):
-            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
-                len(w), not bool(w.replace(b'\0', b''))))
+            a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(
+                w, len(w), not bool(w.replace(b'\0', b''))))
 
         a(f'Header length: {self.header_length}')
         u(self.unknown1)
@@ -199,7 +199,7 @@ class IndexHeader:  # {{{
         a = ans.append
 
         def u(w):
-            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
+            a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(w,
                 len(w), not bool(w.replace(b'\0', b''))))
 
         a(f'Header length: {self.header_length}')
@@ -411,7 +411,7 @@ class IndexRecord:  # {{{
         a = ans.append
 
         def u(w):
-            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
+            a('Unknown: {!r} ({} bytes) (All zeros: {!r})'.format(w,
                 len(w), not bool(w.replace(b'\0', b''))))
         for entry in self.indices:
             offset = entry.offset
@@ -582,9 +582,7 @@ class TBSIndexing:  # {{{
         ans = []
         ans.append(f"\nRecord #{r.idx}: Starts at: {dat['geom'][0]} Ends at: {dat['geom'][1]}")
         s, e, c = dat['starts'], dat['ends'], dat['complete']
-        ans.append(('\tContains: %d index entries '
-            '(%d ends, %d complete, %d starts)')%tuple(map(len, (s+e+c, e,
-                c, s))))
+        ans.append(f'\tContains: {len(s+e+c)} index entries ({len(e)} ends, {len(c)} complete, {len(s)} starts)')
         byts = bytearray(r.trailing_data.get('indexing', b''))
         ans.append(f'TBS bytes: {format_bytes(byts)}')
         for typ, entries in (('Ends', e), ('Complete', c), ('Starts', s)):
