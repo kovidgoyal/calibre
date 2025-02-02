@@ -932,7 +932,9 @@ class Image(LRFObject):
     data = property(fget=lambda self: self._document.objects[self.refstream].stream)
 
     def __str__(self):
-        return f'<Image objid="{self.id}" x0="{self.x0}" y0="{self.y0}" x1="{self.x1}" y1="{self.y1}" xsize="{self.xsize}" ysize="{self.ysize}" refstream="{self.refstream}" />\n'
+        return (
+            f'<Image objid="{self.id}" x0="{self.x0}" y0="{self.y0}" x1="{self.x1}" y1="{self.y1}"'
+            f' xsize="{self.xsize}" ysize="{self.ysize}" refstream="{self.refstream}" />\n')
 
 
 class PutObj(EmptyPageElement):

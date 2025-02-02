@@ -271,8 +271,8 @@ class Text(Element):
         if self.font_size_em == other.font_size_em \
           and False \
           and self.font.id == other.font.id \
-          and re.match(r'<span style="font-size:', self.raw) is not None \
-          and re.match(r'<span style="font-size:', other.raw) is not None:
+          and self.raw.startswith(r'<span style="font-size:') \
+          and other.raw.startswith(r'<span style="font-size:'):
             # We have the same class, so merge
             m_self = re.match(r'^(.+)</span>$', self.raw)
             m_other = re.match(r'^<span style="font-size:.+em">(.+</span>)$', other.raw)
@@ -281,7 +281,7 @@ class Text(Element):
                 other.raw = m_other.group(1)
         elif self.font_size_em != other.font_size_em \
           and self.font_size_em != 1.00:
-            if re.match(r'<span', self.raw) is None:
+            if not self.raw.startswith(r'<span'):
                 self.raw = f'<span style="font-size:{self.font_size_em!s}em">{self.raw}</span>'
             # Try to allow for a very large initial character
             elif len(self.text_as_string) <= 2 \

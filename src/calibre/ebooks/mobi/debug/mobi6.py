@@ -591,7 +591,7 @@ class TBSIndexing:  # {{{
             if entries:
                 ans.append(f'\t{typ}:')
                 for x in entries:
-                    ans.append(f"\t\tIndex Entry: {x.index} (Parent index: {x.parent_index}, Depth: {x.depth}, Offset: {x.offset}, Size: {x.size}) [{x.label}]")
+                    ans.append(f'\t\tIndex Entry: {x.index} (Parent index: {x.parent_index}, Depth: {x.depth}, Offset: {x.offset}, Size: {x.size}) [{x.label}]')
 
         def bin4(num):
             ans = bin(num)[2:]
@@ -646,7 +646,9 @@ class TBSIndexing:  # {{{
                         raise ValueError('Dont know how to interpret flags'
                                 f' {extra!r} while reading section transitions')
                     nsi = self.get_index(psi.index+1)
-                    ans.append(f'Last article in this record of section {psi.index} (relative to next section index [{nsi.index}]): {ai} [{ai + nsi.index} absolute index]')
+                    ans.append(
+                        f'Last article in this record of section {psi.index} (relative to next section index [{nsi.index}]):'
+                        f' {ai} [{ai + nsi.index} absolute index]')
                     psi = nsi
                     continue
 
@@ -654,9 +656,9 @@ class TBSIndexing:  # {{{
 
                 num = extra.get(0b0100, None)
                 if num is None:
-                    msg = f"The section {psi.index} has at most one article in this record"
+                    msg = f'The section {psi.index} has at most one article in this record'
                 else:
-                    msg = f"Number of articles in this record of section {psi.index}: {num}"
+                    msg = f'Number of articles in this record of section {psi.index}: {num}'
                 ans.append(msg)
 
                 offset = extra.get(0b0001, None)
@@ -664,7 +666,9 @@ class TBSIndexing:  # {{{
                     if offset == 0:
                         ans.append(f'This record is spanned by the article:{ai + psi.index}')
                     else:
-                        ans.append(f'->Offset to start of next section ({psi.index + 1}) from start of record: {offset} [{offset + record_offset} absolute offset]')
+                        ans.append(
+                            f'->Offset to start of next section ({psi.index + 1}) from start of record:'
+                            f' {offset} [{offset + record_offset} absolute offset]')
             return byts
         # }}}
 

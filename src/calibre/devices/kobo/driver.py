@@ -1742,7 +1742,8 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print(f"KoboTouch:update_booklist - title='{title}'", f'ContentType={ContentType}', 'isdownloaded=', isdownloaded)
                 debug_print(
-                    f'         prefix={prefix}, DateCreated={DateCreated}, readstatus={readstatus}, MimeType={MimeType}, expired={expired}, favouritesindex={favouritesindex}, accessibility={accessibility}, isdownloaded={isdownloaded}')
+                    f'         prefix={prefix}, DateCreated={DateCreated}, readstatus={readstatus}, MimeType={MimeType},'
+                    f' expired={expired}, favouritesindex={favouritesindex}, accessibility={accessibility}, isdownloaded={isdownloaded}')
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -2720,7 +2721,8 @@ class KOBOTOUCH(KOBO):
                     debug_print('KoboTouch:update_device_database_collections - about to clear empty bookshelves')
                     self.delete_empty_bookshelves(connection)
                 debug_print(f'KoboTouch:update_device_database_collections - Number of series set={self.series_set} Number of books={books_in_library}')
-                debug_print(f'KoboTouch:update_device_database_collections - Number of core metadata set={self.core_metadata_set} Number of books={books_in_library}')
+                debug_print(f'KoboTouch:update_device_database_collections - Number of core metadata set={self.core_metadata_set}'
+                            f' Number of books={books_in_library}')
 
                 self.dump_bookshelves(connection)
 
@@ -2914,7 +2916,8 @@ class KOBOTOUCH(KOBO):
                 for ending, cover_options in self.cover_file_endings().items():
                     kobo_size, min_dbversion, max_dbversion, is_full_size = cover_options
                     if show_debug:
-                        debug_print(f'KoboTouch:_upload_cover - library_cover_size={library_cover_size} -> kobo_size={kobo_size}, min_dbversion={min_dbversion} max_dbversion={max_dbversion}, is_full_size={is_full_size}')
+                        debug_print(f'KoboTouch:_upload_cover - library_cover_size={library_cover_size} -> kobo_size={kobo_size},'
+                                    f' min_dbversion={min_dbversion} max_dbversion={max_dbversion}, is_full_size={is_full_size}')
 
                     if self.dbversion >= min_dbversion and self.dbversion <= max_dbversion:
                         if show_debug:

@@ -396,7 +396,7 @@ class DirectoryEntry:
         self.size = size
 
     def __repr__(self):
-        return f'DirectoryEntry(name={repr(self.name)}, section={self.section}, offset={self.offset}, size={self.size})'
+        return f'DirectoryEntry(name={self.name!r}, section={self.section}, offset={self.offset}, size={self.size})'
 
     def __str__(self):
         return repr(self)
@@ -427,7 +427,9 @@ class ManifestItem:
         return self.internal == other
 
     def __repr__(self):
-        return f"ManifestItem(internal={self.internal!r}, path={self.path!r}, mime_type={self.mime_type!r}, offset={self.offset}, root={self.root!r}, state={self.state!r})"
+        return (
+            f'ManifestItem(internal={self.internal!r}, path={self.path!r}, mime_type={self.mime_type!r},'
+            f' offset={self.offset}, root={self.root!r}, state={self.state!r})')
 
 
 def preserve(function):

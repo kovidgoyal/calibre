@@ -179,7 +179,10 @@ class USB_DEVICE_DESCRIPTOR(Structure):
     )
 
     def __repr__(self):
-        return f'USBDevice(class=0x{self.bDeviceClass:x} sub_class=0x{self.bDeviceSubClass:x} protocol=0x{self.bDeviceProtocol:x} vendor_id=0x{self.idVendor:x} product_id=0x{self.idProduct:x} bcd=0x{self.bcdDevice:x} manufacturer={self.iManufacturer} product={self.iProduct} serial_number={self.iSerialNumber})'
+        return (
+            f'USBDevice(class=0x{self.bDeviceClass:x} sub_class=0x{self.bDeviceSubClass:x} protocol=0x{self.bDeviceProtocol:x}'
+            f' vendor_id=0x{self.idVendor:x} product_id=0x{self.idProduct:x} bcd=0x{self.bcdDevice:x} manufacturer={self.iManufacturer}'
+            f'product={self.iProduct} serial_number={self.iSerialNumber})')
 
 
 class USB_ENDPOINT_DESCRIPTOR(Structure):

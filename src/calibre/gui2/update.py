@@ -219,7 +219,7 @@ class UpdateMixin:
                             green, _('Update available'), version_url, calibre_version, plt)
         else:
             plt = ngettext('plugin update available', 'plugin updates available', number_of_plugin_updates)
-            msg = f"<a href=\"update:{version_url}\">{number_of_plugin_updates} {plt}</a>"
+            msg = f'<a href="update:{version_url}">{number_of_plugin_updates} {plt}</a>'
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
 
