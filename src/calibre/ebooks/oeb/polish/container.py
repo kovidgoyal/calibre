@@ -344,7 +344,7 @@ class Container(ContainerBase):  # {{{
         item_id = 'id'
         while item_id in all_ids:
             c += 1
-            item_id = 'id' + f'{c}'
+            item_id = f'id{c}'
         manifest = self.opf_xpath('//opf:manifest')[0]
         href = self.name_to_href(name, self.opf_name)
         item = manifest.makeelement(OPF('item'),
