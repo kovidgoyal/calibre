@@ -147,7 +147,7 @@
          <widget class="QDoubleSpinBox" name="opt_cover_grid_height">
           <property name="toolTip">
            <string>The height of displayed covers.
-Aue of zero means calculate automatically.</string>
+A value of zero means calculate automatically.</string>
           </property>
           <property name="specialValueText">
            <string>Automatic</string>
@@ -194,7 +194,7 @@ Aue of zero means calculate automatically.</string>
          <widget class="QDoubleSpinBox" name="opt_cover_grid_width">
           <property name="toolTip">
            <string>The width of displayed covers.
-Aue of zero means calculate automatically.</string>
+A value of zero means calculate automatically.</string>
           </property>
           <property name="specialValueText">
            <string>Automatic</string>
