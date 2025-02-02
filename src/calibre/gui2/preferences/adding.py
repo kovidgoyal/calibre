@@ -141,6 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if viewer.item(i).text() == fmt:
                     viewer.scrollToItem(viewer.item(i))
                     break
+            self.changed_signal.emit()
 
     @property
     def current_blocked_auto_formats(self):
