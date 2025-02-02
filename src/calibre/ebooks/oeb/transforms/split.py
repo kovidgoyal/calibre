@@ -366,10 +366,10 @@ class FlowSplitter:
             elif size <= self.max_flow_size:
                 self.split_trees.append(t)
                 self.log.debug(
-                    f'\t\t\tCommitted sub-tree #{len(self.split_trees)} ({size//1024} KB)')
+                    f'\t\t\tCommitted sub-tree #{len(self.split_trees)} ({size/1024.0} KB)')
             else:
                 self.log.debug(
-                        f'\t\t\tSplit tree still too large: {size//1024} KB')
+                        f'\t\t\tSplit tree still too large: {size/1024.0} KB')
                 self.split_to_size(t)
 
     def find_split_point(self, root):
