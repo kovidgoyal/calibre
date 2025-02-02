@@ -427,7 +427,7 @@ class SchedulerConfig:
                 schedule = 0.04
             text = f'{schedule:f}'
         elif typ == 'day/time':
-            text = '%d:%d:%d'%schedule
+            text = f'{int(schedule[0])}:{int(schedule[1])}:{int(schedule[2])}'
         elif typ in ('days_of_week', 'days_of_month'):
             dw = ','.join(map(str, map(int, schedule[0])))
             text = f'{dw}:{int(schedule[1])}:{int(schedule[2])}'

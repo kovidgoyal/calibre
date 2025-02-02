@@ -59,8 +59,7 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
     def format_heading(self, heading):
         from calibre.utils.terminal import colored
-        return '%*s%s:\n' % (self.current_indent, '',
-                                 colored(heading, fg='blue', bold=True))
+        return  ' '*self.current_indent + '{}:\n'.format(colored(heading, fg='blue', bold=True))
 
     def format_option(self, option):
         import textwrap
@@ -71,12 +70,10 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = '%*s%s\n' % (self.current_indent, '',
-                                    colored(opts, fg='green'))
+            opts = ' '*self.current_indent + '{}\n'.format(colored(opts, fg='green'))
             indent_first = self.help_position
         else:                       # start help on same line as opts
-            opts = '%*s%-*s  ' % (self.current_indent, '', opt_width +
-                    len(colored('', fg='green')), colored(opts, fg='green'))
+            opts = ' '*self.current_indent + '%-*s  ' % (opt_width+len(colored('', fg='green')), colored(opts, fg='green'))
             indent_first = 0
         result.append(opts)
         if option.help:
@@ -85,9 +82,8 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
             for line in help_text:
                 help_lines.extend(textwrap.wrap(line, self.help_width))
-            result.append('%*s%s\n' % (indent_first, '', help_lines[0]))
-            result.extend(['%*s%s\n' % (self.help_position, '', line)
-                           for line in help_lines[1:]])
+            result.append(' '*indent_first + f'{help_lines[0]}')
+            result.extend([' '*self.help_position + f'{line}' for line in help_lines[1:]])
         elif opts[-1] != '\n':
             result.append('\n')
         return ''.join(result)+'\n'

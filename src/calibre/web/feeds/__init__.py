@@ -250,7 +250,7 @@ class Feed:
         return len(self.articles)
 
     def __repr__(self):
-        res = [('%20s\n'%'').replace(' ', '_')+repr(art) for art in self]
+        res = ['_'*20 + f'\n{art!r}' for art in self]
 
         return '\n'+'\n'.join(res)+'\n'
 

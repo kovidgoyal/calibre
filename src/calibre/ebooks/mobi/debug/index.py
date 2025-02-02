@@ -96,13 +96,13 @@ class Index:
         a = ans.append
         if self.header is not None:
             for field in INDEX_HEADER_FIELDS:
-                a('%-12s: %r'%(FIELD_NAMES.get(field, field), self.header[field]))
+                a(f'{FIELD_NAMES.get(field, field):<12}: {self.header[field]!r}')
         ans.extend(['', ''])
         ans += ['*'*10 + f' Index Record Headers ({len(self.index_headers)} records) ' + '*'*10]
         for i, header in enumerate(self.index_headers):
             ans += ['*'*10 + f' Index Record {i} ' + '*'*10]
             for field in INDEX_HEADER_FIELDS:
-                a('%-12s: %r'%(FIELD_NAMES.get(field, field), header[field]))
+                a(f'{FIELD_NAMES.get(field, field):<12}: {header[field]!r}')
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)

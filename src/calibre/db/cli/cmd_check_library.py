@@ -86,7 +86,7 @@ def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
     else:
         print(check[1], file=out)
         for i in list:
-            print('    %-40.40s - %-40.40s' % (i[0], i[1]), file=out)
+            print(f'    {i[0]:<40.40} -{i[1]:<40.40}', file=out)
 
 
 def main(opts, args, dbctx):

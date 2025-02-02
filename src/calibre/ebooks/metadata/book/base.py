@@ -765,7 +765,7 @@ class Metadata:
         ans = []
 
         def fmt(x, y):
-            ans.append('%-20s: %s'%(str(x), str(y)))
+            ans.append(f'{x:<20}: {y}')
 
         fmt('Title', self.title)
         if self.title_sort:

@@ -209,7 +209,7 @@ class DOCX:
         E = ElementMaker(namespace=self.namespace.namespaces['ep'], nsmap={None:self.namespace.namespaces['ep']})
         props = E.Properties(
             E.Application(__appname__),
-            E.AppVersion('%02d.%04d' % numeric_version[:2]),
+            E.AppVersion(f'{numeric_version[0]:02}.{numeric_version[1]:04}'),
             E.DocSecurity('0'),
             E.HyperlinksChanged('false'),
             E.LinksUpToDate('true'),

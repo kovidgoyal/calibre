@@ -662,7 +662,7 @@ class MobiReader:
         elif mi.cover is not None:
             opf.cover = mi.cover
         else:
-            opf.cover = 'images/%05d.jpg' % 1
+            opf.cover = f'images/{1:05}.jpg'
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
                 opf.cover = None

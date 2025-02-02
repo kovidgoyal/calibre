@@ -251,7 +251,7 @@ def do_list(
                 ft = text[i][l] if l < len(text[i]) else ''
                 stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = ('%*s' % (widths[i] - str_width(ft) - 1, ''))
+                    filler = ' '*(widths[i] - str_width(ft) - 1)
                     stdout.write((filler + separator).encode('utf-8'))
             stdout.write(linesep)
 

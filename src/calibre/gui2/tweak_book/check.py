@@ -202,8 +202,7 @@ class Check(QSplitter):
             fix_tt = _('Try to fix all fixable errors automatically. Only works for some types of error.')
             fix_msg = _('Try to correct all fixable errors automatically')
             run_tt, run_msg = _('Re-run the check'), _('Re-run check')
-            header = '<style>a { text-decoration: none}</style><h2>%s [%d / %d]</h2>' % (
-                        header, self.items.currentRow()+1, self.items.count())
+            header = f'<style>a {{text-decoration: none}}</style><h2>{header} [{self.items.currentRow()+1} / {self.items.count()}]</h2>'
             msg = '<p>%s</p>'
             footer = '<div>%s<a href="fix:errors" title="%s">%s</a><br><br> <a href="run:check" title="%s">%s</a></div>'
             if err.has_multiple_locations:
