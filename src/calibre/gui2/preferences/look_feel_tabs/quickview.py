@@ -10,12 +10,12 @@ from functools import partial
 from calibre.gui2 import gprefs
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.quickview import get_qv_field_list
-from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
+from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
 from calibre.gui2.preferences.look_feel_tabs.quickview_ui import Ui_Form
 
 
-class QVDisplayedFields(DisplayedFields):  # {{{
+class QVDisplayedFields(DisplayedFields):
 
     def __init__(self, db, parent=None):
         DisplayedFields.__init__(self, db, parent)
@@ -30,8 +30,6 @@ class QVDisplayedFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.new_api.set_pref('qv_display_fields', self.fields)
-
-# }}}
 
 
 class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
@@ -59,7 +57,7 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
         self.qv_display_model.initialize()
 
     def restore_defaults(self):
-        ConfigWidgetBase.restore_defaults(self)
+        LazyConfigWidgetBase.restore_defaults(self)
         self.qv_display_model.restore_defaults()
 
     def refresh_gui(self, gui):
@@ -67,7 +65,6 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
         if qv:
             qv.refill_quickview()
 
-    def commit(self, *args):
-        rr = ConfigWidgetBase.commit(self, *args)
+    def commit(self):
         self.qv_display_model.commit()
-        return rr
+        return LazyConfigWidgetBase.commit(self)

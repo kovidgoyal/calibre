@@ -16,7 +16,7 @@ from calibre.gui2.preferences.look_feel_tabs import DisplayedFields
 from calibre.gui2.preferences.look_feel_tabs.tb_hierarchy_ui import Ui_Form
 
 
-class TBHierarchicalFields(DisplayedFields):  # {{{
+class TBHierarchicalFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
@@ -51,7 +51,6 @@ class TBHierarchicalFields(DisplayedFields):  # {{{
     def commit(self):
         if self.changed:
             self.db.prefs.set('categories_using_hierarchy', [k for k,v in self.fields if v])
-# }}}
 
 
 class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
@@ -175,3 +174,4 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
     def commit(self):
         self.tb_search_order_commit()
         self.tb_hierarchical_cats_model.commit()
+        return LazyConfigWidgetBase.commit(self)

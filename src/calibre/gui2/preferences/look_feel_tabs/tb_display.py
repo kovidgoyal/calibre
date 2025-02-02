@@ -9,12 +9,12 @@ from functools import partial
 
 from calibre.db.categories import is_standard_category
 from calibre.gui2 import config, gprefs
-from calibre.gui2.preferences import ConfigWidgetBase, LazyConfigWidgetBase
+from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_display_ui import Ui_Form
 
 
-class TBDisplayedFields(DisplayedFields):  # {{{
+class TBDisplayedFields(DisplayedFields):
     # The code in this class depends on the fact that the tag browser is
     # initialized before this class is instantiated.
 
@@ -44,7 +44,6 @@ class TBDisplayedFields(DisplayedFields):  # {{{
         if self.changed:
             self.db.prefs.set('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
             self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
-# }}}
 
 
 class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
@@ -104,9 +103,12 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
             move_field_up(self.tb_display_order, model)
 
     def restore_defaults(self):
-        ConfigWidgetBase.restore_defaults(self)
+        LazyConfigWidgetBase.restore_defaults(self)
         self.tb_display_model.restore_defaults()
 
     def commit(self):
         self.tb_display_model.commit()
-        return ConfigWidgetBase.commit(self)
+        return LazyConfigWidgetBase.commit(self)
+
+    def refresh_gui(self, gui):
+        gui.tags_view.set_look_and_feel()

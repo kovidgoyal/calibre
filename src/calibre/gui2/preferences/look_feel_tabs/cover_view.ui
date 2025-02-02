@@ -2,13 +2,6 @@
 <ui version="4.0">
  <class>Form</class>
  <widget class="QWidget" name="cover_browser_tab">
-  <attribute name="icon">
-   <iconset resource="../../../../resources/images.qrc">
-    <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
-  </attribute>
-  <attribute name="title">
-   <string>Cover &amp;browser</string>
-  </attribute>
   <layout class="QGridLayout" name="gridLayout_cover_browser">
    <property name="leftMargin">
     <number>0</number>
