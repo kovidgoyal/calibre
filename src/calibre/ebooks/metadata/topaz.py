@@ -161,7 +161,7 @@ class MetadataUpdater:
             s, src = src[:length],src[length:]
             hexa = ' '.join([f'{ord(x):02X}' for x in s])
             s = s.translate(FILTER)
-            result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)
+            result += '%04X   %-*s   %s\n' % (N, length*3, hexa, s)  # noqa: UP031
             N+=length
         print(result)
 

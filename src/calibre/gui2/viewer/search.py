@@ -154,7 +154,7 @@ class Search:
             flags = self.regex_flags
             flags |= regex.DOTALL
             match_any_word = r'(?:\b(?:' + '|'.join(words) + r')\b)'
-            joiner = '.{1,%d}' % interval
+            joiner = '.{1,%d}' % interval  # noqa: UP031
             full_pat = regex.compile(joiner.join(match_any_word for x in words), flags=flags)
             word_pats = tuple(regex.compile(rf'\b{x}\b', flags) for x in words)
             self._nsd = word_pats, full_pat

@@ -99,7 +99,7 @@ def do_list(fields, data, opts):
 
     widths = list(base_widths)
     titles = map(
-        lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths, fields
+        lambda x, y: '%-*s%s' % (x - len(separator), y, separator), widths, fields  # noqa: UP031
     )
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))

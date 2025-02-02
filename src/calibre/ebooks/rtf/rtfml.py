@@ -177,7 +177,7 @@ class RTFMLizer:
                     self.log.exception(f'Image {item.href} is corrupted, ignoring')
                     repl = '\n\n'
                 else:
-                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)
+                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)  # noqa: UP031
                 text = text.replace(f'SPECIAL_IMAGE-{src}-REPLACE_ME', repl)
         return text
 

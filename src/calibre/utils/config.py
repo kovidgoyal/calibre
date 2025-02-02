@@ -73,7 +73,7 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
             opts = ' '*self.current_indent + '{}\n'.format(colored(opts, fg='green'))
             indent_first = self.help_position
         else:                       # start help on same line as opts
-            opts = ' '*self.current_indent + '%-*s  ' % (opt_width+len(colored('', fg='green')), colored(opts, fg='green'))
+            opts = ' '*self.current_indent + '%-*s  ' % (opt_width+len(colored('', fg='green')), colored(opts, fg='green'))  # noqa: UP031
             indent_first = 0
         result.append(opts)
         if option.help:

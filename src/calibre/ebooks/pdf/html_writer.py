@@ -777,7 +777,7 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
     .calibre-pdf-toc .level-%d td:first-of-type { padding-left: %.1gem }
-    ''' % tuple(indents) + (opts.extra_css or '')
+    ''' % tuple(indents) + (opts.extra_css or '')  # noqa: UP031
     style = body.makeelement(XHTML('style'), type='text/css')
     style.text = css
     body.append(style)

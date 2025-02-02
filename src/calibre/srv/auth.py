@@ -248,7 +248,7 @@ class AuthController:
         self.log = log
         self.secret = as_hex_unicode(os.urandom(random.randint(20, 30)))
         self.max_age_seconds = max_age_seconds
-        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))
+        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))  # noqa: UP031
         self.realm = realm
         if '"' in realm:
             raise ValueError('Double-quotes are not allowed in the authentication realm')
