@@ -193,12 +193,12 @@ class LazyEditRulesBase(LazyConfigWidgetBase):
         self.rules_editor.initialize(db.field_metadata, db.prefs, mi, name)
 
     def commit(self):
-        self.rules_editor.commit(self, self.gui.current_db.prefs)
+        self.rules_editor.commit(self.gui.current_db.prefs)
         return LazyConfigWidgetBase.commit(self)
 
     def restore_defaults(self):
         LazyConfigWidgetBase.restore_defaults(self)
-        self.rules_editor.clear(self)
+        self.rules_editor.clear()
         self.changed_signal.emit()
 
 
