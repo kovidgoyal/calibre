@@ -1200,12 +1200,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             return
         if confirm_quit and not self.confirm_quit():
             return
+        self.restart_after_quit = restart
         try:
             self.shutdown()
         except:
             import traceback
             traceback.print_exc()
-        self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
         self.no_plugins_on_restart = no_plugins_on_restart
         if self.system_tray_icon is not None and self.restart_after_quit:
