@@ -580,3 +580,13 @@ openers_by_scheme = {}
 # It must be one of the values Default, Sunday, Monday, Tuesday, Wednesday,
 # Thursday, Friday, or Saturday, all in English, spelled exactly as shown.
 calendar_start_day_of_week = 'Default'
+
+#: East Asian language to use for transliteration
+# Setting this tweak will make calibre use the specified language as the "base"
+# language when transliterating East Asian languages to ASCII. This might be
+# useful if you run calibre in English but want text transliterated to
+# Japanese. The valid values are 'ja', 'kr', 'vn', 'zh', and '' (empty string).
+# The empty string means use the user interface language as the base language.
+# Any value not in the above list will be treated as the empty string.
+# Example: east_asian_base_language = 'ja'
+east_asian_base_language = ''
