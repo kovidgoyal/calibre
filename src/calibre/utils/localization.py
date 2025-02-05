@@ -549,7 +549,7 @@ def get_udc():
     if _udc is None:
         from calibre.ebooks.unihandecode import Unihandecoder
         from calibre.utils.config_base import tweaks
-        lang = tweaks.get('east_asian_base_language')
+        lang = tweaks.get('east_asian_base_language', '')
         lang = lang if lang in ('ja', 'kr', 'vn', 'zh') else get_lang()
         _udc = Unihandecoder(lang=lang)
     return _udc

@@ -583,10 +583,12 @@ calendar_start_day_of_week = 'Default'
 
 #: East Asian language to use for transliteration
 # Setting this tweak will make calibre use the specified language as the "base"
-# language when transliterating East Asian languages to ASCII. This might be
+# language when transliterating East Asian languages to English. This might be
 # useful if you run calibre in English but want text transliterated to
-# Japanese. The valid values are 'ja', 'kr', 'vn', 'zh', and '' (empty string).
-# The empty string means use the user interface language as the base language.
-# Any value not in the above list will be treated as the empty string.
+# Japanese instead of Chinese. The valid values are 'ja' for Japanese, 'kr' for Korean,
+# 'vn' for Vietnamese, 'zh' for Chinese.
+# Any other value will use the language set in calibre preferences as the base
+# language. A base language other than those in the above list causes transliteration
+# with a base language of Chinese.
 # Example: east_asian_base_language = 'ja'
 east_asian_base_language = ''
