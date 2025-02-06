@@ -1241,6 +1241,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
             self.library_view.connect_to_book_display_timer.stop()
         self.shutdown_started.emit()
+        prints('Shutdown calibre...')
         self.show_shutdown_message()
         self.server_change_notification_timer.stop()
         self.extra_files_watcher.clear()
@@ -1303,6 +1304,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     # If the Content server has any sockets being closed then
                     # this can take quite a long time (minutes). Tell the user that it is
                     # happening.
+                    prints('Shutdown content server...')
                     self.show_shutdown_message(
                         _('Shutting down the Content server. This could take a while...'))
                     s = self.content_server
@@ -1323,6 +1325,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
+        prints('calibre was shutdown with success')
         try:
             sys.stdout.flush()  # Make sure any buffered prints are written for debug mode
         except Exception:
