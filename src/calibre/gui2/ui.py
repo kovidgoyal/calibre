@@ -1298,19 +1298,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_view.model().close()
 
         try:
-            try:
-                if self.content_server is not None:
-                    # If the Content server has any sockets being closed then
-                    # this can take quite a long time (minutes). Tell the user that it is
-                    # happening.
-                    self.show_shutdown_message(
-                        _('Shutting down the Content server. This could take a while...'))
-                    s = self.content_server
-                    self.content_server = None
-                    s.exit()
-            except:
-                pass
+            if self.content_server is not None:
+                # If the Content server has any sockets being closed then
+                # this can take quite a long time (minutes). Tell the user that it is
+                # happening.
+                self.show_shutdown_message(
+                    _('Shutting down the Content server. This could take a while...'))
+                s = self.content_server
+                self.content_server = None
+                s.exit()
         except KeyboardInterrupt:
+            pass
+        except Exception:
             pass
         self.hide_windows()
         if self._spare_pool is not None:
