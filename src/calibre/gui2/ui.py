@@ -1323,6 +1323,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
+        sys.stdout.flush()  # Make sure any buffered prints are written for debug mode
         self.shutdown_completed.emit()
         return True
 
