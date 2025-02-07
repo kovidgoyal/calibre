@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
+ <class>main_interface_tab</class>
  <widget class="QWidget" name="main_interface_tab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>617</width>
+    <height>621</height>
+   </rect>
+  </property>
   <layout class="QGridLayout" name="gridLayout_main_interface">
    <item row="0" column="0">
     <widget class="QLabel" name="label_widget_style">
@@ -216,19 +224,6 @@
       <string>Toolbar</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_8">
-      <item row="0" column="1">
-       <widget class="QComboBox" name="opt_toolbar_icon_size"/>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Icon si&amp;ze:</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_toolbar_icon_size</cstring>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QComboBox" name="opt_toolbar_text"/>
       </item>
@@ -248,6 +243,32 @@
          <string>Use t&amp;wo lines for the text under the icons (needs restart)</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Icon si&amp;ze:</string>
+        </property>
+        <property name="buddy">
+         <cstring>opt_toolbar_icon_size</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="opt_toolbar_icon_size"/>
+      </item>
+      <item row="3" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -351,6 +372,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+    <include location="../../../../../resources/images.qrc"/>
  </resources>
+ <connections/>
 </ui>

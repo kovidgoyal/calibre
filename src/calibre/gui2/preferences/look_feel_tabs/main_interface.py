@@ -10,7 +10,7 @@ from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
 from calibre.constants import ismacos, iswindows
 from calibre.gui2 import config, gprefs, icon_resource_manager, qt_app
 from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, set_help_tips
-from calibre.gui2.preferences.look_feel_tabs.main_interface_ui import Ui_Form
+from calibre.gui2.preferences.look_feel_tabs.main_interface_ui import Ui_main_interface_tab as Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.config import prefs
 from calibre.utils.localization import available_translations, get_lang, get_language
