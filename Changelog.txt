@@ -27,7 +27,7 @@
 
 :: new features
 
-- Allow setting custom icons for items in the Tab browser by right clicking on them and choosing "Manage icon for this value"
+- Allow setting custom icons for items in the Tag browser by right clicking on them and choosing "Manage icon for this value"
 
 - Kindle driver: Allow import of KFX files from 2024 Kindles that use the MTP protocol
 
