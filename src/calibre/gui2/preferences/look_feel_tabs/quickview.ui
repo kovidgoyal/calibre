@@ -64,7 +64,7 @@ column being examined (the left-hand panel)&lt;/p&gt;</string>
          <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/images.qrc">
+        <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
         </property>
        </widget>
@@ -75,7 +75,7 @@ column being examined (the left-hand panel)&lt;/p&gt;</string>
          <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/images.qrc">
+        <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
         </property>
        </widget>

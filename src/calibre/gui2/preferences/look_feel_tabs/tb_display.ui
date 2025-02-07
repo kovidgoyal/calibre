@@ -35,7 +35,7 @@
       <string>Move up. User categories and Saved searches cannot be moved. Keyboard shortcut: Ctrl-Up arrow</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../../resources/images.qrc">
+     <iconset resource="../../../../../resources/images.qrc">
        <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
      </property>
     </widget>
@@ -59,7 +59,7 @@
       <string>Move down. User categories and Saved searches cannot be moved. Keyboard shortcut: Ctrl-Down arrow</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../../resources/images.qrc">
+     <iconset resource="../../../../../resources/images.qrc">
        <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
      </property>
     </widget>

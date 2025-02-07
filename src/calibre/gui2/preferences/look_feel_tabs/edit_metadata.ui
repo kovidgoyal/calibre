@@ -3,7 +3,7 @@
  <class>Form</class>
  <widget class="QWidget" name="edit_metadata_tab">
   <attribute name="icon">
-   <iconset resource="../../../../resources/images.qrc">
+  <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </attribute>
   <attribute name="title">
@@ -43,7 +43,7 @@
          <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/images.qrc">
+        <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
         </property>
        </widget>
@@ -54,7 +54,7 @@
          <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
         </property>
         <property name="icon">
-         <iconset resource="../../../../resources/images.qrc">
+        <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
         </property>
        </widget>
@@ -269,6 +269,6 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+ <include location="../../../../../resources/images.qrc"/>
  </resources>
 </ui>

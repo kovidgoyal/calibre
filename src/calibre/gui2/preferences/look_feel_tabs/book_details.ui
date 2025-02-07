@@ -253,6 +253,6 @@ than one increases the icon size while smaller than one decreases it.</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+ <include location="../../../../../resources/images.qrc"/>
  </resources>
 </ui>

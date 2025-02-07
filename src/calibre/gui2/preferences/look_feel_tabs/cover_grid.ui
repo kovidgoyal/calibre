@@ -413,7 +413,7 @@ A value of zero means calculate automatically.</string>
    </widget>
   </widget>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+ <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>
