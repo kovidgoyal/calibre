@@ -170,7 +170,7 @@ def body_font_size():
             if q and not isNaN(q):
                 ans = body_font_size.ans = q
                 return ans
-        ans = body_font_size.ans = 12
+        ans = body_font_size.ans = 16
     return ans
 
 
