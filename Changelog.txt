@@ -23,6 +23,45 @@
 # - title by author
 # }}}
 
+{{{ 7.25.0 2025-02-07
+
+:: new features
+
+- Allow setting custom icons for items in the Tab browser by right clicking on them and choosing "Manage icon for this value"
+
+- Kindle driver: Allow import of KFX files from 2024 Kindles that use the MTP protocol
+
+- A new tweak in Preferences->Tweaks to control the East Asian language used when transliterating to English
+
+- Add an option to adjust the size of the link and note icons in Book details under Preferences->Look & feel->Book details
+
+:: bug fixes
+
+- [2068527] Nook driver: Fix the Glowlight 4 not working on Windows
+
+- MTP driver: Fix Internal storage and SD card being swapped on some devices that have buggy firmware that assigns the SD card a lower id than the internal storage
+
+- [2096841] Template dialog: Respect the tweak for title/series when editing save to disk and send to device templates
+
+- Content server: Fix icons for individual formats not being shown in the Tag browser
+
+:: improved recipes
+- spektrum.de
+- Economist
+- Arret sur images
+- Le Canard Enchaine
+- Foreign Affairs
+
+:: new recipes
+- Alternatives Economiques by Kabonix
+- Zerodeux by Kabonix
+- Afrique XXI by Kabonix
+- Orient XXI by Kabonix
+- Contretemps by Kabonix
+- Faz.net by Anonymous
+- Moview Web and Football League World by SpicyPoison
+}}}
+
 {{{ 7.24.0 2025-01-10
 
 :: new features
