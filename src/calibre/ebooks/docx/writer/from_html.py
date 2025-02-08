@@ -62,7 +62,7 @@ class TextRun:
         self.first_html_parent = first_html_parent
         if self.ws_pat is None:
             TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
-            TextRun.soft_hyphen_pat = self.soft_hyphen_pat = re.compile(r'(\u00ad)')
+            TextRun.soft_hyphen_pat = self.soft_hyphen_pat = re.compile(r'(\xad)')
         self.style = style
         self.texts = []
         self.link = None
