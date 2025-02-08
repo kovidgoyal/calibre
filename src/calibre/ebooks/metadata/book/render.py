@@ -442,19 +442,19 @@ def mi_to_html(
                             st = field
                         if show_links:
                             if metadata['is_custom']:
-                                u, v = cc_search_action_with_data(st, x, book_id, metadata, mi, field)
-                                v = f'<a href="{u}" title="{v}">{p(x)}</a>'
+                                u, v = cc_search_action_with_data(st, unescaped_val, book_id, metadata, mi, field)
+                                v = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>'
                             else:
                                 v = '<a href="{}" title="{}">{}</a>'.format(
-                                    search_action_with_data(st, x, book_id, field),
+                                    search_action_with_data(st, unescaped_val, book_id, field),
                                     _('Click to see books with {0}: {1}').format(
-                                    metadata['name'] or field, a(x)), p(x))
+                                    metadata['name'] or field, a(unescaped_val)), p(unescaped_val))
                         else:
                             v = val
                         val = v + add_other_links(field, val)
                 elif metadata['datatype'] == 'enumeration':
-                    u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                    val = f'<a href="{u}" title="{v}">{p(x)}</a>' + add_other_links(field, val)
+                    u, v = cc_search_action_with_data(field, unescaped_val, book_id, metadata, mi, field)
+                    val = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>' + add_other_links(field, val)
                 elif metadata['datatype'] == 'bool':
                     val = '<a href="{}" title="{}">{}</a>'.format(
                         search_action_with_data(field, val, book_id, None), a(
