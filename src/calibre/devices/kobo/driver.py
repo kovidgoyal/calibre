@@ -701,6 +701,9 @@ class KOBO(USBMS):
             ContentType = 901  # Yet another hack: to get around Kobo changing how ContentID is stored
         return ContentType
 
+    def isTolinoDevice(self):
+        return False
+
     def path_from_contentid(self, ContentID, ContentType, MimeType, oncard):
         path = ContentID
 
