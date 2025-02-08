@@ -661,7 +661,7 @@ class WebView(RestartingWebEngineView):
         ui_data = {
             'all_font_families': QFontDatabase.families(),
             'ui_font_family': family,
-            'ui_font_sz': f'{fi.pixelSize()}px',
+            'ui_font_sz': f'{fi.pointSizeF()}pt',
             'show_home_page_on_ready': self.show_home_page_on_ready,
             'system_colors': system_colors(),
             'QT_VERSION': QT_VERSION,
