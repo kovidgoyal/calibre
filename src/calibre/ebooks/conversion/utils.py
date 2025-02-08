@@ -372,7 +372,7 @@ class HeuristicProcessor:
         line_ending = r'\s*(?P<style_close></(span|[iub])>)?\s*(</(p|div)>)?'
         blanklines = r'\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*'
         line_opening = r'<(p|div)[^>]*>\s*(?P<style_open><(span|[iub])[^>]*>)?\s*'
-        txt_line_wrap = r'((\u0020|\u0009)*\n){1,4}'
+        txt_line_wrap = '((\u0020|\u0009)*' + r'\n){1,4}'
 
         if format == 'txt':
             unwrap_regex = lookahead+txt_line_wrap
