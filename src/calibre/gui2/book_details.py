@@ -1479,6 +1479,9 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
             if dt == 'search':
                 field = data.get('field')
                 search_term(data['term'], data['value'])
+            elif dt == 'cc_url':
+                if data['url']:
+                    browse(data['url'])
             elif dt == 'author':
                 url = data['url']
                 if url == 'calibre':

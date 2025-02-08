@@ -26,11 +26,13 @@ from qt.core import (
     QRadioButton,
     QSpinBox,
     Qt,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
 
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
 from calibre.utils.localization import ngettext
@@ -231,6 +233,7 @@ class CreateCustomColumn(QDialog):
         elif ct == '*text':
             self.is_names.setChecked(c['display'].get('is_names', False))
         self.description_box.setText(c['display'].get('description', ''))
+        self.web_search_template.setText(c['display'].get('web_search_template', ''))
         self.decimals_box.setValue(min(9, max(1, int(c['display'].get('decimals', 2)))))
 
         all_colors = [str(s) for s in list(QColor.colorNames())]
@@ -486,6 +489,7 @@ class CreateCustomColumn(QDialog):
         l.addWidget(cch)
         l.addStretch()
         add_row(None, l)
+
         l = QHBoxLayout()
         self.composite_in_comments_box = cmc = QCheckBox(_('Show with comments in Book details'))
         cmc.setToolTip('<p>' + _('If you check this box then the column contents '
@@ -533,8 +537,44 @@ class CreateCustomColumn(QDialog):
             'Rating columns enter a number between 0 and 5.') + '</p>')
         self.default_value_label = add_row(_('&Default value:'), dv)
 
+        l = QHBoxLayout()
+        self.web_search_label = QLabel(_('Search tem&plate:'))
+        l.addWidget(self.web_search_label)
+        wst = self.web_search_template = QLineEdit()
+        wst.setToolTip('<p>' + _(
+            "Fill in this box if you want clicking on the value in book details to do a "
+            "web search instead of searching your calibre library. The book's metadata are "
+            "available to the template. An additional field 'item_value' is available to the "
+            "template. For multiple-valued (tags-like) columns it is the value being examined, "
+            "telling you which value to use to generate the link.") + '</p>')
+        l.addWidget(wst)
+        self.web_search_label.setBuddy(wst)
+        wst_tb = self.web_search_toolbutton = QToolButton()
+        wst_tb.setIcon(QIcon.ic('edit_input.png'))
+        l.addWidget(wst_tb)
+        wst_tb.clicked.connect(self.cws_template_button_clicked)
+        add_row(None, l)
+
         self.resize(self.sizeHint())
     # }}}
+
+    def cws_template_button_clicked(self):
+        db = self.gui.current_db.new_api
+        lv = self.gui.library_view
+        rows = lv.selectionModel().selectedRows()
+        if not self.editing_col or not rows:
+            vals = [{'value': _('Value'), 'lookup_name': _('Lookup name'), 'author': _('Author'),
+                     'title': _('Title'), 'author_sort': _('Author sort')}]
+        else:
+            vals = []
+            for row in rows:
+                book_id = lv.model().id(row)
+                mi = db.new_api.get_metadata(book_id)
+                mi.set('item_value', 'Item Value')
+                vals.append(mi)
+        d = TemplateDialog(parent=self, text=self.web_search_template.text(), mi=vals)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.web_search_template.setText(d.rule[1])
 
     def bool_radio_button_clicked(self, button, clicked):
         if clicked:
@@ -617,7 +657,7 @@ class CreateCustomColumn(QDialog):
                         'after the decimal point and thousands separated by commas.') + '</p>'
                     )
             self.format_label.setText(l), self.format_default_label.setText(dl)
-        for x in ('in_comments_box', 'heading_position', 'heading_position_label'):
+        for x in ('in_comments_box', 'heading_position', 'heading_position_label',):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category', 'contains_html'):
@@ -638,6 +678,13 @@ class CreateCustomColumn(QDialog):
         self.comments_heading_position_label.setVisible(is_comments)
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
+
+        has_url_template = not is_comments and col_type in ('text', '*text', 'composite', '*composite',
+                                                            'series', 'enumeration')
+        self.web_search_label.setVisible(has_url_template)
+        self.web_search_template.setVisible(has_url_template)
+        self.web_search_toolbutton.setVisible(has_url_template)
+
         self.allow_half_stars.setVisible(col_type == 'rating')
 
         is_bool = col_type == 'bool'
@@ -811,6 +858,7 @@ class CreateCustomColumn(QDialog):
             display_dict['default_value'] = default_val
 
         display_dict['description'] = self.description_box.text().strip()
+        display_dict['web_search_template'] = self.web_search_template.text().strip()
 
         if not self.editing_col:
             self.caller.custcols[key] = {

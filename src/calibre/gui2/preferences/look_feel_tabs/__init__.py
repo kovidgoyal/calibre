@@ -7,14 +7,17 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
-from qt.core import QAbstractListModel, QComboBox, QFormLayout, QIcon, QItemSelectionModel, QLineEdit, Qt, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QAbstractListModel, QComboBox, QDialog, QFormLayout, QHBoxLayout, QIcon, QItemSelectionModel, QLineEdit, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
+from calibre.ebooks.metadata.search_internet import qquote
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
+from calibre.utils.formatter import EvalFormatter
 
 
 class DefaultAuthorLink(QWidget):
@@ -44,6 +47,7 @@ class DefaultAuthorLink(QWidget):
         ]:
             c.addItem(text, data)
         l.addRow(_('Clicking on &author names should:'), c)
+        ul = QHBoxLayout()
         self.custom_url = u = QLineEdit(self)
         u.setToolTip(_(
             'Enter the URL to search. It should contain the string {0}'
@@ -51,8 +55,14 @@ class DefaultAuthorLink(QWidget):
             '\n{1}').format('{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
         u.textChanged.connect(self.changed_signal)
         u.setPlaceholderText(_('Enter the URL'))
+        ul.addWidget(u)
+        u = self.custom_url_button = QToolButton()
+        u.setIcon(QIcon.ic('edit_input.png'))
+        u.setToolTip(_('Click this button to open the template tester'))
+        u.clicked.connect(self.open_template_tester)
+        ul.addWidget(u)
         c.currentIndexChanged.connect(self.current_changed)
-        l.addRow(u)
+        l.addRow(ul)
         self.current_changed()
         c.currentIndexChanged.connect(self.changed_signal)
 
@@ -71,9 +81,29 @@ class DefaultAuthorLink(QWidget):
             self.custom_url.setText(val)
         self.choices.setCurrentIndex(i)
 
+    def open_template_tester(self):
+        gui = get_gui()
+        db = gui.current_db.new_api
+        lv = gui.library_view
+        rows = lv.selectionModel().selectedRows()
+        if not rows:
+            vals = [{'author': qquote(_('Author')), 'title': _('Title'), 'author_sort': _('Author sort')}]
+        else:
+            vals = []
+            for row in rows:
+                book_id = lv.model().id(row)
+                mi = db.new_api.get_proxy_metadata(book_id)
+                vals.append({'author': qquote(mi.authors[0]),
+                             'title': qquote(mi.title),
+                             'author_sort': qquote(mi.author_sort_map.get(mi.authors[0]))})
+        d = TemplateDialog(parent=self, text=self.custom_url.text(), mi=vals, formatter=EvalFormatter)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.custom_url.setText(d.rule[1])
+
     def current_changed(self):
         k = self.choices.currentData()
         self.custom_url.setVisible(k == 'url')
+        self.custom_url_button.setVisible(k == 'url')
 
     def restore_defaults(self):
         self.value = DEFAULT_AUTHOR_LINK

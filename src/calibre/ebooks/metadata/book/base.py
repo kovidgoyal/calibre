@@ -753,6 +753,9 @@ class Metadata:
                 res = human_readable(res)
             return (name, str(res), orig_res, fmeta)
 
+        if self.get(key, None):
+            return (key, str(self.get(key)), self.get(key), None)
+
         return (None, None, None, None)
 
     def __unicode__representation__(self):
