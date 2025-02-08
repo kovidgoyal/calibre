@@ -69,7 +69,7 @@ def search_action_with_data(search_term, value, book_id, field=None, **k):
 
 def web_search_link(template, mi, value):
     formatter = SafeFormat()
-    mi.set('item_value', value)
+    mi.set('item_value', qquote(str(value)))
     u = formatter.safe_format(template, mi, 'BOOK DETAILS WEB LINK', mi)
     if u:
         return u, prepare_string_for_xml(_('Click to browse to: {}').format(u), attribute=True)
