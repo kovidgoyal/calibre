@@ -233,6 +233,10 @@ def download_data_file_url(book_id, relpath, content_disposition):
     return ans
 
 
+def web_search_url(book_id, field, item_val):
+    return absolute_path(f'web-search/{book_id}/{encodeURIComponent(field)}/{encodeURIComponent(item_val)}?library_id={encodeURIComponent(current_library_id())}')
+
+
 def book_metadata(book_id):
     return library_data.metadata[book_id]
 

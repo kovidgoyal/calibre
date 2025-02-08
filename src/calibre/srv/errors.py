@@ -32,6 +32,12 @@ class HTTPRedirect(HTTPSimpleResponse):
         HTTPSimpleResponse.__init__(self, http_code, http_message, close_connection, location)
 
 
+class HTTPTempRedirect(HTTPSimpleResponse):
+
+    def __init__(self, location, http_code=http_client.TEMPORARY_REDIRECT, http_message='', close_connection=False):
+        HTTPSimpleResponse.__init__(self, http_code, http_message, close_connection, location)
+
+
 class HTTPNotFound(HTTPSimpleResponse):
 
     def __init__(self, http_message='', close_connection=False):

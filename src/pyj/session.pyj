@@ -313,6 +313,7 @@ default_interface_data = {
     'library_map': None,
     'search_the_net_urls': [],
     'donate_link': 'https://calibre-ebook.com/donate',
+    'default_author_link': '',
     'icon_map': {},
     'icon_path': '',
     'custom_list_template': None,

@@ -12,7 +12,7 @@ from book_list.item_list import create_item, create_item_list, create_side_actio
 from book_list.library_data import (
     all_libraries, book_after, book_metadata, cover_url, current_library_id,
     current_virtual_library, download_url, library_data, load_status,
-    set_book_metadata, download_data_file_url
+    set_book_metadata, download_data_file_url, web_search_url
 )
 from book_list.router import back, home, open_book, report_a_load_failure, show_note, open_book_url_in_library, search_url_in_library
 from book_list.theme import (
@@ -286,18 +286,33 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 v += ''
             parent = table.lastChild.lastChild
             if is_searchable:
+                websearch_link = False
+                if field is 'authors':
+                    websearch_link = bool(interface_data.default_author_link) and interface_data.default_author_link is not 'search-calibre'
                 text_rep = search_text or v
-                parent.appendChild(E.a(
-                    v,
-                    title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
-                    href=href_for_search(is_searchable, text_rep, use_quotes=use_quotes)
-                ))
+                target = '_self'
+                if websearch_link and jstype(v) is not 'string':
+                    websearch_link = False
+                calibre_search_url = href_for_search(is_searchable, text_rep, use_quotes=use_quotes)
+                calibre_search_tooltip = _('Click to see books with {0}: {1}').format(name, text_rep)
+                if websearch_link:
+                    url = web_search_url(book_id, field, v)
+                    target = '_blank'
+                    tooltip = _('Click to browse for {} on the web').format(text_rep)
+                else:
+                    url = calibre_search_url
+                    tooltip = calibre_search_tooltip
+                parent.appendChild(E.a(v, target=target, title=tooltip, class_='blue-link', href=url))
                 if link_maps[field] and link_maps[field][text_rep]:
                     url = link_maps[field][text_rep]
                     if url.startswith('https://') or url.startswith('http://'):
                         parent.appendChild(document.createTextNode(' '))
                         parent.appendChild(E.a(
-                            svgicon('external-link'), title=_('Click to open') + ': ' + url, href=url, target='_new', class_='blue-link'))
+                            svgicon('external-link'), title=_('Click to open') + ': ' + url, href=url, target='_blank', class_='blue-link'))
+                if websearch_link:
+                    parent.appendChild(document.createTextNode(' '))
+                    parent.appendChild(E.a(
+                        svgicon('search'), title=calibre_search_tooltip, href=calibre_search_url, class_='blue-link'))
             else:
                 if v.appendChild:
                     parent.appendChild(v)

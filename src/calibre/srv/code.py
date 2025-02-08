@@ -15,10 +15,11 @@ from calibre import as_unicode
 from calibre.constants import in_develop_mode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
+from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
-from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect, HTTPTempRedirect
 from calibre.srv.last_read import last_read_cache
-from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, icon_map
+from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, get_gpref, icon_map, web_search_link
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
@@ -172,6 +173,7 @@ def basic_interface_data(ctx, rd):
         'default_book_list_mode': rd.opts.book_list_mode,
         'donate_link': localize_website_link('https://calibre-ebook.com/donate'),
         'lang_code_for_user_manual': lang_code_for_user_manual(),
+        'default_author_link': resolve_default_author_link(get_gpref('default_author_link')),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
@@ -417,6 +419,29 @@ def book_metadata(ctx, rd, book_id):
         raise BookNotFound(book_id, db)
     data['id'] = book_id  # needed for random book view (when book_id=0)
     return data
+
+
+@endpoint('/web-search/{book_id}/{field}/{item_val}', postprocess=json)
+def web_search(ctx, rd, book_id, field, item_val):
+    '''
+    Redirect to a web search URL for the specified item.
+    Optional: ?library_id=<default library>
+    '''
+    db, library_id = get_library_data(ctx, rd)[:2]
+    try:
+        book_id = int(book_id)
+    except Exception:
+        raise HTTPNotFound(f'Book with id {book_id!r} does not exist')
+    if db is None:
+        raise HTTPNotFound(f'Library {library_id!r} not found')
+    with db.safe_read_lock:
+        if not ctx.has_id(rd, db, book_id):
+            raise BookNotFound(book_id, db)
+        mi = db.get_metadata(book_id, get_cover=False)
+        url, tooltip = web_search_link(db, book_id, field, item_val)
+        if url:
+            raise HTTPTempRedirect(url)
+    raise HTTPNotFound(f'No web search URL for {field} {item_val}')
 
 
 @endpoint('/interface-data/tag-browser')

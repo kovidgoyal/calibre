@@ -99,7 +99,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
         extra_data.appendChild(safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, metadata.series)))
     right = E.div(
-        class_='details-list-right',
+            class_='details-list-right',
             E.div(style='display:flex; justify-content: space-between; overflow: hidden',
             E.div(
                 E.b(metadata.title or _('Unknown')), E.br(), authors,
