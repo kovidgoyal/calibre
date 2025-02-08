@@ -163,8 +163,7 @@ def show_controls_help():
 
 def body_font_size():
     ans = body_font_size.ans
-    dpr = body_font_size.dpr
-    if not ans or window.devicePixelRatio is not dpr:
+    if not ans or window.devicePixelRatio is not body_font_size.dpr:
         body_font_size.dpr = window.devicePixelRatio
         q = window.getComputedStyle(document.body).fontSize
         if q and q.endsWith('px'):
