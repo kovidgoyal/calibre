@@ -69,16 +69,20 @@ def search_action_with_data(search_term, value, book_id, field=None, **k):
 
 def cc_search_action_with_data(search_term, value, book_id, fm, mi, field=None,  **k):
     if mi is not None and fm is not None:
-        template = fm.get('display', {}).get('web_search_template')
-        if template:
-            formatter = SafeFormat()
-            mi.set('item_value', value)
-            u = formatter.safe_format(template, mi, "BOOK DETAILS WEB LINK", mi)
-            if u:
-                v = prepare_string_for_xml(_('Click to browse to {0}').format(u), attribute=True)
-                return action('cc_url', url=u),v
+        if template := fm.get('display', {}).get('web_search_template'):
+            try:
+                formatter = SafeFormat()
+                mi.set('item_value', value)
+                u = formatter.safe_format(template, mi, 'BOOK DETAILS WEB LINK', mi)
+                if u:
+                    v = prepare_string_for_xml(_('Click to browse to {}').format(u), attribute=True)
+                    return action('cc_url', url=u), v
+            except Exception:
+                import traceback
+                traceback.print_exc()
     t = _('Click to see books with {0}: {1}').format(mi.get('name', search_term), prepare_string_for_xml(value))
     return search_action_with_data(search_term, value, book_id, **k), t
+
 
 def notes_action(**keys):
     return 'notes:' + as_hex_unicode(json_dumps(keys))
@@ -225,16 +229,16 @@ def mi_to_html(
                     ans.append((field, row % (name, comments_to_html(val))))
                 else:
                     if not metadata['is_multiple']:
-                        u,v = cc_search_action_with_data(field, val, book_id, metadata, mi, field)
-                        val = '<a href="{}" title="{}">{}</a>'.format(u, v, p(val))
+                        u, v = cc_search_action_with_data(field, val, book_id, metadata, mi, field)
+                        val = f'<a href="{u}" title="{v}">{p(val)}</a>'
                     else:
                         all_vals = [v.strip()
                             for v in val.split(metadata['is_multiple']['cache_to_list']) if v.strip()]
                         if show_links:
                             links = []
                             for x in all_vals:
-                                u,v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                                links.append('<a href="{}" title="{}">{}</a>'.format(u, v, p(x)))
+                                u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
+                                links.append(f'<a href="{u}" title="{v}">{p(x)}</a>')
                         else:
                             links = all_vals
                         val = value_list(metadata['is_multiple']['list_to_ui'], links)
@@ -364,7 +368,7 @@ def mi_to_html(
                         st = field
                     series = getattr(mi, field)
                     if metadata.get('display', {}).get('web_search_template'):
-                        u,v = cc_search_action_with_data(st, series, book_id, metadata, mi, field)
+                        u, v = cc_search_action_with_data(st, series, book_id, metadata, mi, field)
                         val = _('%(sidx)s of <a href="%(href)s" title="%(tt)s">'
                                 '<span class="%(cls)s">%(series)s</span></a>') % dict(
                                     sidx=fmt_sidx(sidx, use_roman=use_roman_numbers), cls='series_name',
@@ -405,8 +409,8 @@ def mi_to_html(
                         if show_links:
                             for x in all_vals:
                                 if metadata['is_custom']:
-                                    u,v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                                    v = '<a href="{}" title="{}">{}</a>'.format(u, v, p(x))
+                                    u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
+                                    v = f'<a href="{u}" title="{v}">{p(x)}</a>'
                                 else:
                                     v = '<a href="{}" title="{}">{}</a>'.format(
                                         search_action_with_data(st, x, book_id, field),
@@ -424,8 +428,8 @@ def mi_to_html(
                             st = field
                         if show_links:
                             if metadata['is_custom']:
-                                u,v = cc_search_action_with_data(st, x, book_id, metadata, mi, field)
-                                v = '<a href="{}" title="{}">{}</a>'.format(u, v, p(x))
+                                u, v = cc_search_action_with_data(st, x, book_id, metadata, mi, field)
+                                v = f'<a href="{u}" title="{v}">{p(x)}</a>'
                             else:
                                 v = '<a href="{}" title="{}">{}</a>'.format(
                                     search_action_with_data(st, x, book_id, field),
@@ -435,8 +439,8 @@ def mi_to_html(
                             v = val
                         val = v + add_other_links(field, val)
                 elif metadata['datatype'] == 'enumeration':
-                    u,v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                    val = '<a href="{}" title="{}">{}</a>'.format(u, v, p(x)) + add_other_links(field, val)
+                    u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
+                    val = f'<a href="{u}" title="{v}">{p(x)}</a>' + add_other_links(field, val)
                 elif metadata['datatype'] == 'bool':
                     val = '<a href="{}" title="{}">{}</a>'.format(
                         search_action_with_data(field, val, book_id, None), a(

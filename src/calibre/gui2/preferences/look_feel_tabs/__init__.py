@@ -7,7 +7,21 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
-from qt.core import QAbstractListModel, QComboBox, QDialog, QFormLayout, QHBoxLayout, QIcon, QItemSelectionModel, QLineEdit, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import (
+    QAbstractListModel,
+    QComboBox,
+    QDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLineEdit,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.search_internet import qquote

@@ -753,8 +753,8 @@ class Metadata:
                 res = human_readable(res)
             return (name, str(res), orig_res, fmeta)
 
-        if self.get(key, None):
-            return (key, str(self.get(key)), self.get(key), None)
+        if kv := self.get(key, None):
+            return (key, str(kv), kv, None)
 
         return (None, None, None, None)
 
