@@ -542,11 +542,12 @@ class CreateCustomColumn(QDialog):
         l.addWidget(self.web_search_label)
         wst = self.web_search_template = QLineEdit()
         wst.setToolTip('<p>' + _(
-            "Fill in this box if you want clicking on the value in book details to do a "
-            "web search instead of searching your calibre library. The book's metadata are "
-            "available to the template. An additional field 'item_value' is available to the "
-            "template. For multiple-valued (tags-like) columns it is the value being examined, "
-            "telling you which value to use to generate the link.") + '</p>')
+            'Fill in this box if you want clicking on the value in book details to do a '
+            "web search instead of searching your calibre library. The book's metadata is "
+            "available to the template. Additional fields '{0}' and '{1}' are also available to the "
+            'template. For multiple-valued (tags-like) columns they are the value being examined, '
+            'telling you which value to use to generate the link. These two values are automatically escaped for use in URLs.').format(
+                'item_value', 'item_value_no_plus') + '</p>')
         l.addWidget(wst)
         self.web_search_label.setBuddy(wst)
         wst_tb = self.web_search_toolbutton = QToolButton()
@@ -566,11 +567,13 @@ class CreateCustomColumn(QDialog):
             vals = [{'value': _('Value'), 'lookup_name': _('Lookup name'), 'author': _('Author'),
                      'title': _('Title'), 'author_sort': _('Author sort')}]
         else:
+            from calibre.ebooks.metadata.search_internet import qquote
             vals = []
             for row in rows:
                 book_id = lv.model().id(row)
                 mi = db.new_api.get_metadata(book_id)
-                mi.set('item_value', 'Item Value')
+                mi.set('item_value', qquote('Item Value', True))
+                mi.set('item_value_no_plus', qquote('Item Value', False))
                 vals.append(mi)
         d = TemplateDialog(parent=self, text=self.web_search_template.text(), mi=vals)
         if d.exec() == QDialog.DialogCode.Accepted:
