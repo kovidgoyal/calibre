@@ -876,5 +876,5 @@ class HeuristicProcessor:
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly
-            html = self.anyblank.sub(r'\n\g<openline>\u00a0\g<closeline>', html)
+            html = self.anyblank.sub(r'\n\g<openline>' + '\u00a0' + r'\g<closeline>', html)
         return html
