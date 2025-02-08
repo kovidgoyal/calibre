@@ -67,16 +67,21 @@ def search_action_with_data(search_term, value, book_id, field=None, **k):
     return search_action(search_term, value, field=field, book_id=book_id, **k)
 
 
+def web_search_link(template, mi, value):
+    formatter = SafeFormat()
+    mi.set('item_value', value)
+    u = formatter.safe_format(template, mi, 'BOOK DETAILS WEB LINK', mi)
+    if u:
+        return u, prepare_string_for_xml(_('Click to browse to: {}').format(u), attribute=True)
+    return '', ''
+
+
 def cc_search_action_with_data(search_term, value, book_id, fm, mi, field=None,  **k):
     if mi is not None and fm is not None:
         if template := fm.get('display', {}).get('web_search_template'):
             try:
-                formatter = SafeFormat()
-                mi.set('item_value', value)
-                u = formatter.safe_format(template, mi, 'BOOK DETAILS WEB LINK', mi)
-                if u:
-                    v = prepare_string_for_xml(_('Click to browse to {}').format(u), attribute=True)
-                    return action('cc_url', url=u), v
+                u, v = web_search_link(template, mi, value)
+                return action('cc_url', url=u), v
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -89,6 +94,13 @@ def notes_action(**keys):
 
 
 DEFAULT_AUTHOR_LINK = f'search-{DEFAULT_AUTHOR_SOURCE}'
+
+
+def resolve_default_author_link(ans: str | None = None) -> str:
+    if ans == 'https://en.wikipedia.org/w/index.php?search={author}':
+        # The old default value for this setting
+        ans = ''
+    return ans or DEFAULT_AUTHOR_LINK
 
 
 def author_search_href(which, title=None, author=None):

@@ -630,12 +630,8 @@ QSettings.setDefaultFormat(QSettings.Format.IniFormat)
 
 
 def default_author_link():
-    from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
-    ans = gprefs.get('default_author_link')
-    if ans == 'https://en.wikipedia.org/w/index.php?search={author}':
-        # The old default value for this setting
-        ans = DEFAULT_AUTHOR_LINK
-    return ans or DEFAULT_AUTHOR_LINK
+    from calibre.ebooks.metadata.book.render import resolve_default_author_link
+    return resolve_default_author_link(gprefs.get('default_author_link'))
 
 
 def available_heights():

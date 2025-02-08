@@ -165,6 +165,22 @@ def get_gpref(name: str, defval=None):
     return gprefs.get(name, defval)
 
 
+def web_search_link(db, book_id: int, field: str, item_val: str) -> tuple[str, str]:
+    from calibre.ebooks.metadata.book.render import render_author_link, resolve_default_author_link, web_search_link
+    if field == 'authors':
+        default_author_link = resolve_default_author_link(get_gpref('default_author_link'))
+        author_sort = db.author_sort_from_authors((item_val,))
+        url, tooltip = render_author_link(default_author_link, item_val, author_sort, db.field_for('title', book_id))
+    else:
+        metadata = db.field_metadata.get(field)
+        if metadata is None or not (template := metadata.get('display', {}).get('web_search_template')):
+            return '', ''
+        url, tooltip = web_search_link(template, db.get_metadata(book_id), item_val)
+    if url.partition(':')[0].lower() in ('http', 'https'):
+        return url, tooltip
+    return '', ''
+
+
 def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db):
     category = node['category']
     if category in ('search', 'formats') or category.startswith('@'):
