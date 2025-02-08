@@ -289,6 +289,10 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 websearch_link = False
                 if field is 'authors':
                     websearch_link = bool(interface_data.default_author_link) and interface_data.default_author_link is not 'search-calibre'
+                else:
+                    fm = field_metadata[field]
+                    if fm?.display and fm.display.web_search_template and fm.display.web_search_template.partition(':')[0] in ('http', 'https'):
+                        websearch_link = True
                 text_rep = search_text or v
                 target = '_self'
                 if websearch_link and jstype(v) is not 'string':
