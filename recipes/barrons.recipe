@@ -1,13 +1,50 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+
 import re
-from collections import defaultdict
-from datetime import date
+import json
+import base64
 
-from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class barrons(BasicNewsRecipe):
+def make_html(a):
+    typ = a.get('type', '')
+    if typ == 'byline':
+        if 'article-logo' in a['byline'].get('textStyleID', ''):
+            return ''
+        st = ' style="font-size:small;"'
+        return f'<div {st}>{a["byline"]["text"]}</div>'
+    if typ == 'title':
+        return f'<h1>{a["title"]["text"]}</h1>'
+    if typ == 'body':
+        if 'body-h' in a['body'].get('textStyleID', ''):
+            return f'<h4>{a["body"]["text"]}</h4>'
+        return f'<p>{a["body"]["text"]}</p>'
+    if typ == 'image':
+        return f'<img src={a["image"]["url"]}>'
+    if typ == 'caption':
+        st = ' style="font-size:small; text-align: center;"'
+        return f'<div {st}>{a["caption"]["text"]}</div>'
+    if typ == 'listelement':
+        return f'<li>{a["body"]["text"]}</li>'
+    if typ == 'dynamicinset':
+        if 'datawrapper-chart-' in a['webview']['value']:
+            dw = re.search(r'datawrapper-chart-(.{5})', a['webview']['value']).group(1)
+            return f'<img src=https://datawrapper.dwcdn.net/{dw}/full.png>'
+    return ''
+
+
+keys = [
+    'ZXlKaGJHY2lPaUpTVXpJMU5pSjk=',
+    'V0Zac2FITjNNWGQzU213MFYza3dSWEJ6Y2xR',
+    'cXd3QmVkQVVOWEhUUWNob3dRWjV6TXdtblhxREtlTWhvUkpsa0I3ZHJqV21iMGt0WkNTY0locTVscElpV2FNeU5KQQ==',
+    'T0RZZ0hBZklvaTdES1drUzhnOEd1bkZOQVhwSkRVT0xkSTJydFFrVEVp',
+    'RTNvOTByZFpIdW5QUjdwMFVMalJtSENuRG9mQWRwVFFkSnRUWGpROWVFRFpUMnhvb29WR2RCcG9WS2hF',
+]
+
+
+class Barrons(BasicNewsRecipe):
     title = "Barron's Magazine"
     __author__ = 'unkn0wn'
     description = (
@@ -16,118 +53,84 @@ class barrons(BasicNewsRecipe):
         'relevant statistics.'
     )
     language = 'en_US'
-    use_embedded_content = False
-    no_stylesheets = True
-    remove_javascript = True
-    remove_attributes = ['height', 'width', 'style']
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.barrons.com/asset/barrons/images/barrons-logo.png'
-    delay = 1
     resolve_internal_links = True
-
-    extra_css = '''
-        img {display:block; margin:0 auto;}
-        .figc { font-size:small; text-align:center; }
-        .imageCredit { color:#404040; font-size:x-small; }
-        .headline__category, .article-prebody { font-size:small; color:#404040; }
-        .sub-head { color:#202020; }
-    '''
-
-    keep_only_tags = [
-        classes('headline articleLead article-prebody'),
-        dict(name='section', attrs={'subscriptions-section':'content'})
-    ]
-    remove_tags = [
-        dict(name=['meta', 'link', 'svg', 'button', 'i-amphtml-sizer']),
-        classes('wsj-ad dynamic-inset-overflow newsletter-inset')
-    ]
-
-    def preprocess_html(self, soup):
-        for figc in soup.findAll('figcaption'):
-            figc['class'] = 'figc'
-            for p in figc.findAll('p'):
-                p.name = 'div'
-        for by in soup.findAll(**classes('byline')):
-            for p in by.findAll('p'):
-                p.name = 'span'
-        for h2 in soup.findAll('h2'):
-            h2.name = 'h4'
-        for iframe in soup.findAll('amp-iframe'):
-            wsj = iframe.find('amp-img')
-            if wsj:
-                wsj.decompose()
-            data = re.search(r'datawrapper-chart-(.{5})', iframe['src'])
-            if data:
-                iframe.name = 'img'
-                iframe['src'] = 'https://datawrapper.dwcdn.net/' + data.group(1) + '/full.png'
-        for amp in soup.findAll('amp-img'):
-            if not amp.find('img', attrs={'src':True}):
-                if amp.has_attr('src'):
-                    amp['src'] = amp['src'] + '&pixel_ratio=1.5'
-                    amp.name = 'img'
-            else:
-                amp.img['src'] = amp.img['src'] + '&pixel_ratio=1.5'
-        return soup
-
-    def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/'),
-            ('X-Forwarded-For', '66.249.66.1')
-        ]
-        return br
+    delay = 0.5
 
     recipe_specific_options = {
         'date': {
-            'short': 'The date of the edition to download (YYYYMMDD format)',
-            'long': "For example, 20240722.\nIf it didn't work, try again later."
-        }
+            'short': 'The date of the edition to download (MMM DD, YYYY format)',
+            'long': 'For example, Dec 30, 2024',
+        },
     }
 
     def parse_index(self):
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
+        index = 'https://barrons.djmedia.djservices.io'
+        theatre = '/apps/barrons/theaters/'
+        archive = self.index_to_soup(
+            index + theatre + 'magazine-archive?screen_ids=magazine-archive',
+            raw=True,
         )
-        issue_url = 'https://www.barrons.com/magazine?archives=' + date.today().strftime('%Y')
-        d = self.recipe_specific_options.get('date')
-        if d and isinstance(d, str):
-            issue_url = 'https://www.barrons.com/magazine/' + d
-            archive = self.index_to_soup(issue_url)
-        else:
-            archive = self.index_to_soup(issue_url)
-            self.cover_url = archive.find(**prefixed_classes('BarronsTheme--archive-box--')).img['src'].split('?')[0]
 
-        self.timefmt = ' [' + self.tag_to_string(archive.find(**prefixed_classes('BarronsTheme--edition-date--'))) + ']'
-        self.description = self.tag_to_string(archive.find(**prefixed_classes('BarronsTheme--headline--')))
+        feeds = []
 
-        ans = defaultdict(list)
+        scrn = json.loads(archive)['screens'][0]['frames']
+        self.log(
+            'Available Editions: ',
+            ' | '.join(x['screenIds'][0]['name'][6:] for x in scrn),
+        )
+        for frme in scrn:
+            edition_date = self.recipe_specific_options.get('date')
+            if edition_date and isinstance(edition_date, str):
+                nme = frme['screenIds'][0]['name']
+                if not edition_date.lower() in nme.lower():
+                    continue
+            nme = frme['screenIds'][0]['name']
+            cid = frme['screenIds'][0]['id']
+            bseurl = frme['baseUrl']
+            self.cover_url = frme['image']['url']
+            self.log('Downloading ', nme)
+            self.timefmt = ' [' + nme[6:] + ']'
+            break
 
-        for articles in archive.findAll(**prefixed_classes('BarronsTheme--story--')):
-            section = 'Magazine'
-            strap = articles.find_previous_sibling(**prefixed_classes('BarronsTheme--strap--'))
-            if strap:
-                label = strap.find(**prefixed_classes('BarronsTheme--label--'))
-                if label:
-                    section = self.tag_to_string(label).strip()
-            a = articles.find(**prefixed_classes('BarronsTheme--heading'))
-            title = self.tag_to_string(a).strip()
-            url = a.a['href']
+        data = json.loads(self.index_to_soup(index + bseurl, raw=True))
+        for x in data['screens'][0]['frames']:
+            if x['type'] != 'article':
+                continue
+            url = index + theatre + cid + '?screen_ids=' + x['articleId']
+            title = x['title']['text']
             desc = ''
-            byl = articles.find(**prefixed_classes('BarronsTheme--byline--'))
-            if byl:
-                desc += self.tag_to_string(byl)
-            ttr = articles.find(**prefixed_classes('BarronsTheme--time-to-read--'))
-            if ttr:
-                desc += self.tag_to_string(ttr)
-            summ = articles.find(**prefixed_classes('BarronsTheme--summary--'))
-            if summ:
-                desc += ' | ' + self.tag_to_string(summ)
-            self.log('\t', title, ' ', url, '\n\t', desc)
-            ans[section].append({'title': title, 'url': url, 'description': desc})
-        return list(ans.items())
+            if x.get('summary'):
+                desc = x['summary']['text']
+            if x.get('byline'):
+                desc = x['byline']['text'] + ' | ' + desc
+            self.log('          ', title, '\n\t', desc)
+            feeds.append({'title': title, 'description': desc, 'url': url})
+        return [('Articles', feeds)]
 
-    def print_version(self, url):
-        return url.split('?')[0].replace('/articles/', '/amp/articles/')
+    def preprocess_raw_html(self, raw, url):
+        rdata = json.loads(raw)
+        body = ''
+        for x in rdata['screens'][0]['frames']:
+            body += '\n' + make_html(x)
+        return '<html><body>' + body + '</body></html>'
+
+    def get_browser(self, *args, **kw):
+        kw['user_agent'] = 'okhttp/4.12.0'
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        k2 = '.'.join(base64.b64decode(b).decode() for b in keys[:3])
+        k3 = '_'.join(base64.b64decode(v).decode() for v in keys[3:])
+        br.addheaders += [
+            ('Accept-Encoding', 'gzip'),
+            ('App-Identifier', 'com.news.screens'),
+            ('App-Version', 1),
+            ('Device-Type', 'phone'),
+            ('Os-Name', 'Android'),
+            ('X-Access-Token', k2 + '_' + k3),
+        ]
+        return br
+
+    def populate_article_metadata(self, article, soup, first):
+        article.url = 'https://www.barrons.com/articles/' + article.url.split('=')[-1]
