@@ -225,7 +225,10 @@ class StyledItemDelegate(QStyledItemDelegate):
         self.ignore_kb_mods_on_edit = False
 
     def createEditor(self, parent, option, index):
-        if self.table_widget.currentIndex() != index:
+        current_indices = [self.table_widget.currentIndex()]
+        if hasattr(self.table_widget, 'pin_view'):
+            current_indices.append(self.table_widget.pin_view.currentIndex())
+        if index not in current_indices:
             idx = self.table_widget.currentIndex()
             print(f'createEditor idx err: delegate={self.__class__.__name__}. '
                   f'cur idx=({idx.row()}, {idx.column()}), '
