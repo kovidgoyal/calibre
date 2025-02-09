@@ -122,7 +122,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
         span.attrib.pop('data-noteref-container')
         parent = span.getparent()
         idx = parent.index(span)
-        if idx + 1 < len(parent) and (ns := parent[idx+1]) and hasattr(ns, 'get') and ns.get('data-noteref-container'):
+        if idx + 1 < len(parent) and len(ns := parent[idx+1]) and hasattr(ns, 'get') and ns.get('data-noteref-container'):
             if len(span) and not span[-1].tail:
                 span[-1].tail = '\xa0'
 
