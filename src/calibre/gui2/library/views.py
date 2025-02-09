@@ -1650,16 +1650,16 @@ class BooksView(QTableView):  # {{{
             move_by = QAbstractItemView.CursorAction.MovePrevious
         if move_by is not None:
             hint = QAbstractItemDelegate.EndEditHint.NoHint
-        ans = super().closeEditor(editor, hint)
+        super().closeEditor(editor, hint)
         if move_by is not None and self.currentIndex() == orig and self.state() is not QAbstractItemView.State.EditingState:
             # Skip over columns that aren't editable or are implemented by a dialog
+            m = self._model
             while True:
                 index = self.moveCursor(move_by, Qt.KeyboardModifier.NoModifier)
                 if not index.isValid():
                     break
                 self.setCurrentIndex(index)
-                m = self._model
-                col = m.column_map[index.column()]
+                col = self.column_map[index.column()]
                 if m.is_custom_column(col):
                     # Don't try to open editors implemented by dialogs such as
                     # markdown, composites and comments
@@ -1679,7 +1679,6 @@ class BooksView(QTableView):  # {{{
                             d.ignore_kb_mods_on_edit = True
                         self.edit(index)
                 QTimer.singleShot(0, edit)
-        return ans
 
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
