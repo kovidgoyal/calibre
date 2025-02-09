@@ -411,36 +411,16 @@ def mi_to_html(
                                 _('Click to see books with {0}: {1} (derived from {2})').format(
                                     metadata['name'] or field, aval, val)), val)
                 elif metadata['datatype'] == 'text':
+                    try:
+                        st = metadata['search_terms'][0]
+                    except Exception:
+                        st = field
                     if metadata['is_multiple']:
-                        try:
-                            st = metadata['search_terms'][0]
-                        except Exception:
-                            st = field
                         all_vals = mi.get(field)
                         if not metadata.get('display', {}).get('is_names', False):
                             all_vals = sorted(all_vals, key=sort_key)
                         links = []
-                        if show_links:
-                            for x in all_vals:
-                                if metadata['is_custom']:
-                                    u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                                    v = f'<a href="{u}" title="{v}">{p(x)}</a>'
-                                else:
-                                    v = '<a href="{}" title="{}">{}</a>'.format(
-                                        search_action_with_data(st, x, book_id, field),
-                                        _('Click to see books with {0}: {1}').format(
-                                        metadata['name'] or field, a(x)), p(x))
-                                v += add_other_links(field, x)
-                                links.append(v)
-                        else:
-                            links = all_vals
-                        val = value_list(metadata['is_multiple']['list_to_ui'], links)
-                    else:
-                        try:
-                            st = metadata['search_terms'][0]
-                        except Exception:
-                            st = field
-                        if show_links:
+                        for x in all_vals:
                             if metadata['is_custom']:
                                 u, v = cc_search_action_with_data(st, x, book_id, metadata, mi, field)
                                 v = f'<a href="{u}" title="{v}">{p(x)}</a>'
@@ -449,12 +429,26 @@ def mi_to_html(
                                     search_action_with_data(st, x, book_id, field),
                                     _('Click to see books with {0}: {1}').format(
                                     metadata['name'] or field, a(x)), p(x))
+                            v += add_other_links(field, x)
+                            links.append(v)
+                        val = value_list(metadata['is_multiple']['list_to_ui'], links)
+                    else:
+                        if metadata['is_custom']:
+                            u, v = cc_search_action_with_data(st, unescaped_val, book_id, metadata, mi, field)
+                            v = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>'
                         else:
-                            v = val
+                            v = '<a href="{}" title="{}">{}</a>'.format(
+                                search_action_with_data(st, unescaped_val, book_id, field),
+                                _('Click to see books with {0}: {1}').format(
+                                metadata['name'] or field, a(unescaped_val)), p(unescaped_val))
                         val = v + add_other_links(field, val)
                 elif metadata['datatype'] == 'enumeration':
-                    u, v = cc_search_action_with_data(field, x, book_id, metadata, mi, field)
-                    val = f'<a href="{u}" title="{v}">{p(x)}</a>' + add_other_links(field, val)
+                    try:
+                        st = metadata['search_terms'][0]
+                    except Exception:
+                        st = field
+                    u, v = cc_search_action_with_data(st, unescaped_val, book_id, metadata, mi, field)
+                    val = f'<a href="{u}" title="{v}">{p(unescaped_val)}</a>' + add_other_links(field, val)
                 elif metadata['datatype'] == 'bool':
                     val = '<a href="{}" title="{}">{}</a>'.format(
                         search_action_with_data(field, val, book_id, None), a(
