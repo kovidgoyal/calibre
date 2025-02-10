@@ -8,7 +8,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
 
 
-class CustomEditTabbingBehavior:
+class TableView(QTableView):
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior
@@ -18,7 +18,7 @@ class CustomEditTabbingBehavior:
             delta = 1
         elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
             delta = -1
-        QTableView.closeEditor(self, editor, QAbstractItemDelegate.EndEditHint.NoHint if delta else hint)
+        super().closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint if delta else hint)
         if not delta:
             return
         current = self.currentIndex()
@@ -59,7 +59,7 @@ class CustomEditTabbingBehavior:
             self.edit(idx)
 
 
-class PinTableView(QTableView, CustomEditTabbingBehavior):
+class PinTableView(TableView):
 
     disable_save_state = False
 

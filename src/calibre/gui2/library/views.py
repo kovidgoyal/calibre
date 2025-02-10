@@ -67,7 +67,7 @@ from calibre.gui2.library.delegates import (
     TextDelegate,
 )
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.pin_columns import CustomEditTabbingBehavior, PinTableView
+from calibre.gui2.pin_columns import PinTableView, TableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
@@ -356,7 +356,7 @@ class AdjustColumnSize(QDialog):  # {{{
 
 
 @setup_dnd_interface
-class BooksView(QTableView, CustomEditTabbingBehavior):  # {{{
+class BooksView(TableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
