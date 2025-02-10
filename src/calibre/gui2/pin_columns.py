@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAbstractItemDelegate, QSplitter, Qt, QTableView
+from qt.core import QAbstractItemDelegate, QModelIndex, QSplitter, Qt, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -52,7 +52,7 @@ class TableView(QTableView):
                 row -= 1
                 col += len(self.column_map)
             if col >= len(self.column_map):
-                if row >= len(self.column_map) - 1:
+                if row >= m.rowCount(QModelIndex()) - 1:
                     return
                 row += 1
                 col -= len(self.column_map)
@@ -71,8 +71,7 @@ class TableView(QTableView):
         if idx.isValid():
             # Tell the delegate to ignore keyboard modifiers in case
             # Shift-Tab is being used to move the cell.
-            d = self.itemDelegateForIndex(idx)
-            if d is not None:
+            if (d := self.itemDelegateForIndex(idx)) is not None:
                 d.ignore_kb_mods_on_edit = True
             self.setCurrentIndex(idx)
             self.edit(idx)

@@ -1679,8 +1679,4 @@ class DeviceBooksView(BooksView):  # {{{
         h = self.horizontalHeader()
         h.setSortIndicator(
             h.sortIndicatorSection(), Qt.SortOrder.AscendingOrder if h.sortIndicatorOrder() == Qt.SortOrder.DescendingOrder else Qt.SortOrder.DescendingOrder)
-
-    def closeEditor(self, editor, hint):
-        return super().closeEditor(editor, hint)
-
 # }}}
