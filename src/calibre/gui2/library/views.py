@@ -1510,7 +1510,8 @@ class BooksView(TableView):  # {{{
             return
         if ev.key() == Qt.Key.Key_F2:
             key = self.column_map[self.currentIndex().column()]
-            if self._model.db.field_metadata[key]['datatype'] == 'composite':
+            db = self.model().db
+            if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
                 self.cc_template_delegate.allow_one_edit()
         return QTableView.keyPressEvent(self, ev)
 
