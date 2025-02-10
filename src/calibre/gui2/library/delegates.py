@@ -206,23 +206,13 @@ def get_val_for_textlike_columns(index_):
 
 class StyledItemDelegate(QStyledItemDelegate):
     '''
-    When closing an editor and opening another, Qt sometimes picks what appears
-    to be a random line and column for the second editor. This function checks
-    that the current index for a new editor is the same as the current view. If
-    it isn't then the editor shouldn't be opened.
-
     Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
     want keyboard modifiers taken into account, for example when using Shift-Tab
     as a backtab when editing cells. This prevents opening dialogs by mistake.
     See giu2.library.views.closeEditor() for an example.
     '''
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.table_widget = args[0]
-        # Set this to True here. It is up the the subclasses to set it to False if needed.
-        self.is_editable_with_tab = True
-        self.ignore_kb_mods_on_edit = False
+    is_editable_with_tab = True  # sub-classes set to False is needed
+    ignore_kb_mods_on_edit = False
 
     def createEditor(self, parent, option, index):
         current_indices = [self.table_widget.currentIndex()]

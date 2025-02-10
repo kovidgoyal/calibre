@@ -449,7 +449,7 @@ class BooksView(QTableView):  # {{{
         for wv in self, self.pin_view:
             wv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             wv.setSortingEnabled(True)
-        self.selectionModel().currentRowChanged.connect(self._model.current_changed, type=Qt.ConnectionType.QueuedConnection)
+        self.selectionModel().currentRowChanged.connect(self.on_current_row_change)
         self.selectionModel().selectionChanged.connect(self.selection_changed.emit)
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
@@ -1637,48 +1637,65 @@ class BooksView(QTableView):  # {{{
     def close(self):
         self._model.close()
 
+    def is_index_editable_with_tab(self, index) -> bool:
+        if not index.isValid():
+            return False
+        col = self.column_map[index.column()]
+        m = self.model()
+        if m.is_custom_column(col):
+            # Don't try to open editors implemented by dialogs such as
+            # markdown, composites and comments
+            return self.itemDelegateForIndex(index).is_editable_with_tab
+        return bool(m.flags(index) & Qt.ItemFlag.ItemIsEditable)
+
     def closeEditor(self, editor, hint):
-        # As of Qt 6.7.2, for some reason, Qt opens the next editor after
-        # closing this editor and then immediately closes it again. So
-        # workaround the bug by opening the editor again after an event loop
-        # tick.
+        # We want to implement our own go to next/previous cell behavior
+        # so do it here.
         orig = self.currentIndex()
-        move_by = None
+        do_move = False
+        delta = 1
         if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
-            move_by = QAbstractItemView.CursorAction.MoveNext
+            do_move = True
         elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
-            move_by = QAbstractItemView.CursorAction.MovePrevious
-        if move_by is not None:
-            hint = QAbstractItemDelegate.EndEditHint.NoHint
-        super().closeEditor(editor, hint)
-        if move_by is not None and self.currentIndex() == orig and self.state() is not QAbstractItemView.State.EditingState:
-            # Skip over columns that aren't editable or are implemented by a dialog
-            m = self._model
-            while True:
-                index = self.moveCursor(move_by, Qt.KeyboardModifier.NoModifier)
-                if not index.isValid():
-                    break
-                self.setCurrentIndex(index)
-                col = self.column_map[index.column()]
-                if m.is_custom_column(col):
+            do_move = True
+            delta = -1
+        super().closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
+        self.selectionModel().setCurrentIndex(orig, QItemSelectionModel.SelectionFlag.NoUpdate)
+        if do_move:
+            QTimer.singleShot(0, lambda: self.edit_next_cell(orig, delta))
+
+    def on_current_row_change(self, current, previous):
+        self._model.current_changed(current, previous)
+
+    def edit(self, index, trigger=QAbstractItemView.EditTrigger.AllEditTriggers, event=None):
+        edited = super().edit(index, trigger, event)
+        return edited
+
+    def edit_next_cell(self, current, delta=1):
+        m = self.model()
+        idx = m.index(current.row(), current.column(), current.parent())
+        while True:
+            col = idx.column() + delta
+            if col < 0 or col >= len(self.column_map):
+                return
+            colname = self.column_map[col]
+            idx = m.index(current.row(), col, current.parent())
+            if m.is_custom_column(colname):
+                if self.itemDelegateForIndex(idx).is_editable_with_tab:
                     # Don't try to open editors implemented by dialogs such as
                     # markdown, composites and comments
-                    if self.itemDelegateForIndex(index).is_editable_with_tab:
-                        break
-                elif m.flags(index) & Qt.ItemFlag.ItemIsEditable:
-                    # Standard editable column
                     break
-            if index.isValid():
-                def edit():
-                    if index.isValid():
-                        self.setCurrentIndex(index)
-                        # Tell the delegate to ignore keyboard modifiers in case
-                        # Shift-Tab is being used to move the cell.
-                        d = self.itemDelegateForIndex(index)
-                        if d is not None:
-                            d.ignore_kb_mods_on_edit = True
-                        self.edit(index)
-                QTimer.singleShot(0, edit)
+            elif m.flags(idx) & Qt.ItemFlag.ItemIsEditable:
+                break
+
+        if idx.isValid():
+            # Tell the delegate to ignore keyboard modifiers in case
+            # Shift-Tab is being used to move the cell.
+            d = self.itemDelegateForIndex(idx)
+            if d is not None:
+                d.ignore_kb_mods_on_edit = True
+            self.setCurrentIndex(idx)
+            self.edit(idx)
 
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)

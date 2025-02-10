@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QSplitter, QTableView
+from qt.core import QAbstractItemView, QSplitter, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -16,6 +16,11 @@ class PinTableView(QTableView):
         self.verticalHeader().close()
         self.splitter = None
         self.disable_save_state = False
+
+    def edit(self, index, trigger=QAbstractItemView.EditTrigger.AllEditTriggers, event=None):
+        if not self.isVisible():
+            return False
+        return super().edit(index, trigger, event)
 
     @property
     def column_map(self):
