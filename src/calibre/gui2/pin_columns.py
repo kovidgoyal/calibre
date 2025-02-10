@@ -2,25 +2,72 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAbstractItemView, QSplitter, QTableView
+from qt.core import QAbstractItemDelegate, QSplitter, Qt, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
 
 
-class PinTableView(QTableView):
+class CustomEditTabbingBehavior:
+
+    def closeEditor(self, editor, hint):
+        # We want to implement our own go to next/previous cell behavior
+        orig = self.currentIndex()
+        delta = 0
+        if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
+            delta = 1
+        elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
+            delta = -1
+        QTableView.closeEditor(self, editor, QAbstractItemDelegate.EndEditHint.NoHint if delta else hint)
+        if not delta:
+            return
+        current = self.currentIndex()
+        m = self.model()
+        row = current.row()
+        idx = m.index(row, current.column(), current.parent())
+        while True:
+            col = idx.column() + delta
+            if col < 0:
+                if row <= 0:
+                    return
+                row -= 1
+                col += len(self.column_map)
+            if col >= len(self.column_map):
+                if row >= len(self.column_map) - 1:
+                    return
+                row += 1
+                col -= len(self.column_map)
+            if col < 0 or col >= len(self.column_map):
+                return
+            colname = self.column_map[col]
+            idx = m.index(row, col, current.parent())
+            if m.is_custom_column(colname):
+                if self.itemDelegateForIndex(idx).is_editable_with_tab:
+                    # Don't try to open editors implemented by dialogs such as
+                    # markdown, composites and comments
+                    break
+            elif m.flags(idx) & Qt.ItemFlag.ItemIsEditable:
+                break
+
+        if idx.isValid():
+            # Tell the delegate to ignore keyboard modifiers in case
+            # Shift-Tab is being used to move the cell.
+            d = self.itemDelegateForIndex(idx)
+            if d is not None:
+                d.ignore_kb_mods_on_edit = True
+            self.setCurrentIndex(idx)
+            self.edit(idx)
+
+
+class PinTableView(QTableView, CustomEditTabbingBehavior):
+
+    disable_save_state = False
 
     def __init__(self, books_view, parent=None):
         QTableView.__init__(self, parent)
         self.books_view = books_view
         self.verticalHeader().close()
         self.splitter = None
-        self.disable_save_state = False
-
-    def edit(self, index, trigger=QAbstractItemView.EditTrigger.AllEditTriggers, event=None):
-        if not self.isVisible():
-            return False
-        return super().edit(index, trigger, event)
 
     @property
     def column_map(self):

@@ -11,7 +11,6 @@ from collections import OrderedDict
 from functools import partial
 
 from qt.core import (
-    QAbstractItemDelegate,
     QAbstractItemView,
     QDialog,
     QDialogButtonBox,
@@ -68,7 +67,7 @@ from calibre.gui2.library.delegates import (
     TextDelegate,
 )
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.pin_columns import PinTableView
+from calibre.gui2.pin_columns import CustomEditTabbingBehavior, PinTableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
@@ -357,7 +356,7 @@ class AdjustColumnSize(QDialog):  # {{{
 
 
 @setup_dnd_interface
-class BooksView(QTableView):  # {{{
+class BooksView(QTableView, CustomEditTabbingBehavior):  # {{{
 
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
@@ -418,28 +417,30 @@ class BooksView(QTableView):  # {{{
             wv.setWordWrap(False)
         self.refresh_grid()
 
-        self.rating_delegate = RatingDelegate(self)
-        self.half_rating_delegate = RatingDelegate(self, is_half_star=True)
-        self.timestamp_delegate = DateDelegate(self)
-        self.pubdate_delegate = PubDateDelegate(self)
-        self.last_modified_delegate = DateDelegate(self,
-                tweak_name='gui_last_modified_display_format')
-        self.languages_delegate = LanguagesDelegate(self)
-        self.tags_delegate = CompleteDelegate(self, ',', 'all_tag_names')
-        self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
-        self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
-        self.series_delegate = SeriesDelegate(self)
-        self.publisher_delegate = TextDelegate(self)
-        self.text_delegate = TextDelegate(self)
-        self.cc_text_delegate = CcTextDelegate(self)
-        self.cc_series_delegate = CcSeriesDelegate(self)
-        self.cc_longtext_delegate = CcLongTextDelegate(self)
-        self.cc_markdown_delegate = CcMarkdownDelegate(self)
-        self.cc_enum_delegate = CcEnumDelegate(self)
-        self.cc_bool_delegate = CcBoolDelegate(self)
-        self.cc_comments_delegate = CcCommentsDelegate(self)
-        self.cc_template_delegate = CcTemplateDelegate(self)
-        self.cc_number_delegate = CcNumberDelegate(self)
+        def create_delegates(view):
+            view.rating_delegate = RatingDelegate(view)
+            view.half_rating_delegate = RatingDelegate(view, is_half_star=True)
+            view.timestamp_delegate = DateDelegate(view)
+            view.pubdate_delegate = PubDateDelegate(view)
+            view.last_modified_delegate = DateDelegate(view, tweak_name='gui_last_modified_display_format')
+            view.languages_delegate = LanguagesDelegate(view)
+            view.tags_delegate = CompleteDelegate(view, ',', 'all_tag_names')
+            view.authors_delegate = CompleteDelegate(view, '&', 'all_author_names', True)
+            view.cc_names_delegate = CompleteDelegate(view, '&', 'all_custom', True)
+            view.series_delegate = SeriesDelegate(view)
+            view.publisher_delegate = TextDelegate(view)
+            view.text_delegate = TextDelegate(view)
+            view.cc_text_delegate = CcTextDelegate(view)
+            view.cc_series_delegate = CcSeriesDelegate(view)
+            view.cc_longtext_delegate = CcLongTextDelegate(view)
+            view.cc_markdown_delegate = CcMarkdownDelegate(view)
+            view.cc_enum_delegate = CcEnumDelegate(view)
+            view.cc_bool_delegate = CcBoolDelegate(view)
+            view.cc_comments_delegate = CcCommentsDelegate(view)
+            view.cc_template_delegate = CcTemplateDelegate(view)
+            view.cc_number_delegate = CcNumberDelegate(view)
+
+        create_delegates(self), create_delegates(self.pin_view)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -1124,11 +1125,6 @@ class BooksView(QTableView):  # {{{
         self.alternate_views.set_database(db)
         self.save_state()
         self._model.set_database(db)
-        self.tags_delegate.set_database(db)
-        self.cc_names_delegate.set_database(db)
-        self.authors_delegate.set_database(db)
-        self.series_delegate.set_auto_complete_function(db.all_series)
-        self.publisher_delegate.set_auto_complete_function(db.all_publishers)
         self.alternate_views.set_database(db, stage=1)
 
     def marked_changed(self, old_marked, current_marked):
@@ -1172,55 +1168,56 @@ class BooksView(QTableView):  # {{{
                         self.last_modified_delegate, self.languages_delegate, self.half_rating_delegate):
                     vw.setItemDelegateForColumn(i, vw.itemDelegate())
 
-        cm = self.column_map
+        def set_delegates(view):
+            cm = view.column_map
 
-        def set_item_delegate(colhead, delegate):
-            idx = cm.index(colhead)
-            self.setItemDelegateForColumn(idx, delegate)
-            self.pin_view.setItemDelegateForColumn(idx, delegate)
+            def set_item_delegate(colhead, delegate):
+                idx = view.column_map.index(colhead)
+                view.setItemDelegateForColumn(idx, delegate)
 
-        for colhead in cm:
-            if self._model.is_custom_column(colhead):
-                cc = self._model.custom_columns[colhead]
-                if cc['datatype'] == 'datetime':
-                    delegate = CcDateDelegate(self)
-                    delegate.set_format(cc['display'].get('date_format',''))
-                    set_item_delegate(colhead, delegate)
-                elif cc['datatype'] == 'comments':
-                    ctype = cc['display'].get('interpret_as', 'html')
-                    if ctype == 'short-text':
-                        set_item_delegate(colhead, self.cc_text_delegate)
-                    elif ctype == 'long-text':
-                        set_item_delegate(colhead, self.cc_longtext_delegate)
-                    elif ctype == 'markdown':
-                        set_item_delegate(colhead, self.cc_markdown_delegate)
-                    else:
-                        set_item_delegate(colhead, self.cc_comments_delegate)
-                elif cc['datatype'] == 'text':
-                    if cc['is_multiple']:
-                        if cc['display'].get('is_names', False):
-                            set_item_delegate(colhead, self.cc_names_delegate)
+            for colhead in cm:
+                if self._model.is_custom_column(colhead):
+                    cc = self._model.custom_columns[colhead]
+                    if cc['datatype'] == 'datetime':
+                        delegate = CcDateDelegate(view)
+                        delegate.set_format(cc['display'].get('date_format',''))
+                        set_item_delegate(colhead, delegate)
+                    elif cc['datatype'] == 'comments':
+                        ctype = cc['display'].get('interpret_as', 'html')
+                        if ctype == 'short-text':
+                            set_item_delegate(colhead, view.cc_text_delegate)
+                        elif ctype == 'long-text':
+                            set_item_delegate(colhead, view.cc_longtext_delegate)
+                        elif ctype == 'markdown':
+                            set_item_delegate(colhead, view.cc_markdown_delegate)
                         else:
-                            set_item_delegate(colhead, self.tags_delegate)
-                    else:
-                        set_item_delegate(colhead, self.cc_text_delegate)
-                elif cc['datatype'] == 'series':
-                    set_item_delegate(colhead, self.cc_series_delegate)
-                elif cc['datatype'] in ('int', 'float'):
-                    set_item_delegate(colhead, self.cc_number_delegate)
-                elif cc['datatype'] == 'bool':
-                    set_item_delegate(colhead, self.cc_bool_delegate)
-                elif cc['datatype'] == 'rating':
-                    d = self.half_rating_delegate if cc['display'].get('allow_half_stars', False) else self.rating_delegate
-                    set_item_delegate(colhead, d)
-                elif cc['datatype'] == 'composite':
-                    set_item_delegate(colhead, self.cc_template_delegate)
-                elif cc['datatype'] == 'enumeration':
-                    set_item_delegate(colhead, self.cc_enum_delegate)
-            else:
-                dattr = colhead+'_delegate'
-                delegate = colhead if hasattr(self, dattr) else 'text'
-                set_item_delegate(colhead, getattr(self, delegate+'_delegate'))
+                            set_item_delegate(colhead, view.cc_comments_delegate)
+                    elif cc['datatype'] == 'text':
+                        if cc['is_multiple']:
+                            if cc['display'].get('is_names', False):
+                                set_item_delegate(colhead, view.cc_names_delegate)
+                            else:
+                                set_item_delegate(colhead, view.tags_delegate)
+                        else:
+                            set_item_delegate(colhead, view.cc_text_delegate)
+                    elif cc['datatype'] == 'series':
+                        set_item_delegate(colhead, view.cc_series_delegate)
+                    elif cc['datatype'] in ('int', 'float'):
+                        set_item_delegate(colhead, view.cc_number_delegate)
+                    elif cc['datatype'] == 'bool':
+                        set_item_delegate(colhead, view.cc_bool_delegate)
+                    elif cc['datatype'] == 'rating':
+                        d = view.half_rating_delegate if cc['display'].get('allow_half_stars', False) else view.rating_delegate
+                        set_item_delegate(colhead, d)
+                    elif cc['datatype'] == 'composite':
+                        set_item_delegate(colhead, view.cc_template_delegate)
+                    elif cc['datatype'] == 'enumeration':
+                        set_item_delegate(colhead, view.cc_enum_delegate)
+                else:
+                    dattr = colhead+'_delegate'
+                    delegate = colhead if hasattr(view, dattr) else 'text'
+                    set_item_delegate(colhead, getattr(view, delegate+'_delegate'))
+        set_delegates(self), set_delegates(self.pin_view)
 
         self.restore_state()
         self.set_ondevice_column_visibility()
@@ -1637,76 +1634,8 @@ class BooksView(QTableView):  # {{{
     def close(self):
         self._model.close()
 
-    def is_index_editable_with_tab(self, index) -> bool:
-        if not index.isValid():
-            return False
-        col = self.column_map[index.column()]
-        m = self.model()
-        if m.is_custom_column(col):
-            # Don't try to open editors implemented by dialogs such as
-            # markdown, composites and comments
-            return self.itemDelegateForIndex(index).is_editable_with_tab
-        return bool(m.flags(index) & Qt.ItemFlag.ItemIsEditable)
-
-    def closeEditor(self, editor, hint):
-        # We want to implement our own go to next/previous cell behavior
-        orig = self.currentIndex()
-        do_move = False
-        delta = 1
-        if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
-            do_move = True
-        elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
-            do_move = True
-            delta = -1
-        super().closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint if do_move else hint)
-        if do_move:
-            # Need to invoke after event loop tick otherwise
-            # mirror_selection_between_views causes issues
-            QTimer.singleShot(0, lambda: self.edit_next_cell(orig, delta))
-
     def on_current_row_change(self, current, previous):
         self._model.current_changed(current, previous)
-
-    def edit(self, index, trigger=QAbstractItemView.EditTrigger.AllEditTriggers, event=None):
-        edited = super().edit(index, trigger, event)
-        return edited
-
-    def edit_next_cell(self, current, delta=1):
-        m = self.model()
-        row = current.row()
-        idx = m.index(row, current.column(), current.parent())
-        while True:
-            col = idx.column() + delta
-            if col < 0:
-                if row <= 0:
-                    return
-                row -= 1
-                col += len(self.column_map)
-            if col >= len(self.column_map):
-                if row >= len(self.column_map) - 1:
-                    return
-                row += 1
-                col -= len(self.column_map)
-            if col < 0 or col >= len(self.column_map):
-                return
-            colname = self.column_map[col]
-            idx = m.index(row, col, current.parent())
-            if m.is_custom_column(colname):
-                if self.itemDelegateForIndex(idx).is_editable_with_tab:
-                    # Don't try to open editors implemented by dialogs such as
-                    # markdown, composites and comments
-                    break
-            elif m.flags(idx) & Qt.ItemFlag.ItemIsEditable:
-                break
-
-        if idx.isValid():
-            # Tell the delegate to ignore keyboard modifiers in case
-            # Shift-Tab is being used to move the cell.
-            d = self.itemDelegateForIndex(idx)
-            if d is not None:
-                d.ignore_kb_mods_on_edit = True
-            self.setCurrentIndex(idx)
-            self.edit(idx)
 
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
@@ -1852,5 +1781,8 @@ class DeviceBooksView(BooksView):  # {{{
         h = self.horizontalHeader()
         h.setSortIndicator(
             h.sortIndicatorSection(), Qt.SortOrder.AscendingOrder if h.sortIndicatorOrder() == Qt.SortOrder.DescendingOrder else Qt.SortOrder.DescendingOrder)
+
+    def closeEditor(self, editor, hint):
+        return super().closeEditor(editor, hint)
 
 # }}}
