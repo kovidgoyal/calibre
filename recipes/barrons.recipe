@@ -8,6 +8,28 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def make_hlinks(zx):
+    txt = zx['body']['text']
+    if zx['body'].get('additions'):
+        for ad in zx['body']['additions']:
+            if ad.get('type', '') == 'link':
+                strt = ad['rangeStart']
+                end = ad['rangeLength']
+                n_txt = txt[strt : (strt + end)]
+                lnk = ad['value']
+                lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
+                txt = txt[:strt] + lnk_txt + txt[(strt + end) :]
+    if zx['body'].get('inlineTextStyles'):
+        for sty in zx['body']['inlineTextStyles']:
+            if 'Italic' in sty['textStyle']['fontName']:
+                estrt = sty['rangeStart']
+                eend = sty['rangeLength']
+                etxt = txt[estrt : (estrt + eend)]
+                em_txt = f'<em>{etxt}</em>'
+                txt = txt[:estrt] + em_txt + txt[(estrt + eend) :]
+    return txt
+
+
 def make_html(a):
     typ = a.get('type', '')
     if typ == 'byline':
@@ -20,14 +42,14 @@ def make_html(a):
     if typ == 'body':
         if 'body-h' in a['body'].get('textStyleID', ''):
             return f'<h4>{a["body"]["text"]}</h4>'
-        return f'<p>{a["body"]["text"]}</p>'
+        return f'<p>{make_hlinks(a)}</p>'
     if typ == 'image':
         return f'<img src={a["image"]["url"]}>'
     if typ == 'caption':
         st = ' style="font-size:small; text-align: center;"'
         return f'<div {st}>{a["caption"]["text"]}</div>'
     if typ == 'listelement':
-        return f'<li>{a["body"]["text"]}</li>'
+        return f'<li>{make_hlinks(a)}</li>'
     if typ == 'dynamicinset':
         if 'datawrapper-chart-' in a['webview']['value']:
             dw = re.search(r'datawrapper-chart-(.{5})', a['webview']['value']).group(1)
@@ -115,7 +137,7 @@ class Barrons(BasicNewsRecipe):
         body = ''
         for x in rdata['screens'][0]['frames']:
             body += '\n' + make_html(x)
-        return '<html><body>' + body + '</body></html>'
+        return '<html><body>' + body.replace(' _', '') + '</body></html>'
 
     def get_browser(self, *args, **kw):
         kw['user_agent'] = 'okhttp/4.12.0'
