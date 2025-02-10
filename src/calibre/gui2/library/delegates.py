@@ -397,18 +397,15 @@ class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDel
         self.items_func_name = items_func_name
         self.space_before_sep = space_before_sep
 
-    @property
-    def db(self):
-        return self.parent().model().db
-
     def create_editor(self, parent, option, index):
-        if self.db and hasattr(self.db, self.items_func_name):
+        db = index.model().db
+        if hasattr(db, self.items_func_name):
             m = index.model()
             col = m.column_map[index.column()]
             # If shifted, bring up the tag editor instead of the line editor.
             if not self.ignore_kb_mods_on_edit and check_key_modifier(Qt.KeyboardModifier.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
-                d = TagEditor(parent, self.db, m.id(index.row()), key=key)
+                d = TagEditor(parent, db, m.id(index.row()), key=key)
                 if d.exec() == QDialog.DialogCode.Accepted:
                     m.setData(index, self.sep.join(d.tags), Qt.ItemDataRole.EditRole)
                 return None
@@ -421,10 +418,10 @@ class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDel
             if self.sep == '&':
                 editor.set_add_separator(tweaks['authors_completer_append_separator'])
             if not m.is_custom_column(col):
-                all_items = getattr(self.db, self.items_func_name)()
+                all_items = getattr(db, self.items_func_name)()
             else:
-                all_items = list(self.db.all_custom(
-                    label=self.db.field_metadata.key_to_label(col)))
+                all_items = list(db.all_custom(
+                    label=db.field_metadata.key_to_label(col)))
             editor.update_items_cache(all_items)
         else:
             editor = EnLineEdit(parent)
