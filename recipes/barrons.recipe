@@ -9,24 +9,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def make_hlinks(zx):
-    txt = zx['body']['text']
+    otxt = zx['body']['text']
+    txt = otxt
     if zx['body'].get('additions'):
         for ad in zx['body']['additions']:
             if ad.get('type', '') == 'link':
                 strt = ad['rangeStart']
                 end = ad['rangeLength']
-                n_txt = txt[strt : (strt + end)]
+                n_txt = otxt[strt : (strt + end)]
                 lnk = ad['value']
                 lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
-                txt = txt[:strt] + lnk_txt + txt[(strt + end) :]
+                txt = txt.replace(n_txt, lnk_txt)
     if zx['body'].get('inlineTextStyles'):
         for sty in zx['body']['inlineTextStyles']:
             if 'Italic' in sty['textStyle']['fontName']:
                 estrt = sty['rangeStart']
                 eend = sty['rangeLength']
-                etxt = txt[estrt : (estrt + eend)]
+                etxt = otxt[estrt : (estrt + eend)]
                 em_txt = f'<em>{etxt}</em>'
-                txt = txt[:estrt] + em_txt + txt[(estrt + eend) :]
+                txt = txt.replace(etxt, em_txt)
     return txt
 
 
