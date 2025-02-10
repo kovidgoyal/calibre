@@ -1650,7 +1650,6 @@ class BooksView(QTableView):  # {{{
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior
-        # so do it here.
         orig = self.currentIndex()
         do_move = False
         delta = 1
@@ -1659,9 +1658,10 @@ class BooksView(QTableView):  # {{{
         elif hint is QAbstractItemDelegate.EndEditHint.EditPreviousItem:
             do_move = True
             delta = -1
-        super().closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint)
-        self.selectionModel().setCurrentIndex(orig, QItemSelectionModel.SelectionFlag.NoUpdate)
+        super().closeEditor(editor, QAbstractItemDelegate.EndEditHint.NoHint if do_move else hint)
         if do_move:
+            # Need to invoke after event loop tick otherwise
+            # mirror_selection_between_views causes issues
             QTimer.singleShot(0, lambda: self.edit_next_cell(orig, delta))
 
     def on_current_row_change(self, current, previous):
@@ -1673,13 +1673,24 @@ class BooksView(QTableView):  # {{{
 
     def edit_next_cell(self, current, delta=1):
         m = self.model()
-        idx = m.index(current.row(), current.column(), current.parent())
+        row = current.row()
+        idx = m.index(row, current.column(), current.parent())
         while True:
             col = idx.column() + delta
+            if col < 0:
+                if row <= 0:
+                    return
+                row -= 1
+                col += len(self.column_map)
+            if col >= len(self.column_map):
+                if row >= len(self.column_map) - 1:
+                    return
+                row += 1
+                col -= len(self.column_map)
             if col < 0 or col >= len(self.column_map):
                 return
             colname = self.column_map[col]
-            idx = m.index(current.row(), col, current.parent())
+            idx = m.index(row, col, current.parent())
             if m.is_custom_column(colname):
                 if self.itemDelegateForIndex(idx).is_editable_with_tab:
                     # Don't try to open editors implemented by dialogs such as
