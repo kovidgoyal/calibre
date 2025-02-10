@@ -46,26 +46,8 @@ from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, FunctionDispatcher
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library import DEFAULT_SORT
-from calibre.gui2.library.alternate_views import AlternateViews, handle_enter_press, setup_dnd_interface
-from calibre.gui2.library.delegates import (
-    CcBoolDelegate,
-    CcCommentsDelegate,
-    CcDateDelegate,
-    CcEnumDelegate,
-    CcLongTextDelegate,
-    CcMarkdownDelegate,
-    CcNumberDelegate,
-    CcSeriesDelegate,
-    CcTemplateDelegate,
-    CcTextDelegate,
-    CompleteDelegate,
-    DateDelegate,
-    LanguagesDelegate,
-    PubDateDelegate,
-    RatingDelegate,
-    SeriesDelegate,
-    TextDelegate,
-)
+from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
+from calibre.gui2.library.delegates import TextDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.pin_columns import PinTableView, TableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
@@ -416,31 +398,8 @@ class BooksView(TableView):  # {{{
             wv.setAlternatingRowColors(True)
             wv.setWordWrap(False)
         self.refresh_grid()
-
-        def create_delegates(view):
-            view.rating_delegate = RatingDelegate(view)
-            view.half_rating_delegate = RatingDelegate(view, is_half_star=True)
-            view.timestamp_delegate = DateDelegate(view)
-            view.pubdate_delegate = PubDateDelegate(view)
-            view.last_modified_delegate = DateDelegate(view, tweak_name='gui_last_modified_display_format')
-            view.languages_delegate = LanguagesDelegate(view)
-            view.tags_delegate = CompleteDelegate(view, ',', 'all_tag_names')
-            view.authors_delegate = CompleteDelegate(view, '&', 'all_author_names', True)
-            view.cc_names_delegate = CompleteDelegate(view, '&', 'all_custom', True)
-            view.series_delegate = SeriesDelegate(view)
-            view.publisher_delegate = TextDelegate(view)
-            view.text_delegate = TextDelegate(view)
-            view.cc_text_delegate = CcTextDelegate(view)
-            view.cc_series_delegate = CcSeriesDelegate(view)
-            view.cc_longtext_delegate = CcLongTextDelegate(view)
-            view.cc_markdown_delegate = CcMarkdownDelegate(view)
-            view.cc_enum_delegate = CcEnumDelegate(view)
-            view.cc_bool_delegate = CcBoolDelegate(view)
-            view.cc_comments_delegate = CcCommentsDelegate(view)
-            view.cc_template_delegate = CcTemplateDelegate(view)
-            view.cc_number_delegate = CcNumberDelegate(view)
-
-        create_delegates(self), create_delegates(self.pin_view)
+        self.create_delegates()
+        self.pin_view.create_delegates()
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -1085,9 +1044,6 @@ class BooksView(TableView):  # {{{
 
         self.was_restored = True
 
-    def refresh_composite_edit(self):
-        self.cc_template_delegate.refresh()
-
     def refresh_row_sizing(self):
         self.row_sizing_done = False
         self.do_row_sizing()
@@ -1168,57 +1124,8 @@ class BooksView(TableView):  # {{{
                         self.last_modified_delegate, self.languages_delegate, self.half_rating_delegate):
                     vw.setItemDelegateForColumn(i, vw.itemDelegate())
 
-        def set_delegates(view):
-            cm = view.column_map
-
-            def set_item_delegate(colhead, delegate):
-                idx = view.column_map.index(colhead)
-                view.setItemDelegateForColumn(idx, delegate)
-
-            for colhead in cm:
-                if self._model.is_custom_column(colhead):
-                    cc = self._model.custom_columns[colhead]
-                    if cc['datatype'] == 'datetime':
-                        delegate = CcDateDelegate(view)
-                        delegate.set_format(cc['display'].get('date_format',''))
-                        set_item_delegate(colhead, delegate)
-                    elif cc['datatype'] == 'comments':
-                        ctype = cc['display'].get('interpret_as', 'html')
-                        if ctype == 'short-text':
-                            set_item_delegate(colhead, view.cc_text_delegate)
-                        elif ctype == 'long-text':
-                            set_item_delegate(colhead, view.cc_longtext_delegate)
-                        elif ctype == 'markdown':
-                            set_item_delegate(colhead, view.cc_markdown_delegate)
-                        else:
-                            set_item_delegate(colhead, view.cc_comments_delegate)
-                    elif cc['datatype'] == 'text':
-                        if cc['is_multiple']:
-                            if cc['display'].get('is_names', False):
-                                set_item_delegate(colhead, view.cc_names_delegate)
-                            else:
-                                set_item_delegate(colhead, view.tags_delegate)
-                        else:
-                            set_item_delegate(colhead, view.cc_text_delegate)
-                    elif cc['datatype'] == 'series':
-                        set_item_delegate(colhead, view.cc_series_delegate)
-                    elif cc['datatype'] in ('int', 'float'):
-                        set_item_delegate(colhead, view.cc_number_delegate)
-                    elif cc['datatype'] == 'bool':
-                        set_item_delegate(colhead, view.cc_bool_delegate)
-                    elif cc['datatype'] == 'rating':
-                        d = view.half_rating_delegate if cc['display'].get('allow_half_stars', False) else view.rating_delegate
-                        set_item_delegate(colhead, d)
-                    elif cc['datatype'] == 'composite':
-                        set_item_delegate(colhead, view.cc_template_delegate)
-                    elif cc['datatype'] == 'enumeration':
-                        set_item_delegate(colhead, view.cc_enum_delegate)
-                else:
-                    dattr = colhead+'_delegate'
-                    delegate = colhead if hasattr(view, dattr) else 'text'
-                    set_item_delegate(colhead, getattr(view, delegate+'_delegate'))
-        set_delegates(self), set_delegates(self.pin_view)
-
+        self.set_delegates()
+        self.pin_view.set_delegates()
         self.restore_state()
         self.set_ondevice_column_visibility()
         # in case there were marked books
@@ -1504,16 +1411,6 @@ class BooksView(TableView):  # {{{
                 Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super().selectionCommand(index, event)
-
-    def keyPressEvent(self, ev):
-        if handle_enter_press(self, ev):
-            return
-        if ev.key() == Qt.Key.Key_F2:
-            key = self.column_map[self.currentIndex().column()]
-            db = self.model().db
-            if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
-                self.cc_template_delegate.allow_one_edit()
-        return QTableView.keyPressEvent(self, ev)
 
     def ids_to_rows(self, ids):
         row_map = OrderedDict()
