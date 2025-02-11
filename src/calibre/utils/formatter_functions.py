@@ -30,6 +30,7 @@ from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
 from calibre.db.notes.exim import expand_note_resources, parse_html
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import field_metadata
+from calibre.ebooks.metadata.search_internet import qquote
 from calibre.utils.config import tweaks
 from calibre.utils.date import UNDEFINED_DATE, format_date, now, parse_date
 from calibre.utils.icu import capitalize, sort_key, strcmp
@@ -55,6 +56,7 @@ FORMATTING_VALUES = _('Formatting values')
 CASE_CHANGES = _('Case changes')
 DATE_FUNCTIONS = _('Date functions')
 DB_FUNCS = _('Database functions')
+URL_FUNCTIONS = _('URL functions')
 
 
 # Class and method to save an untranslated copy of translated strings
@@ -2780,7 +2782,7 @@ of templates.
 class BuiltinToHex(BuiltinFormatterFunction):
     name = 'to_hex'
     arg_count = 1
-    category = STRING_MANIPULATION
+    category = URL_FUNCTIONS
     __doc__ = doc = _(
 r'''
 ``to_hex(val)`` -- returns the string ``val`` encoded into hex.[/] This is useful
@@ -2794,7 +2796,7 @@ when constructing calibre URLs.
 class BuiltinUrlsFromIdentifiers(BuiltinFormatterFunction):
     name = 'urls_from_identifiers'
     arg_count = 2
-    category = FORMATTING_VALUES
+    category = URL_FUNCTIONS
     __doc__ = doc = _(
 r'''
 ``urls_from_identifiers(identifiers, sort_results)`` -- given a comma-separated
@@ -3213,6 +3215,203 @@ data without converting it to a string first. Example: ``list_count_field('tags'
         raise NotImplementedError()
 
 
+class BuiltinMakeUrl(BuiltinFormatterFunction):
+    name = 'make_url'
+    arg_count = -1
+    category = URL_FUNCTIONS
+    __doc__ = doc = _(
+r'''
+``make_url(path, [query_name, query_value]+)`` -- this function is the easiest way
+to construct a query URL. It uses a ``path``, the web site and page you want to
+query, and ``query_name``, ``query_value`` pairs from which the query is built.
+In general, the ``query_value`` must be URL-encoded. With this function it is always
+encoded and spaces are always replaced with ``'+'`` signs.
+
+At least one ``query_name, query_value`` pair must be provided.
+
+Example: constructing a Wikipedia search URL for the author `Niccolò Machiavelli`:
+[CODE]
+make_url('https://en.wikipedia.org/w/index.php', 'search', 'Niccolò Machiavelli')
+[/CODE]
+returns
+[CODE]
+https://en.wikipedia.org/w/index.php?search=Niccol%C3%B2+Machiavelli
+[/CODE]
+
+If you are writing a custom column book details URL template then use ``$item_name`` or
+``field('item_name')`` to obtain the value of the field that was clicked on.
+Example: if `Niccolò Machiavelli` was clicked then you can construct the URL using:
+[CODE]
+make_url('https://en.wikipedia.org/w/index.php', 'search', $item_name)
+[/CODE]
+
+See also the functions :ref:`make_url_extended`, :ref:`query_string` and :ref:`encode_for_url`.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, path, *args):
+        if (len(args) % 2) != 0:
+            raise ValueError(_('{} requires an odd number of arguments').format('make_url'))
+        if len(args) < 2:
+            raise ValueError(_('{} requires at least 3 arguments').format('make_url'))
+        query_args = []
+        for i in range(0, len(args), 2):
+            query_args.append(f'{args[i]}={qquote(args[i+1].strip())}')
+        return f'{path}?{"&".join(query_args)}'
+
+
+class BuiltinMakeUrlExtended(BuiltinFormatterFunction):
+    name = 'make_url_extended'
+    arg_count = -1
+    category = URL_FUNCTIONS
+    __doc__ = doc = _(
+r'''
+``make_url_extended(...)`` -- this function is similar to :ref:`make_url` but
+gives you more control over the URL components. The components of a URL are
+
+[B]scheme[/B]:://[B]authority[/B]/[B]path[/B]?[B]query string[/B].
+
+See [URL href="https://en.wikipedia.org/wiki/URL"]Uniform Resource Locater[/URL] on Wikipedia for more detail.
+
+The function has two variants:
+[CODE]
+make_url_extended(scheme, authority, path, [query_name, query_value]+)
+[/CODE]
+and
+[CODE]
+make_url_extended(scheme, authority, path, query_string)
+[/CODE]
+[/]
+This function returns a URL constructed from the ``scheme``, ``authority``, ``path``,
+and either the ``query_string`` or a query string constructed from the query argument pairs.
+You must supply either a ``query_string`` or at least one ``query_name, query_value`` pair.
+If you supply ``query_string`` and it is empty then the resulting URL will not have a query string section.
+
+Example 1: constructing a Wikipedia search URL for the author `Niccolò Machiavelli`:
+[CODE]
+make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', 'Niccolò Machiavelli')
+[/CODE]
+returns
+[CODE]
+https://en.wikipedia.org/w/index.php?search=Niccol%C3%B2+Machiavelli
+[/CODE]
+
+See the :ref:`query_string`() function for an example using ``make_url_extended()`` with a ``query_string``.
+
+If you are writing a custom column book details URL template then use ``$item_name`` or
+``field('item_name')`` to obtain the value of the field that was clicked on.
+Example: if `Niccolò Machiavelli` was clicked on then you can construct the URL using :
+[CODE]
+make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', $item_name')
+[/CODE]
+
+See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for_url`.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, scheme, host, path, *args):
+        if len(args) != 1:
+            if (len(args) % 2) != 0:
+                raise ValueError(_('{} requires an odd number of arguments').format('make_url_extended'))
+            if len(args) < 2:
+                raise ValueError(_('{} requires at least 5 arguments').format('make_url_extended'))
+            query_args = []
+            for i in range(0, len(args), 2):
+                query_args.append(f'{args[i]}={qquote(args[i+1].strip())}')
+            qs = '&'.join(query_args)
+        else:
+            qs = args[0]
+        if qs:
+            qs = '?' + qs
+        return f"{scheme}://{host}/{path[1:] if path.startswith('/') else path}{qs}"
+
+
+class BuiltinQueryString(BuiltinFormatterFunction):
+    name = 'query_string'
+    arg_count = -1
+    category = URL_FUNCTIONS
+    __doc__ = doc = _(
+r'''
+``query_string([query_name, query_value, how_to_encode]+)``-- returns a URL query string
+constructed from the ``query_name, query_value, how_to_encode`` triads.
+A query string is a series of items where each item looks like ``query_name=query_value``
+where ``query_value`` is URL-encoded as instructed. The query items are separated by
+``'&'`` (ampersand) characters.
+
+If ``how_to_encode`` is ``0`` then ``query_value`` is encoded and spaces are replaced
+with ``'+'`` (plus) signs. If ``how_to_encode`` is ``1`` then ``query_value`` is
+encoded with spaces replaced by ``%20``. If ``how_to_encode`` is ``2`` then ``query_value``
+is returned unchanged; no encoding is done and spaces are not replaced. If you want
+``query_value`` not to be encoded but spaces to be replaced then use the :ref:`re`
+function, as in ``re($series, ' ', '%20')``
+
+You use this function if you need specific control over how the parts of the
+query string are constructed. You could then use the resultingquery string in
+:ref:`make_url_extended`, as in
+[CODE]
+make_url_extended(
+       'https', 'your_host', 'your_path',
+       query_string('encoded', 'Hendrik Bäßler', 0, 'unencoded', 'Hendrik Bäßler', 2))
+[/CODE]
+giving you
+[CODE]
+https://your_host/your_path?encoded=Hendrik+B%C3%A4%C3%9Fler&unencoded=Hendrik Bäßler
+[/CODE]
+
+You must have at least one ``query_name, query_value, how_to_encode`` triad, but can
+have as many as you wish.
+
+The returned value is a URL query string with all the specified items, for example:
+``name1=val1[&nameN=valN]*``. Note that the ``'?'`` `path` / `query string` separator
+is not included in the returned result.
+
+If you are writing a custom column book details URL template then use ``$item_name`` or
+``field('item_name')`` to obtain the unencoded value of the field that was clicked.
+You also have ``item_value_quoted`` where the value is already encoded with plus signs
+replacing spaces, and ``item_value_no_plus`` where the value is already encoded
+with ``%20`` replacing spaces.
+
+See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`encode_for_url`.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if (len(args) % 3) != 0 or len(args) < 3:
+            raise ValueError(_('{} requires at least one group of 3 arguments').format('query_string'))
+        funcs = [
+            partial(qquote, use_plus=True),
+            partial(qquote, use_plus=False),
+            lambda x:x,
+        ]
+        query_args = []
+        for i in range(0, len(args), 3):
+            if (f := args[i+2]) not in ('0', '1', '2'):
+                raise ValueError(
+                    _('In {} the third argument of a group must be 0, 1, or 2, not {}').format('query_string', f))
+            query_args.append(f'{args[i]}={funcs[int(f)](args[i+1].strip())}')
+        return "&".join(query_args)
+
+
+class BuiltinEncodeForURL(BuiltinFormatterFunction):
+    name = 'encode_for_url'
+    arg_count = 2
+    category = URL_FUNCTIONS
+    __doc__ = doc = _(
+r'''
+``encode_for_url(value, use_plus)`` -- returns the ``value`` encoded for use in a URL as
+specified by ``use_plus``. The value is first URL-encoded. Next, if ``use_plus`` is ``0`` then
+spaces are replaced by ``'+'`` (plus) signs. If it is ``1`` then spaces are replaced by ``%20``.
+
+If you do not want the value to be encoding but to have spaces replaced then use the
+:ref:`re` function, as in ``re($series, ' ', '%20')``
+
+See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`query_string`.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, value, use_plus):
+        if use_plus not in ('0', '1'):
+            raise ValueError(
+                _('In {} the second argument must be 0, or 1, not {}').format('quote_for_url', use_plus))
+        return qquote(value, use_plus=use_plus=='0')
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -3222,7 +3421,7 @@ _formatter_builtins = [
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinCurrentVirtualLibraryName(), BuiltinDateArithmetic(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEncodeForURL(), BuiltinEval(),
     BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
     BuiltinFieldListCount(), BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
@@ -3237,9 +3436,10 @@ _formatter_builtins = [
     BuiltinListitem(), BuiltinListJoin(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListRemoveDuplicates(), BuiltinListSort(),
     BuiltinListSplit(), BuiltinListUnion(),BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
-    BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRange(),
-    BuiltinRawField(), BuiltinRawList(),
+    BuiltinLowercase(), BuiltinMakeUrl(), BuiltinMakeUrlExtended(), BuiltinMod(),
+    BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
+    BuiltinOr(), BuiltinPrint(), BuiltinQueryString(), BuiltinRatingToStars(),
+    BuiltinRange(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),
     BuiltinSetGlobals(), BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
