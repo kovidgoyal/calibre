@@ -288,12 +288,23 @@ class CBDialog(QDialog):
 
         self.pre_fs_geom = None
         cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.view_action = a = QAction(self)
         iactions = gui.iactions
+
+        self.view_action = a = QAction(self)
         self.addAction(a)
         a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
                 [QKeySequence(Qt.Key.Key_Space)])
         a.triggered.connect(iactions['View'].menuless_qaction.trigger)
+
+        self.edit_metadata_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts(list(iactions['Edit Metadata'].menuless_qaction.shortcuts()))
+        a.triggered.connect(iactions['Edit Metadata'].menuless_qaction.trigger)
+
+        self.show_book_details_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts(list(iactions['Show Book Details'].menuless_qaction.shortcuts()))
+        a.triggered.connect(iactions['Show Book Details'].menuless_qaction.trigger)
 
         self.auto_scroll_action = a = QAction(self)
         a.setShortcuts(list(iactions['Autoscroll Books'].menuless_qaction.shortcuts()))
