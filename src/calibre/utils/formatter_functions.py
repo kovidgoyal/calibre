@@ -3225,7 +3225,7 @@ r'''
 to construct a query URL. It uses a ``path``, the web site and page you want to
 query, and ``query_name``, ``query_value`` pairs from which the query is built.
 In general, the ``query_value`` must be URL-encoded. With this function it is always
-encoded and spaces are always replaced with ``'+'`` signs.
+encoded and spaces are always replaced with ``'+'`` signs.[/]
 
 At least one ``query_name, query_value`` pair must be provided.
 
@@ -3283,6 +3283,7 @@ make_url_extended(scheme, authority, path, query_string)
 [/]
 This function returns a URL constructed from the ``scheme``, ``authority``, ``path``,
 and either the ``query_string`` or a query string constructed from the query argument pairs.
+The ``authority`` can be empty, which is the case for ``calibre`` scheme URLs.
 You must supply either a ``query_string`` or at least one ``query_name, query_value`` pair.
 If you supply ``query_string`` and it is empty then the resulting URL will not have a query string section.
 
@@ -3307,7 +3308,7 @@ make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', $item_n
 See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for_url`.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, scheme, host, path, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, scheme, authority, path, *args):
         if len(args) != 1:
             if (len(args) % 2) != 0:
                 raise ValueError(_('{} requires an odd number of arguments').format('make_url_extended'))
@@ -3321,7 +3322,8 @@ See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for
             qs = args[0]
         if qs:
             qs = '?' + qs
-        return f"{scheme}://{host}/{path[1:] if path.startswith('/') else path}{qs}"
+        return (f"{scheme}://{authority}{'/' if authority else ''}"
+                f"{path[1:] if path.startswith('/') else path}{qs}")
 
 
 class BuiltinQueryString(BuiltinFormatterFunction):
@@ -3334,7 +3336,7 @@ r'''
 constructed from the ``query_name, query_value, how_to_encode`` triads.
 A query string is a series of items where each item looks like ``query_name=query_value``
 where ``query_value`` is URL-encoded as instructed. The query items are separated by
-``'&'`` (ampersand) characters.
+``'&'`` (ampersand) characters.[/]
 
 If ``how_to_encode`` is ``0`` then ``query_value`` is encoded and spaces are replaced
 with ``'+'`` (plus) signs. If ``how_to_encode`` is ``1`` then ``query_value`` is
@@ -3397,7 +3399,7 @@ class BuiltinEncodeForURL(BuiltinFormatterFunction):
 r'''
 ``encode_for_url(value, use_plus)`` -- returns the ``value`` encoded for use in a URL as
 specified by ``use_plus``. The value is first URL-encoded. Next, if ``use_plus`` is ``0`` then
-spaces are replaced by ``'+'`` (plus) signs. If it is ``1`` then spaces are replaced by ``%20``.
+spaces are replaced by ``'+'`` (plus) signs. If it is ``1`` then spaces are replaced by ``%20``.[/]
 
 If you do not want the value to be encoding but to have spaces replaced then use the
 :ref:`re` function, as in ``re($series, ' ', '%20')``
