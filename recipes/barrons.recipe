@@ -15,8 +15,8 @@ def make_hlinks(zx):
         for ad in zx['body']['additions']:
             if ad.get('type', '') == 'link':
                 strt = ad['rangeStart']
-                end = ad['rangeLength']
-                n_txt = otxt[strt : (strt + end)]
+                end = ad['rangeStart'] + ad['rangeLength']
+                n_txt = otxt[strt:end]
                 lnk = ad['value']
                 lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
                 txt = txt.replace(n_txt, lnk_txt)
@@ -24,11 +24,17 @@ def make_hlinks(zx):
         for sty in zx['body']['inlineTextStyles']:
             if 'Italic' in sty['textStyle']['fontName']:
                 estrt = sty['rangeStart']
-                eend = sty['rangeLength']
-                etxt = otxt[estrt : (estrt + eend)]
+                eend = sty['rangeStart'] + sty['rangeLength']
+                etxt = otxt[estrt:eend]
                 em_txt = f'<em>{etxt}</em>'
                 txt = txt.replace(etxt, em_txt)
-    return txt
+            if 'Bold' in sty['textStyle']['fontName']:
+                bstrt = sty['rangeStart']
+                bend = sty['rangeStart'] + sty['rangeLength']
+                btxt = otxt[bstrt:bend]
+                b_txt = f'<b>{btxt}</b>'
+                txt = txt.replace(btxt, b_txt)
+    return txt.replace('\n\n', '<div>').replace('\n', '</div>')
 
 
 def make_html(a):
