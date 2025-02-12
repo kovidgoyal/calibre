@@ -254,6 +254,10 @@ class ColumnIconRules(LazyEditRulesBase):
     rule_set_name = 'column_icon_rules'
 
 
+class GridEmblemnRules(LazyEditRulesBase):
+    rule_set_name = 'cover_grid_icon_rules'
+
+
 def export_layout(in_widget, model=None):
     filename = choose_save_file(in_widget, 'look_feel_prefs_import_export_field_list',
             _('Save column list to file'),

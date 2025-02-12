@@ -271,7 +271,7 @@ A value of zero means calculate automatically.</string>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="emblems_tab">
+   <widget class="GridEmblemnRules" name="grid_rules">
     <attribute name="title">
      <string>&amp;Emblems</string>
     </attribute>
@@ -412,6 +412,18 @@ A value of zero means calculate automatically.</string>
     </layout>
    </widget>
   </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ConfigWidgetBase</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>GridEmblemnRules</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
  <include location="../../../../../resources/images.qrc"/>
  </resources>
