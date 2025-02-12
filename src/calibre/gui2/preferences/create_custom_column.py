@@ -542,12 +542,17 @@ class CreateCustomColumn(QDialog):
         l.addWidget(self.web_search_label)
         wst = self.web_search_template = QLineEdit()
         wst.setToolTip('<p>' + _(
-            'Fill in this box if you want clicking on the value in book details to do a '
+            "Fill in this box if you want clicking on the value in book details to do a "
             "web search instead of searching your calibre library. The book's metadata is "
-            "available to the template. Additional fields '{0}' and '{1}' are also available to the "
-            'template. For multiple-valued (tags-like) columns they are the value being examined, '
-            'telling you which value to use to generate the link. These two values are automatically escaped for use in URLs.').format(
-                'item_value', 'item_value_no_plus') + '</p>')
+            "available to the template.</p><p>Additional fields '{0}', `{1}`, and '{2}' are also available "
+            "to the template. For multiple-valued (tags-like) columns they are the value being examined, "
+            "telling you which value to use to generate the link. The two values '{1}' and '{2}' are "
+            "automatically escaped for use in URLs. In '{1}', spaces are replaced by plus signs. In '{2}' "
+            "spaces are replaced by '%20'.</p><p> The template functions '{3}' (the easiest to use), "
+            "'{4}', '{5}', and '{6}' are useful for constructing the desired URL. There are examples in "
+            "the template function documentation.").format(
+                'item_value', 'item_value_quoted', 'item_value_no_plus', 'make_url()', 'make_url_extended()',
+                'query_string()', 'quote_for_url()') + '</p>')
         l.addWidget(wst)
         self.web_search_label.setBuddy(wst)
         wst_tb = self.web_search_toolbutton = QToolButton()
@@ -563,17 +568,21 @@ class CreateCustomColumn(QDialog):
         db = self.gui.current_db.new_api
         lv = self.gui.library_view
         rows = lv.selectionModel().selectedRows()
+        from calibre.ebooks.metadata.search_internet import qquote
         if not self.editing_col or not rows:
-            vals = [{'value': _('Value'), 'lookup_name': _('Lookup name'), 'author': _('Author'),
+            vals = [{'item_value': _('Item Value'),
+                     'item_value_quoted': qquote(_('Item Value'), True),
+                     'item_value_no_plus': qquote(_('Item Value'), False),
+                     'lookup_name': _('Lookup name'),'author': _('Author'),
                      'title': _('Title'), 'author_sort': _('Author sort')}]
         else:
-            from calibre.ebooks.metadata.search_internet import qquote
             vals = []
             for row in rows:
                 book_id = lv.model().id(row)
                 mi = db.new_api.get_metadata(book_id)
-                mi.set('item_value', qquote('Item Value', True))
-                mi.set('item_value_no_plus', qquote('Item Value', False))
+                mi.set('item_value', _('Item Value'))
+                mi.set('item_value_quoted', qquote(_('Item Value'), True))
+                mi.set('item_value_no_plus', qquote(_('Item Value'), False))
                 vals.append(mi)
         d = TemplateDialog(parent=self, text=self.web_search_template.text(), mi=vals)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -682,8 +691,7 @@ class CreateCustomColumn(QDialog):
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
 
-        has_url_template = not is_comments and col_type in ('text', '*text', 'composite', '*composite',
-                                                            'series', 'enumeration')
+        has_url_template = col_type in ('text', '*text', 'composite', '*composite', 'series', 'enumeration')
         self.web_search_label.setVisible(has_url_template)
         self.web_search_template.setVisible(has_url_template)
         self.web_search_toolbutton.setVisible(has_url_template)
@@ -962,21 +970,26 @@ class CreateNewCustomColumn:
         'make_category': True or False -- whether the column is shown in the tag browser
         'contains_html': True or False -- whether the column is interpreted as HTML
         'use_decorations': True or False -- should check marks be displayed
+        'search_template': a template used to construct a search URL for book details
       datetime columns:
         'date_format': a string specifying the display format
       enumerated columns
         'enum_values': a string containing comma-separated valid values for an enumeration
         'enum_colors': a string containing comma-separated colors for an enumeration
         'use_decorations': True or False -- should check marks be displayed
+        'search_template': a template used to construct a search URL for book details
       float columns:
         'decimals': the number of decimal digits to allow when editing (int). Range: 1 - 9
       float and int columns:
         'number_format': the format to apply when displaying the column
       rating columns:
         'allow_half_stars': True or False -- are half-stars allowed
+      series columns:
+        'search_template': a template used to construct a search URL for book details
       text columns:
         'is_names': True or False -- whether the items are comma or ampersand separated
         'use_decorations': True or False -- should check marks be displayed
+        'search_template': a template used to construct a search URL for book details
 
     This method returns a tuple (Result.enum_value, message). If tuple[0] is
     Result.COLUMN_ADDED then the message is the lookup name including the '#'.
