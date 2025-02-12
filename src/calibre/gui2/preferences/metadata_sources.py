@@ -442,6 +442,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             msprefs['author_map_rules'] = self.author_map_rules or []
         if self.publisher_map_rules is not None:
             msprefs['publisher_map_rules'] = self.publisher_map_rules or []
+        if self.series_map_rules is not None:
+            msprefs['series_map_rules'] = self.series_map_rules or []
         return ConfigWidgetBase.commit(self)
 
 
