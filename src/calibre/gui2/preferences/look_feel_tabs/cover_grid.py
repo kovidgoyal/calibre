@@ -7,14 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 
-from qt.core import QBrush, QColor, QColorDialog, QDialog, QPainter, QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTabWidget, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QBrush, QColor, QColorDialog, QDialog, QPainter, QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTabWidget, QWidget, pyqtSignal
 
 from calibre import human_readable
 from calibre.gui2 import gprefs, open_local_file, question_dialog
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import LazyConfigWidgetBase
-from calibre.gui2.preferences.coloring import EditRules
-from calibre.gui2.preferences.look_feel_tabs import selected_rows_metadatas
 from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.startup import connect_lambda
@@ -83,11 +81,8 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
-        self.grid_rules = EditRules(self.emblems_tab)
-        self.grid_rules.changed.connect(self.changed_signal)
-        self.emblems_tab.setLayout(QVBoxLayout())
-        self.emblems_tab.layout().addWidget(self.grid_rules)
-
+        self.grid_rules.genesis(self.gui)
+        self.grid_rules.changed_signal.connect(self.changed_signal)
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
 
         l = self.cg_background_box.layout()
@@ -118,9 +113,9 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self):
         self.show_current_cache_usage()
 
-        db = self.gui.current_db
         self.blockSignals(True)
-        self.grid_rules.initialize(db.field_metadata, db.prefs, selected_rows_metadatas(), 'cover_grid_icon_rules')
+        self.grid_rules.lazy_initialize()
+        self.lazy_init_called = True
         self.blockSignals(False)
         self.set_cg_color(gprefs['cover_grid_color'])
         self.set_cg_texture(gprefs['cover_grid_texture'])
@@ -210,14 +205,14 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     def commit(self):
         with BusyCursor():
-            self.grid_rules.commit(self.gui.current_db.prefs)
+            self.grid_rules.commit()
             gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
             gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
         return LazyConfigWidgetBase.commit(self)
 
     def restore_defaults(self):
         LazyConfigWidgetBase.restore_defaults(self)
-        self.grid_rules.clear()
+        self.grid_rules.restore_defaults()
         self.set_cg_color(gprefs.defaults['cover_grid_color'])
         self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
         self.changed_signal.emit()
