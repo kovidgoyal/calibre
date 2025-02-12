@@ -189,6 +189,7 @@ The following functions are usable in Single Function Mode because their first p
 * :ffsum:`cmp`
 * :ffsum:`contains`
 * :ffsum:`date_arithmetic`
+* :ffsum:`encode_for_url`
 * :ffsum:`floor`
 * :ffsum:`format_date`
 * :ffsum:`format_number`
@@ -531,6 +532,140 @@ The output in :guilabel:`Book details` looks like this:
     :align: center
     :alt: E-book conversion dialog
     :class: half-width-img
+
+.. _templates_and_urls:
+
+Templates and URLs
+----------------------
+
+You can use templates to construct URLs. Two cases are described here:
+
+* Custom column book details search URLs
+* The calibre URL scheme
+
+**Custom column book details search URLs**
+
+When you create a custom column you can provide a URL to be used in :guilabel:`Book details` using a template. For example, if you have a custom column for `Translators` you can define a URL to take you to a site for translators. Book details search URLs can be provided for `Text`, `Enumerated`, `Series`, and `Column built from other column` column types.
+
+When an item with a `search template` is clicked in :guilabel:`Book details` the template is evaluated. It is provided the normal book metadata. It is also provided three additional fields:
+
+* ``item_value``: the value of the clicked item.
+* ``item_value_quoted``: the value of clicked item, URL-encoded. Special characters are replaced by their numeric equivalent and spaces are replaced by the ``'+'`` (plus) signs.
+* ``item_value_no_plus``: the value of clicked item, URL-encoded. Special characters are replaced by their numeric equivalent and spaces are replaced by the ``%20``, not plus.
+
+There are several ways to construct the URL. THe following use Wikipedia as an example.
+
+The simplest is a basic template::
+
+  https://en.wikipedia.org/w/index.php?search={item_value_encoded}
+
+In some cases you might want to do more processing. There are four template functions you can use, depending on the complexity of the processing.
+
+* :ffsum:`make_url`
+* :ffsum:`make_url_extended`
+* :ffsum:`query_string`
+* :ffsum:`encode_for_url`
+
+For example, assume you have a custom column `Translators` (``#translators``) where the names are `Last name, First name`. You might need to convert the name to `First name Last name` when creating the URL. You can use the :ref:`make_url` function to do this::
+
+  program: make_url('https://en.wikipedia.org/w/index.php', 'search', swap_around_comma($item_value))
+
+If we assume that the translator's name is `Boy-Żeleński, Tadeusz` then the above template produces the link::
+
+  https://en.wikipedia.org/w/index.php?search=Tadeusz+Boy-%C5%BBele%C5%84ski
+
+Note that the person's first name is now first, the space is now a plus, and that the special characters in person's last name are URL-encoded.
+
+The functions :ref:`make_url_extended`, :ref:`query_string`, and :ref:`encode_for_url` might be useful depending upon any additional processing complexity.
+
+**The calibre URL scheme**
+
+Calibre supports several different URLs to navigate your calibre libraries. This section shows how to use templates
+to construct some of the URLs. See :ref:`The calibre:// URL scheme <url_scheme>` for more detail on the
+URLs available.
+
+* Switch to a specific library. The syntax of this URL is::
+
+    calibre://switch-library/Library_Name
+
+  ``Library_Name`` must be replaced with the name of the calibre library you wish to open. The library name is
+  shown in the title bar of the window. It is a simple name, not the file path to the library. You must spell
+  it as shown in the title bar, including letter case. The character ``_``
+  (underscore) stands for the current library. If the name contains any spaces or special characters then it
+  must be hex encoded using the :ref:`to_hex` function, as in the following example::
+
+    program: strcat('calibre://switch-library/_hex_-', to_hex(current_library_name()))
+
+  The template generates the URL::
+
+    calibre://switch-library/_hex_-4c6962726172792e746573745f736d616c6c
+
+  You can replace the ``current_library_name() function with the actual name of the library, as in::
+
+    program: strcat('calibre://switch-library/_hex_-', to_hex('Library.test_small'))
+
+* Links to show books. These links select a book in the calibre library. The syntax for this URL is::
+
+    calibre://show-book/Library_Name/book_id
+
+  The ``book id`` is the numeric calibre id for the book, available to templates as ``$id``. As above,
+  the library name might need to be hex encoded. Here is an example::
+
+    program: strcat('calibre://show-book/_hex_-', to_hex(current_library_name()), '/', $id)
+
+  It produces the URL::
+
+    calibre://show-book/_hex_-4c6962726172792e746573745f736d616c6c/1353
+
+* Searching for books. These links search for books in the specified calibre library. The syntax for this URL is::
+
+    calibre://search/Library_Name?q=query
+    calibre://search/Library_Name?eq=hex_encoded_query
+
+  where `query` is any valid calibre search expression. You must hex encode any query containing spaces or special
+  characters, which generally means all of them. For example, the calibre search expression for searching for a
+  hierarchical tag beginning with 'AA' is ``tags:"=.AA"``. This template constructs a search URL for that expression::
+
+    program: strcat('calibre://search/_hex_-', to_hex(current_library_name()), '?eq=', to_hex('tags:"=.AA"'))
+
+  The resulting URL is::
+
+    calibre://search/_hex_-4c6962726172792e746573745f736d616c6c?eq=746167733a223d2e414122
+
+  Here is an example of the same URL built using the :ref:``make_url_extended`` function instead of :ref:`strcat`()::
+
+    program: make_url_extended('calibre', '', 'search/_hex_-' & to_hex(current_library_name()),
+                               'eq', to_hex('tags:"=.AA"'))
+
+* Open a book details window on a book in some library. The syntax for this URL is::
+
+    calibre://book-details/Library_Name/book_id
+
+  An example template is::
+
+    program: strcat('calibre://book-details/_hex_-', to_hex(current_library_name()), '/', $id)
+
+  which produces the URL::
+
+     calibre://book-details/_hex_-4c6962726172792e746573745f736d616c6c/1353
+
+* Open the notes associated with an author/series/etc. The syntax of the URL is::
+
+    calibre://book-details/Library_Name/Field_Name/id_Item_Id
+    calibre://book-details/Library_Name/Field_Name/hex_Hex_Encoded_Item_Name
+
+  ``Field_Name`` is the lookup name of the field. If the field is a custom column then replace the ``#`` character
+  with an underscore (``_``). ``Item_Id`` is the internal numeric ID of the value in the field. There isn't a template
+  function that returns the ``Item_Id``, so templates will normally use the second form, ``Hex_Encoded_Item_Name``.
+  Here is a sample template that opens the note for the person `Boy-Żeleński, Tadeusz` in the field ``#authtest``::
+
+    program: strcat('calibre://show-note/_hex_-', to_hex(current_library_name()),
+                    '/_authtest/hex_', to_hex('Boy-Żeleński, Tadeusz'))
+
+  which produces the URL::
+
+    calibre://show-note/_hex_-4c6962726172792e746573745f736d616c6c/_authtest/hex_426f792dc5bb656c65c584736b692c205461646575737a
+
 
 Stored templates
 ----------------------------------------
