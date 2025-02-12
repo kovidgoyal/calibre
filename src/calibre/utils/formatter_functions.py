@@ -3386,7 +3386,7 @@ See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`encod
                 raise ValueError(
                     _('In {} the third argument of a group must be 0, 1, or 2, not {}').format('query_string', f))
             query_args.append(f'{args[i]}={funcs[int(f)](args[i+1].strip())}')
-        return "&".join(query_args)
+        return '&'.join(query_args)
 
 
 class BuiltinEncodeForURL(BuiltinFormatterFunction):
