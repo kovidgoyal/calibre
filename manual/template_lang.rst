@@ -540,7 +540,7 @@ Templates and URLs
 
 You can use templates to construct URLs. Two cases are described here:
 
-* Custom column book details search URLs
+* Custom column :guilabel:`Book details` search URLs
 * The calibre URL scheme
 
 **Custom column book details search URLs**
@@ -550,10 +550,10 @@ When you create a custom column you can provide a URL to be used in :guilabel:`B
 When an item with a `search template` is clicked in :guilabel:`Book details` the template is evaluated. It is provided the normal book metadata. It is also provided three additional fields:
 
 * ``item_value``: the value of the clicked item.
-* ``item_value_quoted``: the value of clicked item, URL-encoded. Special characters are replaced by their numeric equivalent and spaces are replaced by the ``'+'`` (plus) signs.
-* ``item_value_no_plus``: the value of clicked item, URL-encoded. Special characters are replaced by their numeric equivalent and spaces are replaced by the ``%20``, not plus.
+* ``item_value_quoted``: the value of clicked item, URL-encoded. Special characters are escaped to make them valid in URLs and spaces are replaced by ``'+'`` (plus) signs.
+* ``item_value_no_plus``: the value of clicked item, URL-encoded. Special characters are escaped to make them valid in URLs and spaces are replaced by the ``%20``, not plus.
 
-There are several ways to construct the URL. THe following use Wikipedia as an example.
+There are several ways to construct the URL. The following use Wikipedia as an example.
 
 The simplest is a basic template::
 
@@ -574,15 +574,14 @@ If we assume that the translator's name is `Boy-Żeleński, Tadeusz` then the ab
 
   https://en.wikipedia.org/w/index.php?search=Tadeusz+Boy-%C5%BBele%C5%84ski
 
-Note that the person's first name is now first, the space is now a plus, and that the special characters in person's last name are URL-encoded.
+Note that the person's first name is now first, the space is now a plus, and that the non-English characters in the last name are URL-encoded.
 
 The functions :ref:`make_url_extended`, :ref:`query_string`, and :ref:`encode_for_url` might be useful depending upon any additional processing complexity.
 
 **The calibre URL scheme**
 
 Calibre supports several different URLs to navigate your calibre libraries. This section shows how to use templates
-to construct some of the URLs. See :ref:`The calibre:// URL scheme <url_scheme>` for more detail on the
-URLs available.
+to construct some of the URLs. See :doc:`url_scheme` for details on the URLs available.
 
 * Switch to a specific library. The syntax of this URL is::
 
@@ -600,7 +599,7 @@ URLs available.
 
     calibre://switch-library/_hex_-4c6962726172792e746573745f736d616c6c
 
-  You can replace the ``current_library_name() function with the actual name of the library, as in::
+  You can replace the ``current_library_name()`` function with the actual name of the library, as in::
 
     program: strcat('calibre://switch-library/_hex_-', to_hex('Library.test_small'))
 
