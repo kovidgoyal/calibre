@@ -88,6 +88,7 @@ class TableView(QTableView):
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = SeriesDelegate(self)
         self.publisher_delegate = TextDelegate(self)
+        self.publisher_delegate.auto_complete_function_name = 'all_publishers'
         self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
         self.cc_series_delegate = CcSeriesDelegate(self)

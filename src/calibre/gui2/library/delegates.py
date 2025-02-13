@@ -342,28 +342,18 @@ class PubDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 class TextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
 
     use_title_sort = False
-
-    def __init__(self, parent):
-        '''
-        Delegate for text data. If auto_complete_function needs to return a list
-        of text items to auto-complete with. If the function is None no
-        auto-complete will be used.
-        '''
-        StyledItemDelegate.__init__(self, parent)
-        self.auto_complete_function = None
-
-    def set_auto_complete_function(self, f):
-        self.auto_complete_function = f
+    auto_complete_function_name = ''
 
     def create_editor(self, parent, option, index):
-        if self.auto_complete_function:
+        db = index.model().db
+        if self.auto_complete_function_name and (f := getattr(db, self.auto_complete_function_name, None)):
             if self.use_title_sort:
                 editor = EditWithComplete(parent, sort_func=title_sort)
             else:
                 editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
-            complete_items = [i[1] for i in self.auto_complete_function()]
+            complete_items = [i[1] for i in f()]
             editor.update_items_cache(complete_items)
         else:
             editor = EnLineEdit(parent)
@@ -382,6 +372,7 @@ class TextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegat
 class SeriesDelegate(TextDelegate):  # {{{
 
     use_title_sort = True
+    auto_complete_function_name = 'all_series'
 
     def initStyleOption(self, option, index):
         TextDelegate.initStyleOption(self, option, index)
