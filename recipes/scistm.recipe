@@ -21,26 +21,30 @@ class scienceadv(BasicNewsRecipe):
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = 'https://www.science.org/pb-assets/images/logos/stm-logo-1620488350153.svg'
+    masthead_url = (
+        'https://www.science.org/pb-assets/images/logos/stm-logo-1620488350153.svg'
+    )
     language = 'en'
     simultaneous_downloads = 1
     browser_type = 'webengine'
 
-    extra_css = '''
+    extra_css = """
         .news-article__figure__caption, .calibre-nuked-tag-figcaption, .card-related {font-size:small;}
         .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
         .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
         .core-lede {font-style:italic; color:#202020;}
-    '''
+    """
 
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes('meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'),
-        dict(name='h1', attrs={'property':'name'}),
+        classes(
+            'meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'
+        ),
+        dict(name='h1', attrs={'property': 'name'}),
         dict(name='div', **classes('core-lede contributors core-self-citation')),
-        dict(attrs={'data-core-wrapper':'content'})
+        dict(attrs={'data-core-wrapper': 'content'}),
     ]
 
     remove_tags = [
@@ -51,23 +55,25 @@ class scienceadv(BasicNewsRecipe):
         'issue': {
             'short': 'Enter the Issue Number you want to download\n(Vol/Issue format)',
             'long': 'For example, 385/6710',
-            'default': 'current'
+            'default': 'current',
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
-            'default': '600'
-        }
+            'default': '600',
+        },
     }
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src':True}):
+        for img in soup.findAll('img', attrs={'src': True}):
             if img['src'].endswith('.jpg'):
                 res = '/cdn-cgi/image/width=600'
                 w = self.recipe_specific_options.get('res')
                 if w and isinstance(w, str):
                     res = '/cdn-cgi/image/width=' + w
                 img['src'] = absurl(res + img['src'])
+        for div in soup.findAll('div', attrs={'role': 'paragraph'}):
+            div.name = 'p'
         return soup
 
     def postprocess_html(self, soup, first_fetch):
@@ -86,7 +92,7 @@ class scienceadv(BasicNewsRecipe):
         tme = soup.find(**classes('journal-issue__vol'))
         if tme:
             self.timefmt = ' [%s]' % self.tag_to_string(tme).strip().replace('|', ' | ')
-        det = soup.find(attrs={'id':'journal-issue-details'})
+        det = soup.find(attrs={'id': 'journal-issue-details'})
         if det:
             self.description = self.tag_to_string(det).strip()
         cov = soup.find(**classes('cover-image__image'))
@@ -111,6 +117,6 @@ class scienceadv(BasicNewsRecipe):
                 if meta:
                     desc = self.tag_to_string(meta).strip()
                 self.log('            ', title, '\n\t', desc, '\n\t\t', url)
-                articles.append({'title': title, 'description':desc, 'url': url})
+                articles.append({'title': title, 'description': desc, 'url': url})
             feeds.append((section, articles))
         return feeds
