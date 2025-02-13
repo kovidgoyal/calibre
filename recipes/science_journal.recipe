@@ -71,7 +71,7 @@ class science(BasicNewsRecipe):
     def postprocess_html(self, soup, first_fetch):
         bd = soup.find('body')
         if bd:
-            p.attrs = {}
+            bd.attrs = {}
         return soup
 
     def parse_index(self):
