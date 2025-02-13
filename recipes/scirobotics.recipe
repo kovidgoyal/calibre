@@ -26,13 +26,13 @@ class scienceadv(BasicNewsRecipe):
     simultaneous_downloads = 1
     browser_type = 'webengine'
 
-    extra_css = """
+    extra_css = '''
         .news-article__figure__caption, .calibre-nuked-tag-figcaption, .card-related {font-size:small;}
         .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
         .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
         .core-lede {font-style:italic; color:#202020;}
-    """
+    '''
 
     ignore_duplicate_articles = {'url'}
 
