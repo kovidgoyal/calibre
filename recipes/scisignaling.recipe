@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
 
 def absurl(url):
@@ -26,7 +26,7 @@ class scienceadv(BasicNewsRecipe):
     browser_type = 'webengine'
 
     extra_css = '''
-        .news-article__figure__caption, .figc {font-size:small;}
+        .news-article__figure__caption, .calibre-nuked-tag-figcaption, .card-related {font-size:small;}
         .core-self-citation, .meta-panel__left-content, .news-article__hero__top-meta {font-size:small;}
         .contributors, .news-article__hero__bottom-meta, #bibliography, #elettersSection {font-size:small;}
         img {display:block; margin:0 auto;}
@@ -60,9 +60,6 @@ class scienceadv(BasicNewsRecipe):
     }
 
     def preprocess_html(self, soup):
-        for p in soup.findAll(attrs={'role':'paragraph'}):
-            p.name = 'p'
-            p.attrs = {}
         for img in soup.findAll('img', attrs={'src':True}):
             if img['src'].endswith('.jpg'):
                 res = '/cdn-cgi/image/width=600'
@@ -70,8 +67,12 @@ class scienceadv(BasicNewsRecipe):
                 if w and isinstance(w, str):
                     res = '/cdn-cgi/image/width=' + w
                 img['src'] = absurl(res + img['src'])
-        for figc in soup.findAll('figcaption'):
-            figc['class'] = 'figc'
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        bd = soup.find('body')
+        if bd:
+            p.attrs = {}
         return soup
 
     def parse_index(self):
@@ -93,7 +94,7 @@ class scienceadv(BasicNewsRecipe):
 
         feeds = []
 
-        for sec in soup.findAll('section', **classes('toc__section')):
+        for sec in soup.findAll('section', **prefixed_classes('toc__section')):
             name = sec.find(**classes('sidebar-article-title--decorated'))
             section = self.tag_to_string(name).strip()
             self.log(section)
