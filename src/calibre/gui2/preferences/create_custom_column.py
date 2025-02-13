@@ -570,9 +570,9 @@ class CreateCustomColumn(QDialog):
         rows = lv.selectionModel().selectedRows()
         from calibre.ebooks.metadata.search_internet import qquote
         if not self.editing_col or not rows:
-            vals = [{'item_value': _('Item Value'),
-                     'item_value_quoted': qquote(_('Item Value'), True),
-                     'item_value_no_plus': qquote(_('Item Value'), False),
+            vals = [{'item_value': _('Item value'),
+                     'item_value_quoted': qquote(_('Item value'), True),
+                     'item_value_no_plus': qquote(_('Item value'), False),
                      'lookup_name': _('Lookup name'),'author': _('Author'),
                      'title': _('Title'), 'author_sort': _('Author sort')}]
         else:
@@ -580,9 +580,9 @@ class CreateCustomColumn(QDialog):
             for row in rows:
                 book_id = lv.model().id(row)
                 mi = db.new_api.get_metadata(book_id)
-                mi.set('item_value', _('Item Value'))
-                mi.set('item_value_quoted', qquote(_('Item Value'), True))
-                mi.set('item_value_no_plus', qquote(_('Item Value'), False))
+                mi.set('item_value', _('Item value'))
+                mi.set('item_value_quoted', qquote(_('Item value'), True))
+                mi.set('item_value_no_plus', qquote(_('Item value'), False))
                 vals.append(mi)
         d = TemplateDialog(parent=self, text=self.web_search_template.text(), mi=vals)
         if d.exec() == QDialog.DialogCode.Accepted:
