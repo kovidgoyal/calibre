@@ -66,7 +66,8 @@ class DefaultAuthorLink(QWidget):
         u.setToolTip(_(
             'Enter the URL to search. It should contain the string {0}'
             '\nwhich will be replaced by the author name. For example,'
-            '\n{1}').format('{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
+            '\n{1}. Note: the author name is already URL-encoded.').format(
+                        '{author}', 'https://en.wikipedia.org/w/index.php?search={author}'))
         u.textChanged.connect(self.changed_signal)
         u.setPlaceholderText(_('Enter the URL'))
         ul.addWidget(u)
