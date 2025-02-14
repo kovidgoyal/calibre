@@ -45,6 +45,10 @@ or the context menu. The value icon rules are defined per-user, not per-library.
        <property name="text">
         <string>Show only categories and values available in the current library</string>
        </property>
+       <property name="toolTip">
+        <string>This check box cannot be changed after any other changes have been made.
+Otherwise all edits would be lost.</string>
+       </property>
       </widget>
       </item>
       <item row="2" column="1">
