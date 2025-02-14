@@ -67,6 +67,8 @@ class TableView(QTableView):
                 continue
             colname = self.column_map[ldx]
             idx = m.index(row, ldx, current.parent())
+            if not idx.isValid():
+                continue
             if m.is_custom_column(colname):
                 if self.itemDelegateForIndex(idx).is_editable_with_tab:
                     # Don't try to open editors implemented by dialogs such as
