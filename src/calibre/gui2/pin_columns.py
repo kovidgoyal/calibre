@@ -44,21 +44,27 @@ class TableView(QTableView):
         m = self.model()
         row = current.row()
         vdx = hdr.visualIndex(current.column())  # must work with visual indices, not logical indices
+        if vdx < 0:
+            return
+        num_columns = hdr.count()
+        idx = QModelIndex()
         while True:
             vdx = vdx + delta
             if vdx < 0:
                 if row <= 0:
                     return
                 row -= 1
-                vdx += len(self.column_map)
-            if vdx >= len(self.column_map):
+                vdx += num_columns
+            if vdx >= num_columns:
                 if row >= m.rowCount(QModelIndex()) - 1:
                     return
                 row += 1
-                vdx -= len(self.column_map)
-            if vdx < 0 or vdx >= len(self.column_map):
+                vdx -= num_columns
+            if vdx < 0 or vdx >= num_columns:
                 return
             ldx = hdr.logicalIndex(vdx)  # We need the logical index for the model
+            if hdr.isSectionHidden(ldx):
+                continue
             colname = self.column_map[ldx]
             idx = m.index(row, ldx, current.parent())
             if m.is_custom_column(colname):
