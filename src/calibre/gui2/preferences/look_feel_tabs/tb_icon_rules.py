@@ -73,7 +73,6 @@ class CategoryTableWidgetItem(QTableWidgetItem):
             txt =  f"{lookup_name} ({_('Not in library')})"
         super().setText(txt)
         self.setToolTip(txt)
-        print('aaa', self._original_lookup_name, lookup_name)
         if self._original_lookup_name != lookup_name:
             self.setIcon(QIcon.cached_icon('modified.png'))
         elif in_library:
@@ -514,7 +513,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         t = self.rules_table
         t.clearContents()
         cats = self.gui.current_db.new_api.get_categories()
-        self.all_values = all_values = {cat: set(t.name for t in cats[cat]) for cat in cats.keys()}
+        self.all_values = all_values = {cat: {t.name for t in cats[cat]} for cat in cats.keys()}
         for category,vdict in v.items():
             if category in field_metadata:
                 if category not in all_values:
