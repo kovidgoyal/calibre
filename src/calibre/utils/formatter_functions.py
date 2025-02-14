@@ -3296,7 +3296,7 @@ returns
 https://en.wikipedia.org/w/index.php?search=Niccol%C3%B2+Machiavelli
 [/CODE]
 
-See the :ref:`query_string`() function for an example using ``make_url_extended()`` with a ``query_string``.
+See the :ref:`query_string` function for an example using ``make_url_extended()`` with a ``query_string``.
 
 If you are writing a custom column book details URL template then use ``$item_name`` or
 ``field('item_name')`` to obtain the value of the field that was clicked on.

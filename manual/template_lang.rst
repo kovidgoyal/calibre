@@ -566,7 +566,7 @@ In some cases you might want to do more processing. There are four template func
 * :ffsum:`query_string`
 * :ffsum:`encode_for_url`
 
-For example, assume you have a custom column `Translators` (``#translators``) where the names are `Last name, First name`. You might need to convert the name to `First name Last name` when creating the URL. You can use the :ref:`make_url` function to do this::
+For example, assume you have a custom column `Translators` (``#translators``) where the names are `Last name, First name`. You might need to convert the name to `First name Last name` when creating the URL. You can use the :ref:`ff_make_url` function to do this::
 
   program: make_url('https://en.wikipedia.org/w/index.php', 'search', swap_around_comma($item_value))
 
@@ -576,7 +576,7 @@ If we assume that the translator's name is `Boy-Żeleński, Tadeusz` then the ab
 
 Note that the person's first name is now first, the space is now a plus, and that the non-English characters in the last name are URL-encoded.
 
-The functions :ref:`make_url_extended`, :ref:`query_string`, and :ref:`encode_for_url` might be useful depending upon any additional processing complexity.
+The functions :ref:`ff_make_url_extended`, :ref:`ff_query_string`, and :ref:`ff_encode_for_url` might be useful depending upon any additional processing complexity.
 
 **The calibre URL scheme**
 
@@ -591,7 +591,7 @@ to construct some of the URLs. See :doc:`url_scheme` for details on the URLs ava
   shown in the title bar of the window. It is a simple name, not the file path to the library. You must spell
   it as shown in the title bar, including letter case. The character ``_``
   (underscore) stands for the current library. If the name contains any spaces or special characters then it
-  must be hex encoded using the :ref:`to_hex` function, as in the following example::
+  must be hex encoded using the :ref:`ff_to_hex` function, as in the following example::
 
     program: strcat('calibre://switch-library/_hex_-', to_hex(current_library_name()))
 
@@ -631,7 +631,7 @@ to construct some of the URLs. See :doc:`url_scheme` for details on the URLs ava
 
     calibre://search/_hex_-4c6962726172792e746573745f736d616c6c?eq=746167733a223d2e414122
 
-  Here is an example of the same URL built using the :ref:``make_url_extended`` function instead of :ref:`strcat`()::
+  Here is an example of the same URL built using the :ref:``ff_make_url_extended`` function instead of :ref:`ff_strcat`::
 
     program: make_url_extended('calibre', '', 'search/_hex_-' & to_hex(current_library_name()),
                                'eq', to_hex('tags:"=.AA"'))
@@ -656,7 +656,7 @@ to construct some of the URLs. See :doc:`url_scheme` for details on the URLs ava
   ``Field_Name`` is the lookup name of the field. If the field is a custom column then replace the ``#`` character
   with an underscore (``_``). ``Item_Id`` is the internal numeric ID of the value in the field. There isn't a template
   function that returns the ``Item_Id``, so templates will normally use the second form, ``Hex_Encoded_Item_Name``.
-  Here is a sample template that opens the note for the person `Boy-Żeleński, Tadeusz` in the field ``#authtest``::
+  Here is a sample template that opens the note for the person ``Boy-Żeleński, Tadeusz`` in the field ``#authtest``::
 
     program: strcat('calibre://show-note/_hex_-', to_hex(current_library_name()),
                     '/_authtest/hex_', to_hex('Boy-Żeleński, Tadeusz'))
