@@ -76,7 +76,7 @@ class TheWire(BasicNewsRecipe):
                     continue
                 now = datetime.now(datetime.timezone.utc)  # Ensure 'now' is offset-aware
                 post_date = datetime.strptime(b['post_date'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=datetime.timezone.utc)  # Make 'post_date' offset-aware
-                if (now - post_date).days > 1:
+                if (now - post_date).days > self.oldest_article:
                     self.log('Skipping', title, 'as it is too old')
                     continue
                 title = b['post_title']
