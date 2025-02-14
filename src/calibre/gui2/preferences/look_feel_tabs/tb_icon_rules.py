@@ -13,7 +13,7 @@ from qt.core import QAbstractItemView, QApplication, QDialog, QIcon, QMenu, QSiz
 
 from calibre.constants import config_dir
 from calibre.db.constants import TEMPLATE_ICON_INDICATOR
-from calibre.gui2 import choose_files, error_dialog, gprefs, pixmap_to_data
+from calibre.gui2 import choose_files, gprefs, pixmap_to_data
 from calibre.gui2.dialogs.tag_list_editor import block_signals
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.library.delegates import DelegateCB
@@ -53,13 +53,19 @@ class StateTableWidgetItem(QTableWidgetItem):
 
 class CategoryTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self, lookup_name, category_icons, display_name, table):
-        txt = display_name + f' ({lookup_name})'
+    def __init__(self, lookup_name, category_icons, display_name, field_metadata, table):
+        if in_library := (lookup_name in field_metadata):
+            txt = display_name + f' ({lookup_name})'
+        else:
+            txt =  display_name + ' (' + _('Not in library') + ')'
         super().__init__(txt)
         self._lookup_name = lookup_name
         self._table = table
         self._is_deleted = False
-        self.setIcon(category_icons.get(lookup_name) or QIcon.cached_icon('column.png'))
+        if in_library:
+            self.setIcon(category_icons.get(lookup_name) or QIcon.cached_icon('column.png'))
+        else:
+            self.setIcon(QIcon.cached_icon('dialog_error.png'))
         self._txt = txt
         self.setFlags(self.flags() & ~Qt.ItemFlag.ItemIsEditable)
 
@@ -446,22 +452,14 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         t = self.rules_table
         t.clearContents()
         all_values = {}
+        all_field_keys = field_metadata.all_field_keys()
         for category,vdict in v.items():
             if category in field_metadata:
                 display_name = field_metadata[category]['name']
                 try:
                     all_values[category] = set(self.gui.current_db.new_api.all_field_names(category))
                 except ValueError:
-                    error_dialog(self.gui, _("Invalid column '{}' in the rule set").format(category),
-                                   '<p>' +_("The column '{}' is in the rule set but shouldn't be. It is "
-                                            "probably a column 'built from other columns' that reused the "
-                                            "lookup name of some previously deleted custom column. "
-                                            "The invalid rule has been removed.").format(category) + '</p>',
-                                   show=True)
-                    prf = gprefs['tags_browser_value_icons']
-                    prf.pop(category, None)
-                    gprefs['tags_browser_value_icons'] = prf
-                    continue
+                    all_values[category] = set()
                 if is_hierarchical_category(category):
                     for value in all_values:
                         idx = 0
@@ -473,7 +471,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 continue
             else:
                 display_name = category.removeprefix('#')
-                all_values = {category: set()}
+                all_values[category] = set()
             self.all_values = all_values
 
             with block_signals(self.rules_table):
@@ -485,7 +483,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                     d = v[category][item_value]
                     t.setItem(row, DELETED_COLUMN, StateTableWidgetItem(''))
                     t.setItem(row, CATEGORY_COLUMN,
-                              CategoryTableWidgetItem(category, category_icons, display_name, t))
+                              CategoryTableWidgetItem(category, category_icons, display_name, field_metadata, t))
                     t.setItem(row, ICON_MODIFIED_COLUMN, StateTableWidgetItem(''))
                     t.setItem(row, VALUE_COLUMN, ValueTableWidgetItem(item_value, t, all_values[category]))
                     t.setItem(row, ICON_COLUMN, IconFileTableWidgetItem(d[0], item_value, t))
