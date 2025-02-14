@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 7.26.0 2025-02-14
+
+:: new features
+
+- Allow specifying web search links that are used when clicking on item names in the Book details panel for custom columns via Preferences->Add your own columns
+
+- Content server: When clicking on author names in the book details page perform the same action as clicking it in the calibre program's Book details panel
+
+:: bug fixes
+
+- [2097677] Fix a regression in 7.17 that caused various minor problems with editing metadata directly in the book list
+
+- Fix a regression in the previous release that broke conversion using Heuristics and TXT input documents
+
+- [2097563] E-book viewer: Fix header/footer text size too small when using multiple monitors and the primary monitors DPI is much less than secondary monitor DPI
+
+- [2097947] Fix series mapping rules in the metadata preferences not working
+
+- [2098133] Fix setting custom icon for category doesn't work
+
+- [2092732] Kobo driver: Fix a regression that broke working with very old Kobo devices
+
+:: improved recipes
+- Science Journals
+- Barrons
+}}}
+
+
 {{{ 7.25.0 2025-02-07
 
 :: new features
