@@ -31,7 +31,6 @@ class TableView(QTableView):
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior
-        orig = self.currentIndex()
         delta = 0
         if hint is QAbstractItemDelegate.EndEditHint.EditNextItem:
             delta = 1
@@ -41,25 +40,27 @@ class TableView(QTableView):
         if not delta:
             return
         current = self.currentIndex()
+        hdr = self.horizontalHeader()
         m = self.model()
         row = current.row()
-        idx = m.index(row, current.column(), current.parent())
+        vdx = hdr.visualIndex(current.column())  # must work with visual indices, not logical indices
         while True:
-            col = idx.column() + delta
-            if col < 0:
+            vdx = vdx + delta
+            if vdx < 0:
                 if row <= 0:
                     return
                 row -= 1
-                col += len(self.column_map)
-            if col >= len(self.column_map):
+                vdx += len(self.column_map)
+            if vdx >= len(self.column_map):
                 if row >= m.rowCount(QModelIndex()) - 1:
                     return
                 row += 1
-                col -= len(self.column_map)
-            if col < 0 or col >= len(self.column_map):
+                vdx -= len(self.column_map)
+            if vdx < 0 or vdx >= len(self.column_map):
                 return
-            colname = self.column_map[col]
-            idx = m.index(row, col, current.parent())
+            ldx = hdr.logicalIndex(vdx)  # We need the logical index for the model
+            colname = self.column_map[ldx]
+            idx = m.index(row, ldx, current.parent())
             if m.is_custom_column(colname):
                 if self.itemDelegateForIndex(idx).is_editable_with_tab:
                     # Don't try to open editors implemented by dialogs such as
