@@ -1,12 +1,15 @@
-import re
-from collections import defaultdict
+#!/usr/bin/env python
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class StrangeHorizons(BasicNewsRecipe):
     title = 'Strange Horizons'
-    description = 'A magazine of speculative fiction and related nonfiction. Best downloaded on weekends'
+    description = (
+        'Strange Horizons is a weekly magazine of and about speculative fiction. '
+        'We publish fiction, poetry, reviews, essays, interviews, roundtable '
+        'discussions, and art.'
+    )
     __author__ = 'unkn0wn'
     no_stylesheets = True
     use_embedded_content = False
@@ -14,55 +17,40 @@ class StrangeHorizons(BasicNewsRecipe):
     language = 'en'
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'http://strangehorizons.com/wordpress/wp-content/themes/strangehorizons/images/sh-logo.jpg'
+    ignore_duplicate_articles = {'url'}
+    resolve_internal_links = True
+    oldest_article = 7
 
-    extra_css = '''
+    extra_css = """
         .author-biographies, .content-warning-container-ltr, .category {font-size:small; font-style:italic; font-color:#404040;}
         .byline {font-size:small; font-color:#202020;}
-        .title {font-size:large; text-align:center;}
-    '''
+        img {display:block; margin:0 auto;}
+    """
+
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article),
+        }
+    }
+
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
 
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = [
-        classes('post-container')
-    ]
+    keep_only_tags = remove_tags_after = [dict(name='div', attrs={'class': 'post'})]
 
-    remove_tags = [
-        dict(name='button'),
-        classes('font-size sharedaddy comments-form-row')
-    ]
+    remove_tags = [dict(name='button'), classes('font-size sharedaddy comments-form-row')]
 
-    def parse_index(self):
-        main = self.index_to_soup('http://strangehorizons.com/issue/')
-        issue = main.find(attrs={'class':lambda x: x and 'current-issue-widget' in x.split()})
-        current = issue.find('a', href=lambda x: x and x.startswith('http://strangehorizons.com/issue/'))
-        date = issue.find(**classes('date'))
-        self.timefmt = ' [' + self.tag_to_string(date) + ']'
-        self.log('Downloading Issue:', self.timefmt, current['href'])
-        soup = self.index_to_soup(current['href'])
+    def preprocess_html(self, soup):
+        h1 = soup.find(attrs={'class': 'title'})
+        if h1 and h1.find('a'):
+            h1.a.name = 'h1'
+        return soup
 
-        feeds_dict = defaultdict(list)
-
-        for art in soup.findAll('div', attrs={'class':'article'}):
-            for ti in art.findAll(**classes('title')):
-                if a := ti.find('a', href=True):
-                    url = a['href']
-                    title = self.tag_to_string(ti).strip()
-
-                sec = 'Articles'
-                if cat := art.find(**classes('category')):
-                    sec = self.tag_to_string(cat).strip()
-
-                desc = ''
-                if exp := ti.find_next_sibling(**classes('excerpt')):
-                    desc = self.tag_to_string(exp) + desc
-                    desc = re.sub(r'\d{5} ', '', desc)
-                if auth := ti.find_next_sibling(**classes('author')):
-                    desc = self.tag_to_string(auth) + ' | ' + desc
-
-                if not title or not url:
-                    continue
-
-            self.log(sec, '\n\t', title, '\n\t', desc, '\n\t\t', url)
-            feeds_dict[sec].append({'title': title, 'url': url, 'description': desc})
-        return list(feeds_dict.items())
+    feeds = [('Articles', 'http://strangehorizons.com/wordpress/feed/')]
