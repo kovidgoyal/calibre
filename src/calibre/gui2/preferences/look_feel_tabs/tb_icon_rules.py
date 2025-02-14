@@ -13,7 +13,7 @@ from qt.core import QAbstractItemView, QApplication, QDialog, QIcon, QMenu, QSiz
 
 from calibre.constants import config_dir
 from calibre.db.constants import TEMPLATE_ICON_INDICATOR
-from calibre.gui2 import choose_files, gprefs, pixmap_to_data
+from calibre.gui2 import choose_files, error_dialog, gprefs, pixmap_to_data
 from calibre.gui2.dialogs.tag_list_editor import block_signals
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.library.delegates import DelegateCB
@@ -439,17 +439,29 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         category_icons = self.gui.tags_view.model().category_custom_icons
         is_hierarchical_category = self.gui.tags_view.model().is_key_a_hierarchical_category
         only_current_library = self.show_only_current_library.isChecked()
-        v = gprefs['tags_browser_value_icons']
-        row = 0
 
+        # Expand the pref so that items can be removed during the loop below.
+        v = dict(gprefs['tags_browser_value_icons'])
+        row = 0
         t = self.rules_table
         t.clearContents()
-
         all_values = {}
         for category,vdict in v.items():
             if category in field_metadata:
                 display_name = field_metadata[category]['name']
-                all_values[category] = set(self.gui.current_db.new_api.all_field_names(category))
+                try:
+                    all_values[category] = set(self.gui.current_db.new_api.all_field_names(category))
+                except ValueError:
+                    error_dialog(self.gui, _("Invalid column '{}' in the rule set").format(category),
+                                   '<p>' +_("The column '{}' is in the rule set but shouldn't be. It is "
+                                            "probably a column 'built from other columns' that reused the "
+                                            "lookup name of some previously deleted custom column. "
+                                            "The invalid rule has been removed.").format(category) + '</p>',
+                                   show=True)
+                    prf = gprefs['tags_browser_value_icons']
+                    prf.pop(category, None)
+                    gprefs['tags_browser_value_icons'] = prf
+                    continue
                 if is_hierarchical_category(category):
                     for value in all_values:
                         idx = 0
