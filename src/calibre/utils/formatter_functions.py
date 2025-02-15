@@ -3270,7 +3270,7 @@ gives you more control over the URL components. The components of a URL are
 
 [B]scheme[/B]:://[B]authority[/B]/[B]path[/B]?[B]query string[/B].
 
-See [URL href="https://en.wikipedia.org/wiki/URL"]Uniform Resource Locater[/URL] on Wikipedia for more detail.
+See [URL href="https://en.wikipedia.org/wiki/URL"]Uniform Resource Locator[/URL] on Wikipedia for more detail.
 
 The function has two variants:
 [CODE]
