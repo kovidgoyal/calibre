@@ -158,6 +158,8 @@ class TagTreeItem:  # {{{
                             cc = self.value_icon_cache.get(val_icon[0])
                             if cc is None:
                                 cc = QIcon.ic(os.path.join(self.icon_config_dir, val_icon[0]))
+                                if cc.isNull():
+                                    cc = self.category_custom_icons.get(self.tag.category, None)
                                 self.value_icon_cache[val_icon[0]] = cc
                             self.icon = cc
                         else:
@@ -530,6 +532,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def reset_tag_browser(self):
         self.beginResetModel()
+        self.value_icon_cache = {}
         self.value_icons = self.prefs['tags_browser_value_icons']
         hidden_cats = self.db.new_api.pref('tag_browser_hidden_categories', {})
         self.hidden_categories = set()
