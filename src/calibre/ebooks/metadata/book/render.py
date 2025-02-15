@@ -10,7 +10,7 @@ from functools import partial
 
 from calibre import force_unicode, prepare_string_for_xml
 from calibre.constants import filesystem_encoding
-from calibre.db.constants import DATA_DIR_NAME
+from calibre.db.constants import DATA_DIR_NAME, NO_SEARCH_LINK
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ebooks.metadata.search_internet import DEFAULT_AUTHOR_SOURCE, name_for, qquote, url_for_author_search, url_for_book_search
@@ -126,7 +126,9 @@ def author_search_href(which, title=None, author=None):
 
 def render_author_link(default_author_link, author, book_title=None, author_sort=None):
     book_title = book_title or ''
-    if default_author_link.startswith('search-'):
+    if default_author_link == NO_SEARCH_LINK:
+        return '',''
+    elif default_author_link.startswith('search-'):
         which_src = default_author_link.partition('-')[2]
         link, lt = author_search_href(which_src, title=book_title, author=author)
     else:

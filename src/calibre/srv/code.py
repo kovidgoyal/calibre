@@ -14,6 +14,7 @@ from threading import Lock
 from calibre import as_unicode
 from calibre.constants import in_develop_mode
 from calibre.customize.ui import available_input_formats
+from calibre.db.constants import NO_SEARCH_LINK
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
@@ -175,6 +176,8 @@ def basic_interface_data(ctx, rd):
         'lang_code_for_user_manual': lang_code_for_user_manual(),
         'default_author_link': resolve_default_author_link(get_gpref('default_author_link')),
     }
+    if ans['default_author_link'] == NO_SEARCH_LINK:
+        ans['default_author_link'] = ''
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
         ans['recently_read_by_user'] = tuple(
