@@ -287,7 +287,9 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             parent = table.lastChild.lastChild
             if is_searchable:
                 websearch_link = False
+                no_link = False
                 if field is 'authors':
+                    no_link = interface_data.default_author_link is '__NO_SEARCH_LINK__'
                     websearch_link = bool(interface_data.default_author_link) and interface_data.default_author_link is not 'search-calibre'
                 else:
                     fm = field_metadata[field]
@@ -306,22 +308,22 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 else:
                     url = calibre_search_url
                     tooltip = calibre_search_tooltip
-                parent.appendChild(E.a(v, target=target, title=tooltip, class_='blue-link', href=url))
+                if no_link:
+                    parent.appendChild(v if v.appendChild else document.createTextNode(v))
+                else:
+                    parent.appendChild(E.a(v, target=target, title=tooltip, class_='blue-link', href=url))
                 if link_maps[field] and link_maps[field][text_rep]:
                     url = link_maps[field][text_rep]
                     if url.startswith('https://') or url.startswith('http://'):
                         parent.appendChild(document.createTextNode(' '))
                         parent.appendChild(E.a(
                             svgicon('external-link'), title=_('Click to open') + ': ' + url, href=url, target='_blank', class_='blue-link'))
-                if websearch_link:
+                if websearch_link or no_link:
                     parent.appendChild(document.createTextNode(' '))
                     parent.appendChild(E.a(
                         svgicon('search'), title=calibre_search_tooltip, href=calibre_search_url, class_='blue-link'))
             else:
-                if v.appendChild:
-                    parent.appendChild(v)
-                else:
-                    parent.appendChild(document.createTextNode(v))
+                parent.appendChild(v if v.appendChild else document.createTextNode(v))
             if jstype(v) is 'string' and not is_html:
                 add_note_link(field, name, v, parent)
 

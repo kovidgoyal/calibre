@@ -434,6 +434,7 @@ def run_rapydscript_tests():
 
 
 def set_data(src, **kw):
+    from calibre.db.constants import NO_SEARCH_LINK
     for k, v in {
         '__SPECIAL_TITLE__': SPECIAL_TITLE_FOR_WEBENGINE_COMMS,
         '__FAKE_PROTOCOL__': FAKE_PROTOCOL,
@@ -442,7 +443,8 @@ def set_data(src, **kw):
         '__DARK_LINK_COLOR__': dark_link_color,
         '__BUILTIN_COLORS_LIGHT__': json.dumps(builtin_colors_light),
         '__BUILTIN_COLORS_DARK__': json.dumps(builtin_colors_dark),
-        '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations)
+        '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations),
+        '__NO_SEARCH_LINK__': NO_SEARCH_LINK,
     }.items():
         src = src.replace(k, v, 1)
     for k, v in kw.items():
