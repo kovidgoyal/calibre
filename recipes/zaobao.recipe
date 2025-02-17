@@ -1,185 +1,82 @@
 #!/usr/bin/env python
 
-__license__ = 'GPL v3'
-__copyright__ = '2009, Pu Bo <pubo at pubolab.com>'
-'''
-zaobao.com
-'''
-from calibre.web.feeds import feeds_from_index
-from calibre.web.feeds.news import BasicNewsRecipe
+"""
+zaobao.com.sg
+"""
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class ZAOBAO(BasicNewsRecipe):
-    title = u'\u8054\u5408\u65e9\u62a5\u7f51 zaobao.com'
-    __author__ = 'Pu Bo'
-    description = 'News from zaobao.com'
+    title = '联合早报'
+    __author__ = 'unkn0wn'
+    description = '联合早报 是全球华文用户信任的媒体，每天即时为你提供国际最新新闻和热门新闻。从财经、体育、生活娱乐资讯到评论分析，尽在zaobao.com.sg。'
     no_stylesheets = True
-    recursions = 1
     language = 'zh'
-    encoding = 'gbk'
-    masthead_url = 'http://www.zaobao.com/ssi/images1/zblogo_original.gif'
-    # multithreaded_fetch = True
+    encoding = 'utf-8'
+    masthead_url = (
+        'https://upload.wikimedia.org/wikipedia/en/2/29/Lianhe_Zaobao_new_logo.svg'
+    )
+    remove_javascript = True
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['width', 'height', 'style']
+    resolve_internal_links = True
+    remove_empty_feeds = True
+
+    extra_css = """
+        .calibre-nuked-tag-figcaption {font-size:small; text-align:center; }
+        img {display:block; margin:0 auto;}
+    """
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://frontpages.freedomforum.org/newspapers/sing_lz-Lianhe_Zaobao'
+        )
+        return soup.find(
+            'img',
+            attrs={
+                'alt': 'Front Page Image',
+                'src': lambda x: x and x.endswith('front-page-large.jpg'),
+            },
+        )['src'].replace('-large', '-medium')
 
     keep_only_tags = [
-        dict(name='td', attrs={'class': 'text'}),
-        dict(name='span', attrs={'class': 'page'}),
-        dict(name='div', attrs={'id': 'content'})
+        dict(name='article', attrs={'class': 'max-w-full'}),
     ]
 
-    remove_tags = [
-        dict(name='table', attrs={'cellspacing': '9'}),
-        dict(name='fieldset'),
-        dict(name='div', attrs={'width': '30%'}),
-    ]
+    remove_tags_after = [classes('articleBody')]
 
-    extra_css      = '''
-            @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
-            body{font-family: serif1, serif}
-            .article_description{font-family: serif1, serif}
-            p{font-family: serif1, serif}
-            h1 {font-weight: bold; font-size: large;}
-            h2 {font-size: large;}
-            .title {font-size: large;}
-            .article {font-size:medium}
-            .navbar {font-size: small}
-            .feed{font-size: medium}
-            .small{font-size: small;padding-right: 8pt}
-            .text{padding-right: 8pt}
-            p{text-indent: 0cm}
-            div#content{padding-right: 10pt}'''
+    remove_tags = [classes('bff-google-ad bff-recommend-article')]
 
-    INDEXES = [
-        (u'\u65b0\u95fb\u56fe\u7247',
-         u'http://www.zaobao.com/photoweb/photoweb_idx.shtml')
-    ]
-    MAX_ITEMS_IN_INDEX = 10
+    def parse_index(self):
+        index = 'https://www.zaobao.com.sg'
+        sections = ['realtime', 'news', 'forum', 'wencui', 'lifestyle', 'entertainment']
 
-    DESC_SENSE = u'\u8054\u5408\u65e9\u62a5\u7f51'
+        soup = self.index_to_soup(index)
 
-    feeds = [
-        (u'\u5373\u65f6\u62a5\u9053', u'http://realtime.zaobao.com/news.xml'),
-        (u'\u4e2d\u56fd\u65b0\u95fb',
-         u'http://www.zaobao.com/zg/zg.xml'),
-        (u'\u56fd\u9645\u65b0\u95fb',
-         u'http://www.zaobao.com/gj/gj.xml'),
-        (u'\u4e16\u754c\u62a5\u520a\u6587\u8403',
-         u'http://www.zaobao.com/wencui/wencui.xml'),
-        (u'\u4e1c\u5357\u4e9a\u65b0\u95fb',
-         u'http://www.zaobao.com/yx/yx.xml'),
-        (u'\u65b0\u52a0\u5761\u65b0\u95fb',
-         u'http://www.zaobao.com/sp/sp.xml'),
-        (u'\u4eca\u65e5\u89c2\u70b9',
-         u'http://www.zaobao.com/yl/yl.xml'),
-        (u'\u4e2d\u56fd\u8d22\u7ecf',
-         u'http://www.zaobao.com/cz/cz.xml'),
-        (u'\u72ee\u57ce\u8d22\u7ecf',
-         u'http://www.zaobao.com/cs/cs.xml'),
-        (u'\u5168\u7403\u8d22\u7ecf',
-         u'http://www.zaobao.com/cg/cg.xml'),
-        (u'\u65e9\u62a5\u4f53\u80b2',
-         u'http://www.zaobao.com/ty/ty.xml'),
-        (u'\u65e9\u62a5\u526f\u520a',
-         u'http://www.zaobao.com/fk/fk.xml'),
-    ]
+        feeds = []
 
-    def preprocess_html(self, soup):
-        for tag in soup.findAll(name='a', href=True):
-            tag_url = tag['href']
-            if tag_url.find('http://') != -1 and tag_url.find('zaobao.com') == -1:
-                del tag['href']
-        return soup
+        for sec in sections:
+            sectn = sec.capitalize()
+            self.log(sectn)
 
-    def postprocess_html(self, soup, first):
-        for tag in soup.findAll(name=['table', 'tr', 'td']):
-            tag.name = 'div'
-        return soup
-
-    def parse_feeds(self):
-        self.log(_('ZAOBAO overrode parse_feeds()'))
-        parsed_feeds = BasicNewsRecipe.parse_feeds(self)
-
-        for id, obj in enumerate(self.INDEXES):
-            title, url = obj
             articles = []
-            soup = self.index_to_soup(url)
 
-            for i, item in enumerate(soup.findAll('li')):
-                if i >= self.MAX_ITEMS_IN_INDEX:
-                    break
-                a = item.find('a', href=True)
-                if a is not None:
-                    a_url = a['href']
-                    a_title = self.tag_to_string(a)
-                    date = ''
-                    description = ''
-                    self.log(_('adding %s at %s') % (a_title, a_url))
-                    articles.append({
-                                    'title': a_title,
-                                    'date': date,
-                                    'url': a_url,
-                                    'description': description
-                                    })
-
-            pfeeds = feeds_from_index([(title, articles)], oldest_article=self.oldest_article,
-                                      max_articles_per_feed=self.max_articles_per_feed)
-
-            self.log(_('adding %s to feed') % (title))
-            for feed in pfeeds:
-                self.log(_('adding feed: %s') % (feed.title))
-                feed.description = self.DESC_SENSE
-                parsed_feeds.append(feed)
-                for a, article in enumerate(feed):
-                    self.log(_('added article %s from %s') %
-                             (article.title, article.url))
-                self.log(_('added feed %s') % (feed.title))
-
-        for i, feed in enumerate(parsed_feeds):
-            # workaround a strange problem: Sometimes the xml encoding is not
-            # applied correctly by parse()
-            weird_encoding_detected = False
-            if not isinstance(feed.description, type(u'')) and self.encoding and feed.description:
-                self.log(
-                    _('Feed %s is not encoded correctly, manually replace it') % (feed.title))
-                feed.description = feed.description.decode(
-                    self.encoding, 'replace')
-            elif feed.description.find(self.DESC_SENSE) == -1 and self.encoding and feed.description:
-                self.log(
-                    _('Feed %s is weirdly encoded, manually redo all') % (feed.title))
-                feed.description = feed.description.encode(
-                    'cp1252', 'replace').decode(self.encoding, 'replace')
-                weird_encoding_detected = True
-
-            for a, article in enumerate(feed):
-                if not isinstance(article.title, type(u'')) and self.encoding:
-                    article.title = article.title.decode(
-                        self.encoding, 'replace')
-                if not isinstance(article.summary, type(u'')) and self.encoding and article.summary:
-                    article.summary = article.summary.decode(
-                        self.encoding, 'replace')
-                    article.text_summary = article.summary
-                if not isinstance(article.text_summary, type(u'')) and self.encoding and article.text_summary:
-                    article.text_summary = article.text_summary.decode(
-                        self.encoding, 'replace')
-                    article.summary = article.text_summary
-                if weird_encoding_detected:
-                    if article.title:
-                        article.title = article.title.encode(
-                            'cp1252', 'replace').decode(self.encoding, 'replace')
-                    if article.summary:
-                        article.summary = article.summary.encode(
-                            'cp1252', 'replace').decode(self.encoding, 'replace')
-                    if article.text_summary:
-                        article.text_summary = article.text_summary.encode(
-                            'cp1252', 'replace').decode(self.encoding, 'replace')
-
-                if article.title == 'Untitled article':
-                    self.log(_('Removing empty article %s from %s') %
-                             (article.title, article.url))
-                    # remove the article
-                    feed.articles[a:a + 1] = []
-        return parsed_feeds
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.addheaders.append(('Pragma', 'no-cache'))
-        return br
+            for a in soup.findAll(
+                'a',
+                attrs={
+                    'class': 'article-type-link',
+                    'href': lambda x: x and x.startswith('/' + sec),
+                },
+            ):
+                if a.find('img'):
+                    continue
+                title = self.tag_to_string(a)
+                url = index + a['href']
+                if url == index + '/' + sec:
+                    continue
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
+            if articles:
+                feeds.append((sectn, articles))
+        return feeds
