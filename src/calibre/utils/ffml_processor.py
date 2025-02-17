@@ -389,7 +389,7 @@ class FFMLProcessor:
         if tree.node_kind() == NodeKinds.BLANK_LINE:
             result += '\n\n'
         elif tree.node_kind() == NodeKinds.BOLD_TEXT:
-            indent_text(("\\ " if result.endswith("?") else "") + f'**{tree.text()}**')
+            indent_text(('\\ ' if result.endswith('?') else '') + f'**{tree.text()}**')
         elif tree.node_kind() == NodeKinds.CHARACTER:
             result += tree.text()
         elif tree.node_kind() == NodeKinds.CODE_BLOCK:
