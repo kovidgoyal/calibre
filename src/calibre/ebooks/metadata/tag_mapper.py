@@ -151,14 +151,14 @@ def find_tests():
                     ans['replace'] = replace
                 return ans
 
-            def run(rules, tags, expected):
+            def run(rules, tags, expected, sep=','):
                 if isinstance(rules, dict):
                     rules = [rules]
                 if isinstance(tags, str):
-                    tags = [x.strip() for x in tags.split(',')]
+                    tags = [x.strip() for x in tags.split(sep)] if sep else [tags]
                 if isinstance(expected, str):
-                    expected = [x.strip() for x in expected.split(',')]
-                ans = map_tags(tags, rules)
+                    expected = [x.strip() for x in expected.split(sep)] if sep else [expected]
+                ans = map_tags(tags, rules, sep)
                 self.assertEqual(ans, expected)
 
             run(rule('capitalize', 't1,t2'), 't1,x1', 'T1,x1')
@@ -180,6 +180,7 @@ def find_tests():
             run(rule('split', '/', '/', 'has'), '/a/', 'a')
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
             run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
+            run(rule('upper', 'a, b, c'), 'a, b, c', 'A, B, C', sep='')
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
 
 
