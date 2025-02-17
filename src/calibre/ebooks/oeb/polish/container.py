@@ -47,7 +47,7 @@ from calibre.ebooks.oeb.base import (
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html
 from calibre.ebooks.oeb.polish.errors import DRMError, InvalidBook
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
-from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, parse_css
+from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, insert_self_closing, parse_css
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.filenames import hardlink_file, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
@@ -942,27 +942,7 @@ class Container(ContainerBase):  # {{{
     def insert_into_xml(self, parent, item, index=None):
         '''Insert item into parent (or append if index is None), fixing
         indentation. Only works with self closing items.'''
-        if index is None:
-            parent.append(item)
-        else:
-            parent.insert(index, item)
-        idx = parent.index(item)
-        if idx == 0:
-            item.tail = parent.text
-            # If this is the only child of this parent element, we need a
-            # little extra work as we have gone from a self-closing <foo />
-            # element to <foo><item /></foo>
-            if len(parent) == 1:
-                sibling = parent.getprevious()
-                if sibling is None:
-                    # Give up!
-                    return
-                parent.text = sibling.text
-                item.tail = sibling.tail
-        else:
-            item.tail = parent[idx-1].tail
-            if idx == len(parent)-1:
-                parent[idx-1].tail = parent.text
+        insert_self_closing(parent, item, index)
 
     def opf_get_or_create(self, name):
         ''' Convenience method to either return the first XML element with the

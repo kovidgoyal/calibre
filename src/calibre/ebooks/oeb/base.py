@@ -12,6 +12,7 @@ import os
 import re
 import sys
 from collections import defaultdict
+from functools import lru_cache
 from itertools import count
 from operator import attrgetter
 
@@ -393,6 +394,7 @@ def isqname(name):
     return name and QNAME_RE.match(name) is not None
 
 
+@lru_cache(128)
 def XPath(expr):
     return etree.XPath(expr, namespaces=XPNSMAP)
 
