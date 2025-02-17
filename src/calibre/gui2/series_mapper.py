@@ -28,8 +28,8 @@ class RuleEdit(RuleEditBase):
     ))
 
     MATCH_TYPE_MAP = OrderedDict((
-        ('one_of', _('is one of')),
-        ('not_one_of', _('is not one of')),
+        ('one_of', _('is')),
+        ('not_one_of', _('is not')),
         ('has', _('contains')),
         ('matches', _('matches regex pattern')),
         ('not_matches', _('does not match regex pattern')),
@@ -113,7 +113,7 @@ class Tester(TesterBase):
 
     def do_test(self):
         series = self.value.strip()
-        ans = map_tags([series], self.rules)
+        ans = map_tags([series], self.rules, separator='')
         self.result.setText((ans or ('',))[0])
 
 
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     app = Application([])
     d = RulesDialog()
     d.rules = [
-            {'action':'replace', 'query':'alice Bob', 'match_type':'one_of', 'replace':'Alice Bob'},
+            {'action':'replace', 'query':'alice Bob, moose', 'match_type':'one_of', 'replace':'Alice Bob, Moose'},
     ]
     d.exec()
     from pprint import pprint
