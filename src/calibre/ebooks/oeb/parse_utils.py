@@ -27,12 +27,14 @@ class NotHTML(Exception):
         self.root_tag = root_tag
 
 
-def barename(name):
-    return name.rpartition('}')[-1]
+try:
+    from calibre_extensions.speedup import barename, namespace
+except ImportError:
+    def barename(name: str) -> str:
+        return name.rpartition('}')[-1]
 
-
-def namespace(name):
-    return name.rpartition('}')[0][1:]
+    def namespace(name: str) -> str:
+        return name.rpartition('}')[0][1:]
 
 
 def XHTML(name):

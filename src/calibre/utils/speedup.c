@@ -29,6 +29,29 @@ typedef unsigned __int8 uint8_t;
 #include <stdint.h>
 #endif
 
+static PyObject*
+barename(PyObject *self, PyObject *tag) {
+    if (!PyUnicode_Check(tag)) { PyErr_Format(PyExc_TypeError, "%R is not a unicode string", tag); return NULL; }
+    Py_ssize_t pos = PyUnicode_FindChar(tag, '}', 0, PyUnicode_GetLength(tag), -1);
+    switch(pos) {
+        case -2: return NULL;
+        case -1: Py_INCREF(tag); return tag;
+        default: return PyUnicode_Substring(tag, pos + 1, PyUnicode_GetLength(tag));
+    }
+}
+
+static PyObject*
+namespace(PyObject *self, PyObject *tag) {
+    if (!PyUnicode_Check(tag)) { PyErr_Format(PyExc_TypeError, "%R is not a unicode string", tag); return NULL; }
+    Py_ssize_t pos = PyUnicode_FindChar(tag, '}', 0, PyUnicode_GetLength(tag), -1);
+    switch(pos) {
+        case -2: return NULL;
+        case -1: return PyUnicode_FromString("");
+        default: return PyUnicode_Substring(tag, 1, pos);
+    }
+}
+
+
 static PyObject *
 speedup_parse_date(PyObject *self, PyObject *args) {
     const char *raw, *orig, *tz;
@@ -731,6 +754,14 @@ static PyMethodDef speedup_methods[] = {
 
 	{"get_num_of_significant_chars", get_num_of_significant_chars, METH_O,
 		"get_num_of_significant_chars(elem)\n\nGet the number of chars in specified tag"
+	},
+
+	{"barename", barename, METH_O,
+		"barename(tag)\n\nGet bare tag name without namespace"
+	},
+
+	{"namespace", namespace, METH_O,
+		"namespace(tag)\n\nGet namespace of the tag"
 	},
 
     {NULL, NULL, 0, NULL}
