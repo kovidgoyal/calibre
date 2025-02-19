@@ -89,6 +89,18 @@ Otherwise all edits would be lost.</string>
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QToolButton" name="add_button">
+          <property name="icon">
+          <iconset resource="../../../../../resources/images.qrc">
+            <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+          </property>
+          <property name="toolTip">
+           <string>Add a new rule. The rule is added immediately. If you decide you don't
+want it then you must delete it.</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

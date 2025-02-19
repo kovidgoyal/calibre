@@ -80,7 +80,7 @@
       </widget>
       <widget class="TbIconRulesTab" name="tb_icon_browser_tab">
        <attribute name="title">
-        <string>Val&amp;ue icon rules viewer</string>
+        <string>Val&amp;ue icon rules</string>
        </attribute>
       </widget>
      </widget>
