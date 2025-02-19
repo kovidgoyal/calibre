@@ -94,7 +94,7 @@ def extract_calibre_cover(raw, base, log):
                 return return_raster_image(img)
 
 
-def render_html_svg_workaround(path_to_html, log, width=590, height=750, root=''):
+def render_html_svg_workaround(path_to_html, log, width=1200, height=1600, root=''):
     from calibre.ebooks.oeb.base import SVG_NS
     with open(path_to_html, 'rb') as f:
         raw = f.read()
