@@ -16,7 +16,7 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XPath
+from calibre.ebooks.oeb.base import XHTML, XPath, serialize
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
@@ -175,6 +175,10 @@ def remove_kobo_markup_from_html(root):
     remove_kobo_styles(root)
     for body in XPath('./h:body')(root):
         unwrap_body_contents(body)
+
+
+def serialize_html(root) -> bytes:
+    return serialize(root, 'text/html')
 
 
 def kepubify_parsed_html(root, metadata_lang: str = 'en'):
