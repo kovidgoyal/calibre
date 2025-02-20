@@ -2,7 +2,8 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from calibre.ebooks.oeb.polish.kepubify import kepubify_html_data, serialize_html
+from calibre.ebooks.oeb.polish.kepubify import kepubify_html_data, remove_kobo_markup_from_html, serialize_html
+from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
 
@@ -56,8 +57,11 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<div><script>1 < 2 & 3</script>':  # escaping with cdata note that kepubify doesnt do this
             '<div><script><![CDATA[1 < 2 & 3]]></script></div>',
         }.items():
-            with self.subTest(src=src):
-                root = kepubify_html_data(src)
-                actual = serialize_html(root).decode('utf-8')
-                actual = actual[len(prefix):-len(suffix)]
-                self.assertEqual(expected, actual)
+            root = kepubify_html_data(src)
+            actual = serialize_html(root).decode('utf-8')
+            actual = actual[len(prefix):-len(suffix)]
+            self.assertEqual(expected, actual)
+            expected = serialize_html(parse(src)).decode('utf-8')
+            remove_kobo_markup_from_html(root)
+            actual = serialize_html(root).decode('utf-8')
+            self.assertEqual(expected, actual)
