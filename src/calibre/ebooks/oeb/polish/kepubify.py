@@ -18,6 +18,7 @@ from lxml import etree
 
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
+from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
@@ -176,11 +177,17 @@ def remove_kobo_markup_from_html(root):
         unwrap_body_contents(body)
 
 
-def kepubify_html(root, metadata_lang='en'):
+def kepubify_parsed_html(root, metadata_lang: str = 'en'):
     remove_kobo_markup_from_html(root)
     merge_multiple_html_heads_and_bodies(root)
     add_kobo_markup_to_html(root, metadata_lang)
 
 
-def kepubify(container):
+def kepubify_html_data(raw: str | bytes, metadata_lang: str = 'en'):
+    root = parse(raw)
+    kepubify_parsed_html(root, metadata_lang)
+    return root
+
+
+def kepubify_container(container):
     lang = container.mi.language

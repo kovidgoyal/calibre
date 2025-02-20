@@ -46,6 +46,7 @@ from calibre.ebooks.oeb.base import (
 )
 from calibre.ebooks.oeb.parse_utils import NotHTML, parse_html
 from calibre.ebooks.oeb.polish.errors import DRMError, InvalidBook
+from calibre.ebooks.oeb.polish.parsing import decode_xml
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, insert_self_closing, parse_css
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
@@ -168,36 +169,10 @@ class ContainerBase:  # {{{
 
         :param normalize_to_nfc: Normalize returned unicode to the NFC normal form as is required by both the EPUB and AZW3 formats.
         '''
-        def fix_data(d):
-            return d.replace('\r\n', '\n').replace('\r', '\n')
-        if isinstance(data, str):
-            return fix_data(data)
-        bom_enc = None
-        if data[:4] in {b'\0\0\xfe\xff', b'\xff\xfe\0\0'}:
-            bom_enc = {b'\0\0\xfe\xff':'utf-32-be',
-                       b'\xff\xfe\0\0':'utf-32-le'}[data[:4]]
-            data = data[4:]
-        elif data[:2] in {b'\xff\xfe', b'\xfe\xff'}:
-            bom_enc = {b'\xff\xfe':'utf-16-le', b'\xfe\xff':'utf-16-be'}[data[:2]]
-            data = data[2:]
-        elif data[:3] == b'\xef\xbb\xbf':
-            bom_enc = 'utf-8'
-            data = data[3:]
-        if bom_enc is not None:
-            try:
-                self.used_encoding = bom_enc
-                return fix_data(data.decode(bom_enc))
-            except UnicodeDecodeError:
-                pass
-        try:
-            self.used_encoding = 'utf-8'
-            return fix_data(data.decode('utf-8'))
-        except UnicodeDecodeError:
-            pass
-        data, self.used_encoding = xml_to_unicode(data)
-        if normalize_to_nfc:
-            data = unicodedata.normalize('NFC', data)
-        return fix_data(data)
+        html, used_encoding = decode_xml(data, normalize_to_nfc)
+        if used_encoding:
+            self.used_encoding = used_encoding
+        return html
 
     def parse_xml(self, data):
         data, self.used_encoding = xml_to_unicode(

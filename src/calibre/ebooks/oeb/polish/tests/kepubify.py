@@ -3,8 +3,7 @@
 
 
 from calibre.ebooks.oeb.base import serialize
-from calibre.ebooks.oeb.polish.kepubify import kepubify_html
-from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
+from calibre.ebooks.oeb.polish.kepubify import kepubify_html_data
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
 
@@ -38,8 +37,7 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             # skipped tags
         }.items():
             with self.subTest(src=src):
-                root = parse(src)
-                kepubify_html(root)
+                root = kepubify_html_data(src)
                 actual = serialize(root, 'text/html').decode('utf-8')
                 actual = actual[len(prefix):-len(suffix)]
                 self.assertEqual(expected, actual)
