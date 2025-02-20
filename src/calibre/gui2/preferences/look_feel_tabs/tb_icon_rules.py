@@ -64,12 +64,15 @@ class StateTableWidgetItem(QTableWidgetItem):
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
 
     def setText(self, txt):
-        if txt:
-            super().setText(_('Yes') if txt else '')
-            if self.column() == DELETED_COLUMN:
-                self.setIcon(QIcon.cached_icon('trash.png'))
-            else:
-                self.setIcon(QIcon.cached_icon('modified.png'))
+        if txt == 'deleted':
+            super().setText(_('Deleted'))
+            self.setIcon(QIcon.cached_icon('trash.png'))
+        elif txt == 'new':
+            super().setText(_('New'))
+            self.setIcon(QIcon.cached_icon('plus.png'))
+        elif txt == 'modified':
+            super().setText(_('Modified'))
+            self.setIcon(QIcon.cached_icon('modified.png'))
         else:
             super().setText('')
             self.setIcon(QIcon.cached_icon('blank.png'))
@@ -83,6 +86,7 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         self._category_icons = category_icons
         self._field_metadata = field_metadata
         self._is_deleted = False
+        self._is_new = False
         self._original_in_library = lookup_name in self._field_metadata
         self.setText(lookup_name)
 
@@ -108,8 +112,25 @@ class CategoryTableWidgetItem(QTableWidgetItem):
     @is_deleted.setter
     def is_deleted(self, to_what):
         self._is_deleted = to_what
+        self._set_icon()
+
+    def _set_icon(self):
         deleted_item = self._table.item(self.row(), DELETED_COLUMN)
-        deleted_item.setText(to_what)
+        if self._is_deleted:
+            deleted_item.setText('deleted')
+        elif self.is_new:
+            deleted_item.setText('new')
+        else:
+            deleted_item.setText('')
+
+    @property
+    def is_new(self):
+        return self._is_new
+
+    @is_new.setter
+    def is_new(self, to_what):
+        self._is_new = to_what
+        self._set_icon()
 
     @property
     def lookup_name(self):
@@ -178,7 +199,7 @@ class IconFileTableWidgetItem(QTableWidgetItem):
 
     @new_icon.setter
     def new_icon(self, to_what):
-        # to_what is the new icon pixmap in bytes
+        # to_what is the new icon pixmap
         self.setIcon(to_what)
         self._new_icon = icon_to_bytes(to_what)
         self.is_modified = True
@@ -191,7 +212,7 @@ class IconFileTableWidgetItem(QTableWidgetItem):
     def is_modified(self, to_what):
         self._is_modified = to_what
         del_item = self._table.item(self.row(), ICON_MODIFIED_COLUMN)
-        del_item.setText(to_what)
+        del_item.setText('modified' if to_what else '')
 
     def set_text(self, txt):
         self.setText(txt)
@@ -282,12 +303,8 @@ class ChildrenTableWidgetItem(QTableWidgetItem):
     @is_modified.setter
     def is_modified(self, to_what):
         del_item = self._table.item(self.row(), FOR_CHILDREN_MODIFIED_COLUMN)
-        if to_what:
-            del_item.setText(to_what)
-            self._is_modified = True
-        else:
-            del_item.setText(False)
-            self._is_modified = False
+        del_item.setText('modified' if to_what else '')
+        self._is_modified = to_what
 
     def set_value(self, val):
         self._set_text_and_icon(val)
@@ -585,21 +602,16 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             icon_name = d.icon_box.text()
             for_children = d.child_box.currentIndex() == 1
             pref = gprefs['tags_browser_value_icons']
-            # Add the new rule to the preferences. If it is already there, replace it.
-            if category not in pref:
-                pref[category] = {}
-            already_there = value in pref[category]
-            pref[category][value] = (icon_name, for_children)
-            if not already_there:
+            if category not in pref or value not in pref[category]:
                 # New rule
+                row = self.rules_table.rowCount()
+                self.add_table_row(row, category, value, icon_name, for_children)
                 if d.icon is not None:
-                    p = os.path.join(config_dir, 'tb_icons')
-                    if not os.path.exists(p):
-                        os.makedirs(p)
-                    p = os.path.join(p, icon_name)
-                    with open(p, 'wb') as f:
-                        f.write(icon_to_bytes(d.icon))
-                self.add_table_row(self.rules_table.rowCount(), category, value, icon_name, for_children)
+                    icon_item = self.rules_table.item(row, ICON_COLUMN)
+                    icon_item.new_icon = d.icon
+                    icon_item.is_modified = True
+                category_item = self.rules_table.item(row, CATEGORY_COLUMN)
+                category_item.is_new = True
             else:
                 # Edit the rule already in the table
                 rt = self.rules_table
@@ -745,7 +757,6 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 else:
                     self.rules_table.setColumnWidth(c, w)
                 self.table_column_widths.append(self.rules_table.columnWidth(c))
-
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
     def do_sort(self, section):
@@ -755,7 +766,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
     def commit(self):
-        v = copy.deepcopy(gprefs['tags_browser_value_icons'])
+        tbvip = copy.deepcopy(gprefs['tags_browser_value_icons'])
 
         for r in range(self.rules_table.rowCount()):
             cat_item = self.rules_table.item(r, CATEGORY_COLUMN)
@@ -773,14 +784,19 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                         os.remove(path)
                     except:
                         pass
-                v[cat_item.lookup_name].pop(value_text, None)
+                tbvip[cat_item.lookup_name].pop(value_text, None)
                 continue
 
-            d = list(v[cat_item.lookup_name][value_text])
+            if cat_item.is_new:
+                if cat_item.lookup_name not in tbvip:
+                    tbvip[cat_item.lookup_name] = {}
+                tbvip[cat_item.lookup_name][value_text] = (icon_item.text(), child_item.value)
+
+            d = list(tbvip[cat_item.lookup_name][value_text])
             if icon_item.is_modified:
                 if value_item.is_template:
                     d[0] = icon_item.text()
-                    v[cat_item.lookup_name][TEMPLATE_ICON_INDICATOR] = d
+                    tbvip[cat_item.lookup_name][TEMPLATE_ICON_INDICATOR] = d
                 elif icon_item.new_icon is not None:
                     p = os.path.join(config_dir, 'tb_icons')
                     if not os.path.exists(p):
@@ -791,12 +807,11 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
             if child_item.is_modified:
                 d[1] = child_item.value
-                v[cat_item.lookup_name][value_text] = d
+                tbvip[cat_item.lookup_name][value_text] = d
 
         # Remove categories with no rules
-        for category in list(v.keys()):
-            if len(v[category]) == 0:
-                v.pop(category, None)
-        gprefs['tags_browser_value_icons'] = v
-
+        for category in list(tbvip.keys()):
+            if len(tbvip[category]) == 0:
+                tbvip.pop(category, None)
+        gprefs['tags_browser_value_icons'] = tbvip
         return LazyConfigWidgetBase.commit(self)
