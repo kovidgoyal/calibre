@@ -9,9 +9,24 @@ import copy
 import os
 from functools import partial
 
-from qt.core import (QAbstractItemView, QApplication, QComboBox, QDialog, QDialogButtonBox, QGridLayout,
-                QHBoxLayout, QIcon, QLabel, QLineEdit, QMenu, QSize, QStyledItemDelegate, Qt,
-                QTableWidgetItem, QToolButton)
+from qt.core import (
+    QAbstractItemView,
+    QApplication,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QGridLayout,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QMenu,
+    QSize,
+    QStyledItemDelegate,
+    Qt,
+    QTableWidgetItem,
+    QToolButton,
+)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -521,7 +536,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         # Remove categories that can't have icons.
         cats.pop('formats', None)
         cats.pop('search', None)
-        for cat in tuple(c for c in cats if c.startswith('@')): # user categories
+        for cat in tuple(c for c in cats if c.startswith('@')):  # user categories
             cats.pop(cat, None)
 
         all_values = {cat: {t.name for t in cats[cat]} for cat in cats.keys()}
