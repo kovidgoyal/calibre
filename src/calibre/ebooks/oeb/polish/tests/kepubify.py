@@ -49,6 +49,12 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<div>Svg: <svg>mouse</svg><i> no tail':
             '<div><span class="koboSpan" id="kobo.1.1">Svg: </span><svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
             '<i> <span class="koboSpan" id="kobo.1.2">no tail</span></i></div>',
+
+            # encoding quirks
+            '<p>A\xa0nbsp;&nbsp;':
+            '<p><span class="koboSpan" id="kobo.1.1">A&#160;nbsp;&#160;</span></p>',
+            '<div><script>1 < 2 & 3</script>':  # escaping with cdata note that kepubify doesnt do this
+            '<div><script><![CDATA[1 < 2 & 3]]></script></div>',
         }.items():
             with self.subTest(src=src):
                 root = kepubify_html_data(src)
