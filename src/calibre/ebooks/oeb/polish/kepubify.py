@@ -104,7 +104,7 @@ def add_kobo_spans(inner, root_lang):
         segnum += 1
         return parent.makeelement(span_tag_name, attrib={'class': 'koboSpan', 'id': f'kobo.{paranum}.{segnum}'})
 
-    def wrap_text_in_spans(text: str, parent: etree.ElementBase, after_child: etree.ElementBase, lang: str) -> str | None:
+    def wrap_text_in_spans(text: str, parent: etree.Element, after_child: etree.ElementBase, lang: str) -> str | None:
         nonlocal increment_next_para, paranum, segnum
         if increment_next_para:
             paranum += 1
@@ -114,7 +114,10 @@ def add_kobo_spans(inner, root_lang):
         ws = None
         if num := len(text) - len(stripped):
             ws = text[:num]
-        at = 0 if after_child is None else parent.index(after_child) + 1
+        try:
+            at = 0 if after_child is None else parent.index(after_child) + 1
+        except ValueError:  # wrapped child
+            at = parent.index(after_child.getparent()) + 1
         if at:
             parent[at-1].tail = ws
         else:
@@ -125,28 +128,36 @@ def add_kobo_spans(inner, root_lang):
             parent.insert(at, s)
             at += 1
 
+    def wrap_child(child: etree.Element) -> etree.Element:
+        nonlocal increment_next_para, paranum, segnum
+        increment_next_para = False
+        paranum += 1
+        segnum = 0
+        node = child.getparent()
+        idx = node.index(child)
+        w = kobo_span(node)
+        node[idx] = w
+        w.append(child)
+        w.tail = child.tail
+        child.tail = child.text = None
+        return w
+
     while stack:
         node, parent, tagname, node_lang = p()
-        if parent is not None:
+        if parent is not None:  # tail text
             wrap_text_in_spans(node, parent, tagname, node_lang)
+            continue
+        if tagname == 'img':
+            wrap_child(node)
             continue
         if not increment_next_para and tagname in BLOCK_TAGS:
             increment_next_para = True
         for child in reversed(node):
+            child_name = barename(child.tag).lower() if isinstance(child.tag, str) else ''
             if child.tail:
                 a((child.tail, node, child, node_lang))
-            if isinstance(child.tag, str):
-                child_name = barename(child.tag).lower()
-                if child_name == 'img':
-                    increment_next_para = False
-                    paranum += 1
-                    segnum = 0
-                    idx = node.index(child)
-                    w = kobo_span(node)
-                    w.append(child)
-                    node[idx] = w
-                elif child_name not in SKIPPED_TAGS:
-                    a((child, None, child_name, lang_for_elem(child, node_lang)))
+            if child_name not in SKIPPED_TAGS:
+                a((child, None, child_name, lang_for_elem(child, node_lang)))
         if node.text:
             wrap_text_in_spans(node.text, node, None, node_lang)
 

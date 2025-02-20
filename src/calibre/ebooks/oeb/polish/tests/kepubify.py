@@ -27,10 +27,15 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<span class="koboSpan" id="kobo.2.6">Another.</span></p>',
 
             # img tags
+            '<p>An image<img src="x">with tail':
+            '<p><span class="koboSpan" id="kobo.1.1">An image</span><span class="koboSpan" id="kobo.2.1">'
+            '<img src="x"/></span><span class="koboSpan" id="kobo.2.2">with tail</span></p>'
 
             # comments
 
             # nested block tags
+
+            # skipped tags
         }.items():
             with self.subTest(src=src):
                 root = parse(src)
