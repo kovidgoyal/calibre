@@ -28,7 +28,7 @@ KOBO_STYLE_HACKS = 'kobostylehacks'
 OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
 SKIPPED_TAGS = frozenset((
-    'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
+    '', 'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
 ))
 BLOCK_TAGS = frozenset((
     'p', 'ol', 'ul', 'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',

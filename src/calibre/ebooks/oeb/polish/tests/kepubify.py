@@ -26,15 +26,30 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<span class="koboSpan" id="kobo.2.6">Another.</span></p>',
 
             # img tags
-            '<p>An image<img src="x">with tail':
-            '<p><span class="koboSpan" id="kobo.1.1">An image</span><span class="koboSpan" id="kobo.2.1">'
-            '<img src="x"/></span><span class="koboSpan" id="kobo.2.2">with tail</span></p>'
+            '<p>An image<img src="x">with tail<img src="b"><i>without':
+            '<p><span class="koboSpan" id="kobo.1.1">An image</span><span class="koboSpan" id="kobo.2.1"><img src="x"/></span>'
+            '<span class="koboSpan" id="kobo.2.2">with tail</span>'
+            '<span class="koboSpan" id="kobo.3.1"><img src="b"/></span><i><span class="koboSpan" id="kobo.3.2">without</span></i></p>',
 
             # comments
+            '<p>A comment<!-- xx -->with tail'
+            '<p>A comment<!-- xx --><i>without tail':
+            '<p><span class="koboSpan" id="kobo.1.1">A comment</span><!-- xx --><span class="koboSpan" id="kobo.1.2">with tail</span></p>'
+            '<p><span class="koboSpan" id="kobo.2.1">A comment</span><!-- xx --><i><span class="koboSpan" id="kobo.2.2">without tail</span></i></p>',
 
             # nested block tags
+            '<div>A div<div> nested.<ul><li>A list<p> with nested block</p> tail1</li> tail2</ul> tail3':
+            '<div><span class="koboSpan" id="kobo.1.1">A div</span><div> <span class="koboSpan" id="kobo.1.2">nested.</span>'
+            '<ul><li><span class="koboSpan" id="kobo.2.1">A list</span><p> <span class="koboSpan" id="kobo.3.1">with nested block</span></p>'
+            ' <span class="koboSpan" id="kobo.3.2">tail1</span></li> <span class="koboSpan" id="kobo.3.3">tail2</span></ul>'
+            ' <span class="koboSpan" id="kobo.3.4">tail3</span></div></div>',
 
             # skipped tags
+            '<div>Script: <script>a = 1</script> with tail':
+            '<div><span class="koboSpan" id="kobo.1.1">Script: </span><script>a = 1</script> <span class="koboSpan" id="kobo.1.2">with tail</span></div>',
+            '<div>Svg: <svg>mouse</svg><i> no tail':
+            '<div><span class="koboSpan" id="kobo.1.1">Svg: </span><svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
+            '<i> <span class="koboSpan" id="kobo.1.2">no tail</span></i></div>',
         }.items():
             with self.subTest(src=src):
                 root = kepubify_html_data(src)
