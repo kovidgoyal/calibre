@@ -14,6 +14,8 @@
 
 import re
 
+from lxml import etree
+
 from calibre.ebooks.oeb.base import XHTML, XPath
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
@@ -30,6 +32,10 @@ SKIPPED_TAGS = frozenset((
 BLOCK_TAGS = frozenset((
     'p', 'ol', 'ul', 'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 ))
+
+
+def outer_html(node):
+    return etree.tostring(node, encoding='unicode', with_tail=False)
 
 
 def add_style(root, css='div#book-inner { margin-top: 0; margin-bottom: 0; }', cls=KOBO_STYLE_HACKS) -> bool:
@@ -98,7 +104,7 @@ def add_kobo_spans(inner, root_lang):
         segnum += 1
         return parent.makeelement(span_tag_name, attrib={'class': 'koboSpan', 'id': f'kobo.{paranum}.{segnum}'})
 
-    def wrap_text_in_spans(text: str, parent, at: int, lang: str) -> str | None:
+    def wrap_text_in_spans(text: str, parent: etree.ElementBase, after_child: etree.ElementBase, lang: str) -> str | None:
         nonlocal increment_next_para, paranum, segnum
         if increment_next_para:
             paranum += 1
@@ -108,6 +114,7 @@ def add_kobo_spans(inner, root_lang):
         ws = None
         if num := len(text) - len(stripped):
             ws = text[:num]
+        at = 0 if after_child is None else parent.index(after_child) + 1
         if at:
             parent[at-1].tail = ws
         else:
@@ -116,6 +123,7 @@ def add_kobo_spans(inner, root_lang):
             s = kobo_span(parent)
             s.text = stripped[pos:pos+sz]
             parent.insert(at, s)
+            at += 1
 
     while stack:
         node, parent, tagname, node_lang = p()
@@ -124,23 +132,23 @@ def add_kobo_spans(inner, root_lang):
             continue
         if not increment_next_para and tagname in BLOCK_TAGS:
             increment_next_para = True
-        if node.text:
-            wrap_text_in_spans(node.text, node, 0, node_lang)
-        for i, child in enumerate(reversed(node)):
-            i = len(node) - 1 - i
+        for child in reversed(node):
             if child.tail:
-                a((child.tail, node, i + 1, node_lang))
-            if isinstance(child.tag, 'str'):
+                a((child.tail, node, child, node_lang))
+            if isinstance(child.tag, str):
                 child_name = barename(child.tag).lower()
                 if child_name == 'img':
                     increment_next_para = False
                     paranum += 1
                     segnum = 0
+                    idx = node.index(child)
                     w = kobo_span(node)
                     w.append(child)
-                    node[i] = w
+                    node[idx] = w
                 elif child_name not in SKIPPED_TAGS:
                     a((child, None, child_name, lang_for_elem(child, node_lang)))
+        if node.text:
+            wrap_text_in_spans(node.text, node, None, node_lang)
 
 
 def add_kobo_markup_to_html(root, metadata_lang):
