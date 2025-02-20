@@ -27,6 +27,7 @@ from calibre.utils.localization import canonicalize_lang, get_lang
 KOBO_STYLE_HACKS = 'kobostylehacks'
 OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
+KOBO_SPAN_CLASS = 'koboSpan'
 SKIPPED_TAGS = frozenset((
     '', 'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
 ))
@@ -103,7 +104,7 @@ def add_kobo_spans(inner, root_lang):
     def kobo_span(parent):
         nonlocal paranum, segnum
         segnum += 1
-        return parent.makeelement(span_tag_name, attrib={'class': 'koboSpan', 'id': f'kobo.{paranum}.{segnum}'})
+        return parent.makeelement(span_tag_name, attrib={'class': KOBO_SPAN_CLASS, 'id': f'kobo.{paranum}.{segnum}'})
 
     def wrap_text_in_spans(text: str, parent: etree.Element, after_child: etree.ElementBase, lang: str) -> str | None:
         nonlocal increment_next_para, paranum, segnum
@@ -163,6 +164,29 @@ def add_kobo_spans(inner, root_lang):
             wrap_text_in_spans(node.text, node, None, node_lang)
 
 
+def unwrap(span: etree.Element) -> None:
+    p = span.getparent()
+    idx = p.index(span)
+    del p[idx]
+    if len(span):
+        p.insert(idx, span[0])
+    else:
+        text = span.text + (span.tail or '')
+        if idx > 0:
+            prev = p[idx-1]
+            prev.tail = (prev.tail or '') + text
+        else:
+            p.text = (p.text or '') + text
+
+
+def remove_kobo_spans(body: etree.Element) -> bool:
+    found = False
+    for span in XPath(f'//h:span[@class="{KOBO_SPAN_CLASS}" and starts-with(@id, "kobo.")]')(body):
+        unwrap(span)
+        found = True
+    return found
+
+
 def add_kobo_markup_to_html(root, metadata_lang):
     root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(metadata_lang or get_lang())) or 'en')
     add_style(root)
@@ -175,6 +199,7 @@ def remove_kobo_markup_from_html(root):
     remove_kobo_styles(root)
     for body in XPath('./h:body')(root):
         unwrap_body_contents(body)
+        remove_kobo_spans(body)
 
 
 def serialize_html(root) -> bytes:
