@@ -347,7 +347,7 @@ class Container(ContainerBase):  # {{{
             name = f'{base}-{c}.{ext}'
         return name
 
-    def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):
+    def add_file(self, name, data=b'', media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''

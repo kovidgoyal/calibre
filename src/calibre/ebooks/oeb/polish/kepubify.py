@@ -16,15 +16,17 @@ import re
 
 from lxml import etree
 
+from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.oeb.base import XHTML, XPath, escape_cdata
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
+from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
 from calibre.utils.localization import canonicalize_lang, get_lang
 
-KOBO_STYLE_HACKS = 'kobostylehacks'
+KOBO_CSS_CLASS = 'kobostylehacks'
 OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
 KOBO_SPAN_CLASS = 'koboSpan'
@@ -34,13 +36,14 @@ SKIPPED_TAGS = frozenset((
 BLOCK_TAGS = frozenset((
     'p', 'ol', 'ul', 'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 ))
+KOBO_CSS = 'div#book-inner { margin-top: 0; margin-bottom: 0; }'
 
 
 def outer_html(node):
     return etree.tostring(node, encoding='unicode', with_tail=False)
 
 
-def add_style(root, css='div#book-inner { margin-top: 0; margin-bottom: 0; }', cls=KOBO_STYLE_HACKS) -> bool:
+def add_style(root, css=KOBO_CSS, cls=KOBO_CSS_CLASS) -> bool:
 
     def add(parent):
         e = parent.makeelement(XHTML('style'), type='text/css')
@@ -58,7 +61,7 @@ def add_style(root, css='div#book-inner { margin-top: 0; margin-bottom: 0; }', c
 
 
 def remove_kobo_styles(root):
-    for x in XPath(f'//h:style[@type="text/css" and @class="{KOBO_STYLE_HACKS}"]')(root):
+    for x in XPath(f'//h:style[@type="text/css" and @class="{KOBO_CSS_CLASS}"]')(root):
         extract(x)
 
 
@@ -221,5 +224,71 @@ def kepubify_html_data(raw: str | bytes, metadata_lang: str = 'en'):
     return root
 
 
+def is_probably_a_title_page(root):
+    for title in XPath('//h:title')(root):
+        if title.text:
+            words = title.text.lower().split()
+            if 'cover' in words:
+                return True
+        title.text = None
+    text = etree.tostring(root, method='text', encoding='unicode')
+    textlen = len(re.sub(r'\s+', '', text))
+    num_images = len(XPath('//h:img')(root))
+    num_svgs = len(XPath('//h:svg')(root))
+    return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
+
+
+def add_dummy_title_page(container, cover_image_name):
+    html = f'''\
+<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>Dummy title page created by calibre</title>
+        <style type="text/css">
+            @page {{ padding: 0pt; margin:0pt }}
+            body {{ text-align: center; padding:0pt; margin: 0pt }}
+            div {{ padding:0pt; margin: 0pt }}
+            img {{ padding:0pt; margin: 0pt }}
+        </style>
+        <style type="text/css" class="{KOBO_CSS_CLASS}">
+        {KOBO_CSS}
+        </style>
+    </head>
+    <body><div id="{OUTER_DIV_ID}"><div id="{INNER_DIV_ID}">
+    __CONTENT__
+    </div></div></body></html>
+'''
+    titlepage_name = container.add_file('kobo-title-page-generated-by-calibre.html', modify_name_if_needed=True)
+    if cover_image_name:
+        cover_href = container.name_to_href(cover_image_name, titlepage_name)
+        html = html.replace('__CONTENT__', f'<img src="{cover_href}" alt="cover" style="height: 100%" />')
+    else:
+        mi = container.mi
+        aus = authors_to_string(mi.authors)
+        html = html.replace('__CONTENT__', f'''
+        <h1 style="text-align: center">{mi.title}</h1>
+        <h3 style="text-align: center">{aus}</h1>
+        ''')
+    with container.open(titlepage_name, 'w') as f:
+        f.write(html)
+
+
+def first_spine_item_is_probably_cover(container) -> bool:
+    for name, is_linear in container.spine_names:
+        fname = name.split('/')[-1]
+        if is_linear:
+            if 'cover' in name or 'title' in fname:
+                return True
+            root = container.parsed(name)
+            return is_probably_a_title_page(root)
+    return False
+
+
 def kepubify_container(container):
     lang = container.mi.language
+    cover_image_name = find_cover_image(container) or find_cover_image3(container)
+    if cover_image_name:
+        container.apply_unique_properties(cover_image_name, 'cover-image')
+    if not find_cover_page(container) and not first_spine_item_is_probably_cover(container):
+        add_dummy_title_page(container, cover_image_name)
