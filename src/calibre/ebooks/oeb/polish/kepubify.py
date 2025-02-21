@@ -16,7 +16,10 @@ import os
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from typing import NamedTuple
 
+from css_parser import parseString as parse_css_string
+from css_parser.css import CSSRule
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
@@ -45,15 +48,21 @@ BLOCK_TAGS = frozenset((
 KOBO_CSS = 'div#book-inner { margin-top: 0; margin-bottom: 0; }'
 
 
+class Options(NamedTuple):
+    extra_css: str = KOBO_CSS
+    remove_widows_and_orphans: bool = False
+    remove_at_page_rules: bool = False
+
+
 def outer_html(node):
     return etree.tostring(node, encoding='unicode', with_tail=False)
 
 
-def add_style(root, css=KOBO_CSS, cls=KOBO_CSS_CLASS) -> bool:
+def add_style(root, opts: Options, cls=KOBO_CSS_CLASS) -> bool:
 
     def add(parent):
         e = parent.makeelement(XHTML('style'), type='text/css')
-        e.text = css
+        e.text = opts.extra_css
         e.set('class', cls)
         insert_self_closing(parent, e)
 
@@ -196,9 +205,9 @@ def remove_kobo_spans(body: etree.Element) -> bool:
     return found
 
 
-def add_kobo_markup_to_html(root, metadata_lang):
+def add_kobo_markup_to_html(root, opts, metadata_lang):
     root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(metadata_lang or get_lang())) or 'en')
-    add_style(root)
+    add_style(root, opts)
     for body in XPath('./h:body')(root):
         inner = wrap_body_contents(body)
         add_kobo_spans(inner, lang_for_elem(body, root_lang))
@@ -218,22 +227,22 @@ def serialize_html(root) -> bytes:
     return b"<?xml version='1.0' encoding='utf-8'?>\n" + ans.encode('utf-8')
 
 
-def kepubify_parsed_html(root, metadata_lang: str = 'en'):
+def kepubify_parsed_html(root, opts: Options, metadata_lang: str = 'en'):
     remove_kobo_markup_from_html(root)
     merge_multiple_html_heads_and_bodies(root)
-    add_kobo_markup_to_html(root, metadata_lang)
+    add_kobo_markup_to_html(root, opts, metadata_lang)
 
 
-def kepubify_html_data(raw: str | bytes, metadata_lang: str = 'en'):
+def kepubify_html_data(raw: str | bytes, opts: Options = Options(), metadata_lang: str = 'en'):
     root = parse(raw)
-    kepubify_parsed_html(root, metadata_lang)
+    kepubify_parsed_html(root, opts, metadata_lang)
     return root
 
 
-def kepubify_html_path(path: str, metadata_lang: str = 'en'):
+def kepubify_html_path(path: str, metadata_lang: str = 'en', opts: Options = Options()):
     with open(path, 'r+b') as f:
         raw = f.read()
-        root = kepubify_html_data(raw)
+        root = kepubify_html_data(raw, opts, metadata_lang)
         raw = serialize_html(root)
         f.seek(0)
         f.truncate()
@@ -310,7 +319,7 @@ def first_spine_item_is_probably_title_page(container: Container) -> bool:
     return False
 
 
-def kepubify_container(container: Container, max_workers=0):
+def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
     metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
@@ -323,17 +332,17 @@ def kepubify_container(container: Container, max_workers=0):
     paths = tuple(map(container.name_to_abspath, names_that_need_work))
     if num_workers < 2:
         for path in paths:
-            kepubify_html_path(path, metadata_lang)
+            kepubify_html_path(path, metadata_lang, opts)
     else:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
-            futures = tuple(executor.submit(kepubify_html_path, path, metadata_lang) for path in paths)
+            futures = tuple(executor.submit(kepubify_html_path, path, metadata_lang, opts) for path in paths)
             for future in futures:
                 future.result()
 
 
-def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
+def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: Options = Options()):
     container = get_container(path, tweak_mode=True)
-    kepubify_container(container, max_workers=max_workers)
+    kepubify_container(container, opts, max_workers=max_workers)
     base, ext = os.path.splitext(path)
     outpath = outpath or base + '.kepub'
     c = 0
@@ -342,6 +351,70 @@ def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
         outpath = f'{base} - {c}.kepub'
     container.commit(output=outpath)
     return outpath
+
+
+def make_options(
+    extra_css: str = '',
+    affect_hyphenation: bool = False,
+    disable_hyphenation: bool = False,
+    hyphenation_min_chars: int = 6,
+    hyphenation_min_chars_before: int = 3,
+    hyphenation_min_chars_after: int = 3,
+    hyphenation_limit_lines: int = 2,
+) -> Options:
+    remove_widows_and_orphans = remove_at_page_rules = False
+    if extra_css:
+        sheet = parse_css_string(extra_css)
+        for rule in sheet.cssRules:
+            if rule.type == CSSRule.PAGE_RULE:
+                remove_at_page_rules = True
+            elif rule.type == CSSRule.STYLE_RULE:
+                if rule.style['widows'] or rule.style['orphans']:
+                    remove_widows_and_orphans = True
+            if remove_widows_and_orphans and remove_at_page_rules:
+                break
+    hyphen_css = ''
+    if affect_hyphenation:
+        if disable_hyphenation:
+            hyphen_css = '''
+* {
+  -webkit-hyphens: none !important;
+  hyphens: none !important;
+}
+'''
+        elif hyphenation_min_chars > 0:
+            hyphen_css = f'''
+* {{
+    /* Vendor-prefixed CSS properties for hyphenation. Keep -webkit first since
+     * some user agents also recognize -webkit properties and will apply them.
+     */
+    -webkit-hyphens: auto;
+    -webkit-hyphenate-limit-after: {hyphenation_min_chars_after};
+    -webkit-hyphenate-limit-before: {hyphenation_min_chars_before};
+    -webkit-hyphenate-limit-chars: {hyphenation_min_chars} {hyphenation_min_chars_before} {hyphenation_min_chars_after};
+    -webkit-hyphenate-limit-lines: {hyphenation_limit_lines};
+
+    /* CSS4 standard properties for hyphenation. If a property isn't represented
+     * in the standard, don't put a vendor-prefixed property for it above.
+     */
+    hyphens: auto;
+    hyphenate-limit-chars: {hyphenation_min_chars} {hyphenation_min_chars_before} {hyphenation_min_chars_after};
+    hyphenate-limit-lines: {hyphenation_limit_lines};
+    hyphenate-limit-last: page;
+}}
+
+h1, h2, h3, h4, h5, h6, td {{
+    -webkit-hyphens: none !important;
+    hyphens: none !important;
+}}
+'''
+    if extra_css:
+        extra_css = KOBO_CSS + '\n\n' + extra_css
+    else:
+        extra_css = KOBO_CSS
+    if hyphen_css:
+        extra_css += '\n\n' + hyphen_css
+    return Options(extra_css=extra_css, remove_widows_and_orphans=remove_widows_and_orphans, remove_at_page_rules=remove_at_page_rules)
 
 
 def profile():
