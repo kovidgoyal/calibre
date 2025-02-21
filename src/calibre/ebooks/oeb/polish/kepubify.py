@@ -12,24 +12,30 @@
 #     * Cover marking in the OPF
 #     * Markup cleanup (remove various things that trip up the Kobo renderer)
 
+import os
 import re
+import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.oeb.base import XHTML, XPath, escape_cdata
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath, escape_cdata
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
+from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
+from calibre.srv.render_book import Profiler, calculate_number_of_workers
 from calibre.utils.localization import canonicalize_lang, get_lang
 
 KOBO_CSS_CLASS = 'kobostylehacks'
 OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
 KOBO_SPAN_CLASS = 'koboSpan'
+DUMMY_TITLE_PAGE_NAME = 'kobo-title-page-generated-by-calibre'
 SKIPPED_TAGS = frozenset((
     '', 'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
 ))
@@ -224,6 +230,16 @@ def kepubify_html_data(raw: str | bytes, metadata_lang: str = 'en'):
     return root
 
 
+def kepubify_html_path(path: str, metadata_lang: str = 'en'):
+    with open(path, 'r+b') as f:
+        raw = f.read()
+        root = kepubify_html_data(raw)
+        raw = serialize_html(root)
+        f.seek(0)
+        f.truncate()
+        f.write(raw)
+
+
 def is_probably_a_title_page(root):
     for title in XPath('//h:title')(root):
         if title.text:
@@ -259,7 +275,7 @@ def add_dummy_title_page(container, cover_image_name):
     __CONTENT__
     </div></div></body></html>
 '''
-    titlepage_name = container.add_file('kobo-title-page-generated-by-calibre.html', modify_name_if_needed=True)
+    titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.html', modify_name_if_needed=True)
     if cover_image_name:
         cover_href = container.name_to_href(cover_image_name, titlepage_name)
         html = html.replace('__CONTENT__', f'<img src="{cover_href}" alt="cover" style="height: 100%" />')
@@ -272,6 +288,15 @@ def add_dummy_title_page(container, cover_image_name):
         ''')
     with container.open(titlepage_name, 'w') as f:
         f.write(html)
+    container.apply_unique_properties(titlepage_name, 'calibre:title-page')
+
+
+def remove_dummy_title_page(container):
+    for name, is_linear in container.spine_names():
+        if is_linear:
+            if DUMMY_TITLE_PAGE_NAME in name:
+                container.remove_item(name)
+            break
 
 
 def first_spine_item_is_probably_cover(container) -> bool:
@@ -285,10 +310,55 @@ def first_spine_item_is_probably_cover(container) -> bool:
     return False
 
 
-def kepubify_container(container):
-    lang = container.mi.language
+def kepubify_container(container, max_workers=0):
+    remove_dummy_title_page(container)
+    metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
     if cover_image_name:
         container.apply_unique_properties(cover_image_name, 'cover-image')
     if not find_cover_page(container) and not first_spine_item_is_probably_cover(container):
         add_dummy_title_page(container, cover_image_name)
+    names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
+    num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
+    paths = tuple(map(container.name_to_abspath, names_that_need_work))
+    if num_workers < 2:
+        for path in paths:
+            kepubify_html_path(path, metadata_lang)
+    else:
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = tuple(executor.submit(kepubify_html_path, path, metadata_lang) for path in paths)
+            for future in futures:
+                future.result()
+
+
+def profile():
+    from calibre.ptempfile import TemporaryDirectory
+    path = sys.argv[-1]
+    with TemporaryDirectory() as tdir, Profiler():
+        main(path, max_workers=1)
+
+
+def develop():
+    from zipfile import ZipFile
+
+    from calibre.ptempfile import TemporaryDirectory
+    path = sys.argv[-1]
+    with TemporaryDirectory() as tdir:
+        outpath = main(path, max_workers=1)
+        with ZipFile(outpath) as zf:
+            zf.extractall(tdir)
+        print('Extracted to:', tdir)
+        input('Press Enter to quit')
+
+
+def main(path, max_workers=0):
+    container = get_container(path, tweak_mode=True)
+    kepubify_container(container, max_workers=max_workers)
+    base, ext = os.path.splitext(path)
+    outpath = base + '.kepub'
+    container.commit(output=outpath)
+    return outpath
+
+
+if __name__ == '__main__':
+    main(sys.argv[-1])
