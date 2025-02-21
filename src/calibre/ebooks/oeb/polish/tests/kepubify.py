@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from calibre.ebooks.oeb.polish.kepubify import kepubify_html_data, remove_kobo_markup_from_html, serialize_html
+from calibre.ebooks.oeb.polish.kepubify import Options, kepubify_html_data, remove_kobo_markup_from_html, serialize_html
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
@@ -56,11 +56,20 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<p><span class="koboSpan" id="kobo.1.1">A&#160;nbsp;&#160;</span></p>',
             '<div><script>1 < 2 & 3</script>':  # escaping with cdata note that kepubify doesnt do this
             '<div><script><![CDATA[1 < 2 & 3]]></script></div>',
+
+            # CSS filtering
+            '<div><style>@page { margin: 13px; }\ndiv { color: red; widows: 12 }</style>Something something</div>':
+            '<div><style>div {\n  color: red;\n}</style><span class="koboSpan" id="kobo.1.1">Something something</span></div>'
         }.items():
-            root = kepubify_html_data(src)
+            opts = Options()
+            opts = opts._replace(remove_widows_and_orphans=True)
+            opts = opts._replace(remove_at_page_rules=True)
+            root = kepubify_html_data(src, opts)
             actual = serialize_html(root).decode('utf-8')
             actual = actual[len(prefix):-len(suffix)]
             self.assertEqual(expected, actual)
+            if '@page' in src:
+                continue
             expected = serialize_html(parse(src)).decode('utf-8')
             remove_kobo_markup_from_html(root)
             actual = serialize_html(root).decode('utf-8')

@@ -23,7 +23,7 @@ from css_parser.css import CSSRule
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath, escape_cdata
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, escape_cdata
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
 from calibre.ebooks.oeb.polish.container import Container, get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
@@ -52,6 +52,10 @@ class Options(NamedTuple):
     extra_css: str = KOBO_CSS
     remove_widows_and_orphans: bool = False
     remove_at_page_rules: bool = False
+
+    @property
+    def needs_stylesheet_processing(self) -> bool:
+        return self.remove_at_page_rules or self.remove_widows_and_orphans
 
 
 def outer_html(node):
@@ -227,9 +231,36 @@ def serialize_html(root) -> bytes:
     return b"<?xml version='1.0' encoding='utf-8'?>\n" + ans.encode('utf-8')
 
 
+def process_stylesheet(css: str, opts: Options) -> str:
+    sheet = parse_css_string(css)
+    removals = []
+    changed = False
+    for i, rule in enumerate(sheet.cssRules):
+        if rule.type == CSSRule.PAGE_RULE:
+            if opts.remove_at_page_rules:
+                removals.append(i)
+        elif rule.type == CSSRule.STYLE_RULE:
+            if opts.remove_widows_and_orphans:
+                s = rule.style
+                if s.removeProperty('widows'):
+                    changed = True
+                if s.removeProperty('orphans'):
+                    changed = True
+    for i in reversed(removals):
+        sheet.cssRules.pop(i)
+        changed = True
+    if changed:
+        css = sheet.cssText
+    return css
+
+
 def kepubify_parsed_html(root, opts: Options, metadata_lang: str = 'en'):
     remove_kobo_markup_from_html(root)
     merge_multiple_html_heads_and_bodies(root)
+    if opts.needs_stylesheet_processing:
+        for style in XPath('//h:style')(root):
+            if (style.get('type') or 'text/css') == 'text/css' and style.text:
+                style.text = process_stylesheet(style.text, opts)
     add_kobo_markup_to_html(root, opts, metadata_lang)
 
 
@@ -319,6 +350,24 @@ def first_spine_item_is_probably_title_page(container: Container) -> bool:
     return False
 
 
+def process_stylesheet_path(path: str, opts: Options) -> None:
+    if opts.needs_stylesheet_processing:
+        with open(path, 'r+b') as f:
+            css = f.read().decode()
+            ncss = process_stylesheet(css, opts)
+            if ncss is not css:
+                f.seek(0)
+                f.truncate()
+                f.write(ncss)
+
+
+def process_path(path: str, metadata_lang: str, opts: Options, media_type: str) -> None:
+    if media_type in OEB_DOCS:
+        kepubify_html_path(path, metadata_lang, opts)
+    elif media_type in OEB_STYLES:
+        process_stylesheet_path(path, opts)
+
+
 def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
     metadata_lang = container.mi.language
@@ -327,15 +376,17 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
         container.apply_unique_properties(cover_image_name, 'cover-image')
     if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
         add_dummy_title_page(container, cover_image_name)
-    names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
+    names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS or mt in OEB_STYLES)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     paths = tuple(map(container.name_to_abspath, names_that_need_work))
     if num_workers < 2:
-        for path in paths:
-            kepubify_html_path(path, metadata_lang, opts)
+        for name in names_that_need_work:
+            process_path(container.name_to_abspath(name), metadata_lang, opts, container.mime_map[name])
     else:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
-            futures = tuple(executor.submit(kepubify_html_path, path, metadata_lang, opts) for path in paths)
+            futures = tuple(executor.submit(
+                process_path, container.name_to_abspath(name), metadata_lang, opts, container.mime_map[name])
+                            for name in names_that_need_work)
             for future in futures:
                 future.result()
 
