@@ -290,7 +290,7 @@ def serialize_cover_data(new_cdata, cpath):
     return save_cover_data_to(new_cdata, data_fmt=os.path.splitext(cpath)[1][1:])
 
 
-def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
+def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub'):
     stream.seek(0)
     reader = get_zip_reader(stream, root=os.getcwd())
     new_cdata = None
@@ -308,7 +308,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
     opfbytes, ver, raster_cover = set_metadata_opf(
         reader.read_bytes(reader.opf_path), mi, cover_prefix=posixpath.dirname(reader.opf_path),
         cover_data=new_cdata, apply_null=apply_null, update_timestamp=update_timestamp,
-        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover)
+        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover, ftype=ftype)
     cpath = None
     replacements = {}
     if new_cdata and raster_cover:

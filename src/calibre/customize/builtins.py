@@ -440,13 +440,14 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and
 class EPUBMetadataWriter(MetadataWriterPlugin):
 
     name = 'Set EPUB metadata'
-    file_types = {'epub'}
-    description = _('Set metadata in %s files')%'EPUB'
+    file_types = {'epub', 'kepub'}
+    description = _('Set metadata in EPUB and KEPUB files')
 
-    def set_metadata(self, stream, mi, type):
+    def set_metadata(self, stream, mi, ftype):
         from calibre.ebooks.metadata.epub import set_metadata
         q = self.site_customization or ''
-        set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers, add_missing_cover='disable-add-missing-cover' != q)
+        set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers, ftype=ftype,
+                     add_missing_cover='disable-add-missing-cover' != q or ftype == 'kepub')
 
     def customization_help(self, gui=False):
         h = 'disable-add-missing-cover'
