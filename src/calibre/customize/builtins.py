@@ -167,14 +167,14 @@ class CHMMetadataReader(MetadataReaderPlugin):
 class EPUBMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read EPUB metadata'
-    file_types  = {'epub'}
-    description = _('Read metadata from %s files')%'EPUB'
+    file_types  = {'epub', 'kepub'}
+    description = _('Read metadata from EPUB and KEPUB files')
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.epub import get_metadata, get_quick_metadata
         if self.quick:
-            return get_quick_metadata(stream)
-        return get_metadata(stream)
+            return get_quick_metadata(stream, ftype=ftype)
+        return get_metadata(stream, ftype=ftype)
 
 
 class FB2MetadataReader(MetadataReaderPlugin):

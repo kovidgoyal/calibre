@@ -20,26 +20,30 @@ class DummyFile:
         return self.raw
 
 
-def get_metadata2(root, ver):
+def get_metadata2(root, ver, ftype='epub'):
     opf = OPF(None, preparsed_opf=root, read_toc=False)
-    return opf.to_book_metadata(), ver, opf.raster_cover, opf.first_spine_item()
+    if ftype == 'kepub':
+        raster_cover = opf.epub3_raster_cover or opf.raster_cover
+    else:
+        raster_cover = opf.raster_cover
+    return opf.to_book_metadata(), ver, raster_cover, opf.first_spine_item()
 
 
-def get_metadata3(root, ver):
+def get_metadata3(root, ver, ftype='epub'):
     return read_metadata(root, ver=ver, return_extra_data=True)
 
 
-def get_metadata_from_parsed(root):
+def get_metadata_from_parsed(root, ftype='epub'):
     ver = parse_opf_version(root.get('version'))
     f = get_metadata2 if ver.major < 3 else get_metadata3
-    return f(root, ver)
+    return f(root, ver, ftype)
 
 
-def get_metadata(stream):
+def get_metadata(stream, ftype='epub'):
     if isinstance(stream, bytes):
         stream = DummyFile(stream)
     root = parse_opf(stream)
-    return get_metadata_from_parsed(root)
+    return get_metadata_from_parsed(root, ftype)
 
 
 def set_metadata_opf2(root, cover_prefix, mi, opf_version,

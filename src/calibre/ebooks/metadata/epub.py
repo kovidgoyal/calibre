@@ -258,12 +258,12 @@ def get_cover(raster_cover, first_spine_item, reader):
         return render_cover(first_spine_item, zf, reader=reader)
 
 
-def get_metadata(stream, extract_cover=True):
+def get_metadata(stream, extract_cover=True, ftype='epub'):
     ''' Return metadata as a :class:`Metadata` object '''
     stream.seek(0)
     reader = get_zip_reader(stream)
     opfbytes = reader.read_bytes(reader.opf_path)
-    mi, ver, raster_cover, first_spine_item = get_metadata_from_opf(opfbytes)
+    mi, ver, raster_cover, first_spine_item = get_metadata_from_opf(opfbytes, ftype)
     if extract_cover:
         base = posixpath.dirname(reader.opf_path)
         if raster_cover:
@@ -281,7 +281,7 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 
-def get_quick_metadata(stream):
+def get_quick_metadata(stream, ftype='epub'):
     return get_metadata(stream, False)
 
 
