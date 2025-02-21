@@ -1577,7 +1577,7 @@ class AZW3Container(Container):
 # }}}
 
 
-def get_container(path, log=None, tdir=None, tweak_mode=False):
+def get_container(path, log=None, tdir=None, tweak_mode=False) -> Container:
     if log is None:
         log = default_log
     try:

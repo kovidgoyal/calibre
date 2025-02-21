@@ -22,7 +22,7 @@ from lxml import etree
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath, escape_cdata
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
-from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.container import Container, get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
@@ -254,7 +254,7 @@ def is_probably_a_title_page(root):
     return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
 
 
-def add_dummy_title_page(container, cover_image_name):
+def add_dummy_title_page(container: Container, cover_image_name: str) -> None:
     html = f'''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -291,7 +291,7 @@ def add_dummy_title_page(container, cover_image_name):
     container.apply_unique_properties(titlepage_name, 'calibre:title-page')
 
 
-def remove_dummy_title_page(container):
+def remove_dummy_title_page(container: Container) -> None:
     for name, is_linear in container.spine_names():
         if is_linear:
             if DUMMY_TITLE_PAGE_NAME in name:
@@ -299,7 +299,7 @@ def remove_dummy_title_page(container):
             break
 
 
-def first_spine_item_is_probably_cover(container) -> bool:
+def first_spine_item_is_probably_title_page(container: Container) -> bool:
     for name, is_linear in container.spine_names:
         fname = name.split('/')[-1]
         if is_linear:
@@ -310,13 +310,13 @@ def first_spine_item_is_probably_cover(container) -> bool:
     return False
 
 
-def kepubify_container(container, max_workers=0):
+def kepubify_container(container: Container, max_workers=0):
     remove_dummy_title_page(container)
     metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
     if cover_image_name:
         container.apply_unique_properties(cover_image_name, 'cover-image')
-    if not find_cover_page(container) and not first_spine_item_is_probably_cover(container):
+    if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
         add_dummy_title_page(container, cover_image_name)
     names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
@@ -331,11 +331,24 @@ def kepubify_container(container, max_workers=0):
                 future.result()
 
 
+def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
+    container = get_container(path, tweak_mode=True)
+    kepubify_container(container, max_workers=max_workers)
+    base, ext = os.path.splitext(path)
+    outpath = outpath or base + '.kepub'
+    c = 0
+    while not allow_overwrite and outpath == path:
+        c += 1
+        outpath = f'{base} - {c}.kepub'
+    container.commit(output=outpath)
+    return outpath
+
+
 def profile():
     from calibre.ptempfile import TemporaryDirectory
     path = sys.argv[-1]
     with TemporaryDirectory() as tdir, Profiler():
-        main(path, max_workers=1)
+        kepubify_path(path, max_workers=1)
 
 
 def develop():
@@ -344,21 +357,18 @@ def develop():
     from calibre.ptempfile import TemporaryDirectory
     path = sys.argv[-1]
     with TemporaryDirectory() as tdir:
-        outpath = main(path, max_workers=1)
+        outpath = kepubify_path(path, max_workers=1)
         with ZipFile(outpath) as zf:
             zf.extractall(tdir)
         print('Extracted to:', tdir)
         input('Press Enter to quit')
 
 
-def main(path, max_workers=0):
-    container = get_container(path, tweak_mode=True)
-    kepubify_container(container, max_workers=max_workers)
-    base, ext = os.path.splitext(path)
-    outpath = base + '.kepub'
-    container.commit(output=outpath)
-    return outpath
+def main(args):
+    for path in args[1:]:
+        outpath = kepubify_path(path)
+        print(f'{path} converted and saved as: {outpath}')
 
 
 if __name__ == '__main__':
-    main(sys.argv[-1])
+    main(sys.argv)
