@@ -315,7 +315,7 @@ def add_dummy_title_page(container: Container, cover_image_name: str) -> None:
     __CONTENT__
     </div></div></body></html>
 '''
-    titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.html', modify_name_if_needed=True)
+    titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.xhtml', modify_name_if_needed=True, spine_index=0)
     if cover_image_name:
         cover_href = container.name_to_href(cover_image_name, titlepage_name)
         html = html.replace('__CONTENT__', f'<img src="{cover_href}" alt="cover" style="height: 100%" />')
@@ -329,10 +329,11 @@ def add_dummy_title_page(container: Container, cover_image_name: str) -> None:
     with container.open(titlepage_name, 'w') as f:
         f.write(html)
     container.apply_unique_properties(titlepage_name, 'calibre:title-page')
+    return titlepage_name
 
 
 def remove_dummy_title_page(container: Container) -> None:
-    for name, is_linear in container.spine_names():
+    for name, is_linear in container.spine_names:
         if is_linear:
             if DUMMY_TITLE_PAGE_NAME in name:
                 container.remove_item(name)
@@ -400,7 +401,7 @@ def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: 
     while not allow_overwrite and outpath == path:
         c += 1
         outpath = f'{base} - {c}.kepub'
-    container.commit(output=outpath)
+    container.commit(outpath=outpath)
     return outpath
 
 

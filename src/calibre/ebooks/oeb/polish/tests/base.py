@@ -58,24 +58,29 @@ def add_resources(raw, rmap):
     return raw
 
 
+def setup_simple_book(src):
+    with open(src, 'rb') as sf:
+        raw = sf.read().decode('utf-8')
+    raw = add_resources(raw, {
+        'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
+        'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
+        'IMAGE1': I('marked.png'),
+        'IMAGE2': I('textures/light_wood.png'),
+    })
+    shutil.copy2(I('lt.png'), '.')
+    x = 'index.html'
+    with open(x, 'wb') as f:
+        f.write(raw.encode('utf-8'))
+    return x
+
+
 def get_simple_book(fmt='epub'):
     cache = get_cache()
     ans = os.path.join(cache, 'simple.'+fmt)
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
     if needs_recompile(ans, src):
         with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
-            with open(src, 'rb') as sf:
-                raw = sf.read().decode('utf-8')
-            raw = add_resources(raw, {
-                'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
-                'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
-                'IMAGE1': I('marked.png'),
-                'IMAGE2': I('textures/light_wood.png'),
-            })
-            shutil.copy2(I('lt.png'), '.')
-            x = 'index.html'
-            with open(x, 'wb') as f:
-                f.write(raw.encode('utf-8'))
+            x = setup_simple_book(src)
             build_book(x, ans, args=[
                 '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
@@ -96,6 +101,29 @@ def get_split_book(fmt='epub'):
                                         '--cover=' + I('lt.png')])
         finally:
             os.remove(x)
+    return ans
+
+
+def get_book_for_kepubify(has_cover=True, epub_version='3'):
+    cache = get_cache()
+    ans = os.path.join(cache, f'kepubify-{has_cover}-{epub_version}.epub')
+    src = os.path.join(os.path.dirname(__file__), 'simple.html')
+    if needs_recompile(ans, src):
+        with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
+            index_html = setup_simple_book(src)
+            args = ['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', f'--epub-version={epub_version}']
+            if has_cover:
+                args.append('--cover=lt.png')
+            else:
+                args.append('--no-default-epub-cover')
+            build_book(index_html, ans, args=args)
+    c = pc.get_container(ans)
+    with c.open('page_styles.css', 'r+') as f:
+        css = f.read()
+        css += '\n\ndiv { widows: 13; orphans: 12; color: red; }'
+        f.seek(0), f.truncate(), f.write(css)
+    c.commit()
+
     return ans
 
 

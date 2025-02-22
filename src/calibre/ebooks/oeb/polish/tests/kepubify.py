@@ -2,12 +2,32 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from calibre.ebooks.oeb.polish.kepubify import Options, kepubify_html_data, remove_kobo_markup_from_html, serialize_html
+from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.kepubify import DUMMY_TITLE_PAGE_NAME, Options, kepubify_html_data, kepubify_path, remove_kobo_markup_from_html, serialize_html
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.polish.tests.base import BaseTest
+from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_book_for_kepubify
 
 
 class KepubifyTests(BaseTest):
+
+    def test_kepubify_container(self):
+        def b(has_cover=True, epub_version='3'):
+            path = get_book_for_kepubify(has_cover=has_cover, epub_version=epub_version)
+            opts = Options()
+            opts = opts._replace(remove_widows_and_orphans=True)
+            opts = opts._replace(remove_at_page_rules=True)
+            outpath = kepubify_path(path, opts=opts, allow_overwrite=True)
+            c = get_container(outpath, tweak_mode=True)
+            spine_names = tuple(n for n, is_linear in c.spine_names)
+            cname = 'titlepage.xhtml' if has_cover else f'{DUMMY_TITLE_PAGE_NAME}.xhtml'
+            self.assertEqual(spine_names, (cname, 'index_split_000.html', 'index_split_001.html'))
+            ps = c.open('page_styles.css', 'r').read()
+            for q in ('@page', 'widows', 'orphans'):
+                self.assertNotIn(q, ps)
+            cimage = ('cover.png',) if has_cover else ()
+            self.assertEqual(cimage, tuple(c.manifest_items_with_property('cover-image')))
+        b()
+        b(has_cover=False)
 
     def test_kepubify_html(self):
         prefix = '''<?xml version='1.0' encoding='utf-8'?>
