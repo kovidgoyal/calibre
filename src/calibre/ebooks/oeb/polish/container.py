@@ -1577,7 +1577,7 @@ class AZW3Container(Container):
 # }}}
 
 
-def get_container(path, log=None, tdir=None, tweak_mode=False) -> Container:
+def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -> Container:
     if log is None:
         log = default_log
     try:
@@ -1585,8 +1585,9 @@ def get_container(path, log=None, tdir=None, tweak_mode=False) -> Container:
     except Exception:
         isdir = False
     own_tdir = not tdir
-    ebook_cls = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
-            else EpubContainer)
+    if ebook_cls is None:
+        ebook_cls = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
+                else EpubContainer)
     if own_tdir:
         tdir = PersistentTemporaryDirectory(f'_{ebook_cls.book_type}_container')
     try:

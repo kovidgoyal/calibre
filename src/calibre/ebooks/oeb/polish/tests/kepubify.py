@@ -2,15 +2,18 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.kepubify import (
+    CSS_COMMENT_COOKIE,
     DUMMY_COVER_IMAGE_NAME,
     DUMMY_TITLE_PAGE_NAME,
     Options,
     kepubify_html_data,
+    kepubify_parsed_html,
     kepubify_path,
-    remove_kobo_markup_from_html,
     serialize_html,
+    unkepubify_path,
 )
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_book_for_kepubify
@@ -18,22 +21,31 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_book_for_kepubify
 
 class KepubifyTests(BaseTest):
 
-    def test_kepubify_container(self):
+    def test_kepubify(self):
         def b(has_cover=True, epub_version='3'):
             path = get_book_for_kepubify(has_cover=has_cover, epub_version=epub_version)
-            opts = Options()
-            opts = opts._replace(remove_widows_and_orphans=True)
-            opts = opts._replace(remove_at_page_rules=True)
+            opts = Options()._replace(remove_widows_and_orphans=True, remove_at_page_rules=True)
             outpath = kepubify_path(path, opts=opts, allow_overwrite=True)
             c = get_container(outpath, tweak_mode=True)
             spine_names = tuple(n for n, is_linear in c.spine_names)
             cname = 'titlepage.xhtml' if has_cover else f'{DUMMY_TITLE_PAGE_NAME}.xhtml'
             self.assertEqual(spine_names, (cname, 'index_split_000.html', 'index_split_001.html'))
             ps = c.open('page_styles.css', 'r').read()
-            for q in ('@page', 'widows', 'orphans'):
-                self.assertNotIn(q, ps)
+            for q in (f'{CSS_COMMENT_COOKIE}: @page', f'-{CSS_COMMENT_COOKIE}-widows', f'-{CSS_COMMENT_COOKIE}-orphans'):
+                self.assertIn(q, ps)
             cimage = ('cover.png',) if has_cover else (f'{DUMMY_COVER_IMAGE_NAME}.jpeg',)
             self.assertEqual(cimage, tuple(c.manifest_items_with_property('cover-image')))
+            # unkepubify
+            outpath = unkepubify_path(outpath)
+            expected = get_container(path, tweak_mode=True)
+            actual = get_container(outpath, tweak_mode=True)
+            self.assertEqual(
+                tuple(expected.manifest_items_with_property('cover-image')), tuple(actual.manifest_items_with_property('cover-image')))
+            self.assertEqual(tuple(expected.mime_map), tuple(actual.mime_map))
+            for name, mt in expected.mime_map.items():
+                if mt in OEB_DOCS or mt in OEB_STYLES or name.endswith('.opf'):
+                    self.assertEqual(expected.open(name, 'rb').read(), actual.open(name, 'rb').read())
+
         for has_cover in (True, False):
             for epub_version in '23':
                 b(has_cover, epub_version)
@@ -87,19 +99,18 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<div><script><![CDATA[1 < 2 & 3]]></script></div>',
 
             # CSS filtering
-            '<div><style>@page { margin: 13px; }\ndiv { color: red; widows: 12 }</style>Something something</div>':
-            '<div><style>div {\n  color: red;\n}</style><span class="koboSpan" id="kobo.1.1">Something something</span></div>'
+            '<div><style>@page {\n  margin: 13px;\n}\ndiv {\n  widows: 12;\n  color: red;\n}</style>Some</div>':
+            f'<div><style>/* {CSS_COMMENT_COOKIE}: @page {{\n  margin: 13px;\n}} */\n'
+            f'div {{\n  -{CSS_COMMENT_COOKIE}-widows: 12;\n  color: red;\n}}</style>'
+            '<span class="koboSpan" id="kobo.1.1">Some</span></div>'
         }.items():
-            opts = Options()
-            opts = opts._replace(remove_widows_and_orphans=True)
-            opts = opts._replace(remove_at_page_rules=True)
+            opts = Options()._replace(remove_widows_and_orphans=True, remove_at_page_rules=True)
             root = kepubify_html_data(src, opts)
             actual = serialize_html(root).decode('utf-8')
             actual = actual[len(prefix):-len(suffix)]
             self.assertEqual(expected, actual)
-            if '@page' in src:
-                continue
             expected = serialize_html(parse(src)).decode('utf-8')
-            remove_kobo_markup_from_html(root)
+            opts = opts._replace(for_removal=True)
+            kepubify_parsed_html(root, opts)
             actual = serialize_html(root).decode('utf-8')
             self.assertEqual(expected, actual)

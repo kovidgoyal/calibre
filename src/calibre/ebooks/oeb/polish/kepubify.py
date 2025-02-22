@@ -16,16 +16,17 @@ import os
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from typing import NamedTuple
 
-from css_parser import parseString as parse_css_string
-from css_parser.css import CSSRule
+from css_parser import CSSParser
+from css_parser.css import CSSComment, CSSPageRule, CSSRule
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, escape_cdata
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
-from calibre.ebooks.oeb.polish.container import Container, get_container
+from calibre.ebooks.oeb.polish.container import Container, EpubContainer, get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
@@ -40,6 +41,7 @@ INNER_DIV_ID = 'book-inner'
 KOBO_SPAN_CLASS = 'koboSpan'
 DUMMY_TITLE_PAGE_NAME = 'kobo-title-page-generated-by-calibre'
 DUMMY_COVER_IMAGE_NAME = 'kobo-cover-image-generated-by-calibre'
+CSS_COMMENT_COOKIE = 'calibre-removed-css-for-kobo'
 SKIPPED_TAGS = frozenset((
     '', 'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
 ))
@@ -49,14 +51,21 @@ BLOCK_TAGS = frozenset((
 KOBO_CSS = 'div#book-inner { margin-top: 0; margin-bottom: 0; }'
 
 
+@lru_cache(2)
+def css_parser() -> CSSParser:
+    return CSSParser(validate=False)
+
+
 class Options(NamedTuple):
     extra_css: str = KOBO_CSS
     remove_widows_and_orphans: bool = False
     remove_at_page_rules: bool = False
 
+    for_removal: bool = False
+
     @property
     def needs_stylesheet_processing(self) -> bool:
-        return self.remove_at_page_rules or self.remove_widows_and_orphans
+        return self.remove_at_page_rules or self.remove_widows_and_orphans or self.for_removal
 
 
 def outer_html(node):
@@ -232,37 +241,68 @@ def serialize_html(root) -> bytes:
     return b"<?xml version='1.0' encoding='utf-8'?>\n" + ans.encode('utf-8')
 
 
+def nest_css_comments(text: str) -> str:
+    return text.replace('*/', '*\u200c/')
+
+
 def process_stylesheet(css: str, opts: Options) -> str:
-    sheet = parse_css_string(css)
-    removals = []
+    has_comment_cookie = CSS_COMMENT_COOKIE in css
+    if opts.for_removal and not has_comment_cookie:
+        return css  # avoid expensive parse
+    sheet = css_parser().parseString(css)
     changed = False
+    page_rules = []
+    if has_comment_cookie:
+        for i, rule in enumerate(sheet.cssRules):
+            if rule.type == CSSRule.STYLE_RULE:
+                s = rule.style
+                for q in ('widows', 'orphans'):
+                    if (prop := s.getProperty(f'-{CSS_COMMENT_COOKIE}-{q}')) is not None:
+                        prop.name = q
+                        changed = True
+            elif rule.type == CSSRule.COMMENT:
+                if rule.cssText.startswith(f'/* {CSS_COMMENT_COOKIE}: '):
+                    page_rules.append((i, rule))
+                    changed = True
+    for i, cr in page_rules:
+        pr = CSSPageRule()
+        pr.cssText = cr.cssText[len(f'/* {CSS_COMMENT_COOKIE}: '):-3]
+        sheet.deleteRule(i)
+        sheet.insertRule(pr, i)
+
+    if opts.for_removal:
+        return sheet.cssText if changed else css
+
     for i, rule in enumerate(sheet.cssRules):
-        if rule.type == CSSRule.PAGE_RULE:
-            if opts.remove_at_page_rules:
-                removals.append(i)
-        elif rule.type == CSSRule.STYLE_RULE:
+        if rule.type == CSSRule.STYLE_RULE:
             if opts.remove_widows_and_orphans:
                 s = rule.style
-                if s.removeProperty('widows'):
-                    changed = True
-                if s.removeProperty('orphans'):
-                    changed = True
-    for i in reversed(removals):
-        sheet.cssRules.pop(i)
-        changed = True
-    if changed:
-        css = sheet.cssText
-    return css
+                for q in ('widows', 'orphans'):
+                    if (prop := s.getProperty(q)) is not None:
+                        changed = True
+                        prop.name = f'-{CSS_COMMENT_COOKIE}-{q}'
+        elif rule.type == CSSRule.PAGE_RULE:
+            if opts.remove_at_page_rules:
+                changed = True
+                page_rules.append((i, rule))
+
+    for i, pr in page_rules:
+        comment = CSSComment(f'/* {CSS_COMMENT_COOKIE}: {nest_css_comments(pr.cssText)} */')
+        sheet.deleteRule(i)
+        sheet.insertRule(comment, i)
+    return sheet.cssText if changed else css
 
 
 def kepubify_parsed_html(root, opts: Options, metadata_lang: str = 'en'):
     remove_kobo_markup_from_html(root)
-    merge_multiple_html_heads_and_bodies(root)
+    if not opts.for_removal:
+        merge_multiple_html_heads_and_bodies(root)
     if opts.needs_stylesheet_processing:
         for style in XPath('//h:style')(root):
             if (style.get('type') or 'text/css') == 'text/css' and style.text:
                 style.text = process_stylesheet(style.text, opts)
-    add_kobo_markup_to_html(root, opts, metadata_lang)
+    if not opts.for_removal:
+        add_kobo_markup_to_html(root, opts, metadata_lang)
 
 
 def kepubify_html_data(raw: str | bytes, opts: Options = Options(), metadata_lang: str = 'en'):
@@ -375,19 +415,7 @@ def process_path(path: str, metadata_lang: str, opts: Options, media_type: str) 
         process_stylesheet_path(path, opts)
 
 
-def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
-    remove_dummy_title_page(container)
-    remove_dummy_cover_image(container)
-    metadata_lang = container.mi.language
-    cover_image_name = find_cover_image(container) or find_cover_image3(container)
-    mi = container.mi
-    if not cover_image_name:
-        from calibre.ebooks.covers import generate_cover
-        cdata = generate_cover(mi)
-        cover_image_name = container.add_file(f'{DUMMY_COVER_IMAGE_NAME}.jpeg', cdata, modify_name_if_needed=True)
-    container.apply_unique_properties(cover_image_name, 'cover-image')
-    if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
-        add_dummy_title_page(container, cover_image_name, mi)
+def do_work_in_parallel(container: Container, opts: Options, metadata_lang: str, max_workers: int) -> None:
     names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS or mt in OEB_STYLES)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     paths = tuple(map(container.name_to_abspath, names_that_need_work))
@@ -403,6 +431,30 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
                 future.result()
 
 
+def unkepubify_container(container: Container, max_workers: int = 0) -> None:
+    remove_dummy_cover_image(container)
+    remove_dummy_title_page(container)
+    opts = Options(for_removal=True)
+    metadata_lang = container.mi.language
+    do_work_in_parallel(container, opts, metadata_lang, max_workers)
+
+
+def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
+    remove_dummy_title_page(container)
+    remove_dummy_cover_image(container)
+    metadata_lang = container.mi.language
+    cover_image_name = find_cover_image(container) or find_cover_image3(container)
+    mi = container.mi
+    if not cover_image_name:
+        from calibre.ebooks.covers import generate_cover
+        cdata = generate_cover(mi)
+        cover_image_name = container.add_file(f'{DUMMY_COVER_IMAGE_NAME}.jpeg', cdata, modify_name_if_needed=True)
+    container.apply_unique_properties(cover_image_name, 'cover-image')
+    if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
+        add_dummy_title_page(container, cover_image_name, mi)
+    do_work_in_parallel(container, opts, metadata_lang, max_workers)
+
+
 def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: Options = Options()):
     container = get_container(path, tweak_mode=True)
     kepubify_container(container, opts, max_workers=max_workers)
@@ -411,7 +463,20 @@ def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: 
     c = 0
     while not allow_overwrite and outpath == path:
         c += 1
-        outpath = f'{base} - {c}.kepub'
+        outpath = f'{base}-{c}.kepub'
+    container.commit(outpath=outpath)
+    return outpath
+
+
+def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
+    container = get_container(path, tweak_mode=True, ebook_cls=EpubContainer)
+    unkepubify_container(container, max_workers)
+    base, ext = os.path.splitext(path)
+    outpath = outpath or base + '.epub'
+    c = 0
+    while not allow_overwrite and outpath == path:
+        c += 1
+        outpath = f'{base}-{c}.epub'
     container.commit(outpath=outpath)
     return outpath
 
@@ -427,7 +492,7 @@ def make_options(
 ) -> Options:
     remove_widows_and_orphans = remove_at_page_rules = False
     if extra_css:
-        sheet = parse_css_string(extra_css)
+        sheet = css_parser().parseString(extra_css)
         for rule in sheet.cssRules:
             if rule.type == CSSRule.PAGE_RULE:
                 remove_at_page_rules = True
