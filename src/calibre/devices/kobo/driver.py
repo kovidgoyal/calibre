@@ -169,6 +169,7 @@ class KOBO(USBMS):
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
+        self.files_to_rename_to_kepub = set()
 
     def initialize(self):
         USBMS.initialize(self)
@@ -467,7 +468,8 @@ class KOBO(USBMS):
 
     def filename_callback(self, path, mi):
         # debug_print("Kobo:filename_callback:Path - {0}".format(path))
-
+        if mi.uuid in self.files_to_rename_to_kepub and path.endswith(EPUB_EXT):
+            return path[:-len(EPUB_EXT)] + KEPUB_EXT
         idx = path.rfind('.')
         ext = path[idx:]
         if ext == KEPUB_EXT:
@@ -2274,13 +2276,13 @@ class KOBOTOUCH(KOBO):
 
         modify_epub = self.modifying_epub() or self.get_pref('kepubify')
         def should_modify(name: str) -> bool:
-            ext = name.rpartition('.')[-1].lower()
-            return ext == 'epub' and modify_epub
+            ext = '.' + name.rpartition('.')[-1].lower()
+            return ext == EPUB_EXT and modify_epub
 
         self.extra_sheet = self.get_extra_css()
         modifiable = {x for x in names if should_modify(x)}
+        self.files_to_rename_to_kepub = set()
         if modifiable:
-            names, files = list(names), list(files)
             i = 0
             for idx, (file, n, mi) in enumerate(zip(files, names, metadata)):
                 if n not in modifiable:
@@ -2290,7 +2292,7 @@ class KOBOTOUCH(KOBO):
                 self.report_progress(i / float(len(modifiable)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 mi.kte_calibre_name = n
                 if self.get_pref('kepubify'):
-                    names[idx] = n = self._kepubify(file, n, mi, self.extra_sheet)
+                    self._kepubify(file, n, mi, self.extra_sheet)
                 else:
                     self._modify_epub(file, mi)
                 i += 1
@@ -2339,7 +2341,8 @@ class KOBOTOUCH(KOBO):
             debug_print(f'Not converting {mi.title} ({name}) to KEPUB as it is DRMed')
         else:
             debug_print(f'Conversion of {mi.title} ({name}) to KEPUB succeeded')
-        return name.rpartition('.')[0] + '.kepub'
+            self.skip_renaming_files.add(mi.uuid)
+        return name.rpartition('.')[0] + KEPUB_EXT
 
     def _modify_epub(self, book_file, metadata, container=None):
         debug_print(f'KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}')
