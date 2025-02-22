@@ -2333,10 +2333,11 @@ class KOBOTOUCH(KOBO):
 
     def _kepubify(self, path, name, mi, extra_css) -> None:
         from calibre.ebooks.oeb.polish.errors import DRMError
-        from calibre.ebooks.oeb.polish.kepubify import kepubify_path
+        from calibre.ebooks.oeb.polish.kepubify import kepubify_path, make_options
         debug_print(f'Starting conversion of {mi.title} ({name}) to kepub')
+        opts = make_options(extra_css=extra_css or '')
         try:
-            kepubify_path(path, outpath=path, allow_overwrite=True)
+            kepubify_path(path, outpath=path, opts=opts, allow_overwrite=True)
         except DRMError:
             debug_print(f'Not converting {mi.title} ({name}) to KEPUB as it is DRMed')
         else:
