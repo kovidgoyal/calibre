@@ -2272,15 +2272,27 @@ class KOBOTOUCH(KOBO):
         debug_print(f'KoboTouch:upload_books - {len(files)} books')
         debug_print('KoboTouch:upload_books - files=', files)
 
-        if self.modifying_epub():
-            self.extra_sheet = self.get_extra_css()
+        modify_epub = self.modifying_epub() or self.get_pref('kepubify')
+        def should_modify(name: str) -> bool:
+            ext = name.rpartition('.')[-1].lower()
+            return ext == 'epub' and modify_epub
+
+        self.extra_sheet = self.get_extra_css()
+        modifiable = {x for x in names if should_modify(x)}
+        if modifiable:
+            names, files = list(names), list(files)
             i = 0
-            for file, n, mi in zip(files, names, metadata):
+            for idx, (file, n, mi) in enumerate(zip(files, names, metadata)):
+                if n not in modifiable:
+                    continue
                 debug_print('KoboTouch:upload_books: Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 debug_print(f'KoboTouch:upload_books: file={file}, name={n}')
-                self.report_progress(i / float(len(files)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
+                self.report_progress(i / float(len(modifiable)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 mi.kte_calibre_name = n
-                self._modify_epub(file, mi)
+                if self.get_pref('kepubify'):
+                    names[idx] = n = self._kepubify(file, n, mi, self.extra_sheet)
+                else:
+                    self._modify_epub(file, mi)
                 i += 1
 
         self.report_progress(0, 'Working...')
@@ -2316,6 +2328,18 @@ class KOBOTOUCH(KOBO):
                 debug_print(f'KoboTouch:upload_books - Exception:  {e!s}')
 
         return result
+
+    def _kepubify(self, path, name, mi, extra_css) -> None:
+        from calibre.ebooks.oeb.polish.errors import DRMError
+        from calibre.ebooks.oeb.polish.kepubify import kepubify_path
+        debug_print(f'Converting {name} to kepub')
+        try:
+            kepubify_path(path, outpath=path, allow_overwrite=True)
+        except DRMError:
+            debug_print(f'Not converting {name} to KEPUB as it is DRMed')
+        else:
+            debug_print(f'Conversion of {name} to KEPUB succeeded')
+        return name.rpartition('.')[0] + '.kepub'
 
     def _modify_epub(self, book_file, metadata, container=None):
         debug_print(f'KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}')
@@ -3606,6 +3630,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('bookstats_timetoread_upper_template', default=None)
         c.add_opt('bookstats_timetoread_lower_template', default=None)
 
+        c.add_opt('kepubify', default=True)
         c.add_opt('modify_css', default=False)
         c.add_opt('override_kobo_replace_existing', default=True)  # Overriding the replace behaviour is how the driver has always worked.
 

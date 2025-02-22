@@ -201,10 +201,18 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
         self.options_layout.setObjectName('options_layout')
         self.setLayout(self.options_layout)
 
+        self.kepubify_checkbox = create_checkbox(
+            _('Use Kobo viewer for EPUB books'), _(
+                'Kobo devices have two viewer programs for EPUB files on their devices. An older one from Adobe and'
+                ' the Kobo one. The Kobo one has much better performance and features and so, by default,'
+                ' calibre will auto-convert EPUB books to the Kobo KEPUB format so that they are viewed by'
+                ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option.'
+            ), device.get_pref('kepubify'))
+
         self.modify_css_checkbox = create_checkbox(
                 _('Modify CSS'),
                 _('This allows addition of user CSS rules and removal of some CSS. '
-                'When sending a book, the driver adds the contents of {0} to all stylesheets in the EPUB. '
+                'When sending a book, the driver adds the contents of {0} to all stylesheets in the book. '
                 'This file is searched for in the root folder of the main memory of the device. '
                 'As well as this, if the file contains settings for the "orphans" or "widows", '
                 'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
@@ -221,8 +229,9 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 device.get_pref('override_kobo_replace_existing')
                 )
 
-        self.options_layout.addWidget(self.modify_css_checkbox, 0, 0, 1, 2)
-        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.kepubify_checkbox, 0, 0, 1, 2)
+        self.options_layout.addWidget(self.modify_css_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 2, 0, 1, 2)
 
     @property
     def modify_css(self):
