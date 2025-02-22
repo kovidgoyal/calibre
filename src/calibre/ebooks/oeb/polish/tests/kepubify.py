@@ -3,7 +3,15 @@
 
 
 from calibre.ebooks.oeb.polish.container import get_container
-from calibre.ebooks.oeb.polish.kepubify import DUMMY_TITLE_PAGE_NAME, Options, kepubify_html_data, kepubify_path, remove_kobo_markup_from_html, serialize_html
+from calibre.ebooks.oeb.polish.kepubify import (
+    DUMMY_COVER_IMAGE_NAME,
+    DUMMY_TITLE_PAGE_NAME,
+    Options,
+    kepubify_html_data,
+    kepubify_path,
+    remove_kobo_markup_from_html,
+    serialize_html,
+)
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_book_for_kepubify
 
@@ -24,10 +32,11 @@ class KepubifyTests(BaseTest):
             ps = c.open('page_styles.css', 'r').read()
             for q in ('@page', 'widows', 'orphans'):
                 self.assertNotIn(q, ps)
-            cimage = ('cover.png',) if has_cover else ()
+            cimage = ('cover.png',) if has_cover else (f'{DUMMY_COVER_IMAGE_NAME}.jpeg',)
             self.assertEqual(cimage, tuple(c.manifest_items_with_property('cover-image')))
-        b()
-        b(has_cover=False)
+        for has_cover in (True, False):
+            for epub_version in '23':
+                b(has_cover, epub_version)
 
     def test_kepubify_html(self):
         prefix = '''<?xml version='1.0' encoding='utf-8'?>

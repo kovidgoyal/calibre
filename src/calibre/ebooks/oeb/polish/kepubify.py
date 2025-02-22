@@ -39,6 +39,7 @@ OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
 KOBO_SPAN_CLASS = 'koboSpan'
 DUMMY_TITLE_PAGE_NAME = 'kobo-title-page-generated-by-calibre'
+DUMMY_COVER_IMAGE_NAME = 'kobo-cover-image-generated-by-calibre'
 SKIPPED_TAGS = frozenset((
     '', 'script', 'style', 'atom', 'pre', 'audio', 'video', 'svg', 'math'
 ))
@@ -294,7 +295,7 @@ def is_probably_a_title_page(root):
     return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
 
 
-def add_dummy_title_page(container: Container, cover_image_name: str) -> None:
+def add_dummy_title_page(container: Container, cover_image_name: str, mi) -> None:
     html = f'''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -320,7 +321,6 @@ def add_dummy_title_page(container: Container, cover_image_name: str) -> None:
         cover_href = container.name_to_href(cover_image_name, titlepage_name)
         html = html.replace('__CONTENT__', f'<img src="{cover_href}" alt="cover" style="height: 100%" />')
     else:
-        mi = container.mi
         aus = authors_to_string(mi.authors)
         html = html.replace('__CONTENT__', f'''
         <h1 style="text-align: center">{mi.title}</h1>
@@ -338,6 +338,12 @@ def remove_dummy_title_page(container: Container) -> None:
             if DUMMY_TITLE_PAGE_NAME in name:
                 container.remove_item(name)
             break
+
+
+def remove_dummy_cover_image(container: Container) -> None:
+    for name in tuple(container.mime_map):
+        if DUMMY_COVER_IMAGE_NAME in name:
+            container.remove_item(name)
 
 
 def first_spine_item_is_probably_title_page(container: Container) -> bool:
@@ -371,12 +377,17 @@ def process_path(path: str, metadata_lang: str, opts: Options, media_type: str) 
 
 def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
+    remove_dummy_cover_image(container)
     metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
-    if cover_image_name:
-        container.apply_unique_properties(cover_image_name, 'cover-image')
+    mi = container.mi
+    if not cover_image_name:
+        from calibre.ebooks.covers import generate_cover
+        cdata = generate_cover(mi)
+        cover_image_name = container.add_file(f'{DUMMY_COVER_IMAGE_NAME}.jpeg', cdata, modify_name_if_needed=True)
+    container.apply_unique_properties(cover_image_name, 'cover-image')
     if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
-        add_dummy_title_page(container, cover_image_name)
+        add_dummy_title_page(container, cover_image_name, mi)
     names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS or mt in OEB_STYLES)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     paths = tuple(map(container.name_to_abspath, names_that_need_work))
