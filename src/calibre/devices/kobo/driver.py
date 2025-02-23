@@ -26,11 +26,12 @@ from calibre.devices.kobo.books import Book, ImageWrapper, KTCollectionsBookList
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
 from calibre.devices.usbms.driver import USBMS
+from calibre.ebooks import DRMError
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.prints import debug_print
-from calibre.ptempfile import PersistentTemporaryFile, better_mktemp
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory, better_mktemp
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
@@ -115,8 +116,7 @@ class KOBO(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
-    # "kepubs" do not have an extension. The name looks like a GUID. Using an empty string seems to work.
-    VIRTUAL_BOOK_EXTENSIONS = frozenset(('kobo', ''))
+    VIRTUAL_BOOK_EXTENSIONS = frozenset(('kobo',))
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('The Kobo supports several collections including ')+ 'Read, Closed, Im_Reading. ' + _(
@@ -773,7 +773,7 @@ class KOBO(USBMS):
             # Supported database version
             return True
 
-    def get_file(self, path, *args, **kwargs):
+    def get_file(self, path, outfile, end_session=True):
         tpath = self.munge_path(path)
         extension = os.path.splitext(tpath)[1]
         if extension == '.kobo':
@@ -783,8 +783,20 @@ class KOBO(USBMS):
                         'instead they are rows in the sqlite database. '
                     'Currently they cannot be exported or viewed.'),
                     UserFeedback.WARN)
+        if tpath.lower().endswith(KEPUB_EXT + EPUB_EXT):
+            with TemporaryDirectory() as tdir:
+                outpath = os.path.join(tdir, 'file.epub')
+                from calibre.ebooks.oeb.polish.kepubify import unkepubify_path
+                try:
+                    unkepubify_path(path, outpath, allow_overwrite=True)
+                except DRMError:
+                    pass
+                else:
+                    with open(outpath, 'rb') as src:
+                        shutil.copyfile(src, outfile)
+                    return
 
-        return USBMS.get_file(self, path, *args, **kwargs)
+        return USBMS.get_file(self, path, outfile, end_session=end_session)
 
     @classmethod
     def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
@@ -1125,17 +1137,23 @@ class KOBO(USBMS):
         with no file extension.  I just hope that decision causes
         them as much grief as it does me :-)
 
-        This has to make a temporary copy of the book files with a
+        This has to make a temporary copy of the book files with an
         epub extension to allow calibre's normal processing to
         deal with the file appropriately
         '''
         for idx, path in enumerate(paths):
-            if path.find('kepub') >= 0:
-                with closing(open(path, 'rb')) as r:
-                    tf = PersistentTemporaryFile(suffix='.epub')
-                    shutil.copyfileobj(r, tf)
-                    # tf.write(r.read())
-                    paths[idx] = tf.name
+            parts = path.replace(os.sep, '/').split('/')
+            if path.lower().endswith(KEPUB_EXT + EPUB_EXT) or ('kepub' in parts and '.' not in parts[-1]):
+                with PersistentTemporaryFile(suffix=EPUB_EXT) as dest:
+                    pass
+                from calibre.ebooks.oeb.polish.kepubify import unkepubify_path
+                try:
+                    unkepubify_path(path, dest.name, allow_overwrite=True)
+                except DRMError as e:
+                    import traceback
+                    paths[idx] = (path, e, traceback.format_exc())
+                else:
+                    paths[idx] = dest.name
         return paths
 
     @classmethod
@@ -2332,7 +2350,6 @@ class KOBOTOUCH(KOBO):
         return result
 
     def _kepubify(self, path, name, mi, extra_css) -> None:
-        from calibre.ebooks.oeb.polish.errors import DRMError
         from calibre.ebooks.oeb.polish.kepubify import kepubify_path, make_options
         debug_print(f'Starting conversion of {mi.title} ({name}) to kepub')
         opts = make_options(

@@ -28,6 +28,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, escape_c
 from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_and_bodies
 from calibre.ebooks.oeb.polish.container import Container, EpubContainer, get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
+from calibre.ebooks.oeb.polish.errors import DRMError
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
@@ -516,8 +517,24 @@ def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: 
     return outpath
 
 
+def check_for_kobo_drm(container: Container) -> None:
+    # sadly rights.xml is not definitive as various dedrm tools leave it behind
+    has_rights_xml = container.has_name_and_is_not_empty('rights.xml')
+    if not has_rights_xml:
+        return
+    for name, is_linear in container.spine_names:
+        mt = container.mime_map[name]
+        if mt in OEB_DOCS:
+            with container.open(name, 'rb') as f:
+                raw = f.read(8192)
+                if b'<?xml' not in raw and b'<html' not in raw and KOBO_SPAN_CLASS.encode() not in raw:
+                    raise DRMError()
+            break
+
+
 def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
     container = get_container(path, tweak_mode=True, ebook_cls=EpubContainer)
+    check_for_kobo_drm(container)
     unkepubify_container(container, max_workers)
     base, ext = os.path.splitext(path)
     outpath = outpath or base + '.epub'
