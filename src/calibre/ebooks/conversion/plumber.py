@@ -422,7 +422,8 @@ OptionRecommendation(name='remove_fake_margins',
 OptionRecommendation(name='add_alt_text_to_img',
     recommended_value=False, level=OptionRecommendation.LOW,
     help=_('When an <img> tag has no alt attribute, check the associated image file for metadata that specifies alternate text, and'
-            ' use it to fill in the alt attribute. The alt attribute is used by screen readers for assisting the visually challenged.')
+           ' use it to fill in the alt attribute. The alt attribute improves accessibility by providing text descriptions'
+           ' for users who cannot see or fully interpret visual content.')
 ),
 
 OptionRecommendation(name='margin_top',
