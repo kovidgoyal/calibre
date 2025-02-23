@@ -121,6 +121,10 @@ as a shebang in scripts, like this:
         'calibre-debug --diff file1 file2'))
     parser.add_option('--default-programs', default=None, choices=['register', 'unregister'],
                           help=_('(Un)register calibre from Windows Default Programs.') + ' --default-programs=(register|unregister)')
+    parser.add_option('--kepubify', default=False, action='store_true', help=_(
+        'Convert the specified EPUB file to KEPUB without doing a full conversion. This is what the Kobo driver does when sending files to the device.'))
+    parser.add_option('--un-kepubify', default=False, action='store_true', help=_(
+        'Convert the specified KEPUB file to EPUB without doing a full conversion. This is what the Kobo driver does when importing files from the device.'))
     parser.add_option('--fix-multiprocessing', default=False, action='store_true',
         help=_('For internal use'))
 
@@ -310,6 +314,12 @@ def main(args=sys.argv):
     elif opts.import_calibre_data:
         from calibre.utils.exim import run_importer
         run_importer()
+    elif opts.kepubify:
+        from calibre.ebooks.oeb.polish.kepubify import kepubify_main
+        kepubify_main(args)
+    elif opts.un_kepubify:
+        from calibre.ebooks.oeb.polish.kepubify import unkepubify_main
+        unkepubify_main(args)
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx', 'odt'}:

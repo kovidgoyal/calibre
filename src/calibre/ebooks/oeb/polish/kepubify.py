@@ -605,11 +605,23 @@ def develop():
         input('Press Enter to quit')
 
 
-def main(args):
+def kepubify_main(args=sys.argv):
     for path in args[1:]:
-        outpath = kepubify_path(path)
-        print(f'{path} converted and saved as: {outpath}')
+        outpath = ''
+        if path.endswith('.epub'):
+            outpath = path[:-4] + 'kepub.epub'
+        kepub_path = kepubify_path(path, outpath, allow_overwrite=True)
+        print(f'{path} converted to: {kepub_path}')
+
+
+def unkepubify_main(args=sys.argv):
+    for path in args[1:]:
+        outpath = ''
+        if path.endswith('.kepub.epub'):
+            outpath = path[:-len('kepub.epub')] + 'epub'
+        kepub_path = unkepubify_path(path, outpath, allow_overwrite=True)
+        print(f'{path} converted to: {kepub_path}')
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    kepubify_main()
