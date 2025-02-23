@@ -2335,7 +2335,15 @@ class KOBOTOUCH(KOBO):
         from calibre.ebooks.oeb.polish.errors import DRMError
         from calibre.ebooks.oeb.polish.kepubify import kepubify_path, make_options
         debug_print(f'Starting conversion of {mi.title} ({name}) to kepub')
-        opts = make_options(extra_css=extra_css or '')
+        opts = make_options(
+            extra_css=extra_css or '',
+            affect_hyphenation=bool(self.get_pref('affect_hyphenation')),
+            disable_hyphenation=bool(self.get_pref('disable_hyphenation')),
+            hyphenation_min_chars=bool(self.get_pref('hyphenation_min_chars')),
+            hyphenation_min_chars_before=bool(self.get_pref('hyphenation_min_chars_before')),
+            hyphenation_min_chars_after=bool(self.get_pref('hyphenation_min_chars_after')),
+            hyphenation_limit_lines=bool(self.get_pref('hyphenation_limit_lines')),
+        )
         try:
             kepubify_path(path, outpath=path, opts=opts, allow_overwrite=True)
         except DRMError:
@@ -3637,6 +3645,13 @@ class KOBOTOUCH(KOBO):
         c.add_opt('kepubify', default=True)
         c.add_opt('modify_css', default=False)
         c.add_opt('override_kobo_replace_existing', default=True)  # Overriding the replace behaviour is how the driver has always worked.
+
+        c.add_opt('affect_hyphenation', default=False)
+        c.add_opt('disable_hyphenation', default=False)
+        c.add_opt('hyphenation_min_chars', default=6)
+        c.add_opt('hyphenation_min_chars_before', default=3)
+        c.add_opt('hyphenation_min_chars_after', default=3)
+        c.add_opt('hyphenation_limit_lines', default=2)
 
         c.add_opt('support_newer_firmware', default=False)
         c.add_opt('debugging_title', default='')

@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QVBoxLayout, QWidget
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.device_drivers.tabbed_device_config import DeviceConfigTab, DeviceOptionsGroupBox, TabbedDeviceConfig
@@ -51,9 +51,11 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
+        self.tab3 = Tab3Config(self, self.device)
 
         self.addDeviceTab(self.tab1, _('Collections, covers && uploads'))
         self.addDeviceTab(self.tab2, _('Metadata, on device && advanced'))
+        self.addDeviceTab(self.tab3, _('Hyphenation'))
 
     def get_pref(self, key):
         return self.device.get_pref(key)
@@ -191,6 +193,21 @@ class Tab2Config(DeviceConfigTab):  # {{{
 # }}}
 
 
+class Tab3Config(DeviceConfigTab):  # {{{
+
+    def __init__(self, parent, device):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        self.hyphenation_options = h = HyphenationGroupBox(self, device)
+        l.addWidget(h)
+        l.addStretch()
+
+    def validate(self):
+        return self.hyphenation_options.validate()
+
+# }}}
+
+
 class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
@@ -240,6 +257,81 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
     @property
     def override_kobo_replace_existing(self):
         return self.override_kobo_replace_existing_checkbox.isChecked()
+
+
+class HyphenationGroupBox(DeviceOptionsGroupBox):
+
+    def __init__(self, parent, device):
+        super().__init__(parent, device)
+        self.setTitle(_('Enable/disable hyphenation in KEPUB books'))
+        self.setCheckable(True)
+        self.setChecked(device.get_pref('affect_hyphenation'))
+        self.l = l = QFormLayout(self)
+        la = QLabel(_(
+            'When sending EPUB as converted KEPUB to the device, you can optionally'
+            ' modify how the device will perform hyphenation for the book. Note that hyphenation'
+            ' does not work well for all languages, as it depends on dictionaries present on the device,'
+            ' which are not always of the highest quality.'))
+        la.setWordWrap(True)
+        l.addRow(la)
+
+        self.disable_hyphenation_checkbox = d = QCheckBox(_('Turn off all hyphenation'))
+        d.setChecked(device.get_pref('disable_hyphenation'))
+        d.setToolTip(_('Override all hyphenation settings in book, forcefully disabling hyphenation completely'))
+        l.addRow(d)
+
+        self.min_chars = mc = QSpinBox(self)
+        l.addRow(_('Minimum word length to hyphenate') + ':', mc)
+        mc.setSuffix(_(' characters'))
+        mc.setSpecialValueText(_('Disabled'))
+        mc.setRange(0, 20)
+        mc.setValue(device.get_pref('hyphenation_min_chars'))
+
+        self.min_chars_before = mc = QSpinBox(self)
+        l.addRow(_('Minimum character before hyphens') + ':', mc)
+        mc.setSuffix(_(' characters'))
+        mc.setRange(2, 20)
+        mc.setValue(device.get_pref('hyphenation_min_chars_before'))
+
+        self.min_chars_after = mc = QSpinBox(self)
+        l.addRow(_('Minimum character after hyphens') + ':', mc)
+        mc.setSuffix(_(' characters'))
+        mc.setRange(2, 20)
+        mc.setValue(device.get_pref('hyphenation_min_chars_after'))
+
+        self.limit_lines = mc = QSpinBox(self)
+        l.addRow(_('Maximum consecutive hyphenated lines') + ':', mc)
+        mc.setSuffix(_(' lines'))
+        mc.setSpecialValueText(_('Disabled'))
+        mc.setRange(0, 20)
+        mc.setValue(device.get_pref('hyphenation_limit_lines'))
+
+    def validate(self):
+        return True
+
+    @property
+    def affect_hyphenation(self):
+        return self.isChecked()
+
+    @property
+    def disable_hyphenation(self):
+        return self.disable_hyphenation_checkbox.isChecked()
+
+    @property
+    def hyphenation_min_chars(self):
+        return self.min_chars.value()
+
+    @property
+    def hyphenation_min_chars_before(self):
+        return self.min_chars_before.value()
+
+    @property
+    def hyphenation_min_chars_after(self):
+        return self.min_chars_after.value()
+
+    @property
+    def hyphenation_limit_lines(self):
+        return self.limit_lines.value()
 
 
 class CollectionsGroupBox(DeviceOptionsGroupBox):
