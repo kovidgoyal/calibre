@@ -164,7 +164,7 @@ def add_kobo_spans(inner, root_lang):
             paranum += 1
             segnum = 0
             increment_next_para = False
-        stripped = leading_whitespace_pat.sub('', text)
+        stripped = leading_whitespace_pat.sub('', text) or text
         ws = None
         if num := len(text) - len(stripped):
             ws = text[:num]
