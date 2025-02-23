@@ -2350,8 +2350,7 @@ class KOBOTOUCH(KOBO):
             debug_print(f'Not converting {mi.title} ({name}) to KEPUB as it is DRMed')
         else:
             debug_print(f'Conversion of {mi.title} ({name}) to KEPUB succeeded')
-            self.skip_renaming_files.add(mi.uuid)
-        return name.rpartition('.')[0] + KEPUB_EXT
+        self.files_to_rename_to_kepub.add(mi.uuid)
 
     def _modify_epub(self, book_file, metadata, container=None):
         debug_print(f'KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}')
