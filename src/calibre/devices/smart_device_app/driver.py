@@ -1400,7 +1400,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self.settings().extra_customization[self.OPT_COLLECTIONS].split(',')]
         self._debug('collection attributes', colattrs)
         coldict = {}
-        if colattrs:
+        if colattrs and hasattr(booklists[0], 'get_collections'):
             collections = booklists[0].get_collections(colattrs)
             for k,v in iteritems(collections):
                 lpaths = []
