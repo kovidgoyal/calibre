@@ -115,6 +115,9 @@ def remove_kobo_styles_and_scripts(root):
     for script in XPath('//h:script')(root):
         if script.get('type') == 'text/javascript' and is_href_to_fname(script.get('src'), KOBO_JS_NAME):
             extract(script)
+    for comment in root.iter(tag=etree.Comment):
+        if comment.text == ' kobo-style ':  # these are present in KEPUB from Kobo
+            extract(comment)
 
 
 def wrap_body_contents(body):
