@@ -36,7 +36,7 @@ from calibre.srv.render_book import Profiler, calculate_number_of_workers
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.short_uuid import uuid4
 
-KOBO_CSS_ID = 'kobostylehacks'
+KOBO_CSS_ID = 'kobostylehacks'  # kepubify uses class, actual books from Kobo use id
 KOBO_JS_NAME = 'kobo.js'
 KOBO_CSS_NAME = 'kobo.css'
 OUTER_DIV_ID = 'book-columns'
@@ -358,7 +358,9 @@ def is_probably_a_title_page(root):
     return (num_images + num_svgs == 1 and textlen <= 10) or (textlen <= 50 and (num_images + num_svgs) < 1)
 
 
-def add_dummy_title_page(container: Container, cover_image_name: str, mi) -> None:
+def add_dummy_title_page(container: Container, cover_image_name: str, mi, kobo_js_name: str) -> None:
+    titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.xhtml', modify_name_if_needed=True, spine_index=0)
+    kobo_js_href = container.name_to_href(kobo_js_name, titlepage_name)
     html = f'''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -374,12 +376,13 @@ def add_dummy_title_page(container: Container, cover_image_name: str, mi) -> Non
         <style type="text/css" id="{KOBO_CSS_ID}">
         {KOBO_CSS}
         </style>
+        <script type="text/javascript" src="{kobo_js_href}"/>
     </head>
     <body><div id="{OUTER_DIV_ID}"><div id="{INNER_DIV_ID}">
     __CONTENT__
-    </div></div></body></html>
+    </div></div></body>
+</html>
 '''
-    titlepage_name = container.add_file(f'{DUMMY_TITLE_PAGE_NAME}.xhtml', modify_name_if_needed=True, spine_index=0)
     if cover_image_name:
         cover_href = container.name_to_href(cover_image_name, titlepage_name)
         html = html.replace('__CONTENT__', f'<img src="{cover_href}" alt="cover" style="height: 100%" />')
@@ -491,10 +494,10 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
         cdata = generate_cover(mi)
         cover_image_name = container.add_file(f'{DUMMY_COVER_IMAGE_NAME}.jpeg', cdata, modify_name_if_needed=True)
     container.apply_unique_properties(cover_image_name, 'cover-image')
+    kobo_js_name = container.add_file(
+            uniqify_name(container, KOBO_JS_NAME), kobo_js(), media_type='application/javascript', suggested_id='js-kobo.js')
     if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
-        add_dummy_title_page(container, cover_image_name, mi)
-    kobo_js_name = uniqify_name(container, KOBO_JS_NAME)
-    kobo_js_name = container.add_file(kobo_js_name, kobo_js(), media_type='application/javascript', suggested_id='js-kobo.js')
+        add_dummy_title_page(container, cover_image_name, mi, kobo_js_name)
     do_work_in_parallel(container, kobo_js_name, opts, metadata_lang, max_workers)
 
 
