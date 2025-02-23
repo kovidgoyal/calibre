@@ -164,23 +164,26 @@ def add_kobo_spans(inner, root_lang):
             paranum += 1
             segnum = 0
             increment_next_para = False
-        stripped = leading_whitespace_pat.sub('', text) or text
-        ws = None
-        if num := len(text) - len(stripped):
-            ws = text[:num]
         try:
             at = 0 if after_child is None else parent.index(after_child) + 1
         except ValueError:  # wrapped child
             at = parent.index(after_child.getparent()) + 1
+        stripped = leading_whitespace_pat.sub('', text)
+        if not at and not stripped and not len(parent):
+            stripped = text
+        ws = None
+        if num := len(text) - len(stripped):
+            ws = text[:num]
         if at:
             parent[at-1].tail = ws
         else:
             parent.text = ws
-        for pos, sz in sentence_positions(stripped, lang):
-            s = kobo_span(parent)
-            s.text = stripped[pos:pos+sz]
-            parent.insert(at, s)
-            at += 1
+        if stripped:
+            for pos, sz in sentence_positions(stripped, lang):
+                s = kobo_span(parent)
+                s.text = stripped[pos:pos+sz]
+                parent.insert(at, s)
+                at += 1
 
     def wrap_child(child: etree.Element) -> etree.Element:
         nonlocal increment_next_para, paranum, segnum

@@ -59,8 +59,9 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
         suffix =  '</div></div></body></html>'
         for src, expected in {
             # basics
-            '<p>one</p><p>\xa0</p>':
-            '<p><span class="koboSpan" id="kobo.1.1">one</span></p><p><span class="koboSpan" id="kobo.2.1">&#160;</span></p>',
+            '<p>one</p>  <p>\xa0</p><p>\xa0<i>a</i></p>':
+            '<p><span class="koboSpan" id="kobo.1.1">one</span></p>  <p><span class="koboSpan" id="kobo.2.1">&#160;</span></p>'
+            '<p>&#160;<i><span class="koboSpan" id="kobo.3.1">a</span></i></p>',
 
             '<p>Simple sentences. In a single paragraph.'
             '<p>A sentence <i>with <b>nested</b>, tailed</i> formatting. Another.':
