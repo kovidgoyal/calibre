@@ -469,13 +469,13 @@ class KOBO(USBMS):
     def filename_callback(self, path, mi):
         # debug_print("Kobo:filename_callback:Path - {0}".format(path))
         if mi.uuid in self.files_to_rename_to_kepub and path.endswith(EPUB_EXT):
-            return path[:-len(EPUB_EXT)] + KEPUB_EXT
-        idx = path.rfind('.')
-        ext = path[idx:]
-        if ext == KEPUB_EXT:
-            path = path + EPUB_EXT
-            # debug_print("Kobo:filename_callback:New path - {0}".format(path))
-
+            path = path[:-len(EPUB_EXT)] + KEPUB_EXT + EPUB_EXT
+        else:
+            idx = path.rfind('.')
+            ext = path[idx:]
+            if ext == KEPUB_EXT:
+                path = path + EPUB_EXT
+        # debug_print("Kobo:filename_callback:New path - {0}".format(path))
         return path
 
     def delete_via_sql(self, ContentID, ContentType):
@@ -2350,7 +2350,7 @@ class KOBOTOUCH(KOBO):
             debug_print(f'Not converting {mi.title} ({name}) to KEPUB as it is DRMed')
         else:
             debug_print(f'Conversion of {mi.title} ({name}) to KEPUB succeeded')
-        self.files_to_rename_to_kepub.add(mi.uuid)
+            self.files_to_rename_to_kepub.add(mi.uuid)
 
     def _modify_epub(self, book_file, metadata, container=None):
         debug_print(f'KoboTouch:_modify_epub:Processing {metadata.author_sort} - {metadata.title}')
