@@ -78,7 +78,7 @@ class Frontline(BasicNewsRecipe):
 
         feeds_dict = defaultdict(list)
 
-        mag = soup.find(**classes('section-magazine'))
+        mag = soup.find(**classes('current-issue-in-this-issue'))
         for div in mag.findAll('div', attrs={'class':'content'}):
             a = div.find(**classes('title')).find('a')
             url = a['href']
