@@ -62,7 +62,7 @@ def get_filename(original_url_parsed, response):
         ct = headers.get_params()[0][0].lower()
     except Exception:
         ct = ''
-    if ct:
+    if ct and ct != 'application/octet-stream':
         mt = guess_type(ans)
         if mt != ct:
             exts = mimetypes.guess_all_extensions(ct)
