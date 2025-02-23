@@ -37,6 +37,7 @@ from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.short_uuid import uuid4
 
 KOBO_CSS_ID = 'kobostylehacks'  # kepubify uses class, actual books from Kobo use id
+EXTRA_KOBO_CSS_IDS = ('koboSpanStyle',)  # these are present in some kepub files from kobo such as dark forest by cixin liu
 KOBO_JS_NAME = 'kobo.js'
 KOBO_CSS_NAME = 'kobo.css'
 OUTER_DIV_ID = 'book-columns'
@@ -103,8 +104,9 @@ def is_href_to_fname(href: str | None, fname: str) -> bool:
 
 
 def remove_kobo_styles_and_scripts(root):
+    ids_to_remove = EXTRA_KOBO_CSS_IDS + (KOBO_CSS_ID,)
     for style in XPath('//h:style')(root):
-        if style.get('id') == KOBO_CSS_ID:
+        if style.get('id') in ids_to_remove:
             extract(style)
     for link in XPath('//h:link')(root):
         if link.get('rel') == 'stylesheet' and link.get('type') == 'text/css' and is_href_to_fname(link.get('href'), KOBO_CSS_NAME):
