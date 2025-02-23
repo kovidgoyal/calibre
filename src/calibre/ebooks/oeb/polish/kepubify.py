@@ -34,8 +34,11 @@ from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
 from calibre.srv.render_book import Profiler, calculate_number_of_workers
 from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.short_uuid import uuid4
 
-KOBO_CSS_CLASS = 'kobostylehacks'
+KOBO_CSS_ID = 'kobostylehacks'
+KOBO_JS_NAME = 'kobo.js'
+KOBO_CSS_NAME = 'kobo.css'
 OUTER_DIV_ID = 'book-columns'
 INNER_DIV_ID = 'book-inner'
 KOBO_SPAN_CLASS = 'koboSpan'
@@ -72,12 +75,18 @@ def outer_html(node):
     return etree.tostring(node, encoding='unicode', with_tail=False)
 
 
-def add_style(root, opts: Options, cls=KOBO_CSS_CLASS) -> bool:
+@lru_cache(2)
+def kobo_js() -> bytes:
+    return P('templates/kobo.js', data=True)
+
+
+def add_style_and_script(root, kobo_js_href: str, opts: Options) -> bool:
 
     def add(parent):
-        e = parent.makeelement(XHTML('style'), type='text/css')
+        e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_CSS_ID)
         e.text = opts.extra_css
-        e.set('class', cls)
+        insert_self_closing(parent, e)
+        e = parent.makeelement(XHTML('script'), type='text/javascript', src=kobo_js_href)
         insert_self_closing(parent, e)
 
     if heads := XPath('./h:head')(root):
@@ -89,9 +98,20 @@ def add_style(root, opts: Options, cls=KOBO_CSS_CLASS) -> bool:
     return False
 
 
-def remove_kobo_styles(root):
-    for x in XPath(f'//h:style[@type="text/css" and @class="{KOBO_CSS_CLASS}"]')(root):
-        extract(x)
+def is_href_to_fname(href: str | None, fname: str) -> bool:
+    return href and href.rpartition('/')[-1] == fname
+
+
+def remove_kobo_styles_and_scripts(root):
+    for style in XPath('//h:style')(root):
+        if style.get('id') == KOBO_CSS_ID:
+            extract(style)
+    for link in XPath('//h:link')(root):
+        if link.get('rel') == 'stylesheet' and link.get('type') == 'text/css' and is_href_to_fname(link.get('href'), KOBO_CSS_NAME):
+            extract(link)
+    for script in XPath('//h:script')(root):
+        if script.get('type') == 'text/javascript' and is_href_to_fname(script.get('src'), KOBO_JS_NAME):
+            extract(script)
 
 
 def wrap_body_contents(body):
@@ -219,16 +239,16 @@ def remove_kobo_spans(body: etree.Element) -> bool:
     return found
 
 
-def add_kobo_markup_to_html(root, opts, metadata_lang):
+def add_kobo_markup_to_html(root: etree.Element, kobo_js_href: str, opts: Options, metadata_lang: str) -> None:
     root_lang = canonicalize_lang(lang_for_elem(root, canonicalize_lang(metadata_lang or get_lang())) or 'en')
-    add_style(root, opts)
+    add_style_and_script(root, kobo_js_href, opts)
     for body in XPath('./h:body')(root):
         inner = wrap_body_contents(body)
         add_kobo_spans(inner, lang_for_elem(body, root_lang))
 
 
 def remove_kobo_markup_from_html(root):
-    remove_kobo_styles(root)
+    remove_kobo_styles_and_scripts(root)
     for body in XPath('./h:body')(root):
         unwrap_body_contents(body)
         remove_kobo_spans(body)
@@ -293,7 +313,7 @@ def process_stylesheet(css: str, opts: Options) -> str:
     return sheet.cssText if changed else css
 
 
-def kepubify_parsed_html(root, opts: Options, metadata_lang: str = 'en'):
+def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, metadata_lang: str = 'en'):
     remove_kobo_markup_from_html(root)
     if not opts.for_removal:
         merge_multiple_html_heads_and_bodies(root)
@@ -302,19 +322,19 @@ def kepubify_parsed_html(root, opts: Options, metadata_lang: str = 'en'):
             if (style.get('type') or 'text/css') == 'text/css' and style.text:
                 style.text = process_stylesheet(style.text, opts)
     if not opts.for_removal:
-        add_kobo_markup_to_html(root, opts, metadata_lang)
+        add_kobo_markup_to_html(root, kobo_js_href, opts, metadata_lang)
 
 
-def kepubify_html_data(raw: str | bytes, opts: Options = Options(), metadata_lang: str = 'en'):
+def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts: Options = Options(), metadata_lang: str = 'en'):
     root = parse(raw)
-    kepubify_parsed_html(root, opts, metadata_lang)
+    kepubify_parsed_html(root, kobo_js_href, opts, metadata_lang)
     return root
 
 
-def kepubify_html_path(path: str, metadata_lang: str = 'en', opts: Options = Options()):
+def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lang: str = 'en', opts: Options = Options()):
     with open(path, 'r+b') as f:
         raw = f.read()
-        root = kepubify_html_data(raw, opts, metadata_lang)
+        root = kepubify_html_data(raw, kobo_js_href, opts, metadata_lang)
         raw = serialize_html(root)
         f.seek(0)
         f.truncate()
@@ -348,7 +368,7 @@ def add_dummy_title_page(container: Container, cover_image_name: str, mi) -> Non
             div {{ padding:0pt; margin: 0pt }}
             img {{ padding:0pt; margin: 0pt }}
         </style>
-        <style type="text/css" class="{KOBO_CSS_CLASS}">
+        <style type="text/css" id="{KOBO_CSS_ID}">
         {KOBO_CSS}
         </style>
     </head>
@@ -408,40 +428,58 @@ def process_stylesheet_path(path: str, opts: Options) -> None:
                 f.write(ncss)
 
 
-def process_path(path: str, metadata_lang: str, opts: Options, media_type: str) -> None:
+def process_path(path: str, kobo_js_href: str, metadata_lang: str, opts: Options, media_type: str) -> None:
     if media_type in OEB_DOCS:
-        kepubify_html_path(path, metadata_lang, opts)
+        kepubify_html_path(path, kobo_js_href, metadata_lang, opts)
     elif media_type in OEB_STYLES:
         process_stylesheet_path(path, opts)
 
 
-def do_work_in_parallel(container: Container, opts: Options, metadata_lang: str, max_workers: int) -> None:
+def do_work_in_parallel(container: Container, kobo_js_name: str, opts: Options, metadata_lang: str, max_workers: int) -> None:
     names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS or mt in OEB_STYLES)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     paths = tuple(map(container.name_to_abspath, names_that_need_work))
     if num_workers < 2:
         for name in names_that_need_work:
-            process_path(container.name_to_abspath(name), metadata_lang, opts, container.mime_map[name])
+            process_path(container.name_to_abspath(name), container.name_to_href(kobo_js_name, name), metadata_lang, opts, container.mime_map[name])
     else:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = tuple(executor.submit(
-                process_path, container.name_to_abspath(name), metadata_lang, opts, container.mime_map[name])
-                            for name in names_that_need_work)
+                process_path, container.name_to_abspath(name), container.name_to_href(kobo_js_name, name),
+                metadata_lang, opts, container.mime_map[name]) for name in names_that_need_work)
             for future in futures:
                 future.result()
+
+
+def remove_kobo_files(container):
+    for name, mt in tuple(container.mime_map.items()):
+        fname = name.rpartition('/')[-1]
+        if mt == 'application/javascript' and fname == KOBO_JS_NAME:
+            container.remove_item(name)
+        elif mt == 'text/css' and fname == KOBO_CSS_NAME:
+            container.remove_item(name)
 
 
 def unkepubify_container(container: Container, max_workers: int = 0) -> None:
     remove_dummy_cover_image(container)
     remove_dummy_title_page(container)
+    remove_kobo_files(container)
     opts = Options(for_removal=True)
     metadata_lang = container.mi.language
-    do_work_in_parallel(container, opts, metadata_lang, max_workers)
+    do_work_in_parallel(container, KOBO_JS_NAME, opts, metadata_lang, max_workers)
+
+
+def uniqify_name(container: Container, fname: str) -> str:
+    q = fname
+    while container.has_name_case_insensitive(q) or container.manifest_has_name(q):
+        q = f'{uuid4()}/fname'
+    return q
 
 
 def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
     remove_dummy_cover_image(container)
+    remove_kobo_files(container)
     metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
     mi = container.mi
@@ -452,7 +490,9 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
     container.apply_unique_properties(cover_image_name, 'cover-image')
     if not find_cover_page(container) and not first_spine_item_is_probably_title_page(container):
         add_dummy_title_page(container, cover_image_name, mi)
-    do_work_in_parallel(container, opts, metadata_lang, max_workers)
+    kobo_js_name = uniqify_name(container, KOBO_JS_NAME)
+    kobo_js_name = container.add_file(kobo_js_name, kobo_js(), media_type='application/javascript', suggested_id='js-kobo.js')
+    do_work_in_parallel(container, kobo_js_name, opts, metadata_lang, max_workers)
 
 
 def kepubify_path(path, outpath='', max_workers=0, allow_overwrite=False, opts: Options = Options()):

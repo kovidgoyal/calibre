@@ -8,6 +8,7 @@ from calibre.ebooks.oeb.polish.kepubify import (
     CSS_COMMENT_COOKIE,
     DUMMY_COVER_IMAGE_NAME,
     DUMMY_TITLE_PAGE_NAME,
+    KOBO_JS_NAME,
     Options,
     kepubify_html_data,
     kepubify_parsed_html,
@@ -51,9 +52,10 @@ class KepubifyTests(BaseTest):
                 b(has_cover, epub_version)
 
     def test_kepubify_html(self):
-        prefix = '''<?xml version='1.0' encoding='utf-8'?>
-<html xmlns="http://www.w3.org/1999/xhtml"><head><style type="text/css" class="kobostylehacks">\
-div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id="book-columns"><div id="book-inner">'''
+        prefix = f'''<?xml version='1.0' encoding='utf-8'?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><style type="text/css" id="kobostylehacks">\
+div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/javascript" src="{KOBO_JS_NAME}"/></head>\
+<body><div id="book-columns"><div id="book-inner">'''
         suffix =  '</div></div></body></html>'
         for src, expected in {
             # basics
@@ -105,12 +107,12 @@ div#book-inner { margin-top: 0; margin-bottom: 0; }</style></head><body><div id=
             '<span class="koboSpan" id="kobo.1.1">Some</span></div>'
         }.items():
             opts = Options()._replace(remove_widows_and_orphans=True, remove_at_page_rules=True)
-            root = kepubify_html_data(src, opts)
+            root = kepubify_html_data(src, KOBO_JS_NAME, opts)
             actual = serialize_html(root).decode('utf-8')
             actual = actual[len(prefix):-len(suffix)]
             self.assertEqual(expected, actual)
             expected = serialize_html(parse(src)).decode('utf-8')
             opts = opts._replace(for_removal=True)
-            kepubify_parsed_html(root, opts)
+            kepubify_parsed_html(root, KOBO_JS_NAME, opts)
             actual = serialize_html(root).decode('utf-8')
             self.assertEqual(expected, actual)

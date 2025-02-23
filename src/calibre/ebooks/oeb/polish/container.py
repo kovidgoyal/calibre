@@ -312,14 +312,14 @@ class Container(ContainerBase):  # {{{
         clone_dir(self.root, dest_dir)
         return self.data_for_clone(dest_dir)
 
-    def add_name_to_manifest(self, name, process_manifest_item=None):
+    def add_name_to_manifest(self, name, process_manifest_item=None, suggested_id=''):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
-        item_id = 'id'
+        item_id = suggested_id = suggested_id or 'id'
         while item_id in all_ids:
             c += 1
-            item_id = f'id{c}'
+            item_id = f'{suggested_id}-{c}'
         manifest = self.opf_xpath('//opf:manifest')[0]
         href = self.name_to_href(name, self.opf_name)
         item = manifest.makeelement(OPF('item'),
@@ -347,7 +347,11 @@ class Container(ContainerBase):  # {{{
             name = f'{base}-{c}.{ext}'
         return name
 
-    def add_file(self, name, data=b'', media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):
+    def add_file(
+            self, name, data=b'', media_type=None, spine_index=None,
+            modify_name_if_needed=False, process_manifest_item=None,
+            suggested_id='',
+        ):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''
@@ -374,7 +378,7 @@ class Container(ContainerBase):  # {{{
         self.mime_map[name] = mt
         if self.ok_to_be_unmanifested(name):
             return name
-        item_id = self.add_name_to_manifest(name, process_manifest_item=process_manifest_item)
+        item_id = self.add_name_to_manifest(name, process_manifest_item=process_manifest_item, suggested_id=suggested_id)
         if mt in OEB_DOCS:
             manifest = self.opf_xpath('//opf:manifest')[0]
             spine = self.opf_xpath('//opf:spine')[0]
