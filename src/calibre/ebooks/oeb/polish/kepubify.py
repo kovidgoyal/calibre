@@ -473,6 +473,7 @@ def remove_kobo_files(container):
 
 
 def unkepubify_container(container: Container, max_workers: int = 0) -> None:
+    check_for_kobo_drm(container)
     remove_dummy_cover_image(container)
     remove_dummy_title_page(container)
     remove_kobo_files(container)
@@ -537,7 +538,6 @@ def check_for_kobo_drm(container: Container) -> None:
 
 def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
     container = get_container(path, tweak_mode=True, ebook_cls=EpubContainer)
-    check_for_kobo_drm(container)
     unkepubify_container(container, max_workers)
     base, ext = os.path.splitext(path)
     outpath = outpath or base + '.epub'

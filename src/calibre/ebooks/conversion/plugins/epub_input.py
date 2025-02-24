@@ -284,13 +284,20 @@ class EPUBInput(InputFormatPlugin):
         if opf is None:
             raise ValueError(f'{path} is not a valid EPUB file (could not find opf)')
 
-        if is_kepub and not self.for_viewer:
-            log('Removing Kobo markup...')
+        if is_kepub:
             from calibre.ebooks.oeb.polish.container import Container
-            from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
+            from calibre.ebooks.oeb.polish.errors import drm_message
+            from calibre.ebooks.oeb.polish.kepubify import check_for_kobo_drm, unkepubify_container
             container = Container(os.getcwd(), opf, log)
-            unkepubify_container(container)
-            container.commit()
+            if self.for_viewer:
+                log('Checking for Kobo DRM...')
+                with drm_message(_('The file {} is locked with DRM. It cannot be viewed').format(path)):
+                    check_for_kobo_drm(container)
+            else:
+                log('Removing Kobo markup...')
+                with drm_message(_('The file {} is locked with DRM. It cannot be converted').format(path)):
+                    unkepubify_container(container)
+                    container.commit()
             del container
 
         opf = os.path.relpath(opf, os.getcwd())
