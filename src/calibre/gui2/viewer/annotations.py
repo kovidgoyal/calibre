@@ -98,7 +98,8 @@ class AnnotationsSaveWorker(Thread):
     def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user=''):
         alist = tuple(annotations_as_copied_list(current_book_data['annotations_map']))
         ebp = current_book_data['pathtoebook']
-        can_save_in_book_file = ebp.lower().endswith('.epub')
+        ext = ebp.rpartition('.')[-1].lower()
+        can_save_in_book_file = ext in ('epub', 'kepub')
         self.queue.put({
             'annotations_list': alist,
             'annotations_path_key': current_book_data['annotations_path_key'],
