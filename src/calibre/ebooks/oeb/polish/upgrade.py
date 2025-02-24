@@ -169,7 +169,7 @@ def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
 
 
 def upgrade_book(container, report, remove_ncx=True):
-    if container.book_type != 'epub' or container.opf_version_parsed.major >= 3:
+    if container.book_type not in ('epub', 'kepub') or container.opf_version_parsed.major >= 3:
         report(_('No upgrade needed'))
         return False
     epub_2_to_3(container, report, remove_ncx=remove_ncx)

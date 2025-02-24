@@ -154,12 +154,11 @@ class EscapedName(BaseError):
 class TooLarge(BaseError):
 
     level = INFO
-    MAX_SIZE = 260 *1024
-    HELP = _('This HTML file is larger than %s. Too large HTML files can cause performance problems'
-             ' on some e-book readers. Consider splitting this file into smaller sections.') % human_readable(MAX_SIZE)
 
-    def __init__(self, name):
+    def __init__(self, name, max_size):
         BaseError.__init__(self, _('File too large'), name)
+        self.HELP = _('This HTML file is larger than {}. Too large HTML files can cause performance problems'
+                ' on some e-book readers. Consider splitting this file into smaller sections.').format(human_readable(max_size))
 
 
 class BadEntity(BaseError):
@@ -244,10 +243,10 @@ class EntitityProcessor:
         return b' ' * len(m.group())
 
 
-def check_html_size(name, mt, raw):
+def check_html_size(name, mt, raw, max_size=0):
     errors = []
-    if len(raw) > TooLarge.MAX_SIZE:
-        errors.append(TooLarge(name))
+    if max_size and len(raw) > max_size:
+        errors.append(TooLarge(name, max_size))
     return errors
 
 

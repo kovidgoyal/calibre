@@ -452,7 +452,7 @@ def remove_embedded_tts(container):
 
 def embed_tts(container, report_progress=None, callback_to_download_voices=None):
     report_progress = report_progress or ReportProgress()
-    if container.book_type != 'epub':
+    if container.book_type not in ('epub', 'kepub'):
         raise UnsupportedContainerType(_('Only the EPUB format has support for embedding speech overlay audio'))
     if container.opf_version_parsed[0] < 3:
         if report_progress(_('Updating book internals'), '', 0, 0):

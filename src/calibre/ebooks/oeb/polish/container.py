@@ -49,7 +49,7 @@ from calibre.ebooks.oeb.polish.errors import DRMError, InvalidBook
 from calibre.ebooks.oeb.polish.parsing import decode_xml
 from calibre.ebooks.oeb.polish.parsing import parse as parse_html_tweak
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFinder, adjust_mime_for_epub, guess_type, insert_self_closing, parse_css
-from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.filenames import hardlink_file, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
@@ -85,14 +85,14 @@ def clone_dir(src, dest):
                 shutil.copy2(spath, dpath)
 
 
-def clone_container(container, dest_dir):
+def clone_container(container, dest_dir, container_class=None):
     ' Efficiently clone a container using hard links '
     dest_dir = os.path.abspath(os.path.realpath(dest_dir))
     clone_data = container.clone_data(dest_dir)
-    cls = type(container)
-    if cls is Container:
-        return cls(None, None, container.log, clone_data=clone_data)
-    return cls(None, container.log, clone_data=clone_data)
+    container_class = container_class or type(container)
+    if container_class is Container:
+        return container_class(None, None, container.log, clone_data=clone_data)
+    return container_class(None, container.log, clone_data=clone_data)
 
 
 def name_to_abspath(name, root):
@@ -229,6 +229,7 @@ class Container(ContainerBase):  # {{{
 
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
+    MAX_HTML_FILE_SIZE = 0
 
     @property
     def book_type_for_display(self):
@@ -1121,6 +1122,7 @@ def walk_dir(basedir):
 class EpubContainer(Container):
 
     book_type = 'epub'
+    MAX_HTML_FILE_SIZE = 260 * 1024
 
     @property
     def book_type_for_display(self):
@@ -1377,6 +1379,12 @@ class EpubContainer(Container):
                 f.write(decrypt_font_data(key, data, alg))
         if outpath is None:
             outpath = self.pathtoepub
+        self.commit_epub(outpath)
+        for name, data in iteritems(restore_fonts):
+            with self.open(name, 'wb') as f:
+                f.write(data)
+
+    def commit_epub(self, outpath: str) -> None:
         if self.is_dir:
             # First remove items from the source dir that do not exist any more
             for is_root, dirpath, fname in walk_dir(self.pathtoepub):
@@ -1413,9 +1421,6 @@ class EpubContainer(Container):
                     et = et.encode('ascii')
                 f.write(et)
             zip_rebuilder(self.root, outpath)
-            for name, data in iteritems(restore_fonts):
-                with self.open(name, 'wb') as f:
-                    f.write(data)
 
     @property
     def path_to_ebook(self):
@@ -1426,6 +1431,26 @@ class EpubContainer(Container):
         self.pathtoepub = val
 
 # }}}
+
+
+class KEPUBContainer(EpubContainer):
+    book_type = 'kepub'
+    MAX_HTML_FILE_SIZE = 512 * 1024
+
+    def __init__(self, pathtokepub, log, clone_data=None, tdir=None):
+        super().__init__(pathtokepub, log=log, clone_data=clone_data, tdir=tdir)
+        from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
+        Container.commit(self, keep_parsed=True)
+        unkepubify_container(self)
+
+    def commit_epub(self, outpath: str) -> None:
+        if self.is_dir:
+            return super().commit_epub(outpath)
+        from calibre.ebooks.oeb.polish.kepubify import Options, kepubify_container
+        with TemporaryDirectory() as tdir:
+            container = clone_container(self, tdir, container_class=EpubContainer)
+            kepubify_container(container, Options())
+            container.commit(outpath)
 
 
 # AZW3 {{{
@@ -1590,8 +1615,13 @@ def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -
         isdir = False
     own_tdir = not tdir
     if ebook_cls is None:
-        ebook_cls = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
-                else EpubContainer)
+        ext = path.rpartition('.')[-1].lower()
+        ebook_cls = EpubContainer
+        if not isdir:
+            if ext in {'azw3', 'mobi', 'original_azw3', 'original_mobi'}:
+                ebook_cls = AZW3Container
+            elif ext in {'kepub', 'original_kepub'}:
+                ebook_cls = KEPUBContainer
     if own_tdir:
         tdir = PersistentTemporaryDirectory(f'_{ebook_cls.book_type}_container')
     try:

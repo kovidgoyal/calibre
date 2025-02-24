@@ -3,7 +3,7 @@
 
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
-from calibre.ebooks.oeb.polish.container import get_container
+from calibre.ebooks.oeb.polish.container import EpubContainer, get_container
 from calibre.ebooks.oeb.polish.kepubify import (
     CSS_COMMENT_COOKIE,
     DUMMY_COVER_IMAGE_NAME,
@@ -27,7 +27,7 @@ class KepubifyTests(BaseTest):
             path = get_book_for_kepubify(has_cover=has_cover, epub_version=epub_version)
             opts = Options()._replace(remove_widows_and_orphans=True, remove_at_page_rules=True)
             outpath = kepubify_path(path, opts=opts, allow_overwrite=True)
-            c = get_container(outpath, tweak_mode=True)
+            c = get_container(outpath, tweak_mode=True, ebook_cls=EpubContainer)
             spine_names = tuple(n for n, is_linear in c.spine_names)
             cname = 'titlepage.xhtml' if has_cover else f'{DUMMY_TITLE_PAGE_NAME}.xhtml'
             self.assertEqual(spine_names, (cname, 'index_split_000.html', 'index_split_001.html'))

@@ -4,10 +4,10 @@ Editing e-books
 ========================
 
 calibre has an integrated e-book editor that can be used to edit books in the
-EPUB and AZW3 (Kindle) formats. The editor shows you the HTML and CSS that is
-used internally inside the book files, with a live preview that updates as you
-make changes. It also contains various automated tools to perform common
-cleanup and fixing tasks.
+EPUB, KEPUB (Kobo) and AZW3 (Kindle) formats. The editor shows you the HTML and
+CSS that is used internally inside the book files, with a live preview that
+updates as you make changes. It also contains various automated tools to
+perform common cleanup and fixing tasks.
 
 You can use this editor by right clicking on any book in calibre and selecting
 :guilabel:`Edit book`.

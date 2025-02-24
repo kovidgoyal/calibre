@@ -51,7 +51,7 @@ CUSTOMIZATION = {
     'remove_ncx': True,
 }
 
-SUPPORTED = {'EPUB', 'AZW3'}
+SUPPORTED = {'EPUB', 'AZW3', 'KEPUB'}
 
 # Help {{{
 HELP = {'about': _(

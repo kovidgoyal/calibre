@@ -450,14 +450,16 @@ def process_path(path: str, kobo_js_href: str, metadata_lang: str, opts: Options
 def do_work_in_parallel(container: Container, kobo_js_name: str, opts: Options, metadata_lang: str, max_workers: int) -> None:
     names_that_need_work = tuple(name for name, mt in container.mime_map.items() if mt in OEB_DOCS or mt in OEB_STYLES)
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
-    paths = tuple(map(container.name_to_abspath, names_that_need_work))
+    def name_to_abspath(name: str) -> str:
+        return container.get_file_path_for_processing(name, allow_modification=True)
+
     if num_workers < 2:
         for name in names_that_need_work:
-            process_path(container.name_to_abspath(name), container.name_to_href(kobo_js_name, name), metadata_lang, opts, container.mime_map[name])
+            process_path(name_to_abspath(name), container.name_to_href(kobo_js_name, name), metadata_lang, opts, container.mime_map[name])
     else:
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = tuple(executor.submit(
-                process_path, container.name_to_abspath(name), container.name_to_href(kobo_js_name, name),
+                process_path, name_to_abspath(name), container.name_to_href(kobo_js_name, name),
                 metadata_lang, opts, container.mime_map[name]) for name in names_that_need_work)
             for future in futures:
                 future.result()
