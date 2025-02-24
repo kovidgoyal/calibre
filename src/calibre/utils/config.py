@@ -82,8 +82,8 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
             for line in help_text:
                 help_lines.extend(textwrap.wrap(line, self.help_width))
-            result.append(' '*indent_first + f'{help_lines[0]}')
-            result.extend([' '*self.help_position + f'{line}' for line in help_lines[1:]])
+            result.append(' '*indent_first + f'{help_lines[0]}\n')
+            result.extend(' '*self.help_position + f'{line}\n' for line in help_lines[1:])
         elif opts[-1] != '\n':
             result.append('\n')
         return ''.join(result)+'\n'
