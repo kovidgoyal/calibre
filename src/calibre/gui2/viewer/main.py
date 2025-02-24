@@ -196,6 +196,10 @@ def main(args=sys.argv):
                 pass
     args = processed_args
     app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)
+    import signal
+    def interrupt(a, b):
+        app.quit()
+    signal.signal(signal.SIGINT, interrupt)
     from calibre.utils.webengine import setup_default_profile
     setup_default_profile()
 
