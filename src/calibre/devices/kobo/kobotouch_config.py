@@ -288,13 +288,13 @@ class HyphenationGroupBox(DeviceOptionsGroupBox):
         mc.setValue(device.get_pref('hyphenation_min_chars'))
 
         self.min_chars_before = mc = QSpinBox(self)
-        l.addRow(_('Minimum character before hyphens') + ':', mc)
+        l.addRow(_('Minimum characters before hyphens') + ':', mc)
         mc.setSuffix(_(' characters'))
         mc.setRange(2, 20)
         mc.setValue(device.get_pref('hyphenation_min_chars_before'))
 
         self.min_chars_after = mc = QSpinBox(self)
-        l.addRow(_('Minimum character after hyphens') + ':', mc)
+        l.addRow(_('Minimum characters after hyphens') + ':', mc)
         mc.setSuffix(_(' characters'))
         mc.setRange(2, 20)
         mc.setValue(device.get_pref('hyphenation_min_chars_after'))

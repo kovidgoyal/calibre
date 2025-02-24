@@ -597,7 +597,7 @@ from calibre.ebooks.conversion.plugins.djvu_input import DJVUInput
 from calibre.ebooks.conversion.plugins.docx_input import DOCXInput
 from calibre.ebooks.conversion.plugins.docx_output import DOCXOutput
 from calibre.ebooks.conversion.plugins.epub_input import EPUBInput
-from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
+from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput, KEPUBOutput
 from calibre.ebooks.conversion.plugins.fb2_input import FB2Input
 from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
 from calibre.ebooks.conversion.plugins.html_input import HTMLInput
@@ -656,6 +656,7 @@ plugins += [
 ]
 plugins += [
     EPUBOutput,
+    KEPUBOutput,
     DOCXOutput,
     FB2Output,
     LITOutput,

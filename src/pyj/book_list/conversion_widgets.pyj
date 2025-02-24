@@ -550,6 +550,24 @@ def epub_output(container):
     g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
 # }}}
 
+# KEPUB Output {{{
+@ep
+def kepub_output(container):
+    g = E.div(class_='simple-group')
+    container.appendChild(g)
+    g.appendChild(checkbox('dont_split_on_page_breaks', _('Do not &split on page breaks')))
+    g.appendChild(int_spin('flow_size', _('Split files &larger than:'), unit='KB', max=1000000, step=20))
+    g.appendChild(lineedit('kepub_max_image_size', _('Shrink &images larger than:')))
+    g.appendChild(checkbox('kepub_affect_hyphenation', _('Enable/disable &hyphenation for this book')))
+    g.appendChild(checkbox('kepub_disable_hyphenation', _('&Prevent all hyphenation')))
+    c = _('characters')
+    g.appendChild(int_spin('kepub_hyphenation_min_chars', _('Hyphenation: &minimum word length:'), unit=c))
+    g.appendChild(int_spin('kepub_hyphenation_min_chars_before', _('Hyphenation: minimum characters &before:'), unit=c))
+    g.appendChild(int_spin('kepub_hyphenation_min_chars_after', _('Hyphenation: minimum characters &after:'), unit=c))
+    g.appendChild(int_spin('kepub_hyphenation_limit_lines', _('Hyphenation: &limit lines:'), unit=_('lines')))
+# }}}
+
+
 # DOCX Output {{{
 @ep
 def docx_output(container):

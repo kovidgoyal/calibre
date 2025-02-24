@@ -42,6 +42,31 @@ block_level_tags = (
     'ul',
 )
 
+dont_split_on_page_breaks = OptionRecommendation(name='dont_split_on_page_breaks',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Turn off splitting at page breaks. Normally, input '
+            'files are automatically split at every page break into '
+            'two files. This gives an output e-book that can be '
+            'parsed faster and with less resources. However, '
+            'splitting is slow and if your source file contains a '
+            'very large number of page breaks, you should turn off '
+            'splitting on page breaks.'
+    )
+)
+extract_to = OptionRecommendation(name='extract_to',
+    help=_('Extract the contents of the generated book to the '
+        'specified folder. The contents of the folder are first '
+        'deleted, so be careful.'))
+
+max_image_size_help = _(
+    'The maximum image size (width x height). A value of {0} means use the screen size from the output'
+    ' profile. A value of {1} means no maximum size is specified. For example, a value of {2}'
+    ' will cause all images to be resized so that their width is no more than {3} pixels and'
+    ' their height is no more than {4} pixels. Note that this only affects the size of the actual'
+    ' image files themselves. Any given image may be rendered at a different size depending on the styling'
+    ' applied to it in the document.'
+).format('none', 'profile', '100x200', 100, 200)
+
 
 class EPUBOutput(OutputFormatPlugin):
 
@@ -52,22 +77,9 @@ class EPUBOutput(OutputFormatPlugin):
     ui_data = {'versions': ('2', '3')}
 
     options = {
-        OptionRecommendation(name='extract_to',
-            help=_('Extract the contents of the generated %s file to the '
-                'specified folder. The contents of the folder are first '
-                'deleted, so be careful.') % 'EPUB'),
+        dont_split_on_page_breaks,
 
-        OptionRecommendation(name='dont_split_on_page_breaks',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Turn off splitting at page breaks. Normally, input '
-                    'files are automatically split at every page break into '
-                    'two files. This gives an output e-book that can be '
-                    'parsed faster and with less resources. However, '
-                    'splitting is slow and if your source file contains a '
-                    'very large number of page breaks, you should turn off '
-                    'splitting on page breaks.'
-                )
-        ),
+        extract_to,
 
         OptionRecommendation(name='flow_size', recommended_value=260,
             help=_('Split all HTML files larger than this size (in KB). '
@@ -126,17 +138,10 @@ class EPUBOutput(OutputFormatPlugin):
         ),
 
         OptionRecommendation(name='epub_max_image_size', recommended_value='none',
-            help=_('The maximum image size (width x height). A value of {0} means use the screen size from the output'
-                   ' profile. A value of {1} means no maximum size is specified. For example, a value of {2}'
-                   ' will cause all images to be resized so that their width is no more than {3} pixels and'
-                   ' their height is no more than {4} pixels. Note that this only affects the size of the actual'
-                   ' image files themselves. Any given image may be rendered at a different size depending on the styling'
-                   ' applied to it in the document.'
-                   ).format('none', 'profile', '100x200', 100, 200)
+            help=max_image_size_help
         ),
 
-
-        }
+    }
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
@@ -276,6 +281,11 @@ class EPUBOutput(OutputFormatPlugin):
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
             if self.opts.epub_version == '3':
                 encryption = self.upgrade_to_epub3(tdir, opf, encryption)
+            else:
+                if cb := getattr(self, 'container_callback', None):
+                    container, cxpath, encpath = self.create_container(tdir, opf, encryption)
+                    cb(container)
+                    encryption = self.end_container(cxpath, encpath)
 
             from calibre.ebooks.epub import initialize_container
             with initialize_container(output_path, os.path.basename(opf),
@@ -296,34 +306,47 @@ class EPUBOutput(OutputFormatPlugin):
                 os.mkdir(opts.extract_to)
                 with ZipFile(output_path) as zf:
                     zf.extractall(path=opts.extract_to)
-                self.log.info('EPUB extracted to', opts.extract_to)
+                self.log.info('Book extracted to:', opts.extract_to)
 
-    def upgrade_to_epub3(self, tdir, opf, encryption=None):
-        self.log.info('Upgrading to EPUB 3...')
+    def create_container(self, tdir, opf, encryption):
         from calibre.ebooks.epub import simple_container_xml
-        from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
         try:
             os.mkdir(os.path.join(tdir, 'META-INF'))
         except OSError:
             pass
         with open(os.path.join(tdir, 'META-INF', 'container.xml'), 'wb') as f:
             f.write(simple_container_xml(os.path.basename(opf)).encode('utf-8'))
+        enc_file_name = ''
         if encryption is not None:
             with open(os.path.join(tdir, 'META-INF', 'encryption.xml'), 'wb') as ef:
                 ef.write(as_bytes(encryption))
+            enc_file_name = ef.name
         from calibre.ebooks.oeb.polish.container import EpubContainer
         container = EpubContainer(tdir, self.log)
+        return container, f.name, enc_file_name
+
+    def end_container(self, cxpath, encpath):
+        os.remove(cxpath)
+        encryption = None
+        if encpath:
+            encryption = open(encpath, 'rb').read()
+            os.remove(encpath)
+        return encryption
+
+    def upgrade_to_epub3(self, tdir, opf, encryption=None):
+        self.log.info('Upgrading to EPUB 3...')
+        from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
         existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
         nav_href = getattr(self.opts, 'epub3_nav_href', None)
         previous_nav = (nav_href, existing_nav) if existing_nav is not None and nav_href else None
+        container, cxpath, encpath = self.create_container(tdir, opf, encryption)
         epub_2_to_3(container, self.log.info, previous_nav=previous_nav)
         fix_conversion_titlepage_links_in_nav(container)
         container.commit()
-        os.remove(f.name)
-        if encryption is not None:
-            encryption = open(ef.name, 'rb').read()
-            os.remove(ef.name)
+        if cb := getattr(self, 'container_callback', None):
+            cb(container)
+        encryption = self.end_container(cxpath, encpath)
         try:
             os.rmdir(os.path.join(tdir, 'META-INF'))
         except OSError:
@@ -565,3 +588,86 @@ class EPUBOutput(OutputFormatPlugin):
             simplify_toc_entry(self.oeb.toc)
 
     # }}}
+
+
+class KEPUBOutput(OutputFormatPlugin):
+
+    name = 'KEPUB Output'
+    author = 'Kovid Goyal'
+    file_type = 'kepub'
+    commit_name = 'kepub_output'
+
+    options = {
+        dont_split_on_page_breaks,
+        extract_to,
+
+        OptionRecommendation(name='flow_size', recommended_value=512,
+            help=_('Split all HTML files larger than this size (in KB). '
+                'This is necessary as some devices cannot handle large '
+                'file sizes. Set to 0 to disable size based splitting.')
+        ),
+
+        OptionRecommendation(name='kepub_max_image_size', recommended_value='none',
+            help=max_image_size_help
+        ),
+
+        OptionRecommendation(name='kepub_affect_hyphenation', recommended_value=False,
+            help=_('Modify how hyphenation is performed for this book. Note that hyphenation'
+                   ' does not perform well for all languages, as it depends on the dictionaries'
+                   ' present on the device, which are not always of the highest quality.')
+        ),
+
+        OptionRecommendation(name='kepub_disable_hyphenation', recommended_value=False,
+            help=_('Override all hyphenation settings in book, forcefully disabling hyphenation completely.')
+        ),
+
+        OptionRecommendation(name='kepub_hyphenation_min_chars', recommended_value=6,
+            help=_('Minimum word length to hyphenate, in characters.')
+        ),
+
+        OptionRecommendation(name='kepub_hyphenation_min_chars_before', recommended_value=3,
+            help=_('Minimum characters before hyphens.')
+        ),
+
+        OptionRecommendation(name='kepub_hyphenation_min_chars_after', recommended_value=3,
+            help=_('Minimum characters after hyphens.')
+        ),
+
+        OptionRecommendation(name='kepub_hyphenation_limit_lines', recommended_value=2,
+            help=_('Maximum consecutive hyphenated lines.')
+        ),
+    }
+
+    recommendations = set(EPUBOutput.recommendations)
+
+    def convert(self, oeb, output_path, input_plugin, opts, log):
+        from calibre.customize.ui import plugin_for_output_format
+        from calibre.ebooks.oeb.polish.kepubify import kepubify_container, make_options
+
+        def kepubify(container):
+            log.info('Adding Kobo markup...')
+            kopts = make_options(
+                affect_hyphenation=opts.kepub_affect_hyphenation,
+                disable_hyphenation=opts.kepub_disable_hyphenation,
+                hyphenation_min_chars=opts.kepub_hyphenation_min_chars,
+                hyphenation_min_chars_before=opts.kepub_hyphenation_min_chars_before,
+                hyphenation_min_chars_after=opts.kepub_hyphenation_min_chars_after,
+                hyphenation_limit_lines=opts.kepub_hyphenation_limit_lines,
+            )
+            kepubify_container(container, kopts)
+            container.commit()
+
+        epub_output = plugin_for_output_format('epub')
+        dp, et, fs = opts.dont_split_on_page_breaks, opts.extract_to, opts.flow_size
+        for opt in epub_output.options:
+            setattr(opts, opt.option.name, opt.recommended_value)
+        opts.epub_version = '3'
+        opts.dont_split_on_page_breaks = dp
+        opts.extract_to = et
+        opts.flow_size = fs
+        opts.epub_max_image_size = opts.kepub_max_image_size
+        epub_output.container_callback = kepubify
+        try:
+            epub_output.convert(oeb, output_path, input_plugin, opts, log)
+        finally:
+            del epub_output.container_callback
