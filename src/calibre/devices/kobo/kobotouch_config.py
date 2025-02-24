@@ -132,11 +132,19 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['bookstats_timetoread_lower_template'] = self.bookstats_timetoread_lower_template
 
         p['modify_css'] = self.modify_css
+        p['kepubify'] = self.kepubify
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
         p['driver_version'] = '.'.join([str(i) for i in self.device.version])
+
+        p['affect_hyphenation'] = self.affect_hyphenation
+        p['disable_hyphenation'] = self.disable_hyphenation
+        p['hyphenation_min_chars'] = self.hyphenation_min_chars
+        p['hyphenation_min_chars_before'] = self.hyphenation_min_chars_before
+        p['hyphenation_min_chars_after'] = self.hyphenation_min_chars_after
+        p['hyphenation_limit_lines'] = self.hyphenation_limit_lines
 
         return p
 
@@ -199,6 +207,7 @@ class Tab3Config(DeviceConfigTab):  # {{{
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
         self.hyphenation_options = h = HyphenationGroupBox(self, device)
+        self.addDeviceWidget(h)
         l.addWidget(h)
         l.addStretch()
 
@@ -257,6 +266,10 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
     @property
     def override_kobo_replace_existing(self):
         return self.override_kobo_replace_existing_checkbox.isChecked()
+
+    @property
+    def kepubify(self):
+        return self.kepubify_checkbox.isChecked()
 
 
 class HyphenationGroupBox(DeviceOptionsGroupBox):
