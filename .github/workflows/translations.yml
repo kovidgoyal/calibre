@@ -24,6 +24,7 @@ jobs:
               uses: actions/checkout@master
               with:
                 fetch-depth: 2
+                persist-credentials: false
 
             - name: Install calibre dependencies
               run: setup/arch-ci.sh
