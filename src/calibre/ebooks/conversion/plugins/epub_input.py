@@ -33,7 +33,7 @@ class EPUBInput(InputFormatPlugin):
     name        = 'EPUB Input'
     author      = 'Kovid Goyal'
     description = _('Convert EPUB files (.epub) to HTML')
-    file_types  = {'epub'}
+    file_types  = {'epub', 'kepub'}
     output_encoding = None
     commit_name = 'epub_input'
 
@@ -261,6 +261,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.utils.zipfile import ZipFile
+        is_kepub = file_ext.lower() == 'kepub'
         try:
             zf = ZipFile(stream)
             zf.extractall(os.getcwd())
@@ -282,6 +283,15 @@ class EPUBInput(InputFormatPlugin):
 
         if opf is None:
             raise ValueError(f'{path} is not a valid EPUB file (could not find opf)')
+
+        if is_kepub and not self.for_viewer:
+            log('Removing Kobo markup...')
+            from calibre.ebooks.oeb.polish.container import Container
+            from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
+            container = Container(os.getcwd(), opf, log)
+            unkepubify_container(container)
+            container.commit()
+            del container
 
         opf = os.path.relpath(opf, os.getcwd())
         parts = os.path.split(opf)
