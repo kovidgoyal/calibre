@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2022, Charles Haley
 
+from collections import defaultdict
 from functools import partial
-from math import ceil
 
 from qt.core import QIcon, QMenu, Qt, QToolButton
 
@@ -116,8 +116,6 @@ class AllGUIActions(InterfaceAction):
         def add_action(menu, display_name):
             shortcuts = shortcut_map.get(display_name.lower(), '')
             act = name_data[display_name]['action']
-            if not hasattr(act, 'popup_type'):  # FakeAction
-                return
             menu_text = f'{display_name}{shortcuts}'
             icon = name_data[display_name]['icon']
             if act.popup_type == QToolButton.ToolButtonPopupMode.MenuButtonPopup:
@@ -135,26 +133,35 @@ class AllGUIActions(InterfaceAction):
             ma.setEnabled(act.qaction.isEnabled())
 
         # Finally the real work, building the action menu. Partition long lists
-        # of actions into mostly-equal-length sublists of some arbitrary length.
+        # of actions by first letter ranges into mostly-equal-length sublists.
         def partition(names):
-            max_in_partition = 10  # arbitrary
-            if len(names) >= max_in_partition:
-                partition_count = ceil(len(names) / max_in_partition)
-                step = int(ceil(len(names) / partition_count))
-                for first in range(0, len(names), step):
-                    last = min(first + step - 1, len(names) - 1)
-                    dnf = names[first]
-                    dnl = names[last]
-                    if dnf != dnl:
-                        sm = m.addMenu(QIcon.ic('wizard.png'), f'{dnf} - {dnl}')
-                    else:
-                        sm = m.addMenu(QIcon.ic('wizard.png'), f'{dnf}')
-                    for name in names[first:last+1]:
-                        add_action(sm, name)
-            else:
-                for name in names:
-                    add_action(m, name)
+            def add_range(start_letter, end_letter, action_names):
+                # Add a N - M range. If N == M then show only N
+                sm = m.addMenu(QIcon.ic('wizard.png'),
+                               f'{start_letter}{"" if start_letter == end_letter else " - " + end_letter}')
+                for n in action_names:
+                    add_action(sm, n)
 
+            first_letters = defaultdict(list)
+            for n in names:  # Gather together actions with the same first letter
+                if not hasattr(name_data[n]['action'], 'popup_type'):  # FakeAction
+                    continue
+                first_letters[n[0].upper()].append(n)
+            if len(names) == 1:
+                add_action(m, names[0])  # A single range containing one item would be silly.
+            else:
+                min_in_partition = 7  # arbitrary.
+                start_let = None
+                for cur_let in first_letters:
+                    if start_let is None:
+                        start_let = cur_let
+                        in_partition = []
+                    in_partition.extend(first_letters[cur_let])
+                    if len(in_partition) >= min_in_partition:
+                        add_range(start_let, cur_let, in_partition)
+                        start_let = None
+                if start_let is not None:
+                    add_range(start_let, cur_let, in_partition)
         # Add a named section for builtin actions if user plugins are installed.
         if user_plugins:
             m.addSection(_('Built-in calibre actions') + ' ')
