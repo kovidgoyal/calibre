@@ -17,7 +17,7 @@ import os
 import re
 import shutil
 import time
-from contextlib import closing
+from contextlib import closing, suppress
 from datetime import datetime
 
 from calibre import fsync, prints, strftime
@@ -1630,6 +1630,17 @@ class KOBOTOUCH(KOBO):
     def get_device_information(self, end_session=True):
         self.set_device_name()
         return super().get_device_information(end_session)
+
+    def post_open_callback(self):
+        # delete empty directories in root they get left behind when deleting
+        # books on device.
+        for prefix in (self._main_prefix, self._card_a_prefix, self._card_b_prefix):
+            if prefix:
+                with suppress(OSError):
+                    for de in os.scandir(prefix):
+                        if not de.name.startswith('.') and de.is_dir():
+                            with suppress(OSError):
+                                os.rmdir(de.path)
 
     def open_linux(self):
         super().open_linux()
