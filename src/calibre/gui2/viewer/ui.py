@@ -811,6 +811,9 @@ class EbookViewer(MainWindow):
             self.cfi_changed(cfi)
         self.force_close()
 
+    def request_close(self):
+        self.close()
+
     def closeEvent(self, ev):
         if self.shutdown_done:
             return

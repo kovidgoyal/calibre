@@ -155,6 +155,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
         open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,
         calibre_book_data=internal_book_data)
     main.set_exception_handler()
+    app.shutdown_signal_received.connect(main.request_close)
     if len(args) > 1:
         acc.events.append(os.path.abspath(args[-1]))
     acc.got_file.connect(main.handle_commandline_arg)
