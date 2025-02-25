@@ -1613,7 +1613,8 @@ class Boss(QObject):
             name:container.get_file_path_for_processing(name, allow_modification=False)
             for name in names
         }
-        md.setUrls(list(map(QUrl.fromLocalFile, list(url_map.values()))))
+        from calibre.gui2.dnd import set_urls_from_local_file_paths
+        set_urls_from_local_file_paths(md, *url_map.values())
         import json
         md.setData(FILE_COPY_MIME, as_bytes(json.dumps({
             name: (url_map[name], container.mime_map.get(name)) for name in names

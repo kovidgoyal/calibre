@@ -36,7 +36,6 @@ from qt.core import (
     Qt,
     QTableView,
     QTimer,
-    QUrl,
     pyqtSignal,
 )
 
@@ -1623,7 +1622,8 @@ class DeviceBooksView(BooksView):  # {{{
         paths = [force_unicode(p, enc=filesystem_encoding) for p in m.paths(rows) if p]
         md = QMimeData()
         md.setData('application/calibre+from_device', b'dummy')
-        md.setUrls([QUrl.fromLocalFile(p) for p in paths])
+        from calibre.gui2.dnd import set_urls_from_local_file_paths
+        set_urls_from_local_file_paths(md, *paths)
         drag = QDrag(self)
         drag.setMimeData(md)
         cover = self.drag_icon(m.cover(self.currentIndex().row()), len(paths) > 1)

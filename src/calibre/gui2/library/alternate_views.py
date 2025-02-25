@@ -48,7 +48,6 @@ from qt.core import (
     QTimer,
     QToolTip,
     QTreeView,
-    QUrl,
     pyqtProperty,
     pyqtSignal,
     pyqtSlot,
@@ -208,7 +207,7 @@ def drag_data(self):
     md.setData('application/calibre+from_library', ids.encode('utf-8'))
     fmt = prefs['output_format']
 
-    def url_for_id(i):
+    def path_for_id(i):
         try:
             ans = db.format_path(i, fmt, index_is_id=True)
         except:
@@ -226,9 +225,10 @@ def drag_data(self):
                     ans = None
         if ans is None:
             ans = db.abspath(i, index_is_id=True)
-        return QUrl.fromLocalFile(ans)
+        return ans
 
-    md.setUrls([url_for_id(i) for i in selected])
+    from calibre.gui2.dnd import set_urls_from_local_file_paths
+    set_urls_from_local_file_paths(md, *[path_for_id(i) for i in selected])
     drag = QDrag(self)
     col = self.selectionModel().currentIndex().column()
     try:
