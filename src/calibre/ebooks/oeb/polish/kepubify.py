@@ -551,6 +551,25 @@ def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
     return outpath
 
 
+def check_if_css_needs_modification(extra_css: str) -> tuple[bool, bool]:
+    remove_widows_and_orphans = remove_at_page_rules = False
+    if extra_css:
+        try:
+            sheet = css_parser().parseString(extra_css)
+        except Exception:
+            pass
+        else:
+            for rule in sheet.cssRules:
+                if rule.type == CSSRule.PAGE_RULE:
+                    remove_at_page_rules = True
+                elif rule.type == CSSRule.STYLE_RULE:
+                    if rule.style['widows'] or rule.style['orphans']:
+                        remove_widows_and_orphans = True
+                if remove_widows_and_orphans and remove_at_page_rules:
+                    break
+    return sheet, remove_widows_and_orphans, remove_at_page_rules
+
+
 def make_options(
     extra_css: str = '',
     affect_hyphenation: bool = False,
@@ -559,18 +578,12 @@ def make_options(
     hyphenation_min_chars_before: int = 3,
     hyphenation_min_chars_after: int = 3,
     hyphenation_limit_lines: int = 2,
+
+    remove_widows_and_orphans: bool | None = None,
+    remove_at_page_rules: bool | None = None,
 ) -> Options:
-    remove_widows_and_orphans = remove_at_page_rules = False
-    if extra_css:
-        sheet = css_parser().parseString(extra_css)
-        for rule in sheet.cssRules:
-            if rule.type == CSSRule.PAGE_RULE:
-                remove_at_page_rules = True
-            elif rule.type == CSSRule.STYLE_RULE:
-                if rule.style['widows'] or rule.style['orphans']:
-                    remove_widows_and_orphans = True
-            if remove_widows_and_orphans and remove_at_page_rules:
-                break
+    if remove_widows_and_orphans is None or remove_at_page_rules is None:
+        _, remove_widows_and_orphans, remove_at_page_rules = check_if_css_needs_modification(extra_css)
     hyphen_css = ''
     if affect_hyphenation:
         if disable_hyphenation:

@@ -36,7 +36,10 @@ from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_
 from polyglot.builtins import iteritems, itervalues
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
-BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
+BLACKLISTED_PLUGINS = frozenset({
+    'Marvin XD',
+    'iOS reader applications',
+})
 
 
 def zip_value(iterable, value):

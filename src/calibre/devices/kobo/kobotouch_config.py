@@ -4,10 +4,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2015-2019, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
 import textwrap
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QVBoxLayout, QWidget
+from qt.core import (
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFormLayout,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QPlainTextEdit,
+    QPushButton,
+    QSpinBox,
+    Qt,
+    QVBoxLayout,
+    QWidget,
+)
 
+from calibre.devices.interface import ModelMetadata
 from calibre.gui2 import error_dialog
 from calibre.gui2.device_drivers.tabbed_device_config import DeviceConfigTab, DeviceOptionsGroupBox, TabbedDeviceConfig
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -52,10 +71,12 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
         self.tab3 = Tab3Config(self, self.device)
+        self.tab4 = Tab4Config(self, self.device)
 
         self.addDeviceTab(self.tab1, _('Collections, covers && uploads'))
         self.addDeviceTab(self.tab2, _('Metadata, on device && advanced'))
         self.addDeviceTab(self.tab3, _('Hyphenation'))
+        self.addDeviceTab(self.tab4, _('Modify CSS'))
 
     def get_pref(self, key):
         return self.device.get_pref(key)
@@ -132,6 +153,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['bookstats_timetoread_lower_template'] = self.bookstats_timetoread_lower_template
 
         p['modify_css'] = self.modify_css
+        p['per_device_css'] = self.per_device_css
         p['kepubify'] = self.kepubify
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
@@ -217,6 +239,108 @@ class Tab3Config(DeviceConfigTab):  # {{{
 # }}}
 
 
+class Tab4Config(DeviceConfigTab):  # {{{
+
+    def __init__(self, parent, device):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        self.modify_css_options = h = ModifyCSSGroupBox(self, device)
+        self.addDeviceWidget(h)
+        l.addWidget(h)
+        l.addStretch()
+
+    def validate(self):
+        return self.modify_css_options.validate()
+
+# }}}
+
+
+class ModifyCSSGroupBox(DeviceOptionsGroupBox):
+
+    def __init__(self, parent, device):
+        super().__init__(parent, device)
+        self.setTitle(_('Modify CSS of books sent to the device'))
+        self.setCheckable(True)
+        self.setChecked(device.get_pref('modify_css'))
+        self.l = l = QVBoxLayout(self)
+        self.la = la = QLabel(
+            _('This allows addition of user CSS rules and removal of some CSS. '
+            'When sending a book, the driver adds the contents of {0} to all stylesheets in the book. '
+            'This file is searched for in the root folder of the main memory of the device. '
+            'As well as this, if the file contains settings for "orphans" or "widows", '
+            'these are removed from all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
+        )
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.la2 = la = QLabel(_(
+            'Additionally, model specific CSS can be specified below:'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+        try:
+            pdcss = json.loads(device.get_pref('per_device_css') or '{}')
+        except Exception:
+            pdcss = {}
+        self.dev_list = QListWidget(self)
+        self.css_edit = QPlainTextEdit(self)
+        self.css_edit.setPlaceholderText(_('Enter the CSS to use for books on this model of device'))
+        self.css_edit.textChanged.connect(self.css_text_changed)
+        h = QHBoxLayout()
+        h.addWidget(self.dev_list), h.addWidget(self.css_edit, stretch=100)
+        l.addLayout(h)
+        for mm in [ModelMetadata('', _('All models'), -1, -1, -1, type(device))] + sorted(
+                device.model_metadata(), key=lambda x: x.model_name.lower()):
+            css = pdcss.get(f'pid={mm.product_id}', '')
+            i = QListWidgetItem(mm.model_name, self.dev_list)
+            i.setData(Qt.ItemDataRole.UserRole, (mm, css or ''))
+        self.dev_list.setCurrentRow(0)
+        self.dev_list.currentItemChanged.connect(self.current_device_changed)
+        self.current_device_changed()
+        self.clear_button = b = QPushButton(_('&Clear all model specific CSS'))
+        l.addWidget(b)
+        b.clicked.connect(self.clear_all_css)
+
+    def items(self):
+        for i in range(self.dev_list.count()):
+            yield self.dev_list.item(i)
+
+    def clear_all_css(self):
+        for item in self.items():
+            mm, css = item.data(Qt.ItemDataRole.UserRole)
+            item.setData(Qt.ItemDataRole.UserRole, (mm, ''))
+        self.current_device_changed()
+
+    def current_device_changed(self):
+        i = self.dev_list.currentItem()
+        css = ''
+        if i is not None:
+            mm, css = i.data(Qt.ItemDataRole.UserRole)
+        self.css_edit.setPlainText(css or '')
+
+    def css_text_changed(self):
+        i = self.dev_list.currentItem()
+        if i is not None:
+            mm, css = i.data(Qt.ItemDataRole.UserRole)
+            css = self.css_edit.toPlainText().strip()
+            i.setData(Qt.ItemDataRole.UserRole, (mm, css))
+
+    def validate(self):
+        return True
+
+    @property
+    def modify_css(self):
+        return self.isChecked()
+
+    @property
+    def per_device_css(self):
+        ans = {}
+        for item in self.items():
+            mm, css = item.data(Qt.ItemDataRole.UserRole)
+            if css:
+                ans[f'pid={mm.product_id}'] = css
+        return json.dumps(ans)
+
+
 class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
@@ -235,15 +359,6 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option.'
             ), device.get_pref('kepubify'))
 
-        self.modify_css_checkbox = create_checkbox(
-                _('Modify CSS'),
-                _('This allows addition of user CSS rules and removal of some CSS. '
-                'When sending a book, the driver adds the contents of {0} to all stylesheets in the book. '
-                'This file is searched for in the root folder of the main memory of the device. '
-                'As well as this, if the file contains settings for the "orphans" or "widows", '
-                'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
-                device.get_pref('modify_css')
-                )
         self.override_kobo_replace_existing_checkbox = create_checkbox(
                 _('Do not treat replacements as new books'),
                 _('When a new book is side-loaded, the Kobo firmware imports details of the book into the internal database. '
@@ -256,12 +371,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 )
 
         self.options_layout.addWidget(self.kepubify_checkbox, 0, 0, 1, 2)
-        self.options_layout.addWidget(self.modify_css_checkbox, 1, 0, 1, 2)
-        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 2, 0, 1, 2)
-
-    @property
-    def modify_css(self):
-        return self.modify_css_checkbox.isChecked()
+        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
 
     @property
     def override_kobo_replace_existing(self):

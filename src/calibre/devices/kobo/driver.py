@@ -22,6 +22,7 @@ from datetime import datetime
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG
+from calibre.devices.interface import ModelMetadata
 from calibre.devices.kobo.books import Book, ImageWrapper, KTCollectionsBookList
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
@@ -2261,34 +2262,24 @@ class KOBOTOUCH(KOBO):
         return None
 
     def get_extra_css(self):
-        extra_sheet = None
-        from css_parser.css import CSSRule
-
+        css = ''
+        sheet = None
+        self.extra_css_options = {}
         if self.modifying_css():
             extra_css_path = os.path.join(self._main_prefix, self.KOBO_EXTRA_CSSFILE)
-            if os.path.exists(extra_css_path):
-                from css_parser import parseFile as cssparseFile
-                try:
-                    extra_sheet = cssparseFile(extra_css_path)
-                    debug_print(f'KoboTouch:get_extra_css: Using extra CSS in {extra_css_path} ({len(extra_sheet.cssRules)} rules)')
-                    if len(extra_sheet.cssRules) ==0:
-                        debug_print('KoboTouch:get_extra_css: Extra CSS file has no valid rules. CSS will not be modified.')
-                        extra_sheet = None
-                except Exception as e:
-                    debug_print(f'KoboTouch:get_extra_css: Problem parsing extra CSS file {extra_css_path}')
-                    debug_print(f'KoboTouch:get_extra_css: Exception {e}')
-
-        # create dictionary of features enabled in kobo extra css
-        self.extra_css_options = {}
-        if extra_sheet:
-            # search extra_css for @page rule
-            self.extra_css_options['has_atpage'] = len(self.get_extra_css_rules(extra_sheet, CSSRule.PAGE_RULE)) > 0
-
-            # search extra_css for style rule(s) containing widows or orphans
-            self.extra_css_options['has_widows_orphans'] = len(self.get_extra_css_rules_widow_orphan(extra_sheet)) > 0
-            debug_print('KoboTouch:get_extra_css - CSS options:', self.extra_css_options)
-
-        return extra_sheet
+            with suppress(FileNotFoundError), open(extra_css_path) as src:
+                css += '\n\n' + src.read()
+            import json
+            pdcss = json.loads(self.get_pref('per_device_css') or '{}')
+            if any_device := pdcss.get('pid=-1', ''):
+                css += '\n\n' + any_device
+            key = f'pid={self.detected_product_id()}'
+            if device_css := pdcss.get(key, ''):
+                css += '\n\n' + device_css
+            if css:
+                from calibre.ebooks.oeb.polish.kepubify import check_if_css_needs_modification
+                sheet, self.extra_css_options['has_widows_orphans'],  self.extra_css_options['has_atpage'] = check_if_css_needs_modification(css)
+        return css, sheet
 
     def get_extra_css_rules(self, sheet, css_rule):
         return list(sheet.cssRules.rulesOfType(css_rule))
@@ -2308,7 +2299,7 @@ class KOBOTOUCH(KOBO):
             ext = '.' + name.rpartition('.')[-1].lower()
             return ext == EPUB_EXT and modify_epub
 
-        self.extra_sheet = self.get_extra_css()
+        self.extra_css, self.extra_sheet = self.get_extra_css()
         modifiable = {x for x in names if should_modify(x)}
         self.files_to_rename_to_kepub = set()
         if modifiable:
@@ -2321,7 +2312,7 @@ class KOBOTOUCH(KOBO):
                 self.report_progress(i / float(len(modifiable)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 mi.kte_calibre_name = n
                 if self.get_pref('kepubify'):
-                    self._kepubify(file, n, mi, self.extra_sheet)
+                    self._kepubify(file, n, mi)
                 else:
                     self._modify_epub(file, mi)
                 i += 1
@@ -2360,17 +2351,19 @@ class KOBOTOUCH(KOBO):
 
         return result
 
-    def _kepubify(self, path, name, mi, extra_css) -> None:
+    def _kepubify(self, path, name, mi) -> None:
         from calibre.ebooks.oeb.polish.kepubify import kepubify_path, make_options
         debug_print(f'Starting conversion of {mi.title} ({name}) to kepub')
         opts = make_options(
-            extra_css=extra_css or '',
+            extra_css=self.extra_css or '',
             affect_hyphenation=bool(self.get_pref('affect_hyphenation')),
             disable_hyphenation=bool(self.get_pref('disable_hyphenation')),
             hyphenation_min_chars=bool(self.get_pref('hyphenation_min_chars')),
             hyphenation_min_chars_before=bool(self.get_pref('hyphenation_min_chars_before')),
             hyphenation_min_chars_after=bool(self.get_pref('hyphenation_min_chars_after')),
             hyphenation_limit_lines=bool(self.get_pref('hyphenation_limit_lines')),
+            remove_at_page_rules=self.extra_css_options.get('has_atpage', False),
+            remove_widows_and_orphans=self.extra_css_options.get('has_widows_orphans', False),
         )
         try:
             kepubify_path(path, outpath=path, opts=opts, allow_overwrite=True)
@@ -3671,6 +3664,7 @@ class KOBOTOUCH(KOBO):
 
         c.add_opt('kepubify', default=True)
         c.add_opt('modify_css', default=False)
+        c.add_opt('per_device_css', default='{}')
         c.add_opt('override_kobo_replace_existing', default=True)  # Overriding the replace behaviour is how the driver has always worked.
 
         c.add_opt('affect_hyphenation', default=False)
@@ -3694,6 +3688,39 @@ class KOBOTOUCH(KOBO):
 
         cls.opts = opts
         return opts
+
+    @classmethod
+    def model_metadata(cls) -> tuple[ModelMetadata, ...]:
+        def m(name, pid, man='Kobo') -> ModelMetadata:
+            return ModelMetadata(man, name, cls.VENDOR_ID[-1], pid[-1], cls.BCD[-1], cls)
+        return (
+            m('Aura', cls.AURA_PRODUCT_ID),
+            m('Aura Edition 2', cls.AURA_EDITION2_PRODUCT_ID),
+            m('Aura HD', cls.AURA_HD_PRODUCT_ID),
+            m('Aura H2O', cls.AURA_H2O_PRODUCT_ID),
+            m('Aura H2O Edition 2', cls.AURA_H2O_EDITION2_PRODUCT_ID),
+            m('Aura One', cls.AURA_ONE_PRODUCT_ID),
+            m('Clara HD', cls.CLARA_HD_PRODUCT_ID),
+            m('Clara 2E', cls.CLARA_2E_PRODUCT_ID),
+            m('Clara Black and White', cls.CLARA_BW_PRODUCT_ID),
+            m('Clara Color', cls.CLARA_COLOR_PRODUCT_ID),
+            m('Elipsa', cls.ELIPSA_PRODUCT_ID),
+            m('Elipsa 2E', cls.ELIPSA_2E_PRODUCT_ID),
+            m('Forma', cls.FORMA_PRODUCT_ID),
+            m('Glo', cls.GLO_PRODUCT_ID),
+            m('Glo HD', cls.GLO_HD_PRODUCT_ID),
+            m('Libra H2O', cls.LIBRA_H2O_PRODUCT_ID),
+            m('Libra 2', cls.LIBRA2_PRODUCT_ID),
+            m('Mini', cls.MINI_PRODUCT_ID),
+            m('Nia', cls.NIA_PRODUCT_ID),
+            m('Sage', cls.SAGE_PRODUCT_ID),
+            m('Touch', cls.TOUCH_PRODUCT_ID),
+            m('Touch 2', cls.TOUCH2_PRODUCT_ID),
+
+            m('Shine 5', cls.TOLINO_SHINE_5THGEN_PRODUCT_ID, man='Tolino'),
+            m('Shine Color', cls.TOLINO_SHINE_COLOR_PRODUCT_ID, man='Tolino'),
+            m('Vision Color', cls.TOLINO_VISION_COLOR_PRODUCT_ID, man='Tolino'),
+        )
 
     def is2024Device(self):
         return self.detected_device.idProduct in self.LIBRA_COLOR_PRODUCT_ID
@@ -3770,6 +3797,21 @@ class KOBOTOUCH(KOBO):
 
     def isShineColor(self):
         return self.device_model_id.endswith('693') or self.detected_device.idProduct in self.TOLINO_SHINE_COLOR_PRODUCT_ID
+
+    def detected_product_id(self):
+        ans = self.detected_device.idProduct
+        if ans in self.LIBRA_COLOR_PRODUCT_ID:
+            mid = self.device_model_id[-3:]
+            match mid:
+                case '391':
+                    ans = self.CLARA_BW_PRODUCT_ID[-1]
+                case '393':
+                    ans = self.CLARA_COLOR_PRODUCT_ID[-1]
+                case '691':
+                    ans = self.TOLINO_SHINE_5THGEN_PRODUCT_ID[-1]
+                case '693':
+                    ans = self.TOLINO_SHINE_COLOR_PRODUCT_ID[-1]
+        return ans
 
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
