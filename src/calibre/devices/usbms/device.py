@@ -21,7 +21,7 @@ from itertools import repeat
 from calibre import prints
 from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
-from calibre.devices.interface import DevicePlugin
+from calibre.devices.interface import DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
 from polyglot.builtins import iteritems, string_or_bytes
@@ -124,6 +124,44 @@ class Device(DeviceConfig, DevicePlugin):
 
     #: Put news in its own folder
     NEWS_IN_FOLDER = True
+
+    @classmethod
+    def model_metadata(cls) -> tuple[ModelMetadata, ...]:
+        def get_representative_ids() -> tuple[int, int, int]:
+            vid = pid = bcd = 0
+            if isinstance(cls.VENDOR_ID, dict):
+                for vid, pid_map in cls.VENDOR_ID.items():
+                    for pid, bcds in pid_map.items():
+                        if isinstance(bcds, int):
+                            bcds = (bcds,)
+                        for bcd in bcds:
+                            if bcd is None:
+                                bcd = 0
+                            return vid, pid, bcd
+            elif isinstance(cls.VENDOR_ID, (list, tuple)):
+                vid = cls.VENDOR_ID[-1]
+            else:
+                vid = cls.VENDOR_ID or 0
+            if isinstance(cls.PRODUCT_ID, (list, tuple)):
+                pid = cls.PRODUCT_ID[-1]
+            else:
+                pid = cls.PRODUCT_ID or 0
+            if isinstance(cls.BCD, (list, tuple)):
+                bcd = cls.BCD[-1]
+            else:
+                bcd = cls.BCD or 0
+            return vid, pid, bcd
+        vid, pid, bcd = get_representative_ids()
+        model_name = cls.get_gui_name()
+        parts = model_name.split(' ', 1)
+        manufacturer = ''
+        if len(parts) > 1:
+            manufacturer, model_name = parts
+        else:
+            manufacturer = _('Miscellaneous')
+        return (
+            ModelMetadata(manufacturer, model_name, vid, pid, bcd, cls),
+        )
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
