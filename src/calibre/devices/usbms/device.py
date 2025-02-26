@@ -135,22 +135,20 @@ class Device(DeviceConfig, DevicePlugin):
                         if isinstance(bcds, int):
                             bcds = (bcds,)
                         for bcd in bcds:
-                            if bcd is None:
-                                bcd = 0
-                            return vid, pid, bcd
+                            return vid or 0, pid or 0, bcd or 0
             elif isinstance(cls.VENDOR_ID, (list, tuple)):
                 vid = cls.VENDOR_ID[-1]
             else:
-                vid = cls.VENDOR_ID or 0
+                vid = cls.VENDOR_ID
             if isinstance(cls.PRODUCT_ID, (list, tuple)):
                 pid = cls.PRODUCT_ID[-1]
             else:
-                pid = cls.PRODUCT_ID or 0
+                pid = cls.PRODUCT_ID
             if isinstance(cls.BCD, (list, tuple)):
                 bcd = cls.BCD[-1]
             else:
-                bcd = cls.BCD or 0
-            return vid, pid, bcd
+                bcd = cls.BCD
+            return vid or 0, pid or 0, bcd or 0
         vid, pid, bcd = get_representative_ids()
         model_name = cls.get_gui_name()
         parts = model_name.split(' ', 1)
