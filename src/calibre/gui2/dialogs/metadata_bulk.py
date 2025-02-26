@@ -624,6 +624,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
         self.adddate.dateTimeChanged.connect(self.do_apply_adddate)
+        cuh = self.db.new_api.pref('categories_using_hierarchy', default=())
+        if 'series' in cuh:
+            self.series.set_hierarchy_separator('.')
+        if 'tags' in cuh:
+            self.tags.set_hierarchy_separator('.')
+            self.remove_tags.set_hierarchy_separator('.')
         self.casing_algorithm.addItems([
             _('Title case'), _('Capitalize'), _('Upper case'), _('Lower case'), _('Swap case')
         ])

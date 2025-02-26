@@ -353,6 +353,10 @@ class TextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegat
                 editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
+            if self.auto_complete_function_name.startswith('all_'):
+                field = self.auto_complete_function_name[4:]
+                if field in db.new_api.pref('categories_using_hierarchy', default=()):
+                    editor.set_hierarchy_separator('.')
             complete_items = [i[1] for i in f()]
             editor.update_items_cache(complete_items)
         else:
@@ -403,6 +407,8 @@ class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDel
             editor = EditWithComplete(parent)
             if col == 'tags':
                 editor.set_elide_mode(Qt.TextElideMode.ElideMiddle)
+            if col in db.new_api.pref('categories_using_hierarchy', default=()):
+                editor.set_hierarchy_separator('.')
             editor.set_separator(self.sep)
             editor.set_clear_button_enabled(False)
             editor.set_space_before_sep(self.space_before_sep)
@@ -518,6 +524,8 @@ class CcTextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDeleg
                 editor = EditWithComplete(parent)
             editor.set_separator(None)
             editor.set_clear_button_enabled(False)
+            if col in m.db.new_api.pref('categories_using_hierarchy', default=()):
+                editor.set_hierarchy_separator('.')
             complete_items = sorted(m.db.all_custom(label=key), key=sort_key)
             editor.update_items_cache(complete_items)
         else:

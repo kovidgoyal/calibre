@@ -66,6 +66,11 @@ class MetadataWidget(Widget, Ui_Form):
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
         self.series.currentTextChanged.connect(self.series_changed)
+        cuh = self.db.new_api.pref('categories_using_hierarchy', default=())
+        if 'series' in cuh:
+            self.series.set_hierarchy_separator('.')
+        if 'tags' in cuh:
+            self.tags.set_hierarchy_separator('.')
         self.cover.draw_border = False
 
     def change_cover(self, data):

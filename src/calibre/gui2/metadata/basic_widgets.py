@@ -660,6 +660,8 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()
+        if 'series' in db.new_api.pref('categories_using_hierarchy', default=()):
+            self.set_hierarchy_separator('.')
         self.update_items_cache(db.new_api.all_field_names('series'))
         series = db.new_api.field_for('series', id_)
         self.current_val = self.original_val = series or ''
@@ -1502,6 +1504,8 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()
+        if 'tags' in db.new_api.pref('categories_using_hierarchy', default=()):
+            self.set_hierarchy_separator('.')
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags

@@ -282,8 +282,13 @@ def query_contains(haystack, needle):
     return haystack.toLowerCase().indexOf(needle) is not -1
 
 
-def query_startswitch(haystack, needle):
-    return haystack.toLowerCase().indexOf(needle) is 0
+def query_startswith(haystack, needle):
+    return haystack.toLowerCase().startsWith(needle)
+
+
+def query_startswith_hierarchical(haystack, needle):
+    haystack = haystack.toLowerCase()
+    return haystack.startsWith(needle) or haystack.indexOf('.' + needle) is not -1
 
 
 def update_removals(container_id):
@@ -337,7 +342,12 @@ def update_completions(container_id, ok, field, names):
     if needle:
         interface_data = get_interface_data()
         universe = update_completions.names if update_completions.prefix and needle.startswith(update_completions.prefix.toLowerCase()) else names
-        q = query_contains if interface_data.completion_mode is 'contains' else query_startswitch
+        if interface_data.completion_mode is 'contains':
+            q = query_contains
+        else:
+            q = query_startswith
+            if library_data.categories_using_hierarchy and library_data.categories_using_hierarchy.indexOf(field) is not -1:
+                q = query_startswith_hierarchical
         matching_names = [x for x in universe if q(x, needle) and x is not prefix]
     else:
         matching_names = []

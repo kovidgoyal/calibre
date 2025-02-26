@@ -101,6 +101,14 @@ class Base:
             except:
                 pass
 
+    @property
+    def field_name(self) -> str:
+        return self.db.field_metadata.label_to_key(self.col_metadata['label'], prefer_custom=True)
+
+    @property
+    def hierarchy_separator(self) -> str:
+        return '.' if self.field_name in self.db.new_api.pref('categories_using_hierarchy', default=()) else ''
+
     def finish_ui_setup(self, parent, edit_widget):
         self.was_none = False
         w = QWidget(parent)
@@ -568,6 +576,10 @@ class MultipleWidget(QWidget):
     def set_separator(self, sep):
         self.edit_widget.set_separator(sep)
 
+    def set_hierarchy_separator(self, sep):
+        if hasattr(self.edit_widget, 'set_hierarchy_separator'):
+            self.edit_widget.set_hierarchy_separator(sep)
+
     def set_add_separator(self, sep):
         self.edit_widget.set_add_separator(sep)
 
@@ -611,6 +623,7 @@ class Text(Base):
             w = MultipleWidget(parent, only_manage_items=True, name=self.col_metadata['name'])
             w.set_separator(None)
             w.get_editor_button().clicked.connect(super().edit)
+        w.set_hierarchy_separator(self.hierarchy_separator)
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.set_to_undefined = w.clear
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
@@ -693,6 +706,7 @@ class Series(Base):
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.set_to_undefined = w.clear
         w.set_separator(None)
+        w.set_hierarchy_separator(self.hierarchy_separator)
         self.name_widget = w.edit_widget
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, lambda parent: w)
@@ -784,6 +798,7 @@ class Enumeration(Base):
         self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
                                                        prefer_custom=True)
         w = MultipleWidget(parent, only_manage_items=True, widget=QComboBox, name=self.col_metadata['name'])
+        w.set_hierarchy_separator(self.hierarchy_separator)
         w.get_editor_button().clicked.connect(self.edit)
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
@@ -1085,6 +1100,8 @@ class BulkBase(Base):
         l.setContentsMargins(0, 0, 0, 0)
         w.setLayout(l)
         self.main_widget = main_widget_class(w)
+        if (hs := self.hierarchy_separator) and hasattr(self.main_widget, 'set_hierarchy_separator'):
+            self.main_widget.set_hierarchy_separator(hs)
         l.addWidget(self.main_widget)
         l.setStretchFactor(self.main_widget, 10)
         self.a_c_checkbox = QCheckBox(_('Apply changes'), w)
