@@ -39,6 +39,13 @@ builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({
     'Marvin XD',
     'iOS reader applications',
+
+    # Subsumed by builtin functionality
+    'KoboTouchExtended',
+    'KePub Input',
+    'KePub Output',
+    'KePub Metadata Reader',
+    'KePub Metadata Writer',
 })
 
 
