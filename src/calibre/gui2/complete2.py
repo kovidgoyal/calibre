@@ -77,7 +77,10 @@ class CompleteModel(QAbstractListModel):  # {{{
         universe = self.current_items if subset else self.all_items
         func = primary_startswith if tweaks['completion_mode'] == 'prefix' else containsq
         if func is primary_startswith and hierarchy_separator:
-            func = partial(hierarchy_startswith, sep=hierarchy_separator)
+            if hierarchy_separator != '.':
+                func = partial(hierarchy_startswith, sep=hierarchy_separator)
+            else:
+                func = hierarchy_startswith
         self.beginResetModel()
         self.current_items = tuple(x for x in universe if func(x, prefix))
         self.endResetModel()
