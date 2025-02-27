@@ -54,7 +54,7 @@ META_NAMES = {
     'series_index': ('seriesnumber', 'series_index', 'series.index'),
     'rating': ('rating',),
     'comments': ('comments', 'dc.description'),
-    'tags': ('tags',),
+    'tags': ('tags', 'subject'),
 }
 rmap_comment = {v:k for k, v in iteritems(COMMENT_NAMES)}
 rmap_meta = {v:k for k, l in iteritems(META_NAMES) for v in l}
