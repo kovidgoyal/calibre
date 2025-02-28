@@ -2316,7 +2316,7 @@ class KOBOTOUCH(KOBO):
                     print(f'kepubify template: {template} returned error', file=sys.stderr)
                     kepubifiable.add(mi.uuid)
                     return True
-                if kepubify and kepubify != 'false':
+                if kepubify and kepubify.lower() not in ('false', '0', 'no'):
                     kepubifiable.add(mi.uuid)
                     return True
                 return False
