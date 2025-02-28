@@ -2310,13 +2310,16 @@ class KOBOTOUCH(KOBO):
                     return True
                 from calibre.ebooks.metadata.book.formatter import SafeFormat
                 kepubify = SafeFormat().safe_format(template, mi, 'Open With template error', mi)
-                debug_print(f'kepubify_template_result for {mi.title}:', kepubify)
+                debug_print(f'kepubify_template_result for {mi.title}:', repr(kepubify))
                 if kepubify is not None and kepubify.startswith('PLUGBOARD TEMPLATE ERROR'):
                     import sys
                     print(f'kepubify template: {template} returned error', file=sys.stderr)
                     kepubifiable.add(mi.uuid)
                     return True
-                return kepubify and kepubify != 'false'
+                if kepubify and kepubify != 'false':
+                    kepubifiable.add(mi.uuid)
+                    return True
+                return False
             return modify_css
 
         self.extra_css, self.extra_sheet = self.get_extra_css()
