@@ -155,6 +155,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['modify_css'] = self.modify_css
         p['per_device_css'] = self.per_device_css
         p['kepubify'] = self.kepubify
+        p['template_for_kepubify'] = self.template_for_kepubify
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
         p['support_newer_firmware'] = self.support_newer_firmware
@@ -359,6 +360,20 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option.'
             ), device.get_pref('kepubify'))
 
+        self.template_la = la = QLabel('\xa0\xa0' + _('Template to decide conversion:'))
+        self.kepubify_template_edit = TemplateConfig(
+            device.get_pref('template_for_kepubify'),
+            tooltip=_(
+                'Enter a template to decide if an EPUB book is to be auto converted to KEPUB. '
+                'If the template returns false or no result, the book will not be '
+                'converted to KEPUB. For example to only kepubify books that have the tag "as_kepub", use the template: {0}'
+                ' or to only convert books that do not have the tag as_epub, use the template: {1}'
+                '\n\nIf no template is specified conversion to KEPUB is controlled only by the setting above to use the Kobo viewer. '
+                'Note that the setting above must be enabled for the template to be checked.'
+            ).format(r'{tags:str_in_list(\,,as_kepub,true,false)}', r'{tags:str_in_list(\,,as_epub,false,true)}')
+        )
+        la.setBuddy(self.kepubify_template_edit)
+
         self.override_kobo_replace_existing_checkbox = create_checkbox(
                 _('Do not treat replacements as new books'),
                 _('When a new book is side-loaded, the Kobo firmware imports details of the book into the internal database. '
@@ -371,7 +386,14 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 )
 
         self.options_layout.addWidget(self.kepubify_checkbox, 0, 0, 1, 2)
-        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.template_la, 1, 0, 1, 1)
+        self.options_layout.addWidget(self.kepubify_template_edit, 1, 1, 1, 1)
+        self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 2, 0, 1, 2)
+        self.update_template_state()
+        self.kepubify_checkbox.toggled.connect(self.update_template_state)
+
+    def update_template_state(self):
+        self.kepubify_template_edit.setEnabled(self.kepubify)
 
     @property
     def override_kobo_replace_existing(self):
@@ -380,6 +402,10 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
     @property
     def kepubify(self):
         return self.kepubify_checkbox.isChecked()
+
+    @property
+    def template_for_kepubify(self):
+        return (self.kepubify_template_edit.template or '').strip()
 
 
 class HyphenationGroupBox(DeviceOptionsGroupBox):

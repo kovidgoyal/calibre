@@ -2294,24 +2294,43 @@ class KOBOTOUCH(KOBO):
         debug_print(f'KoboTouch:upload_books - {len(files)} books')
         debug_print('KoboTouch:upload_books - files=', files)
 
-        modify_epub = self.modifying_epub() or self.get_pref('kepubify')
-        def should_modify(name: str) -> bool:
-            ext = '.' + name.rpartition('.')[-1].lower()
-            return ext == EPUB_EXT and modify_epub
+        do_kepubify = self.get_pref('kepubify')
+        template = self.get_pref('template_for_kepubify')
+        modify_css = self.modifying_epub()
+        entries = tuple(zip(files, names, metadata))
+        kepubifiable = set()
+
+        def should_modify(name: str, mi) -> bool:
+            mi.kte_calibre_name = name
+            if not name.lower().endswith(EPUB_EXT):
+                return False
+            if do_kepubify:
+                if not template:
+                    kepubifiable.add(mi.uuid)
+                    return True
+                from calibre.ebooks.metadata.book.formatter import SafeFormat
+                kepubify = SafeFormat().safe_format(template, mi, 'Open With template error', mi)
+                debug_print(f'kepubify_template_result for {mi.title}:', kepubify)
+                if kepubify is not None and kepubify.startswith('PLUGBOARD TEMPLATE ERROR'):
+                    import sys
+                    print(f'kepubify template: {template} returned error', file=sys.stderr)
+                    kepubifiable.add(mi.uuid)
+                    return True
+                return kepubify and kepubify != 'false'
+            return modify_css
 
         self.extra_css, self.extra_sheet = self.get_extra_css()
-        modifiable = {x for x in names if should_modify(x)}
+        modifiable = {mi.uuid for _, name, mi in entries if should_modify(name, mi)}
         self.files_to_rename_to_kepub = set()
         if modifiable:
             i = 0
-            for idx, (file, n, mi) in enumerate(zip(files, names, metadata)):
-                if n not in modifiable:
+            for idx, (file, n, mi) in enumerate(entries):
+                if mi.uuid not in modifiable:
                     continue
                 debug_print('KoboTouch:upload_books: Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 debug_print(f'KoboTouch:upload_books: file={file}, name={n}')
                 self.report_progress(i / float(len(modifiable)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
-                mi.kte_calibre_name = n
-                if self.get_pref('kepubify'):
+                if mi.uuid in kepubifiable:
                     self._kepubify(file, n, mi)
                 else:
                     self._modify_epub(file, mi)
@@ -3663,6 +3682,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('bookstats_timetoread_lower_template', default=None)
 
         c.add_opt('kepubify', default=True)
+        c.add_opt('template_for_kepubify', default=None)
         c.add_opt('modify_css', default=False)
         c.add_opt('per_device_css', default='{}')
         c.add_opt('override_kobo_replace_existing', default=True)  # Overriding the replace behaviour is how the driver has always worked.

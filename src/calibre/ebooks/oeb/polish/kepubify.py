@@ -553,11 +553,12 @@ def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
 
 def check_if_css_needs_modification(extra_css: str) -> tuple[bool, bool]:
     remove_widows_and_orphans = remove_at_page_rules = False
+    sheet = None
     if extra_css:
         try:
             sheet = css_parser().parseString(extra_css)
         except Exception:
-            sheet = None
+            pass
         else:
             for rule in sheet.cssRules:
                 if rule.type == CSSRule.PAGE_RULE:
