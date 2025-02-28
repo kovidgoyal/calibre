@@ -110,7 +110,12 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         tprefs.refresh()  # In case they were changed in a Tweak Book process
         if len(tweakable_fmts) > 1:
             if tprefs['choose_tweak_fmt']:
-                d = Choose(title, sorted(tweakable_fmts, key=tprefs.defaults['tweak_fmt_order'].index), self.gui)
+                def index(x):
+                    try:
+                        return tprefs.defaults['tweak_fmt_order'].index(x)
+                    except Exception:
+                        return len(tprefs.defaults['tweak_fmt_order'])
+                d = Choose(title, sorted(tweakable_fmts, key=index), self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:
                     return
                 tweakable_fmts = {d.fmt}
