@@ -539,6 +539,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by '
                 'the collection management. The collections listed '
                 'will not be changed. Names are separated by commas.'))
+        self.ignore_collections_names_label.setToolTip(self.ignore_collections_names_edit.toolTip())
         self.ignore_collections_names_edit.setText(device.get_pref('ignore_collections_names'))
 
         self.options_layout.addWidget(self.use_collections_columns_checkbox,  1, 0, 1, 1)
