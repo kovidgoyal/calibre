@@ -155,6 +155,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['modify_css'] = self.modify_css
         p['per_device_css'] = self.per_device_css
         p['kepubify'] = self.kepubify
+        p['kepubify_ignore_tolino'] = self.kepubify_ignore_tolino
         p['template_for_kepubify'] = self.template_for_kepubify
         p['override_kobo_replace_existing'] = self.override_kobo_replace_existing
 
@@ -360,6 +361,11 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option.'
             ), device.get_pref('kepubify'))
 
+        self.kepubify_ignore_tolino_checkbox = create_checkbox(
+            _('Ignore for Tolino devices'), _(
+                'Since Tolino devices don\'t support KEPUB files, ignore this setting.'
+            ), device.get_pref('kepubify_ignore_tolino'))
+
         self.template_la = la = QLabel('\xa0\xa0' + _('Template to decide conversion:'))
         self.kepubify_template_edit = TemplateConfig(
             device.get_pref('template_for_kepubify'),
@@ -387,15 +393,21 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 device.get_pref('override_kobo_replace_existing')
                 )
 
-        self.options_layout.addWidget(self.kepubify_checkbox, 0, 0, 1, 2)
+        self.options_layout.addWidget(self.kepubify_checkbox, 0, 0, 1, 1)
+        self.options_layout.addWidget(self.kepubify_ignore_tolino_checkbox, 0, 1, 1, 1)
         self.options_layout.addWidget(self.template_la, 1, 0, 1, 1)
         self.options_layout.addWidget(self.kepubify_template_edit, 1, 1, 1, 1)
         self.options_layout.addWidget(self.override_kobo_replace_existing_checkbox, 2, 0, 1, 2)
         self.update_template_state()
         self.kepubify_checkbox.toggled.connect(self.update_template_state)
+        self.update_ignore_tolino_state()
+        self.kepubify_checkbox.toggled.connect(self.update_ignore_tolino_state)
 
     def update_template_state(self):
         self.kepubify_template_edit.setEnabled(self.kepubify)
+
+    def update_ignore_tolino_state(self):
+        self.kepubify_ignore_tolino_checkbox.setEnabled(self.kepubify)
 
     @property
     def override_kobo_replace_existing(self):
@@ -404,6 +416,10 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
     @property
     def kepubify(self):
         return self.kepubify_checkbox.isChecked()
+
+    @property
+    def kepubify_ignore_tolino(self):
+        return self.kepubify_ignore_tolino_checkbox.isChecked()
 
     @property
     def template_for_kepubify(self):

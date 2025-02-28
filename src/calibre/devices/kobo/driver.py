@@ -2294,7 +2294,7 @@ class KOBOTOUCH(KOBO):
         debug_print(f'KoboTouch:upload_books - {len(files)} books')
         debug_print('KoboTouch:upload_books - files=', files)
 
-        do_kepubify = self.get_pref('kepubify')
+        do_kepubify = self.get_pref('kepubify') and not (self.isTolinoDevice() and self.get_pref('kepubify_ignore_tolino'))
         template = self.get_pref('template_for_kepubify')
         modify_css = self.modifying_epub()
         entries = tuple(zip(files, names, metadata))
@@ -3682,6 +3682,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('bookstats_timetoread_lower_template', default=None)
 
         c.add_opt('kepubify', default=True)
+        c.add_opt('kepubify_ignore_tolino', default=True)
         c.add_opt('template_for_kepubify', default=None)
         c.add_opt('modify_css', default=False)
         c.add_opt('per_device_css', default='{}')
