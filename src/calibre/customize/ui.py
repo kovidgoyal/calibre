@@ -782,6 +782,12 @@ def initialize_plugins(perf=False):
     for p in system_conflicts:
         system_plugins.pop(p, None)
     external_plugins = config['plugins'].copy()
+
+    if 'KoboTouchExtended' in external_plugins and is_disabled('KoboTouch') and not is_disabled('KoboTouchExtended'):
+        # We remove KoboTouchExtended and re-enable KoboTouch so that the Kobo
+        # device keeps working even though KoboTouchExtended is blacklisted.
+        disable_plugin('KoboTouchExtended')
+        enable_plugin('KoboTouch')
     for name in BLACKLISTED_PLUGINS:
         external_plugins.pop(name, None)
         system_plugins.pop(name, None)
