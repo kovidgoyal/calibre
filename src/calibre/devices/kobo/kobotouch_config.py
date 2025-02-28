@@ -363,14 +363,16 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
         self.template_la = la = QLabel('\xa0\xa0' + _('Template to decide conversion:'))
         self.kepubify_template_edit = TemplateConfig(
             device.get_pref('template_for_kepubify'),
-            tooltip=_(
+            tooltip='<p>' + _(
                 'Enter a template to decide if an EPUB book is to be auto converted to KEPUB. '
                 'If the template returns false or no result, the book will not be '
-                'converted to KEPUB. For example to only kepubify books that have the tag "{0}", use the template: {1}'
-                ' or to only convert books that do not have the tag "{2}", use the template: {3}'
-                '\n\nIf no template is specified conversion to KEPUB is controlled only by the setting above to use the Kobo viewer. '
+                'converted to KEPUB. For example to only kepubify books that have the tag <i>{0}</i>, use the template: <code>{1}</code>'
+                ' or to only convert books that do not have the tag <i>{2}</i>, use the template: <code>{3}</code>').format(
+                    'as_kepub', r'{tags:str_in_list(\,,as_kepub,true,false)}', 'as_epub', r'{tags:str_in_list(\,,as_epub,false,true)}'
+                ) + '<p>'+_(
+                'If no template is specified conversion to KEPUB is controlled only by the setting above to use the Kobo viewer. '
                 'Note that the setting above must be enabled for the template to be checked.'
-            ).format('as_kepub', r'{tags:str_in_list(\,,as_kepub,true,false)}', 'as_epub', r'{tags:str_in_list(\,,as_epub,false,true)}')
+            )
         )
         la.setBuddy(self.kepubify_template_edit)
 
