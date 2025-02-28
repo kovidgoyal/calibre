@@ -357,7 +357,9 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 'Kobo devices have two viewer programs for EPUB files on their devices. An older one from Adobe and'
                 ' the Kobo one. The Kobo one has much better performance and features and so, by default,'
                 ' calibre will auto-convert EPUB books to the Kobo KEPUB format so that they are viewed by'
-                ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option.'
+                ' the Kobo viewer. If you would rather use the legacy viewer for EPUB, disable this option. Note'
+                ' that this option has no effect if the device does not support KEPUB, such as for Tolino devices'
+                ' that also use this driver.'
             ), device.get_pref('kepubify'))
 
         self.template_la = la = QLabel('\xa0\xa0' + _('Template to decide conversion:'))

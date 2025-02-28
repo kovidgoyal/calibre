@@ -2294,7 +2294,7 @@ class KOBOTOUCH(KOBO):
         debug_print(f'KoboTouch:upload_books - {len(files)} books')
         debug_print('KoboTouch:upload_books - files=', files)
 
-        do_kepubify = self.get_pref('kepubify')
+        do_kepubify = self.get_pref('kepubify') and not self.isTolinoDevice()
         template = self.get_pref('template_for_kepubify')
         modify_css = self.modifying_epub()
         entries = tuple(zip(files, names, metadata))
