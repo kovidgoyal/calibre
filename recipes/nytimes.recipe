@@ -201,7 +201,7 @@ class NewYorkTimes(BasicNewsRecipe):
                     url = adata.get('url')
                     summary = adata.get('summary')
                     headline = adata.get('headline')
-                    if url and headline:
+                    if url and headline and 'id' in headline:
                         title = data[headline['id']]['default']
                         article_map[adata['id']] = {
                             'title': title, 'url': url, 'description': summary or ''}
