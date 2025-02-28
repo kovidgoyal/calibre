@@ -557,7 +557,7 @@ def check_if_css_needs_modification(extra_css: str) -> tuple[bool, bool]:
         try:
             sheet = css_parser().parseString(extra_css)
         except Exception:
-            pass
+            sheet = None
         else:
             for rule in sheet.cssRules:
                 if rule.type == CSSRule.PAGE_RULE:
