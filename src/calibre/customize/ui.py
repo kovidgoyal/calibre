@@ -671,6 +671,13 @@ def device_plugins(include_disabled=False):
                     yield plugin
 
 
+def usbms_plugins(include_disabled=True):
+    from calibre.devices.usbms.driver import USBMS
+    for plugin in device_plugins(include_disabled):
+        if isinstance(plugin, USBMS) and plugin.name not in ('Folder Device Interface',):
+            yield plugin
+
+
 def disabled_device_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
