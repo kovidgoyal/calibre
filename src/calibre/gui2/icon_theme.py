@@ -212,6 +212,19 @@ def default_cover_icons(cols=5):
 def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=False):
     icons = icons or tuple(default_cover_icons(cols))
     rows = int(math.ceil(len(icons) / cols))
+
+    def get_path_for_icon(icon: str) -> str:
+        if report is not None:
+            if icon in report.name_map:
+                return os.path.join(report.path, report.name_map[icon])
+            candidates = ('dark', 'light') if darkbg else ('light', 'dark')
+            for candidate in candidates:
+                base, ext = os.path.splitext(icon)
+                q = f'{base}-for-{candidate}-theme{ext}'
+                if q in report.name_map:
+                    return os.path.join(report.path, report.name_map[q])
+        return I(icon, allow_user_override=False)
+
     with Canvas(cols * (size + padding), rows * (size + padding), bgcolor='#444' if darkbg else '#eee') as canvas:
         y = -size - padding // 2
         x = 0
@@ -221,10 +234,7 @@ def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=Fal
                 x = padding // 2
             else:
                 x += size + padding
-            if report and icon in report.name_map:
-                ipath = os.path.join(report.path, report.name_map[icon])
-            else:
-                ipath = I(icon, allow_user_override=False)
+            ipath = get_path_for_icon(icon)
             with open(ipath, 'rb') as f:
                 img = image_from_data(f.read())
             scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
