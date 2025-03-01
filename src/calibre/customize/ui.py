@@ -133,11 +133,11 @@ default_disabled_plugins = {
 }
 
 
-def is_disabled(plugin):
-    if plugin.name in config['enabled_plugins']:
+def is_disabled(plugin_or_name):
+    name = getattr(plugin_or_name, 'name', plugin_or_name)
+    if name in config['enabled_plugins']:
         return False
-    return plugin.name in config['disabled_plugins'] or \
-            plugin.name in default_disabled_plugins
+    return name in config['disabled_plugins'] or name in default_disabled_plugins
 # }}}
 
 
