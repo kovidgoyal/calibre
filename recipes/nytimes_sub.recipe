@@ -192,8 +192,7 @@ class NewYorkTimes(BasicNewsRecipe):
         data = json.loads(json_data.replace(':undefined', ':null'))['initialState']
         containers, sections = {}, {}
         article_map = {}
-        gc_pat = re.compile(r'groupings.(\d+).containers.(\d+)')
-        pat = re.compile(r'groupings.(\d+).containers.(\d+).relations.(\d+)')
+        sections = []
         for key in data:
             if 'Article' in key:
                 adata = data[key]
@@ -202,35 +201,38 @@ class NewYorkTimes(BasicNewsRecipe):
                     summary = adata.get('summary')
                     headline = adata.get('headline')
                     if url and headline:
-                        title = data[headline['id']]['default']
+                        title = headline['default']
                         article_map[adata['id']] = {
                             'title': title, 'url': url, 'description': summary or ''}
-            elif 'Legacy' in key:
-                sdata = data[key]
-                tname = sdata.get('__typename')
-                if tname == 'LegacyCollectionContainer':
-                    m = gc_pat.search(key)
-                    containers[int(m.group(2))] = sdata['label'] or sdata['name']
-                elif tname == 'LegacyCollectionRelation':
-                    m = pat.search(key)
-                    grouping, container, relation = map(int, m.groups())
-                    asset = sdata['asset']
-                    if asset and asset['typename'] == 'Article' and grouping == 0:
-                        if container not in sections:
-                            sections[container] = []
-                        sections[container].append(asset['id'].split(':', 1)[1])
+            elif 'LegacyCollection:' in key:
+                lc = data[key]
+                if not lc.get('active'):
+                    continue
+                for sdata in lc['groupings']:
+                    tname = sdata.get('__typename')
+                    if tname != 'LegacyCollectionGrouping':
+                        continue
+                    for cont in sdata['containers']:
+                        if cont.get('__typename') == 'LegacyCollectionContainer':
+                            section_name = cont['label@stripHtml']
+                            articles = []
+                            for rel in cont['relations']:
+                                if rel.get('__typename') == 'LegacyCollectionRelation':
+                                    asset = rel['asset']['__ref']
+                                    if asset.startswith('Article:'):
+                                        articles.append(asset.partition(':')[2])
+                            if articles:
+                                sections.append((section_name, articles))
 
         feeds = []
-        for container_num in sorted(containers):
-            section_title = containers[container_num]
-            if container_num in sections:
-                articles = sections[container_num]
-                if articles:
-                    feeds.append((section_title, []))
-                    for artid in articles:
-                        if artid in article_map:
-                            art = article_map[artid]
-                            feeds[-1][1].append(art)
+        for section_title, article_ids in sections:
+            articles = []
+            for aid in article_ids:
+                if aid in article_map:
+                    art = article_map[aid]
+                    articles.append(art)
+            if articles:
+                feeds.append((section_title, articles))
 
         def skey(x):
             name = x[0].strip()
@@ -368,5 +370,6 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
-        if not re.search(r'/video/|/athletic/', url):
+        if not re.search(r'/video/|/athletic/|/card/', url):
             return url
+        self.log('\tSkipping ', url)
