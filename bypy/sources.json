@@ -532,59 +532,59 @@
         "name": "ffmpeg",
 		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
 		"unix": {
-			"filename": "ffmpeg-6.1.2.tar.xz",
-			"hash": "sha256:3b624649725ecdc565c903ca6643d41f33bd49239922e45c9b1442c63dca4e38",
+			"filename": "ffmpeg-7.1.tar.xz",
+			"hash": "sha256:40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6",
 			"urls": ["https://www.ffmpeg.org/releases/{filename}"]
 		}
     },
 
     {
         "name": "qt-base",
-        "version": "6.7.2",
+        "version": "6.8.2",
         "hashes": {
-            "unix": "sha256:c5f22a5e10fb162895ded7de0963328e7307611c688487b5d152c9ee64767599"
+            "unix": "sha256:012043ce6d411e6e8a91fdc4e05e6bedcfa10fcb1347d3c33908f7fdd10dfe05"
         }
     },
 
     {
         "name": "qt-svg",
         "hashes": {
-            "unix": "sha256:fb0d1286a35be3583fee34aeb5843c94719e07193bdf1d4d8b0dc14009caef01"
+            "unix": "sha256:aa2579f21ca66d19cbcf31d87e9067e07932635d36869c8239d4decd0a9dc1fa"
         }
     },
 
     {
         "name": "qt-shadertools",
         "hashes": {
-            "unix": "sha256:edfa34c0ac8c00fcaa949df1d8e7a77d89dadd6386e683ce6c3e3b117e2f7cc1"
+            "unix": "sha256:d1d5f90e8885fc70d63ac55a4ce4d9a2688562033a000bc4aff9320f5f551871"
         }
     },
 
     {
         "name": "qt-declarative",
         "hashes": {
-            "unix": "sha256:4c29cba1af8c42d425d8eb6e01bad24cb80f4b983d71eef566a0542dfdb9b999"
+            "unix": "sha256:144d876adc8bb55909735143e678d1e24eadcd0a380a0186792d88b731346d56"
         }
     },
 
     {
         "name": "qt-imageformats",
         "hashes": {
-            "unix": "sha256:e1a1d8785fae67d16ad0a443b01d5f32663a6b68d275f1806ebab257485ce5d6"
+            "unix": "sha256:d2a1bbb84707b8a0aec29227b170be00f04383fbf2361943596d09e7e443c8e1"
         }
     },
 
     {
         "name": "qt-webchannel",
         "hashes": {
-            "unix": "sha256:ac5d96607b10e7de546eaf93bb9f65c0fd631ef9b91ef8a794e26fd57db4501c"
+            "unix": "sha256:869f1e53f44673a57670005b1239cd67b9a5f372c8cae799c1e4af3f1c68b7ac"
         }
     },
 
     {
         "name": "qt-positioning",
         "hashes": {
-            "unix": "sha256:020009f0aa8f6b1042963a45b6e19f2784cc937949cdb673f3b876153e087b1c"
+            "unix": "sha256:df30664f4e936466a7e1157ff26abc61efb5e94c9eb8750e1bcdffeec95db8e5"
         }
     },
 
@@ -592,35 +592,35 @@
         "name": "qt-wayland",
         "os": "linux",
         "hashes": {
-            "unix": "sha256:a2a057e1dd644bd44abb9990fecc194b2e25c2e0f39e81aa9fee4c1e5e2a8a5b"
+            "unix": "sha256:5e46157908295f2bf924462d8c0855b0508ba338ced9e810891fefa295dc9647"
         }
     },
 
     {
         "name": "qt-sensors",
         "hashes": {
-            "unix": "sha256:ead1dec787c56ed4dc02ed810af54ff1e1f6875cb5cc2506c74eeb9554e6bb59"
+            "unix": "sha256:8a817c9b001ad0abdbf15064826ca6a8ee6b66fef8f04b4343ac9f7b2ddbf4ca"
         }
     },
 
     {
         "name": "qt-multimedia",
         "hashes": {
-            "unix": "sha256:8ef835115acb9a1d3d2c9f23cfacb43f2c537e3786a8ab822299a2a7765651d3"
+            "unix": "sha256:34f561fdc07b158bcc4ad040b596fc6086c48908060e854b473b557e4feb1569"
         }
     },
 
     {
         "name": "qt-speech",
         "hashes": {
-            "unix": "sha256:cc8c769404e3e49713be304a73f936890a1ef2f88d590732785f34692a4814ce"
+            "unix": "sha256:e09b52336bb90090f4582a382fa084f7573ebd207cc81f3066ef94cc1bf202c3"
         }
     },
 
     {
         "name": "qt-webengine",
         "hashes": {
-            "unix": "sha256:c7755875594d8be382b07bf3634d44fd77012805794d8b588891709a6405ffd1"
+            "unix": "sha256:ff95987f16c197b31ad4d96972f8d9b00c740c5bed70c3e68ee42d673ee54802"
         }
     },
 
@@ -677,8 +677,8 @@
     {
         "name": "setuptools",
         "unix": {
-            "filename": "setuptools-68.2.2-py3-none-any.whl",
-            "hash": "sha256:b454a35605876da60632df1a60f736524eb73cc47bbc9f3f1ef1b644de74fd2a",
+            "filename": "setuptools-75.8.2-py3-none-any.whl",
+            "hash": "sha256:558e47c15f1811c1fa7adbd0096669bf76c1d3f433f58324df69f3f5ecac4e8f",
             "urls": ["pypi"]
         }
     },
@@ -1121,8 +1121,8 @@
         "name": "sip",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "sip-6.8.6.tar.gz",
-            "hash": "sha256:7fc959e48e6ec5d5af8bd026f69f5e24d08b3cb8abb342176f5ab8030cc07d7a",
+            "filename": "sip-6.10.0-1-py3-none-any.whl",
+            "hash": "sha256:3bd6e5ab6e5bc8e5531bbf4ff299781bc2ee5c39da876072e0465efdad215896",
             "urls": ["pypi"]
         }
     },
@@ -1131,8 +1131,8 @@
         "name": "pyqt-builder",
 		"comment": "build time dependency",
         "unix": {
-            "filename": "PyQt_builder-1.16.4-py3-none-any.whl",
-            "hash": "sha256:fe6e75bcf8426feee3eb73ae7f6aaa4e38edc2f8d670d8cf28638b21d9924eb7",
+            "filename": "PyQt_builder-1.18.1-py3-none-any.whl",
+            "hash": "sha256:59ba2b1df2692986f3b3d3ba7395a6476c54cab0cc0ece18030ffba574657afc",
             "urls": ["pypi"]
         }
     },
@@ -1141,8 +1141,8 @@
         "name": "pyqt-sip",
 		"comment": "runtime sip module for PyQt",
         "unix": {
-            "filename": "PyQt6_sip-13.8.0.tar.gz",
-            "hash": "sha256:2f74cf3d6d9cab5152bd9f49d570b2dfb87553ebb5c4919abfde27f5b9fd69d4",
+            "filename": "PyQt6_sip-13.10.0.tar.gz",
+            "hash": "sha256:d6daa95a0bd315d9ec523b549e0ce97455f61ded65d5eafecd83ed2aa4ae5350",
             "urls": ["pypi"]
         }
     },
@@ -1150,8 +1150,8 @@
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt6-6.7.1.tar.gz",
-            "hash": "sha256:3672a82ccd3a62e99ab200a13903421e2928e399fda25ced98d140313ad59cb9",
+            "filename": "PyQt6-6.8.1.tar.gz",
+            "hash": "sha256:91d937d6166274fafd70f4dee11a8da6dbfdb0da53de05f5d62361ddf775e256",
             "urls": ["pypi"]
         }
     },
@@ -1159,8 +1159,8 @@
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQt6_WebEngine-6.7.0.tar.gz",
-            "hash": "sha256:68edc7adb6d9e275f5de956881e79cca0d71fad439abeaa10d823bff5ac55001",
+            "filename": "PyQt6_WebEngine-6.8.0.tar.gz",
+            "hash": "sha256:64045ea622b6a41882c2b18f55ae9714b8660acff06a54e910eb72822c2f3ff2",
             "urls": ["pypi"]
         }
     },
