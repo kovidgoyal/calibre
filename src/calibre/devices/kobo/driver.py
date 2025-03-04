@@ -30,7 +30,6 @@ from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks import DRMError
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.utils import normalize_languages
 from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory, better_mktemp
 from calibre.utils.config_base import prefs
@@ -3385,6 +3384,7 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:set_series - end')
 
     def set_core_metadata(self, connection, book, series_only=False):
+        from calibre.ebooks.metadata.utils import normalize_languages
         # debug_print('KoboTouch:set_core_metadata book="%s"' % book.title)
         show_debug = self.is_debugging_title(book.title)
         if show_debug:

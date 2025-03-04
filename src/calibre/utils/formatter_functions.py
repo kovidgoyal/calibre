@@ -22,12 +22,9 @@ from enum import Enum, auto
 from functools import partial
 from math import ceil, floor, modf, trunc
 
-from lxml import html
-
 from calibre import human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN
-from calibre.db.notes.exim import expand_note_resources, parse_html
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.metadata.search_internet import qquote
@@ -3095,6 +3092,9 @@ This function works only in the GUI and the content server.
                     if plain_text == '1':
                         note = note['searchable_text'].partition('\n')[2]
                     else:
+                        from lxml import html
+
+                        from calibre.db.notes.exim import expand_note_resources, parse_html
                         # Return the full HTML of the note, including all images
                         # as data: URLs. Reason: non-exported note html contains
                         # "calres://" URLs for images. These images won't render

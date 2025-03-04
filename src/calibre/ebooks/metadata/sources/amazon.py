@@ -27,7 +27,6 @@ from calibre import as_unicode, browser, random_user_agent, xml_replace_entities
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
-from calibre.ebooks.oeb.base import urlquote
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua
@@ -51,6 +50,7 @@ def sort_matches_preferring_kindle_editions(matches):
 
 
 def iri_quote_plus(url):
+    from calibre.ebooks.oeb.base import urlquote
     ans = urlquote(url)
     if isinstance(ans, bytes):
         ans = ans.decode('utf-8')
