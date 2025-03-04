@@ -39,7 +39,9 @@ dlls = [
     'Quick',
     'QuickWidgets',
     'Qml',
+    'QmlMeta',
     'QmlModels',
+    'QmlWorkerScript',
     'Xml',
     # 'XmlPatterns',
 ]
