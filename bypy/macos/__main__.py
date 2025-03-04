@@ -47,7 +47,7 @@ APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
 ARCH_FLAGS = '-arch x86_64 -arch arm64'.split()
 EXPECTED_ARCHES = {'x86_64', 'arm64'}
-MINIMUM_SYSTEM_VERSION = '13.0.0'
+MINIMUM_SYSTEM_VERSION = '13.3.0'
 
 
 def compile_launcher_lib(contents_dir, base, pyver, inc_dir):

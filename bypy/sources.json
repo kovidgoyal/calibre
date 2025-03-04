@@ -1197,9 +1197,9 @@
         "name": "onnx",
 		"comment": "This is newer than the version needed for the version of piper-phonemize to get it to build on macOS (see CMakeLists.txt in piper-phonemize)",
         "unix": {
-            "filename": "onnx-1.19.0.tar.gz",
-            "hash": "sha256:dd945b2fb8c2e7df7243e9d96c0293f45350058f0f713f66c519834a49a6c99d",
-            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.19.0.tar.gz"]
+            "filename": "onnx-1.20.2.tar.gz",
+            "hash": "sha256:6780b0b4f11d22f30a827dbbd3bd626e85e9c48e98719e9a535eda543446eab8",
+            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.20.2.tar.gz"]
         }
     },
     {
