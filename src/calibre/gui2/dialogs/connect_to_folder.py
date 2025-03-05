@@ -1,7 +1,23 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-from qt.core import QAbstractItemView, QGroupBox, QHBoxLayout, QIcon, QLabel, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
+from qt.core import (
+    QAbstractItemView,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QItemSelectionModel,
+    QLabel,
+    QLineEdit,
+    QSortFilterProxyModel,
+    QStandardItem,
+    QStandardItemModel,
+    Qt,
+    QToolButton,
+    QTreeView,
+    QVBoxLayout,
+    QWidget,
+)
 
 from calibre.customize.ui import usbms_plugins
 from calibre.gui2 import Application, choose_dir, gprefs
@@ -44,6 +60,45 @@ class ChooseFolder(QWidget):
             self.folder_edit.save_history()
 
 
+class Model(QStandardItemModel):
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        root = self.invisibleRootItem()
+        man_map = {}
+        for cls in usbms_plugins():
+            for model in cls.model_metadata():
+                man_map.setdefault(model.manufacturer_name, []).append(model)
+        lcd = gprefs.get('last_connected_folder_as_device', None)
+        selected_device = None
+        for manufacturer in sorted(man_map, key=primary_sort_key):
+            devs = man_map[manufacturer]
+            m = QStandardItem(manufacturer)
+            m.setFlags(m.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            root.appendRow(m)
+            devs.sort(key=lambda x: primary_sort_key(x.model_name))
+            for dev in devs:
+                i = QStandardItem(dev.model_name)
+                i.setData(dev)
+                i.setFlags(i.flags() | Qt.ItemFlag.ItemNeverHasChildren)
+                m.appendRow(i)
+                if dev.settings_key == lcd:
+                    selected_device = i
+
+    def itermodels(self):
+        root = self.invisibleRootItem()
+        for i in range(root.rowCount()):
+            m = root.child(i, 0)
+            for j in range(m.rowCount()):
+                yield m.child(j, 0)
+
+    def item_for_settings_key(self, q: str):
+        for m in self.itermodels():
+            mm = m.data()
+            if mm.settings_key == q:
+                return m
+
+
 class ConnectToFolder(Dialog):
 
     def __init__(self, parent=None):
@@ -65,52 +120,59 @@ class ConnectToFolder(Dialog):
         l.addWidget(la)
         self.devices_group = dg = QGroupBox(_('Connect as device'), self)
         dg.setCheckable(True)
+        self.filter_edit = fe = QLineEdit(self)
+        fe.setPlaceholderText(_('Filter the device list'))
+        fe.setClearButtonEnabled(True)
         l.addWidget(dg)
         l.addWidget(self.bb)
         dg.l = l = QVBoxLayout(dg)
-        self.devices = d = QTreeWidget(self)
+        self.devices = d = QTreeView(self)
+        self.devices_model = m = Model(d)
+        self.proxy_model = p = QSortFilterProxyModel(d)
+        p.setAutoAcceptChildRows(True)
+        p.setRecursiveFilteringEnabled(True)
+        p.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        fe.textEdited.connect(self.update_filter)
+        p.setSourceModel(m)
+        d.setModel(p)
         d.setHeaderHidden(True)
         d.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.status_label = la3 = QLabel('')
         l.addWidget(la2)
+        l.addWidget(fe)
         l.addWidget(d)
+        l.addWidget(la3)
 
-        lcd = gprefs.get('last_connected_folder_as_device', None)
-        selected_device = None
-        man_map = {}
-        for cls in usbms_plugins():
-            for model in cls.model_metadata():
-                man_map.setdefault(model.manufacturer_name, []).append(model)
-        for manufacturer in sorted(man_map, key=primary_sort_key):
-            devs = man_map[manufacturer]
-            m = QTreeWidgetItem(d, 0)
-            m.setText(0, manufacturer)
-            m.setFlags(m.flags() & ~Qt.ItemFlag.ItemIsSelectable)
-            flags = m.flags()
-            devs.sort(key=lambda x: primary_sort_key(x.model_name))
-            expanded = False
-            for dev in devs:
-                i = QTreeWidgetItem(m, 1)
-                i.setText(0, dev.model_name)
-                i.setData(0, Qt.ItemDataRole.UserRole, dev)
-                i.setFlags(i.flags() | Qt.ItemFlag.ItemNeverHasChildren)
-                if dev.settings_key == lcd:
-                    i.setSelected(True)
-                    expanded = True
-                    selected_device = i
-            m.setExpanded(expanded)
-        if selected_device is not None:
-            d.scrollToItem(selected_device)
+        selected_device = m.item_for_settings_key(gprefs.get('last_connected_folder_as_device', None))
         dg.setChecked(selected_device is not None)
+        if selected_device is not None:
+            idx = m.indexFromItem(selected_device)
+            idx = p.mapFromSource(idx)
+            d.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            d.scrollTo(idx)
+        self.device_selection_changed()
+        d.selectionModel().selectionChanged.connect(self.device_selection_changed)
+
+    def update_filter(self):
+        q = self.filter_edit.text().strip()
+        self.proxy_model.setFilterFixedString(q)
+
+    def device_selection_changed(self):
+        dev = self.model_metadata
+        if dev is None:
+            name = _('Generic Folder device')
+        else:
+            name = f'{dev.manufacturer_name} {dev.model_name}'.strip()
+        self.status_label.setText(_('Connecting as device: {}').format(name))
 
     @property
     def model_metadata(self):
         if self.devices_group.isChecked():
-            for m in range(self.devices.topLevelItemCount()):
-                man = self.devices.topLevelItem(m)
-                for i in range(man.childCount()):
-                    item = man.child(i)
-                    if item.isSelected():
-                        return item.data(0, Qt.ItemDataRole.UserRole)
+            for idx in self.devices.selectedIndexes():
+                idx = self.proxy_model.mapToSource(idx)
+                item = self.devices_model.itemFromIndex(idx)
+                if item is not None:
+                    return item.data()
 
     def accept(self):
         self.folder_chooser.on_accept()
