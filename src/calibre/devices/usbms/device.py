@@ -150,7 +150,10 @@ class Device(DeviceConfig, DevicePlugin):
                 bcd = cls.BCD
             return vid or 0, pid or 0, bcd or 0
         vid, pid, bcd = get_representative_ids()
-        model_name = cls.get_gui_name()
+        try:
+            model_name = cls.get_gui_name()
+        except TypeError:  # The WAYTEQ driver implements this as non classmethod
+            return ()
         parts = model_name.split(' ', 1)
         manufacturer = ''
         if len(parts) > 1:

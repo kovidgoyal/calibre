@@ -82,7 +82,7 @@ def get_files_in(path):
 class KINDLE(USBMS):
 
     name           = 'Kindle Device Interface'
-    gui_name       = 'Amazon Kindle'
+    gui_name       = 'Amazon Kindle Keyboard'
     icon           = 'devices/kindle.png'
     description    = _('Communicate with the Kindle e-book reader.')
     author         = 'John Schember'
@@ -369,6 +369,7 @@ class KINDLE(USBMS):
 class KINDLE2(KINDLE):
 
     name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
+    gui_name = 'Amazon Kindle'
     description    = _('Communicate with the Kindle 2/3/4/Touch/Paperwhite/Voyage e-book reader.')
 
     FORMATS     = ['azw', 'mobi', 'azw3', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
@@ -649,6 +650,7 @@ class KINDLE2(KINDLE):
 class KINDLE_DX(KINDLE2):
 
     name           = 'Kindle DX Device Interface'
+    gui_name       = 'Amazon Kindle DX'
     description    = _('Communicate with the Kindle DX e-book reader.')
 
     FORMATS = ['azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'pobi', 'pdf', 'txt']
@@ -666,7 +668,7 @@ class KINDLE_FIRE(KINDLE2):
 
     name = 'Kindle Fire Device Interface'
     description = _('Communicate with the Kindle Fire')
-    gui_name = 'Fire'
+    gui_name = 'Amazon Kindle Fire'
     FORMATS = ['azw3', 'azw', 'mobi', 'prc', 'azw1', 'tpz', 'azw4', 'kfx', 'pobi', 'pdf', 'txt']
 
     PRODUCT_ID = [0x0006]

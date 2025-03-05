@@ -38,7 +38,7 @@ class ImageWrapper:
 
 class PRST1(USBMS):
     name           = 'SONY PRST1 and newer Device Interface'
-    gui_name       = 'SONY Reader'
+    gui_name       = 'SONY PRS-T1'
     description    = _('Communicate with the PRST1 and newer SONY e-book readers')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']

@@ -34,7 +34,7 @@ class PALMPRE(USBMS):
 
 class AVANT(USBMS):
     name           = 'Booq Avant Device Interface'
-    gui_name       = 'bq Avant'
+    gui_name       = 'Bq Avant'
     description    = _('Communicate with the Bq Avant')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -521,7 +521,7 @@ class WOXTER(USBMS):
 class POCKETBOOK626(USBMS):
 
     name  = 'PocketBook Touch Lux 2'
-    gui_name = 'PocketBook'
+    gui_name = 'PocketBook Touch Lux 2'
     description    = _('Communicate with the PocketBook Touch Lux 2 and Inkpad X readers')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']

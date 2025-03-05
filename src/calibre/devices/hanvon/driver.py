@@ -61,7 +61,7 @@ class KIBANO(N516):
 
 class THEBOOK(N516):
     name = 'The Book driver'
-    gui_name = 'The Book'
+    gui_name = 'Book'
     description    = _('Communicate with The Book reader.')
     author         = 'Kovid Goyal'
 

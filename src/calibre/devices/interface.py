@@ -17,6 +17,10 @@ class ModelMetadata(NamedTuple):
     bcd: int
     driver_class: type
 
+    @property
+    def settings_key(self) -> str:
+        return f'{self.manufacturer_name} - {self.model_name}'
+
 
 class OpenPopupMessage:
 

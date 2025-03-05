@@ -20,7 +20,7 @@ from calibre.prints import debug_print
 class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
-    gui_name       = 'SONY Reader'
+    gui_name       = 'SONY PRS-500'
     description    = _('Communicate with Sony e-book readers older than the'
             ' PRST1.')
     author         = 'Kovid Goyal'
