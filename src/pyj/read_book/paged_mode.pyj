@@ -850,7 +850,7 @@ def handle_gesture(gesture):
 
 def get_bounding_client_rect(elem):
     br = elem.getBoundingClientRect()
-    if br.width is 0 and br.height is 0:
+    if br.width is 0 and br.height is 0 and br.x is 0 and br.y is 0:
         # getBoundingClientRect() fails sometimes, see https://bugs.launchpad.net/calibre/+bug/2037543
         r = document.createRange()
         r.selectNodeContents(elem)
