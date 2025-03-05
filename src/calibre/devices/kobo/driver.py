@@ -2852,7 +2852,12 @@ class KOBOTOUCH(KOBO):
         ImageID = ContentID.replace('/', '_')
         ImageID = ImageID.replace(' ', '_')
         ImageID = ImageID.replace(':', '_')
-        ImageID = ImageID.replace('.', '_')
+        if self.isTolinoDevice() and self.dbversion >= 191:
+            ImageID_split = ImageID.rsplit('.', 1)
+            ImageID_split[0] = ImageID_split[0].replace('.', '_')
+            ImageId = '.'.join(ImageID_split)
+        else:
+            ImageID = ImageID.replace('.', '_')
         return ImageID
 
     def images_path(self, path, imageId=None):
