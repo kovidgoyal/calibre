@@ -120,7 +120,7 @@ def process_web_node(node):
 def load_article_from_web_json(raw):
     # open('/t/raw.json', 'w').write(raw)
     body = ''
-    data = json.loads(raw)['props']['pageProps']['cp2Content']
+    data = json.loads(raw)['props']['pageProps']['content']
     body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
     body += f'<h1>{data["headline"]}</h1>'
     if data.get('rubric') and data.get('rubric') is not None:
