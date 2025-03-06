@@ -193,7 +193,7 @@ class FTSTest(BaseTest):
 
     # }}}
 
-    def test_pdftotext(self):
+    def test_fts_indexing(self):
         pdf_data = '''\
 %PDF-1.1
 %¥±ë
@@ -257,8 +257,13 @@ startxref
             pdf = os.path.join(tdir, 'test.pdf')
             with open(pdf, 'w') as f:
                 f.write(pdf_data)
-            from calibre.db.fts.text import pdftotext
-            self.assertEqual(pdftotext(pdf).strip(), 'Hello World')
+            from calibre.db.fts.text import extract_text
+            self.assertEqual(extract_text(pdf).strip(), 'Hello World')
+            from zipfile import ZipFile
+            zip = os.path.join(tdir, 'test.zip')
+            with ZipFile(zip, 'w') as zf:
+                zf.writestr('text.pdf', pdf_data)
+            self.assertEqual(extract_text(zip).strip(), 'Hello World')
 
 
 def find_tests():
