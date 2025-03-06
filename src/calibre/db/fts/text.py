@@ -2,11 +2,13 @@
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import contextlib
 import os
 import re
 import unicodedata
 
 from calibre.customize.ui import plugin_for_input_format
+from calibre.ebooks.conversion.archives import ARCHIVE_FMTS, unarchive
 from calibre.ebooks.oeb.base import XPNSMAP, barename
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
@@ -55,8 +57,10 @@ def to_text(container, name):
 def is_fmt_ok(input_fmt):
     input_fmt = input_fmt.upper()
     input_plugin = plugin_for_input_format(input_fmt)
+    if not input_plugin:
+        return False
     is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
-    if not input_plugin or is_comic:
+    if is_comic:
         return False
     return input_plugin
 
@@ -79,13 +83,22 @@ def extract_text(pathtoebook):
     input_fmt = pathtoebook.rpartition('.')[-1].upper()
     ans = ''
     input_plugin = is_fmt_ok(input_fmt)
-    if not input_plugin:
-        return ans
-    input_plugin = plugin_for_input_format(input_fmt)
-    if input_fmt == 'PDF':
-        ans = pdftotext(pathtoebook)
-    else:
-        with TemporaryDirectory() as tdir:
+    with contextlib.ExitStack() as exit_stack:
+        if not input_plugin:
+            if input_fmt.lower() in ARCHIVE_FMTS:
+                try:
+                    tdir = exit_stack.enter_context(TemporaryDirectory())
+                    pathtoebook, input_fmt = unarchive(pathtoebook, tdir)
+                    input_fmt = input_fmt.upper()
+                except Exception:
+                    return ans
+            else:
+                return ans
+        input_plugin = plugin_for_input_format(input_fmt)
+        if input_fmt == 'PDF':
+            ans = pdftotext(pathtoebook)
+        else:
+            tdir = exit_stack.enter_context(TemporaryDirectory())
             texts = []
             book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=default_log)
             input_plugin = plugin_for_input_format(input_fmt)
@@ -96,7 +109,7 @@ def extract_text(pathtoebook):
             for name, is_linear in container.spine_names:
                 texts.extend(to_text(container, name))
             ans = '\n\n\n'.join(texts)
-    return unicodedata.normalize('NFC', ans).replace('\u00ad', '')
+        return unicodedata.normalize('NFC', ans).replace('\u00ad', '')
 
 
 def main(pathtoebook):
