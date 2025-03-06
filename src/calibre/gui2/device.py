@@ -1003,7 +1003,7 @@ class DeviceMixin:  # {{{
         dir = choose_dir(self, 'Select Device Folder',
                              _('Select folder to open as device'))
         if dir is not None:
-            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
+            self.connect_to_folder_named(dir)
 
     # disconnect from folder devices
     def disconnect_mounted_device(self):
