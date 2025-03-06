@@ -733,7 +733,7 @@ def all_edit_book_tool_plugins():
 _initialized_plugins = []
 
 
-def initialize_plugin(plugin, path_to_zip_file, installation_type):
+def initialize_plugin(plugin, path_to_zip_file=None, installation_type=PluginInstallationType.BUILTIN):
     try:
         p = plugin(path_to_zip_file)
         p.installation_type = installation_type

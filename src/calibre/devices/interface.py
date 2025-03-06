@@ -8,6 +8,8 @@ from calibre import prints
 from calibre.constants import iswindows
 from calibre.customize import Plugin
 
+FAKE_DEVICE_SERIAL = '__fake_device_for_use_with_connect_to_folder__:'
+
 
 class ModelMetadata(NamedTuple):
     manufacturer_name: str
@@ -20,6 +22,10 @@ class ModelMetadata(NamedTuple):
     @property
     def settings_key(self) -> str:
         return f'{self.manufacturer_name} - {self.model_name}'
+
+    def detected_device(self, folder_path):
+        from calibre.devices.scanner import USBDevice
+        return USBDevice(self.vendor_id, self.product_id, self.bcd, self.manufacturer_name, self.model_name, FAKE_DEVICE_SERIAL + folder_path)
 
 
 class OpenPopupMessage:

@@ -16,7 +16,7 @@ from qt.core import QAction, QActionGroup, QCoreApplication, QDialog, QDialogBut
 
 from calibre import as_unicode, force_unicode, preferred_encoding, prints, sanitize_file_name
 from calibre.constants import DEBUG
-from calibre.customize.ui import available_input_formats, available_output_formats, device_plugins, disabled_device_plugins
+from calibre.customize.ui import available_input_formats, available_output_formats, device_plugins, disabled_device_plugins, initialize_plugin
 from calibre.devices.errors import (
     BlacklistedDevice,
     FreeSpaceError,
@@ -35,7 +35,6 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import (
     Dispatcher,
     FunctionDispatcher,
-    choose_dir,
     config,
     dynamic,
     error_dialog,
@@ -319,6 +318,10 @@ class DeviceManager(Thread):  # {{{
             self.connected_slot(False, None)
 
     def detect_device(self):
+        if self.is_device_connected and self.connected_device_kind in {'folder', 'folder-as-device'}:
+            if not self.connected_device.is_folder_still_available():
+                self.connected_device_removed()
+            return
         self.scanner.scan()
 
         if self.is_device_connected:
@@ -391,8 +394,8 @@ class DeviceManager(Thread):  # {{{
     # Mount devices that don't use USB, such as the folder device
     # This will be called on the GUI thread. Because of this, we must store
     # information that the scanner thread will use to do the real work.
-    def mount_device(self, kls, kind, path):
-        self.mount_connection_requests.put((kls, kind, path))
+    def mount_device(self, kls, kind, path, model_metadata=None):
+        self.mount_connection_requests.put((kls, kind, path, model_metadata))
 
     # disconnect a device
     def umount_device(self, *args):
@@ -439,13 +442,29 @@ class DeviceManager(Thread):  # {{{
         self.devices_initialized.set()
 
         while self.keep_going:
-            kls = None
+            kls = model_metadata = None
             while True:
                 try:
-                    kls, device_kind, folder_path = self.mount_connection_requests.get_nowait()
+                    kls, device_kind, folder_path, model_metadata = self.mount_connection_requests.get_nowait()
                 except queue.Empty:
                     break
-            if kls is not None:
+            if model_metadata is not None:
+                try:
+                    for candidate in self.devices:
+                        if type(candidate) is model_metadata.driver_class:
+                            dev = candidate
+                            break
+                    else:
+                        # new device instance so run startup and set flag to
+                        # run shutdown on disconnect
+                        dev = initialize_plugin(model_metadata.driver_class)
+                        self.run_startup(dev)
+                        self.call_shutdown_on_disconnect = True
+                    self.do_connect([[dev, model_metadata.detected_device(folder_path)],], device_kind=device_kind)
+                except Exception:
+                    prints(f'Unable to open {device_kind} as device ({folder_path})')
+                    traceback.print_exc()
+            elif kls is not None:
                 try:
                     dev = kls(folder_path)
                     # We just created a new device instance. Call its startup
@@ -454,7 +473,7 @@ class DeviceManager(Thread):  # {{{
                     self.run_startup(dev)
                     self.call_shutdown_on_disconnect = True
                     self.do_connect([[dev, None],], device_kind=device_kind)
-                except:
+                except Exception:
                     prints(f'Unable to open {device_kind} as device ({folder_path})')
                     traceback.print_exc()
             else:
@@ -994,16 +1013,20 @@ class DeviceMixin:  # {{{
         self.default_thumbnail_prefs = prefs = override_prefs(cprefs)
         scale_cover(prefs, ratio)
 
-    def connect_to_folder_named(self, folder):
+    def connect_to_folder_named(self, folder, model_metadata=None):
         if os.path.exists(folder) and os.path.isdir(folder):
-            self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder',
-                    path=folder)
+            if model_metadata is not None:
+                self.device_manager.mount_device(kls=None, kind='folder-as-device', path=folder, model_metadata=model_metadata)
+            else:
+                self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=folder)
 
     def connect_to_folder(self):
-        dir = choose_dir(self, 'Select Device Folder',
-                             _('Select folder to open as device'))
-        if dir is not None:
-            self.connect_to_folder_named(dir)
+        from calibre.gui2.dialogs.connect_to_folder import ConnectToFolder
+        d = ConnectToFolder(self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            folder_path, model_metadata = d.ans
+            if folder_path:
+                self.connect_to_folder_named(folder_path, model_metadata)
 
     # disconnect from folder devices
     def disconnect_mounted_device(self):

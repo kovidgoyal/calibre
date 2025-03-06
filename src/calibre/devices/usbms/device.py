@@ -16,12 +16,13 @@ import subprocess
 import sys
 import time
 from collections import namedtuple
+from contextlib import suppress
 from itertools import repeat
 
 from calibre import prints
 from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
-from calibre.devices.interface import DevicePlugin, ModelMetadata
+from calibre.devices.interface import FAKE_DEVICE_SERIAL, DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
 from polyglot.builtins import iteritems, string_or_bytes
@@ -124,6 +125,9 @@ class Device(DeviceConfig, DevicePlugin):
 
     #: Put news in its own folder
     NEWS_IN_FOLDER = True
+
+    connected_folder_path = ''  # used internally for fake folder device
+    eject_connected_folder = False
 
     @classmethod
     def model_metadata(cls) -> tuple[ModelMetadata, ...]:
@@ -741,9 +745,35 @@ class Device(DeviceConfig, DevicePlugin):
         self._card_b_prefix = self._card_b_vol = None
 # ------------------------------------------------------
 
+    def is_folder_still_available(self):
+        if self.eject_connected_folder:
+            self.eject_connected_folder = False
+            self.connected_folder_path = ''
+        with suppress(OSError):
+            if self.connected_folder_path:
+                return os.path.isdir(self.connected_folder_path)
+        return False
+
     def open(self, connected_device, library_uuid):
-        time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+        self.connected_folder_path = ''
+        if connected_device.serial and connected_device.serial.startswith(FAKE_DEVICE_SERIAL):
+            folder_path = connected_device.serial[len(FAKE_DEVICE_SERIAL):]
+            if not os.path.isdir(folder_path):
+                raise DeviceError(f'The path {folder_path} is not a folder cannot connect to it')
+            if not os.access(folder_path, os.R_OK | os.W_OK):
+                raise DeviceError(f'You do not have permission to read and write to {folder_path} cannot connect to it')
+            self._main_prefix = folder_path
+            self.current_library_uuid = library_uuid
+            self.device_being_opened = connected_device
+            try:
+                self.post_open_callback()
+            finally:
+                self.device_being_opened = None
+            self.connected_folder_path = folder_path
+            return
+
+        time.sleep(5)
         self.device_being_opened = connected_device
         try:
             if islinux:
@@ -815,6 +845,10 @@ class Device(DeviceConfig, DevicePlugin):
             except Exception as e:
                 print('Udisks eject call for:', d, 'failed:')
                 print('\t', e)
+
+    def unmount_device(self):
+        if self.connected_folder_path:
+            self.eject_connected_folder = True
 
     def eject(self):
         if islinux:

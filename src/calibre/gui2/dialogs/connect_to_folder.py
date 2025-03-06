@@ -43,7 +43,7 @@ class ChooseFolder(QWidget):
         l.addWidget(bb)
 
     def browse(self):
-        ans = choose_dir(self, 'connect-to-folder-browse-history', _('Choose folder to connect to'))
+        ans = choose_dir(self, 'Select Device Folder', _('Select folder to open as device'))
         if ans:
             self.folder_edit.setText(ans)
 
@@ -103,6 +103,11 @@ class ConnectToFolder(Dialog):
 
     def __init__(self, parent=None):
         super().__init__(_('Connect to folder'), 'connect-to-folder', parent=parent)
+
+    def sizeHint(self):
+        sz = super().sizeHint()
+        sz.setWidth(max(sz.width(), 600))
+        return sz
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
