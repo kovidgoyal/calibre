@@ -1427,7 +1427,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
     # icon        = 'devices/kobotouch.jpg'
 
-    supported_dbversion             = 190
+    supported_dbversion             = 191
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1442,7 +1442,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (5, 4, 197982)
+    max_supported_fwversion         = (5, 6, 209315)
     # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2852,7 +2852,12 @@ class KOBOTOUCH(KOBO):
         ImageID = ContentID.replace('/', '_')
         ImageID = ImageID.replace(' ', '_')
         ImageID = ImageID.replace(':', '_')
-        ImageID = ImageID.replace('.', '_')
+        if self.isTolinoDevice() and self.dbversion >= 191:
+            ImageID_split = ImageID.rsplit('.', 1)
+            ImageID_split[0] = ImageID_split[0].replace('.', '_')
+            ImageId = '.'.join(ImageID_split)
+        else:
+            ImageID = ImageID.replace('.', '_')
         return ImageID
 
     def images_path(self, path, imageId=None):
