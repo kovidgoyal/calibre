@@ -757,7 +757,7 @@ class Device(DeviceConfig, DevicePlugin):
     def open(self, connected_device, library_uuid):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.connected_folder_path = ''
-        if connected_device.serial and connected_device.serial.startswith(FAKE_DEVICE_SERIAL):
+        if getattr(connected_device, 'serial', None) and connected_device.serial.startswith(FAKE_DEVICE_SERIAL):
             folder_path = connected_device.serial[len(FAKE_DEVICE_SERIAL):]
             if not os.path.isdir(folder_path):
                 raise DeviceError(f'The path {folder_path} is not a folder cannot connect to it')
