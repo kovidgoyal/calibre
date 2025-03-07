@@ -26,8 +26,7 @@ ignore = [
     'E402', 'E722', 'E741',
     'UP012', 'UP030', 'UP038', 'C413', 'C420', 'PIE790', 'ISC003',
     'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
-    'F841',  # because in preview, unused tuple unpacking variable that not use dummy syntax (prefix '_' underscore)
-             # raise error 'unused-variable', sigh (https://github.com/astral-sh/ruff/issues/8884)
+    'RUF059',  # unused unpacked variable
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',

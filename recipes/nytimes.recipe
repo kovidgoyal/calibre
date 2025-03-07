@@ -190,7 +190,6 @@ class NewYorkTimes(BasicNewsRecipe):
         script = type(u'')(script)
         json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
         data = json.loads(json_data.replace(':undefined', ':null'))['initialState']
-        containers, sections = {}, {}
         article_map = {}
         sections = []
         for key in data:

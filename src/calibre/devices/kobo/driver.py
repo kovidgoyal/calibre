@@ -2855,7 +2855,7 @@ class KOBOTOUCH(KOBO):
         if self.isTolinoDevice() and self.dbversion >= 191:
             ImageID_split = ImageID.rsplit('.', 1)
             ImageID_split[0] = ImageID_split[0].replace('.', '_')
-            ImageId = '.'.join(ImageID_split)
+            ImageID = '.'.join(ImageID_split)
         else:
             ImageID = ImageID.replace('.', '_')
         return ImageID
