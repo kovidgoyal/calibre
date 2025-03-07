@@ -763,6 +763,8 @@ class Device(DeviceConfig, DevicePlugin):
                 raise DeviceError(f'The path {folder_path} is not a folder cannot connect to it')
             if not os.access(folder_path, os.R_OK | os.W_OK):
                 raise DeviceError(f'You do not have permission to read and write to {folder_path} cannot connect to it')
+            if not folder_path.endswith(os.sep) and not folder_path.endswith('/'):
+                folder_path += os.sep
             self._main_prefix = folder_path
             self.current_library_uuid = library_uuid
             self.device_being_opened = connected_device
