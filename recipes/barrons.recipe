@@ -58,7 +58,7 @@ def make_html(a):
     if typ == 'listelement':
         return f'<li>{make_hlinks(a)}</li>'
     if typ == 'dynamicinset':
-        if 'datawrapper-chart-' in a['webview']['value']:
+        if a.get('webview') and 'datawrapper-chart-' in a['webview']['value']:
             dw = re.search(r'datawrapper-chart-(.{5})', a['webview']['value']).group(1)
             return f'<img src=https://datawrapper.dwcdn.net/{dw}/full.png>'
     return ''
