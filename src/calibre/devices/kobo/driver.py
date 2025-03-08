@@ -17,7 +17,7 @@ import os
 import re
 import shutil
 import time
-from contextlib import closing, suppress
+from contextlib import suppress
 from datetime import datetime
 
 from calibre import fsync, prints, strftime
@@ -73,7 +73,6 @@ def any_in(haystack, *needles):
 class DummyCSSPreProcessor:
 
     def __call__(self, data, add_namespace=False):
-
         return data
 
 
@@ -179,32 +178,6 @@ class KOBO(USBMS):
     def eject(self):
         self._device_version_info = None
         super().eject()
-
-    def device_database_path(self):
-        return os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'KoboReader.sqlite')
-
-    def device_database_connection(self, use_row_factory=False):
-        import apsw
-        db_connection = apsw.Connection(self.device_database_path())
-
-        if use_row_factory:
-            db_connection.setrowtrace(self.row_factory)
-
-        return db_connection
-
-    def row_factory(self, cursor, row):
-        return {k[0]: row[i] for i, k in enumerate(cursor.getdescription())}
-
-    def get_database_version(self, connection):
-        cursor = connection.cursor()
-        cursor.execute('SELECT version FROM dbversion')
-        try:
-            result = next(cursor)
-            dbversion = result['version']
-        except StopIteration:
-            dbversion = 0
-
-        return dbversion
 
     def device_version_info(self):
         debug_print('device_version_info - start')
@@ -375,11 +348,7 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
-        with closing(self.device_database_connection(use_row_factory=True)) as connection:
-
-            self.dbversion = self.get_database_version(connection)
-            debug_print('Database Version: ', self.dbversion)
-
+        with self.database_transaction(use_row_factory=True) as connection:
             cursor = connection.cursor()
             opts = self.settings()
             if self.dbversion >= 33:
@@ -485,7 +454,7 @@ class KOBO(USBMS):
         # 2) content
 
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
-        with closing(self.device_database_connection()) as connection:
+        with self.database_transaction() as connection:
 
             cursor = connection.cursor()
             t = (ContentID,)
@@ -946,7 +915,7 @@ class KOBO(USBMS):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
 
-        with closing(self.device_database_connection()) as connection:
+        with self.database_transaction() as connection:
 
             if collections:
 
@@ -1083,7 +1052,7 @@ class KOBO(USBMS):
                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
-                with closing(self.device_database_connection()) as connection:
+                with self.database_transaction() as connection:
 
                     cursor = connection.cursor()
                     t = (ContentID,)
@@ -1252,7 +1221,7 @@ class KOBO(USBMS):
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
-        with closing(self.device_database_connection(use_row_factory=True)) as connection:
+        with self.database_transaction(use_row_factory=True) as connection:
             for book_id in path_map:
                 extension = os.path.splitext(path_map[book_id])[1]
                 ContentType = self.get_content_type_from_extension(extension) if extension else self.get_content_type_from_path(path_map[book_id])
@@ -1632,6 +1601,7 @@ class KOBOTOUCH(KOBO):
         return super().get_device_information(end_session)
 
     def post_open_callback(self):
+        from calibre.devices.kobo.db import Database
         # delete empty directories in root they get left behind when deleting
         # books on device.
         for prefix in (self._main_prefix, self._card_a_prefix, self._card_b_prefix):
@@ -1641,10 +1611,16 @@ class KOBOTOUCH(KOBO):
                         if not de.name.startswith('.') and de.is_dir():
                             with suppress(OSError):
                                 os.rmdir(de.path)
+        self.device_database_path = os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'KoboReader.sqlite')
+        self.db_manager = Database(self.device_database_path)
+        self.dbversion = self.db_manager.dbversion
+
+    def database_transaction(self, use_row_factory=False):
+        self.db_manager.use_row_factory = use_row_factory
+        return self.db_manager
 
     def open_linux(self):
         super().open_linux()
-
         self.swap_drives_if_needed()
 
     def open_osx(self):
@@ -1652,7 +1628,7 @@ class KOBOTOUCH(KOBO):
         super().open_osx()
 
         # Wrap some debugging output in a try/except so that it is unlikely to break things completely.
-        try:
+        with suppress(Exception):
             if DEBUG:
                 from calibre_extensions.usbobserver import get_mounted_filesystems
                 mount_map = get_mounted_filesystems()
@@ -1660,9 +1636,6 @@ class KOBOTOUCH(KOBO):
                 debug_print('KoboTouch::open_osx - self._main_prefix=', self._main_prefix)
                 debug_print('KoboTouch::open_osx - self._card_a_prefix=', self._card_a_prefix)
                 debug_print('KoboTouch::open_osx - self._card_b_prefix=', self._card_b_prefix)
-        except:
-            pass
-
         self.swap_drives_if_needed()
 
     def swap_drives_if_needed(self):
@@ -2017,11 +1990,8 @@ class KOBOTOUCH(KOBO):
 
         self.debug_index = 0
 
-        with closing(self.device_database_connection(use_row_factory=True)) as connection:
+        with self.database_transaction(use_row_factory=True) as connection:
             debug_print('KoboTouch:books - reading device database')
-
-            self.dbversion = self.get_database_version(connection)
-            debug_print('Database Version: ', self.dbversion)
 
             self.bookshelvelist = self.get_bookshelflist(connection)
             debug_print('KoboTouch:books - shelf list:', self.bookshelvelist)
@@ -2345,7 +2315,7 @@ class KOBOTOUCH(KOBO):
 
         if self.dbversion >= 53:
             try:
-                with closing(self.device_database_connection()) as connection:
+                with self.database_transaction() as connection:
                     cursor = connection.cursor()
                     cleanup_query = f'DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = {self.bool_for_query(False)}'
                     for fname, cycle in result:
@@ -2498,7 +2468,7 @@ class KOBOTOUCH(KOBO):
         if self.dbversion >= 53:
             debug_print(f'KoboTouch:delete_via_sql: ContentID="{ContentID}"', f'ContentType="{ContentType}"')
             try:
-                with closing(self.device_database_connection()) as connection:
+                with self.database_transaction() as connection:
                     debug_print('KoboTouch:delete_via_sql: have database connection')
 
                     cursor = connection.cursor()
@@ -2672,7 +2642,7 @@ class KOBOTOUCH(KOBO):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
 
-        with closing(self.device_database_connection(use_row_factory=True)) as connection:
+        with self.database_transaction(use_row_factory=True) as connection:
 
             if self.manage_collections:
                 if collections is not None:
@@ -2967,7 +2937,7 @@ class KOBOTOUCH(KOBO):
         ContentID = self.contentid_from_path(filepath, ContentType)
 
         try:
-            with closing(self.device_database_connection()) as connection:
+            with self.database_transaction() as connection:
 
                 cursor = connection.cursor()
                 t = (ContentID,)
