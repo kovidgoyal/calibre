@@ -15,6 +15,22 @@ def row_factory(cursor, row):
     return {k[0]: row[i] for i, k in enumerate(cursor.getdescription())}
 
 
+def copy_db(conn: apsw.Connection, dest_path: str):
+    conn.cache_flush()
+    with PersistentTemporaryFile() as f:
+        needs_remove = True
+    try:
+        with closing(apsw.Connection(f.name)) as dest, conn.backup('main', dest, 'main') as b:
+            while not b.done:
+                b.step()
+        shutil.move(f.name, dest_path)
+        needs_remove = False
+    finally:
+        if needs_remove:
+            with suppress(OSError):
+                os.remove(f.name)
+
+
 class Database:
 
     def __init__(self, path_on_device: str):
@@ -55,20 +71,5 @@ class Database:
         with closing(self.conn):
             suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)
             if self.needs_copy and (suppress_exception or (exc_type is None and exc_value is None and tb is None)):
-                self.copy_db()
+                copy_db(self.conn, self.path_on_device)
         return suppress_exception
-
-    def copy_db(self):
-        self.conn.cache_flush()
-        with PersistentTemporaryFile() as f:
-            needs_remove = True
-        try:
-            with closing(apsw.Connection(f.name)) as dest, self.conn.backup('main', dest, 'main') as b:
-                while not b.done:
-                    b.step()
-            shutil.move(f.name, self.path_on_device)
-            needs_remove = False
-        finally:
-            if needs_remove:
-                with suppress(OSError):
-                    os.remove(f.name)
