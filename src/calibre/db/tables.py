@@ -515,7 +515,8 @@ class ManyToManyTable(ManyToOneTable):
         if existing_item is None or existing_item == item_id:
             # A simple rename will do the trick
             self.id_map[item_id] = new_name
-            db.execute(f'UPDATE {table} SET {col}=? WHERE id=?', (new_name, item_id))
+            nn = self.serialize(new_name) if self.serialize else new_name
+            db.execute(f'UPDATE {table} SET {col}=? WHERE id=?', (nn, item_id))
         else:
             # We have to replace
             new_id = existing_item
