@@ -37,6 +37,8 @@ EXT_MAP = {
     'azw1'    : 'tpz',
     'azw2'    : 'azw2',
     'azw3'    : 'azw3',
+    'kfx'     : 'kfx',
+    'kfx-zip' : 'kfx',
     'azw4'    : 'pdf',
     'tpz'     : 'tpz',
     'tan'     : 'zero',
