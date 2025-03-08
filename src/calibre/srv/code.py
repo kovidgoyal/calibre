@@ -438,7 +438,6 @@ def web_search(ctx, rd, book_id, field, item_val):
     with db.safe_read_lock:
         if not ctx.has_id(rd, db, book_id):
             raise BookNotFound(book_id, db)
-        mi = db.get_metadata(book_id, get_cover=False)
         url, tooltip = web_search_link(db, book_id, field, item_val)
         if url:
             raise HTTPTempRedirect(url)

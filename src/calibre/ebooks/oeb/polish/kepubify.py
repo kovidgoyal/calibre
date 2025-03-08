@@ -630,9 +630,8 @@ h1, h2, h3, h4, h5, h6, td {{
 
 
 def profile():
-    from calibre.ptempfile import TemporaryDirectory
     path = sys.argv[-1]
-    with TemporaryDirectory() as tdir, Profiler():
+    with Profiler():
         kepubify_path(path, max_workers=1)
 
 

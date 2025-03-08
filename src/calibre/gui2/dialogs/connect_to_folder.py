@@ -69,8 +69,6 @@ class Model(QStandardItemModel):
         for cls in usbms_plugins():
             for model in cls.model_metadata():
                 man_map.setdefault(model.manufacturer_name, []).append(model)
-        lcd = gprefs.get('last_connected_folder_as_device', None)
-        selected_device = None
         for manufacturer in sorted(man_map, key=primary_sort_key):
             devs = man_map[manufacturer]
             m = QStandardItem(manufacturer)
@@ -82,8 +80,6 @@ class Model(QStandardItemModel):
                 i.setData(dev)
                 i.setFlags(i.flags() | Qt.ItemFlag.ItemNeverHasChildren)
                 m.appendRow(i)
-                if dev.settings_key == lcd:
-                    selected_device = i
 
     def itermodels(self):
         root = self.invisibleRootItem()
