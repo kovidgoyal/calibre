@@ -52,7 +52,7 @@ class Database:
             connect()
             self.needs_copy = False
         except apsw.IOError:
-            debug_print(f'Kobo: I/O error connecting to {self.device_database_path} copying it into temporary storage and connecting there')
+            debug_print(f'Kobo: I/O error connecting to {self.path_on_device} copying it into temporary storage and connecting there')
             with open(self.path_on_device, 'rb') as src, PersistentTemporaryFile(suffix='-kobo-db.sqlite') as dest:
                 shutil.copyfileobj(src, dest)
             try:
