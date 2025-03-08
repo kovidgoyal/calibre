@@ -52,10 +52,10 @@ class Database:
         return self.conn.__enter__()
 
     def __exit__(self, exc_type, exc_value, tb) -> bool | None:
-        suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)
-        self.conn.close()
-        if self.needs_copy and (suppress_exception or (exc_type is None and exc_value is None and tb is None)):
-            self.copy_db()
+        with closing(self.conn):
+            suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)
+            if self.needs_copy and (suppress_exception or (exc_type is None and exc_value is None and tb is None)):
+                self.copy_db()
         return suppress_exception
 
     def copy_db(self):
