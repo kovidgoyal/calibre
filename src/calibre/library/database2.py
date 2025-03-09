@@ -152,7 +152,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False, is_second_db=False, progress_callback=None,
-            restore_all_prefs=False):
+            restore_all_prefs=False, temp_db_path=None):
+        if temp_db_path is not None:
+            raise ValueError("temp_db_path isn't supported in by the obsolete "
+                             "library.database2. Use db.legacy.LibraryDatabase instead")
         self.is_second_db = is_second_db
         try:
             if isbytestring(library_path):
