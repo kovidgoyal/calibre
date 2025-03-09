@@ -8,7 +8,7 @@ from contextlib import closing, suppress
 import apsw
 
 from calibre.prints import debug_print
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 
 
 def row_factory(cursor, row):
@@ -16,19 +16,15 @@ def row_factory(cursor, row):
 
 
 def copy_db(conn: apsw.Connection, dest_path: str):
-    conn.cache_flush()
-    with PersistentTemporaryFile() as f:
-        needs_remove = True
-    try:
-        with closing(apsw.Connection(f.name)) as dest, conn.backup('main', dest, 'main') as b:
+    with suppress(AttributeError):  # need a new enough version of apsw
+        conn.cache_flush()
+    with TemporaryDirectory() as tdir:
+        tempdb = os.path.join(tdir, 'temp.sqlite')
+        with closing(apsw.Connection(tempdb)) as dest, dest.backup('main', conn, 'main') as b:
             while not b.done:
-                b.step()
-        shutil.move(f.name, dest_path)
-        needs_remove = False
-    finally:
-        if needs_remove:
-            with suppress(OSError):
-                os.remove(f.name)
+                with suppress(apsw.BusyError, apsw.LockedError):
+                    b.step()
+        shutil.move(tempdb, dest_path)
 
 
 class Database:
