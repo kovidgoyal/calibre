@@ -40,14 +40,16 @@ def gui_convert_override(input, output, recommendations, notification=DummyRepor
             override_input_metadata=True)
 
 
-def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
+def gui_catalog(library_path, temp_db_path, fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
         notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
-    from calibre.library import db
     from calibre.utils.config import prefs
     prefs.refresh()
-    db = db(read_only=True)
+
+    # Open the temp database created while still in the GUI thread
+    from calibre.db.legacy import LibraryDatabase
+    db = LibraryDatabase(library_path, temp_db_path=temp_db_path)
     db.catalog_plugin_on_device_temp_mapping = dbspec
 
     # Create a minimal OptionParser that we can append to

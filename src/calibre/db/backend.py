@@ -444,7 +444,7 @@ class DB:
 
     def __init__(self, library_path, default_prefs=None, read_only=False,
                  restore_all_prefs=False, progress_callback=lambda x, y:True,
-                 load_user_formatter_functions=True):
+                 load_user_formatter_functions=True, temp_db_path=None):
         self.is_closed = False
         if isbytestring(library_path):
             library_path = library_path.decode(filesystem_encoding)
@@ -452,8 +452,7 @@ class DB:
 
         self.library_path = os.path.abspath(library_path)
         self.dbpath = os.path.join(library_path, 'metadata.db')
-        self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
-                self.dbpath)
+        self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', self.dbpath)
 
         if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
             raise ValueError(_(
@@ -468,7 +467,14 @@ class DB:
                     'Path to library too long. It must be less than'
                     ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
 
-        if read_only and os.path.exists(self.dbpath):
+        if temp_db_path is not None:
+            if not os.path.exists(temp_db_path):
+                raise FileNotFoundError(f"temp_db_path '{temp_db_path} doesn't refer to a file")
+            # temp_db_path specifies a path to the database to use for this
+            # library. It should be in its own folder along with .calnotes.
+            # It overrides the environment variable CALIBRE_OVERRIDE_DATABASE_PATH.
+            self.dbpath = temp_db_path
+        elif read_only and os.path.exists(self.dbpath):
             # Work on only a copy of metadata.db to ensure that
             # metadata.db is not changed
             pt = PersistentTemporaryFile('_metadata_ro.db')
