@@ -42,11 +42,12 @@ def cleanup_tags(tags):
 def create_backend(
         library_path, default_prefs=None, read_only=False,
         progress_callback=lambda x, y:True, restore_all_prefs=False,
-        load_user_formatter_functions=True):
+        load_user_formatter_functions=True, temp_db_path=None):
     return DB(library_path, default_prefs=default_prefs,
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
                      progress_callback=progress_callback,
-                     load_user_formatter_functions=load_user_formatter_functions)
+                     load_user_formatter_functions=load_user_formatter_functions,
+                     temp_db_path=temp_db_path)
 
 
 def set_global_state(db):
@@ -179,7 +180,8 @@ class LibraryDatabase:
 
     def __init__(self, library_path,
             default_prefs=None, read_only=False, is_second_db=False,
-            progress_callback=None, restore_all_prefs=False, row_factory=False):
+            progress_callback=None, restore_all_prefs=False, row_factory=False,
+            temp_db_path=None):
 
         self.is_second_db = is_second_db
         if progress_callback is None:
@@ -190,7 +192,8 @@ class LibraryDatabase:
         backend = self.backend = create_backend(library_path, default_prefs=default_prefs,
                     read_only=read_only, restore_all_prefs=restore_all_prefs,
                     progress_callback=progress_callback,
-                    load_user_formatter_functions=not is_second_db)
+                    load_user_formatter_functions=not is_second_db,
+                    temp_db_path=temp_db_path)
         cache = self.new_api = Cache(backend, library_database_instance=self)
         cache.init()
         self.data = View(cache)
