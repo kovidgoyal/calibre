@@ -10,7 +10,6 @@ Logic for setting up conversion jobs
 '''
 
 import os
-import shutil
 
 from qt.core import QDialog, QProgressDialog, QTimer
 
@@ -376,18 +375,12 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     # process. The backend looks for the notes directory (.calnotes) in the
     # directory containing the metadata.db file. Copy the one from the current
     # library.
-    from calibre.gui2.ui import get_gui
-    library_path = get_gui().current_db.library_path
-    temp_db_directory = PersistentTemporaryDirectory('_callib')
-    temp_db_path = os.path.join(temp_db_directory, 'metadata.db')
-    shutil.copy(os.path.join(library_path, 'metadata.db'), temp_db_directory)
-    notes_dir = os.path.join(library_path, '.calnotes')
-    if os.path.exists(notes_dir):
-        shutil.copytree(notes_dir, os.path.join(temp_db_directory, '.calnotes'))
+    temp_db_directory = PersistentTemporaryDirectory('callib')
+    temp_db_path = db.new_api.clone_for_readonly_access(temp_db_directory)
 
     # These args are passed inline to gui2.convert.gui_conversion:gui_catalog
     args = [
-        library_path,
+        db.library_path,
         temp_db_path,
         d.catalog_format,
         d.catalog_title,

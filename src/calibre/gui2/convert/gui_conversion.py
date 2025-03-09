@@ -41,7 +41,7 @@ def gui_convert_override(input, output, recommendations, notification=DummyRepor
 
 
 def gui_catalog(library_path, temp_db_path, fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
-        notification=DummyReporter(), log=None):
+    notification=DummyReporter(), log=None):
     if log is None:
         log = Log()
     from calibre.utils.config import prefs
@@ -50,31 +50,36 @@ def gui_catalog(library_path, temp_db_path, fmt, title, dbspec, ids, out_file_na
     # Open the temp database created while still in the GUI thread
     from calibre.db.legacy import LibraryDatabase
     db = LibraryDatabase(library_path, temp_db_path=temp_db_path)
-    db.catalog_plugin_on_device_temp_mapping = dbspec
+    try:
+        db.catalog_plugin_on_device_temp_mapping = dbspec
 
-    # Create a minimal OptionParser that we can append to
-    parser = OptionParser()
-    args = []
-    parser.add_option('--verbose', action='store_true', dest='verbose', default=True)
-    opts, args = parser.parse_args()
+        # Create a minimal OptionParser that we can append to
+        parser = OptionParser()
+        args = []
+        parser.add_option('--verbose', action='store_true', dest='verbose', default=True)
+        opts, args = parser.parse_args()
 
-    # Populate opts
-    # opts.gui_search_text = something
-    opts.catalog_title = title
-    opts.connected_device = connected_device
-    opts.ids = ids
-    opts.search_text = None
-    opts.sort_by = None
-    opts.sync = sync
+        # Populate opts
+        # opts.gui_search_text = something
+        opts.catalog_title = title
+        opts.connected_device = connected_device
+        opts.ids = ids
+        opts.search_text = None
+        opts.sort_by = None
+        opts.sync = sync
 
-    # Extract the option dictionary to comma-separated lists
-    for option in fmt_options:
-        if isinstance(fmt_options[option],list):
-            setattr(opts, option, ','.join(fmt_options[option]))
-        else:
-            setattr(opts, option, fmt_options[option])
+        # Extract the option dictionary to comma-separated lists
+        for option in fmt_options:
+            if isinstance(fmt_options[option],list):
+                setattr(opts, option, ','.join(fmt_options[option]))
+            else:
+                setattr(opts, option, fmt_options[option])
 
-    # Fetch and run the plugin for fmt
-    # Returns 0 if successful, 1 if no catalog built
-    plugin = plugin_for_catalog_format(fmt)
-    return plugin.run(out_file_name, opts, db, notification=notification)
+        # Fetch and run the plugin for fmt
+        # Returns 0 if successful, 1 if no catalog built
+        plugin = plugin_for_catalog_format(fmt)
+        return plugin.run(out_file_name, opts, db, notification=notification)
+    finally:
+        import shutil
+        db.close()
+        shutil.rmtree(os.path.dirname(temp_db_path))

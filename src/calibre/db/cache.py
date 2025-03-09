@@ -3513,6 +3513,10 @@ class Cache:
                         dest_value.extend(src_value)
                     self._set_field(field, {dest_id: dest_value})
 
+    @read_api
+    def clone_for_readonly_access(self, dest_dir: str) -> str:
+        return self.backend.clone_for_readonly_access(dest_dir)
+
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB

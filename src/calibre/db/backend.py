@@ -1456,6 +1456,15 @@ class DB:
             self.user_version = 1
     # }}}
 
+    def clone_for_readonly_access(self, dest_dir: str) -> str:
+        dbpath = os.path.abspath(self.conn.db_filename('main'))
+        clone_db_path = os.path.join(dest_dir, os.path.basename(dbpath))
+        shutil.copy2(dbpath, clone_db_path)
+        notes_dir = os.path.join(os.path.dirname(dbpath), NOTES_DIR_NAME)
+        if os.path.exists(notes_dir):
+            shutil.copytree(notes_dir, os.path.join(dest_dir, NOTES_DIR_NAME))
+        return clone_db_path
+
     def normpath(self, path):
         path = os.path.abspath(os.path.realpath(path))
         if not self.is_case_sensitive:
