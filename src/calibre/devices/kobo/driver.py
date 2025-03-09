@@ -579,7 +579,8 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Removing books from device metadata listing...'))
 
     def add_books_to_metadata(self, locations, metadata, booklists):
-        debug_print(f'KoboTouch::add_books_to_metadata - start. metadata={metadata[0]}')
+        with suppress(IndexError):
+            debug_print(f'KoboTouch::add_books_to_metadata - start. metadata={metadata[0]}')
         metadata = iter(metadata)
         for i, location in enumerate(locations):
             self.report_progress((i+1) / float(len(locations)), _('Adding books to device metadata listing...'))
