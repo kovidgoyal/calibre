@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
 
 from calibre.constants import ismacos, iswindows
-from calibre.gui2 import config, gprefs, icon_resource_manager, qt_app
+from calibre.gui2 import config, gprefs, icon_resource_manager
 from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.main_interface_ui import Ui_main_interface_tab as Ui_Form
 from calibre.gui2.widgets import BusyCursor
@@ -135,7 +135,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
 
     def build_font_obj(self):
-        font_info = qt_app.original_font if self.current_font is None else self.current_font
+        font_info = QApplication.instance().original_font if self.current_font is None else self.current_font
         font = QFont(*(font_info[:4]))
         font.setStretch(font_info[4])
         return font
