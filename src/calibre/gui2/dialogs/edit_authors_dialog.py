@@ -222,7 +222,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             name = v['name']
             name = name.replace('|', ',')
             self.completion_data.append(name)
-            vals = {'name': name, 'sort': v['sort'], 'link': v['link'], 'count':counts[id_]}
+            vals = {'name': name, 'sort': v['sort'], 'link': v['link'], 'count':counts.get(id_, 0)}
             self.authors[id_] = vals
             self.original_authors[id_] = vals.copy()
 
