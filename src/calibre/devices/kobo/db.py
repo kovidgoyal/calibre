@@ -11,13 +11,15 @@ from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 
 
-def row_factory(cursor, row):
+def row_factory(cursor: apsw.Cursor, row):
     return {k[0]: row[i] for i, k in enumerate(cursor.getdescription())}
 
 
 def copy_db(conn: apsw.Connection, dest_path: str):
     with suppress(AttributeError):  # need a new enough version of apsw
         conn.cache_flush()
+    # checkpoint all WAL transactions into the main db file and truncate WAL file to zero
+    conn.wal_checkpoint(mode=apsw.SQLITE_CHECKPOINT_TRUNCATE)
     with TemporaryDirectory() as tdir:
         tempdb = os.path.join(tdir, 'temp.sqlite')
         with closing(apsw.Connection(tempdb)) as dest, dest.backup('main', conn, 'main') as b:
@@ -25,6 +27,9 @@ def copy_db(conn: apsw.Connection, dest_path: str):
                 with suppress(apsw.BusyError, apsw.LockedError):
                     b.step()
         shutil.move(tempdb, dest_path)
+        dest_wal = dest_path + '-wal'
+        if os.path.exists(dest_wal):  # truncate WAL file to zero
+            open(dest_wal, 'w').close()
 
 
 class Database:
@@ -33,6 +38,8 @@ class Database:
         self.path_on_device = self.dbpath = path_on_device
         self.dbversion = 0
         def connect(path: str = path_on_device) -> None:
+            if path == path_on_device:
+                raise apsw.IOError('xxx')
             with closing(apsw.Connection(path)) as conn:
                 conn.setrowtrace(row_factory)
                 cursor = conn.cursor()
@@ -51,6 +58,9 @@ class Database:
             debug_print(f'Kobo: I/O error connecting to {self.path_on_device} copying it into temporary storage and connecting there')
             with open(self.path_on_device, 'rb') as src, PersistentTemporaryFile(suffix='-kobo-db.sqlite') as dest:
                 shutil.copyfileobj(src, dest)
+            wal = self.path_on_device + '-wal'
+            if os.path.exists(wal):
+                shutil.copy2(wal, dest.name + '-wal')
             try:
                 connect(dest.name)
             except Exception:
