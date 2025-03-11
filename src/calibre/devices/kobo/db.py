@@ -4,11 +4,16 @@
 import os
 import shutil
 from contextlib import closing, suppress
+from threading import RLock
 
 import apsw
 
 from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
+
+# Any plugins not running in the device thread must acquire this lock before
+# trying to access the Kobo database.
+kobo_db_lock = RLock()
 
 
 def row_factory(cursor: apsw.Cursor, row):
@@ -68,14 +73,18 @@ class Database:
                 raise
 
     def __enter__(self) -> apsw.Connection:
+        kobo_db_lock.acquire()
         self.conn = apsw.Connection(self.dbpath)
         if self.use_row_factory:
             self.conn.setrowtrace(row_factory)
         return self.conn.__enter__()
 
     def __exit__(self, exc_type, exc_value, tb) -> bool | None:
-        with closing(self.conn):
-            suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)
-            if self.needs_copy and (suppress_exception or (exc_type is None and exc_value is None and tb is None)):
-                copy_db(self.conn, self.path_on_device)
+        try:
+            with closing(self.conn):
+                suppress_exception = self.conn.__exit__(exc_type, exc_value, tb)
+                if self.needs_copy and (suppress_exception or (exc_type is None and exc_value is None and tb is None)):
+                    copy_db(self.conn, self.path_on_device)
+        finally:
+            kobo_db_lock.release()
         return suppress_exception
