@@ -56,21 +56,22 @@ class Database:
                 self.dbpath = path
         self.needs_copy = True
         self.use_row_factory = True
-        try:
-            connect()
-            self.needs_copy = False
-        except apsw.IOError:
-            debug_print(f'Kobo: I/O error connecting to {self.path_on_device} copying it into temporary storage and connecting there')
-            with open(self.path_on_device, 'rb') as src, PersistentTemporaryFile(suffix='-kobo-db.sqlite') as dest:
-                shutil.copyfileobj(src, dest)
-            wal = self.path_on_device + '-wal'
-            if os.path.exists(wal):
-                shutil.copy2(wal, dest.name + '-wal')
+        with kobo_db_lock:
             try:
-                connect(dest.name)
-            except Exception:
-                os.remove(dest.name)
-                raise
+                connect()
+                self.needs_copy = False
+            except apsw.IOError:
+                debug_print(f'Kobo: I/O error connecting to {self.path_on_device} copying it into temporary storage and connecting there')
+                with open(self.path_on_device, 'rb') as src, PersistentTemporaryFile(suffix='-kobo-db.sqlite') as dest:
+                    shutil.copyfileobj(src, dest)
+                wal = self.path_on_device + '-wal'
+                if os.path.exists(wal):
+                    shutil.copy2(wal, dest.name + '-wal')
+                try:
+                    connect(dest.name)
+                except Exception:
+                    os.remove(dest.name)
+                    raise
 
     def __enter__(self) -> apsw.Connection:
         kobo_db_lock.acquire()
