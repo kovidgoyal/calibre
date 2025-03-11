@@ -14,6 +14,7 @@ from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 # Any plugins not running in the device thread must acquire this lock before
 # trying to access the Kobo database.
 kobo_db_lock = RLock()
+INJECT_9P_ERROR = False
 
 
 def row_factory(cursor: apsw.Cursor, row):
@@ -43,6 +44,8 @@ class Database:
         self.path_on_device = self.dbpath = path_on_device
         self.dbversion = 0
         def connect(path: str = path_on_device) -> None:
+            if INJECT_9P_ERROR:
+                raise apsw.IOError('Fake I/O error to test 9p codepath')
             with closing(apsw.Connection(path)) as conn:
                 conn.setrowtrace(row_factory)
                 cursor = conn.cursor()
