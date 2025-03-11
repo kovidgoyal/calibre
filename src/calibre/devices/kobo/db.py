@@ -43,8 +43,6 @@ class Database:
         self.path_on_device = self.dbpath = path_on_device
         self.dbversion = 0
         def connect(path: str = path_on_device) -> None:
-            if path == path_on_device:
-                raise apsw.IOError('xxx')
             with closing(apsw.Connection(path)) as conn:
                 conn.setrowtrace(row_factory)
                 cursor = conn.cursor()
