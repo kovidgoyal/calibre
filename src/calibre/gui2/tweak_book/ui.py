@@ -10,6 +10,7 @@ from itertools import product
 
 from qt.core import (
     QAction,
+    QApplication,
     QDockWidget,
     QEvent,
     QHBoxLayout,
@@ -285,7 +286,8 @@ class Main(MainWindow):
             traceback.print_exc()
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
-        self.setWindowIcon(QIcon.ic('tweak.png'))
+        if not ismacos:
+            self.setWindowIcon(QApplication.instance().windowIcon())
         self.opts = opts
         self.path_to_ebook = None
         self.container = None

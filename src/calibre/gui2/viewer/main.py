@@ -9,7 +9,7 @@ from contextlib import closing
 
 from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
 
-from calibre.constants import VIEWER_APP_UID, islinux
+from calibre.constants import VIEWER_APP_UID, islinux, ismacos
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
 from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.viewer.config import get_session_pref, vprefs
@@ -149,7 +149,8 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     acc = EventAccumulator(app)
     app.file_event_hook = acc
     app.load_builtin_fonts()
-    app.setWindowIcon(QIcon.ic('viewer.png'))
+    if not ismacos:
+        app.setWindowIcon(QIcon.ic('viewer.png'))
     migrate_previous_viewer_prefs()
     main = EbookViewer(
         open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,

@@ -125,7 +125,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.setVisible(False)
-        self.setWindowIcon(QApplication.instance().windowIcon())
+        if not ismacos:
+            self.setWindowIcon(QApplication.instance().windowIcon())
         self.extra_files_watcher = ExtraFilesWatcher(self)
         self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,

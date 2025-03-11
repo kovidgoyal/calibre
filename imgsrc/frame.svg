@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1024"
+   height="1024"
+   fill="none"
+   version="1.1"
+   id="svg13"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <g
+     filter="url(#a)"
+     id="g2">
+    <rect
+       width="824"
+       height="824"
+       x="100"
+       y="100"
+       fill="#fff"
+       rx="184"
+       id="rect1" />
+    <rect
+       width="824"
+       height="824"
+       x="100"
+       y="100"
+       fill="url(#b)"
+       rx="184"
+       id="rect2" />
+  </g>
+  <defs
+     id="defs13">
+    <linearGradient
+       id="b"
+       x1="512"
+       x2="512"
+       y1="100"
+       y2="924"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-opacity="0"
+         id="stop10" />
+      <stop
+         offset="1"
+         stop-opacity=".2"
+         id="stop11" />
+    </linearGradient>
+    <filter
+       id="a"
+       width="868"
+       height="868"
+       x="78"
+       y="89"
+       color-interpolation-filters="sRGB"
+       filterUnits="userSpaceOnUse">
+      <feFlood
+         flood-opacity="0"
+         result="BackgroundImageFix"
+         id="feFlood11" />
+      <feColorMatrix
+         in="SourceAlpha"
+         values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+         id="feColorMatrix11" />
+      <feOffset
+         dy="11"
+         id="feOffset11" />
+      <feGaussianBlur
+         stdDeviation="11"
+         id="feGaussianBlur11" />
+      <feColorMatrix
+         values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.28 0"
+         id="feColorMatrix12" />
+      <feBlend
+         in2="BackgroundImageFix"
+         result="effect1_dropShadow"
+         id="feBlend12" />
+      <feBlend
+         in="SourceGraphic"
+         in2="effect1_dropShadow"
+         result="shape"
+         id="feBlend13" />
+    </filter>
+  </defs>
+</svg>

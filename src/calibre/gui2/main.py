@@ -127,7 +127,8 @@ def init_qt(args):
     # Ancient broken VNC servers cannot handle icons of size greater than 256
     # https://www.mobileread.com/forums/showthread.php?t=278447
     ic = 'lt.png' if is_x11 else 'library.png'
-    app.setWindowIcon(QIcon(I(ic, allow_user_override=False)))
+    if not ismacos:
+        app.setWindowIcon(QIcon(I(ic, allow_user_override=False)))
     return app, opts, args
 
 

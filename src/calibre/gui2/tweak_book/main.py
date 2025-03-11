@@ -8,7 +8,7 @@ import time
 
 from qt.core import QIcon
 
-from calibre.constants import EDITOR_APP_UID, islinux
+from calibre.constants import EDITOR_APP_UID, islinux, ismacos
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool
 from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
@@ -60,7 +60,8 @@ def _run(args, notify=None):
     from calibre.utils.webengine import setup_default_profile
     setup_default_profile()
     app.load_builtin_fonts()
-    app.setWindowIcon(QIcon.ic('tweak.png'))
+    if not ismacos:
+        app.setWindowIcon(QIcon.ic('tweak.png'))
     main = Main(opts, notify=notify)
     main.set_exception_handler()
     main.show()
