@@ -50,7 +50,7 @@ class Database:
                 with suppress(StopIteration):
                     result = next(cursor)
                     self.dbversion = result['version']
-                debug_print('Database Version: ', self.dbversion)
+                debug_print('Kobo database version: ', self.dbversion)
                 self.dbpath = path
         self.needs_copy = True
         self.use_row_factory = True
