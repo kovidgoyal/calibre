@@ -32,7 +32,7 @@ with tempfile.TemporaryDirectory() as tdir:
             render_svg(j(imgsrc, 'frame.svg'), sz, f)
         return f
 
-    def render_framed(sz: int, iname: str, shrink_factor: float = 0.76):
+    def render_framed(sz: int, iname: str, shrink_factor: float = 0.75):
         frame = render_frame(sz)
         icon = os.path.join(tdir, f'icon-{sz}.png')
         render_svg(src, int(shrink_factor * sz), icon)
