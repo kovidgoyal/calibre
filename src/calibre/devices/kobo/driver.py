@@ -173,15 +173,11 @@ class KOBO(USBMS):
     def initialize(self):
         USBMS.initialize(self)
         self.dbversion = 7
-        self._device_version_info = None
 
-    def eject(self):
-        self._device_version_info = None
-        super().eject()
-
-    def device_version_info(self):
+    def device_version_info(self, reload: bool = False):
         debug_print('device_version_info - start')
-        if not self._device_version_info:
+        if self._device_version_info is None or reload:
+            self._device_version_info = []
             version_file = os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'version')
             debug_print(f'device_version_info - version_file={version_file}')
             if os.path.isfile(version_file):
@@ -1603,6 +1599,7 @@ class KOBOTOUCH(KOBO):
 
     def post_open_callback(self):
         from calibre.devices.kobo.db import Database
+        self.device_version_info(reload=True)
         # delete empty directories in root they get left behind when deleting
         # books on device.
         for prefix in (self._main_prefix, self._card_a_prefix, self._card_b_prefix):
