@@ -12,6 +12,7 @@ from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
+from calibre.utils.search_query_parser import ParseException
 
 
 class TableItem(QTableWidgetItem):
@@ -134,7 +135,11 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         try:
             self.search_button.setEnabled(False)
             QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
-            books = self.library_db.data.search(query, return_matches=True)
+            try:
+                books = self.library_db.data.search(query, return_matches=True)
+            except ParseException as e:
+                return error_dialog(self.gui, _('Could not search'), _(
+                    'The search expression {} is not valid.').format(query), det_msg=str(e), show=True)
             self.books_table.setRowCount(len(books))
 
             self.books_table.setSortingEnabled(False)
