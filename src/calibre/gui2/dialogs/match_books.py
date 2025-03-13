@@ -87,6 +87,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.books_table.setHorizontalHeaderItem(2, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
+        self.books_table.selectionModel().selectionChanged.connect(self.selection_changed)
         self.books_table.cellClicked.connect(self.book_clicked)
         self.books_table.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
@@ -172,6 +173,12 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             for c in range(self.books_table.columnCount()):
                 self.books_table.setColumnWidth(c, w)
         self.save_state()
+
+    def selection_changed(self):
+        x = self.books_table.selectedIndexes()
+        if x:
+            id_ = x[0].data(Qt.ItemDataRole.UserRole)
+            self.current_library_book_id = id_
 
     def book_clicked(self, row, column):
         self.book_selected = True
