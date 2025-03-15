@@ -136,7 +136,7 @@ class PublishPreview(Command):
     sub_commands = ['stage1', 'stage2', 'sdist']
 
     def pre_sub_commands(self, opts):
-        version = tuple(map(int, __version__.split('.')))
+        version = tuple(map(int, __version__.split('.')))  # noqa: RUF048
         if version[2] < 100:
             raise SystemExit('Must set calibre version to have patch level greater than 100')
         require_clean_git()
