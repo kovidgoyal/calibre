@@ -55,7 +55,7 @@ class FixedProperty:
         return val / 0x10000
 
     def __set__(self, obj, val):
-        return int(round(val*(0x10000)))
+        return round(val*(0x10000))
 
 
 def max_power_of_two(x):

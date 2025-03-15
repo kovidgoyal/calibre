@@ -687,7 +687,7 @@ class DiffSplit(QSplitter):  # {{{
         w, h = int(img.width()/img.devicePixelRatio()), int(img.height()/img.devicePixelRatio())
         scaled, w, h = fit_image(w, h, view.available_width() - 3, int(0.9 * view.height()))
         line_height = view.blockBoundingRect(view.document().begin()).height()
-        return int(ceil(h / line_height)) + 1, w
+        return ceil(h / line_height) + 1, w
     # }}}
 
     # text diffs {{{
@@ -1062,7 +1062,7 @@ class DiffView(QWidget):  # {{{
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
         self.scrollbar.setRange(0, ls.maximum() + self.delta)
         self.scrollbar.setVisible(self.view.left.document().lineCount() > ls.pageStep() or self.view.right.document().lineCount() > rs.pageStep())
-        self.syncpos = int(ceil(self.scrollbar.pageStep() * self.SYNC_POSITION))
+        self.syncpos = ceil(self.scrollbar.pageStep() * self.SYNC_POSITION)
 
     def finalize(self):
         self.view.finalize()

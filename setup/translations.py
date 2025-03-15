@@ -511,7 +511,7 @@ class Translations(POT):  # {{{
             locale = fmap[src]
             trans, untrans = data['translated'], data['untranslated']
             total = trans + untrans
-            stats[locale] = int(round(100 * trans / total))
+            stats[locale] = round(100 * trans / total)
 
         with TemporaryDirectory() as tdir, ZipFile(self.j(srcbase, 'locales.zip'), 'w', ZIP_STORED) as zf:
             for f in os.listdir(srcbase):

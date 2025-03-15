@@ -42,7 +42,7 @@ from polyglot.builtins import itervalues, string_or_bytes
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     if isinstance(fill, string_or_bytes):
         fill = QColor(fill)
-    sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
+    sz = sz or math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio())
     if palette is None:
         palette = QApplication.palette()
     img = QImage(sz, sz, QImage.Format.Format_ARGB32)

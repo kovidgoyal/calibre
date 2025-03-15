@@ -131,7 +131,7 @@ def href_to_name(href, root, base=None):
 
 
 def seconds_to_timestamp(duration: float) -> str:
-    seconds = int(floor(duration))
+    seconds = floor(duration)
     float_part = duration - seconds
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60

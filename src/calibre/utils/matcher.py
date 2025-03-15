@@ -67,7 +67,7 @@ def split(tasks, pool_size):
     and i is the index of the element x in the original list.
     '''
     ans, count = [], 0
-    delta = int(ceil(len(tasks) / pool_size))
+    delta = ceil(len(tasks) / pool_size)
     while tasks:
         section = [(count + i, task) for i, task in enumerate(tasks[:delta])]
         tasks = tasks[delta:]

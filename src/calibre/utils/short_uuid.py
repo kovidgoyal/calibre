@@ -38,7 +38,7 @@ class ShortUUID:
         self.alphabet = tuple(sorted(str(alphabet or (string.digits + string.ascii_letters)[2:])))
         self.alphabet_len = len(self.alphabet)
         self.alphabet_map = {c:i for i, c in enumerate(self.alphabet)}
-        self.uuid_pad_len = int(math.ceil(math.log(1 << 128, self.alphabet_len)))
+        self.uuid_pad_len = math.ceil(math.log(1 << 128, self.alphabet_len))
 
     def uuid4(self, pad_to_length=None):
         if pad_to_length is None:

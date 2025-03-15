@@ -2858,7 +2858,7 @@ class KOBOTOUCH(KOBO):
             # NOTE: Unlike Qt, we round to avoid accumulating errors,
             #       as ImageOps will then floor via fit_image
             aspect_ratio = library_size[0] / library_size[1]
-            rescaled_width = int(round(kobo_size[1] * aspect_ratio))
+            rescaled_width = round(kobo_size[1] * aspect_ratio)
 
             if expand:
                 use_height = (rescaled_width >= kobo_size[0])
@@ -2868,7 +2868,7 @@ class KOBOTOUCH(KOBO):
             if use_height:
                 kobo_size = (rescaled_width, kobo_size[1])
             else:
-                kobo_size = (kobo_size[0], int(round(kobo_size[0] / aspect_ratio)))
+                kobo_size = (kobo_size[0], round(kobo_size[0] / aspect_ratio))
 
             # Did we actually want to letterbox?
             if not letterbox:

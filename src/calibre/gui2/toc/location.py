@@ -441,7 +441,7 @@ class ItemEdit(QWidget):
         self.current_changed(item)
 
     def get_loctext(self, frac):
-        frac = int(round(frac * 100))
+        frac = round(frac * 100)
         if frac == 0:
             loctext = _('Top of the file')
         else:

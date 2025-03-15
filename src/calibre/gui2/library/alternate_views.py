@@ -1395,7 +1395,7 @@ class GridView(QListView):
             # pixelDelta() is broken on linux with wheel mice
             dy = number_of_degrees.y() / 15.0
             # Scroll by approximately half a row
-            dy = int(math.ceil((dy) * b.singleStep() / 2.0))
+            dy = math.ceil((dy) * b.singleStep() / 2.0)
         else:
             dy = number_of_pixels.y()
         if abs(dy) > 0:

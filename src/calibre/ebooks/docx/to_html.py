@@ -715,7 +715,7 @@ class Convert:
                     ans.append(text.elem)
                     ans.set('data-noteref-container', self.uuid)
             elif self.namespace.is_tag(child, 'w:tab'):
-                spaces = int(math.ceil((self.settings.default_tab_stop / 36) * 6))
+                spaces = math.ceil((self.settings.default_tab_stop / 36) * 6)
                 text.add_elem(SPAN(NBSP * spaces))
                 ans.append(text.elem)
                 ans[-1].set('class', 'tab')

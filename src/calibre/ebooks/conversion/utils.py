@@ -207,7 +207,7 @@ class HeuristicProcessor:
         if wordcount > 7000:
             if wordcount > 200000:
                 typical_chapters = 15000.
-            self.min_chapters = int(ceil(wordcount / typical_chapters))
+            self.min_chapters = ceil(wordcount / typical_chapters)
         self.log.debug('minimum chapters required are: '+str(self.min_chapters))
         heading = re.compile(r'<h[1-3][^>]*>', re.IGNORECASE)
         self.html_preprocess_sections = len(heading.findall(html))

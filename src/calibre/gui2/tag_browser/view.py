@@ -124,7 +124,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                 width = painter.fontMetrics().boundingRect(count).width()
                 r = QRect(tr)
                 dr = 1 if widget is None else widget.devicePixelRatioF()
-                r.setRight(r.right() - 1), r.setLeft(r.right() - width - int(ceil(4 * dr)))
+                r.setRight(r.right() - 1), r.setLeft(r.right() - width - ceil(4 * dr))
                 painter.drawText(r, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, count)
                 tr.setRight(r.left() - 1)
             else:

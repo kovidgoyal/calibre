@@ -38,12 +38,12 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
                 return i
         # really shouldn't get here.
     if tweaks['series_index_auto_increment'] == 'next_free':
-        for i in range(int(ceil(series_indices[0])), 10000):
+        for i in range(ceil(series_indices[0]), 10000):
             if i not in series_indices:
                 return i
         # really shouldn't get here.
     if tweaks['series_index_auto_increment'] == 'last_free':
-        for i in range(int(ceil(series_indices[-1])), 0, -1):
+        for i in range(ceil(series_indices[-1]), 0, -1):
             if i not in series_indices:
                 return i
         return series_indices[-1] + 1

@@ -297,7 +297,7 @@ class ISBNMerge:
             if rating and rating > 0 and rating <= 5:
                 ratings.append(rating)
         if ratings:
-            ans.rating = int(round(sum(ratings)/len(ratings)))
+            ans.rating = round(sum(ratings)/len(ratings))
 
         # Smallest language is likely to be valid
         ans.language = self.length_merge('language', results,

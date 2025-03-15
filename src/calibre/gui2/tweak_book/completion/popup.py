@@ -82,8 +82,8 @@ class ChoosePopupWidget(QWidget):
             max_width = height = 0
             for text, positions in self.current_results:
                 sz = self.get_static_text(text, positions).size()
-                height += int(ceil(sz.height())) + self.BOTTOM_MARGIN
-                max_width = max(max_width, int(ceil(sz.width())))
+                height += ceil(sz.height()) + self.BOTTOM_MARGIN
+                max_width = max(max_width, ceil(sz.width()))
             self.current_size_hint = QSize(max_width + 2 * self.SIDE_MARGIN, height + self.BOTTOM_MARGIN + self.TOP_MARGIN)
         return self.current_size_hint
 
@@ -92,7 +92,7 @@ class ChoosePopupWidget(QWidget):
         bottom = self.rect().bottom()
         for i, (text, positions) in enumerate(self.current_results[self.current_top_index:]):
             st = self.get_static_text(text, positions)
-            height = self.BOTTOM_MARGIN + int(ceil(st.size().height()))
+            height = self.BOTTOM_MARGIN + ceil(st.size().height())
             if y + height > bottom:
                 break
             yield i + self.current_top_index, st, y, height

@@ -1076,7 +1076,7 @@ class Page:
                                 frag.indented = 1  # 1em
                             else:  # Assume left margin of approx = number of chars
                                 # Should check for values approx the same, as with indents
-                                frag.margin_left = int(round(((frag.left - left_min) / self.stats_margin_px)+0.5))
+                                frag.margin_left = round(((frag.left - left_min) / self.stats_margin_px)+0.5)
                         if last_frag is not None \
                           and stats.para_space > 0 \
                           and frag.bottom - last_frag.bottom > stats.para_space*SECTION_FACTOR:

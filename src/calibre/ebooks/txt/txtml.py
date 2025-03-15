@@ -233,7 +233,7 @@ class TXTMLizer:
             text.append('\n\n* * *\n\n')
         # Soft scene breaks.
         try:
-            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            ems = round((float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
                 text.append('\n' * ems)
         except:

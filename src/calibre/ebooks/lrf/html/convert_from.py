@@ -987,7 +987,7 @@ class HTMLConverter:
             line_height = (int(self.current_block.textStyle.attrs['baselineskip']) +
                             int(self.current_block.textStyle.attrs['linespace']))//10
             line_height *= self.profile.dpi/72
-            lines = int(ceil(height/line_height))
+            lines = ceil(height/line_height)
             dc = DropCaps(lines)
             dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
             self.current_para.append(dc)
@@ -1028,7 +1028,7 @@ class HTMLConverter:
         if max(width, height) <= min(pwidth, pheight)/5:
             self.current_para.append(Plot(im, xsize=ceil(width*factor),
                                           ysize=ceil(height*factor)))
-        elif height <= int(floor((2/3)*pheight)):
+        elif height <= floor((2/3)*pheight):
             pb = self.current_block
             self.end_current_para()
             self.process_alignment(tag_css)
@@ -1046,7 +1046,7 @@ class HTMLConverter:
                 self.current_page.contents[0:1] = []
             self.current_page.append(Canvas(width=pwidth,
                                             height=height))
-            left = int(floor((pwidth - width)/2))
+            left = floor((pwidth - width)/2)
             self.current_page.contents[-1].put_object(
                             ImageBlock(self.images[path], xsize=width,
                                        ysize=height, x1=width, y1=height,
@@ -1324,9 +1324,9 @@ class HTMLConverter:
                 result = unit * 0.4 * (dpi)
         if result is not None:
             if pts:
-                result = int(round(result * (720/dpi)))
+                result = round(result * (720/dpi))
             else:
-                result = int(round(result))
+                result = round(result)
         return result
 
     def text_properties(self, tag_css):

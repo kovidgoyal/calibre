@@ -31,7 +31,7 @@ from calibre.gui2.tweak_book.editor.canvas import Canvas
 def reduce_to_ratio(w, h, r):
     h = min(h, w / r)
     w = r * h
-    return int(round(w)), int(round(h))
+    return round(w), round(h)
 
 
 class Region(QDialog):

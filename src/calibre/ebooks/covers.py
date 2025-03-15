@@ -184,7 +184,7 @@ class Block:
 
     @property
     def height(self):
-        return int(ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts)))
+        return ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts))
 
     @property
     def position(self):

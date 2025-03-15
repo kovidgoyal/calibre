@@ -211,7 +211,7 @@ def default_cover_icons(cols=5):
 
 def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=False):
     icons = icons or tuple(default_cover_icons(cols))
-    rows = int(math.ceil(len(icons) / cols))
+    rows = math.ceil(len(icons) / cols)
 
     def get_path_for_icon(icon: str) -> str:
         if report is not None:

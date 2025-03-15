@@ -300,7 +300,7 @@ class NumericSearch:  # {{{
                 raise ParseException(
                         _('Non-numeric value in query: {0}').format(query))
             if dt == 'half-rating':
-                q = int(round(q * 2))
+                q = round(q * 2)
                 cast = int
 
         qfalse = query == 'false'

@@ -264,7 +264,7 @@ class MarkdownMLizer(OEB2HTML):
 
         # Soft scene breaks.
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
-            ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
+            ems = round((float(style.marginBottom) / style.fontSize) - 1)
             if ems >= 1:
                 text.append('\n\n' * ems)
 

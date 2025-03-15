@@ -72,7 +72,7 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
     deltas = []
     for x in components:
         pct = len(x)/float(len(filepath))
-        deltas.append(int(ceil(pct*extra)))
+        deltas.append(ceil(pct*extra))
     ans = []
 
     for i, x in enumerate(components):

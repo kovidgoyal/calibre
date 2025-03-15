@@ -110,7 +110,7 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark)
             q = builtin_decorations.get(which)
             if q is not None:
                 style = q
-        sz = int(math.ceil(icon_size * device_pixel_ratio))
+        sz = math.ceil(icon_size * device_pixel_ratio)
         canvas = QImage(sz, sz, QImage.Format.Format_ARGB32)
         canvas.fill(Qt.GlobalColor.transparent)
         canvas.setDevicePixelRatio(device_pixel_ratio)

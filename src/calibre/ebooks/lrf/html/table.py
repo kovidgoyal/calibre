@@ -11,7 +11,7 @@ from polyglot.builtins import native_string_type, string_or_bytes
 
 
 def ceil(num):
-    return int(math.ceil(num))
+    return math.ceil(num)
 
 
 def print_xml(elem):

@@ -268,7 +268,7 @@ class Server(Thread):
         and i is the index of the element x in the original list.
         '''
         ans, count, pos = [], 0, 0
-        delta = int(ceil(len(tasks)/float(self.pool_size)))
+        delta = ceil(len(tasks)/float(self.pool_size))
         while count < len(tasks):
             section = []
             for t in tasks[pos:pos+delta]:

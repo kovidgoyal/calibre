@@ -430,7 +430,7 @@ class FB2MLizer:
         tag = barename(elem_tree.tag)
         # Number of blank lines above tag
         try:
-            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            ems = round((float(style.marginTop) / style.fontSize) - 1)
             if ems < 0:
                 ems = 0
         except:

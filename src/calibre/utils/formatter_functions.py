@@ -491,7 +491,7 @@ Throws an exception if ``value`` is not a number.
 
     def evaluate(self, formatter, kwargs, mi, locals, value):
         value = float(value if value and value != 'None' else 0)
-        return str(int(ceil(value)))
+        return str(ceil(value))
 
 
 class BuiltinFloor(BuiltinFormatterFunction):
@@ -506,7 +506,7 @@ an exception if ``value`` is not a number.
 
     def evaluate(self, formatter, kwargs, mi, locals, value):
         value = float(value if value and value != 'None' else 0)
-        return str(int(floor(value)))
+        return str(floor(value))
 
 
 class BuiltinRound(BuiltinFormatterFunction):
@@ -521,7 +521,7 @@ r'''
 
     def evaluate(self, formatter, kwargs, mi, locals, value):
         value = float(value if value and value != 'None' else 0)
-        return str(int(round(value)))
+        return str(round(value))
 
 
 class BuiltinMod(BuiltinFormatterFunction):
