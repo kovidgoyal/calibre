@@ -5,9 +5,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
 import os
 import re
+import subprocess
 from contextlib import suppress
+from calibre.constants import isfreebsd
 
 
 def node_mountpoint(node):
@@ -19,11 +22,18 @@ def node_mountpoint(node):
         return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012',
                 b'\n').replace(b'\\0134', b'\\').decode('utf-8')
 
-    with open('/proc/mounts', 'rb') as src:
-        for line in src.readlines():
-            line = line.split()
-            if line[0] == node:
-                return de_mangle(line[1])
+    if isfreebsd:
+        cmd = subprocess.run(['mount', '-p', '--libxo', 'json'], capture_output=True, encoding='UTF-8')
+        stdout = json.loads(cmd.stdout)
+        for row in stdout['mount']['fstab']:
+            if (row['device'].encode('utf-8') == node):
+                return de_mangle(row['mntpoint'].encode('utf-8'))
+    else:
+        with open('/proc/mounts', 'rb') as src:
+            for line in src.readlines():
+                line = line.split()
+                if line[0] == node:
+                    return de_mangle(line[1])
     return None
 
 
@@ -101,7 +111,8 @@ class UDisks:
     def mount(self, device_node_path):
         msg = self.filesystem_operation_message(device_node_path, 'Mount', options=('s', ','.join(basic_mount_options())))
         try:
-            self.send(msg)
+            r = self.send(msg)
+            return r.body[0]
         except Exception:
             # May be already mounted, check
             mp = node_mountpoint(str(device_node_path))
@@ -130,6 +141,14 @@ class UDisks:
         },))
         self.send(msg)
 
+    def rescan(self, device_node_path):
+        from jeepney import new_method_call
+        devname = self.device(device_node_path)
+        a = self.address(f'block_devices/{devname}', self.BLOCK)
+        msg = new_method_call(a, 'Rescan', 'a{sv}', ({
+            'auth.no_user_interaction': ('b', True),
+        },))
+        self.send(msg)
 
 def get_udisks():
     return UDisks()
@@ -149,6 +168,9 @@ def umount(node_path):
     with get_udisks() as u:
         u.unmount(node_path)
 
+def rescan(node_path):
+    with get_udisks() as u:
+        u.rescan(node_path)
 
 def test_udisks():
     import sys
