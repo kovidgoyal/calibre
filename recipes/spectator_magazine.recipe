@@ -13,7 +13,7 @@ class spectator(BasicNewsRecipe):
     title = 'Spectator Magazine'
     __author__ = 'unkn0wn'
     description = 'The Spectator was established in 1828, and is the best-written and most influential weekly in the English language.'
-    language = 'en'
+    language = 'en_GB'
     no_stylesheets = True
     remove_attributes = ['height', 'width', 'style']
     ignore_duplicate_articles = {'url'}
