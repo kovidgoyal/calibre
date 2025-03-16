@@ -25,7 +25,7 @@ def process_list(li_node):
 def process_info_box(bx):
     info = ''
     for x in safe_dict(bx, 'components'):
-        info += f'<blockquote>{process_web_node(x)}</blockquote>'
+        info += f'<blockquote>{process_node(x)}</blockquote>'
     return info
 
 def process_node(node):
