@@ -731,20 +731,21 @@ PDFDoc_version_getter(PDFDoc *self, void *closure) {
     return PyUnicode_FromString("");
 }
 
-static void
-get_or_create_info(PDFDoc *self, PdfDictionary **dict) {
+static PdfDictionary*
+get_or_create_info(PDFDoc *self) {
     PdfObject *info = self->doc->GetTrailer().GetDictionary().FindKey("Info");
-    if (info && info->TryGetDictionary(*dict)) return;
+    PdfDictionary *ans;
+    if (info && info->TryGetDictionary(ans)) return ans;
     info = &self->doc->GetObjects().CreateDictionaryObject();
     self->doc->GetTrailer().GetDictionary().AddKeyIndirect("Info", *info);
-    info->TryGetDictionary(*dict);
+    info->TryGetDictionary(ans);
+    return ans;
 }
 
 
 static inline PyObject*
 string_metadata_getter(PDFDoc *self, const std::string_view name) {
-    PdfDictionary *info_dict;
-    get_or_create_info(self, &info_dict);
+    PdfDictionary *info_dict = get_or_create_info(self);
     auto obj = info_dict->FindKey(name);
     const PdfString* str;
     return (obj == nullptr || !obj->TryGetString(str)) ?  PyUnicode_FromString("") : podofo_convert_pdfstring(*str);
@@ -784,8 +785,7 @@ PDFDoc_producer_getter(PDFDoc *self, void *closure) {
 static inline int
 string_metadata_setter(PDFDoc *self, const std::string_view name, PyObject *val) {
     if (!PyUnicode_Check(val)) { PyErr_SetString(PyExc_TypeError, "Must use unicode to set metadata"); return -1;  }
-    PdfDictionary *info_dict;
-    get_or_create_info(self, &info_dict);
+    PdfDictionary *info_dict = get_or_create_info(self);
     const char *raw; Py_ssize_t sz;
     raw = PyUnicode_AsUTF8AndSize(val, &sz);
     if (sz == 0) info_dict->RemoveKey(name);
