@@ -21,7 +21,6 @@ class TheHindufeeds(BasicNewsRecipe):
         .author, .dateLine, .publish-time {font-size:small; font-weight:bold;}
         .subhead, .subhead_lead, .bold {font-weight:bold;}
         .update-publish-time, .publish-time-new {font-size:small; }
-        img {display:block; margin:0 auto;}
         .italic {font-style:italic; color:#202020;}
     '''
 
@@ -55,7 +54,7 @@ class TheHindufeeds(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for cap in soup.findAll('p', attrs={'class': 'caption'}):
-            cap.name = 'figcaption'
+            cap.name = 'div'
         for img in soup.findAll('img', attrs={'data-original': True}):
             if img['data-original'].endswith('1x1_spacer.png'):
                 source = img.findPrevious('source', srcset=True)
@@ -91,7 +90,7 @@ class TheHindufeeds(BasicNewsRecipe):
         ('Business', 'https://www.thehindu.com/business/feeder/default.rss'),
         ('World', 'https://www.thehindu.com/news/international/feeder/default.rss'),
         # ('Sport', 'https://www.thehindu.com/sport/feeder/default.rss'),
-        ('Entertainment', 'https://www.thehindu.com/entertainment/feeder/default.rss'),
+        # ('Entertainment', 'https://www.thehindu.com/entertainment/feeder/default.rss'),
         # ('Crossword', 'https://crossword.thehindu.com/?utm_source=thehindu&utm_medium=mainmenufeeder/default.rss'),
         ('Science', 'https://www.thehindu.com/sci-tech/science/feeder/default.rss'),
         ('Life and Style', 'https://www.thehindu.com/life-and-style/feeder/default.rss'),
