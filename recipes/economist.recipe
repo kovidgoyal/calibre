@@ -85,6 +85,7 @@ def load_article_from_json(raw, root):
     for node in data.get('text') or ():
         process_node(node, article)
 
+
 def process_web_list(li_node):
     li_html = ''
     for li in li_node['items']:
@@ -93,6 +94,14 @@ def process_web_list(li_node):
         else:
             li_html +=  f'<li>{li.get("text", "")}</li>'
     return li_html
+
+
+def process_info_box(bx):
+    info = ''
+    for x in safe_dict(bx, 'components'):
+        info += f'<blockquote>{process_web_node(x)}</blockquote>'
+    return info
+
 
 def process_web_node(node):
     ntype = node.get('type', '')
@@ -121,8 +130,7 @@ def process_web_node(node):
         if node.get('fallback'):
             return process_web_node(node['fallback'])
     elif ntype == 'INFOBOX':
-        for x in safe_dict(node, 'components'):
-            return f'<blockquote>{process_web_node(x)}</blockquote>'
+        return process_info_box(node)
     elif ntype == 'UNORDERED_LIST':
         if node.get('items'):
             return process_web_list(node)

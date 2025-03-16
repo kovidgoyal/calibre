@@ -22,6 +22,13 @@ def process_list(li_node):
     return li_html
 
 
+def process_info_box(bx):
+    info = ''
+    for x in safe_dict(bx, 'components'):
+        info += f'<blockquote>{process_web_node(x)}</blockquote>'
+    return info
+
+
 def process_node(node):
     ntype = node.get('type', '')
     if ntype == 'CROSSHEAD':
@@ -49,8 +56,7 @@ def process_node(node):
         if node.get('fallback'):
             return process_node(node['fallback'])
     elif ntype == 'INFOBOX':
-        for x in safe_dict(node, 'components'):
-            return f'<blockquote>{process_node(x)}</blockquote>'
+        return process_info_box(node)
     elif ntype == 'UNORDERED_LIST':
         if node.get('items'):
             return process_list(node)
