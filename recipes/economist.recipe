@@ -86,13 +86,30 @@ def load_article_from_json(raw, root):
         process_node(node, article)
 
 
+def process_web_list(li_node):
+    li_html = ''
+    for li in li_node['items']:
+        if li.get('textHtml'):
+            li_html += f'<li>{li.get("textHtml")}</li>'
+        else:
+            li_html +=  f'<li>{li.get("text", "")}</li>'
+    return li_html
+
+
+def process_info_box(bx):
+    info = ''
+    for x in safe_dict(bx, 'components'):
+        info += f'<blockquote>{process_web_node(x)}</blockquote>'
+    return info
+
+
 def process_web_node(node):
     ntype = node.get('type', '')
     if ntype == 'CROSSHEAD':
         if node.get('textHtml'):
             return f'<h4>{node.get("textHtml")}</h4>'
         return f'<h4>{node.get("text", "")}</h4>'
-    elif ntype == 'PARAGRAPH':
+    elif ntype in ['PARAGRAPH', 'BOOK_INFO']:
         if node.get('textHtml'):
             return f'<p>{node.get("textHtml")}</p>'
         return f'<p>{node.get("text", "")}</p>'
@@ -109,9 +126,14 @@ def process_web_node(node):
         return f'<blockquote>{node.get("text", "")}</blockquote>'
     elif ntype == 'DIVIDER':
         return '<hr>'
+    elif ntype == 'INFOGRAPHIC':
+        if node.get('fallback'):
+            return process_web_node(node['fallback'])
     elif ntype == 'INFOBOX':
-        for x in safe_dict(node, 'components'):
-            return f'<blockquote>{process_web_node(x)}</blockquote>'
+        return process_info_box(node)
+    elif ntype == 'UNORDERED_LIST':
+        if node.get('items'):
+            return process_web_list(node)
     elif ntype:
         print('** ', ntype)
         return ''
@@ -120,7 +142,10 @@ def process_web_node(node):
 def load_article_from_web_json(raw):
     # open('/t/raw.json', 'w').write(raw)
     body = ''
-    data = json.loads(raw)['props']['pageProps']['content']
+    try:
+        data = json.loads(raw)['props']['pageProps']['cp2Content']
+    except Exception:
+        data = json.loads(raw)['props']['pageProps']['content']
     body += f'<div style="color: red; font-size:small; font-weight:bold;">{data.get("flyTitle", "")}</div>'
     body += f'<h1>{data["headline"]}</h1>'
     if data.get('rubric') and data.get('rubric') is not None:
@@ -182,7 +207,7 @@ def process_url(url):
 
 class Economist(BasicNewsRecipe):
     title = 'The Economist'
-    language = 'en'
+    language = 'en_GB'
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
@@ -274,7 +299,7 @@ class Economist(BasicNewsRecipe):
 
     def economist_test_article(self):
         return [('Articles', [{'title':'test',
-            'url':'https://www.economist.com/the-americas/2024/04/14/elon-musk-is-feuding-with-brazils-powerful-supreme-court'
+            'url':'https://www.economist.com/leaders/2025/03/13/americas-bullied-allies-need-to-toughen-up'
         }])]
 
     def economist_return_index(self, ans):
