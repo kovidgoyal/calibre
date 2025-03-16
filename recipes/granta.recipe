@@ -213,10 +213,10 @@ class Granta(BasicNewsRecipe):
 
     def parse_index(self):
         if force_issue_download is None:
-            soup = self.index_to_soup('https://granta.com/')
+            soup = self.index_to_soup('https://granta.com/issues')
 
             # Get latest issue
-            issueInfo = soup.find(**classes('featured_product__image'))
+            issueInfo = soup.find(**classes('explore-issue-result'))
             issueAnchor = issueInfo.findParent('a', href=True)
             issueLink = issueAnchor.get('href')
         else:
