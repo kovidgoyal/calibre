@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class ft(BasicNewsRecipe):
     title = 'Financial Times'
-    language = 'en'
+    language = 'en_GB'
     __author__ = 'Kovid Goyal'
     description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
     oldest_article = 1.15
