@@ -3699,7 +3699,7 @@ class KOBOTOUCH(KOBO):
             m('Clara HD', cls.CLARA_HD_PRODUCT_ID),
             m('Clara 2E', cls.CLARA_2E_PRODUCT_ID),
             m('Clara Black and White', cls.CLARA_BW_PRODUCT_ID),
-            m('Clara Color', cls.CLARA_COLOR_PRODUCT_ID),
+            m('Clara Colour', cls.CLARA_COLOR_PRODUCT_ID),
             m('Elipsa', cls.ELIPSA_PRODUCT_ID),
             m('Elipsa 2E', cls.ELIPSA_2E_PRODUCT_ID),
             m('Forma', cls.FORMA_PRODUCT_ID),
@@ -3707,6 +3707,7 @@ class KOBOTOUCH(KOBO):
             m('Glo HD', cls.GLO_HD_PRODUCT_ID),
             m('Libra H2O', cls.LIBRA_H2O_PRODUCT_ID),
             m('Libra 2', cls.LIBRA2_PRODUCT_ID),
+            m('Libra Colour', cls.LIBRA_COLOR_PRODUCT_ID),
             m('Mini', cls.MINI_PRODUCT_ID),
             m('Nia', cls.NIA_PRODUCT_ID),
             m('Sage', cls.SAGE_PRODUCT_ID),
@@ -3714,8 +3715,8 @@ class KOBOTOUCH(KOBO):
             m('Touch 2', cls.TOUCH2_PRODUCT_ID),
 
             m('Shine 5', cls.TOLINO_SHINE_5THGEN_PRODUCT_ID, man='Tolino'),
-            m('Shine Color', cls.TOLINO_SHINE_COLOR_PRODUCT_ID, man='Tolino'),
-            m('Vision Color', cls.TOLINO_VISION_COLOR_PRODUCT_ID, man='Tolino'),
+            m('Shine Colour', cls.TOLINO_SHINE_COLOR_PRODUCT_ID, man='Tolino'),
+            m('Vision Colour', cls.TOLINO_VISION_COLOR_PRODUCT_ID, man='Tolino'),
         )
 
     def is2024Device(self):
