@@ -3715,8 +3715,8 @@ class KOBOTOUCH(KOBO):
             m('Touch 2', cls.TOUCH2_PRODUCT_ID),
 
             m('Shine 5', cls.TOLINO_SHINE_5THGEN_PRODUCT_ID, man='Tolino'),
-            m('Shine Colour', cls.TOLINO_SHINE_COLOR_PRODUCT_ID, man='Tolino'),
-            m('Vision Colour', cls.TOLINO_VISION_COLOR_PRODUCT_ID, man='Tolino'),
+            m('Shine Color', cls.TOLINO_SHINE_COLOR_PRODUCT_ID, man='Tolino'),
+            m('Vision Color', cls.TOLINO_VISION_COLOR_PRODUCT_ID, man='Tolino'),
         )
 
     def is2024Device(self):
