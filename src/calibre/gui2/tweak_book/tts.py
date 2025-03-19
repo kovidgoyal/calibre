@@ -40,7 +40,7 @@ audio overlays, such as the calibre viewer, will be able to hear the text read t
 
 <p style="font-size: small">Note that generating the Text-to-speech audio will be quite slow,
 at the rate of approximately one sentence per couple of seconds, depending on your computer's hardware,
-so consider leave it running overnight.
+so consider leaving it to run overnight.
 ''').format('cory', 'ryan', skip_name))
         self.save_settings = c.save_settings
 
