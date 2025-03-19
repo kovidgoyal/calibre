@@ -11,7 +11,10 @@ class LWNFree(BasicNewsRecipe):
     description = "LWN is published every Thursday. This recipe skips current week's articles (subscriber-only) and pulls free articles from previous week."
     oldest_article = 28  # So we can grab previous week articles.
     max_articles_per_feed = 100
-    auto_cleanup = True
+    extra_css = '.FeatureByline { font-size:small; }'
+
+    keep_only_tags = [dict(name='div', attrs={'class':['ArticleText', 'PageHeadline']})]
+    remove_tags = [dict(name='blockquote', attrs={'class':'ad'}), dict(name='form')]
 
     feeds = [
         ('LWN Articles', 'https://lwn.net/headlines/Features'),
@@ -35,6 +38,7 @@ class LWNFree(BasicNewsRecipe):
             # Count how many free weekly edition we passed
             if 'Weekly Edition' in article.title:
                 weekly_count += 1
+                remove_articles.append(article)
 
             # Remove all articles starting from 2nd free weekly edition
             if weekly_count > 1:
