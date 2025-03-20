@@ -21,6 +21,10 @@ def row_factory(cursor: apsw.Cursor, row):
     return {k[0]: row[i] for i, k in enumerate(cursor.getdescription())}
 
 
+def wal_path(path: str) -> str:
+    return path + '-wal'
+
+
 def copy_db(conn: apsw.Connection, dest_path: str):
     with suppress(AttributeError):  # need a new enough version of apsw
         conn.cache_flush()
@@ -33,9 +37,12 @@ def copy_db(conn: apsw.Connection, dest_path: str):
                 with suppress(apsw.BusyError, apsw.LockedError):
                     b.step()
         shutil.move(tempdb, dest_path)
-        dest_wal = dest_path + '-wal'
-        if os.path.exists(dest_wal):  # truncate WAL file to zero
-            open(dest_wal, 'w').close()
+        twal, dwal = wal_path(tempdb), wal_path(dest_path)
+        if os.path.exists(twal):  # this should never happen as sqlite is supposed to delete -wal file when last connection to db is closed
+            shutil.move(twal, dwal)
+        else:
+            with suppress(FileNotFoundError):
+                os.remove(dwal)
 
 
 class Database:
@@ -65,9 +72,9 @@ class Database:
                 debug_print(f'Kobo: I/O error connecting to {self.path_on_device} copying it into temporary storage and connecting there')
                 with open(self.path_on_device, 'rb') as src, PersistentTemporaryFile(suffix='-kobo-db.sqlite') as dest:
                     shutil.copyfileobj(src, dest)
-                wal = self.path_on_device + '-wal'
+                wal = wal_path(self.path_on_device)
                 if os.path.exists(wal):
-                    shutil.copy2(wal, dest.name + '-wal')
+                    shutil.copy2(wal, wal_path(dest.name))
                 try:
                     connect(dest.name)
                 except Exception:
