@@ -28,6 +28,7 @@ def process_info_box(bx):
         info += f'<blockquote>{process_node(x)}</blockquote>'
     return info
 
+
 def process_node(node):
     ntype = node.get('type', '')
     if ntype == 'CROSSHEAD':
