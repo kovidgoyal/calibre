@@ -96,7 +96,7 @@ def disable_plugin_by_name(name: str) -> None:
     ep = config['enabled_plugins']
     if name in ep:
         ep.remove(name)
-    config['enabled_plugins'] = ep
+        config['enabled_plugins'] = ep
 
 
 def disable_plugin(plugin_or_name):
@@ -788,10 +788,13 @@ def initialize_plugins(perf=False):
     external_plugins = config['plugins'].copy()
 
     if 'KoboTouchExtended' in external_plugins and is_disabled('KoboTouch') and not is_disabled('KoboTouchExtended'):
-        # We remove KoboTouchExtended and re-enable KoboTouch so that the Kobo
+        # We disable KoboTouchExtended and re-enable KoboTouch so that the Kobo
         # device keeps working even though KoboTouchExtended is blacklisted.
-        disable_plugin_by_name('KoboTouchExtended')
-        enable_plugin('KoboTouch')
+        try:
+            disable_plugin_by_name('KoboTouchExtended')
+            enable_plugin('KoboTouch')
+        except Exception:
+            traceback.print_exc()
     for name in BLACKLISTED_PLUGINS:
         external_plugins.pop(name, None)
         system_plugins.pop(name, None)
