@@ -3698,7 +3698,7 @@ class KOBOTOUCH(KOBO):
             m('Aura One', cls.AURA_ONE_PRODUCT_ID),
             m('Clara HD', cls.CLARA_HD_PRODUCT_ID),
             m('Clara 2E', cls.CLARA_2E_PRODUCT_ID),
-            m('Clara Black and White', cls.CLARA_BW_PRODUCT_ID),
+            m('Clara BW', cls.CLARA_BW_PRODUCT_ID),
             m('Clara Colour', cls.CLARA_COLOR_PRODUCT_ID),
             m('Elipsa', cls.ELIPSA_PRODUCT_ID),
             m('Elipsa 2E', cls.ELIPSA_2E_PRODUCT_ID),
