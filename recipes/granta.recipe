@@ -175,6 +175,7 @@ class Granta(BasicNewsRecipe):
     ]
     remove_tags = [
         classes('social-share-container'),
+        classes('article-sidebar__right__social-share-btns')
     ]
     remove_attributes = ['style']
 
