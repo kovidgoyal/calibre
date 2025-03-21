@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 8.0.0 2025-03-21
+{{{ 8.0.1 2025-03-21
 
 :: new features
 
@@ -66,6 +66,8 @@
 - [2099754] Edit book: Download external resources: Fix incorrect filename if the server returns a generic Content-Type header
 
 - [2098620] Metadata download: Publisher/series transform rules: Fix values with commas in them not working
+
+- Version 8.0.1 fixes a failure to start on systems where the user had previously installed the KoboTouchExtended plugin and disabled the builtin KoboTouch driver
 
 :: improved recipes
 - Linux Weekly News
