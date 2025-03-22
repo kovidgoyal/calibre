@@ -521,14 +521,14 @@ bool WinToast::initialize(_Out_opt_ WinToastError* error) {
     if (_shortcutPolicy != SHORTCUT_POLICY_IGNORE) {
         if (createShortcut() < 0) {
             setError(error, WinToastError::ShellLinkNotCreated);
-            DEBUG_MSG(L"Error while attaching the AUMI to the current proccess =(");
+            DEBUG_MSG(L"Error while attaching the AUMI to the current process =(");
             return false;
         }
     }
 
     if (FAILED(DllImporter::SetCurrentProcessExplicitAppUserModelID(_aumi.c_str()))) {
         setError(error, WinToastError::InvalidAppUserModelID);
-        DEBUG_MSG(L"Error while attaching the AUMI to the current proccess =(");
+        DEBUG_MSG(L"Error while attaching the AUMI to the current process =(");
         return false;
     }
 
@@ -560,8 +560,8 @@ HRESULT WinToast::validateShellLinkHelper(_Out_ bool& wasChanged) {
 
     // Let's load the file as shell link to validate.
     // - Create a shell link
-    // - Create a persistant file
-    // - Load the path as data for the persistant file
+    // - Create a persistent file
+    // - Load the path as data for the persistent file
     // - Read the property AUMI and validate with the current
     // - Review if AUMI is equal.
     ComPtr<IShellLink> shellLink;

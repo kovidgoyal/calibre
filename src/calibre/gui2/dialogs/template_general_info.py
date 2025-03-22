@@ -67,7 +67,7 @@ This editor is available in two ways:
 calibre-debug -c "from calibre.gui2.dialogs.ff_doc_editor import main; main()"[/CODE]
 all on one line.
 [*]By defining a keyboard shortcut in calibre for the action `Open the template
-documenation editor` in the `Miscellaneous` section. There is no default shortcut.
+documentation editor` in the `Miscellaneous` section. There is no default shortcut.
 [/LIST]
 [/LIST]
 '''

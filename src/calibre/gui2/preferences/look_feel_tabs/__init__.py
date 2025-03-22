@@ -231,7 +231,7 @@ class LazyEditRulesBase(LazyConfigWidgetBase):
 
     def lazy_initialize(self):
         if not self.rule_set_name:
-            raise NotImplementedError('You must define the attribut "rule_set_name" in LazyEditRulesBase subclasses')
+            raise NotImplementedError('You must define the attribute "rule_set_name" in LazyEditRulesBase subclasses')
         self.load_rule_set(self.rule_set_name)
 
     def load_rule_set(self, name):

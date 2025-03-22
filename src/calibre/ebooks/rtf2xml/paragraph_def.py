@@ -31,7 +31,7 @@ Before any para_def token is found. This means all the text in the preamble.
 Look for the token 'cw<pf<par-def___'. This will changet the state to collect_tokens.
 2. collect_tokens.
 Found a paragraph_def. Need to get all tokens.
-Change with start of a paragrph ('mi<mk<para-start'). State then becomes
+Change with start of a paragraph ('mi<mk<para-start'). State then becomes
 in_paragraphs
 If another paragraph definition is found, the state does not change.
 But the dictionary is reset.

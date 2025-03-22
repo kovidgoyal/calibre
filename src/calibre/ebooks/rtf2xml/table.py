@@ -256,7 +256,7 @@ class Table:
             control word with another method.
             Check for states that will end this state.
             While in the row definition, certain tokens can end a row or end a table.
-            If a paragrah definition (pard-start) is found, and the you are already in
+            If a paragraph definition (pard-start) is found, and you are already in
             a table, start of a row.
         '''
         if self.__token_info == 'cw<tb<row_______':

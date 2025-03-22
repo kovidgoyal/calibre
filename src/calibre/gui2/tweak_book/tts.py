@@ -112,7 +112,7 @@ class TTSEmbed(Dialog):
         s.addWidget(p)
 
         self.remove_media_button = b = self.bb.addButton(_('&Remove existing audio'), QDialogButtonBox.ButtonRole.ActionRole)
-        b.setToolTip(_('Remove any exisiting audio overlays, such as a previously created Text-to-speech narration from this book'))
+        b.setToolTip(_('Remove any existing audio overlays, such as a previously created Text-to-speech narration from this book'))
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(self.remove_media)
         v.addWidget(self.bb)
