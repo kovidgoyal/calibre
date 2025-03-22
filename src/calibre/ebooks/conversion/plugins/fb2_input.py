@@ -134,7 +134,7 @@ class FB2Input(InputFormatPlugin):
         with open('index.xhtml', 'wb') as f:
             f.write(index.encode('utf-8'))
         with open('inline-styles.css', 'wb') as f:
-            f.write(css.encode('utf-8'))
+            f.write(css.encode('utf-8') or b' ')  # srv/render_book.py filters out empty files but index.xhtml links to this file
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
         if not mi.title:
