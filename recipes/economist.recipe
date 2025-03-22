@@ -136,7 +136,7 @@ def process_web_node(node):
             return process_web_list(node)
     elif ntype:
         print('** ', ntype)
-        return ''
+    return ''
 
 
 def load_article_from_web_json(raw):
