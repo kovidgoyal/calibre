@@ -1240,6 +1240,7 @@ class Application(QApplication):
             self.setup_unix_signals()
         if islinux or isbsd:
             self.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeMenuBar, 'CALIBRE_NO_NATIVE_MENUBAR' in os.environ)
+        self.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, 'CALIBRE_NO_ICONS_IN_MENUS' in os.environ)
         self.palette_manager.setup_styles()
         self.setup_ui_font()
         fi = gprefs['font']
