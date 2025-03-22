@@ -38,7 +38,7 @@ class StorePlugin:  # {{{
 
     Plugin authors can use affiliate programs within their plugin. The
     distribution of money earned from a store plugin is 70/30. 70% going
-    to the pluin author / maintainer and 30% going to the calibre project.
+    to the plugin author / maintainer and 30% going to the calibre project.
 
     The easiest way to handle affiliate money payouts is to randomly select
     between the author's affiliate id and calibre's affiliate id so that

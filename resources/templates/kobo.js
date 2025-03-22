@@ -90,7 +90,7 @@ function setupBookColumns()
 function paginate(tagId)
 {
 	// Get the height of the page. We do this only once. In setupBookColumns we compare this
-	// value to the height of the window and then decide wether to force the page count to one.
+	// value to the height of the window and then decide whether to force the page count to one.
 	if (gClientHeight == undefined) {
 		gClientHeight = document.getElementById('book-columns').clientHeight;
 	}
