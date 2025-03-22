@@ -46,7 +46,7 @@ def create_popup(parent, idprefix):
     popup_count += 1
     pid = (idprefix or 'popup') + '-' + popup_count
     # Position has to be fixed so that setting style.top/style.bottom works in
-    # viewport co-ordinates
+    # viewport coordinates
     div = E.div(id=pid, style='display: none; position: fixed; z-index: {}'.format(POPUP_Z_INDEX))
     parent = parent or document.body
     parent.appendChild(div)

@@ -19,7 +19,7 @@ from __python__ import hash_literals
 #    at_current(): Returns the CFI corresponding to the current viewport scroll location
 #
 #    scroll_to(cfi): which scrolls the browser to a point corresponding to the
-#                    given cfi, and returns the x and y co-ordinates of the point.
+#                    given cfi, and returns the x and y coordinates of the point.
 
 from read_book.viewport import scroll_viewport, rem_size
 
@@ -507,7 +507,7 @@ def sort_cfis(array_of_cfis):
 # }}}
 
 def at(x, y, doc):  # {{{
-    # x, y are in viewport co-ordinates
+    # x, y are in viewport coordinates
     doc = doc or window.document
     cdoc = doc
     target = None

@@ -164,8 +164,8 @@ class ScrollViewport:
     # Assure that the viewport position returned is corrected for the RTL
     # mode of ScrollViewport.
     def viewport_to_document(self, x, y, doc):
-        # Convert x, y from the viewport (window) co-ordinate system to the
-        # document (body) co-ordinate system
+        # Convert x, y from the viewport (window) coordinate system to the
+        # document (body) coordinate system
         doc = doc or window.document
         topdoc = window.document
         while doc is not topdoc and doc.defaultView:
