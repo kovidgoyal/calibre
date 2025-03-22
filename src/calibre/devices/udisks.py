@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 from contextlib import suppress
+
 from calibre.constants import isfreebsd
 
 
@@ -91,14 +92,6 @@ class UDisks:
 
     def find_device_vols_by_serial(self, serial):
         from jeepney import DBusAddress, new_method_call
-
-        def decodePath(encoded):
-            ret = ''
-            for c in encoded:
-                if (c != 0):
-                    ret += str(c)
-            return ret
-
         drives = []
         blocks = []
         vols = []
@@ -182,6 +175,7 @@ class UDisks:
         },))
         self.send(msg)
 
+
 def get_udisks():
     return UDisks()
 
@@ -200,13 +194,16 @@ def umount(node_path):
     with get_udisks() as u:
         u.unmount(node_path)
 
+
 def rescan(node_path):
     with get_udisks() as u:
         u.rescan(node_path)
 
+
 def find_device_vols_by_serial(serial):
     with get_udisks() as u:
         return u.find_device_vols_by_serial(serial)
+
 
 def test_udisks():
     import sys

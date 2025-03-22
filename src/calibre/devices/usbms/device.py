@@ -20,7 +20,7 @@ from contextlib import suppress
 from itertools import repeat
 
 from calibre import prints
-from calibre.constants import DEBUG, is_debugging, isfreebsd, islinux, ismacos, iswindows
+from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
 from calibre.devices.interface import FAKE_DEVICE_SERIAL, DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -737,7 +737,7 @@ class Device(DeviceConfig, DevicePlugin):
                 try:
                     mp = mount(node)
                     break
-                except Exception as e:
+                except Exception:
                     if i < 5:
                         rescan(node)
                         time.sleep(1)
@@ -758,7 +758,7 @@ class Device(DeviceConfig, DevicePlugin):
         for vol in vols:
             try:
                 mp = fmount(vol['Device'])
-            except Exception as e:
+            except Exception:
                 print('Failed to mount: ' + vol['Device'])
                 import traceback
                 traceback.print_exc()
@@ -768,6 +768,7 @@ class Device(DeviceConfig, DevicePlugin):
 
             # Mount Point becomes Mount Path
             mp += '/'
+            DEBUG = is_debugging()
             if DEBUG:
                 print('FBSD:\tmounted', vol['Device'], 'on', mp)
             if mtd == 0:
