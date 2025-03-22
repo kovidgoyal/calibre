@@ -187,7 +187,7 @@ class FieldStrings:
             my_string --the string to parse.
             type -- the type of string.
         Returns:
-            Returns a string for a field instrution attribute.
+            Returns a string for a field instruction attribute.
         Logic:
             This handles all "large" fields, which means everything except
             toc entries, index entries, and bookmarks

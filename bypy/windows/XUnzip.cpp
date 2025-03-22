@@ -2850,13 +2850,13 @@ typedef struct
 
 	uLong offset_local_extrafield;// offset of the local extra field
 	uInt  size_local_extrafield;// size of the local extra field
-	uLong pos_local_extrafield;   // position in the local extra field in read
+	uLong pos_local_extrafield; // position in the local extra field in read
 
 	uLong crc32;                // crc32 of all data uncompressed
 	uLong crc32_wait;           // crc32 we must obtain after decompress all
 	uLong rest_read_compressed; // number of byte to be decompressed
 	uLong rest_read_uncompressed;//number of byte to be obtained after decomp
-	LUFILE* file;                 // io structore of the zipfile
+	LUFILE* file;               // io structure of the zipfile
 	uLong compression_method;   // compression method (0==store)
 	uLong byte_before_the_zipfile;// byte before the zipfile, (>0 for sfx)
 } file_in_zip_read_info_s;
@@ -2865,7 +2865,7 @@ typedef struct
 // unz_s contain internal information about the zipfile
 typedef struct
 {
-	LUFILE* file;               // io structore of the zipfile
+	LUFILE* file;               // io structure of the zipfile
 	unz_global_info gi;         // public global information
 	uLong byte_before_the_zipfile;// byte before the zipfile, (>0 for sfx)
 	uLong num_file;             // number of the current file in the zipfile
@@ -3138,7 +3138,7 @@ int unzGetGlobalInfo (unzFile file,unz_global_info *pglobal_info)
 }
 
 
-//   Translate date/time from Dos format to tm_unz (readable more easilty)
+//   Translate date/time from Dos format to tm_unz (more easily readable)
 void unzlocal_DosDateToTmuDate (uLong ulDosDate, tm_unz* ptm)
 {
     uLong uDate;

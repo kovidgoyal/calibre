@@ -5,7 +5,7 @@ class ParseOptions:
     '''
         Requires:
            system_string --The string from the command line
-           options_dict -- a dictionary with the key equal to the opition, and
+           options_dict -- a dictionary with the key equal to the option, and
            a list describing that option. (See below)
         Returns:
             A tuple. The first item in the tuple is a dictionary containing
@@ -223,7 +223,7 @@ class ParseOptions:
         Returns:
             nothing
         Logic:
-            Check each value in the newly creatd options list to see if it
+            Check each value in the newly created options list to see if it
             matches what the user describes as a legal option.
         '''
         illegal_options = []

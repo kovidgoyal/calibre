@@ -372,7 +372,7 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
-        # genesis isn't called before everythign else. Why is a mystery.
+        # genesis isn't called before everything else. Why is a mystery.
         if not self.lazy_init_called:
             if hasattr(self, 'lazy_initialize'):
                 self.lazy_initialize()

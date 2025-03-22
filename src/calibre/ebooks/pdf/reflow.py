@@ -33,7 +33,7 @@ COALESCE_FACTOR = 20.0
 BOTTOM_FACTOR = 2.0
 
 # Where lines overlap, top of one to bottom of next should exceed
-# the line height by this factor for them to be considered diferent.
+# the line height by this factor for them to be considered different.
 HEIGHT_FACTOR = 1.5
 
 # Fraction of text height that two strings' bottoms can differ by
@@ -822,7 +822,7 @@ class Page:
                 # Not within text boundaries
                 self.texts.remove(text)
 
-        # Find any image occurances if requested
+        # Find any image occurrences if requested
         # These can be interspersed with text
         if not self.opts.no_images:
             for img in page.xpath('descendant::image'):

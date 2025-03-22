@@ -289,7 +289,7 @@ class PML_HTMLizer:
             return text
 
         if code in self.DIV_STATES:
-            # Ignore multilple T's on the same line. They do not have a closing
+            # Ignore multiple T's on the same line. They do not have a closing
             # code. They get closed at the end of the line.
             if code == 'T' and self.state['T'][0]:
                 self.code_value(stream)
@@ -582,7 +582,7 @@ class PML_HTMLizer:
                             text = self.process_code('Sd', line, 'sb')
                     elif c in 'xXC':
                         empty = False
-                        # The PML was modified eariler so x and X put the text
+                        # The PML was modified earlier so x and X put the text
                         # inside of ="" so we don't have do special processing
                         # for C.
                         t = ''

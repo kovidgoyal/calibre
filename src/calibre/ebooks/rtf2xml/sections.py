@@ -206,7 +206,7 @@ class Sections:
             nothing
         Logic:
             I have found a section definition. Check if the line is the end of
-            the defnition (a paragraph definition), or if it contains info that
+            the definition (a paragraph definition), or if it contains info that
             should be added to the values dictionary. If neither of these
             cases are true, output the line to a file.
         '''

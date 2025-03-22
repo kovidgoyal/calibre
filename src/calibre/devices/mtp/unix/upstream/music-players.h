@@ -668,7 +668,7 @@
 
   /*
    * SanDisk
-   * several devices (c150 for sure) are definately dual-mode and must
+   * several devices (c150 for sure) are definitely dual-mode and must
    * have the USB mass storage driver that hooks them unloaded first.
    * They all have problematic dual-mode making the device unload effect
    * uncertain on these devices.
@@ -2537,7 +2537,7 @@
   /*
    * Motorola Xoom (Wingray) variants
    *
-   * These devices seem to use these product IDs simulatenously
+   * These devices seem to use these product IDs simultaneously
    * https://code.google.com/p/android-source-browsing/source/browse/init.stingray.usb.rc?repo=device--moto--wingray
    *
    * 0x70a3 - Factory test - reported as early MTP ID
@@ -2796,7 +2796,7 @@
   // Reported by jaile <jaile@users.sourceforge.net>
   { "Asus", 0x0b05, "TF300 Transformer (MTP+ADB)", 0x4c81,
       DEVICE_FLAGS_ANDROID_BUGS },
-  // Repored by Florian Apolloner <f-apolloner@users.sourceforge.net>
+  // Reported by Florian Apolloner <f-apolloner@users.sourceforge.net>
   { "Asus", 0x0b05, "TF700 Transformer (MTP)", 0x4c90,
       DEVICE_FLAGS_ANDROID_BUGS },
   { "Asus", 0x0b05, "TF700 Transformer (MTP+ADB)", 0x4c91,
@@ -3359,7 +3359,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
+   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -3454,7 +3454,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
+   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -3951,7 +3951,7 @@
       DEVICE_FLAGS_ANDROID_BUGS },
 
   /* In update 4 the order of devices was changed for
-     better OS X / Windows suport and another device-id
+     better OS X / Windows support and another device-id
      got assigned for the MTP */
   { "Jolla", 0x2931, "Sailfish (ID2)", 0x0a05,
       DEVICE_FLAGS_ANDROID_BUGS },

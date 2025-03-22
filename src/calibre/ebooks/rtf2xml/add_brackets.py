@@ -107,7 +107,7 @@ class AddBrackets:
     def __in_body_func(self, line):
         '''
         Select what action to take in body:
-            1-At the end of the file close the braket if a bracket was opened
+            1-At the end of the file close the bracket if a bracket was opened
             This happens if there is achange
             2-If an open bracket is found the code inside is ignore
             (written without modifications)

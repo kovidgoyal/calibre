@@ -109,7 +109,7 @@ class ConvertToTags:
         Process lines for open tags that have attributes.
         The important info is between [17:-1]. Take this info and split it
         with the delimiter '<'. The first token in this group is the element
-        name. The rest are attributes, separated fromt their values by '>'. So
+        name. The rest are attributes, separated from their values by '>'. So
         read each token one at a time, and split them by '>'.
         '''
         # mi<tg<open-att__<footnote<num>
