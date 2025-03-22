@@ -20,7 +20,7 @@ from contextlib import suppress
 from itertools import repeat
 
 from calibre import prints
-from calibre.constants import is_debugging, isfreebsd, islinux, ismacos, iswindows
+from calibre.constants import DEBUG, is_debugging, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
 from calibre.devices.interface import FAKE_DEVICE_SERIAL, DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -696,12 +696,14 @@ class Device(DeviceConfig, DevicePlugin):
 #  open for FreeBSD
 #      find the device node or nodes that match the S/N we already have from the scanner
 #      and attempt to mount each one
-#              1.  get list of devices in /dev with matching s/n etc.
+#              1.  get list of devices via DBUS UDisk2 with matching s/n etc.
 #              2.  get list of volumes associated with each
-#              3.  attempt to mount each one using Hal
+#              3.  attempt to mount each one using UDisks2
 #              4.  when finished, we have a list of mount points and associated dbus nodes
 #
     def open_freebsd(self):
+        from calibre.devices.udisks import find_device_vols_by_serial
+
         # There should be some way to access the -v arg...
         verbose = False
 
@@ -711,17 +713,79 @@ class Device(DeviceConfig, DevicePlugin):
 
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")
-        from .hal import get_hal
-        hal = get_hal()
-        vols = hal.get_volumes(d)
+
+        vols = find_device_vols_by_serial(d.serial)
+
         if verbose:
             print('FBSD:\t', vols)
 
-        ok, mv = hal.mount_volumes(vols)
+        ok, mv = self.freebsd_mount_volumes(vols)
         if not ok:
             raise DeviceError(_('Unable to mount the device'))
         for k, v in mv.items():
             setattr(self, k, v)
+
+    def freebsd_mount_volumes(self, vols):
+        def fmount(node):
+            mp = self.node_mountpoint(node)
+            if mp is not None:
+                # Already mounted
+                return mp
+
+            from calibre.devices.udisks import mount, rescan
+            for i in range(6):
+                try:
+                    mp = mount(node)
+                    break
+                except Exception as e:
+                    if i < 5:
+                        rescan(node)
+                        time.sleep(1)
+                    else:
+                        print('Udisks mount call failed:')
+                        import traceback
+                        traceback.print_exc()
+
+            return mp
+
+        mp = None
+        mtd = 0
+        ans = {
+            '_main_prefix': None, '_main_vol': None,
+            '_card_a_prefix': None, '_card_a_vol': None,
+            '_card_b_prefix': None, '_card_b_vol': None,
+        }
+        for vol in vols:
+            try:
+                mp = fmount(vol['Device'])
+            except Exception as e:
+                print('Failed to mount: ' + vol['Device'])
+                import traceback
+                traceback.print_exc()
+
+            if mp is None:
+                continue
+
+            # Mount Point becomes Mount Path
+            mp += '/'
+            if DEBUG:
+                print('FBSD:\tmounted', vol['Device'], 'on', mp)
+            if mtd == 0:
+                ans['_main_prefix'], ans['_main_vol'] = mp, vol['Device']
+                if DEBUG:
+                    print('FBSD:\tmain = ', mp)
+            elif mtd == 1:
+                ans['_card_a_prefix'], ans['_card_a_vol'] = mp, vol['Device']
+                if DEBUG:
+                    print('FBSD:\tcard a = ', mp)
+            elif mtd == 2:
+                ans['_card_b_prefix'], ans['_card_b_vol'] = mp, vol['Device']
+                if DEBUG:
+                    print('FBSD:\tcard b = ', mp)
+                break
+            mtd += 1
+
+        return mtd > 0, ans
 
 #
 # ------------------------------------------------------
@@ -731,14 +795,13 @@ class Device(DeviceConfig, DevicePlugin):
 #        mounted filesystems, using the stored volume object
 #
     def eject_freebsd(self):
-        from .hal import get_hal
-        hal = get_hal()
+        from calibre.devices.udisks import umount
         if self._main_prefix:
-            hal.unmount(self._main_vol)
+            umount(self._main_vol)
         if self._card_a_prefix:
-            hal.unmount(self._card_a_vol)
+            umount(self._card_a_vol)
         if self._card_b_prefix:
-            hal.unmount(self._card_b_vol)
+            umount(self._card_b_vol)
 
         self._main_prefix = self._main_vol = None
         self._card_a_prefix = self._card_a_vol = None
@@ -786,11 +849,7 @@ class Device(DeviceConfig, DevicePlugin):
                     self.open_linux()
             if isfreebsd:
                 self._main_vol = self._card_a_vol = self._card_b_vol = None
-                try:
-                    self.open_freebsd()
-                except DeviceError:
-                    time.sleep(2)
-                    self.open_freebsd()
+                self.open_freebsd()
             if iswindows:
                 self.open_windows()
             if ismacos:
