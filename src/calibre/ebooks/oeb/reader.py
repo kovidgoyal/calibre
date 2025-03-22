@@ -549,7 +549,7 @@ class OEBReader:
             title = COLLAPSE_RE.sub(' ', title.strip())
             if title:
                 titles.append(title)
-            headers.append('(unlabled)')
+            headers.append('(unlabeled)')
             for tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'strong'):
                 expr = '/h:html/h:body//h:%s[position()=1]/text()'
                 header = ''.join(xpath(html, expr % tag))
