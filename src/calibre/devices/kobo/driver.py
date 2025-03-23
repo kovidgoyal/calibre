@@ -2299,7 +2299,7 @@ class KOBOTOUCH(KOBO):
                     continue
                 debug_print('KoboTouch:upload_books: Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
                 debug_print(f'KoboTouch:upload_books: file={file}, name={n}')
-                self.report_progress(i / float(len(modifiable)), 'Processing book: {} by {}'.format(mi.title, ' and '.join(mi.authors)))
+                self.report_progress(i / float(len(modifiable)), _('Processing book: {0} by {1}').format(mi.title, ' and '.join(mi.authors)))
                 if mi.uuid in kepubifiable:
                     self._kepubify(file, n, mi)
                 else:
