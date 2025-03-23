@@ -392,7 +392,7 @@ class VLTabs(QTabBar):  # {{{
 
     def tab_close(self, index):
         vl = str(self.tabData(index) or '')
-        if vl:  # Dont allow closing the All Books tab
+        if vl:  # Don't allow closing the All Books tab
             self.current_db.new_api.set_pref('virt_libs_hidden', list(
                 self.current_db.new_api.pref('virt_libs_hidden', ())) + [vl])
             self.removeTab(index)

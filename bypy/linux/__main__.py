@@ -55,10 +55,10 @@ def binary_includes():
             get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
             get_dll_path('python' + py_ver, 2), get_dll_path('jbig', 2),
 
-            # We dont include libstdc++.so as the OpenGL dlls on the target
+            # We don't include libstdc++.so as the OpenGL dlls on the target
             # computer fail to load in the QPA xcb plugin if they were compiled
             # with a newer version of gcc than the one on the build computer.
-            # libstdc++, like glibc is forward compatible and I dont think any
+            # libstdc++, like glibc is forward compatible and I don't think any
             # distros do not have libstdc++.so.6, so it should be safe to leave it out.
             # https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html (The current
             # debian stable libstdc++ is  libstdc++.so.6.0.17)

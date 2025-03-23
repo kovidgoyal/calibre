@@ -160,14 +160,14 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             #
             # And since this email is only going to be processed by automated
             # services, make the subject+text random too as at least the amazon
-            # service can't handle non-ascii text. I dont know what baboons
+            # service can't handle non-ascii text. I don't know what baboons
             # these companies employ to write their code. It's the height of
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
             from calibre.utils.short_uuid import uuid4
             if not is_for_kindle(to):
                 # Amazon nowadays reads metadata from attachment filename instead of
-                # file internal metadata so dont nuke the filename.
+                # file internal metadata so don't nuke the filename.
                 # https://www.mobileread.com/forums/showthread.php?t=349290
                 aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
             subject = uuid4()

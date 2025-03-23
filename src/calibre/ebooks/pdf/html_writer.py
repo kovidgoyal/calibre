@@ -836,7 +836,7 @@ def fonts_are_identical(fonts):
 
 def merge_font_files(fonts, log):
     # As of Qt 5.15.1 Chromium has switched to harfbuzz and dropped sfntly. It
-    # now produces font descriptors whose W arrays dont match the glyph width
+    # now produces font descriptors whose W arrays don't match the glyph width
     # information from the hhea table, in contravention of the PDF spec. So
     # we can no longer merge font descriptors, all we can do is merge the
     # actual sfnt data streams into a single stream and subset it to contain
@@ -1013,7 +1013,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
         toplevel_pagenum_map, toplevel_pages_map = page_counts_map(tc())
 
-    dpi = 96  # dont know how to query Qt for this, seems to be the same on all platforms
+    dpi = 96  # don't know how to query Qt for this, seems to be the same on all platforms
     def pt_to_px(pt): return int(pt * dpi / 72)
 
     def create_container(page_num, margins):

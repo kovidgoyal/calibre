@@ -45,7 +45,7 @@ class epw(BasicNewsRecipe):
                 '/styles/freeissue/public', ''
             )
         except Exception:
-            # sometimes they dont add img src
+            # sometimes they don't add img src
             self.cover_url = 'https://www.epw.in/sites/default/files/cache/cover_images/2022/Cover_4June2022_Big.gif'
 
         feeds = OrderedDict()

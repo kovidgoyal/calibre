@@ -176,7 +176,7 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
             end_node = current_wrapper
             end_offset = 1
         if current_range.collapsed:
-            # Dont wrap empty ranges. This is needed otherwise two adjacent
+            # Don't wrap empty ranges. This is needed otherwise two adjacent
             # selections of text will incorrectly be detected as overlapping.
             # For example: highlight abc then def in the word abcdef here the
             # second highlight's first range is the collapsed range at the end

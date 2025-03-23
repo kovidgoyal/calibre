@@ -1628,7 +1628,7 @@ def ensure_app(headless=True):
             # unhandled python exception in a slot or virtual method. Since ensure_app()
             # is used in worker processes for background work like rendering html
             # or running a headless browser, we circumvent this as I really
-            # dont feel like going through all the code and making sure no
+            # don't feel like going through all the code and making sure no
             # unhandled exceptions ever occur. All the actual GUI apps already
             # override sys.excepthook with a proper error handler.
             sys.excepthook = simple_excepthook

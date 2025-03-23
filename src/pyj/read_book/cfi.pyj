@@ -105,7 +105,7 @@ def find_offset_for_point(x, y, node, cdoc):
                 return v'[child, offset_in_text_node(child, range_, x, y)]'
         child = child.nextSibling
 
-    # The point must be after the last bit of text/in the padding/border, we dont know
+    # The point must be after the last bit of text/in the padding/border, we don't know
     # how to get a good point in this case
     return None, None
 
@@ -304,7 +304,7 @@ def node_for_text_offset(nodes, offset, first_node):
                 return node, offset, True
             last_text_node = node
             offset -= l
-        # mathml nodes dont have dataset
+        # mathml nodes don't have dataset
         elif node.nodeType is Node.ELEMENT_NODE and node.dataset?.calibreRangeWrapper:
             qn, offset, ok = node_for_text_offset(unwrapped_nodes(node), offset)
             if ok:
@@ -524,7 +524,7 @@ def at(x, y, doc):  # {{{
             # has large margins/padding (e.g. in fullscreen mode)
             # A possible solution for this is to wrap all text node
             # children of body in <span> but that is seriously ugly and
-            # might have side effects. Lets do this only if there are lots of
+            # might have side effects. Let's do this only if there are lots of
             # books in the wild that actually have text children of body,
             # and even in this case it might be better to change the input
             # plugin to prevent this from happening.

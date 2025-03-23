@@ -138,7 +138,7 @@ This can be removed by adding::
 
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]
 
-to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled earlier, with our own :term:`CSS` that is suitable for conversion to an e-book::
+to the recipe. Finally, let's replace some of the :term:`CSS` that we disabled earlier, with our own :term:`CSS` that is suitable for conversion to an e-book::
 
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 

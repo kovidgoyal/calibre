@@ -222,7 +222,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
         try:
             candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
         except:
-            # Dont have permission to do the listdir, assume the case is
+            # Don't have permission to do the listdir, assume the case is
             # correct as we have no way to check it.
             pass
         else:

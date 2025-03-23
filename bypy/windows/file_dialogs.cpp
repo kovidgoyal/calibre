@@ -346,7 +346,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         return write_bytes(pipe, echo_sz, echo_buf) ? 0 : 1;
     }
 	if (app_uid != NULL) {
-        // dont check return status as failure is not critical
+        // don't check return status as failure is not critical
         set_app_uid(app_uid);
     }
 

@@ -602,7 +602,7 @@ In calibre, you would instead use tags to mark genre and read status and then ju
 
 To those of you that claim that you need access to the filesystem, so that you can have access to your books over the network, calibre has an excellent Content server that gives you access to your calibre library over the net.
 
-If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to disk` feature in calibre that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
+If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to disk` feature in calibre that let's you export all your files into a folder structure of arbitrary complexity based on their metadata.
 
 Finally, the reason there are numbers at the end of every title folder, is for *robustness*. That number is the id number of the book record in the calibre database. The presence of the number allows you to have multiple records with the same title and author names. It is also part of what allows calibre to magically regenerate the database with all metadata if the database file gets corrupted. Given that calibre's mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
 

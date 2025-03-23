@@ -43,7 +43,7 @@ You can download the Hello World plugin from
 :download_file:`helloworld_plugin.zip`.
 
 Every time you use calibre to convert a book, the plugin's :meth:`run` method will be called and the
-converted book will have its publisher set to "Hello World". This is a trivial plugin, lets move on to
+converted book will have its publisher set to "Hello World". This is a trivial plugin, let's move on to
 a more complex example that actually adds a component to the user interface.
 
 A User Interface plugin

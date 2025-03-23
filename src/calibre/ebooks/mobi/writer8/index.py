@@ -246,7 +246,7 @@ class SkelIndex(Index):
     def __init__(self, skel_table):
         self.entries = [
                 (s.name, {
-                    # Dont ask me why these entries have to be repeated twice
+                    # Don't ask me why these entries have to be repeated twice
                     'chunk_count':(s.chunk_count, s.chunk_count),
                     'geometry':(s.start_pos, s.length, s.start_pos, s.length),
                     }) for s in skel_table
@@ -387,7 +387,7 @@ if __name__ == '__main__':
 
     subprocess.check_call(['ebook-convert', src, '.epub', '--level1-toc', '//h:p', '--no-default-epub-cover', '--flow-size', '1000000'])
     subprocess.check_call(['ebook-convert', src, '.azw3', '--level1-toc', '//h:p', '--no-inline-toc', '--extract-to=x'])
-    subprocess.call(['kindlegen', 'index.epub'])  # kindlegen exit code is not 0 as we dont have a cover
+    subprocess.call(['kindlegen', 'index.epub'])  # kindlegen exit code is not 0 as we don't have a cover
     subprocess.check_call(['calibre-debug', 'index.mobi'])
 
     from calibre.gui2.tweak_book.diff.main import main

@@ -135,7 +135,7 @@ class Restore(Thread):
                 tdir = TemporaryDirectory('_rlib', dir=basedir)
                 tdir.__enter__()
             except OSError:
-                # In case we dont have permissions to create directories in the
+                # In case we don't have permissions to create directories in the
                 # parent folder of the src library
                 tdir = TemporaryDirectory('_rlib')
 

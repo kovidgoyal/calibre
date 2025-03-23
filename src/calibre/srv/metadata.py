@@ -233,7 +233,7 @@ class GroupedSearchTerms:
     def __init__(self, src):
         self.keys = frozenset(src)
         self.hash = hash(self.keys)
-        # We dont need to store values since this is used as part of a key for
+        # We don't need to store values since this is used as part of a key for
         # a cache and if the values have changed the cache will be invalidated
         # for other reasons anyway (last_modified() will have changed on the
         # db)

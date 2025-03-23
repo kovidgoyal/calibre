@@ -12,7 +12,7 @@
     var settings = SETTINGS;
 
     function onclick(event) {
-        // We dont want this event to trigger onclick on this element's parent
+        // We don't want this event to trigger onclick on this element's parent
         // block, if any.
         event.stopPropagation();
         var frac = window.pageYOffset/document.body.scrollHeight;

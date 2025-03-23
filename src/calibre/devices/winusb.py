@@ -922,7 +922,7 @@ def get_usb_info(usbdev, debug=False):  # {{{
     try:
         buf, dd = get_device_descriptor(handle, device_port)
         if dd.idVendor == usbdev.vendor_id and dd.idProduct == usbdev.product_id and dd.bcdDevice == usbdev.bcd:
-            # Dont need to read language since we only care about english names
+            # Don't need to read language since we only care about english names
             # buf, langs = get_device_languages(handle, device_port)
             # print(111, langs)
             for index, name in ((dd.iManufacturer, 'manufacturer'), (dd.iProduct, 'product'), (dd.iSerialNumber, 'serial_number')):

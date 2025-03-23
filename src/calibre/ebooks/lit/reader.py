@@ -580,7 +580,7 @@ class LitFile:
             offset, size = u32(piece), int32(piece[8:])
             piece = self.read_raw(offset, size)
             if i == 0:
-                continue  # Dont need this piece
+                continue  # Don't need this piece
             elif i == 1:
                 if u32(piece[8:])  != self.entry_chunklen or \
                    u32(piece[12:]) != self.entry_unknown:

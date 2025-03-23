@@ -118,7 +118,7 @@ Normally, calibre will automatically choose a base font size appropriate to the 
 have chosen (see :ref:`page-setup`). However, you can override this here in case the default is
 not suitable for you.
 
-The :guilabel:`Font size key` option lets you control how non-base font sizes are rescaled.
+The :guilabel:`Font size key` option let's you control how non-base font sizes are rescaled.
 The font rescaling algorithm works using a font size key, which is simply a comma-separated
 list of font sizes. The font size key tells calibre how many "steps" bigger or smaller a given font
 size should be compared to the base font size. The idea is that there should be a limited number

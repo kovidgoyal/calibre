@@ -232,7 +232,7 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
     if css_preprocessor is not None:
         data = css_preprocessor(data)
     parser = CSSParser(loglevel=log_level,
-                        # We dont care about @import rules
+                        # We don't care about @import rules
                         fetcher=lambda x: (None, None), log=_css_logger)
     if is_declaration:
         data = parser.parseStyle(data, validate=False)

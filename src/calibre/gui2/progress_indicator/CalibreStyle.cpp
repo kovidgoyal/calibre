@@ -290,7 +290,7 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
     const QStyleOptionViewItem *vopt = NULL;
     switch (element) {
         case PE_FrameTabBarBase: // {{{
-            // dont draw line below tabs in dark mode as it looks bad
+            // don't draw line below tabs in dark mode as it looks bad
             if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
                 if (tbb->shape == QTabBar::RoundedNorth) {
                     QColor bg = option->palette.color(QPalette::Window);

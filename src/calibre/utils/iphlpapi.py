@@ -202,7 +202,7 @@ class IP_ADAPTER_ADDRESSES(ctypes.Structure):
         ('Dhcpv6ClientDuid', ctypes.c_ubyte * MAX_DHCPV6_DUID_LENGTH),
         ('Dhcpv6ClientDuidLength', wintypes.ULONG),
         ('Dhcpv6Iaid', wintypes.ULONG),
-        # Vista SP1 and later, so we comment it out as we dont need it
+        # Vista SP1 and later, so we comment it out as we don't need it
         # ('FirstDnsSuffix', ctypes.POINTER(IP_ADAPTER_DNS_SUFFIX)),
     ]
 

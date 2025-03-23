@@ -46,8 +46,8 @@ def get_defaults(spec):
 
 
 def compare_argspecs(old, new, attr):
-    # We dont compare the names of the non-keyword arguments as they are often
-    # different and they dont affect the usage of the API.
+    # We don't compare the names of the non-keyword arguments as they are often
+    # different and they don't affect the usage of the API.
 
     ok = len(old.args) == len(new.args) and get_defaults(old) == get_defaults(new)
     if not ok:

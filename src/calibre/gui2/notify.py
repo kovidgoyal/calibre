@@ -253,7 +253,7 @@ def get_notifier(systray=None):
             if not ans.ok:
                 ans = DummyNotifier()
         else:
-            # We dont use Qt's systray based notifier as it uses Growl and is
+            # We don't use Qt's systray based notifier as it uses Growl and is
             # broken with different versions of Growl
             ans = DummyNotifier()
     elif iswindows:

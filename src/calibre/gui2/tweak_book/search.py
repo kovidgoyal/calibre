@@ -1346,7 +1346,7 @@ def get_search_function(state):
     ans = state['replace']
     is_regex = state['mode'] not in ('normal', 'fuzzy')
     if not is_regex:
-        # We dont want backslash escape sequences interpreted in normal mode
+        # We don't want backslash escape sequences interpreted in normal mode
         return lambda m: ans
     if state['mode'] == 'function':
         try:

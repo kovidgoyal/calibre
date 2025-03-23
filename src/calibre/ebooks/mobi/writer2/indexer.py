@@ -221,7 +221,7 @@ class SecondaryIndexEntry(IndexEntry):
         tag = self.INDEX_MAP[index]
 
         # The values for this index entry
-        # I dont know what the 5 means, it is not the number of entries
+        # I don't know what the 5 means, it is not the number of entries
         self.secondary = [5 if tag == min(
             itervalues(self.INDEX_MAP)) else 0, 0, tag]
 

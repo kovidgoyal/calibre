@@ -373,7 +373,7 @@ class Cache:
             mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(sorted(formats), mi.format_metadata)
         # These three attributes are returned by the db2 get_metadata(),
-        # however, we dont actually use them anywhere other than templates, so
+        # however, we don't actually use them anywhere other than templates, so
         # they have been removed, to avoid unnecessary overhead. The templates
         # all use _proxy_metadata.
         # mi.book_size   = self._field_for('size', book_id, default_value=0)
@@ -2287,7 +2287,7 @@ class Cache:
                             # We must preserve order.
                             vals = list(vals)
                             # Don't need to worry about case here because we
-                            # are fetching its one-true spelling. But lets be
+                            # are fetching its one-true spelling. But let's be
                             # careful anyway
                             try:
                                 dex = vals.index(self._get_item_name(field, old_id))

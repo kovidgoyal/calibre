@@ -45,7 +45,7 @@ class InputProfile(Plugin):
     type = _('Input profile')
 
     name        = 'Default Input Profile'
-    short_name  = 'default'  # Used in the CLI so dont use spaces etc. in it
+    short_name  = 'default'  # Used in the CLI so don't use spaces etc. in it
     description = _('This profile tries to provide sane defaults and is useful '
                     'if you know nothing about the input document.')
 
@@ -243,7 +243,7 @@ class OutputProfile(Plugin):
     type = _('Output profile')
 
     name        = 'Default Output Profile'
-    short_name  = 'default'  # Used in the CLI so dont use spaces etc. in it
+    short_name  = 'default'  # Used in the CLI so don't use spaces etc. in it
     description = _('This profile tries to provide sane defaults and is useful '
                     'if you want to produce a document intended to be read at a '
                     'computer or on a range of devices.')

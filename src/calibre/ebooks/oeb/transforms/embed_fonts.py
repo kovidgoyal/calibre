@@ -141,7 +141,7 @@ class EmbedFonts:
                 for sel in rule.selectorList:
                     sel = sel.selectorText
                     if sel and sel.startswith('.'):
-                        # We dont care about pseudo-selectors as the worst that
+                        # We don't care about pseudo-selectors as the worst that
                         # can happen is some extra characters will remain in
                         # the font
                         sel = sel.partition(':')[0]

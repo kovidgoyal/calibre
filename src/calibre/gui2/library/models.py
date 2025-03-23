@@ -243,7 +243,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.bool_yes_icon = QIcon.ic('ok.png').pixmap(icon_height)
         self.bool_no_icon = QIcon.ic('list_remove.png').pixmap(icon_height)
         self.bool_blank_icon = QIcon.ic('blank.png').pixmap(icon_height)
-        # Qt auto-scales marked icon correctly, so we dont need to do it (and
+        # Qt auto-scales marked icon correctly, so we don't need to do it (and
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
         self.marked_icon = QIcon.ic('marked.png')

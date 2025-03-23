@@ -25,7 +25,7 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
     img = Image.open(BytesIO(data))
     if img.format == 'JPEG':
         # Amazon's MOBI renderer can't render JPEG images without JFIF metadata
-        # and images with EXIF data dont get displayed on the cover screen
+        # and images with EXIF data don't get displayed on the cover screen
         changed = not img.info
         has_exif = False
         if hasattr(img, 'getexif'):

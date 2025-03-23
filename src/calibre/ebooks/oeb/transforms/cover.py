@@ -84,7 +84,7 @@ class CoverManager:
 
     def default_cover(self):
         '''
-        Create a generic cover for books that dont have a cover
+        Create a generic cover for books that don't have a cover
         '''
         if self.no_default_cover:
             return None

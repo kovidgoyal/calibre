@@ -81,7 +81,7 @@ class BaltimoreSun(BasicNewsRecipe):
         (u'Maryland Weather', u'http://www.baltimoresun.com/news/weather/weather-blog/rss2.0.xml'),
         (u'Second Opinion', u'http://www.baltimoresun.com/news/opinion/second-opinion-blog/rss2.0.xml'),
         (u'Sun Investigates', u'http://www.baltimoresun.com/news/maryland/sun-investigates/rss2.0.xml'),
-        (u'You Dont Say', u'http://www.baltimoresun.com/news/language-blog/rss2.0.xml'),
+        (u"You Don't Say", u'http://www.baltimoresun.com/news/language-blog/rss2.0.xml'),
 
         # Business Blogs ##
         (u'BaltTech', u'http://www.baltimoresun.com/business/technology/blog/rss2.0.xml'),

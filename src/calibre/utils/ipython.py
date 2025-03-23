@@ -113,8 +113,8 @@ history_length(2000) #value of -1 means no limit
         if not os.path.exists(ipydir):
             os.makedirs(ipydir)
         conf = os.path.join(ipydir, 'pyreadline.txt')
-        hist = os.path.join(ipydir, 'history.txt')
-        config = config % hist
+        history = os.path.join(ipydir, 'history.txt')
+        config = config % history
         with open(conf, 'wb') as f:
             f.write(config.encode('utf-8'))
         pyreadline.rlmain.config_path = conf
