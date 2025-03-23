@@ -153,14 +153,14 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         if isinstance(to, str) and (is_for_kindle(to) or '@pbsync.com' in to):
-            # The PocketBook service is a total joke. It cant handle
+            # The PocketBook service is a total joke. It can't handle
             # non-ascii, filenames that are long enough to be split up, commas, and
             # the good lord alone knows what else. So use a random filename
             # containing only 22 English letters and numbers
             #
             # And since this email is only going to be processed by automated
             # services, make the subject+text random too as at least the amazon
-            # service cant handle non-ascii text. I dont know what baboons
+            # service can't handle non-ascii text. I dont know what baboons
             # these companies employ to write their code. It's the height of
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282

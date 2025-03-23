@@ -101,7 +101,7 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
             # encoding quirks
             '<p>A\xa0nbsp;&nbsp;':
             '<p><span class="koboSpan" id="kobo.1.1">A&#160;nbsp;&#160;</span></p>',
-            '<div><script>1 < 2 & 3</script>':  # escaping with cdata note that kepubify doesnt do this
+            '<div><script>1 < 2 & 3</script>':  # escaping with cdata note that kepubify doesn't do this
             '<div><script><![CDATA[1 < 2 & 3]]></script></div>',
 
             # CSS filtering

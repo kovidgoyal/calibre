@@ -3474,7 +3474,7 @@ class Cache:
                         self._add_extra_files(dest_id, {q: BytesIO(cdata)}, replace=False, auto_rename=True)
                         break
 
-        for key in self.field_metadata:  # loop thru all defined fields
+        for key in self.field_metadata:  # loop through all defined fields
             fm = self.field_metadata[key]
             if not fm['is_custom']:
                 continue

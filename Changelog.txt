@@ -496,7 +496,7 @@
 
 :: improved recipes
 - Jot Down
-- Various Russian and Ukranian news sources
+- Various Russian and Ukrainian news sources
 - Nautilus Magazine
 - Süddeutsche Zeitung
 - The India Forum
@@ -974,7 +974,7 @@
 
 - Fix a regression in 7.0 caused by a regression in Qt that would result in calibre hanging rarely when using the cover browser view
 
-- [2049992] Fix custom template functions not useable in save to disk templates
+- [2049992] Fix custom template functions not usable in save to disk templates
 
 - Fix a regression in 7.2 that caused the popup used for editing fields in the book list to be mis-positioned on very wide monitors
 

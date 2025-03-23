@@ -145,7 +145,7 @@ class ReadUI:
                 try:
                     result = JSON.parse(xhr.responseText)
                 except Exception:
-                    return self.show_error(_('Failed to parse profiles'), _('Unparseable data received for profiles'))
+                    return self.show_error(_('Failed to parse profiles'), _('Unparsable data received for profiles'))
                 proceed(result)
             ).send()
 

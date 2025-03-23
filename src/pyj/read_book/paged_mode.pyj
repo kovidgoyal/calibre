@@ -446,7 +446,7 @@ def next_screen_location():
         current_pos = Math.ceil(current_scroll_offset())
         ans = limit if current_pos < limit else -1
         if cols_per_screen is 1 and ans is not -1 and ans - current_pos < col_size:
-            ans = -1  # cant scroll partial columns
+            ans = -1  # can't scroll partial columns
     return ans
 
 

@@ -83,7 +83,7 @@ def parse_uri(uri, parse_query=True, unquote_func=unquote):
         try:
             query = MultiDict.create_from_query_string(qs)
         except Exception:
-            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unparseable query string')
+            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unparsable query string')
     else:
         query = None
 

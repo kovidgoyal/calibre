@@ -36,7 +36,7 @@ class FTSDialog(Dialog):
         l = QVBoxLayout(self)
         self.fat_warning = fw = QLabel(
             f'<span style="color:red; font-weight: bold">{_("WARNING")}:</span> ' +
-            _('The calibre library is on a FAT drive, indexing more than a few hundred books wont work.') +
+            _("The calibre library is on a FAT drive, indexing more than a few hundred books won't work.") +
             f' <a href="xxx" style="text-decoration: none">{_("Learn more")}</a>')
         # fw.setVisible(False)
         fw.linkActivated.connect(self.show_fat_details)

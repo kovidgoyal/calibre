@@ -192,7 +192,7 @@ class SetGlobalsNode(Node):
 
 class StringCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'comparision: ' + operator)
+        Node.__init__(self, line_number, 'comparison: ' + operator)
         self.node_type = self.NODE_COMPARE_STRING
         self.operator = operator
         self.left = left

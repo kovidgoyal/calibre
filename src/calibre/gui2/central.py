@@ -485,7 +485,7 @@ class CentralContainer(QWidget):
 
     def read_settings(self):
         before = self.serialized_settings()
-        # sadly self.size() doesnt always return sensible values so look at
+        # sadly self.size() doesn't always return sensible values so look at
         # the size of the main window which works perfectly for width, not so
         # perfectly for height
         sz = self.size()

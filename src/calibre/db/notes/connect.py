@@ -119,7 +119,7 @@ class Notes:
     def path_for_resource(self, resource_hash: str) -> str:
         hashalg, digest = resource_hash.split(':', 1)
         prefix = digest[:2]
-        # Cant use colons in filenames on windows safely
+        # Can't use colons in filenames on windows safely
         return os.path.join(self.resources_dir, prefix, f'{hashalg}-{digest}')
 
     def remove_resources(self, conn, note_id, resources_to_potentially_remove, delete_from_link_table=True):

@@ -107,7 +107,7 @@ class SatMagazine(BasicNewsRecipe):
 
         title_number = 0
 
-        # Goes thru all the articles one by one and sort them out
+        # Goes through all the articles one by one and sort them out
         for article in articles:
 
             title = self.tag_to_string(article)

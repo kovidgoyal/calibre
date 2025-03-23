@@ -1776,7 +1776,7 @@ def raise_and_focus(self: QWidget) -> None:
 
 def raise_without_focus(self: QWidget) -> None:
     if QApplication.instance().platformName() == 'wayland':
-        # On fucking Wayland, we cant raise a dialog without also giving it
+        # On fucking Wayland, we can't raise a dialog without also giving it
         # keyboard focus. What a joke.
         self.raise_and_focus()
     else:
