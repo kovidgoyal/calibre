@@ -4,12 +4,11 @@
 
 from qt.core import QFontMetrics, QHBoxLayout, QIcon, QMenu, QPushButton, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QWidget
 
-ICON_SZ = 64
-
 
 class LayoutItem(QWidget):
 
     mouse_over = False
+    VMARGIN = 4
 
     def __init__(self, button, parent=None):
         QWidget.__init__(self, parent)
@@ -18,23 +17,16 @@ class LayoutItem(QWidget):
         self.text = button.label
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.fm = QFontMetrics(self.font())
-        self._bi = self._di = None
 
     def update_tips(self):
         self.setToolTip(self.button.toolTip())
         self.setStatusTip(self.button.statusTip())
 
-    @property
-    def bright_icon(self):
-        if self._bi is None:
-            self._bi = self.button.icon().pixmap(ICON_SZ, ICON_SZ)
-        return self._bi
+    def bright_icon(self, height):
+        return self.button.icon().pixmap(height, height)
 
-    @property
-    def dull_icon(self):
-        if self._di is None:
-            self._di = self.button.icon().pixmap(ICON_SZ, ICON_SZ, mode=QIcon.Mode.Disabled)
-        return self._di
+    def dull_icon(self, height):
+        return self.button.icon().pixmap(height, height, mode=QIcon.Mode.Disabled)
 
     def enterEvent(self, ev):
         super().enterEvent(ev)
@@ -49,9 +41,10 @@ class LayoutItem(QWidget):
             self.update()
 
     def sizeHint(self):
+        ICON_SZ = 64
         br = self.fm.boundingRect(self.text)
         w = max(br.width(), ICON_SZ) + 10
-        h = 2 * self.fm.lineSpacing() + ICON_SZ + 8
+        h = 2 * self.fm.lineSpacing() + ICON_SZ + 2 * self.VMARGIN
         return QSize(w, h)
 
     def paintEvent(self, ev):
@@ -64,22 +57,18 @@ class LayoutItem(QWidget):
             tool.rect = self.rect()
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             painter.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
-        painter.drawText(
-            0, 0,
-            self.width(),
-            ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.text)
+        br = painter.drawText(0, 0, self.width(), ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.text)
+        top = br.bottom()
+        bottom = self.height() - ls
         text = _('Hide') if shown else _('Show')
         f = self.font()
         f.setBold(True)
         painter.setFont(f)
-        painter.drawText(
-            0, self.height() - ls,
-            self.width(),
-            ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, text)
-        x = (self.width() - ICON_SZ) // 2
-        y = ls + (self.height() - ICON_SZ - 2 * ls) // 2
-        pmap = self.bright_icon if shown else self.dull_icon
-        painter.drawPixmap(x, y, pmap)
+        painter.drawText(0, bottom, self.width(), ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, text)
+        height = bottom - top - 2 * self.VMARGIN
+        x = (self.width() - height) // 2
+        pmap = self.bright_icon(height) if shown else self.dull_icon(height)
+        painter.drawPixmap(x, top + self.VMARGIN, pmap)
         painter.end()
 
 
