@@ -77,7 +77,7 @@ multiline-quotes = 'single'
 [tool.codespell]
 # calibre will probably never fully compliant with codespell
 # this setting is only to easily find common typo errors
-# by filtring a great range of false-positives, but not all
+# by filtering a great range of false-positives, but not all
 # (if codespell could per-file-ignores words, its be nicer)
 count = false
 summary = false
@@ -156,7 +156,6 @@ skip = [
     "./COPYRIGHT",
     "./LICENSE",
     "./LICENSE.rtf",
-    "./pyproject.toml",
     "./session.vim",
     "./build/*",
     "./docs/*",
