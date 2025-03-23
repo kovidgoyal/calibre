@@ -61,7 +61,7 @@ def process_node(node):
             return process_list(node)
     elif ntype:
         print('** ', ntype)
-        return ''
+    return ''
 
 
 def safe_dict(data, *names):
