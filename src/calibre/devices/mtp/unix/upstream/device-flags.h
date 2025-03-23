@@ -29,7 +29,7 @@
  * These flags are used to indicate if some or other
  * device need special treatment. These should be possible
  * to concatenate using logical OR so please use one bit per
- * feature and let's pray we don't need more than 32 bits...
+ * feature and lets pray we don't need more than 32 bits...
  */
 #define DEVICE_FLAG_NONE 0x00000000
 /**

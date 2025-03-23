@@ -491,7 +491,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                  python_context_object=None, dialog_number=None, kwargs=None,
                  formatter=SafeFormat, icon_dir='cc_icons'):
         # If dialog_number isn't None then we want separate non-modal windows
-        # that don't stay on top of the main dialog. This let's Alt-Tab work to
+        # that don't stay on top of the main dialog. This lets Alt-Tab work to
         # switch between them. dialog_number must be set only by the template
         # tester, not the rules dialogs etc that depend on modality.
 

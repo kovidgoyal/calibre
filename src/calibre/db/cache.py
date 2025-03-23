@@ -2287,7 +2287,7 @@ class Cache:
                             # We must preserve order.
                             vals = list(vals)
                             # Don't need to worry about case here because we
-                            # are fetching its one-true spelling. But let's be
+                            # are fetching its one-true spelling. But lets be
                             # careful anyway
                             try:
                                 dex = vals.index(self._get_item_name(field, old_id))

@@ -153,7 +153,7 @@ are processed in the order in which they appear in the book. See
 Auto create a Table of Contents
 -------------------------------
 
-Finally, let's try something a little more ambitious. Suppose your book has
+Finally, lets try something a little more ambitious. Suppose your book has
 headings in ``h1`` and ``h2`` tags that look like
 ``<h1 id="someid">Some Text</h1>``. We will auto-generate an HTML Table of
 Contents based on these headings. Create the custom function below:

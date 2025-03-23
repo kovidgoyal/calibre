@@ -620,7 +620,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     self._close_device_socket()
                     raise
-                time.sleep(0.1)  # let's not hammer the OS too hard
+                time.sleep(0.1)  # lets not hammer the OS too hard
             except:
                 self._close_device_socket()
                 raise

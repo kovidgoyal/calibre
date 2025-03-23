@@ -62,7 +62,7 @@ class SortByAction(InterfaceAction):
         m.aboutToShow.connect(self.about_to_show_menu)
         # self.qaction.triggered.connect(self.show_menu)
 
-        # Create a "hidden" menu that can have a shortcut. This also let's us
+        # Create a "hidden" menu that can have a shortcut. This also lets us
         # manually show the menu instead of letting Qt do it to work around a
         # problem where Qt can show the menu on the wrong screen.
         self.hidden_menu = QMenu()

@@ -101,7 +101,7 @@ want to rename all the HTML files to have names Chapter-1.html, Chapter-2.html
 and so on. Select the files you want bulk renamed by holding down the :kbd:`Shift` or
 :kbd:`Ctrl` key and clicking the files. Then right click and select :guilabel:`Bulk
 rename`. Enter a prefix and what number you would like the automatic numbering
-to start at, click OK and you are done. The bulk rename dialog also let's you
+to start at, click OK and you are done. The bulk rename dialog also lets you
 rename files by the order they appear in the book instead of the order you
 selected them in, useful, for instance to rename all images by the order
 they appear.
@@ -191,7 +191,7 @@ Adding new images/fonts/etc. or creating new blank files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can add a new image, font, stylesheet, etc. from your computer into the
-book by clicking :guilabel:`File->New file`. This let's you either import a file
+book by clicking :guilabel:`File->New file`. This lets you either import a file
 by clicking the :guilabel:`Import resource file` button or create a new blank HTML file
 or stylesheet by simply entering the file name into the box for the new file.
 

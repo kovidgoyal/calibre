@@ -108,7 +108,7 @@ In the beginning, you said there was a way to make a regular expression case ins
 
 Yes, I did, thanks for paying attention and reminding me. You can tell calibre how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``(?i)test`` would match "Test", "tEst", "TEst" and any case variation you could think of.
 
-Another useful flag let's the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above.
+Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above.
 
 I think I'm beginning to understand these regular expressions now... how do I use them in calibre?
 -----------------------------------------------------------------------------------------------------

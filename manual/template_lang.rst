@@ -474,7 +474,7 @@ In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors
 Python Template Mode
 -----------------------------------
 
-Python Template Mode (PTM) let's you write templates using native Python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in Python using the calibre API.
+Python Template Mode (PTM) lets you write templates using native Python and the `calibre API <https://manual.calibre-ebook.com/develop.html#api-documentation-for-various-parts-of-calibre>`_. The database API will be of most use; further discussion is beyond the scope of this manual. PTM templates are faster and can do more complicated operations but you must know how to write code in Python using the calibre API.
 
 A PTM template begins with:
 
@@ -797,7 +797,7 @@ For example, assume we want the folder structure `series/series_index - title`, 
 
 The slash and the hyphen appear only if series is not empty.
 
-The lookup function let's us do even fancier processing. For example, assume that if a book has a series, then we want the folder structure `series/series index - title.fmt`. If the book does not have a series then we want the folder structure `genre/author_sort/title.fmt`. If the book has no genre then we want to use 'Unknown'. We want two completely different paths, depending on the value of series.
+The lookup function lets us do even fancier processing. For example, assume that if a book has a series, then we want the folder structure `series/series index - title.fmt`. If the book does not have a series then we want the folder structure `genre/author_sort/title.fmt`. If the book has no genre then we want to use 'Unknown'. We want two completely different paths, depending on the value of series.
 
 To accomplish this, we:
 

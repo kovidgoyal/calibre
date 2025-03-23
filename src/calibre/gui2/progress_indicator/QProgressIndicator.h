@@ -107,7 +107,7 @@ class CalibreStyle : public QProxyStyle {
 
 /*!
     \class QProgressIndicator
-    \brief The QProgressIndicator class let's an application display a progress indicator to show that a lengthy task is under way.
+    \brief The QProgressIndicator class lets an application display a progress indicator to show that a lengthy task is under way.
 
     Progress indicators are indeterminate and do nothing more than spin to show that the application is busy.
     \sa QProgressBar
