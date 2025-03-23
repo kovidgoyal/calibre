@@ -79,21 +79,37 @@ def pdftotext(path):
     return clean_ascii_chars(raw).decode('utf-8', 'replace')
 
 
+def can_extract_text(pathtoebook: str, input_fmt: str, exit_stack: contextlib.ExitStack) -> tuple[str, str]:
+    if not pathtoebook:
+        return pathtoebook, input_fmt
+    if is_fmt_ok(input_fmt):
+        return pathtoebook, input_fmt
+    if input_fmt.lower() in ARCHIVE_FMTS:
+        try:
+            tdir = exit_stack.enter_context(TemporaryDirectory())
+            pathtoebook, input_fmt = unarchive(pathtoebook, tdir)
+            input_fmt = input_fmt.upper()
+        except Exception:
+            return '', input_fmt
+        else:
+            return pathtoebook, input_fmt
+    return '', input_fmt
+
+
+def is_fmt_extractable(input_fmt: str) -> bool:
+    if is_fmt_ok(input_fmt):
+        return True
+    return input_fmt.lower() in ARCHIVE_FMTS
+
+
 def extract_text(pathtoebook):
     input_fmt = pathtoebook.rpartition('.')[-1].upper()
     ans = ''
     input_plugin = is_fmt_ok(input_fmt)
     with contextlib.ExitStack() as exit_stack:
-        if not input_plugin:
-            if input_fmt.lower() in ARCHIVE_FMTS:
-                try:
-                    tdir = exit_stack.enter_context(TemporaryDirectory())
-                    pathtoebook, input_fmt = unarchive(pathtoebook, tdir)
-                    input_fmt = input_fmt.upper()
-                except Exception:
-                    return ans
-            else:
-                return ans
+        pathtoebook, input_fmt = can_extract_text(pathtoebook, input_fmt, exit_stack)
+        if not pathtoebook:
+            return ans
         input_plugin = plugin_for_input_format(input_fmt)
         if input_fmt == 'PDF':
             ans = pdftotext(pathtoebook)

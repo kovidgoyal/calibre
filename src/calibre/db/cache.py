@@ -528,7 +528,7 @@ class Cache:
 
     @staticmethod
     def dispatch_fts_jobs(queue, stop_dispatch, dbref):
-        from .fts.text import is_fmt_ok
+        from .fts.text import is_fmt_extractable
 
         def do_one():
             self = dbref()
@@ -542,7 +542,7 @@ class Cache:
                 if book_id is None:
                     return False
                 path = self._format_abspath(book_id, fmt)
-            if not path or not is_fmt_ok(fmt):
+            if not path or not is_fmt_extractable(fmt):
                 with self.write_lock:
                     self.backend.remove_dirty_fts(book_id, fmt)
                     self._update_fts_indexing_numbers()
