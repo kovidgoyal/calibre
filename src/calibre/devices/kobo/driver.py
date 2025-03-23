@@ -2358,6 +2358,8 @@ class KOBOTOUCH(KOBO):
             kepubify_path(path, outpath=path, opts=opts, allow_overwrite=True)
         except DRMError:
             debug_print(f'Not converting {mi.title} ({name}) to KEPUB as it is DRMed')
+        except Exception as e:
+            raise ValueError(_('Could not kepubify the book {title} ({name}) failed with error: {e}').format(title=mi.title, name=name, e=e)) from e
         else:
             debug_print(f'Conversion of {mi.title} ({name}) to KEPUB succeeded')
             self.files_to_rename_to_kepub.add(mi.uuid)
