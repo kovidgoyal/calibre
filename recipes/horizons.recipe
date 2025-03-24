@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-"""
+'''
 https://www.cirsd.org/en/horizons
-"""
+'''
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
