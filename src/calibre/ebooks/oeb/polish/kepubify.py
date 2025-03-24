@@ -180,14 +180,16 @@ def add_kobo_spans(inner, root_lang):
         ws = None
         if num := len(text) - len(stripped):
             ws = text[:num]
+        before = None if stripped else ws
         if at:
-            parent[at-1].tail = ws
+            parent[at-1].tail = before
         else:
-            parent.text = ws
+            parent.text = before
         if stripped:
-            for pos, sz in sentence_positions(stripped, lang):
+            text = (ws + stripped) if ws else stripped
+            for pos, sz in sentence_positions(text, lang):
                 s = kobo_span(parent)
-                s.text = stripped[pos:pos+sz]
+                s.text = text[pos:pos+sz]
                 parent.insert(at, s)
                 at += 1
 

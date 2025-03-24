@@ -68,8 +68,8 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
 
             '<p><span class="koboSpan" id="kobo.1.1">Simple sentences. </span><span class="koboSpan" id="kobo.1.2">In a single paragraph.</span></p>'
             '<p><span class="koboSpan" id="kobo.2.1">A sentence </span><i><span class="koboSpan" id="kobo.2.2">with </span>'
-            '<b><span class="koboSpan" id="kobo.2.3">nested</span></b><span class="koboSpan" id="kobo.2.4">, tailed</span></i> '
-            '<span class="koboSpan" id="kobo.2.5">formatting. </span>'
+            '<b><span class="koboSpan" id="kobo.2.3">nested</span></b><span class="koboSpan" id="kobo.2.4">, tailed</span></i>'
+            '<span class="koboSpan" id="kobo.2.5"> formatting. </span>'
             '<span class="koboSpan" id="kobo.2.6">Another.</span></p>',
 
             # img tags
@@ -86,17 +86,17 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
 
             # nested block tags
             '<div>A div<div> nested.<ul><li>A list<p> with nested block</p> tail1</li> tail2</ul> tail3':
-            '<div><span class="koboSpan" id="kobo.1.1">A div</span><div> <span class="koboSpan" id="kobo.1.2">nested.</span>'
-            '<ul><li><span class="koboSpan" id="kobo.2.1">A list</span><p> <span class="koboSpan" id="kobo.3.1">with nested block</span></p>'
-            ' <span class="koboSpan" id="kobo.3.2">tail1</span></li> <span class="koboSpan" id="kobo.3.3">tail2</span></ul>'
-            ' <span class="koboSpan" id="kobo.3.4">tail3</span></div></div>',
+            '<div><span class="koboSpan" id="kobo.1.1">A div</span><div><span class="koboSpan" id="kobo.1.2"> nested.</span>'
+            '<ul><li><span class="koboSpan" id="kobo.2.1">A list</span><p><span class="koboSpan" id="kobo.3.1"> with nested block</span></p>'
+            '<span class="koboSpan" id="kobo.3.2"> tail1</span></li><span class="koboSpan" id="kobo.3.3"> tail2</span></ul>'
+            '<span class="koboSpan" id="kobo.3.4"> tail3</span></div></div>',
 
             # skipped tags
             '<div>Script: <script>a = 1</script> with tail':
-            '<div><span class="koboSpan" id="kobo.1.1">Script: </span><script>a = 1</script> <span class="koboSpan" id="kobo.1.2">with tail</span></div>',
+            '<div><span class="koboSpan" id="kobo.1.1">Script: </span><script>a = 1</script><span class="koboSpan" id="kobo.1.2"> with tail</span></div>',
             '<div>Svg: <svg>mouse</svg><i> no tail':
             '<div><span class="koboSpan" id="kobo.1.1">Svg: </span><svg xmlns="http://www.w3.org/2000/svg">mouse</svg>'
-            '<i> <span class="koboSpan" id="kobo.1.2">no tail</span></i></div>',
+            '<i><span class="koboSpan" id="kobo.1.2"> no tail</span></i></div>',
 
             # encoding quirks
             '<p>A\xa0nbsp;&nbsp;':
