@@ -573,8 +573,8 @@ class PiperEmbedded:
         pv = self._embedded_settings.preferred_voices or {}
         if voice_name and voice_name in self.human_voice_name_map:
             voice = self.human_voice_name_map[voice_name]
-        elif (voice_name := pv.get(lang, '')) and voice_name in self.human_voice_name_map:
-            voice = self.human_voice_name_map[voice_name]
+        elif (voice_name := pv.get(lang, '')) and voice_name in self._voice_name_map:
+            voice = self._voice_name_map[voice_name]
         else:
             voice = self._voice_for_lang.get(lang) or self._default_voice
         return voice

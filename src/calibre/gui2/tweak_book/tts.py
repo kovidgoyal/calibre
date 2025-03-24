@@ -79,7 +79,7 @@ class Progress(QWidget):
         if (time_elapsed := now - self.stage_start_at) >= 5:
             rate = count / time_elapsed
             time_left = (total - count) / rate
-            self.time_left.setText(_('Time to complete this stage: {1}').format(stage, human_readable_interval(time_left)))
+            self.time_left.setText(_('Time to complete this stage: {}').format(human_readable_interval(time_left)))
         else:
             self.time_left.setText(_('Estimating time left'))
         return self.cancel_requested
