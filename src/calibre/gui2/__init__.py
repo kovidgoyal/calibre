@@ -1415,7 +1415,6 @@ class Application(QApplication):
                     added_event = True
             elif qurl.isValid():
                 if qurl.scheme() == 'calibre':
-                    added_event = True
                     self.handle_calibre_url(qurl)
             if added_event:
                 QTimer.singleShot(1000, self._send_file_open_events)
