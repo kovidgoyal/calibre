@@ -117,7 +117,7 @@ class HTMLZInput(InputFormatPlugin):
         if opf:
             opf_parsed = OPF(opf, basedir=os.getcwd())
             cover_path = opf_parsed.raster_cover or opf_parsed.cover
-            os.remove(opf)  # dont confuse code that searches for OPF files later on the oeb object will create its own OPF
+            os.remove(opf)  # don't confuse code that searches for OPF files later on the oeb object will create its own OPF
         # Set the cover.
         if cover_path:
             cdata = None

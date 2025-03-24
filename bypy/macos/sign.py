@@ -13,10 +13,10 @@ entitlements = {
     # MAP_JIT is used by libpcre which is bundled with Qt
     'com.apple.security.cs.allow-jit': True,
 
-    # v8 and therefore WebEngine need this as they dont use MAP_JIT
+    # v8 and therefore WebEngine need this as they don't use MAP_JIT
     'com.apple.security.cs.allow-unsigned-executable-memory': True,
 
-    # calibre itself does not use DYLD env vars, but dont know about its
+    # calibre itself does not use DYLD env vars, but don't know about its
     # dependencies.
     'com.apple.security.cs.allow-dyld-environment-variables': True,
 

@@ -646,7 +646,7 @@ class CoverDelegate(QStyledItemDelegate):
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
             if self.emblem_size > 0:
-                # We dont draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
+                # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
                 return
             if marked:
                 try:
@@ -1163,7 +1163,7 @@ class GridView(QListView):
             self.thumbnail_cache.set_database(newdb)
             try:
                 # Use a timeout so that if, for some reason, the render thread
-                # gets stuck, we dont deadlock, future covers won't get
+                # gets stuck, we don't deadlock, future covers won't get
                 # rendered, but this is better than a deadlock
                 join_with_timeout(self.delegate.render_queue)
             except RuntimeError:

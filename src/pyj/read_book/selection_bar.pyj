@@ -693,7 +693,7 @@ class SelectionBar:
         self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
         now = window.performance.now()
         if self.last_drag_scroll_at is None:
-            # dont jump a page immediately in paged mode
+            # don't jump a page immediately in paged mode
             if in_flow_mode:
                 self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.start_handle_id else 'right', True)
             self.last_drag_scroll_at = now
@@ -782,7 +782,7 @@ class SelectionBar:
         buffer = 2
         limits = {
             'top': buffer, 'bottom': container.offsetHeight - bar_height - buffer,
-            # - 10 ensures we dont cover scroll bar
+            # - 10 ensures we don't cover scroll bar
             'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
         }
         start_handle, end_handle = self.start_handle, self.end_handle

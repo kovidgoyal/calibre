@@ -637,11 +637,11 @@ class TBSIndexing:  # {{{
                 ai, extra, consumed = decode_tbs(byts)
                 byts = byts[consumed:]
                 if extra.get(0b0010, None) is not None:
-                    raise ValueError('Dont know how to interpret flag 0b0010'
+                    raise ValueError("Don't know how to interpret flag 0b0010"
                             ' while reading section transitions')
                 if extra.get(0b1000, None) is not None:
                     if len(extra) > 1:
-                        raise ValueError('Dont know how to interpret flags'
+                        raise ValueError("Don't know how to interpret flags"
                                 f' {extra!r} while reading section transitions')
                     nsi = self.get_index(psi.index+1)
                     ans.append(
@@ -675,7 +675,7 @@ class TBSIndexing:  # {{{
             si, extra, consumed = decode_tbs(byts)
             byts = byts[consumed:]
             if len(extra) > 1 or 0b0010 in extra or 0b1000 in extra:
-                raise ValueError(f'Dont know how to interpret flags {extra!r}'
+                raise ValueError(f"Don't know how to interpret flags {extra!r}"
                         ' when reading starting section')
             si = self.get_index(si)
             ans.append('The section at the start of this record is:'

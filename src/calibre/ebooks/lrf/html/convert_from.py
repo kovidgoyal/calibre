@@ -814,7 +814,7 @@ class HTMLConverter:
 
         collapse_whitespace = 'white-space' not in css or css['white-space'] != 'pre'
         if self.process_alignment(css) and collapse_whitespace:
-            # Dont want leading blanks in a new paragraph
+            # Don't want leading blanks in a new paragraph
             src = src.lstrip()
 
         def append_text(src):

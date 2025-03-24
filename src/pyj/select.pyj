@@ -134,7 +134,7 @@ def range_extents(q, in_flow_mode):
                         rect = boundary_node.getBoundingClientRect()
                         if not is_start:
                             ans.selected_prev = True
-                # we cant use getBoundingClientRect as the node might be split
+                # we can't use getBoundingClientRect as the node might be split
                 # among multiple columns
                 else if node.getClientRects:
                     rects = node.getClientRects()

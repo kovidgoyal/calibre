@@ -57,7 +57,7 @@ def get_dist(base, which, bitness):
 
 def shutdown_allowed(which, bitness):
     # The ARM64 VM is extremely flakey often booting up to a non-functional
-    # state so dont shut it down as it seems to be more stable once bootup is
+    # state so don't shut it down as it seems to be more stable once boot-up is
     # done.
     return bitness != 'arm64'
 

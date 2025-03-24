@@ -520,7 +520,7 @@ class CoverSettingsWidget(QWidget):
 
     def restore_defaults(self):
         defaults = self.original_prefs.defaults.copy()
-        # Dont delete custom color themes when restoring defaults
+        # Don't delete custom color themes when restoring defaults
         defaults['color_themes'] = self.custom_colors
         self.apply_prefs(defaults)
         self.update_preview()

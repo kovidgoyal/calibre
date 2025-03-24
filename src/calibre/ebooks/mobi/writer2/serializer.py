@@ -240,7 +240,7 @@ class Serializer:
                 if tocref.klass == 'periodical':
                     # This is a section node.
                     # For periodical tocs, the section urls are like r'feed_\d+/index.html'
-                    # We dont want to point to the start of the first article
+                    # We don't want to point to the start of the first article
                     # so we change the href.
                     itemhref = re.sub(r'article_\d+/', '', itemhref)
                 self.href_offsets[itemhref].append(buf.tell())

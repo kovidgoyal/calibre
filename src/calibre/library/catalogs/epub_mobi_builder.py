@@ -3888,7 +3888,7 @@ class CatalogBuilder:
             if zf is not None:
                 # Ensure that the read succeeded
                 # If we failed to open the zip file for reading,
-                # we dont know if it contained the thumb or not
+                # we don't know if it contained the thumb or not
                 zf = _open_archive('a')
                 if zf is not None:
                     with zf:

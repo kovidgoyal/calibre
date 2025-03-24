@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.utils.filenames import ascii_filename
 from polyglot.builtins import iteritems
 
-# Disabled as I dont care about uncrossable breaks
+# Disabled as I don't care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
 NULL_INDEX = 0xffffffff
 

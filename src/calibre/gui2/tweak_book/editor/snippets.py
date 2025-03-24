@@ -46,7 +46,7 @@ from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
 
 
 def string_length(x):
-    return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode dont work
+    return strlen(str(x))  # Needed on narrow python builds, as subclasses of unicode don't work
 
 
 KEY = Qt.Key.Key_J

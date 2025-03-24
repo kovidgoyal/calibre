@@ -71,7 +71,7 @@ class ft(BasicNewsRecipe):
     # def get_browser(self, *args, **kw):
     #     br = super().get_browser(*args, **kw)
     #     if self.username and self.password:
-    #         # ft.com uses a CAPTCHA on its login page so this sadly doesnt work
+    #         # ft.com uses a CAPTCHA on its login page so this sadly doesn't work
     #         br.open('https://accounts.ft.com/login?location=https%3A%2F%2Fwww.ft.com')
     #         br.select_form(id='email-form')
     #         br['email'] = self.username

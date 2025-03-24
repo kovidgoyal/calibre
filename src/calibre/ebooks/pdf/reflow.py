@@ -732,21 +732,21 @@ class Region:
 class Page:
 
     def __init__(self, page, font_map, opts, log, idc):
-        def text_cmp(frst, secnd):
+        def text_cmp(first, second):
             # Compare 2 text objects.
             # Order by line (top/bottom) then left
-            if (frst.top <= secnd.top and frst.bottom >= secnd.bottom-BOTTOM_FACTOR) \
-              or (secnd.top <= frst.top and secnd.bottom >= frst.bottom-BOTTOM_FACTOR):
+            if (first.top <= second.top and first.bottom >= second.bottom-BOTTOM_FACTOR) \
+              or (second.top <= first.top and second.bottom >= first.bottom-BOTTOM_FACTOR):
                 # Overlap = same line
-                if frst.left < secnd.left:
+                if first.left < second.left:
                     return -1
-                elif frst.left == secnd.left:
+                elif first.left == second.left:
                     return 0
                 return 1
             # Different line so sort into line number
-            if frst.bottom < secnd.bottom:
+            if first.bottom < second.bottom:
                 return -1
-            elif frst.bottom == secnd.bottom:
+            elif first.bottom == second.bottom:
                 return 0
             return 1
 

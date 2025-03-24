@@ -862,7 +862,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                 os.rmdir(dln)
         except Exception:
             pass
-        # dont leave behind any empty dirs
+        # don't leave behind any empty dirs
         for x in self.made_dirs:
             with suppress(OSError):
                 os.rmdir(x)

@@ -541,7 +541,7 @@ def get_data_file(ctx, rd, book_id, relpath, library_id):
 
 
 def strerr(e: Exception):
-    # Dont leak the filepath in the error response
+    # Don't leak the filepath in the error response
     if isinstance(e, OSError):
         return e.strerror or str(e)
     return str(e)

@@ -51,7 +51,7 @@ def read_variable_len_data(data, header):
         header['tagx_block_size'] = 0
     trailing_bytes = data[idxt_offset+idxt_size:]
     if trailing_bytes.rstrip(b'\0'):
-        raise ValueError('Traling bytes after last IDXT entry: {!r}'.format(trailing_bytes.rstrip(b'\0')))
+        raise ValueError('Trailing bytes after last IDXT entry: {!r}'.format(trailing_bytes.rstrip(b'\0')))
     header['indices'] = indices
 
 

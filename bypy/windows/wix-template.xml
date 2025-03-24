@@ -5,16 +5,16 @@
     <SummaryInformation Keywords="Installer" Description="{app} Installer" Manufacturer="Kovid Goyal" />
 
     <!-- Disable creation of system restore points on calibre installs. Speeds
-         up the install. We dont need system restore since we dont install any
+         up the install. We don't need system restore since we don't install any
          system DLLs/components anyway (apart from start menu entries) -->
     <Property Id="MSIFASTINSTALL" Value="3" />
 
     <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
     <!-- The following line ensures that DLLs are replaced even if
-        their version is the same as before or they dont have versions.
+        their version is the same as before or they don't have versions.
         Microsoft's brain dead installer will otherwise use file dates to
         determine whether to install a file or not. Simply not robust. And
-        since we dont install any system files whatsoever, we can never replace
+        since we don't install any system files whatsoever, we can never replace
         a system file with an older version. This way the calibre install
         should always result in a consistent set of files being present in the
         installation folder, though of course, with Microsoft there are no

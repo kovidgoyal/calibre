@@ -80,7 +80,7 @@ is_full_screen_layout = False
 
 
 def get_number_of_cols(dont_return_integer):
-    # we dont store this because of the chrome resize bug where the document width
+    # we don't store this because of the chrome resize bug where the document width
     # sometimes changes a few milliseconds after layout in paged mode
     if is_full_screen_layout:
         return 1
@@ -446,7 +446,7 @@ def next_screen_location():
         current_pos = Math.ceil(current_scroll_offset())
         ans = limit if current_pos < limit else -1
         if cols_per_screen is 1 and ans is not -1 and ans - current_pos < col_size:
-            ans = -1  # cant scroll partial columns
+            ans = -1  # can't scroll partial columns
     return ans
 
 
@@ -769,7 +769,7 @@ def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
         pos = previous_col_location() if backward else next_col_location()
         pages = 1
     if pos is -1:
-        # dont report human scroll since we dont know if a full page was
+        # don't report human scroll since we don't know if a full page was
         # scrolled or not
         next_spine_item(backward)
     else:

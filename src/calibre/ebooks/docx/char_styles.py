@@ -33,7 +33,7 @@ def read_text_border(parent, dest, XPath, get):
                 pass
         sz = get(elem, 'w:sz')
         if sz is not None:
-            # we dont care about art borders (they are only used for page borders)
+            # we don't care about art borders (they are only used for page borders)
             try:
                 # A border of less than 1pt is not rendered by WebKit
                 border_width = min(96, max(8, float(sz))) / 8

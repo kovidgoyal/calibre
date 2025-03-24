@@ -164,7 +164,7 @@ class PreserveViewState:  # {{{
     '''
     Save the set of selected books at enter time. If at exit time there are no
     selected books, restore the previous selection, the previous current index
-    and dont affect the scroll position.
+    and don't affect the scroll position.
     '''
 
     def __init__(self, view, preserve_hpos=True, preserve_vpos=True, require_selected_ids=True):

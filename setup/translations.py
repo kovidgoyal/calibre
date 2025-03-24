@@ -286,7 +286,7 @@ class Translations(POT):  # {{{
 
     def is_po_file_ok(self, x):
         bname = os.path.splitext(os.path.basename(x))[0]
-        # sr@latin.po is identical to sr.po. And we dont support country
+        # sr@latin.po is identical to sr.po. And we don't support country
         # specific variants except for a few.
         if '_' in bname:
             return bname.partition('_')[0] in ('pt', 'zh', 'bn')

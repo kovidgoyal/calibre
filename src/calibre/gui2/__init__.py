@@ -1628,7 +1628,7 @@ def ensure_app(headless=True):
             # unhandled python exception in a slot or virtual method. Since ensure_app()
             # is used in worker processes for background work like rendering html
             # or running a headless browser, we circumvent this as I really
-            # dont feel like going through all the code and making sure no
+            # don't feel like going through all the code and making sure no
             # unhandled exceptions ever occur. All the actual GUI apps already
             # override sys.excepthook with a proper error handler.
             sys.excepthook = simple_excepthook
@@ -1776,7 +1776,7 @@ def raise_and_focus(self: QWidget) -> None:
 
 def raise_without_focus(self: QWidget) -> None:
     if QApplication.instance().platformName() == 'wayland':
-        # On fucking Wayland, we cant raise a dialog without also giving it
+        # On fucking Wayland, we can't raise a dialog without also giving it
         # keyboard focus. What a joke.
         self.raise_and_focus()
     else:

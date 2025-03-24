@@ -2283,7 +2283,7 @@ class DB:
 
     def remove_trash_formats_dir_if_empty(self, book_id):
         bdir = os.path.join(self.trash_dir, 'f', str(book_id))
-        if os.path.isdir(bdir) and len(os.listdir(bdir)) <= 1:  # dont count metadata.json
+        if os.path.isdir(bdir) and len(os.listdir(bdir)) <= 1:  # don't count metadata.json
             self.rmtree(bdir)
 
     def list_trash_entries(self):

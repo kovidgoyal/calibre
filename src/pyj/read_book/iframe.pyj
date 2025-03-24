@@ -260,7 +260,7 @@ class IframeBoss:
             console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
             return
         is_internal_error = script_url in ('about:srcdoc', 'userscript:viewer.js')
-        if is_internal_error:  # dont report errors from scripts in the book itself
+        if is_internal_error:  # don't report errors from scripts in the book itself
             console.log(f'{script_url}: {error_object}')
             try:
                 fname = script_url.rpartition('/')[-1] or script_url

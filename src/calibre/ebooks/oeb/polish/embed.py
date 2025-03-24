@@ -131,8 +131,8 @@ def filter_by_weight(fonts, val):
 
 def find_matching_font(fonts, weight='normal', style='normal', stretch='normal'):
     # See https://www.w3.org/TR/css-fonts-3/#font-style-matching
-    # We dont implement the unicode character range testing
-    # We also dont implement bolder, lighter
+    # We don't implement the unicode character range testing
+    # We also don't implement bolder, lighter
     for f, q in ((filter_by_stretch, stretch), (filter_by_style, style), (filter_by_weight, weight)):
         fonts = f(fonts, q)
         if len(fonts) == 1:

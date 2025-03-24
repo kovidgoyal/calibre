@@ -500,7 +500,7 @@ class Container(ContainerBase):  # {{{
         # spec requires all text including filenames to be in NFC form.
         # The proper fix is to implement a VFS that maps between
         # canonical names and their file system representation, however,
-        # I dont have the time for that now. Note that the container
+        # I don't have the time for that now. Note that the container
         # ensures that all text files are normalized to NFC when
         # decoding them anyway, so there should be no mismatch between
         # names in the text and NFC canonical file names.
@@ -1481,7 +1481,7 @@ def opf_to_azw3(opf, outpath, container):
 
         def _parse_css(self, data):
             # The default CSS parser used by oeb.base inserts the h namespace
-            # and resolves all @import rules. We dont want that.
+            # and resolves all @import rules. We don't want that.
             return container.parse_css(data)
 
     def specialize(oeb):

@@ -200,7 +200,7 @@ class DigestAuth:  # {{{
 
     def validate_request(self, pw, data, log=None):
         # We should also be checking for replay attacks by using nonce_count,
-        # however, various HTTP clients, most prominently Firefox dont
+        # however, various HTTP clients, most prominently Firefox don't
         # implement nonce-counts correctly, so we cannot do the check.
         # https://bugzil.la/114451
         path = parse_uri(self.uri.encode('utf-8'))[1]

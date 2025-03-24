@@ -295,7 +295,7 @@ class Router:
                 if x:
                     k, v = x.partition('=')[::2]
                     if k:
-                        # Since we only set simple hex encoded cookies, we dont
+                        # Since we only set simple hex encoded cookies, we don't
                         # need more sophisticated value parsing
                         c[k] = v.strip('"')
 

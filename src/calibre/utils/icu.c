@@ -374,7 +374,7 @@ icu_Collator_contractions(icu_Collator *self, PyObject *args) {
             if (pbuf == NULL) { Py_DECREF(ans); ans = NULL; goto end; }
             PyTuple_SetItem(ans, i, pbuf);
         } else {
-            // Ranges dont make sense for contractions, ignore them
+            // Ranges don't make sense for contractions, ignore them
             PyTuple_SetItem(ans, i, Py_None); Py_INCREF(Py_None);
         }
     }

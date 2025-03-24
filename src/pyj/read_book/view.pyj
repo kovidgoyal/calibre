@@ -868,7 +868,7 @@ class View:
         self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
         self.book_scrollbar.apply_color_scheme(ans)
         # this is needed on iOS where the bottom margin has its own margin,
-        # so we dont want the body background color to bleed through
+        # so we don't want the body background color to bleed through
         iframe.parentNode.style.backgroundColor = ans.background
         iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans

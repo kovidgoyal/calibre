@@ -965,7 +965,7 @@ QRect PictureFlowPrivate::renderSlide(const SlideInfo &slide, int alpha, int col
     if(column < 0)
       continue;
     if (preserveAspectRatio && !slide_moving_to_center) {
-        // We dont want a black border at the edge of narrow images when the images are in the left or right stacks
+        // We don't want a black border at the edge of narrow images when the images are in the left or right stacks
         if (slide.slideIndex < centerIndex) {
             column = qMin(column + img_offset, sw - 1);
         } else if (slide.slideIndex == centerIndex) {

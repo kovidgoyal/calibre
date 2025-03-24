@@ -123,7 +123,7 @@ def read_single_border(parent, edge, XPath, get):
                 pass
         sz = get(elem, 'w:sz')
         if sz is not None:
-            # we dont care about art borders (they are only used for page borders)
+            # we don't care about art borders (they are only used for page borders)
             try:
                 width = min(96, max(2, float(sz))) / 8
             except (ValueError, TypeError):

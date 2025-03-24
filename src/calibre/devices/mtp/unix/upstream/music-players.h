@@ -299,7 +299,7 @@
      DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST |
      DEVICE_FLAG_PLAYLIST_SPL_V1 },
   // YP-F3 is NOT MTP - USB mass storage
-  // From a rouge .INF file
+  // From a rogue .INF file
   // this device ID seems to have been recycled for:
   // the Samsung SGH-A707 Cingular cellphone
   // the Samsung L760-V cellphone
@@ -1183,7 +1183,7 @@
       DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
   // From: Willy Gardiol (web) <willy@gardiol.org>
   // Spurious errors for getting all objects, lead me to believe
-  // this flag atleast is needed
+  // this flag at least is needed
   { "Nokia", 0x0421, "5800 XpressMusic v2", 0x0155,
       DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
   // Yet another version... I think

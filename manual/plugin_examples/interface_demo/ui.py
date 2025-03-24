@@ -22,7 +22,7 @@ class InterfacePlugin(InterfaceAction):
     name = 'Interface Plugin Demo'
 
     # Declare the main action associated with this plugin
-    # The keyboard shortcut can be None if you dont want to use a keyboard
+    # The keyboard shortcut can be None if you don't want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
     action_spec = ('Interface Plugin Demo', None,

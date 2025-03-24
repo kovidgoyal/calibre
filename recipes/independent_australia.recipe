@@ -77,7 +77,7 @@ class IndependentAustralia(BasicNewsRecipe):
         businessArticles = []
         lifeArticles = []
         australiaArticles = []
-        # Loop thru the articles in all feeds to find articles with base categories in it
+        # Loop through the articles in all feeds to find articles with base categories in it
         for curfeed in feeds:
             delList = []
             for a, curarticle in enumerate(curfeed.articles):

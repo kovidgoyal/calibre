@@ -8,7 +8,7 @@
 
 (function() {
 "use strict";
-    // wrap up long words that dont fit in the page
+    // wrap up long words that don't fit in the page
     document.body.style.overflowWrap = 'break-word';
 
     var break_avoid_block_styles = {

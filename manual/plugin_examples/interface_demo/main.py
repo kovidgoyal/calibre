@@ -140,7 +140,7 @@ class DemoDialog(QDialog):
                 set_metadata(ffile, mi, fmt)
                 ffile.seek(0)
                 # Now replace the file in the calibre library with the updated
-                # file. We dont use add_format_with_hooks as the hooks were
+                # file. We don't use add_format_with_hooks as the hooks were
                 # already run when the file was first added to calibre.
                 db.add_format(book_id, fmt, ffile, run_hooks=False)
 

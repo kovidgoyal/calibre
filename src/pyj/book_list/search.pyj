@@ -457,7 +457,7 @@ def create_search_panel(container):
     ))
 
     # Build search input
-    # We dont focus the search box because on mobile that will cause the
+    # We don't focus the search box because on mobile that will cause the
     # keyboard to popup and obscure the rest of the page
     search_container = component(container, 'search')
     search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))

@@ -520,7 +520,7 @@ class Convert:
             if float_spec is None and is_float:
                 float_spec = FloatSpec(self.docx.namespace, html_tag, tag_style)
 
-            if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we dont want to start a new paragraph
+            if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we don't want to start a new paragraph
                 if is_float and float_spec.is_dropcaps:
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
                     float_spec = None
@@ -539,7 +539,7 @@ class Convert:
                     self.blocks.start_new_table(html_tag, tag_style)
             else:
                 if tagname == 'img' and is_float:
-                    # Image is floating so dont start a new paragraph for it
+                    # Image is floating so don't start a new paragraph for it
                     self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
                 else:
                     if tagname == 'hr':

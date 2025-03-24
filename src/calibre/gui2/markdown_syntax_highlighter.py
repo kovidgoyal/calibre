@@ -268,7 +268,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             elif emphasis:
                 self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
 
-        def recusive(match, extra_offset, bold, emphasis):
+        def recursive(match, extra_offset, bold, emphasis):
             apply(match, bold, emphasis)
             if bold and emphasis:
                 return  # max deep => return, do not process extra Bold/Italic
@@ -278,17 +278,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             self._highlightBoldEmphasis(sub_txt, cursor, bf, sub_offset, bold, emphasis)
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],text):
-            recusive(mo, 1, bold, True)
+            recursive(mo, 1, bold, True)
             found = True
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'],text):
-            recusive(mo, 1, bold, True)
+            recursive(mo, 1, bold, True)
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'],text):
-            recusive(mo, 2, True, emphasis)
+            recursive(mo, 2, True, emphasis)
             found = True
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'],text):
-            recusive(mo, 2, True, emphasis)
+            recursive(mo, 2, True, emphasis)
             found = True
 
         for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'],text):

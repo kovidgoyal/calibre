@@ -81,7 +81,7 @@ def pretty_opf(root):
         try:
             children = sorted(manifest, key=manifest_key)
         except AttributeError:
-            continue  # There are comments so dont sort since that would mess up the comments
+            continue  # There are comments so don't sort since that would mess up the comments
         for x in reversed(children):
             manifest.insert(0, x)
 

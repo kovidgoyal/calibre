@@ -877,7 +877,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         left = min(c.anchor(), c.position())
         right = max(c.anchor(), c.position())
-        # For speed we use QPlainTextEdit's toPlainText as we dont care about
+        # For speed we use QPlainTextEdit's toPlainText as we don't care about
         # spaces in this context
         raw = str(QPlainTextEdit.toPlainText(self))
         # Make sure the left edge is not within a <>

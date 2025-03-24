@@ -315,8 +315,8 @@ class FontScanner(Thread):
         self.reload_cache()
 
         if isworker:
-            # Dont scan font files in worker processes, use whatever is
-            # cached. Font files typically dont change frequently enough to
+            # Don't scan font files in worker processes, use whatever is
+            # cached. Font files typically don't change frequently enough to
             # justify a rescan in a worker process.
             self.build_families()
             return

@@ -373,7 +373,7 @@ class Cache:
             mi.format_metadata = FormatMetadata(self, book_id, formats)
             good_formats = FormatsList(sorted(formats), mi.format_metadata)
         # These three attributes are returned by the db2 get_metadata(),
-        # however, we dont actually use them anywhere other than templates, so
+        # however, we don't actually use them anywhere other than templates, so
         # they have been removed, to avoid unnecessary overhead. The templates
         # all use _proxy_metadata.
         # mi.book_size   = self._field_for('size', book_id, default_value=0)
@@ -3474,7 +3474,7 @@ class Cache:
                         self._add_extra_files(dest_id, {q: BytesIO(cdata)}, replace=False, auto_rename=True)
                         break
 
-        for key in self.field_metadata:  # loop thru all defined fields
+        for key in self.field_metadata:  # loop through all defined fields
             fm = self.field_metadata[key]
             if not fm['is_custom']:
                 continue

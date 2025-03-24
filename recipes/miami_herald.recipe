@@ -56,7 +56,7 @@ class TheMiamiHerald(BasicNewsRecipe):
     ]
 
     def get_browser(self, *a, **kw):
-        # MyClatchy servers dont like the user-agent header, they hang forever
+        # MyClatchy servers don't like the user-agent header, they hang forever
         # when it is present
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']

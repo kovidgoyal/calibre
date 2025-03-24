@@ -64,7 +64,7 @@ class LoadingMessage:  # {{{
         safe_set_inner_html(container.firstChild.lastChild, self.msg)
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 # }}}
 
 class DeleteBook:  # {{{
@@ -116,7 +116,7 @@ class DeleteBook:  # {{{
         safe_set_inner_html(container.lastChild.lastChild, _('Deleting local book copy, please wait...'))
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def delete_book(self):
         if runtime.is_standalone_viewer:
@@ -165,7 +165,7 @@ class SyncBook:  # {{{
         ))
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def cancel(self):
         self.canceled = True
@@ -489,7 +489,7 @@ class SimpleOverlay:  # {{{
         self.title = title
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def show(self, container):
         simple_overlay_title(self.title, self.overlay, container)
@@ -524,7 +524,7 @@ class WordActionsOverlay:  # {{{
         self.overlay = overlay
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def show(self, container):
         simple_overlay_title(_('Lookup: {}').format(self.word), self.overlay, container)
@@ -538,7 +538,7 @@ class PrefsOverlay: # {{{
         self.changes_occurred = False
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def create_panel_impl(self, container):
         return create_prefs_panel(container, self.overlay.hide_current_panel, self.on_change)
@@ -592,7 +592,7 @@ class OpenBook: # {{{
                 ui_operations.quit()
 
     def on_container_click(self, evt):
-        pass  # Dont allow panel to be closed by a click
+        pass  # Don't allow panel to be closed by a click
 
     def show(self, container):
         simple_overlay_title(_('Open a book'), self.overlay, container, def ():

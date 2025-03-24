@@ -105,7 +105,7 @@ def find_offset_for_point(x, y, node, cdoc):
                 return v'[child, offset_in_text_node(child, range_, x, y)]'
         child = child.nextSibling
 
-    # The point must be after the last bit of text/in the padding/border, we dont know
+    # The point must be after the last bit of text/in the padding/border, we don't know
     # how to get a good point in this case
     return None, None
 
@@ -304,7 +304,7 @@ def node_for_text_offset(nodes, offset, first_node):
                 return node, offset, True
             last_text_node = node
             offset -= l
-        # mathml nodes dont have dataset
+        # mathml nodes don't have dataset
         elif node.nodeType is Node.ELEMENT_NODE and node.dataset?.calibreRangeWrapper:
             qn, offset, ok = node_for_text_offset(unwrapped_nodes(node), offset)
             if ok:
