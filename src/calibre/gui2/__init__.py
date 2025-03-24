@@ -1213,6 +1213,8 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, args)
+        # See https://bugreports.qt.io/browse/QTBUG-134316
+        QDesktopServices.setUrlHandler('calibre', self.handle_calibre_url)
         set_image_allocation_limit()
         self.palette_manager.initialize()
         icon_resource_manager.initialize()
@@ -1413,10 +1415,8 @@ class Application(QApplication):
                     added_event = True
             elif qurl.isValid():
                 if qurl.scheme() == 'calibre':
-                    url = qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)
-                    with self._file_open_lock:
-                        self._file_open_paths.append(url)
-                        added_event = True
+                    added_event = True
+                    self.handle_calibre_url(qurl)
             if added_event:
                 QTimer.singleShot(1000, self._send_file_open_events)
             return True
@@ -1424,6 +1424,13 @@ class Application(QApplication):
             if etype == QEvent.Type.ApplicationPaletteChange:
                 self.palette_manager.on_qt_palette_change()
             return QApplication.event(self, e)
+
+    @pyqtSlot(QUrl)
+    def handle_calibre_url(self, qurl):
+        url = qurl.toString(QUrl.ComponentFormattingOption.FullyEncoded)
+        with self._file_open_lock:
+            self._file_open_paths.append(url)
+        QTimer.singleShot(100, self._send_file_open_events)
 
     @property
     def current_custom_colors(self):
