@@ -264,13 +264,19 @@ class Economist(BasicNewsRecipe):
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use from 480, 384, 360, 256.',
             'default': '600',
         },
+        'de': {
+            'short': 'Digital Edition',
+            'long': 'Yes/No. Digital Edition does not skip some articles based on your location.',
+            'default': 'No',
+        }
     }
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
-        c = self.recipe_specific_options.get('date')
-        if c and isinstance(c, str):
-            self.from_archive = True
+        d = self.recipe_specific_options.get('de')
+        if d and isinstance(d, str):
+            if d.lower().strip() == 'yes':
+                self.from_archive = False
 
     needs_subscription = False
 
