@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-'''
+"""
 https://www.cirsd.org/en/horizons
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -10,10 +10,12 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 class horizons(BasicNewsRecipe):
     title = 'Horizons'
     __author__ = 'unkn0wn'
-    description = (' Horizons – Journal of International Relations and Sustainable Development.'
-    ' Horizons serves as a high-level platform for influential voices from around the world to'
-    ' provide informed analysis and conduct reasoned exchanges on the full spectrum of issues'
-    ' that shape international developments.')
+    description = (
+        ' Horizons – Journal of International Relations and Sustainable Development.'
+        ' Horizons serves as a high-level platform for influential voices from around the world to'
+        ' provide informed analysis and conduct reasoned exchanges on the full spectrum of issues'
+        ' that shape international developments.'
+    )
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
@@ -22,13 +24,12 @@ class horizons(BasicNewsRecipe):
     masthead_url = 'https://www.cirsd.org/bundles/olpublic/images/horizons-logo.jpg'
     ignore_duplicate_articles = {'url'}
     extra_css = 'em{color:#404040;}'
+    simultaneous_downloads = 1
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class':'article'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
     remove_tags = [
         classes('back-link'),
-        dict(name='div', attrs={'class':'single-post-footer'})
+        dict(name='div', attrs={'class': 'single-post-footer'}),
     ]
 
     recipe_specific_options = {
@@ -37,6 +38,9 @@ class horizons(BasicNewsRecipe):
             'long': 'For example, https://www.cirsd.org/en/horizons/horizons-winter-2024--issue-no-25',
         }
     }
+
+    def preprocess_raw_html(self, raw, *a):
+        return raw.replace('<p>&nbsp;</p>', '')
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
@@ -47,7 +51,7 @@ class horizons(BasicNewsRecipe):
             url = d
         else:
             soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
-            a = soup.findAll('a', href=True, attrs={'class':'horizon-gallery-box'})[0]  # use 1 for previous edition
+            a = soup.find('a', href=True, attrs={'class':'horizon-gallery-box'})
             url = a['href']
             if url.startswith('/'):
                 url = 'https://www.cirsd.org' + url
@@ -58,26 +62,23 @@ class horizons(BasicNewsRecipe):
         soup = self.index_to_soup(url)
 
         feeds = []
-        for section in soup.findAll('h2', attrs={'class':'mt-3'}):
+        for section in soup.findAll('h2', attrs={'class': 'mt-3'}):
             secname = self.tag_to_string(section).strip()
             self.log(secname)
             articles = []
-            div = section.findNext('div', attrs={'class':'mb-3'})
-            for li in div.findAll('li', attrs={'class':'mb-2'}):
+            div = section.findNext('div', attrs={'class': 'mb-3'})
+            for li in div.findAll('li', attrs={'class': 'mb-2'}):
                 a = li.find('a', href=True)
                 url = a['href']
                 if url.startswith('/'):
                     url = 'https://www.cirsd.org' + url
                 title = self.tag_to_string(a)
-                span = li.find('span', attrs={'class':'section-author'})
+                span = li.find('span', attrs={'class': 'section-author'})
                 desc = ''
                 if span:
                     desc = self.tag_to_string(span).strip()
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                articles.append({
-                    'title': title,
-                    'url': url,
-                    'description': desc})
+                articles.append({'title': title, 'url': url, 'description': desc})
             if articles:
                 feeds.append((secname, articles))
         return feeds
