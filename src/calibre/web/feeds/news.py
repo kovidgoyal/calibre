@@ -242,7 +242,7 @@ class BasicNewsRecipe(Recipe):
     #:
     #:    {
     #:     name      : 'tag name',   #e.g. 'div'
-    #:     attrs     : a dictionary, #e.g. {'class': 'advertisment'}
+    #:     attrs     : a dictionary, #e.g. {'class': 'advertisement'}
     #:    }
     #:
     #: All keys are optional. For a full explanation of the search criteria, see

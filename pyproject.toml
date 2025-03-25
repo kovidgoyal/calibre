@@ -75,20 +75,18 @@ inline-quotes = 'single'
 multiline-quotes = 'single'
 
 [tool.codespell]
-# calibre will probably never fully compliant with codespell
-# this setting is only to easily find common typo errors
-# by filtering a great range of false-positives, but not all
-# (if codespell could per-file-ignores words, its be nicer)
 count = false
 summary = false
 quiet-level = 3
-regex = '''\b(?<!&)(?<!&amp;)[\w\-']+(?!&(amp;)?)\b'''
+regex = '''\b[\w\-'’]+\b'''
+ignore-regex = '''\b[\w\-'’]*&(amp;)?[\w\-'’]*\b'''
 builtin = [
     'clear',
     'rare',
     'informal',
     'code',
 ]
+exclude-file = "codespell.exclude"
 ignore-words-list = [
     "alo",
     "ans",
@@ -108,37 +106,26 @@ ignore-words-list = [
     "re-use",
     "re-used",
     "re-using",
+    "splited",
     "succeded",
     # code
-    "ws",
-    "ws",
-    "ws",
-    "ws",
-    "dur",
     "ro",
-    "snd",
     "ws",
     "deque",
     "assertIn",
     "atEnd",
-    "endcode",
     "errorString",
     "FocusIn",
     "iff",
     "lets",
     "lite",
-    "NMAKE",
-    "nmake",
-    "uDate",
     "UINT",
     "uInt",
     "uint",
     "KeyPair",
     "Keypair",
     "keypair",
-    "Referer",
     "seeked",
-    "sinc",
     "stdio",
     "thead",
 ]
