@@ -201,7 +201,7 @@ open the template editor in the book list for a &quot;Column built from other
 columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p&gt;</string>
          </property>
          <property name="text">
-          <string>Only the &amp;F2 (Edit) key edits column templates (restart needed)</string>
+          <string>Only the &amp;F2 (Edit) key edits column templates (needs restart)</string>
          </property>
         </widget>
        </item>
