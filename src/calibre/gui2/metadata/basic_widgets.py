@@ -1263,7 +1263,7 @@ class Cover(ImageView):  # {{{
             save_image(img, pt.name)
             run_program(entry, pt.name, self)
             info_dialog(self, _('Cover opened in {}').format(entry.get('name') or _('external editor')), _(
-                'Close this popup when you are done making changes to the cover'), show=True, show_copy_button=False)
+                'Close this popup when you are done making changes to the cover.'), show=True, show_copy_button=False)
         finally:
             with open(pt.name, 'rb') as f:
                 ncdata = f.read()
