@@ -82,7 +82,8 @@ multiline-quotes = 'single'
 count = false
 summary = false
 quiet-level = 3
-regex = '''\b(?<!&)(?<!&amp;)[\w\-']+(?!&(amp;)?)\b'''
+regex = '''\b[\w\-'’]+\b'''
+ignore-regex = '''\b[\w\-'’]*&(amp;)?[\w\-'’]*\b'''
 builtin = [
     'clear',
     'rare',
@@ -108,12 +109,9 @@ ignore-words-list = [
     "re-use",
     "re-used",
     "re-using",
+    "splited",
     "succeded",
     # code
-    "ws",
-    "ws",
-    "ws",
-    "ws",
     "dur",
     "ro",
     "snd",
