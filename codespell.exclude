@@ -1,0 +1,251 @@
+# ignored lines for codespell
+
+Changelog.txt
+- Arret sur images
+
+bypy/windows/XUnzip.cpp
+#define LOADIN {p=z->next_in;n=z->avail_in;b=s->bitb;k=s->bitk;}
+#define LOAD {LOADIN LOADOUT}
+    uLong uDate;
+    uDate = (uLong)(ulDosDate>>16);
+    ptm->tm_mday = (uInt)(uDate&0x1f) ;
+    ptm->tm_mon =  (uInt)((((uDate)&0x1E0)/0x20)-1) ;
+    ptm->tm_year = (uInt)(((uDate&0x0FE00)/0x0200)+1980) ;
+
+format_docs/compression/zip.txt
+   0031     VSAM Index IMBED                    1 byte flag
+
+format_docs/pdb/pml.txt
+Very long words like anti\-dis\-establish\-ment\-arian\-ism may benefit from
+        &#164;       &curren;   \a164       Currency sign
+    -     \UE047     LATIN SMALL LIGATURE UE
+    -     \UE048     LATIN SMALL LIGATURE UE WITH MACRON
+
+format_docs/pdb/ztxt.txt
+correct, lest firey death rain down upon your program.
+
+manual/news.rst
+of articles that appear in *todays* paper. While more complex than simply using
+
+manual/build.py
+            run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
+
+setup/build.py
+    from setup.build_environment import NMAKE, win_cc, win_inc, win_ld, win_lib
+        cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make', lib_prefix=lib_prefix,
+            sinc = [inf, src]
+                    sinc = [inf + src]
+            cmd = [compiler] + env.cflags + cflags + ext.cflags + einc + sinc + oinc
+
+setup/build_environment.py
+NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
+    NMAKE = 'nmake.exe'
+
+src/calibre/customize/builtins.py
+    description = 'Bei uns finden Sie: Tausende deutschsprachige e-books; Alle e-books ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; e-books für viele Lesegeräte, PC, Mac und Smartphones; Viele Gratis e-books'  # noqa: E501
+    description = 'E-booki wolne od DRM, 3 formaty w pakiecie, wysyłanie na Kindle'
+    description  = 'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # noqa: E501
+
+src/calibre/db/cli/cmd_export.py
+        switch = '--dont-' + pref.replace('_', '-')
+
+src/calibre/db/write.py
+        if not lc or lc in ans or lc in ('und', 'zxx', 'mis', 'mul'):
+
+src/calibre/devices/cybook/driver.py
+    DELETE_EXTS = ['.mbp', '.dat', '.bin', '_6090.t2b', '.thn']
+        with open(f'{filepath}.thn', 'wb') as thnfile:
+
+src/calibre/devices/mtp/unix/upstream/music-players.h
+  // From Ser <ser@users.sourceforge.net>
+
+src/calibre/devices/teclast/driver.py
+    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'RK28XX', 'PER3274B', 'BEBOOK',
+    VENDOR_NAME      = ['TECLAST', 'IMAGIN', 'LASER-', 'LASER', '']
+
+src/calibre/library/database2.py
+            if not lc or lc in final_languages or lc in ('und', 'zxx', 'mis',
+
+src/calibre/db/tests/fts.py
+        self.ae(conn.term_row_counts(), {'a': 1, 'connect': 1, 'simplist': 1})
+        self.ae(conn.search('simplist'), [('a >simplistic< connection',),])
+
+src/calibre/ebooks/hyphenate.py
+    Ned Batchelder, July 2007.
+
+src/calibre/ebooks/conversion/plugins/rtf_input.py
+        'tripple': 'double',
+
+src/calibre/ebooks/conversion/preprocess.py
+        # 'ᵫ': 'ue',
+            "(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|"
+
+src/calibre/ebooks/lrf/input.py
+        #     ans['line-height'] = '%fpt'%lh
+
+src/calibre/ebooks/lrf/pylrs/pylrs.py
+        ot = self.delegates[0].delegates[0].delegates[0].title
+        self.delegates[0].delegates[0].delegates[0].title = (title, ot[1])
+        ot = self.delegates[0].delegates[0].delegates[0].author
+        self.delegates[0].delegates[0].delegates[0].author = (author, ot[1])
+
+src/calibre/ebooks/metadata/book/base.py
+                ot, st = map(frozenset, (lotags, lstags))
+                for t in st.intersection(ot):
+                self.tags += [t for t in other.tags if t.lower() in ot-st]
+                            ot, st = map(frozenset, (lotags, lstags))
+                            for t in st.intersection(ot):
+                            self_tags += [t for t in other_tags if t.lower() in ot-st]
+
+src/calibre/ebooks/metadata/sources/amazon.py
+                1: ['jän', 'januar'],
+                2: ['februar'],
+                6: ['juni'],
+                7: ['juli'],
+                10: ['okt', 'oktober'],
+                12: ['dez', 'dezember']
+                10: ['oktober'],
+                 text()="Détails sur le produit" or \
+            r'([0-9.,]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de|av) '
+                1: ['januari'], 2: ['februari'], 3: ['maart'], 5: ['mei'], 6: ['juni'], 7: ['juli'], 8: ['augustus'], 10: ['oktober'],
+                    ('Referer', self.referrer_for_domain()),
+        br.set_current_header('Referer', qurl)
+            br.set_current_header('Referer', self.referrer_for_domain(self.domain))
+
+src/calibre/ebooks/metadata/sources/edelweiss.py
+            ('Referer', 'https://www.edelweiss.plus/'),
+
+src/calibre/ebooks/mobi/reader/index.py
+        print('WARNING: Invalid INDX record')
+
+src/calibre/ebooks/oeb/polish/utils.py
+    prefs = css_parser.ser.prefs
+
+src/calibre/ebooks/rtf2xml/process_tokens.py
+        'ul'                 : ('ci', 'underlined<continous', self.two_part_func),
+        'headerr'            : ('hf', 'head-right', self.default_func),
+            1058    :  'Ukranian',
+            1024    :  'Unkown',
+            255     :  'Unkown',
+        # 'falt'              :   ('un', 'unknown___', self.default_func),
+
+src/calibre/ebooks/textile/functions.py
+    clas = r'(?:\([^)]+\))'
+    c = r'(?:{})*'.format('|'.join([clas, styl, lnge, hlgn]))
+            tre = '|'.join(self.btag)
+            tre = '|'.join(self.btag_lite)
+            pattern = fr'^({tre})({self.a}{self.c})\.(\.?)(?::(\S+))? (.*)$'
+
+src/calibre/utils/podofo/doc.cpp
+                    if (e.GetCode() != PdfErrorCode::Flate) throw e;
+        StringStreamDevice ouput(s);
+        stream->CopyTo(ouput);
+
+src/calibre/gui2/pyqt6_compat.py
+QSinglePointEvent.globalY = lambda self: self.globalPosition().toPoint().y()
+
+src/calibre/gui2/preferences/tweaks.py
+                for varn, val in iteritems(tweak.custom_values):
+                    tt += f'{varn} = {val!r}\n\n'
+
+src/calibre/gui2/store/stores/ebookshoppe_uk_plugin.py
+        br.addheaders = [('Referer', 'http://www.ebookshoppe.com/')]
+
+src/calibre/gui2/store/stores/bubok_portugal_plugin.py
+src/calibre/gui2/store/stores/bubok_publishing_plugin.py
+                author = ''.join(data.xpath('.//div[@class="autor"]/text()'))
+
+src/calibre/gui2/store/stores/rw2010_plugin.py
+                    author = ''.join(idata.xpath('//div[@class="boxb"]//h3[text()="Autor: "]/span/text()'))
+
+src/calibre/gui2/tweak_book/char_select.py
+    (_('Vai'), (0xA500, 0xA63F)),
+
+src/calibre/utils/bibtex.py
+    '\u222e': '$\\oint$',
+
+src/calibre/utils/fonts/sfnt/loca.py
+        # means that if the ith entry is zero, the i-1 glyph is not present.
+
+src/calibre/utils/localization.py
+        for x in ('zxx', 'mis', 'mul'):
+
+src/calibre/utils/lzx/mspack.h
+ * @endcode
+
+src/calibre/utils/msdes/d3des.h
+	unsigned long blok[2];
+
+src/calibre/utils/open_with/osx.py
+    'caf':          'com.apple.coreaudio-format',
+    'snd':          'public.ulaw-audio',
+
+src/calibre/utils/windows/wintoastlib.cpp
+        ComPtr<IXmlNodeSerializer> ser;
+        HRESULT hr = xmlDocument.As<IXmlNodeSerializer>(&ser);
+        hr         = ser->GetXml(&xml);
+
+src/calibre/web/feeds/news.py
+    #:     filter_regexps = [r'ads\.doubleclick\.net']
+    #: will remove all URLs that have `ads.doubleclick.net` in them.
+
+src/calibre/web/site_parsers/natgeo.py
+    sc = edg['schma']
+
+src/calibre/web/site_parsers/nytimes.py
+        if b.get('leadIn'):
+            a('<p>' + b['leadIn'] + '</p>')
+
+src/odf/attrconverters.py
+        ((TEXTNS,'annote'), None): cnv_string,
+        ((SMILNS,'dur'), None): cnv_string,
+
+src/odf/grammar.py
+                (TEXTNS,'annote'),
+                (SMILNS,'dur'),
+
+##
+# per-file-ignores
+
+src/calibre/ebooks/metadata/topaz.py  # codespell:file-ignore ths
+        ths = io.StringIO()
+        ths.write(self.data[:5])
+            ths.write('c')
+            ths.write(self.encode_vwi(len(tag)))
+            ths.write(tag)
+                ths.write(self.encode_vwi(len(self.topaz_headers[tag]['blocks'])))
+                        ths.write(self.encode_vwi(b['offset']))
+                        ths.write(self.encode_vwi(b['offset'] + delta))
+                        ths.write(self.encode_vwi(updated_md_len))
+                        ths.write(self.encode_vwi(b['len_uncomp']))
+                    ths.write(self.encode_vwi(b['len_comp']))
+                ths.write(self.encode_vwi(0))
+        return ths.getvalue().encode('iso-8859-1')
+
+src/calibre/ebooks/rtf*/**  # codespell:file-ignore pich,pard,tripple
+                    repl = '\n\n{\\*\\shppict{\\pict\\jpegblip\\picw%i\\pich%i \n%s\n}}\n\n' % (width, height, data)  # noqa: UP031
+                    block_start = r'{\par\pard\hyphpar '
+                    text += r'\par\pard\plain\hyphpar}'
+                text += rf'{{\par\pard\hyphpar {txt2rtf(elem.tail)}}}'
+        'bdr-trippl': 'tripple',
+        elif 'tripple-border' in border_style_list:
+            new_border_dict[att] = 'tripple'
+        'FILLIN'        : (self.__default_inst_func, 'fill-in'),
+        {\lang1024 1}}}{\lang1024 \par }\pard\plain
+        \f4\lang1033\cgrid }}\pard\plain
+        'bdr-trippl': 'tripple',
+            I have found a \\pard while I am collecting tokens. I want to reset
+            if a \\pard occurs in a paragraph, I want to ignore it. (I believe)
+        self.__write_pic_obj.write('{\\colortbl\\red255\\green255\\blue255;} \n\\pard \n')
+        'pard'               : ('pf', 'par-def___', self.default_func),
+    that describe the section. When I reach a \\pard, I know I an stop collecting
+            before \\pard. This should indicate older RTF. Reset the state
+        'bdr-trippl': 'tripple',
+
+src/pyj/complete.pyj  # codespell:file-ignore inpt
+        inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '', autocomplete='off')
+        self.input_id = ensure_id(inpt)
+        inpt.addEventListener('keydown', self.onkeydown)
+        inpt.addEventListener('input', self.oninput)
+        self.completion_popup.add_associated_widget(inpt)
+            parent.appendChild(inpt)
