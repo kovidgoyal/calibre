@@ -49,7 +49,7 @@ class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
         r('edit_metadata_single_use_2_cols_for_custom_fields', gprefs)
         r('edit_metadata_bulk_cc_label_length', gprefs)
         r('edit_metadata_single_cc_label_length', gprefs)
-        r('edit_metadata_templates_only_F2_on_booklist', gprefs)
+        r('edit_metadata_templates_only_F2_on_booklist', gprefs, restart_required=True)
 
         self.em_display_model = EMDisplayedFields(self.gui.current_db, self.em_display_order)
         self.em_display_model.dataChanged.connect(self.changed_signal)

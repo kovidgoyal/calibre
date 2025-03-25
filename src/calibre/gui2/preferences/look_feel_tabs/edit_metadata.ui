@@ -2,13 +2,14 @@
 <ui version="4.0">
  <class>Form</class>
  <widget class="QWidget" name="edit_metadata_tab">
-  <attribute name="icon">
-  <iconset resource="../../../../../resources/images.qrc">
-    <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
-  </attribute>
-  <attribute name="title">
-   <string>Edit &amp;metadata</string>
-  </attribute>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>712</width>
+    <height>444</height>
+   </rect>
+  </property>
   <layout class="QVBoxLayout" name="vbox_layout_61">
    <item>
     <layout class="QFormLayout">
@@ -43,7 +44,7 @@
          <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
         </property>
         <property name="icon">
-        <iconset resource="../../../../../resources/images.qrc">
+         <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
         </property>
        </widget>
@@ -54,7 +55,7 @@
          <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
         </property>
         <property name="icon">
-        <iconset resource="../../../../../resources/images.qrc">
+         <iconset resource="../../../../../resources/images.qrc">
           <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
         </property>
        </widget>
@@ -200,7 +201,7 @@ open the template editor in the book list for a &quot;Column built from other
 columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p&gt;</string>
          </property>
          <property name="text">
-          <string>Only the &amp;F2 (Edit) key edits column templates in the book list</string>
+          <string>Only the &amp;F2 (Edit) key edits column templates (restart needed)</string>
          </property>
         </widget>
        </item>
@@ -269,6 +270,7 @@ columns&quot;. Editing with mouse clicks and the Tab key will be disabled.&lt;/p
   </customwidget>
  </customwidgets>
  <resources>
- <include location="../../../../../resources/images.qrc"/>
+  <include location="../../../../../resources/images.qrc"/>
  </resources>
+ <connections/>
 </ui>
