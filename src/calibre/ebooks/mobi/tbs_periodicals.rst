@@ -311,7 +311,7 @@ In such a record there is a transition from one section to the next. As such the
         Last article of ending section w.r.t. starting section offset (fvwi): 12 [15 absolute]
         Flags (always 8?): 8
         Article index at start of record or first article index, relative to parent section (fvwi): 13 [16 absolute]
-        Number of article nodes in the record belonging ot the last section (byte): 4
+        Number of article nodes in the record belonging to the last section (byte): 4
 
 
 Ending record

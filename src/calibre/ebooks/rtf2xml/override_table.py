@@ -106,7 +106,7 @@ class OverrideTable:
     def __parse_lines(self, line):
         '''
         Requires:
-            line --ine to parse
+            line -- line to parse
         Returns:
             nothing
         Logic:
