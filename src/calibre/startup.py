@@ -72,15 +72,10 @@ def initialize_calibre():
     if hasattr(initialize_calibre, 'initialized'):
         return
     initialize_calibre.initialized = True
-
     # Ensure that all temp files/dirs are created under a calibre tmp dir
-    from calibre.ptempfile import base_dir
-    try:
-        base_dir()
-    except OSError:
-        pass  # Ignore this error during startup, so we can show a better error message to the user later.
+    from calibre.ptempfile import fix_tempfile_module
+    fix_tempfile_module()
 
-    #
     # Ensure that the max number of open files is at least 1024
     if iswindows:
         # See https://msdn.microsoft.com/en-us/library/6e3b887c.aspx

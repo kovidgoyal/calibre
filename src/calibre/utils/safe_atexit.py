@@ -104,7 +104,14 @@ def main():
                 traceback.print_exc()
 
 
-def main_for_test(do_forced_exit=False):
+def main_for_test(do_forced_exit=False, check_tdir=False):
+    if check_tdir:
+        import tempfile
+
+        from calibre.ptempfile import base_dir
+        print(tempfile.gettempdir())
+        print(base_dir())
+        return
     tf = 'test-folder'
     os.mkdir(tf)
     open(os.path.join(tf, 'test-file'), 'w').close()
@@ -146,5 +153,9 @@ def find_tests():
                 p = start_pipe_worker('from calibre.utils.safe_atexit import main_for_test; main_for_test(True)', cwd=tdir)
                 p.wait(10)
                 self.wait_for_empty(tdir)
+                p = start_pipe_worker('from calibre.utils.safe_atexit import main_for_test; main_for_test(check_tdir=True)')
+                tempfiledir, bdir = p.stdout.read().decode().splitlines()[:2]
+                p.wait(10)
+                self.assertEqual(bdir, tempfiledir)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSafeAtexit)

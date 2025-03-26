@@ -4,52 +4,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 '''
-import atexit
 import os
 import tempfile
 
 from calibre.constants import __appname__, __version__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
-
-
-def cleanup(path):
-    try:
-        import os as oss
-        if oss.path.exists(path):
-            oss.remove(path)
-    except:
-        pass
-
+from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
 
 _base_dir = None
-
-
-def remove_dir(x):
-    try:
-        import shutil
-        shutil.rmtree(x, ignore_errors=True)
-    except:
-        pass
-
-
-def determined_remove_dir(x):
-    for i in range(10):
-        try:
-            import shutil
-            shutil.rmtree(x)
-            return
-        except:
-            import os  # noqa
-            if os.path.exists(x):
-                # In case some other program has one of the temp files open.
-                import time
-                time.sleep(0.1)
-            else:
-                return
-    try:
-        import shutil
-        shutil.rmtree(x, ignore_errors=True)
-    except:
-        pass
 
 
 def app_prefix(prefix):
@@ -79,6 +40,9 @@ def osx_cache_dir():
             if q and os.path.isdir(q) and os.access(q, os.R_OK | os.W_OK | os.X_OK):
                 _osx_cache_dir = q
                 return q
+
+
+get_default_tempdir = tempfile.gettempdir
 
 
 def base_dir():
@@ -119,23 +83,25 @@ def base_dir():
                     # https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/confstr.3.html
                     base = osx_cache_dir()
 
-            _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
-            atexit.register(determined_remove_dir if iswindows else remove_dir, _base_dir)
-
-        try:
-            tempfile.gettempdir()
-        except Exception:
-            # Widows temp vars set to a path not encodable in mbcs
-            # Use our temp dir
-            tempfile.tempdir = _base_dir
+            _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base or get_default_tempdir())
+            remove_folder_atexit(_base_dir)
 
     return _base_dir
+
+
+def fix_tempfile_module():
+    # We want the tempfile module to use base_dir() as its tempdir, but we dont
+    # want to call base_dir() now as it will possibly create a tempdir, do that
+    # only on demand.
+    global get_default_tempdir
+    if tempfile._gettempdir is not base_dir:
+        get_default_tempdir = tempfile._gettempdir
+        tempfile._gettempdir = base_dir
 
 
 def reset_base_dir():
     global _base_dir
     _base_dir = None
-    base_dir()
 
 
 def force_unicode(x):
@@ -173,7 +139,7 @@ class PersistentTemporaryFile:
         self._file = os.fdopen(fd, mode)
         self._name = name
         self._fd = fd
-        atexit.register(cleanup, name)
+        remove_file_atexit(name)
 
     def __getattr__(self, name):
         if name == 'name':
@@ -201,8 +167,7 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     if dir is None:
         dir = base_dir()
     tdir = _make_dir(suffix, prefix, dir)
-
-    atexit.register(remove_dir, tdir)
+    remove_folder_atexit(tdir)
     return tdir
 
 
@@ -249,7 +214,7 @@ class TemporaryFile:
         return name
 
     def __exit__(self, *args):
-        cleanup(self._name)
+        unlink(self._name)
 
 
 class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
