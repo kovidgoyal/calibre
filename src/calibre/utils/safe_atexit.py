@@ -19,6 +19,7 @@ from calibre.utils.ipc.simple_worker import start_pipe_worker
 lock = Lock()
 worker = None
 RMTREE_ACTION = 'rmtree'
+UNLINK_ACTION = 'unlink'
 
 
 def thread_safe(f):
@@ -33,6 +34,18 @@ def thread_safe(f):
 @thread_safe
 def remove_folder(path: str) -> None:
     _send_command(RMTREE_ACTION, os.path.abspath(path))
+
+
+@thread_safe
+def remove_file(path: str) -> None:
+    _send_command(UNLINK_ACTION, os.path.abspath(path))
+
+
+def unlink(path):
+    with suppress(Exception):
+        import os as oss
+        if oss.path.exists(path):
+            oss.remove(path)
 
 
 def ensure_worker():
@@ -79,12 +92,12 @@ else:
 
 
 def main():
+    ac_map = {RMTREE_ACTION: remove_dir, UNLINK_ACTION: unlink}
     for line in sys.stdin.buffer:
         if line:
             try:
                 cmd = json.loads(line)
-                if cmd['action'] == RMTREE_ACTION:
-                    atexit.register(remove_dir, cmd['payload'])
+                atexit.register(ac_map[cmd['action']], cmd['payload'])
             except Exception:
                 import traceback
                 traceback.print_exc()
