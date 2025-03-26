@@ -84,7 +84,10 @@ def set_html(mi, html, text_browser):
     search_paths = []
     db, _ = db_for_mi(mi)
     if db and book_id is not None:
-        path = db.abspath(book_id, index_is_id=True)
+        try:
+            path = db.abspath(book_id, index_is_id=True)
+        except Exception:  # deleted book
+            path = ''
         if path:
             search_paths = [path]
     text_browser.setSearchPaths(search_paths)
