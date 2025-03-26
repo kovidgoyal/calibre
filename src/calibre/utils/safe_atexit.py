@@ -12,9 +12,8 @@ from contextlib import suppress
 from functools import wraps
 from threading import Lock
 
-from calibre.constants import iswindows
-from calibre.utils.filenames import make_long_path_useable
-from calibre.utils.ipc.simple_worker import start_pipe_worker
+_plat = sys.platform.lower()
+iswindows = 'win32' in _plat or 'win64' in _plat
 
 lock = Lock()
 worker = None
@@ -32,12 +31,12 @@ def thread_safe(f):
 
 
 @thread_safe
-def remove_folder(path: str) -> None:
+def remove_folder_atexit(path: str) -> None:
     _send_command(RMTREE_ACTION, os.path.abspath(path))
 
 
 @thread_safe
-def remove_file(path: str) -> None:
+def remove_file_atexit(path: str) -> None:
     _send_command(UNLINK_ACTION, os.path.abspath(path))
 
 
@@ -51,6 +50,7 @@ def unlink(path):
 def ensure_worker():
     global worker
     if worker is None:
+        from calibre.utils.ipc.simple_worker import start_pipe_worker
         worker = start_pipe_worker('from calibre.utils.safe_atexit import main; main()', stdout=None)
         def close_worker():
             worker.stdin.close()
@@ -68,6 +68,7 @@ def _send_command(action: str, payload: str) -> None:
 
 if iswindows:
     def remove_dir(x):
+        from calibre.utils.filenames import make_long_path_useable
         x = make_long_path_useable(x)
         import shutil
         import time
@@ -107,7 +108,7 @@ def main_for_test(do_forced_exit=False):
     tf = 'test-folder'
     os.mkdir(tf)
     open(os.path.join(tf, 'test-file'), 'w').close()
-    remove_folder(tf)
+    remove_folder_atexit(tf)
     if do_forced_exit:
         os._exit(os.EX_OK)
     else:
@@ -117,6 +118,8 @@ def main_for_test(do_forced_exit=False):
 def find_tests():
     import tempfile
     import unittest
+
+    from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     class TestSafeAtexit(unittest.TestCase):
 
