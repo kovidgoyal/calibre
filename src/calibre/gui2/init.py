@@ -314,8 +314,8 @@ class VLTabs(QTabBar):  # {{{
         QTabBar.__init__(self, parent)
         self.setDocumentMode(True)
         self.setDrawBase(False)
-        self.setMovable(True)
         self.setTabsClosable(gprefs['vl_tabs_closable'])
+        self.setMovable(self.tabsClosable())
         self.gui = parent
         self.ignore_tab_changed = False
         self.currentChanged.connect(self.tab_changed)
@@ -359,6 +359,7 @@ class VLTabs(QTabBar):  # {{{
     def lock_tab(self):
         gprefs['vl_tabs_closable'] = False
         self.setTabsClosable(False)
+        self.setMovable(False)
         # Workaround for Qt bug where it doesn't recalculate the tab size after locking
         for idx in range(self.count()):
             self.setTabButton(idx, QTabBar.ButtonPosition.RightSide, None)
@@ -367,6 +368,7 @@ class VLTabs(QTabBar):  # {{{
     def unlock_tab(self):
         gprefs['vl_tabs_closable'] = True
         self.setTabsClosable(True)
+        self.setMovable(True)
         # ensure no button on the All books tab since it is not closeable
         for idx in range(self.count()):
             if not self.tabData(idx):
