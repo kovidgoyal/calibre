@@ -121,6 +121,10 @@ class HistoryLineEdit2(LineEdit, HistoryMixin):
         if hasattr(self.mcompleter, 'setUniformItemSizes'):
             self.mcompleter.setUniformItemSizes(on)
 
+    def add_items_to_context_menu(self, s, menu):
+        menu.addAction(QIcon.ic('trash.png'), _('Clear history')).triggered.connect(self.clear_history)
+        return menu
+
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
