@@ -28,14 +28,14 @@ class AssociatedPress(BasicNewsRecipe):
         classes('StoryPage-lede-content Page-lead Page-byline-info RichTextStoryBody'),
     ]
     remove_tags = [
-        classes('displayNone Advertisement HTMLModuleEnhancement videoSlide'),
+        classes('displayNone Advertisement HTMLModuleEnhancement AudioEnhancement'),
         dict(
             name=[
                 'source',
                 'button',
                 'svg',
                 'template',
-                'bsp-jw-player',
+                'video',
                 'astro-island',
                 'iframe',
                 'document',
@@ -64,7 +64,10 @@ class AssociatedPress(BasicNewsRecipe):
         return [('Articles', feeds)]
 
     def preprocess_html(self, soup):
-        for st in soup.findAll(**classes('CarouselSlide-infoDescription')):
+        for v in soup.findAll('bsp-jw-player', attrs={'poster': True}):
+            v.name = 'img'
+            v.attrs = {'src': v.get('poster', '')}
+        for st in soup.findAll(**classes('CarouselSlide-infoDescription Figure-caption')):
             if p := st.find('p'):
                 p.name = 'span'
         for h in soup.findAll(['h2', 'h3']):
