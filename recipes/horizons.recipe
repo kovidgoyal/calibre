@@ -23,7 +23,7 @@ class horizons(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://www.cirsd.org/bundles/olpublic/images/horizons-logo.jpg'
     ignore_duplicate_articles = {'url'}
-    extra_css = 'em{color:#404040;}'
+    extra_css = 'em{color:#202020;}'
     simultaneous_downloads = 1
 
     keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
@@ -40,7 +40,7 @@ class horizons(BasicNewsRecipe):
     }
 
     def preprocess_raw_html(self, raw, *a):
-        return raw.replace('<p>&nbsp;</p>', '')
+        return raw.replace('<p>&nbsp;</p>', '').replace('<p dir="ltr">&nbsp;</p>', '')
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
