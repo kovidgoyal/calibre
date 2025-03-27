@@ -67,7 +67,7 @@ class AssociatedPress(BasicNewsRecipe):
         for v in soup.findAll('bsp-jw-player', attrs={'poster': True}):
             v.name = 'img'
             v.attrs = {'src': v.get('poster', '')}
-        for st in soup.findAll(**classes('CarouselSlide-infoDescription')):
+        for st in soup.findAll(**classes('CarouselSlide-infoDescription Figure-caption')):
             if p := st.find('p'):
                 p.name = 'span'
         for h in soup.findAll(['h2', 'h3']):
