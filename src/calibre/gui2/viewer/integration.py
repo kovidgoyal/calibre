@@ -52,12 +52,48 @@ def load_annotations_map_from_library(book_library_details, user_type='local', u
     return ans
 
 
-def save_annotations_list_to_library(book_library_details, alist, sync_annots_user=''):
+def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt) -> bool:
+    import json
+
+    from calibre.gui2.listener import send_message_in_process
+
+    packet = json.dumps({
+        'alist': alist,
+        'sync_annots_user': sync_annots_user,
+        'library_id': library_id,
+        'book_id': book_id,
+        'book_fmt': book_fmt,
+    })
+    msg = 'save-annotations:' + packet
+    try:
+        send_message_in_process(msg)
+        return True
+    except Exception:
+        return False
+
+
+def save_annotations_in_gui(library_broker, msg) -> bool:
+    import json
+    data = json.loads(msg)
+    db = library_broker.get(data['library_id'])
+    if db:
+        db = db.new_api
+        with db.write_lock:
+            if db._has_format(data['book_id'], data['book_fmt']):
+                db._save_annotations_list(int(data['book_id']), data['book_fmt'].upper(), data['sync_annots_user'], data['alist'])
+                return True
+    return False
+
+
+def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None):
+    calibre_data = calibre_data or {}
+    if calibre_data.get('library_id') and calibre_data.get('book_id') and send_msg_to_calibre(
+            alist, sync_annots_user, calibre_data['library_id'], calibre_data['book_id'], calibre_data['book_fmt']):
+        return
+
     import apsw
 
-    from calibre.db.annotations import merge_annotations
-    from calibre.db.backend import Connection, annotations_for_book, save_annotations_for_book
-    from calibre.gui2.viewer.annotations import annotations_as_copied_list
+    from calibre.db.backend import Connection, save_annotations_list_to_cursor
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)
@@ -67,21 +103,7 @@ def save_annotations_list_to_library(book_library_details, alist, sync_annots_us
         conn.setbusytimeout(Connection.BUSY_TIMEOUT)
         if not database_has_annotations_support(conn.cursor()):
             return
-        amap = {}
         with conn:
-            cursor = conn.cursor()
-            for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt']):
-                amap.setdefault(annot['type'], []).append(annot)
-            merge_annotations((x[0] for x in alist), amap)
-            if sync_annots_user:
-                other_amap = {}
-                for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], user_type='web', user=sync_annots_user):
-                    other_amap.setdefault(annot['type'], []).append(annot)
-                merge_annotations(amap, other_amap)
-            alist = tuple(annotations_as_copied_list(amap))
-            save_annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], alist)
-            if sync_annots_user:
-                alist = tuple(annotations_as_copied_list(other_amap))
-                save_annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], alist, user_type='web', user=sync_annots_user)
+            save_annotations_list_to_cursor(conn.cursor(), alist, sync_annots_user, book_library_details['book_id'], book_library_details['fmt'])
     finally:
         conn.close()

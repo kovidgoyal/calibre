@@ -5,6 +5,8 @@ from collections import defaultdict
 from itertools import chain
 
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+from calibre.utils.date import EPOCH
+from calibre.utils.iso8601 import parse_iso8601
 from polyglot.builtins import itervalues
 
 no_cfi_sort_key = cfi_sort_key('/99999999')
@@ -28,6 +30,15 @@ def highlight_sort_key(hl):
     if cfi:
         return cfi_sort_key(cfi, only_path=False)
     return no_cfi_sort_key
+
+
+def annotations_as_copied_list(annots_map):
+    for atype, annots in annots_map.items():
+        for annot in annots:
+            ts = (parse_iso8601(annot['timestamp'], assume_utc=True) - EPOCH).total_seconds()
+            annot = annot.copy()
+            annot['type'] = atype
+            yield annot, ts
 
 
 def sort_annot_list_by_position_in_book(annots, annot_type):

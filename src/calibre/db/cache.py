@@ -3308,6 +3308,10 @@ class Cache:
         self._set_annotations_for_book(book_id, fmt, alist, user_type=user_type, user=user)
 
     @write_api
+    def save_annotations_list(self, book_id: int, book_fmt: str, sync_annots_user: str, alist: list[dict]) -> None:
+        self.backend.save_annotations_list(book_id, book_fmt, sync_annots_user, alist)
+
+    @write_api
     def reindex_annotations(self):
         self.backend.reindex_annotations()
 

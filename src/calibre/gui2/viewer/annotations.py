@@ -7,30 +7,18 @@ from io import BytesIO
 from operator import itemgetter
 from threading import Thread
 
-from calibre.db.annotations import merge_annot_lists
+from calibre.db.annotations import annotations_as_copied_list, merge_annot_lists
 from calibre.gui2.viewer.convert_book import update_book
 from calibre.gui2.viewer.integration import save_annotations_list_to_library
 from calibre.gui2.viewer.web_view import viewer_config_dir
 from calibre.srv.render_book import EPUB_FILE_TYPE_MAGIC
-from calibre.utils.date import EPOCH
-from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.serialize import json_dumps, json_loads
 from calibre.utils.zipfile import safe_replace
 from polyglot.binary import as_base64_bytes
-from polyglot.builtins import iteritems
 from polyglot.queue import Queue
 
 annotations_dir = os.path.join(viewer_config_dir, 'annots')
 parse_annotations = json_loads
-
-
-def annotations_as_copied_list(annots_map):
-    for atype, annots in iteritems(annots_map):
-        for annot in annots:
-            ts = (parse_iso8601(annot['timestamp'], assume_utc=True) - EPOCH).total_seconds()
-            annot = annot.copy()
-            annot['type'] = atype
-            yield annot, ts
 
 
 def annot_list_as_bytes(annots):
@@ -54,7 +42,7 @@ def save_annots_to_epub(path, serialized_annots):
         safe_replace(zf, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
 
-def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user):
+def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, calibre_data):
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir, annotations_path_key), 'wb') as f:
         f.write(annots)
@@ -63,7 +51,7 @@ def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, i
         save_annots_to_epub(pathtoebook, annots)
         update_book(pathtoebook, before_stat, {'calibre-book-annotations.json': annots})
     if bld:
-        save_annotations_list_to_library(bld, annotations_list, sync_annots_user)
+        save_annotations_list_to_library(bld, annotations_list, sync_annots_user, calibre_data=calibre_data)
 
 
 class AnnotationsSaveWorker(Thread):
@@ -90,7 +78,7 @@ class AnnotationsSaveWorker(Thread):
             in_book_file = x['in_book_file']
             sync_annots_user = x['sync_annots_user']
             try:
-                save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user)
+                save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, x['calibre_data'])
             except Exception:
                 import traceback
                 traceback.print_exc()
@@ -107,6 +95,11 @@ class AnnotationsSaveWorker(Thread):
             'pathtoebook': current_book_data['pathtoebook'],
             'in_book_file': in_book_file and can_save_in_book_file,
             'sync_annots_user': sync_annots_user,
+            'calibre_data': {
+                'library_id': current_book_data.get('calibre_library_id'),
+                'book_id': current_book_data.get('calibre_book_id'),
+                'book_fmt': current_book_data.get('calibre_book_fmt'),
+            },
         })
 
 
