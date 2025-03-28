@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 8.1.0 2025-03-28
+{{{ 8.1.1 2025-03-28
 
 :: new features
 
@@ -56,6 +56,8 @@
 - Fix regression in previous release causing incorrect rendering of layout menu on some macOS machines
 
 - [2100891] Fix archive formats such as ZIP not being indexed for full text search
+
+- Version 8.1.1 fixes a regression causing an error that does not affect functionality on startup on macOS
 
 :: improved recipes
 - Horizons
