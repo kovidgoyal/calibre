@@ -365,7 +365,9 @@ class SchedulerDialog(QDialog):
             ' of this periodical. Every time a new issue is downloaded, the oldest one is deleted, if the'
             ' total is larger than this number.\n<p>Note that this feature only works if you have the'
             ' option to add the title as tag checked, above.\n<p>Also, the setting for deleting periodicals'
-            ' older than a number of days, below, takes priority over this setting.'))
+            ' older than a number of days, below, wil also cause issues to be deleted, so set that to zero if'
+            ' you want to use this setting alone.'
+            ))
         ki.setSpecialValueText(_('all issues')), ki.setSuffix(_(' issues'))
         g.addRow(_('&Keep at most:'), ki)
         self.recipe_specific_widgets = {}
