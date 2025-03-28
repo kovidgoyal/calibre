@@ -11,6 +11,7 @@ from calibre.constants import __appname__, filesystem_encoding, get_windows_temp
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
 
 _base_dir = _osx_cache_dir = None
+cleanup = unlink  # some plugins import this function
 
 
 def osx_cache_dir():
