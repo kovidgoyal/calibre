@@ -23,6 +23,46 @@
 # - title by author
 # }}}
 
+{{{ 8.1.0 2025-03-28
+
+:: new features
+
+- [2103833] Edit metadata dialog: Allow right clicking on the cover to edit it with an external program
+
+- [2104325] Virtual library tabs: When the tabs are locked prevent them from being re-ordered as well
+
+- FreeBSD: Add support for connecting to devices, contributed by Guido Falsi
+
+:: bug fixes
+
+- [2103949] macOS: Fix regression in previous release that caused calibre:// URLs to no longer work
+
+- [2103777] macOS: Fix a regression in calibre 8 that prevented icons in menus from being rendered
+
+- Kobo driver: Fix hyphenation settings not being applied correctly when generating KEPUB to put on the device
+
+- [2103926] KEPUB Output: Include leading whitespace in kobo sentence span tags. This prevents unsightly breaks when highlighting across formatted text on the Kobo
+
+- [2103846] Content server: Fix FB2 books not readable via the in-browser viewer
+
+- Edit book: Add text narration: Fix preferred voice for language setting being ignored
+
+- [2103990] E-book viewer: Use IPC to update annotations when calibre is running. Avoids possible loss of annotations in the Annotations browser due to db being locked
+
+- Ensure calibre temp files are deleted even on program crash
+
+- [2103870] Fix incorrect minimums on font size changing controls in viewer
+
+- Fix regression in previous release causing incorrect rendering of layout menu on some macOS machines
+
+- [2100891] Fix archive formats such as ZIP not being indexed for full text search
+
+:: improved recipes
+- Horizons
+- Economist
+- Granta
+}}}
+
 {{{ 8.0.1 2025-03-21
 
 :: new features
