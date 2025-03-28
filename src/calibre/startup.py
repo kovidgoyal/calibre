@@ -102,6 +102,16 @@ def initialize_calibre():
         return get_debug_executable() + ['--fix-multiprocessing', '--', prog]
     spawn.get_command_line = get_command_line
     orig_spawn_passfds = util.spawnv_passfds
+    orig_remove_temp_dir = util._remove_temp_dir
+
+    def safe_rmtree(rmtree):
+        def r(tdir):
+            if tdir and os.path.exists(tdir):
+                rmtree(tdir)
+        return r
+
+    def safe_remove_temp_dir(rmtree, tdir):
+        orig_remove_temp_dir(safe_rmtree(rmtree), tdir)
 
     def wrapped_orig_spawn_fds(args, passfds):
         # as of python 3.11 util.spawnv_passfds expects bytes args
@@ -117,6 +127,7 @@ def initialize_calibre():
         patched_args = get_debug_executable() + ['--fix-multiprocessing', '--'] + args[idx + 1:]
         return wrapped_orig_spawn_fds(patched_args, passfds)
     util.spawnv_passfds = spawnv_passfds
+    util._remove_temp_dir = safe_remove_temp_dir
 
     #
     # Setup resources
