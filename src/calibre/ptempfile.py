@@ -7,19 +7,10 @@ being closed.
 import os
 import tempfile
 
-from calibre.constants import __appname__, __version__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
+from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
 
-_base_dir = None
-
-
-def app_prefix(prefix):
-    if iswindows:
-        return f'{__appname__}_'
-    return f'{__appname__}_{__version__}_{prefix}'
-
-
-_osx_cache_dir = None
+_base_dir = _osx_cache_dir = None
 
 
 def osx_cache_dir():
@@ -66,7 +57,7 @@ def base_dir():
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
             if base is not None and iswindows:
                 base = os.getenv('CALIBRE_TEMP_DIR')
-            prefix = app_prefix('tmp_')
+            prefix = f'{__appname__}-'
             if base is None:
                 if iswindows:
                     # On windows, if the TMP env var points to a path that
