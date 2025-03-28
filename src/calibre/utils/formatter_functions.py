@@ -1555,10 +1555,10 @@ format_date_field('#date_read', 'MMM dd, yyyy')
         try:
             field = field_metadata.search_term_to_field_key(field)
             if field not in mi.all_field_keys():
-                raise ValueError(_("Function %s: Unknown field '%s'")%('format_date_field', field))
+                raise ValueError(_("Function {0}: Unknown field '{1}'").format('format_date_field', field))
             val = mi.get(field, None)
             if mi.metadata_for_field(field)['datatype'] != 'datetime':
-                raise ValueError(_("Function %s: field '%s' is not a date")%('format_date_field', field))
+                raise ValueError(_("Function {0}: field '{1}' is not a date").format('format_date_field', field))
             if val is None:
                 s = ''
             elif format_string == 'to_number':
@@ -3229,9 +3229,9 @@ encoded and spaces are always replaced with ``'+'`` signs.[/]
 
 At least one ``query_name, query_value`` pair must be provided.
 
-Example: constructing a Wikipedia search URL for the author `Niccolò Machiavelli`:
+Example: constructing a Wikipedia search URL for the author `{0}`:
 [CODE]
-make_url('https://en.wikipedia.org/w/index.php', 'search', 'Niccolò Machiavelli')
+make_url('https://en.wikipedia.org/w/index.php', 'search', '{0}')
 [/CODE]
 returns
 [CODE]
@@ -3240,13 +3240,13 @@ https://en.wikipedia.org/w/index.php?search=Niccol%C3%B2+Machiavelli
 
 If you are writing a custom column book details URL template then use ``$item_name`` or
 ``field('item_name')`` to obtain the value of the field that was clicked on.
-Example: if `Niccolò Machiavelli` was clicked then you can construct the URL using:
+Example: if `{0}` was clicked then you can construct the URL using:
 [CODE]
 make_url('https://en.wikipedia.org/w/index.php', 'search', $item_name)
 [/CODE]
 
 See also the functions :ref:`make_url_extended`, :ref:`query_string` and :ref:`encode_for_url`.
-''')
+''').format('Niccolò Machiavelli')  # not translated ans gettext wants pure ascii msgid
 
     def evaluate(self, formatter, kwargs, mi, locals, path, *args):
         if (len(args) % 2) != 0:
@@ -3287,9 +3287,9 @@ The ``authority`` can be empty, which is the case for ``calibre`` scheme URLs.
 You must supply either a ``query_string`` or at least one ``query_name, query_value`` pair.
 If you supply ``query_string`` and it is empty then the resulting URL will not have a query string section.
 
-Example 1: constructing a Wikipedia search URL for the author `Niccolò Machiavelli`:
+Example 1: constructing a Wikipedia search URL for the author `{0}`:
 [CODE]
-make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', 'Niccolò Machiavelli')
+make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', '{0}')
 [/CODE]
 returns
 [CODE]
@@ -3300,13 +3300,13 @@ See the :ref:`query_string` function for an example using ``make_url_extended()`
 
 If you are writing a custom column book details URL template then use ``$item_name`` or
 ``field('item_name')`` to obtain the value of the field that was clicked on.
-Example: if `Niccolò Machiavelli` was clicked on then you can construct the URL using :
+Example: if `{0}` was clicked on then you can construct the URL using :
 [CODE]
 make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', $item_name')
 [/CODE]
 
 See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for_url`.
-''')
+''').format('Niccolò Machiavelli')  # not translated as gettext wants pure ASCII msgid
 
     def evaluate(self, formatter, kwargs, mi, locals, scheme, authority, path, *args):
         if len(args) != 1:
@@ -3351,7 +3351,7 @@ query string are constructed. You could then use the resultingquery string in
 [CODE]
 make_url_extended(
        'https', 'your_host', 'your_path',
-       query_string('encoded', 'Hendrik Bäßler', 0, 'unencoded', 'Hendrik Bäßler', 2))
+       query_string('encoded', '{0}', 0, 'unencoded', '{0}', 2))
 [/CODE]
 giving you
 [CODE]
@@ -3372,7 +3372,7 @@ replacing spaces, and ``item_value_no_plus`` where the value is already encoded
 with ``%20`` replacing spaces.
 
 See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`encode_for_url`.
-''')
+''').format('Hendrik Bäßler')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         if (len(args) % 3) != 0 or len(args) < 3:
