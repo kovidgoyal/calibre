@@ -44,11 +44,7 @@ def socket_address(which):
             sock_name = '{}-calibre-{}.socket'.format(ascii_filename(user).replace(' ', '_'), which)
             ans = '\0' + sock_name
         else:
-            # tempdir already contains calibre in its path
-            sock_name = f'{os.getuid()}-{which}.sock'
-            from tempfile import gettempdir
-            tmp = force_unicode(gettempdir(), filesystem_encoding)
-            ans = os.path.join(tmp, sock_name)
+            ans = f'/tmp/calibre-{os.getuid()}-{which}.sock'
     return ans
 
 
