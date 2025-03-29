@@ -185,7 +185,7 @@ class TrimImage(QDialog):
         if rect:
             x, y, w, h = map(int, self.canvas.rect_for_trim())
             text = f'{int(w)}x{int(h)}'
-            text = _('Size: {0}px Aspect ratio: {1:.3g}').format(text, w / h)
+            text = _('Size: {0}px Aspect ratio: {1:.3g}').format(text, (w / h) if h else 0)
         else:
             text = ''
         self.tr_sz.setText(text)
