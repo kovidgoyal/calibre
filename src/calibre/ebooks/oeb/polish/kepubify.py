@@ -29,7 +29,7 @@ from calibre.ebooks.oeb.parse_utils import barename, merge_multiple_html_heads_a
 from calibre.ebooks.oeb.polish.container import Container, EpubContainer, get_container
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image3, find_cover_page
 from calibre.ebooks.oeb.polish.errors import DRMError
-from calibre.ebooks.oeb.polish.parsing import parse
+from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
 from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
@@ -337,7 +337,7 @@ def kepubify_parsed_html(root: etree.Element, kobo_js_href: str, opts: Options, 
 
 
 def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts: Options = Options(), metadata_lang: str = 'en'):
-    root = parse(raw)
+    root = parse(raw, decoder=lambda x: decode_xml(x)[0])
     kepubify_parsed_html(root, kobo_js_href, opts, metadata_lang)
     return root
 
