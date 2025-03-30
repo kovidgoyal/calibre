@@ -4,11 +4,12 @@
 import errno
 import os
 import socket
+import sys
 from contextlib import closing
 from functools import partial
 from itertools import count
 
-from qt.core import QAbstractSocket, QByteArray, QLocalServer, QLocalSocket, pyqtSignal
+from qt.core import QAbstractSocket, QLocalServer, pyqtSignal
 
 from calibre.utils.ipc import gui_socket_address
 
@@ -78,24 +79,15 @@ def send_message_in_process(msg, address=None, timeout=5):
     address = address or gui_socket_address()
     if isinstance(msg, str):
         msg = msg.encode('utf-8')
-    s = QLocalSocket()
-    qt_timeout = int(timeout * 1000)
-    if address.startswith('\0'):
+    if address.startswith('\\'):
+        with open(address, 'r+b') as f:
+            f.write(msg)
+    else:
         ps = unix_socket(timeout)
         ps.connect(address)
-        s.setSocketDescriptor(ps.detach())
-    else:
-        s.connectToServer(address)
-        if not s.waitForConnected(qt_timeout):
-            raise OSError(f'Failed to connect to Listener at: {address} with error: {s.errorString()}')
-    data = QByteArray(msg)
-    while True:
-        written = s.write(data)
-        if not s.waitForBytesWritten(qt_timeout):
-            raise OSError(f'Failed to write data to address: {s.serverName()} with error: {s.errorString()}')
-        if written >= len(data):
-            break
-        data = data.right(len(data) - written)
+        ps.sendall(msg)
+        ps.shutdown(socket.SHUT_RDWR)
+        ps.close()
 
 
 def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=False):
@@ -108,7 +100,7 @@ def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=False):
     from calibre.startup import get_debug_executable
     cmd = get_debug_executable() + [
         '-c', 'from calibre.gui2.listener import *; import sys, json;'
-        'send_message_implementation(sys.stdin.buffer.read(), address=json.loads(sys.argv[-2]), timeout=int(sys.argv[-1]))',
+        'send_message_in_process(sys.stdin.buffer.read(), address=json.loads(sys.argv[-2]), timeout=float(sys.argv[-1]))',
         json.dumps(address), str(timeout)]
     p = subprocess.Popen(cmd, stdin=subprocess.PIPE)
     if isinstance(msg, str):
@@ -124,13 +116,19 @@ def test():
     app = QApplication([])
     l = QLabel()
     l.setText('Waiting for message...')
+    m = '123456789' * 8192 * 10
 
     def show_message(msg):
-        print(msg)
-        l.setText(msg.decode('utf-8'))
+        q = msg.decode()
+        if q != m:
+            print(f'Received incorrect message of length: {len(q)} expecting length: {len(m)}', file=sys.stderr)
+        else:
+            print('Received msg correctly', file=sys.stderr)
+        l.setText(q)
+        QTimer.singleShot(1000, app.quit)
 
     def send():
-        send_message_via_worker('hello!', wait_till_sent=False)
+        send_message_via_worker(m, wait_till_sent=False)
 
     QTimer.singleShot(1000, send)
     s = Listener(parent=l)
@@ -140,7 +138,6 @@ def test():
 
     l.show()
     app.exec()
-    del app
 
 
 if __name__ == '__main__':
