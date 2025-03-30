@@ -15,6 +15,7 @@ CONTAINER = unique_id('standalone-font-settings')
 DEFAULT_STANDARD_FONT = 'serif'
 DEFAULT_MINIMUM_FONT_SIZE = 8
 DEFAULT_ZOOM_STEP_SIZE = 20
+MIN_ZOOM_STEP_SIZE = 10
 
 
 def current_zoom_step_size():
@@ -56,9 +57,9 @@ def minimum_font_size(settings):
 
 
 def zoom_step_size(settings):
-    ans = E.input(max='100', min='10', step='1', type='number', name='zoom_step_size')
+    ans = E.input(max='100', min=MIN_ZOOM_STEP_SIZE + '', step='1', type='number', name='zoom_step_size')
     if jstype(settings.zoom_step_size) is 'number':
-        ans.value = settings.zoom_step_size + ''
+        ans.value = max(10, parseInt(settings.zoom_step_size)) + ''
     else:
         ans.value = '' + DEFAULT_ZOOM_STEP_SIZE
     return ans
@@ -112,7 +113,7 @@ def commit_fonts(onchange):
     vals = {}
     zss = parseInt(container.querySelector('[name=zoom_step_size]').value)
     if zss is not DEFAULT_ZOOM_STEP_SIZE:
-        vals.zoom_step_size = zss
+        vals.zoom_step_size = max(MIN_ZOOM_STEP_SIZE, zss)
     mfs = parseInt(container.querySelector('[name=minimum_font_size]').value)
     if mfs is not DEFAULT_MINIMUM_FONT_SIZE:
         vals.minimum_font_size = mfs
