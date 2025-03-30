@@ -52,7 +52,7 @@ def change_font_size_by(frac):
     amt = sz * frac
     if abs(amt) < 1:
         amt = -1 if amt < 0 else 1
-    nsz = int(sz + amt)
+    nsz = Math.round(sz + amt)
     nsz = max(MIN_FONT_SIZE, min(nsz, MAX_FONT_SIZE))
     change_font_size(nsz)
 
