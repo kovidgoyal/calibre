@@ -159,7 +159,7 @@ class Reuters(BasicNewsRecipe):
             )
 
             if data.get('summary'):
-                (
+                body += (
                     '<blockquote>'
                     + ''.join(f'<li>{su["description"]}</li>' for su in data['summary'])
                     + '</blockquote>'
