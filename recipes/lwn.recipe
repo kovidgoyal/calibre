@@ -1,53 +1,64 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
-lwn.net
-'''
+__copyright__ = 'Chris Moore 2025'
+__version__ = '1.0'
 
+import os
+
+from calibre import walk
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.zipfile import ZipFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class LWN(BasicNewsRecipe):
-    title = u'lwn'
-    __author__ = 'Oliver Niesner'
-    description = 'Linux Weekly News'
-    oldest_article = 54
-    max_articles_per_feed = 100
-    needs_subscription = True
+class lwn_epub(BasicNewsRecipe):
+    __author__ = 'Chris Moore'
+    title = 'lwn'
     language = 'en'
-    remove_javascript = True
-    simultaneous_downloads = 1
-    delay = 1
-    LOGIN = 'https://lwn.net/login'
+    publisher = 'lwn.net'
+    publication_type = 'magazine'
+    description = 'The weekly subscriber-only edition from Linux Weekly News'
+    needs_subscription = True
+
+    conversion_options = {
+        'publisher': publisher, 'language': language, 'comments': description, 'no_default_epub_cover': True,
+        'preserve_cover_aspect_ratio': True
+    }
+
+    def build_index(self):
+        browser = self.get_browser()
+        browser.open('https://lwn.net/current')
+
+        # find the link
+        epublink = browser.find_link(text='Download EPUB')
+
+        # download ebook
+        self.report_progress(0, _('Downloading ePUB'))
+        response = browser.follow_link(epublink)
+        book_file = PersistentTemporaryFile(suffix='.epub')
+        book_file.write(response.read())
+        book_file.close()
+
+        # convert
+        self.report_progress(0.2, _('Converting to OEB'))
+        oeb = self.output_dir + '/INPUT/'
+        if not os.path.exists(oeb):
+            os.makedirs(oeb)
+        with ZipFile(book_file.name) as f:
+            f.extractall(path=oeb)
+
+        for f in walk(oeb):
+            if f.endswith('.opf'):
+                return f
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open(self.LOGIN)
+            br.open('https://lwn.net/login')
             br.select_form(name='loginform')
             br['uname'] = self.username
             br['pword'] = self.password
             br.submit()
         return br
-
-    remove_tags = [
-        dict(name='td', attrs={'class': 'LeftColumn'}),
-        dict(name='td', attrs={'class': 'NavLink'}),
-        dict(name='div', attrs={'class': 'FormattedComment'}),
-        dict(name='td', attrs={'class': 'MCTopBanner'}),
-        dict(name='div', attrs={'class': 'CommentBox'})
-    ]
-
-    feeds = [
-        (u'lwn', u'http://lwn.net/headlines/newrss'),
-    ]
-
-    def postprocess_html(self, soup, first):
-        for tag in soup.findAll(name=['table', 'tr', 'td']):
-            tag.name = 'div'
-        return soup
-
-    def print_version(self, url):
-        return url.replace('rss', '?format=printable')
