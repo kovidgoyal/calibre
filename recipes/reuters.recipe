@@ -31,10 +31,12 @@ class Reuters(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
-    ignore_duplicate_articles = {'url', 'title'}
+    ignore_duplicate_articles = {'url'}
+    remove_empty_feeds = True
 
     extra_css = '''
         .label, .auth { font-size:small; color:#202020; }
+        .desc { font-style: italic; }
         .figc { font-size:small; }
         img {display:block; margin:0 auto;}
     '''
@@ -48,8 +50,8 @@ class Reuters(BasicNewsRecipe):
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 960, 1080, 1200',
             'long': 'This is useful for non e-ink devices',
-            'default': '480'
-        }
+            'default': '480',
+        },
     }
 
     def __init__(self, *args, **kwargs):
@@ -61,58 +63,55 @@ class Reuters(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.reuters.com'
         today = datetime.now()
-        feed_api = (
-            index
-            + '/arc/outboundfeeds/v3/mobile/section/{}/?from=0&size=50&outputType=json'
+
+        sections = []
+
+        sec_api = json.loads(
+            self.index_to_soup(index + '/mobile/api/v1/menu/?outputType=json', raw=True)
         )
-        path_api = index + '/arc/outboundfeeds/v3/mobile{}?outputType=json'
-        sections = [
-            'world',
-            'business',
-            'markets',
-            'sustainability',
-            'legal',
-            'breakingviews',
-            'technology',
-            # 'sports',
-            'science',
-            'lifestyle',
-        ]
+
+        for s in sec_api[0]['data']['hierarchy']['children']:
+            if s.get('type', '') == 'section':
+                sections.append((s['name'], s['id']))
+                sections.extend(
+                    (s['name'] + ' - ' + s2['name'], s2['id'])
+                    for s2 in s.get('children', [])
+                    if s2.get('type', '') == 'section'
+                )
 
         feeds = []
 
-        for sec in sections:
-            section = sec.capitalize()
-            self.log(section)
+        for sec, link in sections:
+            self.log(sec)
 
             articles = []
 
-            data = json.loads(self.index_to_soup(feed_api.format(sec), raw=True))[
-                'wireitems'
-            ]
+            data = json.loads(
+                self.index_to_soup(
+                    index + '/mobile/v1' + link + '?outputType=json', raw=True
+                )
+            )
 
-            for x in data:
-                if x.get('wireitem_type', '') == 'story':
-                    for y in x['templates']:
-                        if y.get('type', '') == 'story':
-                            title = y['story']['hed']
+            for st in (
+                story
+                for x in data
+                if isinstance(x, dict)
+                for story in x.get('data', {}).get('stories', [])
+            ):
+                title = st['title']
 
-                            date = datetime.fromisoformat(
-                                y['story']['updated_at'][:-1]
-                            ) + timedelta(seconds=time.timezone)
-                            if (today - date) > timedelta(self.oldest_article):
-                                continue
+                date = datetime.fromisoformat(st['display_time'][:-1]) + timedelta(
+                    seconds=time.timezone
+                )
+                if (today - date) > timedelta(self.oldest_article):
+                    continue
 
-                            desc = y['story']['lede']
-                            path = y['template_action']
-                            if path.get('type', '') == 'article':
-                                url = path_api.format(path['api_path_native'])
-                                self.log('            ', title, '\n\t', desc)
-                                articles.append(
-                                    {'title': title, 'description': desc, 'url': url}
-                                )
+                desc = st['description']
+                url = index + st['url']
+                self.log('            ', title, '\n\t', desc, '\n\t', url)
+                articles.append({'title': title, 'description': desc, 'url': url})
             if articles:
-                feeds.append((section, articles))
+                feeds.append((sec, articles))
         return feeds
 
     def preprocess_raw_html(self, raw, url):
@@ -120,75 +119,84 @@ class Reuters(BasicNewsRecipe):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             res = '&width=' + w
-        js = json.loads(raw)
-        data = js['wireitems']
+
         body = ''
-        for x in data:
-            if x.get('wireitem_type', '') == 'story':
-                for y in x['templates']:
-                    if 'label' in y['cid']:
-                        body += '<div class="label">' + y['title'] + '</div>'
-                        break
-                for y in x['templates']:
-                    if 'title' in y['cid']:
-                        body += (
-                            '<h1 title="{}">'.format(js['share_url'])
-                            + y['content']
-                            + '</h1>'
-                        )
-                        break
-                for y in x['templates']:
-                    if 'author' in y['cid']:
-                        body += '<p>'
-                        auths = list(y.get('authors_names', []))
-                        if auths:
-                            body += (
-                                '<div class="auth">' + 'By ' + ', '.join(auths) + '</div>'
-                            )
-                            break
-                for y in x['templates']:
-                    if 'datetime' in y['cid']:
-                        body += (
-                            '<div class="auth">'
-                            + str(y['read_minutes'])
-                            + ' minute read | '
-                            + p_dt(y['display_time'])
-                            + '</div>'
-                        )
-                        body += '</p>'
-                        break
-                for y in x['templates']:
-                    if 'paragraph' in y['cid']:
-                        body += '<p>' + y['content'] + '</p>'
-                    if 'header' in y['cid']:
-                        body += '<h4>' + y['content'] + '</h4>'
-                    if 'image' in y['cid']:
-                        if 'renditions' in y['image']:
-                            body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                y['image']['url'].split('&')[0] + res,
-                                y['image']['caption'],
-                            )
-                        else:
-                            body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                y['image']['url'], y['image']['caption']
-                            )
-                    if 'gallery' in y['cid']:
-                        for imgs in y['images']:
-                            if 'renditions' in imgs:
-                                body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                    imgs['url'].split('&')[0] + res,
-                                    imgs['caption'],
-                                )
-                            else:
-                                body += '<img src="{}"><div class="figc">{}</div>'.format(
-                                    imgs['url'], imgs['caption']
-                                )
-                    if 'video' in y['cid']:
-                        body += '<img src="{}"><div class="figc">{}</div>'.format(
-                            y['video']['thumbnail']['url'],
-                            y['video']['thumbnail']['caption'],
-                        )
+
+        for det in json.loads(raw):
+            if not det.get('type', '') == 'article_detail':
+                continue
+            data = det['data']['article']
+            body += '<h1>' + data['title'] + '</h1>'
+            if data.get('description'):
+                body += '<p class="desc">' + data['description'] + '</p>'
+            if data.get('authors'):
+                body += (
+                    '<p class="auth">'
+                    + 'By '
+                    + ', '.join(at.get('byline', '') for at in data.get('authors', []))
+                    + '</p>'
+                )
+
+            if data.get('thumbnail') and data['thumbnail'].get('type', '') == 'image':
+                th = data['thumbnail']
+                body += '<img src="{}"><div class="figc">{}</div>'.format(
+                    th['resizer_url'].split('&')[0] + res,
+                    th.get('caption', ''),
+                )
+
+            body += (
+                '<p class="auth">'
+                + str(data['read_minutes'])
+                + ' minute read | '
+                + str(data['word_count'])
+                + ' words | '
+                + p_dt(
+                    data['updated_time']
+                    if data.get('updated_time')
+                    else data['display_time']
+                )
+                + '</p>'
+            )
+
+            if data.get('summary'):
+                (
+                    '<blockquote>'
+                    + ''.join(f'<li>{su["description"]}</li>' for su in data['summary'])
+                    + '</blockquote>'
+                )
+
+            for y in data['content_elements']:
+                ty = y.get('type', '')
+                if ty == 'placeholder':
+                    continue
+
+                elif ty == 'paragraph':
+                    body += '<p>' + y['content'] + '</p>'
+                elif ty == 'header':
+                    body += '<h4>' + y['content'] + '</h4>'
+                elif ty == 'graphic':
+                    body += '<img src="{}"><div class="figc">{}</div>'.format(
+                        y['resizer_url'].split('&')[0] + res,
+                        y.get('description', ''),
+                    )
+                else:
+                    self.log('**', ty)
+
+            if data.get('sign_off'):
+                body += '<p class="auth">' + data['sign_off'] + '</p>'
+
         return '<html><body><div>' + body + '</div></body></html>'
 
-    def populate_article_metadata(self, article, soup, first):
-        article.url = soup.find('h1')['title']
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = (
+            'ReutersNews/7.11.0.1742843009 Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36'
+        )
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [('cookie', 'reuters-geo={"country":"-"; "region":"-"}=')]
+        return br
+
+    def print_version(self, url):
+        return (
+            url.replace('https://www.reuters.com', 'https://www.reuters.com/mobile/v1')
+            + '?outputType=json'
+        )
