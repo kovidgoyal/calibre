@@ -165,7 +165,7 @@ class Search:
             word_pats, full_pat = self.near_search_data
             if len(word_pats) < 2:
                 error_dialog(gui, _('Invalid search expression'), _(
-                    'In Nearby words mode, you must specify at least two words and an optional trailing number of characters.'
+                    'In nearby words mode, you must specify at least two words and an optional trailing number of characters.'
                     ' The expression: {} does not have at least two words.').format(self.text), show=True)
                 return False
         elif self.mode == 'regex':
