@@ -26,7 +26,7 @@ from qt.core import (
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer import get_boss
@@ -103,8 +103,8 @@ def words_and_interval_for_near(expr, default_interval=60):
     words = []
     interval = default_interval
 
-    for q in parts:
-        if q is parts[-1] and q.isdigit():
+    for i, q in enumerate(parts):
+        if q is parts[-1] and q.isdigit() and i > 1:
             interval = int(q)
         else:
             words.append(text_to_regex(q))
@@ -154,11 +154,28 @@ class Search:
             flags = self.regex_flags
             flags |= regex.DOTALL
             match_any_word = r'(?:\b(?:' + '|'.join(words) + r')\b)'
-            joiner = '.{1,%d}' % interval  # noqa: UP031
+            joiner = f'.{{1,{interval}}}'
             full_pat = regex.compile(joiner.join(match_any_word for x in words), flags=flags)
             word_pats = tuple(regex.compile(rf'\b{x}\b', flags) for x in words)
             self._nsd = word_pats, full_pat
         return self._nsd
+
+    def validate(self, gui) -> bool:
+        if self.mode == 'near':
+            word_pats, full_pat = self.near_search_data
+            if len(word_pats) < 2:
+                error_dialog(gui, _('Invalid search expression'), _(
+                    'In Nearby words mode, you must specify at least two words and an optional trailing number of characters.'
+                    ' The expression: {} does not have at least two words.').format(self.text), show=True)
+                return False
+        elif self.mode == 'regex':
+            try:
+                self.regex
+            except Exception as e:
+                error_dialog(gui, _('Invalid search expression'), _(
+                    'The search expression {} is not a valid regex.').format(self.text), det_msg=str(e), show=True)
+                return False
+        return True
 
     @property
     def is_empty(self):
@@ -801,6 +818,8 @@ class SearchPanel(QWidget):  # {{{
     def start_search(self, search_query, current_name):
         if self.current_search is not None and search_query == self.current_search:
             self.find_next_requested(search_query.backwards)
+            return
+        if not search_query.validate(self):
             return
         if self.searcher is None:
             self.searcher = Thread(name='Searcher', target=self.run_searches)
