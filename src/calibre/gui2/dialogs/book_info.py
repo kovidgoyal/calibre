@@ -101,13 +101,20 @@ class Configure(Dialog):
         h.addWidget(fdo)
         v = QVBoxLayout()
         self.mub = b = QToolButton(self)
+        self.ds = s = QShortcut(QKeySequence('Ctrl+Up'), self)
+        s.activated.connect(b.click)
         connect_lambda(b.clicked, self, lambda self: move_field_up(fdo, self.model))
         b.setIcon(QIcon.ic('arrow-up.png'))
-        b.setToolTip(_('Move the selected field up'))
+        b.setToolTip(_('Move the selected field up [{}]').format(
+            str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
         v.addWidget(b), v.addStretch(10)
+
         self.mud = b = QToolButton(self)
+        self.ds = s = QShortcut(QKeySequence('Ctrl+Down'), self)
+        s.activated.connect(b.click)
         b.setIcon(QIcon.ic('arrow-down.png'))
-        b.setToolTip(_('Move the selected field down'))
+        b.setToolTip(_('Move the selected field down [{}]').format(
+            str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
         connect_lambda(b.clicked, self, lambda self: move_field_down(fdo, self.model))
         v.addWidget(b)
         h.addLayout(v)
