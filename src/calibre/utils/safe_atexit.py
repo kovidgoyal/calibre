@@ -93,6 +93,9 @@ else:
 
 
 def main():
+    if not iswindows:
+        import signal
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
     ac_map = {RMTREE_ACTION: remove_dir, UNLINK_ACTION: unlink}
     for line in sys.stdin.buffer:
         if line:
