@@ -374,7 +374,7 @@ class MetadataUpdater:
             subjects = '; '.join(mi.tags)
             update_exth_record((105, normalize(subjects).encode(self.codec, 'replace')))
 
-            if kindle_pdoc and kindle_pdoc in mi.tags:
+            if kindle_pdoc and (kindle_pdoc == '*' or kindle_pdoc in mi.tags):
                 added_501 = True
                 update_exth_record((501, b'PDOC'))
 

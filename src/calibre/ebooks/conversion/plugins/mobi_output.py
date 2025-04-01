@@ -63,7 +63,9 @@ class MOBIOutput(OutputFormatPlugin):
                    ' This option has no effect on the conversion. It is used'
                    ' only when sending MOBI files to a device. If the file'
                    ' being sent has the specified tag, it will be marked as'
-                   ' a personal document when sent to the Kindle.')
+                   ' a personal document when sent to the Kindle. Use the value *'
+                   ' to match all books.'
+            )
         ),
         OptionRecommendation(name='mobi_ignore_margins',
             recommended_value=False,
