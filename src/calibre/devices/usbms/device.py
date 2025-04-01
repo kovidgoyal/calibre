@@ -908,6 +908,9 @@ class Device(DeviceConfig, DevicePlugin):
                 print('Udisks eject call for:', d, 'failed:')
                 print('\t', e)
 
+    def on_device_close(self):
+        pass
+
     def unmount_device(self):
         if self.connected_folder_path:
             self.eject_connected_folder = True
@@ -934,6 +937,7 @@ class Device(DeviceConfig, DevicePlugin):
             except:
                 pass
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+        self.on_device_close()
 
     def linux_post_yank(self):
         self._linux_mount_map = {}
@@ -946,6 +950,7 @@ class Device(DeviceConfig, DevicePlugin):
                 import traceback
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
+        self.on_device_close()
 
     def get_main_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_MAIN

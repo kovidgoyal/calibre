@@ -76,10 +76,13 @@ class DummyCSSPreProcessor:
         return data
 
 
+GENERIC_GUI_NAME = 'Kobo eReader'
+
+
 class KOBO(USBMS):
 
     name = 'Kobo Reader Device Interface'
-    gui_name = 'Kobo Reader'
+    gui_name = GENERIC_GUI_NAME
     description = _('Communicate with the original Kobo Reader and the Kobo WiFi.')
     author = 'Timothy Legge and David Forrester'
     version = (2, 6, 0)
@@ -1380,7 +1383,7 @@ class KOBO(USBMS):
 
 class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
-    gui_name    = 'Kobo eReader'
+    gui_name    = GENERIC_GUI_NAME
     author      = 'David Forrester'
     description = _(
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
@@ -1612,6 +1615,9 @@ class KOBOTOUCH(KOBO):
         self.device_database_path = os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'KoboReader.sqlite')
         self.db_manager = Database(self.device_database_path)
         self.dbversion = self.db_manager.dbversion
+
+    def on_device_close(self):
+        self.__class__.gui_name = GENERIC_GUI_NAME
 
     def database_transaction(self, use_row_factory=False):
         self.db_manager.use_row_factory = use_row_factory
