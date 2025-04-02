@@ -39,7 +39,7 @@ from qt.core import (
 
 from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
-from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, RESOURCE_URL_SCHEME
+from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, NO_SEARCH_LINK, RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -501,7 +501,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         data['reindex_fmt_added'] = True
     elif dt == 'author':
         author = data['name']
-        if data['url'] != 'calibre':
+        if data['url'] not in ('calibre', NO_SEARCH_LINK):
             ac = book_info.copy_link_action
             ac.current_url = data['url']
             ac.setText(_('&Author link'))
@@ -1480,6 +1480,8 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
         if typ == 'action':
             data = json_loads(from_hex_bytes(val))
+            if data['url'] == NO_SEARCH_LINK:
+                return
             dt = data['type']
             if dt == 'search':
                 field = data.get('field')

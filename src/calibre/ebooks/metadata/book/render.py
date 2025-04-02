@@ -127,7 +127,7 @@ def author_search_href(which, title=None, author=None):
 def render_author_link(default_author_link, author, book_title=None, author_sort=None):
     book_title = book_title or ''
     if default_author_link == NO_SEARCH_LINK:
-        return '',''
+        return NO_SEARCH_LINK, _('Author search links are disabled')
     elif default_author_link.startswith('search-'):
         which_src = default_author_link.partition('-')[2]
         link, lt = author_search_href(which_src, title=book_title, author=author)
