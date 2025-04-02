@@ -14,7 +14,7 @@ from threading import Thread
 from qt.core import QDialog, QDialogButtonBox, QImageReader, QLabel, QMimeData, QPixmap, QProgressBar, Qt, QTimer, QUrl, QVBoxLayout
 
 from calibre import as_unicode, browser, prints
-from calibre.constants import DEBUG, ismacos, iswindows
+from calibre.constants import DEBUG, iswindows
 from calibre.gui2 import error_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
@@ -390,9 +390,4 @@ def has_firefox_ext(md, exts):
 
 def set_urls_from_local_file_paths(md: QMimeData, *paths: str) -> QMimeData:
     md.setUrls(list(map(QUrl.fromLocalFile, paths)))
-    if ismacos:
-        # see https://bugreports.qt.io/browse/QTBUG-134073
-        raw = bytes(md.data('text/uri-list'))
-        raw = raw.replace(b'[', b'%5B').replace(b']', b'%5D')
-        md.setData('text/uri-list', raw)
     return md
