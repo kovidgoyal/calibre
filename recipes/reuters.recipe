@@ -54,9 +54,9 @@ class Reuters(BasicNewsRecipe):
         },
         'spr': {
             'short': 'Include Sports sections?',
-            'long':'Yes/No',
-            'default': 'No'
-        }
+            'long': 'Yes/No',
+            'default': 'No',
+        },
     }
 
     def __init__(self, *args, **kwargs):
@@ -157,7 +157,7 @@ class Reuters(BasicNewsRecipe):
 
             body += (
                 '<p class="auth">'
-                + str(data['read_minutes'])
+                + str(data.get('read_minutes', '_'))
                 + ' minute read | '
                 + str(data['word_count'])
                 + ' words | '
