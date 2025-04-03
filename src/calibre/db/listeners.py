@@ -43,6 +43,9 @@ class EventType(Enum):
     #: When the indexing progress changes
     indexing_progress_changed = auto()
 
+    #: When the notes associated with an item are changed, with arguments: (field_name, item_id)
+    notes_changed = auto()
+
 
 class EventDispatcher(Thread):
 
