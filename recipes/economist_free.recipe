@@ -277,6 +277,8 @@ class Economist(BasicNewsRecipe):
         if d and isinstance(d, str):
             if d.lower().strip() == 'yes':
                 self.from_archive = False
+            elif d.lower().strip() == 'no':
+                self.from_archive = True
 
     needs_subscription = False
 
@@ -376,7 +378,7 @@ class Economist(BasicNewsRecipe):
         #     data = json.loads(raw)['data']['section']
         # else:
         #     data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
-        data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        data = json.loads(raw)['data']['section']
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')
         self.timefmt = ' [' + dt + ']'
