@@ -3,6 +3,7 @@
 
 
 import textwrap
+from contextlib import suppress
 from enum import IntEnum
 
 from qt.core import (
@@ -280,6 +281,10 @@ class BookInfo(QDialog, DropMixin):
         t.setInterval(BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY)
         t.setSingleShot(True)
         t.timeout.connect(self._debounce_refresh)
+        self.update_debounce_timer = t = QTimer(self)
+        t.setInterval(BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY)
+        t.setSingleShot(True)
+        t.timeout.connect(self.do_update_book_details)
         if library_path is not None:
             self.view = None
             db = get_gui().library_broker.get_library(library_path)
@@ -330,12 +335,15 @@ class BookInfo(QDialog, DropMixin):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         if dialog_number == DialogNumbers.Locked:
             get_gui().current_db.new_api.add_listener(book_metatada_changed, check_already_added=True)
-            listener_object.metadata_changed.connect(self.do_update_book_details, type=Qt.ConnectionType.QueuedConnection)
+            listener_object.metadata_changed.connect(self.do_update_book_details_debounce, type=Qt.ConnectionType.QueuedConnection)
         self.restore_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
         try:
             self.splitter.restoreState(gprefs.get(self.geometry_string('book_info_dialog_splitter_state')))
         except Exception:
             pass
+
+    def do_update_book_details_debounce(self):
+        self.update_debounce_timer.start()
 
     def do_update_book_details(self):
         if self.current_row is not None:
@@ -396,8 +404,11 @@ class BookInfo(QDialog, DropMixin):
         if self.slave_connected:
             self.view.model().new_bookdisplay_data.disconnect(self.slave)
         self.slave_debounce_timer.stop()  # OK if it isn't running
+        self.update_debounce_timer.stop()
         self.view = self.link_delegate = self.gui = None
         self.closed.emit(self)
+        with suppress(Exception):
+            listener_object.metadata_changed.disconnect(self.do_update_book_details_debounce)
         return ret
 
     def cover_changed(self, data):
