@@ -252,7 +252,7 @@ class Economist(BasicNewsRecipe):
     # downloaded with connection reset by peer (104) errors.
     delay = 3
 
-    from_archive = True
+    from_archive = False
 
     recipe_specific_options = {
         'date': {
@@ -265,7 +265,7 @@ class Economist(BasicNewsRecipe):
             'default': '600',
         },
         'de': {
-            'short': 'Digital Edition',
+            'short': 'Web Edition',
             'long': 'Yes/No. Digital Edition does not skip some articles based on your location.',
             'default': 'No',
         }
@@ -276,7 +276,7 @@ class Economist(BasicNewsRecipe):
         d = self.recipe_specific_options.get('de')
         if d and isinstance(d, str):
             if d.lower().strip() == 'yes':
-                self.from_archive = False
+                self.from_archive = True
 
     needs_subscription = False
 
@@ -289,7 +289,13 @@ class Economist(BasicNewsRecipe):
         else:
             kwargs['user_agent'] = 'TheEconomist-Lamarr-android'
             br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-            br.addheaders += [('x-request-id', str(uuid4()))]
+            br.addheaders += [
+                ('accept', '*/*'),
+                ('content-type', 'application/json'),
+                ('apollographql-client-name', 'mobile-app-apollo'),
+                ('apollographql-client-version', '3.50.0'),
+                ('x-request-id', str(uuid4())),
+            ]
         return br
 
     def publication_date(self):
@@ -320,10 +326,7 @@ class Economist(BasicNewsRecipe):
 
     def get_content_id(self, ed_date):
         id_query = {
-            'query': 'query EditionsQuery($from:Int$size:Int$ref:String!){section:canonical(ref:$ref){...EditionFragment __typename}}'
-                'fragment EditionFragment on Content{hasPart(from:$from size:$size sort:"datePublished:desc")'
-                '{total parts{id datePublished image{...ImageCoverFragment __typename}__typename}__typename}__typename}'
-                'fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',
+            'query': 'query EditionsQuery($from:Int$size:Int$ref:String!){section:canonical(ref:$ref){...EditionFragment __typename}}fragment EditionFragment on Content{hasPart(from:$from size:$size sort:"datePublished:desc"){total parts{id datePublished image{...ImageCoverFragment __typename}__typename}__typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa: E501
             'operationName': 'EditionsQuery',
             'variables':'{"from":0,"size":24,"ref":"/content/d06tg8j85rifiq3oo544c6b9j61dno2n"}',
         }
@@ -350,7 +353,7 @@ class Economist(BasicNewsRecipe):
             content_id = self.get_content_id(edition_date)
             if content_id:
                 query = {
-                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa: E501
+                    'query': 'query SpecificWeeklyEditionQuery($path:String!){section:canonical(ref:$path){...WeeklyEditionFragment __typename}}fragment WeeklyEditionFragment on Content{id type datePublished image{...ImageCoverFragment __typename}url{canonical __typename}hasPart(size:100 sort:"publication.context.position"){parts{...ArticleFragment __typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}fragment ImageCoverFragment on Media{cover{headline width height url{canonical __typename}regionsAllowed __typename}__typename}',  # noqa: E501
                     'operationName': 'SpecificWeeklyEditionQuery',
                     'variables': '{{"path":"{}"}}'.format(content_id),
                 }
@@ -373,7 +376,7 @@ class Economist(BasicNewsRecipe):
         #     data = json.loads(raw)['data']['section']
         # else:
         #     data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
-        data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
+        data = json.loads(raw)['data']['section']
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')
         self.timefmt = ' [' + dt + ']'
