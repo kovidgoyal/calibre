@@ -52,6 +52,11 @@ class Reuters(BasicNewsRecipe):
             'long': 'This is useful for non e-ink devices',
             'default': '480',
         },
+        'spr': {
+            'short': 'Include Sports sections?'
+            'long':'Yes/No'
+            'default': 'No'
+        }
     }
 
     def __init__(self, *args, **kwargs):
@@ -82,6 +87,12 @@ class Reuters(BasicNewsRecipe):
         feeds = []
 
         for sec, link in sections:
+            sp = self.recipe_specific_options.get('spr')
+            if sp and isinstance(sp, str):
+                if sp.lower().strip() != 'yes':
+                    if sec.lower().startswith('sport'):
+                        continue
+
             self.log(sec)
 
             articles = []
