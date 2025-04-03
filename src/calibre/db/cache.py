@@ -717,7 +717,7 @@ class Cache:
         resources, note that updating a note automatically cleans up resources pertaining to that note anyway.
         '''
         ans = self.backend.set_notes_for(field, item_id, doc, searchable_text, resource_hashes, remove_unused_resources)
-        self.event_dispatcher(EventType.notes_changed, field, {item_id})
+        self.event_dispatcher(EventType.notes_changed, field, frozenset({item_id}))
         return ans
 
     @write_api
@@ -739,7 +739,7 @@ class Cache:
     def unretire_note_for(self, field, item_id) -> int:
         ' Unretire a previously retired note for the specified item. Notes are retired when an item is removed from the database '
         ans = self.backend.unretire_note_for(field, item_id)
-        self.event_dispatcher(EventType.notes_changed, field, {item_id})
+        self.event_dispatcher(EventType.notes_changed, field, frozenset({item_id}))
         return ans
 
     @read_api
@@ -761,7 +761,7 @@ class Cache:
                 ctime, mtime = st.st_ctime, st.st_mtime
             basedir = os.path.dirname(os.path.abspath(path_to_html_file))
         ans = self.backend.import_note(field, item_id, html, basedir, ctime, mtime)
-        self.event_dispatcher(EventType.notes_changed, field, {item_id})
+        self.event_dispatcher(EventType.notes_changed, field, frozenset({item_id}))
         return ans
 
     @write_api  # we need to use write locking as SQLITE gives a locked table error if multiple FTS queries are made at the same time
@@ -2516,6 +2516,7 @@ class Cache:
         if changed_books:
             self._mark_as_dirty(changed_books)
             self._clear_link_map_cache(changed_books)
+        self.event_dispatcher(EventType.links_changed, 'authors', frozenset(author_id_to_link_map))
         return changed_books
 
     @read_api
@@ -2630,6 +2631,7 @@ class Cache:
         if changed_books:
             self._mark_as_dirty(changed_books)
             self._clear_link_map_cache(changed_books)
+        self.event_dispatcher(EventType.links_changed, field, frozenset(id_to_link_map))
         return changed_books
 
     @read_api
