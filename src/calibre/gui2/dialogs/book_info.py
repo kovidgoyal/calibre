@@ -36,6 +36,7 @@ from qt.core import (
 
 from calibre import fit_image
 from calibre.db.constants import RESOURCE_URL_SCHEME
+from calibre.db.listeners import EventType
 from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, NO_URL_FORMATTING, gprefs
 from calibre.gui2.book_details import DropMixin, create_open_cover_with_menu, details_context_menu_event, render_html, resolved_css, set_html
 from calibre.gui2.ui import get_gui
@@ -191,11 +192,13 @@ class ListenerSignal(QObject):
     # listening to the signal.
     metadata_changed = pyqtSignal()
 
+
 listener_object = ListenerSignal()
 
 
-def book_metatada_changed(event_type, library_id, event_data):
-    listener_object.metadata_changed.emit()
+def book_metatada_changed(event_type: EventType, library_id, event_data):
+    if event_type not in (EventType.book_created, EventType.books_removed, EventType.book_edited, EventType.indexing_progress_changed):
+        listener_object.metadata_changed.emit()
 
 
 class BookInfo(QDialog, DropMixin):
@@ -327,7 +330,7 @@ class BookInfo(QDialog, DropMixin):
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         if dialog_number == DialogNumbers.Locked:
             get_gui().current_db.new_api.add_listener(book_metatada_changed, check_already_added=True)
-            listener_object.metadata_changed.connect(self.do_update_book_details)
+            listener_object.metadata_changed.connect(self.do_update_book_details, type=Qt.ConnectionType.QueuedConnection)
         self.restore_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
         try:
             self.splitter.restoreState(gprefs.get(self.geometry_string('book_info_dialog_splitter_state')))
