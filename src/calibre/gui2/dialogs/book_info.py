@@ -19,6 +19,7 @@ from qt.core import (
     QLabel,
     QListView,
     QModelIndex,
+    QObject,
     QPalette,
     QPixmap,
     QPushButton,
@@ -179,6 +180,24 @@ class DialogNumbers(IntEnum):
     DetailsLink = 2
 
 
+class ListenerSignal(QObject):
+    # We need to create a long-lived object to contain a metadata changed
+    # signal. Creating the listener in BookInfo doesn't work because the
+    # weakref dies for some reason. Instead the BookInfo object connects to
+    # this signal.
+    #
+    # As a side benefit we don't need to worry about unregistering the listener
+    # when the window is closed. Qt takes care of unregistering objects
+    # listening to the signal.
+    metadata_changed = pyqtSignal()
+
+listener_object = ListenerSignal()
+
+
+def book_metatada_changed(event_type, library_id, event_data):
+    listener_object.metadata_changed.emit()
+
+
 class BookInfo(QDialog, DropMixin):
 
     closed = pyqtSignal(object)
@@ -306,11 +325,20 @@ class BookInfo(QDialog, DropMixin):
             self.clabel.linkActivated.connect(self.configure)
             hl.addWidget(self.clabel)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
+        if dialog_number == DialogNumbers.Locked:
+            get_gui().current_db.new_api.add_listener(book_metatada_changed, check_already_added=True)
+            listener_object.metadata_changed.connect(self.do_update_book_details)
         self.restore_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
         try:
             self.splitter.restoreState(gprefs.get(self.geometry_string('book_info_dialog_splitter_state')))
         except Exception:
             pass
+
+    def do_update_book_details(self):
+        if self.current_row is not None:
+            mi = self.view.model().get_book_display_info(self.current_row)
+            if mi is not None:
+                self.refresh(self.current_row, mi=mi)
 
     def on_files_dropped(self, event, paths):
         gui = get_gui()
