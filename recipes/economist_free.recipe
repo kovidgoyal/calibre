@@ -265,7 +265,7 @@ class Economist(BasicNewsRecipe):
             'default': '600',
         },
         'de': {
-            'short': 'Digital Edition',
+            'short': 'Web Edition',
             'long': 'Yes/No. Digital Edition does not skip some articles based on your location.',
             'default': 'No',
         }
@@ -277,7 +277,7 @@ class Economist(BasicNewsRecipe):
         if d and isinstance(d, str):
             if d.lower().strip() == 'yes':
                 self.from_archive = False
-            elif d.lower().strip() == 'no':
+            elif d.lower().strip() == 'yes':
                 self.from_archive = True
 
     needs_subscription = False
