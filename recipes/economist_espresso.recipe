@@ -5,6 +5,7 @@ https://www.economist.com/the-world-in-brief
 
 import json
 from urllib.parse import quote, urlencode
+from uuid import uuid4
 
 from html5_parser import parse
 from lxml import etree
@@ -154,10 +155,15 @@ class Espresso(BasicNewsRecipe):
     remove_attributes = ['data-reactid', 'width', 'height']
 
     def get_browser(self, *args, **kwargs):
-        # Needed to bypass cloudflare
-        kwargs['user_agent'] = 'common_words/based'
+        kwargs['user_agent'] = 'TheEconomist-Lamarr-android'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [('Accept-Language', 'en-GB,en-US;q=0.9,en;q=0.8')]
+        br.addheaders += [
+            ('accept', '*/*'),
+            ('content-type', 'application/json'),
+            ('apollographql-client-name', 'mobile-app-apollo'),
+            ('apollographql-client-version', '3.50.0'),
+            ('x-request-id', str(uuid4())),
+        ]
         return br
 
     def economist_return_index(self, ans):
@@ -174,7 +180,7 @@ class Espresso(BasicNewsRecipe):
         query = {
             'query': 'query EspressoQuery($ref:String!){espresso:canonical(ref:$ref){...EspressoFragment __typename}}fragment EspressoFragment on Content{id type hasPart(size:1 sort:"datePublished:desc"){parts{id type rubric:description hasPart(sort:"publication.context.position:asc,datePublished:desc"){parts{...ArticleFragment __typename}__typename}__typename}__typename}__typename}fragment ArticleFragment on Content{ad{grapeshot{channels{name __typename}__typename}__typename}articleSection{internal{id title:headline __typename}__typename}audio{main{id duration(format:"seconds")source:channel{id __typename}url{canonical __typename}__typename}__typename}byline dateline dateModified datePublished dateRevised flyTitle:subheadline id image{...ImageInlineFragment ...ImageMainFragment ...ImagePromoFragment __typename}print{title:headline flyTitle:subheadline rubric:description section{id title:headline __typename}__typename}publication{id tegID title:headline flyTitle:subheadline datePublished regionsAllowed url{canonical __typename}__typename}rubric:description source:channel{id __typename}tegID text(format:"json")title:headline type url{canonical __typename}topic contentIdentity{forceAppWebview mediaType articleType __typename}__typename}fragment ImageInlineFragment on Media{inline{url{canonical __typename}width height __typename}__typename}fragment ImageMainFragment on Media{main{url{canonical __typename}width height __typename}__typename}fragment ImagePromoFragment on Media{promo{url{canonical __typename}id width height __typename}__typename}',  # noqa: E501
             'operationName': 'EspressoQuery',
-            'variables': '{"ref":"/content/jakj5ed3rml75i8j0d5i74p8adf6eem4"}',
+            'variables': '{"ref":"/content/ai0db6q5mftflg1irq7hiiofp15t7nlv"}',
         }
         url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         try:
