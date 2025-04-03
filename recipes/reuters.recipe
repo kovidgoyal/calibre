@@ -53,8 +53,8 @@ class Reuters(BasicNewsRecipe):
             'default': '480',
         },
         'spr': {
-            'short': 'Include Sports sections?'
-            'long':'Yes/No'
+            'short': 'Include Sports sections?',
+            'long':'Yes/No',
             'default': 'No'
         }
     }

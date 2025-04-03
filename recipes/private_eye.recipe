@@ -100,8 +100,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         # Get publication date - Next issue on sale date - 12 days
         issue_box = soup.find('div', attrs={'id': 'issue-box'})
-        next_issue_text = issue_box.find(text=re.compile('NEXT\s+ISSUE')).parent.contents[-1].strip()
-        self.log("next_issue_text:", next_issue_text)
+        next_issue_text = issue_box.find(text=re.compile(r'NEXT\s+ISSUE')).parent.contents[-1].strip()
+        self.log('next_issue_text:', next_issue_text)
         try:
             day, month, year = next_issue_text.split(' ')
             # remove day suffixes e.g. 2nd
@@ -124,7 +124,6 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             section = soup.find('div', attrs=section_attrs)
 
             if not section:
-                self.log("section not found:", section_id)
                 continue
 
             for a in section.findAll('a', href=True):
@@ -141,7 +140,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                     url = self.base_url + url
                 if url in urls:
                     continue
-                self.log("title:", title, ", url:", url)
+                self.log('title:', title, ', url:', url)
                 urls.append(url)
                 articles.append({
                     'title': title,
