@@ -10,9 +10,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##
-    # Last Edited:  2023-07-14
+    # Last Edited:  2025-04-02
     #
-    # Remark:   Version 3.1 2023-07-14
+    # Remark:   Version 3.2 2025-04-02
+    #               Fix recipe after web-site changes
+    #           Version 3.1 2023-07-14
     #               Show crossword on right so clues are continuous down left
     #               Link to crossword image removed
     #               Improve many image layouts
@@ -34,9 +36,10 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     __author__ = u'Martyn Pritchard & Sophist-UK'
-    __copyright__ = '2020, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
+    __copyright__ = '2020-2025, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
 
-    current_issue   = 'https://www.private-eye.co.uk/current-issue'
+    base_url        = 'https://www.private-eye.co.uk/'
+    current_issue   = 'https://www.private-eye.co.uk/'
     about_page      = 'https://www.private-eye.co.uk/about'
     masthead_url    = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
     author = 'Private Eye'
@@ -50,10 +53,34 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         'title_sort':   title,
     }
 
+    index_attrs_to_include = [
+        {'class': 'footer-block'},
+        {'id': 'top-stories'},
+        {'id': 'home-content'},
+        {'id': 'home-color-content'},
+    ]
+
+    titles_to_skip = [
+        'Home',
+        'more',
+        'In This Issue',
+    ]
+
+    url_to_section_name = {
+        'hp-sauce': 'HP Sauce',
+        'in-the-back': 'In the Back',
+        'street-of-shame': 'Street of Shame',
+        'cartoons': 'Strips and Cartoons',
+        'lookalikes': 'Lookalike',
+        'number-crunching': 'Number Crunching',
+        'mediaballs': 'Dumb Britain',
+        'crossword': 'Eye Crossword',
+    }
+
     def get_cover_url(self):
         soup = self.index_to_soup(self.current_issue)
 
-        for img in soup.findAll('img'):
+        for img in soup.findAll('img',  {'class': 'issue-cover'}):
             src = img['src']
             if src.endswith('_big.jpg'):
                 file_name = src.rsplit('/',1)[1]
@@ -71,11 +98,13 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup(self.current_issue)
 
-        # Get publication date
-        sidebar = soup.find('div', attrs={'id': 'current-issue-sidebar'})
-        next_issue_text = sidebar.find('b').nextSibling.strip()
+        # Get publication date - Next issue on sale date - 12 days
+        issue_box = soup.find('div', attrs={'id': 'issue-box'})
+        next_issue_text = issue_box.find(text=re.compile('NEXT\s+ISSUE')).parent.contents[-1].strip()
+        self.log("next_issue_text:", next_issue_text)
         try:
             day, month, year = next_issue_text.split(' ')
+            # remove day suffixes e.g. 2nd
             day = ''.join(c for c in day if c.isdigit())
             pub_date = datetime.strptime(' '.join((day, month, year)), '%d %B %Y') - timedelta(12)
             self.log('pub-date:', pub_date)
@@ -87,25 +116,36 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             # Bad date
             self.log('Cannot parse next issue date from:', next_issue_text)
 
-        # Get pages first from the sub-menu, and then from the contents panel.
+        # Get pages from the various contents panels.
         # Duplicates will be eliminated automatically.
         articles = []
-        for menu_attrs in (
-            {'class': 'sub-nav-bar', 'id':'sub-nav-box'},
-            {'class': 'article', 'id': 'block-left'},
-        ):
-            menu = soup.find('div', attrs=menu_attrs)
+        urls = []
+        for section_attrs in self.index_attrs_to_include:
+            section = soup.find('div', attrs=section_attrs)
 
-            if not menu:
+            if not section:
+                self.log("section not found:", section_id)
                 continue
 
-            for a in menu.findAll('a', href=True):
+            for a in section.findAll('a', href=True):
+                url = a.get('href')
                 title = a.getText().rstrip(' »\n')
                 if not title:
                     continue
+                if title in self.titles_to_skip:
+                    continue
+                known_url = url.rsplit('/',1)[-1]
+                if known_url and known_url in self.url_to_section_name:
+                    title = self.url_to_section_name[known_url]
+                if not url.startswith('http'):
+                    url = self.base_url + url
+                if url in urls:
+                    continue
+                self.log("title:", title, ", url:", url)
+                urls.append(url)
                 articles.append({
                     'title': title,
-                    'url': a.get('href'),
+                    'url': url,
                 })
 
         if not articles:
