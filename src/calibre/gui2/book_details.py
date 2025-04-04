@@ -1480,7 +1480,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
         if typ == 'action':
             data = json_loads(from_hex_bytes(val))
-            if data['url'] == NO_SEARCH_LINK:
+            if data.get('url') == NO_SEARCH_LINK:
                 return
             dt = data['type']
             if dt == 'search':
