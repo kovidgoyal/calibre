@@ -347,7 +347,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         m.addAction(_('Tags')).triggered.connect(self.change_tag_map_rules)
         m.addAction(_('Authors')).triggered.connect(self.change_author_map_rules)
         m.addAction(_('Publisher')).triggered.connect(self.change_publisher_map_rules)
-        m.addAction(_('Series')).triggered.connect(self.change_series_map_rules)
+        m.addAction(ngettext('Series', 'Series', 1)).triggered.connect(self.change_series_map_rules)
         self.map_rules_button.setMenu(m)
         l = self.page.layout()
         l.setStretch(0, 1)

@@ -3355,7 +3355,7 @@ make_url_extended(
 [/CODE]
 giving you
 [CODE]
-https://your_host/your_path?encoded=Hendrik+B%C3%A4%C3%9Fler&unencoded=Hendrik Bäßler
+https://your_host/your_path?encoded=Hendrik+B%C3%A4%C3%9Fler&unencoded={0}
 [/CODE]
 
 You must have at least one ``query_name, query_value, how_to_encode`` triad, but can
