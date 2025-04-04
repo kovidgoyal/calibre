@@ -45,6 +45,8 @@
 
 - macOS: Fix a regression in the previous release that caused failures in the E-book viewer when updating annotations for books with a large number of annotations
 
+- [2106205] Version 8.2.1 fixes an error when clicking on format links in the book details panel
+
 :: improved recipes
 - The Economist
 - Reuters
