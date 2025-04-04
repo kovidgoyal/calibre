@@ -23,6 +23,35 @@
 # - title by author
 # }}}
 
+{{{ 8.2.0 2025-04-04
+
+:: new features
+
+- Kobo driver: Add support for new Tolino firmware
+
+- Kindle driver: Allow using a value of * in Preferences->Output options->MOBI Output to have the driver mark all books sent to the device as personal documents
+
+:: bug fixes
+
+- Kobo driver: Fix hyphenation and extra CSS added to KEPUB files being ignored by the renderer on the Kobo
+
+- [2105884] macOS: Fix opening book folder or PDF files for books with square brackets in the title not working
+
+- Quickview: Fix a long standing bug with syncing of columns in the presence of hidden/re-ordered columns
+
+- [2104850] E-book viewer: Show an error message when an invalid nearby search expression is used
+
+- [2105424] KEPUB Output: Fix incorrect encoding detection for some HTML files without an encoding declaration
+
+- macOS: Fix a regression in the previous release that caused failures in the E-book viewer when updating annotations for books with a large number of annotations
+
+:: improved recipes
+- The Economist
+- Reuters
+- Private eye
+
+}}}
+
 {{{ 8.1.1 2025-03-28
 
 :: new features
