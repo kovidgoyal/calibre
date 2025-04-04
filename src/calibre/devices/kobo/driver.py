@@ -762,7 +762,7 @@ class KOBO(USBMS):
                     pass
                 else:
                     with open(outpath, 'rb') as src:
-                        shutil.copyfile(src, outfile)
+                        shutil.copyfileobj(src, outfile)
                     return
 
         return USBMS.get_file(self, path, outfile, end_session=end_session)
