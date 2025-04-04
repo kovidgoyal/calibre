@@ -376,7 +376,10 @@ class Economist(BasicNewsRecipe):
         #     data = json.loads(raw)['data']['section']
         # else:
         #     data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
-        data = json.loads(raw)['data']['section']
+        try:
+            data = json.loads(raw)['data']['section']
+        except KeyError:
+            data = json.loads(raw)['data']['canonical']['hasPart']['parts'][0]
         dt = datetime.fromisoformat(data['datePublished'][:-1]) + timedelta(seconds=time.timezone)
         dt = dt.strftime('%b %d, %Y')
         self.timefmt = ' [' + dt + ']'
