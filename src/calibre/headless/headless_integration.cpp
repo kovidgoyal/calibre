@@ -27,7 +27,13 @@ QT_BEGIN_NAMESPACE
 
 
 #ifndef __APPLE__
+#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
+#include <QtGui/private/qgenericunixservices_p.h>
 class GenericUnixServices : public QGenericUnixServices {
+#else
+#include <QtGui/private/qdesktopunixservices_p.h>
+class GenericUnixServices : public QDesktopUnixServices {
+#endif
     /* We must return desktop environment as UNKNOWN otherwise other parts of
      * Qt will try to query the nativeInterface() without checking if it exists
      * leading to a segfault.  For example, defaultHintStyleFromMatch() queries

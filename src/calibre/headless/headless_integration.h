@@ -3,7 +3,6 @@
 #include <qpa/qplatformintegration.h>
 #include <qpa/qplatformscreen.h>
 #include <qpa/qplatformservices.h>
-#include <QtGui/private/qgenericunixservices_p.h>
 #include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
