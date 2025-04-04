@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = '2008-2024, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2025, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
@@ -51,17 +51,16 @@ class Pagina12(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['meta', 'link']),
-        dict(attrs={'class':'article-main-media-social show-for-medium'})
+        dict(attrs={'class':['article-main-media-social show-for-medium', 'social-share-bar', 'iframely-embed medium-embedded-content']})
     ]
 
     keep_only_tags=[
-       dict(name='div', attrs={'class':[
-                                        'article-header',
-                                        'article-titles',
-                                        'article-main-media-header',
-                                        'article-main-media',
-                                        'article-text'
-                                       ]})
+        dict(name='h2', attrs={'class': lambda x: x and 'h4' in x}),
+        dict(name='h1'),
+        dict(name='h2', attrs={'class': lambda x: x and 'h3' in x}),
+        dict(name='div', attrs={'class': 'author'}),
+        dict(name='div', attrs={'class': lambda x: x and 'article-main-media-image__container' in x}),
+        dict(name='div', attrs={'class': lambda x: x and 'article-main-content' in x})
     ]
 
     def get_browser(self):
@@ -76,22 +75,22 @@ class Pagina12(BasicNewsRecipe):
         return br
 
     feeds = [
-      (u'Diario de hoy',    u'https://www.pagina12.com.ar/rss/edicion-impresa'),
-      (u'Espectaculos',     u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
-      (u'Radar',            u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
-      (u'Radar libros',     u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
-      (u'Cash',             u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
-      (u'NO',               u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
-      (u'Las 12',           u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
-      (u'Soy',              u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
-      (u'M2',               u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
-      (u'Rosario 12',       u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
+      (u'Diario de hoy'     , u'https://www.pagina12.com.ar/rss/edicion-impresa'),
+      (u'Espectaculos'      , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
+      (u'Radar'             , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
+      (u'Radar libros'      , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
+      (u'Cash'              , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
+      (u'NO'                , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
+      (u'Las 12'            , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
+      (u'Soy'               , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
+      (u'M2'                , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
+      (u'Rosario 12'        , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
     ]
 
     def get_cover_url(self):
         lurl = strftime('https://www.pagina12.com.ar/edicion-impresa/%d-%m-%Y')
         soup = self.index_to_soup(lurl)
-        mydiv = soup.find('div', {'class': lambda x: x and 'printed-edition-cover' in x.split()})
+        mydiv = soup.find('div', {'class' : lambda x: x and 'printed-edition-cover' in x.split()})
         if mydiv:
             for image in mydiv.findAll('img'):
                 if image['src'].startswith('https://images.pagina12.com.ar/styles/width700/public/'):
