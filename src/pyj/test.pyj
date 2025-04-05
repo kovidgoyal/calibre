@@ -22,7 +22,7 @@ def get_matching_tests_for_name(name):
     return ans
 
 
-def get_traceback():
+def get_traceback(e):
     lines = traceback.format_exception()
     last_line = lines[-1]
     final_lines = v'[]'
@@ -32,34 +32,39 @@ def get_traceback():
             break
         final_lines.push(line)
     final_lines.push(last_line)
+    final_lines.push(e.toString())
     return final_lines.join('')
 
 
 def run_tests(tests):
     failed_tests = []
-    count = 0
     for f in tests:
-        print(f.test_name, '...')
         reset_dom()
+        st = window.performance.now()
         try:
             f()
-            count += 1
-        except:
-            tb = get_traceback()
-            console.error(tb)
+            time = (window.performance.now() - st) / 1000
+        except Exception as e:
+            tb = get_traceback(e)
             failed_tests.append((f.test_name, tb))
-    return failed_tests, count
+            print(f'{f.test_name} ... FAIL')
+        else:
+            print(f'{f.test_name} ... ok [{time*1000:.1f} ms]')
+    return failed_tests
 
 
 def main():
     tests = get_matching_tests_for_name()
     st = window.performance.now()
-    failed_tests, total = run_tests(tests)
+    failed_tests = run_tests(tests)
     time = (window.performance.now() - st) / 1000
     if failed_tests.length:
-        console.error(f'{failed_tests.length} out of {total} failed in {time:.1f} seconds')
+        for ft in failed_tests:
+            console.error(f'Failed {ft[0]} with traceback:')
+            console.error(ft[1])
+        console.error(f'{failed_tests.length} out of {tests.length} failed in {time:.1f} seconds')
     else:
-        print(f'Ran {total} tests in {time:.1f} seconds')
+        print(f'Ran {tests.length} tests in {time * 1000:.1f} ms')
     return 1 if failed_tests.length else 0
 
 

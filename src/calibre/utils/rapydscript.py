@@ -430,6 +430,8 @@ def run_rapydscript_tests():
 
     tester = Tester()
     result = tester.spin_loop()
+    if result is None:
+        result = 1
     raise SystemExit(int(result))
 
 
