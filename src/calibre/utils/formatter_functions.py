@@ -1484,13 +1484,13 @@ The formatting codes are:
 [LIST]
 [*]``d    :`` the day as number without a leading zero (1 to 31)
 [*]``dd   :`` the day as number with a leading zero (01 to 31)
-[*]``ddd  :`` the abbreviated localized day name (e.g. "Mon" to "Sun").
-[*]``dddd :`` the long localized day name (e.g. "Monday" to "Sunday").
-[*]``M    :`` the month as number without a leading zero (1 to 12).
+[*]``ddd  :`` the abbreviated localized day name (e.g. "Mon" to "Sun")
+[*]``dddd :`` the long localized day name (e.g. "Monday" to "Sunday")
+[*]``M    :`` the month as number without a leading zero (1 to 12)
 [*]``MM   :`` the month as number with a leading zero (01 to 12)
-[*]``MMM  :`` the abbreviated localized month name (e.g. "Jan" to "Dec").
-[*]``MMMM :`` the long localized month name (e.g. "January" to "December").
-[*]``yy   :`` the year as two digit number (00 to 99).
+[*]``MMM  :`` the abbreviated localized month name (e.g. "Jan" to "Dec")
+[*]``MMMM :`` the long localized month name (e.g. "January" to "December")
+[*]``yy   :`` the year as two digit number (00 to 99)
 [*]``yyyy :`` the year as four digit number.
 [*]``h    :`` the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
 [*]``hh   :`` the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
@@ -1498,11 +1498,11 @@ The formatting codes are:
 [*]``mm   :`` the minutes with a leading 0 (00 to 59)
 [*]``s    :`` the seconds without a leading 0 (0 to 59)
 [*]``ss   :`` the seconds with a leading 0 (00 to 59)
-[*]``ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the lowercase localized string for am or pm.
-[*]``AP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the uppercase localized string for AM or PM.
-[*]``aP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
-[*]``Ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
-[*]``iso  :`` the date with time and timezone. Must be the only format present.
+[*]``ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the lowercase localized string for am or pm
+[*]``AP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the uppercase localized string for AM or PM
+[*]``aP   :`` use a 12-hour clock instead of a 24-hour clock, with 'aP' replaced by the localized string for AM or PM
+[*]``Ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'Ap' replaced by the localized string for AM or PM
+[*]``iso  :`` the date with time and timezone. Must be the only format present
 [*]``to_number   :`` convert the date & time into a floating point number (a `timestamp`)
 [*]``from_number :`` convert a floating point number (a `timestamp`) into an
 ISO-formatted date. If you want a different date format then add the
