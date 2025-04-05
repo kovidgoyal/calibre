@@ -96,7 +96,7 @@ def fd_format_ampm(dt, ampm, ap, as_utc):
     ans = get_ampm_text(ans)
     if ans is 'Ap' or ans is 'aP':
         return ans
-    return ans if (ap is 'ap' or ap is 'a') else ans.toUpperCase()
+    return ans.toLowerCase() if (ap is 'ap' or ap is 'a') else ans.toUpperCase()
 
 
 def fd_format_day(dt, ampm, dy, as_utc):
