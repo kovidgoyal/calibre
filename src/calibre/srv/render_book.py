@@ -872,6 +872,23 @@ def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     return ans
 
 
+def handle_quicklook_client(c) -> None:
+    with c.makefile('r', encoding='utf-8') as inf:
+        for line in inf:
+            line = line.rstrip()
+            if not line:
+                return
+            req = json.loads(line)
+        try:
+            output = {'ok': True, 'result': quicklook(req['path'], req['output_dir'])}
+        except Exception as e:
+            import traceback
+            output = {'ok': False, 'error': str(e), 'traceback': traceback.format_exc()}
+        with c.makefile('w', encoding='utf-8') as outf:
+            json.dump(output, outf)
+            print(file=outf, flush=True)
+
+
 def quicklook_service(path_to_socket: str) -> None:
     '''
     A server to service requests to generate QuickLook previews.
@@ -903,20 +920,7 @@ def quicklook_service(path_to_socket: str) -> None:
         while True:
             c, addr = s.accept()
             c.setblocking(True)
-            with c.makefile('r', encoding='utf-8') as inf:
-                for line in inf:
-                    line = line.rstrip()
-                    if not line:
-                        return
-                    req = json.loads(line)
-                try:
-                    output = {'ok': True, 'result': quicklook(req['path'], req['output_dir'])}
-                except Exception as e:
-                    import traceback
-                    output = {'ok': False, 'error': str(e), 'traceback': traceback.format_exc()}
-                with c.makefile('w', encoding='utf-8') as outf:
-                    json.dump(output, outf)
-                    print(file=outf, flush=True)
+            handle_quicklook_client(c)
 
 
 class Profiler:
