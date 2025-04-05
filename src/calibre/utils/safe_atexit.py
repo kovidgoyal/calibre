@@ -47,15 +47,22 @@ def unlink(path):
             oss.remove(path)
 
 
+def close_worker(worker):
+    import subprocess
+    worker.stdin.close()
+    try:
+        worker.wait(10)
+    except subprocess.TimeoutExpired:
+        worker.kill()
+    worker.wait()
+
+
 def ensure_worker():
     global worker
     if worker is None:
         from calibre.utils.ipc.simple_worker import start_pipe_worker
         worker = start_pipe_worker('from calibre.utils.safe_atexit import main; main()', stdout=None)
-        def close_worker():
-            worker.stdin.close()
-            worker.wait(10)
-        atexit.register(close_worker)
+        atexit.register(close_worker, worker)
     return worker
 
 
