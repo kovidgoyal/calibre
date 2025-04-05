@@ -289,11 +289,8 @@ def timestampfromdt(dt, assume_utc=True):
 # Format date functions {{{
 
 def fd_format_hour(dt, ampm, hr):
-    l = len(hr)
-    h = dt.hour
-    if ampm:
-        h = h%12
-    if l == 1:
+    h = strftime('%I' if ampm else '%H', t=dt.timetuple())
+    if len(hr) == 1:
         return f'{h}'
     return f'{h:02}'
 
@@ -314,9 +311,9 @@ def fd_format_second(dt, ampm, sec):
 
 def fd_format_ampm(dt, ampm, ap):
     res = strftime('%p', t=dt.timetuple())
-    if ap == 'AP':
+    if ap in ('aP', 'Ap'):
         return res
-    return res.lower()
+    return res.upper() if ap in ('A', 'AP') else res.lower()
 
 
 def fd_format_day(dt, ampm, dy):
@@ -364,16 +361,14 @@ def fd_repl_func(dt, ampm, mo):
 
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
-    if not format:
-        format = 'dd MMM yyyy'
+    format = format or 'dd MMM yyyy'
 
     if not isinstance(dt, datetime):
         dt = datetime.combine(dt, dtime())
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=_utc_tz if assume_utc else
-                    _local_tz)
+            dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
         dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
 
     if format == 'iso':
@@ -384,7 +379,7 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
     repl_func = partial(fd_repl_func, dt, 'ap' in format.lower())
     return re.sub(
-        r'(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        r'(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(aP)|(Ap)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
 # }}}
