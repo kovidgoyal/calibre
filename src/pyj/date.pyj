@@ -82,7 +82,7 @@ def get_ampm_text(which):
         else:
             d.setHours(13, 0, 0, 0)
         x = window.Intl.DateTimeFormat('default', { 'hour': 'numeric', 'hour12': True }).format(d)
-        ans = get_ampm_text[which] = x.replace(/\d+/g, '').trim()
+        ans = get_ampm_text[which] = x.replace(/\d+/g, '').trim() or which.toUpperCase()
     return ans
 
 

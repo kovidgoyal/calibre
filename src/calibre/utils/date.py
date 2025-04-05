@@ -289,7 +289,12 @@ def timestampfromdt(dt, assume_utc=True):
 # Format date functions {{{
 
 def fd_format_hour(dt, ampm, hr):
-    h = int(strftime('%I' if ampm else '%H', t=dt.timetuple()).strip())
+    try:
+        h = int(strftime('%I' if ampm else '%H', t=dt.timetuple()).strip())
+    except Exception:
+        h = dt.hour
+        if ampm:
+            h %= 12
     if len(hr) == 1:
         return f'{h}'
     return f'{h:02}'
