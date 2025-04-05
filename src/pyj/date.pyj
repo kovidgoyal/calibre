@@ -33,7 +33,7 @@ except:
 def fmt_date_pat():
     ans = fmt_date_pat.ans
     if not ans?:
-        ans = fmt_date_pat.ans = /(s{1,2})|(m{1,2})|(h{1,2})|(H{1,2})|(zzz)|(z)|(ap)|(AP)|(a)|(A)|(t)|(d{1,4}|M{1,4}|(?:yyyy|yy))/g
+        ans = fmt_date_pat.ans = /(s{1,2})|(m{1,2})|(h{1,2})|(H{1,2})|(zzz)|(z)|(ap)|(AP)|(Ap)|(aP)|(a)|(A)|(t)|(d{1,4}|M{1,4}|(?:yyyy|yy))/g
     return ans
 
 
@@ -73,9 +73,25 @@ def fd_format_timezone(dt, ampm, t, as_utc):
     return window.Intl.DateTimeFormat().resolvedOptions().timeZone
 
 
+def get_ampm_text(which):
+    ans = get_ampm_text[which]
+    if not ans:
+        d = Date()
+        if which is 'am':
+            d.setHours(1, 0, 0, 0)
+        else:
+            d.setHours(13, 0, 0, 0)
+        x = window.Intl.DateTimeFormat('default', { 'hour': 'numeric', 'hour12': True }).format(d)
+        ans = get_ampm_text[which] = x.replace(/\d+/g, '').trim()
+    return ans
+
+
 def fd_format_ampm(dt, ampm, ap, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     ans = 'am' if h < 12 else 'pm'
+    ans = get_ampm_text(ans)
+    if ans is 'Ap' or ans is 'aP':
+        return ans
     return ans if (ap is 'ap' or ap is 'a') else ans.toUpperCase()
 
 
@@ -122,6 +138,10 @@ fd_function_index = {
     's': fd_format_second,
     'a': fd_format_ampm,
     'A': fd_format_ampm,
+    'ap': fd_format_ampm,
+    'AP': fd_format_ampm,
+    'Ap': fd_format_ampm,
+    'aP': fd_format_ampm,
     'z': fd_format_ms,
     't': fd_format_timezone,
 }
@@ -130,7 +150,7 @@ fd_function_index = {
 def am_pm_pat():
     ans = am_pm_pat.ans
     if not ans?:
-        ans = am_pm_pat.ans = /(ap)|(a)|(AP)|(A)/
+        ans = am_pm_pat.ans = /(ap)|(AP)|(Ap)|(aP)|(a)|(A)/
     return ans
 
 

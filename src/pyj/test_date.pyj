@@ -2,8 +2,8 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from date import format_date
-from testing import test, assert_equal
+from date import format_date, get_ampm_text
+from testing import test, assert_equal, assert_true
 
 
 def test_fd(date, fmt, ans):
@@ -12,6 +12,8 @@ def test_fd(date, fmt, ans):
 
 @test
 def date_formatting():
+    assert_true(get_ampm_text('am'))
+    assert_true(get_ampm_text('pm'))
     test_fd('1101-01-01T09:00:00+00:00', 'hh h', '09 9')
     test_fd('1101-01-01T12:15:00+00:00', 'h:m ap', '12:15 pm')
     test_fd('1101-01-01T00:15:00+00:00', 'h:m ap', '12:15 am')
