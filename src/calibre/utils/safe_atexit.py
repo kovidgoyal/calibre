@@ -10,12 +10,12 @@ import sys
 import time
 from contextlib import suppress
 from functools import wraps
-from threading import Lock
+from threading import RLock
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 
-lock = Lock()
+lock = RLock()
 worker = None
 RMTREE_ACTION = 'rmtree'
 UNLINK_ACTION = 'unlink'
