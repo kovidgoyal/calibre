@@ -43,13 +43,13 @@ def run_tests(tests):
         st = window.performance.now()
         try:
             f()
-            time = (window.performance.now() - st) / 1000
+            time = window.performance.now() - st
         except Exception as e:
             tb = get_traceback(e)
             failed_tests.append((f.test_name, tb))
             print(f'{f.test_name} ... FAIL')
         else:
-            print(f'{f.test_name} ... ok [{time*1000:.1f} ms]')
+            print(f'{f.test_name} ... ok [{time:.1f} ms]')
     return failed_tests
 
 
@@ -57,14 +57,14 @@ def main():
     tests = get_matching_tests_for_name()
     st = window.performance.now()
     failed_tests = run_tests(tests)
-    time = (window.performance.now() - st) / 1000
+    time = window.performance.now() - st
     if failed_tests.length:
         for ft in failed_tests:
             console.error(f'Failed {ft[0]} with traceback:')
             console.error(ft[1])
-        console.error(f'{failed_tests.length} out of {tests.length} failed in {time:.1f} seconds')
+        console.error(f'{failed_tests.length} out of {tests.length} failed in {time:.1f} ms')
     else:
-        print(f'Ran {tests.length} tests in {time * 1000:.1f} ms')
+        print(f'Ran {tests.length} tests in {time:.1f} ms')
     return 1 if failed_tests.length else 0
 
 
