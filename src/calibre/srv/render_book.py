@@ -845,6 +845,8 @@ def viewer_main():
     render_for_viewer(*args)
 
 
+# QuickLook {{{
+
 def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     pathtoebook = os.path.abspath(pathtoebook)
     output_dir = os.path.abspath(output_dir)
@@ -880,10 +882,10 @@ def handle_quicklook_client(c) -> None:
                 return
             req = json.loads(line)
         try:
-            output = {'ok': True, 'result': quicklook(req['path'], req['output_dir'])}
+            output = {'ok': True, 'path': req['path'], 'result': quicklook(req['path'], req['output_dir'])}
         except Exception as e:
             import traceback
-            output = {'ok': False, 'error': str(e), 'traceback': traceback.format_exc()}
+            output = {'ok': False, 'path': req['path'], 'error': str(e), 'traceback': traceback.format_exc()}
         with c.makefile('w', encoding='utf-8') as outf:
             json.dump(output, outf)
             print(file=outf, flush=True)
@@ -937,6 +939,8 @@ def quicklook_service(path_to_socket: str) -> None:
                 finally:
                     c.shutdown(socket.SHUT_RDWR)
                     c.close()
+
+# }}}
 
 
 class Profiler:
