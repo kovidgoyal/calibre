@@ -845,6 +845,80 @@ def viewer_main():
     render_for_viewer(*args)
 
 
+def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
+    pathtoebook = os.path.abspath(pathtoebook)
+    output_dir = os.path.abspath(output_dir)
+    book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
+    container = SimpleContainer(output_dir, opfpath, default_log)
+    from calibre.customize.ui import quick_metadata
+    from calibre.ebooks.metadata.meta import get_metadata
+    with open(pathtoebook, 'rb') as f, quick_metadata:
+        mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
+    from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+    d = metadata_as_dict(mi)
+    d.pop('cover_data', None)
+    serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
+    input_plugin = plugin_for_input_format(input_fmt)
+    is_comic = bool(getattr(input_plugin, 'is_image_collection', False))
+    raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, mi)
+    spine = []
+    for name, linear in container.spine_names:
+        spine.append({'path': container.get_file_path_for_processing(name, allow_modification=False), 'is_linear': linear})
+    ans = {'spine': spine, 'metadata': d, 'is_comic': is_comic}
+    if raster_cover_name:
+        ans['raster_cover'] = container.get_file_path_for_processing(raster_cover_name, allow_modification=False)
+    if titlepage_name:
+        ans['titlepage'] = container.get_file_path_for_processing(titlepage_name, allow_modification=False)
+    return ans
+
+
+def quicklook_service(path_to_socket: str) -> None:
+    '''
+    A server to service requests to generate QuickLook previews.
+    Connect to the socket and send JSON of the form:
+        {"path": /path/to/ebook, "output_dir": /path/to/output_dir}
+    In response, the service will extract the ebook as HTML into the output_dir
+    and return a JSON dict containing the list of HTML files and metadata about the
+    book on the socket.
+
+    You can send requests for multiple books, with the JSON objects separated by newlines.
+    The output JSON will also be separated by newlines.
+
+    Send an empty line to instruct the server to shutdown.
+
+    Example, having the server listen at /tmp/qs and prepare the book /t/demo.epub in /t/qs:
+    calibre-debug -c "from calibre.srv.render_book import *; quicklook_service("/tmp/qs")"
+    echo '{"path": "/t/demo.epub", "output_dir": "/t/qs"}' | socat - unix-connect:/tmp/qs
+    '''
+    import socket
+    from contextlib import closing, suppress
+    s = socket.socket(socket.AF_UNIX)
+    s.setblocking(True)
+    s.bind(path_to_socket)
+    with suppress(KeyboardInterrupt), closing(s):
+        if path_to_socket and not path_to_socket.startswith('\0'):
+            from calibre.utils.safe_atexit import remove_file_atexit
+            remove_file_atexit(path_to_socket)
+        s.listen(16)
+        while True:
+            c, addr = s.accept()
+            c.setblocking(True)
+            with c.makefile('r', encoding='utf-8') as inf:
+                for line in inf:
+                    line = line.rstrip()
+                    if not line:
+                        return
+                    req = json.loads(line)
+                try:
+                    output = {'ok': True, 'result': quicklook(req['path'], req['output_dir'])}
+                except Exception as e:
+                    import traceback
+                    output = {'ok': False, 'error': str(e), 'traceback': traceback.format_exc()}
+                with c.makefile('w', encoding='utf-8') as outf:
+                    json.dump(output, outf)
+                    print(file=outf, flush=True)
+
+
 class Profiler:
 
     def __init__(self):
