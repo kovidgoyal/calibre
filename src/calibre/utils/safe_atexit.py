@@ -66,6 +66,12 @@ def ensure_worker():
     return worker
 
 
+def reset_after_fork():
+    global worker
+    atexit.unregister(close_worker)
+    worker = None
+
+
 def _send_command(action: str, payload: str) -> None:
     worker = ensure_worker()
     worker.stdin.write(json.dumps({'action': action, 'payload': payload}).encode('utf-8'))

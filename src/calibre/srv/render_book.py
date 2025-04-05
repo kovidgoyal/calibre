@@ -909,18 +909,34 @@ def quicklook_service(path_to_socket: str) -> None:
     '''
     import socket
     from contextlib import closing, suppress
+
+    from calibre.constants import debug
+    from calibre.ptempfile import reset_base_dir
+    from calibre.utils.safe_atexit import remove_file_atexit, reset_after_fork
+    debug(False)
     s = socket.socket(socket.AF_UNIX)
     s.setblocking(True)
     s.bind(path_to_socket)
     with suppress(KeyboardInterrupt), closing(s):
         if path_to_socket and not path_to_socket.startswith('\0'):
-            from calibre.utils.safe_atexit import remove_file_atexit
             remove_file_atexit(path_to_socket)
         s.listen(16)
         while True:
             c, addr = s.accept()
             c.setblocking(True)
-            handle_quicklook_client(c)
+            os.set_inheritable(c.fileno(), True)
+            if child_pid := os.fork():  # parent
+                c.close()
+                os.waitpid(child_pid, 0)
+            else:  # child
+                os.set_inheritable(c.fileno(), False)
+                reset_after_fork()
+                reset_base_dir()
+                try:
+                    handle_quicklook_client(c)
+                finally:
+                    c.shutdown(socket.SHUT_RDWR)
+                    c.close()
 
 
 class Profiler:
