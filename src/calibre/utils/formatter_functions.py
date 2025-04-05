@@ -1498,8 +1498,10 @@ The formatting codes are:
 [*]``mm   :`` the minutes with a leading 0 (00 to 59)
 [*]``s    :`` the seconds without a leading 0 (0 to 59)
 [*]``ss   :`` the seconds with a leading 0 (00 to 59)
-[*]``ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
-[*]``AP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
+[*]``ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the lowercase localized string for am or pm.
+[*]``AP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the uppercase localized string for AM or PM.
+[*]``aP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
+[*]``Ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
 [*]``iso  :`` the date with time and timezone. Must be the only format present.
 [*]``to_number   :`` convert the date & time into a floating point number (a `timestamp`)
 [*]``from_number :`` convert a floating point number (a `timestamp`) into an
