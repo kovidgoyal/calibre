@@ -3,7 +3,7 @@
 import json
 import re
 from collections import defaultdict
-from datetime import date
+from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -15,9 +15,9 @@ def absurl(url):
 
 
 class TheHindu(BasicNewsRecipe):
-    title = 'The Hindu'
+    title = 'The Hindu '
     __author__ = 'unkn0wn'
-    description = "Articles from The Hindu, Today's Paper."
+    description = "Articles from The Hindu, Today\'s Paper. This recipe now works only for yesterday\'s edition."
     language = 'en_IN'
     no_stylesheets = True
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
@@ -75,7 +75,7 @@ class TheHindu(BasicNewsRecipe):
 
         past_edition = self.recipe_specific_options.get('date')
 
-        dt = date.today()
+        dt = date.today() - timedelta(days=1)
         if past_edition and isinstance(past_edition, str):
             year, month, day = (int(x) for x in past_edition.split('-'))
             dt = date(year, month, day)

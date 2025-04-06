@@ -5,6 +5,7 @@ import base64
 import json
 import re
 
+from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -102,8 +103,6 @@ class Barrons(BasicNewsRecipe):
             raw=True,
         )
 
-        feeds = []
-
         scrn = json.loads(archive)['screens'][0]['frames']
         self.log(
             'Available Editions: ',
@@ -123,20 +122,25 @@ class Barrons(BasicNewsRecipe):
             self.timefmt = ' [' + nme[6:] + ']'
             break
 
+        feeds_dict = defaultdict(list)
+
         data = json.loads(self.index_to_soup(index + bseurl, raw=True))
         for x in data['screens'][0]['frames']:
             if x['type'] != 'article':
                 continue
             url = index + theatre + cid + '?screen_ids=' + x['articleId']
             title = x['title']['text']
+            section = 'Articles'
+            if x.get('label'):
+                section = x['label'].get('text', 'Articles').split('|')[0].strip()
             desc = ''
             if x.get('summary'):
                 desc = x['summary']['text']
             if x.get('byline'):
                 desc = x['byline']['text'] + ' | ' + desc
             self.log('          ', title, '\n\t', desc)
-            feeds.append({'title': title, 'description': desc, 'url': url})
-        return [('Articles', feeds)]
+            feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
+        return list(feeds_dict.items())
 
     def preprocess_raw_html(self, raw, url):
         rdata = json.loads(raw)
