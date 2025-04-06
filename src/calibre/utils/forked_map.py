@@ -9,11 +9,19 @@ import ssl
 import traceback
 from collections.abc import Callable, Iterator
 from contextlib import ExitStack
-from itertools import batched, chain
+from itertools import chain, islice
 from typing import Any, BinaryIO, NamedTuple, TypeVar
 
 T = TypeVar('T')
 R = TypeVar('R')
+
+try:
+    from itertools import batched
+except ImportError:
+    def batched(iterable, n):
+        iterator = iter(iterable)
+        while batch := tuple(islice(iterator, n)):
+            yield batch
 
 
 class _RemoteTraceback(Exception):
@@ -60,11 +68,13 @@ class Worker:
         return self
 
     def __exit__(self, exc_type, exc_value, tb) -> None:
-        self.pipe.close()
-        pid, status = os.waitpid(self.pid, os.WNOHANG)
-        if not pid:
-            os.kill(self.pid, signal.SIGKILL)
-            os.waitpid(self.pid, 0)
+        try:
+            self.pipe.close()
+        finally:
+            pid, status = os.waitpid(self.pid, os.WNOHANG)
+            if not pid:
+                os.kill(self.pid, signal.SIGKILL)
+                os.waitpid(self.pid, 0)
 
 
 class Result(NamedTuple):
