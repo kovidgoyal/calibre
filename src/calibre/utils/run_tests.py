@@ -214,6 +214,9 @@ def find_tests(which_tests=None, exclude_tests=None):
     def ok(x):
         return (not which_tests or x in which_tests) and (not exclude_tests or x not in exclude_tests)
 
+    if ok('fork'):  # need these to run first before threads are created or libraries used
+        from calibre.utils.forked_map import find_tests
+        a(find_tests())
     if ok('build'):
         from calibre.test_build import find_tests
         a(find_tests(only_build=True))
