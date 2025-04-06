@@ -117,6 +117,8 @@ def forked_map(fn: Callable[[T], R], iterable: T, *iterables: T, timeout: int | 
     system libraries.
     '''
     num_items = len(iterable) + sum(map(len, iterables))
+    if num_items < 1:
+        return
     if num_workers <= 0:
         num_workers = max(1, min(num_items, os.cpu_count()))
     chunk_size = max(1, num_items // num_workers)
@@ -151,11 +153,11 @@ def forked_map(fn: Callable[[T], R], iterable: T, *iterables: T, timeout: int | 
                         pos += 1
                 else:
                     cache[result.id] = result
+    if count < num_items:
+        raise OSError(f'Forked workers exited producing only {count} out of {num_items} results')
     while r := cache.pop(pos, None):
         yield r.value
         pos += 1
-    if pos < num_items:
-        raise OSError(f'Forked workers exited producing only {pos} out of {len(iterables)} results')
 
 
 forked_map_is_supported = hasattr(os, 'fork')
