@@ -1628,7 +1628,7 @@ def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -
     if own_tdir:
         tdir = PersistentTemporaryDirectory(f'_{ebook_cls.book_type}_container')
     try:
-        ebook = ebook_cls(path, log, tdir=tdir)
+        ebook = ebook_cls(path, log=log, tdir=tdir)
         ebook.tweak_mode = tweak_mode
     except BaseException:
         if own_tdir:
