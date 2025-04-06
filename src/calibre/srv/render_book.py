@@ -24,6 +24,7 @@ from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.srv.metadata import encode_datetime
 from calibre.utils.date import EPOCH
+from calibre.utils.forked_map import forked_map, forked_map_is_supported
 from calibre.utils.logging import default_log
 from calibre.utils.serialize import json_dumps, json_loads, msgpack_loads
 from calibre.utils.short_uuid import uuid4
@@ -575,6 +576,12 @@ def calculate_number_of_workers(names, in_process_container, max_workers):
     return num_workers
 
 
+def forked_process_book_files(container, names_that_need_work, num_workers, *common_args):
+    def w(name):
+        return process_book_files((name,), *common_args, container=container)
+    yield from forked_map(w, names_that_need_work, num_workers=num_workers)
+
+
 def process_exploded_book(
     book_fmt, opfpath, input_fmt, tdir, log=None, book_hash=None, save_bookmark_data=False,
     book_metadata=None, virtualize_resources=True, max_workers=1
@@ -645,15 +652,19 @@ def process_exploded_book(
     names_that_need_work = tuple(n for n, mt in container.mime_map.items() if needs_work(mt))
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     results = []
+    common_args = tdir, opfpath, virtualize_resources, book_render_data['link_uid']
     if num_workers < 2:
-        results.append(process_book_files(names_that_need_work, tdir, opfpath, virtualize_resources, book_render_data['link_uid'], container=container))
+        results.append(process_book_files(names_that_need_work, *common_args, container=container))
     else:
-        with ThreadPoolExecutor(max_workers=num_workers) as executor:
-            futures = tuple(
-                executor.submit(process_book_files, (name,), tdir, opfpath, virtualize_resources, book_render_data['link_uid'], container=container)
-                for name in names_that_need_work)
-            for future in futures:
-                results.append(future.result())
+        if forked_map_is_supported:
+            results.extend(forked_process_book_files(container, names_that_need_work, num_workers, *common_args))
+        else:
+            with ThreadPoolExecutor(max_workers=num_workers) as executor:
+                futures = tuple(
+                    executor.submit(process_book_files, (name,), *common_args, container=container)
+                    for name in names_that_need_work)
+                for future in futures:
+                    results.append(future.result())
 
     ltm = book_render_data['link_to_map']
     html_data = {}
@@ -974,16 +985,19 @@ def profile():
         )
 
 
-def develop():
+def develop(max_workers=1, wait_for_input=True):
     from calibre.ptempfile import TemporaryDirectory
     path = sys.argv[-1]
+    if max_workers < 1:
+        max_workers = os.cpu_count()
     with TemporaryDirectory() as tdir:
         render(
             path, tdir, serialize_metadata=True,
             extract_annotations=True, virtualize_resources=True, max_workers=1
         )
         print('Extracted to:', tdir)
-        input('Press Enter to quit')
+        if wait_for_input:
+            input('Press Enter to quit')
 
 
 if __name__ == '__main__':
