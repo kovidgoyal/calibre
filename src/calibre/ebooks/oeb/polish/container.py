@@ -234,7 +234,7 @@ class Container(ContainerBase):  # {{{
         return self.book_type.upper()
 
     def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None):
-        ContainerBase.__init__(self, log)
+        super().__init__(log=log)
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
 
         self.name_path_map = {}
@@ -1160,7 +1160,7 @@ class EpubContainer(Container):
 
     def __init__(self, pathtoepub=None, log=default_log, clone_data=None, tdir=None):
         if clone_data is not None:
-            super().__init__(None, None, log, clone_data=clone_data)
+            super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
                 setattr(self, x, clone_data[x])
             return
@@ -1223,7 +1223,7 @@ class EpubContainer(Container):
             raise InvalidEpub('OPF file does not exist at location pointed to'
                     ' by META-INF/container.xml')
 
-        super().__init__(tdir, opf_path, log)
+        super().__init__(rootpath=tdir, opfpath=opf_path, log=log)
 
         self.obfuscated_fonts = {}
         if 'META-INF/encryption.xml' in self.name_path_map:
@@ -1539,7 +1539,7 @@ class AZW3Container(Container):
 
     def __init__(self, pathtoazw3=None, log=default_log, clone_data=None, tdir=None):
         if clone_data is not None:
-            super().__init__(None, None, log, clone_data=clone_data)
+            super().__init__(log=log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
                 setattr(self, x, clone_data[x])
             return
@@ -1582,7 +1582,7 @@ class AZW3Container(Container):
         except WorkerError as e:
             log(e.orig_tb)
             raise InvalidMobi('Failed to explode MOBI')
-        super().__init__(tdir, opf_path, log)
+        super().__init__(rootpath=tdir, opfpath=opf_path, log=log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
     def data_for_clone(self, dest_dir=None):
