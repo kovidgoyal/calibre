@@ -17,7 +17,7 @@ def make_hlinks(zx):
                 strt = ad['rangeStart']
                 end = ad['rangeStart'] + ad['rangeLength']
                 n_txt = otxt[strt:end]
-                lnk = ad['value']
+                lnk = ad.get('value', '')
                 lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
                 txt = txt.replace(n_txt, lnk_txt)
     if zx['body'].get('inlineTextStyles'):
