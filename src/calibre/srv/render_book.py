@@ -576,12 +576,6 @@ def calculate_number_of_workers(names, in_process_container, max_workers):
     return num_workers
 
 
-def forked_process_book_files(container, names_that_need_work, num_workers, *common_args):
-    def w(name):
-        return process_book_files((name,), *common_args, container=container)
-    yield from forked_map(w, names_that_need_work, num_workers=num_workers)
-
-
 def process_exploded_book(
     book_fmt, opfpath, input_fmt, tdir, log=None, book_hash=None, save_bookmark_data=False,
     book_metadata=None, virtualize_resources=True, max_workers=1
@@ -656,15 +650,14 @@ def process_exploded_book(
     if num_workers < 2:
         results.append(process_book_files(names_that_need_work, *common_args, container=container))
     else:
+        def process_single_book_file(name):
+            return process_book_files((name,), *common_args, container=container)
+
         if forked_map_is_supported:
-            results.extend(forked_process_book_files(container, names_that_need_work, num_workers, *common_args))
+            results.extend(forked_map(process_single_book_file, names_that_need_work, num_workers=num_workers))
         else:
             with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                futures = tuple(
-                    executor.submit(process_book_files, (name,), *common_args, container=container)
-                    for name in names_that_need_work)
-                for future in futures:
-                    results.append(future.result())
+                results.extend(executor.map(process_single_book_file, names_that_need_work))
 
     ltm = book_render_data['link_to_map']
     html_data = {}
@@ -993,7 +986,7 @@ def develop(max_workers=1, wait_for_input=True):
     with TemporaryDirectory() as tdir:
         render(
             path, tdir, serialize_metadata=True,
-            extract_annotations=True, virtualize_resources=True, max_workers=1
+            extract_annotations=True, virtualize_resources=True, max_workers=max_workers
         )
         print('Extracted to:', tdir)
         if wait_for_input:
