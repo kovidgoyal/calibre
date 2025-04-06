@@ -187,10 +187,6 @@ class ListenerSignal(QObject):
     # signal. Creating the listener in BookInfo doesn't work because the
     # weakref dies for some reason. Instead the BookInfo object connects to
     # this signal.
-    #
-    # As a side benefit we don't need to worry about unregistering the listener
-    # when the window is closed. Qt takes care of unregistering objects
-    # listening to the signal.
     metadata_changed = pyqtSignal()
 
 
