@@ -8,33 +8,30 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def range(r_, otxt):
+    return otxt[r_['rangeStart'] : r_['rangeStart'] + r_['rangeLength']]
+
+
 def make_hlinks(zx):
     otxt = zx['body']['text']
     txt = otxt
-    if zx['body'].get('additions'):
-        for ad in zx['body']['additions']:
-            if ad.get('type', '') == 'link':
-                strt = ad['rangeStart']
-                end = ad['rangeStart'] + ad['rangeLength']
-                n_txt = otxt[strt:end]
-                lnk = ad.get('value', '')
-                lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
-                txt = txt.replace(n_txt, lnk_txt)
     if zx['body'].get('inlineTextStyles'):
         for sty in zx['body']['inlineTextStyles']:
+            rtxt = range(sty, otxt)
             if 'Italic' in sty['textStyle']['fontName']:
-                estrt = sty['rangeStart']
-                eend = sty['rangeStart'] + sty['rangeLength']
-                etxt = otxt[estrt:eend]
-                em_txt = f'<em>{etxt}</em>'
-                txt = txt.replace(etxt, em_txt)
+                txt = txt.replace(rtxt, f'<em>{rtxt}</em>')
             if 'Bold' in sty['textStyle']['fontName']:
-                bstrt = sty['rangeStart']
-                bend = sty['rangeStart'] + sty['rangeLength']
-                btxt = otxt[bstrt:bend]
-                b_txt = f'<b>{btxt}</b>'
-                txt = txt.replace(btxt, b_txt)
-    return txt.replace('\n\n', '<div>').replace('\n', '</div>')
+                txt = txt.replace(rtxt, f'<b>{rtxt}</b>')
+            if sty['textStyle'].get('fontSize', '') == 16:
+                txt = txt.replace(rtxt, f'<b><u>{rtxt}</u></b>')
+    if zx['body'].get('additions'):
+        for ad in zx['body']['additions']:
+            if ad.get('type', '') == 'link' and ad.get('value'):
+                n_txt = range(ad, otxt)
+                lnk = ad['value']
+                lnk_txt = f'<a href="{lnk}">{n_txt}</a>'
+                txt = txt.replace(n_txt, lnk_txt)
+    return txt.replace('\n', '<br>')
 
 
 def make_html(a):
@@ -49,6 +46,8 @@ def make_html(a):
     if typ == 'body':
         if 'body-h' in a['body'].get('textStyleID', ''):
             return f'<h4>{a["body"]["text"]}</h4>'
+        if 'article-summary' in a['body'].get('textStyleID', ''):
+            return f'<p><i>{a["body"]["text"]}</i></p>'
         return f'<p>{make_hlinks(a)}</p>'
     if typ == 'image':
         return f'<img src={a["image"]["url"]}>'
