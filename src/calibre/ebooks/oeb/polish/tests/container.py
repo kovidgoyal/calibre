@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+import pickle
 import subprocess
 from zipfile import ZipFile
 
@@ -71,6 +72,9 @@ class ContainerTests(BaseTest):
             x = base + 'out.' + fmt
             for c in (c1, c2):
                 c.commit(outpath=x)
+            c = pickle.loads(pickle.dumps(c1))
+            for attr in c1.data_for_clone():
+                self.assertEqual(getattr(c1, attr), getattr(c, attr))
 
     def test_file_removal(self):
         ' Test removal of files from the container '

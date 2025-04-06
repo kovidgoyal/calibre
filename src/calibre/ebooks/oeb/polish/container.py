@@ -90,9 +90,7 @@ def clone_container(container, dest_dir, container_class=None):
     dest_dir = os.path.abspath(os.path.realpath(dest_dir))
     clone_data = container.clone_data(dest_dir)
     container_class = container_class or type(container)
-    if container_class is Container:
-        return container_class(None, None, container.log, clone_data=clone_data)
-    return container_class(None, container.log, clone_data=clone_data)
+    return container_class(log=container.log, clone_data=clone_data)
 
 
 def name_to_abspath(name, root):
@@ -151,8 +149,8 @@ class ContainerBase:  # {{{
     #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
     tweak_mode = False
 
-    def __init__(self, log):
-        self.log = log
+    def __init__(self, log=default_log):
+        self.log = log or default_log
         self.parsed_cache = {}
         self.mime_map = {}
         self.encoding_map = {}
@@ -235,7 +233,7 @@ class Container(ContainerBase):  # {{{
     def book_type_for_display(self):
         return self.book_type.upper()
 
-    def __init__(self, rootpath, opfpath, log, clone_data=None):
+    def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None):
         ContainerBase.__init__(self, log)
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
 
@@ -247,8 +245,7 @@ class Container(ContainerBase):  # {{{
         self.href_to_name_cache = {}
 
         if clone_data is not None:
-            self.cloned = True
-            for x in ('name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map', 'tweak_mode'):
+            for x in ('cloned', 'name_path_map', 'opf_name', 'mime_map', 'pretty_print', 'encoding_map', 'tweak_mode'):
                 setattr(self, x, clone_data[x])
             self.opf_dir = os.path.dirname(self.name_path_map[self.opf_name])
             return
@@ -302,16 +299,24 @@ class Container(ContainerBase):  # {{{
             'pretty_print': set(self.pretty_print),
             'encoding_map': self.encoding_map.copy(),
             'tweak_mode': self.tweak_mode,
+            'cloned': self.cloned,
             'name_path_map': {
-                name:os.path.join(dest_dir, os.path.relpath(path, self.root))
-                for name, path in iteritems(self.name_path_map)}
+                name: os.path.join(dest_dir, os.path.relpath(path, self.root)) for name, path in self.name_path_map.items()
+            }
         }
 
     def clone_data(self, dest_dir):
         Container.commit(self, keep_parsed=False)
-        self.cloned = True
         clone_dir(self.root, dest_dir)
+        self.cloned = True
         return self.data_for_clone(dest_dir)
+
+    def __getstate__(self):
+        Container.commit(self, keep_parsed=True)
+        return self.data_for_clone()
+
+    def __setstate__(self, state):
+        self.__init__(log=default_log, clone_data=state)
 
     def add_name_to_manifest(self, name, process_manifest_item=None, suggested_id=''):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
@@ -1153,7 +1158,7 @@ class EpubContainer(Container):
             'rights.xml': False,
     }
 
-    def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
+    def __init__(self, pathtoepub=None, log=default_log, clone_data=None, tdir=None):
         if clone_data is not None:
             super().__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
@@ -1225,8 +1230,8 @@ class EpubContainer(Container):
             self.process_encryption()
         self.parsed_cache['META-INF/container.xml'] = container
 
-    def clone_data(self, dest_dir):
-        ans = super().clone_data(dest_dir)
+    def data_for_clone(self, dest_dir=None):
+        ans = super().data_for_clone(dest_dir)
         ans['pathtoepub'] = self.pathtoepub
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         ans['is_dir'] = self.is_dir
@@ -1437,7 +1442,7 @@ class KEPUBContainer(EpubContainer):
     book_type = 'kepub'
     MAX_HTML_FILE_SIZE = 512 * 1024
 
-    def __init__(self, pathtokepub, log, clone_data=None, tdir=None):
+    def __init__(self, pathtokepub=None, log=default_log, clone_data=None, tdir=None):
         super().__init__(pathtokepub, log=log, clone_data=clone_data, tdir=tdir)
         from calibre.ebooks.oeb.polish.kepubify import unkepubify_container
         Container.commit(self, keep_parsed=True)
@@ -1532,7 +1537,7 @@ class AZW3Container(Container):
     SUPPORTS_TITLEPAGES = False
     SUPPORTS_FILENAMES = False
 
-    def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
+    def __init__(self, pathtoazw3=None, log=default_log, clone_data=None, tdir=None):
         if clone_data is not None:
             super().__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
@@ -1580,8 +1585,8 @@ class AZW3Container(Container):
         super().__init__(tdir, opf_path, log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
-    def clone_data(self, dest_dir):
-        ans = super().clone_data(dest_dir)
+    def data_for_clone(self, dest_dir=None):
+        ans = super().data_for_clone(dest_dir)
         ans['pathtoazw3'] = self.pathtoazw3
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         return ans
@@ -1607,8 +1612,6 @@ class AZW3Container(Container):
 
 
 def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -> Container:
-    if log is None:
-        log = default_log
     try:
         isdir = os.path.isdir(path)
     except Exception:
