@@ -15,7 +15,7 @@ def absurl(url):
 
 
 class TheHindu(BasicNewsRecipe):
-    title = 'The Hindu '
+    title = 'The Hindu Print Edition'
     __author__ = 'unkn0wn'
     description = "Articles from The Hindu, Today\'s Paper. This recipe now works only for yesterday\'s edition."
     language = 'en_IN'
@@ -68,6 +68,7 @@ class TheHindu(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
+        self.title = 'The Hindu'
         local_edition = 'th_chennai'
         d = self.recipe_specific_options.get('location')
         if d and isinstance(d, str):
