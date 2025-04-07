@@ -242,8 +242,6 @@ def test_podofo():
     try:
         p = podofo.PDFDoc()
         p.open(f.name)
-        print(1111111111111111111)
-        print(22222222, repr(p.title))
         if (p.title, p.author, p.keywords) != ('info title', 'info author', 'a, b'):
             raise ValueError('podofo failed to set title and author in Info dict {} != {}'.format(
                 (p.title, p.author, p.keywords), ('info title', 'info author', 'a, b')))
