@@ -536,14 +536,12 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
 __smil_file_names__ = ''
 
 
-def process_book_files(names, virtualize_resources, link_uid, container):
+def process_book_file(virtualize_resources, link_uid, container, name):
     link_to_map = {}
     html_data = {}
     smil_map = {__smil_file_names__: []}
     virtualized_names = set()
-    for name in names:
-        if name is None:
-            continue
+    if name is not None:
         mt = container.mime_map[name].lower()
         if mt in OEB_DOCS:
             root = container.parsed(name)
@@ -643,18 +641,15 @@ def process_exploded_book(
     names_that_need_work = tuple(n for n, mt in container.mime_map.items() if needs_work(mt))
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     results = []
-    common_args = virtualize_resources, book_render_data['link_uid'], container
+    f = partial(process_book_file, virtualize_resources, book_render_data['link_uid'], container)
     if num_workers < 2:
-        results.append(process_book_files(names_that_need_work, *common_args))
+        results.extend(map(f, names_that_need_work))
     else:
-        def process_single_book_file(name):
-            return process_book_files((name,), *common_args)
-
         if forked_map_is_supported:
-            results.extend(forked_map(process_single_book_file, names_that_need_work, num_workers=num_workers))
+            results.extend(forked_map(f, names_that_need_work, num_workers=num_workers))
         else:
             with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                results.extend(executor.map(process_single_book_file, names_that_need_work))
+                results.extend(executor.map(f, names_that_need_work))
 
     ltm = book_render_data['link_to_map']
     html_data = {}
