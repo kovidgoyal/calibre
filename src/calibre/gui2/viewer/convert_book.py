@@ -176,10 +176,12 @@ def clean_running_workers():
     global preloaded_worker
     if preloaded_worker is not None:
         preloaded_worker.kill()
+        preloaded_worker.wait()
         preloaded_worker = None
     for p in running_workers:
         if p.poll() is None:
             p.kill()
+            p.wait()
     del running_workers[:]
 
 
