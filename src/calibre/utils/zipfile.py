@@ -1147,7 +1147,7 @@ class ZipFile:
         if upperdirs and not os.path.exists(upperdirs):
             try:
                 os.makedirs(upperdirs)
-            except:  # Added by Kovid
+            except OSError:  # Added by Kovid
                 targetpath = os.path.join(base_target,
                         sanitize_file_name(fname))
                 upperdirs = os.path.dirname(targetpath)
@@ -1158,7 +1158,7 @@ class ZipFile:
             if not os.path.isdir(targetpath):
                 try:
                     os.mkdir(targetpath)
-                except Exception:  # Added by Kovid
+                except OSError:  # Added by Kovid
                     targetpath = os.path.join(base_target, sanitize_file_name(fname))
                     os.mkdir(targetpath)
             return targetpath
@@ -1166,17 +1166,16 @@ class ZipFile:
         if not os.path.exists(targetpath):
             # Kovid: Could be a previously automatically created directory
             # in which case it is ignored
-            with closing(self.open(member, pwd=pwd)) as source:
-                try:
-                    with open(targetpath, 'wb') as target:
-                        shutil.copyfileobj(source, target)
-                except:
-                    # Try sanitizing the file name to remove invalid characters
-                    components = list(os.path.split(targetpath))
-                    components[-1] = sanitize_file_name(components[-1])
-                    targetpath = os.sep.join(components)
-                    with open(targetpath, 'wb') as target:
-                        shutil.copyfileobj(source, target)
+            try:
+                target = open(targetpath, 'wb')
+            except OSError:
+                components = list(os.path.split(targetpath))
+                components[-1] = sanitize_file_name(components[-1])
+                targetpath = os.sep.join(components)
+                target = open(targetpath, 'wb')
+
+            with target, closing(self.open(member, pwd=pwd)) as source:
+                shutil.copyfileobj(source, target)
         # Kovid: Try to preserve the timestamps in the ZIP file
         try:
             mtime = time.localtime()
