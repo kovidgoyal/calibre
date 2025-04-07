@@ -1113,10 +1113,15 @@ class ZipFile:
         # Kovid: Extract longer names first, just in case the zip file has
         # an entry for a directory without a trailing slash
         members.sort(key=len, reverse=True)
-        zimembers = tuple(map(self.getinfo, members))
+        args = []
+        for name in members:
+            zi = self.getinfo(name)
+            dest = self._get_targetpath(zi, path)
+            args.append((zi, dest, pwd))
 
-        for zipinfo in zimembers:
-            self._extract_member(zipinfo, path, pwd)
+        def do_one(a):
+            return self._extract_member_to(*a)
+        tuple(map(do_one, args))
 
     def _get_targetpath(self, member: ZipInfo, targetpath: str) -> str:
         # build the destination pathname, replacing
