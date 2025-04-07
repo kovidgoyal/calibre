@@ -1118,10 +1118,7 @@ class ZipFile:
         for zipinfo in zimembers:
             self._extract_member(zipinfo, path, pwd)
 
-    def _extract_member(self, member, targetpath, pwd):
-        '''Extract the ZipInfo object 'member' to a physical
-           file on the path targetpath.
-        '''
+    def _get_targetpath(self, member: ZipInfo, targetpath: str) -> str:
         # build the destination pathname, replacing
         # forward slashes to platform specific separators.
         # Strip trailing path separator, unless it represents the root.
@@ -1151,18 +1148,25 @@ class ZipFile:
             try:
                 os.makedirs(upperdirs)
             except OSError:  # Added by Kovid
-                targetpath = os.path.join(base_target,
-                        sanitize_file_name(fname))
                 upperdirs = os.path.dirname(targetpath)
+                targetpath = os.path.join(upperdirs, sanitize_file_name(fname))
                 if upperdirs and not os.path.exists(upperdirs):
                     os.makedirs(upperdirs)
+        return targetpath
 
+    def _extract_member(self, member, targetpath, pwd):
+        return self._extract_member_to(member, self._get_targetpath(member, targetpath), pwd)
+
+    def _extract_member_to(self, member, targetpath, pwd):
+        '''Extract the ZipInfo object 'member' to a physical
+           file on the path targetpath.
+        '''
         if member.filename[-1] == '/':
             if not os.path.isdir(targetpath):
                 try:
                     os.mkdir(targetpath)
                 except OSError:  # Added by Kovid
-                    targetpath = os.path.join(base_target, sanitize_file_name(fname))
+                    targetpath = os.path.join(os.path.dirname(targetpath), sanitize_file_name(os.path.basename(targetpath)))
                     os.mkdir(targetpath)
             return targetpath
 
@@ -1172,9 +1176,7 @@ class ZipFile:
             try:
                 target = open(targetpath, 'wb')
             except OSError:
-                components = list(os.path.split(targetpath))
-                components[-1] = sanitize_file_name(components[-1])
-                targetpath = os.sep.join(components)
+                targetpath = os.path.join(os.path.dirname(targetpath), sanitize_file_name(os.path.basename(targetpath)))
                 target = open(targetpath, 'wb')
 
             with target, closing(self.open(member, pwd=pwd)) as source:
