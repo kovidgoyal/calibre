@@ -1107,13 +1107,16 @@ class ZipFile:
         '''
         if members is None:
             members = self.namelist()
+        if path is None:
+            path = os.getcwd()
 
         # Kovid: Extract longer names first, just in case the zip file has
         # an entry for a directory without a trailing slash
         members.sort(key=len, reverse=True)
+        zimembers = tuple(map(self.getinfo, members))
 
-        for zipinfo in members:
-            self.extract(zipinfo, path, pwd)
+        for zipinfo in zimembers:
+            self._extract_member(zipinfo, path, pwd)
 
     def _extract_member(self, member, targetpath, pwd):
         '''Extract the ZipInfo object 'member' to a physical
