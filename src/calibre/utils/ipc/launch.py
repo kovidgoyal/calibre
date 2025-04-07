@@ -69,6 +69,12 @@ def exe_path(exe_name):
     return e
 
 
+def headless_exe_path(exe_name='calibre-parallel'):
+    if ismacos and not hasattr(sys, 'running_from_setup'):
+        return os.path.join(macos_headless_bundle_path(), exe_name)
+    return exe_path(exe_name)
+
+
 class Worker:
     '''
     Platform independent object for launching child processes. All processes
@@ -86,9 +92,7 @@ class Worker:
 
     @property
     def executable(self):
-        if ismacos and not hasattr(sys, 'running_from_setup'):
-            return os.path.join(macos_headless_bundle_path(), self.exe_name)
-        return exe_path(self.exe_name)
+        return headless_exe_path(self.exe_name)
 
     @property
     def gui_executable(self):

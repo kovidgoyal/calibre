@@ -165,13 +165,11 @@ def get_func(name):
 
 
 def main():
-    if iswindows:
-        if '--multiprocessing-fork' in sys.argv:
-            # We are using the multiprocessing module on windows to launch a
-            # worker process
-            from multiprocessing import freeze_support
-            freeze_support()
-            return 0
+    if '__multiprocessing__' in sys.argv:
+        payload = sys.argv[-1]
+        sys.argv = [sys.argv[0], '--multiprocessing-fork']
+        exec(payload)
+        return 0
     if ismacos and 'CALIBRE_WORKER_FD' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle

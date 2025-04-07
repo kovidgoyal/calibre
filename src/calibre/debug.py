@@ -125,9 +125,6 @@ as a shebang in scripts, like this:
         'Convert the specified EPUB file to KEPUB without doing a full conversion. This is what the Kobo driver does when sending files to the device.'))
     parser.add_option('--un-kepubify', default=False, action='store_true', help=_(
         'Convert the specified KEPUB file to EPUB without doing a full conversion. This is what the Kobo driver does when importing files from the device.'))
-    parser.add_option('--fix-multiprocessing', default=False, action='store_true',
-        help=_('For internal use'))
-
     return parser
 
 
@@ -230,10 +227,6 @@ def main(args=sys.argv):
     from calibre.constants import debug
 
     opts, args = option_parser().parse_args(args)
-    if opts.fix_multiprocessing:
-        sys.argv = [sys.argv[0], '--multiprocessing-fork']
-        exec(args[-1])
-        return
     if not opts.run_without_debug:
         debug()
     if opts.gui:

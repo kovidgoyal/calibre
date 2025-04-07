@@ -25,15 +25,13 @@ builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from calibre.constants import DEBUG, isfreebsd, islinux, ismacos, iswindows
 
 
-def get_debug_executable(headless=False):
-    exe_name = 'calibre-debug' + ('.exe' if iswindows else '')
+def get_debug_executable(headless=False, exe_name='calibre-debug'):
+    exe_name = exe_name + ('.exe' if iswindows else '')
     if hasattr(sys, 'frameworks_dir'):
         base = os.path.dirname(sys.frameworks_dir)
         if headless:
-            from calibre.utils.ipc.launch import Worker
-            class W(Worker):
-                exe_name = 'calibre-debug'
-            return [W().executable]
+            from calibre.utils.ipc.launch import headless_exe_path
+            return [headless_exe_path(exe_name)]
         return [os.path.join(base, 'MacOS', exe_name)]
     if getattr(sys, 'run_local', None):
         return [sys.run_local, exe_name]
@@ -96,11 +94,19 @@ def initialize_calibre():
     # Fix multiprocessing
     from multiprocessing import spawn, util
 
+    def get_executable() -> list[str]:
+        return get_debug_executable(headless=True, exe_name='calibre-parallel')
+
     def get_command_line(**kwds):
-        prog = 'from multiprocessing.spawn import spawn_main; spawn_main(%s)'
-        prog %= ', '.join('{}={!r}'.format(*item) for item in kwds.items())
-        return get_debug_executable() + ['--fix-multiprocessing', '--', prog]
+        prog = ', '.join('{}={!r}'.format(*item) for item in kwds.items())
+        prog = f'from multiprocessing.spawn import spawn_main; spawn_main({prog})'
+        return get_executable() + ['__multiprocessing__', prog]
     spawn.get_command_line = get_command_line
+    spawn._fixup_main_from_path = lambda *a: None
+    if iswindows:
+        # On windows multiprocessing does not run the result of
+        # get_command_line directly, see popen_spawn_win32.py
+        spawn.set_executable(get_executable()[-1])
     orig_spawn_passfds = util.spawnv_passfds
     orig_remove_temp_dir = util._remove_temp_dir
 
@@ -124,7 +130,7 @@ def initialize_calibre():
             idx = args.index('-c')
         except ValueError:
             return wrapped_orig_spawn_fds(args, passfds)
-        patched_args = get_debug_executable() + ['--fix-multiprocessing', '--'] + args[idx + 1:]
+        patched_args = get_executable() + ['__multiprocessing__'] + args[idx + 1:]
         return wrapped_orig_spawn_fds(patched_args, passfds)
     util.spawnv_passfds = spawnv_passfds
     util._remove_temp_dir = safe_remove_temp_dir
