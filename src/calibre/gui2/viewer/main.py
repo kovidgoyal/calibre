@@ -146,6 +146,8 @@ View an e-book.
 
 
 def run_gui(app, opts, args, internal_book_data, listener=None):
+    from calibre.gui2.viewer.convert_book import initialize_worker
+    initialize_worker()
     acc = EventAccumulator(app)
     app.file_event_hook = acc
     app.load_builtin_fonts()

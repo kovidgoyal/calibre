@@ -42,7 +42,7 @@ from calibre.gui2.viewer import get_boss, get_current_book_data, performance_mon
 from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
-from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
+from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
 from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
 from calibre.gui2.viewer.lookup import Lookup
@@ -837,7 +837,6 @@ class EbookViewer(MainWindow):
         except Exception:
             import traceback
             traceback.print_exc()
-        clean_running_workers()
         self.shutdown_done = True
         return MainWindow.closeEvent(self, ev)
     # }}}

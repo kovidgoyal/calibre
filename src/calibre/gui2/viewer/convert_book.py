@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import atexit
 import errno
 import json
 import os
@@ -12,7 +13,6 @@ from itertools import count
 
 from calibre import walk
 from calibre.constants import cache_dir, iswindows
-from calibre.ptempfile import TemporaryFile
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.utils.filenames import rmtree
 from calibre.utils.ipc.simple_worker import start_pipe_worker
@@ -163,32 +163,46 @@ class ConversionFailure(ValueError):
                 self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
 
 
+preloaded_worker = None
 running_workers = []
 
 
+def create_worker():
+    import subprocess
+    return start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stderr=subprocess.STDOUT)
+
+
 def clean_running_workers():
+    global preloaded_worker
+    if preloaded_worker is not None:
+        preloaded_worker.kill()
+        preloaded_worker = None
     for p in running_workers:
         if p.poll() is None:
             p.kill()
     del running_workers[:]
 
 
+def initialize_worker():
+    global preloaded_worker
+    if preloaded_worker is None:
+        preloaded_worker = create_worker()
+        atexit.register(clean_running_workers)
+
+
 def do_convert(path, temp_path, key, instance):
+    global preloaded_worker
     tdir = os.path.join(temp_path, instance['path'])
-    p = None
+    p = preloaded_worker or create_worker()
+    preloaded_worker = create_worker()
+    running_workers.append(p)
+    data = msgpack_dumps((
+        path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
+    ))
     try:
-        with TemporaryFile('log.txt') as logpath:
-            with open(logpath, 'w+b') as logf:
-                p = start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stdout=logf, stderr=logf)
-                running_workers.append(p)
-                p.stdin.write(msgpack_dumps((
-                    path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
-                    )))
-                p.stdin.close()
-            if p.wait() != 0:
-                with open(logpath, 'rb') as logf:
-                    worker_output = logf.read().decode('utf-8', 'replace')
-                raise ConversionFailure(path, worker_output)
+        stdout, _ = p.communicate(data)
+        if p.returncode != 0:
+            raise ConversionFailure(path, stdout.decode('utf-8', 'replace'))
     finally:
         try:
             running_workers.remove(p)
