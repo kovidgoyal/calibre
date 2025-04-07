@@ -536,10 +536,7 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
 __smil_file_names__ = ''
 
 
-def process_book_files(names, container_dir, opfpath, virtualize_resources, link_uid, data_for_clone=None, container=None):
-    if container is None:
-        container = SimpleContainer(container_dir, opfpath, default_log, clone_data=data_for_clone)
-        container.cloned = False
+def process_book_files(names, virtualize_resources, link_uid, container):
     link_to_map = {}
     html_data = {}
     smil_map = {__smil_file_names__: []}
@@ -646,12 +643,12 @@ def process_exploded_book(
     names_that_need_work = tuple(n for n, mt in container.mime_map.items() if needs_work(mt))
     num_workers = calculate_number_of_workers(names_that_need_work, container, max_workers)
     results = []
-    common_args = tdir, opfpath, virtualize_resources, book_render_data['link_uid']
+    common_args = virtualize_resources, book_render_data['link_uid'], container
     if num_workers < 2:
-        results.append(process_book_files(names_that_need_work, *common_args, container=container))
+        results.append(process_book_files(names_that_need_work, *common_args))
     else:
         def process_single_book_file(name):
-            return process_book_files((name,), *common_args, container=container)
+            return process_book_files((name,), *common_args)
 
         if forked_map_is_supported:
             results.extend(forked_map(process_single_book_file, names_that_need_work, num_workers=num_workers))
