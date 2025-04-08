@@ -748,9 +748,13 @@ pread_all(PyObject *self, PyObject *args) {
             break;
         }
 #else
+#ifdef __linux__
         ssize_t nr = pread64(fd, buf + pos, n - pos, offset);
+#else
+        ssize_t nr = pread(fd, buf + pos, n - pos, offset);
+#endif
         if (nr < 0) {
-            if (errno == EINTR || errno == EAGAIN || errno == EBUSY) continue;
+            if (errno == EINTR || errno == EAGAIN) continue;
             saved_errno = errno;
             break;
         } else if (nr == 0) break;
