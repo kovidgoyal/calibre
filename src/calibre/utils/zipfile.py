@@ -732,11 +732,8 @@ class ZipExtFile(io.BufferedIOBase):
         return raw
 
     def check_crc(self, raw: bytes) -> None:
-        if self._expected_crc is not None:
-            crc = crc32(raw) & 0xffffffff
-            # Check the CRC if we're at the end of the file
-            if crc != self._expected_crc:
-                raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
+        if self._expected_crc is not None and (crc32(raw) & 0xffffffff) != self._expected_crc:
+            raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
 
     def readall(self):
         raw = self.read_raw()
