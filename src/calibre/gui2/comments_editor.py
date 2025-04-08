@@ -34,7 +34,6 @@ from qt.core import (
     QLineEdit,
     QMenu,
     QPalette,
-    QPlainTextEdit,
     QPointF,
     QPushButton,
     QSize,
@@ -78,6 +77,7 @@ from calibre.gui2 import (
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.flow_toolbar import create_flow_toolbar
+from calibre.gui2.tweak_book.widgets import PlainTextEdit
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
 from calibre.startup import connect_lambda
@@ -1438,7 +1438,7 @@ class Editor(QWidget):  # {{{
         self.tabs = QTabWidget(self)
         self.tabs.setTabPosition(QTabWidget.TabPosition.South)
         self.wyswyg = QWidget(self.tabs)
-        self.code_edit = QPlainTextEdit(self.tabs)
+        self.code_edit = PlainTextEdit(self.tabs)
         self.code_edit.setTabChangesFocus(True)
         self.source_dirty = False
         self.wyswyg_dirty = True
@@ -1593,8 +1593,8 @@ if __name__ == '__main__':
     w.html = '''<h1>Test Heading</h1><blockquote>Test blockquote</blockquote><p><span style="background-color: rgb(0, 255, 255); ">He hadn't
     set <u>out</u> to have an <em>affair</em>, <span style="font-style:italic; background-color:red">
     much</span> less a <s>long-term</s>, <b>devoted</b> one.</span><p>hello'''
-    w.html = '<div><p id="moo" align="justify">Testing <em>a</em> link.</p><p align="justify">\xa0</p><p align="justify">ss</p></div>'
     i = 'file:///home/kovid/work/calibre/resources/images/'
     w.html = f'<p>Testing <img src="{i}/donate.png"> img and another <img src="{i}/lt.png">file</p>'
+    w.html = '<div><p id="moo" align="justify">Testing&nbsp;<em>a</em> link.</p><p align="justify">&nbsp;</p><p align="justify">ss</p></div>'
     app.exec()
-    # print(w.html)
+    print(repr(w.html))
