@@ -511,6 +511,12 @@ class _ZipDecrypter:
         self._UpdateKeys(c)
         return c
 
+    def decrypt_bytes(self, raw: bytes) -> bytes:
+        ba = bytearray(raw)
+        for i, b in ba:
+            ba[i] = self(b)
+        return bytes(ba)
+
 
 class ZipExtFile(io.BufferedIOBase):
     '''File-like object for reading an archive member.
@@ -671,7 +677,7 @@ class ZipExtFile(io.BufferedIOBase):
             self._compress_left -= len(data)
 
             if data and self._decrypter is not None:
-                data = b''.join(bytes(bytearray(map(self._decrypter, bytearray(data)))))
+                data = self._decrypter.decrypt_bytes(data)
 
             if self._compress_type == ZIP_STORED:
                 self._update_crc(data, eof=(self._compress_left==0))
@@ -720,7 +726,7 @@ class ZipExtFile(io.BufferedIOBase):
 
     def decrypt_and_uncompress(self, raw: bytes) -> bytes:
         if self._decrypter is not None and raw:
-            raw = b''.join(bytes(bytearray(map(self._decrypter, bytearray(raw)))))
+            raw = self._decrypter.decrypt_bytes(raw)
         if self._compress_type == ZIP_DEFLATED:
             raw = zlib.decompress(raw, -15, max(self.uncompressed_size, zlib.DEF_BUF_SIZE))
         return raw
