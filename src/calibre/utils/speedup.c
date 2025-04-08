@@ -28,6 +28,11 @@ typedef unsigned __int8 uint8_t;
 #else
 #include <stdint.h>
 #endif
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 static PyObject*
 barename(PyObject *self, PyObject *tag) {
@@ -705,6 +710,69 @@ deepcopy(PyObject *self, PyObject *o) {
     return ans;
 }
 
+
+static PyObject*
+pread_all(PyObject *self, PyObject *args) {
+    int fd; unsigned long long n, offset = 0;
+    if (!PyArg_ParseTuple(args, "iK|K", &fd, &n, &offset)) return NULL;
+#ifdef _WIN32
+    PyObject *msvcrt = PyImport_ImportModule("msvcrt");
+    if (!msvcrt) return NULL;
+    PyObject *get_osfhandle = PyObject_GetAttrString(msvcrt, "get_osfhandle");
+    Py_CLEAR(msvcrt);
+    if (!get_osfhandle) return NULL;
+    PyObject *ret = PyObject_CallFunctionObjArgs(get_osfhandle, PyTuple_GET_ITEM(args, 0), NULL);
+    Py_CLEAR(get_osfhandle);
+    if (!ret) return NULL;
+    HANDLE file = (HANDLE)PyLong_AsUnsignedLongLong(ret);
+    Py_CLEAR(ret);
+#endif
+    PyObject *output = PyBytes_FromStringAndSize(NULL, n);
+    if (!output || !n) return output;
+    size_t pos = 0;
+    char *buf = PyBytes_AS_STRING(output);
+    int saved_errno = 0;
+    Py_BEGIN_ALLOW_THREADS;
+    while (pos < n) {
+#ifdef _WIN32
+        DWORD nr = 0;
+        OVERLAPPED overlapped;
+        memset(&overlapped, 0, sizeof(OVERLAPPED));
+        overlapped.OffsetHigh = (uint32_t)((offset & 0xFFFFFFFF00000000LL) >> 32);
+        overlapped.Offset = (uint32_t)(offset & 0xFFFFFFFFLL);
+        SetLastError(0);
+        BOOL ok = ReadFile(file, buf + pos, n - pos, &nr, &overlapped);
+        if (!ok) {
+            DWORD err = GetLastError();
+            if (err != ERROR_HANDLE_EOF) saved_errno = err;
+            break;
+        }
+#else
+        ssize_t nr = pread64(fd, buf + pos, n - pos, offset);
+        if (nr < 0) {
+            if (errno == EINTR || errno == EAGAIN || errno == EBUSY) continue;
+            saved_errno = errno;
+            break;
+        } else if (nr == 0) break;
+#endif
+        pos += nr;
+        offset += nr;
+    }
+    Py_END_ALLOW_THREADS
+    if (saved_errno != 0) {
+        Py_CLEAR(output);
+#ifdef _WIN32
+        PyErr_SetFromWindowsErr(saved_errno);
+#else
+        errno = saved_errno;
+        PyErr_SetFromErrno(PyExc_OSError);
+#endif
+        return NULL;
+    }
+    if (pos < n && _PyBytes_Resize(&output, pos) != 0) return NULL;
+    return output;
+}
+
 static PyMethodDef speedup_methods[] = {
     {"deepcopy", deepcopy, METH_O,
         "deepcopy(object)\n\nFast implementation of deepcopy()"
@@ -750,6 +818,13 @@ static PyMethodDef speedup_methods[] = {
 
 	{"set_thread_name", set_thread_name, METH_VARARGS,
 		"set_thread_name(name)\n\nWrapper for pthread_setname_np"
+	},
+
+	{"pread_all", pread_all, METH_VARARGS,
+		"pread_all(fd, n, offset)\n\nRead upto n bytes from the specified fd at offset in a thread safe manner."
+        " If less than n bytes are returned it means there were less than n bytes in the file at offset."
+        " Only works with seekable regular files, not sockets/ttys/etc. Note that on Windows it moves the file pointer"
+        " so cannot be mixed with calls to tell() or ordinary reads."
 	},
 
 	{"get_num_of_significant_chars", get_num_of_significant_chars, METH_O,
