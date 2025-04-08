@@ -42,7 +42,7 @@ class KepubifyTests(BaseTest):
             actual = get_container(outpath, tweak_mode=True)
             self.assertEqual(
                 tuple(expected.manifest_items_with_property('cover-image')), tuple(actual.manifest_items_with_property('cover-image')))
-            self.assertEqual(tuple(expected.mime_map), tuple(actual.mime_map))
+            self.assertEqual(expected.mime_map, actual.mime_map)
             for name, mt in expected.mime_map.items():
                 if mt in OEB_DOCS or mt in OEB_STYLES or name.endswith('.opf'):
                     self.assertEqual(expected.open(name, 'rb').read(), actual.open(name, 'rb').read())

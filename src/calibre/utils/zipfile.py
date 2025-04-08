@@ -11,7 +11,9 @@ import stat
 import struct
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
+from threading import Lock
 
 from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
@@ -551,6 +553,7 @@ class ZipExtFile(io.BufferedIOBase):
 
         self.mode = mode
         self.name = zipinfo.filename
+        self.uncompressed_size = zipinfo.file_size
 
         if hasattr(zipinfo, 'CRC'):
             self._expected_crc = zipinfo.CRC
@@ -711,6 +714,26 @@ class ZipExtFile(io.BufferedIOBase):
         if bytes_to_read > 0:
             raw = self._fileobj.read(bytes_to_read)
         self._fileobj.seek(pos)
+        return raw
+
+    def decrypt_and_uncompress(self, raw: bytes) -> bytes:
+        if self._decrypter is not None and raw:
+            raw = b''.join(bytes(bytearray(map(self._decrypter, bytearray(raw)))))
+        if self._compress_type == ZIP_DEFLATED:
+            raw = zlib.decompress(raw, -15, max(self.uncompressed_size, zlib.DEF_BUF_SIZE))
+        return raw
+
+    def check_crc(self, raw: bytes) -> None:
+        if self._expected_crc is not None:
+            crc = crc32(raw) & 0xffffffff
+            # Check the CRC if we're at the end of the file
+            if crc != self._expected_crc:
+                raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
+
+    def readall(self):
+        raw = self.read_raw()
+        raw = self.decrypt_and_uncompress(raw)
+        self.check_crc(raw)
         return raw
 
 
@@ -1005,12 +1028,13 @@ class ZipFile:
 
     def read(self, name, pwd=None):
         '''Return file bytes (as a string) for name.'''
-        return self.open(name, 'r', pwd).read()
+        with closing(self.open(name, 'r', pwd)) as f:
+            return f.readall()
 
     def read_raw(self, name, mode='r', pwd=None):
         '''Return the raw bytes in the zipfile corresponding to name.'''
-        zef = self.open(name, mode=mode, pwd=pwd)
-        return zef.read_raw()
+        with closing(self.open(name, mode=mode, pwd=pwd)) as zef:
+            return zef.read_raw()
 
     def open(self, name, mode='r', pwd=None):
         '''Return file-like object for 'name'.'''
@@ -1020,13 +1044,7 @@ class ZipFile:
             raise RuntimeError(
                   'Attempt to read ZIP archive that was already closed')
 
-        # Only open a new file for instances where we were not
-        # given a file object in the constructor
-        if self._filePassed:
-            zef_file = self.fp
-        else:
-            zef_file = open(self.filename, 'rb')
-
+        zef_file = self.fp
         # Make sure we have an info object
         if isinstance(name, ZipInfo):
             # 'name' is already an info object
@@ -1035,7 +1053,7 @@ class ZipFile:
             # Get info object for name
             zinfo = self.getinfo(name)
 
-        zef_file.seek(zinfo.header_offset, 0)
+        zef_file.seek(zinfo.header_offset, os.SEEK_SET)
 
         # Skip the file header:
         fheader = zef_file.read(sizeFileHeader)
@@ -1100,28 +1118,28 @@ class ZipFile:
         return self._extract_member(member, path, pwd)
 
     def extractall(self, path=None, members=None, pwd=None):
-        '''Extract all members from the archive to the current working
-           directory. `path' specifies a different directory to extract to.
-           `members' is optional and must be a subset of the list returned
-           by namelist().
+        '''
+        Extract all members from the archive to the current working
+        directory. `path' specifies a different directory to extract to.
+        `members' is optional and must be a subset of the list returned
+        by namelist(). Uses multiple worker threads for max throughput.
         '''
         if members is None:
             members = self.namelist()
         if path is None:
             path = os.getcwd()
 
-        # Kovid: Extract longer names first, just in case the zip file has
-        # an entry for a directory without a trailing slash
-        members.sort(key=len, reverse=True)
         args = []
         for name in members:
             zi = self.getinfo(name)
             dest = self._get_targetpath(zi, path)
             args.append((zi, dest, pwd))
 
+        lock = Lock()
         def do_one(a):
-            return self._extract_member_to(*a)
-        tuple(map(do_one, args))
+            return self._extract_member_to(*a, lock=lock)
+        with ThreadPoolExecutor(thread_name_prefix='ZipFile-') as e:
+            tuple(e.map(do_one, args))
 
     def _get_targetpath(self, member: ZipInfo, targetpath: str) -> str:
         # build the destination pathname, replacing
@@ -1162,7 +1180,7 @@ class ZipFile:
     def _extract_member(self, member, targetpath, pwd):
         return self._extract_member_to(member, self._get_targetpath(member, targetpath), pwd)
 
-    def _extract_member_to(self, member, targetpath, pwd):
+    def _extract_member_to(self, member, targetpath, pwd, lock=None):
         '''Extract the ZipInfo object 'member' to a physical
            file on the path targetpath.
         '''
@@ -1175,23 +1193,30 @@ class ZipFile:
                     os.mkdir(targetpath)
             return targetpath
 
-        if not os.path.exists(targetpath):
-            # Kovid: Could be a previously automatically created directory
-            # in which case it is ignored
-            try:
-                target = open(targetpath, 'wb')
-            except OSError:
-                targetpath = os.path.join(os.path.dirname(targetpath), sanitize_file_name(os.path.basename(targetpath)))
-                target = open(targetpath, 'wb')
+        try:
+            target = open(targetpath, 'wb')
+        except IsADirectoryError:
+            return targetpath
+        except OSError:
+            targetpath = os.path.join(os.path.dirname(targetpath), sanitize_file_name(os.path.basename(targetpath)))
+            target = open(targetpath, 'wb')
 
-            with target, closing(self.open(member, pwd=pwd)) as source:
-                shutil.copyfileobj(source, target)
+        with target:
+            if lock is None:
+                with closing(self.open(member, pwd=pwd)) as source:
+                    shutil.copyfileobj(source, target)
+            else:
+                with lock, closing(self.open(member, pwd=pwd)) as source:
+                    src = source.read_raw()
+                src = source.decrypt_and_uncompress(src)
+                source.check_crc(src)
+                target.write(src)
         # Kovid: Try to preserve the timestamps in the ZIP file
         try:
             mtime = time.localtime()
             mtime = time.mktime(member.date_time + (0, 0) + (mtime.tm_isdst,))
             os.utime(targetpath, (mtime, mtime))
-        except:
+        except Exception:
             pass
         return targetpath
 
@@ -1680,17 +1705,7 @@ def main(args=None):
 
         zf = ZipFile(args[1], 'r')
         out = args[2]
-        for path in zf.namelist():
-            if path.startswith('./'):
-                tgt = os.path.join(out, path[2:])
-            else:
-                tgt = os.path.join(out, path)
-
-            tgtdir = os.path.dirname(tgt)
-            if not os.path.exists(tgtdir):
-                os.makedirs(tgtdir)
-            with open(tgt, 'wb') as fp:
-                fp.write(zf.read(path))
+        zf.extractall(out)
         zf.close()
 
     elif args[0] == '-c':
