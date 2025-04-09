@@ -202,7 +202,7 @@ def _extractall(f, path=None, file_info=None):
         # .
         fname = header.filename.replace(os.sep, '/')
         fname = os.path.splitdrive(fname)[1]
-        parts = [x for x in fname.split('/') if x not in {'', os.path.pardir, os.path.curdir}]
+        parts = tuple(x for x in fname.split('/') if x not in {'', os.path.pardir, os.path.curdir})
         if not parts:
             continue
         if header.uncompressed_size == 0:
