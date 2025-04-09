@@ -536,7 +536,7 @@ class ZipExtFile(io.BufferedIOBase):
         self._fileobj = fileobj
         self._pread_fd = pread_fd
         self._decrypter = decrypter
-        self._orig_pos = pos
+        self._orig_pos = self._pread_pos = pos
 
         self._compress_type = zipinfo.compress_type
         self._compress_size = zipinfo.compress_size
@@ -673,7 +673,11 @@ class ZipExtFile(io.BufferedIOBase):
             nbytes = max(nbytes, self.MIN_READ_SIZE)
             nbytes = min(nbytes, self._compress_left)
 
-            data = self._fileobj.read(nbytes)
+            if self._pread_fd > -1:
+                data = pread_all(self._pread_fd, nbytes, self._pread_pos)
+                self._pread_pos += len(data)
+            else:
+                data = self._fileobj.read(nbytes)
             self._compress_left -= len(data)
 
             if data and self._decrypter is not None:
