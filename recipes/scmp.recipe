@@ -24,7 +24,12 @@ def E(parent, name, text='', **attrs):
 def process_node(node, html_parent):
     ntype = node.get('type')
 
-    if ntype not in {'track-viewed-percentage', 'inline-ad-slot', 'inline-widget', 'text'}:
+    if ntype not in {
+        'track-viewed-percentage',
+        'inline-ad-slot',
+        'inline-widget',
+        'text',
+    }:
         c = html_parent.makeelement(ntype)
         if ntype != 'p':
             c.attrib.update({k: v or '' for k, v in node.get('attribs', {}).items()})
@@ -43,7 +48,7 @@ def process_node(node, html_parent):
 
 
 def ts_date(x):
-    dt = datetime.fromtimestamp(x/1000 + time.timezone)
+    dt = datetime.fromtimestamp(x / 1000 + time.timezone)
     return dt.strftime('%b %d, %Y at %I:%M %p')
 
 
@@ -54,12 +59,23 @@ def load_article_from_json(raw, root):
     for child in tuple(body):
         body.remove(child)
     article = E(body, 'article')
-    E(article, 'div', replace_entities(data['firstTopic']['name']), style='color: gray; font-size:small; font-weight:bold;')
+    E(
+        article,
+        'div',
+        replace_entities(data['firstTopic']['name']),
+        style='color: gray; font-size:small; font-weight:bold;',
+    )
     E(article, 'h1', replace_entities(data['headline']))
     # E(article, 'p', replace_entities(data['subHeadline']['text']), style='font-style: italic; color:#202020;')
     for subh in data['subHeadline']['json']:
         process_node(subh, article)
-    auth = ts_date(data['publishedDate']) + ' | ' + str(data.get('readingTime', '')) + ' min read | ' + ', '.join([a['name'] for a in data['authors']])
+    auth = (
+        ts_date(data['publishedDate'])
+        + ' | '
+        + str(data.get('readingTime', ''))
+        + ' min read | '
+        + ', '.join([a['name'] for a in data['authors']])
+    )
     E(article, 'p', auth, style='color: #202020; font-size:small;')
     main_image_url = sub_img = ''
     for l in data['images']:
@@ -102,24 +118,23 @@ class SCMP(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.frontpages.com/south-china-morning-post/')
-        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         },
-        'comp': {
-            'short': 'Compress News Images?',
-            'long': 'enter yes',
-            'default': 'no'
-        },
+        'comp': {'short': 'Compress News Images?', 'long': 'enter yes', 'default': 'no'},
         'rev': {
             'short': 'Reverse the order of articles in each feed?',
             'long': 'enter yes',
-            'default': 'no'
-        }
+            'default': 'no',
+        },
     }
 
     def __init__(self, *args, **kwargs):
@@ -162,7 +177,7 @@ class SCMP(BasicNewsRecipe):
         ('Sport', 'https://www.scmp.com/rss/95/feed'),
         ('Post Mag', 'https://www.scmp.com/rss/71/feed'),
         ('Style', 'https://www.scmp.com/rss/72/feed'),
-        ('News', 'https://www.scmp.com/rss/91/feed')
+        ('News', 'https://www.scmp.com/rss/91/feed'),
     ]
 
     def print_version(self, url):
@@ -188,11 +203,17 @@ class SCMP(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         from urllib.parse import urlparse
-        for img in soup.findAll('img', attrs={'src':True}):
+
+        for img in soup.findAll('img', attrs={'src': True}):
             y = 'https://img.i-scmp.com/cdn-cgi/image/fit=contain,width=768,format=auto'
             img['src'] = y + urlparse(img['src']).path
-        for img in soup.findAll('img', attrs={'title':True}):
-            div = soup.new_tag('div', attrs={'style':'text-align:center; font-size:small;'})
+        for img in soup.findAll('img', attrs={'title': True}):
+            div = soup.new_tag(
+                'div', attrs={'style': 'text-align:center; font-size:small;'}
+            )
             div.string = img.get('title', '')
-            img.find_parent('div').append(div)
+            if img.find_parent('div'):
+                img.find_parent('div').append(div)
+            else:
+                img.append(div)
         return soup
