@@ -43,15 +43,16 @@ web_sections = [
     ('Music', 'arts/music'),
     ('Television', 'arts/television'),
     ('Style', 'style'),
-    ('Dining & Wine', 'dining'),
+    ('Dining & Wine', 'food'),
     ('Fashion & Style', 'fashion'),
-    ('Home & Garden', 'garden'),
+    # ('Home & Garden', 'garden'),
     ('Travel', 'travel'),
     ('Education', 'education'),
     ('Multimedia', 'multimedia'),
     ('Obituaries', 'obituaries'),
     ('Sunday Magazine', 'magazine')
 ]
+# web_sections = [ ('Business', 'business'), ]
 url_date_pat = re.compile(r'/(2\d\d\d)/(\d\d)/(\d\d)/')
 
 
@@ -258,10 +259,13 @@ class NewYorkTimes(BasicNewsRecipe):
         for section_title, slug in web_sections:
             query_id = '/section/' + slug
             data = self.nyt_graphql_query(query_id)
-            articles = parse_web_section(data)
+            self.log('Section:', section_title)
+            articles = parse_web_section(data, log=self.log, title=section_title)
             if articles:
-                self.log('Found section:', section_title)
                 feeds.append((section_title, articles))
+            else:
+                # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
+                self.log('  No articles found in section:', section_title)
             if self.test and len(feeds) >= self.test[0]:
                 break
         return feeds
@@ -330,9 +334,17 @@ def parse_todays_page(data, log=print):
     return feeds
 
 
-def parse_web_section(data, log=print):
+def parse_web_section(data, log=print, title=''):
     articles = []
-    containers = data['data']['legacyCollection']['collectionsPage']['embeddedCollections']
+    try:
+        containers = data['data']['legacyCollection']['collectionsPage']
+        if containers.get('embeddedCollections'):
+            containers = containers['embeddedCollections']
+        else:
+            containers = [containers]
+    except Exception as e:
+        log('Failed to parse web section', title, 'with error:', e)
+        return articles
     for cont in containers:
         for s in cont['stream']['edges']:
             asset = s['node']
