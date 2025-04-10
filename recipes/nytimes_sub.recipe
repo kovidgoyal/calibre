@@ -16,6 +16,7 @@ from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
 from polyglot.urllib import urlencode
 
+is_web_edition = False
 use_wayback_machine = False
 
 # This is an Apollo persisted query hash which you can get
@@ -81,17 +82,23 @@ def new_tag(soup, name, attrs=()):
 
 
 class NewYorkTimes(BasicNewsRecipe):
-    title = 'The New York Times'
-    description = (
-        'New York Times. Todays Paper '
-        'Use advanced menu to make changes to fetch Web Edition'
-    )
+    if is_web_edition:
+        title = 'The New York Times (Web)'
+        description = (
+            'New York Times (Web). You can edit the recipe to remove sections you are not interested in. '
+            'Use advanced menu to make changes to fetch Todays Paper'
+        )
+    else:
+        title = 'The New York Times'
+        description = (
+            'New York Times. Todays Paper '
+            'Use advanced menu to make changes to fetch Web Edition'
+        )
     encoding = 'utf-8'
     __author__ = 'Kovid Goyal'
     language = 'en_US'
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
-    is_web_edition = False
     oldest_web_edition_article = 7  # days
 
     extra_css = '''
@@ -132,8 +139,8 @@ class NewYorkTimes(BasicNewsRecipe):
 
     recipe_specific_options = {
         'web': {
-            'short': 'Type in yes, if you want Web Edition',
-            'default': 'Todays Paper'
+            'short': 'Type in yes, if you want ' + ('Todays Paper' if is_web_edition else 'Web Edition'),
+            'default': 'Web Edition' if is_web_edition else 'Todays Paper',
         },
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
@@ -166,9 +173,10 @@ class NewYorkTimes(BasicNewsRecipe):
         c = self.recipe_specific_options.get('comp')
         d = self.recipe_specific_options.get('days')
         w = self.recipe_specific_options.get('web')
+        self.is_web_edition = is_web_edition
         if w and isinstance(w, str):
             if w == 'yes':
-                self.is_web_edition = True
+                self.is_web_edition = not is_web_edition
         if d and isinstance(d, str):
             self.oldest_web_edition_article = float(d)
         if c and isinstance(c, str):
@@ -336,4 +344,8 @@ def parse_web_section(data, log=print):
 
 if __name__ == '__main__':
     import sys
-    parse_todays_page(json.loads(open(sys.argv[-1], 'rb').read()))
+    data = json.loads(open(sys.argv[-1], 'rb').read())
+    if is_web_edition:
+        parse_web_section(data)
+    else:
+        parse_todays_page(data)
