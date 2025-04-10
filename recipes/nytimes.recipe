@@ -8,13 +8,20 @@ import datetime
 import json
 import re
 
+import mechanize
+
 from calibre import strftime
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.urllib import urlencode
 
 use_wayback_machine = False
 
+# This is an Apollo persisted query hash which you can get
+# from looking at the XHR requests made by: https://www.nytimes.com/section/todayspaper
+# or by https://www.nytimes.com/section/world
+persistedQuery = '1f99120a11e94dd62a9474f68ee1255537ee3cf7eac20a0377819edb2fa1fef7'
 
 # The sections to download when downloading the web edition, comment out
 # the section you are not interested in
@@ -76,7 +83,7 @@ def new_tag(soup, name, attrs=()):
 class NewYorkTimes(BasicNewsRecipe):
     title = 'The New York Times (Web)'
     description = (
-            'New York Times (Web). You can edit the recipe to remove sections you are not interested in. '
+        'New York Times (Web). You can edit the recipe to remove sections you are not interested in. '
         'Use advanced menu to make changes to fetch Todays Paper'
     )
     encoding = 'utf-8'
@@ -169,169 +176,83 @@ class NewYorkTimes(BasicNewsRecipe):
                 self.compress_news_images = True
 
     def read_todays_paper(self):
-        INDEX = 'https://www.nytimes.com/section/todayspaper'
-        # INDEX = 'file:///t/raw.html'
-        d = self.recipe_specific_options.get('date')
-        if d and isinstance(d, str):
-            INDEX = 'https://www.nytimes.com/issue/todayspaper/' + d + '/todays-new-york-times'
-        return self.index_to_soup(self.get_nyt_page(INDEX, skip_wayback=True))
+        pdate = self.recipe_specific_options.get('date')
+        templ = 'https://www.nytimes.com/issue/todayspaper/{}/todays-new-york-times'
+        if pdate and isinstance(pdate, str):
+            return pdate, self.index_to_soup(templ.format(pdate))
+        # Cant figure out how to get the date so just try todays and yesterdays dates
+        date = datetime.date.today()
+        pdate = date.strftime('%Y/%m/%d')
+        try:
+            soup = self.index_to_soup(templ.format(pdate))
+        except Exception as e:
+            if getattr(e, 'code', None) == 404:
+                date -= datetime.timedelta(days=1)
+                pdate = date.strftime('%Y/%m/%d')
+                soup = self.index_to_soup(templ.format(pdate))
+            else:
+                raise
+        self.log("Using today's paper from:", pdate)
+        return pdate, soup
 
     def read_nyt_metadata(self):
-        soup = self.read_todays_paper()
-        pdate = soup.find('meta', attrs={'name':'pdate', 'content': True})['content']
-        date = strptime(pdate, '%Y%m%d', assume_utc=False, as_utc=False)
-        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(date.strftime('%Y/%m/%d'))
+        pdate, soup = self.read_todays_paper()
+        date = strptime(pdate, '%Y/%m/%d', assume_utc=False, as_utc=False)
+        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
         self.timefmt = strftime(' [%d %b, %Y]', date)
-        return soup
-
-    def parse_todays_page(self):
-        soup = self.read_nyt_metadata()
+        self.nytimes_publication_date = pdate
         script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
         script = type(u'')(script)
-        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
-        data = json.loads(json_data.replace(':undefined', ':null'))['initialState']
-        article_map = {}
-        sections = []
-        for key in data:
-            if 'Article' in key:
-                adata = data[key]
-                if adata.get('__typename') == 'Article':
-                    url = adata.get('url')
-                    summary = adata.get('summary')
-                    headline = adata.get('headline')
-                    if url and headline:
-                        title = headline['default']
-                        article_map[adata['id']] = {
-                            'title': title, 'url': url, 'description': summary or ''}
-            elif 'LegacyCollection:' in key:
-                lc = data[key]
-                if not lc.get('active'):
-                    continue
-                for sdata in lc['groupings']:
-                    tname = sdata.get('__typename')
-                    if tname != 'LegacyCollectionGrouping':
-                        continue
-                    for cont in sdata['containers']:
-                        if cont.get('__typename') == 'LegacyCollectionContainer':
-                            section_name = cont['label@stripHtml']
-                            articles = []
-                            for rel in cont['relations']:
-                                if rel.get('__typename') == 'LegacyCollectionRelation':
-                                    asset = rel['asset']['__ref']
-                                    if asset.startswith('Article:'):
-                                        articles.append(asset.partition(':')[2])
-                            if articles:
-                                sections.append((section_name, articles))
+        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
+        self.nytimes_graphql_config = json.loads(json_data.replace(':undefined', ':null'))['config']
+        return soup
 
-        feeds = []
-        for section_title, article_ids in sections:
-            articles = []
-            for aid in article_ids:
-                if aid in article_map:
-                    art = article_map[aid]
-                    articles.append(art)
-            if articles:
-                feeds.append((section_title, articles))
+    def nyt_graphql_query(self, qid, operationName='CollectionsQuery'):
+        query = {
+            'operationName': operationName,
+            'variables': json.dumps({
+                'id': qid,
+                'first': 10,
+                'exclusionMode': 'HIGHLIGHTS_AND_EMBEDDED',
+                'isFetchMore':False,
+                'isTranslatable':False,
+                'isEspanol':False,
+                'highlightsListUri':'nyt://per/personalized-list/__null__',
+                'highlightsListFirst':0,
+                'hasHighlightsList':False
+            }, separators=',:'),
+            'extensions': json.dumps({
+                'persistedQuery': {
+                    'version':1,
+                    'sha256Hash': persistedQuery,
+                },
+            }, separators=',:')
+        }
+        url = self.nytimes_graphql_config['gqlUrlClient'] + '?' + urlencode(query)
+        br = self.browser
+        # br.set_debug_http(True)
+        headers = dict(self.nytimes_graphql_config['gqlRequestHeaders'])
+        headers['Accept'] = 'application/json'
+        req = mechanize.Request(url, headers=headers)
+        raw = br.open(req).read()
+        # open('/t/raw.json', 'wb').write(raw)
+        return json.loads(raw)
 
-        def skey(x):
-            name = x[0].strip()
-            if name == 'The Front Page':
-                return 0, ''
-            return 1, name.lower()
-        feeds.sort(key=skey)
-        for section, articles in feeds:
-            self.log('\n' + section)
-            for article in articles:
-                self.log(article['title'] + ' - ' + article['url'])
-        # raise SystemExit(1)
-        return feeds
-
-    def parse_article_group(self, container):
-        for li in container.findAll('li'):
-            article = li.find('article')
-            if article is None:
-                a = li.find('a', href=True)
-                if a is not None:
-                    title = self.tag_to_string(li.find(['h3', 'h2'])).strip()
-                    paras = li.findAll('p')
-                    if not title:
-                        title = self.tag_to_string(paras[0]).strip()
-                    if not title:
-                        raise ValueError('No title found in article')
-                    url = a['href']
-                    if url.startswith('/'):
-                        url = 'https://www.nytimes.com' + url
-                    desc = ''
-                    if len(paras) > 0:
-                        desc = self.tag_to_string(paras[-1])
-                    date = ''
-                    d = date_from_url(url)
-                    if d is not None:
-                        date = format_date(d)
-                        today = datetime.date.today()
-                        delta = today - d
-                        if delta.days > self.oldest_web_edition_article:
-                            self.log.debug('\tSkipping article', title, 'as it is too old')
-                            continue
-                    yield {'title': title, 'url': url, 'description': desc, 'date': date}
-                continue
-            h2 = article.find(['h2', 'h3'])
-            if h2 is not None:
-                title = self.tag_to_string(h2)
-                a = h2.find('a', href=True)
-                if a is not None:
-                    url = a['href']
-                    if url.startswith('/'):
-                        url = 'https://www.nytimes.com' + url
-                    desc = ''
-                    p = h2.findNextSibling('p')
-                    if p is not None:
-                        desc = self.tag_to_string(p)
-                    date = ''
-                    d = date_from_url(url)
-                    if d is not None:
-                        date = format_date(d)
-                        today = datetime.date.today()
-                        delta = today - d
-                        if delta.days > self.oldest_web_edition_article:
-                            self.log.debug('\tSkipping article', title, 'as it is too old')
-                            continue
-                    yield {'title': title, 'url': url, 'description': desc, 'date': date}
-
-    def parse_web_section(self, soup, slug):
-
-        def log(article):
-            self.log('\t', article['title'] + article['date'], ':', article['url'])
-            if article.get('description'):
-                self.log('\t\t', article['description'])
-
-        cid = slug.split('/')[-1]
-        if cid == 'dining':
-            cid = 'food'
-        try:
-            container = soup.find(id='collection-{}'.format(cid)).find('section')
-        except AttributeError:
-            container = None
-        if container is None:
-            raise ValueError('Failed to find articles container for slug: {}'.format(slug))
-        for ol in container.findAll('ol'):
-            for article in self.parse_article_group(ol):
-                log(article)
-                yield article
+    def parse_todays_page(self):
+        self.read_nyt_metadata()
+        query_id = '/issue/todayspaper/{}/todays-new-york-times'.format(self.nytimes_publication_date)
+        data = self.nyt_graphql_query(query_id)
+        return parse_todays_page(data, self.log)
 
     def parse_web_sections(self):
         self.read_nyt_metadata()
         feeds = []
         for section_title, slug in web_sections:
-            url = 'https://www.nytimes.com/section/' + slug
-            try:
-                soup = self.index_to_soup(self.get_nyt_page(url))
-            except Exception:
-                self.log.error('Failed to download section:', url)
-                continue
-            self.log('Found section:', section_title)
-            articles = list(self.parse_web_section(soup, slug))
+            query_id = '/section/' + slug
+            data = self.nyt_graphql_query(query_id)
+            articles = parse_web_section(data)
             if articles:
+                self.log('Found section:', section_title)
                 feeds.append((section_title, articles))
             if self.test and len(feeds) >= self.test[0]:
                 break
@@ -372,3 +293,47 @@ class NewYorkTimes(BasicNewsRecipe):
         if not re.search(r'/video/|/athletic/|/card/', url):
             return url
         self.log('\tSkipping ', url)
+
+
+def asset_to_article(asset):
+    title = asset['headline']['default']
+    return {'title': title, 'url': asset['url'], 'description': asset['summary']}
+
+
+def parse_todays_page(data, log=print):
+    containers = data['data']['legacyCollection']['groupings'][0]['containers']
+    feeds = []
+    for cont in containers:
+        if cont['__typename'] != 'LegacyCollectionContainer':
+            continue
+        section_name = cont['label'].strip()
+        if not section_name:
+            continue
+        log(section_name)
+        articles = []
+        for rel in cont['relations']:
+            if rel.get('__typename') == 'LegacyCollectionRelation':
+                asset = rel['asset']
+                if asset['__typename'] == 'Article':
+                    articles.append(asset_to_article(asset))
+                    log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
+        if articles:
+            feeds.append((section_name, articles))
+    return feeds
+
+
+def parse_web_section(data, log=print):
+    articles = []
+    containers = data['data']['legacyCollection']['collectionsPage']['embeddedCollections']
+    for cont in containers:
+        for s in cont['stream']['edges']:
+            asset = s['node']
+            if asset['__typename'] == 'Article':
+                articles.append(asset_to_article(asset))
+                log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
+    return articles
+
+
+if __name__ == '__main__':
+    import sys
+    parse_web_section(json.loads(open(sys.argv[-1], 'rb').read()))
