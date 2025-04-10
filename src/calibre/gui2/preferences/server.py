@@ -359,9 +359,8 @@ class MainTab(QWidget):  # {{{
             b = QPushButton(text)
             b.clicked.connect(getattr(self, name).emit)
             setattr(self, name + '_button', b)
-            if name == 'show_logs':
-                h.addStretch(10)
             h.addWidget(b)
+        h.addStretch(10)
         self.ip_info = QLabel(self)
         self.update_ip_info()
         from calibre.gui2.ui import get_gui
