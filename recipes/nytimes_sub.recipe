@@ -8,10 +8,13 @@ import datetime
 import json
 import re
 
+import mechanize
+
 from calibre import strftime
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.urllib import urlencode
 
 use_wayback_machine = False
 
@@ -169,82 +172,70 @@ class NewYorkTimes(BasicNewsRecipe):
                 self.compress_news_images = True
 
     def read_todays_paper(self):
-        INDEX = 'https://www.nytimes.com/section/todayspaper'
-        # INDEX = 'file:///t/raw.html'
-        d = self.recipe_specific_options.get('date')
-        if d and isinstance(d, str):
-            INDEX = 'https://www.nytimes.com/issue/todayspaper/' + d + '/todays-new-york-times'
-        return self.index_to_soup(self.get_nyt_page(INDEX, skip_wayback=True))
+        pdate = self.recipe_specific_options.get('date')
+        templ = 'https://www.nytimes.com/issue/todayspaper/{}/todays-new-york-times'
+        if pdate and isinstance(pdate, str):
+            return pdate, self.index_to_soup(templ.format(pdate))
+        # Cant figure out how to get the date so just try todays and yesterdays dates
+        date = datetime.date.today()
+        pdate = date.strftime('%Y/%m/%d')
+        try:
+            soup = self.index_to_soup(templ.format(pdate))
+        except Exception as e:
+            if getattr(e, 'code', None) == 404:
+                date -= datetime.timedelta(days=1)
+                pdate = date.strftime('%Y/%m/%d')
+                soup = self.index_to_soup(templ.format(pdate))
+            else:
+                raise
+        self.log("Using today's paper from:", pdate)
+        return pdate, soup
 
     def read_nyt_metadata(self):
-        soup = self.read_todays_paper()
-        pdate = soup.find('meta', attrs={'name':'pdate', 'content': True})['content']
-        date = strptime(pdate, '%Y%m%d', assume_utc=False, as_utc=False)
-        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(date.strftime('%Y/%m/%d'))
+        pdate, soup = self.read_todays_paper()
+        date = strptime(pdate, '%Y/%m/%d', assume_utc=False, as_utc=False)
+        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
         self.timefmt = strftime(' [%d %b, %Y]', date)
+        self.nytimes_publication_date = pdate
+        script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
+        script = type(u'')(script)
+        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
+        self.nytimes_graphql_config = json.loads(json_data.replace(':undefined', ':null'))['config']
         return soup
 
     def parse_todays_page(self):
-        soup = self.read_nyt_metadata()
-        script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
-        script = type(u'')(script)
-        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
-        data = json.loads(json_data.replace(':undefined', ':null'))['initialState']
-        article_map = {}
-        sections = []
-        for key in data:
-            if 'Article' in key:
-                adata = data[key]
-                if adata.get('__typename') == 'Article':
-                    url = adata.get('url')
-                    summary = adata.get('summary')
-                    headline = adata.get('headline')
-                    if url and headline:
-                        title = headline['default']
-                        article_map[adata['id']] = {
-                            'title': title, 'url': url, 'description': summary or ''}
-            elif 'LegacyCollection:' in key:
-                lc = data[key]
-                if not lc.get('active'):
-                    continue
-                for sdata in lc['groupings']:
-                    tname = sdata.get('__typename')
-                    if tname != 'LegacyCollectionGrouping':
-                        continue
-                    for cont in sdata['containers']:
-                        if cont.get('__typename') == 'LegacyCollectionContainer':
-                            section_name = cont['label@stripHtml']
-                            articles = []
-                            for rel in cont['relations']:
-                                if rel.get('__typename') == 'LegacyCollectionRelation':
-                                    asset = rel['asset']['__ref']
-                                    if asset.startswith('Article:'):
-                                        articles.append(asset.partition(':')[2])
-                            if articles:
-                                sections.append((section_name, articles))
-
-        feeds = []
-        for section_title, article_ids in sections:
-            articles = []
-            for aid in article_ids:
-                if aid in article_map:
-                    art = article_map[aid]
-                    articles.append(art)
-            if articles:
-                feeds.append((section_title, articles))
-
-        def skey(x):
-            name = x[0].strip()
-            if name == 'The Front Page':
-                return 0, ''
-            return 1, name.lower()
-        feeds.sort(key=skey)
-        for section, articles in feeds:
-            self.log('\n' + section)
-            for article in articles:
-                self.log(article['title'] + ' - ' + article['url'])
-        # raise SystemExit(1)
-        return feeds
+        self.read_nyt_metadata()
+        query = {
+            'operationName': 'CollectionsQuery',
+            'variables': json.dumps({
+                'id': '/issue/todayspaper/{}/todays-new-york-times'.format(self.nytimes_publication_date),
+                'first': 10,
+                'exclusionMode': 'HIGHLIGHTS_AND_EMBEDDED',
+                'isFetchMore':False,
+                'isTranslatable':False,
+                'isEspanol':False,
+                'highlightsListUri':'nyt://per/personalized-list/__null__',
+                'highlightsListFirst':0,
+                'hasHighlightsList':False
+            }, separators=',:'),
+            'extensions': json.dumps({
+                'persistedQuery': {
+                    'version':1,
+                    # This is an Apollo persisted query hash which you can get
+                    # from looking at the XHR requests made by: https://www.nytimes.com/section/todayspaper
+                    'sha256Hash': '1f99120a11e94dd62a9474f68ee1255537ee3cf7eac20a0377819edb2fa1fef7',
+                },
+            }, separators=',:')
+        }
+        url = self.nytimes_graphql_config['gqlUrlClient'] + '?' + urlencode(query)
+        br = self.browser
+        # br.set_debug_http(True)
+        headers = dict(self.nytimes_graphql_config['gqlRequestHeaders'])
+        headers['Accept'] = 'application/json'
+        req = mechanize.Request(url, headers=headers)
+        raw = br.open(req).read()
+        # open('/t/raw.json', 'wb').write(raw)
+        return parse_todays_page(json.loads(raw), self.log)
 
     def parse_article_group(self, container):
         for li in container.findAll('li'):
@@ -372,3 +363,31 @@ class NewYorkTimes(BasicNewsRecipe):
         if not re.search(r'/video/|/athletic/|/card/', url):
             return url
         self.log('\tSkipping ', url)
+
+
+def parse_todays_page(data, log=print):
+    containers = data['data']['legacyCollection']['groupings'][0]['containers']
+    feeds = []
+    for cont in containers:
+        if cont['__typename'] != 'LegacyCollectionContainer':
+            continue
+        section_name = cont['label'].strip()
+        if not section_name:
+            continue
+        log(section_name)
+        articles = []
+        for rel in cont['relations']:
+            if rel.get('__typename') == 'LegacyCollectionRelation':
+                asset = rel['asset']
+                if asset['__typename'] == 'Article':
+                    title = asset['headline']['default']
+                    articles.append({'title': title, 'url': asset['url'], 'description': asset['summary']})
+                    log(' ', title + ':', asset['url'])
+        if articles:
+            feeds.append((section_name, articles))
+    return feeds
+
+
+if __name__ == '__main__':
+    import sys
+    parse_todays_page(json.loads(open(sys.argv[-1], 'rb').read()))
