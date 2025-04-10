@@ -258,9 +258,9 @@ class NewYorkTimes(BasicNewsRecipe):
         feeds = []
         for section_title, slug in web_sections:
             query_id = '/section/' + slug
-            data = self.nyt_graphql_query(query_id)
-            self.log('Section:', section_title)
             try:
+                data = self.nyt_graphql_query(query_id)
+                self.log('Section:', section_title)
                 articles = parse_web_section(data, log=self.log, title=section_title)
             except Exception as e:
                 self.log('Failed to parse section:', section_title, 'with error:', e)
