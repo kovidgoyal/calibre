@@ -890,6 +890,9 @@ class FormatList(_FormatList):
                 action = EditAction(item, cm)
                 action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
                 cm.addAction(action)
+            ac = cm.addAction(QIcon.ic('trash.png'), _('&Remove {} format').format(item.ext.upper()))
+            ac.setObjectName(item.ext)
+            ac.triggered.connect(self.remove_cm_fmt)
 
         if item and originals:
             cm.addSeparator()
@@ -903,6 +906,9 @@ class FormatList(_FormatList):
         cm.addAction(ac)
         cm.popup(event.globalPos())
         event.accept()
+
+    def remove_cm_fmt(self):
+        self.remove_format(self.sender().objectName())
 
     def remove_format(self, fmt):
         for i in range(self.count()):
