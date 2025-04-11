@@ -107,7 +107,7 @@ class Publish(Command):
         require_clean_git()
         version = tuple(map(int, __version__.split('.')))  # noqa: RUF048
         if version[2] > 99:
-            raise SystemExit('The version number indicates a preview release, did you mean to run ./setup.py publish_preview?')
+            raise SystemExit(f'The version number {__version__} indicates a preview release, did you mean to run ./setup.py publish_preview?')
         if 'PUBLISH_BUILD_DONE' not in os.environ:
             subprocess.check_call([sys.executable, 'setup.py', 'check'])
             subprocess.check_call([sys.executable, 'setup.py', 'build'])
