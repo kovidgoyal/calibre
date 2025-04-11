@@ -1737,8 +1737,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in user_cats.keys():
             new_cat = []
             for val, key, _ in user_cats[cat]:
-                datatype = cache.field_metadata.get(key, {}).get('datatype', '*****')
-                if datatype != 'composite':
+                datatype = cache.field_metadata.get(key, {}).get('datatype')
+                # datatype can be None if a column used in user categories has
+                # been deleted. Remove it from the user categories
+                if datatype is not None and datatype != 'composite':
                     id_ = cache.get_item_id(key, val, case_sensitive=True)
                     if id_ is not None:
                         v = cache.books_for_field(key, id_)
