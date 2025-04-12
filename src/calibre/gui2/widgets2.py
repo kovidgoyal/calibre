@@ -37,6 +37,7 @@ from qt.core import (
     QScrollArea,
     QSize,
     QSizePolicy,
+    QSplitter,
     QStyle,
     QStyledItemDelegate,
     QStyleOptionToolButton,
@@ -51,6 +52,7 @@ from qt.core import (
     QUndoCommand,
     QUndoStack,
     QUrl,
+    QVBoxLayout,
     QWidget,
     pyqtSignal,
 )
@@ -524,7 +526,18 @@ class FlowLayout(QLayout):  # {{{
 
     @staticmethod
     def test():
+        s = QSplitter()
+        h = QSplitter()
+        h.setOrientation(Qt.Orientation.Vertical)
+        def filler():
+            la = QLabel(' filler')
+            la.sizeHint = lambda *a: QSize(10000, 10000)
+            la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            return la
         w = QWidget()
+        h.addWidget(w), h.addWidget(filler())
+        s.addWidget(h)
+        s.addWidget(filler())
         l = FlowLayout(w)
         la = QLabel('Some text in a label')
         l.addWidget(la)
@@ -533,7 +546,7 @@ class FlowLayout(QLayout):  # {{{
         cb = QComboBox()
         cb.addItems(['Item one'])
         l.addWidget(cb)
-        return w
+        return s
 # }}}
 
 
@@ -897,6 +910,8 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     app.load_builtin_fonts()
-    w = RatingEditor.test()
-    w.show()
-    app.exec()
+    d = QDialog()
+    l = QVBoxLayout(d)
+    w = FlowLayout.test()
+    l.addWidget(w)
+    d.exec()
