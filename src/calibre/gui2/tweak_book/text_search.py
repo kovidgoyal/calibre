@@ -100,6 +100,7 @@ class TextSearch(QWidget):
         ft.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         ft.initialize('tweak_book_text_search_history')
         la.setBuddy(ft)
+        ft.textActivated.connect(self.search_activated)
         self.h = h = QHBoxLayout()
         h.addWidget(la), h.addWidget(ft), l.addLayout(h)
 
@@ -150,6 +151,9 @@ class TextSearch(QWidget):
         state['find'] = self.find.text()
         state['direction'] = direction
         self.find_text.emit(state)
+
+    def search_activated(self):
+        self.do_search()
 # }}}
 
 
