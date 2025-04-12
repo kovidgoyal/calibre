@@ -3,7 +3,7 @@
 
 
 from lxml.etree import tostring
-from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QSizePolicy, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog
@@ -111,23 +111,23 @@ class TextSearch(QWidget):
         h.addWidget(m)
         self.where_box = wb = WhereBox(self)
         h.addWidget(wb)
+        self.next_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('arrow-down.png')), b.setText(_('&Next'))
+        b.setToolTip(_('Find next match'))
+        h.addWidget(b)
+        self.prev_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('arrow-up.png')), b.setText(_('&Previous'))
+        b.setToolTip(_('Find previous match'))
+        h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search('up'))
+
+        self.h3 = h = QHBoxLayout()
+        l.addLayout(h)
         self.cs = cs = QCheckBox(_('&Case sensitive'))
         h.addWidget(cs)
         self.da = da = QCheckBox(_('&Dot all'))
         da.setToolTip('<p>'+_("Make the '.' special character match any character at all, including a newline"))
         h.addWidget(da)
-
-        self.h3 = h = QHBoxLayout()
-        l.addLayout(h)
-        h.addStretch(10)
-        self.next_button = b = QPushButton(QIcon.ic('arrow-down.png'), _('&Next'), self)
-        b.setToolTip(_('Find next match'))
-        h.addWidget(b)
-        connect_lambda(b.clicked, self, lambda self: self.do_search('down'))
-        self.prev_button = b = QPushButton(QIcon.ic('arrow-up.png'), _('&Previous'), self)
-        b.setToolTip(_('Find previous match'))
-        h.addWidget(b)
-        connect_lambda(b.clicked, self, lambda self: self.do_search('up'))
 
         state = tprefs.get('text_search_widget_state')
         self.state = state or {}
