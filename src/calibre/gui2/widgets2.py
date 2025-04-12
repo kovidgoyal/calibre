@@ -408,9 +408,21 @@ class FlowLayout(QLayout):  # {{{
     def __init__(self, parent=None):
         QLayout.__init__(self, parent)
         self.items = []
+        self.height_for_width_cache = {}
+
+    def clear_caches(self):
+        self.height_for_width_cache.clear()
 
     def addItem(self, item):
+        self.clear_caches()
         self.items.append(item)
+
+    def isEmpty(self):
+        return not bool(self.items)
+
+    def invalidate(self):
+        self.clear_caches()
+        super().invalidate()
 
     def itemAt(self, idx):
         try:
@@ -432,7 +444,9 @@ class FlowLayout(QLayout):  # {{{
         return True
 
     def heightForWidth(self, width):
-        return self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+        if (ans := self.height_for_width_cache.get(width)) is None:
+            ans = self.height_for_width_cache[width] = self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+        return ans
 
     def setGeometry(self, rect):
         QLayout.setGeometry(self, rect)
