@@ -1,5 +1,19 @@
 [project]
+name = "calibre"
+description = "The one stop solution to all your e-book needs"
+readme = "README.md"
 requires-python = ">=3.10"
+license = "GPL-3.0-only"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://calibre-ebook.com"
+FAQ = "https://manual.calibre-ebook.com/faq.html"
+Documentation = "https://manual.calibre-ebook.com"
+Repository = "https://github.com/kovidgoyal/calibre.git"
+Issues = "https://bugs.launchpad.net/calibre"
+Changelog = "https://github.com/kovidgoyal/calibre/blob/master/Changelog.txt"
+Community-Forum = "https://www.mobileread.com/forums/forumdisplay.php?f=166"
 
 [tool.ruff]
 line-length = 160
