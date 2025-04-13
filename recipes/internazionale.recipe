@@ -24,6 +24,9 @@ class Volkskrant(BasicNewsRecipe):
                     'magazine-article-share-popup',
                     'article_next',
                     'cta_nl_ext_container',
+                    'article_others_authors',  # Remove link of other articles at the bottom of the article
+                    'item_note2',  # Remove 'lettere' and 'numero' at the bottom of the article
+                    'article_spotlight',  # Remove 'Da non perdere' at the end of the article
                 ]
             }
         ),
