@@ -1,606 +1,102 @@
-__license__ = 'GPL v3'
-__copyright__ = 'Copyright 2010 Starson17'
-'''
-www.gocomics.com
-'''
-import os
-import shutil
-
-from calibre.constants import iswindows
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.filenames import ascii_filename
+#!/usr/bin/env python
+import json
+from datetime import datetime, timedelta
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
-def absolutize(url):
-    if url.startswith('/'):
-        url = 'http://www.gocomics.com' + url
-    return url
 
 
 class GoComics(BasicNewsRecipe):
     title = 'Go Comics'
-    __author__ = 'Kovid Goyal'
-    __version__ = '1.06'
-    __date__ = '07 June 2011'
-    description = u'200+ Comics - Customize for more days/comics: Defaults to 1 day, 25 comics - 20 general, 5 editorial.'
-    category = 'news, comics'
-    encoding = 'utf-8'
+    __author__ = 'unkn0wn'
+    description = (
+        'The best and funniest cartoons you loved then and now—all in one place!'
+    )
+    oldest_article = 2
     language = 'en'
-    no_stylesheets = True
-    remove_javascript = True
-    remove_attributes = ['style']
+    remove_empty_feeds = True
+    masthead_url = 'https://auth.amuniversal.com/development-assets/go-comics/images/logo-horizontal.svg'
+    cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/GoComics_logo.jpg/960px-GoComics_logo.jpg'
+    simultaneous_downloads = 1
 
-    # USER PREFERENCES - COMICS AND NUMBER OF COMICS TO RETRIEVE ########
-    # num_comics_to_get - I've tried up to 99 on Calvin&Hobbes
-    num_comics_to_get = 1
-    # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED STRIPS
-    # Please do not overload their servers by selecting all comics and 1000
-    # strips from each!
+    recipe_specific_options = {
+        'comics': {
+            'short': 'enter the slugs of the url\nof the comics you want seperated by a space',
+            'long': 'calvinandhobbes garfield animalcrackers the-born-loser ... ...',
+            'default': 'calvinandhobbes garfield animalcrackers pearlsbeforeswine bc peanuts',
+        },
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 3, gives you comics from past 3 days',
+            'default': str(oldest_article),
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 2400',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '1000',
+        },
+        'rev': {
+            'short': 'Reverse the order of articles in each feed?',
+            'long': 'enter yes',
+            'default': 'no',
+        },
+    }
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        br.addheaders = [('Referer', 'http://www.gocomics.com/')]
-        return br
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        r = self.recipe_specific_options.get('rev')
+        if r and isinstance(r, str):
+            if r.lower().strip() == 'yes':
+                self.reverse_article_order = True
 
     def parse_index(self):
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = int(d)
+
+        dates = [
+            (datetime.now() - timedelta(days=i)).strftime('%Y/%m/%d')
+            for i in range(self.oldest_article)
+        ]
+
+        u = self.recipe_specific_options.get('comics')
+        if u and isinstance(u, str):
+            coms = u.split()
+
         feeds = []
-        self.gocomics_dir = PersistentTemporaryDirectory('_gocomics')
-        for i, (title, url) in enumerate([  # {{{
-            # (u"The Academia Waltz",u"http://www.gocomics.com/academiawaltz"),
-            # (u"Adam@Home",u"http://www.gocomics.com/adamathome"),
-            # (u"Adult Children",u"http://www.gocomics.com/adult-children"),
-            # (u"The Adventures of Business Cat",u"http://www.gocomics.com/the-adventures-of-business-cat"),
-            # (u"Agnes",u"http://www.gocomics.com/agnes"),
-            # (u"AJ and Magnus",u"http://www.gocomics.com/aj-and-magnus"),
-            # (u"Lalo Alcaraz",u"http://www.gocomics.com/laloalcaraz"),
-            # (u"Ali's House",u"http://www.gocomics.com/alis-house"),
-            # (u"Alley Oop",u"http://www.gocomics.com/alley-oop"),
-            # (u"Amanda the Great",u"http://www.gocomics.com/amanda-the-great"),
-            # (u"Nick Anderson",u"http://www.gocomics.com/nickanderson"),
-            # (u"Andertoons",u"http://www.gocomics.com/andertoons"),
-            # (u"Andy Capp",u"http://www.gocomics.com/andycapp"),
-            # (u"Angry Little Girls",u"http://www.gocomics.com/angry-little-girls"),
-            (u'Animal Crackers', u'http://www.gocomics.com/animalcrackers'),
-            # (u"Annie",u"http://www.gocomics.com/annie"),
-            # (u"The Argyle Sweater",u"http://www.gocomics.com/theargylesweater"),
-            # (u"Robert Ariail",u"http://www.gocomics.com/robert-ariail"),
-            # (u"Arlo and Janis",u"http://www.gocomics.com/arloandjanis"),
-            # (u"Ask a Cat",u"http://www.gocomics.com/ask-a-cat"),
-            # (u"Ask Shagg",u"http://www.gocomics.com/askshagg"),
-            # (u"At the Zoo",u"http://www.gocomics.com/at-the-zoo"),
-            # (u"Aunty Acid",u"http://www.gocomics.com/aunty-acid"),
-            # (u"The Awkward Yeti",u"http://www.gocomics.com/the-awkward-yeti"),
-            (u'B.C.',u'http://www.gocomics.com/bc'),
-            # (u"Back to B.C.",u"http://www.gocomics.com/back-to-bc"),
-            # (u"Back in the Day",u"http://www.gocomics.com/backintheday"),
-            # (u"bacon",u"http://www.gocomics.com/bacon"),
-            # (u"Bad Machinery",u"http://www.gocomics.com/bad-machinery"),
-            # (u"Bad Reporter",u"http://www.gocomics.com/badreporter"),
-            # (u"Badlands",u"http://www.gocomics.com/badlands"),
-            (u'Baldo',u'http://www.gocomics.com/baldo'),
-            # (u"Ballard Street",u"http://www.gocomics.com/ballardstreet"),
-            # (u"Banana Triangle",u"http://www.gocomics.com/banana-triangle"),
-            # (u"Barkeater Lake Pandolph",u"http://www.gocomics.com/barkeaterlake"),
-            # (u"The Barn",u"http://www.gocomics.com/thebarn"),
-            # (u"Barney",u"http://www.gocomics.com/barneyandclyde"),
-            # (u"Basic Instructions",u"http://www.gocomics.com/basicinstructions"),
-            # (u"Beanie the Brownie",u"http://www.gocomics.com/beanie-the-brownie"),
-            # (u"Beardo",u"http://www.gocomics.com/beardo"),
-            # (u"Darrin Bell",u"http://www.gocomics.com/darrin-bell"),
-            # (u"Ben",u"http://www.gocomics.com/ben"),
-            # (u"Clay Bennett",u"http://www.gocomics.com/claybennett"),
-            # (u"Lisa Benson",u"http://www.gocomics.com/lisabenson"),
-            # (u"Steve Benson",u"http://www.gocomics.com/stevebenson"),
-            # (u"Bent Objects",u"http://www.gocomics.com/bent-objects"),
-            # (u"The Bent Pinky",u"http://www.gocomics.com/the-bent-pinky"),
-            # (u"Berger & Wyse",u"http://www.gocomics.com/berger-and-wyse"),
-            # (u"Berkeley Mews",u"http://www.gocomics.com/berkeley-mews"),
-            # (u"The Best Medicine Cartoon",u"http://www.gocomics.com/the-best-medicine"),
-            # (u"Betty",u"http://www.gocomics.com/betty"),
-            # (u"Bewley",u"http://www.gocomics.com/bewley"),
-            # (u"Biff& Riley",u"http://www.gocomics.com/biff-and-riley"),
-            # (u"Big Nate",u"http://www.gocomics.com/bignate"),
-            # (u"Big Nate: First Class",u"http://www.gocomics.com/big-nate-first-class"),
-            # (u"The Big Picture",u"http://www.gocomics.com/thebigpicture"),
-            # (u"Big Top",u"http://www.gocomics.com/bigtop"),
-            # (u"Biographic",u"http://www.gocomics.com/biographic"),
-            # (u"Birdbrains",u"http://www.gocomics.com/birdbrains"),
-            # (u"Bleeker: The Rechargeable Dog",u"http://www.gocomics.com/bleeker"),
-            # (u"Bliss",u"http://www.gocomics.com/bliss"),
-            # (u"Bloom County",u"http://www.gocomics.com/bloomcounty"),
-            # (u"Bloom County 2016",u"http://www.gocomics.com/bloom-county"),
-            # (u"Bo Nanas",u"http://www.gocomics.com/bonanas"),
-            # (u"Bob the Squirrel",u"http://www.gocomics.com/bobthesquirrel"),
-            # (u"Chip Bok",u"http://www.gocomics.com/chipbok"),
-            # (u"Boomerangs",u"http://www.gocomics.com/boomerangs"),
-            # (u"The Boondocks",u"http://www.gocomics.com/boondocks"),
-            (u'The Born Loser',u'http://www.gocomics.com/the-born-loser'),
-            # (u"Matt Bors",u"http://www.gocomics.com/matt-bors"),
-            # (u"Bottomliners",u"http://www.gocomics.com/bottomliners"),
-            (u'Bound and Gagged',u'http://www.gocomics.com/boundandgagged'),
-            # (u"Brain Squirts",u"http://www.gocomics.com/brain-squirts"),
-            # (u"Break of Day",u"http://www.gocomics.com/break-of-day"),
-            # (u"Breaking Cat News",u"http://www.gocomics.com/breaking-cat-news"),
-            # (u"Steve Breen",u"http://www.gocomics.com/stevebreen"),
-            # (u"Brevity",u"http://www.gocomics.com/brevitypanel"),
-            # (u"Brewster Rockit",u"http://www.gocomics.com/brewsterrockit"),
-            # (u"Chris Britt",u"http://www.gocomics.com/chrisbritt"),
-            (u'Broom Hilda',u'http://www.gocomics.com/broomhilda'),
-            # (u"The Buckets",u"http://www.gocomics.com/thebuckets"),
-            # (u"Bully",u"http://www.gocomics.com/bully"),
-            # (u"Buni",u"http://www.gocomics.com/buni"),
-            # (u"Bushy Tales",u"http://www.gocomics.com/bushy-tales"),
-            (u'Calvin and Hobbes',u'http://www.gocomics.com/calvinandhobbes'),
-            # (u"Candorville",u"http://www.gocomics.com/candorville"),
-            # (u"Stuart Carlson",u"http://www.gocomics.com/stuartcarlson"),
-            # (u"Ken Catalino",u"http://www.gocomics.com/kencatalino"),
-            # (u"Cathy",u"http://www.gocomics.com/cathy"),
-            # (u"Cattitudeƒ??Doggonit",u"http://www.gocomics.com/cattitude-doggonit"),
-            # (u"C'est la Vie",u"http://www.gocomics.com/cestlavie"),
-            # (u"Cheap Thrills Cuisine",u"http://www.gocomics.com/cheap-thrills-cuisine"),
-            # (u"Chuckle Bros",u"http://www.gocomics.com/chucklebros"),
-            # (u"Citizen Dog",u"http://www.gocomics.com/citizendog"),
-            # (u"The City",u"http://www.gocomics.com/thecity"),
-            # (u"Claw",u"http://www.gocomics.com/claw"),
-            # (u"Clear Blue Water",u"http://www.gocomics.com/clearbluewater"),
-            # (u"Cleats",u"http://www.gocomics.com/cleats"),
-            # (u"Close to Home",u"http://www.gocomics.com/closetohome"),
-            # (u"The Comic Strip That Has A Finale Every Day",u"http://www.gocomics.com/the-comic-strip-that-has-a-finale-every-day"),
-            # (u"Committed",u"http://www.gocomics.com/committed"),
-            # (u"Compu-toon",u"http://www.gocomics.com/compu-toon"),
-            # (u"The Conjurers",u"http://www.gocomics.com/the-conjurers"),
-            # (u"Connie to the Wonnie",u"http://www.gocomics.com/connie-to-the-wonnie"),
-            # (u"Cornered",u"http://www.gocomics.com/cornered"),
-            # (u"Cow and Boy Classics",u"http://www.gocomics.com/cowandboy"),
-            # (u"CowTown",u"http://www.gocomics.com/cowtown"),
-            # (u"The Creeps",u"http://www.gocomics.com/the-creeps"),
-            # (u"Crumb",u"http://www.gocomics.com/crumb"),
-            # (u"Cul de Sac",u"http://www.gocomics.com/culdesac"),
-            # (u"Dadding Badly",u"http://www.gocomics.com/dadding-badly"),
-            # (u"Daddy's Home",u"http://www.gocomics.com/daddyshome"),
-            # (u"The Daily Drawing",u"http://www.gocomics.com/the-daily-drawing"),
-            # (u"Jeff Danziger",u"http://www.gocomics.com/jeffdanziger"),
-            # (u"Dark Side of the Horse",u"http://www.gocomics.com/darksideofthehorse"),
-            # (u"Matt Davies",u"http://www.gocomics.com/mattdavies"),
-            # (u"Deep Dark Fears",u"http://www.gocomics.com/deep-dark-fears"),
-            # (u"John Deering",u"http://www.gocomics.com/johndeering"),
-            # (u"Diamond Lil",u"http://www.gocomics.com/diamondlil"),
-            # (u"Dick Tracy",u"http://www.gocomics.com/dicktracy"),
-            # (u"Dilbert Classics",u"http://www.gocomics.com/dilbert-classics"),
-            # (u"The Dinette Set",u"http://www.gocomics.com/dinetteset"),
-            # (u"Dinosaur Comics",u"http://www.gocomics.com/dinosaur-comics"),
-            # (u"Dog Eat Doug",u"http://www.gocomics.com/dogeatdoug"),
-            # (u"Dogs of C-Kennel",u"http://www.gocomics.com/dogsofckennel"),
-            # (u"Domestic Abuse",u"http://www.gocomics.com/domesticabuse"),
-            # (u"Doodle for Food",u"http://www.gocomics.com/doodle-for-food"),
-            # (u"Doodle Town",u"http://www.gocomics.com/doodle-town"),
-            # (u"Doonesbury",u"http://www.gocomics.com/doonesbury"),
-            # (u"The Doozies",u"http://www.gocomics.com/thedoozies"),
-            # (u"Dorris McComics",u"http://www.gocomics.com/dorris-mccomics"),
-            # (u"Alex Norris",u"http://www.gocomics.com/dorris-mccomics"),
-            # (u"Drabble",u"http://www.gocomics.com/drabble"),
-            # (u"Dragon Girl",u"http://www.gocomics.com/dragon-girl"),
-            # (u"Drive",u"http://www.gocomics.com/drive"),
-            # (u"dro-mo",u"http://www.gocomics.com/dro-mo"),
-            # (u"Dude and Dude",u"http://www.gocomics.com/dudedude"),
-            # (u"The Duplex",u"http://www.gocomics.com/duplex"),
-            # (u"Tim Eagan",u"http://www.gocomics.com/tim-eagan"),
-            # (u"Edge City",u"http://www.gocomics.com/edge-city"),
-            # (u"Edge of Adventure",u"http://www.gocomics.com/edge-of-adventure"),
-            # (u"Eek!",u"http://www.gocomics.com/eek"),
-            # (u"The Elderberries",u"http://www.gocomics.com/theelderberries"),
-            # (u"Emmy Lou",u"http://www.gocomics.com/emmy-lou),
-            # (u"Endtown",u"http://www.gocomics.com/endtown"),
-            # (u"Eric the Circle",u"http://www.gocomics.com/eric-the-circle"),
-            # (u"Everyday People Cartoons",u"http://www.gocomics.com/everyday-people-cartoons"),
-            # (u"Eyebeam",u"http://www.gocomics.com/eyebeam"),
-            # (u"F Minus",u"http://www.gocomics.com/fminus"),
-            # (u"Family Tree",u"http://www.gocomics.com/familytree"),
-            # (u"Farcus",u"http://www.gocomics.com/farcus"),
-            # (u"Fat Cats",u"http://www.gocomics.com/fat-cats"),
-            # (u"Flo and Friends",u"http://www.gocomics.com/floandfriends"),
-            # (u"The Flying McCoys",u"http://www.gocomics.com/theflyingmccoys"),
-            # (u"Foolish Mortals",u"http://www.gocomics.com/foolish-mortals"),
-            (u'For Better or For Worse',u'http://www.gocomics.com/forbetterorforworse'),
-            # (u"For Heaven's Sake",u"http://www.gocomics.com/forheavenssake"),
-            # (u"Fort Knox",u"http://www.gocomics.com/fortknox"),
-            # (u"Four Eyes",u"http://www.gocomics.com/four-eyes"),
-            # (u"Fowl Language",u"http://www.gocomics.com/fowl-language"),
-            # (u"FoxTrot",u"http://www.gocomics.com/foxtrot"),
-            # (u"FoxTrot Classics",u"http://www.gocomics.com/foxtrotclassics"),
-            # (u"Francis",u"http://www.gocomics.com/francis"),
-            (u'Frank and Ernest',u'http://www.gocomics.com/frank-and-ernest'),
-            # (u"Frankie Comics",u"http://www.gocomics.com/frankie-comics"),
-            # (u"Frazz",u"http://www.gocomics.com/frazz"),
-            # (u"Fred Basset",u"http://www.gocomics.com/fredbasset"),
-            # (u"Free Range",u"http://www.gocomics.com/freerange"),
-            # (u"Freshly Squeezed",u"http://www.gocomics.com/freshlysqueezed"),
-            # (u"Frog Applause",u"http://www.gocomics.com/frogapplause"),
-            # (u"From the Mo Willems Sketchbook",u"http://www.gocomics.com/from-the-mo-willems-sketchbook"),
-            # (u"The Fusco Brothers",u"http://www.gocomics.com/thefuscobrothers"),
-            (u'Garfield',u'http://www.gocomics.com/garfield'),
-            # (u"Garfield Classics",u"http://www.gocomics.com/garfield-classics"),
-            # (u"Garfield Minus Garfield",u"http://www.gocomics.com/garfieldminusgarfield"),
-            # (u"Gasoline Alley",u"http://www.gocomics.com/gasolinealley"),
-            # (u"Geech",u"http://www.gocomics.com/geech"),
-            # (u"Gentle Creatures",u"http://www.gocomics.com/gentle-creatures"),
-            # (u"The Gentleman's Armchair",u"http://www.gocomics.com/the-gentlemans-armchair"),
-            # (u"Get a Life",u"http://www.gocomics.com/getalife"),
-            (u'Get Fuzzy',u'http://www.gocomics.com/getfuzzy'),
-            # (u"Gil",u"http://www.gocomics.com/gil"),
-            # (u"Gil Thorp",u"http://www.gocomics.com/gilthorp"),
-            # (u"Ginger Meggs",u"http://www.gocomics.com/gingermeggs"),
-            # (u"Glasbergen Cartoons",u"http://www.gocomics.com/glasbergen-cartoons"),
-            # (u"G-Man Webcomics",u"http://www.gocomics.com/g-man-webcomics"),
-            # (u"Gnome Syndicate",u"http://www.gocomics.com/gnome-syndicate"),
-            # (u"Goats",u"http://www.gocomics.com/goats"),
-            # (u"The Fans!",u"http://www.gocomics.com/fan-art"),
-            # (u"Bob Gorrell",u"http://www.gocomics.com/bobgorrell"),
-            # (u"Graffiti",u"http://www.gocomics.com/graffiti"),
-            # (u"Grand Avenue",u"http://www.gocomics.com/grand-avenue"),
-            # (u"Gray Matters",u"http://www.gocomics.com/gray-matters"),
-            # (u"Green Humour",u"http://www.gocomics.com/green-humour"),
-            # (u"The Grizzwells",u"http://www.gocomics.com/thegrizzwells"),
-            # (u"Half Full",u"http://www.gocomics.com/half-full"),
-            # (u"Ham Shears",u"http://www.gocomics.com/ham-shears"),
-            # (u"Walt Handelsman",u"http://www.gocomics.com/walthandelsman"),
-            # (u"Phil Hands",u"http://www.gocomics.com/phil-hands"),
-            # (u"Health Capsules",u"http://www.gocomics.com/healthcapsules"),
-            # (u"Heart of the City",u"http://www.gocomics.com/heartofthecity"),
-            (u'Heathcliff',u'http://www.gocomics.com/heathcliff'),
-            # (u"Joe Heller",u"http://www.gocomics.com/joe-heller"),
-            # (u"Rebecca Hendin",u"http://www.gocomics.com/rebecca-hendin"),
-            # (u"Herb and Jamaal",u"http://www.gocomics.com/herbandjamaal"),
-            # (u"Herman",u"http://www.gocomics.com/herman"),
-            # (u"Hipster Picnic",u"http://www.gocomics.com/hipster-picnic"),
-            # (u"Jerry Holbert",u"http://www.gocomics.com/jerryholbert"),
-            # (u"Home and Away",u"http://www.gocomics.com/homeandaway"),
-            # (u"Hot Comics for Cool People",u"http://www.gocomics.com/hot-comics-for-cool-people"),
-            # (u"HUBRIS!",u"http://www.gocomics.com/hubris"),
-            # (u"Human Cull",u"http://www.gocomics.com/human-cull"),
-            # (u"The Humble Stumble",u"http://www.gocomics.com/humble-stumble"),
-            # (u"Hutch Owen",u"http://www.gocomics.com/hutch-owen"),
-            # (u"Imagine This",u"http://www.gocomics.com/imaginethis"),
-            # (u"In Security",u"http://www.gocomics.com/in-security"),
-            # (u"In the Bleachers",u"http://www.gocomics.com/inthebleachers"),
-            # (u"In the Sticks",u"http://www.gocomics.com/inthesticks"),
-            # (u"Inherit the Mirth",u"http://www.gocomics.com/inherit-the-mirth"),
-            # (u"Ink Pen",u"http://www.gocomics.com/inkpen"),
-            # (u"Inspector Danger's Crime Quiz",u"http://www.gocomics.com/inspector-dangers-crime-quiz"),
-            # (u"Invisible Bread",u"http://www.gocomics.com/invisible-bread"),
-            # (u"It's All About You",u"http://www.gocomics.com/itsallaboutyou),
-            # (u"Jane's World",u"http://www.gocomics.com/janesworld"),
-            # (u"Jen Sorensen",u"http://www.gocomics.com/jen-sorensen"),
-            # (u"JetpackJr.",u"http://www.gocomics.com/jetpack-jr"),
-            # (u"Jim Benton Cartoons",u"http://www.gocomics.com/jim-benton-cartoons"),
-            # (u"Jim's Journal",u"http://www.gocomics.com/jimsjournal"),
-            # (u"Joe Vanilla",u"http://www.gocomics.com/joevanilla"),
-            # (u"Clay Jones",u"http://www.gocomics.com/clayjones"),
-            # (u"JumpStart",u"http://www.gocomics.com/jumpstart"),
-            # (u"Just Say Uncle",u"http://www.gocomics.com/just-say-uncle"),
-            # (u"The K Chronicles",u"http://www.gocomics.com/thekchronicles"),
-            # (u"Steve Kelley",u"http://www.gocomics.com/stevekelley"),
-            # (u"Kid Beowulf",u"http://www.gocomics.com/kid-beowulf"),
-            # (u"Kid Shay Comics",u"http://www.gocomics.com/kid-shay-comics"),
-            # (u"KidSpot",u"http://www.gocomics.com/kidspot"),
-            # (u"KidTown",u"http://www.gocomics.com/kidtown"),
-            # (u"Kit 'N' Carlyle",u"http://www.gocomics.com/kitncarlyle"),
-            # (u"Kitchen Capers",u"http://www.gocomics.com/kitchen-capers"),
-            # (u"Kliban",u"http://www.gocomics.com/kliban"),
-            # (u"Kliban's Cats",u"http://www.gocomics.com/klibans-cats"),
-            # (u"The Knight Life",u"http://www.gocomics.com/theknightlife"),
-            # (u"La Cucaracha",u"http://www.gocomics.com/lacucaracha"),
-            # (u"Lard's World Peace Tips",u"http://www.gocomics.com/lards-world-peace-tips"),
-            # (u"Last Kiss",u"http://www.gocomics.com/lastkiss"),
-            # (u"Lay Lines",u"http://www.gocomics.com/lay-lines"),
-            # (u"Learn to Speak Cat",u"http://www.gocomics.com/learn-to-speak-cat"),
-            # (u"The Lefty Bosco Picture Show",u"http://www.gocomics.com/leftyboscopictureshow"),
-            # (u"Legend of Bill",u"http://www.gocomics.com/legendofbill"),
-            # (u"Leigh Luna Comics",u"http://www.gocomics.com/leigh-luna-comics"),
-            # (u"Mike Lester",u"http://www.gocomics.com/mike-lester"),
-            # (u"Liberty Meadows",u"http://www.gocomics.com/libertymeadows"),
-            # (u"Li'l Abner",u"http://www.gocomics.com/lil-abner"),
-            # (u"Lio",u"http://www.gocomics.com/lio"),
-            # (u"Little Dog Lost",u"http://www.gocomics.com/littledoglost"),
-            # (u"Little Fried Chicken and Sushi",u"http://www.gocomics.com/little-fried-chicken-and-sushi"),
-            # (u"Little Nemo",u"http://www.gocomics.com/little-nemo"),
-            # (u"Win- Lose- Drew",u"http://www.gocomics.com/drewlitton"),
-            # (u"Lola",u"http://www.gocomics.com/lola"),
-            # (u"Looks Good on Paper",u"http://www.gocomics.com/looks-good-on-paper"),
-            # (u"Loose Parts",u"http://www.gocomics.com/looseparts"),
-            # (u"The Lost Bear",u"http://www.gocomics.com/the-lost-bear"),
-            # (u"Lost Side of Suburbia",u"http://www.gocomics.com/lostsideofsuburbia"),
-            # (u"Lost Sheep",u"http://www.gocomics.com/lostsheep"),
-            # (u"Chan Lowe",u"http://www.gocomics.com/chanlowe"),
-            (u'Luann',u'http://www.gocomics.com/luann'),
-            # (u"Luann Againn",u"http://www.gocomics.com/luann-againn"),
-            # (u"Mike Luckovich",u"http://www.gocomics.com/mikeluckovich"),
-            # (u"Lucky Cow",u"http://www.gocomics.com/luckycow"),
-            # (u"Lug Nuts",u"http://www.gocomics.com/lug-nuts"),
-            # (u"Lukey McGarryƒ??s TLDR",u"http://www.gocomics.com/lukey-mcgarrys-tldr"),
-            # (u"Lunarbaboon",u"http://www.gocomics.com/lunarbaboon"),
-            # (u"Magic in a Minute",u"http://www.gocomics.com/magicinaminute"),
-            # (u"Magnificatz",u"http://www.gocomics.com/magnificatz"),
-            # (u"Maintaining",u"http://www.gocomics.com/maintaining"),
-            # (u"Making It",u"http://www.gocomics.com/making-it"),
-            # (u"Maria's Day",u"http://www.gocomics.com/marias-day"),
-            # (u"Gary Markstein",u"http://www.gocomics.com/garymarkstein"),
-            (u'Marmaduke',u'http://www.gocomics.com/marmaduke'),
-            # (u"The Martian Confederacy",u"http://www.gocomics.com/the-martian-confederacy"),
-            # (u"MazeToons Puzzle",u"http://www.gocomics.com/mazetoons-puzzle"),
-            # (u"Glenn McCoy",u"http://www.gocomics.com/glennmccoy"),
-            # (u"Brian McFadden",u"http://www.gocomics.com/brian-mcfadden"),
-            # (u"The Meaning of Lila",u"http://www.gocomics.com/meaningoflila"),
-            # (u"Medium Large",u"http://www.gocomics.com/medium-large"),
-            # (u"Meg Classics",u"http://www.gocomics.com/meg-classics"),
-            # (u"Microcosm",u"http://www.gocomics.com/microcosm"),
-            (u'The Middletons',u'http://www.gocomics.com/themiddletons'),
-            # (u"Mike du Jour",u"http://www.gocomics.com/mike-du-jour"),
-            # (u"Minimum Security",u"http://www.gocomics.com/minimumsecurity"),
-            # (u"Moderately Confused",u"http://www.gocomics.com/moderately-confused"),
-            # (u"Molebashed",u"http://www.gocomics.com/molebashed"),
-            # (u"Molly and the Bear",u"http://www.gocomics.com/mollyandthebear"),
-            (u'Momma',u'http://www.gocomics.com/momma'),
-            # (u"Mom's Cancer",u"http://www.gocomics.com/moms-cancer"),
-            # (u"Monty",u"http://www.gocomics.com/monty"),
-            # (u"Jim Morin",u"http://www.gocomics.com/jimmorin"),
-            # (u"Motley Classics",u"http://www.gocomics.com/motley-classics"),
-            # (u"Mr. Lowe",u"http://www.gocomics.com/mr-lowe"),
-            # (u"Mulligan",u"http://www.gocomics.com/mulligan"),
-            # (u"Mustard and Boloney",u"http://www.gocomics.com/mustard-and-boloney"),
-            # (u"Mutt & Jeff",u"http://www.gocomics.com/muttandjeff"),
-            # (u"My Cage: New and Old",u"http://www.gocomics.com/mycage"),
-            # (u"MythTickle",u"http://www.gocomics.com/mythtickle"),
-            # (u"Nancy",u"http://www.gocomics.com/nancy"),
-            # (u"Nancy Classics",u"http://www.gocomics.com/nancy-classics"),
-            # (u"Nest Heads",u"http://www.gocomics.com/nestheads"),
-            # (u"NEUROTICA",u"http://www.gocomics.com/neurotica"),
-            # (u"New Adventures of Queen Victoria",u"http://www.gocomics.com/thenewadventuresofqueenvictoria"),
-            # (u"Next Door Neighbors",u"http://www.gocomics.com/next-door-neighbors"),
-            # (u"Nick and Zuzu",u"http://www.gocomics.com/nick-and-zuzu),
-            (u'Non Sequitur',u'http://www.gocomics.com/nonsequitur'),
-            # (u"The Norm 4.0",u"http://www.gocomics.com/the-norm-4-0"),
-            # (u"The Norm Classics",u"http://www.gocomics.com/thenorm"),
-            # (u"Not Invented Here",u"http://www.gocomics.com/not-invented-here"),
-            # (u"Nothing is Not Something",u"http://www.gocomics.com/nothing-is-not-something"),
-            # (u"Now Recharging",u"http://www.gocomics.com/now-recharging"),
-            # (u"Off the Mark",u"http://www.gocomics.com/offthemark"),
-            # (u"Oh Brother!",u"http://www.gocomics.com/oh-brother"),
-            # (u"Jack Ohman",u"http://www.gocomics.com/jackohman"),
-            # (u"Pat Oliphant",u"http://www.gocomics.com/patoliphant"),
-            # (u"Ollie and Quentin",u"http://www.gocomics.com/ollie-and-quentin"),
-            # (u"On A Claire Day",u"http://www.gocomics.com/onaclaireday"),
-            # (u"One Big Happy",u"http://www.gocomics.com/onebighappy"),
-            # (u"Ordinary Bill",u"http://www.gocomics.com/ordinary-bill"),
-            # (u"Origins of the Sunday Comics",u"http://www.gocomics.com/origins-of-the-sunday-comics"),
-            # (u"The Other Coast",u"http://www.gocomics.com/theothercoast"),
-            # (u"The Other End",u"http://www.gocomics.com/the-other-end"),
-            # (u"Out of the Gene Pool Re-Runs",u"http://www.gocomics.com/outofthegenepool"),
-            # (u"Over the Hedge",u"http://www.gocomics.com/overthehedge"),
-            # (u"Overboard",u"http://www.gocomics.com/overboard"),
-            # (u"Owlturd",u"http://www.gocomics.com/owlturd"),
-            # (u"Ozy and Millie",u"http://www.gocomics.com/ozy-and-millie"),
-            # (u"Henry Payne",u"http://www.gocomics.com/henrypayne"),
-            # (u"PC and Pixel",u"http://www.gocomics.com/pcandpixel"),
-            (u'Peanuts',u'http://www.gocomics.com/peanuts'),
-            # (u"Peanuts Begins",u"http://www.gocomics.com/peanuts-begins"),
-            # (u"Peanuts Holiday Countdown",u"http://www.gocomics.com/peanuts-holiday-countdown"),
-            (u'Pearls Before Swine',u'http://www.gocomics.com/pearlsbeforeswine'),
-            # (u"Perry Bible Fellowship",u"http://www.gocomics.com/perry-bible-fellowship"),
-            # (u"Joel Pett",u"http://www.gocomics.com/joelpett"),
-            # (u"Phoebe and Her Unicorn",u"http://www.gocomics.com/phoebe-and-her-unicorn"),
-            # (u"Pibgorn",u"http://www.gocomics.com/pibgorn"),
-            # (u"Pibgorn Sketches",u"http://www.gocomics.com/pibgornsketches"),
-            # (u"Pickles",u"http://www.gocomics.com/pickles"),
-            # (u"Pictures in Boxes",u"http://www.gocomics.com/pictures-in-boxes"),
-            # (u"Pie Comic",u"http://www.gocomics.com/pie-comic"),
-            # (u"Pinkerton",u"http://www.gocomics.com/pinkerton"),
-            # (u"Please Listen to Me",u"http://www.gocomics.com/please-listen-to-me"),
-            # (u"Pluggers",u"http://www.gocomics.com/pluggers"),
-            (u'Pooch Cafe',u'http://www.gocomics.com/poochcafe'),
-            # (u"Poorcraft",u"http://www.gocomics.com/poorcraft"),
-            # (u"Poorly Drawn Lines",u"http://www.gocomics.com/poorly-drawn-lines"),
-            # (u"Pop Culture Shock Therapy",u"http://www.gocomics.com/pop-culture-shock-therapy"),
-            # (u"Poptropica",u"http://www.gocomics.com/poptropica"),
-            # (u"Pot-Shots",u"http://www.gocomics.com/pot-shots"),
-            # (u"PreTeena",u"http://www.gocomics.com/preteena"),
-            # (u"Prickly City",u"http://www.gocomics.com/pricklycity"),
-            # (u"Promises-Promises",u"http://www.gocomics.com/promises-promises"),
-            # (u"Questionable Quotebook",u"http://www.gocomics.com/questionable-quotebook"),
-            # (u"The Quixote Syndrome",u"http://www.gocomics.com/the-quixote-syndrome"),
-            # (u"Rabbits Against Magic",u"http://www.gocomics.com/rabbitsagainstmagic"),
-            # (u"Raising Duncan",u"http://www.gocomics.com/raising-duncan"),
-            # (u"Ted Rall",u"http://www.gocomics.com/ted-rall"),
-            # (u"Michael Ramirez",u"http://www.gocomics.com/michaelramirez"),
-            # (u"Marshall Ramsey",u"http://www.gocomics.com/marshallramsey"),
-            # (u"Randolph Itch 2 a.m.",u"http://www.gocomics.com/randolphitch"),
-            # (u"Tom Toles",u"http://www.gocomics.com/randolphitch"),
-            # (u"Random Acts of Nancy",u"http://www.gocomics.com/random-acts-of-nancy"),
-            # (u"Real Life Adventures",u"http://www.gocomics.com/reallifeadventures"),
-            # (u"Reality Check",u"http://www.gocomics.com/realitycheck"),
-            # (u"Red and Rover",u"http://www.gocomics.com/redandrover"),
-            # (u"Reply All",u"http://www.gocomics.com/replyall"),
-            # (u"Reply AllLite",u"http://www.gocomics.com/reply-all-lite"),
-            # (u"Richard's Poor Almanac",u"http://www.gocomics.com/richards-poor-almanac"),
-            # (u"Rip Haywire",u"http://www.gocomics.com/riphaywire"),
-            # (u"Ripley's Believe It or Not",u"http://www.gocomics.com/ripleysbelieveitornot"),
-            # (u"Robbie and Bobby",u"http://www.gocomics.com/robbie-and-bobby"),
-            # (u"Rob Rogers",u"http://www.gocomics.com/robrogers"),
-            (u'Rose is Rose',u'http://www.gocomics.com/roseisrose'),
-            # (u"Rubes",u"http://www.gocomics.com/rubes"),
-            # (u"Rudy Park",u"http://www.gocomics.com/rudypark"),
-            # (u"Sarah's Scribbles",u"http://www.gocomics.com/sarahs-scribbles"),
-            # (u"Saturday Morning Breakfast Cereal",u"http://www.gocomics.com/saturday-morning-breakfast-cereal"),
-            # (u"Savage Chickens",u"http://www.gocomics.com/savage-chickens"),
-            # (u"Scary Gary",u"http://www.gocomics.com/scarygary"),
-            # (u"Scenes from a Multiverse",u"http://www.gocomics.com/scenes-from-a-multiverse"),
-            # (u"Sheldon",u"http://www.gocomics.com/sheldon"),
-            # (u"Drew Sheneman",u"http://www.gocomics.com/drewsheneman"),
-            # (u"Shirley and Son Classics",u"http://www.gocomics.com/shirley-and-son-classics"),
-            (u'Shoe',u'http://www.gocomics.com/shoe'),
-            # (u"Shoecabbage",u"http://www.gocomics.com/shoecabbage"),
-            # (u"Shortcuts",u"http://www.gocomics.com/shortcuts"),
-            # (u"Shutterbug Follies",u"http://www.gocomics.com/shutterbug-follies"),
-            # (u"Sketchshark Comics",u"http://www.gocomics.com/sketchshark-comics"),
-            # (u"Sketchy Chics",u"http://www.gocomics.com/sketchy-chics"),
-            # (u"Skin Horse",u"http://www.gocomics.com/skinhorse"),
-            # (u"Skippy",u"http://www.gocomics.com/skippy"),
-            # (u"Small Potatoes",u"http://www.gocomics.com/small-potatoes"),
-            # (u"Snow Sez...",u"http://www.gocomics.com/snow-sez"),
-            # (u"Snowflakes",u"http://www.gocomics.com/snowflakes"),
-            # (u"Soulmates",u"http://www.gocomics.com/soulmates"),
-            # (u"Soup to Nutz",u"http://www.gocomics.com/soup-to-nutz"),
-            # (u"Speechless",u"http://www.gocomics.com/speechless"),
-            # (u"Speed Bump",u"http://www.gocomics.com/speedbump"),
-            # (u"Spirit of the Staircase",u"http://www.gocomics.com/spirit-of-the-staircase"),
-            # (u"Spot the Frog",u"http://www.gocomics.com/spot-the-frog"),
-            # (u"Jeff Stahler",u"http://www.gocomics.com/jeffstahler"),
-            # (u"Scott Stantis",u"http://www.gocomics.com/scottstantis"),
-            # (u"Starling",u"http://www.gocomics.com/starling"),
-            # (u"Starslip",u"http://www.gocomics.com/starslip"),
-            # (u"Sticky Comics",u"http://www.gocomics.com/sticky-comics"),
-            # (u"Stone Soup",u"http://www.gocomics.com/stonesoup"),
-            # (u"Stone Soup Classics",u"http://www.gocomics.com/stone-soup-classics"),
-            # (u"Strange Brew",u"http://www.gocomics.com/strangebrew"),
-            # (u"Dana Summers",u"http://www.gocomics.com/danasummers"),
-            # (u"Sunny Street",u"http://www.gocomics.com/sunny-street"),
-            # (u"The Sunshine Club",u"http://www.gocomics.com/the-sunshine-club"),
-            # (u"Sunshine State",u"http://www.gocomics.com/sunshine-state"),
-            # (u"Sweet and Sour Pork",u"http://www.gocomics.com/sweet-and-sour-pork"),
-            # (u"Sylvia",u"http://www.gocomics.com/sylvia"),
-            # (u"Paul Szep",u"http://www.gocomics.com/paulszep"),
-            # (u"Tank McNamara",u"http://www.gocomics.com/tankmcnamara"),
-            # (u"Tarzan",u"http://www.gocomics.com/tarzan"),
-            # (u"@Tavicat",u"http://www.gocomics.com/tavicat"),
-            # (u"Ten Cats",u"http://www.gocomics.com/ten-cats"),
-            # (u"That is Priceless",u"http://www.gocomics.com/that-is-priceless"),
-            # (u"That Monkey Tune",u"http://www.gocomics.com/that-monkey-tune"),
-            # (u"That New Carl Smell",u"http://www.gocomics.com/that-new-carl-smell"),
-            # (u"That's Life",u"http://www.gocomics.com/thats-life"),
-            # (u"Thatababy",u"http://www.gocomics.com/thatababy"),
-            # (u"Thin Lines",u"http://www.gocomics.com/thinlines"),
-            # (u"(th)ink",u"http://www.gocomics.com/think"),
-            # (u"Tiny Confessions",u"http://www.gocomics.com/tiny-confessions"),
-            # (u"Tiny Sepuku",u"http://www.gocomics.com/tinysepuku),
-            # (u"TOBY",u"http://www.gocomics.com/toby"),
-            # (u"Today's Dogg",u"http://www.gocomics.com/todays-dogg"),
-            # (u"Tom Toles",u"http://www.gocomics.com/tomtoles"),
-            # (u"Tom the Dancing Bug",u"http://www.gocomics.com/tomthedancingbug"),
-            # (u"Super-Fun-Pak Comix",u"http://www.gocomics.com/super-fun-pak-comix"),
-            # (u"Too Much Coffee Man",u"http://www.gocomics.com/toomuchcoffeeman"),
-            # (u"Tough Town",u"http://www.gocomics.com/tough-town"),
-            # (u"Trivquiz",u"http://www.gocomics.com/trivquiz"),
-            # (u"Truth Facts",u"http://www.gocomics.com/truth-facts"),
-            # (u"Uncle Art's Funland",u"http://www.gocomics.com/uncleartsfunland"),
-            # (u"Understanding Chaos",u"http://www.gocomics.com/understanding-chaos"),
-            # (u"Unstrange Phenomena",u"http://www.gocomics.com/unstrange-phenomena"),
-            # (u"Up and Out",u"http://www.gocomics.com/up-and-out"),
-            # (u"The Upside Down World of Gustave Verbeek",u"http://www.gocomics.com/upside-down-world-of-gustave-verbeek"),
-            # (u"U.S. Acres",u"http://www.gocomics.com/us-acres"),
-            # (u"Gary Varvel",u"http://www.gocomics.com/garyvarvel"),
-            # (u"ViewsAfrica",u"http://www.gocomics.com/viewsafrica"),
-            # (u"ViewsAmerica",u"http://www.gocomics.com/viewsamerica"),
-            # (u"ViewsAsia",u"http://www.gocomics.com/viewsasia"),
-            # (u"ViewsBusiness",u"http://www.gocomics.com/viewsbusiness"),
-            # (u"ViewsEurope",u"http://www.gocomics.com/viewseurope"),
-            # (u"ViewsLatinAmerica",u"http://www.gocomics.com/viewslatinamerica"),
-            # (u"ViewsMidEast",u"http://www.gocomics.com/viewsmideast"),
-            # (u"Views of the World",u"http://www.gocomics.com/viewsoftheworld"),
-            # (u"Viivi & Wagner",u"http://www.gocomics.com/viivi-and-wagner"),
-            # (u"Faces of the News by Kerry Waghorn",u"http://www.gocomics.com/facesinthenews"),
-            # (u"Wallace the Brave",u"http://www.gocomics.com/wallace-the-brave"),
-            # (u"The Wandering Melon",u"http://www.gocomics.com/the-wandering-melon"),
-            # (u"Warped",u"http://www.gocomics.com/warped"),
-            # (u"Dan Wasserman",u"http://www.gocomics.com/danwasserman"),
-            # (u"Watch Your Head",u"http://www.gocomics.com/watchyourhead"),
-            # (u"WaynoVision",u"http://www.gocomics.com/waynovision"),
-            # (u"Wee Pals",u"http://www.gocomics.com/weepals"),
-            # (u"We the Robots",u"http://www.gocomics.com/we-the-robots"),
-            # (u"Wicked Crispy",u"http://www.gocomics.com/wicked-crispy"),
-            # (u"Widdershins",u"http://www.gocomics.com/widdershins"),
-            # (u"Wide Open",u"http://www.gocomics.com/wide-open"),
-            # (u"Signe Wilkinson",u"http://www.gocomics.com/signewilkinson"),
-            # (u"Winston",u"http://www.gocomics.com/winston"),
-            # (u"Wit of the World",u"http://www.gocomics.com/witoftheworld"),
-            # (u"CartoonArts International",u"http://www.gocomics.com/witoftheworld"),
-            (u'Wizard of Id',u'http://www.gocomics.com/wizardofid'),
-            # (u"Wizard of Id Classics",u"http://www.gocomics.com/wizard-of-id-classics"),
-            # (u"Wondermark",u"http://www.gocomics.com/wondermark"),
-            # (u"Working Daze",u"http://www.gocomics.com/working-daze"),
-            # (u"Working It Out",u"http://www.gocomics.com/workingitout"),
-            # (u"World of Wonder",u"http://www.gocomics.com/world-of-wonder"),
-            # (u"The Worried Well",u"http://www.gocomics.com/the-worried-well"),
-            # (u"The Worst Thing I've Ever Done",u"http://www.gocomics.com/the-worst-thing-ive-ever-done"),
-            # (u"Wrong Hands",u"http://www.gocomics.com/wrong-hands"),
-            # (u"W.T. Duck",u"http://www.gocomics.com/wtduck"),
-            # (u"Matt Wuerker",u"http://www.gocomics.com/mattwuerker"),
-            # (u"WuMo",u"http://www.gocomics.com/wumo"),
-            # (u"Wyatt",u"http://www.gocomics.com/wyatt"),
-            # (u"Yenny Lopez",u"http://www.gocomics.com/yenny-lopez"),
-            # (u"Zack Hill",u"http://www.gocomics.com/zackhill"),
-            # (u"Zen Pencils",u"http://www.gocomics.com/zen-pencils"),
-            # (u"Ziggy",u"http://www.gocomics.com/ziggy"),
-            # (u"2 Cows and a Chicken",u"http://www.gocomics.com/2cowsandachicken"),
-            # (u"9 to 5",u"http://www.gocomics.com/9to5"),
-            # (u"9 Chickweed Lane",u"http://www.gocomics.com/9chickweedlane"),
-        ]):  # }}}
-            self.log('Working on: ', title, url)
-            articles = self.make_links(title, url)
+
+        for x in coms:
+            section = x.upper()
+            self.log(section)
+            articles = []
+            for day in dates:
+                title = section + ' | ' + day
+                url = 'https://www.gocomics.com/' + x + '/' + day
+                self.log('\t', title, '\n\t\t', url)
+                articles.append({'title': title, 'url': url})
             if articles:
-                feeds.append((title, articles))
-            if self.test and i > 0:
-                break
+                feeds.append((section, articles))
         return feeds
 
-    def cleanup(self):
-        try:
-            shutil.rmtree(self.gocomics_dir)
-        except EnvironmentError:
-            pass
+    def preprocess_raw_html(self, raw, *a):
+        width = '1000'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            width = w
+        soup = BeautifulSoup(raw)
+        div = soup.find(
+            attrs={
+                'class': lambda x: x and x.startswith('ComicViewer_comicViewer__comic__')
+            }
+        )
+        script = div.find('script', attrs={'type': 'application/ld+json'})
+        data = json.loads(self.tag_to_string(script))
+        title = '<h1>' + data['name'] + '</h1>'
+        auth = '<p style="font-size: small;">' + data['description'] + '</p>'
+        img = '<img src={}>'.format(
+            data['contentUrl'] + '?optimizer=image&width=' + width + '&quality=85'
+        )
+        return '<html><body>' + title + img + auth + '</body></html>'
 
-    def parse_comic_page(self, content):
-        a = content.find('a', itemprop='image')
-        if a is None:
-            raise StopIteration()
-        img = a.find('img')
-        if img is None:
-            raise StopIteration()
-        img['srcset'] = ''
-        title_parts = a['title'].split()
-        title = ' '.join(title_parts[:-2])
-        return {'h1':title, 'date':title_parts[-1], 'img':str(img)}
-
-    def render_comic_page(self, data, num, title):
-        fname = ascii_filename('%03d_%s' % (num, title)).replace(' ', '_')
-        path = os.path.join(self.gocomics_dir, fname)
-        html = '<html><body>{h1}<h2>{date}</h2><div>{img}</div></body></html>'.format(**data)
-        with open(path, 'wb') as f:
-            f.write(html.encode('utf-8'))
-        return {'title':'Page %d of %s' % ((num + 1), title), 'url': ('file:' if iswindows else 'file://') + path.replace(os.sep, '/')}
-
-    def make_links(self, title, url):
-        soup = self.index_to_soup(url)
-        div = soup.find(attrs={'class': lambda x: x and 'gc-deck' in x.split()})
-        a = div.find('a', href=True)
-        url = absolutize(a['href'])
-        current_articles = []
-        if self.test:
-            self.num_comics_to_get = 2
-        num = self.num_comics_to_get
-        while num > 0:
-            num -= 1
-            page_soup = self.index_to_soup(url)
-            if not page_soup:
-                break
-            content = page_soup.find(attrs={'class': lambda x: x and 'comic__image' in x.split()})
-            if content is None:
-                break
-            current_articles.append(self.parse_comic_page(content))
-            a = content.parent.find('a', attrs={'href':True, 'class':lambda x: x and 'fa-caret-left' in x.split()})
-            if a is None:
-                break
-            url = a['href']
-            if url.startswith('/'):
-                url = 'http://www.gocomics.com' + url
-        return [self.render_comic_page(ar, i, title) for i, ar in enumerate(reversed(current_articles))]
+    def populate_article_metadata(self, article, soup, first):
+        article.title = self.tag_to_string(soup.find('h1'))
+        article.summary = article.text_summary = self.tag_to_string(soup.find('p'))
