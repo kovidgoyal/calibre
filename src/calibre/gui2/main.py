@@ -375,11 +375,10 @@ class GuiRunner(QObject):
 
 def run_in_debug_mode():
     import subprocess
-    import tempfile
 
+    from calibre.constants import cache_dir
     from calibre.debug import run_calibre_debug
-    fd, logpath = tempfile.mkstemp('.txt')
-    os.close(fd)
+    logpath = os.path.join(cache_dir(), 'calibre-debug-log.txt')
     run_calibre_debug(
         '--gui-debug', logpath, stdout=open(logpath, 'wb'),
         stderr=subprocess.STDOUT, stdin=open(os.devnull, 'rb'))
