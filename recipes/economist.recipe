@@ -366,7 +366,9 @@ class Economist(BasicNewsRecipe):
                     return self.parse_web_index()
             raw = self.index_to_soup(url, raw=True)
         except Exception:
-            raise ValueError('Server is not reachable, try again after some time.')
+            self.log('Digital Edition Server is not reachable, try again after some time.')
+            self.from_archive = True
+            return self.parse_web_index()
         ans = self.economist_parse_index(raw)
         return self.economist_return_index(ans)
 
