@@ -426,11 +426,11 @@ def create_defs():
     defs['cover_grid_width'] = 0
     defs['cover_grid_height'] = 0
     defs['cover_grid_spacing'] = 0
-    defs['cover_grid_color'] = (80, 80, 80)
+    defs['cover_grid_background'] = {
+        'migrated': False, 'light': (80, 80, 80), 'dark': (45, 45, 45), 'light_texture': None, 'dark_texture': None}
     defs['cover_grid_cache_size_multiple'] = 5
     defs['cover_grid_disk_cache_size'] = 2500
     defs['cover_grid_show_title'] = False
-    defs['cover_grid_texture'] = None
     defs['cover_corner_radius'] = 0
     defs['cover_corner_radius_unit'] = 'px'
     defs['show_vl_tabs'] = False
@@ -1805,3 +1805,26 @@ def clip_border_radius(painter, rect):
         yield
     finally:
         painter.restore()
+
+
+def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+    if use_defaults:
+        s = gprefs.defaults['cover_grid_background']
+    else:
+        s = gprefs['cover_grid_background']
+        if not s['migrated']:
+            s = s.copy()
+            s['migrated'] = True
+            legacy = gprefs.pop('cover_grid_color', None)
+            if legacy is not None and tuple(legacy) != (80, 80, 80):
+                s['light'] = s['dark'] = legacy
+            legacy = gprefs.pop('cover_grid_texture', None)
+            if legacy is not None:
+                s['light_texture'] = s['dark_texture'] = legacy
+            gprefs['cover_grid_background'] = s
+    if for_dark is None:
+        for_dark = QApplication.instance().is_dark_theme
+    key = 'dark' if for_dark else 'light'
+    if which == 'color':
+        return s[key]
+    return s[f'{key}_texture']

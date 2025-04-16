@@ -365,18 +365,25 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
         super().__init__(parent)
         self.lazy_init_called = False
 
+    def ensure_lazy_initialized(self):
+        if not self.lazy_init_called:
+            if hasattr(self, 'lazy_initialize'):
+                self.lazy_initialize()
+            self.lazy_init_called = True
+
     def set_changed_signal(self, changed_signal):
         self.changed_signal.connect(changed_signal)
+
+    def restore_defaults(self):
+        self.ensure_lazy_initialized()
+        super().restore_defaults()
 
     def showEvent(self, event):
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
         # genesis isn't called before everything else. Why is a mystery.
-        if not self.lazy_init_called:
-            if hasattr(self, 'lazy_initialize'):
-                self.lazy_initialize()
-        self.lazy_init_called = True
+        self.ensure_lazy_initialized()
         super().showEvent(event)
 
 
@@ -407,7 +414,7 @@ def init_gui():
 
 
 def show_config_widget(category, name, gui=None, show_restart_msg=False,
-        parent=None, never_shutdown=False):
+        parent=None, never_shutdown=False, callback=None):
     '''
     Show the preferences plugin identified by category and name
 
@@ -457,6 +464,8 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     w.initialize()
     w.do_on_child_tabs('initialize')
     d.restore_geometry(gprefs, conf_name)
+    if callback is not None:
+        callback(w)
     d.exec()
     d.save_geometry(gprefs, conf_name)
     rr = getattr(d, 'restart_required', False)
@@ -521,8 +530,8 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
 
 # Testing {{{
 
-def test_widget(category, name, gui=None):
-    show_config_widget(category, name, gui=gui, show_restart_msg=True)
+def test_widget(category, name, gui=None, callback=None):
+    show_config_widget(category, name, gui=gui, show_restart_msg=True, callback=callback)
 
 
 def test_all():

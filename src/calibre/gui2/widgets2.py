@@ -730,6 +730,11 @@ class ScrollingTabWidget(QTabWidget):
         sw.setStyleSheet(f'#{name} {{ background: transparent }}')
         return sw
 
+    @property
+    def all_widgets(self):
+        for i in range(self.count()):
+            yield self.widget(i).widget()
+
     def indexOf(self, page):
         for i in range(self.count()):
             t = self.widget(i)

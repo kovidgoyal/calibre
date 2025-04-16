@@ -59,7 +59,7 @@ from qt.core import (
 from calibre import fit_image, human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
@@ -794,6 +794,7 @@ class GridView(QListView):
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
         self.set_color()
+        QApplication.instance().palette_changed.connect(self.set_color)
         self.ignore_render_requests = Event()
         dpr = self.device_pixel_ratio
         # Up the version number if anything changes in how images are stored in
@@ -880,8 +881,8 @@ class GridView(QListView):
             self.update(idx)
 
     def set_color(self):
-        r, g, b = gprefs['cover_grid_color']
-        tex = gprefs['cover_grid_texture']
+        r, g, b = resolve_grid_color()
+        tex = resolve_grid_color(which='texture')
         pal = self.palette()
         bgcol = QColor(r, g, b)
         pal.setColor(QPalette.ColorRole.Base, bgcol)

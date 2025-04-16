@@ -36,6 +36,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
+        for w in self.tabWidget.all_widgets:
+            if hasattr(w, 'restore_defaults'):
+                w.restore_defaults()
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):

@@ -7,10 +7,26 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 
-from qt.core import QBrush, QColor, QColorDialog, QDialog, QPainter, QPixmap, QPushButton, QSize, QSizePolicy, Qt, QTabWidget, QWidget, pyqtSignal
+from qt.core import (
+    QBrush,
+    QColor,
+    QColorDialog,
+    QDialog,
+    QHBoxLayout,
+    QLabel,
+    QPainter,
+    QPixmap,
+    QPushButton,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTabWidget,
+    QWidget,
+    pyqtSignal,
+)
 
 from calibre import human_readable
-from calibre.gui2 import gprefs, open_local_file, question_dialog
+from calibre.gui2 import gprefs, open_local_file, question_dialog, resolve_grid_color
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_Form
@@ -21,35 +37,128 @@ from calibre.utils.icu import sort_key
 
 class Background(QWidget):
 
+    changed_signal = pyqtSignal()
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.bcol = QColor(*gprefs['cover_grid_color'])
-        self.btex = gprefs['cover_grid_texture']
-        self.update_brush()
+        self.l = QHBoxLayout(self)
+        self.l.setContentsMargins(0, 0, 0, 0)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self.initialized = False
+        self.changed_signal.connect(self.update_brush)
+
+    def load_from_gprefs(self, use_defaults=False):
+        self.bcol_dark = QColor(*resolve_grid_color(for_dark=True, use_defaults=use_defaults))
+        self.bcol_light = QColor(*resolve_grid_color(for_dark=False, use_defaults=use_defaults))
+        self.btex_dark = resolve_grid_color('texture', for_dark=True, use_defaults=use_defaults)
+        self.btex_light = resolve_grid_color('texture', for_dark=False, use_defaults=use_defaults)
+        self.update_brush()
+
+    def lazy_initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
+        l = self.layout()
+        text = (
+            '<p style="text-align: center; color: {}"><b>{}</b><br>'
+            '<a style="text-decoration: none" href="la://color.me">{}</a><br>'
+            '<a style="text-decoration: none" href="la://texture.me">{}</a></p>')
+        self.light_label = la = QLabel(text.format('black', _('Light'), _('Change color'), _('Change texture')))
+        la.linkActivated.connect(self.light_link_activated)
+        l.addWidget(la)
+        self.dark_label = la = QLabel(text.format('white', _('Dark'), _('Change color'), _('Change texture')))
+        la.linkActivated.connect(self.dark_link_activated)
+        l.addWidget(la)
+        self.load_from_gprefs()
+
+    def change_color(self, light=False):
+        which = _('light') if light else _('dark')
+        col = QColorDialog.getColor(self.bcol_light if light else self.bcol_dark,
+            self, _('Choose {} background color for the Cover grid').format(which))
+
+        if col.isValid():
+            if light:
+                self.bcol_light = col
+            else:
+                self.bcol_dark = col
+            btex = self.btex_light if light else self.btex_dark
+            if btex:
+                if question_dialog(
+                    self, _('Remove background image?'),
+                    _('There is currently a background image set, so the color'
+                      ' you have chosen will not be visible. Remove the background image?')):
+                    if light:
+                        self.btex_light = None
+                    else:
+                        self.btex_dark = None
+            self.changed_signal.emit()
+
+    def change_texture(self, light=False):
+        from calibre.gui2.preferences.texture_chooser import TextureChooser
+        btex = self.btex_light if light else self.btex_dark
+        d = TextureChooser(parent=self, initial=btex)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            if light:
+                self.btex_light = d.texture
+            else:
+                self.btex_dark = d.texture
+            self.changed_signal.emit()
+
+    def light_link_activated(self, url):
+        if 'texture' in url:
+            self.change_texture(light=True)
+        else:
+            self.change_color(light=True)
+
+    def dark_link_activated(self, url):
+        if 'texture' in url:
+            self.change_texture(light=False)
+        else:
+            self.change_color(light=False)
+
+    def commit(self):
+        s = gprefs['cover_grid_background'].copy()
+        s['light'] = tuple(self.bcol_light.getRgb())[:3]
+        s['dark'] = tuple(self.bcol_dark.getRgb())[:3]
+        s['light_texture'] = self.btex_light
+        s['dark_texture'] = self.btex_dark
+        gprefs['cover_grid_background'] = s
+
+    def restore_defaults(self):
+        self.load_from_gprefs(use_defaults=True)
 
     def update_brush(self):
-        self.brush = QBrush(self.bcol)
-        if self.btex:
-            from calibre.gui2.preferences.texture_chooser import texture_path
-            path = texture_path(self.btex)
+        self.light_brush = QBrush(self.bcol_light)
+        self.dark_brush = QBrush(self.bcol_dark)
+        def dotex(path, brush):
             if path:
-                p = QPixmap(path)
-                try:
-                    dpr = self.devicePixelRatioF()
-                except AttributeError:
-                    dpr = self.devicePixelRatio()
-                p.setDevicePixelRatio(dpr)
-                self.brush.setTexture(p)
+                from calibre.gui2.preferences.texture_chooser import texture_path
+                path = texture_path(path)
+                if path:
+                    p = QPixmap(path)
+                    try:
+                        dpr = self.devicePixelRatioF()
+                    except AttributeError:
+                        dpr = self.devicePixelRatio()
+                    p.setDevicePixelRatio(dpr)
+                    brush.setTexture(p)
+        dotex(self.btex_light, self.light_brush)
+        dotex(self.btex_dark, self.dark_brush)
         self.update()
 
     def sizeHint(self):
         return QSize(200, 120)
 
     def paintEvent(self, ev):
+        self.lazy_initialize()
         painter = QPainter(self)
-        painter.fillRect(ev.rect(), self.brush)
+        r = self.rect()
+        light = r.adjusted(0, 0, -r.width()//2, 0)
+        dark = r.adjusted(light.width(), 0, 0, 0)
+        painter.fillRect(light, self.light_brush)
+        painter.fillRect(dark, self.dark_brush)
         painter.end()
+        super().paintEvent(ev)
 
 
 class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
@@ -87,18 +196,11 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         l = self.cg_background_box.layout()
         self.cg_bg_widget = w = Background(self)
+        w.changed_signal.connect(self.changed_signal)
         l.addWidget(w, 0, 0, 3, 1)
-        self.cover_grid_color_button = b = QPushButton(_('Change &color'), self)
-        b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 0, 1)
-        b.clicked.connect(self.change_cover_grid_color)
-        self.cover_grid_texture_button = b = QPushButton(_('Change &background image'), self)
-        b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 1, 1)
-        b.clicked.connect(self.change_cover_grid_texture)
         self.cover_grid_default_appearance_button = b = QPushButton(_('Restore default &appearance'), self)
         b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        l.addWidget(b, 2, 1)
+        l.addWidget(b, 0, 1)
         b.clicked.connect(self.restore_cover_grid_appearance)
         self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
         self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
@@ -117,8 +219,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         self.grid_rules.lazy_initialize()
         self.lazy_init_called = True
         self.blockSignals(False)
-        self.set_cg_color(gprefs['cover_grid_color'])
-        self.set_cg_texture(gprefs['cover_grid_texture'])
+        self.cg_bg_widget.lazy_initialize()
         self.update_aspect_ratio()
 
     def show_current_cache_usage(self):
@@ -169,55 +270,30 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         self.gui.grid_view.thumbnail_cache.empty()
         self.calc_cache_size()
 
-    def set_cg_color(self, val):
-        self.cg_bg_widget.bcol = QColor(*val)
-        self.cg_bg_widget.update_brush()
-
-    def set_cg_texture(self, val):
-        self.cg_bg_widget.btex = val
-        self.cg_bg_widget.update_brush()
-
-    def change_cover_grid_color(self):
-        col = QColorDialog.getColor(self.cg_bg_widget.bcol,
-                              self.gui, _('Choose background color for the Cover grid'))
-        if col.isValid():
-            col = tuple(col.getRgb())[:3]
-            self.set_cg_color(col)
-            self.changed_signal.emit()
-            if self.cg_bg_widget.btex:
-                if question_dialog(
-                    self, _('Remove background image?'),
-                    _('There is currently a background image set, so the color'
-                      ' you have chosen will not be visible. Remove the background image?')):
-                    self.set_cg_texture(None)
-
-    def change_cover_grid_texture(self):
-        from calibre.gui2.preferences.texture_chooser import TextureChooser
-        d = TextureChooser(parent=self, initial=self.cg_bg_widget.btex)
-        if d.exec() == QDialog.DialogCode.Accepted:
-            self.set_cg_texture(d.texture)
-            self.changed_signal.emit()
-
     def restore_cover_grid_appearance(self):
-        self.set_cg_color(gprefs.defaults['cover_grid_color'])
-        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
+        self.cg_bg_widget.restore_defaults()
         self.changed_signal.emit()
 
     def commit(self):
         with BusyCursor():
             self.grid_rules.commit()
-            gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
-            gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
+            self.cg_bg_widget.commit()
         return LazyConfigWidgetBase.commit(self)
 
     def restore_defaults(self):
         LazyConfigWidgetBase.restore_defaults(self)
         self.grid_rules.restore_defaults()
-        self.set_cg_color(gprefs.defaults['cover_grid_color'])
-        self.set_cg_texture(gprefs.defaults['cover_grid_texture'])
+        self.cg_bg_widget.restore_defaults()
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
         gui.library_view.refresh_grid()
         gui.grid_view.refresh_settings()
         gui.update_auto_scroll_timeout()
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.gui2.preferences import test_widget
+    app = Application([])
+    test_widget('Interface', 'Look & Feel', callback=lambda w: w.sections_view.setCurrentRow(1))
