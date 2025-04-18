@@ -172,7 +172,8 @@ class Fokus(BasicNewsRecipe):
             article_blurbs = []
 
         if not article_blurbs:
-            raise ValueError('Failed to identify any article blurbs.')
+            self.log.error('Failed to identify any article blurbs.')
+            return {}
 
         parsed_blurbs = {}
         for article_blurb in article_blurbs:
