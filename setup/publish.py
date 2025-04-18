@@ -289,6 +289,7 @@ class ManPages(Command):
         base = self.j(self.d(self.SRC), 'manual')
         languages = set(available_translations())
         languages.discard('ta')  # Tamil translatins are completely borked break sphinx
+        languages.discard('id')  # Indonesian man page fails to build
         languages = ['en'] + list(languages - {'en', 'en_GB'})
         os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(languages)
         try:
