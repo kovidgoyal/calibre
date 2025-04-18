@@ -36,7 +36,7 @@ class Espresso(BasicNewsRecipe):
 
     extra_css = """
         h1 { text-align:center; }
-        ._main-image, ._description, .sub { text-align:center; font-size:small; }
+        ._main-image, ._description, .sub, .calibre-nuked-tag-figcaption { text-align:center; font-size:small; }
         ._quote-container { font-size:x-large; font-style:italic; color:#202020; }
     """
 
@@ -70,7 +70,7 @@ class Espresso(BasicNewsRecipe):
         for img in soup.findAll('img', src=True):
             img['src'] = re.sub(r'width=\d+', 'width=600', img['src'])
         if aud := soup.find(attrs={'data-test-id': 'twib-audio-player'}):
-            if div := aud.find_next('div'):
+            if div := aud.find_next_sibling('div'):
                 div.extract()
             aud.extract()
         return soup
