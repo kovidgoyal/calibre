@@ -32,6 +32,7 @@ class Nzz(BasicNewsRecipe):
         dict(name='figcaption', attrs={'class': 'articlecomponent__description'}),
         dict(name='div', attrs={'class': 'nzzinteraction'}),
         dict(name='section', attrs={'class': 'nzzinteraction'}),
+        dict(name='div', attrs={'class': 'disabled-overlay'}),
     ]
 
     remove_attributes = ['style', 'font', 'class']
