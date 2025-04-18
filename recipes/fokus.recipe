@@ -79,7 +79,7 @@ class Fokus(BasicNewsRecipe):
         response = browser.open(req)
 
         # Parse the response into a BeautifulSoup soup.
-        soup = BeautifulSoup(response.get_data(), "html.parser")
+        soup = BeautifulSoup(response.get_data(), 'html.parser')
 
         # The cover image of the current edition is located in a <figure> tag with class 'Issue__thumbnail'.
         try:
@@ -88,7 +88,7 @@ class Fokus(BasicNewsRecipe):
             # Set the `img_tag` to `None` if it is falsy. This way, we can force an `AttributeError` if no cover URL
             # can be found.
             img_tag = img_tag if img_tag else None
-            cover_url = img_tag["src"]
+            cover_url = img_tag['src']
         except AttributeError:
             self.log.error("Failed to identify the cover image URL. Does an 'Issue__thumbnail' figure still exist?")
             return ''
