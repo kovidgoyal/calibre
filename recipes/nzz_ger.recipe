@@ -12,7 +12,7 @@ class Nzz(BasicNewsRecipe):
     description = 'Neue Zürcher Zeitung'
     publisher = 'Neue Zürcher Zeitung'
     category = 'news, politics'
-    oldest_article = 30
+    oldest_article = 7
     max_articles_per_feed = 15
     language = 'de'
     no_stylesheets = True
