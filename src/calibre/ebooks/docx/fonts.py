@@ -167,10 +167,15 @@ class Fonts:
                 fname = self.write(name, dest_dir, docx, variant)
                 if fname is not None:
                     d = {'font-family':'"{}"'.format(name.replace('"', '')), 'src': f'url("fonts/{fname}")'}
+                    # The Kindle rendered needs font-weight/style normal for non bold/italic fonts
                     if 'Bold' in variant:
                         d['font-weight'] = 'bold'
+                    else:
+                        d['font-weight'] = 'normal'
                     if 'Italic' in variant:
                         d['font-style'] = 'italic'
+                    else:
+                        d['font-style'] = 'normal'
                     d = [f'{k}: {v}' for k, v in iteritems(d)]
                     d = ';\n\t'.join(d)
                     defs.append(f'@font-face {{\n\t{d}\n}}\n')
