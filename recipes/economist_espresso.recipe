@@ -44,7 +44,6 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         classes('_podcast-promo _newsletter-promo-container _time-last-updated'),
-        dict(attrs={'data-test-id': 'twib-audio-player'}),
     ]
 
     def parse_index(self):
@@ -70,7 +69,10 @@ class Espresso(BasicNewsRecipe):
             hr.append(nt)
         for img in soup.findAll('img', src=True):
             img['src'] = re.sub(r'width=\d+', 'width=600', img['src'])
-        
+        if aud := soup.find(attrs={'data-test-id': 'twib-audio-player'}):
+            if div := aud.find_next('div'):
+                div.extract()
+            aud.extract()
         return soup
 
     def get_browser(self, *args, **kwargs):
