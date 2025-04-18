@@ -25,6 +25,10 @@ class Fokus(BasicNewsRecipe):
     remove_empty_feeds = True
     extra_css = 'img { display: block; width: 75%; height: auto }'
 
+    use_embedded_content = False
+    scale_news_images_to_device = True
+    scale_news_images = (800, 600)
+
     remove_tags = [
         dict(name='div', attrs={'class': 'External-ad'}),
         dict(name='header', attrs={'class': 'Header'}),
