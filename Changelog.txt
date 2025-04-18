@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 8.3.0 2025-04-17
+
+:: new features
+
+- Cover grid: Allow configuring different backgrounds for light and dark mode in Preferences->Look & feel->Cover grid
+
+- E-book viewer: Further speedup first open of large EPUB files by another 30%
+
+- Metadata review dialog: Add merge comments action
+
+:: bug fixes
+
+- Kobo driver: Fix viewing of KEPUB files from the device view in calibre not working
+
+- Fix a regression in 8.1 that broke displaying of the debug log when running in debug mode
+
+- [2106280] E-book viewer: Fix a regression in 8.0 that caused the clock to display an extra p after the time
+
+:: improved recipes
+- GoComics
+- Internazionale
+- New York Times
+- SCMP
+- The Hindu
+- Barrons
+
+}}}
+
 {{{ 8.2.1 2025-04-04
 
 :: new features
