@@ -21,7 +21,7 @@ class Fokus(BasicNewsRecipe):
     no_stylesheets = True
     compress_news_images = True
     needs_subscription = 'optional'
-    max_age = 7  # days
+    oldest_article = 7  # days
     remove_empty_feeds = True
     extra_css = 'img { display: block; width: 75%; height: auto }'
 
@@ -128,12 +128,12 @@ class Fokus(BasicNewsRecipe):
                 if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
                     swedish_date_str = self.tag_to_string(time_tag).rstrip()
 
-                    # Skip articles older than `self.max_age`.
+                    # Skip articles older than `self.oldest_article`.
                     datetime_str = time_tag['datetime']
                     datetime_time = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S%z')
                     now = datetime.now(timezone.utc)
                     delta = now - datetime_time
-                    if delta.days > self.max_age:
+                    if delta.days > self.oldest_article:
                         self.log.debug(f"\tSkipping article as it is too old: '{title}'")
                         return
 
@@ -251,9 +251,9 @@ class Fokus(BasicNewsRecipe):
                 section_to_articles[section_title] = []
             section_to_articles[section_title].append(article_dict)
 
-        # Log how many sections contained no articles younger than `self.max_age`.
+        # Log how many sections contained no articles younger than `self.oldest_article`.
         if diff := len(sections) - len(section_to_articles):
-            self.log(f'{diff} sections contained no articles younger than {self.max_age} days.')
+            self.log(f'{diff} sections contained no articles younger than {self.oldest_article} days.')
 
         return section_to_articles
 
