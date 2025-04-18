@@ -2,6 +2,9 @@
 # vim:fileencoding=utf-8
 from datetime import datetime, timezone
 
+from mechanize import Request
+
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -21,9 +24,13 @@ class Fokus(BasicNewsRecipe):
     no_stylesheets = True
     compress_news_images = True
     needs_subscription = 'optional'
-    max_age = 7  # days
+    oldest_article = 7  # days
     remove_empty_feeds = True
     extra_css = 'img { display: block; width: 75%; height: auto }'
+
+    use_embedded_content = False
+    scale_news_images_to_device = True
+    scale_news_images = (800, 600)
 
     remove_tags = [
         dict(name='div', attrs={'class': 'External-ad'}),
@@ -62,6 +69,31 @@ class Fokus(BasicNewsRecipe):
         dict(name='div', class_='sesamy-protected-content'),
         dict(name='div', class_='wp-block-core-paragraph'),
     ]
+
+    def get_cover_url(self) -> str:
+        # Create a `mechanize.Request` object.
+        req = Request(url=self.main_url, method='POST')
+
+        # Open the requested URL in the built-in browser of the `BasicNewsRecipe` parent class.
+        browser = self.get_browser()
+        response = browser.open(req)
+
+        # Parse the response into a BeautifulSoup soup.
+        soup = BeautifulSoup(response.get_data(), "html.parser")
+
+        # The cover image of the current edition is located in a <figure> tag with class 'Issue__thumbnail'.
+        try:
+            figure_tag = soup.find('figure', class_='Issue__thumbnail')
+            img_tag = figure_tag.find('img')
+            # Set the `img_tag` to `None` if it is falsy. This way, we can force an `AttributeError` if no cover URL
+            # can be found.
+            img_tag = img_tag if img_tag else None
+            cover_url = img_tag["src"]
+        except AttributeError:
+            self.log.error("Failed to identify the cover image URL. Does an 'Issue__thumbnail' figure still exist?")
+            return ''
+
+        return cover_url
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -128,12 +160,12 @@ class Fokus(BasicNewsRecipe):
                 if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
                     swedish_date_str = self.tag_to_string(time_tag).rstrip()
 
-                    # Skip articles older than `self.max_age`.
+                    # Skip articles older than `self.oldest_article`.
                     datetime_str = time_tag['datetime']
                     datetime_time = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S%z')
                     now = datetime.now(timezone.utc)
                     delta = now - datetime_time
-                    if delta.days > self.max_age:
+                    if delta.days > self.oldest_article:
                         self.log.debug(f"\tSkipping article as it is too old: '{title}'")
                         return
 
@@ -172,7 +204,8 @@ class Fokus(BasicNewsRecipe):
             article_blurbs = []
 
         if not article_blurbs:
-            raise ValueError('Failed to identify any article blurbs.')
+            self.log.error('Failed to identify any article blurbs.')
+            return {}
 
         parsed_blurbs = {}
         for article_blurb in article_blurbs:
@@ -251,9 +284,9 @@ class Fokus(BasicNewsRecipe):
                 section_to_articles[section_title] = []
             section_to_articles[section_title].append(article_dict)
 
-        # Log how many sections contained no articles younger than `self.max_age`.
+        # Log how many sections contained no articles younger than `self.oldest_article`.
         if diff := len(sections) - len(section_to_articles):
-            self.log(f'{diff} sections contained no articles younger than {self.max_age} days.')
+            self.log(f'{diff} sections contained no articles younger than {self.oldest_article} days.')
 
         return section_to_articles
 
