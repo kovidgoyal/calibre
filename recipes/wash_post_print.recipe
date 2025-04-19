@@ -15,10 +15,12 @@ class wapoprint(BasicNewsRecipe):
     title = 'The Washington Post | Print Edition'
     __author__ = 'unkn0wn'
     description = (
-        'Leading source for news, video and opinion on politics, business, world and national news, science,'
-        ' travel, entertainment and more. Our local coverage includes reporting on education, crime, weather,'
-        ' traffic, real estate, jobs and cars for DC, Maryland and Virginia. Offering award-winning opinion writing,'
-        ' entertainment information and restaurant reviews.'
+        'Leading source for news, video and opinion on politics, business, '
+        'world and national news, science, travel, entertainment and more. '
+        'Our local coverage includes reporting on education, crime, weather, '
+        'traffic, real estate, jobs and cars for DC, Maryland and Virginia. '
+        'Offering award-winning opinion writing, entertainment information '
+        'and restaurant reviews.'
     )
     publisher = 'The Washington Post Company'
     category = 'news, politics, USA'
@@ -29,22 +31,33 @@ class wapoprint(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
     ignore_duplicate_articles = {'title', 'url'}
-    masthead_url = 'https://www.washingtonpost.com/pb/resources/img/twp-masthead-415x57.svg'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/93/The_Logo_of_The_Washington_Post_Newspaper.svg'
     extra_css = '''
         .img { text-align:center; font-size:small; }
         .auth { font-weight:bold; font-size:small; }
         .time { font-size:small; color: #202020; }
     '''
 
-    def get_browser(self):
-        return BasicNewsRecipe.get_browser(
-            self, verify_ssl_certificates=False, user_agent='Mozilla/5.0 (Windows NT 10.0; rv:128.0) Gecko/20100101 Firefox/128.0')
+    def get_browser(self, *args, **kwargs):
+        kwargs['user_agent'] = (
+            'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+        )
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/'),
+            ('X-Forwarded-For', '66.249.66.1'),
+        ]
+        return br
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
-        if img := soup.find('img', attrs={'src':lambda x: x and x.endswith('_FrontPage.png')}):
-            self.cover_url  = img['src']
-        if h2 := soup.find('h2', attrs={'class':lambda x: x and 'font--subhead' in x.split()}):
+        if img := soup.find(
+            'img', attrs={'src': lambda x: x and x.endswith('_FrontPage.png')}
+        ):
+            self.cover_url = img['src']
+        if h2 := soup.find(
+            'h2', attrs={'class': lambda x: x and 'font--subhead' in x.split()}
+        ):
             self.title = 'WaPo Print | ' + self.tag_to_string(h2)
 
         feeds = []
@@ -77,8 +90,14 @@ class wapoprint(BasicNewsRecipe):
 
         author = ''
         if 'credits' in data:
-            author = ('<div><span class="auth">' + 'By ' + ', '.join(x['name'] for x in data['credits']['by']) +
-                      '</span> | <span class="time">' + data['publish_date'][:-14] + '</span></div>')
+            author = (
+                '<div><span class="auth">'
+                + 'By '
+                + ', '.join(x['name'] for x in data['credits']['by'])
+                + '</span> | <span class="time">'
+                + data['publish_date'][:-14]
+                + '</span></div>'
+            )
 
         body = ''
         for x in data['content_elements']:
@@ -90,13 +109,23 @@ class wapoprint(BasicNewsRecipe):
                         x['promo_image']['url'], x['description'].get('basic', '')
                     )
             elif x['type'] == 'image':
-                body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(x['url'], x['credits_caption_display'])
+                body += (
+                    '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                        x['url'], x['credits_caption_display']
+                    )
+                )
 
-        return '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+        return (
+            '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+        )
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src':True}):
-            img['src'] = 'https://www.washingtonpost.com/wp-apps/imrs.php?src=' + img['src'] + '&w=916'
+        for img in soup.findAll('img', attrs={'src': True}):
+            img['src'] = (
+                'https://www.washingtonpost.com/wp-apps/imrs.php?src='
+                + img['src']
+                + '&w=916'
+            )
         return soup
 
     def populate_article_metadata(self, article, soup, first):
