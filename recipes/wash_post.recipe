@@ -58,6 +58,13 @@ class TheWashingtonPost(BasicNewsRecipe):
         .time { font-size:small; color: #202020; }
     '''
 
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.washingtonpost.com/todays_paper/updates/')
+        if img := soup.find(
+            'img', attrs={'src': lambda x: x and x.endswith('_FrontPage.png')}
+        ):
+            return img['src']
+
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = (
             'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
