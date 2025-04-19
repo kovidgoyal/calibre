@@ -1090,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 12)
+    version = (1, 3, 13)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1568,8 +1568,8 @@ class Amazon(Source):
         elif server == 'google':
             urlproc, sfunc = se.google_url_processor, se.google_search
         else:  # auto or unknown
-            # urlproc, sfunc = se.google_url_processor, se.google_search
-            urlproc, sfunc = se.bing_url_processor, se.bing_search
+            urlproc, sfunc = se.google_url_processor, se.google_search
+            # urlproc, sfunc = se.bing_url_processor, se.bing_search
         try:
             results, qurl = sfunc(terms, site, log=log, br=br, timeout=timeout)
         except HTTPError as err:

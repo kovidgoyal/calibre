@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 13)
+current_version = (1, 2, 14)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -327,16 +327,22 @@ def canonicalize_url_for_cache_map(url):
 def google_parse_results(root, raw, log=prints, ignore_uncached=True):
     ans = []
     seen = set()
-    for div in root.xpath('//*[@id="search"]//*[@id="rso"]//div[descendant::h3]'):
-        try:
-            a = div.xpath('descendant::a[@href]')[0]
-        except IndexError:
-            log('Ignoring div with no main result link')
+    for a in root.xpath('//a[@href]'):
+        href = a.get('href')
+        if not href.startswith('/url?q=http'):
             continue
-        title = tostring(a)
-        src_url = a.get('href')
-        # print(f'{src_url=}')
-        curl = canonicalize_url_for_cache_map(src_url)
+        try:
+            url = parse_qs(urlparse(href).query)['q'][0]
+            purl = urlparse(url)
+        except Exception:
+            continue
+        if 'google.com' in purl.netloc:
+            continue
+        try:
+            title = tostring(next(a.iterchildren('span')))
+        except StopIteration:
+            continue
+        curl = canonicalize_url_for_cache_map(url)
         if curl in seen:
             continue
         seen.add(curl)
@@ -368,6 +374,8 @@ def google_specialize_browser(br):
             for c in google_consent_cookies():
                 br.set_simple_cookie(c['name'], c['value'], c['domain'], path=c['path'])
             br.google_consent_cookie_added = True
+    # google serves JS based pages without the right user agent
+    br.set_user_agent('L''y''nx''/2.''8.''6rel''.5 lib''ww''w-F''M/2.''1''4')  # noqa
     return br
 
 
@@ -391,8 +399,9 @@ def google_format_query(terms, site=None, tbm=None):
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
     url = 'https://www.google.com/search?q={q}'.format(q=q)
-    if tbm:
-        url += '&tbm=' + tbm
+    # tbm causes 403 forbidden errors
+    # if tbm:
+    #     url += '&tbm=' + tbm
     if prevent_spelling_correction:
         url += '&nfpr=1'
     return url
