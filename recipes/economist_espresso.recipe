@@ -37,7 +37,7 @@ class Espresso(BasicNewsRecipe):
     extra_css = '''
         h1 { text-align:center; }
         ._main-image, ._description, .sub, .calibre-nuked-tag-figcaption { text-align:center; font-size:small; }
-        ._quote-container { font-size:x-large; font-style:italic; color:#202020; }
+        blockquote { font-size:x-large; font-style:italic; color:#202020; }
     '''
 
     keep_only_tags = [dict(name='main', attrs={'id': 'content'})]
