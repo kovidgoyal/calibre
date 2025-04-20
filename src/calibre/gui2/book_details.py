@@ -7,6 +7,7 @@ import re
 from collections import namedtuple
 from contextlib import suppress
 from functools import lru_cache, partial
+from math import ceil
 
 from qt.core import (
     QAction,
@@ -39,7 +40,7 @@ from qt.core import (
 )
 
 from calibre import fit_image, sanitize_file_name
-from calibre.constants import config_dir, iswindows
+from calibre.constants import DEBUG, config_dir, iswindows
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, NO_SEARCH_LINK, RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
@@ -675,7 +676,7 @@ def create_copy_links(menu, data=None):
 
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
-    if not (url := view.anchorAt(ev.pos())):
+    if not (url := view.anchorAt(ev.pos())) and (dpr := ceil(view.devicePixelRatio())) > 1:
         # Attempt to compensate for high density displays. When tabbing into an
         # anchor (URL) Qt picks a point on the outer right edge for the
         # position. Theory: on high-resolution displays, the outer right edge
@@ -688,19 +689,16 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         # an anchor when the user clicks in narrow empty space between anchors.
         # I think this is ok because exact pixel mouse clicking is extremely
         # difficult.
-
-        # It could be that instead of using 3 pixels we should use one of the
-        # constants such as devicePixelRatio. I don't have a suitable screen so
-        # I can't test that.
         p = ev.pos()
-        p += QPoint(-3, 0)
+        p += QPoint(-dpr, 0)
         url = view.anchorAt(p)
         def pnt_to_str(p):
             return f'{p.x()}, {p.y()}'
         def rect_to_str(p):
             return f'{p.x()}, {p.y()}, {p.width()}, {p.height()}'
-        print(f'BD context menu pos. ev.pos: ({pnt_to_str(ev.pos())}), '
-              f'new pos: ({pnt_to_str(p)}), cursor rect: ({rect_to_str(view.cursorRect())})')
+        if DEBUG:
+            print(f'BD context menu pos. ev.pos: ({pnt_to_str(ev.pos())}), '
+                f'new pos: ({pnt_to_str(p)}), cursor rect: ({rect_to_str(view.cursorRect())})')
     menu = QMenu(view)
     copy_menu = menu.addMenu(QIcon.ic('edit-copy.png'), _('Copy'))
     copy_menu.addAction(QIcon.ic('edit-copy.png'), _('All book details'), partial(copy_all, view))
