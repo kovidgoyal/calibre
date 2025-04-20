@@ -562,11 +562,10 @@ class CompareSingle(QWidget):
     def merge_tags(self):
         widgets = self.widgets['tags']
         neww, oldw = widgets[:2]
-        val = oldw.value
-        lval = {icu_lower(x) for x in val}
-        extra = [x for x in neww.value if icu_lower(x) not in lval]
+        lval = {icu_lower(x) for x in neww.value}
+        extra = [x for x in oldw.value if icu_lower(x) not in lval]
         if extra:
-            neww.value = val + extra
+            neww.value += extra
 
     def merge_comments(self):
         widgets = self.widgets['comments']
