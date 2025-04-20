@@ -579,7 +579,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 v = data.get('original_value') or data.get('value')
                 copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
                                         lambda: QApplication.instance().clipboard().setText(v))
-            if field not in ('size', 'id', 'last_modified'):
+            if field not in ('size', 'id', 'last_modified', 'sort', 'series_sort', 'uuid', 'author_sort'):
                 fm = get_gui().current_db.new_api.field_metadata.get(field) or {}
                 if fm.get('datatype') != 'composite':
                     ac = book_info.remove_item_action
