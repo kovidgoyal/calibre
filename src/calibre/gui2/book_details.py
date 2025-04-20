@@ -579,11 +579,13 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 v = data.get('original_value') or data.get('value')
                 copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
                                         lambda: QApplication.instance().clipboard().setText(v))
-            if field != 'size':
-                ac = book_info.remove_item_action
-                ac.data = (field, remove_value, book_id)
-                ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
-                menu.addAction(ac)
+            if field not in ('size', 'id', 'last_modified'):
+                fm = get_gui().current_db.new_api.field_metadata.get(field) or {}
+                if fm.get('datatype') != 'composite':
+                    ac = book_info.remove_item_action
+                    ac.data = (field, remove_value, book_id)
+                    ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
+                    menu.addAction(ac)
             # See if we need to add a click associated link menu line
             link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
             link = link_map.get(field, {}).get(value)
