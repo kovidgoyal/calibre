@@ -24,6 +24,7 @@ from qt.core import (
     QPalette,
     QPen,
     QPixmap,
+    QPoint,
     QPropertyAnimation,
     QRect,
     QSize,
@@ -674,7 +675,32 @@ def create_copy_links(menu, data=None):
 
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
-    url = view.anchorAt(ev.pos())
+    if not (url := view.anchorAt(ev.pos())):
+        # Attempt to compensate for high density displays. When tabbing into an
+        # anchor (URL) Qt picks a point on the outer right edge for the
+        # position. Theory: on high-resolution displays, the outer right edge
+        # can be a few real pixels to the right of the bounding box for the
+        # anchor. As a result, Qt's chosen point isn't in the box. Compensate
+        # for that by moving the position 3 pixels to the right and see if an
+        # anchor is found and, if so, use it. When back-tabbing into an anchor,
+        # Qt uses the left hand side of the bounding box, which isn't affected
+        # by high density. Note that this compensation could cause Qt to find
+        # an anchor when the user clicks in narrow empty space between anchors.
+        # I think this is ok because exact pixel mouse clicking is extremely
+        # difficult.
+
+        # It could be that instead of using 3 pixels we should use one of the
+        # constants such as devicePixelRatio. I don't have a suitable screen so
+        # I can't test that.
+        p = ev.pos()
+        p += QPoint(-3, 0)
+        url = view.anchorAt(p)
+        def pnt_to_str(p):
+            return f'{p.x()}, {p.y()}'
+        def rect_to_str(p):
+            return f'{p.x()}, {p.y()}, {p.width()}, {p.height()}'
+        print(f'BD context menu pos. ev.pos: ({pnt_to_str(ev.pos())}), '
+              f'new pos: ({pnt_to_str(p)}), cursor rect: ({rect_to_str(view.cursorRect())})')
     menu = QMenu(view)
     copy_menu = menu.addMenu(QIcon.ic('edit-copy.png'), _('Copy'))
     copy_menu.addAction(QIcon.ic('edit-copy.png'), _('All book details'), partial(copy_all, view))
