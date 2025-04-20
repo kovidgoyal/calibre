@@ -2,9 +2,18 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import json
+
+import mechanize
+
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.urllib import urlencode
 
 use_wayback_machine = False
+# This is an Apollo persisted query hash which you can get
+# from looking at the XHR requests made by: https://www.nytimes.com/section/todayspaper
+# or by https://www.nytimes.com/section/world
+persistedQuery = '1f99120a11e94dd62a9474f68ee1255537ee3cf7eac20a0377819edb2fa1fef7'
 
 
 def absolutize(url):
@@ -85,45 +94,51 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
             if c.lower() == 'yes':
                 self.compress_news_images = True
 
+    def read_nyt_metadata(self):
+        soup = self.index_to_soup('https://www.nytimes.com/pages/books/review/index.html')
+        script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
+        script = type(u'')(script)
+        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
+        self.nytimes_graphql_config = json.loads(json_data.replace(':undefined', ':null'))['config']
+        return soup
+
+    def nyt_graphql_query(self, qid, operationName='CollectionsQuery'):
+        query = {
+            'operationName': operationName,
+            'variables': json.dumps({
+                'id': qid,
+                'first': 10,
+                'exclusionMode': 'HIGHLIGHTS_AND_EMBEDDED',
+                'isFetchMore':False,
+                'isTranslatable':False,
+                'isEspanol':False,
+                'highlightsListUri':'nyt://per/personalized-list/__null__',
+                'highlightsListFirst':0,
+                'hasHighlightsList':False
+            }, separators=',:'),
+            'extensions': json.dumps({
+                'persistedQuery': {
+                    'version':1,
+                    'sha256Hash': persistedQuery,
+                },
+            }, separators=',:')
+        }
+        url = self.nytimes_graphql_config['gqlUrlClient'] + '?' + urlencode(query)
+        br = self.browser
+        # br.set_debug_http(True)
+        headers = dict(self.nytimes_graphql_config['gqlRequestHeaders'])
+        headers['Accept'] = 'application/json'
+        req = mechanize.Request(url, headers=headers)
+        raw = br.open(req).read()
+        # open('/t/raw.json', 'wb').write(raw)
+        return json.loads(raw)
+
     def parse_index(self):
         # return [('Articles', [{'url': 'https://www.nytimes.com/2022/09/08/books/review/karen-armstrong-by-the-book-interview.html', 'title':'test'}])]
-        soup = self.index_to_soup(
-            self.get_nyt_page('https://www.nytimes.com/pages/books/review/index.html', skip_wayback=True))
-
-        # Find TOC
-        toc = soup.find('section', id='collection-book-review').find('section').find('ol')
-        main_articles, articles = [], []
-        feeds = [('Features', main_articles), ('Latest', articles)]
-        for li in toc.findAll('li'):
-            h2 = li.find(['h2', 'h3'])
-            a = h2.find('a', href=True)
-            if a is not None:
-                title = self.tag_to_string(a)
-                url = absolutize(a['href'])
-                desc = ''
-                p = h2.findNextSibling('p')
-                if p:
-                    desc = self.tag_to_string(p)
-                main_articles.append(
-                    {'title': title, 'url': url, 'description': desc})
-                self.log('Found:', title, 'at', url)
-                if desc:
-                    self.log('\t', desc)
-        for li in soup.find(id='stream-panel').find('ol').findAll('li'):
-            h2 = li.find(['h2', 'h3'])
-            a = h2.findParent('a')
-            url = absolutize(a['href'])
-            p = h2.findNextSibling('p')
-            title = self.tag_to_string(h2)
-            desc = ''
-            if p:
-                desc = self.tag_to_string(p)
-            articles.append({'title': title, 'url': url, 'description': desc})
-            self.log('Found:', title, 'at', url)
-            if desc:
-                self.log('\t', desc)
-
-        return feeds
+        self.read_nyt_metadata()
+        query_id = '/section/books/review'
+        data = self.nyt_graphql_query(query_id)
+        return parse_toc(data, self.log)
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
@@ -146,3 +161,50 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
             for p in c.findAll(['p', 'div']):
                 p.name = 'span'
         return soup
+
+
+def asset_to_article(asset):
+    title = asset['headline']['default']
+    return {'title': title, 'url': asset['url'], 'description': asset['summary']}
+
+
+def parse_toc(data, log=print):
+    containers = data['data']['legacyCollection']['groupings'][0]['containers']
+    articles = []
+    log('Book reviews')
+    for cont in containers:
+        if cont['__typename'] != 'LegacyCollectionContainer':
+            continue
+        for rel in cont['relations']:
+            if rel.get('__typename') == 'LegacyCollectionRelation':
+                asset = rel['asset']
+                if asset['__typename'] == 'Article':
+                    articles.append(asset_to_article(asset))
+                    log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
+    feeds = [('Book reviews', articles)]
+    articles = []
+    log('Books of the Times')
+    try:
+        containers = data['data']['legacyCollection']['collectionsPage']
+        if containers.get('embeddedCollections'):
+            containers = containers['embeddedCollections']
+        else:
+            containers = [containers]
+    except Exception as e:
+        log('Failed to parse web section', 'Books of the Times', 'with error:', e)
+        return articles
+    for cont in containers:
+        for s in cont['stream']['edges']:
+            asset = s['node']
+            if asset['__typename'] == 'Article':
+                articles.append(asset_to_article(asset))
+                log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
+    if articles:
+        feeds.append(('Book of the Times', articles))
+    return feeds
+
+
+if __name__ == '__main__':
+    import sys
+    data = json.loads(open(sys.argv[-1], 'rb').read())
+    parse_toc(data)
