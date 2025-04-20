@@ -3,7 +3,7 @@
 import json
 import re
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -40,7 +40,7 @@ class TheHindu(BasicNewsRecipe):
                      'erode, hyderabad, international, kochi, kolkata,\n'
                      'kozhikode, madurai, mangalore, mumbai, thiruvananthapuram, '
                      'tiruchirapalli, vijayawada, visakhapatnam'),
-            'default': 'chennai'
+            'default': 'international'
         },
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
@@ -76,7 +76,7 @@ class TheHindu(BasicNewsRecipe):
 
         past_edition = self.recipe_specific_options.get('date')
 
-        dt = date.today() - timedelta(days=1)
+        dt = date.today()
         if past_edition and isinstance(past_edition, str):
             year, month, day = (int(x) for x in past_edition.split('-'))
             dt = date(year, month, day)

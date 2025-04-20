@@ -252,7 +252,7 @@ class Economist(BasicNewsRecipe):
     # downloaded with connection reset by peer (104) errors.
     delay = 3
 
-    from_archive = False
+    from_archive = True
 
     recipe_specific_options = {
         'date': {
