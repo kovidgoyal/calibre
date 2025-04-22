@@ -347,8 +347,7 @@ class Device(DeviceConfig, DevicePlugin):
     def osx_run_mount(cls):
         for i in range(3):
             try:
-                return subprocess.Popen('mount',
-                                    stdout=subprocess.PIPE).communicate()[0]
+                return subprocess.Popen('mount', stdout=subprocess.PIPE).communicate()[0].decode('utf-8', 'replace')
             except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
