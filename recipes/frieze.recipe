@@ -13,7 +13,7 @@ class FriezeMagazineRecipe(BasicNewsRecipe):
     title = 'Frieze Magazine'
     __author__ = 'Kabonix'
     description = "Magazine international d'art contemporain"
-    language = 'en'
+    language = 'en_GB'
     oldest_article = 60
     max_articles_per_feed = 50
     auto_cleanup = False
