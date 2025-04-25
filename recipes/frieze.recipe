@@ -1,0 +1,234 @@
+#!/usr/bin/env python
+'''
+frieze.com - Magazine d'art contemporain
+'''
+import re
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class FriezeMagazineRecipe(BasicNewsRecipe):
+    title = 'Frieze Magazine'
+    __author__ = 'Kabonix'
+    description = "Magazine international d'art contemporain"
+    language = 'en'
+    oldest_article = 60
+    max_articles_per_feed = 50
+    auto_cleanup = False
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    scale_news_images_to_device = True
+
+    base_url = 'https://www.frieze.com'
+
+    keep_only_tags = [
+        {'class': 'article-header-container'},
+        {'class': 'article-header-title'},
+        {'class': 'article-header-headline'},
+        {'class': 'article-header-author'},
+        {'class': 'body-text'},
+        {'class': 'body-field'}
+    ]
+
+    remove_tags = [
+        {'class': 'social-share-container'},
+        {'class': 'share-buttons'},
+        {'class': 'article-header-social-responsive'},
+        {'class': 'newsletter-subscribe-container'},
+        {'class': 'suggested-articles-container'},
+        {'class': 'article-footer-container'},
+        {'class': 'ad-surround'},
+        {'id': re.compile(r'ad-.*')},
+        {'class': 'hidden'}
+    ]
+
+    extra_css = '''
+        img { max-width: 100%; height: auto; display: block; margin: 1em auto; }
+        h1 { font-size: 2em; margin: 1em 0; font-weight: bold; }
+        h2 { font-size: 1.5em; margin: 1em 0; font-weight: bold; }
+        p { font-size: 1.1em; line-height: 1.6; margin-bottom: 1em; }
+        figcaption { font-style: italic; font-size: 0.9em; color: #555; text-align: center; }
+        em { font-style: italic; }
+        .article-header-title { margin-bottom: 0.5em; }
+        .article-header-headline { margin-bottom: 1.5em; }
+        .article-header-author { font-size: 0.9em; margin-bottom: 2em; color: #555; }
+    '''
+
+    def parse_index(self):
+        magazine_url = self.base_url + '/magazines/frieze-magazine'
+        soup = self.index_to_soup(magazine_url)
+
+        # Recherche du dernier numéro de façon plus robuste
+        # Essayer plusieurs sélecteurs possibles pour trouver la liste des numéros
+        issue_containers = soup.find_all('div', {'class': re.compile(r'teaser-search-col')})
+
+        # S'il n'y a pas de conteneurs trouvés avec la classe spécifique, cherchons plus largement
+        if not issue_containers:
+            self.log.warning('Recherche élargie des numéros du magazine')
+            issue_containers = soup.find_all('div', {'class': re.compile(r'teaser')})
+
+        # Trouvons le premier numéro de magazine (le plus récent) parmi les conteneurs
+        latest_issue = None
+        for container in issue_containers:
+            # Vérifie si c'est un conteneur de magazine (pas un article)
+            if container.find('a', href=re.compile(r'/magazines/|/issues/')):
+                latest_issue = container
+                break
+
+        if not latest_issue:
+            self.log.warning('Aucun numéro spécifique trouvé, utilisation de la page principale')
+            issue_url = magazine_url
+        else:
+            issue_link = latest_issue.find('a')
+            if issue_link and issue_link.get('href'):
+                issue_url = self.base_url + issue_link['href'] if issue_link['href'].startswith('/') else issue_link['href']
+                self.log.info(f'Dernier numéro trouvé: {issue_url}')
+            else:
+                issue_url = magazine_url
+                self.log.warning('Lien vers le numéro non trouvé')
+
+        self.log.info(f'Accès au numéro: {issue_url}')
+        issue_soup = self.index_to_soup(issue_url)
+
+        # Extraction plus robuste de l'image de couverture
+        # Essayons plusieurs sélecteurs possibles
+        cover_image = None
+
+        # Méthode 1: Chercher dans la section d'en-tête du magazine
+        cover_div = issue_soup.find('div', class_=re.compile(r'magazine-header-image|issue-header-image'))
+        if cover_div:
+            img_tag = cover_div.find('img')
+            if img_tag and img_tag.get('src'):
+                cover_image = img_tag['src']
+
+        # Méthode 2: Chercher dans la section principale
+        if not cover_image:
+            main_section = issue_soup.find('section', class_=re.compile(r'main|content'))
+            if main_section:
+                img_tag = main_section.find('img')
+                if img_tag and img_tag.get('src'):
+                    cover_image = img_tag['src']
+
+        # Méthode 3: Recherche générale d'une grande image en haut de la page
+        if not cover_image:
+            for img in issue_soup.find_all('img', src=True)[:5]:  # Limiter aux 5 premières images
+                if 'cover' in img.get('src', '').lower() or 'header' in img.get('src', '').lower():
+                    cover_image = img['src']
+                    break
+
+        if cover_image:
+            self.cover_url = cover_image if cover_image.startswith('http') else self.base_url + cover_image
+            self.log.info(f'Couverture trouvée: {self.cover_url}')
+        else:
+            self.log.warning("Pas d'image de couverture trouvée")
+
+        # Extraction du titre du numéro
+        issue_title = None
+        for heading in issue_soup.find_all(['h1', 'h2']):
+            if 'issue' in heading.text.lower() or 'magazine' in heading.text.lower():
+                issue_title = heading.text.strip()
+                break
+
+        if not issue_title:
+            # Recherche plus générale
+            for heading in issue_soup.find_all(['h1', 'h2'])[:3]:  # Limiter aux 3 premiers titres
+                issue_title = heading.text.strip()
+                if issue_title:
+                    break
+
+        if not issue_title:
+            issue_title = 'Frieze Magazine - Dernier numéro'
+
+        # Extraction des articles
+        articles = []
+
+        # Recherche différents modèles de teasers d'articles
+        article_containers = issue_soup.find_all('div', {'class': re.compile(r'teaser-content|article-teaser|article-item')})
+
+        if not article_containers:
+            # Recherche plus large si les conteneurs spécifiques ne sont pas trouvés
+            article_containers = issue_soup.find_all('div', {'class': re.compile(r'teaser|article')})
+
+        for container in article_containers:
+            article_link = container.find('a')
+            if not article_link or not article_link.get('href'):
+                continue
+
+            article_url = article_link['href']
+            if article_url.startswith('/'):
+                article_url = self.base_url + article_url
+
+            # Extraction du titre avec différentes classes possibles
+            title_element = container.find(['div', 'h2', 'h3', 'h4'], {'class': re.compile(r'title|heading')})
+            title = title_element.text.strip() if title_element else 'Sans titre'
+
+            # Extraction de la description
+            desc_element = container.find(['div', 'p'], {'class': re.compile(r'deck|description|summary|excerpt')})
+            description = desc_element.text.strip() if desc_element else ''
+
+            # Extraction de l'auteur
+            author_element = container.find(['div', 'span'], {'class': re.compile(r'author|byline')})
+            if author_element:
+                author_links = author_element.find_all('a')
+                if author_links:
+                    author = ', '.join([a.text.strip() for a in author_links])
+                else:
+                    author = author_element.text.strip()
+            else:
+                author = ''
+
+            # Vérification que c'est bien un article et pas un lien interne
+            if '/article/' in article_url or '/feature/' in article_url or '/review/' in article_url:
+                articles.append({
+                    'title': title,
+                    'url': article_url,
+                    'description': description,
+                    'author': author,
+                    'date': datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y-%m-%d')
+                })
+                self.log.debug(f'Article trouvé: {title} - {article_url}')
+
+        self.log.info(f"Nombre d'articles trouvés: {len(articles)}")
+        return [(issue_title, articles)]
+
+    def get_cover_url(self):
+        return getattr(self, 'cover_url', None)
+
+    def preprocess_html(self, soup):
+        # Nettoyage des éléments superflus
+        for element in soup.find_all(class_=lambda c: c and ('share' in c or 'ad-' in c)):
+            element.decompose()
+
+        for tag in soup.find_all(['script', 'style']):
+            tag.decompose()
+
+        # Optimisation des images
+        for img in soup.find_all('img'):
+            # Sauvegarde des attributs importants seulement
+            src = img.get('src') or img.get('data-src') or img.get('data-lazy-src')
+            alt = img.get('alt', '')
+
+            # Réinitialiser tous les attributs
+            img.attrs = {}
+
+            # Réappliquer seulement src et alt
+            if src:
+                img['src'] = src
+            if alt:
+                img['alt'] = alt
+
+        # Formatage des métadonnées
+        for class_name, style in [
+            ('article-header-title', 'font-size: 2em; font-weight: bold;'),
+            ('article-header-headline', 'font-style: italic;'),
+            ('article-header-author', 'color: #555;')
+        ]:
+            element = soup.find('div', class_=class_name)
+            if element:
+                element.attrs.clear()
+                element['style'] = style
+
+        return soup
