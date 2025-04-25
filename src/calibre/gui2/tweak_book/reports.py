@@ -7,6 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import textwrap
 import time
+import unicodedata
 from collections import defaultdict
 from contextlib import suppress
 from csv import writer as csv_writer
@@ -906,7 +907,8 @@ class CharsWidget(QWidget):
     def __call__(self, data):
         self.model(data)
         self.chars.resize_rows()
-        self.summary.setText(''.join(self.model.all_chars))
+        c = unicodedata.category
+        self.summary.setText(''.join(sorted(ch for ch in self.model.all_chars if c(ch) not in ('Zs', 'Cc'))))
         self.filter_edit.clear()
 
     def double_clicked(self, index):
