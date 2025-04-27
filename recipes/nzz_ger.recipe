@@ -27,13 +27,19 @@ class Nzz(BasicNewsRecipe):
     keep_only_tags = [dict(name='section', attrs={'class': 'container--article'})]
 
     remove_tags = [
-        dict(name='div', attrs={'class': 'progressbar__wrapper'}),
-        dict(name='div', attrs={'class': 'headline__meta'}),
-        dict(name='figcaption', attrs={'class': 'articlecomponent__description'}),
+        dict(name='div', attrs={'class': 'progressbar__wrapper'}),               # Reading progress.
+        dict(name='div', attrs={'class': 'headline__meta'}),                     # Article meta data.
         dict(name='div', attrs={'class': 'nzzinteraction'}),
         dict(name='section', attrs={'class': 'nzzinteraction'}),
-        dict(name='div', attrs={'class': 'disabled-overlay'}),
+        dict(name='span', attrs={'class': 'image-description__author-single'}),  # Photo accreditation.
+        dict(name='div', attrs={'class': 'disabled-overlay'}),                   # "Please enable Javascript".
     ]
+
+    # Center and reduce the size of images and image captions.
+    extra_css = '''
+        img { display: block; margin: auto; width: 50%; height: auto; }
+        div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+    '''
 
     remove_attributes = ['style', 'font', 'class']
 
@@ -111,4 +117,9 @@ class Nzz(BasicNewsRecipe):
         # Fix lazy-loading images
         for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split()[0]
+
+        # To prevent image captions from being displayed as headers in the output, convert them from <h2> to <p>.
+        for caption in soup.findAll('h2', attrs={'class': 'image-description__caption'}):
+            caption.name = 'p'
+
         return soup
