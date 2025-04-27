@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+import re
+
 from datetime import datetime, timezone
 
 from mechanize import Request
@@ -25,12 +27,16 @@ class Fokus(BasicNewsRecipe):
     compress_news_images = True
     needs_subscription = 'optional'
     oldest_article = 7  # days
-    remove_empty_feeds = True
-    extra_css = 'img { display: block; width: 75%; height: auto }'
-
     use_embedded_content = False
+    remove_empty_feeds = True
     scale_news_images_to_device = True
     scale_news_images = (800, 600)
+
+    # Center and reduce the size of images and image captions.
+    extra_css = '''
+        img { display: block; margin: auto; width: 50%; height: auto }
+        div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+    '''
 
     remove_tags = [
         dict(name='div', attrs={'class': 'External-ad'}),
@@ -314,3 +320,26 @@ class Fokus(BasicNewsRecipe):
         self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
 
         return feeds
+
+    def postprocess_html(self, soup, _, read_more_regex: re.Pattern = re.compile("^Läs även:")):
+        # When scraped, Fokus sometimes returns a duplicate of the article, i.e., the exact same article concatenated
+        # to itself. To avoid duplication in the output file, remove all <div> tags after the <p> tag whose content is
+        # "***" (the Fokus indication of the end of the article). "***" is sometimes followed by one or multiple
+        # "Läs även:" ("Read also:") paragraphs. If such paragraphs are encountered, do not delete them.
+        has_reached_end, has_reached_read_more = False, False
+        for div_tag in soup.find_all('div', class_='wp-block-core-paragraph'):
+            if has_reached_read_more:
+                div_tag.decompose()
+            elif has_reached_end and div_tag.find('strong', text=read_more_regex):
+                # If the end has been reached, check if this is a "Läs även:" paragraph. If yes, keep it.
+                continue
+            elif has_reached_end and not has_reached_read_more:
+                # If the end of the article has been reached, and if no more "Läs även:" paragraphs follow, delete this
+                # tag and set `has_reached_read_more` to `True`.
+                has_reached_read_more = True
+                div_tag.decompose()
+            elif div_tag.find('p', text='***'):
+                # The end of the article has been reached.
+                has_reached_end = True
+
+        return soup
