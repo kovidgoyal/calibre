@@ -27,12 +27,16 @@ class Fokus(BasicNewsRecipe):
     compress_news_images = True
     needs_subscription = 'optional'
     oldest_article = 7  # days
-    remove_empty_feeds = True
-    extra_css = 'img { display: block; width: 75%; height: auto }'
-
     use_embedded_content = False
+    remove_empty_feeds = True
     scale_news_images_to_device = True
     scale_news_images = (800, 600)
+
+    # Center and reduce the size of images and image captions.
+    extra_css = '''
+        img { display: block; margin: auto; width: 50%; height: auto }
+        div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+    '''
 
     remove_tags = [
         dict(name='div', attrs={'class': 'External-ad'}),
