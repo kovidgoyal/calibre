@@ -40,10 +40,13 @@ get_default_tempdir = tempfile.gettempdir
 
 def base_dir():
     global _base_dir, _prevent_recursion
-    if _base_dir is not None and not _prevent_recursion and not os.path.exists(_base_dir):
+    if _base_dir is not None and not os.path.exists(_base_dir):
         # Some people seem to think that running temp file cleaners that
         # delete the temp dirs of running programs is a good idea!
-        _base_dir = None
+        if _prevent_recursion:
+            _base_dir = get_default_tempdir()
+        else:
+            _base_dir = None
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
