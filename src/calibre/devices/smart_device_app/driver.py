@@ -234,7 +234,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     SEND_NOOP_EVERY_NTH_PROBE   = 5
     DISCONNECT_AFTER_N_SECONDS  = 30*60  # 30 minutes
-
     PURGE_CACHE_ENTRIES_DAYS    = 30
 
     CURRENT_CC_VERSION          = 128
@@ -387,6 +386,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def __init__(self, path):
         self.sync_lock = threading.RLock()
         self.noop_counter = 0
+        self.noop_time = time.monotonic()
         self.debug_start_time = time.time()
         self.debug_time = time.time()
         self.is_connected = False
@@ -631,6 +631,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _call_client(self, op, arg, print_debug_info=True, wait_for_response=True):
         if op != 'NOOP':
             self.noop_counter = 0
+            self.noop_time = time.monotonic()
         extra_debug = self.settings().extra_customization[self.OPT_EXTRA_DEBUG]
         if print_debug_info or extra_debug:
             if extra_debug:
@@ -960,7 +961,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if getattr(self, 'listen_socket', None) is None:
             self.is_connected = False
         if self.is_connected:
-            self.noop_counter += 1
+            self.noop_counter = int(time.monotonic()) - int(self.noop_time)
             if (self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
                     (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
@@ -975,7 +976,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     pass
             if (self.settings().extra_customization[self.OPT_AUTODISCONNECT] and
                     self.noop_counter > self.DISCONNECT_AFTER_N_SECONDS):
-                self._close_device_socket()
+                # eject so we also tell the device to disconnect when we close the socket
+                self.eject()
                 self._debug('timeout -- disconnected')
             else:
                 try:
