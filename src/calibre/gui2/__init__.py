@@ -1620,7 +1620,10 @@ def ensure_app(headless=True):
             if headless and has_headless:
                 args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
                 if isbsd:
-                    os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = '--disable-gpu'
+                    val = os.environ.get('QTWEBENGINE_CHROMIUM_FLAGS', '')
+                    if val:
+                        val += ' '
+                    os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = f'{val}--disable-gpu'
                 if ismacos:
                     os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
             if headless and iswindows:
