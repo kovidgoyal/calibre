@@ -2,7 +2,22 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QFontMetrics, QHBoxLayout, QIcon, QMenu, QPushButton, QSize, QSizePolicy, QStyle, QStyleOption, QStylePainter, Qt, QWidget
+from qt.core import (
+    QEvent,
+    QFontMetrics,
+    QHBoxLayout,
+    QIcon,
+    QKeySequence,
+    QPainter,
+    QPushButton,
+    QSize,
+    QSizePolicy,
+    QStyle,
+    QStyleOption,
+    QStylePainter,
+    Qt,
+    QWidget,
+)
 
 
 class LayoutItem(QWidget):
@@ -72,37 +87,47 @@ class LayoutItem(QWidget):
         painter.end()
 
 
-class LayoutMenu(QMenu):
+class LayoutMenuInner(QWidget):
 
-    def __init__(self, parent=None):
-        QMenu.__init__(self, parent)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.l = l = QHBoxLayout(self)
         l.setSpacing(20)
         self.items = []
-        if parent is None:
-            buttons = [
-                QPushButton(QIcon.ic(i + '.png'), i, self)
-                for i in 'search tags cover_flow grid book'.split()]
-            for b in buttons:
-                b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
-                b.label = b.text().capitalize()
-        else:
-            buttons = parent.layout_buttons
-        for b in buttons:
-            self.items.append(LayoutItem(b, self))
-            l.addWidget(self.items[-1])
-            self.aboutToShow.connect(self.about_to_show)
-        self.current_item = None
+        self.initialized = False
 
-    def about_to_show(self):
+    @property
+    def gui(self):
+        return self.parent().parent()
+
+    def delayed_init(self):
+        if not self.initialized:
+            self.initialized = True
+            gui = self.gui
+            if not hasattr(gui, 'layout_buttons'):
+                buttons = [
+                    QPushButton(QIcon.ic(i + '.png'), i, self)
+                    for i in 'search tags cover_flow grid book'.split()]
+                for b in buttons:
+                    b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
+                    b.label = b.text().capitalize()
+            else:
+                buttons = gui.layout_buttons
+            l = self.layout()
+            for b in buttons:
+                self.items.append(LayoutItem(b, self))
+                l.addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
+        self.current_item = None
         for x in self.items:
             x.update_tips()
-
-    def sizeHint(self):
-        return QWidget.sizeHint(self)
+        self.resize(self.sizeHint())
 
     def paintEvent(self, ev):
-        return QWidget.paintEvent(self, ev)
+        painter = QPainter(self)
+        col = self.palette().window().color()
+        col.setAlphaF(0.9)
+        painter.fillRect(self.rect(), col)
+        super().paintEvent(ev)
 
     def item_for_ev(self, ev):
         for item in self.items:
@@ -113,8 +138,6 @@ class LayoutMenu(QMenu):
         if ev.button() != Qt.MouseButton.LeftButton:
             ev.ignore()
             return
-        if (ev.pos().isNull() and not ev.screenPos().isNull()) or not self.rect().contains(ev.pos()):
-            self.hide()
         self.current_item = self.item_for_ev(ev)
         if self.current_item is not None:
             ev.accept()
@@ -128,13 +151,81 @@ class LayoutMenu(QMenu):
         item = self.item_for_ev(ev)
         if item is not None and item is self.current_item:
             ev.accept()
-            self.hide()
+            self.parent().hide()
             item.button.click()
+
+    def handle_key_press(self, ev):
+        q = QKeySequence(ev.keyCombination())
+        for item in self.items:
+            sc = item.button.shortcut
+            if callable(sc):
+                sc = item.button.shortcut()
+            else:
+                sc = QKeySequence.fromString(sc)
+            if sc.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
+                self.parent().hide()
+                item.button.click()
+                ev.accept()
+                break
+
+
+class LayoutMenu(QWidget):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setVisible(False)
+        self.inner = LayoutMenuInner(self)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+    def toggle_visibility(self):
+        if self.isVisible():
+            self.hide()
+        else:
+            self.show()
+
+    def show(self):
+        self.inner.delayed_init()
+        parent = self.parent()
+        self.move(0, 0)
+        self.resize(parent.rect().size())
+        r = parent.rect()
+        y = r.height()
+        if hasattr(parent, 'layout_button'):
+            lb = parent.layout_button
+            y = lb.mapTo(parent, lb.rect().topLeft()).y()
+        self.inner.move(r.width() - self.inner.size().width(), y - self.inner.size().height())
+        super().show()
+        self.raise_()
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def event(self, ev):
+        if ev.type() == QEvent.Type.ShortcutOverride and self.isVisible():
+            ev.accept()
+        return super().event(ev)
+
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.StandardKey.Cancel):
+            self.hide()
+        else:
+            self.inner.handle_key_press(ev)
+
+    def mousePressEvent(self, ev):
+        if ev.button() != Qt.MouseButton.LeftButton:
+            ev.ignore()
+            return
+        if self.inner.rect().contains(ev.pos()):
+            ev.ignore()
+        else:
+            self.hide()
 
 
 if __name__ == '__main__':
+    from qt.core import QMainWindow
+
     from calibre.gui2 import Application
     app = Application([])
-    w = LayoutMenu()
+    w = QMainWindow()
+    m = LayoutMenu(w)
     w.show()
-    w.exec()
+    m.show()
+    app.exec()

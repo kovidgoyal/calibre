@@ -546,7 +546,6 @@ class LayoutMixin:  # {{{
                 ''')
         for button in reversed(self.layout_buttons):
             self.status_bar.insertPermanentWidget(2, button)
-        self.layout_button.setMenu(LayoutMenu(self))
         self.layout_button.setVisible(not gprefs['show_layout_buttons'])
 
     def init_layout_mixin(self):
@@ -592,12 +591,13 @@ class LayoutMixin:  # {{{
         self.search_bar_button.toggled.connect(self.toggle_search_bar)
 
         self.layout_button = b = QToolButton(self)
+        self.layout_button_menu = m = LayoutMenu(self)
         b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
-        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setText(_('Layout')), b.setIcon(QIcon.ic('layout.png'))
         b.setToolTip(_(
             'Show and hide various parts of the calibre main window'))
+        b.clicked.connect(m.toggle_visibility)
         self.status_bar.addPermanentWidget(b)
 
         # These must be after the layout button because it can be expanded into
