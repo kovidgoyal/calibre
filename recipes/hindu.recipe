@@ -17,7 +17,7 @@ def absurl(url):
 class TheHindu(BasicNewsRecipe):
     title = 'The Hindu Print Edition'
     __author__ = 'unkn0wn'
-    description = "Articles from The Hindu, Today's Paper. This recipe now works only for yesterday's edition."
+    description = "Articles from The Hindu, Today's Paper."
     language = 'en_IN'
     no_stylesheets = True
     masthead_url = 'https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg'
@@ -40,7 +40,7 @@ class TheHindu(BasicNewsRecipe):
                      'erode, hyderabad, international, kochi, kolkata,\n'
                      'kozhikode, madurai, mangalore, mumbai, thiruvananthapuram, '
                      'tiruchirapalli, vijayawada, visakhapatnam'),
-            'default': 'international'
+            'default': 'chennai'
         },
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
