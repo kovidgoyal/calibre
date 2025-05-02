@@ -658,7 +658,7 @@ class PiperEmbedded:
 
 class PipeReader:
 
-    TIMEOUT = 10.  # seconds
+    TIMEOUT = 30.  # seconds
 
     def __init__(self, stdout: BinaryIO, stderr: BinaryIO):
         self.stdout_fd = stdout.fileno()
