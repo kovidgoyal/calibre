@@ -548,10 +548,16 @@ class Container(ContainerBase):  # {{{
         return name and name in self.name_path_map
 
     def has_name_and_is_not_empty(self, name):
-        if not self.has_name(name):
+        path = self.name_path_map.get(name)
+        if not path:
             return False
         try:
-            return os.path.getsize(self.name_path_map[name]) > 0
+            if (sz := os.path.getsize(path)) == 0:
+                # this can happen when the directory entry is not flushed (which happens during fast EPUB extraction), so
+                # open the file and check to be sure.
+                with open(path) as f:
+                    sz = f.seek(0, os.SEEK_END)
+            return sz > 0
         except OSError:
             return False
 
