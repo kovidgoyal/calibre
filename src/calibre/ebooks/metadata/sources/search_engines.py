@@ -433,6 +433,57 @@ def google_develop(search_terms='1423146786', raw_from=''):
 # }}}
 
 
+# Yandex {{{
+def yandex_term(t):
+    t = t.replace('"', '')
+    if t in {'OR', 'AND', 'NOT'}:
+        t = t.lower()
+    return t
+
+
+def yandex_format_query(terms, site=None):
+    terms = [quote_term(yandex_term(t)) for t in terms]
+    if site is not None:
+        terms.append(quote_term(('site:' + site)))
+    q = '+'.join(terms)
+    url = 'https://yandex.com/search?text={q}'.format(q=q)
+    return url
+
+
+def yandex_parse_results(root, raw, log=prints, ignore_uncached=True):
+    pass
+
+
+yandex_scraper_storage = []
+
+
+def yandex_search(terms, site=None, br=None, dump_raw=None, log=prints, timeout=60):
+    # Sadly yandex uses CAPTCHAs aggresively
+    url = yandex_format_query(terms, site)
+    br = browser()
+    r = []
+    from calibre.scraper.simple import read_url
+    root = query(br, url, 'yandex', dump_raw, timeout=timeout, save_raw=r.append, simple_scraper=partial(read_url, yandex_scraper_storage))
+    return yandex_parse_results(root, r[0], log=log), url
+
+
+def yandex_develop(search_terms='1423146786', raw_from=''):
+    if raw_from:
+        with open(raw_from, 'rb') as f:
+            raw = f.read()
+        results = yandex_parse_results(parse_html(raw), raw)
+    else:
+        results = yandex_search(search_terms.split(), 'www.amazon.com', dump_raw='/t/raw.html')[0]
+    for result in results:
+        if '/dp/' in result.url:
+            print(result.title)
+            print(' ', result.url)
+            print(' ', result.cached_url)
+            print()
+
+# }}}
+
+
 def get_cached_url(url, br=None, log=prints, timeout=60):
     from threading import Lock, Thread
 
