@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-import re
 from datetime import datetime, timezone
 
 from mechanize import Request
@@ -37,42 +36,14 @@ class Fokus(BasicNewsRecipe):
         div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
     '''
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'External-ad'}),
-        dict(name='header', attrs={'class': 'Header'}),
-        dict(name='div', attrs={'class': 'Header-expanded'}),
-        dict(name='div', attrs={'class': 'Overlay'}),
-        dict(name='div', attrs={'class': 'Search-expanded'}),
-        dict(name='section', attrs={'class': 'Site__footer'}),
-        dict(name='div', attrs={'class': 'Toaster'}),
-        dict(name='div', attrs={'class': 'fbc-badge'}),
-        dict(name='div', attrs={'class': 'Posts-by-related-cat'}),
-        dict(name='div', attrs={'class': 'finite-scroll'}),
-        dict(name='div', attrs={'class': 'Sidebar'}),
-        dict(name='div', attrs={'id': 'single-comments'}),
-        dict(name='footer', attrs={'class': 'Single__footer'}),
-        dict(name='div', attrs={'class': 'Social-share'}),
-        dict(name='div', attrs={'class': 'mediaconnect-paywall'}),
-        dict(name='svg', attrs={'class': 'icon'}),
-        dict(name='figure', attrs={'class': 'wp-block-audio'}),
-    ]
-
-    remove_tags_after = [
-        dict(name='div', class_='Single__content'),
-    ]
-
     keep_only_tags = [
-        dict(name='h1', class_='Single__title'),  # Title.
-        dict(name='h1', class_='Longread__title'),  # Alt. title.
-        dict(name='p', class_='Single__lead'),  # Lead text.
-        dict(name='p', class_='Longread__lead'),  # Alt. lead text.
-        dict(name='figure', class_='Single__thumbnail'),  # Image.
-        dict(name='figure', class_='Longread__thumbnail'),  # Alt. image.
-        # dict(name='p', class_='Meta__author'),  # Author.
-        # dict(name='time', class_='Meta__updated'),  # Last updated.
-        # Main article.
-        dict(name='div', class_='sesamy-protected-content'),
-        dict(name='div', class_='wp-block-core-paragraph'),
+        dict(name='h1', class_='Single__title'),                # Title of "Single" type articles.
+        dict(name='h1', class_='Longread__title'),              # Title of "Longread" type articles.
+        dict(name='p', class_='Single__lead'),                  # Lead text of "Single" type articles.
+        dict(name='p', class_='Longread__lead'),                # Lead text of "Longread" type articles.
+        dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
+        dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
+        dict(name='div', class_='sesamy-protected-content'),    # Article body.
     ]
 
     def get_cover_url(self) -> str:
@@ -319,26 +290,3 @@ class Fokus(BasicNewsRecipe):
         self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
 
         return feeds
-
-    def postprocess_html(self, soup, _, read_more_regex: re.Pattern = re.compile(r'^Läs även:')):
-        # When scraped, Fokus sometimes returns a duplicate of the article, i.e., the exact same article concatenated
-        # to itself. To avoid duplication in the output file, remove all <div> tags after the <p> tag whose content is
-        # "***" (the Fokus indication of the end of the article). "***" is sometimes followed by one or multiple
-        # "Läs även:" ("Read also:") paragraphs. If such paragraphs are encountered, do not delete them.
-        has_reached_end, has_reached_read_more = False, False
-        for div_tag in soup.find_all('div', class_='wp-block-core-paragraph'):
-            if has_reached_read_more:
-                div_tag.decompose()
-            elif has_reached_end and div_tag.find('strong', text=read_more_regex):
-                # If the end has been reached, check if this is a "Läs även:" paragraph. If yes, keep it.
-                continue
-            elif has_reached_end and not has_reached_read_more:
-                # If the end of the article has been reached, and if no more "Läs även:" paragraphs follow, delete this
-                # tag and set `has_reached_read_more` to `True`.
-                has_reached_read_more = True
-                div_tag.decompose()
-            elif div_tag.find('p', text='***'):
-                # The end of the article has been reached.
-                has_reached_end = True
-
-        return soup
