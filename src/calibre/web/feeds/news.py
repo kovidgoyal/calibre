@@ -1863,13 +1863,28 @@ class BasicNewsRecipe(Recipe):
         return soup
 
     def internal_postprocess_book(self, oeb, opts, log):
-        if self.resolve_internal_links and self.article_url_map:
-            seen = set()
-            for item in oeb.spine:
-                for a in item.data.xpath('//*[local-name()="a" and @href]'):
-                    if a.get('rel') == 'calibre-downloaded-from':
-                        continue
-                    url = a.get('href')
+        seen = set()
+        for i, item in enumerate(oeb.spine):
+            for a in item.data.xpath('//*[local-name()="a" and @href]'):
+                if (rel := a.get('rel')) == 'calibre-downloaded-from':
+                    continue
+                url = a.get('href')
+                if not url:
+                    continue
+                if rel in ('articlenextlink', 'articleprevlink'):
+                    abshref = item.abshref(url)
+                    if abshref not in oeb.manifest.hrefs:
+                        if rel == 'articlenextlink':
+                            nextitem = oeb.spine[i + 1] if i + 1 < len(oeb.spine) else None
+                        else:
+                            nextitem = oeb.spine[i - 1] if i else None
+                        if nextitem is None:
+                            a.text = None
+                            a.attrib.pop('href')
+                        else:
+                            a.set('href', item.relhref(nextitem.href))
+                    continue
+                if self.resolve_internal_links and self.article_url_map:
                     for curl in self.canonicalize_internal_url(url):
                         articles = self.article_url_map.get(curl)
                         if articles:
