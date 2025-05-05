@@ -745,7 +745,10 @@ class IframeBoss:
         except:
             print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(self.link_attr)))
             return
-        self.activate_link(data.name, data.frag, evt.currentTarget)
+        if data.missing:
+            self.send_message('link_to_missing_activated', name=data.name)
+        else:
+            self.activate_link(data.name, data.frag, evt.currentTarget)
 
     def activate_link(self, name, frag, target_elem):
         if not name:

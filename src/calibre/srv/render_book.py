@@ -13,7 +13,7 @@ from itertools import count
 
 from lxml.etree import Comment
 
-from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
+from calibre import detect_ncpus, prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, OEB_STYLES, OPF, SMIL, XHTML, XHTML_NS, XLINK, rewrite_links, urlunquote
 from calibre.ebooks.oeb.base import XPath as _XPath
@@ -33,7 +33,7 @@ from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
 from polyglot.builtins import as_bytes
-from polyglot.urllib import quote, urlparse
+from polyglot.urllib import urlparse
 
 try:
     from calibre_extensions.speedup import get_num_of_significant_chars
@@ -98,9 +98,7 @@ def create_link_replacer(container, link_uid, changed):
                 frag = urlunquote(frag)
                 url = resource_template.format(encode_url(name, frag))
             else:
-                if isinstance(name, str):
-                    name = name.encode('utf-8')
-                url = 'missing:' + force_unicode(quote(name), 'utf-8')
+                url = 'missing:' + name
             changed.add(base)
         return url
 
@@ -475,14 +473,18 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
                 href = link_replacer(name, href)
             elif attr in a.attrib:
                 a.set(attr, 'javascript:void(0)')
-            if href and href.startswith(link_uid):
-                a.set(attr, 'javascript:void(0)')
-                parts = href.split('|')
-                if len(parts) > 1:
-                    parts = decode_url(parts[1])
-                    lname, lfrag = parts[0], parts[1]
-                    link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                    a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+            if href:
+                if href.startswith(link_uid):
+                    a.set(attr, 'javascript:void(0)')
+                    parts = href.split('|')
+                    if len(parts) > 1:
+                        parts = decode_url(parts[1])
+                        lname, lfrag = parts[0], parts[1]
+                        link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+                        a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+                elif href.startswith('missing:'):
+                    a.set(attr, 'javascript:void(0)')
+                    a.set('data-' + link_uid, json.dumps({'name':href[len('missing:'):], 'frag':'', 'missing': True}, ensure_ascii=False))
 
         for a in link_xpath(root):
             handle_link(a)
@@ -519,8 +521,12 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names):
                 link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
                 a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
         elif href:
-            a.set('target', '_blank')
-            a.set('rel', 'noopener noreferrer')
+            if href.startswith('missing:'):
+                a.set(attr, 'javascript:void(0)')
+                a.set('data-' + link_uid, json.dumps({'name':href[len('missing:'):], 'frag':'', 'missing': True}, ensure_ascii=False))
+            else:
+                a.set('target', '_blank')
+                a.set('rel', 'noopener noreferrer')
         elif attr in a.attrib:
             a.set(attr, 'javascript:void(0)')
 
@@ -978,7 +984,7 @@ def develop(max_workers=1, wait_for_input=True):
     with TemporaryDirectory() as tdir:
         render(
             path, tdir, serialize_metadata=True,
-            extract_annotations=True, virtualize_resources=True, max_workers=max_workers
+            extract_annotations=True, virtualize_resources=False, max_workers=max_workers
         )
         print('Extracted to:', tdir)
         if wait_for_input:

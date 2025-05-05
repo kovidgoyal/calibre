@@ -254,6 +254,7 @@ class View:
             'report_cfi': self.on_report_cfi,
             'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'link_to_missing_activated': self.on_link_to_missing_activated,
             'selectionchange': self.on_selection_change,
             'update_selection_position': self.update_selection_position,
             'columns_per_screen_changed': self.on_columns_per_screen_changed,
@@ -1121,6 +1122,9 @@ class View:
         name = item.dest
         frag = item.frag or ''
         self.show_name(name, initial_position={'type':'pagelist_ref', 'anchor':frag, 'replace_history':False})
+
+    def on_link_to_missing_activated(self, data):
+        ui_operations.show_error(_('Invalid link'), _('This link points to the file {} which does not exist in the book').format(data.name))
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
