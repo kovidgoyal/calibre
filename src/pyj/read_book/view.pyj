@@ -847,31 +847,31 @@ class View:
                 s.backgroundColor, s.color = mc.split(':')
             else:
                 s.color = ans.foreground
-                s.backgroundColor = ans.background
+                s.backgroundColor = 'transparent'
         sd = get_session_data()
-        iframe.style.backgroundColor = ans.background or 'white'
+        for node in [iframe, iframe.parentNode]:
+            node.style.backgroundColor = 'transparent'
+            node.style.backgroundImage = 'none'
+        s = iframe.parentNode.parentNode.style
         bg_image = sd.get('background_image')
         if bg_image:
-            iframe.style.backgroundImage = f'url({modify_background_image_url_for_fetch(bg_image)})'
+            s.backgroundImage = f'url({modify_background_image_url_for_fetch(bg_image)})'
         else:
-            iframe.style.backgroundImage = 'none'
+            s.backgroundColor = ans.background or 'white'
+            s.backgroundImage = 'none'
         if sd.get('background_image_style') is 'scaled':
-            iframe.style.backgroundSize = '100% 100%'
-            iframe.style.backgroundRepeat = 'no-repeat'
-            iframe.style.backgroundAttachment = 'scroll'
-            iframe.style.backgroundPosition = 'center'
+            s.backgroundSize = '100% 100%'
+            s.backgroundRepeat = 'no-repeat'
+            s.backgroundAttachment = 'scroll'
+            s.backgroundPosition = 'center'
         else:
-            iframe.style.backgroundSize = 'auto'
-            iframe.style.backgroundRepeat = 'repeat'
-            iframe.style.backgroundAttachment = 'scroll'
-            iframe.style.backgroundPosition = '0 0'
+            s.backgroundSize = 'auto'
+            s.backgroundRepeat = 'repeat'
+            s.backgroundAttachment = 'scroll'
+            s.backgroundPosition = '0 0'
 
         self.content_popup_overlay.apply_color_scheme(ans.background, ans.foreground)
         self.book_scrollbar.apply_color_scheme(ans)
-        # this is needed on iOS where the bottom margin has its own margin,
-        # so we don't want the body background color to bleed through
-        iframe.parentNode.style.backgroundColor = ans.background
-        iframe.parentNode.parentNode.style.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
