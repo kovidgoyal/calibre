@@ -611,6 +611,16 @@ class KEPUBOutput(OutputFormatPlugin):
             help=max_image_size_help
         ),
 
+        OptionRecommendation(name='kepub_prefer_justification', recommended_value=False,
+            help=_(
+                'The KEPUB renderer on the Kobo has a bug when text justification is turned on.'
+                ' It will either not justify text properly or when highlighting there will be gaps'
+                ' between neighboring highlighted parts of text. By default, calibre generates'
+                ' KEPUB that avoid the highlighting gaps at the expense of worse text justification.'
+                ' This option reverses that tradeoff. Use this option if you use justification when'
+                ' reading on your Kobo device.'
+        )),
+
         OptionRecommendation(name='kepub_affect_hyphenation', recommended_value=False,
             help=_('Modify how hyphenation is performed for this book. Note that hyphenation'
                    ' does not perform well for all languages, as it depends on the dictionaries'
@@ -653,6 +663,7 @@ class KEPUBOutput(OutputFormatPlugin):
                 hyphenation_min_chars_before=opts.kepub_hyphenation_min_chars_before,
                 hyphenation_min_chars_after=opts.kepub_hyphenation_min_chars_after,
                 hyphenation_limit_lines=opts.kepub_hyphenation_limit_lines,
+                prefer_justification=opts.kepub_prefer_justification,
             )
             kepubify_container(container, kopts)
             container.commit()

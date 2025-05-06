@@ -63,21 +63,21 @@
    <item row="2" column="1">
     <widget class="QLineEdit" name="opt_kepub_max_image_size"/>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_kepub_affect_hyphenation">
      <property name="text">
       <string>Enable/disable &amp;hyphenation for this book</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QCheckBox" name="opt_kepub_disable_hyphenation">
      <property name="text">
       <string>&amp;Prevent all hyphenation</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Hyphenation: &amp;minimum word length:</string>
@@ -87,7 +87,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <widget class="QSpinBox" name="opt_kepub_hyphenation_min_chars">
      <property name="specialValueText">
       <string>Disabled</string>
@@ -97,7 +97,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Hyphenation: minimum characters &amp;before:</string>
@@ -107,14 +107,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="7" column="1">
     <widget class="QSpinBox" name="opt_kepub_hyphenation_min_chars_before">
      <property name="suffix">
       <string> characters</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Hyphenation: minimum characters &amp;after:</string>
@@ -124,14 +124,14 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QSpinBox" name="opt_kepub_hyphenation_min_chars_after">
      <property name="suffix">
       <string> characters</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Hyphenation: &amp;limit lines:</string>
@@ -141,14 +141,14 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="1">
+   <item row="9" column="1">
     <widget class="QSpinBox" name="opt_kepub_hyphenation_limit_lines">
      <property name="suffix">
       <string> lines</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -160,6 +160,13 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_kepub_prefer_justification">
+     <property name="text">
+      <string>Prefer improved text &amp;justification to proper highlighting</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

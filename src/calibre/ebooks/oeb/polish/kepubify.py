@@ -609,6 +609,7 @@ def make_options(
     hyphenation_min_chars_before: int = 3,
     hyphenation_min_chars_after: int = 3,
     hyphenation_limit_lines: int = 2,
+    prefer_justification: bool = False,
 
     remove_widows_and_orphans: bool | None = None,
     remove_at_page_rules: bool | None = None,
@@ -652,7 +653,7 @@ h1, h2, h3, h4, h5, h6, td {{
 '''
     return Options(
         extra_css=extra_css, hyphenation_css=hyphen_css, remove_widows_and_orphans=remove_widows_and_orphans,
-        remove_at_page_rules=remove_at_page_rules)
+        remove_at_page_rules=remove_at_page_rules, prefer_justification=prefer_justification)
 
 
 def profile():

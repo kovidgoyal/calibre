@@ -282,7 +282,7 @@ OPTIONS = {
             'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version', 'epub_max_image_size',),
 
         'kepub': (
-            'dont_split_on_page_breaks', 'flow_size', 'kepub_max_image_size',
+            'dont_split_on_page_breaks', 'flow_size', 'kepub_max_image_size', 'kepub_prefer_justification',
             'kepub_affect_hyphenation', 'kepub_disable_hyphenation', 'kepub_hyphenation_min_chars',
             'kepub_hyphenation_min_chars_before', 'kepub_hyphenation_min_chars_after', 'kepub_hyphenation_limit_lines',
         ),

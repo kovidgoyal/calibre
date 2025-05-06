@@ -558,6 +558,7 @@ def kepub_output(container):
     g.appendChild(checkbox('dont_split_on_page_breaks', _('Do not &split on page breaks')))
     g.appendChild(int_spin('flow_size', _('Split files &larger than:'), unit='KB', max=1000000, step=20))
     g.appendChild(lineedit('kepub_max_image_size', _('Shrink &images larger than:')))
+    g.appendChild(lineedit('kepub_prefer_justification', _('Prefer improved text justification to proper highlighting')))
     g.appendChild(checkbox('kepub_affect_hyphenation', _('Enable/disable &hyphenation for this book')))
     g.appendChild(checkbox('kepub_disable_hyphenation', _('&Prevent all hyphenation')))
     c = _('characters')

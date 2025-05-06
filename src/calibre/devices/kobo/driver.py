@@ -2347,7 +2347,10 @@ class KOBOTOUCH(KOBO):
         return result
 
     def _kepubify(self, path, name, mi) -> None:
+        from calibre.ebooks.conversion.config import load_defaults
         from calibre.ebooks.oeb.polish.kepubify import kepubify_path, make_options
+        prefs = load_defaults('kepub_output')
+        prefer_justification = prefs.get('kepub_prefer_justification', False)
         debug_print(f'Starting conversion of {mi.title} ({name}) to kepub')
         opts = make_options(
             extra_css=self.extra_css or '',
@@ -2359,6 +2362,7 @@ class KOBOTOUCH(KOBO):
             hyphenation_limit_lines=self.get_pref('hyphenation_limit_lines'),
             remove_at_page_rules=self.extra_css_options.get('has_atpage', False),
             remove_widows_and_orphans=self.extra_css_options.get('has_widows_orphans', False),
+            prefer_justification=prefer_justification,
         )
         try:
             kepubify_path(path, outpath=path, opts=opts, allow_overwrite=True)
