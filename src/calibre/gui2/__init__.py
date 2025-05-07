@@ -1179,7 +1179,10 @@ class Application(QApplication):
     shutdown_signal_received = pyqtSignal()
     palette_changed = pyqtSignal()
 
-    def __init__(self, args=(), force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None):
+    def __init__(
+        self, args=(), force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None,
+        should_handle_calibre_urls=False
+    ):
         if not args:
             args = sys.argv[:1]
         args = [args[0]]
@@ -1213,8 +1216,9 @@ class Application(QApplication):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
         QApplication.__init__(self, args)
-        # See https://bugreports.qt.io/browse/QTBUG-134316
-        QDesktopServices.setUrlHandler('calibre', self.handle_calibre_url)
+        if should_handle_calibre_urls:
+            # See https://bugreports.qt.io/browse/QTBUG-134316
+            QDesktopServices.setUrlHandler('calibre', self.handle_calibre_url)
         set_image_allocation_limit()
         self.palette_manager.initialize()
         icon_resource_manager.initialize()

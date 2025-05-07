@@ -115,7 +115,7 @@ def init_qt(args):
             prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
     override = 'calibre-gui' if islinux else None
-    app = Application(args, override_program_name=override, windows_app_uid=MAIN_APP_UID)
+    app = Application(args, override_program_name=override, windows_app_uid=MAIN_APP_UID, should_handle_calibre_urls=True)
 
     app.file_event_hook = EventAccumulator()
     try:
