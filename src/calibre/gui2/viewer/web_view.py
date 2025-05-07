@@ -36,7 +36,7 @@ from qt.webengine import (
 )
 
 from calibre import as_unicode, prints
-from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop, ismacos, iswindows
+from calibre.constants import DEBUG, FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop, ismacos, iswindows
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
@@ -397,8 +397,11 @@ class WebPage(QWebEnginePage):
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
         if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+            if DEBUG:
+                prints('Open URL from book:', url.toString())
             safe_open_url(url)
-        prints('Blocking navigation request to:', url.toString())
+        else:
+            prints('Blocking navigation request to:', url.toString(), file=sys.stderr)
         return False
 
     def go_to_anchor(self, anchor):
