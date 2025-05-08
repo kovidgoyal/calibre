@@ -224,6 +224,11 @@ class ImageView(QDialog):
         m.addAction(self.zoom_out_action)
         m.addAction(self.copy_action)
         m.addAction(self.rotate_action)
+        ac = QAction(self.fit_image.text())
+        ac.setCheckable(True)
+        ac.setChecked(self.fit_image.isChecked())
+        ac.toggled.connect(self.toggle_fit)
+        m.addAction(ac)
         m.exec(self.mapToGlobal(pos))
 
     def set_to_viewport_size(self):
