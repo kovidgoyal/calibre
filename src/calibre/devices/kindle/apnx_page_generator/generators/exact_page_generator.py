@@ -16,9 +16,9 @@ class ExactPageGenerator(IPageGenerator):
         return 'exact'
 
     def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
-        return FastPageGenerator.instance.generate(mobi_file_path, real_count)
+        return FastPageGenerator.instance.generate(mobi_file_path, real_count, "")
 
-    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None, regex: str) -> Pages:
         '''
         Given a specified page count (such as from a custom column),
         create our array of pages for the apnx file by dividing by

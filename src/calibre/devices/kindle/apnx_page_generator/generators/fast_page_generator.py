@@ -15,7 +15,7 @@ class FastPageGenerator(IPageGenerator):
     def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
         raise Exception('Fast calculation impossible.')
 
-    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None, regex: str) -> Pages:
         '''
         2300 characters of uncompressed text per page. This is
         not meant to map 1 to 1 to a print book but to be a
