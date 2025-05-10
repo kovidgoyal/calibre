@@ -17,12 +17,7 @@ class BusinessStandard(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-    remove_attributes = ['width', 'height', 'float', 'style']
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
-        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-            return citem['content']
+    remove_attributes = ['width', 'height', 'style']
 
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
@@ -32,6 +27,14 @@ class BusinessStandard(BasicNewsRecipe):
     resolve_internal_links = True
     max_articles_per_feed = 50
     oldest_article = 1.15
+    browser_type = 'webengine'
+
+    extra_css = '''
+        img {display:block; margin:0 auto;}
+        .sub { font-style:italic; color:#202020; }
+        .auth, .cat { font-size:small; color:#202020; }
+        .cap { font-size:small; text-align:center; }
+    '''
 
     recipe_specific_options = {
         'days': {
@@ -41,17 +44,22 @@ class BusinessStandard(BasicNewsRecipe):
         }
     }
 
+    def get_cover_url(self):
+        d = self.recipe_specific_options.get('date')
+        if not (d and isinstance(d, str)):
+            soup = self.index_to_soup(
+                'https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/'
+            )
+            for citem in soup.findAll(
+                'meta', content=lambda s: s and s.endswith('view/3.jpg')
+            ):
+                return citem['content']
+
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
             self.oldest_article = float(d)
-
-    extra_css = '''
-        img {display:block; margin:0 auto;}
-        .auth, .cat { font-size:small; color:#202020; }
-        .cap { font-size:small; text-align:center; }
-    '''
 
     # https://www.business-standard.com/rss-feeds/listing
     feeds = [
@@ -88,30 +96,69 @@ class BusinessStandard(BasicNewsRecipe):
         cat = subhead = lede = auth = caption = ''
 
         if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
-            if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
-                cat = '<div><p class="cat">' + data['defaultArticleCat']['h1_tag'] + '</p></div>'
+            if (
+                'h1_tag' in data['defaultArticleCat']
+                and data['defaultArticleCat']['h1_tag'] is not None
+            ):
+                cat = '<div class="cat">' + data['defaultArticleCat']['h1_tag'] + '</div>'
 
         if 'metaDescription' in data and data['metaDescription'] is not None:
-            subhead = '<h3>' + data['metaDescription'] + '</h3>'
+            subhead = '<p class="sub">' + data['metaDescription'] + '</p>'
             self.art_desc = data['metaDescription']
 
-        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
+        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime(
+            '%b %d, %Y | %I:%M %p'
+        )
 
         authors = []
         if 'articleMappedMultipleAuthors' in data:
             for aut in data['articleMappedMultipleAuthors']:
                 authors.append(data['articleMappedMultipleAuthors'][str(aut)])
-        auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
+        auth = (
+            '<div><p class="auth">'
+            + ', '.join(authors)
+            + ' | '
+            + data['placeName']
+            + ' | '
+            + date
+            + '</p></div>'
+        )
 
         if 'featuredImageObj' in data:
             if 'url' in data['featuredImageObj']:
                 if img_url is not None:
                     lede = '<p class="cap"><img src="{}">'.format(img_url)
                 else:
-                    lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
+                    lede = '<p class="cap"><img src="{}">'.format(
+                        data['featuredImageObj']['url']
+                    )
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
 
         body = data['htmlContent']
 
-        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><p></p>' + body + '</div></body></html>'
+        return (
+            '<html><body>'
+            + cat
+            + title
+            + subhead
+            + auth
+            + lede
+            + caption
+            + '<div><br>'
+            + body
+            + '</div></body></html>'
+        )
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            img.attrs = {'src': img.get('src', '')}
+        for x in soup.findAll('div', 'p'):
+            x.attrs = {'class': x.get('class', '')}
+        for attr in self.remove_attributes:
+            for x in soup.findAll(attrs={attr: True}):
+                del x[attr]
+        for br in soup.findAll('small', attrs={'class': 'brtag'}):
+            br.name = 'br'
+            br.clear()
+        return soup
