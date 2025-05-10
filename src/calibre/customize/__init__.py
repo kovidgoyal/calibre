@@ -180,14 +180,19 @@ class Plugin:  # {{{
             v.addWidget(button_box)
             if not config_dialog.restore_geometry(gprefs, prefname):
                 QApplication.instance().ensure_window_on_screen(config_dialog)
-            config_dialog.exec()
-
-            if config_dialog.result() == QDialog.DialogCode.Accepted:
-                if hasattr(config_widget, 'validate'):
-                    if config_widget.validate():
+            while True:
+                validation_error = False
+                config_dialog.exec()
+                if config_dialog.result() == QDialog.DialogCode.Accepted:
+                    if hasattr(config_widget, 'validate'):
+                        if config_widget.validate():
+                            self.save_settings(config_widget)
+                        else:
+                            validation_error = True
+                    else:
                         self.save_settings(config_widget)
-                else:
-                    self.save_settings(config_widget)
+                if not validation_error:
+                    break
         else:
             from calibre.customize.ui import customize_plugin, plugin_customization
             help_text = self.customization_help(gui=True)
