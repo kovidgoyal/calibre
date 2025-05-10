@@ -1734,8 +1734,6 @@ class Amazon(Source):
                           identifiers=identifiers)
             if abort.is_set():
                 return
-            if abort.is_set():
-                return
             results = []
             while True:
                 try:
