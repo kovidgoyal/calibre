@@ -46,7 +46,7 @@ class NewZealandHerald(BasicNewsRecipe):
         ),
     ]
 
-    remove_tags = [classes('article__ad-wrapper article__action-bar')]
+    remove_tags = [classes('related-articles article__ad-wrapper article__action-bar')]
 
     feeds = [
         ('Business', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
