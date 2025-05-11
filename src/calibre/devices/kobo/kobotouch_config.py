@@ -54,11 +54,13 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
-                    extra_customization_message, device, extra_customization_choices=None, parent=None):
+                    extra_customization_message, device, extra_customization_choices=None,
+                    parent=None):
 
         super().__init__(device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
-                    extra_customization_message, device, extra_customization_choices, parent)
+                    extra_customization_message, device, extra_customization_choices, parent,
+                    validate_before_accept=True)
 
         self.device_settings = device_settings
         self.all_formats = all_formats
@@ -570,7 +572,6 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.use_collections_template_checkbox.clicked.connect(self.use_collections_template_checkbox_clicked)
         self.use_collections_columns_checkbox_clicked(device.get_pref('use_collections_columns'))
         self.use_collections_template_checkbox_clicked(device.get_pref('use_collections_template'))
-        self.collections_columns_edit.editingFinished.connect(self.validate_collections_columns)
 
     def validate(self):
         v = self.validate_collections_columns()
@@ -590,7 +591,6 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
             error_dialog(self, _('Kobo configuration: Invalid collection column names'),
                 '<p>'+_("Collection column names that don't exist in the library: {0}").format(s),
                 show=True)
-            self.collections_columns_edit.setFocus(Qt.FocusReason.OtherFocusReason)
             return False
         return True
 

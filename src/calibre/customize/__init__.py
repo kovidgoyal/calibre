@@ -149,17 +149,35 @@ class Plugin:  # {{{
 
         from calibre.gui2 import gprefs
 
+        class ConfigDialog(QDialog):
+
+            def __init__(self, parent, config_widget):
+                super().__init__(parent)
+                self.config_widget = config_widget
+
+            def accept(self):
+                print('in accept')
+                if ((validate := getattr(self.config_widget, 'validate', None)) and
+                        getattr(self.config_widget, 'validate_before_accept', False)):
+                    print('have validate and validate_before_accept')
+                    if not validate():
+                        return
+                print('accepting')
+                super().accept()
+
+        try:
+            config_widget = self.config_widget()
+        except NotImplementedError:
+            config_widget = None
+
         prefname = 'plugin config dialog:'+self.type + ':' + self.name
-        config_dialog = QDialog(parent)
+
+        config_dialog = ConfigDialog(parent, config_widget)
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         v = QVBoxLayout(config_dialog)
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)
         config_dialog.setWindowTitle(_('Customize') + ' ' + self.name)
-        try:
-            config_widget = self.config_widget()
-        except NotImplementedError:
-            config_widget = None
 
         if isinstance(config_widget, tuple):
             from calibre.gui2 import warning_dialog
