@@ -939,7 +939,7 @@ that are incompatible with the graphics toolkit calibre uses.  Try turning off
 VoiceOver if you have it on. Also go to System Preferences->System->Universal
 Access and turn off the setting for enabling access for assistive devices in
 all the tabs. Another cause can be some third party apps that modify system
-behavior, such as Smart Scroll.
+behavior, such as Smart Scroll and Default Folder X.
 
 You can obtain debug output about why calibre is not starting by running `Console.app`. Debug output will
 be printed to it. If the debug output contains a line that looks like::
@@ -947,7 +947,7 @@ be printed to it. If the debug output contains a line that looks like::
     Qt: internal: -108: Error ATSUMeasureTextImage text/qfontengine_mac.mm
 
 then the problem is probably a corrupted font cache. You can clear the cache by following these
-`instructions <https://www.macworld.com/article/1139383/fontcacheclear.html>`_. If that doesn't
+`instructions <https://typefaceapp.com/help/troubleshooting/macos-font-cache>`_. If that doesn't
 solve it, look for a corrupted font file on your system, in ~/Library/Fonts or the like. An easy way to
 check for corrupted fonts in macOS is to start the "Font Book" application, select all fonts and then in the File
 menu, choose "Validate fonts".
