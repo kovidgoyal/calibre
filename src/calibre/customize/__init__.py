@@ -156,13 +156,10 @@ class Plugin:  # {{{
                 self.config_widget = config_widget
 
             def accept(self):
-                print('in accept')
                 if ((validate := getattr(self.config_widget, 'validate', None)) and
                         getattr(self.config_widget, 'validate_before_accept', False)):
-                    print('have validate and validate_before_accept')
                     if not validate():
                         return
-                print('accepting')
                 super().accept()
 
         try:
