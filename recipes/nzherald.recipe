@@ -1,56 +1,70 @@
+#!/usr/bin/env  python
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NewZealandHerald(BasicNewsRecipe):
-
     title = 'New Zealand Herald'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'unkn0wn'
     description = 'Daily news'
     timefmt = ' [%d %b, %Y]'
     language = 'en_NZ'
-    oldest_article = 2.5
+    oldest_article = 1
+    remove_attributes = ['style', 'height', 'width']
+    use_embedded_content = False
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
+    no_stylesheets = True
+    resolve_internal_links = True
+    remove_empty_feeds = True
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.frontpages.com/the-new-zealand-herald/')
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
+
+    extra_css = '.article-media__caption {font-size: small;}'
 
     keep_only_tags = [
-        classes('article-header'),
-        dict(id='article-content'),
+        dict(
+            attrs={
+                'data-test-ui': [
+                    'article__heading',
+                    'author--text--body',
+                    'article-top-body',
+                    'article-bottom-body',
+                ]
+            }
+        ),
     ]
 
-    remove_tags = [
-        classes('ad-container pb-f-video-video-player pb-f-article-related-articles social-shares')
-    ]
+    remove_tags = [classes('article__ad-wrapper article__action-bar')]
 
     feeds = [
-        ('Business',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
-        ('World',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000002.xml'),
-        ('National',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000001.xml'),
-        ('Entertainment',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_001501119.xml'),
-        ('Travel',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000007.xml'),
-        ('Opinion',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
-        ('Life & Style',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
-        ('Technology',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
-        ('Sport',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),
-        ('Motoring',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000009.xml'),
-        ('Property',
-         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
+        ('Business', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
+        ('World', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000002.xml'),
+        ('National', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000001.xml'),
+        ('Entertainment', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_001501119.xml'),
+        ('Travel', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000007.xml'),
+        ('Opinion', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
+        ('Life & Style', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
+        ('Technology', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
+        ('Sport', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),
+        ('Motoring', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000009.xml'),
+        ('Property', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
     ]
 
     def preprocess_html(self, soup, *a):
         for img in soup.findAll('img', attrs={'data-srcset': True}):
-            img['src'] = img['data-srcset'].split()[0]
+            for x in img['data-srcset'].split(','):
+                if '768w' in x:
+                    img['src'] = x.split()[0]
+            else:
+                img['src'] = img['data-srcset'].split(',')[-1].split()[0]
         return soup
