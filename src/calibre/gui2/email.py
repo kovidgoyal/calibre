@@ -170,12 +170,8 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
                 # file internal metadata so don't nuke the filename.
                 # https://www.mobileread.com/forums/showthread.php?t=349290
                 aname = f'{uuid4()}.' + aname.rpartition('.')[-1]
-            import random
-
-            from calibre.utils.random_ua import common_english_words, random_english_text
-            words = common_english_words()
-            num_in_subject = random.randrange(3, 9)
-            subject = ' '.join(random.choice(words) for i in range(num_in_subject))
+            from calibre.utils.random_ua import random_english_text
+            subject = random_english_text(min_words_per_sentence=3, max_words_per_sentence=9, max_num_sentences=1).rstrip('.')
             text = random_english_text()
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
