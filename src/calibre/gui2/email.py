@@ -164,8 +164,8 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             # these companies employ to write their code. It's the height of
             # irony that they are called "tech" companies.
             # https://bugs.launchpad.net/calibre/+bug/1989282
-            from calibre.utils.short_uuid import uuid4
             if not is_for_kindle(to):
+                from calibre.utils.short_uuid import uuid4
                 # Amazon nowadays reads metadata from attachment filename instead of
                 # file internal metadata so don't nuke the filename.
                 # https://www.mobileread.com/forums/showthread.php?t=349290
