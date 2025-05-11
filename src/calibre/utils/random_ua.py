@@ -23,6 +23,17 @@ def common_english_words():
     return ans
 
 
+def random_english_text():
+    import random
+    num_sentences = random.randrange(1, 4)
+    words = common_english_words()
+
+    def sentence():
+        num_words = random.randrange(23, 42)
+        return ' '.join(random.choice(words) for i in range(num_words)).capitalize() + '.'
+    return ' '.join(sentence() for i in range(num_sentences))
+
+
 def common_user_agents():
     return user_agent_data()['common_user_agents']
 
