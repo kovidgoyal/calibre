@@ -64,14 +64,14 @@ class TabbedDeviceConfig(QTabWidget):
     from DeviceOptionsGroupBox, are created to further group the options. The group
     boxes can be coded to support any control type and dependencies between them.
 
-    Set validate_before_accept to True if you want validation() to be called
+    Set validate_before_accept to True if you want validate() to be called
     when OK is pressed
     '''
 
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
                     extra_customization_message, device,
-                    extra_customization_choices=None, parent=None, validate_before_accept = False):
+                    extra_customization_choices=None, parent=None, validate_before_accept=False):
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 

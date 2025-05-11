@@ -1121,7 +1121,7 @@ class TemplateConfig(QWidget):  # {{{
 
         tmpl = self.template
         try:
-            v = validation_formatter.validate(tmpl)
+            validation_formatter.validate(tmpl)
             return True
         except Exception as err:
             error_dialog(self, _('Invalid template for {0}').format(self.name),
