@@ -54,11 +54,13 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
-                    extra_customization_message, device, extra_customization_choices=None, parent=None):
+                    extra_customization_message, device, extra_customization_choices=None,
+                    parent=None):
 
         super().__init__(device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
-                    extra_customization_message, device, extra_customization_choices, parent)
+                    extra_customization_message, device, extra_customization_choices, parent,
+                    validate_before_accept=True)
 
         self.device_settings = device_settings
         self.all_formats = all_formats
@@ -88,6 +90,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
     def validate(self):
         validated = super().validate()
         validated &= self.tab2.validate()
+        validated &= self.tab1.validate()
         return validated
 
     @property
@@ -193,6 +196,12 @@ class Tab1Config(DeviceConfigTab):  # {{{
         self.addDeviceWidget(self.book_uploads_options)
 
         self.l.addStretch()
+
+    def validate(self):
+        v = self.collections_options.validate()
+        v &= self.book_uploads_options.validate()
+        return v
+
 # }}}
 
 
@@ -364,6 +373,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
         self.template_la = la = QLabel('\xa0\xa0' + _('Template to decide conversion:'))
         self.kepubify_template_edit = TemplateConfig(
+            self.kepubify_checkbox.text(),
             device.get_pref('template_for_kepubify'),
             tooltip='<p>' + _(
                 'Enter a template to decide if an EPUB book is to be auto converted to KEPUB. '
@@ -398,6 +408,9 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
 
     def update_template_state(self):
         self.kepubify_template_edit.setEnabled(self.kepubify)
+
+    def validate(self):
+        return self.kepubify_template_edit.validate()
 
     @property
     def override_kobo_replace_existing(self):
@@ -518,6 +531,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('use_collections_template')
                              )
         self.collections_template_edit = TemplateConfig(
+                            self.use_collections_template_checkbox.text(),
                             device.get_pref('collections_template'),
                             tooltip=_("Enter a template to generate collections."
                                       " The result of the template will be combined with the values from Collections column."
@@ -558,6 +572,27 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.use_collections_template_checkbox.clicked.connect(self.use_collections_template_checkbox_clicked)
         self.use_collections_columns_checkbox_clicked(device.get_pref('use_collections_columns'))
         self.use_collections_template_checkbox_clicked(device.get_pref('use_collections_template'))
+
+    def validate(self):
+        v = self.validate_collections_columns()
+        v &= self.collections_template_edit.validate()
+        return v
+
+    def validate_collections_columns(self):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
+        fm = db.field_metadata
+        bad_names = []
+        for l in [v.strip() for v in self.collections_columns.split(',') if v.strip()]:
+            if l not in fm.keys():
+                bad_names.append(l)
+        if bad_names:
+            s = ', '.join(bad_names)
+            error_dialog(self, _('Kobo configuration: Invalid collection column names'),
+                '<p>'+_("Collection column names that don't exist in the library: {0}").format(s),
+                show=True)
+            return False
+        return True
 
     def use_collections_columns_checkbox_clicked(self, checked):
         self.collections_columns_edit.setEnabled(checked)
@@ -872,6 +907,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('update_subtitle')
                              )
         self.subtitle_template_edit = TemplateConfig(
+                            self.update_subtitle_checkbox.text(),
                             device.get_pref('subtitle_template'),
                             tooltip=_('Enter a template to use to set the subtitle. '
                                       'If the template is empty, the subtitle will be cleared.'
@@ -883,6 +919,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('update_bookstats')
                              )
         self.bookstats_wordcount_template_edit = TemplateConfig(
+                            self.update_bookstats_checkbox.text(),
                             device.get_pref('bookstats_wordcount_template'),
                             label=_('Words:'),
                             tooltip=_('Enter a template to use to set the word count for the book. '
@@ -890,6 +927,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                       )
                             )
         self.bookstats_pagecount_template_edit = TemplateConfig(
+                            _('Pages'),
                             device.get_pref('bookstats_pagecount_template'),
                             label=_('Pages:'),
                             tooltip=_('Enter a template to use to set the page count for the book. '
@@ -899,6 +937,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
         self.bookstats_timetoread_label = QLabel(_('Hours to read estimates:'))
         self.bookstats_timetoread_upper_template_edit = TemplateConfig(
+                            _('Upper estimate'),
                             device.get_pref('bookstats_timetoread_upper_template'),
                             label=_('Upper:'),
                             tooltip=_('Enter a template to use to set the upper estimate of the time to read for the book. '
@@ -907,6 +946,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                       )
                             )
         self.bookstats_timetoread_lower_template_edit = TemplateConfig(
+                            _('Lower estimate'),
                             device.get_pref('bookstats_timetoread_lower_template'),
                             label=_('Lower:'),
                             tooltip=_('Enter a template to use to set the lower estimate of the time to read for the book. '
@@ -1042,8 +1082,9 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
 class TemplateConfig(QWidget):  # {{{
 
-    def __init__(self, val, label=None, tooltip=None):
+    def __init__(self, name, val, label=None, tooltip=None):
         super().__init__()
+        self.name = name
         self.l = l = QGridLayout(self)
         self.setLayout(l)
         col = 0
@@ -1080,10 +1121,10 @@ class TemplateConfig(QWidget):  # {{{
 
         tmpl = self.template
         try:
-            validation_formatter.validate(tmpl)
+            v = validation_formatter.validate(tmpl)
             return True
         except Exception as err:
-            error_dialog(self, _('Invalid template'),
+            error_dialog(self, _('Invalid template for {0}').format(self.name),
                     '<p>'+_('The template "%s" is invalid:')%tmpl +
                     '<br>'+str(err), show=True)
 
