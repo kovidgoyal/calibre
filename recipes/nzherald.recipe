@@ -29,7 +29,9 @@ class NewZealandHerald(BasicNewsRecipe):
             + soup.find('img', attrs={'id': 'giornale-img'})['src']
         )
 
-    extra_css = '.article-media__caption {font-size: small;}'
+    extra_css = '''
+        [data-test-ui="author--text--body"], .article-media__caption {font-size: small;}
+    '''
 
     keep_only_tags = [
         dict(
@@ -44,7 +46,7 @@ class NewZealandHerald(BasicNewsRecipe):
         ),
     ]
 
-    remove_tags = [classes('article__ad-wrapper article__action-bar')]
+    remove_tags = [classes('related-articles article__ad-wrapper article__action-bar')]
 
     feeds = [
         ('Business', 'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
@@ -65,6 +67,7 @@ class NewZealandHerald(BasicNewsRecipe):
             for x in img['data-srcset'].split(','):
                 if '768w' in x:
                     img['src'] = x.split()[0]
+                    break
             else:
                 img['src'] = img['data-srcset'].split(',')[-1].split()[0]
         return soup
