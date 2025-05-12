@@ -171,8 +171,8 @@ class BusinessStandardPrint(BasicNewsRecipe):
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr: True}):
                 del x[attr]
-        for br in soup.findAll('small', attrs={'class': 'brtag'}):
-            br.clear()
-            brtag = soup.new_tag('br')
-            br.replace_with(brtag)
+        for br in soup.findAll(attrs={'class': lambda x: x and x.startswith('brtag')}):
+            if pa := br.find_parent('div'):
+                pa.name = 'p'
+            br.extract()
         return soup
