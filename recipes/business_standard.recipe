@@ -159,6 +159,7 @@ class BusinessStandard(BasicNewsRecipe):
             for x in soup.findAll(attrs={attr: True}):
                 del x[attr]
         for br in soup.findAll('small', attrs={'class': 'brtag'}):
-            br.name = 'br'
             br.clear()
+            brtag = soup.new_tag('br')
+            br.replace_with(brtag)
         return soup
