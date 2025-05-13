@@ -110,14 +110,15 @@ def parse_article_json(root, abort_article):
             lines.extend(serialize_image(block))
         elif bt == 'text':
             lines.extend(serialize_text(block))
-    return '<html><body id="main-content">' + '\n'.join(lines) + '</body></html>'
+    return '<html><body id="main-content"><article>' + '\n'.join(lines) + '</article></body></html>'
 
 
 def parse_raw_html(html, abort_article):
     q = '>window.__INITIAL_DATA__="{'
     idx = html.find(q)
     if idx < 0:
-        raise ValueError('Failed to find JSON')
+        print('Failed to find JSON')
+        return html
     data = html[idx + len(q) - 2:]
     idx = data.find('}";</script>')
     data = data[:idx+2]
@@ -301,3 +302,25 @@ class BBCNews(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw_html, url):
         return parse_raw_html(raw_html, self.abort_article)
+
+    keep_only_tags = [
+        dict(name='article')
+    ]
+
+    remove_tags = [
+        dict(name=['button', 'svg', 'iframe']),
+        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block']})
+    ]
+
+    remove_attributes = ['style', 'height', 'width']
+    no_stylesheets = True
+    extra_css = '''
+        figure, [data-component="byline-block"], [data-component="caption-block"], [data-component="image-block"] { font-size:small; }
+    '''
+
+    def preprocess_html(self, soup):
+        for placeholder in soup.findAll('img', attrs={'src': lambda x: x and x.endswith('placeholder.png')}):
+            placeholder.decompose()
+        for img in soup.findAll('img'):
+            img.attrs = {'src': img.get('src', '')}
+        return soup

@@ -110,14 +110,15 @@ def parse_article_json(root, abort_article):
             lines.extend(serialize_image(block))
         elif bt == 'text':
             lines.extend(serialize_text(block))
-    return '<html><body id="main-content">' + '\n'.join(lines) + '</body></html>'
+    return '<html><body id="main-content"><article>' + '\n'.join(lines) + '</article></body></html>'
 
 
 def parse_raw_html(html, abort_article):
     q = '>window.__INITIAL_DATA__="{'
     idx = html.find(q)
     if idx < 0:
-        raise ValueError('Failed to find JSON')
+        print('Failed to find JSON')
+        return html
     data = html[idx + len(q) - 2:]
     idx = data.find('}";</script>')
     data = data[:idx+2]
@@ -133,7 +134,7 @@ if __name__ == '__main__':
 
 class BBC(BasicNewsRecipe):
     title = 'BBC News (fast)'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal, unkn0wn'
     description = 'Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and regional perspectives. Also entertainment, business, science, technology and health news.'  # noqa: E501
     oldest_article = 2
     max_articles_per_feed = 100
@@ -150,6 +151,28 @@ class BBC(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     resolve_internal_links = True
+
+    keep_only_tags = [
+        dict(name='article')
+    ]
+
+    remove_tags = [
+        dict(name=['button', 'svg', 'iframe']),
+        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block']})
+    ]
+
+    remove_attributes = ['style', 'height', 'width']
+    no_stylesheets = True
+    extra_css = '''
+        figure, [data-component="byline-block"], [data-component="caption-block"], [data-component="image-block"] { font-size:small; }
+    '''
+
+    def preprocess_html(self, soup):
+        for placeholder in soup.findAll('img', attrs={'src': lambda x: x and x.endswith('placeholder.png')}):
+            placeholder.decompose()
+        for img in soup.findAll('img'):
+            img.attrs = {'src': img.get('src', '')}
+        return soup
 
     recipe_specific_options = {
         'days': {
