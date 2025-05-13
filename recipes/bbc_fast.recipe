@@ -158,20 +158,29 @@ class BBC(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['button', 'svg', 'iframe']),
-        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block']})
+        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})
     ]
 
     remove_attributes = ['style', 'height', 'width']
     no_stylesheets = True
     extra_css = '''
-        figure, [data-component="byline-block"], [data-component="caption-block"], [data-component="image-block"] { font-size:small; }
+        figure,
+        [data-component="byline-block"],
+        [data-component="caption-block"],
+        [data-component="image-block"] {
+            font-size:small;
+        }
     '''
+    cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/BBC_News_2019.svg/768px-BBC_News_2019.svg.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/4/41/BBC_Logo_2021.svg'
 
     def preprocess_html(self, soup):
         for placeholder in soup.findAll('img', attrs={'src': lambda x: x and x.endswith('placeholder.png')}):
             placeholder.decompose()
         for img in soup.findAll('img'):
             img.attrs = {'src': img.get('src', '')}
+        for h2 in soup.findAll(['h2', 'h3']):
+            h2.name = 'h4'
         return soup
 
     recipe_specific_options = {
@@ -189,7 +198,6 @@ class BBC(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     feeds = [
-        ('Top Stories', 'https://feeds.bbci.co.uk/news/rss.xml'),
         ('Science/Environment',
          'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
         ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
@@ -205,7 +213,8 @@ class BBC(BasicNewsRecipe):
         ('South Asia', 'https://feeds.bbci.co.uk/news/world/south_asia/rss.xml'),
         ('England', 'https://feeds.bbci.co.uk/news/england/rss.xml'),
         ('Asia-Pacific', 'https://feeds.bbci.co.uk/news/world/asia_pacific/rss.xml'),
-        ('Africa', 'https://feeds.bbci.co.uk/news/world/africa/rss.xml')
+        ('Africa', 'https://feeds.bbci.co.uk/news/world/africa/rss.xml'),
+        ('Top Stories', 'https://feeds.bbci.co.uk/news/rss.xml'),
     ]
 
     def preprocess_raw_html(self, raw_html, url):
