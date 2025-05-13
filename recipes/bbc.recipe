@@ -136,7 +136,6 @@ class BBCNews(BasicNewsRecipe):
 
     # Select / de-select the feeds you want in your ebook.
     feeds = [
-        ('News Home', 'https://feeds.bbci.co.uk/news/rss.xml'),
         ('UK', 'https://feeds.bbci.co.uk/news/uk/rss.xml'),
         ('World', 'https://feeds.bbci.co.uk/news/world/rss.xml'),
         # ("England", "https://feeds.bbci.co.uk/news/england/rss.xml"),
@@ -205,6 +204,7 @@ class BBCNews(BasicNewsRecipe):
         # ("Canolbarth", "https://feeds.bbci.co.uk/newyddion/canolbarth/rss.xml"),
         # ("De-Ddwyrain", "https://feeds.bbci.co.uk/newyddion/de-ddwyrain/rss.xml"),
         # ("De-Orllewin", "https://feeds.bbci.co.uk/newyddion/de-orllewin/rss.xml"),
+        ('News', 'https://feeds.bbci.co.uk/news/rss.xml'),
     ]
 
     #    **** SELECT YOUR USER PREFERENCES ****
@@ -309,18 +309,27 @@ class BBCNews(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['button', 'svg', 'iframe']),
-        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block']})
+        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})
     ]
 
     remove_attributes = ['style', 'height', 'width']
     no_stylesheets = True
     extra_css = '''
-        figure, [data-component="byline-block"], [data-component="caption-block"], [data-component="image-block"] { font-size:small; }
+        figure,
+        [data-component="byline-block"],
+        [data-component="caption-block"],
+        [data-component="image-block"] {
+            font-size:small;
+        }
     '''
+    cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/BBC_News_2019.svg/768px-BBC_News_2019.svg.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/4/41/BBC_Logo_2021.svg'
 
     def preprocess_html(self, soup):
         for placeholder in soup.findAll('img', attrs={'src': lambda x: x and x.endswith('placeholder.png')}):
             placeholder.decompose()
         for img in soup.findAll('img'):
             img.attrs = {'src': img.get('src', '')}
+        for h2 in soup.findAll(['h2', 'h3']):
+            h2.name = 'h4'
         return soup
