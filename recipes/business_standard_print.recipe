@@ -172,7 +172,5 @@ class BusinessStandardPrint(BasicNewsRecipe):
             for x in soup.findAll(attrs={attr: True}):
                 del x[attr]
         for br in soup.findAll(attrs={'class': lambda x: x and x.startswith('brtag')}):
-            if pa := br.find_parent('div'):
-                pa.name = 'p'
-            br.extract()
+            br.name = 'div'
         return soup
