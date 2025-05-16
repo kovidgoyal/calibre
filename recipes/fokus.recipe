@@ -131,27 +131,14 @@ class Fokus(BasicNewsRecipe):
             if url.startswith('/'):
                 url = f'{self.main_url}{url}'
 
-            if title_tag := a_tag.find('h2', {'class': 'Blurb__title'}):
+            if title_tag := a_tag.find('h2', {'class': 'PostBlurb__title'}):
                 title = self.tag_to_string(title_tag).strip()
-                if time_tag := a_tag.find('time', {'class': 'Blurb__date'}):
-                    swedish_date_str = self.tag_to_string(time_tag).rstrip()
+                desc = ''
+            if desc_tag := a_tag.find('div', {'class': 'PostBlurb__excerpt'}):
+                desc = self.tag_to_string(desc_tag).strip()
 
-                    # Skip articles older than `self.oldest_article`.
-                    datetime_str = time_tag['datetime']
-                    datetime_time = datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S%z')
-                    now = datetime.now(timezone.utc)
-                    delta = now - datetime_time
-                    if delta.days > self.oldest_article:
-                        self.log.debug(f"\tSkipping article as it is too old: '{title}'")
-                        return
+            return {'url': url, 'title': title, 'description': desc}
 
-                    desc = ''
-                    if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
-                        desc = self.tag_to_string(desc_tag).strip()
-                        if in_cooperation_with_tag := a_tag.find('p', {'class': 'Blurb__meta'}):
-                            desc += f' ({self.tag_to_string(in_cooperation_with_tag).strip()})'
-
-                    return {'url': url, 'title': title, 'description': desc, 'date': swedish_date_str}
         return
 
     def _get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str]]:
@@ -169,13 +156,13 @@ class Fokus(BasicNewsRecipe):
 
         def _log(article) -> None:
             '''Log a digestible summary of the input `article` blurb.'''
-            log_message = f"\t{article['title']} : {article['date']} : {article['url']}"
+            log_message = f"\t{article['title']} : {article['url']}"
             if article.get('description'):
                 log_message += f" : {article['description']}"
             self.log.debug(log_message)
 
         try:
-            article_blurbs = soup.find_all('article', {'class': 'Blurb'})
+            article_blurbs = soup.find_all('article', {'class': 'PostBlurb'})
         except AttributeError:
             article_blurbs = []
 
