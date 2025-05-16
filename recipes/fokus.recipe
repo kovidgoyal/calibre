@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta
 
 from mechanize import Request
 
@@ -25,15 +26,21 @@ class Fokus(BasicNewsRecipe):
     compress_news_images = True
     needs_subscription = 'optional'
     oldest_article = 7  # days
+    max_articles_per_feed = 15
     use_embedded_content = False
     remove_empty_feeds = True
     scale_news_images_to_device = True
     scale_news_images = (800, 600)
+    delay = 3  # Avoid throttling by the server.
 
-    # Center and reduce the size of images and image captions.
+    # 1. Center and reduce the size of images and image captions.
+    # 2. Make the lead text italic.
+    # 3. Make the article metadata text gray and small.
     extra_css = '''
-        img { display: block; margin: auto; width: 50%; height: auto }
+        img { display: block; margin: auto; width: 50%; height: auto; }
         div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+        p.Single__lead, p.Longread__lead { font-style: italic; color:#202020; }
+        p.article-metadata { color: gray; font-size:small; }
     '''
 
     keep_only_tags = [
@@ -41,8 +48,11 @@ class Fokus(BasicNewsRecipe):
         dict(name='h1', class_='Longread__title'),              # Title of "Longread" type articles.
         dict(name='p', class_='Single__lead'),                  # Lead text of "Single" type articles.
         dict(name='p', class_='Longread__lead'),                # Lead text of "Longread" type articles.
+        dict(name='p', class_='article-metadata'),              # Dynamically created by the recipe.
         dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
         dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
+        dict(name='p', class_='Meta__author'),                  # Author of the article.
+        dict(name='time', class_='Meta__updated'),              # Last updated date of the article.
         dict(name='div', class_='sesamy-protected-content'),    # Article body.
     ]
 
@@ -277,3 +287,48 @@ class Fokus(BasicNewsRecipe):
         self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
 
         return feeds
+
+    def populate_article_metadata(self, article, soup, _):
+        # The article description/summary is found in the <p> tag of class 'Single__lead' or 'Longread__lead'.
+        lead_tag = soup.find('p', {'class': ['Single__lead', 'Longread__lead']})
+        article.summary = article.text_summary = lead_tag.get_text(strip=True)
+
+        # Extract the article timestamp from the `datetime` attribute of the first <time> tag of class 'Meta__updated'.
+        # The timestamp is on the ISO format. After the timestamp has been extracted, remove all such <time> tags from
+        # the soup (the article can contain several).
+        if time_tag := soup.find('time', {'class': 'Meta__updated'}):
+            dt = time_tag['datetime']
+            dt = datetime.fromisoformat(dt) + timedelta(seconds=time.timezone)
+            article.date = dt.strftime('%Y-%m-%d %H:%M')
+            for time_tag in soup.find_all('time', {'class': 'Meta__updated'}):
+                time_tag.decompose()
+
+        # Extract the author name from the first <p> tag of class 'Meta__author'. After the author name has been
+        # extracted, remove all such <p> tags from the soup (the article can contain several).
+        if author_tag := soup.find('p', {'class': 'Meta__author'}):
+            # If the tag contains an <a> child tag, extract the author name from it.
+            if a_tag := author_tag.find('a'):
+                author_info = a_tag.get_text(strip=True)
+                # To ensure a clean output, remove the <a> child tag.
+                a_tag.decompose()
+            else:
+                # If the tag does not contain an <a> child tag, extract the author name from the text of the <p> tag.
+                author_info = author_tag.get_text(strip=True)
+                # Remove the 'Text: ' prefix from the author name (if any).
+                if author_info.startswith('Text: '):
+                    author_info = author_info[6:]
+            for author_tag in soup.find_all('p', {'class': 'Meta__author'}):
+                author_tag.decompose()
+        else:
+            # If the author name is empty, set it to 'Fokus'.
+            if not author_info:
+                author_info = 'Fokus'
+
+        # Concatenate the author name and the article date.
+        article_metadata = f"{author_info} | {article.date}"
+
+        # Finally, add a new <p> tag with the article metadata to the soup. Place it directly after the lead text.
+        new_tag = soup.new_tag('p')
+        new_tag['class'] = 'article-metadata'
+        new_tag.string = article_metadata
+        lead_tag.insert_after(new_tag)
