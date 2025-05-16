@@ -32,6 +32,7 @@ from qt.core import (
 
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
+from calibre.gui2.palette import dark_palette
 
 
 def render_svg(widget, path):
@@ -61,7 +62,7 @@ class Label(QLabel):
     def __init__(self, scrollarea):
         super().__init__(scrollarea)
         scrollarea.zoom_requested.connect(self.zoom_requested)
-        self.setBackgroundRole(QPalette.ColorRole.Text if QApplication.instance().is_dark_theme else QPalette.ColorRole.Base)
+        self.setBackgroundRole(QPalette.ColorRole.NoRole)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.setScaledContents(True)
         self.default_cursor = self.cursor()
@@ -163,6 +164,10 @@ class ImageView(QDialog):
         ac.triggered.connect(self.rotate_image)
 
         self.scrollarea = sa = ScrollArea()
+        pal = sa.palette()
+        pal.setColor(QPalette.ColorRole.Dark,
+                     dark_palette().color(QPalette.ColorRole.Base) if QApplication.instance().is_dark_theme else Qt.GlobalColor.darkGray)
+        sa.setPalette(pal)
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
         self.label = l = Label(sa)
