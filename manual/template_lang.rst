@@ -452,7 +452,7 @@ More complex programs in template expressions - Template Program Mode
 Example: assume you want a template to show the series for a book if it has one, otherwise show
 the value of a custom field #genre. You cannot do this in the :ref:`Single Function Mode <single_mode>` because you cannot make reference to another metadata field within a template expression. In `TPM` you can, as the following expression demonstrates::
 
-    {series_index:0>7.1f:'ifempty($, -5)'}
+    {series:'ifempty($, $#genre)'}
 
 The example shows several things:
 
@@ -460,14 +460,14 @@ The example shows several things:
 
   If the template contains a prefix and suffix, the expression ends with ``'|`` where the ``|`` is the delimiter for the prefix. Example::
 
-    {series_index:0>7.1f:'ifempty($, -5)'|prefix | suffix}
+    {series:'ifempty($, $#genre)'|prefix | suffix}
 
 * Functions must be given all their arguments. For example, the standard built-in functions must be given the initial parameter ``value``.
-* The variable ``$`` is usable as the ``value`` argument and stands for the value of the field named in the template, ``series_index`` in this case.
+* The variable ``$`` is usable as the ``value`` argument and stands for the value of the field named in the template, ``series`` in this case.
 * white space is ignored and can be used anywhere within the expression.
 * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
-In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors or unexpected results because they confuse the template processor. It tries to treat them as template expression boundaries, not characters. In some but not all cases you can replace a ``{`` with ``[[`` and a ``}`` with `]]`. Generally, if your program contains ``{`` and ``}`` characters then you should use `General Program Mode`.
+In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors or unexpected results because they confuse the template processor. It tries to treat them as template expression boundaries, not characters. In some but not all cases you can replace a ``{`` with ``[[`` and a ``}`` with `]]`. Advice: if your program contains ``{`` and ``}`` characters then you should use `General Program Mode`.
 
 .. _python_mode:
 
