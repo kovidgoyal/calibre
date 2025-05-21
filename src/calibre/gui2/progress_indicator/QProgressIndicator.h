@@ -10,6 +10,7 @@
 #include <QParallelAnimationGroup>
 #include <QProxyStyle>
 #include <QDialogButtonBox>
+#include <QStyleOptionSlider>
 
 #define arc_length_max 0.734f
 #define arc_length_min 0.02f
@@ -94,6 +95,9 @@ class CalibreStyle : public QProxyStyle {
         QByteArray desktop_environment;
         QDialogButtonBox::ButtonLayout button_layout;
         int transient_scroller;
+
+    private:
+        void draw_scrollbar(const QStyleOptionSlider *scroll_bar, QPainter * painter, const QWidget * widget) const;
 
     public:
         CalibreStyle(int transient_scroller);
