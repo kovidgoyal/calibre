@@ -1021,6 +1021,13 @@ class BooksModel(QAbstractTableModel):  # {{{
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map) or col < 0:
             return None
+        try:
+            return self.actual_data(index, role, col)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def actual_data(self, index, role, col):
         if role == Qt.ItemDataRole.DisplayRole:
             rules = self.db_prefs['column_icon_rules']
             if rules:
