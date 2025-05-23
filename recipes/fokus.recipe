@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-import time
-from datetime import datetime, timedelta
-
-from mechanize import Request
+from datetime import datetime, timedelta, timezone
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -16,7 +13,7 @@ class NoArticles(Exception):
 class Fokus(BasicNewsRecipe):
     title = 'Fokus'
     main_url = 'https://www.fokus.se'
-    description = "The last 7 days of news and articles from the Swedish current-affairs magazine 'Fokus'"
+    description = "The current week's edition of Swedish current-affairs magazine 'Fokus'"
     encoding = 'utf-8'
     __author__ = 'Henrik Holm (https://github.com/h-holm)'
     language = 'sv'
@@ -25,8 +22,6 @@ class Fokus(BasicNewsRecipe):
     no_stylesheets = True
     compress_news_images = True
     needs_subscription = 'optional'
-    oldest_article = 7  # days
-    max_articles_per_feed = 15
     use_embedded_content = False
     remove_empty_feeds = True
     scale_news_images_to_device = True
@@ -51,117 +46,122 @@ class Fokus(BasicNewsRecipe):
         dict(name='p', class_='article-metadata'),              # Dynamically created by the recipe.
         dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
         dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
-        dict(name='p', class_='Meta__author'),                  # Author of the article.
-        dict(name='time', class_='Meta__updated'),              # Last updated date of the article.
         dict(name='div', class_='sesamy-protected-content'),    # Article body.
     ]
 
-    def get_cover_url(self) -> str:
-        # Create a `mechanize.Request` object.
-        req = Request(url=self.main_url, method='POST')
+    def extract_cover_url(self, a_tag) -> str:
+        '''Given the <a> tag of the current edition, extract the URL of the highest-resolution cover image.'''
+        figure_tag = a_tag.find('figure')
+        img_tag = figure_tag.find('img')
 
-        # Open the requested URL in the built-in browser of the `BasicNewsRecipe` parent class.
-        browser = self.get_browser()
-        response = browser.open(req)
+        # The `srcset` attribute contains a comma-separated list of URLs and their resolutions.
+        cover_urls = img_tag['srcset'].split(', ')
+        cover_urls = [src.split(' ') for src in cover_urls]
 
-        # Parse the response into a BeautifulSoup soup.
-        soup = BeautifulSoup(response.get_data(), 'html.parser')
+        # The second item of each tuple should be the resolution, e.g., '578w' or '821w'. Remove the 'w' suffix, cast
+        # to an integer and sort in descending order.
+        cover_urls = [(url, int(resolution[:-1])) for url, resolution in cover_urls]
+        cover_urls = sorted(cover_urls, key=lambda x: x[1], reverse=True)
 
-        # The cover image of the current edition is located in a <figure> tag with class 'Issue__thumbnail'.
+        # The first item of the sorted list is now the URL of the highest-resolution image.
+        self.cover_url = cover_urls[0][0]
+        self.log(f"Identified cover URL: '{self.cover_url}'")
+
+        return
+
+    def get_current_edition_url(self) -> str:
+        '''Return the URL of the current (weekly) edition of Fokus.'''
+        current_year = datetime.now().year
         try:
-            figure_tag = soup.find('figure', class_='Issue__thumbnail')
-            img_tag = figure_tag.find('img')
-            # Set the `img_tag` to `None` if it is falsy. This way, we can force an `AttributeError` if no cover URL
-            # can be found.
-            img_tag = img_tag if img_tag else None
-            cover_url = img_tag['src']
-        except AttributeError:
-            self.log.error("Failed to identify the cover image URL. Does an 'Issue__thumbnail' figure still exist?")
-            return ''
+            soup = self.index_to_soup(f"{self.main_url}/vara-utgavor")
 
-        return cover_url
+            # Identify all <a> tags of class 'Issue' that have an href attribute containing the current year.
+            a_tags = soup.find_all('a', class_='Issue', href=True)
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username and self.password:
-            br.open('https://www.fokus.se/auth/logga-in')
-            br.select_form(name='loginForm')
-            br['j_username'] = self.username
-            br['j_password'] = self.password
-            br.submit()
-        return br
+            # Keep only the href, and subset to only those links that contain the current year.
+            edition_links = [a_tag['href'] for a_tag in a_tags if str(current_year) in a_tag['href']]
 
-    def get_web_sections(self, main_url: str) -> dict[str, str]:
-        '''Return a dict of (1) section URL and (2) section name key-value pairs found at `main_url`.
+            # In order to successfully sort the links chronologically, first convert the data structure to a dict, wherein
+            # the key consists of only the date part of the URL and the value consists of the entire (unmodified) URL.
+            edition_links = {link.removesuffix('/').split('/')[-1]: link for link in edition_links}
 
-        For example, if the Fokus website currently includes an 'Aktuellt' section, the dict should include an entry on
-        the form: `{'https://www.fokus.se/aktuellt': 'Aktuellt'}`.
+            # Then, shorten the key further by keeping only the part after the first hyphen. This removes the year and
+            # typically results in only the calendar week number remaining, e.g., '1', '21' or '52'. Note however that
+            # editions can sometimes cover multiples weeks, e.g., '1-2', '01-03' or '50-51-52'. In order to sort correctly,
+            # it is therefore necessary to additionally keep only the first part of the week number(s) after the hyphen.
+            edition_links = {key.split('-', 1)[-1].split('-', 1)[0]: value for key, value in edition_links.items()}
 
-        Args:
-            main_url (str): The entrypoint URL of the Fokus website.
+            # Now, convert the resulting keys to integers
+            edition_links = {int(key): value for key, value in edition_links.items()}
 
-        Yields:
-            dict[str, str]: (1) URLs and (2) human-readable names of Fokus sections.
-        '''
-        self.log(f"Identifying all sections under '{main_url}'...")
-        soup = self.index_to_soup(main_url)
+            # Finally, sort in descending order, so that the most recent edition is first.
+            edition_links = dict(sorted(edition_links.items(), reverse=True))
+            current_edition_url = edition_links[list(edition_links.keys())[0]]
 
-        # Identify all unique <li> tags of class 'menu-item-type-taxonomy'. The class subsetting excludes sections that
-        # are not suited for reading, e.g., the "Podcast" and "Läs E-Tidningen" sections.
-        section_urls_and_names = {}
-        for li_tag in soup.find_all('li', class_='menu-item-type-taxonomy'):
-            # The <li> tag contains (should contain) an <a> anchor that in turn contains the URL and link name.
-            a_tag = li_tag.find('a')
-            url = a_tag.get('href').rstrip('/')
-            section_name = a_tag.text.strip()
+            self.log(f"Identified {len(edition_links)} editions, of which the most recent is '{current_edition_url}'.")
 
-            if url in section_urls_and_names:
-                # If this section URL has already been extracted from another <li> tag, it can be the case that the
-                # section name differs within this duplicate pair. In this case, use whichever section name is longer.
-                if len(section_name) >= len(section_urls_and_names[url]):
-                    section_urls_and_names[url] = section_name
+            # Now that we know the URL of the current edition, we can use it to identify the cover image. The cover
+            # image URL exists in the `src` attribute of the <img> child tag of the <figure> child tag of the <a> tag
+            # of the current edition.
+            current_edition_a_tag = soup.find('a', class_='Issue', href=current_edition_url)
+            self.extract_cover_url(current_edition_a_tag)
+        except Exception as exc:
+            self.log.error(f"Failed to identify the current edition URL: {e}")
+            raise NoArticles(
+                f"Could not find the URL of the current edition. Either the '{self.main_url}' server is experiencing "
+                'issues, in which case you should try again later, or the website format has changed and the recipe '
+                'needs updating.'
+            ) from exc
+        return current_edition_url
 
-            self.log(f"Identified section '{section_name}' at URL '{url}'.")
-            section_urls_and_names[url] = section_name
-
-        self.log(f'Identified a total of {len(section_urls_and_names)} unique sections.')
-        return section_urls_and_names
-
-    def parse_article_blurb(self, article_blurb) -> dict[str, str, str, str] | None:
+    def parse_article_blurb(self, article_blurb) -> dict[str, str, str, str, str] | None:
         '''Given a <article> tag of class 'Blurb', parse it into a dict.
 
         Args:
             article_blurb (Tag): An <article> tag hosting metadata and the URL of an article.
 
         Returns:
-            dict[str, str, str, str]: A dict on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
+            A dict on a `{'url': str, 'title': str, 'date': str, 'category': str, 'description': str}` format.
         '''
         if a_tag := article_blurb.find('a', href=True):
             url = a_tag['href'].strip().rstrip('/')
             if url.startswith('/'):
                 url = f'{self.main_url}{url}'
 
-            if title_tag := a_tag.find('h2', {'class': 'PostBlurb__title'}):
+            if title_tag := a_tag.find('h2', {'class': 'Blurb__title'}):
                 title = self.tag_to_string(title_tag).strip()
-                desc = ''
-            if desc_tag := a_tag.find('div', {'class': 'PostBlurb__excerpt'}):
+
+            if date_tag := a_tag.find('time', {'class': 'Blurb__date'}):
+                # Results in a Swedish date format, e.g., '23 MAJ 2025'.
+                date = self.tag_to_string(date_tag).strip()
+                # Add a newline before the date to make it more readable.
+                date = f'\n{date}'
+
+            # Assign the article to its first listed category as inferred from the first <li> tag of class
+            # 'Blurb__category'. Default to 'Fokus' if no such tag is found.
+            category = 'Fokus'
+            if category_tag := a_tag.find('li', {'class': 'Blurb__category'}):
+                category = self.tag_to_string(category_tag).strip()
+
+            desc = ''
+            if desc_tag := a_tag.find('div', {'class': 'Blurb__summary'}):
                 desc = self.tag_to_string(desc_tag).strip()
 
-            return {'url': url, 'title': title, 'description': desc}
+            return {'url': url, 'title': title, 'date': date, 'category': category, 'description': desc}
 
         return
 
-    def _get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str]]:
+    def get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str, str]]:
         '''Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
 
         The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
-        on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
+        on a `{'url': str, 'title': str, 'date': str, 'category': str, 'description': str}` format.
 
         Args:
             soup (BeautifulSoup): The `bs4.BeautifulSoup` soup of a Fokus webpage.
 
         Returns:
-            dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
+            dict[str, dict[str, str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
         '''
 
         def _log(article) -> None:
@@ -171,8 +171,10 @@ class Fokus(BasicNewsRecipe):
                 log_message += f" : {article['description']}"
             self.log.debug(log_message)
 
+        # Identify all <article> tags of class 'Blurb' that have an href attribute.
+        self.log(f'Identifying all articles...')
         try:
-            article_blurbs = soup.find_all('article', {'class': 'PostBlurb'})
+            article_blurbs = soup.find_all('article', {'class': 'Blurb'})
         except AttributeError:
             article_blurbs = []
 
@@ -184,94 +186,49 @@ class Fokus(BasicNewsRecipe):
         for article_blurb in article_blurbs:
             if article := self.parse_article_blurb(article_blurb):
                 _log(article)
-                # If an entry with the same URL already exists, keep whichever entry has the longer description.
-                if article['url'] in article_blurbs:
-                    if len(article['description']) <= len(parsed_blurbs[article['url']]['description']):
-                        continue
                 parsed_blurbs[article['url']] = article
 
         return parsed_blurbs
 
-    def get_article_blurbs(self, sections: dict[str, str]) -> dict[str, dict[str, str, str, str]]:
-        '''Create and return a dict of all unique article blurbs found in all `sections`.
-
-        The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
-        on a `{'url': str, 'title': str, 'description': str, 'date': str}` format.
-
-        Args:
-            sections (dict[str, str]): A dict on a `{section_url: section_name}` format.
-
-        Returns:
-            dict[str, dict[str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
-        '''
-        self.log(f'Identifying all articles under all {len(sections)} sections...')
-
-        article_blurbs = {}
-        for section_url, section_title in sections.items():
-            try:
-                section_soup = self.index_to_soup(section_url)
-            except Exception:
-                self.log.error(f"Failed to download section '{section_title}' via URL '{section_url}'")
-                continue
-            self.log(f"Identifying all articles under '{section_url}'...")
-            for article_url, article_blurb in self._get_article_blurbs(section_soup).items():
-                # If the article URL has already been encountered, keep only the article blurb with the longer
-                # description string.
-                if article_url not in article_blurbs:
-                    article_blurbs[article_url] = article_blurb
-                elif len(article_blurb['description']) > len(article_blurbs[article_url]['description']):
-                    article_blurbs[article_url] = article_blurb
-
-        self.log(f'A total of {len(article_blurbs)} articles were identified in the {len(sections)} sections.')
-        return article_blurbs
-
-    def assign_articles_to_sections(
+    def convert_to_section_lists(
         self,
-        sections: dict[str, str],
-        articles: dict[str, dict[str, str, str, str]],
+        articles: dict[str, dict[str, str, str, str, str]],
     ) -> dict[str, list[dict[str, str, str, str]]]:
-        '''Assign each article in `articles` to a section in `sections`.
+        '''Convert the `articles` dict of dicts to a dict of lists; each list holds the articles of a given section.
 
         Args:
-            sections (dict[str, str]): A dict of section URLs as keys and section titles as values.
-            articles (dict[str, dict[str, str, str, str]]): A dict of article URLs as keys and article dicts as values.
+            articles (dict[str, dict[str, str, str, str, str]]): A dict of article URLs and article dicts.
 
         Returns:
             dict[str, list[dict[str, str, str, str]]]: A dict on a `{section_title: list[article_dict]}` format.
         '''
-        self.log(f'Assigning each of the {len(articles)} articles to either of the {len(sections)} sections...')
+        self.log(f'Assigning each of the {len(articles)} articles to a section...')
         section_to_articles = {}
         for article_url, article_dict in articles.items():
-            last_url = article_url
-            while article_url not in sections and len(article_url) > len(self.main_url):
-                article_url = article_url.rsplit('/', 1)[0]
-
-                # Prevent an infinite loop.
-                if article_url == last_url:
-                    break
-                last_url = article_url
-
-            # If no section corresponding to the URL exists, default to the 'Home Page' section.
-            section_title = sections[article_url] if article_url in sections else sections[self.main_url]
+            section_title = article_dict['category']
             if section_title not in section_to_articles:
                 section_to_articles[section_title] = []
+            # Remove the 'category' key from the article dict, as it is not needed in the final output.
+            article_dict.pop('category')
             section_to_articles[section_title].append(article_dict)
-
-        # Log how many sections contained no articles younger than `self.oldest_article`.
-        if diff := len(sections) - len(section_to_articles):
-            self.log(f'{diff} sections contained no articles younger than {self.oldest_article} days.')
 
         return section_to_articles
 
     def parse_index(self):
-        # Identify all sections in the web version of Fokus.
-        sections = self.get_web_sections(self.main_url)
+        current_edition_url = self.get_current_edition_url()
+        if not current_edition_url:
+            raise NoArticles(
+                f"Could not find the URL of the current edition. Either the '{self.main_url}' server is experiencing "
+                'issues, in which case you should try again later, or the website format has changed and the recipe '
+                'needs updating.'
+            )
+        self.log(f'Current edition URL: {current_edition_url}')
 
-        # Add an entry for the start page.
-        sections[self.main_url] = 'Home Page'
+        # Identify all sections in the web version of Fokus.
+        edition_soup = self.index_to_soup(current_edition_url)
 
         # From the section URLs and the main URL, identify all unique articles.
-        articles = self.get_article_blurbs(sections)
+        articles = self.get_article_blurbs(edition_soup)
         if not articles:
             raise NoArticles(
                 f"Could not find any articles. Either the '{self.main_url}' server is experiencing issues, in which "
@@ -279,56 +236,7 @@ class Fokus(BasicNewsRecipe):
             )
 
         # Assign each identified article to a section based on its URL.
-        section_to_articles = self.assign_articles_to_sections(sections, articles)
+        section_to_articles = self.convert_to_section_lists(articles)
 
-        # Convert to the expected `list[tuple[str, dict[str, str, str, str]]]` format.
-        feeds = list(section_to_articles.items())
-        num_articles = sum(len(article_dicts) for article_dicts in section_to_articles.values())
-        self.log(f'A total of {num_articles} articles belonging to {len(section_to_articles)} sections were kept.')
-
-        return feeds
-
-    def populate_article_metadata(self, article, soup, _):
-        # The article description/summary is found in the <p> tag of class 'Single__lead' or 'Longread__lead'.
-        lead_tag = soup.find('p', {'class': ['Single__lead', 'Longread__lead']})
-        article.summary = article.text_summary = lead_tag.get_text(strip=True)
-
-        # Extract the article timestamp from the `datetime` attribute of the first <time> tag of class 'Meta__updated'.
-        # The timestamp is on the ISO format. After the timestamp has been extracted, remove all such <time> tags from
-        # the soup (the article can contain several).
-        if time_tag := soup.find('time', {'class': 'Meta__updated'}):
-            dt = time_tag['datetime']
-            dt = datetime.fromisoformat(dt) + timedelta(seconds=time.timezone)
-            article.date = dt.strftime('%Y-%m-%d %H:%M')
-            for time_tag in soup.find_all('time', {'class': 'Meta__updated'}):
-                time_tag.decompose()
-
-        # Extract the author name from the first <p> tag of class 'Meta__author'. After the author name has been
-        # extracted, remove all such <p> tags from the soup (the article can contain several).
-        if author_tag := soup.find('p', {'class': 'Meta__author'}):
-            # If the tag contains an <a> child tag, extract the author name from it.
-            if a_tag := author_tag.find('a'):
-                author_info = a_tag.get_text(strip=True)
-                # To ensure a clean output, remove the <a> child tag.
-                a_tag.decompose()
-            else:
-                # If the tag does not contain an <a> child tag, extract the author name from the text of the <p> tag.
-                author_info = author_tag.get_text(strip=True)
-                # Remove the 'Text: ' prefix from the author name (if any).
-                if author_info.startswith('Text: '):
-                    author_info = author_info[6:]
-            for author_tag in soup.find_all('p', {'class': 'Meta__author'}):
-                author_tag.decompose()
-        else:
-            # If the author name is empty, set it to 'Fokus'.
-            if not author_info:
-                author_info = 'Fokus'
-
-        # Concatenate the author name and the article date.
-        article_metadata = f"{author_info} | {article.date}"
-
-        # Finally, add a new <p> tag with the article metadata to the soup. Place it directly after the lead text.
-        new_tag = soup.new_tag('p')
-        new_tag['class'] = 'article-metadata'
-        new_tag.string = article_metadata
-        lead_tag.insert_after(new_tag)
+        # Convert to tuples.
+        return list(section_to_articles.items())
