@@ -340,7 +340,7 @@ class Highlights(QTreeWidget):
             if tfam:
                 tsec = tfam[0]
                 lsec = tfam[-1]
-                key = (spine_index, tsec or '', lsec or '')
+                key = (spine_index,) + tfam
             else:
                 tsec = h.get('top_level_section_title')
                 lsec = h.get('lowest_level_section_title')
