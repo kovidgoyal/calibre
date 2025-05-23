@@ -336,14 +336,15 @@ class Highlights(QTreeWidget):
 
         for h in self.sorted_highlights(highlights):
             tfam = tuple(h.get('toc_family_titles') or ())
+            spine_index = h.get('spine_index', -1)
             if tfam:
                 tsec = tfam[0]
                 lsec = tfam[-1]
-                key = tfam
+                key = (spine_index,) + tfam
             else:
                 tsec = h.get('top_level_section_title')
                 lsec = h.get('lowest_level_section_title')
-                key = (tsec or '', lsec or '')
+                key = (spine_index, tsec or '', lsec or '')
             short_title = lsec or tsec or _('Unknown')
             section = {
                 'title': short_title, 'tfam': tfam, 'tsec': tsec, 'lsec': lsec, 'items': [], 'tooltip': tooltip_for(tfam), 'key': key,
