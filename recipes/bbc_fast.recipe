@@ -162,7 +162,6 @@ class BBC(BasicNewsRecipe):
     ]
 
     remove_attributes = ['style', 'height', 'width']
-    no_stylesheets = True
     extra_css = '''
         figure,
         [data-component="byline-block"],

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -73,7 +72,7 @@ class Fokus(BasicNewsRecipe):
         '''Return the URL of the current (weekly) edition of Fokus.'''
         current_year = datetime.now().year
         try:
-            soup = self.index_to_soup(f"{self.main_url}/vara-utgavor")
+            soup = self.index_to_soup(f'{self.main_url}/vara-utgavor')
 
             # Identify all <a> tags of class 'Issue' that have an href attribute containing the current year.
             a_tags = soup.find_all('a', class_='Issue', href=True)
@@ -106,7 +105,7 @@ class Fokus(BasicNewsRecipe):
             current_edition_a_tag = soup.find('a', class_='Issue', href=current_edition_url)
             self.extract_cover_url(current_edition_a_tag)
         except Exception as exc:
-            self.log.error(f"Failed to identify the current edition URL: {e}")
+            self.log.error(f'Failed to identify the current edition URL: {exc}')
             raise NoArticles(
                 f"Could not find the URL of the current edition. Either the '{self.main_url}' server is experiencing "
                 'issues, in which case you should try again later, or the website format has changed and the recipe '
@@ -172,7 +171,7 @@ class Fokus(BasicNewsRecipe):
             self.log.debug(log_message)
 
         # Identify all <article> tags of class 'Blurb' that have an href attribute.
-        self.log(f'Identifying all articles...')
+        self.log('Identifying all articles...')
         try:
             article_blurbs = soup.find_all('article', {'class': 'Blurb'})
         except AttributeError:
