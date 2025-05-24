@@ -75,6 +75,14 @@ def headless_exe_path(exe_name='calibre-parallel'):
     return exe_path(exe_name)
 
 
+def windows_creationflags_for_worker_process(priority: str = 'normal') -> int:
+    return {
+        'high'  : subprocess.HIGH_PRIORITY_CLASS,
+        'normal': subprocess.NORMAL_PRIORITY_CLASS,
+        'low'   : subprocess.IDLE_PRIORITY_CLASS
+    }[priority] | subprocess.CREATE_NO_WINDOW
+
+
 class Worker:
     '''
     Platform independent object for launching child processes. All processes
@@ -182,11 +190,7 @@ class Worker:
                 'cwd': _cwd,
                 }
         if iswindows:
-            priority = {
-                    'high'  : subprocess.HIGH_PRIORITY_CLASS,
-                    'normal': subprocess.NORMAL_PRIORITY_CLASS,
-                    'low'   : subprocess.IDLE_PRIORITY_CLASS}[priority]
-            args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
+            args['creationflags'] = windows_creationflags_for_worker_process(priority)
         else:
             niceness = {
                     'normal': 0,

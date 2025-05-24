@@ -14,7 +14,7 @@ from threading import Thread
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.ipc.launch import Worker
+from calibre.utils.ipc.launch import Worker, windows_creationflags_for_worker_process
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import environ_item, string_or_bytes
 
@@ -142,11 +142,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
     pass_fds = None
     try:
         if iswindows:
-            priority = {
-                    'high'  : subprocess.HIGH_PRIORITY_CLASS,
-                    'normal': subprocess.NORMAL_PRIORITY_CLASS,
-                    'low'   : subprocess.IDLE_PRIORITY_CLASS}[priority]
-            args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
+            args['creationflags'] = windows_creationflags_for_worker_process(priority)
             pass_fds = args.pop('pass_fds', None)
             if pass_fds:
                 for fd in pass_fds:
