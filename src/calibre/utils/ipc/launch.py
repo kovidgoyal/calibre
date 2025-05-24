@@ -80,7 +80,7 @@ def windows_creationflags_for_worker_process(priority: str = 'normal') -> int:
         'high'  : subprocess.HIGH_PRIORITY_CLASS,
         'normal': subprocess.NORMAL_PRIORITY_CLASS,
         'low'   : subprocess.IDLE_PRIORITY_CLASS
-    }[priority] | subprocess.CREATE_NO_WINDOW
+    }[priority] | subprocess.DETACHED_PROCESS
 
 
 class Worker:
