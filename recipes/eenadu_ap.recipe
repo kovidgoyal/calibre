@@ -62,7 +62,7 @@ class eenadu_ap(BasicNewsRecipe):
             ('అంతర్జాతీయం', 'world'),
             ('క్రీడలు', 'sports'),
             ('సినిమా', 'movies'),
-            ('వసుంధర', 'women'),
+            # ('వసుంధర', 'women'),
             ('విశాఖపట్నం జిల్లా వార్తలు', 'andhra-pradesh/districts/visakhapatnam'),
         ]
 

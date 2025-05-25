@@ -61,7 +61,7 @@ class eenadu_ts(BasicNewsRecipe):
             ('అంతర్జాతీయం', 'world'),
             ('క్రీడలు', 'sports'),
             ('సినిమా', 'movies'),
-            ('వసుంధర', 'women'),
+            # ('వసుంధర', 'women'),
             ('హైదరాబాద్ జిల్లా వార్తలు', 'telangana/districts/hyderabad'),
         ]
 
