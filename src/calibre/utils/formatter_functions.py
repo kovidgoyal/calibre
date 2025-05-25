@@ -2664,12 +2664,13 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
     arg_count = 2
     category = STRING_MANIPULATION
     __doc__ = doc = _(
-r'''
-``swap_around_articles(value, separator)`` -- returns the ``value`` with articles moved to
-the end.[/] The ``value`` can be a list, in which case each item in the list is
-processed. If the ``value`` is a list then you must provide the ``separator``. If no
-``separator`` is provided then the ``value`` is treated as being a single value, not
-a list. The `articles` are those used by calibre to generate the ``title_sort``.
+r''' ``swap_around_articles(value, separator)`` -- returns the ``value`` with
+articles moved to the end, separated by a semicolon.[/] The ``value`` can be a
+list, in which case each item in the list is processed. If the ``value`` is a
+list then you must provide the ``separator``. If no ``separator`` is provided
+or the separator is the empty string then the ``value`` is treated as being a
+single value, not a list. The `articles` are those used by calibre to generate
+the ``title_sort``.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, separator):
