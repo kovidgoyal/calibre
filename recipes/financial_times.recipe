@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 import json
 import re
+from datetime import date
 from urllib.parse import quote
 
 from html5_parser import parse
@@ -63,8 +64,11 @@ class ft(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/financial-times/')
-        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        url = f"https://www.tomorrowspapers.co.uk/financial-times-front-page-{date.today():%Y-%m-%d}/"
+        soup = self.index_to_soup(url)
+        img = soup.select_one('img.attachment-full[src*="Financial-Times"]')
+        src = img['src']
+        return src
 
     # needs_subscription = 'optional'
     #
