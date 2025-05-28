@@ -180,7 +180,7 @@ class UtteranceAudioQueue(QIODevice):
             return
         if s == QAudio.State.IdleState and prev_state == QAudio.State.ActiveState:
             if self.utterance_being_played:
-                debug(f'Utterance {self.utterance_being_played.id} audio output finished')
+                debug(f'Utterance {self.utterance_being_played.id} audio output finished with {len(self.current_audio_data)=} bytes left')
             self.utterance_being_played = None
             self.start_utterance()
         self.update_status.emit()
