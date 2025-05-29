@@ -65,7 +65,10 @@ class ft(BasicNewsRecipe):
 
     def get_cover_url(self):
         url = f"https://www.tomorrowspapers.co.uk/financial-times-front-page-{date.today():%Y-%m-%d}/"
-        soup = self.index_to_soup(url)
+        try:
+            soup = self.index_to_soup(url)
+        except Exception:
+            return f"https://img.kiosko.net/{date.today():%Y/%m/%d}/uk/ft_uk.750.jpg"
         img = soup.select_one('img.attachment-full[src*="Financial-Times"]')
         src = img['src']
         return src
