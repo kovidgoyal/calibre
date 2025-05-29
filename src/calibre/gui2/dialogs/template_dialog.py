@@ -612,6 +612,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.documentation.setOpenLinks(False)
         self.documentation.anchorClicked.connect(self.url_clicked)
         self.source_code.setReadOnly(True)
+        self.source_code.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.source_code.customContextMenuRequested.connect(self.show_code_context_menu)
         self.doc_button.clicked.connect(self.open_documentation_viewer)
         self.general_info_button.clicked.connect(self.open_general_info_dialog)
 
@@ -821,6 +823,24 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.template_value.cellWidget(i, 2).setText('')
             self.template_value.cellWidget(0, 2).setText(
                 _("*** Breakpoints are enabled. Waiting for the 'Go' button to be pressed"))
+
+    def show_code_context_menu(self, point):
+        m = self.source_code.createStandardContextMenu()
+        name = self.current_function_name
+        if (name and self.all_functions[name].object_type in
+                (StoredObjectType.StoredPythonTemplate, StoredObjectType.StoredGPMTemplate)):
+            m.addSeparator()
+            ca = m.addAction(_('Copy stored template source to editor'))
+            ca.triggered.connect(self.copy_source_code_to_editor)
+        m.exec(self.source_code.mapToGlobal(point))
+
+    def copy_source_code_to_editor(self):
+        if self.textbox.toPlainText():
+            r = question_dialog(self, _('Discard existing text?'),
+                  _('The editor contains text. Do you want to overwrite that text?'))
+            if not r:
+                return
+        self.textbox.setPlainText(self.source_code.toPlainText())
 
     def show_context_menu(self, point):
         m = self.textbox.createStandardContextMenu()
