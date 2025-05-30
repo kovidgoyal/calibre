@@ -82,6 +82,19 @@ def new_tag(soup, name, attrs=()):
     return Tag(soup, name, attrs=attrs or None)
 
 
+def clean_js_json(text):
+    text = text.replace('undefined', 'null')
+
+    # drop any JS function definitions
+    text = re.sub(
+        r',?\s*"[^"]+"\s*:\s*function\s*\([^)]*\)\s*\{.*?\}', 
+        '',
+        text,
+        flags=re.DOTALL
+    )
+    return text
+
+
 class NewYorkTimes(BasicNewsRecipe):
     if is_web_edition:
         title = 'The New York Times (Web)'
@@ -127,7 +140,8 @@ class NewYorkTimes(BasicNewsRecipe):
         return self.index_to_soup(url, raw=True)
 
     def preprocess_raw_html(self, raw_html, url):
-        return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
+        cleaned = clean_js_json(raw_html)
+        return self.nyt_parser.extract_html(self.index_to_soup(cleaned), url)
 
     articles_are_obfuscated = use_wayback_machine
 
@@ -212,8 +226,9 @@ class NewYorkTimes(BasicNewsRecipe):
         self.nytimes_publication_date = pdate
         script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
         script = type(u'')(script)
-        json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
-        self.nytimes_graphql_config = json.loads(json_data.replace(':undefined', ':null'))['config']
+        raw_json = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
+        clean_json = clean_js_json(raw_json)
+        self.nytimes_graphql_config = json.loads(clean_json)['config']
         return soup
 
     def nyt_graphql_query(self, qid, operationName='CollectionsQuery'):
