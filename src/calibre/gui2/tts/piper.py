@@ -23,6 +23,7 @@ from qt.core import (
     QByteArray,
     QIODevice,
     QIODeviceBase,
+    QTimer,
     QMediaDevices,
     QObject,
     QProcess,
@@ -171,6 +172,9 @@ class UtteranceAudioQueue(QIODevice):
         self.current_audio_data = QByteArray()
         self.audio_state = QAudio.State.IdleState
         self.utterance_being_played: Utterance | None = None
+        self.hang_check_timer = QTimer()
+        self.hang_check_timer.setSingleShot(False)
+        self.hang_check_timer.timeout.connect(self.hang_check, type=Qt.ConnectionType.QueuedConnection)
         self.open(QIODeviceBase.OpenModeFlag.ReadOnly)
 
     def audio_state_changed(self, s: QAudio.State) -> None:
@@ -178,12 +182,23 @@ class UtteranceAudioQueue(QIODevice):
         prev_state, self.audio_state = self.audio_state, s
         if s == prev_state:
             return
-        if s == QAudio.State.IdleState and prev_state == QAudio.State.ActiveState and len(self.current_audio_data) == 0:
+        if s == QAudio.State.IdleState and len(self.current_audio_data) > 0:
+            debug(f'Audio sink went idle with {len(self.current_audio_data)} bytes left')
+            self.hang_check_timer.start(2000)
+            return
+        if s == QAudio.State.IdleState and prev_state == QAudio.State.ActiveState:
+            self.hang_check_timer.stop()
             if self.utterance_being_played:
-                debug(f'Utterance {self.utterance_being_played.id} audio output finished with {len(self.current_audio_data)=} bytes left')
+                debug(f'Utterance {self.utterance_being_played.id} audio output finished')
             self.utterance_being_played = None
             self.start_utterance()
         self.update_status.emit()
+
+    def hang_check(self):
+        if self.audio_state == QAudio.State.IdleState and len(self.current_audio_data) > 0:
+            self.readyRead.emit()
+        else:
+            self.hang_check_timer.stop()
 
     def add_utterance(self, u: Utterance) -> None:
         self.utterances.append(u)
