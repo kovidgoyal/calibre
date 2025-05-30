@@ -99,7 +99,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
         script = type(u'')(script)
         json_data = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
-        self.nytimes_graphql_config = json.loads(json_data.replace(':undefined', ':null'))['config']
+        self.nytimes_graphql_config = json.loads(self.nyt_parser.clean_js_json(json_data))['config']
         return soup
 
     def nyt_graphql_query(self, qid, operationName='CollectionsQuery'):

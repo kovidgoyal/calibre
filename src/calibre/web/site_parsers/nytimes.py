@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 11  # needed for live updates
+module_version = 12  # needed for live updates
 pprint
 
 
@@ -195,8 +195,19 @@ def article_parse(data):
     yield '</body></html>'
 
 
+def clean_js_json(text):
+    text = re.sub(r'\bundefined\b', 'null', text)
+    text = re.sub(
+        r',?\s*"[^"]+"\s*:\s*function\s*\([^)]*\)\s*\{.*?\}',
+        '',
+        text,
+        flags=re.DOTALL
+    )
+    return text
+
+
 def json_to_html(raw):
-    data = json.loads(raw.replace(':undefined', ':null'))
+    data = json.loads(clean_js_json(raw))
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
     try:
         data = data['initialData']['data']
