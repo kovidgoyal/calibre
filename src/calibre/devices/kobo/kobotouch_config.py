@@ -520,9 +520,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                              device.get_pref('use_collections_columns')
                              )
         self.collections_columns_edit = QLineEdit(self)
-        self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports collections.'
-                ' These are created on the Kobo. '
-                'Specify a tags type column for automatic management.'))
+        self.collections_columns_edit.setToolTip('<p>' +
+                _('The Kobo from firmware V2.0.0 supports collections. '
+                  'These are created on the Kobo. Specify the lookup name for a '
+                  'tags-type column for automatic management.') + '</p>')
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
 
         self.use_collections_template_checkbox = create_checkbox(
@@ -533,10 +534,12 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.collections_template_edit = TemplateConfig(
                             self.use_collections_template_checkbox.text(),
                             device.get_pref('collections_template'),
-                            tooltip=_("Enter a template to generate collections."
-                                      " The result of the template will be combined with the values from Collections column."
-                                      " The template should return a list of collection names separated by ':@:' (without quotes)."
-                                      )
+                            tooltip='<p>' +
+                                _("Enter a template to generate collections. "
+                                  "The result of the template will be combined with the "
+                                  "values from Collections column. The template should "
+                                  "return a list of collection names separated "
+                                  "by ':@:' (without quotes)." + '</p' )
                             )
 
         self.create_collections_checkbox = create_checkbox(
@@ -552,9 +555,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
         self.ignore_collections_names_label = QLabel(_('Ignore collections:'))
         self.ignore_collections_names_edit = QLineEdit(self)
-        self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by '
-                'the collection management. The collections listed '
-                'will not be changed. Names are separated by commas.'))
+        self.ignore_collections_names_edit.setToolTip('<p>' +
+                  _('List the names of collections to be ignored by '
+                    'the collection management. The collections listed '
+                    'will not be changed. Names are separated by commas.') + '</p>')
         self.ignore_collections_names_label.setToolTip(self.ignore_collections_names_edit.toolTip())
         self.ignore_collections_names_label.setBuddy(self.ignore_collections_names_edit)
         self.ignore_collections_names_edit.setText(device.get_pref('ignore_collections_names'))
