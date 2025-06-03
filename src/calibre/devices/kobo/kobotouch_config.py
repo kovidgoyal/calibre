@@ -539,7 +539,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                                   "The result of the template will be combined with the "
                                   "values from Collections column. The template should "
                                   "return a list of collection names separated "
-                                  "by ':@:' (without quotes)." + '</p' )
+                                  "by ':@:' (without quotes).") + '</p>'
                             )
 
         self.create_collections_checkbox = create_checkbox(
