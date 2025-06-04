@@ -110,9 +110,12 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         from calibre.gui2.dialogs.data_files_manager import DataFilesManager
         db = self.gui.current_db
         ids = self.gui.library_view.get_selected_ids()
+        num = len(ids)
         for book_id in ids:
-            d = DataFilesManager(db, book_id, self.gui)
+            d = DataFilesManager(db, book_id, self.gui, num - 1)
             d.exec()
+            if d.num_left < 1:
+                break
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids(ids, cr)
 

@@ -222,8 +222,9 @@ class ListView(QListView):
 
 class DataFilesManager(Dialog):
 
-    def __init__(self, db, book_id, parent=None):
+    def __init__(self, db, book_id, parent=None, num_left=0):
         self.db = db.new_api
+        self.num_left = num_left
         self.book_title = title = self.db.field_for('title', book_id) or _('Unknown')
         self.book_id = book_id
         super().__init__(_('Manage data files for {}').format(title), 'manage-data-files-xx',
@@ -291,10 +292,18 @@ class DataFilesManager(Dialog):
             trash = _('Recycle bin')
         b.setToolTip(_('Move all selected files to the system {trash}.\nThey can be restored from there if needed').format(trash=trash))
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
+        if self.num_left > 0:
+            b = QPushButton(_('Cancel remaining books'), self)
+            self.bb.addButton(b, QDialogButtonBox.ButtonRole.RejectRole)
+            b.clicked.connect(self.cancel_remaining)
 
         self.current_changed()
         self.resize(self.sizeHint())
         self.fview.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def cancel_remaining(self):
+        self.num_left = 0
+        self.reject()
 
     def context_menu(self, pos):
         m = QMenu(self)
