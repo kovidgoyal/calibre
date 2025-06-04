@@ -125,9 +125,9 @@
     {
         "name": "zstd",
         "unix": {
-            "filename": "zstd-1.5.5.tar.gz",
-            "hash": "sha256:9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
-            "urls": ["https://github.com/facebook/zstd/releases/download/v1.5.5/{filename}"]
+            "filename": "zstd-1.5.7.tar.gz",
+            "hash": "sha256:eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
+            "urls": ["https://github.com/facebook/zstd/releases/download/v1.5.7/{filename}"]
         }
     },
 
@@ -989,8 +989,8 @@
         "name": "pyzstd",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "pyzstd-0.15.9.tar.gz",
-            "hash": "sha256:cbfdde6c5768ffa5d2f14127bbc1d7c3c2d03c0ceaeb0736946197e06275ccc7",
+            "filename": "pyzstd-0.17.0.tar.gz",
+            "hash": "sha256:d84271f8baa66c419204c1dd115a4dec8b266f8a2921da21b81764fa208c1db6",
             "urls": ["pypi"]
         }
     },
@@ -999,8 +999,8 @@
         "name": "pyppmd",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "pyppmd-1.0.0.tar.gz",
-            "hash": "sha256:075c9bd297e3b0a87dd7aeabca7fee668218acbe69ecc1c6511064558de8840f",
+            "filename": "pyppmd-1.2.0.tar.gz",
+            "hash": "sha256:cc04af92f1d26831ec96963439dfb27c96467b5452b94436a6af696649a121fd",
             "urls": ["pypi"]
         }
     },
@@ -1019,8 +1019,8 @@
         "name": "inflate64",
 		"comment": "Needed by py7zr",
         "unix": {
-            "filename": "inflate64-0.3.1.tar.gz",
-            "hash": "sha256:b52dd8fefd2ba179e5dfa18d6eca7e2fc822584616271c039d5ef1f9ca90c71c",
+            "filename": "inflate64-1.0.3.tar.gz",
+            "hash": "sha256:a89edd416c36eda0c3a5d32f31ff1555db2c5a3884aa8df95e8679f8203e12ee",
             "urls": ["pypi"]
         }
     },
@@ -1028,8 +1028,8 @@
     {
         "name": "py7zr",
         "unix": {
-            "filename": "py7zr-0.20.6-py3-none-any.whl",
-            "hash": "sha256:c7cfb7183fb8f48038f1036a116ca89dc8bd57979d05b75567f00e88a5afe698",
+            "filename": "py7zr-1.0.0-py3-none-any.whl",
+            "hash": "sha256:6f42d2ff34c808e9026ad11b721c13b41b0673cf2b4e8f8fb34f9d65ae143dd1",
             "urls": ["pypi"]
         }
     },
