@@ -111,9 +111,9 @@ def initialize_calibre():
     orig_remove_temp_dir = util._remove_temp_dir
 
     def safe_rmtree(rmtree):
-        def r(tdir, **kw):
+        def r(tdir, *a, **kw):
             if tdir and os.path.exists(tdir):
-                rmtree(tdir, **kw)
+                rmtree(tdir, *a, **kw)
         return r
 
     def safe_remove_temp_dir(rmtree, tdir):
