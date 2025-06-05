@@ -1215,6 +1215,7 @@ class Application(QApplication):
         if override_program_name and hasattr(QApplication, 'setDesktopFileName'):
             QApplication.setDesktopFileName(override_program_name)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts, True)  # needed for webengine
+        self._store_args_to_prevent_gc = args  # Qt barfs is python garbage collects these
         QApplication.__init__(self, args)
         if should_handle_calibre_urls:
             # See https://bugreports.qt.io/browse/QTBUG-134316
