@@ -1,5 +1,8 @@
 #define UNICODE
 #define PY_SSIZE_T_CLEAN
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
 
 #include <Python.h>
 #include <datetime.h>
@@ -748,11 +751,7 @@ pread_all(PyObject *self, PyObject *args) {
             break;
         }
 #else
-#ifdef __linux__
-        ssize_t nr = pread64(fd, buf + pos, n - pos, offset);
-#else
         ssize_t nr = pread(fd, buf + pos, n - pos, offset);
-#endif
         if (nr < 0) {
             if (errno == EINTR || errno == EAGAIN) continue;
             saved_errno = errno;
