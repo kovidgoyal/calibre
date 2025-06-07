@@ -14,16 +14,16 @@ from polyglot.builtins import as_bytes
 class IPageGenerator(metaclass=ABCMeta):
 
     @abstractmethod
-    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None, regex : str) -> Pages:
         pass
 
     @abstractmethod
     def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
         pass
 
-    def generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
+    def generate(self, mobi_file_path: str, real_count: int | None, regex : str) -> Pages:
         try:
-            result = self._generate(mobi_file_path, real_count)
+            result = self._generate(mobi_file_path, real_count, regex)
             if result.number_of_pages > 0:
                 return result
             return self._generate_fallback(mobi_file_path, real_count)
