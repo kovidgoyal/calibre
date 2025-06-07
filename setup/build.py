@@ -274,7 +274,7 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
             cflags.append('-fsanitize=address')
 
     if islinux:
-        cflags.append('-pthread')
+        cflags.extend(['-pthread', '-D_FILE_OFFSET_BITS=64'])
         if sys.stdout.isatty():
             base_cflags.append('-fdiagnostics-color=always')
             cflags.append('-fdiagnostics-color=always')
