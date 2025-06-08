@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 import json
-from datetime import datetime, timedelta
 from itertools import zip_longest
 from urllib.parse import quote, urlencode
 
