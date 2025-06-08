@@ -184,7 +184,6 @@ class WSJ(BasicNewsRecipe):
             query, safe='()!', quote_via=quote
         )
         raw = self.index_to_soup(url, raw=True)
-        cat_data = json.loads(raw)
 
         cat_data = json.loads(raw)['data']['mobileIssuesByMasthead']
         edit = [x['datedLabel'] for x in cat_data][1:]
