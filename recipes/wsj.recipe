@@ -4,11 +4,29 @@ import json
 from datetime import datetime, timedelta
 from itertools import zip_longest
 from urllib.parse import quote, urlencode
-from mechanize import Request
 
+from calibre import browser
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+def get_article(article_id):
+    from mechanize import Request
+    mat_url = 'https://mats.mobile.dowjones.io/translate/' + article_id + '/jpml'
+    headers = {
+        'User-Agent': 'okhttp/4.10.0',
+        'Accept-Encoding': 'gzip',
+        'Cache-Control': 'no-cache',
+        'x-api-key': ('e''0''5''9''9''5''f''f''4''4''2''1''4''3''2''5''5''e''b''8''3''8''1''f''7''2''d''4''9''1''3''b''f''7''5''0''3''d''6''c'), # noqa: ISC001
+    }
+    br = browser()
+    req = Request(
+        mat_url,
+        headers=headers,
+    )
+    res = br.open(req)
+    return res.read()
 
 
 class WSJ(BasicNewsRecipe):
@@ -150,7 +168,6 @@ class WSJ(BasicNewsRecipe):
             import os
             from contextlib import closing
 
-            from calibre import browser
             from calibre.utils.img import save_cover_data_to
 
             br = browser()
@@ -233,7 +250,7 @@ class WSJ(BasicNewsRecipe):
                     desc = mobi['description']['content']['text']
                     art_id = arts['id']
                     self.log('          ', title, '\n\t', desc)
-                    art_cont = self.get_article(art_id)
+                    art_cont = get_article(art_id)
                     pt = PersistentTemporaryFile('.html')
                     pt.write(art_cont)
                     pt.close()
@@ -241,26 +258,6 @@ class WSJ(BasicNewsRecipe):
                     articles.append({'title': title, 'description': desc, 'url': url})
             feeds.append((section, articles))
         return feeds
-
-    def preprocess_raw_html(self, raw, url):
-        return BeautifulSoup(raw).prettify()
-
-    def get_article(self, article_id):
-        from calibre import browser
-        mat_url = 'https://mats.mobile.dowjones.io/translate/' + article_id + '/jpml'
-        headers = {
-            'User-Agent': 'okhttp/4.10.0',
-            'Accept-Encoding': 'gzip',
-            'Cache-Control': 'no-cache',
-            'x-api-key': ('e''0''5''9''9''5''f''f''4''4''2''1''4''3''2''5''5''e''b''8''3''8''1''f''7''2''d''4''9''1''3''b''f''7''5''0''3''d''6''c'), # noqa: ISC001
-        }
-        br = browser()
-        req = Request(
-            mat_url,
-            headers=headers,
-        )
-        res = br.open(req)
-        return res.read()
 
     def populate_article_metadata(self, article, soup, first):
         lnk = soup.find('div', attrs={'id': 'share-link'})
