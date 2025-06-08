@@ -1,20 +1,40 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 import json
-import time
-from datetime import datetime, timedelta
 from itertools import zip_longest
+from urllib.parse import quote, urlencode
 
+from calibre import browser
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+def get_article(article_id):
+    from mechanize import Request
+    mat_url = 'https://mats.mobile.dowjones.io/translate/' + article_id + '/jpml'
+    headers = {
+        'User-Agent': 'okhttp/4.10.0',
+        'Accept-Encoding': 'gzip',
+        'Cache-Control': 'no-cache',
+        'x-api-key': ('e''0''5''9''9''5''f''f''4''4''2''1''4''3''2''5''5''e''b''8''3''8''1''f''7''2''d''4''9''1''3''b''f''7''5''0''3''d''6''c'), # noqa: ISC001
+    }
+    br = browser()
+    req = Request(
+        mat_url,
+        headers=headers,
+    )
+    res = br.open(req)
+    return res.read()
 
 
 class WSJ(BasicNewsRecipe):
     title = 'The Wall Street Journal'
     __author__ = 'unkn0wn'
     description = (
-        'The Print Edition of WSJ. The Wall Street Journal is your source for breaking news, analysis and insights from the U.S. and '
-        "around the world, the world's leading business and finance publication."
+        'The Print Edition of WSJ. The Wall Street Journal is your source '
+        'for breaking news, analysis and insights from the U.S. and '
+        'around the world, the world\'s leading business and finance publication.'
     )
     language = 'en_US'
     masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
@@ -23,17 +43,18 @@ class WSJ(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
+    simultaneous_downloads = 20
 
     recipe_specific_options = {
         'date': {
-            'short': 'The date of the edition to download (YYYYMMDD format)\nOnly the past 6 editions will be available ',
-            'long': 'For example, 20240513'
+            'short': 'The date of the edition to download (YYYY-MM-DD format)\nOnly the past 6 editions will be available ',
+            'long': 'For example, 2024-05-13',
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
-            'default': '600'
-        }
+            'default': '600',
+        },
     }
 
     extra_css = '''
@@ -44,20 +65,35 @@ class WSJ(BasicNewsRecipe):
     '''
 
     remove_tags = [
-        dict(name='panel', attrs={'id':'summary-image'}),
-        dict(name='panel', attrs={'layout':'inline'}),
-        dict(name='panel', attrs={'embed':'inner-article-ad'}),
-        dict(name='span', attrs={'embed':'ticker'}),
+        dict(name='panel', attrs={'id': 'summary-image'}),
+        dict(name='panel', attrs={'layout': 'inline'}),
+        dict(name='panel', attrs={'embed': 'inner-article-ad'}),
+        dict(name='span', attrs={'embed': 'ticker'}),
         classes('lamrelated-articles-inset-panel'),
-        dict(name='p', attrs={'id':[
-            'keywords', 'orig-pubdate-number', 'type', 'is-custom-flashline', 'grouphed', 'author-ids', 'article-manifest',
-            'body-extract', 'category', 'sub-category', 'socialhed', 'summary', 'deckline', 'article-flashline'
-        ]}),
+        dict(
+            name='p',
+            attrs={
+                'id': [
+                    'keywords',
+                    'orig-pubdate-number',
+                    'type',
+                    'is-custom-flashline',
+                    'grouphed',
+                    'author-ids',
+                    'article-manifest',
+                    'body-extract',
+                    'category',
+                    'sub-category',
+                    'socialhed',
+                    'summary',
+                    'deckline',
+                    'article-flashline',
+                ]
+            },
+        ),
     ]
 
-    remove_tags_before = [
-        dict(name='p', attrs={'id':'orig-pubdate-string'})
-    ]
+    remove_tags_before = [dict(name='p', attrs={'id': 'orig-pubdate-string'})]
 
     def media_bucket(self, x):
         res = '?width=600'
@@ -65,16 +101,24 @@ class WSJ(BasicNewsRecipe):
         if w and isinstance(w, str):
             res = '?width=' + w
         if x.get('type', '') == 'image':
-            if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
+            if (
+                x.get('subtype', '') == 'graphic'
+                or 'images.wsj.net' not in x['manifest-url']
+            ):
                 return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
                     x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
                 )
             return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                x['manifest-url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
+                x['manifest-url'].split('?')[0] + res,
+                x['caption'] + '<i> ' + x['credit'] + '</i>',
             )
         if x.get('type', '') == 'video':
-            return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
-                x['share_link'], x['thumbnail_url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
+            return (
+                '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
+                    x['share_link'],
+                    x['thumbnail_url'].split('?')[0] + res,
+                    x['caption'] + '<i> ' + x['credit'] + '</i>',
+                )
             )
         return
 
@@ -82,32 +126,32 @@ class WSJ(BasicNewsRecipe):
         jpml = soup.find('jpml')
         if jpml:
             jpml.name = 'article'
-        h1 = soup.find('p', attrs={'id':'headline'})
+        h1 = soup.find('p', attrs={'id': 'headline'})
         if h1:
             h1.name = 'h1'
         for h2 in soup.findAll('h2'):
             h2.name = 'h4'
-        dt = soup.find('p', attrs={'id':'orig-pubdate-string'})
-        read = soup.find('p', attrs={'id':'time-to-read'})
-        byl = soup.find('p', attrs={'id':'byline'})
-        fl = soup.find('p', attrs={'id':'flashline'})
+        dt = soup.find('p', attrs={'id': 'orig-pubdate-string'})
+        read = soup.find('p', attrs={'id': 'time-to-read'})
+        byl = soup.find('p', attrs={'id': 'byline'})
+        fl = soup.find('p', attrs={'id': 'flashline'})
         if dt and byl and read and fl:
             dt.name = read.name = byl.name = fl.name = 'div'
             byl.insert(0, dt)
             byl.insert(0, read)
-        url = soup.find('p', attrs={'id':'share-link'})
+        url = soup.find('p', attrs={'id': 'share-link'})
         if url:
             url.name = 'div'
             url['title'] = self.tag_to_string(url).strip()
             url.string = ''
-        panel = soup.find('panel', attrs={'id':'metadata'})
+        panel = soup.find('panel', attrs={'id': 'metadata'})
         if panel:
-            buck = panel.find('p', attrs={'id':'media-bucket'})
+            buck = panel.find('p', attrs={'id': 'media-bucket'})
             if buck:
                 data = json.loads(buck.string)
                 buck.extract()
                 i_lst = [self.media_bucket(x) for x in data['items']]
-                m_itm = soup.findAll('panel', attrs={'class':'media-item'})
+                m_itm = soup.findAll('panel', attrs={'class': 'media-item'})
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
                         x.insert_after(BeautifulSoup(y, 'html.parser'))
@@ -124,13 +168,16 @@ class WSJ(BasicNewsRecipe):
             import os
             from contextlib import closing
 
-            from calibre import browser
             from calibre.utils.img import save_cover_data_to
+
             br = browser()
             raw = br.open('https://www.frontpages.com/the-wall-street-journal/')
             soup = BeautifulSoup(raw.read())
-            cu = 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
-            self.report_progress(1, _('Downloading cover from %s')%cu)
+            cu = (
+                'https://www.frontpages.com'
+                + soup.find('img', attrs={'id': 'giornale-img'})['src']
+            )
+            self.report_progress(1, _('Downloading cover from %s') % cu)
             with closing(br.open(cu, timeout=self.timeout)) as r:
                 cdata = r.read()
             cpath = os.path.join(self.output_dir, 'cover.jpg')
@@ -138,69 +185,81 @@ class WSJ(BasicNewsRecipe):
             self.cover_path = cpath
 
     def get_browser(self, *args, **kw):
-        kw['user_agent'] = 'okhttp/4.10.0'
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         br.addheaders += [
-            ('Accept-Encoding', 'gzip'),
-            ('cache-control', 'no-cache'),
-            ('x-api-key', ('e''b''2''4''0''8''c''d''2''7''f''8''9''1''3''d''4''2''1''f''a''3''d''5''c''3''d''0''7''c''c''f''0''3''4''c''b''4''4''8')),  # noqa: ISC001
+            ('apollographql-client-name', 'wsj-mobile-android-release'),
         ]
         return br
 
     def parse_index(self):
-        index = 'https://bartender.mobile.dowjones.io'
-        catalog = json.loads(self.index_to_soup(index + '/catalogs/v1/wsj/us/catalog.json', raw=True))
-        edit = [''.join([n for n in itm['key'] if n.isdigit()]) for itm in catalog['items'] if itm['type'] == 'ITP'][1:]
-        self.log('**Past Editions available :', ', '.join(edit))
+        query = {
+            'operationName': 'IssueQuery',
+            'variables': '{"publication":"WSJ","region":"US","masthead":"ITPNEXTGEN"}',
+            'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"d938226e7d1c1fff050e7d084c72179e2713dcf4736d3a442c618c55b896f847"}}',
+        }
+        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
+            query, safe='()!', quote_via=quote
+        )
+        raw = self.index_to_soup(url, raw=True)
+
+        cat_data = json.loads(raw)['data']['mobileIssuesByMasthead']
+        edit = [x['datedLabel'] for x in cat_data][1:]
+        self.log('**Past Editions available : ' + ' | '.join(edit))
 
         past_edition = self.recipe_specific_options.get('date')
 
-        for itm in catalog['items']:
+        for itm in cat_data:
             if past_edition and isinstance(past_edition, str):
-                if past_edition in itm['key']:
-                    manifest = itm['manifest']
-                    date = itm['date']
+                if past_edition in itm['publishedDateUtc']:
+                    self.timefmt = ' [' + itm['datedLabel']
+                    sections_ = itm['sections']
                     break
-            elif itm['type'] == 'ITP':
-                manifest = itm['manifest']
-                date = itm['date']
-                break
+            self.timefmt = f' [{itm["datedLabel"]}]'
+            sections_ = itm['sections']
+            break
 
-        dt = datetime.fromisoformat(date[:-1]) + timedelta(seconds=time.timezone)
-        dt_ = dt.strftime('%b %d, %Y')
-        self.log('Downloading ', dt_)
-        self.timefmt = ' [' + dt_ + ']'
+        self.log('Downloading ', self.timefmt)
 
         feeds = []
 
-        manif = json.loads(self.index_to_soup(index + manifest, raw=True))
-        for itm in manif['items']:
-            for k, v in itm.items():
-                if '-pages_' in k:
-                    section = k.split('-pages_')[0].replace('_', ' ')
-                    if 'MAGAZINE' in section:
-                        if not (dt.day in {1, 2, 3, 4, 5, 6, 7} and dt.weekday() == 5):
-                            continue
-                        self.log('Loading Magazine section')
-                    self.log(section)
+        for sec in sections_[:-1]:
+            section = sec['label']
+            self.log(section)
+            cont_id = sec['key']
 
-                    articles = []
+            query = {
+                'operationName': 'SectionQuery',
+                'variables': '{{"id":"{}"}}'.format(cont_id),
+                'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"207fe93376f379bf223ed2734cf9313a28291293366a803db923666fa6b45026"}}',
+            }
+            sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
+                query, safe='()!', quote_via=quote
+            )
+            sec_raw = self.index_to_soup(sec_url, raw=True)
 
-                    sec_parse = json.loads(self.index_to_soup(index + v, raw=True))
-                    data = sec_parse['articles']
-                    for art in data:
-                        title = data[art]['headline']
-                        desc = data[art]['summary']
-                        url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
-                        self.log('          ', title, '\n\t', desc)
-                        articles.append({'title': title, 'description':desc, 'url': url})
-                    feeds.append((section, articles))
+            sec_data = json.loads(sec_raw)['data']['summaryCollectionContent'][
+                'collectionItems'
+            ]
+
+            articles = []
+
+            for art in sec_data:
+                for arts in art['collectionItems']:
+                    mobi = arts['content']['mobileSummary']
+                    title = mobi['headline']['text']
+                    desc = mobi['description']['content']['text']
+                    art_id = arts['id']
+                    self.log('          ', title, '\n\t', desc)
+                    art_cont = get_article(art_id)
+                    pt = PersistentTemporaryFile('.html')
+                    pt.write(art_cont)
+                    pt.close()
+                    url = 'file:///' + pt.name
+                    articles.append({'title': title, 'description': desc, 'url': url})
+            feeds.append((section, articles))
         return feeds
 
-    def preprocess_raw_html(self, raw, url):
-        return BeautifulSoup(raw).prettify()
-
     def populate_article_metadata(self, article, soup, first):
-        lnk = soup.find('div', attrs={'id':'share-link'})
+        lnk = soup.find('div', attrs={'id': 'share-link'})
         if lnk:
             article.url = lnk['title']
