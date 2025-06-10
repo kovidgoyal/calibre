@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 import json
+import time
 from itertools import zip_longest
 from urllib.parse import quote, urlencode
 
@@ -223,6 +224,7 @@ class WSJ(BasicNewsRecipe):
         feeds = []
 
         for sec in sections_[:-1]:
+            time.sleep(3)
             section = sec['label']
             self.log(section)
             cont_id = sec['key']
@@ -248,13 +250,8 @@ class WSJ(BasicNewsRecipe):
                     mobi = arts['content']['mobileSummary']
                     title = mobi['headline']['text']
                     desc = mobi['description']['content']['text']
-                    art_id = arts['id']
+                    url = arts['id']
                     self.log('          ', title, '\n\t', desc)
-                    art_cont = get_article(art_id)
-                    pt = PersistentTemporaryFile('.html')
-                    pt.write(art_cont)
-                    pt.close()
-                    url = 'file:///' + pt.name
                     articles.append({'title': title, 'description': desc, 'url': url})
             feeds.append((section, articles))
         return feeds
@@ -263,3 +260,10 @@ class WSJ(BasicNewsRecipe):
         lnk = soup.find('div', attrs={'id': 'share-link'})
         if lnk:
             article.url = lnk['title']
+
+    def print_version(self, url):
+        art_cont = get_article(url)
+        pt = PersistentTemporaryFile('.html')
+        pt.write(art_cont)
+        pt.close()
+        return 'file:///' + pt.name
