@@ -74,7 +74,7 @@ class ArsTechnica(BasicNewsRecipe):
     # Feed are found here: [url]http://arstechnica.com/rss-feeds/[/url]
     feeds = [
             ('Ars Technica', 'https://arstechnica.com/feed/'),
-            ('Features', 'https://arstechnica.com/feautes/feed/'),
+            ('Features', 'https://arstechnica.com/features/feed/'),
             ('Technology Lab', 'https://arstechnica.com/information-technology/feed/'),
             ('Gear &amp; Gadgets', 'https://arstechnica.com/gadgets/feed/'),
             ('Culture', 'https://arstechnica.com/cuture/feed/'),
