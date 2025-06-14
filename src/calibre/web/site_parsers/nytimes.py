@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 12  # needed for live updates
+module_version = 13  # needed for live updates
 pprint
 
 
@@ -284,7 +284,12 @@ def extract_html(soup, url):
             'This is an interactive article, which is supposed to be read in a browser.'
             '</p></em></body></html>'
         )
-    script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
+    candidates = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)
+    if not candidates:
+        if soup.find('script', src='https://ct.captcha-delivery.com/c.js'):
+            raise ValueError('NYTimes returned a CAPTCHA page from captcha-delivery.com')
+        raise ValueError('NYTimes returned HTML without preloaded data')
+    script = candidates[0]
     script = str(script)
     raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')
     return json_to_html(raw)
