@@ -127,6 +127,8 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['collections_columns'] = self.collections_columns
         p['use_collections_template'] = self.use_collections_template
         p['collections_template'] = self.collections_template
+        p['use_series_index_template'] = self.use_series_index_template
+        p['series_index_template'] = self.series_index_template
         p['ignore_collections_names'] = self.ignore_collections_names
         p['delete_empty_collections'] = self.delete_empty_collections
 
@@ -889,6 +891,32 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'in a series to the same value.'),
                              device.get_pref('force_series_id')
                              )
+        self.use_series_index_template_checkbox = create_checkbox(
+                             _('Series number template:'),
+                             _('Use a template to generate what the Kobo displays for the series number.'),
+                             device.get_pref('use_series_index_template')
+                             )
+        self.series_index_template_edit = TemplateConfig(
+                            self.use_series_index_template_checkbox.text(),
+                            device.get_pref('series_index_template'),
+                            tooltip='<p>' +
+                                _('The Kobo can display a series number (book number) '
+                                  'when books are in a series. To do this, the Kobo uses '
+                                  'two values, the "series number" (a floating point value) '
+                                  'and the "series text" (a string). The series number is '
+                                  'used for sorting. The series text is what is displayed. '
+                                  'Normally the series text is the same as the series '
+                                  'number. This option lets you choose a different value '
+                                  'for the series text.</p><p>'
+                                  'A common use is to change the series text to the '
+                                  'empty string when the series number is zero. This General '
+                                  'Program Mode template does that: {0}'
+                                  'You can do more complicated things such as have an omnibus '
+                                  'display "5 to 9". How you do this depends on how you have set '
+                                  'up the series in calibre.').format(
+                                      '<pre style="white-space: nowrap;">program: if $series_index !=# 0 then $series_index else "" fi</pre>')
+                                  + '</p>'
+                            )
         self.update_core_metadata_checkbox = create_checkbox(
                              _('Update metadata on Book Details pages'),
                              _('This will update the metadata in the device database when the device is connected. '
@@ -967,6 +995,9 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         hbl.addStretch(1)
         self.options_layout.addLayout(hbl,                                           line, 0, 1, 4)
         line += 1
+        self.options_layout.addWidget(self.use_series_index_template_checkbox,       line, 0, 1, 2)
+        self.options_layout.addWidget(self.series_index_template_edit,               line, 2, 1, 2)
+        line += 1
         self.options_layout.addWidget(self.update_core_metadata_checkbox,            line, 0, 1, 4)
         line += 1
         self.options_layout.addWidget(self.update_subtitle_checkbox,                 line, 0, 1, 2)
@@ -990,11 +1021,16 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.update_core_metadata_checkbox_clicked(device.get_pref('update_core_metadata'))
         self.update_subtitle_checkbox_clicked(device.get_pref('update_subtitle'))
         self.update_bookstats_checkbox_clicked(device.get_pref('update_bookstats'))
+        self.use_series_index_template_checkbox.clicked.connect(self.use_series_index_template_checkbox_clicked)
+        self.use_series_index_template_checkbox_clicked(device.get_pref('use_series_index_template'))
 
     def update_series_checkbox_clicked(self, checked):
         self.force_series_id_checkbox.setEnabled(checked)
         if not checked:
             self.force_series_id_checkbox.setChecked(False)
+
+    def use_series_index_template_checkbox_clicked(self, checked):
+        self.series_index_template_edit.setEnabled(checked)
 
     def update_core_metadata_checkbox_clicked(self, checked):
         self.update_series_checkbox.setEnabled(not checked)
@@ -1042,6 +1078,14 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     @property
     def force_series_id(self):
         return self.update_series and self.force_series_id_checkbox.isChecked()
+
+    @property
+    def use_series_index_template(self):
+        return self.use_series_index_template_checkbox.isChecked()
+
+    @property
+    def series_index_template(self):
+        return self.series_index_template_edit.template
 
     @property
     def update_core_metadata(self):
