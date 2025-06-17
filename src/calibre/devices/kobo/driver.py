@@ -3429,7 +3429,12 @@ class KOBOTOUCH(KOBO):
         if newmi.series is not None:
             new_series = newmi.series
             try:
-                new_series_number = f'{newmi.series_index:g}'
+                if self.use_series_index_template:
+                    from calibre.ebooks.metadata.book.formatter import SafeFormat
+                    new_series_number = SafeFormat().safe_format(
+                        self.series_index_template, newmi, 'Kobo series number template', newmi)
+                else:
+                    new_series_number = f'{newmi.series_index:g}'
             except:
                 new_series_number = None
         else:
@@ -3640,6 +3645,8 @@ class KOBOTOUCH(KOBO):
         c.add_opt('collections_columns', default='')
         c.add_opt('use_collections_template', default=False)
         c.add_opt('collections_template', default='')
+        c.add_opt('use_series_index_template', default=False)
+        c.add_opt('series_index_template', default='')
         c.add_opt('create_collections', default=False)
         c.add_opt('delete_empty_collections', default=False)
         c.add_opt('ignore_collections_names', default='')
@@ -3985,6 +3992,14 @@ class KOBOTOUCH(KOBO):
     @property
     def collections_template(self):
         return self.get_pref('collections_template') if self.use_collections_template else ''
+
+    @property
+    def use_series_index_template(self):
+        return self.get_pref('use_series_index_template')
+
+    @property
+    def series_index_template(self):
+        return self.get_pref('series_index_template') if self.use_series_index_template else ''
 
     def get_collections_attributes(self):
         collections_str = self.collections_columns
