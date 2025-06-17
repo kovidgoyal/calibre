@@ -17,7 +17,7 @@ from threading import Lock
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import canonicalize_lang, ngettext
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
@@ -460,19 +460,19 @@ def human_readable_interval(secs):
     seconds = secs % 60
     parts = []
     if days > 0:
-        parts.append(_('{} days').format(days))
+        parts.append(ngettext('one day', '{} days', days).format(days))
         if hours > 0:
-            parts.append(_('{} hours').format(hours))
+            parts.append(ngettext('one hour', '{} hours', hours).format(hours))
     elif hours > 0:
-        parts.append(_('{} hours').format(hours))
+        parts.append(ngettext('one hour', '{} hours', hours).format(hours))
         if minutes > 0:
-            parts.append(_('{} minutes').format(minutes))
+            parts.append(ngettext('one minute', '{} minutes', minutes).format(minutes))
     elif minutes > 0:
-        parts.append(_('{} minutes').format(minutes))
+        parts.append(ngettext('one minute', '{} minutes', minutes).format(minutes))
         if secs > 0:
-            parts.append(_('{} seconds').format(seconds))
+            parts.append(ngettext('one second', '{} seconds', seconds).format(seconds))
     elif secs > 0:
-        parts.append(_('{} seconds').format(seconds))
+        parts.append(ngettext('one second', '{} seconds', seconds).format(seconds))
     return ' '.join(parts)
 
 
