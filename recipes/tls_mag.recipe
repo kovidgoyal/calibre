@@ -52,13 +52,13 @@ class TLS(BasicNewsRecipe):
     }
 
     def parse_index(self):
-        issue = 'https://www.the-tls.co.uk/issues/current-issue/'
+        issue = 'https://www.the-tls.com/issues/current-issue/'
 
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
-            issue = 'https://www.the-tls.co.uk/issues/' + d + '/'
+            issue = 'https://www.the-tls.com/issues/' + d + '/'
 
-        url = 'https://www.the-tls.co.uk/wp-json/tls/v2/contents-page/' + get_id(issue)
+        url = 'https://www.the-tls.com/wp-json/tls/v2/contents-page/' + get_id(issue)
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
         self.cover_url = data['featuredimage']['full_image'].split('?')[0] + '?w=600'
@@ -141,7 +141,7 @@ class TLS(BasicNewsRecipe):
                     i['full_image'] + '?w600',
                     i['imagecaption'] + ' <i>' + i['imagecredit'] + '</i>'
                 )
-        cont = self.index_to_soup('https://www.the-tls.co.uk/wp-json/wp/v2/tls_articles/' + data['ID'], raw=True)
+        cont = self.index_to_soup('https://www.the-tls.com/wp-json/wp/v2/tls_articles/' + data['ID'], raw=True)
         c_data = json.loads(cont)
         body = c_data['content']['rendered']
 
