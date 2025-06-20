@@ -29,7 +29,7 @@
 
 - The scrollbars used in calibre in light mode are now the same style as the ones in dark mode, this improves the contrast making the scrollbar more accessible
 
-- Kobo driver: add an option to change the how the Kobo displays series numbers using a template.
+- Kobo driver: add an option to change how the Kobo displays series numbers using a template.
 
 - [2112424] Manage data files dialog: Add a button to cancel remaining books when managing multiple books
 
