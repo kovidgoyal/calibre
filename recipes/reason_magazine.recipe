@@ -98,9 +98,9 @@ class Reason(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://reason.com/login')
-            br.select_form(id='login_form')
-            br['text_username'] = self.username
-            br['password_password'] = self.password
+            br.select_form(id='gform_0')
+            br['input_1'] = self.username
+            br['input_2'] = self.password
             br.submit()
         return br
 
