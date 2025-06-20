@@ -45,7 +45,7 @@ def build_manual(language, base):
     sb = partial(sphinx_build, language, base)
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
-    pdf_ok = language not in ('ja',)
+    pdf_ok = language not in ('ja', 'ar')
     if pdf_ok:
         latexdir = sb('latex', 'latex')
         pwd = os.getcwd()
