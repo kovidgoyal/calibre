@@ -193,7 +193,10 @@ def only_in_gui_error(name):
 
 
 def get_database(mi, name):
-    proxy = mi.get('_proxy_metadata', None)
+    try:
+        proxy = mi.get('_proxy_metadata', None)
+    except Exception:
+        proxy = None
     if proxy is None:
         if name is not None:
             only_in_gui_error(name)
