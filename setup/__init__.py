@@ -296,3 +296,9 @@ def installer_names(include_source=True):
         yield f'{base}-{__version__}-{arch}.txz'
     if include_source:
         yield f'{base}-{__version__}.tar.xz'
+
+
+@lru_cache
+def manual_build_dir():
+    # cant use tempfile.gettempdir() as calibre.startup overrides it
+    return os.path.join('/tmp', 'user-manual-build')

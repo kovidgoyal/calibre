@@ -15,7 +15,7 @@ import subprocess
 import sys
 import time
 from subprocess import check_call
-from tempfile import NamedTemporaryFile, gettempdir, mkdtemp
+from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
 
 from polyglot.builtins import iteritems
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     d = os.path.dirname
     sys.path.insert(0, d(d(os.path.abspath(__file__))))
 
-from setup import Command, __appname__, __version__, installer_names
+from setup import Command, __appname__, __version__, installer_names, manual_build_dir
 
 DOWNLOADS = '/srv/main/downloads'
 HTML2LRF = 'calibre/ebooks/lrf/html/demo'
@@ -343,7 +343,7 @@ class UploadUserManual(Command):  # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        srcdir = self.j(gettempdir(), 'user-manual-build', 'en', 'html') + '/'
+        srcdir = self.j(manual_build_dir(), 'en', 'html') + '/'
         check_call(
             ' '.join(
                 ['rsync', '-zz', '-rl', '--info=progress2', srcdir, 'main:/srv/manual/']

@@ -11,10 +11,9 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import time
 
-from setup import Command, __version__, installer_names, require_clean_git, require_git_master
+from setup import Command, __version__, installer_names, manual_build_dir, require_clean_git, require_git_master
 from setup.parallel_build import create_job, parallel_build
 
 
@@ -180,7 +179,7 @@ class Manual(Command):
         )
 
     def run(self, opts):
-        tdir = self.j(tempfile.gettempdir(), 'user-manual-build')
+        tdir = manual_build_dir()
         if os.path.exists(tdir):
             shutil.rmtree(tdir)
         os.mkdir(tdir)
