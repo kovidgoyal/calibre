@@ -425,7 +425,8 @@ class MTP_DEVICE(BASE):
             name = f.name
             if iswindows:
                 plen = len(base)
-                name = ''.join(shorten_components_to(245-plen, [name]))
+                max_len = 225 if self.is_kindle and path.endswith('.kfx') else 245  # allow for len of additional files
+                name = ''.join(shorten_components_to(max_len-plen, [name]))
             with open(os.path.join(base, name), 'wb') as out:
                 try:
                     self.get_mtp_file(f, out)
@@ -436,10 +437,10 @@ class MTP_DEVICE(BASE):
                     if self.is_kindle and path.endswith('.kfx'):
                         # copy additional KFX files from the associated .sdr folder
                         try:
-                            sdr_folder_name = f.name[:-4] + '.sdr'
-                            new_sdr_path = os.path.join(os.path.split(out.name)[0], sdr_folder_name)
+                            out_folder, out_file = os.path.split(out.name)
+                            new_sdr_path = os.path.join(out_folder, out_file[:-4] + '.sdr')
                             os.mkdir(new_sdr_path)
-                            self.scan_sdr_for_kfx_files(f.parent, (sdr_folder_name, 'assets'), new_sdr_path)
+                            self.scan_sdr_for_kfx_files(f.parent, (f.name[:-4] + '.sdr', 'assets'), new_sdr_path)
                         except Exception:
                             traceback.print_exc()
         return ans
