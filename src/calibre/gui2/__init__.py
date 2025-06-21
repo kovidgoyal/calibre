@@ -969,7 +969,7 @@ if iswindows and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ:
     from calibre.gui2.win_file_dialogs import is_ok as has_windows_file_dialog_helper
     has_windows_file_dialog_helper = has_windows_file_dialog_helper()
 has_linux_file_dialog_helper = False
-if not iswindows and not ismacos and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ and getattr(sys, 'frozen', False):
+if not iswindows and not ismacos and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ:
     has_linux_file_dialog_helper = check_for_linux_native_dialogs()
 
 if has_windows_file_dialog_helper:
