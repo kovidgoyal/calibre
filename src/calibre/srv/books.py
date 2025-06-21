@@ -111,6 +111,17 @@ def clean_final(interval=24 * 60 * 60):
             safe_remove(x)
 
 
+def rename_with_retry(a, b, sleep_time=1):
+    try:
+        os.rename(a, b)
+    except PermissionError:
+        if iswindows:
+            time.sleep(sleep_time)  # In case something has temporarily locked a file
+            os.rename(a, b)
+        else:
+            raise
+
+
 def job_done(job):
     with cache_lock:
         bhash, pathtoebook, tdir = job.data
@@ -124,7 +135,7 @@ def job_done(job):
                 clean_final()
                 dest = os.path.join(books_cache_dir(), 'f', bhash)
                 safe_remove(dest, False)
-                os.rename(tdir, dest)
+                rename_with_retry(tdir, dest)
             except Exception:
                 import traceback
                 failed_jobs[bhash] = (False, traceback.format_exc())
