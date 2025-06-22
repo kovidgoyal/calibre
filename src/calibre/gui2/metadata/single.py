@@ -469,7 +469,7 @@ class MetadataSingleDialogBase(QDialog):
         self.setWindowTitle(BASE_TITLE + ' - ' +
                 title + ' -' +
                 _(' [%(num)d of %(tot)d]')%dict(num=self.current_row+1,
-                tot=len(self.row_list)))
+                tot=len(self.id_list)))
 
     def swap_title_author(self, *args):
         title = self.title.current_val
@@ -690,8 +690,8 @@ class MetadataSingleDialogBase(QDialog):
         self.save_state()
         if not self.apply_changes():
             return
-        if self.editing_multiple and self.current_row != len(self.row_list) - 1:
-            num = len(self.row_list) - 1 - self.current_row
+        if self.editing_multiple and self.current_row != len(self.id_list) - 1:
+            num = len(self.id_list) - 1 - self.current_row
             from calibre.gui2 import question_dialog
             pm = ngettext('There is another book to edit in this set.',
                           'There are still {} more books to edit in this set.', num).format(num)
@@ -725,7 +725,7 @@ class MetadataSingleDialogBase(QDialog):
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None, edit_slot=None,
             set_current_callback=None):
-        self.row_list = row_list
+        self.id_list = list(map(self.db.id, row_list))
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
@@ -772,9 +772,9 @@ class MetadataSingleDialogBase(QDialog):
         self.update_window_title()
         prev = next_ = None
         if self.current_row > 0:
-            prev = self.db.title(self.row_list[self.current_row-1])
-        if self.current_row < len(self.row_list) - 1:
-            next_ = self.db.title(self.row_list[self.current_row+1])
+            prev = self.db.new_api.field_for('title', self.id_list[self.current_row-1])
+        if self.current_row < len(self.id_list) - 1:
+            next_ = self.db.new_api.field_for('title', self.id_list[self.current_row+1])
 
         if next_ is not None:
             tip = _('Save changes and edit the metadata of {0} [{1}]').format(
@@ -788,7 +788,7 @@ class MetadataSingleDialogBase(QDialog):
         self.prev_button.setEnabled(prev is not None)
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
-        self(self.db.id(self.row_list[self.current_row]))
+        self(self.id_list[self.current_row])
         for w, state in iteritems(self.comments_edit_state_at_apply):
             if state == 'code':
                 w.tab = 'code'
