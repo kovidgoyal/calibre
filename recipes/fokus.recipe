@@ -53,18 +53,21 @@ class Fokus(BasicNewsRecipe):
         figure_tag = a_tag.find('figure')
         img_tag = figure_tag.find('img')
 
-        # The `srcset` attribute contains a comma-separated list of URLs and their resolutions.
-        cover_urls = img_tag['srcset'].split(', ')
-        cover_urls = [src.split(' ') for src in cover_urls]
+        try:
+            # The `srcset` attribute contains a comma-separated list of URLs and their resolutions.
+            cover_urls = img_tag['srcset'].split(', ')
+            cover_urls = [src.split(' ') for src in cover_urls]
 
-        # The second item of each tuple should be the resolution, e.g., '578w' or '821w'. Remove the 'w' suffix, cast
-        # to an integer and sort in descending order.
-        cover_urls = [(url, int(resolution[:-1])) for url, resolution in cover_urls]
-        cover_urls = sorted(cover_urls, key=lambda x: x[1], reverse=True)
+            # The second item of each tuple should be the resolution, e.g., '578w' or '821w'. Remove the 'w' suffix, cast
+            # to an integer and sort in descending order.
+            cover_urls = [(url, int(resolution[:-1])) for url, resolution in cover_urls]
+            cover_urls = sorted(cover_urls, key=lambda x: x[1], reverse=True)
 
-        # The first item of the sorted list is now the URL of the highest-resolution image.
-        self.cover_url = cover_urls[0][0]
-        self.log(f"Identified cover URL: '{self.cover_url}'")
+            # The first item of the sorted list is now the URL of the highest-resolution image.
+            self.cover_url = cover_urls[0][0]
+            self.log(f"Identified cover URL: '{self.cover_url}'")
+        except (KeyError, ValueError) as exc:
+            self.log.error(f'Failed to extract cover URL! Has the website format changed?\n{exc}')
 
         return
 
