@@ -12,7 +12,6 @@ opts = {}
 def update_settings(settings):
     settings = Object.assign({}, session_defaults(), settings)
     opts.base_font_size = max(8, min(settings.base_font_size, 64))
-    opts.bg_image_fade = settings.bg_image_fade or 'transparent'
     opts.color_scheme = settings.color_scheme
     opts.columns_per_screen = settings.columns_per_screen
     opts.cover_preserve_aspect_ratio = v'!!settings.cover_preserve_aspect_ratio'
@@ -71,7 +70,7 @@ def apply_colors(is_content_popup):
         # set background color to transparent so that the users background
         # color which is set on the iframe is used instead
         elem.style.backgroundColor = 'transparent'
-    des.backgroundColor = opts.bg_image_fade
+    des.backgroundColor = 'transparent'
     ss = document.getElementById('calibre-color-scheme-style-overrides')
     if not ss:
         ss = E.style(id=styles_id, type='text/css')

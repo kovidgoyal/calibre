@@ -856,6 +856,15 @@ class View:
         bg_image = sd.get('background_image')
         if bg_image:
             s.backgroundImage = f'url({modify_background_image_url_for_fetch(bg_image)})'
+            fade = int(sd.get('background_image_fade'))
+            if fade > 0:
+                rgba = cached_color_to_rgba(ans.background)
+                bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
+                iframe.parentNode.style.backgroundColor = bg_image_fade
+                for which in 'left right'.split(' '):
+                    ms = document.getElementById(f'book-{which}-margin').style
+                    if ms.backgroundColor is 'transparent':
+                        ms.backgroundColor = bg_image_fade
         else:
             s.backgroundColor = ans.background or 'white'
             s.backgroundImage = 'none'
@@ -1024,12 +1033,7 @@ class View:
 
     def iframe_settings(self, name):
         sd = get_session_data()
-        bg_image_fade = 'transparent'
         cs = self.apply_color_scheme()
-        fade = int(sd.get('background_image_fade'))
-        rgba = cached_color_to_rgba(cs.background)
-        if self.iframe.style.backgroundImage is not 'none' and fade > 0:
-            bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
         return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
             'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
@@ -1040,7 +1044,6 @@ class View:
             'color_scheme': cs,
             'override_book_colors': sd.get('override_book_colors'),
             'is_dark_theme': cs.is_dark_theme,
-            'bg_image_fade': bg_image_fade,
             'base_font_size': sd.get('base_font_size'),
             'user_stylesheet': sd.get('user_stylesheet'),
             'keyboard_shortcuts': sd.get('keyboard_shortcuts'),
