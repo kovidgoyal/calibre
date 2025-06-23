@@ -251,9 +251,8 @@ class Economist(BasicNewsRecipe):
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 3
-
+    browser_type = 'webengine'
     from_archive = True
-
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
