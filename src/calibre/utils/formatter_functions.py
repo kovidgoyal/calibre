@@ -2357,8 +2357,7 @@ r'''
 contain this book.[/] This function works only in the GUI. If you want to use these
 values in save-to-disk or send-to-device templates then you must make a custom
 "Column built from other columns", use the function in that column's template,
-and use that column's value in your save/send templates. This function works
-only in the GUI.
+and use that column's value in your save/send templates.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
@@ -2614,15 +2613,12 @@ Example: ``check_yes_no("#bool", 1, 0, 1)`` returns ``'Yes'`` if the yes/no fiel
 ``#bool`` is either True or undefined (neither True nor False).
 
 More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
-
-This function works only in the GUI and the content server.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
-        # 'field' is a lookup name, not a value
-        if field not in self.get_database(mi, formatter=formatter).field_metadata:
-            raise ValueError(_("The column {} doesn't exist").format(field))
         res = getattr(mi, field, None)
+        # Missing fields will return None. Oh well, this lets it be used everywhere,
+        # not just in the GUI.
         if res is None:
             if is_undefined == '1':
                 return 'Yes'
