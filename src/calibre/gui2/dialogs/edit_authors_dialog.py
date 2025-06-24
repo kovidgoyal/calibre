@@ -183,7 +183,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
         if ac is not None:
             ac.triggered.connect(self.clear_find)
-        le.returnPressed.connect(self.do_find)
+        le.returnPressed.connect(partial(self.do_find, inverted=False))
         self.find_box.editTextChanged.connect(self.find_text_changed)
         self.find_button.clicked.connect(partial(self.do_find, inverted=False))
         self.find_button.setDefault(True)
@@ -194,7 +194,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
         if ac is not None:
             ac.triggered.connect(self.clear_filter)
-        self.filter_box.lineEdit().returnPressed.connect(self.do_filter)
+        self.filter_box.lineEdit().returnPressed.connect(partial(self.do_filter, inverted=False))
         self.filter_button.clicked.connect(partial(self.do_filter, inverted=False))
         self.filter_inverted_button.clicked.connect(partial(self.do_filter, inverted=True))
 
