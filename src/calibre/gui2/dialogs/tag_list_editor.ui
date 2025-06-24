@@ -65,7 +65,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Search for an item in the first column</string>
+             <string>Search for an item in the first column using the text in this box.  The search ignores case.</string>
             </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
@@ -81,10 +81,30 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Find items containing the search string</string>
+             <string>Search for items that contain the search text</string>
             </property>
             <property name="text">
              <string>S&amp;earch</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="search_inverted_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Search "not in"</string>
+            </property>
+            <property name="toolTip">
+             <string>Search for items that do not contain the search text</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">
@@ -135,7 +155,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Filter items using the text in this box</string>
+             <string>Filter items in the first column using the text in this box. The search ignores case.</string>
             </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
@@ -151,10 +171,30 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Show only items containing this text</string>
+             <string>Show all items that contain the filter text</string>
             </property>
             <property name="text">
              <string>F&amp;ilter</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/filter.png</normaloff>:/images/filter.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="filter_inverted_button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Filter "not in"</string>
+            </property>
+            <property name="toolTip">
+             <string>Show all items that do not contain the filter text</string>
             </property>
             <property name="icon">
              <iconset resource="../../../../resources/images.qrc">

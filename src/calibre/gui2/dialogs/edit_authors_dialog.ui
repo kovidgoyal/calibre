@@ -37,10 +37,9 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>&lt;p&gt;Only show authors that contain the text in this box.
-          The match ignores case.&lt;/p&gt;</string>
+        <string>Filter names in the Authors column using the text in this box. The search ignores case.</string>
        </property>
-       <property name="clearButtonEnabled" stdset="0">
+       <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>
       </widget>
@@ -63,13 +62,16 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="toolTip">
+        <string>Search for names in the Authors column using the text in this box. The search ignores case.</string>
+       </property>
        <property name="minimumSize">
         <size>
          <width>200</width>
          <height>0</height>
         </size>
        </property>
-       <property name="clearButtonEnabled" stdset="0">
+       <property name="clearButtonEnabled">
         <bool>true</bool>
        </property>
       </widget>
@@ -89,6 +91,19 @@
        <property name="text">
         <string>Fi&amp;lter</string>
        </property>
+       <property name="toolTip">
+        <string>Show all authors containing the filter text</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QPushButton" name="filter_inverted_button">
+       <property name="text">
+        <string>Filter "not in"</string>
+       </property>
+       <property name="toolTip">
+        <string>Show all authors that do not contain the filter text</string>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
@@ -96,9 +111,22 @@
        <property name="text">
         <string>S&amp;earch</string>
        </property>
+       <property name="toolTip">
+        <string>Search for authors containing the search text</string>
+       </property>
       </widget>
      </item>
-     <item row="0" column="3" rowspan="2">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="find_inverted_button">
+       <property name="text">
+        <string>Search "not in"</string>
+       </property>
+       <property name="toolTip">
+        <string>Search for authors that do not contain the search text</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4" rowspan="2">
       <layout class="QVBoxLayout" name="show_button_layout">
        <item>
         <widget class="QRadioButton" name="apply_all_checkbox">
@@ -126,7 +154,7 @@
        <item>
         <widget class="QRadioButton" name="apply_selection_checkbox">
          <property name="toolTip">
-          <string>&lt;p&gt;Show items only if they appear in the
+          <string>&lt;p&gt;Show authors only if they appear in the
                     currently selected books. Edits already done may be hidden but will
                     not be forgotten.
                     &lt;/p&gt;&lt;p&gt;
