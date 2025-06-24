@@ -405,8 +405,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if ac is not None:
             ac.triggered.connect(self.clear_search)
         self.search_box.textChanged.connect(self.search_text_changed)
-        self.search_button.clicked.connect(self.do_search)
+        self.search_button.clicked.connect(partial(self.do_search, inverted=False))
         self.search_button.setDefault(True)
+        self.search_inverted_button.clicked.connect(partial(self.do_search, inverted=True))
 
         self.filter_box.initialize('tag_list_filter_box_' + cat_name)
         le = self.filter_box.lineEdit()
@@ -414,7 +415,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if ac is not None:
             ac.triggered.connect(self.clear_filter)
         le.returnPressed.connect(self.do_filter)
-        self.filter_button.clicked.connect(self.do_filter)
+        self.filter_button.clicked.connect(partial(self.do_filter, inverted=False))
+        self.filter_inverted_button.clicked.connect(partial(self.do_filter, inverted=True))
+        self.filter_inverted = False
         self.show_button_layout.setSpacing(0)
         self.show_button_layout.setContentsMargins(0, 0, 0, 0)
         self.apply_all_checkbox.setContentsMargins(0, 0, 0, 0)
@@ -600,14 +603,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return 'virtual_library'
         return None
 
-    def do_search(self):
+    def do_search(self, inverted=False):
         self.not_found_label.setVisible(False)
         find_text = str(self.search_box.currentText())
         if not find_text:
             return
         for _ in range(self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
-            if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()):
+            if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()) != inverted:
                 self.table.setCurrentItem(self.table.item(r, VALUE_COLUMN))
                 self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
@@ -717,7 +720,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.all_tags = {}
         filter_text = icu_lower(str(self.filter_box.text()))
         for k,v,count in data:
-            if not filter_text or self.string_contains(filter_text, icu_lower(v)):
+            if not filter_text or self.string_contains(filter_text, icu_lower(v)) != self.filter_inverted:
                 self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
                                    'is_deleted': k in self.to_delete}
                 self.original_names[k] = v
@@ -844,7 +847,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.filter_box.setText(txt)
         self.do_filter()
 
-    def do_filter(self):
+    def do_filter(self, inverted=False):
+        self.filter_inverted = inverted
         self.fill_in_table(None, None, False)
 
     def table_column_resized(self, *args):

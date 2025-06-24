@@ -185,8 +185,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             ac.triggered.connect(self.clear_find)
         le.returnPressed.connect(self.do_find)
         self.find_box.editTextChanged.connect(self.find_text_changed)
-        self.find_button.clicked.connect(self.do_find)
+        self.find_button.clicked.connect(partial(self.do_find, inverted=False))
         self.find_button.setDefault(True)
+        self.find_inverted_button.clicked.connect(partial(self.do_find, inverted=True))
 
         self.filter_box.initialize('manage_authors_filter')
         le = self.filter_box.lineEdit()
@@ -194,7 +195,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if ac is not None:
             ac.triggered.connect(self.clear_filter)
         self.filter_box.lineEdit().returnPressed.connect(self.do_filter)
-        self.filter_button.clicked.connect(self.do_filter)
+        self.filter_button.clicked.connect(partial(self.do_filter, inverted=False))
+        self.filter_inverted_button.clicked.connect(partial(self.do_filter, inverted=True))
 
         self.not_found_label = l = QLabel(self.table)
         l.setFrameStyle(QFrame.Shape.StyledPanel)
@@ -211,6 +213,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
+
+        self.inverted_filter = False
 
         # Fetch the data
         self.authors = {}
@@ -274,7 +278,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.filter_box.setText('')
         self.show_table(None, None, None, False)
 
-    def do_filter(self):
+    def do_filter(self, inverted):
+        self.inverted_filter = inverted
         self.show_table(None, None, None, False)
 
     def show_table(self, id_to_select, select_sort, select_link, is_first_letter):
@@ -282,7 +287,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         filter_text = icu_lower(str(self.filter_box.text()))
         if filter_text:
             auts_to_show = {id_ for id_ in auts_to_show
-                if self.string_contains(filter_text, icu_lower(self.authors[id_]['name']))}
+                if self.string_contains(filter_text,
+                                        icu_lower(self.authors[id_]['name'])) != self.inverted_filter}
 
         self.table.blockSignals(True)
         self.table.clear()
@@ -530,7 +536,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def find_text_changed(self):
         self.start_find_pos = -1
 
-    def do_find(self):
+    def do_find(self, inverted=False):
         self.not_found_label.setVisible(False)
         # For some reason the button box keeps stealing the RETURN shortcut.
         # Steal it back
@@ -548,7 +554,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
             text = icu_lower(str(item.text()))
-            if st in text:
+            if (st in text) != inverted:
                 self.table.setCurrentItem(item)
                 self.table.setFocus(Qt.FocusReason.OtherFocusReason)
                 return
