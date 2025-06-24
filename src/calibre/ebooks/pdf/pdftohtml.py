@@ -16,11 +16,12 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 
 PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')
+creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
 
 
 def popen(cmd, **kw):
     if iswindows:
-        kw['creationflags'] = subprocess.DETACHED_PROCESS
+        kw['creationflags'] = creationflags
     return subprocess.Popen(cmd, **kw)
 
 
