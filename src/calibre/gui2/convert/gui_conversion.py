@@ -84,7 +84,7 @@ def gui_catalog(library_path, temp_db_path, fmt, title, dbspec, ids, out_file_na
         db.close()
         from calibre.db.backend import rmtree_with_retry
         try:
-            rmtree_with_retry(temp_db_path)
+            rmtree_with_retry(os.path.dirname(temp_db_path))
         except PermissionError:
             if not iswindows:  # probably some antivirus holding a file open, the folder will be deleted on exit anyway
                 raise
