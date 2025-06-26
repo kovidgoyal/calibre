@@ -154,6 +154,8 @@ class econ_search(BasicNewsRecipe):
         img {display:block; margin:0 auto;}
     '''
 
+    browser_type = 'webengine'
+
     resolve_internal_links = True
     remove_tags = [
         dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
