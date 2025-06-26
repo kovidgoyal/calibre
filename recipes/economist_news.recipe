@@ -132,6 +132,29 @@ class NoArticles(Exception):
     pass
 
 
+def get_content(url_):
+    from calibre import browser
+    from mechanize import Request
+    headers = {
+        'User-Agent': 'TheEconomist-Liskov-android',
+        'accept': 'multipart/mixed; deferSpec=20220824, application/json',
+        'accept-encoding': 'gzip',
+        'content-type': 'application/json',
+        'x-app-trace-id': str(uuid4()),
+        'x-economist-consumer': 'TheEconomist-Liskov-android',
+        'x-teg-client-name': 'Economist-Android',
+        'x-teg-client-os': 'Android',
+        'x-teg-client-version': '4.40.0'
+    }
+    br = browser()
+    req = Request(
+        url_,
+        headers=headers,
+    )
+    res = br.open(req)
+    return res.read()
+
+
 def process_url(url):
     if url.startswith('/'):
         url = 'https://www.economist.com' + url
@@ -189,6 +212,8 @@ class EconomistNews(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title'}
 
+    browser_type = 'webengine'
+
     needs_subscription = False
 
     recipe_specific_options = {
@@ -211,18 +236,8 @@ class EconomistNews(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'TheEconomist-Liskov-android'
+        kwargs['user_agent'] = 'okhttp/4.12.0'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('accept', 'multipart/mixed; deferSpec=20220824, application/json'),
-            ('accept-encoding', 'gzip'),
-            ('content-type', 'application/json'),
-            ('x-app-trace-id', str(uuid4())),
-            ('x-economist-consumer', 'TheEconomist-Liskov-android'),
-            ('x-teg-client-name', 'Economist-Android'),
-            ('x-teg-client-os', 'Android'),
-            ('x-teg-client-version', '4.40.0'),
-        ]
         return br
 
     def economist_return_index(self, ans):
@@ -242,10 +257,7 @@ class EconomistNews(BasicNewsRecipe):
             'query': 'query FindHomepage($homepageType: HomepageType!) { findHomepage(homepageType: $homepageType) { __typename ...HomepageFragment } }  fragment CtaFragment on Cta { link text }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment OverridesFragment on Overrides { flyTitle headline rubric teaserImage { __typename ...ImageTeaserFragment } }  fragment CollectionItemFragment on CollectionItem { __typename type ... on CollectionArticleItem { article { __typename ...ArticleTeaserFragment } overrides { __typename ...OverridesFragment } } ... on CollectionRelatedArticleItem { article { __typename ...ArticleTeaserFragment } overrides { __typename ...OverridesFragment } } ... on CollectionExternalLinkItem { url overrides { __typename ...OverridesFragment } } }  fragment HomepageFragment on Homepage { components { __typename id headline type ... on StandardCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on TakeoverCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on DiscoverRailCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on TopStoriesCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on EmbedsCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on CarouselCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } imageLayout variant } ... on VideoCarouselCollection { cta { __typename ...CtaFragment } playlistId source fallbackStoryLink { sourceId } } ... on CoverPackageCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on LatestEditionCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on Newsletter { slug items { __typename ...CollectionItemFragment } } } }',  # noqa: E501
         }
         url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
-        try:
-            raw = self.index_to_soup(url, raw=True)
-        except Exception:
-            raise ValueError('Server is not reachable, try again after some time.')
+        raw = get_content(url)
         ans = self.economist_parse_index(raw)
         return self.economist_return_index(ans)
 
@@ -332,8 +344,8 @@ class EconomistNews(BasicNewsRecipe):
             'variables': '{{"ref":"{}"}}'.format(url),
             'query': 'query ArticleDeeplinkQuery($ref: String!, $includeRelatedArticles: Boolean = true ) { findArticleByUrl(url: $ref) { __typename ...ArticleDataFragment } }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url isAiGenerated fileHash }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment AnnotatedTextFragment on AnnotatedText { text textJson annotations { type length index attributes { name value } } }  fragment ImageComponentFragment on ImageComponent { altText caption { __typename ...AnnotatedTextFragment } credit height imageType mode source url width }  fragment BlockQuoteComponentFragment on BlockQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment BookInfoComponentFragment on BookInfoComponent { text textJson annotations { type length index attributes { name value } } }  fragment ParagraphComponentFragment on ParagraphComponent { text textJson annotations { type length index attributes { name value } } }  fragment PullQuoteComponentFragment on PullQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment CrossheadComponentFragment on CrossheadComponent { text }  fragment OrderedListComponentFragment on OrderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment UnorderedListComponentFragment on UnorderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment VideoComponentFragment on VideoComponent { url title thumbnailImage }  fragment InfoboxComponentFragment on InfoboxComponent { components { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...VideoComponentFragment } }  fragment InfographicComponentFragment on InfographicComponent { url title width fallback { __typename ...ImageComponentFragment } altText height width }  fragment ArticleDataFragment on Article { id url brand byline rubric headline layout { headerStyle } contentIdentity { __typename ...ContentIdentityFragment } dateline dateFirstPublished dateModified datePublished dateRevised estimatedReadTime narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } printFlyTitle printHeadline printRubric flyTitle wordCount section { tegId name articles(pagingInfo: { pagingType: OFFSET pageSize: 6 pageNumber: 1 } ) @include(if: $includeRelatedArticles) { edges { node { __typename ...ArticleTeaserFragment } } } } teaserImage { __typename type ...ImageComponentFragment } tegId leadComponent { __typename type ...ImageComponentFragment } body { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...InfoboxComponentFragment ...ImageComponentFragment ...VideoComponentFragment ...InfographicComponentFragment } footer { __typename type ...ParagraphComponentFragment } tags { name } ads { adData } podcast { __typename ...PodcastAudioFragment } }',  # noqa: E501
         }
-        url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
-        raw = self.index_to_soup(url, raw=True)
+        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
+        raw = get_content(deep_url)
         return raw
 
     def print_version(self, url):
