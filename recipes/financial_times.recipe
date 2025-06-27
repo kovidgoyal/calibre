@@ -14,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 class ft(BasicNewsRecipe):
     title = 'Financial Times'
     language = 'en_GB'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal, unkn0wn'
     description = 'The Financial Times is one of the world’s leading news organisations, recognised internationally for its authority, integrity and accuracy.'
     oldest_article = 1.15
     max_articles_per_feed = 50
@@ -64,14 +64,11 @@ class ft(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        url = f'https://www.tomorrowspapers.co.uk/financial-times-front-page-{date.today():%Y-%m-%d}/'
-        try:
-            soup = self.index_to_soup(url)
-        except Exception:
-            return f'https://img.kiosko.net/{date.today():%Y/%m/%d}/uk/ft_uk.750.jpg'
-        img = soup.select_one('img.attachment-full[src*="Financial-Times"]')
-        src = img['src']
-        return src
+        soup = self.index_to_soup('https://www.frontpages.com/financial-times/')
+        return (
+            'https://www.frontpages.com'
+            + soup.find('img', attrs={'id': 'giornale-img'})['src']
+        )
 
     # needs_subscription = 'optional'
     #
@@ -95,11 +92,7 @@ class ft(BasicNewsRecipe):
         return self.get_browser()
 
     def open_novisit(self, *args, **kwargs):
-        br = browser(user_agent='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/'),
-            ('X-Forwarded-For', '66.249.66.1')
-        ]
+        br = browser(user_agent='Mozilla/5.0 (Java) outbrain')
         return br.open_novisit(*args, **kwargs)
 
     open = open_novisit
