@@ -94,5 +94,4 @@ class pcWorld(BasicNewsRecipe):
         soup = self.index_to_soup(
             'https://www.magzter.com/US/IDG-Consumer-and-SMB,-Inc./PCWorld/Computer-&-Mobile/'
         )
-        for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
-            return citem['content']
+        return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
