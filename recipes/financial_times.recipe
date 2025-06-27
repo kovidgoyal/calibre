@@ -181,8 +181,11 @@ class ft(BasicNewsRecipe):
             p.name = 'p'
         div = soup.findAll(**classes('article-info__time-byline-content'))
         for d in div:
-            if p_ := d.find('p'):
+            for p_ in d.findAll('p'):
                 p_.name = 'div'
+        for tim in soup.findAll('time'):
+            if tim.string:
+                tim.string = ' ' + tim.string
         for table in soup.findAll('table'):
             if len(table.find('tbody').findAll('tr')) > 20:
                 table.find('tbody').decompose()
