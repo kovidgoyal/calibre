@@ -2,7 +2,6 @@
 # vim:fileencoding=utf-8
 import json
 import re
-from datetime import date
 from urllib.parse import quote
 
 from html5_parser import parse
@@ -32,14 +31,14 @@ class ft(BasicNewsRecipe):
         .o-topper__visual, #fig, .main-image, .n-content-image { text-align:center; font-size:small; }
         blockquote, i { color:#5c5c5c; }
         .o-topper__standfirst { font-style:italic; color:#202020; }
-        .o-topper__topic { font-size:small; color:#5c5c5c; }
+        .o-topper__topic, .article-info__time-byline-content { font-size:small; color:#5c5c5c; }
     '''
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -51,16 +50,19 @@ class ft(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'body_json o-topper__topic o-topper__headline o-topper__standfirst o-topper__visual article-info__time-byline main-image'
+            'body_json o-topper__topic o-topper__headline o-topper__standfirst '
+            'article-info__time-byline-content o-topper__visual main-image'
         ),
-        dict(name='article', attrs={'id':'article-body'})
+        dict(name='article', attrs={'id': 'article-body'}),
     ]
 
     remove_tags = [
         dict(name=['source', 'svg', 'button', 'aside']),
-        dict(name='aside', attrs={'class':'n-content-recommended--single-story'}),
-        dict(attrs={'data-layout-name':'card'}),
-        classes('in-article-advert flourish-disclaimer')
+        dict(name='aside', attrs={'class': 'n-content-recommended--single-story'}),
+        dict(attrs={'data-layout-name': 'card'}),
+        classes(
+            'in-article-advert flourish-disclaimer n-myft-ui__preferences-modal n-myft-ui n-myft-ui--follow'
+        ),
     ]
 
     def get_cover_url(self):
@@ -108,7 +110,7 @@ class ft(BasicNewsRecipe):
         ('Climate', 'https://www.ft.com/climate-capital?format=rss'),
         ('Life & Arts', 'https://www.ft.com/life-arts?format=rss'),
         ('How to spend it', 'https://www.ft.com/htsi?format=rss'),
-        ('Others', 'https://www.ft.com/rss/home/uk')
+        ('Others', 'https://www.ft.com/rss/home/uk'),
     ]
 
     def preprocess_raw_html(self, raw, *a):
@@ -120,7 +122,7 @@ class ft(BasicNewsRecipe):
             return raw
         self.log('**no article content')
         m = re.search(r'type="application/ld\+json">[^<]+?"@type":"NewsArticle"', raw)
-        raw = raw[m.start():]
+        raw = raw[m.start() :]
         raw = raw.split('>', 1)[1]
         # with open('/t/raw.json', 'w') as f:
         #     f.write(raw)
@@ -159,18 +161,33 @@ class ft(BasicNewsRecipe):
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
-        html = '<html><body><div class="body_json"><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
+        html = (
+            '<html><body><div class="body_json"><h1>'
+            + title
+            + '</h1>'
+            + desc
+            + '<h3>'
+            + author
+            + '</h3>'
+            + image
+            + '<p>'
+            + body
+        )
         return html
 
     def preprocess_html(self, soup):
         p = soup.find(**classes('o-topper__standfirst'))
         if p:
             p.name = 'p'
+        div = soup.findAll(**classes('article-info__time-byline-content'))
+        for d in div:
+            if p_ := d.find('p'):
+                p_.name = 'div'
         for table in soup.findAll('table'):
             if len(table.find('tbody').findAll('tr')) > 20:
                 table.find('tbody').decompose()
                 table.string = '** a table that was supposed to be here has been removed.'
-        for con in soup.findAll(attrs={'class':'n-content-layout__slot'}):
+        for con in soup.findAll(attrs={'class': 'n-content-layout__slot'}):
             if con.find('figure'):
                 con['id'] = 'fig'
         return soup
