@@ -885,3 +885,39 @@ def field_from_string(field, raw, field_metadata):
     if val is object:
         val = raw
     return val
+
+
+def get_model_metadata_instance():
+    '''
+    Get a metadata instance that contains all the fields in the current database
+    with the fields to a plausible value. This function must only be used in
+    the GUI thread.
+    '''
+    from calibre.gui2 import is_gui_thread
+    if not is_gui_thread():
+        raise ValueError('get_model_metadata_instance() must only be used in the GUI thread')
+
+    mi = Metadata(_('Title'), [_('Author')])
+    mi.author_sort = _('Author Sort')
+    mi.series = ngettext('Series', 'Series', 1)
+    mi.series_index = 3
+    mi.rating = 4.0
+    mi.tags = [_('Tag 1'), _('Tag 2')]
+    mi.languages = ['eng']
+    mi.id = -1
+    from calibre.gui2.ui import get_gui
+    from calibre.utils.date import DEFAULT_DATE
+    fm = get_gui().current_db.new_api.field_metadata
+    mi.set_all_user_metadata(fm.custom_field_metadata())
+    for col in mi.get_all_user_metadata(False):
+        if fm[col]['datatype'] == 'datetime':
+            mi.set(col, DEFAULT_DATE)
+        elif fm[col]['datatype'] in ('int', 'float', 'rating'):
+            mi.set(col, 2)
+        elif fm[col]['datatype'] == 'bool':
+            mi.set(col, False)
+        elif fm[col]['is_multiple']:
+            mi.set(col, [col])
+        else:
+            mi.set(col, col, 1)
+    return mi
