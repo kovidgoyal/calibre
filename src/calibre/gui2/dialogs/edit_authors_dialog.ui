@@ -144,7 +144,7 @@
                     &lt;/p&gt;&lt;p&gt;
                     Note that this box affects only what is displayed. Changes
                     will affect all books in your library even if this box
-                    is checked.&lt;/p&gt;&lt;</string>
+                    is checked.&lt;/p&gt;</string>
          </property>
          <property name="text">
           <string>Only show authors in the current &amp;Virtual library</string>
@@ -160,7 +160,7 @@
                     &lt;/p&gt;&lt;p&gt;
                     Note that this box affects only what is displayed. Changes
                     will affect all books in your library even if this box
-                    is checked.&lt;/p&gt;&lt;</string>
+                    is checked.&lt;/p&gt;</string>
          </property>
          <property name="text">
           <string>O&amp;nly show authors in the currently selected books</string>
