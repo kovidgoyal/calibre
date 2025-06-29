@@ -44,7 +44,7 @@ from qt.core import (
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir, iswindows
-from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.book.base import get_model_metadata_instance
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, pixmap_to_data, question_dialog, safe_open_url
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
@@ -52,13 +52,12 @@ from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.library.coloring import color_row_key, displayable_columns
 from calibre.utils.config_base import tweaks
-from calibre.utils.date import DEFAULT_DATE
 from calibre.utils.ffml_processor import MARKUP_ERROR, FFMLProcessor
 from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link, ngettext
+from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.resources import get_path as P
 
 
@@ -718,40 +717,11 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         the contents of the field selectors for editing rules.
         '''
         self.fm = fm
-        from calibre.gui2.ui import get_gui
         if mi:
             if not isinstance(mi, (tuple, list)):
                 mi = (mi, )
         else:
-            mi = Metadata(_('Title'), [_('Author')])
-            mi.author_sort = _('Author Sort')
-            mi.series = ngettext('Series', 'Series', 1)
-            mi.series_index = 3
-            mi.rating = 4.0
-            mi.tags = [_('Tag 1'), _('Tag 2')]
-            mi.languages = ['eng']
-            mi.id = -1
-            if self.fm is not None:
-                mi.set_all_user_metadata(self.fm.custom_field_metadata())
-            else:
-                # No field metadata. Grab a copy from the current library so
-                # that we can validate any custom column names. The values for
-                # the columns will all be empty, which in some very unusual
-                # cases might cause formatter errors. We can live with that.
-                fm = get_gui().current_db.new_api.field_metadata
-                mi.set_all_user_metadata(fm.custom_field_metadata())
-            for col in mi.get_all_user_metadata(False):
-                if fm[col]['datatype'] == 'datetime':
-                    mi.set(col, DEFAULT_DATE)
-                elif fm[col]['datatype'] in ('int', 'float', 'rating'):
-                    mi.set(col, 2)
-                elif fm[col]['datatype'] == 'bool':
-                    mi.set(col, False)
-                elif fm[col]['is_multiple']:
-                    mi.set(col, [col])
-                else:
-                    mi.set(col, col, 1)
-            mi = (mi, )
+            mi = (get_model_metadata_instance(), )
         self.mi = mi
         tv = self.template_value
         tv.setColumnCount(3)

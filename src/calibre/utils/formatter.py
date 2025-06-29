@@ -2025,17 +2025,22 @@ class TemplateFormatter(string.Formatter):
             self.restore_state(state)
 
 
-class ValidateFormatter(TemplateFormatter):
+class ValidateFormatter:
     '''
-    Provides a formatter that substitutes the validation string for every value
-    '''
+    Provides a formatter that uses a fake book. This class must be used only
+    in the GUI thread.
 
-    def get_value(self, key, args, kwargs):
-        return self._validation_string
+    It is a class instead of a function for compatibility reasons.
+    '''
 
     def validate(self, template):
-        from calibre.ebooks.metadata.book.base import Metadata
-        return self.unsafe_format(template, {}, Metadata(''))
+        from calibre.gui2 import is_gui_thread
+        if not is_gui_thread():
+            raise ValueError('A ValidateFormatter must only be used in the GUI thread')
+
+        from calibre.ebooks.metadata.book.base import get_model_metadata_instance
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
+        return SafeFormat().unsafe_format(template, {}, get_model_metadata_instance())
 
 
 validation_formatter = ValidateFormatter()
