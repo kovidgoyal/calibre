@@ -619,8 +619,8 @@ class Delegate(QStyledItemDelegate):
         text = _('''\
             <p><b><big>{title}</big></b><p>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
-            <p>{description}</p>
             <p>Version: {version} Number of users: {usage:n}</p>
+            <p>{description}</p>
             <p><i>{visit}</i></p>
             ''').format(title=escape(theme.get('title') or _('Unknown')), author=escape(theme.get('author', _('Unknown'))),
                        number=theme.get('number', 0), description=escape(theme.get('description', '')),
@@ -630,6 +630,8 @@ class Delegate(QStyledItemDelegate):
         st = self.static_text_cache.get(text)
         if st is None:
             self.static_text_cache[text] = st = QStaticText(text)
+        st.setTextWidth(option.rect.width() - COVER_SIZE[0] - self.SPACING - 2)
+        painter.setClipRect(option.rect.adjusted(0, 0, 0, -2))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, st)
         painter.restore()
 
