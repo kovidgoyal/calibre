@@ -39,6 +39,33 @@ def process_info_box(bx):
     return info
 
 
+def parse_txt(ty):
+    typ = ty.get('type', '')
+    children = ty.get('children', [])
+    attr = ty.get('attributes', [{}])[0].get('value', '#')
+
+    tag_map = {
+        'text': lambda: [ty.get('value', '')],
+        'scaps': lambda: [f'<span style="font-variant: all-small-caps;">{"".join(parse_txt(c))}</span>' for c in children],
+        'bold': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
+        'drop_caps': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
+        'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
+        'linebreak': lambda: ['<hr>'],
+        'external_link': lambda: [f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'] if children else [],
+        'internal_link': lambda: [f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'] if children else [],
+        'ufinish': lambda: [text for c in children for text in parse_txt(c)]
+    }
+
+    if typ in tag_map:
+        yield from tag_map[typ]()
+    else:
+        print('** ', typ)
+
+
+def parse_textjson(nt):
+    return ''.join(''.join(parse_txt(n)) for n in nt)
+
+
 def process_web_node(node):
     ntype = node.get('type', '')
     if ntype == 'CROSSHEAD':
@@ -48,6 +75,8 @@ def process_web_node(node):
     elif ntype in ['PARAGRAPH', 'BOOK_INFO']:
         if node.get('textHtml'):
             return f'<p>{node.get("textHtml")}</p>'
+        elif node.get('textJson'):
+            return f'<p>{parse_textjson(node["textJson"])}</p>'
         return f'<p>{node.get("text", "")}</p>'
     elif ntype == 'IMAGE':
         alt = '' if node.get('altText') is None else node.get('altText')
@@ -59,6 +88,8 @@ def process_web_node(node):
     elif ntype == 'PULL_QUOTE':
         if node.get('textHtml'):
             return f'<blockquote>{node.get("textHtml")}</blockquote>'
+        elif node.get('textJson'):
+            return f'<blockquote>{parse_textjson(node["textJson"])}</blockquote>'
         return f'<blockquote>{node.get("text", "")}</blockquote>'
     elif ntype == 'DIVIDER':
         return '<hr>'
@@ -167,7 +198,7 @@ class EconomistNews(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
-    __author__ = 'Kovid Goyal'
+    __author__ = 'unkn0wn'
     description = (
         'Global news and current affairs from a European'
         ' perspective. Get the latest articles here.'
@@ -240,6 +271,11 @@ class EconomistNews(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
+    def economist_test_article(self):
+        return [('Articles', [{'title': 'test',
+            'url': 'https://www.economist.com/interactive/britain/2025/06/26/how-wimbledon-gets-its-grass-so-green'
+        }])]
+
     def economist_return_index(self, ans):
         if not ans:
             raise NoArticles(
@@ -251,6 +287,7 @@ class EconomistNews(BasicNewsRecipe):
         return ans
 
     def parse_index(self):
+        # return self.economist_test_article()
         query = {
             'operationName': 'FindHomepage',
             'variables': '{"homepageType":"MOBILE"}',
