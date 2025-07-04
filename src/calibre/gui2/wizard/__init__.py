@@ -83,7 +83,7 @@ class Tablet(Device):
 class Kindle(Device):
 
     output_profile = 'kindle'
-    output_format  = 'MOBI'
+    output_format  = 'AZW3'
     untranslated_name, name = gettext('Kindle Basic (all models)')
     manufacturer = 'Amazon'
     id = 'kindle'
@@ -110,7 +110,7 @@ class JetBookMini(Device):
 class KindleDX(Kindle):
 
     output_profile = 'kindle_dx'
-    output_format  = 'MOBI'
+    output_format  = 'AZW3'
     untranslated_name = name = 'Kindle DX'
     id = 'kindledx'
 
