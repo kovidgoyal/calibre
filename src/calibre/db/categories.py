@@ -97,11 +97,12 @@ def create_tag_class(category, fm):
                                    'identifiers'} and dt != 'composite'
 
     if (
-        (   category == 'authors' or
+        (
+            ( category == 'authors' or
                 (cat['display'].get('is_names', False) and
                  cat['is_custom'] and cat['is_multiple'] and
-                 dt == 'text') and
-            tweaks['categories_use_field_for_author_name'] == 'author_sort'
+                 dt == 'text')
+            ) and tweaks['categories_use_field_for_author_name'] == 'author_sort'
         ) or (
             cat['datatype'] == 'series' and
             tweaks['categories_use_field_for_series_name'] == 'series_sort'
