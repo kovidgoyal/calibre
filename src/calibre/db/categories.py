@@ -96,11 +96,18 @@ def create_tag_class(category, fm):
     is_editable = category not in {'news', 'rating', 'languages', 'formats',
                                    'identifiers'} and dt != 'composite'
 
-    if (tweaks['categories_use_field_for_author_name'] == 'author_sort' and
-            (category == 'authors' or
+    if (
+        (
+            ( category == 'authors' or
                 (cat['display'].get('is_names', False) and
-                cat['is_custom'] and cat['is_multiple'] and
-                dt == 'text'))):
+                 cat['is_custom'] and cat['is_multiple'] and
+                 dt == 'text')
+            ) and tweaks['categories_use_field_for_author_name'] == 'author_sort'
+        ) or (
+            cat['datatype'] == 'series' and
+            tweaks['categories_use_field_for_series_name'] == 'series_sort'
+        )
+       ):
         use_sort_as_name = True
     else:
         use_sort_as_name = False

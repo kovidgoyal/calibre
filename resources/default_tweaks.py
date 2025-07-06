@@ -91,20 +91,24 @@ author_surname_prefixes = ('da', 'de', 'di', 'la', 'le', 'van', 'von')
 # Default: r'(?i),?\s+(and|with)\s+'
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
-#: Use author sort in Tag browser
-# Set which author field to display in the Tag browser (the list of authors,
-# series, publishers etc on the left hand side). The choices are author and
-# author_sort. This tweak affects only what is displayed under the authors
-# category in the Tag browser and Content server. Please note that if you set this
-# to author_sort, it is very possible to see duplicate names in the list because
-# although it is guaranteed that author names are unique, there is no such
-# guarantee for author_sort values. Showing duplicates won't break anything, but
-# it could lead to some confusion. When using 'author_sort', the tooltip will
-# show the author's name.
+#: Use author_sort and/or series_sort for names in Tag browser
+# Set which author or series field is used to display as the item name in the
+# Tag browser (the list of authors, series, publishers etc on the left hand
+# side). The choices for author are 'author' and 'author_sort'. The choices for
+# series are 'series' and 'series_sort'. This tweak affects only what is
+# displayed under the category in the Tag browser and Content server. Please
+# note that if you set this to …_sort, it is possible to see duplicate names in
+# the list because although it is guaranteed that author and series names are
+# unique, there is no such guarantee for their sort values. Showing duplicates
+# won't break anything but it could lead to some confusion. The tooltip for an
+# item will show the item's name no matter how you set this tweak.
 # Examples:
 #   categories_use_field_for_author_name = 'author'
 #   categories_use_field_for_author_name = 'author_sort'
+#   categories_use_field_for_series_name = 'series'
+#   categories_use_field_for_series_name = 'series_sort'
 categories_use_field_for_author_name = 'author'
+categories_use_field_for_series_name = 'series'
 
 #: Control partitioning of Tag browser
 # When partitioning the Tag browser, the format of the subcategory label is
