@@ -768,7 +768,7 @@ class SeriesField(ManyToOneField):
                 for book_id in book_ids:
                     lang = lang_map.get(book_id)
                     if lang:
-                        lang_counts[lang[0]] += 1
+                        lang_counts[lang] += 1
                 lang = lang_counts.most_common(1)[0][0] if lang_counts else None
                 yield ts(val, order=sso, lang=lang), book_ids
 
