@@ -34,6 +34,7 @@ from calibre.ebooks.oeb.polish.tts import lang_for_elem
 from calibre.ebooks.oeb.polish.utils import extract, insert_self_closing
 from calibre.spell.break_iterator import sentence_positions
 from calibre.srv.render_book import Profiler, calculate_number_of_workers
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.short_uuid import uuid4
 
@@ -371,7 +372,7 @@ def kepubify_html_data(raw: str | bytes, kobo_js_href: str = KOBO_JS_NAME, opts:
 
 
 def kepubify_html_path(path: str, kobo_js_href: str = KOBO_JS_NAME, metadata_lang: str = 'en', opts: Options = Options()):
-    with open(path, 'r+b') as f:
+    with open(make_long_path_useable(path), 'r+b') as f:
         raw = f.read()
         root = kepubify_html_data(raw, kobo_js_href, opts, metadata_lang)
         raw = serialize_html(root)
@@ -461,7 +462,7 @@ def first_spine_item_is_probably_title_page(container: Container) -> bool:
 
 def process_stylesheet_path(path: str, opts: Options) -> None:
     if opts.needs_stylesheet_processing:
-        with open(path, 'r+b') as f:
+        with open(make_long_path_useable(path), 'r+b') as f:
             css = f.read().decode()
             ncss = process_stylesheet(css, opts)
             if ncss is not css:
