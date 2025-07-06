@@ -508,6 +508,13 @@ class EditWithComplete(EnComboBox):
         finally:
             self.disable_popup = orig
 
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Down, Qt.Key.Key_Up) and not self.lineEdit().text() and not self.disable_popup:
+            e.accept()
+            self.showPopup()
+            return
+        super().keyPressEvent(e)
+
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)
 
