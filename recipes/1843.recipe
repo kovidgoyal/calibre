@@ -190,6 +190,7 @@ class Econ1843(BasicNewsRecipe):
     delay = 3
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title'}
+    browser_type = 'webengine'
 
     needs_subscription = False
 

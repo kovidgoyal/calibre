@@ -26,7 +26,9 @@ def process_web_list(li_node):
     li_html = ''
     for li in li_node['items']:
         if li.get('textHtml'):
-            li_html += f'<li>{li.get("textHtml")}</li>'
+            li_html += f'<li>{li["textHtml"]}</li>'
+        elif li.get('textJson'):
+            li_html += f'<li>{parse_textjson(li["textJson"])}</li>'
         else:
             li_html += f'<li>{li.get("text", "")}</li>'
     return li_html
@@ -78,12 +80,16 @@ def process_web_node(node):
         elif node.get('textJson'):
             return f'<p>{parse_textjson(node["textJson"])}</p>'
         return f'<p>{node.get("text", "")}</p>'
-    elif ntype == 'IMAGE':
+    elif (ntype == 'IMAGE') or (node.get('__typename', '') == 'ImageComponent'):
         alt = '' if node.get('altText') is None else node.get('altText')
         cap = ''
         if node.get('caption'):
             if node['caption'].get('textHtml') is not None:
                 cap = node['caption']['textHtml']
+            elif node['caption'].get('textJson') is not None:
+                cap = parse_textjson(node['caption']['textJson'])
+            elif node['caption'].get('text') is not None:
+                cap = node['caption']['text']
         return f'<div><img src="{node["url"]}" title="{alt}"></div><div style="text-align:center; font-size:small;">{cap}</div>'
     elif ntype == 'PULL_QUOTE':
         if node.get('textHtml'):
@@ -127,6 +133,9 @@ def load_article_from_web_json(raw):
     main_image_url = safe_dict(data, 'leadComponent') or ''
     if main_image_url:
         body += process_web_node(data['leadComponent'])
+    if data.get('byline'):
+        if data['byline'] is not None:
+            body += f'<p style="color: gray; font-size: small;"><i>{"By " + data["byline"]}</i></p>'
     for node in data.get('body'):
         body += process_web_node(node)
     return '<html><body><article>' + body + '</article></body></html>'
@@ -204,7 +213,7 @@ class EconomistNews(BasicNewsRecipe):
         ' perspective. Get the latest articles here.'
     )
     extra_css = '''
-        em { color:#202020; }
+        em, blockquote { color:#202020; }
         img {display:block; margin:0 auto;}
     '''
 
@@ -273,7 +282,7 @@ class EconomistNews(BasicNewsRecipe):
 
     def economist_test_article(self):
         return [('Articles', [{'title': 'test',
-            'url': 'https://www.economist.com/interactive/britain/2025/06/26/how-wimbledon-gets-its-grass-so-green'
+            'url': 'https://www.economist.com/1843/2025/05/16/the-rise-fall-and-contested-future-of-hizbullah'
         }])]
 
     def economist_return_index(self, ans):
