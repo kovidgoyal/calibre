@@ -104,7 +104,7 @@ def create_tag_class(category, fm):
                  dt == 'text')
             ) and tweaks['categories_use_field_for_author_name'] == 'author_sort'
         ) or (
-            cat['datatype'] == 'series' and
+            dt == 'series' and
             tweaks['categories_use_field_for_series_name'] == 'series_sort'
         )
        ):
