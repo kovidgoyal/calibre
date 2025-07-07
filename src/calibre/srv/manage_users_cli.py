@@ -56,6 +56,31 @@ List all usernames.
         print(name)
 
 
+def change_set_password(user_manager, args):
+    p = create_subcommand_parser('change_set_password', _('username set|reset|toggle|show') + '\n\n' + '''\
+Restrict the specified user account to prevent it from changing its own password via the web interface. \
+The value of set allows the account to change its own password, reset prevents it from changing its \
+own password, toggle flips the value and show prints out the current value. \
+''')
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 3:
+        p.print_help()
+        raise SystemExit(_('username and operation are required'))
+    username, op = args[1], args[2]
+    if op == 'toggle':
+        val = not user_manager.is_allowed_to_change_password_via_http(username)
+    elif op == 'set':
+        val = True
+    elif op == 'reset':
+        val = False
+    elif op == 'show':
+        print('set' if user_manager.is_allowed_to_change_password_via_http(username) else 'reset', end='')
+        return
+    else:
+        raise SystemExit(f'{op} is an unknown operation')
+    user_manager.set_allowed_to_change_password_via_http(username, val)
+
+
 def change_readonly(user_manager, args):
     p = create_subcommand_parser('readonly', _('username set|reset|toggle|show') + '\n\n' + '''\
 Restrict the specified user account to prevent it from making changes. \
@@ -180,13 +205,15 @@ def main(user_manager, args):
         return list_users(user_manager, rest)
     if q == 'readonly':
         return change_readonly(user_manager, rest)
+    if q == 'change_set_password':
+        return change_set_password(user_manager, rest)
     if q == 'libraries':
         return change_libraries(user_manager, rest)
     if q != 'help':
         print(_('Unknown command: {}').format(q), file=sys.stderr)
         print()
     print(_('Manage the user accounts for calibre-server. Available commands are:'))
-    print('add, remove, chpass, list')
+    print('add, remove, chpass, list, readonly, change_set_password')
     print(_('Use {} for help on individual commands').format('calibre-server --manage-users -- command -h'))
     raise SystemExit(1)
 
@@ -307,6 +334,15 @@ def manage_users_cli(path=None, args=()):
         if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
             m.set_readonly(username, not readonly)
 
+    def change_set_password(username):
+        allowed = m.is_allowed_to_change_password_via_http(username)
+        if allowed:
+            q = _('Prevent {} from changing their own password via the web')
+        else:
+            q = _('Allow {} to change their own password via the web')
+        if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
+            m.set_allowed_to_change_password_via_http(username, not allowed)
+
     def change_restriction(username):
         r = m.restrictions(username)
         if r is None:
@@ -378,19 +414,22 @@ def manage_users_cli(path=None, args=()):
                 _('Change password for {}').format(username),
                 _('Change read/write permission for {}').format(username),
                 _('Change the libraries {} is allowed to access').format(username),
+                _('Change if {} is allowed to set their own password').format(username),
                 _('Cancel'), ],
             banner='\n' + _('{0} has {1} access').format(
                 username,
                 _('readonly') if m.is_readonly(username) else _('read-write')))
         print()
-        if c > 3:
+        if c > 4:
             actions.append(toplevel)
             return
         {
             0: show_password,
             1: change_password,
             2: change_readonly,
-            3: change_restriction}[c](username)
+            3: change_restriction,
+            4: change_set_password,
+        }[c](username)
         actions.append(partial(edit_user, username=username))
 
     def toplevel():

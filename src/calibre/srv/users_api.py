@@ -16,6 +16,8 @@ def change_pw(ctx, rd):
     user = rd.username or None
     if user is None:
         raise HTTPForbidden('Anonymous users are not allowed to change passwords')
+    if not ctx.user_manager.is_allowed_to_change_password_via_http(user):
+        raise HTTPForbidden(f'The user {user} is not allowed to change passwords')
     try:
         pw = json.loads(rd.request_body_file.read())
         oldpw, newpw = pw['oldpw'], pw['newpw']

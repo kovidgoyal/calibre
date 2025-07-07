@@ -743,6 +743,12 @@ class User(QWidget):
         )
         rw.stateChanged.connect(self.readonly_changed)
         l.addWidget(rw)
+        self.cpw_text = _('Allow {} to change their password via the web')
+        self.cpw = cpw = QCheckBox(self)
+        cpw.setToolTip(_(
+            'If enabled, allows the user to change their own password via the web interface'))
+        cpw.stateChanged.connect(self.cpw_changed)
+        l.addWidget(cpw)
         self.access_label = la = QLabel(self)
         l.addWidget(la), la.setWordWrap(True)
         self.cpb = b = QPushButton(_('Change &password'))
@@ -762,6 +768,10 @@ class User(QWidget):
 
     def readonly_changed(self):
         self.user_data[self.username]['readonly'] = not self.rw.isChecked()
+        self.changed_signal.emit()
+
+    def cpw_changed(self):
+        self.user_data[self.username]['allow_change_password_via_http'] = bool(self.cpw.isChecked())
         self.changed_signal.emit()
 
     def update_restriction(self):
@@ -799,11 +809,17 @@ class User(QWidget):
             self.rw.blockSignals(True), self.rw.setChecked(
                 not user_data[username]['readonly']
             ), self.rw.blockSignals(False)
+            self.cpw.setText(self.cpw_text.format(username))
+            self.cpw.setVisible(True)
+            self.cpw.blockSignals(True), self.cpw.setChecked(
+                bool(user_data[username].get('allow_change_password_via_http')))
+            self.cpw.blockSignals(False)
             self.access_label.setVisible(True)
             self.restrict_button.setVisible(True)
             self.update_restriction()
         else:
             self.rw.setVisible(False)
+            self.cpw.setVisible(False)
             self.access_label.setVisible(False)
             self.restrict_button.setVisible(False)
 

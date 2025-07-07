@@ -67,9 +67,11 @@ def validate_password(pw):
         return _('The password must contain only ASCII (English) characters and symbols')
 
 
-def create_user_data(pw, readonly=False, restriction=None):
+def create_user_data(pw, readonly=False, restriction=None, misc_data='{}'):
+    misc_data = json.loads(misc_data)
     return {
-        'pw':pw, 'restriction':parse_restriction(restriction or '{}').copy(), 'readonly': readonly
+        'pw':pw, 'restriction':parse_restriction(restriction or '{}').copy(), 'readonly': readonly,
+        'allow_change_password_via_http': bool(misc_data.get('allow_change_password_via_http', True)),
     }
 
 
@@ -164,15 +166,16 @@ class UserManager:
     def validate_password(self, pw):
         return validate_password(pw)
 
-    def add_user(self, username, pw, restriction=None, readonly=False):
+    def add_user(self, username, pw, restriction=None, readonly=False, allow_change_password_via_http=True):
         with self.lock:
             msg = self.validate_username(username) or self.validate_password(pw)
             if msg is not None:
                 raise ValueError(msg)
             restriction = restriction or {}
+            misc_data = {'allow_change_password_via_http': allow_change_password_via_http}
             self.conn.cursor().execute(
-                'INSERT INTO users (name, pw, restriction, readonly) VALUES (?, ?, ?, ?)',
-                (username, pw, serialize_restriction(restriction), ('y' if readonly else 'n')))
+                'INSERT INTO users (name, pw, restriction, readonly, misc_data) VALUES (?, ?, ?, ?, ?)',
+                (username, pw, serialize_restriction(restriction), ('y' if readonly else 'n'), json.dumps(misc_data)))
 
     def remove_user(self, username):
         with self.lock:
@@ -189,8 +192,8 @@ class UserManager:
     def user_data(self):
         with self.lock:
             ans = {}
-            for name, pw, restriction, readonly in self.conn.cursor().execute('SELECT name,pw,restriction,readonly FROM users'):
-                ans[name] = create_user_data(pw, readonly.lower() == 'y', restriction)
+            for name, pw, restriction, readonly, misc_data in self.conn.cursor().execute('SELECT name,pw,restriction,readonly,misc_data FROM users'):
+                ans[name] = create_user_data(pw, readonly.lower() == 'y', restriction, misc_data)
         return ans
 
     @user_data.setter
@@ -200,15 +203,13 @@ class UserManager:
             remove = self.all_user_names - set(users)
             if remove:
                 c.executemany('DELETE FROM users WHERE name=?', [(n,) for n in remove])
-            for name, data in iteritems(users):
+            for name, data in users.items():
                 res = serialize_restriction(data['restriction'])
+                misc_data = json.dumps({'allow_change_password_via_http': bool(data.get('allow_change_password_via_http', True))})
                 r = 'y' if data['readonly'] else 'n'
-                c.execute('UPDATE users SET pw=?, restriction=?, readonly=? WHERE name=?',
-                        (data['pw'], res, r, name))
-                if self.conn.changes() > 0:
-                    continue
-                c.execute('INSERT INTO USERS (name, pw, restriction, readonly) VALUES (?, ?, ?, ?)',
-                          (name, data['pw'], res, r))
+                c.execute('INSERT INTO USERS (name, pw, restriction, readonly, misc_data) VALUES (?, ?, ?, ?, ?) '
+                          'ON CONFLICT DO UPDATE SET pw=?, restriction=?, readonly=?, misc_data=?',
+                          (name, data['pw'], res, r, misc_data, data['pw'], res, r, misc_data))
             self.refresh()
 
     def refresh(self):
@@ -266,3 +267,20 @@ class UserManager:
             return ''
         library_name = os.path.basename(library_path).lower()
         return r['library_restrictions'].get(library_name) or ''
+
+    def misc_data(self, username):
+        with self.lock:
+            for misc_data, in self.conn.cursor().execute(
+                    'SELECT misc_data FROM users WHERE name=?', (username,)):
+                return json.loads(misc_data)
+        return {}
+
+    def is_allowed_to_change_password_via_http(self, username: str) -> bool:
+        return bool(self.misc_data(username).get('allow_change_password_via_http', True))
+
+    def set_allowed_to_change_password_via_http(self, username: str, allow: bool = True) -> None:
+        with self.lock:
+            md = self.misc_data(username)
+            md['allow_change_password_via_http'] = allow
+            self.conn.cursor().execute(
+                'UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
