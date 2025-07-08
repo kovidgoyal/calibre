@@ -297,6 +297,7 @@ class Restore(Thread):
             os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
 
+        db.backend.execute("BEGIN")
         for i, book in enumerate(self.books):
             try:
                 db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
@@ -305,7 +306,7 @@ class Restore(Thread):
                 self.failed_restores.append((book, traceback.format_exc()))
                 traceback.print_exc()
             self.progress_callback(book['mi'].title, i+1)
-
+        db.backend.execute("COMMIT")
         for field, lmap in self.link_maps.items():
             with suppress(Exception):
                 db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
