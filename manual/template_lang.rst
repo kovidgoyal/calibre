@@ -293,7 +293,7 @@ Notes:
 * In a logical context, any non-empty value is ``True``
 * In a logical context, the empty value is ``False``
 * Strings and numbers can be used interchangeably. For example, ``10`` and ``'10'`` are the same thing.
-* Comments are lines starting with a '#' character. Comments beginning later in a line are not supported.
+* Comments are lines starting with blanks or tabs then a '#' character.
 
 **Operator precedence**
 

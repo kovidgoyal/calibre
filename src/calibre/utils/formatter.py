@@ -1715,7 +1715,7 @@ class TemplateFormatter(string.Formatter):
             (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),
             (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
             (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),
+            (r'\n[ \t]*#.*?(?:(?=\n)|$)',lambda x,t: _Parser.LEX_NEWLINE),
             (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
         ], flags=re.DOTALL)
 

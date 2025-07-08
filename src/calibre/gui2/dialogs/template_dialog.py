@@ -348,7 +348,9 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
         if not text:
             pass
-        elif text[0] == '#':
+        elif re.match(r'[ \t]*#', text):
+            # Line with only a comment possibly preceded with spaces or tabs
+            # This works in both GPM and python
             self.setFormat(0, textLength, self.Formats['comment'])
             return
 
