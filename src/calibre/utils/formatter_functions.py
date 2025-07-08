@@ -3416,6 +3416,131 @@ See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`query
         return qquote(value, use_plus=use_plus=='0')
 
 
+class BuiltinFormatDuration(BuiltinFormatterFunction):
+    name = 'format_duration'
+    arg_count = 3
+    category = FORMATTING_VALUES
+    __doc__ = doc = _(
+r'''
+``format_duration(value, template, largest_unit)`` -- format the value, a number
+of seconds, into a string showing weeks, days, hours, minutes, and seconds. If
+the value is a float then it is rounded to the nearest integer.[/]  You choose
+how to format the value using a template consisting of value selectors
+surrounded by ``{`` and ``}`` characters. The selectors are:
+[LIST]
+[*]``{w}``: weeks
+[*]``{d}``: days
+[*]``{h}``: hours
+[*]``{m}``: minutes
+[*]``{s}``: seconds
+[/LIST]
+You can put arbitrary text between selectors.
+
+The ``largest_unit`` parameter specifies the largest of weeks, days, hours, minutes,
+and seconds that will be produced by the template. It must be one of the value selectors.
+
+The following examples use a duration of 2 days (172,800 seconds) 1 hour (3,600 seconds)
+and 20 seconds, which totals to 176,420 seconds.
+[LIST]
+[*]``format_duration(176420, '{d}{h}{m}{s}', 'd')`` will return the value ``2d 1h 0m 20s``.
+[*]``format_duration(176420, '{h}{m}{s}', 'h')`` will return the value ``49h 0m 20s``.
+[*]format_duration(176420, 'Your reading time is {d}{h}{m}{s}', 'h') returns the value
+``Your reading time is 49h 0m 20s``.
+[*]``format_duration(176420, '{w}{d}{h}{m}{s}', 'w')`` will return the value ``2d 1h 0m 20s``.
+Note that the zero weeks value is not returned.
+[/LIST]
+If you want to see zero values for items such as weeks in the above example,
+use an uppercase selector. For example, the following uses ``'W'`` to show zero weeks:
+
+``format_duration(176,420, '{W}{d}{h}{m}{s}', 'w')`` returns ``0w 2d 1h 0m 20s``.
+
+By default the text following a value is the selector followed by a space.
+You can change that to whatever text you want. The format for a selector with
+your text is the selector followed by a colon followed by text
+segments separated by ``'|'`` characters. You must include any space characters
+you want in the output.
+
+You can provide from one to three text segments.
+[LIST]
+[*]If you provide one segment, as in ``{w: weeks }`` then that segment is used for all values.
+[*]If you provide two segments, as in ``{w: weeks | week }`` then the first segment
+is used for 0 and more than 1. The second segment is used for 1.
+[*]If you provide three segments, as in ``{w: weeks | week | weeks }`` then the first
+segment is used for 0, the second segment is used for 1, and the third segment is used for
+more than 1.
+[/LIST]
+The second form is equivalent to the third form in many languages.
+
+For example, the selector:
+[LIST]
+[*]``{w: weeks | week | weeks }`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
+[*]``{w: weeks | week }`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
+[*]``{w: weeks }`` produces ``0 weeks '``, ``1 weeks '``, or ``2 weeks '``.
+[/LIST]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, value, template, largest_unit):
+        if largest_unit not in 'wdhms':
+            raise ValueError(_('the {0} parameter must be one of {1}').format('largest_unit', 'wdhms'))
+
+        int_val = remainder = round(float(value))
+        weeks,remainder = divmod(remainder, 60*60*24*7) if largest_unit == 'w' else (-1,remainder)
+        days,remainder = divmod(remainder, 60*60*24) if largest_unit in 'wd' else (-1,remainder)
+        hours,remainder = divmod(remainder, 60*60) if largest_unit in 'wdh' else (-1,remainder)
+        minutes,remainder = divmod(remainder, 60) if largest_unit in 'wdhm' else (-1,remainder)
+        seconds = remainder
+
+        def repl(mo):
+            txt = mo.group()
+            fmt_char = txt[1]
+            suffixes = re.split('\|', txt[3:-1])
+            match len(suffixes):
+                case 1 if not suffixes[0]:
+                    zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
+                case 1:
+                    zero_suffix = one_suffix = more_suffix = suffixes[0]
+                case 2:
+                    zero_suffix = more_suffix = suffixes[0]
+                    one_suffix = suffixes[1]
+                case 3:
+                    zero_suffix = suffixes[0]
+                    one_suffix = suffixes[1]
+                    more_suffix = suffixes[2]
+                case _:
+                    raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
+                    zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
+
+            def val_with_suffix(val, test_val):
+                match val:
+                    case -1:
+                        return ''
+                    case 0 if fmt_char.islower() and int_val < test_val:
+                        return ''
+                    case 0:
+                        return str(val) + zero_suffix
+                    case 1:
+                        return str(val) + one_suffix
+                    case _:
+                        return str(val) + more_suffix
+
+            match fmt_char.lower():
+                case 'w':
+                    return val_with_suffix(weeks, 60*60*24*7)
+                case 'd':
+                    return val_with_suffix(days, 60*60*24)
+                case 'h':
+                    return val_with_suffix(hours, 60*60)
+                case 'm':
+                    return val_with_suffix(minutes, 60)
+                case 's':
+                    return val_with_suffix(seconds, -1)
+                case _:
+                    raise ValueError(_('The {} format specifier is not valid').format(fmt_char))
+
+        s = re.sub('{.:?.*?}', repl, template)
+        return s
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -3429,8 +3554,8 @@ _formatter_builtins = [
     BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
     BuiltinFieldListCount(), BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
-    BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
-    BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
+    BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatDuration(), BuiltinFormatNumber(),
+    BuiltinFormatsModtimes(),BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
     BuiltinGetLink(),
     BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
     BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
