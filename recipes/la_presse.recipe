@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+__license__     = 'GPL v3'
+__author__      = 'quatorze'
+__copyright__   = '2025, quatorze'
+__version__     = 'v1.00'
+__date__        = '8 July 2025'
+__description__ = 'La Presse '
+
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LaPresse(BasicNewsRecipe):
+    title                          = 'La Presse'
+    __author__                     = 'quatorze'
+    timefmt                        = ' %Y-%m-%d'
+    language                       = 'fr_CA'
+    encoding                       = 'utf-8'
+    publisher                      = 'www.lapresse.ca'
+    publication_type               = 'newspaper'
+    category                       = 'News, finance, economy, politics'
+    ignore_duplicate_articles      = {'title', 'url'}
+    oldest_article                 = 1.0
+    max_articles_per_feed          = 100
+    min_articles_per_feed          = 0
+    auto_cleanup                   = False
+    remove_empty_feeds             = True
+    use_embedded_content           = False
+    needs_subscription             = False
+    remove_javascript              = True
+    compress_news_images           = True
+    scale_news_images_to_device    = True
+    compress_news_images_auto_size = 4
+
+    no_stylesheets                 = True
+    extra_css                      = '''
+        a { text-decoration: none; }
+        a.badge { font-size: 80%; }
+        div.capsuleModule { border-style: solid; margin:0% 8%; padding:0% 2%; }
+        div.quote { border-style: none none none solid; }
+        h2.textModule--type-chapter { font-weight: bold; font-size: 110%; }
+        p { font-size: 100%; }
+        p.chapter { font-weight: bold; }
+        p.credit { font-size: 80% }
+        p.description { font-size: 80% }
+        p.lead { font-weight: bold; font-size: 120%; }
+        p.quoteSource { padding-left:7%; font-size: 110%; }
+        p.quoteText { padding-left:5%; font-weight: bold; font-style: italic; font-size: 110%; }
+        p.teaser { font-weight: bold; font-size: 120%; }
+        small.suptitle { display: block; font-size: 50%; }
+        span.authorModule__name { display: block; font-size: 80%; }
+        span.authorModule__organisation { display: block; font-style: italic; font-size: 80%; }
+        span.title { display: block; padding-top:2%; font-weight: bold; font-style: italic; }
+        time.publicationsDate--type-publication { display: block; font-size: 80%; }
+        time.publicationsDate--type-update { display: block; font-size: 80%; }
+        div.complementaryInformation { border-style: solid; margin:0% 8%; padding:0% 2%; }
+        div.complementaryInformation__title { font-weight: bold; font-size: 120%; }
+        dt { font-weight: bold; font-size: 100%; }
+        dd { font-size: 100%; }
+        div.source { font-size: 80%; }
+    '''
+
+    keep_only_tags                 = dict(name='article', class_='mainStory')
+
+    remove_attributes              = ['href']
+
+    # Clean up some of the extraneous/interactives inside the article boundaries
+    preprocess_regexps = [
+        (re.compile(r'</small>.*?<span>', re.DOTALL|re.IGNORECASE), lambda match: '</small><p> </p><span>'),
+        (re.compile(r'<div id="socialShare_.*?</div>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<a class="linkModule ACT".*?</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<span class="linkModule__content">.*?</span>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<ul class="buttons ">.*?</ul>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<div class="visual__title.*?">.*?</div>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<div class="photoGalleryModule__wrapper">.*?</div>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+        (re.compile(r'<ul class="photoGalleryModule__navigation">.*?</ul>', re.DOTALL|re.IGNORECASE), lambda match: '')
+    ]
+
+    feeds = [
+        # Actualités - Reporting
+        (u'Politique',                  'https://www.lapresse.ca/actualites/politique/rss'),
+        (u'National',                   'https://www.lapresse.ca/actualites/national/rss'),
+        (u'Analyses',                   'https://www.lapresse.ca/actualites/analyses/rss'),
+        (u'Grand Montréal',             'https://www.lapresse.ca/actualites/grand-montreal/rss'),
+        (u'Régional',                   'https://www.lapresse.ca/actualites/regional/rss'),
+        (u'Justice et faits divers',    'https://www.lapresse.ca/actualites/justice-et-faits-divers/rss'),
+        (u'Santé',                      'https://www.lapresse.ca/actualites/sante/rss'),
+        (u'Éducation',                  'https://www.lapresse.ca/actualites/education/rss'),
+        (u'Environnement',              'https://www.lapresse.ca/actualites/environnement/rss'),
+        (u'Sciences',                   'https://www.lapresse.ca/actualites/sciences/rss'),
+        # Actualités - Opinions
+        (u'Chroniques',                 'https://www.lapresse.ca/actualites/chroniques/rss'),
+        (u'Caricatures',                'https://www.lapresse.ca/actualites/caricatures/rss'),
+        (u'Éditoriaux',                 'https://www.lapresse.ca/actualites/editoriaux/rss'),
+        (u'Manchettes - Actualités',    'http://www.lapresse.ca/actualites/rss'),
+        # International - Reporting
+        (u'États-Unis',                 'https://www.lapresse.ca/international/etats-unis/rss'),
+        (u'Europe',                     'https://www.lapresse.ca/international/europe/rss'),
+        (u'Moyen-Orient',               'https://www.lapresse.ca/international/moyen-orient/rss'),
+        (u'Caraïbes',                   'https://www.lapresse.ca/international/caraibes/rss'),
+        (u'Amérique latine',            'https://www.lapresse.ca/international/amerique-latine/rss'),
+        (u'Asie et Océanie',            'https://www.lapresse.ca/international/asie-et-oceanie/rss'),
+        (u'Afrique',                    'https://www.lapresse.ca/international/afrique/rss'),
+        (u'Manchettes - International', 'http://www.lapresse.ca/international/rss'),
+        # International - Opinions
+        (u'Chroniques',                 'https://www.lapresse.ca/international/chroniques/rss'),
+        # Dialogue
+        (u'Chroniques',                 'https://www.lapresse.ca/dialogue/chroniques/rss'),
+        (u'Opinions',                   'https://www.lapresse.ca/dialogue/opinions/rss'),
+        (u'Courrier des lecteurs',      'https://www.lapresse.ca/dialogue/courrier-des-lecteurs/rss'),
+        (u'Témoignages',                'https://www.lapresse.ca/dialogue/temoignages/rss'),
+        # Contexte
+        (u'Chroniques',                 'https://www.lapresse.ca/contexte/chroniques/rss'),
+        # En vrac / In bulk ...
+        (u'Affaires',                   'https://www.lapresse.ca/affaires/rss'),
+        (u'Sports',                     'https://www.lapresse.ca/sports/rss'),
+        (u'Auto',                       'https://www.lapresse.ca/auto/rss'),
+        (u'Arts',                       'https://www.lapresse.ca/arts/rss'),
+        (u'Cinéma',                     'https://www.lapresse.ca/cinema/rss'),
+        (u'Société',                    'https://www.lapresse.ca/societe/rss'),
+        (u'Gourmand',                   'https://www.lapresse.ca/gourmand/rss'),
+        (u'Voyage',                     'https://www.lapresse.ca/voyage/rss'),
+        (u'Maison',                     'https://www.lapresse.ca/maison/rss')
+    ]
