@@ -3512,22 +3512,24 @@ This can be useful to truncate a value.
 
         def repl(mo):
             fmt_char = mo.group(1)
-            suffixes = re.split(r'\|', mo.group(3) or '')
-            match len(suffixes):
-                case 1 if not suffixes[0]:
-                    zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
-                case 1:
-                    zero_suffix = one_suffix = more_suffix = suffixes[0]
-                case 2:
-                    zero_suffix = more_suffix = suffixes[0]
-                    one_suffix = suffixes[1]
-                case 3:
-                    zero_suffix = suffixes[0]
-                    one_suffix = suffixes[1]
-                    more_suffix = suffixes[2]
-                case _:
-                    raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
-                    zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
+            suffixes = mo.group(3)
+            if suffixes is None:
+                zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
+            else:
+                suffixes = re.split(r'\|', suffixes)
+                match len(suffixes):
+                    case 1:
+                        zero_suffix = one_suffix = more_suffix = suffixes[0]
+                    case 2:
+                        zero_suffix = more_suffix = suffixes[0]
+                        one_suffix = suffixes[1]
+                    case 3:
+                        zero_suffix = suffixes[0]
+                        one_suffix = suffixes[1]
+                        more_suffix = suffixes[2]
+                    case _:
+                        raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
+                        zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
 
             def val_with_suffix(val, test_val):
                 match val:
