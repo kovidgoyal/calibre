@@ -3444,7 +3444,7 @@ and 20 seconds, which totals to 176,420 seconds.
 [LIST]
 [*]``format_duration(176420, '[d][h][m][s]', 'd')`` will return the value ``2d 1h 0m 20s``.
 [*]``format_duration(176420, '[h][m][s]', 'h')`` will return the value ``49h 0m 20s``.
-[*]format_duration(176420, 'Your reading time is [d][h][m][s]', 'h') returns the value
+[*]``format_duration(176420, 'Your reading time is [d][h][m][s]', 'h')`` returns the value
 ``Your reading time is 49h 0m 20s``.
 [*]``format_duration(176420, '[w][d][h][m][s]', 'w')`` will return the value ``2d 1h 0m 20s``.
 Note that the zero weeks value is not returned.
