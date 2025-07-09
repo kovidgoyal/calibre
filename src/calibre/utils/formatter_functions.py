@@ -3493,7 +3493,7 @@ For example, the selector:
         def repl(mo):
             txt = mo.group()
             fmt_char = txt[1]
-            suffixes = re.split('\|', txt[3:-1])
+            suffixes = re.split(r'\|', txt[3:-1])
             match len(suffixes):
                 case 1 if not suffixes[0]:
                     zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
@@ -3537,7 +3537,7 @@ For example, the selector:
                 case _:
                     raise ValueError(_('The {} format specifier is not valid').format(fmt_char))
 
-        s = re.sub('{.:?.*?}', repl, template)
+        s = re.sub(r'{.:?.*?}', repl, template)
         return s
 
 
