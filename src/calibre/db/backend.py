@@ -1476,6 +1476,12 @@ class DB:
             self.user_version = 1
     # }}}
 
+    def __enter__(self):
+        self.conn.__enter__()
+
+    def __exit__(self, exc_type, exc_value, tb):
+        self.conn.__exit__(exc_type, exc_value, tb)
+
     def clone_for_readonly_access(self, dest_dir: str) -> str:
         dbpath = os.path.abspath(self.conn.db_filename('main'))
         clone_db_path = os.path.join(dest_dir, os.path.basename(dbpath))

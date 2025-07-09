@@ -294,6 +294,12 @@ class Cache:
     def last_modified(self):
         return self.backend.last_modified()
 
+    def __enter__(self):
+        self.backend.__enter__()
+
+    def __exit__(self, exc_type, exc_value, tb):
+        self.backend.__exit__(exc_type, exc_value, tb)
+
     @write_api
     def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
         if template_cache:
