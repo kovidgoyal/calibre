@@ -11,7 +11,7 @@ import shutil
 import sys
 import time
 import traceback
-from contextlib import suppress
+from contextlib import closing, suppress
 from operator import itemgetter
 from threading import Thread
 
@@ -296,21 +296,22 @@ class Restore(Thread):
         with suppress(FileNotFoundError):
             os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
+        with closing(db):
+            with db.new_api:
+                for i, book in enumerate(self.books):
+                    try:
+                        db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
+                        self.successes += 1
+                    except:
+                        self.failed_restores.append((book, traceback.format_exc()))
+                        traceback.print_exc()
+                    self.progress_callback(book['mi'].title, i+1)
 
-        for i, book in enumerate(self.books):
-            try:
-                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
-                self.successes += 1
-            except:
-                self.failed_restores.append((book, traceback.format_exc()))
-                traceback.print_exc()
-            self.progress_callback(book['mi'].title, i+1)
-
-        for field, lmap in self.link_maps.items():
-            with suppress(Exception):
-                db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
-        self.notes_errors = db.backend.restore_notes(self.progress_callback)
-        db.close()
+            with db.new_api:
+                for field, lmap in self.link_maps.items():
+                    with suppress(Exception):
+                        db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
+            self.notes_errors = db.backend.restore_notes(self.progress_callback)
 
     def replace_db(self):
         dbpath = os.path.join(self.src_library_path, 'metadata.db')
