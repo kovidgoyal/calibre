@@ -3426,13 +3426,13 @@ r'''
 of seconds, into a string showing weeks, days, hours, minutes, and seconds. If
 the value is a float then it is rounded to the nearest integer.[/]  You choose
 how to format the value using a template consisting of value selectors
-surrounded by ``{`` and ``}`` characters. The selectors are:
+surrounded by ``[`` and ``]`` characters. The selectors are:
 [LIST]
-[*]``{w}``: weeks
-[*]``{d}``: days
-[*]``{h}``: hours
-[*]``{m}``: minutes
-[*]``{s}``: seconds
+[*]``[w]``: weeks
+[*]``[d]``: days
+[*]``[h]``: hours
+[*]``[m]``: minutes
+[*]``[s]``: seconds
 [/LIST]
 You can put arbitrary text between selectors.
 
@@ -3442,17 +3442,17 @@ and seconds that will be produced by the template. It must be one of the value s
 The following examples use a duration of 2 days (172,800 seconds) 1 hour (3,600 seconds)
 and 20 seconds, which totals to 176,420 seconds.
 [LIST]
-[*]``format_duration(176420, '{d}{h}{m}{s}', 'd')`` will return the value ``2d 1h 0m 20s``.
-[*]``format_duration(176420, '{h}{m}{s}', 'h')`` will return the value ``49h 0m 20s``.
-[*]format_duration(176420, 'Your reading time is {d}{h}{m}{s}', 'h') returns the value
+[*]``format_duration(176420, '[d][h][m][s]', 'd')`` will return the value ``2d 1h 0m 20s``.
+[*]``format_duration(176420, '[h][m][s]', 'h')`` will return the value ``49h 0m 20s``.
+[*]``format_duration(176420, 'Your reading time is [d][h][m][s]', 'h')`` returns the value
 ``Your reading time is 49h 0m 20s``.
-[*]``format_duration(176420, '{w}{d}{h}{m}{s}', 'w')`` will return the value ``2d 1h 0m 20s``.
+[*]``format_duration(176420, '[w][d][h][m][s]', 'w')`` will return the value ``2d 1h 0m 20s``.
 Note that the zero weeks value is not returned.
 [/LIST]
 If you want to see zero values for items such as weeks in the above example,
 use an uppercase selector. For example, the following uses ``'W'`` to show zero weeks:
 
-``format_duration(176,420, '{W}{d}{h}{m}{s}', 'w')`` returns ``0w 2d 1h 0m 20s``.
+``format_duration(176420, '[W][d][h][m][s]', 'w')`` returns ``0w 2d 1h 0m 20s``.
 
 By default the text following a value is the selector followed by a space.
 You can change that to whatever text you want. The format for a selector with
@@ -3462,10 +3462,10 @@ you want in the output.
 
 You can provide from one to three text segments.
 [LIST]
-[*]If you provide one segment, as in ``{w: weeks }`` then that segment is used for all values.
-[*]If you provide two segments, as in ``{w: weeks | week }`` then the first segment
+[*]If you provide one segment, as in ``[w: weeks ]`` then that segment is used for all values.
+[*]If you provide two segments, as in ``[w: weeks | week ]`` then the first segment
 is used for 0 and more than 1. The second segment is used for 1.
-[*]If you provide three segments, as in ``{w: weeks | week | weeks }`` then the first
+[*]If you provide three segments, as in ``[w: weeks | week | weeks ]`` then the first
 segment is used for 0, the second segment is used for 1, and the third segment is used for
 more than 1.
 [/LIST]
@@ -3473,9 +3473,9 @@ The second form is equivalent to the third form in many languages.
 
 For example, the selector:
 [LIST]
-[*]``{w: weeks | week | weeks }`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
-[*]``{w: weeks | week }`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
-[*]``{w: weeks }`` produces ``0 weeks '``, ``1 weeks '``, or ``2 weeks '``.
+[*]``[w: weeks | week | weeks ]`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
+[*]``[w: weeks | week ]`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
+[*]``[w: weeks ]`` produces ``0 weeks '``, ``1 weeks '``, or ``2 weeks '``.
 [/LIST]
 ''')
 
@@ -3483,7 +3483,7 @@ For example, the selector:
         if largest_unit not in 'wdhms':
             raise ValueError(_('the {0} parameter must be one of {1}').format('largest_unit', 'wdhms'))
 
-        int_val = remainder = round(float(value))
+        int_val = remainder = round(float(value)) if value else 0
         weeks,remainder = divmod(remainder, 60*60*24*7) if largest_unit == 'w' else (-1,remainder)
         days,remainder = divmod(remainder, 60*60*24) if largest_unit in 'wd' else (-1,remainder)
         hours,remainder = divmod(remainder, 60*60) if largest_unit in 'wdh' else (-1,remainder)
@@ -3537,7 +3537,7 @@ For example, the selector:
                 case _:
                     raise ValueError(_('The {} format specifier is not valid').format(fmt_char))
 
-        s = re.sub(r'{.:?.*?}', repl, template)
+        s = re.sub(r'\[.:?.*?\]', repl, template)
         return s
 
 
