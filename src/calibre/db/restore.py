@@ -302,7 +302,7 @@ class Restore(Thread):
                     try:
                         db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
                         self.successes += 1
-                    except:
+                    except Exception:
                         self.failed_restores.append((book, traceback.format_exc()))
                         traceback.print_exc()
                     self.progress_callback(book['mi'].title, i+1)
