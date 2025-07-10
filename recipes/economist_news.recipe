@@ -173,8 +173,9 @@ class NoArticles(Exception):
 
 
 def get_content(url_):
-    from calibre import browser
     from mechanize import Request
+
+    from calibre import browser
     headers = {
         'User-Agent': 'TheEconomist-Liskov-android',
         'accept': 'multipart/mixed; deferSpec=20220824, application/json',

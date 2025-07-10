@@ -98,7 +98,7 @@ def create_tag_class(category, fm):
 
     if (
         (
-            ( category == 'authors' or
+            (category == 'authors' or
                 (cat['display'].get('is_names', False) and
                  cat['is_custom'] and cat['is_multiple'] and
                  dt == 'text')
