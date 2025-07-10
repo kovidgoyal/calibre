@@ -3489,19 +3489,16 @@ This can be useful to truncate a value.
         pat = re.compile(r'\[(.)(:(.*?))?\]')
 
         if not largest_unit:
+            highest_index = 0
             for m in pat.finditer(template):
-                fmt_char = m.group(1)
-                match fmt_char.lower():
-                    case 'w' if largest_unit in 'dhms':
-                        largest_unit = 'w'
-                    case 'd' if largest_unit in 'hms':
-                        largest_unit = 'd'
-                    case 'h' if largest_unit in 'ms':
-                        largest_unit = 'h'
-                    case 'm' if largest_unit in 's':
-                        largest_unit = 'm'
-                    case 's' if not largest_unit:
-                        largest_unit = 's'
+                try:
+                    # We know that m.group(1) is a single character so the only
+                    # exception possible is that the character is not in the string
+                    dex = 'smhdw'.index(m.group(1).lower())
+                    highest_index = dex if dex > highest_index else highest_index
+                except Exception:
+                    raise ValueError(_('The {} format specifier is not valid').format(m.group()))
+            largest_unit = 'smhdw'[highest_index]
 
         int_val = remainder = round(float(value)) if value else 0
         weeks,remainder = divmod(remainder, 60*60*24*7) if largest_unit == 'w' else (-1,remainder)
