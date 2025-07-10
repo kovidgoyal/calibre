@@ -3418,11 +3418,11 @@ See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`query
 
 class BuiltinFormatDuration(BuiltinFormatterFunction):
     name = 'format_duration'
-    arg_count = 3
+    arg_count = -1
     category = FORMATTING_VALUES
     __doc__ = doc = _(
 r'''
-``format_duration(value, template, largest_unit)`` -- format the value, a number
+``format_duration(value, template, [largest_unit])`` -- format the value, a number
 of seconds, into a string showing weeks, days, hours, minutes, and seconds. If
 the value is a float then it is rounded to the nearest integer.[/]  You choose
 how to format the value using a template consisting of value selectors
@@ -3436,23 +3436,20 @@ surrounded by ``[`` and ``]`` characters. The selectors are:
 [/LIST]
 You can put arbitrary text between selectors.
 
-The ``largest_unit`` parameter specifies the largest of weeks, days, hours, minutes,
-and seconds that will be produced by the template. It must be one of the value selectors.
-
 The following examples use a duration of 2 days (172,800 seconds) 1 hour (3,600 seconds)
 and 20 seconds, which totals to 176,420 seconds.
 [LIST]
-[*]``format_duration(176420, '[d][h][m][s]', 'd')`` will return the value ``2d 1h 0m 20s``.
-[*]``format_duration(176420, '[h][m][s]', 'h')`` will return the value ``49h 0m 20s``.
-[*]``format_duration(176420, 'Your reading time is [d][h][m][s]', 'h')`` returns the value
+[*]``format_duration(176420, '[d][h][m][s]')`` will return the value ``2d 1h 0m 20s``.
+[*]``format_duration(176420, '[h][m][s]')`` will return the value ``49h 0m 20s``.
+[*]``format_duration(176420, 'Your reading time is [d][h][m][s]')`` returns the value
 ``Your reading time is 49h 0m 20s``.
-[*]``format_duration(176420, '[w][d][h][m][s]', 'w')`` will return the value ``2d 1h 0m 20s``.
+[*]``format_duration(176420, '[w][d][h][m][s]')`` will return the value ``2d 1h 0m 20s``.
 Note that the zero weeks value is not returned.
 [/LIST]
 If you want to see zero values for items such as weeks in the above example,
 use an uppercase selector. For example, the following uses ``'W'`` to show zero weeks:
 
-``format_duration(176420, '[W][d][h][m][s]', 'w')`` returns ``0w 2d 1h 0m 20s``.
+``format_duration(176420, '[W][d][h][m][s]')`` returns ``0w 2d 1h 0m 20s``.
 
 By default the text following a value is the selector followed by a space.
 You can change that to whatever text you want. The format for a selector with
@@ -3477,11 +3474,34 @@ For example, the selector:
 [*]``[w: weeks | week ]`` produces ``'0 weeks '``, ``'1 week '``, or ``'2 weeks '``.
 [*]``[w: weeks ]`` produces ``0 weeks '``, ``1 weeks '``, or ``2 weeks '``.
 [/LIST]
+
+The optional ``largest_unit`` parameter specifies the largest of weeks, days, hours, minutes,
+and seconds that will be produced by the template. It must be one of the value selectors.
+This can be useful to truncate a value.
+
+``format_duration(176420, '[h][m][s]', 'd')`` will return the value ``1h 0m 20s`` instead of ``49h 0m 20s``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, template, largest_unit):
+    def evaluate(self, formatter, kwargs, mi, locals, value, template, largest_unit=''):
         if largest_unit not in 'wdhms':
             raise ValueError(_('the {0} parameter must be one of {1}').format('largest_unit', 'wdhms'))
+
+        pat = re.compile(r'\[(.)(:(.*?))?\]')
+
+        if not largest_unit:
+            for m in pat.finditer(template):
+                fmt_char = m.group(1)
+                match fmt_char.lower():
+                    case 'w' if largest_unit in 'dhms':
+                        largest_unit = 'w'
+                    case 'd' if largest_unit in 'hms':
+                        largest_unit = 'd'
+                    case 'h' if largest_unit in 'ms':
+                        largest_unit = 'h'
+                    case 'm' if largest_unit in 's':
+                        largest_unit = 'm'
+                    case 's' if not largest_unit:
+                        largest_unit = 's'
 
         int_val = remainder = round(float(value)) if value else 0
         weeks,remainder = divmod(remainder, 60*60*24*7) if largest_unit == 'w' else (-1,remainder)
@@ -3491,24 +3511,25 @@ For example, the selector:
         seconds = remainder
 
         def repl(mo):
-            txt = mo.group()
-            fmt_char = txt[1]
-            suffixes = re.split(r'\|', txt[3:-1])
-            match len(suffixes):
-                case 1 if not suffixes[0]:
-                    zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
-                case 1:
-                    zero_suffix = one_suffix = more_suffix = suffixes[0]
-                case 2:
-                    zero_suffix = more_suffix = suffixes[0]
-                    one_suffix = suffixes[1]
-                case 3:
-                    zero_suffix = suffixes[0]
-                    one_suffix = suffixes[1]
-                    more_suffix = suffixes[2]
-                case _:
-                    raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
-                    zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
+            fmt_char = mo.group(1)
+            suffixes = mo.group(3)
+            if suffixes is None:
+                zero_suffix = one_suffix = more_suffix = fmt_char.lower() + ' '
+            else:
+                suffixes = re.split(r'\|', suffixes)
+                match len(suffixes):
+                    case 1:
+                        zero_suffix = one_suffix = more_suffix = suffixes[0]
+                    case 2:
+                        zero_suffix = more_suffix = suffixes[0]
+                        one_suffix = suffixes[1]
+                    case 3:
+                        zero_suffix = suffixes[0]
+                        one_suffix = suffixes[1]
+                        more_suffix = suffixes[2]
+                    case _:
+                        raise ValueError(_('The group {} has too many suffixes').format(fmt_char))
+                        zero_suffix = one_suffix = more_suffix = '@@too many suffixes@@'
 
             def val_with_suffix(val, test_val):
                 match val:
@@ -3537,8 +3558,7 @@ For example, the selector:
                 case _:
                     raise ValueError(_('The {} format specifier is not valid').format(fmt_char))
 
-        s = re.sub(r'\[.:?.*?\]', repl, template)
-        return s
+        return pat.sub(repl, template)
 
 
 _formatter_builtins = [
