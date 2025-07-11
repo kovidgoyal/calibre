@@ -7,10 +7,6 @@ from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode
 from uuid import uuid4
 
-from html5_parser import parse
-from lxml import etree
-
-from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -48,14 +44,25 @@ def parse_txt(ty):
 
     tag_map = {
         'text': lambda: [ty.get('value', '')],
-        'scaps': lambda: [f'<span style="font-variant: all-small-caps;">{"".join(parse_txt(c))}</span>' for c in children],
+        'scaps': lambda: [
+            f'<span style="font-variant: all-small-caps;">{"".join(parse_txt(c))}</span>'
+            for c in children
+        ],
         'bold': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'drop_caps': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
         'linebreak': lambda: ['<hr>'],
-        'external_link': lambda: [f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'] if children else [],
-        'internal_link': lambda: [f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'] if children else [],
-        'ufinish': lambda: [text for c in children for text in parse_txt(c)]
+        'external_link': lambda: [
+            f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'
+        ]
+        if children
+        else [],
+        'internal_link': lambda: [
+            f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'
+        ]
+        if children
+        else [],
+        'ufinish': lambda: [text for c in children for text in parse_txt(c)],
     }
 
     if typ in tag_map:
@@ -76,10 +83,10 @@ def process_web_node(node):
         return f'<h4>{node.get("text", "")}</h4>'
     elif ntype in ['PARAGRAPH', 'BOOK_INFO']:
         if node.get('textHtml'):
-            return f'<p>{node.get("textHtml")}</p>'
+            return f'\n<p>{node.get("textHtml")}</p>'
         elif node.get('textJson'):
-            return f'<p>{parse_textjson(node["textJson"])}</p>'
-        return f'<p>{node.get("text", "")}</p>'
+            return f'\n<p>{parse_textjson(node["textJson"])}</p>'
+        return f'\n<p>{node.get("text", "")}</p>'
     elif (ntype == 'IMAGE') or (node.get('__typename', '') == 'ImageComponent'):
         alt = '' if node.get('altText') is None else node.get('altText')
         cap = ''
@@ -141,33 +148,6 @@ def load_article_from_web_json(raw):
     return '<html><body><article>' + body + '</article></body></html>'
 
 
-def cleanup_html_article(root):
-    main = root.xpath('//main')[0]
-    body = root.xpath('//body')[0]
-    for child in tuple(body):
-        body.remove(child)
-    body.append(main)
-    main.set('id', '')
-    main.tag = 'article'
-    for x in root.xpath('//*[@style]'):
-        x.set('style', '')
-    for x in root.xpath('//button'):
-        x.getparent().remove(x)
-
-
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
-
-
 class NoArticles(Exception):
     pass
 
@@ -185,7 +165,7 @@ def get_content(url_):
         'x-economist-consumer': 'TheEconomist-Liskov-android',
         'x-teg-client-name': 'Economist-Android',
         'x-teg-client-os': 'Android',
-        'x-teg-client-version': '4.40.0'
+        'x-teg-client-version': '4.40.0',
     }
     br = browser()
     req = Request(
@@ -221,35 +201,11 @@ class EconomistNews(BasicNewsRecipe):
     cover_url = 'https://m.media-amazon.com/images/M/MV5BNzJiZGYzNzgtNWY5Yi00NWYyLThmZGUtODQyM2ZkOWVlMDI1XkEyXkFqcGc@.jpg'
     oldest_article = 15
     resolve_internal_links = True
-    remove_tags = [
-        dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent', 'aside', 'footer', 'svg']),
-        dict(attrs={'aria-label': 'Article Teaser'}),
-        dict(attrs={'id': 'player'}),
-        dict(attrs={
-                'class': [
-                    'dblClkTrk', 'ec-article-info', 'share_inline_header',
-                    'related-items', 'main-content-container', 'ec-topic-widget',
-                    'teaser', 'blog-post__bottom-panel-bottom', 'blog-post__comments-label',
-                    'blog-post__foot-note', 'blog-post__sharebar', 'blog-post__bottom-panel',
-                    'newsletter-form', 'share-links-header', 'teaser--wrapped', 'latest-updates-panel__container',
-                    'latest-updates-panel__article-link', 'blog-post__section'
-                ]
-            }
-        ),
-        dict(attrs={
-                'class': lambda x: x and 'blog-post__siblings-list-aside' in x.split()}),
-        dict(attrs={'id': lambda x: x and 'gpt-ad-slot' in x}),
-        classes(
-            'share-links-header teaser--wrapped latest-updates-panel__container'
-            ' latest-updates-panel__article-link blog-post__section newsletter-form blog-post__bottom-panel'
-        )
-    ]
-    keep_only_tags = [dict(name='article', id=lambda x: not x)]
-    no_stylesheets = True
-    remove_attributes = ['data-reactid', 'width', 'height']
+
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 1
+
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title'}
 
@@ -261,7 +217,7 @@ class EconomistNews(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 834, 960, 1096, 1280, 1424',
@@ -303,7 +259,9 @@ class EconomistNews(BasicNewsRecipe):
             'variables': '{"homepageType":"MOBILE"}',
             'query': 'query FindHomepage($homepageType: HomepageType!) { findHomepage(homepageType: $homepageType) { __typename ...HomepageFragment } }  fragment CtaFragment on Cta { link text }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment OverridesFragment on Overrides { flyTitle headline rubric teaserImage { __typename ...ImageTeaserFragment } }  fragment CollectionItemFragment on CollectionItem { __typename type ... on CollectionArticleItem { article { __typename ...ArticleTeaserFragment } overrides { __typename ...OverridesFragment } } ... on CollectionRelatedArticleItem { article { __typename ...ArticleTeaserFragment } overrides { __typename ...OverridesFragment } } ... on CollectionExternalLinkItem { url overrides { __typename ...OverridesFragment } } }  fragment HomepageFragment on Homepage { components { __typename id headline type ... on StandardCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on TakeoverCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on DiscoverRailCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on TopStoriesCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on EmbedsCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on CarouselCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } imageLayout variant } ... on VideoCarouselCollection { cta { __typename ...CtaFragment } playlistId source fallbackStoryLink { sourceId } } ... on CoverPackageCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on LatestEditionCollection { cta { __typename ...CtaFragment } items { __typename ...CollectionItemFragment } } ... on Newsletter { slug items { __typename ...CollectionItemFragment } } } }',  # noqa: E501
         }
-        url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
+        url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
+            query, safe='()!', quote_via=quote
+        )
         raw = get_content(url)
         ans = self.economist_parse_index(raw)
         return self.economist_return_index(ans)
@@ -347,43 +305,15 @@ class EconomistNews(BasicNewsRecipe):
         if w and isinstance(w, str):
             width = w
         for img in soup.findAll('img', src=True):
-            qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
+            qua = (
+                'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
+            )
             img['src'] = img['src'].replace('economist.com/', qua)
         return soup
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
-        html = load_article_from_web_json(raw)
-
-        root = parse(html)
-        for div in root.xpath('//div[@class="lazy-image"]'):
-            noscript = list(div.iter('noscript'))
-            if noscript and noscript[0].text:
-                img = list(parse(noscript[0].text).iter('img'))
-                if img:
-                    p = noscript[0].getparent()
-                    idx = p.index(noscript[0])
-                    p.insert(idx, p.makeelement('img', src=img[0].get('src')))
-                    p.remove(noscript[0])
-        for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
-            x.getparent().remove(x)
-        # the economist uses <small> for small caps with a custom font
-        for init in root.xpath('//span[@data-caps="initial"]'):
-            init.set('style', 'font-weight:bold;')
-        for x in root.xpath('//small'):
-            if x.text and len(x) == 0:
-                x.text = x.text.upper()
-                x.tag = 'span'
-                x.set('style', 'font-variant: small-caps')
-        for h2 in root.xpath('//h2'):
-            h2.tag = 'h4'
-        for x in root.xpath('//figcaption'):
-            x.set('style', 'text-align:center; font-size:small;')
-        for x in root.xpath('//cite'):
-            x.tag = 'blockquote'
-            x.set('style', 'color:#404040;')
-        raw = etree.tostring(root, encoding='unicode')
-        return raw
+        return load_article_from_web_json(raw)
 
     def get_article(self, url):
         query = {
@@ -391,7 +321,9 @@ class EconomistNews(BasicNewsRecipe):
             'variables': '{{"ref":"{}"}}'.format(url),
             'query': 'query ArticleDeeplinkQuery($ref: String!, $includeRelatedArticles: Boolean = true ) { findArticleByUrl(url: $ref) { __typename ...ArticleDataFragment } }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url isAiGenerated fileHash }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment AnnotatedTextFragment on AnnotatedText { text textJson annotations { type length index attributes { name value } } }  fragment ImageComponentFragment on ImageComponent { altText caption { __typename ...AnnotatedTextFragment } credit height imageType mode source url width }  fragment BlockQuoteComponentFragment on BlockQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment BookInfoComponentFragment on BookInfoComponent { text textJson annotations { type length index attributes { name value } } }  fragment ParagraphComponentFragment on ParagraphComponent { text textJson annotations { type length index attributes { name value } } }  fragment PullQuoteComponentFragment on PullQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment CrossheadComponentFragment on CrossheadComponent { text }  fragment OrderedListComponentFragment on OrderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment UnorderedListComponentFragment on UnorderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment VideoComponentFragment on VideoComponent { url title thumbnailImage }  fragment InfoboxComponentFragment on InfoboxComponent { components { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...VideoComponentFragment } }  fragment InfographicComponentFragment on InfographicComponent { url title width fallback { __typename ...ImageComponentFragment } altText height width }  fragment ArticleDataFragment on Article { id url brand byline rubric headline layout { headerStyle } contentIdentity { __typename ...ContentIdentityFragment } dateline dateFirstPublished dateModified datePublished dateRevised estimatedReadTime narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } printFlyTitle printHeadline printRubric flyTitle wordCount section { tegId name articles(pagingInfo: { pagingType: OFFSET pageSize: 6 pageNumber: 1 } ) @include(if: $includeRelatedArticles) { edges { node { __typename ...ArticleTeaserFragment } } } } teaserImage { __typename type ...ImageComponentFragment } tegId leadComponent { __typename type ...ImageComponentFragment } body { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...InfoboxComponentFragment ...ImageComponentFragment ...VideoComponentFragment ...InfographicComponentFragment } footer { __typename type ...ParagraphComponentFragment } tags { name } ads { adData } podcast { __typename ...PodcastAudioFragment } }',  # noqa: E501
         }
-        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
+        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
+            query, safe='()!', quote_via=quote
+        )
         raw = get_content(deep_url)
         return raw
 
@@ -401,31 +333,3 @@ class EconomistNews(BasicNewsRecipe):
         pt.write(art_cont)
         pt.close()
         return 'file:///' + pt.name
-
-    def eco_find_image_tables(self, soup):
-        for x in soup.findAll('table', align=['right', 'center']):
-            if len(x.findAll('font')) in (1, 2) and len(x.findAll('img')) == 1:
-                yield x
-
-    def postprocess_html(self, soup, first):
-        for img in soup.findAll('img', srcset=True):
-            del img['srcset']
-        for table in list(self.eco_find_image_tables(soup)):
-            caption = table.find('font')
-            img = table.find('img')
-            div = new_tag(soup, 'div')
-            div['style'] = 'text-align:left;font-size:70%'
-            ns = NavigableString(self.tag_to_string(caption))
-            div.insert(0, ns)
-            div.insert(1, new_tag(soup, 'br'))
-            del img['width']
-            del img['height']
-            img.extract()
-            div.insert(2, img)
-            table.replaceWith(div)
-        return soup
-
-    def canonicalize_internal_url(self, url, is_link=True):
-        if url.endswith('/print'):
-            url = url.rpartition('/')[0]
-        return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
