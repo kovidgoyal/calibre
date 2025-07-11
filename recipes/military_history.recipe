@@ -24,24 +24,33 @@ class milthist(BasicNewsRecipe):
     simultaneous_downloads = 1
 
     extra_css = '''
-        [class^="meta"] { font-size:small; }
+        [class^="meta"], [class~="__author__text"], [class~="__date"] { font-size:small; }
         .post-subtitle { font-style: italic; color:#202020; }
         .wp-block-image { font-size:small; text-align:center; }
     '''
 
     keep_only_tags = [
-        dict(attrs={'class':lambda x: x and '__header' in x}),
-        dict(attrs={'class':lambda x: x and '__background' in x}),
-        dict(attrs={'class':lambda x: x and '__body_area' in x}),
+        dict(attrs={'class': lambda x: x and any(tag in x for tag in [
+            '__image', '__header', '__background', 
+            '__body_area', '__author__text', '__date'
+        ])})
     ]
 
     remove_tags = [
         dict(attrs={'class':'ad-break'}),
-        dict(attrs={'class':lambda x: x and 'avatar' in x.split()}),
+        dict(attrs={'class': lambda x: x and any(cls in x.split()
+        for cls in ['avatar', 'what-mag-row'])}),
         dict(attrs={'class':lambda x: x and '--share' in x})
     ]
 
     def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'src': True}):
+            if '?w=' in img['src']:
+                res = '?w=600'
+                w = self.recipe_specific_options.get('res')
+                if w and isinstance(w, str):
+                    res = '?w=' + w
+                img['src'] = img['src'].split('?')[0] + res
         exp = soup.find(attrs={'class':lambda x: x and 'post-subtitle' in x.split()})
         if exp:
             exp.name = 'p'
@@ -51,7 +60,12 @@ class milthist(BasicNewsRecipe):
         'issue': {
             'short': 'Enter the Issue Number you want to download ',
             'long': 'For example, 136'
-        }
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600',
+        },
     }
 
     def parse_index(self):
@@ -75,7 +89,7 @@ class milthist(BasicNewsRecipe):
             self.description = self.tag_to_string(edit.findParent('div'))
         cov = issue.find('figure', attrs={'class':lambda x: x and 'wp-block-image' in x.split()})
         if cov:
-            self.cover_url = cov.img['src']
+            self.cover_url = cov.img['src'].split('?')[0] + '?w=600'
         div = issue.find('div', attrs={'class':lambda x: x and 'entry-content' in x.split()})
 
         feeds = []
