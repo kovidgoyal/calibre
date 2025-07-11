@@ -23,6 +23,51 @@
 # - title by author
 # }}}
 
+{{{ 8.6.0 2025-07-10
+
+:: new features
+
+- Content server: Add a checkbox in content server user preferences to prevent a user account from changing its own password via the web interface
+
+- Restoring database: Improve performance by an order of magnitude
+
+- Add a tweak to Preferences->Tweaks to permit displaying the sort value for series in the Tag browser
+
+- Welcome wizard: Change default output format to AZW3 for Kindle as MOBI is obsolete and all Kindles released within the last decade plus support AZW3
+
+- Add 'Search "not in"' and 'Filter "not in'" buttons to Manage authors and Manage Items
+
+:: bug fixes
+
+- [2115246] Windows: Fix a regression in the previous release that caused terminal windows to popup momentarily when adding PDF files or converting them
+
+- [2115057] E-book viewer: Fix a regression in 8.4 that broke fading of the background image
+
+- [2116006] Tag browser: Fix clicking on categories to search for books by first letter of series not working correctly for non-English language books
+
+- [2115111] Edit metadata individually: Ensure Next/Previous buttons work even if something re-orders the books in the book list. They will now iterate over the books as they were at the time the dialog is created
+
+- [2115084] Windows: Generate catalog: Workaround for systems where a broken antivirus or similar holds open files in the catalog library causing a permission denied error
+
+:: improved recipes
+- Economist
+- 1843
+- Financial Times
+- PC World
+- Muy Interesante Mexico
+- Hindu Business Line
+- Business Standard
+- Hindustan Times
+- The Week
+- Times of India
+- Hindustan
+- Financial Times
+- Reason
+
+:: new recipes
+- La Presse by quatorze
+}}}
+
 {{{ 8.5.0 2025-06-20
 
 :: new features
