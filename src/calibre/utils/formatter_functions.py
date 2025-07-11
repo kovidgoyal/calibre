@@ -1284,6 +1284,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     category = GET_FROM_METADATA
     __doc__ = doc = _(
 r'''
+
 ``formats_sizes()`` -- return a comma-separated list of colon-separated
 ``FMT:SIZE`` items giving the sizes of the formats of a book in bytes.[/] You can
 use the ``select()`` function to get the size for a specific format. Note that
@@ -1304,15 +1305,12 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
     category = GET_FROM_METADATA
     __doc__ = doc = _(
 r'''
-
 ``formats_paths([separator])`` -- return a ``separator``-separated list of
 colon-separated items ``FMT:PATH`` giving the full path to the formats of a
 book.[/] The ``separator`` argument is optional. If not supplied then the
 seoarator is ``', '`` (comma space). If the separator is a comma then you can
 use the ``select()`` function to get the path for a specific format. Note that
 format names are always uppercase, as in EPUB.
-
-
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, sep=','):
