@@ -13,6 +13,7 @@ __docformat__ = 'restructuredtext en'
 
 import inspect
 import numbers
+import os.path
 import posixpath
 import re
 import traceback
@@ -1320,6 +1321,70 @@ format names are always uppercase, as in EPUB.
         except:
             return ''
 
+
+class BuiltinFormatsPathSegments(BuiltinFormatterFunction):
+    name = 'formats_path_segments'
+    arg_count = 5
+    category = GET_FROM_METADATA
+    __doc__ = doc = _(
+r'''
+``formats_path_segments(with_author, with_title, with_format, with_ext, sep)``
+-- return parts of the path to a book format in the calibre library separated
+by ``sep``.[/] The parameter ``sep`` should usually be a slash (``'/'``). One use
+is to be sure that paths generated in Save to disk and Send to device templates
+are shortened consistently. Another is to be sure the paths on the device match
+the paths in the calibre libary.
+
+A book path consists of 3 segments: the author, the title including the calibre
+database id in parentheses, and the format (author - title). Calibre can
+shorten any of the three because of file name length limitations. You choose
+which segments to include by passing ``1`` for that segment. If you don't want
+a segment then pass ``0`` or the empty string for that segment. For example,
+the following returns just the format name without the extension:
+[CODE]
+formats_path_segments(0, 0, 1, 0, '/')
+[/CODE]
+Because there is only one segment the separator is ignored.
+
+If there are multiple formats (multiple extensions) then one of the extensions
+will be picked at random. If you care about which extension is used then get
+the path without the extension then add the desired extension to it.
+
+Examples: Assume there is a book in the calibre library with an epub format by
+Joe Blogs with title 'Help'. It would have the path
+[CODE]
+Joe Blogs/Help - (calibre_id)/Help - Joe Blogs.epub
+[/CODE]
+The following shows what is returned for various parameters:
+[LIST]
+[*]``formats_path_segments(0, 0, 1, 0, '/')`` returns `Help - Joe Blogs`
+[*]``formats_path_segments(0, 0, 1, 1, '/')`` returns `Help - Joe Blogs.epub`
+[*]``formats_path_segments(1, 0, 1, 1, '/')`` returns `Joe Blogs/Help - Joe Blogs.epub`
+[*]``formats_path_segments(1, 0, 1, 0, '/')`` returns `Joe Blogs/Help - Joe Blogs`
+[*]``formats_path_segments(0, 1, 0, 0, '/')`` returns `Help - (calibre_id)`
+[/LIST]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, with_author, with_title, with_format, with_ext, sep):
+        fmt_metadata = mi.get('format_metadata', {})
+        if fmt_metadata:
+            for v in fmt_metadata.values():
+                p = v['path']
+                r,fmt = os.path.split(p)
+                if with_ext == '0' or not with_ext:
+                    fmt = os.path.splitext(fmt)[0]
+                r,title = os.path.split(r)
+                r,author  = os.path.split(r)
+                parts = []
+                if with_author == '1':
+                    parts.append(author)
+                if with_title == '1':
+                    parts.append(title)
+                if with_format == '1':
+                    parts.append(fmt)
+                return sep.join(parts)
+        else:
+            return _("No book formats found so the path can't be generated")
 
 class BuiltinHumanReadable(BuiltinFormatterFunction):
     name = 'human_readable'
@@ -3575,8 +3640,8 @@ _formatter_builtins = [
     BuiltinFieldListCount(), BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatDuration(), BuiltinFormatNumber(),
-    BuiltinFormatsModtimes(),BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
-    BuiltinGetLink(),
+    BuiltinFormatsModtimes(),BuiltinFormatsPaths(), BuiltinFormatsPathSegments(),
+    BuiltinFormatsSizes(), BuiltinFractionalPart(),BuiltinGetLink(),
     BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
     BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinIsDarkMode(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
