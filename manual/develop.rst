@@ -248,6 +248,9 @@ your Linux distribution and what shell you are using.
     It is recommended to use the binary installer provided from upstream.
     Should you insist on using a package provided by your distribution, use
     the ``CALIBRE_PYTHON_PATH`` and ``CALIBRE_RESOURCES_PATH`` variables instead.
+    You can get these by running ``calibre-debug --paths``. But note that
+    distribution calibre packages are often terminally broken and are completely
+    unsupported.
 
 Once you have set the environment variable, open a new terminal and check that it was correctly set by using
 the command::
