@@ -1308,7 +1308,7 @@ r'''
 ``formats_paths([separator])`` -- return a ``separator``-separated list of
 colon-separated items ``FMT:PATH`` giving the full path to the formats of a
 book.[/] The ``separator`` argument is optional. If not supplied then the
-seoarator is ``', '`` (comma space). If the separator is a comma then you can
+separator is ``', '`` (comma space). If the separator is a comma then you can
 use the ``select()`` function to get the path for a specific format. Note that
 format names are always uppercase, as in EPUB.
 ''')
