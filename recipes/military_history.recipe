@@ -31,7 +31,7 @@ class milthist(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(attrs={'class': lambda x: x and any(tag in x for tag in [
-            '__image', '__header', '__background', 
+            '__image', '__header', '__background',
             '__body_area', '__author__text', '__date'
         ])})
     ]

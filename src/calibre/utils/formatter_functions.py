@@ -1386,6 +1386,7 @@ The following shows what is returned for various parameters:
         else:
             return _("No book formats found so the path can't be generated")
 
+
 class BuiltinHumanReadable(BuiltinFormatterFunction):
     name = 'human_readable'
     arg_count = 1
