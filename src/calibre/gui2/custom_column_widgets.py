@@ -977,6 +977,9 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         if is_comments:
             layout.addLayout(l, row, column, layout_rows_for_comments, 1)
             layout.setColumnStretch(column, 100)
+            # All multiline fields should grow with the window
+            for i in range(layout_rows_for_comments):
+                layout.setRowStretch(row + i, 100)
             row += layout_rows_for_comments
         else:
             layout.addLayout(l, row, column, 1, 1)
