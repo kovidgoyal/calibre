@@ -115,6 +115,7 @@ class TextSearch(QWidget):
         b.setIcon(QIcon.ic('arrow-down.png')), b.setText(_('&Next'))
         b.setToolTip(_('Find next match'))
         h.addWidget(b)
+        connect_lambda(b.clicked, self, lambda self: self.do_search())
         self.prev_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-up.png')), b.setText(_('&Previous'))
         b.setToolTip(_('Find previous match'))
