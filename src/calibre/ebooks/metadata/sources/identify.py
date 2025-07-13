@@ -534,10 +534,10 @@ def identify(log, abort,  # {{{
         if getattr(r.pubdate, 'year', 2000) <= UNDEFINED_DATE.year:
             r.pubdate = None
         if pm_rules and r.publisher:
-            pubs = map_tags([r.publisher], pm_rules)
+            pubs = map_tags([r.publisher], pm_rules, separator='')
             r.publisher = pubs[0] if pubs else ''
         if s_rules and r.series:
-            ss = map_tags([r.series], s_rules)
+            ss = map_tags([r.series], s_rules, separator='')
             r.series = ss[0] if ss else ''
 
     if msprefs['swap_author_names']:
