@@ -192,6 +192,7 @@ The following functions are usable in Single Function Mode because their first p
 * :ffsum:`encode_for_url`
 * :ffsum:`floor`
 * :ffsum:`format_date`
+* :ffsum:`format_duration`
 * :ffsum:`format_number`
 * :ffsum:`fractional_part`
 * :ffsum:`human_readable`
@@ -293,7 +294,7 @@ Notes:
 * In a logical context, any non-empty value is ``True``
 * In a logical context, the empty value is ``False``
 * Strings and numbers can be used interchangeably. For example, ``10`` and ``'10'`` are the same thing.
-* Comments are lines starting with blanks or tabs then a '#' character.
+* Comments are lines starting with a '#' character, possibly preceded by blanks or tabs.
 
 **Operator precedence**
 
