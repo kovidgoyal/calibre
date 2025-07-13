@@ -102,6 +102,9 @@ class TestAuthorToAuthorSort(unittest.TestCase):
             self.check_all_methods('Leonardo Da Vinci',
                                     invert='Da Vinci, Leonardo',
                                     nocomma='Da Vinci Leonardo')
+            self.check_all_methods('Liam Da Mathúna',
+                                    invert='Da Mathúna, Liam',
+                                    nocomma='Da Mathúna Liam')
             self.check_all_methods('Van Gogh')
             self.check_all_methods('Van')
         with Tweak('author_use_surname_prefixes', False):

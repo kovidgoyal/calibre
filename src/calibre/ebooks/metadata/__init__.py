@@ -97,7 +97,8 @@ def author_to_author_sort(
 
     author_use_surname_prefixes = tweaks['author_use_surname_prefixes'] if use_surname_prefixes is None else use_surname_prefixes
     if author_use_surname_prefixes:
-        author_surname_prefixes = frozenset(x.lower() for x in (tweaks['author_surname_prefixes'] if surname_prefixes is None else surname_prefixes))
+        author_surname_prefixes = frozenset(
+            force_unicode(x).lower() for x in (tweaks['author_surname_prefixes'] if surname_prefixes is None else surname_prefixes))
         if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
             return author
 
