@@ -1333,7 +1333,7 @@ r'''
 by ``sep``.[/] The parameter ``sep`` should usually be a slash (``'/'``). One use
 is to be sure that paths generated in Save to disk and Send to device templates
 are shortened consistently. Another is to be sure the paths on the device match
-the paths in the calibre libary.
+the paths in the calibre library.
 
 A book path consists of 3 segments: the author, the title including the calibre
 database id in parentheses, and the format (author - title). Calibre can
