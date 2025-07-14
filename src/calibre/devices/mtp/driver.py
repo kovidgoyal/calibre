@@ -545,7 +545,8 @@ class MTP_DEVICE(BASE):
                 try:
                     self.upload_cover(parent, relpath, storage, mi, stream)
                     # Upload the apnx file
-                    self.upload_apnx(parent, fname, storage, mi, infile)
+                    if self.is_kindle:
+                      self.upload_apnx(parent, fname, storage, mi, infile)
                 except Exception:
                     import traceback
                     traceback.print_exc()
