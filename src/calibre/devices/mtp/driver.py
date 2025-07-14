@@ -86,6 +86,12 @@ class MTP_DEVICE(BASE):
             p.defaults['history'] = {}
             p.defaults['rules'] = []
             p.defaults['ignored_folders'] = {}
+            p.defaults['apnx'] = {
+                'send': True,
+                'method': 'fast',
+                'custom_column_page_count': None,
+                'custom_column_method': None,
+            }
 
         return self._prefs
 
@@ -545,7 +551,8 @@ class MTP_DEVICE(BASE):
                 try:
                     self.upload_cover(parent, relpath, storage, mi, stream)
                     # Upload the apnx file
-                    if self.is_kindle:
+                    if self.is_kindle and self.get_pref('apnx').get('send', False):
+                      debug('Uploading APNX file for', fname)
                       self.upload_apnx(parent, fname, storage, mi, infile)
                 except Exception:
                     import traceback
@@ -644,9 +651,25 @@ class MTP_DEVICE(BASE):
         apnx_local_path = f'{os.path.join('/tmp', apnx_filename)}'
 
         try:
-            # TODO
-            method = None
-            custom_page_count = 100
+            custom_page_count = 0
+            cust_col_name = self.get_pref('apnx').get('custom_column_page_count', None)
+            if cust_col_name:
+                try:
+                    custom_page_count = int(mi.get(cust_col_name, 0))
+                except:
+                    pass
+
+            method = self.get_pref('apnx').get('method', 'fast')
+            cust_col_method = self.get_pref('apnx').get('custom_column_method', None)
+            if cust_col_method:
+                try:
+                    method = str(mi.get(cust_col_method)).lower()
+                    if method is not None:
+                        method = method.lower()
+                        if method not in ('fast', 'accurate', 'pagebreak'):
+                            method = None
+                except:
+                    prints(f'Invalid custom column method: {cust_col_method}, ignoring')
 
             apnx_builder.write_apnx(filepath, apnx_local_path, method=method, page_count=custom_page_count)
 
