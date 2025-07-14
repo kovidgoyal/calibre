@@ -16,9 +16,9 @@ class AccuratePageGenerator(IPageGenerator):
         return 'accurate'
 
     def _generate_fallback(self, mobi_file_path: str, real_count: int | None) -> Pages:
-        return FastPageGenerator.instance.generate(mobi_file_path, real_count)
+        return FastPageGenerator.instance.generate(mobi_file_path, real_countm, "")
 
-    def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
+    def _generate(self, mobi_file_path: str, real_count: int | None, regex: str) -> Pages:
         '''
         A more accurate but much more resource intensive and slower
         method to calculate the page length.

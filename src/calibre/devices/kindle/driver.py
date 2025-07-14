@@ -383,6 +383,8 @@ class KINDLE2(KINDLE):
     # SUPPORTS_SUB_DIRS = False # Apparently the Paperwhite doesn't like files placed in subdirectories
     # SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
+
+
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Send page number information when sending books') + ':::' + _(
             'The Kindle 3 and newer versions can use page number information'
@@ -391,19 +393,20 @@ class KINDLE2(KINDLE):
             ' USB. Note that the page numbers do not correspond to any paper'
             ' book.'),
         _('Page count calculation method') + ':::' + '<p>' + _(
-            'There are multiple ways to generate the page number information.'
-            ' If a page count is given then the book will be divided into that many pages.'
-            ' Otherwise the number of pages will be approximated using one of the following'
-            ' methods.<ul>'
-            ' <li>fast: 2300 characters of uncompressed text per page.\n\n'
-            ' <li>accurate: Based on the number of chapters, paragraphs, and visible lines in the book.'
-            ' This method is designed to simulate an average paperback book where there are 32 lines per'
-            ' page and a maximum of 70 characters per line.\n\n'
-            ' <li>pagebreak: The "pagebreak" method uses the presence of <mbp:pagebreak> tags within'
-            ' the book to determine pages.</ul>'
-            'Methods other than "fast" are going to be much slower.'
-            ' Further, if "pagebreak" fails to determine a page count accurate will be used, and if '
-            ' "accurate" fails fast will be used.'),
+            'There are multiple ways to generate page number information for MOBI/Kindle APNX files. '
+            'If a page count is explicitly provided, the book will be divided into that many pages. '
+            'Otherwise, the number of pages is estimated using one of the following methods:'
+            '<ul>'
+            '<li><b>fast</b>: Uses a simple estimate of 2300 characters of uncompressed text per page.</li>'
+            '<li><b>accurate</b>: A more detailed analysis based on the number of chapters, paragraphs, and visible lines. '
+            'It aims to simulate an average paperback, assuming 32 lines per page and up to 70 characters per line.</li>'
+            '<li><b>pagebreak</b>: Relies on explicit page break tags, such as <code>&lt;mbp:pagebreak&gt;</code>, '
+            'embedded in the book’s HTML to define page boundaries.</li>'
+            '<li><b>regex</b>: Uses a regular expression to locate custom page break tags and extract a label from the first capturing group. '
+            'The label can be a number, Roman numeral, or arbitrary text, e.g., from <code>&lt;a role=\"doc-pagebreak\" aria-label=\"IX\"&gt;</code>.</li>'
+            '</ul>'
+            'Note: Methods other than <b>fast</b> are slower. If the selected method fails, calibre will automatically fall back: '
+            '<b>pagebreak → accurate → fast</b>.'),
         _('Custom column name to retrieve page counts from') + ':::' + _(
             'If you have a custom column in your library that you use to'
             ' store the page count of books, you can have calibre use that'
@@ -423,20 +426,31 @@ class KINDLE2(KINDLE):
             ' the Kindle, this is mostly useful when resending a book to the'
             ' device which is already on the device (e.g. after making a'
             ' modification).'),
+        _('Regex') + ':::' + _(
+            'Used only when the page count calculation method is set to "regex". This option allows you to define a '
+            'regular expression that identifies page break elements in the HTML and extracts the visible page label. '
+            'The first capturing group of the expression should match the label text (e.g., "94" or "IX"). '
+            'For example, in the HTML <code>&lt;a role=\"doc-pagebreak\" aria-label=\"94\" id=\"page94\"&gt;</code>, '
+            'the default regex <code>&lt;[^&gt;]*role=\"doc-pagebreak\"[^&gt;]*aria-label=\"([^\"|]+)\"[^&gt;]*&gt;</code> '
+            'extracts "94" as the page label.'),
 
     ]
+    ARIA_PAGEBREAK_REGEX = '<[^>]*role="doc-pagebreak"[^>]*aria-label="([^"|]+)"[^>]*>'
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         'fast',
         '',
         '',
         True,
+        "",
+        ARIA_PAGEBREAK_REGEX
     ]
     OPT_APNX                 = 0
     OPT_APNX_METHOD          = 1
     OPT_APNX_CUST_COL        = 2
     OPT_APNX_METHOD_COL      = 3
     OPT_APNX_OVERWRITE       = 4
+    OPT_APNX_REGEX           = 5
     EXTRA_CUSTOMIZATION_CHOICES = {OPT_APNX_METHOD: set(APNXBuilder.generators.keys())}
 
     # x330 on the PaperWhite
@@ -640,7 +654,7 @@ class KINDLE2(KINDLE):
                             print(f'Invalid method choice for this book ({temp!r}), ignoring.')
                     except:
                         print('Could not retrieve override method choice, using default.')
-                apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
+                apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count, page_break_regex=opts.extra_customization[self.OPT_APNX_REGEX])
             except:
                 print('Failed to generate APNX')
                 import traceback

@@ -15,6 +15,7 @@ from calibre.devices.kindle.apnx_page_generator.generators.accurate_page_generat
 from calibre.devices.kindle.apnx_page_generator.generators.exact_page_generator import ExactPageGenerator
 from calibre.devices.kindle.apnx_page_generator.generators.fast_page_generator import FastPageGenerator
 from calibre.devices.kindle.apnx_page_generator.generators.pagebreak_page_generator import PagebreakPageGenerator
+from calibre.devices.kindle.apnx_page_generator.generators.regex_page_generator import  RegexPageGenerator
 from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGenerator
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
@@ -32,10 +33,11 @@ class APNXBuilder:
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
         AccuratePageGenerator.instance.name(): AccuratePageGenerator.instance,
         PagebreakPageGenerator.instance.name(): PagebreakPageGenerator.instance,
+        RegexPageGenerator.instance.name(): RegexPageGenerator.instance,
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }
 
-    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0):
+    def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0, page_break_regex : str = ""):
         '''
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
@@ -48,7 +50,7 @@ class APNXBuilder:
         else:
             generator: IPageGenerator = self.generators.setdefault(method, FastPageGenerator.instance)
 
-        pages = generator.generate(mobi_file_path, page_count)
+        pages = generator.generate(mobi_file_path, page_count, page_break_regex)
         if pages.number_of_pages == 0:
             raise Exception(_('Could not generate page mapping.'))
         # Generate the APNX file from the page mapping.
