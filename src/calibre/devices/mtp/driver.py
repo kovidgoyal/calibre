@@ -544,6 +544,8 @@ class MTP_DEVICE(BASE):
                 mtp_file = self.put_file(parent, path[-1], stream, sz)
                 try:
                     self.upload_cover(parent, relpath, storage, mi, stream)
+                    # Upload the apnx file
+                    self.upload_apnx(parent, fname, storage, mi, infile)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -631,6 +633,37 @@ class MTP_DEVICE(BASE):
                 self.put_file(system_thumbnails_dir, f.name, data, sz)
         debug(f'Restored {count} cover thumbnails that were destroyed by Amazon')
     # }}}
+
+    def upload_apnx(self, parent, filename, storage, mi, filepath):
+        from calibre.devices.kindle.apnx import APNXBuilder
+        apnx_builder = APNXBuilder()
+
+        name = filename.rpartition('.')[0]
+        apnx_filename = f'{name[:-2]}.apnx'
+        apnx_local_path = f'{os.path.join('/tmp', apnx_filename)}'
+
+        try:
+            # TODO
+            method = None
+            custom_page_count = 100
+
+            apnx_builder.write_apnx(filepath, apnx_local_path, method=method, page_count=custom_page_count)
+
+            apnx_size = os.path.getsize(apnx_local_path)
+            apnx_stream = open(apnx_local_path, 'rb')
+
+            try:
+              apnx_path = parent.name, f'{name[:-2]}.sdr', apnx_filename
+              sdr_parent = self.ensure_parent(storage, apnx_path)
+              self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
+            finally:
+              apnx_stream.close()
+        except:
+            print('Failed to generate APNX')
+            import traceback
+            traceback.print_exc()
+        finally:
+          os.remove(apnx_local_path)
 
     def add_books_to_metadata(self, mtp_files, metadata, booklists):
         debug('add_books_to_metadata() called')
