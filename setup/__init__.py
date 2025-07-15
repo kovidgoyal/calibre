@@ -192,17 +192,6 @@ class Command:
         self.real_gid = os.environ.get('SUDO_GID', None)
         self.real_user = os.environ.get('SUDO_USER', None)
 
-    def drop_privileges(self):
-        if not islinux or ismacos or isfreebsd:
-            return
-        if self.real_user is not None:
-            self.info('Dropping privileges to those of', self.real_user+':',
-                    self.real_uid)
-        if self.real_gid is not None:
-            os.setegid(int(self.real_gid))
-        if self.real_uid is not None:
-            os.seteuid(int(self.real_uid))
-
     def pre_sub_commands(self, opts):
         pass
 
