@@ -176,6 +176,7 @@ class Command:
     SRC = SRC
     RESOURCES = os.path.join(os.path.dirname(SRC), 'resources')
     description = ''
+    drop_privileges_for_subcommands = False
 
     sub_commands = []
 
@@ -202,15 +203,6 @@ class Command:
         if self.real_uid is not None:
             os.seteuid(int(self.real_uid))
 
-    def regain_privileges(self):
-        if not islinux or ismacos or isfreebsd:
-            return
-        if os.geteuid() != 0 and self.orig_euid == 0:
-            self.info('Trying to get root privileges')
-            os.seteuid(0)
-            if os.getegid() != 0:
-                os.setegid(0)
-
     def pre_sub_commands(self, opts):
         pass
 
@@ -225,8 +217,26 @@ class Command:
     def run_cmd(self, cmd, opts):
         from setup.commands import command_names
         cmd.pre_sub_commands(opts)
-        for scmd in cmd.sub_commands:
-            self.run_cmd(scmd, opts)
+        if self.drop_privileges_for_subcommands and self.orig_euid is not None and os.getuid() == 0 and self.real_uid is not None:
+            if self.real_user is not None:
+                self.info('Dropping privileges to those of', self.real_user+':', self.real_uid)
+
+            pid = os.fork()
+            if pid == 0:
+                if self.real_gid is not None:
+                    os.setgid(int(self.real_gid))
+                if self.real_uid is not None:
+                    os.setuid(int(self.real_uid))
+                for scmd in cmd.sub_commands:
+                    self.run_cmd(scmd, opts)
+                raise SystemExit(0)
+            else:
+                rpid, st = os.waitpid(pid, 0)
+                if code := os.waitstatus_to_exitcode(st) != 0:
+                    sys.exit(code)
+        else:
+            for scmd in cmd.sub_commands:
+                self.run_cmd(scmd, opts)
 
         st = time.time()
         self.running(cmd)

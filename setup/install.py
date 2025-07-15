@@ -60,6 +60,7 @@ class Develop(Command):
             ''')
     short_description = 'Setup a development environment for calibre'
     MODE = 0o755
+    drop_privileges_for_subcommands = True
 
     sub_commands = ['build', 'resources', 'iso639', 'iso3166', 'gui',]
 
@@ -128,13 +129,6 @@ class Develop(Command):
                     'supported on linux. On other platforms, see the User Manual'
                     ' for help with setting up a development environment.')
             raise SystemExit(1)
-
-        if os.geteuid() == 0:
-            # We drop privileges for security, regaining them when installing
-            # files. Also ensures that any config files created as a side
-            # effect of the build process are not owned by root.
-            self.drop_privileges()
-
         # Ensure any config files created as a side effect of importing calibre
         # during the build process are in /tmp
         os.environ['CALIBRE_CONFIG_DIRECTORY'] = os.environ.get('CALIBRE_CONFIG_DIRECTORY', '/tmp/calibre-install-config')
@@ -142,7 +136,6 @@ class Develop(Command):
     def run(self, opts):
         self.manifest = []
         self.opts = opts
-        self.regain_privileges()
         self.consolidate_paths()
         self.install_files()
         self.write_templates()
