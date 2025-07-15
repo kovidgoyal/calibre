@@ -26,6 +26,7 @@ class DeviceDefaults:
                     'format_map': ['azw3', 'mobi', 'azw',
                                     'azw1', 'azw4', 'kfx', 'pdf'],
                     'send_to': ['documents', 'kindle', 'books'],
+                    'apnx': {'send': True, 'method': 'fast', 'custom_column_page_count': None, 'custom_column_method': None}
                     }
                 ),
                 # B&N devices

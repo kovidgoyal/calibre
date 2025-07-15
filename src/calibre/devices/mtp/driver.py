@@ -87,7 +87,7 @@ class MTP_DEVICE(BASE):
             p.defaults['rules'] = []
             p.defaults['ignored_folders'] = {}
             p.defaults['apnx'] = {
-                'send': True,
+                'send': False,
                 'method': 'fast',
                 'custom_column_page_count': None,
                 'custom_column_method': None,
@@ -643,6 +643,7 @@ class MTP_DEVICE(BASE):
     # }}}
 
     def upload_apnx(self, parent, filename, storage, mi, filepath):
+        debug('upload_apnx() called')
         from calibre.devices.kindle.apnx import APNXBuilder
         from calibre.ptempfile import PersistentTemporaryFile
 
@@ -651,16 +652,19 @@ class MTP_DEVICE(BASE):
         apnx_local_file.close()
 
         try:
+            pref = self.get_pref('apnx')
+
             custom_page_count = 0
-            cust_col_name = self.get_pref('apnx').get('custom_column_page_count', None)
+            cust_col_name = pref.get('custom_column_page_count', None)
             if cust_col_name:
                 try:
                     custom_page_count = int(mi.get(cust_col_name, 0))
                 except Exception:
                     pass
 
-            method = self.get_pref('apnx').get('method', 'fast')
-            cust_col_method = self.get_pref('apnx').get('custom_column_method', None)
+            method = pref.get('method', 'fast')
+
+            cust_col_method = pref.get('custom_column_method', None)
             if cust_col_method:
                 try:
                     method = str(mi.get(cust_col_method)).lower()
@@ -689,6 +693,7 @@ class MTP_DEVICE(BASE):
             traceback.print_exc()
         finally:
           os.remove(apnx_local_path)
+        debug('upload_apnx() ended')
 
     def add_books_to_metadata(self, mtp_files, metadata, booklists):
         debug('add_books_to_metadata() called')
