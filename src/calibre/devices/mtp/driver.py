@@ -86,6 +86,12 @@ class MTP_DEVICE(BASE):
             p.defaults['history'] = {}
             p.defaults['rules'] = []
             p.defaults['ignored_folders'] = {}
+            p.defaults['apnx'] = {
+                'send': False,
+                'method': 'fast',
+                'custom_column_page_count': None,
+                'custom_column_method': None,
+            }
 
         return self._prefs
 
@@ -544,6 +550,11 @@ class MTP_DEVICE(BASE):
                 mtp_file = self.put_file(parent, path[-1], stream, sz)
                 try:
                     self.upload_cover(parent, relpath, storage, mi, stream)
+                    # Upload the apnx file
+                    if self.is_kindle and self.get_pref('apnx').get('send', False):
+                      name = path[-1].rpartition('.')[0]
+                      debug('Uploading APNX file for', name)
+                      self.upload_apnx(parent, name, storage, mi, infile)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -631,6 +642,58 @@ class MTP_DEVICE(BASE):
                 self.put_file(system_thumbnails_dir, f.name, data, sz)
         debug(f'Restored {count} cover thumbnails that were destroyed by Amazon')
     # }}}
+
+    def upload_apnx(self, parent, name, storage, mi, filepath):
+        debug('upload_apnx() called')
+        from calibre.devices.kindle.apnx import APNXBuilder
+        from calibre.ptempfile import PersistentTemporaryFile
+
+        apnx_local_file = PersistentTemporaryFile('.apnx')
+        apnx_local_path = apnx_local_file.name
+        apnx_local_file.close()
+
+        try:
+            pref = self.get_pref('apnx')
+
+            custom_page_count = 0
+            cust_col_name = pref.get('custom_column_page_count', None)
+            if cust_col_name:
+                try:
+                    custom_page_count = int(mi.get(cust_col_name, 0))
+                except Exception:
+                    pass
+
+            method = pref.get('method', 'fast')
+
+            cust_col_method = pref.get('custom_column_method', None)
+            if cust_col_method:
+                try:
+                    method = str(mi.get(cust_col_method)).lower()
+                    if method is not None:
+                        method = method.lower()
+                        if method not in ('fast', 'accurate', 'pagebreak'):
+                            method = None
+                except Exception:
+                    prints(f'Invalid custom column method: {cust_col_method}, ignoring')
+
+            apnx_builder = APNXBuilder()
+            apnx_builder.write_apnx(filepath, apnx_local_path, method=method, page_count=custom_page_count)
+
+            apnx_size = os.path.getsize(apnx_local_path)
+
+            with open(apnx_local_path, 'rb') as apnx_stream:
+              apnx_filename = f'{name}.apnx'
+              apnx_path = parent.name, f'{name}.sdr', apnx_filename
+              sdr_parent = self.ensure_parent(storage, apnx_path)
+              self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
+
+        except Exception:
+            print('Failed to generate APNX')
+            import traceback
+            traceback.print_exc()
+        finally:
+          os.remove(apnx_local_path)
+        debug('upload_apnx() ended')
 
     def add_books_to_metadata(self, mtp_files, metadata, booklists):
         debug('add_books_to_metadata() called')
