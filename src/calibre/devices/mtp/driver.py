@@ -644,13 +644,13 @@ class MTP_DEVICE(BASE):
 
     def upload_apnx(self, parent, filename, storage, mi, filepath):
         from calibre.devices.kindle.apnx import APNXBuilder
-        apnx_builder = APNXBuilder()
+        import tempfile
 
-        name = filename.rpartition('.')[0]
-        apnx_filename = f'{name[:-2]}.apnx'
-        apnx_local_path = f'{os.path.join('/tmp', apnx_filename)}'
+        apnx_local_path = tempfile.NamedTemporaryFile(prefix='calibre-apnx-', suffix='.apnx', delete=False).name
 
         try:
+            apnx_builder = APNXBuilder()
+
             custom_page_count = 0
             cust_col_name = self.get_pref('apnx').get('custom_column_page_count', None)
             if cust_col_name:
@@ -677,6 +677,8 @@ class MTP_DEVICE(BASE):
             apnx_stream = open(apnx_local_path, 'rb')
 
             try:
+              name = filename.rpartition('.')[0]
+              apnx_filename = f'{name[:-2]}.apnx'
               apnx_path = parent.name, f'{name[:-2]}.sdr', apnx_filename
               sdr_parent = self.ensure_parent(storage, apnx_path)
               self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
