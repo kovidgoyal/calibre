@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import atexit
 import glob
 import os
 import shutil
@@ -286,9 +285,11 @@ class Sdist(Command):
     def run(self, opts):
         if not self.e(self.d(self.DEST)):
             os.makedirs(self.d(self.DEST))
-        tdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tdir)
-        tdir = self.j(tdir, f'calibre-{__version__}')
+        with tempfile.TemporaryDirectory() as tdir:
+            tdir = self.j(tdir, f'calibre-{__version__}')
+            self.run_with_tdir(tdir)
+
+    def run_with_tdir(self, tdir):
         self.info('\tRunning git export...')
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
