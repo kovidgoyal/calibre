@@ -23,19 +23,31 @@ class NewYorkMagazine(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
+    extra_css = '''
+        .nym-image-figcaption,
+        .bylines, .rubric,
+        .clay-paragraph_prologue, 
+        .secondary-area-caption-credits {
+            font-size: small;
+        }
+    '''
     keep_only_tags = [
-        dict(name='article', attrs={'class':lambda x: x and 'article' in x.split()})
+        dict(name='article', attrs={'class': lambda x: x and 'article' in x.split()})
     ]
     remove_tags = [
-        classes('related-stories start-discussion newsletter-flex-text comments-link tags related secondary-area'),
-        dict(id=['minibrowserbox', 'article-related', 'article-tools'])
+        dict(name=['svg', 'iframe']),
+        classes(
+            'related-stories start-discussion newsletter-flex-text package-toc '
+            'comments-link tags related secondary-area author-photo error-pop-up'
+        ),
+        dict(id=['minibrowserbox', 'article-related', 'article-tools']),
     ]
-    remove_attributes = ['srcset']
+    remove_attributes = ['style', 'height', 'width', 'srcset']
 
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY-MM-DD format)',
-            'long': 'For example, 2024-07-01'
+            'long': 'For example, 2024-07-01',
         }
     }
 
@@ -55,6 +67,20 @@ class NewYorkMagazine(BasicNewsRecipe):
                 self.log('Cover:', self.cover_url)
                 break
         feeds = []
+        if cover_art := soup.find(**classes('magazine-toc-cover-text')):
+            a = cover_art.find('a', **classes('headline-link'))
+            c_url = a['href']
+            c_title = self.tag_to_string(
+                a.find(**classes('magazine-toc-cover-headline'))
+            ).strip()
+            c_desc = self.tag_to_string(
+                a.find(**classes('magazine-toc-cover-teaser'))
+            ).strip()
+            self.log('Cover Story', '\n\t', c_title, c_url)
+            feeds.append((
+                'Cover Story',
+                [{'title': c_title, 'url': c_url, 'description': c_desc}],
+            ))
         for div in soup.findAll(attrs={'data-editable': 'settingTitle'}):
             section = self.tag_to_string(div).strip().capitalize()
             articles = []
@@ -79,9 +105,13 @@ class NewYorkMagazine(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        if lede := soup.findAll('div', attrs={'class':lambda x: x and 'lede-image-wrapper' in x.split()}):
+        if lede := soup.findAll(
+            'div', attrs={'class': lambda x: x and 'lede-image-wrapper' in x.split()}
+        ):
             if len(lede) > 1:
                 lede[1].extract()
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
+        for h2 in soup.findAll(['h2', 'h3']):
+            h2.name = 'h4'
         return soup
