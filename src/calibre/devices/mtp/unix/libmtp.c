@@ -265,10 +265,13 @@ Device_init(Device *self, PyObject *args, PyObject *kwds)
     if (self->model_name == NULL) { self->model_name = Py_None; Py_INCREF(Py_None); }
 
     if (serial_number != NULL) {
-        self->serial_number = PyUnicode_FromString(serial_number);
+        if (serial_number[0]) self->serial_number = PyUnicode_FromString(serial_number);
         free(serial_number);
     }
-    if (self->serial_number == NULL) { self->serial_number = Py_None; Py_INCREF(Py_None); }
+    if (self->serial_number == NULL) {
+        self->serial_number = usb_serialnum == NULL ? Py_None : usb_serialnum;
+        Py_INCREF(self->serial_number);
+    }
 
     if (device_version != NULL) {
         self->device_version = PyUnicode_FromString(device_version);
