@@ -552,9 +552,9 @@ class MTP_DEVICE(BASE):
                     self.upload_cover(parent, relpath, storage, mi, stream)
                     # Upload the apnx file
                     if self.is_kindle and self.get_pref('apnx').get('send', False):
-                      name = path[-1].rpartition('.')[0]
-                      debug('Uploading APNX file for', name)
-                      self.upload_apnx(parent, name, storage, mi, infile)
+                        name = path[-1].rpartition('.')[0]
+                        debug('Uploading APNX file for', name)
+                        self.upload_apnx(parent, name, storage, mi, infile)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -654,9 +654,8 @@ class MTP_DEVICE(BASE):
 
         try:
             pref = self.get_pref('apnx')
-
             custom_page_count = 0
-            cust_col_name = pref.get('custom_column_page_count', None)
+            cust_col_name = pref.get('custom_column_page_count')
             if cust_col_name:
                 try:
                     custom_page_count = int(mi.get(cust_col_name, 0))
@@ -665,7 +664,7 @@ class MTP_DEVICE(BASE):
 
             method = pref.get('method', 'fast')
 
-            cust_col_method = pref.get('custom_column_method', None)
+            cust_col_method = pref.get('custom_column_method')
             if cust_col_method:
                 try:
                     method = str(mi.get(cust_col_method)).lower()
@@ -682,17 +681,16 @@ class MTP_DEVICE(BASE):
             apnx_size = os.path.getsize(apnx_local_path)
 
             with open(apnx_local_path, 'rb') as apnx_stream:
-              apnx_filename = f'{name}.apnx'
-              apnx_path = parent.name, f'{name}.sdr', apnx_filename
-              sdr_parent = self.ensure_parent(storage, apnx_path)
-              self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
-
+                apnx_filename = f'{name}.apnx'
+                apnx_path = parent.name, f'{name}.sdr', apnx_filename
+                sdr_parent = self.ensure_parent(storage, apnx_path)
+                self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
         except Exception:
-            print('Failed to generate APNX')
+            print('Failed to generate APNX', file=sys.stderr)
             import traceback
             traceback.print_exc()
         finally:
-          os.remove(apnx_local_path)
+            os.remove(apnx_local_path)
         debug('upload_apnx() ended')
 
     def add_books_to_metadata(self, mtp_files, metadata, booklists):

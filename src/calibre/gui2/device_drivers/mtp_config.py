@@ -9,6 +9,7 @@ import weakref
 
 from qt.core import (
     QApplication,
+    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -31,7 +32,6 @@ from qt.core import (
     QVBoxLayout,
     QWidget,
     pyqtSignal,
-    QCheckBox,
 )
 
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -352,7 +352,8 @@ class FormatRules(QGroupBox):
                     yield r
 # }}}
 
-class APNX(QWidget):
+
+class APNX(QWidget):  # {{{
     def __init__(self, apnx):
         QWidget.__init__(self)
         self.layout = l = QVBoxLayout()
@@ -361,42 +362,45 @@ class APNX(QWidget):
         self.layout.setAlignment(Qt.AlignTop)
 
         self.send = f1 = QCheckBox(_('Send page number information when sending books'))
-        f1.setChecked(apnx.get('send', False))
+        f1.setChecked(bool(apnx.get('send')))
         l.addWidget(f1)
 
         label2 = QLabel('<p>' + _('Page count calculation method') + '</p>')
         label2.setWordWrap(True)
         l.addWidget(label2)
         self.method = f2 = QComboBox(self)
-        f2.addItem('fast', 'fast')
-        f2.addItem('accurate', 'accurate')
-        f2.addItem('pagebrek', 'pagebreak')
-        f2.setCurrentIndex(f2.findText(apnx.get('method', 'fast')))
+        f2.addItem(_('fast'), 'fast')
+        f2.addItem(_('accurate'), 'accurate')
+        f2.addItem(_('pagebreak'), 'pagebreak')
+        if (idx := f2.findData(apnx.get('method') or 'fast')) > -1:
+            f2.setCurrentIndex(idx)
         l.addWidget(f2)
 
         label3 = QLabel('<p>' + _('Custom column name to retrieve page counts from') + '</p>')
         label3.setWordWrap(True)
         l.addWidget(label3)
         self.column_page_count = f3 = QLineEdit(self)
-        f3.setText(apnx.get('custom_column_page_count', ''))
+        f3.setText(apnx.get('custom_column_page_count') or '')
         l.addWidget(f3)
 
         label4 = QLabel('<p>' + _('Custom column name to retrieve calculation method from') + '</p>')
         label4.setWordWrap(True)
         l.addWidget(label4)
         self.column_method = f4 = QLineEdit(self)
-        f4.setText(apnx.get('custom_column_method', ''))
+        f4.setText(apnx.get('custom_column_method') or '')
         l.addWidget(f4)
 
     @property
     def apnx(self):
         result = {
-            'send': self.send.isChecked(),
+            'send': bool(self.send.isChecked()),
             'method': str(self.method.currentData()).strip(),
             'custom_column_page_count': str(self.column_page_count.text()).strip(),
             'custom_column_method': str(self.column_method.text()).strip(),
         }
         return result
+# }}}
+
 
 class MTPConfig(QTabWidget):
 
@@ -467,9 +471,9 @@ class MTPConfig(QTabWidget):
             l.addWidget(r, 7, 0, 1, 2)
             l.setRowStretch(7, 100)
 
-            if self.device.is_kindle:
-              self.apnxTab = APNX(self.get_pref('apnx'))
-              self.addTab(self.apnxTab, _('Page numbering (APNX)'))
+            if device.is_kindle:
+                self.apnx_tab = APNX(self.get_pref('apnx') or {})
+                self.addTab(self.apnx_tab, _('Page numbering (APNX)'))
 
         self.igntab = IgnoredDevices(self.device.prefs['history'],
                 self.device.prefs['blacklist'])
@@ -560,7 +564,8 @@ class MTPConfig(QTabWidget):
                 p['ignored_folders'] = self.current_ignored_folders
 
             p.pop('apnx', None)
-            p['apnx'] = self.apnxTab.apnx
+            if hasattr(self, 'apnx_tab'):
+                p['apnx'] = self.apnx_tab.apnx
 
             if self.current_device_key is not None:
                 self.device.prefs[self.current_device_key] = p
