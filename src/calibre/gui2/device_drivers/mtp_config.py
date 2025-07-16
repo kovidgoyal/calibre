@@ -371,7 +371,7 @@ class APNX(QWidget):  # {{{
         self.method = f2 = QComboBox(self)
         f2.addItem(_('fast'), 'fast')
         f2.addItem(_('accurate'), 'accurate')
-        f2.addItem(_('pagebreak'), 'pagebreak')
+        f2.addItem(_('page break'), 'pagebreak')
         if (idx := f2.findData(apnx.get('method') or 'fast')) > -1:
             f2.setCurrentIndex(idx)
         l.addWidget(f2)

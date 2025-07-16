@@ -402,7 +402,7 @@ def manage_users_cli(path=None, args=()):
             names = list(filter(None, [x.strip() for x in names.split(',')]))
             w = 'allowed_library_names' if c == 1 else 'blocked_library_names'
             t = _('Allowing access only to libraries: {}') if c == 1 else _(
-                'Allowing access to all libraries, except Exception: {}')
+                'Allowing access to all libraries, except: {}')
             prints(t.format(', '.join(names)))
             m.update_user_restrictions(username, {w: names})
 
