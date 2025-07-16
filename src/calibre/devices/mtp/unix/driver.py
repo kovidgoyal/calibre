@@ -274,7 +274,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.current_friendly_name = self.dev.friendly_name
         if not self.current_friendly_name:
             self.current_friendly_name = self.dev.model_name or _('Unknown MTP device')
-        self.current_serial_num = snum
+        self.current_serial_num = snum or self.dev.ids[-1]
         self.currently_connected_dev = connected_device
 
     @synchronous
