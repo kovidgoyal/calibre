@@ -169,7 +169,7 @@ class EXTHHeader:  # {{{
                     cid = content[len('calibre:'):]
                     if cid:
                         self.mi.application_id = self.mi.uuid = cid
-            except:
+            except Exception:
                 pass
         elif idx == 113:  # ASIN or other id
             try:
@@ -259,9 +259,9 @@ class BookHeader:
                     if self.exth.mi.is_null('language'):
                         try:
                             self.exth.mi.language = mobi2iana(langid, sublangid)
-                        except:
+                        except Exception:
                             self.log.exception('Unknown language code')
-                except:
+                except Exception:
                     self.log.exception('Invalid EXTH header')
                     self.exth_flag = 0
 

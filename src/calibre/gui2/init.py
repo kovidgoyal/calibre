@@ -205,7 +205,7 @@ class StatusBar(QStatusBar):  # {{{
     def set_label(self):
         try:
             self._set_label()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 

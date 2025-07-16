@@ -70,7 +70,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         elif term == 'rights':
             try:
                 rights = utf8_text(str(metadata.rights[0]))
-            except:
+            except Exception:
                 rights = b'Unknown'
             exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
             exth.write(rights)

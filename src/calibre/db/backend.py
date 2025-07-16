@@ -113,7 +113,7 @@ class DBPrefs(dict):  # {{{
         for key, val in self.db.conn.get('SELECT key,val FROM preferences'):
             try:
                 val = self.raw_to_object(val)
-            except:
+            except Exception:
                 prints('Failed to read value for:', key, 'from db')
                 continue
             dict.__setitem__(self, key, val)
@@ -185,7 +185,7 @@ class DBPrefs(dict):  # {{{
                 data = data.encode('utf-8')
             with open(to_filename, 'wb') as f:
                 f.write(data)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -204,12 +204,12 @@ def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
         try:
             one = one.decode(encoding, 'replace')
-        except:
+        except Exception:
             pass
     if isbytestring(two):
         try:
             two = two.decode(encoding, 'replace')
-        except:
+        except Exception:
             pass
     return cmp(one.lower(), two.lower())
 
@@ -648,7 +648,7 @@ class DB:
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
-                    except:
+                    except Exception:
                         pass
             if old_rules:
                 self.prefs['column_color_rules'] += old_rules
@@ -673,7 +673,7 @@ class DB:
                 for t in ogst:
                     ngst[icu_lower(t)] = ogst[t]
                 self.prefs.set('grouped_search_terms', ngst)
-            except:
+            except Exception:
                 pass
 
         # migrate the gui_restriction preference to a virtual library
@@ -1467,7 +1467,7 @@ class DB:
         cur.execute('BEGIN EXCLUSIVE TRANSACTION')
         try:
             cur.execute(metadata_sqlite)
-        except:
+        except Exception:
             cur.execute('ROLLBACK')
             raise
         else:
@@ -1597,7 +1597,7 @@ class DB:
             for table in itervalues(self.tables):
                 try:
                     table.read(self)
-                except:
+                except Exception:
                     prints('Failed to read table:', table.name)
                     import pprint
                     pprint.pprint(table.metadata)
@@ -1756,7 +1756,7 @@ class DB:
                             try:
                                 hardlink_file(path, dest)
                                 return True
-                            except:
+                            except Exception:
                                 pass
                         with open(dest, 'wb') as d:
                             shutil.copyfileobj(f, d)
@@ -1848,7 +1848,7 @@ class DB:
                     try:
                         if path != dest:
                             os.rename(path, dest)
-                    except:
+                    except Exception:
                         pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     windows_atomic_move.copy_path_to(path, dest)
@@ -1875,7 +1875,7 @@ class DB:
                         try:
                             hardlink_file(path, dest)
                             return True
-                        except:
+                        except Exception:
                             pass
                     with open(path, 'rb') as f, open(make_long_path_useable(dest), 'wb') as d:
                         shutil.copyfileobj(f, d)
@@ -2386,7 +2386,7 @@ class DB:
         def safe_load(val):
             try:
                 return json.loads(val, object_hook=from_json)
-            except:
+            except Exception:
                 return default
 
         if len(book_ids) == 1:

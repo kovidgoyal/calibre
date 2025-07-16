@@ -97,7 +97,7 @@ class OCFReader(OCF):
             mimetype = self.read_bytes('mimetype').decode('utf-8').rstrip()
             if mimetype != OCF.MIMETYPE:
                 print('WARNING: Invalid mimetype declaration', mimetype)
-        except:
+        except Exception:
             print("WARNING: Epub doesn't contain a valid mimetype declaration")
 
         try:

@@ -170,7 +170,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         def d(x):
             try:
                 x.disconnect()
-            except:
+            except Exception:
                 pass
 
         d(self.sr_search)
@@ -242,7 +242,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             rowItems = json.loads(val)
             if not isinstance(rowItems, list):
                 rowItems = []
-        except:
+        except Exception:
             rowItems = []
 
         if len(rowItems) == 0:

@@ -46,7 +46,7 @@ class Worker(Thread):
                     self.plugin.download_cover(self.log, self.rq, self.abort,
                         title=self.title, authors=self.authors,
                         identifiers=self.identifiers, timeout=self.timeout)
-            except:
+            except Exception:
                 self.log.exception('Failed to download cover from',
                         self.plugin.name)
         self.time_spent = time.time() - start_time

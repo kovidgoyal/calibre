@@ -136,7 +136,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             try:
                 urn = self.recipe_model.custom_recipe_collection[r].get('id')
                 urns.append(urn)
-            except:
+            except Exception:
                 pass
         self.beginResetModel()
         self.recipe_model.remove_custom_recipes(urns)

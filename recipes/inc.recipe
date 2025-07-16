@@ -41,7 +41,7 @@ class IncMagazineRecipe(BasicNewsRecipe):
         def has_login_name(form):
             try:
                 form.find_control(name='email')
-            except:
+            except Exception:
                 return False
             else:
                 return True

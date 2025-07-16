@@ -105,7 +105,7 @@ class LATimes(BasicNewsRecipe):
         self.log('Pattern: ', pattern)
         try:
             soup = self.index_to_soup(index)
-        except:
+        except Exception:
             self.log('Failed to download ', index)
             return []
         if soup.main is not None:

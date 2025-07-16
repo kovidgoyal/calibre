@@ -32,7 +32,7 @@ def path_to_ext(path):
 def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     try:
         return _metadata_from_formats(formats, force_read_metadata, pattern)
-    except:
+    except Exception:
         mi = metadata_from_filename(list(iter(formats))[0], pat=pattern)
         if not mi.authors:
             mi.authors = [_('Unknown')]
@@ -193,7 +193,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
             if pubdate:
                 from calibre.utils.date import parse_only_date
                 mi.pubdate = parse_only_date(pubdate)
-        except:
+        except Exception:
             pass
         try:
             comments = match.group('comments')

@@ -113,7 +113,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             return
         try:
             port = int(port)
-        except:
+        except Exception:
             error_dialog(self, _('Invalid port number'),
                 _('The port must be a number between 8000 and 65535.'), show=True)
             return

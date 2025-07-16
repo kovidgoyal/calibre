@@ -144,7 +144,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
                 series_index = 'volume'
             try:
                 mi.smart_update(get_comic_metadata(stream, ftype, series_index=series_index))
-            except:
+            except Exception:
                 pass
         if ret is not None:
             path, data = ret

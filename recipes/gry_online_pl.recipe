@@ -38,7 +38,7 @@ class GryOnlinePl(BasicNewsRecipe):
                     try:
                         soup2 = self.index_to_soup(finalurl)
                         break
-                    except:
+                    except Exception:
                         print('retrying in 0.5s')
                         time.sleep(0.5)
                 pagetext = soup2.find(attrs={'class': 'gc660'})
@@ -73,7 +73,7 @@ class GryOnlinePl(BasicNewsRecipe):
                         try:
                             soup2 = self.index_to_soup(finalurl)
                             break
-                        except:
+                        except Exception:
                             print('retrying in 0.5s')
                             time.sleep(0.5)
                     tag = soup2.find('div', attrs={'class': 'S018stronyr'})

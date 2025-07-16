@@ -238,7 +238,7 @@ class SendEmail(QWidget, Ui_Form):
                 username=opts.relay_username, debug_output=debug_out,
                 password=from_hex_unicode(opts.relay_password),
                 encryption=opts.encryption, port=opts.relay_port)
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
             tb += '\n\nLog:\n' + buf.getvalue()

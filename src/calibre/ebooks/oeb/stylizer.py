@@ -381,7 +381,7 @@ class Stylizer:
                     val = elem.get(prop, '').strip()
                     try:
                         del elem.attrib[prop]
-                    except:
+                    except Exception:
                         pass
                     if val:
                         if num_pat.match(val) is not None:
@@ -580,7 +580,7 @@ class Style:
                         val = style.getProperty('background').propertyValue
                         try:
                             val = list(val)
-                        except:
+                        except Exception:
                             # val is CSSPrimitiveValue
                             val = [val]
                         for c in val:
@@ -590,7 +590,7 @@ class Style:
                             if validate_color(c):
                                 col = c
                                 break
-                    except:
+                    except Exception:
                         pass
             if col is None:
                 self._bgcolor = False

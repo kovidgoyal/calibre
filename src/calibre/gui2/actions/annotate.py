@@ -50,7 +50,7 @@ class Updater(QThread):  # {{{
                     self.annotation_map[id_][1])
             try:
                 self.device.add_annotation_to_library(self.db, id_, bm)
-            except:
+            except Exception:
                 import traceback
                 self.errors[id_] = traceback.format_exc()
             self.update_progress.emit(i)

@@ -842,7 +842,7 @@ class CoverView(QWidget):  # {{{
         try:
             self.pwidth, self.pheight = fit_image(pwidth, pheight,
                             self.rect().width(), self.rect().height())[1:]
-        except:
+        except Exception:
             self.pwidth, self.pheight = self.rect().width()-1, \
                     self.rect().height()-1
         self.current_pixmap_size = QSize(self.pwidth, self.pheight)
@@ -1055,7 +1055,7 @@ class CoverView(QWidget):  # {{{
     def update_tooltip(self, current_path):
         try:
             sz = self.pixmap.size()
-        except:
+        except Exception:
             sz = QSize(0, 0)
         self.setToolTip(
             '<p>'+_('Double click to open the Book details window') +
@@ -1302,7 +1302,7 @@ class DetailsLayout(QSplitter):  # {{{
         mh = min(int(r.height()//2), int(4/3 * r.width())+1)
         try:
             ph = self._children[0].pixmap.height()
-        except:
+        except Exception:
             ph = 0
         if ph > 0:
             mh = min(mh, ph)
@@ -1314,7 +1314,7 @@ class DetailsLayout(QSplitter):  # {{{
         mw = 1 + int(3/4 * r.height())
         try:
             pw = self._children[0].pixmap.width()
-        except:
+        except Exception:
             pw = 0
         if pw > 0:
             mw = min(mw, pw)

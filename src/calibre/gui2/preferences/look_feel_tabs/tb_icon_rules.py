@@ -782,7 +782,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                     path = os.path.join(config_dir, 'tb_icons', icon_file)
                     try:
                         os.remove(path)
-                    except:
+                    except Exception:
                         pass
                 tbvip[cat_item.lookup_name].pop(value_text, None)
                 continue

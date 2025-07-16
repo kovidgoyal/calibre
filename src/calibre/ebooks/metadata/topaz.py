@@ -341,7 +341,7 @@ class MetadataUpdater:
             from calibre.ebooks.conversion.config import load_defaults
             prefs = load_defaults('mobi_output')
             pas = prefs.get('prefer_author_sort', False)
-        except:
+        except Exception:
             pas = False
 
         if mi.author_sort and pas:

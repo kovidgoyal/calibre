@@ -110,7 +110,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
         try:
             os.remove(pdfsrc)
-        except:
+        except Exception:
             pass
 
 

@@ -74,7 +74,7 @@ class ConnectionListener(Thread):
     def _close_socket(self, the_socket):
         try:
             the_socket.shutdown(socket.SHUT_RDWR)
-        except:
+        except Exception:
             # the shutdown can fail if the socket isn't fully connected. Ignore it
             pass
         the_socket.close()
@@ -86,7 +86,7 @@ class ConnectionListener(Thread):
         while self.keep_running:
             try:
                 time.sleep(1)
-            except:
+            except Exception:
                 # Happens during interpreter shutdown
                 break
 
@@ -131,7 +131,7 @@ class ConnectionListener(Thread):
                                             ',' + str(self.driver.port)).encode('utf-8')
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
-                        except:
+                        except Exception:
                             pass
                     else:
                         break
@@ -415,7 +415,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         prints('', printable, end='')
                     else:
                         prints('', a, end='')
-                except:
+                except Exception:
                     prints('', 'value too long', end='')
             print()
             self.debug_time = time.time()
@@ -461,7 +461,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Fall back to the ch if the UUID doesn't exist.
             if self.client_wants_uuid_file_names and mdata.uuid:
                 return (mdata.uuid + ext)
-        except:
+        except Exception:
             pass
 
         dotless_ext = ext[1:] if len(ext) > 0 else ext
@@ -481,7 +481,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 p = mdata.pubdate
                 date  = (p.year, p.month, p.day)
-            except:
+            except Exception:
                 today = time.localtime()
                 date = (today[0], today[1], today[2])
             template = f'{{title}}_{date[0]}-{date[1]}-{date[2]}'
@@ -572,7 +572,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         try:
             v = self.device_socket.recv(length)
             return v
-        except:
+        except Exception:
             self._close_device_socket()
             raise
 
@@ -621,7 +621,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._close_device_socket()
                     raise
                 time.sleep(0.1)  # lets not hammer the OS too hard
-            except:
+            except Exception:
                 self._close_device_socket()
                 raise
 
@@ -656,7 +656,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('device went away')
             self._close_device_socket()
             raise ControlError(desc='Device closed the network connection')
-        except:
+        except Exception:
             self._debug('other exception')
             traceback.print_exc()
             self._close_device_socket()
@@ -684,7 +684,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('device went away')
             self._close_device_socket()
             raise ControlError(desc='Device closed the network connection')
-        except:
+        except Exception:
             self._debug('other exception')
             traceback.print_exc()
             self._close_device_socket()
@@ -745,7 +745,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if key in self.device_book_cache and self.device_book_cache[key]['book'].last_modified == lastmod:
                 self.device_book_cache[key]['last_used'] = now()
                 return self.device_book_cache[key]['book'].deepcopy(lambda: SDBook('', ''))
-        except:
+        except Exception:
             traceback.print_exc()
         return None
 
@@ -763,7 +763,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     if bool(v_thumb) != bool(b_thumb):
                         return False
                     return not v_thumb or v_thumb[1] == b_thumb[1]
-        except:
+        except Exception:
             traceback.print_exc()
         return False
 
@@ -775,7 +775,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     continue
                 if metadata.get('lpath', '').endswith(ext):
                     return metadata
-        except:
+        except Exception:
             traceback.print_exc()
         return None
 
@@ -788,7 +788,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 '_metadata_cache.pickle')
             if os.path.exists(old_cache_file_name):
                 os.remove(old_cache_file_name)
-        except:
+        except Exception:
             pass
 
         try:
@@ -797,7 +797,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 '_metadata_cache.json')
             if os.path.exists(old_cache_file_name):
                 os.remove(old_cache_file_name)
-        except:
+        except Exception:
             pass
 
         cache_file_name = os.path.join(cache_dir(),
@@ -825,14 +825,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self.known_metadata[lpath] = metadata
                         count += 1
             self._debug('loaded', count, 'cache items')
-        except:
+        except Exception:
             traceback.print_exc()
             self.device_book_cache = defaultdict(dict)
             self.known_metadata = {}
             try:
                 if os.path.exists(cache_file_name):
                     os.remove(cache_file_name)
-            except:
+            except Exception:
                 traceback.print_exc()
 
     def _write_metadata_cache(self):
@@ -862,7 +862,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             from calibre.utils.filenames import atomic_rename
             atomic_rename(fd.name, prefix + '.json')
-        except:
+        except Exception:
             traceback.print_exc()
 
     def _make_metadata_cache_key(self, uuid, lpath_or_ext):
@@ -904,7 +904,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _close_socket(self, the_socket):
         try:
             the_socket.shutdown(socket.SHUT_RDWR)
-        except:
+        except Exception:
             # the shutdown can fail if the socket isn't fully connected. Ignore it
             pass
         the_socket.close()
@@ -913,7 +913,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if self.device_socket is not None:
             try:
                 self._close_socket(self.device_socket)
-            except:
+            except Exception:
                 pass
             self.device_socket = None
             self._write_metadata_cache()
@@ -930,7 +930,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         except OSError:
             self._debug('socket error on port', port)
             port = 0
-        except:
+        except Exception:
             self._debug('Unknown exception while attaching port to socket')
             traceback.print_exc()
             raise
@@ -972,7 +972,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # protocol, this can only be a disconnect notification. Fall
                     # through and actually try to talk to the client.
                     # This will usually toss an exception if the socket is gone.
-                except:
+                except Exception:
                     pass
             if (self.settings().extra_customization[self.OPT_AUTODISCONNECT] and
                     self.noop_counter > self.DISCONNECT_AFTER_N_SECONDS):
@@ -983,7 +983,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 try:
                     if self._call_client('NOOP', {})[0] is None:
                         self._close_device_socket()
-                except:
+                except Exception:
                     self._close_device_socket()
             return self if self.is_connected else None
 
@@ -1003,7 +1003,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         self.connection_attempts[peer] = attempts + 1
                 except InitialConnectionError:
                     raise
-                except:
+                except Exception:
                     pass
             except queue.Empty:
                 self.is_connected = False
@@ -1136,7 +1136,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     self._call_client('DISPLAY_MESSAGE',
                             {'messageKind': self.MESSAGE_UPDATE_NEEDED,
                              'lastestKnownAppVersion': self.CURRENT_CC_VERSION})
-            except:
+            except Exception:
                 pass
 
             self.max_book_packet_len = result.get('maxBookContentPacketLen',
@@ -1190,7 +1190,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                 {'messageKind': self.MESSAGE_PASSWORD_ERROR,
                                  'currentLibraryName': self.current_library_name,
                                  'currentLibraryUUID': library_uuid})
-                    except:
+                    except Exception:
                         pass
                     self._close_device_socket()
                     # Don't bother with a message. The user will be informed on
@@ -1199,7 +1199,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 peer = self.device_socket.getpeername()[0]
                 self.connection_attempts[peer] = 0
-            except:
+            except Exception:
                 pass
 
             return True
@@ -1342,7 +1342,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     self.device_book_cache.pop(key, None)
                                     self.known_metadata.pop(lpath, None)
                                     count_of_cache_items_deleted += 1
-                            except:
+                            except Exception:
                                 self._debug('Exception while deleting book from caches', lpath)
                                 traceback.print_exc()
                     self._debug('removed', count_of_cache_items_deleted, 'books from caches')
@@ -1374,7 +1374,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             book.set('_new_book_', True)
                         else:
                             self._set_known_metadata(book)
-                    except:
+                    except Exception:
                         self._debug('exception retrieving metadata for book', result.get('title', 'Unknown'))
                         traceback.print_exc()
                 else:
@@ -1446,7 +1446,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     try:
                         if bool(self.is_read_sync_col):
                             book.set('_is_read_', book.get(self.is_read_sync_col, None))
-                    except:
+                    except Exception:
                         self._debug('failed to set local copy of _is_read_')
                         traceback.print_exc()
 
@@ -1454,7 +1454,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                         if bool(self.is_read_date_sync_col):
                             book.set('_last_read_date_',
                                      book.get(self.is_read_date_sync_col, None))
-                    except:
+                    except Exception:
                         self._debug('failed to set local copy of _last_read_date_')
                         traceback.print_exc()
         # Write the cache here so that if we are interrupted on disconnect then the
@@ -1655,7 +1655,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if cc_mtime < calibre_mtime:
                     book.set('_format_mtime_', isoformat(self.now))
                     return posixpath.basename(book.lpath), False
-        except:
+        except Exception:
             self._debug('exception checking if must send format', book.title)
             traceback.print_exc()
         return None, False
@@ -1770,7 +1770,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     book.get('title', 'huh?'), 'to', calibre_val)
                         book.set('_force_send_metadata_', True)
                         force_return_changed_books = True
-                except:
+                except Exception:
                     self._debug('exception special syncing is_read', self.is_read_sync_col)
                     traceback.print_exc()
 
@@ -1793,7 +1793,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                     book.get('title', 'huh?'), 'to', calibre_val)
                         book.set('_force_send_metadata_', True)
                         force_return_changed_books = True
-                except:
+                except Exception:
                     self._debug('exception special syncing is_read_date',
                                 self.is_read_sync_col)
                     traceback.print_exc()
@@ -1816,7 +1816,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                                  {id_: is_read})
                         if self.set_temp_mark_when_syncing_read:
                             db.data.toggle_marked_ids({id_})
-                except:
+                except Exception:
                     self._debug('exception standard syncing is_read', self.is_read_sync_col)
                     traceback.print_exc()
 
@@ -1833,7 +1833,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                                           {id_: is_read_date})
                         if self.set_temp_mark_when_syncing_read:
                             db.data.toggle_marked_ids({id_})
-                except:
+                except Exception:
                     self._debug('Exception standard syncing is_read_date',
                                 self.is_read_date_sync_col)
                     traceback.print_exc()
@@ -1892,7 +1892,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     compression_quality_ok = False
                 else:
                     self.THUMBNAIL_COMPRESSION_QUALITY = cq
-            except:
+            except Exception:
                 compression_quality_ok = False
             if not compression_quality_ok:
                 self.THUMBNAIL_COMPRESSION_QUALITY = 70
@@ -1905,7 +1905,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 set_socket_inherit(self.listen_socket, False)
-            except:
+            except Exception:
                 traceback.print_exc()
                 message = 'creation of listen socket failed'
                 self._debug(message)
@@ -1916,7 +1916,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if self.settings().extra_customization[self.OPT_USE_PORT]:
                 try:
                     opt_port = int(self.settings().extra_customization[self.OPT_PORT_NUMBER])
-                except:
+                except Exception:
                     message = _('Invalid port in options: %s')% \
                                 self.settings().extra_customization[self.OPT_PORT_NUMBER]
                     self._debug(message)
@@ -1944,7 +1944,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
             try:
                 self.listen_socket.listen(1)
-            except:
+            except Exception:
                 message = f'listen on port {port} failed'
                 self._debug(message)
                 self._close_listen_socket()
@@ -1955,7 +1955,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 publish_zeroconf('calibre smart device client',
                                  '_calibresmartdeviceapp._tcp', port, {},
                                  use_ip_address=ip_addr, strict=False)
-            except:
+            except Exception:
                 self._debug('registration with bonjour failed')
                 traceback.print_exc()
 
@@ -1967,7 +1967,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             try:
                 self.broadcast_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 set_socket_inherit(self.broadcast_socket, False)
-            except:
+            except Exception:
                 message = 'creation of broadcast socket failed. This is not fatal.'
                 self._debug(message)
                 self.broadcast_socket = None
@@ -2001,7 +2001,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 try:
                     unpublish_zeroconf('calibre smart device client',
                                        '_calibresmartdeviceapp._tcp', self.port, {})
-                except:
+                except Exception:
                     self._debug('deregistration with bonjour failed')
                     traceback.print_exc()
                 self._close_listen_socket()

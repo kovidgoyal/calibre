@@ -757,7 +757,7 @@ class ProcessTokens:
         try:
             hex_num = f'{num:X}'
             return hex_num
-        except:
+        except Exception:
             raise self.__bug_handler
 
     def process_cw(self, token):

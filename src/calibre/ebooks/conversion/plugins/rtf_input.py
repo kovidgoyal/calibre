@@ -66,7 +66,7 @@ class RTFInput(InputFormatPlugin):
                 run_lev = 4
                 indent_out = 1
                 self.log('Running RTFParser in debug mode')
-            except:
+            except Exception:
                 self.log.warn('Impossible to run RTFParser in debug mode')
         parser = ParseRtf(
             in_file=stream,
@@ -154,7 +154,7 @@ class RTFInput(InputFormatPlugin):
         for count, val in iteritems(imap):
             try:
                 imap[count] = self.convert_image(val)
-            except:
+            except Exception:
                 self.log.exception('Failed to convert', val)
         return imap
 
@@ -270,7 +270,7 @@ class RTFInput(InputFormatPlugin):
             imap = {}
             try:
                 imap = self.extract_images(d[0])
-            except:
+            except Exception:
                 self.log.exception('Failed to extract images...')
 
         self.log('Parsing XML...')

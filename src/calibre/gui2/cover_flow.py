@@ -506,7 +506,7 @@ class CoverFlowMixin:
                 if self.library_view.currentIndex().row() != row and index.isValid():
                     self.cover_flow_sync_flag = False
                     self.library_view.select_rows([row], using_ids=False)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         if self.cover_flow_syncing_enabled:

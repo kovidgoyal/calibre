@@ -550,7 +550,7 @@ class ServerLoop:
                     raise
                 except KeyboardInterrupt:
                     break
-                except:
+                except Exception:
                     self.log.exception('Error in ServerLoop.tick')
             self.shutdown()
 

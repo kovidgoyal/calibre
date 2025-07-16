@@ -184,7 +184,7 @@ def get_metadata_(src, encoding=None):
     for field in ('pubdate', 'timestamp'):
         try:
             val = parse_date(get(field))
-        except:
+        except Exception:
             pass
         else:
             if not is_date_undefined(val):
@@ -199,7 +199,7 @@ def get_metadata_(src, encoding=None):
         if match is not None:
             try:
                 series_index = float(match.group(1))
-            except:
+            except Exception:
                 pass
             series = series.replace(match.group(), '').strip()
         mi.series = series
@@ -207,7 +207,7 @@ def get_metadata_(src, encoding=None):
             series_index = get('series_index')
             try:
                 series_index = float(series_index)
-            except:
+            except Exception:
                 pass
         if series_index is not None:
             mi.series_index = series_index
@@ -221,7 +221,7 @@ def get_metadata_(src, encoding=None):
                 mi.rating = 0
             if mi.rating > 10:
                 mi.rating = 0
-        except:
+        except Exception:
             pass
 
     # TAGS

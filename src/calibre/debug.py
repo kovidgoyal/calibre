@@ -174,7 +174,7 @@ def print_basic_debug_info(out=None):
             out('OSX:', platform.mac_ver())
         else:
             out('Linux:', platform.linux_distribution())
-    except:
+    except Exception:
         pass
     out('Interface language:', str(set_translators.lang))
     out('EXE path:', sys.executable)

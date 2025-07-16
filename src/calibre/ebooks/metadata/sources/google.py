@@ -101,7 +101,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
                 ans = ans[0].text
                 if ans and ans.strip():
                     return ans.strip()
-        except:
+        except Exception:
             log.exception('Programming error:')
         return None
 
@@ -170,7 +170,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
             for tag in atags:
                 if tag not in tags:
                     tags.append(tag)
-    except:
+    except Exception:
         log.exception('Failed to parse tags:')
         tags = []
     if tags:
@@ -183,7 +183,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
         try:
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
-        except:
+        except Exception:
             log.error('Failed to parse pubdate %r' % pubdate)
 
     # Cover
@@ -469,7 +469,7 @@ class GoogleBooks(Source):
                     ans = self.postprocess_downloaded_google_metadata(ans, relevance)
                     result_queue.put(ans)
                     found = True
-            except:
+            except Exception:
                 log.exception('Failed to get metadata for google books id:', gid)
             if abort.is_set():
                 break

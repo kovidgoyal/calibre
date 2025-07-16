@@ -253,7 +253,7 @@ class HTMLInput(InputFormatPlugin):
         if not isinstance(link_, str):
             try:
                 link_ = link_.decode('utf-8', 'error')
-            except:
+            except Exception:
                 self.log.warn(f'Failed to decode link {link_!r}. Ignoring')
                 return None, None
         if self.root_dir_for_absolute_links and link_.startswith('/'):
@@ -261,7 +261,7 @@ class HTMLInput(InputFormatPlugin):
             base = self.root_dir_for_absolute_links
         try:
             l = Link(link_, base if base else os.getcwd())
-        except:
+        except Exception:
             self.log.exception(f'Failed to process link: {link_!r}')
             return None, None
         if l.path is None:
@@ -289,7 +289,7 @@ class HTMLInput(InputFormatPlugin):
             if base and not os.path.isabs(link):
                 link = os.path.join(base, link)
             link = os.path.abspath(link)
-        except:
+        except Exception:
             return link_
         if not os.access(link, os.R_OK):
             corrected = False

@@ -127,7 +127,7 @@ class XPathEdit(QWidget):
         try:
             if self.text.strip():
                 XPath(self.text)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             return False

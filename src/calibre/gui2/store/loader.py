@@ -94,7 +94,7 @@ class Stores(OrderedDict):
             except VersionMismatch as e:
                 self.cached_version_map[name] = e.ver
                 continue
-            except:
+            except Exception:
                 import traceback
                 prints('Failed to load cached store:', name)
                 traceback.print_exc()
@@ -128,7 +128,7 @@ class Stores(OrderedDict):
             for name, ver in iteritems(self.version_map)}
         try:
             updates = download_updates(ver_map)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         else:
@@ -150,7 +150,7 @@ class Stores(OrderedDict):
                 self.cached_version_map[name] = e.ver
                 replacements[name] = src
                 continue
-            except:
+            except Exception:
                 import traceback
                 prints('Failed to load downloaded store:', name)
                 traceback.print_exc()

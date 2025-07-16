@@ -60,7 +60,7 @@ class MetadataBackup(Thread):  # {{{
                 if id_ is None:
                     continue
                 # print('writer thread', id_, sequence)
-            except:
+            except Exception:
                 # Happens during interpreter shutdown
                 break
             if not self.keep_running:
@@ -68,13 +68,13 @@ class MetadataBackup(Thread):  # {{{
 
             try:
                 path, mi, sequence = self.get_metadata_for_dump(id_)
-            except:
+            except Exception:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
                     path, mi, sequence = self.get_metadata_for_dump(id_)
-                except:
+                except Exception:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
@@ -91,7 +91,7 @@ class MetadataBackup(Thread):  # {{{
             time.sleep(0.1)
             try:
                 raw = metadata_to_opf(mi)
-            except:
+            except Exception:
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
@@ -102,12 +102,12 @@ class MetadataBackup(Thread):  # {{{
             time.sleep(0.1)  # Give the GUI thread a chance to do something
             try:
                 self.do_write(path, raw)
-            except:
+            except Exception:
                 prints('Failed to write backup metadata for id:', id_, 'once')
                 time.sleep(2)
                 try:
                     self.do_write(path, raw)
-                except:
+                except Exception:
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
@@ -152,7 +152,7 @@ def force_to_bool(val):
                 val = False
             else:
                 val = bool(int(val))
-        except:
+        except Exception:
             val = None
     return val
 
@@ -399,13 +399,13 @@ class ResultCache(SearchQueryParser):  # {{{
             num = query[0:-(self.untrans_daysago_len if query.endswith(self.untrans_daysago) else self.local_daysago_len)]
             try:
                 qd = now() - timedelta(int(num))
-            except:
+            except Exception:
                 raise ParseException(_('Number conversion error: {0}').format(num))
             field_count = 3
         else:
             try:
                 qd = parse_date(query, as_utc=False)
-            except:
+            except Exception:
                 raise ParseException(_('Date conversion error: {0}').format(query))
             if '-' in query:
                 field_count = query.count('-') + 1
@@ -494,7 +494,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 mult = 1.0
             try:
                 q = cast(query) * mult
-            except:
+            except Exception:
                 raise ParseException(_('Non-numeric value in query: {0}').format(query))
 
         for id_ in candidates:
@@ -503,7 +503,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 continue
             try:
                 v = cast(val_func(item))
-            except:
+            except Exception:
                 v = None
             if v:
                 v = adjust(v)
@@ -709,7 +709,7 @@ class ResultCache(SearchQueryParser):  # {{{
                             c -= m
                             if len(c) == 0:
                                 break
-                        except:
+                        except Exception:
                             pass
                     return matches
 
@@ -777,7 +777,7 @@ class ResultCache(SearchQueryParser):  # {{{
 
             try:
                 rating_query = int(query) * 2
-            except:
+            except Exception:
                 rating_query = None
 
             location = [location] if location != 'all' else list(db_col.keys())
@@ -836,7 +836,7 @@ class ResultCache(SearchQueryParser):  # {{{
                             if int(query) == item[loc]:
                                 matches.add(item[0])
                             continue
-                    except:
+                    except Exception:
                         # A conversion threw an exception. Because of the type,
                         # no further match is possible
                         continue
@@ -1075,7 +1075,7 @@ class ResultCache(SearchQueryParser):  # {{{
         for id_,val in iteritems(self.marked_ids_dict):
             try:
                 self._data[id_][marked_col] = val
-            except:
+            except Exception:
                 pass
 
         in_tag_browser_col = self.FIELD_MAP['in_tag_browser']
@@ -1188,7 +1188,7 @@ class SortKeyGenerator:
                 if sb == 'date':
                     try:
                         val = parse_date(val)
-                    except:
+                    except Exception:
                         val = UNDEFINED_DATE
                     dt = 'datetime'
                 elif sb == 'number':
@@ -1201,7 +1201,7 @@ class SortKeyGenerator:
                                 val = val[:-len(candidate)].strip()
                                 break
                         val = locale.atof(val) * p
-                    except:
+                    except Exception:
                         val = 0.0
                     dt = 'float'
                 elif sb == 'bool':

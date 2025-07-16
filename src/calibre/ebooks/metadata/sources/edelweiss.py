@@ -54,7 +54,7 @@ class Worker(Thread):  # {{{
         'sku={0}&idPrefix=content_1_{0}&mode=0'.format(self.sku))
         try:
             raw = self.br.open_novisit(url, timeout=self.timeout).read()
-        except:
+        except Exception:
             self.log.exception('Failed to load comments page: %r'%url)
             return
 
@@ -63,7 +63,7 @@ class Worker(Thread):  # {{{
             mi.source_relevance = self.relevance
             self.plugin.clean_downloaded_metadata(mi)
             self.result_queue.put(mi)
-        except:
+        except Exception:
             self.log.exception('Failed to parse details for sku: %s'%self.sku)
 
     def parse(self, raw):
@@ -375,7 +375,7 @@ class Edelweiss(Source):
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
-        except:
+        except Exception:
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 

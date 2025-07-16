@@ -58,7 +58,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             self.books_table_column_widths = \
                         gprefs.get('match_books_dialog_books_table_widths', None)
             self.restore_geometry(gprefs, 'match_books_dialog_geometry')
-        except:
+        except Exception:
             pass
 
         self.search_text.initialize('match_books_dialog')

@@ -17,7 +17,7 @@ class LRFOptions:
         def f2s(f):
             try:
                 return str(f[0])
-            except:
+            except Exception:
                 return ''
         m = oeb.metadata
         for x in ('left', 'top', 'right', 'bottom'):

@@ -90,7 +90,7 @@ class WinFonts:
 
             try:
                 family_name, sub_family_name, full_name = get_font_names(data)
-            except:
+            except Exception:
                 pass
 
             if normalize:
@@ -112,7 +112,7 @@ class WinFonts:
                 try:
                     sub_family_name.encode('ascii')
                     subf = sub_family_name
-                except:
+                except Exception:
                     subf = ''
 
                 name = family + ((' ' + subf) if subf else '')

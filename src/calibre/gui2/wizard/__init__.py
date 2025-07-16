@@ -612,7 +612,7 @@ class StanzaPage(QWizardPage, StanzaUI):
                     t = re.sub(r':\d+', ':'+str(p), t)
                     self.instructions.setText(t)
                     return p
-                except:
+                except Exception:
                     continue
 
 
@@ -758,7 +758,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:
                 enable_plugin(name)
-        except:
+        except Exception:
             pass
         lp = self.location.text()
         if lp == self.initial_library_location:
@@ -771,7 +771,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         from calibre.db.legacy import LibraryDatabase
         try:
             return LibraryDatabase.exists_at(x) or not os.listdir(x)
-        except:
+        except Exception:
             return False
 
     def validatePage(self):
@@ -794,7 +794,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             if not os.path.exists(x):
                 try:
                     self.makedirs(x)
-                except:
+                except Exception:
                     return error_dialog(self, _('Bad location'),
                             _('Failed to create a folder at %s')%x,
                             det_msg=traceback.format_exc(), show=True)
@@ -808,7 +808,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         if not isinstance(x, str):
             try:
                 x = x.decode(filesystem_encoding)
-            except:
+            except Exception:
                 x = str(repr(x))
         error_dialog(self, _('Bad location'),
             _('You must choose an empty folder for '
@@ -829,7 +829,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             if not os.path.exists(lp):
                 try:
                     self.makedirs(lp)
-                except:
+                except Exception:
                     traceback.print_exc()
                     try:
                         lp = os.path.expanduser('~')
@@ -850,7 +850,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             lp = str(self.location.text())
             ans = bool(lp) and os.path.exists(lp) and os.path.isdir(lp) and os.access(lp,
                     os.W_OK)
-        except:
+        except Exception:
             ans = False
         return ans
 

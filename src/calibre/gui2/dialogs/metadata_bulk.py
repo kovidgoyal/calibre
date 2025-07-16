@@ -202,7 +202,7 @@ class MyBlockingBusy(QDialog):  # {{{
             import traceback
             try:
                 err = str(err)
-            except:
+            except Exception:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
 
@@ -826,7 +826,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_dst_ident.setCompleter(QCompleter(ident_types))
         try:
             self.s_r_dst_ident.setPlaceholderText(_('Enter an identifier type'))
-        except:
+        except Exception:
             pass
         self.s_r_src_ident.addItems(ident_types)
 
@@ -1105,7 +1105,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 v = int(val[0])
                 if v < 0 or v > 10:
                     ok = False
-            except:
+            except Exception:
                 ok = False
             if not ok:
                 raise Exception(_('The replacement value for a rating column must '
@@ -1232,7 +1232,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 else:
                     try:
                         val = dict([(t.split(':', maxsplit=1)) for t in val])
-                    except:
+                    except Exception:
                         import traceback
                         ans = question_dialog(self, _('Invalid identifier string'),
                                _('The identifier string for book "{0}" (id {1}) is '
@@ -1333,7 +1333,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return QDialog.accept(self)
         try:
             source = self.s_r_sf_itemdata(None)
-        except:
+        except Exception:
             source = ''
         do_sr = source and self.s_r_obj
 
@@ -1476,7 +1476,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         names.extend(self.query_field_values)
         try:
             dex = names.index(self.saved_search_name)
-        except:
+        except Exception:
             dex = 0
         name = ''
         while not name:
@@ -1541,25 +1541,25 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         def set_text(attr, key):
             try:
                 attr.setText(item[key])
-            except:
+            except Exception:
                 pass
 
         def set_checked(attr, key):
             try:
                 attr.setChecked(item[key])
-            except:
+            except Exception:
                 attr.setChecked(False)
 
         def set_value(attr, key):
             try:
                 attr.setValue(int(item[key]))
-            except:
+            except Exception:
                 attr.setValue(0)
 
         def set_index(attr, key):
             try:
                 attr.setCurrentIndex(attr.findText(item[key]))
-            except:
+            except Exception:
                 attr.setCurrentIndex(0)
 
         set_index(self.search_mode, 'search_mode')

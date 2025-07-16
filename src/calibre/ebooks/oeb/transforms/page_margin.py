@@ -84,7 +84,7 @@ class RemoveFakeMargins:
             if style:
                 try:
                     ti = style['text-indent']
-                except:
+                except Exception:
                     pass
                 else:
                     if ((hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0)):

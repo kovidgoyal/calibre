@@ -717,7 +717,7 @@ class MetadataSingleDialogBase(QDialog):
         try:
             self.save_geometry(gprefs, 'metasingle_window_geometry3')
             self.save_widget_settings()
-        except:
+        except Exception:
             # Weird failure, see https://bugs.launchpad.net/bugs/995271
             import traceback
             traceback.print_exc()
@@ -802,7 +802,7 @@ class MetadataSingleDialogBase(QDialog):
         def disconnect(signal):
             try:
                 signal.disconnect()
-            except:
+            except Exception:
                 pass  # Fails if view format was never connected
         disconnect(self.view_format)
         disconnect(self.edit_format)

@@ -141,7 +141,7 @@ def data_as_string(f, md):
     if '/x-moz' in f:
         try:
             raw = raw.decode('utf-16')
-        except:
+        except Exception:
             pass
     return raw
 
@@ -351,7 +351,7 @@ def get_firefox_rurl(md, exts):
             url, fname = _get_firefox_pair(md, exts,
                     'application/x-moz-file-promise-url',
                     'application/x-moz-file-promise-dest-filename')
-        except:
+        except Exception:
             if DEBUG:
                 import traceback
                 traceback.print_exc()
@@ -360,7 +360,7 @@ def get_firefox_rurl(md, exts):
         try:
             url, fname = _get_firefox_pair(md, exts,
                     'text/x-moz-url-data', 'text/x-moz-url-desc')
-        except:
+        except Exception:
             if DEBUG:
                 import traceback
                 traceback.print_exc()
@@ -375,7 +375,7 @@ def get_firefox_rurl(md, exts):
                 ext = posixpath.splitext(fname)[1][1:].lower()
                 if ext not in exts:
                     fname = url = None
-        except:
+        except Exception:
             if DEBUG:
                 import traceback
                 traceback.print_exc()

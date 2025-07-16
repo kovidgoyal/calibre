@@ -51,7 +51,7 @@ class DeviceDefaults:
             if m is not None:
                 try:
                     vid, pid = int(m.group(1), 16), int(m.group(2), 16)
-                except:
+                except Exception:
                     traceback.print_exc()
         else:
             vid, pid = device.vendor_id, device.product_id

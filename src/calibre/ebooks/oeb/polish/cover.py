@@ -378,7 +378,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
                 else:
                     with open(cover_path, 'rb') as csrc:
                         width, height = identify(csrc)[1:]
-            except:
+            except Exception:
                 container.log.exception('Failed to get width and height of cover')
             ar = 'xMidYMid meet' if keep_aspect else 'none'
             templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)

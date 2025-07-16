@@ -215,7 +215,7 @@ class TextBrowser(PlainTextEdit):  # {{{
             return
         try:
             lnum = int(self.line_number_map.get(block_number, ''))
-        except:
+        except Exception:
             lnum = 1
         for i, (num, text) in enumerate(self.headers):
             if num > block_number:

@@ -45,7 +45,7 @@ class Worker(Thread):
         start = time.time()
         try:
             self.plugin.identify(self.log, self.rq, self.abort, **self.kwargs)
-        except:
+        except Exception:
             self.log.exception('Plugin', self.plugin.name, 'failed')
         self.plugin.dl_time_spent = time.time() - start
 

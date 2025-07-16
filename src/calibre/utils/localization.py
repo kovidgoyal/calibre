@@ -54,7 +54,7 @@ def get_system_locale():
             lang = lang.strip()
             if not lang:
                 lang = None
-        except:
+        except Exception:
             pass  # Windows XP does not have the GetUserDefaultLocaleName fn
     elif ismacos:
         from calibre_extensions.usbobserver import user_locale
@@ -75,12 +75,12 @@ def get_system_locale():
                     if os.environ.get(var) == 'C':
                         lang = 'en_US'
                         break
-        except:
+        except Exception:
             pass  # This happens on Ubuntu apparently
         if lang is None and 'LANG' in os.environ:  # Needed for OS X
             try:
                 lang = os.environ['LANG']
-            except:
+            except Exception:
                 pass
     if lang:
         lang = lang.replace('-', '_')
@@ -109,7 +109,7 @@ def get_lang():
         return lang
     try:
         lang = get_system_locale()
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         lang = None
@@ -244,18 +244,18 @@ def translator_for_lang(lang):
             isof = mpath + '/iso639.mo'
             try:
                 iso639 = io.BytesIO(zf.read(isof))
-            except:
+            except Exception:
                 pass  # No iso639 translations for this lang
             isof = mpath + '/iso3166.mo'
             try:
                 iso3166 = io.BytesIO(zf.read(isof))
-            except:
+            except Exception:
                 pass  # No iso3166 translations for this lang
             if buf is not None:
                 from calibre.utils.serialize import msgpack_loads
                 try:
                     lcdata = msgpack_loads(zf.read(mpath + '/lcdata.calibre_msgpack'))
-                except:
+                except Exception:
                     pass  # No lcdata
 
     if buf is not None:
@@ -432,7 +432,7 @@ def calibre_langcode_to_name(lc, localize=True):
     translate = _ if localize else lambda x: x
     try:
         return translate(iso639['by_3'][lc])
-    except:
+    except Exception:
         pass
     return lc
 

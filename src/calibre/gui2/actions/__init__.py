@@ -262,7 +262,7 @@ class InterfaceAction(QObject):
                 except NameConflict as e:
                     try:
                         prints(str(e))
-                    except:
+                    except Exception:
                         pass
                     shortcut_action.setShortcuts([QKeySequence(key,
                         QKeySequence.SequenceFormat.PortableText) for key in keys])

@@ -111,7 +111,7 @@ class DetectStructure:
         expr = self.opts.start_reading_at
         try:
             expr = XPath(expr)
-        except:
+        except Exception:
             self.log.warn(
                 f'Invalid start reading at XPath expression, ignoring: {expr}')
             return
@@ -151,7 +151,7 @@ class DetectStructure:
                 ans = XPath(expr)(doc)
                 len(ans)
                 return ans
-            except:
+            except Exception:
                 self.log.warn(f'Invalid chapter expression, ignoring: {expr}')
                 return []
 
@@ -263,7 +263,7 @@ class DetectStructure:
                 ans = XPath(expr)(doc)
                 len(ans)
                 return ans
-            except:
+            except Exception:
                 self.log.warn(f'Invalid ToC expression, ignoring: {expr}')
                 return []
 

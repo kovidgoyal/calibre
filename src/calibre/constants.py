@@ -54,7 +54,7 @@ TOC_DIALOG_APP_UID = 'com.calibre-ebook.toc-editor'
 try:
     preferred_encoding = locale.getpreferredencoding()
     codecs.lookup(preferred_encoding)
-except:
+except Exception:
     preferred_encoding = 'utf-8'
 
 dark_link_color = '#6cb4ee'
@@ -391,7 +391,7 @@ else:
     config_dir = os.path.join(bdir, 'calibre')
     try:
         os.makedirs(config_dir, mode=CONFIG_DIR_MODE)
-    except:
+    except Exception:
         pass
     if not os.path.exists(config_dir) or \
             not os.access(config_dir, os.W_OK) or not \
@@ -405,7 +405,7 @@ else:
             try:
                 import shutil
                 shutil.rmtree(config_dir)
-            except:
+            except Exception:
                 pass
         atexit.register(cleanup_cdir)
 # }}}

@@ -81,7 +81,7 @@ def clone_dir(src, dest):
         else:
             try:
                 hardlink_file(spath, dpath)
-            except:
+            except Exception:
                 shutil.copy2(spath, dpath)
 
 
@@ -1192,7 +1192,7 @@ class EpubContainer(Container):
                 try:
                     zf = ZipFile(stream)
                     zf.extractall(tdir)
-                except:
+                except Exception:
                     log.exception('EPUB appears to be invalid ZIP file, trying a'
                             ' more forgiving ZIP parser')
                     from calibre.utils.localunzip import extractall

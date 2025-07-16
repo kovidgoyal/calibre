@@ -35,7 +35,7 @@ def get_metadata(stream):
                                 nmi = zip_opf_metadata(path, zf)
                                 nmi.timestamp = None
                                 return nmi
-                            except:
+                            except Exception:
                                 pass
                         mi.timestamp = None
                         return mi

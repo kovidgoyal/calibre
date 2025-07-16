@@ -30,7 +30,7 @@ class SchemaUpgrade:
                     prints(f'Upgrading database to version {uv + 1}...')
                     meth()
                     self.db.execute(f'pragma user_version={uv + 1}')
-        except:
+        except Exception:
             self.db.execute('ROLLBACK')
             raise
         else:

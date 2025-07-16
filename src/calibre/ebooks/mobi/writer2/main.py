@@ -100,7 +100,7 @@ class MobiWriter:
                     len(self.records[self.last_text_record_idx]),
                     self.masthead_offset, self.is_periodical,
                     self.opts, self.oeb)
-        except:
+        except Exception:
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)

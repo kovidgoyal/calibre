@@ -85,7 +85,7 @@ def run_pkgconfig(name, envvar, default, flag, prefix):
                 stdout=subprocess.PIPE).stdout.read().decode('utf-8')
             ans = [x.strip() for x in raw.split(prefix)]
             ans = [x for x in ans if x and (prefix=='-l' or os.path.exists(x))]
-        except:
+        except Exception:
             print('Failed to run pkg-config:', PKGCONFIG, 'for:', name)
 
     return ans or ([default] if default else [])

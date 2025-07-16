@@ -187,7 +187,7 @@ class CHMReader(CHMFile):
             self._ensure_dir(lpath)
             try:
                 data = self.GetFile(path)
-            except:
+            except Exception:
                 self.log.exception(f'Failed to extract {path} from CHM, ignoring')
                 continue
             if lpath.find(';') != -1:
@@ -199,9 +199,9 @@ class CHMReader(CHMFile):
                 try:
                     if 'html' in guess_mimetype(path)[0]:
                         html_files.add(lpath)
-                except:
+                except Exception:
                     pass
-            except:
+            except Exception:
                 if iswindows and len(lpath) > 250:
                     self.log.warn(f'{path!r} filename too long, skipping')
                     continue
@@ -278,14 +278,14 @@ class CHMReader(CHMFile):
                     alt = t[0].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[0].extract()
-                except:
+                except Exception:
                     pass
             if (t[-1].nextSibling is None or t[-1].nextSibling.nextSibling is None):
                 try:
                     alt = t[-1].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[-1].extract()
-                except:
+                except Exception:
                     pass
         # for some very odd reason each page's content appears to be in a table
         # too. and this table has sub-tables for random asides... grr.
@@ -325,7 +325,7 @@ class CHMReader(CHMFile):
                         tables[0].extract()
                         while tdContents:
                             soup.body.insert(tableIdx, tdContents.pop())
-        except:
+        except Exception:
             pass
         # do not prettify, it would reformat the <pre> tags!
         try:

@@ -151,7 +151,7 @@ class Formatter(TemplateFormatter):
             key = key.lower()
             try:
                 b = self.book.get_user_metadata(key, False)
-            except:
+            except Exception:
                 traceback.print_exc()
                 b = None
             if b is not None and b['datatype'] == 'composite':
@@ -167,7 +167,7 @@ class Formatter(TemplateFormatter):
                     val = ','.join(val)
                 return val.replace('/', '_').replace('\\', '_')
             return ''
-        except:
+        except Exception:
             traceback.print_exc()
             return key
 
@@ -317,7 +317,7 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugb
         if cdata:
             newmi.cover_data = ('jpg', cdata)
         set_metadata(stream, newmi, fmt, report_error=None if error_report is None else report_error)
-    except:
+    except Exception:
         if error_report is None:
             prints('Failed to set metadata for the', fmt, 'format of', mi.title)
             traceback.print_exc()
@@ -414,7 +414,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
         try:
             failed, id, title = save_book_to_disk(x, db, root, opts, length)
             tb = _('Requested formats not available')
-        except:
+        except Exception:
             failed, id, title = True, x, db.title(x, index_is_id=True)
             tb = traceback.format_exc()
         if failed:
@@ -431,7 +431,7 @@ def read_serialized_metadata(data):
     mi = OPF(data['opf'], try_to_guess_cover=False, populate_spine=False, basedir=os.path.dirname(data['opf'])).to_book_metadata()
     try:
         mi.last_modified = parse_date(data['last_modified'])
-    except:
+    except Exception:
         pass
     mi.cover, mi.cover_data = None, (None, None)
     cdata = None

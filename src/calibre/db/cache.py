@@ -127,7 +127,7 @@ def _add_default_custom_column_values(mi, fm):
                 if dt == 'datetime' and icu_lower(dv) == 'now':
                     dv = nowf()
                 mi.set(cc, dv)
-        except:
+        except Exception:
             traceback.print_exc()
 
 
@@ -1003,7 +1003,7 @@ class Cache:
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             raise NoSuchFormat(f'Record {book_id} has no fmt: {fmt}')
         return self.backend.format_hash(book_id, fmt, name, path)
 
@@ -1033,7 +1033,7 @@ class Cache:
             try:
                 name = self.fields['formats'].format_fname(book_id, fmt)
                 path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
+            except Exception:
                 return {}
 
             ans = {}
@@ -1256,7 +1256,7 @@ class Cache:
         fmt = (fmt or '').upper()
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             return None
         if path:
             if fmt == '__COVER_INTERNAL__':
@@ -1264,7 +1264,7 @@ class Cache:
             else:
                 try:
                     name = self.fields['formats'].format_fname(book_id, fmt)
-                except:
+                except Exception:
                     return None
                 if name:
                     return self.backend.format_abspath(book_id, fmt, name, path)
@@ -1276,7 +1276,7 @@ class Cache:
         try:
             name = self.fields['formats'].format_fname(book_id, fmt)
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             return False
         return self.backend.has_format(book_id, fmt, name, path)
 
@@ -1324,13 +1324,13 @@ class Cache:
         if verify_formats and ans:
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
+            except Exception:
                 return ()
 
             def verify(fmt):
                 try:
                     name = self.fields['formats'].format_fname(book_id, fmt)
-                except:
+                except Exception:
                     return False
                 return self.backend.has_format(book_id, fmt, name, path)
 
@@ -1361,7 +1361,7 @@ class Cache:
                 with self.safe_read_lock:
                     try:
                         fname = self.fields['formats'].format_fname(book_id, fmt)
-                    except:
+                    except Exception:
                         return None
                     fname += ext
 
@@ -1369,7 +1369,7 @@ class Cache:
                 d = os.path.join(bd, 'format_abspath')
                 try:
                     os.makedirs(d)
-                except:
+                except Exception:
                     pass
                 ret = os.path.join(d, fname)
                 try:
@@ -1387,7 +1387,7 @@ class Cache:
             with self.safe_read_lock:
                 try:
                     fname = self.fields['formats'].format_fname(book_id, fmt)
-                except:
+                except Exception:
                     return None
                 fname += ext
 
@@ -1703,7 +1703,7 @@ class Cache:
                 # try to write the opf, because it will go to the wrong folder.
                 if self._field_for('path', book_id):
                     mi = self._metadata_as_object_for_dump(book_id)
-            except:
+            except Exception:
                 # This almost certainly means that the book has been deleted while
                 # the backup operation sat in the queue.
                 traceback.print_exc()
@@ -1723,7 +1723,7 @@ class Cache:
     def write_backup(self, book_id, raw):
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             return
 
         self.backend.write_backup(path, raw)
@@ -1738,7 +1738,7 @@ class Cache:
         if no such backup exists.  '''
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             return
 
         try:
@@ -1774,7 +1774,7 @@ class Cache:
                 self._write_backup(book_id, raw)
                 if remove_from_dirtied:
                     self._clear_dirtied(book_id, sequence)
-            except:
+            except Exception:
                 pass
             if callback is not None:
                 callback(book_id, mi, True)
@@ -1856,7 +1856,7 @@ class Cache:
         def protected_set_field(name, val):
             try:
                 set_field(name, val)
-            except:
+            except Exception:
                 if ignore_errors:
                     traceback.print_exc()
                 else:
@@ -1870,7 +1870,7 @@ class Cache:
                     cdata = f.read() or None
             if cdata is not None:
                 self._set_cover({book_id: cdata})
-        except:
+        except Exception:
             if ignore_errors:
                 traceback.print_exc()
             else:
@@ -1925,7 +1925,7 @@ class Cache:
                                 extra = mi.get_extra(key)
                                 if extra is not None or force_changes:
                                     protected_set_field(idx, extra)
-        except:
+        except Exception:
             # sqlite will rollback the entire transaction, thanks to the with
             # statement, so we have to re-read everything form the db to ensure
             # the db and Cache are in sync
@@ -2035,12 +2035,12 @@ class Cache:
             for book_id, fmts in iteritems(formats_map):
                 try:
                     path = self._field_for('path', book_id).replace('/', os.sep)
-                except:
+                except Exception:
                     continue
                 for fmt in fmts:
                     try:
                         name = self.fields['formats'].format_fname(book_id, fmt)
-                    except:
+                    except Exception:
                         continue
                     if name and path:
                         removes[book_id].add((fmt, name, path))
@@ -2725,7 +2725,7 @@ class Cache:
                 return identical_book_ids
             try:
                 book_ids = self._search(query, restriction=search_restriction, book_ids=book_ids)
-            except:
+            except Exception:
                 traceback.print_exc()
                 return identical_book_ids
             if qauthors and book_ids:
@@ -3061,14 +3061,14 @@ class Cache:
                 mi.cover_data = ('jpeg', cdata)
             try:
                 path = self._field_for('path', book_id).replace('/', os.sep)
-            except:
+            except Exception:
                 continue
             for fmt in fmts:
                 if only_fmts is not None and fmt.lower() not in only_fmts:
                     continue
                 try:
                     name = self.fields['formats'].format_fname(book_id, fmt)
-                except:
+                except Exception:
                     continue
                 if name and path:
                     try:
@@ -3333,7 +3333,7 @@ class Cache:
     def are_paths_inside_book_dir(self, book_id, paths, sub_path=''):
         try:
             path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
+        except Exception:
             return set()
         return {x for x in paths if self.backend.is_path_inside_book_dir(x, path, sub_path)}
 

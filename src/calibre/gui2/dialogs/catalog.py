@@ -227,7 +227,7 @@ class Catalog(QDialog, Ui_Dialog):
         if self.tabs.count() > 1 and hasattr(self.options_widget,'show_help'):
             try:
                 self.options_widget.show_help()
-            except:
+            except Exception:
                 info_dialog(self, _('No help available'),
                     _('No help available for this output format.'),
                     show_copy_button=False,

@@ -236,7 +236,7 @@ class TXTMLizer:
             ems = round((float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
                 text.append('\n' * ems)
-        except:
+        except Exception:
             pass
 
         # Process tags that contain text.

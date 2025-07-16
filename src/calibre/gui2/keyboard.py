@@ -257,7 +257,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             ip = self.data
         try:
             return self.createIndex(row, column, ip[row])
-        except:
+        except Exception:
             pass
         return ROOT
 
@@ -350,7 +350,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             else:
                 try:
                     sc = self.data[c].children[p].data
-                except:
+                except Exception:
                     continue
                 if query in lower(sc['name']):
                     ans.add((c, p))

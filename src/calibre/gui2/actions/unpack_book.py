@@ -178,7 +178,7 @@ class UnpackBook(QDialog):
         except Error as e:
             return error_dialog(self, _('Failed to unpack'),
                 (_('Could not explode the %s file.')%self.current_format) + ' ' + as_unicode(e), show=True)
-        except:
+        except Exception:
             import traceback
             det_msg = traceback.format_exc()
         finally:
@@ -213,7 +213,7 @@ class UnpackBook(QDialog):
             rebuilder(src_dir, of)
         except WorkerError as e:
             det_msg = e.orig_tb
-        except:
+        except Exception:
             import traceback
             det_msg = traceback.format_exc()
         finally:
@@ -258,19 +258,19 @@ class UnpackBook(QDialog):
                 import appscript
                 self.finder = appscript.app('Finder')
                 self.finder.Finder_windows[os.path.basename(self._exploded)].close()
-            except:
+            except Exception:
                 pass
 
         for f in self._cleanup_files:
             try:
                 os.remove(f)
-            except:
+            except Exception:
                 pass
 
         for d in self._cleanup_dirs:
             try:
                 shutil.rmtree(d)
-            except:
+            except Exception:
                 pass
 
     @property

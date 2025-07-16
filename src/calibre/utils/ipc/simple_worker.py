@@ -72,14 +72,14 @@ class OffloadWorker:
             eintr_retry_call(self.conn.send, None)
         except OSError:
             pass
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         finally:
             self.conn = None
             try:
                 os.remove(self.worker.log_path)
-            except:
+            except Exception:
                 pass
             self.kill_thread.start()
 
@@ -187,7 +187,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
             if no_output:
                 try:
                     os.remove(w.log_path)
-                except:
+                except Exception:
                     pass
         if not no_output:
             ans['stdout_stderr'] = w.log_path
@@ -297,12 +297,12 @@ def main():
                     mod = importlib.import_module(mod)
                 func = getattr(mod, func)
             res = {'result':func(*args, **kwargs)}
-        except:
+        except Exception:
             res = {'tb': traceback.format_exc()}
 
         try:
             conn.send(res)
-        except:
+        except Exception:
             # Maybe EINTR
             conn.send(res)
 
@@ -330,7 +330,7 @@ def offload():
                         m = importlib.import_module(mod)
                     func_cache[(mod, func)] = f = getattr(m, func)
                 res['result'] = f(*args, **kwargs)
-            except:
+            except Exception:
                 import traceback
                 res['tb'] = traceback.format_exc()
 

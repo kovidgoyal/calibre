@@ -61,7 +61,7 @@ class GroupModel(QAbstractListModel):
     def data(self, index, role):
         try:
             widget = self.widgets[index.row()]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             return (widget.config_title())

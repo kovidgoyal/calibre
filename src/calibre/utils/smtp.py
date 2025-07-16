@@ -194,7 +194,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
     finally:
         try:
             ret = s.quit()
-        except:
+        except Exception:
             pass  # Ignore so as to not hide original error
     return ret
 
@@ -329,7 +329,7 @@ def main(args=sys.argv):
              timeout=opts.timeout, relay=opts.relay, username=opts.username,
              password=opts.password, port=opts.port,
              encryption=opts.encryption_method, verify_server_cert=not opts.dont_verify_server_certificate, cafile=opts.cafile)
-    except:
+    except Exception:
         if outbox is not None:
             outbox.add(msg)
             outbox.close()

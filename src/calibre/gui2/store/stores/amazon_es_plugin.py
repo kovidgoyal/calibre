@@ -101,7 +101,7 @@ def search_amazon(query, max_results=10, timeout=60,
             author = ''.join(data.xpath(author_xpath))
             try:
                 author = author.split('by ', 1)[1].split(' (')[0]
-            except:
+            except Exception:
                 pass
 
             price = ''.join(data.xpath(price_xpath))

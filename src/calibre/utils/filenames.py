@@ -221,7 +221,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
         cl = comp.lower()
         try:
             candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
-        except:
+        except Exception:
             # Don't have permission to do the listdir, assume the case is
             # correct as we have no way to check it.
             pass
@@ -421,7 +421,7 @@ class WindowsAtomicFolderMove:
                     raise err
                 prints(f'CreateFile failed for: {f!r}')
                 raise
-            except:
+            except Exception:
                 self.close_handles()
                 prints(f'CreateFile failed for: {f!r}')
                 raise

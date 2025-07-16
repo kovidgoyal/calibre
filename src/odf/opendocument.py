@@ -325,7 +325,7 @@ class OpenDocument:
                 mediatype = ''
                 try:
                     ext = filename[filename.rindex('.'):]
-                except:
+                except Exception:
                     ext=''
             else:
                 ext = mimetypes.guess_extension(mediatype)

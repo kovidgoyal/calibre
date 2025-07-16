@@ -252,7 +252,7 @@ class MobiMLizer:
             pstate = bstate.istate = None
             try:
                 etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
-            except:
+            except Exception:
                 print('Invalid subelement:', para, tag, istate.attrib)
                 raise
         elif tag in TABLE_TAGS:
@@ -263,7 +263,7 @@ class MobiMLizer:
                 if tag == 'li':
                     try:
                         last = bstate.body[-1][-1]
-                    except:
+                    except Exception:
                         break
                     last.insert(0, anchor)
                     anchor.tail = last.text
@@ -357,7 +357,7 @@ class MobiMLizer:
         if tag == 'ol' and 'start' in elem.attrib:
             try:
                 istate.list_num = int(elem.attrib['start'])-1
-            except:
+            except Exception:
                 pass
         istates.append(istate)
         left = 0
@@ -461,7 +461,7 @@ class MobiMLizer:
                         try:
                             pixs = round(float(value) /
                                 (72/self.profile.dpi))
-                        except:
+                        except Exception:
                             continue
                         result = str(pixs)
                     istate.attrib[prop] = result
@@ -469,7 +469,7 @@ class MobiMLizer:
                 href = self.current_spine_item.abshref(elem.attrib['src'])
                 try:
                     item = self.oeb.manifest.hrefs[urlnormalize(href)]
-                except:
+                except Exception:
                     self.oeb.logger.warn('Failed to find image:',
                             href)
                 else:
@@ -487,13 +487,13 @@ class MobiMLizer:
                             if 'width' not in istate.attrib:
                                 try:
                                     width = int(istate.attrib['height'])*ar
-                                except:
+                                except Exception:
                                     pass
                                 istate.attrib['width'] = str(int(width))
                             else:
                                 try:
                                     height = int(istate.attrib['width'])/ar
-                                except:
+                                except Exception:
                                     pass
                                 istate.attrib['height'] = str(int(height))
                         item.unload_data_from_memory()
@@ -593,7 +593,7 @@ class MobiMLizer:
                 try:
                     value = int(elem.attrib['value'])
                     istates[-2].list_num = value - 1
-                except:
+                except Exception:
                     pass
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:

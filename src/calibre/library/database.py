@@ -924,7 +924,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return self.data[index][1]
         try:
             return self.conn.get('SELECT title FROM meta WHERE id=?',(index,), all=False)
-        except:
+        except Exception:
             return _('Unknown')
 
     def authors(self, index, index_is_id=False):
@@ -936,7 +936,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return self.data[index][2]
         try:
             return self.conn.get('SELECT authors FROM meta WHERE id=?',(index,), all=False)
-        except:
+        except Exception:
             pass
 
     def author_id(self, index, index_is_id=False):
@@ -1008,7 +1008,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             ans = self.conn.get('SELECT series_index FROM books WHERE id=?', (index,), all=False)
         try:
             return float(ans)
-        except:
+        except Exception:
             return 1.0
 
     def books_in_series(self, series_id):

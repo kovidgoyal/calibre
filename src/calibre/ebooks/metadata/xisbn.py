@@ -60,7 +60,7 @@ class xISBN:
             if isbn not in self._map:
                 try:
                     data = self.fetch_data(isbn)
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
                     data = []
@@ -92,7 +92,7 @@ class xISBN:
                 year = int(x['year'])
                 if year < min_year:
                     min_year = year
-            except:
+            except Exception:
                 continue
         if min_year == 100000:
             min_year = None

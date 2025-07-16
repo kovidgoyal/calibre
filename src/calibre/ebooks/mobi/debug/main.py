@@ -22,7 +22,7 @@ def inspect_mobi(path_or_stream, ddir=None):  # {{{
         ddir = 'decompiled_' + os.path.splitext(os.path.basename(stream.name))[0]
     try:
         shutil.rmtree(ddir)
-    except:
+    except Exception:
         pass
     os.makedirs(ddir)
     if f.kf8_type is None:

@@ -254,7 +254,7 @@ class Paragraphs:
                         try:
                             sys.stderr.write('no matching state in module paragraphs.py\n')
                             sys.stderr.write(self.__state + '\n')
-                        except:
+                        except Exception:
                             pass
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

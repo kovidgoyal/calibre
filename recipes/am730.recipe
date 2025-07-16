@@ -69,7 +69,7 @@ class AM730(BasicNewsRecipe):
                 if articles.index({'title':title,'url':href})>=0:
                     # print('already added')
                     continue  # already added
-            except:
+            except Exception:
                 pass
 
             articles.append({'title':title,'url':href})

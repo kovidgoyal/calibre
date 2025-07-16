@@ -138,7 +138,7 @@ class TOC(list):
         if toc is None:
             try:
                 toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
-            except:
+            except Exception:
                 for item in opfreader.manifest:
                     if 'toc' in item.href().lower():
                         toc = item.href()
@@ -157,7 +157,7 @@ class TOC(list):
                         toc = os.path.join(os.path.dirname(toc), bn)
 
                     self.read_html_toc(toc)
-                except:
+                except Exception:
                     print('WARNING: Could not read Table of Contents. Continuing anyway.')
             else:
                 path = opfreader.manifest.item(toc.lower())
@@ -198,7 +198,7 @@ class TOC(list):
         def process_navpoint(np, dest):
             try:
                 play_order = int(get_attr(np, 1))
-            except:
+            except Exception:
                 play_order = 1
             href = fragment = text = None
             nd = dest

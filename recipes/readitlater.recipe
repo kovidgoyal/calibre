@@ -161,7 +161,7 @@ class Pocket(BasicNewsRecipe):
             img_data = calibre_cover2(title, date, time)
             cover_file.write(img_data)
             cover_file.flush()
-        except:
+        except Exception:
             self.log.exception('Failed to generate default cover')
             return False
         return True

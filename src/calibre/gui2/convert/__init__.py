@@ -179,7 +179,7 @@ class Widget(QWidget):
             ans = str(g.currentText()).strip()
             try:
                 codecs.lookup(ans)
-            except:
+            except Exception:
                 ans = ''
             if not ans:
                 ans = None
@@ -270,7 +270,7 @@ class Widget(QWidget):
         if msg and getattr(msg, 'strip', lambda:True)():
             try:
                 self.set_help_signal.emit(msg)
-            except:
+            except Exception:
                 pass
 
     def setup_help(self, help_provider):

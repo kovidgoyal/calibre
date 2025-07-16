@@ -175,7 +175,7 @@ def shutdown_plugins():
     for d in device_plugins():
         try:
             d.shutdown()
-        except:
+        except Exception:
             pass
 
 
@@ -207,7 +207,7 @@ def main():
     for d in device_plugins():
         try:
             d.startup()
-        except:
+        except Exception:
             print(f'Startup failed for device plugin: {d}')
         if d.MANAGES_DEVICE_PRESENCE:
             cd = d.detect_managed_devices(scanner.devices)
@@ -230,7 +230,7 @@ def main():
     for det, d in connected_devices:
         try:
             d.open(det, None)
-        except:
+        except Exception:
             continue
         else:
             dev = d

@@ -111,7 +111,7 @@ class DOCX:
         try:
             zf = ZipFile(stream)
             zf.extractall(self.tdir)
-        except:
+        except Exception:
             self.log.exception('DOCX appears to be invalid ZIP file, trying a'
                     ' more forgiving ZIP parser')
             from calibre.utils.localunzip import extractall

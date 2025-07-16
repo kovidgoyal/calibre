@@ -462,7 +462,7 @@ def read_font_record(data, extent=1040):
     try:
         usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
                 b'>LLLLL', data, 4)
-    except:
+    except Exception:
         ans['err'] = 'Failed to read font record header fields'
         return ans
     font_data = data[dstart:]

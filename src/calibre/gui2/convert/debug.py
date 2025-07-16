@@ -43,7 +43,7 @@ class DebugWidget(Widget, Ui_Form):
                 test = os.path.join(x, 'test')
                 open(test, 'wb').close()
                 os.remove(test)
-        except:
+        except Exception:
             import traceback
             det_msg = traceback.format_exc()
             error_dialog(self, _('Invalid debug folder'),

@@ -175,11 +175,11 @@ def cnv_lengthorpercent(attribute, arg, element):
     failed = False
     try:
         return cnv_length(attribute, arg, element)
-    except:
+    except Exception:
         failed = True
     try:
         return cnv_percent(attribute, arg, element)
-    except:
+    except Exception:
         failed = True
     if failed:
         raise ValueError(f"'{arg}' is not a valid length or percent")
@@ -226,7 +226,7 @@ def cnv_NCName(attribute, arg, element):
 def cnv_StyleNameRef(attribute, arg, element):
     try:
         return arg.getAttrNS(STYLENS, 'name')
-    except:
+    except Exception:
         return arg
 
 # This function takes either an instance of a style (preferred)
@@ -238,7 +238,7 @@ def cnv_StyleNameRef(attribute, arg, element):
 def cnv_DrawNameRef(attribute, arg, element):
     try:
         return arg.getAttrNS(DRAWNS, 'name')
-    except:
+    except Exception:
         return arg
 
 
@@ -276,7 +276,7 @@ def cnv_points(attribute, arg, element):
     else:
         try:
             strarg = ' '.join(['{},{}'.format(*p) for p in arg])
-        except:
+        except Exception:
             raise ValueError(f'Points must be string or [(0,0),(1,1)] - not {arg}')
         return strarg
 

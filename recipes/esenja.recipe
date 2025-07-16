@@ -114,7 +114,7 @@ class Esensja(BasicNewsRecipe):
             nr = r.findAll(attrs={'class': 'tn-link'})[-1]
             try:
                 nr = int(nr.a.string)
-            except:
+            except Exception:
                 return
             baseurl = soup.find(attrs={'property': 'og:url'})[
                 'content'] + '&strona={0}'

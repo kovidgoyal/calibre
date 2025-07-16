@@ -44,7 +44,7 @@ class BooksModel(QAbstractItemModel):
         else:
             try:
                 self.books = list(self.search_filter.parse(self.filter))
-            except:
+            except Exception:
                 self.books = self.all_books
         self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)

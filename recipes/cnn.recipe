@@ -71,7 +71,7 @@ class CNN(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(masthead)
-        except:
+        except Exception:
             self.log('\nCover unavailable')
             masthead = None
         return masthead

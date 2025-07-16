@@ -71,7 +71,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         try:
             br.open_novisit(cov)
             cover_url = cov
-        except:
+        except Exception:
             cover_url = 'http://s.birminghammail.co.uk/skins/birminghammail/gfx/follow-media.jpg'
 
         return cover_url

@@ -1525,7 +1525,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         '''
         try:
             c = int(attrs.get((TEXTNS, 'c'), 1))
-        except:
+        except Exception:
             c = 0
         if c > 0:
             self.data.append('\u00a0'*c)

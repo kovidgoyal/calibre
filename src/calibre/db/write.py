@@ -47,7 +47,7 @@ def get_series_values(val):
         try:
             idx = float(idx)
             return match.group(1).strip(), idx
-        except:
+        except Exception:
             pass
     return val, None
 

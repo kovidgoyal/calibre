@@ -85,7 +85,7 @@ class Unidecoder:
             # represents the position in the list of characters for the group.
             return self.codepoints[self.code_group(codepoint)][self.grouped_point(
                 codepoint)]
-        except:
+        except Exception:
             return '?'
 
     def code_group(self, character):

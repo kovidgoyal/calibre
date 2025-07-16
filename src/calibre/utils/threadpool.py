@@ -99,7 +99,7 @@ class WorkerThread(threading.Thread):
                 self.resultQueue.put(
                     (request, request.callable(*request.args, **request.kwds))
                 )
-            except:
+            except Exception:
                 request.exception = True
                 import traceback
                 self.resultQueue.put((request, traceback.format_exc()))

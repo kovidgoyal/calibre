@@ -332,7 +332,7 @@ class PMLMLizer:
             mms = int(float(style['margin-left']) * 100 / style.height)
             if mms:
                 text.append(rf'\T="{mms}%"')
-        except:
+        except Exception:
             pass
 
         # Soft scene breaks.
@@ -340,7 +340,7 @@ class PMLMLizer:
             ems = round((float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
                 text.append('\n\\c \n\\c\n')
-        except:
+        except Exception:
             pass
 
         # Process text within this tag.

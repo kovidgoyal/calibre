@@ -59,7 +59,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         try:
             self.opt_enable_heuristics.stateChanged.disconnect()
             self.opt_unwrap_lines.stateChanged.disconnect()
-        except:
+        except Exception:
             pass
 
     def set_value_handler(self, g, val):

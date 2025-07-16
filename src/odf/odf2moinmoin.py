@@ -217,7 +217,7 @@ class ODF2MoinMoin:
             try:
                 level = int(level)
                 paraProps.setHeading(level)
-            except:
+            except Exception:
                 level = 0
 
         if name == 'Title':
@@ -232,7 +232,7 @@ class ODF2MoinMoin:
                     leftMargin = float(leftMargin[:-2])
                     if leftMargin > 0.01:
                         paraProps.setIndented(True)
-                except:
+                except Exception:
                     pass
 
         textProps = self.extractTextProperties(style)
@@ -350,7 +350,7 @@ class ODF2MoinMoin:
         try:
             num = int(node.getAttribute('text:c'))
             return ' '*num
-        except:
+        except Exception:
             return ' '
 
     def text_tab(self, node):

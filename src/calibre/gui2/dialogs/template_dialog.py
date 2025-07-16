@@ -596,7 +596,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.table_column_widths = None
         try:
             self.table_column_widths = gprefs.get(self.geometry_string('template_editor_table_widths'), None)
-        except:
+        except Exception:
             pass
         self.set_mi(mi, fm)
 
@@ -639,7 +639,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         try:
             with open(P('template-functions.json'), 'rb') as f:
                 self.builtin_source_dict = json.load(f, encoding='utf-8')
-        except:
+        except Exception:
             self.builtin_source_dict = {}
 
         self.function_names = func_names = sorted(self.all_functions)
@@ -997,11 +997,11 @@ def evaluate(book, context):
                                 os.makedirs(d)
                             with open(os.path.join(d, icon_name), 'wb') as f:
                                 f.write(pixmap_to_data(p, format='PNG'))
-                    except:
+                    except Exception:
                         traceback.print_exc()
                 self.icon_files.setCurrentIndex(self.icon_files.findText(icon_name))
                 self.icon_files.adjustSize()
-        except:
+        except Exception:
             traceback.print_exc()
 
     def update_filename_box(self):
@@ -1230,7 +1230,7 @@ class BreakReporterBase(QDialog):
             self.table_column_widths = \
                         gprefs.get('template_editor_break_table_widths', None)
             t.setColumnWidth(0, self.table_column_widths[0])
-        except:
+        except Exception:
             t.setColumnWidth(0, t.fontMetrics().averageCharWidth() * 20)
         t.horizontalHeader().sectionResized.connect(self.table_column_resized)
         t.horizontalHeader().setStretchLastSection(True)

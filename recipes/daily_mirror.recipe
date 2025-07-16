@@ -92,7 +92,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         try:
             br.open_novisit(cov2)
             cover_url = cov2
-        except:
+        except Exception:
             cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-snc4/373019_6149699161_1710984811_n.jpg'
 
         return cover_url

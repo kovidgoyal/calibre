@@ -35,14 +35,14 @@ def is_ascii(name):
 try:
     if is_ascii(sys.getdefaultencoding()):
         _icu.set_default_encoding(b'utf-8')
-except:
+except Exception:
     import traceback
     traceback.print_exc()
 
 try:
     if is_ascii(sys.getfilesystemencoding()):
         _icu.set_filesystem_encoding(b'utf-8')
-except:
+except Exception:
     import traceback
     traceback.print_exc()
 del is_ascii

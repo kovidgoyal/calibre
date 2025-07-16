@@ -72,7 +72,7 @@ def strptime(src):
 def strftime(epoch, zone=time.localtime):
     try:
         src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone(epoch)).split()
-    except:
+    except Exception:
         src = time.strftime('%w, %d %m %Y %H:%M:%S GMT', zone()).split()
 
     src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
@@ -127,7 +127,7 @@ class XMLCache:
                     with open(path, 'wb') as f:
                         f.write(EMPTY_EXT_CACHE)
                         fsync(f)
-                except:
+                except Exception:
                     pass
             if os.access(path, os.W_OK):
                 try:
@@ -136,7 +136,7 @@ class XMLCache:
                             xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True, verbose=DEBUG)[0]
                         )
                         self.ext_paths[source_id] = path
-                except:
+                except Exception:
                     pass
 
         # }}}
@@ -286,7 +286,7 @@ class XMLCache:
                 id_ = x.get('id')
                 try:
                     id_ = int(id_)
-                except:
+                except Exception:
                     x.set('id', '-1')
                     idmap[id_] = '-1'
 
@@ -471,7 +471,7 @@ class XMLCache:
         if not name:
             try:
                 name = [t for t in book.tags if t != _('News')][0]
-            except:
+            except Exception:
                 name = None
 
         if not name:
@@ -483,7 +483,7 @@ class XMLCache:
             pubdate = strftime(book.pubdate.utctimetuple(),
                     zone=lambda x: x)
             record.set('publicationDate', pubdate)
-        except:
+        except Exception:
             pass
 
     def rebuild_collections(self, booklist, bl_index):
@@ -616,7 +616,7 @@ class XMLCache:
         # matches. Use localtime if the case of a tie, and hope it is right.
         try:
             timestamp = os.path.getmtime(path)
-        except:
+        except Exception:
             debug_print('Failed to get timestamp for:', path)
             timestamp = time.time()
         rec_date = record.get('date', None)
@@ -630,7 +630,7 @@ class XMLCache:
         def record_set(k, v):
             try:
                 record.set(k, clean(v))
-            except:
+            except Exception:
                 # v is not suitable for XML, ignore
                 pass
 
@@ -656,7 +656,7 @@ class XMLCache:
             record.set('date', clean(date))
         try:
             record.set('size', clean(str(os.stat(path).st_size)))
-        except:
+        except Exception:
             record.set('size', '0')
         title = book.title if book.title else _('Unknown')
         record_set('title', title)
@@ -731,7 +731,7 @@ class XMLCache:
             try:
                 raw = etree.tostring(self.ext_roots[i], encoding='UTF-8',
                     xml_declaration=True)
-            except:
+            except Exception:
                 continue
             raw = raw.replace(b"<?xml version='1.0' encoding='UTF-8'?>",
                     b'<?xml version="1.0" encoding="UTF-8"?>')
@@ -768,7 +768,7 @@ class XMLCache:
                 num = int(id_)
                 if num > ans:
                     ans = num
-            except:
+            except Exception:
                 continue
         return ans
 

@@ -27,7 +27,7 @@ class Bookmark:  # {{{
         self.get_book_length()
         try:
             self.percent_read = min(float(100*self.last_read / self.book_length),100)
-        except:
+        except Exception:
             self.percent_read = 0
 
     def record(self, n):
@@ -167,7 +167,7 @@ class Bookmark:  # {{{
                                 text += line.strip()
                         else:
                             raise Exception('error')
-                except:
+                except Exception:
                     text = '(Unable to extract highlight text from My Clippings.txt)'
                 return text
 
@@ -288,7 +288,7 @@ class Bookmark:  # {{{
                     self.nrecs, = unpack('>H', self.data[76:78])
                     record0 = self.record(0)
                     self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
-            except:
+            except Exception:
                 pass
         elif self.bookmark_extension == 'tan':
             # Read bookLength from metadata
@@ -297,7 +297,7 @@ class Bookmark:  # {{{
                 with open(book_fs,'rb') as f:
                     mu = MetadataUpdater(f)
                     self.book_length = mu.book_length
-            except:
+            except Exception:
                 pass
         else:
             print(f'unsupported bookmark_extension: {self.bookmark_extension}')

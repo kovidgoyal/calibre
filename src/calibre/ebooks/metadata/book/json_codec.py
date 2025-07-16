@@ -180,7 +180,7 @@ class JsonCodec:
                 entry = self.raw_to_book(item, book_class, prefix)
                 if entry is not None:
                     booklist.append(entry)
-        except:
+        except Exception:
             print('exception during JSON decode_from_file')
             traceback.print_exc()
 
@@ -196,7 +196,7 @@ class JsonCodec:
                         key = 'identifiers'
                     setattr(book, key, meta)
             return book
-        except:
+        except Exception:
             print('exception during JSON decoding')
             traceback.print_exc()
 

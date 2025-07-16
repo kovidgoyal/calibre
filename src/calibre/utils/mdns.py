@@ -72,7 +72,7 @@ def _get_external_ip():
                 ipaddr = s.getsockname()[0]
                 if not ipaddr.startswith('127.'):
                     break
-            except:
+            except Exception:
                 time.sleep(0.3)
     # print('ipaddr: %s' % ipaddr)
     return ipaddr
@@ -128,7 +128,7 @@ def start_server():
 def inet_aton(addr):
     try:
         return socket.inet_pton(socket.AF_INET6, addr)
-    except:
+    except Exception:
         return socket.inet_pton(socket.AF_INET, addr)
 
 
@@ -136,16 +136,16 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
     port = int(port)
     try:
         hostname = ascii_text(force_unicode(socket.gethostname())).partition('.')[0]
-    except:
+    except Exception:
         hostname = 'Unknown'
 
     if add_hostname:
         try:
             desc += f' (on {hostname} port {port})'
-        except:
+        except Exception:
             try:
                 desc += f' (on {hostname})'
-            except:
+            except Exception:
                 pass
 
     if use_ip_address:

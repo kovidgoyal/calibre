@@ -179,7 +179,7 @@ class CSSFlattener:
             try:
                 self.filter_css = {x.strip().lower() for x in
                     self.opts.filter_css.split(',')}
-            except:
+            except Exception:
                 self.oeb.log.warning('Failed to parse filter_css, ignoring')
             else:
                 from calibre.ebooks.oeb.normalize_css import normalize_filter_css
@@ -330,7 +330,7 @@ class CSSFlattener:
             self.baseline_node(body, stylizer, sizes, fsize)
         try:
             sbase = max(list(sizes.items()), key=operator.itemgetter(1))[0]
-        except:
+        except Exception:
             sbase = 12.0
         self.oeb.logger.info(
             f'Source base font size is {sbase:0.5f}pt')
@@ -354,7 +354,7 @@ class CSSFlattener:
                 else:
                     try:
                         value = round(value / slineh) * dlineh
-                    except:
+                    except Exception:
                         self.oeb.logger.warning(
                                 'Invalid length:', value)
                         value = 0.0
@@ -368,7 +368,7 @@ class CSSFlattener:
         cssdict = style.cssdict()
         try:
             font_size = style['font-size']
-        except:
+        except Exception:
             font_size = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
         if tag == 'body' and isinstance(font_size, numbers.Number):
@@ -416,7 +416,7 @@ class CSSFlattener:
                         # Oh, the warcrimes
                         try:
                             esize = 3 + force_int(size)
-                        except:
+                        except Exception:
                             esize = 3
                         if esize < 1:
                             esize = 1
@@ -426,7 +426,7 @@ class CSSFlattener:
                     else:
                         try:
                             font_size = fnums[force_int(size)]
-                        except:
+                        except Exception:
                             font_size = fnums[3]
                     cssdict['font-size'] = f'{font_size:.1f}pt'
                 del node.attrib['size']

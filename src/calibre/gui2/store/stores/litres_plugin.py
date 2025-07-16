@@ -115,7 +115,7 @@ def format_price_in_RUR(price):
         try:
             price = u'{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
-        except:
+        except Exception:
             pass
     return price
 

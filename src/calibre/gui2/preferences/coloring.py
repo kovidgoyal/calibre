@@ -157,7 +157,7 @@ class ConditionEditor(QWidget):  # {{{
         texts = _('If the ___ column ___ value')
         try:
             one, two, three = texts.split('___')
-        except:
+        except Exception:
             one, two, three = 'If the ', ' column ', ' value '
 
         self.l1 = l1 = QLabel(one)
@@ -663,7 +663,7 @@ class RuleEditor(QDialog):  # {{{
                                 os.makedirs(d)
                             with open(os.path.join(d, icon_name), 'wb') as f:
                                 f.write(pixmap_to_data(p, format='PNG'))
-                    except:
+                    except Exception:
                         import traceback
                         traceback.print_exc()
                     self.update_filename_box()
@@ -674,7 +674,7 @@ class RuleEditor(QDialog):  # {{{
                 else:
                     self.filename_box.setCurrentIndex(self.filename_box.findText(icon_name))
                 self.filename_box.adjustSize()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -753,7 +753,7 @@ class RuleEditor(QDialog):  # {{{
             self.conditions_widget.layout().addWidget(ce)
             try:
                 ce.condition = c
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 
@@ -820,7 +820,7 @@ class RulesModel(QAbstractListModel):  # {{{
             return
         try:
             rule = rule_from_template(self.fm, template)
-        except:
+        except Exception:
             rule = template
         return rule
 
@@ -853,7 +853,7 @@ class RulesModel(QAbstractListModel):  # {{{
         row = index.row()
         try:
             kind, col, rule = self.rules[row]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             if col == color_row_key:
@@ -1231,7 +1231,7 @@ class EditRules(QWidget):  # {{{
     def edit_rule(self, index):
         try:
             kind, col, rule = self.model.data(index, Qt.ItemDataRole.UserRole)
-        except:
+        except Exception:
             return
         if isinstance(rule, Rule):
             d = RuleEditor(self.model.fm, self.pref_name)

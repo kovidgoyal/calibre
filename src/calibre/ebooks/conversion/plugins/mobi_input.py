@@ -30,7 +30,7 @@ class MOBIInput(InputFormatPlugin):
             if mr.kf8_type is None:
                 mr.extract_content('.', parse_cache)
 
-        except:
+        except Exception:
             mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_pipeline, try_extra_data_fix=True)
             if mr.kf8_type is None:

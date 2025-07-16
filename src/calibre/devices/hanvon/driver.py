@@ -142,7 +142,7 @@ class ALEX(N516):
                 cpath = self.alex_cpath(path)
                 if os.path.exists(cpath):
                     os.remove(cpath)
-            except:
+            except Exception:
                 pass
         self.report_progress(1.0, _('Removing books from device...'))
 

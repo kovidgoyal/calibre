@@ -463,7 +463,7 @@ class KINDLE2(KINDLE):
         if os.access(collections, os.R_OK):
             try:
                 self.kindle_update_booklist(bl, collections)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
         return bl
@@ -513,7 +513,7 @@ class KINDLE2(KINDLE):
         # Upload the cover thumbnail
         try:
             self.upload_kindle_thumbnail(metadata, filepath)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         # Upload the apnx file
@@ -621,7 +621,7 @@ class KINDLE2(KINDLE):
         if cust_col_name:
             try:
                 custom_page_count = int(metadata.get(cust_col_name, 0))
-            except:
+            except Exception:
                 pass
 
         apnx_path = f'{os.path.join(path, filename)}.apnx'
@@ -638,10 +638,10 @@ class KINDLE2(KINDLE):
                             method = temp
                         else:
                             print(f'Invalid method choice for this book ({temp!r}), ignoring.')
-                    except:
+                    except Exception:
                         print('Could not retrieve override method choice, using default.')
                 apnx_builder.write_apnx(filepath, apnx_path, method=method, page_count=custom_page_count)
-            except:
+            except Exception:
                 print('Failed to generate APNX')
                 import traceback
                 traceback.print_exc()

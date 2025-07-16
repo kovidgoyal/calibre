@@ -67,7 +67,7 @@ class Bookmark:  # {{{
                                                          'chapter_index': chapter_row['VolumeIndex']
                                                         }
                 debug_print(f'Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={kepub_chapters}')
-            except:
+            except Exception:
                 debug_print('Kobo::Bookmark::get_bookmark_data - No chapters found')
 
         cursor.execute(bookmark_query, book_query_values)

@@ -86,7 +86,7 @@ class Progress(Thread):
                 break
             try:
                 eintr_retry_call(self.conn.send, x)
-            except:
+            except Exception:
                 break
 
 

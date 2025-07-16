@@ -68,7 +68,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
     def data(self, index, role):
         try:
             plugin = self.plugins[index.row()]
-        except:
+        except Exception:
             return None
         col = index.column()
 
@@ -96,7 +96,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
     def setData(self, index, val, role):
         try:
             plugin = self.plugins[index.row()]
-        except:
+        except Exception:
             return False
         col = index.column()
         ret = False
@@ -206,7 +206,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def data(self, index, role):
         try:
             field = self.fields[index.row()]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             return self.descs.get(field, field)
@@ -236,7 +236,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def setData(self, index, val, role):
         try:
             field = self.fields[index.row()]
-        except:
+        except Exception:
             return False
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
@@ -378,7 +378,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def pc_finished(self):
         try:
             self.pc.finished.disconnect()
-        except:
+        except Exception:
             pass
         self.stack.setCurrentIndex(0)
         self.stack.removeWidget(self.pc)

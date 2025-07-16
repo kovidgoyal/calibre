@@ -151,14 +151,14 @@ class CanWestPaper(BasicNewsRecipe):
         daysback = 1
         try:
             br.open(cover)
-        except:
+        except Exception:
             while daysback < 7:
                 cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
                     str((date.today() - timedelta(days=daysback)).day) + '/lg/' + self.fp_tag + '.jpg'
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
-                except:
+                except Exception:
                     daysback = daysback + 1
                     continue
                 break
@@ -295,7 +295,7 @@ class CanWestPaper(BasicNewsRecipe):
             print('Section: ' + key + ': ' + self.url_prefix + keyurl)
             try:
                 soup = self.index_to_soup(self.url_prefix + keyurl)
-            except:
+            except Exception:
                 print('Section: ' + key + ' NOT FOUND')
                 return
             ans.append(key)

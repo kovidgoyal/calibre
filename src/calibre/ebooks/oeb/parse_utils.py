@@ -239,7 +239,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     del x.attrib[key]
                     key = key.lower()
                     x.attrib[key] = val
-            except:
+            except Exception:
                 pass
 
     if barename(data.tag) != 'html':
@@ -272,7 +272,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
 
         try:
             data = safe_xml_fromstring(data, recover=False)
-        except:
+        except Exception:
             data = data.replace(':=', '=').replace(':>', '>')
             data = data.replace('<http:/>', '')
             try:

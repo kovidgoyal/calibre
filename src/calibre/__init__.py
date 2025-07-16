@@ -273,7 +273,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     }
                 if ans['port']:
                     ans['port'] = int(ans['port'])
-            except:
+            except Exception:
                 if debug:
                     import traceback
                     traceback.print_exc()

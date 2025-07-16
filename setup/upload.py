@@ -281,7 +281,7 @@ class UploadInstallers(Command):  # {{{
         while True:
             try:
                 send_data(tdir)
-            except:
+            except Exception:
                 print('\nUpload to staging failed, retrying in a minute')
                 time.sleep(60)
             else:
@@ -290,7 +290,7 @@ class UploadInstallers(Command):  # {{{
         while True:
             try:
                 send_to_backup(tdir)
-            except:
+            except Exception:
                 print('\nUpload to backup failed, retrying in a minute')
                 time.sleep(60)
             else:

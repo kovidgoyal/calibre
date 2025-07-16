@@ -54,7 +54,7 @@ class MultiDeleter(QObject):  # {{{
             self.model.db.delete_book(id_, notify=False, commit=False,
                     permanent=False)
             self.deleted_ids.append(id_)
-        except:
+        except Exception:
             import traceback
             self.failures.append((id_, title, traceback.format_exc()))
         single_shot(self.delete_one)

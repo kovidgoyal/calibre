@@ -180,7 +180,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
                     allow_user_override=False), 'r') as zf:
                 self.favicons = {x.filename: x for x in zf.infolist() if
                     x.filename.endswith('.png')}
-        except:
+        except Exception:
             self.favicons = {}
         self.do_refresh()
 
@@ -188,7 +188,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         if download:
             try:
                 return download_builtin_recipe(urn)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
         return get_builtin_recipe(urn)

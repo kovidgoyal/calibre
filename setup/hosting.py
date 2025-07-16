@@ -118,7 +118,7 @@ class SourceForge(Base):  # {{{
                     ])
                 except KeyboardInterrupt:
                     raise SystemExit(1)
-                except:
+                except Exception:
                     print('\nUpload failed, trying again in 30 seconds')
                     time.sleep(30)
                 else:
@@ -421,7 +421,7 @@ def upload_to_servers(files, version):  # {{{
     #                 f'root@{server}:{rdir}'])
     #             except KeyboardInterrupt:
     #                 raise SystemExit(1)
-    #             except:
+    #             except Exception:
     #                 print('\nUpload failed, trying again in 30 seconds')
     #                 time.sleep(30)
     #             else:

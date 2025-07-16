@@ -168,7 +168,7 @@ class Pict:
             copy_obj.copy_file(self.__write_to, 'pict.data')
             try:
                 copy_obj.copy_file(self.__pict_file, 'pict.rtf')
-            except:
+            except Exception:
                 pass
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)

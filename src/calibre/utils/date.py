@@ -28,7 +28,7 @@ if iswindows:
     try:
         ctypes.windll.kernel32.GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, buf, 255)
         parse_date_day_first = buf.value.index(b'd') < buf.value.index(b'M')
-    except:
+    except Exception:
         parse_date_day_first = False
     del ctypes, LOCALE_SSHORTDATE, buf, LOCALE_USER_DEFAULT
 elif ismacos:
@@ -36,7 +36,7 @@ elif ismacos:
         from calibre_extensions.usbobserver import date_format
         date_fmt = date_format()
         parse_date_day_first = date_fmt.index('d') < date_fmt.index('M')
-    except:
+    except Exception:
         parse_date_day_first = False
 else:
     try:
@@ -52,7 +52,7 @@ else:
         raw = locale.nl_langinfo(locale.D_FMT)
         parse_date_day_first = first_index(raw, ('%d', '%a', '%A')) < first_index(raw, ('%m', '%b', '%B'))
         del raw, first_index
-    except:
+    except Exception:
         parse_date_day_first = False
 
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)

@@ -230,7 +230,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                 try:
                     with open(path, 'rb') as imf:
                         fmt, width, height = identify(imf)
-                except:
+                except Exception:
                     width, height, fmt = 0, 0, None
                 del fmt
                 try:

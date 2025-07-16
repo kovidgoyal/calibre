@@ -216,7 +216,7 @@ class PDFOutput(OutputFormatPlugin):
                     try:
                         s = rule.style
                         src = s.getProperty('src').propertyValue[0].uri
-                    except:
+                    except Exception:
                         continue
                     path = item.abshref(src)
                     ff = self.oeb.manifest.hrefs.get(urlnormalize(path), None)
@@ -228,7 +228,7 @@ class PDFOutput(OutputFormatPlugin):
                         processed.add(path)
                         try:
                             nraw = remove_embed_restriction(raw)
-                        except:
+                        except Exception:
                             continue
                         if nraw != raw:
                             ff.data = nraw

@@ -229,7 +229,7 @@ class PluginWidget(QWidget, Ui_Form):
 
         try:
             pattern = re.compile(regex)
-        except:
+        except Exception:
             results = _('regex error: %s') % sys.exc_info()[1]
         else:
             excluded_tags = []
@@ -545,7 +545,7 @@ class PluginWidget(QWidget, Ui_Form):
         # Append the output profile
         try:
             opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
-        except:
+        except Exception:
             opts_dict['output_profile'] = ['default']
 
         if False and self.DEBUG:
@@ -732,7 +732,7 @@ class PluginWidget(QWidget, Ui_Form):
         names.extend(self.preset_field_values)
         try:
             dex = names.index(self.preset_search_name)
-        except:
+        except Exception:
             dex = 0
         name = ''
         while not name:
@@ -806,7 +806,7 @@ class PluginWidget(QWidget, Ui_Form):
         # Append the current output profile
         try:
             preset['output_profile'] = load_defaults('page_setup')['output_profile']
-        except:
+        except Exception:
             preset['output_profile'] = 'default'
 
         self.presets[name] = preset

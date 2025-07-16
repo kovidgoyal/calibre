@@ -110,7 +110,7 @@ class ParseWorker(Thread):
             # Connect to the worker and send a dummy job to initialize it
             self.worker = offload_worker(priority='low')
             self.worker(mod, func, '<p></p>')
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             self.launch_error = traceback.format_exc()
@@ -133,7 +133,7 @@ class ParseWorker(Thread):
             pi, data = request[1:]
             try:
                 res = self.worker(mod, func, data)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
             else:

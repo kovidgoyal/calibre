@@ -187,7 +187,7 @@ class Resources(Command):  # {{{
                     lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
             try:
                 lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
-            except:
+            except Exception:
                 continue
             lines = ''.join(lines)
             function_dict[obj.name] = lines

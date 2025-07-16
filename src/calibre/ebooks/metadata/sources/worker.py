@@ -81,7 +81,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
             try:
                 results = identify(log, Event(), title=title, authors=authors,
                     identifiers=identifiers)
-            except:
+            except Exception:
                 pass
             if results:
                 all_failed = False

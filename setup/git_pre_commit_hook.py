@@ -47,7 +47,7 @@ class Bug:
                 raw = urllib.request.urlopen(LAUNCHPAD_BUG.format(bug)).read()
                 h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
                 summary = html.tostring(h1, method='text', encoding=str).strip()
-            except:
+            except Exception:
                 summary = 'Private bug'
         else:
             summary = json.loads(urllib.request.urlopen(GITHUB_BUG.format(bug)).read())['title']

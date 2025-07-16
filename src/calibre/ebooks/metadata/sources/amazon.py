@@ -410,7 +410,7 @@ class Worker(Thread):  # Get details {{{
     def run(self):
         try:
             self.get_details()
-        except:
+        except Exception:
             self.log.exception('get_details failed for url: %r' % self.url)
 
     def get_details(self):
@@ -439,13 +439,13 @@ class Worker(Thread):  # Get details {{{
 
         try:
             title = self.parse_title(root)
-        except:
+        except Exception:
             self.log.exception('Error parsing title for url: %r' % self.url)
             title = None
 
         try:
             authors = self.parse_authors(root)
-        except:
+        except Exception:
             self.log.exception('Error parsing authors for url: %r' % self.url)
             authors = []
 
@@ -463,12 +463,12 @@ class Worker(Thread):  # Get details {{{
 
         try:
             mi.rating = self.parse_rating(root)
-        except:
+        except Exception:
             self.log.exception('Error parsing ratings for url: %r' % self.url)
 
         try:
             mi.comments = self.parse_comments(root, raw)
-        except:
+        except Exception:
             self.log.exception('Error parsing comments for url: %r' % self.url)
 
         try:
@@ -477,17 +477,17 @@ class Worker(Thread):  # Get details {{{
                 mi.series, mi.series_index = series, series_index
             elif self.testing:
                 mi.series, mi.series_index = 'Dummy series for testing', 1
-        except:
+        except Exception:
             self.log.exception('Error parsing series for url: %r' % self.url)
 
         try:
             mi.tags = self.parse_tags(root)
-        except:
+        except Exception:
             self.log.exception('Error parsing tags for url: %r' % self.url)
 
         try:
             self.cover_url = self.parse_cover(root, raw)
-        except:
+        except Exception:
             self.log.exception('Error parsing cover for url: %r' % self.url)
         if self.cover_url_processor is not None and self.cover_url and self.cover_url.startswith('/'):
             self.cover_url = self.cover_url_processor(self.cover_url)
@@ -503,7 +503,7 @@ class Worker(Thread):  # Get details {{{
         elif non_hero:
             try:
                 self.parse_new_details(root, mi, non_hero[0])
-            except:
+            except Exception:
                 self.log.exception(
                     'Failed to parse new-style book details section')
         elif feature_and_detail_bullets:
@@ -518,19 +518,19 @@ class Worker(Thread):  # Get details {{{
                     isbn = self.parse_isbn(pd)
                     if isbn:
                         self.isbn = mi.isbn = isbn
-                except:
+                except Exception:
                     self.log.exception(
                         'Error parsing ISBN for url: %r' % self.url)
 
                 try:
                     mi.publisher = self.parse_publisher(pd)
-                except:
+                except Exception:
                     self.log.exception(
                         'Error parsing publisher for url: %r' % self.url)
 
                 try:
                     mi.pubdate = self.parse_pubdate(pd)
-                except:
+                except Exception:
                     self.log.exception(
                         'Error parsing publish date for url: %r' % self.url)
 
@@ -538,7 +538,7 @@ class Worker(Thread):  # Get details {{{
                     lang = self.parse_language(pd)
                     if lang:
                         mi.language = lang
-                except:
+                except Exception:
                     self.log.exception(
                         'Error parsing language for url: %r' % self.url)
 
@@ -1025,7 +1025,7 @@ class Worker(Thread):  # Get details {{{
                 from calibre.utils.date import parse_only_date
                 date = self.delocalize_datestr(date)
                 mi.pubdate = parse_only_date(date, assume_utc=True)
-            except:
+            except Exception:
                 self.log.exception('Failed to parse pubdate: %s' % val)
         elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
             ans = check_isbn(val)
@@ -1762,7 +1762,7 @@ class Amazon(Source):
             cdata = br.open_novisit(
                 cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
-        except:
+        except Exception:
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 

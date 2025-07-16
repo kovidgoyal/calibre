@@ -152,7 +152,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         row = index.row()
         try:
             tweak = self.tweaks[row]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             return tweak.name
@@ -175,7 +175,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
     def parse_tweaks(self):
         try:
             custom_tweaks = read_custom_tweaks()
-        except:
+        except Exception:
             print('Failed to load custom tweaks file')
             import traceback
             traceback.print_exc()
@@ -494,7 +494,7 @@ class ConfigWidget(ConfigWidgetBase):
             g, l = {}, {}
             try:
                 exec(str(d.edit.toPlainText()), g, l)
-            except:
+            except Exception:
                 import traceback
                 return error_dialog(self, _('Failed'),
                     _('There was a syntax error in your tweak. Click '
@@ -538,7 +538,7 @@ class ConfigWidget(ConfigWidgetBase):
             l, g = {}, {}
             try:
                 exec(str(self.edit_tweak.toPlainText()), g, l)
-            except:
+            except Exception:
                 import traceback
                 error_dialog(self.gui, _('Failed'),
                         _('There was a syntax error in your tweak. Click '
@@ -554,7 +554,7 @@ class ConfigWidget(ConfigWidgetBase):
             raw = raw.encode('utf-8')
         try:
             custom_tweaks = exec_tweaks(raw)
-        except:
+        except Exception:
             import traceback
             error_dialog(self, _('Invalid tweaks'),
                     _('The tweaks you entered are invalid, try resetting the'

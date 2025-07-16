@@ -123,36 +123,36 @@ def get_metadata(stream):
 
     try:
         _parse_cover(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_comments(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_tags(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_series(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_isbn(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_publisher(root, mi, ctx)
-    except:
+    except Exception:
         pass
     try:
         _parse_pubdate(root, mi, ctx)
-    except:
+    except Exception:
         pass
 
     try:
         _parse_language(root, mi, ctx)
-    except:
+    except Exception:
         pass
 
     return mi
@@ -218,7 +218,7 @@ def _parse_cover(root, mi, ctx):
     if imgid:
         try:
             _parse_cover_data(root, imgid, mi, ctx)
-        except:
+        except Exception:
             pass
 
 
@@ -385,7 +385,7 @@ def _set_series(title_info, mi, ctx):
         seq.set('name', mi.series)
         try:
             seq.set('number', f'{mi.series_index:g}')
-        except:
+        except Exception:
             seq.set('number', '1')
 
 

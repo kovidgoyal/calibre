@@ -258,7 +258,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
         try:  # Set lrfviewer as the default for LRF files for this user
             from subprocess import call
             call('xdg-mime default calibre-lrfviewer.desktop application/lrf', shell=True)
-        except:
+        except Exception:
             pass
     m = Main(logger, opts, parent=parent)
     m.set_ebook(stream)

@@ -115,7 +115,7 @@ class USBMS(CLI, Device):
             with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
                 try:
                     driveinfo = json.loads(f.read(), object_hook=from_json)
-                except:
+                except Exception:
                     driveinfo = None
                 driveinfo = self._update_driveinfo_record(driveinfo, prefix,
                                                           location_code, name)
@@ -252,7 +252,7 @@ class USBMS(CLI, Device):
                         if bl.add_book(self.book_from_path(prefix, lpath),
                                               replace_metadata=False):
                             changed = True
-                except:  # Probably a filename encoding error
+                except Exception:  # Probably a filename encoding error
                     import traceback
                     traceback.print_exc()
             return changed
@@ -333,7 +333,7 @@ class USBMS(CLI, Device):
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],
                                   mdata, filepath)
-            except:  # Failure to upload cover is not catastrophic
+            except Exception:  # Failure to upload cover is not catastrophic
                 import traceback
                 traceback.print_exc()
 
@@ -413,7 +413,7 @@ class USBMS(CLI, Device):
         if self.SUPPORTS_SUB_DIRS:
             try:
                 os.removedirs(os.path.dirname(path))
-            except:
+            except Exception:
                 pass
 
     def delete_books(self, paths, end_session=True):
@@ -504,7 +504,7 @@ class USBMS(CLI, Device):
             try:
                 with open(cache_file, 'rb') as f:
                     json_codec.decode_from_file(f, bl, cls.book_class, prefix)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
                 bl = []

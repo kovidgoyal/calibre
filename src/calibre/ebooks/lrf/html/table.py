@@ -89,7 +89,7 @@ class Cell:
         try:
             self.colspan = int(tag['colspan']) if tag.has_attr('colspan') else 1
             self.rowspan = int(tag['rowspan']) if tag.has_attr('rowspan') else 1
-        except:
+        except Exception:
             pass
 
         pp = conv.current_page

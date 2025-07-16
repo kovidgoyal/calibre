@@ -441,9 +441,9 @@ class CatalogBuilder:
                     with ZipFile(self.thumbs_path, mode='r') as zfr:
                         try:
                             cached_thumb_width = zfr.read('thumb_width')
-                        except:
+                        except Exception:
                             cached_thumb_width = '-1'
-                except:
+                except Exception:
                     os.remove(self.thumbs_path)
                     cached_thumb_width = '-1'
 
@@ -502,7 +502,7 @@ class CatalogBuilder:
             try:
                 self.generate_masthead_image(os.path.join(self.catalog_path,
                                                 'images/mastheadImage.gif'))
-            except:
+            except Exception:
                 pass
 
     def create_catalog_directory_structure(self):
@@ -635,7 +635,7 @@ class CatalogBuilder:
                             if self.DEBUG:
                                 _log_prefix_rule_match_info(rule, record, field_contents)
                             return rule['prefix']
-                    except:
+                    except Exception:
                         if self.opts.verbose:
                             self.opts.log.error('pattern failed to compile: {}'.format(rule['pattern']))
                 elif field_contents is None and rule['pattern'] == 'None':
@@ -1166,7 +1166,7 @@ class CatalogBuilder:
                         myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
                         try:
                             book['percent_read'] = min(float(100 * myBookmark.last_read / myBookmark.book_length), 100)
-                        except:
+                        except Exception:
                             book['percent_read'] = 0
                         dots = int((book['percent_read'] + 5) // 10)
                         dot_string = self.SYMBOL_PROGRESS_READ * dots
@@ -1271,7 +1271,7 @@ class CatalogBuilder:
                 if re.search(self.opts.exclude_genre, tag):
                     excluded_tags.append(tag)
                     continue
-            except:
+            except Exception:
                 self.opts.log.error(f'\tfilterDbTags(): malformed --exclude-genre regex pattern: {self.opts.exclude_genre}')
 
             if tag == ' ':
@@ -1317,7 +1317,7 @@ class CatalogBuilder:
                     continue
                 else:
                     tag_list.append(tag)
-        except:
+        except Exception:
             self.opts.log.error(f'\tfilter_excluded_genres(): malformed --exclude-genre regex pattern: {regex}')
             return tags
 
@@ -2026,7 +2026,7 @@ class CatalogBuilder:
             book[1]['bookmark_timestamp'] = book[0].timestamp
             try:
                 book[1]['percent_read'] = min(float(100 * book[0].last_read / book[0].book_length), 100)
-            except:
+            except Exception:
                 book[1]['percent_read'] = 0
             bookmarked_books.append(book[1])
 
@@ -2928,7 +2928,7 @@ class CatalogBuilder:
         draw = ImageDraw.Draw(img)
         try:
             font = ImageFont.truetype(font_path, 48)
-        except:
+        except Exception:
             self.opts.log.error(f"     Failed to load user-specifed font '{font_path}'")
             font = ImageFont.truetype(default_font, 48)
         text = self.opts.catalog_title.encode('utf-8')
@@ -3705,7 +3705,7 @@ class CatalogBuilder:
                     star_string = self.SYMBOL_FULL_RATING * stars
                     empty_stars = self.SYMBOL_EMPTY_RATING * (5 - stars)
                     rating = f'{star_string}{empty_stars}'
-        except:
+        except Exception:
             # Rating could be None
             pass
         return rating
@@ -3851,7 +3851,7 @@ class CatalogBuilder:
         def _open_archive(mode='r'):
             try:
                 return ZipFile(self.thumbs_path, mode=mode, allowZip64=True)
-            except:
+            except Exception:
                 # occurs under windows if the file is opened by another
                 # process
                 pass
@@ -3869,7 +3869,7 @@ class CatalogBuilder:
                 with zf:
                     try:
                         zf.getinfo(uuid + cover_crc)
-                    except:
+                    except Exception:
                         pass
                     else:
                         # uuid found in cache with matching crc
@@ -3922,7 +3922,7 @@ class CatalogBuilder:
             try:
                 self.generate_thumbnail(title, image_dir, thumb_file)
                 thumbs.append('thumbnail_{}.jpg'.format(int(title['id'])))
-            except:
+            except Exception:
                 if 'cover' in title and os.path.exists(title['cover']):
                     valid_cover = False
                     self.opts.log.warn(" *** Invalid cover file for '{}'***".format(title['title']))
@@ -4072,7 +4072,7 @@ class CatalogBuilder:
                     prefix_rule['pattern'] = rule[2]
                     prefix_rule['prefix'] = rule[3]
                     pr.append(prefix_rule)
-            except:
+            except Exception:
                 self.opts.log.error(f'malformed prefix_rules: {self.opts.prefix_rules!r}')
                 raise
         return pr

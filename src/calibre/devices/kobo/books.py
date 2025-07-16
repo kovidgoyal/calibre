@@ -46,20 +46,20 @@ class Book(Book_):
         if ContentType == '6' and date is not None:
             try:
                 self.datetime = time.strptime(date, '%Y-%m-%dT%H:%M:%S.%f')
-            except:
+            except Exception:
                 try:
                     self.datetime = time.strptime(date.split('+')[0], '%Y-%m-%dT%H:%M:%S')
-                except:
+                except Exception:
                     try:
                         self.datetime = time.strptime(date.split('+')[0], '%Y-%m-%d')
-                    except:
+                    except Exception:
                         try:
                             self.datetime = parse_date(date,
                                     assume_utc=True).timetuple()
-                        except:
+                        except Exception:
                             try:
                                 self.datetime = time.gmtime(os.path.getctime(self.path))
-                            except:
+                            except Exception:
                                 self.datetime = time.gmtime()
 
         self.kobo_metadata = Metadata(title, self.authors)

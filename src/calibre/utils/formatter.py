@@ -378,7 +378,7 @@ class _Parser:
             token = self.prog[self.lex_pos][1]
             self.lex_pos += 1
             return token
-        except:
+        except Exception:
             return None
 
     def consume(self):
@@ -389,21 +389,21 @@ class _Parser:
         try:
             token = self.prog[self.lex_pos]
             return token[1] == op and token[0] == self.LEX_OP
-        except:
+        except Exception:
             return False
 
     def token_op_is_string_infix_compare(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX
-        except:
+        except Exception:
             return False
 
     def token_op_is_numeric_infix_compare(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX
-        except:
+        except Exception:
             return False
 
     def token_is_newline(self):
@@ -413,7 +413,7 @@ class _Parser:
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_ID
-        except:
+        except Exception:
             return False
 
     def token_is(self, candidate):
@@ -421,35 +421,35 @@ class _Parser:
         try:
             token = self.prog[self.lex_pos]
             return token[1] == candidate and token[0] == self.LEX_KEYWORD
-        except:
+        except Exception:
             return False
 
     def token_is_keyword(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_KEYWORD
-        except:
+        except Exception:
             return False
 
     def token_is_constant(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_CONST
-        except:
+        except Exception:
             return False
 
     def token_is_eof(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_EOF
-        except:
+        except Exception:
             return True
 
     def token_text(self):
         self.check_eol()
         try:
             return self.prog[self.lex_pos][1]
-        except:
+        except Exception:
             return _("'End of program'")
 
     def program(self, parent, funcs, prog):
@@ -1124,7 +1124,7 @@ class _Interpreter:
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, self.locals[prog.name], prog.line_number)
             return self.locals[prog.name]
-        except:
+        except Exception:
             self.error(_("Unknown identifier '{0}'").format(prog.name), prog.line_number)
 
     def do_node_func(self, prog):
@@ -1256,11 +1256,11 @@ class _Interpreter:
                 return res
             except StopException:
                 raise
-            except:
+            except Exception:
                 self.error(_("Unknown field '{0}'").format(name), prog.line_number)
         except (StopException, ValueError):
             raise
-        except:
+        except Exception:
             self.error(_("Unknown field '{0}'").format('internal parse error'),
                        prog.line_number)
 
@@ -1290,7 +1290,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Unknown field '{0}'").format('internal parse error'),
                        prog.line_number)
 
@@ -1429,7 +1429,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during string comparison: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1457,7 +1457,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Value used in comparison is not a number: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1474,7 +1474,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1491,7 +1491,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1513,7 +1513,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1531,7 +1531,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1543,7 +1543,7 @@ class _Interpreter:
             return res
         except (StopException, ValueError) as e:
             raise e
-        except:
+        except Exception:
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
@@ -1670,7 +1670,7 @@ class TemplateFormatter(string.Formatter):
         elif 'eEfFgGn%'.find(typ) >= 0:
             try:
                 val = float(val)
-            except:
+            except Exception:
                 raise ValueError(
                     _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
         return str(('{0:'+fmt+'}').format(val))
@@ -1681,7 +1681,7 @@ class TemplateFormatter(string.Formatter):
             if matches is None or matches.lastindex != 3:
                 return fmt, '', ''
             return matches.groups()
-        except:
+        except Exception:
             if DEBUG:
                 traceback.print_exc()
             return fmt, '', ''

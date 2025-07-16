@@ -39,14 +39,14 @@ class Rule:  # {{{
         if (dt in ('int', 'float', 'rating') and action in ('lt', 'eq', 'gt')):
             try:
                 int(val) if dt == 'int' else float(val)
-            except:
+            except Exception:
                 return f'{val!r} is not a valid numerical value'
 
         if (dt in ('comments', 'series', 'text', 'enumeration') and 'pattern'
                 in action):
             try:
                 re.compile(val)
-            except:
+            except Exception:
                 return f'{val!r} is not a valid regular expression'
 
     @property
@@ -228,14 +228,14 @@ def rule_from_template(fm, template):
             raw = line[len(Rule.SIGNATURE):].strip()
             try:
                 color, conditions = json.loads(from_hex_bytes(raw))
-            except:
+            except Exception:
                 continue
             r = Rule(fm)
             r.color = color
             for c in conditions:
                 try:
                     r.add_condition(*c)
-                except:
+                except Exception:
                     continue
             if r.color and r.conditions:
                 return r

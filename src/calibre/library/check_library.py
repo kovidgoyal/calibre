@@ -142,7 +142,7 @@ class CheckLibrary:
                     # Record the book to check its formats
                     self.book_dirs.append((db_path, title_dir, id_))
                     found_titles = True
-            except:
+            except Exception:
                 traceback.print_exc()
                 # Sort-of check: exception processing directory
                 self.failed_folders.append((auth_dir, traceback.format_exc(), []))
@@ -154,7 +154,7 @@ class CheckLibrary:
         for x in self.book_dirs:
             try:
                 self.process_book(lib, x)
-            except:
+            except Exception:
                 traceback.print_exc()
                 # Sort-of check: exception processing directory
                 self.failed_folders.append((title_path, traceback.format_exc(), []))

@@ -667,7 +667,7 @@ def is_widescreen():
     if _is_widescreen is None:
         try:
             _is_widescreen = available_width()/available_height() > 1.4
-        except:
+        except Exception:
             _is_widescreen = False
     return _is_widescreen
 
@@ -844,7 +844,7 @@ class FunctionDispatcher(QObject):
     def dispatch(self, q, args, kwargs):
         try:
             res = self.func(*args, **kwargs)
-        except:
+        except Exception:
             res = None
         q.put(res)
 
@@ -875,7 +875,7 @@ class GetMetadata(QObject):
         from calibre.ebooks.metadata.meta import metadata_from_formats
         try:
             mi = metadata_from_formats(*args, **kwargs)
-        except:
+        except Exception:
             mi = MetaInformation('', [_('Unknown')])
         self.metadataf.emit(id, mi)
 
@@ -883,7 +883,7 @@ class GetMetadata(QObject):
         from calibre.ebooks.metadata.meta import get_metadata
         try:
             mi = get_metadata(*args, **kwargs)
-        except:
+        except Exception:
             mi = MetaInformation('', [_('Unknown')])
         self.metadata.emit(id, mi)
 
@@ -1083,7 +1083,7 @@ class Translator(QTranslator):
     def translate(self, *args, **kwargs):
         try:
             src = str(args[1])
-        except:
+        except Exception:
             return ''
         t = _
         return t(src)

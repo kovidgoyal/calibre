@@ -53,7 +53,7 @@ class BaseModel(QAbstractListModel):
                     dont_add_to=frozenset(['menubar', 'menubar-device']))
         try:
             return gui.iactions[name]
-        except:
+        except Exception:
             return None
 
     def rowCount(self, parent):

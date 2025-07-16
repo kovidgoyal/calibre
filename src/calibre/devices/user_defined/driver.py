@@ -106,7 +106,7 @@ class USER_DEFINED(USBMS):
                 self.WINDOWS_CARD_A_MEM = e[self.OPT_USB_WINDOWS_CA_ID] + '&'
                 self.EBOOK_DIR_MAIN     = e[self.OPT_MAIN_MEM_FOLDER]
                 self.EBOOK_DIR_CARD_A   = e[self.OPT_CARD_A_FOLDER]
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         self.plugin_needs_delayed_initialization = False

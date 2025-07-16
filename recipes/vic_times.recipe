@@ -114,14 +114,14 @@ class TimesColonist(BasicNewsRecipe):
         daysback = 1
         try:
             br.open(cover)
-        except:
+        except Exception:
             while daysback < 7:
                 cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
                     str((date.today() - timedelta(days=daysback)).day) + '/lg/' + self.fp_tag + '.jpg'
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
-                except:
+                except Exception:
                     daysback = daysback + 1
                     continue
                 break
@@ -235,7 +235,7 @@ class TimesColonist(BasicNewsRecipe):
         print('Add section url=' + self.url_prefix + '/' + securl + '\n\r')
         try:
             soup = self.index_to_soup(self.url_prefix + '/' + securl)
-        except:
+        except Exception:
             return ans
         mainsoup = soup.find(
             'div', attrs={'class': re.compile(r'main.content')})

@@ -62,18 +62,18 @@ class BaseJob:
                 try:
                     prints('Job:', self.id, self.description, 'finished')
                     prints('\t'.join(self.details.splitlines(True)))
-                except:
+                except Exception:
                     pass
             if not self._done_called:
                 self._done_called = True
                 try:
                     self.done(self)
-                except:
+                except Exception:
                     pass
                 try:
                     if callable(self.done2):
                         self.done2(self)
-                except:
+                except Exception:
                     pass
         elif self.start_time is not None:
             self._run_state = self.RUNNING

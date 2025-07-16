@@ -1309,7 +1309,7 @@ class TOCEditor(QDialog):  # {{{
             commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
                     uid=self.toc_view.toc_uid)
             self.ebook.commit()
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
         self.writing_done.emit(tb)

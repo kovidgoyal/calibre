@@ -127,7 +127,7 @@ def main(opts, args, dbctx):
         try:
             int(x)
             return True
-        except:
+        except Exception:
             return False
 
     if len(args) < 1 or not verify_int(args[0]):

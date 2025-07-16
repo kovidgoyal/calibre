@@ -615,7 +615,7 @@ class Build(Command):
         '''
         try:
             subprocess.check_call(*args, **kwargs)
-        except:
+        except Exception:
             cmdline = ' '.join([f'"{arg}"' if ' ' in arg else arg for arg in args[0]])
             print(f'Error while executing: {cmdline}\n')
             raise

@@ -274,7 +274,7 @@ class BuiltinFormatterFunction(FormatterFunction):
                         lambda x: inspect.isfunction(x) and x.__name__ == 'evaluate')
         try:
             lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
-        except:
+        except Exception:
             lines = []
         self.program_text = ''.join(lines)
 
@@ -407,7 +407,7 @@ r'''
     def evaluate(self, formatter, kwargs, mi, locals, a):
         try:
             return len(a)
-        except:
+        except Exception:
             return -1
 
 
@@ -883,7 +883,7 @@ many ``prefix, string`` pairs as you wish.
             raise ValueError(_('strcat_max requires an even number of arguments'))
         try:
             max = int(args[0])
-        except:
+        except Exception:
             raise ValueError(_('first argument to strcat_max must be an integer'))
 
         i = 2
@@ -894,7 +894,7 @@ many ``prefix, string`` pairs as you wish.
                     break
                 result = result + args[i] + args[i+1]
                 i += 2
-        except:
+        except Exception:
             pass
         return result.strip()
 
@@ -1198,7 +1198,7 @@ usually comma but is ampersand for author-like lists.
         val = val.split(sep)
         try:
             return val[index].strip()
-        except:
+        except Exception:
             return ''
 
 
@@ -1275,7 +1275,7 @@ that format names are always uppercase, as in EPUB.
             data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
             return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
                         for k,v in data)
-        except:
+        except Exception:
             return ''
 
 
@@ -1296,7 +1296,7 @@ format names are always uppercase, as in EPUB.
         fmt_data = mi.get('format_metadata', {})
         try:
             return ','.join(k.upper()+':'+str(v['size']) for k,v in iteritems(fmt_data))
-        except:
+        except Exception:
             return ''
 
 
@@ -1318,7 +1318,7 @@ format names are always uppercase, as in EPUB.
         fmt_data = mi.get('format_metadata', {})
         try:
             return sep.join(k.upper()+':'+str(v['path']) for k,v in iteritems(fmt_data))
-        except:
+        except Exception:
             return ''
 
 
@@ -1400,7 +1400,7 @@ representing that number in KB, MB, GB, etc.
     def evaluate(self, formatter, kwargs, mi, locals, val):
         try:
             return human_readable(round(float(val)))
-        except:
+        except Exception:
             return ''
 
 
@@ -1428,17 +1428,17 @@ Python[/URL] documentation for more examples. Returns the empty string if format
             template = '{0:' + template + '}'
         try:
             v1 = float(val)
-        except:
+        except Exception:
             return ''
         try:  # Try formatting the value as a float
             return template.format(v1)
-        except:
+        except Exception:
             pass
         try:  # Try formatting the value as an int
             v2 = trunc(v1)
             if v2 == v1:
                 return template.format(v2)
-        except:
+        except Exception:
             pass
         return ''
 
@@ -1478,7 +1478,7 @@ Examples assuming that the tags column (which is comma-separated) contains "A, B
                 return sep.join(val[si:])
             else:
                 return sep.join(val[si:ei])
-        except:
+        except Exception:
             return ''
 
 
@@ -1535,7 +1535,7 @@ Examples:
                     t = '.'.join(components[si:ei]).strip()
                 if t:
                     rv.add(t)
-            except:
+            except Exception:
                 pass
         return ', '.join(sorted(rv, key=sort_key))
 
@@ -1601,7 +1601,7 @@ contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
             else:
                 s = format_date(parse_date(val), format_string)
             return s
-        except:
+        except Exception:
             s = 'BAD DATE'
         return s
 
@@ -1725,7 +1725,7 @@ column's value in your save/send templates
                 if v is not None:
                     return str(mi._proxy_metadata.book_size)
                 return ''
-            except:
+            except Exception:
                 pass
             return ''
         self.only_in_gui_error()
@@ -2242,7 +2242,7 @@ returns the empty string.
             d2 = parse_date(date2)
             if d2 == UNDEFINED_DATE:
                 return ''
-        except:
+        except Exception:
             return ''
         i = d1 - d2
         return f'{i.days+(i.seconds/(24.0*60.0*60.0)):.1f}'
@@ -2322,7 +2322,7 @@ return the strings in the language of the current locale. ``lang_codes`` is a co
                 n = calibre_langcode_to_name(c, localize != '0')
                 if n:
                     retval.append(n)
-            except:
+            except Exception:
                 pass
         return ', '.join(retval)
 
@@ -2346,7 +2346,7 @@ current locale. ``lang_strings`` is a comma-separated list.
                 cv = canonicalize_lang(c)
                 if cv:
                     retval.append(canonicalize_lang(cv))
-            except:
+            except Exception:
                 pass
         return ', '.join(retval)
 
@@ -2719,7 +2719,7 @@ available with custom ratings columns.
         err_msg = _('The rating must be a number between 0 and 5')
         try:
             v = float(value) * 2
-        except:
+        except Exception:
             raise ValueError(err_msg)
         if v < 0 or v > 10:
             raise ValueError(err_msg)
@@ -2750,7 +2750,7 @@ the ``title_sort``.
         try:
             for v in [x.strip() for x in val.split(separator)]:
                 result.append(title_sort(v).replace(',', ';'))
-        except:
+        except Exception:
             traceback.print_exc()
         return separator.join(sorted(result, key=sort_key))
 

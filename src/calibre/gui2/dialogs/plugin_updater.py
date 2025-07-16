@@ -96,7 +96,7 @@ def read_available_plugins(raise_error=False):
         if not raw:
             return
         raw = json.loads(bz2.decompress(raw))
-    except:
+    except Exception:
         if raise_error:
             raise
         traceback.print_exc()
@@ -761,7 +761,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             display_plugin.plugin = plugin
             # We cannot read the 'actual' version information as the plugin will not be loaded yet
             display_plugin.installed_version = display_plugin.available_version
-        except:
+        except Exception:
             if DEBUG:
                 prints(f'ERROR occurred while installing plugin: {display_plugin.name}')
                 traceback.print_exc()

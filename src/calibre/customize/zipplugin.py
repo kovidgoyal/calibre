@@ -44,7 +44,7 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
         for name in names:
             try:
                 ans[name] = zf.read(name)
-            except:
+            except Exception:
                 if print_tracebacks_for_missing_resources:
                     print('Failed to load resource:', repr(name), 'from the plugin zip file:', zfp, file=sys.stderr)
                     import traceback
@@ -331,7 +331,7 @@ class CalibrePluginFinder:
                     f'The plugin at {as_unicode(path_to_zip_file)} cannot be used on {platform}')
 
             return ans
-        except:
+        except Exception:
             with self._lock:
                 del self.loaded_plugins[plugin_name]
             raise

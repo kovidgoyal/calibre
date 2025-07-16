@@ -191,7 +191,7 @@ class PreserveViewState:  # {{{
             self.hscroll = view.horizontalScrollBar().value()
             ci = self.view.currentIndex()
             self.row, self.col = ci.row(), ci.column()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -501,7 +501,7 @@ class BooksView(TableView):  # {{{
             return
         try:
             idx = self.column_map.index(column)
-        except:
+        except Exception:
             return
         h = view.column_header
 
@@ -993,7 +993,7 @@ class BooksView(TableView):  # {{{
                     ans = gprefs.get(name, None)
                     try:
                         del gprefs[name]
-                    except:
+                    except Exception:
                         pass
                     if ans is not None:
                         db.new_api.set_pref(name, ans)
@@ -1023,7 +1023,7 @@ class BooksView(TableView):  # {{{
                     if not isinstance(d, bool):
                         d = True if d == 0 else False
                     sh.append((c, d))
-            except:
+            except Exception:
                 # Ignore invalid tweak values as users seem to often get them
                 # wrong
                 print('Ignoring invalid sort_columns_at_startup tweak, with error:')
@@ -1473,7 +1473,7 @@ class BooksView(TableView):  # {{{
     def current_id(self):
         try:
             return self.model().id(self.currentIndex())
-        except:
+        except Exception:
             pass
         return None
 
@@ -1513,7 +1513,7 @@ class BooksView(TableView):  # {{{
                 continue
             try:
                 return self.model().id(self.model().index(i, column))
-            except:
+            except Exception:
                 pass
 
         # No unselected rows after the current row, look before
@@ -1522,7 +1522,7 @@ class BooksView(TableView):  # {{{
                 continue
             try:
                 return self.model().id(self.model().index(i, column))
-            except:
+            except Exception:
                 pass
         return None
 

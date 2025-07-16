@@ -63,7 +63,7 @@ class Dialog(QDialog):
             b = getattr(self, 'button_'+x)
             try:
                 b.clicked.disconnect()
-            except:
+            except Exception:
                 pass
 
 

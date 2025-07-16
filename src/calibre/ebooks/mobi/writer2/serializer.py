@@ -103,7 +103,7 @@ class Serializer:
         for i, item in enumerate(items):
             try:
                 prev_item = items[i-1]
-            except:
+            except Exception:
                 prev_item = None
             if in_art and item.is_article_start is True:
                 prev_item.is_article_end = True

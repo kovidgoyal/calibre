@@ -613,7 +613,7 @@ class CreateCustomColumn(QDialog):
     def datatype_changed(self, *args):
         try:
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
-        except:
+        except Exception:
             col_type = None
         needs_format = col_type in ('datetime', 'int', 'float')
         for x in ('box', 'default_label', 'label'):
@@ -758,7 +758,7 @@ class CreateCustomColumn(QDialog):
                 else:
                     try:
                         tv = parse_date(default_val)
-                    except:
+                    except Exception:
                         tv = UNDEFINED_DATE
                     if tv == UNDEFINED_DATE:
                         return self.simple_error(_('Invalid default value'),
@@ -829,7 +829,7 @@ class CreateCustomColumn(QDialog):
                         msg = _('The default value must be a real number')
                         tv = float(default_val)
                         display_dict['default_value'] = tv
-                except:
+                except Exception:
                     return self.simple_error(_('Invalid default value'), msg)
         elif col_type == 'comments':
             display_dict['heading_position'] = str(self.comments_heading_position.currentData())
@@ -840,7 +840,7 @@ class CreateCustomColumn(QDialog):
             if default_val:
                 try:
                     tv = int((float(default_val) if half_stars else int(default_val)) * 2)
-                except:
+                except Exception:
                     tv = -1
                 if tv < 0 or tv > 10:
                     if half_stars:

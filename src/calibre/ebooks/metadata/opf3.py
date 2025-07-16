@@ -799,7 +799,7 @@ def read_series(root, prefixes, refines):
         try:
             series_index = float(si)
             break
-        except:
+        except Exception:
             pass
     for s in XPath('./opf:metadata/opf:meta[@name="calibre:series"]/@content')(root):
         s = normalize_whitespace(s)

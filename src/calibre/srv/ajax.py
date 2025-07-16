@@ -33,11 +33,11 @@ def ensure_val(x, *allowed):
 def get_pagination(query, num=100, offset=0):
     try:
         num = int(query.get('num', num))
-    except:
+    except Exception:
         raise HTTPNotFound('Invalid num')
     try:
         offset = int(query.get('offset', offset))
-    except:
+    except Exception:
         raise HTTPNotFound('Invalid offset')
     return num, offset
 
@@ -88,7 +88,7 @@ def book_to_json(ctx, rd, db, book_id,
         other_fmts = list(fmts)
         try:
             fmt = pf if pf in fmts else other_fmts[0]
-        except:
+        except Exception:
             fmt = None
         if fmts and fmt:
             other_fmts = [x for x in fmts if x != fmt]
@@ -349,7 +349,7 @@ def category(ctx, rd, encoded_name, library_id):
         sort_order = ensure_val(sort_order, 'asc', 'desc')
         try:
             dname = decode_name(encoded_name)
-        except:
+        except Exception:
             raise HTTPNotFound(f'Invalid encoding of category name {encoded_name!r}')
         base_url = ctx.url_for(globals()['category'], encoded_name=encoded_name, library_id=db.server_library_id)
 
@@ -382,7 +382,7 @@ def category(ctx, rd, encoded_name, library_id):
                 # User categories cannot be applied to books, so this is the
                 # complete set of items, no need to consider sub categories
                 items = categories[fullname]
-            except:
+            except Exception:
                 raise HTTPNotFound(f'User category {fullname!r} not found')
 
             parts = fullname.split('.')
@@ -475,7 +475,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
     with db.safe_read_lock:
         try:
             dname, ditem = map(decode_name, (encoded_category, encoded_item))
-        except:
+        except Exception:
             raise HTTPNotFound(f'Invalid encoded param: {encoded_category!r} ({encoded_item!r})')
         num, offset = get_pagination(rd.query)
         sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')

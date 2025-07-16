@@ -100,6 +100,6 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
                 [self.tag_to_string(elm).strip() for elm in elms])
             elm_text = unicodedata.normalize('NFKC', elm_text)
             article.summary = article.text_summary = elm_text
-        except:
+        except Exception:
             self.log('Error: Failed to get article summary.')
             return

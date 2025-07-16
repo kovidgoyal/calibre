@@ -35,7 +35,7 @@ def _c_convert_timestamp(val):
         return None
     try:
         ret = _c_speedup.parse_date(val.strip())
-    except:
+    except Exception:
         ret = None
     if ret is None:
         return parse_date(val, as_utc=False)
@@ -62,7 +62,7 @@ def _py_convert_timestamp(val):
             sec = int(val[17:19])
             return datetime(year, month, day, hour, min, sec,
                     tzinfo=timezone(tzsecs))
-        except:
+        except Exception:
             pass
         return parse_date(val, as_utc=False)
     return None
@@ -219,12 +219,12 @@ def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
         try:
             one = one.decode(encoding, 'replace')
-        except:
+        except Exception:
             pass
     if isbytestring(two):
         try:
             two = two.decode(encoding, 'replace')
-        except:
+        except Exception:
             pass
     return cmp(one.lower(), two.lower())
 
@@ -340,7 +340,7 @@ class DatabaseException(Exception):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
         try:
             msg = str(err) +'\n' + tb
-        except:
+        except Exception:
             msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
         self.orig_err = err

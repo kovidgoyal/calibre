@@ -77,7 +77,7 @@ class MetadataBackup(Thread):
                 return
         except Abort:
             raise
-        except:
+        except Exception:
             # Happens during interpreter shutdown
             return
 
@@ -85,13 +85,13 @@ class MetadataBackup(Thread):
 
         try:
             mi, sequence = self.db.get_metadata_for_dump(book_id)
-        except:
+        except Exception:
             prints('Failed to get backup metadata for id:', book_id, 'once')
             traceback.print_exc()
             self.wait(self.interval)
             try:
                 mi, sequence = self.db.get_metadata_for_dump(book_id)
-            except:
+            except Exception:
                 prints('Failed to get backup metadata for id:', book_id, 'again, giving up')
                 traceback.print_exc()
                 return
@@ -107,7 +107,7 @@ class MetadataBackup(Thread):
 
         try:
             raw = metadata_to_opf(mi)
-        except:
+        except Exception:
             prints('Failed to convert to opf for id:', book_id)
             traceback.print_exc()
             self.db.clear_dirtied(book_id, sequence)
@@ -117,13 +117,13 @@ class MetadataBackup(Thread):
 
         try:
             self.db.write_backup(book_id, raw)
-        except:
+        except Exception:
             prints('Failed to write backup metadata for id:', book_id, 'once')
             traceback.print_exc()
             self.wait(self.interval)
             try:
                 self.db.write_backup(book_id, raw)
-            except:
+            except Exception:
                 prints('Failed to write backup metadata for id:', book_id, 'again, giving up')
                 traceback.print_exc()
                 return

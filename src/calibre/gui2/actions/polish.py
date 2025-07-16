@@ -288,7 +288,7 @@ class Polish(QDialog):  # {{{
         num, book_id = self.queue.pop(0)
         try:
             self.do_book(num, book_id, self.book_id_map[book_id])
-        except:
+        except Exception:
             self.pd.reject()
             raise
         else:
@@ -543,7 +543,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
             shutil.rmtree(base)
             parent = os.path.dirname(base)
             os.rmdir(parent)
-        except:
+        except Exception:
             pass
         self.to_be_refreshed.add(book_id)
         self.refresh_debounce_timer.start()
