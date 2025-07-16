@@ -159,7 +159,7 @@ class MTP_DEVICE(MTPDeviceBase):
             except BlacklistedDevice:
                 p('This device has been blacklisted by the user')
                 continue
-            except:
+            except Exception:
                 p('Opening device failed:')
                 p(traceback.format_exc())
                 return False

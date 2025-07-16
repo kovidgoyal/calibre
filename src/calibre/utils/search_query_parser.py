@@ -445,7 +445,7 @@ class SearchQueryParser:
             return ss
         except ParseException as e:
             raise e
-        except:  # convert all exceptions (e.g., missing key) to a parse error
+        except Exception:  # convert all exceptions (e.g., missing key) to a parse error
             import traceback
             traceback.print_exc()
             raise ParseException(_('Unknown error in saved search: {0}').format(query))

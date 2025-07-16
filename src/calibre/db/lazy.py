@@ -86,7 +86,7 @@ class FormatMetadata(MutableBase, MutableMapping):
         for f in self._formats:
             try:
                 self._values[f] = db.format_metadata(self._id, f)
-            except:
+            except Exception:
                 pass
 
 

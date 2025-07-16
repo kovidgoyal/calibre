@@ -113,7 +113,7 @@ class RecipeInput(InputFormatPlugin):
                         log.warn(
                         'Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))
                         builtin = True
-                except:
+                except Exception:
                     log.exception('Failed to compile downloaded recipe. Falling '
                             'back to builtin one')
                     builtin = True

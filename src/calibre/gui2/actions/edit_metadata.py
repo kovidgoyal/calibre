@@ -247,7 +247,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     def cleanup_bulk_download(self, tdir, *args):
         try:
             shutil.rmtree(tdir, ignore_errors=True)
-        except:
+        except Exception:
             pass
 
     def metadata_downloaded(self, job):
@@ -819,14 +819,14 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             db.set_metadata(book_id, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
             self.applied_ids.add(book_id)
-        except:
+        except Exception:
             import traceback
             self.apply_failures.append((book_id, traceback.format_exc()))
 
         try:
             if mi.cover:
                 os.remove(mi.cover)
-        except:
+        except Exception:
             pass
 
     def finalize_apply(self):

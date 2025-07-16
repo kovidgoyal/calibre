@@ -316,7 +316,7 @@ class LibraryDatabase:
         for listener in self.listeners:
             try:
                 listener(event, ids)
-            except:
+            except Exception:
                 traceback.print_exc()
                 continue
 

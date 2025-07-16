@@ -29,7 +29,7 @@ default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rati
 def field_sort(mi, name):
     try:
         title = mi.metadata_for_field(name)['name']
-    except:
+    except Exception:
         title = 'zzz'
     return {x:(i, None) for i, x in enumerate(default_sort)}.get(name, (10000, sort_key(title)))
 
@@ -38,7 +38,7 @@ def displayable_field_keys(mi):
     for k in mi.all_field_keys():
         try:
             m = mi.metadata_for_field(k)
-        except:
+        except Exception:
             continue
         if (
                 m is not None and m.get('kind') == 'field' and m.get('datatype') is not None and
@@ -187,7 +187,7 @@ def mi_to_html(
     for field in (field for field, display in field_list if display):
         try:
             metadata = mi.metadata_for_field(field)
-        except:
+        except Exception:
             continue
         if not metadata:
             continue
@@ -485,7 +485,7 @@ def mi_to_html(
     def classname(field):
         try:
             dt = mi.metadata_for_field(field)['datatype']
-        except:
+        except Exception:
             dt = 'text'
         return f'datatype_{dt}'
 

@@ -77,7 +77,7 @@ class Resource:  # {{{
         self.fragment = ''
         try:
             self.mime_type = guess_type(href_or_path)[0]
-        except:
+        except Exception:
             self.mime_type = None
         if self.mime_type is None:
             self.mime_type = 'application/octet-stream'
@@ -339,7 +339,7 @@ class Spine(ResourceCollection):  # {{{
         for path in paths:
             try:
                 s.append(Spine.Item(s.manifest.id_for_path, path, is_path=True))
-            except:
+            except Exception:
                 continue
         return s
 
@@ -402,7 +402,7 @@ class Guide(ResourceCollection):  # {{{
             try:
                 ref = Guide.Reference.from_opf_resource_item(ref, base_dir)
                 coll.append(ref)
-            except:
+            except Exception:
                 continue
         return coll
 
@@ -438,7 +438,7 @@ class MetadataField:
         if self.formatter is not None:
             try:
                 ans = self.formatter(ans)
-            except:
+            except Exception:
                 return None
         if hasattr(ans, 'strip'):
             ans = ans.strip()
@@ -534,7 +534,7 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
             encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
-        except:
+        except Exception:
             prints('Failed to write user metadata:', name)
             import traceback
             traceback.print_exc()
@@ -687,7 +687,7 @@ class OPF:  # {{{
                 fm = json.loads(fm, object_hook=from_json)
                 decode_is_multiple(fm)
                 temp.set_user_metadata(name, fm)
-            except:
+            except Exception:
                 prints('Failed to read user metadata:', name)
                 import traceback
                 traceback.print_exc()
@@ -766,7 +766,7 @@ class OPF:  # {{{
                         not os.path.isfile(self.path_to_html_toc):
                     self.path_to_html_toc = None
                 self.toc.read_html_toc(toc)
-        except:
+        except Exception:
             pass
 
     def get_text(self, elem):
@@ -964,7 +964,7 @@ class OPF:  # {{{
             try:
                 val = parse_date(etree.tostring(match, encoding='unicode',
                     method='text', with_tail=False).strip())
-            except:
+            except Exception:
                 continue
             if ans is None or val < ans:
                 ans = val
@@ -977,7 +977,7 @@ class OPF:  # {{{
             try:
                 cval = parse_date(etree.tostring(match, encoding='unicode',
                     method='text', with_tail=False).strip())
-            except:
+            except Exception:
                 match.getparent().remove(match)
             else:
                 if not val:

@@ -49,7 +49,7 @@ class LaRepubblica(BasicNewsRecipe):
                 response = self.browser.open(url)
                 html = response.read()
                 count = 10
-            except:
+            except Exception:
                 print('Retrying download...')
             count += 1
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))

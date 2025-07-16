@@ -481,7 +481,7 @@ def supports_text(raw, text, has_only_printable_chars=False):
         for glyph_id in get_glyph_ids(raw, text):
             if glyph_id == 0:
                 return False
-    except:
+    except Exception:
         return False
     return True
 

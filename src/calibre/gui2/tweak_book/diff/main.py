@@ -344,7 +344,7 @@ class Diff(Dialog):
         for x in ('revert_requested', 'line_activated'):
             try:
                 getattr(self, x).disconnect()
-            except:
+            except Exception:
                 pass
 
     def do_search(self, reverse):
@@ -500,7 +500,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     d.exec()
     try:
         d.revert_requested.disconnect()
-    except:
+    except Exception:
         pass
     d.break_cycles()
 

@@ -470,7 +470,7 @@ class PRST1(USBMS):
                         author = newmi.authors[0]
                     else:
                         author = authors_to_string(newmi.authors)
-            except:
+            except Exception:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
 
@@ -796,7 +796,7 @@ class PRST1(USBMS):
         if not name:
             try:
                 name = [t for t in book.tags if t != _('News')][0]
-            except:
+            except Exception:
                 name = None
 
         if not name:
@@ -805,7 +805,7 @@ class PRST1(USBMS):
         pubdate = None
         try:
             pubdate = int(time.mktime(book.pubdate.timetuple()) * 1000)
-        except:
+        except Exception:
             pass
 
         cursor = connection.cursor()

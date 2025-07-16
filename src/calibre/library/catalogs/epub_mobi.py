@@ -293,7 +293,7 @@ class EPUB_MOBI(CatalogPlugin):
                     for storage in opts.connected_device['storage']:
                         if storage:
                             build_log.append(f'  mount point: {storage}')
-                except:
+                except Exception:
                     build_log.append('  (no mount points)')
         else:
             build_log.append(" connected_device: '{}'".format(opts.connected_device['name']))
@@ -355,7 +355,7 @@ class EPUB_MOBI(CatalogPlugin):
         if type(opts.prefix_rules) is not tuple:
             try:
                 opts.prefix_rules = eval(opts.prefix_rules)
-            except:
+            except Exception:
                 log.error(f'malformed --prefix-rules: {opts.prefix_rules}')
                 raise
             for rule in opts.prefix_rules:
@@ -366,7 +366,7 @@ class EPUB_MOBI(CatalogPlugin):
         if type(opts.exclusion_rules) is not tuple:
             try:
                 opts.exclusion_rules = eval(opts.exclusion_rules)
-            except:
+            except Exception:
                 log.error(f'malformed --exclusion-rules: {opts.exclusion_rules}')
                 raise
             for rule in opts.exclusion_rules:
@@ -405,7 +405,7 @@ class EPUB_MOBI(CatalogPlugin):
                 log.info(f' Completed catalog source generation ({datetime.timedelta(seconds=int(time.time() - opts.start_time))!s})\n')
         except (AuthorSortMismatchException, EmptyCatalogException) as e:
             log.error(f' *** Terminated catalog generation: {e} ***')
-        except:
+        except Exception:
             log.error(' unhandled exception in catalog generator')
             raise
 
@@ -448,7 +448,7 @@ class EPUB_MOBI(CatalogPlugin):
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
                     if cpath and os.path.exists(cpath):
                         existing_cover = True
-            except:
+            except Exception:
                 pass
 
             if self.opts.use_existing_cover and not existing_cover:
@@ -476,7 +476,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             try:
                 os.remove(cpath)
-            except:
+            except Exception:
                 pass
 
             if GENERATE_DEBUG_EPUB:

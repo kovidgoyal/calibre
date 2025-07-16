@@ -84,7 +84,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             else:
                 try:
                     plugin = self._data[self.categories[c]][p]
-                except:
+                except Exception:
                     continue
             if query in lower(plugin.name) or query in lower(plugin.author) or \
                     query in lower(plugin.description):
@@ -428,7 +428,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         all_locations = OrderedDict(ConfigWidget.LOCATIONS)
         try:
             plugin_action = plugin.load_actual_plugin(self.gui)
-        except:
+        except Exception:
             # Broken plugin, fails to initialize. Given that, it's probably
             # already configured, so we can just quit.
             return

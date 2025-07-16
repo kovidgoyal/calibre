@@ -154,7 +154,7 @@ class Restore(Thread):
                 if self.successes == 0 and len(self.dirs) > 0:
                     raise Exception('Something bad happened')
                 self.replace_db()
-        except:
+        except Exception:
             self.tb = traceback.format_exc()
             if self.failed_dirs:
                 for x in self.failed_dirs:
@@ -183,7 +183,7 @@ class Restore(Thread):
                 return True
             self.progress_callback(_('Finished restoring preferences'), 1)
             return False
-        except:
+        except Exception:
             traceback.print_exc()
             self.progress_callback(None, 1)
             self.progress_callback(_('Restoring preferences and column metadata failed'), 0)

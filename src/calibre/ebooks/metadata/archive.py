@@ -23,7 +23,7 @@ def archive_type(stream):
     from calibre.utils.zipfile import stringFileHeader
     try:
         pos = stream.tell()
-    except:
+    except Exception:
         pos = 0
     id_ = stream.read(4)
     ans = None

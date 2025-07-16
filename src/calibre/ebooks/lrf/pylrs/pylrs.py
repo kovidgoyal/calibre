@@ -2414,11 +2414,11 @@ class Font(LrsContainer):
         try:
             _checkExists(fontfilename)
             self.truefile = fontfilename
-        except:
+        except Exception:
             try:
                 _checkExists(file)
                 self.truefile = file
-            except:
+            except Exception:
                 raise LrsError(f"neither '{fontfilename}' nor '{file}' exists")
 
         self.file = file

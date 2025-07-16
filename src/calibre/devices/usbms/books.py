@@ -67,7 +67,7 @@ class Book(Metadata):
         self.size = size  # will be set later if None
         try:
             self.datetime = time.gmtime(os.path.getctime(self.path))
-        except:
+        except Exception:
             self.datetime = time.gmtime()
         if other:
             self.smart_update(other)

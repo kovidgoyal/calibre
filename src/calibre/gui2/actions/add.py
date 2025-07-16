@@ -455,7 +455,7 @@ class AddAction(InterfaceAction):
             self.add_by_isbn_ids.add(db.import_book(mi, fmts))
             self.isbn_add_dialog.value += 1
             QTimer.singleShot(10, self.do_one_isbn_add)
-        except:
+        except Exception:
             self.isbn_add_dialog.accept()
             raise
 

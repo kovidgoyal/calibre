@@ -228,7 +228,7 @@ class MTP_DEVICE(BASE):
             try:
                 stream = self.get_mtp_file(f)
                 dinfo = json.load(stream, object_hook=from_json)
-            except:
+            except Exception:
                 prints('Failed to load existing driveinfo.calibre file, with error:')
                 traceback.print_exc()
                 dinfo = {}
@@ -304,7 +304,7 @@ class MTP_DEVICE(BASE):
             try:
                 stream = self.get_mtp_file(cache)
                 json_codec.decode_from_file(stream, bl, Book, sid)
-            except:
+            except Exception:
                 need_sync = True
 
         relpath_cache = {b.mtp_relpath:i for i, b in enumerate(bl)}
@@ -333,7 +333,7 @@ class MTP_DEVICE(BASE):
             try:
                 book.smart_update(self.read_file_metadata(mtp_file))
                 debug('Read metadata for', '/'.join(mtp_file.full_path))
-            except:
+            except Exception:
                 prints('Failed to read metadata from',
                         '/'.join(mtp_file.full_path))
                 traceback.print_exc()
@@ -723,7 +723,7 @@ class MTP_DEVICE(BASE):
         if parent.empty and parent.can_delete and not parent.is_system:
             try:
                 self.recursive_delete(parent)
-            except:
+            except Exception:
                 prints('Failed to delete parent: {}, ignoring'.format('/'.join(parent.full_path)))
 
     def delete_books(self, paths, end_session=True):

@@ -264,7 +264,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
                 try:
                     if os.path.exists(f.name):
                         os.remove(f.name)
-                except:
+                except Exception:
                     pass
         self.gui.tags_view.recount()
         if self.gui.current_view() is self.gui.library_view:

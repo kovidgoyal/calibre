@@ -31,7 +31,7 @@ def c_parse(val):
             return datetime(int(val), 1, 3, tzinfo=utc_tz)
         if val is None:
             return UNDEFINED_DATE
-    except:
+    except Exception:
         pass
     else:
         try:

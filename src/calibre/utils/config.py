@@ -354,7 +354,7 @@ class XMLConfig(dict):
                 d = self.raw_to_object(raw) if raw.strip() else {}
             except SystemError:
                 pass
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
                 d = {}

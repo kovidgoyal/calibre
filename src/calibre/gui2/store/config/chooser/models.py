@@ -67,7 +67,7 @@ class Matches(QAbstractItemModel):
         else:
             try:
                 self.matches = list(self.search_filter.parse(self.filter))
-            except:
+            except Exception:
                 self.matches = self.all_matches
         self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)

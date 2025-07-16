@@ -48,7 +48,7 @@ def get_metadata(f):
             offset += word_be(buf[:4])
             try:
                 buf = read(offset, 8)
-            except:
+            except Exception:
                 raise ValueError('Not a valid LRX file')
             if buf[4:] == b'bbeb':
                 break

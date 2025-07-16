@@ -112,17 +112,17 @@ class Jacket(Base):
 
         try:
             comments = str(self.oeb.metadata.description[0])
-        except:
+        except Exception:
             comments = ''
 
         try:
             title = str(self.oeb.metadata.title[0])
-        except:
+        except Exception:
             title = _('Unknown')
 
         try:
             authors = list(map(str, self.oeb.metadata.creator))
-        except:
+        except Exception:
             authors = [_('Unknown')]
 
         root = render_jacket(mi, self.opts.output_profile,
@@ -167,7 +167,7 @@ def get_rating(rating, rchar, e_rchar):
     ans = ''
     try:
         num = float(rating)/2
-    except:
+    except Exception:
         return ans
     num = max(0, num)
     num = min(num, 5)
@@ -290,7 +290,7 @@ def render_jacket(mi, output_profile,
 
     try:
         title_str = alt_title if mi.is_null('title') else mi.title
-    except:
+    except Exception:
         title_str = _('Unknown')
     title_str = escape(title_str)
     title = f'<span class="title">{title_str}</span>'
@@ -298,7 +298,7 @@ def render_jacket(mi, output_profile,
     series = Series(mi.series, mi.series_index)
     try:
         publisher = mi.publisher if not mi.is_null('publisher') else alt_publisher
-    except:
+    except Exception:
         publisher = ''
     publisher = escape(publisher)
 
@@ -324,7 +324,7 @@ def render_jacket(mi, output_profile,
         mi.authors = list(alt_authors or (_('Unknown'),))
     try:
         author = mi.format_authors()
-    except:
+    except Exception:
         author = ''
     mi.authors = orig
     author = escape(author)

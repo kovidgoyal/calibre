@@ -623,7 +623,7 @@ class CatalogPlugin(Plugin):  # {{{
             for file in files_to_copy:
                 try:
                     resources.extract(file, self.resources_path)
-                except:
+                except Exception:
                     print(f' customize:__init__.initialize(): {file} not found in {os.path.basename(self.plugin_path)}')
                     continue
             resources.close()

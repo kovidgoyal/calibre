@@ -49,7 +49,7 @@ class IlMessaggero(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
-        except:
+        except Exception:
             self.log('\nCover unavailable')
             cover = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
 

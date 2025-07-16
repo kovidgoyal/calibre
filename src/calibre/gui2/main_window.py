@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
             try:
                 from calibre.debug import print_basic_debug_info
                 print_basic_debug_info(out=sio)
-            except:
+            except Exception:
                 pass
             traceback.print_exception(exc_type, value, tb, file=sio)
             if getattr(value, 'locking_debug_msg', None):
@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
                     show=True)
         except BaseException:
             pass
-        except:
+        except Exception:
             pass
 
 

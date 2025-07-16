@@ -115,7 +115,7 @@ class HTMLZOutput(OutputFormatPlugin):
                     with open(cover_path, 'w') as cf:
                         cf.write('')
                     save_cover_data_to(cover_data, cover_path)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 

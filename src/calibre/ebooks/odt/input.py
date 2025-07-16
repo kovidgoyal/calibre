@@ -259,7 +259,7 @@ class Extract(ODF2XHTML):
         self.search_page_img(mi, log)
         try:
             self.filter_cover(mi, log)
-        except:
+        except Exception:
             pass
         # parse the modified tree and generate xhtml
         self._walknode(self.document.topnode)
@@ -290,7 +290,7 @@ class Extract(ODF2XHTML):
             html = html.replace('<title></title>',f'<title>{mi.title}</title>')
             try:
                 html = self.fix_markup(html, log)
-            except:
+            except Exception:
                 log.exception('Failed to filter CSS, conversion may be slow')
             with open('index.xhtml', 'wb') as f:
                 f.write(as_bytes(html))

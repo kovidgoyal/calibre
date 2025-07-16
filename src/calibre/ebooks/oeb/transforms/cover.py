@@ -109,7 +109,7 @@ class CoverManager:
             m.add('cover', item.id)
 
             return item.href
-        except:
+        except Exception:
             self.log.exception('Failed to generate default cover')
         return None
 

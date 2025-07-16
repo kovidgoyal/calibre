@@ -35,7 +35,7 @@ class CheckBrackets:
         num = line[-5:-1]
         try:
             last_num = self.__open_bracket_num.pop()
-        except:
+        except Exception:
             return False
         if num != last_num:
             return False

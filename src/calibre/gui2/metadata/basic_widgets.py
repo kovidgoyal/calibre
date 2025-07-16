@@ -318,7 +318,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
     def book_lang(self):
         try:
             book_lang = self.languages_edit.lang_codes[0]
-        except:
+        except Exception:
             book_lang = None
         return book_lang
 
@@ -344,15 +344,15 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin, LineEditIndicators):
     def break_cycles(self):
         try:
             self.title_edit.textChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.textChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.autogen_button.clicked.disconnect()
-        except:
+        except Exception:
             pass
 
 # }}}
@@ -470,7 +470,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.db = self.dialog = None
         try:
             self.manage_authors_signal.triggered.disconnect()
-        except:
+        except Exception:
             pass
 
 
@@ -600,23 +600,23 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
         self.db = None
         try:
             self.authors_edit.editTextChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.textChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.autogen_button.clicked.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.copy_a_to_as_action.triggered.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.copy_as_to_a_action.triggered.disconnect()
-        except:
+        except Exception:
             pass
         self.authors_edit = None
 
@@ -763,7 +763,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
                         ns = self.db.get_next_series_num_for(series)
                     self.current_val = ns
                     self.original_series_name = series
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 
@@ -773,15 +773,15 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
     def break_cycles(self):
         try:
             self.series_edit.currentIndexChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.series_edit.editTextChanged.disconnect()
-        except:
+        except Exception:
             pass
         try:
             self.series_edit.lineEdit().editingFinished.disconnect()
-        except:
+        except Exception:
             pass
         self.db = self.series_edit = self.dialog = None
 
@@ -1158,7 +1158,7 @@ class FormatsManager(QWidget):
                 with stream:
                     mi = get_metadata(stream, ext)
                 return mi, ext
-            except:
+            except Exception:
                 import traceback
                 error_dialog(self, _('Could not read metadata'),
                             _('Could not read metadata from %s format')%ext.upper(),
@@ -1174,7 +1174,7 @@ class FormatsManager(QWidget):
         for name in self.temp_files:
             try:
                 os.remove(name)
-            except:
+            except Exception:
                 pass
         self.temp_files = []
 # }}}
@@ -1424,7 +1424,7 @@ class Cover(ImageView):  # {{{
     def break_cycles(self):
         try:
             self.cover_changed.disconnect()
-        except:
+        except Exception:
             pass
         self.dialog = self._cdata = self.current_val = self.original_val = None
 

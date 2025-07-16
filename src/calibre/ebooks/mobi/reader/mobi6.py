@@ -129,7 +129,7 @@ class MobiReader:
         elif k8i is not None:  # Check for joint mobi 6 and kf 8 file
             try:
                 raw = self.sections[k8i-1][0]
-            except:
+            except Exception:
                 raw = None
             if raw == b'BOUNDARY':
                 try:
@@ -149,14 +149,14 @@ class MobiReader:
 
                     self.kf8_type = 'joint'
                     self.kf8_boundary = k8i-1
-                except:
+                except Exception:
                     self.book_header = bh
 
     def check_for_drm(self):
         if self.book_header.encryption_type != 0:
             try:
                 name = self.book_header.exth.mi.title
-            except:
+            except Exception:
                 name = self.name
             if not name:
                 name = self.name
@@ -475,14 +475,14 @@ class MobiReader:
                         try:
                             ewidth_val = unit_convert(ewidth, 12, 500, 166)
                             self.text_indents[tag] = ewidth_val
-                        except:
+                        except Exception:
                             pass
                         if width.startswith('-'):
                             styles.append(f'margin-left: {self.ensure_unit(width[1:])}')
                             try:
                                 ewidth_val = unit_convert(ewidth[1:], 12, 500, 166)
                                 self.left_margins[tag] = ewidth_val
-                            except:
+                            except Exception:
                                 pass
 
             if 'align' in attrib:
@@ -534,7 +534,7 @@ class MobiReader:
                                 nval = float(val[:-2])
                                 nval *= 16 * (168.451/72)  # Assume this was set using the Kindle profile
                                 attrib[attr] = f'{int(nval)}px'
-                            except:
+                            except Exception:
                                 del attrib[attr]
                         elif val.lower().endswith('%'):
                             del attrib[attr]
@@ -636,11 +636,11 @@ class MobiReader:
             ti = self.text_indents.get(tag, ti)
             try:
                 lm = float(lm)
-            except:
+            except Exception:
                 lm = 0.0
             try:
                 ti = float(ti)
-            except:
+            except Exception:
                 ti = 0.0
             return lm + ti
 
@@ -718,7 +718,7 @@ class MobiReader:
                             try:
                                 text = ' '.join([t.strip() for t in
                                     x.xpath('descendant::text()')])
-                            except:
+                            except Exception:
                                 text = ''
                             text = replace_entities(text)
                             item = tocobj.add_item(toc.partition('#')[0], href[1:],

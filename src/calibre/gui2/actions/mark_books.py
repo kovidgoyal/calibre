@@ -132,7 +132,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             try:
                 w = x.widgetForAction(self.qaction)
                 w.installEventFilter(self)
-            except:
+            except Exception:
                 continue
 
     def eventFilter(self, obj, ev):

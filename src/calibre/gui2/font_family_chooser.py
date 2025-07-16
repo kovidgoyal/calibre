@@ -113,7 +113,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         try:
             return self.do_size_hint(option, index)
-        except:
+        except Exception:
             return QSize(300, 50)
 
     def do_size_hint(self, option, index):
@@ -128,7 +128,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         painter.save()
         try:
             self.do_paint(painter, option, index)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         painter.restore()
@@ -308,7 +308,7 @@ class FontFamilyDialog(QDialog):
     def build_font_list(self):
         try:
             self.families = list(self.font_scanner.find_font_families())
-        except:
+        except Exception:
             self.families = []
             print('WARNING: Could not load fonts')
             import traceback

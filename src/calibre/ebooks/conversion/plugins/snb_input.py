@@ -37,7 +37,7 @@ class SNBInput(InputFormatPlugin):
         snbFile = SNBFile()
         try:
             snbFile.Parse(stream)
-        except:
+        except Exception:
             raise ValueError('Invalid SNB file')
         if not snbFile.IsValid():
             log.debug('Invalid SNB file')

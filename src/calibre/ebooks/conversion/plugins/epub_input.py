@@ -59,7 +59,7 @@ class EPUBInput(InputFormatPlugin):
                 try:
                     key = item.text.rpartition(':')[-1]
                     key = uuid.UUID(key).bytes
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
                     key = None
@@ -78,7 +78,7 @@ class EPUBInput(InputFormatPlugin):
                     self._encrypted_font_uris.append(uri)
                     decrypt_font(tkey, path, algorithm)
             return True
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         return False
@@ -265,7 +265,7 @@ class EPUBInput(InputFormatPlugin):
         try:
             zf = ZipFile(stream)
             zf.extractall(os.getcwd())
-        except:
+        except Exception:
             log.exception('EPUB appears to be invalid ZIP file, trying a'
                     ' more forgiving ZIP parser')
             from calibre.utils.localunzip import extractall

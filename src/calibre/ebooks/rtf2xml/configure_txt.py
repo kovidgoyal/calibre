@@ -133,7 +133,7 @@ class Configure:
                 try:
                     int_num = int(return_dict[int_option])
                     return_dict[int_option] = int_num
-                except:
+                except Exception:
                     sys.stderr.write(f'"{int_option}" must be a number\n')
                     sys.stderr.write(f'You choose "{return_dict[int_option]}" ')
                     return 1

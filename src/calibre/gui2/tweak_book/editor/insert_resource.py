@@ -141,7 +141,7 @@ class ImageDelegate(QStyledItemDelegate):
             cover = self.cover_cache[name] = QPixmap()
             try:
                 raw = current_container().raw_data(name, decode=False)
-            except:
+            except Exception:
                 pass
             else:
                 try:

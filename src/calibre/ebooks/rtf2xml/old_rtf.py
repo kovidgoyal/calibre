@@ -127,7 +127,7 @@ class OldRtf:
                 if action is None:
                     try:
                         sys.stderr.write('No action for this state!\n')
-                    except:
+                    except Exception:
                         pass
                 result = action(line)
                 if result == 'new_rtf':

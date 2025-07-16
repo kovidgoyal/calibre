@@ -472,7 +472,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             path = os.path.join(self.icon_config_dir, file_name)
             try:
                 os.remove(path)
-            except:
+            except Exception:
                 pass
 
     def remove_value_icon(self, key, value, file_name):
@@ -1460,7 +1460,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     order = tweaks.get('tag_browser_category_order', {'*':1})
                     if not isinstance(order, dict):
                         raise TypeError()
-                except:
+                except Exception:
                     print('Tweak tag_browser_category_order is not valid. Ignored')
                     order = {'*': 1000}
                 defvalue = order.get('*', 1000)

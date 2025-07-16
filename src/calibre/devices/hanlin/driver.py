@@ -44,11 +44,11 @@ class HANLINV3(USBMS):
 
         try:
             main_num = int(re.findall(r'\d+', main)[0]) if main else None
-        except:
+        except Exception:
             main_num = None
         try:
             card_num = int(re.findall(r'\d+', card)[0]) if card else None
-        except:
+        except Exception:
             card_num = None
 
         if card_num is not None and main_num is not None and card_num > main_num:

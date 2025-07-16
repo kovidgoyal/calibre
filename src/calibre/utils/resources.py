@@ -25,7 +25,7 @@ class PathResolver:
             try:
                 return os.path.exists(path) and os.path.isdir(path) and \
                        os.listdir(path)
-            except:
+            except Exception:
                 pass
             return False
 

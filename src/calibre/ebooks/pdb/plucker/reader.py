@@ -455,7 +455,7 @@ class Reader(FormatReader):
             home_html = self.header_record.home_html
             if not home_html:
                 home_html = self.uid_text_secion_number.items()[0][0]
-        except:
+        except Exception:
             raise Exception('Could not determine home.html')
         # Generate oeb from html conversion.
         oeb = html_input.convert(open(f'{home_html}.html', 'rb'), self.options, 'html', self.log, {})

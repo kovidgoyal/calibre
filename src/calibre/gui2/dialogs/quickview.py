@@ -187,7 +187,7 @@ class Quickview(QDialog, Ui_Quickview):
                         gprefs.get('quickview_dialog_books_table_widths', None)
             if not self.is_pane:
                 self.restore_geometry(gprefs, 'quickview_dialog_geometry')
-        except:
+        except Exception:
             pass
 
         self.view = gui.library_view
@@ -501,7 +501,7 @@ class Quickview(QDialog, Ui_Quickview):
         # eventually.
         try:
             self.refresh(self.view.model().index(self.db.row(mi.id), self.current_column))
-        except:
+        except Exception:
             pass
 
     # clicks on the items listWidget
@@ -539,7 +539,7 @@ class Quickview(QDialog, Ui_Quickview):
             if self.current_book_id == book_id and self.current_key == key:
                 return
             self._refresh(book_id, key)
-        except:
+        except Exception:
             traceback.print_exc()
             self.indicate_no_items()
 
@@ -582,7 +582,7 @@ class Quickview(QDialog, Ui_Quickview):
                 if is_grid_view:
                     key = 'authors'
                     vals = mi.get(key, None)
-        except:
+        except Exception:
             traceback.print_exc()
 
         self.current_book_id = book_id
@@ -710,7 +710,7 @@ class Quickview(QDialog, Ui_Quickview):
             else:
                 v = mi.format_field(col)[1]
                 return v, v, 0
-        except:
+        except Exception:
             traceback.print_exc()
             return _('Something went wrong while filling in the table'), '', 0
 
@@ -754,7 +754,7 @@ class Quickview(QDialog, Ui_Quickview):
         try:
             self.db.data.index(book_id)
             return True
-        except:
+        except Exception:
             return False
 
     def quickview_item(self, row, column):
@@ -768,7 +768,7 @@ class Quickview(QDialog, Ui_Quickview):
                 self.quickview_item(row, column)
             else:
                 self.quickview_item(row, self.key_to_table_widget_column(self.current_key))
-        except:
+        except Exception:
             traceback.print_exc()
             self.book_not_in_view_error()
 

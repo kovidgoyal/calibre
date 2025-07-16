@@ -172,7 +172,7 @@ class EbookIterator(BookmarksMixin):
                     self.spine.append(Spiny(spath, mime_type=mt))
                     if is_comic:
                         self.spine[-1].is_single_page = True
-                except:
+                except Exception:
                     self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
@@ -191,7 +191,7 @@ class EbookIterator(BookmarksMixin):
            self.opf.path_to_html_toc not in self.spine:
             try:
                 self.spine.append(Spiny(self.opf.path_to_html_toc))
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 
@@ -238,5 +238,5 @@ class EbookIterator(BookmarksMixin):
         for x in self.delete_on_exit:
             try:
                 os.remove(x)
-            except:
+            except Exception:
                 pass

@@ -111,7 +111,7 @@ class TheNewCriterion(BasicNewsRecipe):
                 tfile.close()
                 self.temp_files.append(tfile)
                 result = tfile.name
-            except:
+            except Exception:
                 print('Retrying download...')
             count += 1
         return result

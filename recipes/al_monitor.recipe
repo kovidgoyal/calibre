@@ -92,7 +92,7 @@ class AlMonitor(BasicNewsRecipe):
         try:
             self._p('process section  ' + section + ', url: ' + url)
             soup = self.index_to_soup(url)
-        except:
+        except Exception:
             self._p('Unable to spider section')
             return []
 
@@ -175,7 +175,7 @@ class AlMonitor(BasicNewsRecipe):
         try:
             # eg: Posted September 17, 2014
             dt = datetime.datetime.strptime(datestring, 'Posted %B %d, %Y')
-        except:
+        except Exception:
             dt = None
 
         if dt:

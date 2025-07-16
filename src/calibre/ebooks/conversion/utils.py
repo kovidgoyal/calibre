@@ -601,7 +601,7 @@ class HeuristicProcessor:
                 if replacement_break.find('width') != -1:
                     try:
                         width = int(re.sub(r'.*?width(:|=)(?P<wnum>\d+).*', r'\g<wnum>', replacement_break))
-                    except:
+                    except Exception:
                         scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
                         self.log.warn('Invalid replacement scene break'
                                 ' expression, using default')
@@ -733,7 +733,7 @@ class HeuristicProcessor:
         # other types of processing are attempted
         try:
             self.totalwords = self.get_word_count(html)
-        except:
+        except Exception:
             self.log.warn("Can't get wordcount")
 
         if self.totalwords < 50:

@@ -133,7 +133,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
-        except:
+        except Exception:
             self.log('\nCover unavailable: ' + cover)
             cover = None
         return cover

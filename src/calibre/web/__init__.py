@@ -55,7 +55,7 @@ def get_download_filename(url, cookie_file=None):
     try:
         with closing(br.open(url)) as r:
             filename = get_download_filename_from_response(r)
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
 

@@ -123,7 +123,7 @@ class Metadata:
             null_val = NULL_VALUES.get(field, None)
             val = getattr(self, field, None)
             return not val or val == null_val
-        except:
+        except Exception:
             return True
 
     def set_null(self, field):
@@ -139,7 +139,7 @@ class Metadata:
         if field == 'language':
             try:
                 return _data.get('languages', [])[0]
-            except:
+            except Exception:
                 return NULL_VALUES['language']
         try:
             return object.__getattribute__(self, field)
@@ -160,7 +160,7 @@ class Metadata:
         if field.startswith('#') and field.endswith('_index'):
             try:
                 return self.get_extra(field[:-6])
-            except:
+            except Exception:
                 pass
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
@@ -251,7 +251,7 @@ class Metadata:
         if field in _data['user_metadata']:
             try:
                 return _data['user_metadata'][field]['#extra#']
-            except:
+            except Exception:
                 return default
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
@@ -498,7 +498,7 @@ class Metadata:
                     self.set(dest, [f.strip() for f in val.split('&') if f.strip()])
                 else:
                     self.set(dest, val)
-            except:
+            except Exception:
                 if DEBUG:
                     traceback.print_exc()
 
@@ -713,7 +713,7 @@ class Metadata:
                 try:
                     fmt = cmeta['display'].get('number_format', None)
                     res = fmt.format(res)
-                except:
+                except Exception:
                     pass
             return (name, str(res), orig_res, cmeta)
 

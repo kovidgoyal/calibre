@@ -45,7 +45,7 @@ if iswindows:
                 break
             try:
                 recycle_path(path)
-            except:
+            except Exception:
                 eintr_retry_call(stdout.write, b'KO\n')
                 stdout.flush()
                 try:
@@ -123,7 +123,7 @@ def delete_file(path, permanent=False):
         try:
             recycle(path)
             return
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
     os.remove(path)
@@ -136,7 +136,7 @@ def delete_tree(path, permanent=False):
             # leading to access errors. If we get an exception, wait and hope
             # that whatever has the file (Antivirus, DropBox?) lets go of it.
             shutil.rmtree(path)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             time.sleep(1)
@@ -146,7 +146,7 @@ def delete_tree(path, permanent=False):
             try:
                 recycle(path)
                 return
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
         delete_tree(path, permanent=True)

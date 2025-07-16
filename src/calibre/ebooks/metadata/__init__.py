@@ -170,7 +170,7 @@ def get_title_sort_pat(lang=None):
         ans = f'^({ans})'
         try:
             ans = re.compile(ans, re.IGNORECASE)
-        except:
+        except Exception:
             ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
     else:
         ans = re.compile(r'^$')  # matches only the empty string
@@ -279,7 +279,7 @@ class Resource:
         self.fragment = ''
         try:
             self.mime_type = guess_type(href_or_path)[0]
-        except:
+        except Exception:
             self.mime_type = None
         if self.mime_type is None:
             self.mime_type = 'application/octet-stream'

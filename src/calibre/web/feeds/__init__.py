@@ -48,7 +48,7 @@ class Article:
             try:
                 s = html.fragment_fromstring(summary, create_parent=True)
                 summary = html.tostring(s, method='text', encoding='unicode')
-            except:
+            except Exception:
                 print('Failed to process article summary, deleting:')
                 print(summary.encode('utf-8'))
                 traceback.print_exc()
@@ -210,7 +210,7 @@ class Feed:
             title = re.sub(r'<.+?>', '', title)
         try:
             link  = self.get_article_url(item)
-        except:
+        except Exception:
             self.logger.warning(f'Failed to get link for {title}')
             self.logger.debug(traceback.format_exc())
             link = None

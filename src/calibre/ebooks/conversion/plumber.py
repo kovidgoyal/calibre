@@ -894,7 +894,7 @@ OptionRecommendation(name='search_replace',
                 elif x in ('timestamp', 'pubdate'):
                     try:
                         val = parse_date(val, assume_utc=x=='timestamp')
-                    except:
+                    except Exception:
                         self.log.exception(_('Failed to parse date/time') + ' ' + str(val))
                         continue
                 setattr(mi, x, val)
@@ -987,7 +987,7 @@ OptionRecommendation(name='search_replace',
                 for x in ('username', 'password'):
                     odict.pop(x, None)
                 self.log.debug(pprint.pformat(odict))
-            except:
+            except Exception:
                 self.log.exception('Failed to get resolved conversion options')
 
     def flush(self):

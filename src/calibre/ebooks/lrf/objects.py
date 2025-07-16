@@ -827,7 +827,7 @@ class Text(LRFStream):
                         return pos-1
                     return find_first_tag(pos+1)
 
-                except:
+                except Exception:
                     return find_first_tag(pos+1)
 
             start_pos = stream.tell()

@@ -451,7 +451,7 @@ class CNCX:  # {{{
                     try:
                         self.records[pos+record_offset] = raw[
                             pos+consumed:pos+consumed+length].decode(codec)
-                    except:
+                    except Exception:
                         byts = raw[pos:]
                         r = format_bytes(byts)
                         print(f'CNCX entry at offset {pos + record_offset} has unknown format {r}')
@@ -612,7 +612,7 @@ class TBSIndexing:  # {{{
                 try:
                     byts, a = self.interpret_periodical(tbs_type, byts,
                         dat['geom'][0])
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
                     a = []
@@ -755,7 +755,7 @@ class MOBIFile:  # {{{
                     b'AUDI', b'VIDE', b'FONT', b'CRES', b'CONT', b'CMET'}:
                 try:
                     fmt = what(None, r.raw)
-                except:
+                except Exception:
                     pass
             if fmt is not None:
                 self.image_records.append(ImageRecord(image_index, r, fmt))

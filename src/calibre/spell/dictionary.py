@@ -66,7 +66,7 @@ def catalog_online_dictionaries():
     loaded = json.loads(P('dictionaries/online-catalog.json', allow_user_override=False, data=True))
     try:
         loaded.update(json.loads(P('dictionaries/online-catalog.json', data=True)))
-    except:
+    except Exception:
         pass
     rslt = []
     for lang, directory in loaded.items():

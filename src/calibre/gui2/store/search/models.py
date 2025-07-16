@@ -303,7 +303,7 @@ class Matches(QAbstractItemModel):
         def keygen(x):
             try:
                 return self.all_matches.index(x)
-            except:
+            except Exception:
                 return 100000
         self.matches = sorted(self.matches, key=keygen)
 

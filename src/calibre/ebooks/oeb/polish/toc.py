@@ -411,7 +411,7 @@ def item_at_top(elem):
         try:
             if el.tag.endswith('}img') or (el.text and el.text.strip()):
                 return False
-        except:
+        except Exception:
             return False
         if not path.startswith(epath):
             # Only check tail of non-parent elements

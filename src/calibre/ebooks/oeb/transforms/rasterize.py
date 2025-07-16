@@ -114,7 +114,7 @@ class SVGRasterizer:
                     try:
                         h = float(image.get('height').replace('%', ''))/100.
                         image.set('height', str(h*sizes[1]))
-                    except:
+                    except Exception:
                         logger.exception('Failed to convert percentage height:',
                                 image.get('height'))
 

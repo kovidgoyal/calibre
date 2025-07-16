@@ -482,7 +482,7 @@ class Mobi8Reader:
                     if os.path.exists(href.replace('/', os.sep)):
                         try:
                             toc = self.read_inline_toc(href, frag)
-                        except:
+                        except Exception:
                             self.log.exception('Failed to read inline ToC')
 
         opf = OPFCreator(os.getcwd(), mi)
@@ -502,7 +502,7 @@ class Mobi8Reader:
         if self.for_tweak:
             try:
                 os.remove('debug-raw.html')
-            except:
+            except Exception:
                 pass
 
         opf.create_manifest_from_files_in([os.getcwd()], exclude=exclude)

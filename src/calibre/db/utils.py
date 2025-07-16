@@ -35,7 +35,7 @@ def force_to_bool(val):
                 val = False
             else:
                 val = bool(int(val))
-        except:
+        except Exception:
             val = None
     return val
 

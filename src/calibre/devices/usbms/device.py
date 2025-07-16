@@ -550,7 +550,7 @@ class Device(DeviceConfig, DevicePlugin):
                             ok[node] = True
                         else:
                             ok[node] = False
-                    except:
+                    except Exception:
                         ok[node] = False
                     if is_debugging() and not ok[node]:
                         print(f'\nIgnoring the node: {node} as could not read size from: {sz}')
@@ -580,7 +580,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 with open(sz, 'rb') as szf:
                     sz = int(szf.read().decode('utf-8'))
-            except:
+            except Exception:
                 continue
             if sz > 0:
                 nodes.append((x.split('/')[-1], sz))
@@ -602,7 +602,7 @@ class Device(DeviceConfig, DevicePlugin):
                     from calibre.devices.udisks import mount
                     mount(node)
                     return 0
-                except:
+                except Exception:
                     print('Udisks mount call failed:')
                     import traceback
                     traceback.print_exc()
@@ -658,12 +658,12 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 with open(path, 'wb'):
                     ro = False
-            except:
+            except Exception:
                 pass
             else:
                 try:
                     os.remove(path)
-                except:
+                except Exception:
                     pass
             if is_debugging() and ro:
                 print('\nThe mountpoint', mp, 'is readonly, ignoring it')
@@ -889,7 +889,7 @@ class Device(DeviceConfig, DevicePlugin):
             if x is not None:
                 try:
                     subprocess.Popen(self.OSX_EJECT_COMMAND + [x])
-                except:
+                except Exception:
                     pass
 
     def eject_linux(self):
@@ -898,7 +898,7 @@ class Device(DeviceConfig, DevicePlugin):
         for d in drives:
             try:
                 umount(d)
-            except:
+            except Exception:
                 pass
         for d in drives:
             try:
@@ -918,22 +918,22 @@ class Device(DeviceConfig, DevicePlugin):
         if islinux:
             try:
                 self.eject_linux()
-            except:
+            except Exception:
                 pass
         if isfreebsd:
             try:
                 self.eject_freebsd()
-            except:
+            except Exception:
                 pass
         if iswindows:
             try:
                 self.eject_windows()
-            except:
+            except Exception:
                 pass
         if ismacos:
             try:
                 self.eject_osx()
-            except:
+            except Exception:
                 pass
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.on_device_close()
@@ -945,7 +945,7 @@ class Device(DeviceConfig, DevicePlugin):
         if islinux:
             try:
                 self.linux_post_yank()
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None

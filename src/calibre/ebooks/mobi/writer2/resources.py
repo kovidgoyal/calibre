@@ -132,7 +132,7 @@ class Resources:
                     self.used_image_indices.add(self.cover_offset)
                     try:
                         tdata = rescale_image(data, dimen=MAX_THUMB_DIMEN, maxsizeb=MAX_THUMB_SIZE)
-                    except:
+                    except Exception:
                         self.log.warn('Failed to generate thumbnail')
                     else:
                         self.image_indices.add(len(self.records))
@@ -168,7 +168,7 @@ class Resources:
                 continue
             try:
                 data = self.process_image(item.data)
-            except:
+            except Exception:
                 self.log.warn(f'Bad image file {item.href!r}')
             else:
                 self.records.append(data)

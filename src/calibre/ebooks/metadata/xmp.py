@@ -192,7 +192,7 @@ def read_user_metadata(mi, root):
                             decode_is_multiple(fm)
                             mi.set_user_metadata(name, fm)
                             fields.add(name)
-                        except:
+                        except Exception:
                             prints('Failed to read user metadata:', name)
                             import traceback
                             traceback.print_exc()
@@ -263,7 +263,7 @@ def metadata_from_xmp_packet(raw_bytes):
         mi.publisher = publishers[0]
     try:
         pubdate = parse_date(first_sequence('//dc:date', root) or first_simple('//xmp:CreateDate', root), assume_utc=False)
-    except:
+    except Exception:
         pass
     else:
         mi.pubdate = pubdate
@@ -458,7 +458,7 @@ def create_user_metadata(calibre, all_user_metadata):
             encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
-        except:
+        except Exception:
             prints('Failed to write user metadata:', name)
             import traceback
             traceback.print_exc()

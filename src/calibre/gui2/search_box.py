@@ -185,7 +185,7 @@ class SearchBox2(QComboBox):  # {{{
     def hide_completer_popup(self):
         try:
             self.lineEdit().completer().popup().setVisible(False)
-        except:
+        except Exception:
             pass
 
     def normalize_state(self):
@@ -537,7 +537,7 @@ class SavedSearchBoxMixin:  # {{{
             if not current_search:
                 raise ValueError()
             self.search.set_search_string(current_search)
-        except:
+        except Exception:
             from calibre.gui2.ui import get_gui
             get_gui().status_bar.show_message(_('Current search is not a saved search'), 3000)
     # }}}

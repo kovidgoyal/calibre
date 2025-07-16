@@ -33,7 +33,7 @@ def do_explode(path, dest):
             opf = os.path.abspath(mr())
             try:
                 os.remove('debug-raw.html')
-            except:
+            except Exception:
                 pass
 
     return opf

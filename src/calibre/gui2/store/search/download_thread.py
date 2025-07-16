@@ -123,7 +123,7 @@ class SearchThread(Thread):
                     res.create_browser = store_plugin.create_browser
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
-            except:
+            except Exception:
                 if DEBUG:
                     traceback.print_exc()
 
@@ -169,7 +169,7 @@ class CoverThread(Thread):
                     result.cover_data = scale_image(result.cover_data, 256, 256)[2]
                     callback()
                 self.tasks.task_done()
-            except:
+            except Exception:
                 if DEBUG:
                     traceback.print_exc()
 
@@ -204,7 +204,7 @@ class DetailsThread(Thread):
                     store_plugin.get_details(result, timeout)
                     callback(result)
                 self.tasks.task_done()
-            except:
+            except Exception:
                 if DEBUG:
                     traceback.print_exc()
 
@@ -235,6 +235,6 @@ class CacheUpdateThread(Thread):
             try:
                 store_plugin, timeout = self.tasks.get()
                 store_plugin.update_cache(timeout=timeout, suppress_progress=True)
-            except:
+            except Exception:
                 if DEBUG:
                     traceback.print_exc()

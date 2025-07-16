@@ -199,14 +199,14 @@ class Notifier(Thread):
         while self.keep_going:
             try:
                 names = os.listdir(self.tdir)
-            except:
+            except Exception:
                 pass
             else:
                 for x in names:
                     if x.endswith('.log'):
                         try:
                             book_id = int(x.partition('.')[0])
-                        except:
+                        except Exception:
                             continue
                         if book_id not in self.seen and book_id in self.title_map:
                             self.seen.add(book_id)

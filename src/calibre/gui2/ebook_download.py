@@ -89,7 +89,7 @@ class EbookDownload:
             try:
                 if dfilename:
                     os.remove(dfilename)
-            except:
+            except Exception:
                 pass
 
     def _download(self, cookie_file, url, filename, save_loc, add_to_lib, create_browser):

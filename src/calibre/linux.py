@@ -81,7 +81,7 @@ class PreserveMIMEDefaults:  # {{{
             try:
                 with open(x, 'rb') as f:
                     self.initial_values[x] = f.read()
-            except:
+            except Exception:
                 self.initial_values[x] = None
 
     def __exit__(self, *args):
@@ -89,7 +89,7 @@ class PreserveMIMEDefaults:  # {{{
             if val is None:
                 try:
                     os.remove(path)
-                except:
+                except Exception:
                     pass
             elif os.path.exists(path):
                 try:
@@ -820,7 +820,7 @@ class PostInstall:
             os.chmod(dest, stat.S_IRWXU|stat.S_IRGRP|stat.S_IROTH)
             if os.geteuid() == 0:
                 os.chown(dest, 0, 0)
-        except:
+        except Exception:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Creating uninstaller failed')
@@ -847,7 +847,7 @@ class PostInstall:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up completion failed')
-        except:
+        except Exception:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up completion failed')
@@ -947,7 +947,7 @@ class PostInstall:
         if not os.path.exists(appdata):
             try:
                 os.mkdir(appdata)
-            except:
+            except Exception:
                 self.warning(f'Failed to create {appdata} not installing appdata files')
         if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
             self.warning(f'Do not have write permissions for {appdata} not installing appdata files')

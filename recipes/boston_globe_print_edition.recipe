@@ -66,7 +66,7 @@ class BostonGlobePrint(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         try:
             br.open(cover)
-        except:
+        except Exception:
             index = 'https://en.kiosko.net/us/np/boston_globe.html'
             soup = self.index_to_soup(index)
             for image in soup.findAll('img', src=True):

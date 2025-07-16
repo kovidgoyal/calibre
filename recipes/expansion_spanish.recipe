@@ -112,7 +112,7 @@ class expansion_spanish(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
-        except:
+        except Exception:
             self.log('\nPortada no disponible')
             cover = 'http://www.aproahp.org/enlaces/images/diario_expansion.gif'
         return cover

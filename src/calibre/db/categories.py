@@ -133,7 +133,7 @@ def clean_user_categories(dbcache):
     try:
         if new_cats != user_cats:
             dbcache.set_pref('user_categories', new_cats)
-    except:
+    except Exception:
         pass
     return new_cats
 

@@ -171,7 +171,7 @@ class NumberToText:  # {{{
             try:
                 self.float_as_number = float(self.number)
                 number = int(self.number)
-            except:
+            except Exception:
                 return
 
             if number > 10**9:

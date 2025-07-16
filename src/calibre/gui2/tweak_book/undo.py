@@ -32,7 +32,7 @@ def cleanup(containers):
     for container in containers:
         try:
             shutil.rmtree(container.root, ignore_errors=True)
-        except:
+        except Exception:
             pass
 
 

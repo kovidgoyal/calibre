@@ -212,7 +212,7 @@ class Dehyphenator:
         secondhalf = match.group('secondpart')
         try:
             wraptags = match.group('wraptags')
-        except:
+        except Exception:
             wraptags = ''
         hyphenated = str(firsthalf) + '-' + str(secondhalf)
         dehyphenated = str(firsthalf) + str(secondhalf)
@@ -226,7 +226,7 @@ class Dehyphenator:
             self.log('lookup word is: '+lookupword+', orig is: ' + hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
-        except:
+        except Exception:
             return hyphenated
         if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
             if self.html.find(lookupword) != -1 or searchresult != -1:
@@ -305,7 +305,7 @@ class CSSPreProcessor:
         end = match.group('end')
         try:
             start = match.group('start')
-        except:
+        except Exception:
             start = ''
         if end == ';':
             end = ''

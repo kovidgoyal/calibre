@@ -70,11 +70,11 @@ def set_metadata(stream, mi):
         new_cdata = mi.cover_data[1]
         if not new_cdata:
             raise Exception('no cover')
-    except:
+    except Exception:
         try:
             with open(mi.cover, 'rb') as f:
                 new_cdata = f.read()
-        except:
+        except Exception:
             pass
     if new_cdata:
         cpath = opf.raster_cover
@@ -94,7 +94,7 @@ def set_metadata(stream, mi):
         if cpath is not None:
             replacements[cpath].close()
             os.remove(replacements[cpath].name)
-    except:
+    except Exception:
         pass
 
 

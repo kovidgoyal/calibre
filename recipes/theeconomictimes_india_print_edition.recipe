@@ -39,7 +39,7 @@ class TheEconomicTimes(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
-        except:
+        except Exception:
             self.log('\nCover unavailable')
             cover = None
         return cover

@@ -37,7 +37,7 @@ quote-style = 'single'
 [tool.ruff.lint]
 explicit-preview-rules = true
 ignore = [
-    'E402', 'E722', 'E741',
+    'E402', 'E741',
     'UP012', 'UP030', 'UP038', 'C413', 'C420', 'PIE790', 'ISC003',
     'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
     'RUF059',  # unused unpacked variable

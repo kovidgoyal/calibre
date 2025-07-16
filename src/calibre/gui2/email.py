@@ -511,7 +511,7 @@ class EmailMixin:  # {{{
                 self.library_view.model().delete_books_by_id(remove)
                 self.iactions['Remove Books'].library_ids_deleted2(remove,
                                                             next_id=next_id)
-            except:
+            except Exception:
                 import traceback
 
                 # Probably the user deleted the files, in any case, failing

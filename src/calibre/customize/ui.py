@@ -212,7 +212,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
                 pass
             try:
                 nfp = plugin.run(nfp) or nfp
-            except:
+            except Exception:
                 print(f'Running file type plugin {plugin.name} failed with traceback:', file=oe)
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
@@ -495,7 +495,7 @@ def get_file_type_metadata(stream, ftype):
                             stream.seek(0)
                         mi = plugin.get_metadata(stream, ftype.lower().strip())
                         break
-                    except:
+                    except Exception:
                         traceback.print_exc()
                         continue
     return mi
@@ -514,7 +514,7 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None):
                         plugin.site_customization = customization.get(plugin.name, '')
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
-                    except:
+                    except Exception:
                         if report_error is None:
                             from calibre import prints
                             prints('Failed to set metadata for the', ftype.upper(), 'format of:', getattr(mi, 'title', ''), file=sys.stderr)
@@ -569,7 +569,7 @@ def remove_plugin(plugin_or_name):
             zfp = plugins[name]
             if os.path.exists(zfp):
                 os.remove(zfp)
-        except:
+        except Exception:
             pass
         plugins.pop(name)
     config['plugins'] = plugins
@@ -829,7 +829,7 @@ def initialize_plugins(perf=False):
             if perf:
                 times[plugin.name] = time.time() - st
             _initialized_plugins.append(plugin)
-        except:
+        except Exception:
             print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
             if DEBUG:
                 traceback.print_exc()

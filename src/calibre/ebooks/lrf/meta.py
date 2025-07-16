@@ -277,13 +277,13 @@ def get_metadata(stream):
         mi.title_sort = lrf.title_reading.strip()
         if not mi.title_sort:
             mi.title_sort = None
-    except:
+    except Exception:
         pass
     try:
         mi.author_sort = lrf.author_reading.strip()
         if not mi.author_sort:
             mi.author_sort = None
-    except:
+    except Exception:
         pass
     if not mi.title or 'unknown' in mi.title.lower():
         mi.title = None
@@ -733,7 +733,7 @@ def main(args=sys.argv):
     if options.get_cover:
         try:
             ext, data = lrf.get_cover()
-        except:  # Fails on books created by LRFCreator 1.0
+        except Exception:  # Fails on books created by LRFCreator 1.0
             ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+'_cover.'+ext

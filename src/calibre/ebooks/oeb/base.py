@@ -802,7 +802,7 @@ class Metadata:
                 elem = element(parent, self.term, attrib=attrib)
                 try:
                     elem.text = self.value
-                except:
+                except Exception:
                     elem.text = repr(self.value)
             else:
                 elem = element(parent, OPF('meta'), attrib=attrib)
@@ -1834,7 +1834,7 @@ class OEBBook:
         for path in self._temp_files:
             try:
                 os.remove(path)
-            except:
+            except Exception:
                 pass
 
     @classmethod

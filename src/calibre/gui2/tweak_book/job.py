@@ -31,7 +31,7 @@ class LongJob(Thread):
         st = time.time()
         try:
             self.result = self.function(*self.args, **self.kwargs)
-        except:
+        except Exception:
             import traceback
             self.traceback = traceback.format_exc()
         self.time_taken = time.time() - st

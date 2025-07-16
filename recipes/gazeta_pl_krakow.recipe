@@ -75,7 +75,7 @@ class gw_krakow(BasicNewsRecipe):
         try:
             baseurl = soup.find(name='meta', attrs={
                                 'property': 'og:url'})['content']
-        except:
+        except Exception:
             return 1
         link = tag.findAll('a')[-1]
         while link:

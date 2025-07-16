@@ -145,7 +145,7 @@ class Server(Thread):
             except BaseException:
                 try:
                     w.kill()
-                except:
+                except Exception:
                     pass
                 b.close()
                 import traceback
@@ -184,7 +184,7 @@ class Server(Thread):
             for worker in [w for w in self.workers if not w.is_alive]:
                 try:
                     worker.close_log_file()
-                except:
+                except Exception:
                     pass
                 self.workers.remove(worker)
                 job = worker.job
@@ -196,7 +196,7 @@ class Server(Thread):
                         with open(worker.rfile, 'rb') as f:
                             job.result = pickle_loads(f.read())
                         os.remove(worker.rfile)
-                    except:
+                    except Exception:
                         pass
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
@@ -281,17 +281,17 @@ class Server(Thread):
     def close(self):
         try:
             self.add_jobs_queue.put(None)
-        except:
+        except Exception:
             pass
         try:
             self.listener.close()
-        except:
+        except Exception:
             pass
         time.sleep(0.2)
         for worker in list(self.workers):
             try:
                 worker.kill()
-            except:
+            except Exception:
                 pass
 
     def __enter__(self):

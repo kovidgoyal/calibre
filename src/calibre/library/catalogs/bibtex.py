@@ -190,7 +190,7 @@ class BIBTEX(CatalogPlugin):
                     # html to text
                     try:
                         item = html2text(item)
-                    except:
+                    except Exception:
                         log.warn('Failed to convert comments to text')
                     bibtex_entry.append(f'note = "{bibtexdict.utf8ToBibtex(item)}"')
 
@@ -289,7 +289,7 @@ class BIBTEX(CatalogPlugin):
             bibfile_enc = bibfile_enc[opts.bibfile_enc]
             bibfile_enctag = bibfile_enctag[opts.bibfile_enctag]
             bib_entry = bib_entry[opts.bib_entry]
-        except:
+        except Exception:
             if opts.bibfile_enc in bibfile_enc:
                 bibfile_enc = opts.bibfile_enc
             else:

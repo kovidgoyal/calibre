@@ -51,7 +51,7 @@ class CacheUpdateThread(Thread, QObject):
         try:
             with closing(br.open(url, timeout=self.timeout)) as f:
                 raw_data = f.read()
-        except:
+        except Exception:
             return
 
         if not raw_data or not self._run:
@@ -86,7 +86,7 @@ class CacheUpdateThread(Thread, QObject):
                     break
                 else:
                     self.update_progress.emit(i)
-        except:
+        except Exception:
             pass
 
         # Save the book list and it's create time.

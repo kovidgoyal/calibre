@@ -76,7 +76,7 @@ def basename(url):
         parts = urlsplit(url)
         path = url2pathname(parts.path)
         res = os.path.basename(path)
-    except:
+    except Exception:
         global bad_url_counter
         bad_url_counter += 1
         return f'bad_url_{bad_url_counter}.html'
@@ -325,7 +325,7 @@ class RecursiveFetcher:
             return self._is_link_wanted(url, tag)
         except NotImplementedError:
             pass
-        except:
+        except Exception:
             return False
         if self.filter_regexps:
             for f in self.filter_regexps:

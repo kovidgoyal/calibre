@@ -100,7 +100,7 @@ class CNCX:  # {{{
                     try:
                         self.records[pos+record_offset] = raw[
                             pos+consumed:pos+consumed+length].decode(codec)
-                    except:
+                    except Exception:
                         byts = raw[pos:]
                         r = format_bytes(byts)
                         print(f'CNCX entry at offset {pos + record_offset} has unknown format {r}')

@@ -277,7 +277,7 @@ class MOBIFile:
             while tbs_bytes:
                 try:
                     val, extra, consumed = decode_tbs(tbs_bytes, flag_size=flag_sz)
-                except:
+                except Exception:
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
@@ -291,7 +291,7 @@ class MOBIFile:
                     tbs_type=tbs_type)
             try:
                 calculated_bytes = sequences_to_bytes(calculated_sequences)
-            except:
+            except Exception:
                 calculated_bytes = b'failed to calculate tbs bytes'
             if calculated_bytes != otbs:
                 print(f'WARNING: TBS mismatch for record {i}')

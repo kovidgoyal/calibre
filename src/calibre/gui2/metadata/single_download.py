@@ -171,7 +171,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             try:
                 return (self.COLUMNS[section])
-            except:
+            except Exception:
                 return None
         return None
 
@@ -191,7 +191,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
         row, col = index.row(), index.column()
         try:
             book = self.results[row]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole and col not in self.ICON_COLS:
             res = self.data_as_text(book, col)
@@ -454,7 +454,7 @@ class IdentifyWorker(Thread):  # {{{
                 result.gui_rank = i
         except WorkerError as e:
             self.error = force_unicode(e.orig_tb)
-        except:
+        except Exception:
             import traceback
             self.error = force_unicode(traceback.format_exc())
 
@@ -601,7 +601,7 @@ class CoverWorker(Thread):  # {{{
                 self.run_fork()
         except WorkerError as e:
             self.error = force_unicode(e.orig_tb)
-        except:
+        except Exception:
             import traceback
             self.error = force_unicode(traceback.format_exc())
 
@@ -635,7 +635,7 @@ class CoverWorker(Thread):  # {{{
                     width, height = int(width), int(height)
                     with open(os.path.join(tdir, x), 'rb') as f:
                         data = f.read()
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
                 else:
@@ -693,7 +693,7 @@ class CoversModel(QAbstractListModel):  # {{{
     def data(self, index, role):
         try:
             text, pmap, cover, waiting = self.covers[index.row()]
-        except:
+        except Exception:
             return None
         if role == Qt.ItemDataRole.DecorationRole:
             return pmap

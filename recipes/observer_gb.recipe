@@ -144,7 +144,7 @@ class Guardian(BasicNewsRecipe):
             for title, href in self.find_sections():
                 feeds.append((title, list(self.find_articles(href))))
             return feeds
-        except:
+        except Exception:
             raise NotImplementedError
 
     def postprocess_html(self, soup, first):

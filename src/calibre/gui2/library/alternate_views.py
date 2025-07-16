@@ -210,7 +210,7 @@ def drag_data(self):
     def path_for_id(i):
         try:
             ans = db.format_path(i, fmt, index_is_id=True)
-        except:
+        except Exception:
             ans = None
         if ans is None:
             fmts = db.formats(i, index_is_id=True)
@@ -221,7 +221,7 @@ def drag_data(self):
             for f in fmts:
                 try:
                     ans = db.format_path(i, f, index_is_id=True)
-                except:
+                except Exception:
                     ans = None
         if ans is None:
             ans = db.abspath(i, index_is_id=True)

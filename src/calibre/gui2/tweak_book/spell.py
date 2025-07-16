@@ -222,7 +222,7 @@ class AddDictionary(QDialog):  # {{{
         oxt = str(self.path.text())
         try:
             num = import_from_oxt(oxt, nick)
-        except:
+        except Exception:
             import traceback
             return error_dialog(self, _('Failed to import dictionaries'), _(
                 'Failed to import dictionaries from %s. Click "Show details" for more information') % oxt,
@@ -240,7 +240,7 @@ class AddDictionary(QDialog):  # {{{
                 'A dictionary with the nick name "%s" already exists.') % nick, show=True)
         try:
             num = import_from_online(directory, nick)
-        except:
+        except Exception:
             import traceback
             return error_dialog(self, _('Failed to download dictionaries'), _(
                 'Failed to download dictionaries for "{}". Click "Show details" for more information').format(data['text']),
@@ -1553,7 +1553,7 @@ class SpellCheck(Dialog):
         try:
             words = get_all_words(current_container(), dictionaries.default_locale, excluded_files=self.excluded_files)
             spell_map = {w:dictionaries.recognized(*w) for w in words}
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             words = traceback.format_exc()

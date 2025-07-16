@@ -57,7 +57,7 @@ class Nature(BasicNewsRecipe):
         )['src']
         try:
             self.cover_url = re.sub(r'\bw\d+\b', 'w1000', self.cover_url)  # enlarge cover size resolution
-        except:
+        except Exception:
             '''
             failed, img src might have changed, use default width 200
             '''

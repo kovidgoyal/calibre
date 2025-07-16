@@ -513,7 +513,7 @@ class CheckLibraryDialog(QDialog):
                         delete_tree(p)
                     else:
                         delete_file(p)
-                except:
+                except Exception:
                     prints('failed to delete',
                             os.path.join(self.db.library_path,
                                 str(it.text(2))))

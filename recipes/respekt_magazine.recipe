@@ -145,7 +145,7 @@ class respektRecipe(BasicNewsRecipe):
                 t = root.xpath("//span[@class='post-author-name']")[0]
                 t.text = ('Autor: ' + t.text + ' ')
             root.xpath("//div[@class='authorship-names']")[0].append(E.span(article_length))
-        except:
+        except Exception:
             pass
         # Make images visible
         pictures = root.xpath('//picture')
@@ -169,6 +169,6 @@ class respektRecipe(BasicNewsRecipe):
             e = E.h2({'class':'post-subtitle'})
             e.text = o.text
             o.getparent().replace(o,e)
-        except:
+        except Exception:
             pass
         return BeautifulSoup(lxml.etree.tostring(root,encoding='unicode'))

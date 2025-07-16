@@ -193,7 +193,7 @@ class DaysOfMonth(Base):
                 x.strip()]
         try:
             days_of_month = tuple(map(int, parts))
-        except:
+        except Exception:
             days_of_month = (1,)
         if not days_of_month:
             days_of_month = (1,)
@@ -421,7 +421,7 @@ class SchedulerDialog(QDialog):
             self.recipe_model.searched.disconnect(self.search.search_done)
             self.search.search.disconnect()
             self.download.disconnect()
-        except:
+        except Exception:
             pass
         self.recipe_model = None
 
@@ -518,7 +518,7 @@ class SchedulerDialog(QDialog):
         recipe = self.recipe_model.recipe_from_urn(urn)
         try:
             schedule_info = self.recipe_model.schedule_info_from_urn(urn)
-        except:
+        except Exception:
             # Happens if user does something stupid like unchecking all the
             # days of the week
             schedule_info = None
@@ -666,7 +666,7 @@ class Scheduler(QObject):
             try:
                 ids = list(db.tags_older_than(_('News'),
                     delta, must_have_authors=['calibre']))
-            except:
+            except Exception:
                 # Happens if library is being switched
                 ids = []
             if ids:

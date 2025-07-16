@@ -169,7 +169,7 @@ class PageProcessor(list):  # {{{
                 if self.opts.comic_image_size:
                     SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in
                         self.opts.comic_image_size.split('x')])
-            except:
+            except Exception:
                 pass  # Ignore
 
             if self.opts.keep_aspect_ratio:
@@ -253,7 +253,7 @@ def render_pages(tasks, dest, opts, notification=lambda x, y: x):
         try:
             pages.extend(PageProcessor(path, dest, opts, num))
             msg = _('Rendered %s')%path
-        except:
+        except Exception:
             failures.append(path)
             msg = _('Failed %s')%path
             if opts.verbose:

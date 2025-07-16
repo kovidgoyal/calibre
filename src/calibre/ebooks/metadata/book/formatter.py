@@ -31,7 +31,7 @@ class SafeFormat(TemplateFormatter):
                     raise ValueError(_('Value: unknown field ') + orig_key)
         try:
             b = self.book.get_user_metadata(key, False)
-        except:
+        except Exception:
             b = None
         if b and b['datatype'] in {'int', 'float'} and self.book.get(key, None) is None:
             v = ''

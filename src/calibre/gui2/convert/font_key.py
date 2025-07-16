@@ -78,7 +78,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         fsize = self.input_font_size.value()
         try:
             fsizes = self.fsizes
-        except:
+        except Exception:
             return
 
         if dbase == 0.0 or not fsizes:

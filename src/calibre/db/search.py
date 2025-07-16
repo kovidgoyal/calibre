@@ -196,13 +196,13 @@ class DateSearch:  # {{{
                 num = query[:-len(m.group(1))]
                 try:
                     qd = now() - timedelta(int(num))
-                except:
+                except Exception:
                     raise ParseException(_('Number conversion error: {0}').format(num))
                 field_count = 3
             else:
                 try:
                     qd = parse_date(query, as_utc=False)
-                except:
+                except Exception:
                     raise ParseException(_('Date conversion error: {0}').format(query))
                 if '-' in query:
                     field_count = query.count('-') + 1
@@ -588,7 +588,7 @@ class Parser(SearchQueryParser):  # {{{
                         c -= m
                         if len(c) == 0:
                             break
-                    except:
+                    except Exception:
                         pass
                 return matches
 
@@ -662,7 +662,7 @@ class Parser(SearchQueryParser):  # {{{
                     sep = sep.lower()
                 else:
                     sep = 't'
-            except:
+            except Exception:
                 if DEBUG:
                     import traceback
                     traceback.print_exc()
@@ -720,17 +720,17 @@ class Parser(SearchQueryParser):  # {{{
 
         try:
             rating_query = int(float(query)) * 2
-        except:
+        except Exception:
             rating_query = None
 
         try:
             int_query = int(float(query))
-        except:
+        except Exception:
             int_query = None
 
         try:
             float_query = float(query)
-        except:
+        except Exception:
             float_query = None
 
         for location in locations:

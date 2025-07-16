@@ -467,7 +467,7 @@ class EPUBOutput(OutputFormatPlugin):
                         prior = next(br.itersiblings(preceding=True))
                         priortag = barename(prior.tag)
                         priortext = prior.tail
-                    except:
+                    except Exception:
                         priortag = 'body'
                         priortext = body.text
                     if priortext:

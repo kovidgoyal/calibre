@@ -318,7 +318,7 @@ def create_option_parser(args, log):
         for title in titles:
             try:
                 log('\t'+title)
-            except:
+            except Exception:
                 log('\t'+repr(title))
         log(f'{len(titles)} recipes available')
         raise SystemExit(0)
@@ -370,7 +370,7 @@ def read_sr_patterns(path, log=None):
             line = line.replace('\ue123', '\n')
             try:
                 re.compile(line)
-            except:
+            except Exception:
                 msg = f'Invalid regular expression: {line!r} from file: {path!r}'
                 if log is not None:
                     log.error(msg)

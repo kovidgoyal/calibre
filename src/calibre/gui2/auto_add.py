@@ -75,7 +75,7 @@ class Worker(Thread):
                     break
                 try:
                     self.auto_add()
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
         finally:
@@ -120,7 +120,7 @@ class Worker(Thread):
             # QFileSystemWatcher when writing is completed, so ignore for now.
             try:
                 open(make_long_path_useable(f), 'rb').close()
-            except:
+            except Exception:
                 continue
             tdir = tempfile.mkdtemp(dir=self.tdir)
             try:
@@ -129,7 +129,7 @@ class Worker(Thread):
             except WorkerError as e:
                 prints('Failed to read metadata from:', fname)
                 prints(e.orig_tb)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 
@@ -139,7 +139,7 @@ class Worker(Thread):
             try:
                 with open(szpath, 'rb') as f:
                     int(f.read())
-            except:
+            except Exception:
                 with open(szpath, 'wb') as f:
                     f.write(b'0')
 
@@ -147,7 +147,7 @@ class Worker(Thread):
             try:
                 if os.stat(opfpath).st_size < 30:
                     raise Exception('metadata reading failed')
-            except:
+            except Exception:
                 mi = metadata_from_filename(fname)
                 with open(opfpath, 'wb') as f:
                     f.write(metadata_to_opf(mi))
@@ -186,7 +186,7 @@ class AutoAdder(QObject):
         try:
             if os.listdir(self.worker.path):
                 self.dir_changed()
-        except:
+        except Exception:
             pass
         self.watcher.addPath(self.worker.path)
 
@@ -244,7 +244,7 @@ class AutoAdder(QObject):
                 if sz != os.stat(make_long_path_useable(paths[0])).st_size:
                     raise Exception('Looks like the file was written to after'
                             ' we tried to read metadata')
-            except:
+            except Exception:
                 needs_rescan = True
                 try:
                     self.worker.staging.remove(fname)
@@ -281,7 +281,7 @@ class AutoAdder(QObject):
             try:
                 os.remove(make_long_path_useable(path_to_remove))
                 self.worker.staging.remove(fname)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
             count += num
@@ -310,7 +310,7 @@ class AutoAdder(QObject):
         for fname, tdir in data:
             try:
                 shutil.rmtree(tdir)
-            except:
+            except Exception:
                 pass
 
         if added_ids and gprefs['auto_add_auto_convert']:

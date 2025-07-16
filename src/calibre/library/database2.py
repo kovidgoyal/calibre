@@ -160,7 +160,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
-        except:
+        except Exception:
             traceback.print_exc()
         self.field_metadata = FieldMetadata()
         self.format_filename_cache = defaultdict(dict)
@@ -276,7 +276,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         rules = migrate_old_rule(self.field_metadata, templ)
                         for templ in rules:
                             old_rules.append((col, templ))
-                    except:
+                    except Exception:
                         pass
             if old_rules:
                 self.prefs['column_color_rules'] += old_rules
@@ -303,7 +303,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for t in ogst:
                     ngst[icu_lower(t)] = ogst[t]
                 self.prefs.set('grouped_search_terms', ngst)
-            except:
+            except Exception:
                 pass
 
         # migrate the gui_restriction preference to a virtual library
@@ -502,7 +502,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # user category. Print the exception and continue.
                 try:
                     self.field_metadata.add_user_category(label='@' + cat, name=cat)
-                except:
+                except Exception:
                     traceback.print_exc()
 
         if len(saved_searches().names()):
@@ -731,7 +731,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     try:
                         os.rename(os.path.join(curpath, oldseg),
                                 os.path.join(curpath, newseg))
-                    except:
+                    except Exception:
                         break  # Fail silently since nothing catastrophic has happened
                 curpath = os.path.join(curpath, newseg)
 
@@ -747,7 +747,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for listener in self.listeners:
             try:
                 listener(event, ids)
-            except:
+            except Exception:
                 traceback.print_exc()
                 continue
 
@@ -795,7 +795,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         try:
             return utcfromtimestamp(os.stat(path).st_mtime)
-        except:
+        except Exception:
             # Cover doesn't exist
             pass
         return self.last_modified()
@@ -850,7 +850,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.commit()
                 try:
                     del self.dirtied_cache[book_id]
-                except:
+                except Exception:
                     pass
             elif dc_sequence is not None:
                 # print('book needs to be done again')
@@ -888,7 +888,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     f.write(raw)
                 if remove_from_dirtied:
                     self.clear_dirtied(book_id, sequence)
-            except:
+            except Exception:
                 pass
             if callback is not None:
                 callback(book_id, mi, True)
@@ -978,7 +978,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 # no harm done. This way no need to call dirtied when
                 # cover is set/removed
                 mi.cover = 'cover.jpg'
-        except:
+        except Exception:
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
             pass
@@ -993,7 +993,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         idx = idx if index_is_id else self.id(idx)
         try:
             row = self.data._data[idx]
-        except:
+        except Exception:
             row = None
 
         if row is None:
@@ -1148,7 +1148,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 return identical_book_ids
             try:
                 book_ids = self.data.parse(query)
-            except:
+            except Exception:
                 traceback.print_exc()
                 return identical_book_ids
             if qauthors and book_ids:
@@ -1361,7 +1361,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         try:
             name = self.format_filename_cache[id][format.upper()]
-        except:
+        except Exception:
             return None
         if name:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
@@ -1371,12 +1371,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 return fmt_path
             try:
                 candidates = glob.glob(os.path.join(path, '*'+format))
-            except:  # If path contains strange characters this throws an exc
+            except Exception:  # If path contains strange characters this throws an exc
                 candidates = []
             if format and candidates and os.path.exists(candidates[0]):
                 try:
                     shutil.copyfile(candidates[0], fmt_path)
-                except:
+                except Exception:
                     # This can happen if candidates[0] or fmt_path is too long,
                     # which can happen if the user copied the library from a
                     # non windows machine to a windows machine.
@@ -1413,7 +1413,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     try:
                         if path != dest:
                             os.rename(path, dest)
-                    except:
+                    except Exception:
                         pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     windows_atomic_move.copy_path_to(path, dest)
@@ -1429,14 +1429,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         # Ensure that the file has the same case as dest
                         try:
                             os.rename(path, dest)
-                        except:
+                        except Exception:
                             pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     if use_hardlink:
                         try:
                             hardlink_file(path, dest)
                             return
-                        except:
+                        except Exception:
                             pass
                     with open(path, 'rb') as f, open(dest, 'wb') as d:
                         shutil.copyfileobj(f, d)
@@ -1484,7 +1484,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             try:
                                 hardlink_file(path, dest)
                                 return True
-                            except:
+                            except Exception:
                                 pass
                         with open(dest, 'wb') as d:
                             shutil.copyfileobj(f, d)
@@ -1518,7 +1518,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         d = os.path.join(bd, 'format_abspath')
                         try:
                             os.makedirs(d)
-                        except:
+                        except Exception:
                             pass
                         fname = os.path.basename(path)
                         ret = os.path.join(d, fname)
@@ -1625,7 +1625,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         try:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        except:
+        except Exception:
             path = None
         if path and os.path.exists(path):
             self.rmtree(path, permanent=permanent)
@@ -1654,7 +1654,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     path = self.format_abspath(id, format, index_is_id=True)
                     if path:
                         delete_file(path)
-                except:
+                except Exception:
                     traceback.print_exc()
             self.format_filename_cache[id].pop(format.upper(), None)
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
@@ -1782,7 +1782,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         try:
             if new_cats != user_cats:
                 self.prefs.set('user_categories', new_cats)
-        except:
+        except Exception:
             pass
         return new_cats
 
@@ -1909,7 +1909,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         if rating > 0:
                             item.rt += rating
                             item.rc += 1
-                    except:
+                    except Exception:
                         prints('get_categories: item', val, 'is not in', cat, 'list!')
                 else:
                     vals = book[dex].split(mult)
@@ -1931,7 +1931,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             if rating > 0:
                                 item.rt += rating
                                 item.rc += 1
-                        except:
+                        except Exception:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
         # print('end phase "books":', time.clock() - last, 'seconds')
@@ -2301,7 +2301,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         def doit(func, *args, **kwargs):
             try:
                 func(*args, **kwargs)
-            except:
+            except Exception:
                 if ignore_errors:
                     traceback.print_exc()
                 else:
@@ -3231,7 +3231,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             idx = 1.0
         try:
             idx = float(idx)
-        except:
+        except Exception:
             idx = 1.0
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
         self.dirtied([id], commit=False)
@@ -3384,7 +3384,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.commit()
             try:
                 mi = get_metadata(stream, format)
-            except:
+            except Exception:
                 mi = Metadata(title, ['calibre'])
             stream.seek(0)
             mi.title, mi.authors = title, ['calibre']
@@ -3493,7 +3493,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if cover is not None:
             try:
                 self.set_cover(id, cover)
-            except:
+            except Exception:
                 traceback.print_exc()
         return id
 
@@ -3644,12 +3644,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.connect()
         try:
             os.unlink(opath)
-        except:
+        except Exception:
             pass
         for dir in old_dirs:
             try:
                 shutil.rmtree(dir)
-            except:
+            except Exception:
                 pass
 
     def __iter__(self):
@@ -3702,7 +3702,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if s is None:
                 return default
             return json.loads(s, object_hook=from_json)
-        except:
+        except Exception:
             pass
         return default
 
@@ -3716,7 +3716,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for r in s:
                 res[r[0]] = json.loads(r[1], object_hook=from_json)
             return res
-        except:
+        except Exception:
             pass
         return default
 

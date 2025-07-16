@@ -265,7 +265,7 @@ def geometry():
 
             ti = windows_terminfo()
             return (ti.dwSize.X or 80, ti.dwSize.Y or 25)
-        except:
+        except Exception:
             return 80, 25
     else:
         try:

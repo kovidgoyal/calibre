@@ -250,7 +250,7 @@ class SeriesEdit(LineEdit):
         val = str(self.text()).strip()
         try:
             series_index = float(val.rpartition('[')[-1].rstrip(']').strip())
-        except:
+        except Exception:
             series_index = 1.0
         series = val.rpartition('[')[0].strip() or val.rpartition('[')[-1].strip() or None
         mi.set(self.field, series)

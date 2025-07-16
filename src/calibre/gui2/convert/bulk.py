@@ -111,7 +111,7 @@ class BulkConfig(Config):
         self.show_pane(idx)
         try:
             shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
-        except:
+        except Exception:
             pass
 
     def setup_output_formats(self, db, preferred_output_format):

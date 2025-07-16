@@ -51,7 +51,7 @@ class ManifestTrimmer:
                             href = href.decode('utf-8')
                         try:
                             href = item.abshref(urlnormalize(href))
-                        except:
+                        except Exception:
                             continue
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]

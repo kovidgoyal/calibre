@@ -128,7 +128,7 @@ class ConvertToTags:
                 self.__write_obj.write(
                 f' {val}="{att}"'
                 )
-            except:
+            except Exception:
                 if self.__run_level > 3:
                     msg = 'index out of range\n'
                     raise self.__bug_handler(msg)

@@ -153,7 +153,7 @@ class Worker(Thread):  # {{{
             import traceback
             try:
                 err = str(err)
-            except:
+            except Exception:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
 

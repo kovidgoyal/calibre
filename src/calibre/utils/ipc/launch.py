@@ -19,7 +19,7 @@ from polyglot.builtins import environ_item, native_string_type, string_or_bytes
 if iswindows:
     try:
         windows_null_file = open(os.devnull, 'wb')
-    except:
+    except Exception:
         raise RuntimeError('NUL file missing in windows. This indicates a'
                 ' corrupted windows. You should contact Microsoft'
                 ' for assistance and/or follow the steps described here: https://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
@@ -28,7 +28,7 @@ if iswindows:
 def renice(niceness):
     try:
         os.nice(niceness)
-    except:
+    except Exception:
         pass
 
 
@@ -143,7 +143,7 @@ class Worker:
     def close_log_file(self):
         try:
             self._file.close()
-        except:
+        except Exception:
             pass
 
     def kill(self):
@@ -160,7 +160,7 @@ class Worker:
                 finally:
                     if self.is_alive:
                         self.child.kill()
-        except:
+        except Exception:
             pass
 
     def __init__(self, env=None, gui=False, job_name=None):

@@ -231,7 +231,7 @@ class InputFormatPlugin(Plugin):
             log(f'InputFormatPlugin: {self.name} running')
             if hasattr(stream, 'name'):
                 log('on', stream.name)
-        except:
+        except Exception:
             # In case stdout is broken
             pass
 

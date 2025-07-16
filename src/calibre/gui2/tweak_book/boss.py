@@ -549,7 +549,7 @@ class Boss(QObject):
             spine_index += 1
         try:
             added_name = c.add_file(file_name, adata, spine_index=spine_index)
-        except:
+        except Exception:
             self.rewind_savepoint()
             raise
         self.gui.file_list.build(c)
@@ -589,7 +589,7 @@ class Boss(QObject):
                 try:
                     with open(path, 'rb') as f:
                         c.add_file(name, f.read())
-                except:
+                except Exception:
                     self.rewind_savepoint()
                     raise
                 if name.rpartition('.')[2].lower() in ('ttf', 'otf', 'woff'):
@@ -672,7 +672,7 @@ class Boss(QObject):
             self.add_savepoint(_('Before: %s') % name)
             try:
                 report, changed = tweak_polish(current_container(), {action:True}, customization=customization)
-            except:
+            except Exception:
                 self.rewind_savepoint()
                 raise
             if changed:
@@ -716,7 +716,7 @@ class Boss(QObject):
             self.add_savepoint(_('Before HTML transformation'))
             try:
                 changed = transform_container(current_container(), last_used_html_transform_rules, names)
-            except:
+            except Exception:
                 self.rewind_savepoint()
                 raise
             if changed:
@@ -742,7 +742,7 @@ class Boss(QObject):
             self.add_savepoint(_('Before style transformation'))
             try:
                 changed = transform_container(current_container(), last_used_transform_rules)
-            except:
+            except Exception:
                 self.rewind_savepoint()
                 raise
             if changed:

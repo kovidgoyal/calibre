@@ -157,7 +157,7 @@ class SaveManager(QObject):
             try:
                 count, tdir, container = x
                 error_occurred = self.process_save(count, tdir, container)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
             finally:
@@ -193,7 +193,7 @@ class SaveManager(QObject):
         error_occurred = False
         try:
             self.do_save(tdir, container)
-        except:
+        except Exception:
             import traceback
             self.report_error.emit(traceback.format_exc())
             error_occurred = True

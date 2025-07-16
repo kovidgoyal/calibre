@@ -94,7 +94,7 @@ def serialize_collection(mapping_of_recipe_classes):
                 'utf-8')):
         try:
             recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
             continue
@@ -113,7 +113,7 @@ def serialize_builtin_recipes():
         with open(f, 'rb') as stream:
             try:
                 recipe_class = compile_recipe(stream.read())
-            except:
+            except Exception:
                 print(f'Failed to compile: {f}')
                 raise
         if recipe_class is not None:
@@ -139,7 +139,7 @@ def get_custom_recipe_collection(*args):
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
                 rmap[f'custom:{id_}'] = recipe_class
-        except:
+        except Exception:
             print(f'Failed to load recipe from: {fname!r}')
             import traceback
             traceback.print_exc()
@@ -215,7 +215,7 @@ def remove_custom_recipe(id_):
         del custom_recipes[id_]
         try:
             delete_file(os.path.join(bdir, fname))
-        except:
+        except Exception:
             pass
 
 
@@ -265,7 +265,7 @@ def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
                     if log is not None:
                         log('Trying to get latest version of recipe:', urn)
                     return download_builtin_recipe(urn)
-                except:
+                except Exception:
                     if log is None:
                         import traceback
                         traceback.print_exc()
@@ -284,7 +284,7 @@ def get_builtin_recipe_by_id(id_, log=None, download_recipe=False):
                     if log is not None:
                         log('Trying to get latest version of recipe:', urn)
                     return download_builtin_recipe(urn)
-                except:
+                except Exception:
                     if log is None:
                         import traceback
                         traceback.print_exc()
@@ -314,7 +314,7 @@ class SchedulerConfig:
             with ExclusiveFile(self.conf_path) as f:
                 try:
                     self.root = safe_xml_fromstring(f.read(), recover=False)
-                except:
+                except Exception:
                     print('Failed to read recipe scheduler config')
                     import traceback
                     traceback.print_exc()
@@ -458,7 +458,7 @@ class SchedulerConfig:
     def recipe_needs_to_be_downloaded(self, recipe):
         try:
             typ, sch, ld = self.un_serialize_schedule(recipe)
-        except:
+        except Exception:
             return False
 
         def is_time(now, hour, minute):
@@ -565,7 +565,7 @@ class SchedulerConfig:
         for r in c.get('scheduled_recipes', []):
             try:
                 self.add_old_recipe(r)
-            except:
+            except Exception:
                 continue
         for k in c.keys():
             if k.startswith('recipe_account_info'):
@@ -577,17 +577,17 @@ class SchedulerConfig:
                         urn = f'custom:{int(urn)}'
                     try:
                         username, password = c[k]
-                    except:
+                    except Exception:
                         username = password = ''
                     self.set_account_info(urn, str(username),
                             str(password))
-                except:
+                except Exception:
                     continue
         del c
         self.write_scheduler_file()
         try:
             os.remove(old_conf_path)
-        except:
+        except Exception:
             pass
 
     def add_old_recipe(self, r):
@@ -597,7 +597,7 @@ class SchedulerConfig:
         elif not r['builtin']:
             try:
                 urn = 'custom:{}'.format(int(r['id']))
-            except:
+            except Exception:
                 return
         schedule = r['schedule']
         typ = 'interval'

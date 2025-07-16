@@ -92,7 +92,7 @@ class ThreadedJob(BaseJob):
         self.duration = time.time() - self.start_time
         try:
             self.callback(self)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         self._cleanup()
@@ -101,7 +101,7 @@ class ThreadedJob(BaseJob):
 
         try:
             self.consolidate_log()
-        except:
+        except Exception:
             if self.log is not None:
                 self.log.exception('Log consolidation failed')
 
@@ -165,7 +165,7 @@ class ThreadedJobWorker(Thread):
     def run(self):
         try:
             self.job.start_work()
-        except:
+        except Exception:
             import traceback
 
             from calibre import prints
@@ -199,7 +199,7 @@ class ThreadedJobServer(Thread):
         while self.keep_going:
             try:
                 self.run_once()
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
             time.sleep(0.1)

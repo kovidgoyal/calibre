@@ -69,7 +69,7 @@ def label_string(txt):
         try:
             if txt[0].isalnum():
                 return '&' + txt
-        except:
+        except Exception:
             pass
     return txt
 
@@ -95,10 +95,10 @@ class Base:
         try:
             self.widgets[0].setToolTip(description)
             self.widgets[1].setToolTip(description)
-        except:
+        except Exception:
             try:
                 self.widgets[1].setToolTip(description)
-            except:
+            except Exception:
                 pass
 
     @property

@@ -285,13 +285,13 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             save_cover_data_to(cdata, cpath)
             cover_url = cpath
 
-        except:
+        except Exception:
             self.log.warning('Trying low-res cover')
             try:
                 inhalt = self.index_to_soup('http://www.zeit.de/inhalt')
                 cover_url = inhalt.find('div', attrs={'class': 'singlearchive clearfix'}).img[
                     'src'].replace('icon_', '')
-            except:
+            except Exception:
                 self.log.warning('Using static old low-res cover')
                 cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
         return cover_url

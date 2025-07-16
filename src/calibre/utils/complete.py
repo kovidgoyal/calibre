@@ -107,7 +107,7 @@ class EbookConvert:
                     try:
                         parser, _ = create_option_parser(self.words[:3], log)
                         ans += list(get_opts_from_parser(parser, self.prefix))
-                    except:
+                    except Exception:
                         pass
             if self.previous.startswith('-'):
                 ans += list(files_and_dirs(self.prefix, None))

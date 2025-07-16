@@ -87,17 +87,17 @@ def sony_metadata(oeb):
     try:
         pt = str(oeb.metadata.publication_type[0])
         short_title = ':'.join(pt.split(':')[2:])
-    except:
+    except Exception:
         pass
 
     try:
         date = parse_date(str(m.date[0]),
                 as_utc=False).strftime('%Y-%m-%d')
-    except:
+    except Exception:
         date = strftime('%Y-%m-%d')
     try:
         language = str(m.language[0]).replace('_', '-')
-    except:
+    except Exception:
         language = 'en'
     short_title = xml(short_title, True)
 
@@ -115,7 +115,7 @@ def sony_metadata(oeb):
 
     try:
         base_id = str(list(filter(cal_id, m.identifier))[0])
-    except:
+    except Exception:
         base_id = str(uuid4())
 
     toc = oeb.toc

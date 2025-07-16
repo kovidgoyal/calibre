@@ -298,7 +298,7 @@ class HTMLConverter:
                     self.add_file(path)
                 except KeyboardInterrupt:
                     raise
-                except:
+                except Exception:
                     if self.link_level == 0:  # Die on errors in the first level
                         raise
                     for link in self.links:
@@ -370,7 +370,7 @@ class HTMLConverter:
                 with open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb') as f:
                     f.write(str(soup).encode('utf-8'))
                     self.log.info(_('Written preprocessed HTML to ')+f.name)
-            except:
+            except Exception:
                 pass
 
         return soup
@@ -1521,7 +1521,7 @@ class HTMLConverter:
                         try:
                             width = int(tag['width'])
                             height = int(tag['height'])
-                        except:
+                        except Exception:
                             pass
                         dropcaps = tag.get('class') in ('libprs500_dropcaps', ['libprs500_dropcaps'])
                         self.process_image(path, tag_css, width, height,
@@ -1579,7 +1579,7 @@ class HTMLConverter:
                     self.list_counter = 1
                     try:
                         self.list_counter = int(tag['start'])
-                    except:
+                    except Exception:
                         pass
                 prev_bs = self.current_block.blockStyle
                 self.end_current_block()
@@ -1949,7 +1949,7 @@ def try_opf(path, options, logger):
                     try:
                         PILImage.open(cover)
                         options.cover = cover
-                    except:
+                    except Exception:
                         pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover

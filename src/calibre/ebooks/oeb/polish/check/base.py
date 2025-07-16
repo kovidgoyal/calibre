@@ -36,7 +36,7 @@ def worker(func, args):
     try:
         result = func(*args)
         tb = None
-    except:
+    except Exception:
         result = None
         import traceback
         tb = traceback.format_exc()

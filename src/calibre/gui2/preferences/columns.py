@@ -413,7 +413,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.setup_row(row, new_key, self.column_order_val(row))
             self.opt_columns.scrollTo(self.opt_columns.currentIndex())
             self.changed_signal.emit()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 

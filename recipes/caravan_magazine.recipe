@@ -118,7 +118,7 @@ class CaravanMagazine(BasicNewsRecipe):
             res = json.loads(res)
             self.log(safe_dict(res[0], 'result', 'data', 'json', 'message'))
             self.logged = True
-        except:
+        except Exception:
             self.log.warn('\n**Login failed, check your username and password\n')
             return br
         return br

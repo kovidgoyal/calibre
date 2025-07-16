@@ -671,7 +671,7 @@ class BasicNewsRecipe(Recipe):
         if self.auto_cleanup:
             try:
                 raw_html = self.extract_readable_article(raw_html, url)
-            except:
+            except Exception:
                 self.log.exception(f'Auto cleanup of URL: {url!r} failed')
 
         return raw_html
@@ -793,7 +793,7 @@ class BasicNewsRecipe(Recipe):
 
         try:
             frag = fragment_fromstring(article_html)
-        except:
+        except Exception:
             doc = document_fromstring(article_html)
             frag = doc.xpath('//body')[-1]
         if frag.tag == 'html':
@@ -1104,7 +1104,7 @@ class BasicNewsRecipe(Recipe):
             url, f, a, feed_len = job_info
             try:
                 article = self.feed_objects[f].articles[a]
-            except:
+            except Exception:
                 self.log.exception('Failed to get article object for postprocessing')
             else:
                 self.populate_article_metadata(article, ans, first_fetch)
@@ -1145,7 +1145,7 @@ class BasicNewsRecipe(Recipe):
             lang = self.language.replace('_', '-').partition('-')[0].lower()
             if lang == 'und':
                 lang = None
-        except:
+        except Exception:
             lang = None
         return lang
 
@@ -1203,7 +1203,7 @@ class BasicNewsRecipe(Recipe):
                             self.image_counter += 1
                             feed.image_url = img
                             self.image_map[feed.image_url] = img
-                        except:
+                        except Exception:
                             pass
             if isinstance(feed.image_url, bytes):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
@@ -1350,7 +1350,7 @@ class BasicNewsRecipe(Recipe):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
-                except:
+                except Exception:
                     self.log.exception('Failed to find print version for: '+article.url)
                     url = None
                 if not url:
@@ -1440,7 +1440,7 @@ class BasicNewsRecipe(Recipe):
         self.cover_path = None
         try:
             self._download_cover()
-        except:
+        except Exception:
             self.log.exception('Failed to download cover')
             self.cover_path = None
 
@@ -1472,14 +1472,14 @@ class BasicNewsRecipe(Recipe):
     def download_masthead(self, url):
         try:
             self._download_masthead(url)
-        except:
+        except Exception:
             self.log.exception('Failed to download supplied masthead_url')
 
     def resolve_masthead(self):
         self.masthead_path = None
         try:
             murl = self.get_masthead_url()
-        except:
+        except Exception:
             self.log.exception('Failed to get masthead url')
             murl = None
 
@@ -1492,7 +1492,7 @@ class BasicNewsRecipe(Recipe):
             self.masthead_path = os.path.join(self.output_dir, 'mastheadImage.jpg')
             try:
                 self.default_masthead_image(self.masthead_path)
-            except:
+            except Exception:
                 self.log.exception('Failed to generate default masthead image')
                 self.masthead_path = None
 
@@ -1508,7 +1508,7 @@ class BasicNewsRecipe(Recipe):
             img_data = create_cover(title, [date])
             cover_file.write(img_data)
             cover_file.flush()
-        except:
+        except Exception:
             self.log.exception('Failed to generate default cover')
             return False
         return True
@@ -1984,6 +1984,6 @@ class CalibrePeriodical(BasicNewsRecipe):
             recipe = compile_recipe(open(glob('*.recipe')[0],
                 'rb').read())
             self.conversion_options = recipe.conversion_options
-        except:
+        except Exception:
             self.log.exception('Failed to compile downloaded recipe')
         return os.path.abspath('index.html')

@@ -313,7 +313,7 @@ class ANDROID(USBMS):
     def windows_sort_drives(self, drives):
         try:
             vid, pid, bcd = self.device_being_opened[:3]
-        except:
+        except Exception:
             vid, pid, bcd = -1, -1, -1
         if (vid, pid, bcd) == (0x0e79, 0x1408, 0x0222):
             letter_a = drives.get('carda', None)

@@ -58,7 +58,7 @@ class CompletionWorker(Thread):
         conn = conn or self.control_conn
         try:
             eintr_retry_call(conn.send, data)
-        except:
+        except Exception:
             if not self.shutting_down:
                 raise
 
@@ -66,7 +66,7 @@ class CompletionWorker(Thread):
         conn = conn or self.control_conn
         try:
             return eintr_retry_call(conn.recv)
-        except:
+        except Exception:
             if not self.shutting_down:
                 raise
 

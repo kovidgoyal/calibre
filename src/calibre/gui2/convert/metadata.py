@@ -103,7 +103,7 @@ class MetadataWidget(Widget, Ui_Form):
         if mi.series_index is not None:
             try:
                 self.series_index.setValue(mi.series_index)
-            except:
+            except Exception:
                 self.series_index.setValue(1.0)
 
         cover = self.db.cover(self.book_id, index_is_id=True)

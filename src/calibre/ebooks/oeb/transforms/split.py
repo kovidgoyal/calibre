@@ -97,14 +97,14 @@ class Split:
                         self.page_break_selectors.add((rule.selectorText, True))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-before')
-                except:
+                except Exception:
                     pass
                 try:
                     if after and after not in {'avoid', 'auto', 'inherit'}:
                         self.page_break_selectors.add((rule.selectorText, False))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-after')
-                except:
+                except Exception:
                     pass
         page_breaks = set()
         select = Select(item.data)
@@ -138,10 +138,10 @@ class Split:
             id = x.get('id')
             try:
                 xp = XPath(f'//*[@id="{id}"]')
-            except:
+            except Exception:
                 try:
                     xp = XPath(f"//*[@id='{id}']")
-                except:
+                except Exception:
                     # The id has both a quote and an apostrophe or some other
                     # Just replace it since I doubt its going to work anywhere else
                     # either
@@ -410,7 +410,7 @@ class FlowSplitter:
             if elem is not None:
                 try:
                     XPath(elem.getroottree().getpath(elem))
-                except:
+                except Exception:
                     continue
                 return elem, True
 

@@ -60,7 +60,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 compile_regular_expression(regex)
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(0,255,0,20%); }')
                 return True
-            except:
+            except Exception:
                 self.regex.setStyleSheet('QLineEdit { color: black; background-color: rgba(255,0,0,20%); }')
         else:
             self.regex.setStyleSheet('QLineEdit { color: black; background-color: white; }')
@@ -173,7 +173,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         finally:
             try:
                 os.remove(fpath)
-            except:
+            except Exception:
                 # Fails on windows if the input plugin for this format keeps the file open
                 # Happens for LIT files
                 pass
@@ -189,7 +189,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             except WorkerError as e:
                 return error_dialog(self, _('Failed to generate preview'),
                         err_msg, det_msg=str(e) + '\n\n' + e.orig_tb, show=True)
-            except:
+            except Exception:
                 import traceback
                 return error_dialog(self, _('Failed to generate preview'),
                         err_msg, det_msg=traceback.format_exc(), show=True)

@@ -52,7 +52,7 @@ def get_connected_device():
     for det, d in connected_devices:
         try:
             d.open(det, None)
-        except:
+        except Exception:
             continue
         else:
             dev = d
@@ -89,7 +89,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
         for d in devplugins:
             try:
                 d.startup()
-            except:
+            except Exception:
                 out(f'Startup failed for device plugin: {d}')
 
     if disabled_plugins is None:
@@ -165,7 +165,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     dev.reset(detected_device=det)
                     dev.open(det, None)
                     out('OK')
-                except:
+                except Exception:
                     import traceback
                     errors[dev] = traceback.format_exc()
                     out('failed')
@@ -203,7 +203,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             for d in devplugins:
                 try:
                     d.shutdown()
-                except:
+                except Exception:
                     pass
 
 

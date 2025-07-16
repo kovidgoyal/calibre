@@ -107,7 +107,7 @@ class LoadParser(handler.ContentHandler):
         tn = getattr(self.curr, 'tagName', '')
         try:
             do_strip = not tn.startswith('text:')
-        except:
+        except Exception:
             do_strip = True
         if do_strip:
             q = q.strip()

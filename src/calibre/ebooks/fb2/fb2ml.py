@@ -433,7 +433,7 @@ class FB2MLizer:
             ems = round((float(style.marginTop) / style.fontSize) - 1)
             if ems < 0:
                 ems = 0
-        except:
+        except Exception:
             ems = 0
 
         # Convert TOC entries to <title>s and add <section>s

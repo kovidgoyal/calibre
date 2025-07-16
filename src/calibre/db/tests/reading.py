@@ -628,7 +628,7 @@ class ReadingTest(BaseTest):
                 def f(x):
                     try:
                         x.pop('rec_index', None)
-                    except:
+                    except Exception:
                         pass
                     return x
                 if field not in {'#series_index'}:

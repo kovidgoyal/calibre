@@ -79,7 +79,7 @@ class FetchNewsAction(InterfaceAction):
         # delete all but newest x issues.
         try:
             keep_issues = int(arg['keep_issues'])
-        except:
+        except Exception:
             keep_issues = 0
         if keep_issues > 0:
             ids_with_tag = list(sorted(self.gui.library_view.model().

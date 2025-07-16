@@ -73,7 +73,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
                 try:
                     dtitle = str(mi.title)
-                except:
+                except Exception:
                     dtitle = repr(mi.title)
                 desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
                         {'num':i + 1, 'total':total, 'title':dtitle}
@@ -234,7 +234,7 @@ class QueueBulk(QProgressDialog):
                     lrecs.remove(x)
             try:
                 dtitle = str(mi.title)
-            except:
+            except Exception:
                 dtitle = repr(mi.title)
             if len(dtitle) > 50:
                 dtitle = dtitle[:50].rpartition(' ')[0]+'...'
@@ -368,7 +368,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
             connected_device['serial'] = device.detected_device.serial if \
                                           hasattr(device.detected_device,'serial') else None
             connected_device['save_template'] = device.save_template()
-        except:
+        except Exception:
             pass
 
     # Create a temporary copy of the databases to pass into the generation
