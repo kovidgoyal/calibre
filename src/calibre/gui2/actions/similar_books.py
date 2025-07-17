@@ -85,6 +85,11 @@ class SimilarBooksAction(InterfaceAction):
 
         if isinstance(val, string_or_bytes):
             val = [val]
+        if typ == 'authors':
+            import re
+            def remove_et_al(au):
+                return re.sub(r'\s+et al\.$', '', au)
+            val = list(map(remove_et_al, val))
         search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
         if search:
             self.gui.search.set_search_string(join.join(search),
