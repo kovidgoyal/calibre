@@ -86,13 +86,6 @@ class MTP_DEVICE(BASE):
             p.defaults['history'] = {}
             p.defaults['rules'] = []
             p.defaults['ignored_folders'] = {}
-            p.defaults['apnx'] = {
-                'send': False,
-                'method': 'fast',
-                'custom_column_page_count': None,
-                'custom_column_method': None,
-            }
-
         return self._prefs
 
     @property
@@ -551,10 +544,13 @@ class MTP_DEVICE(BASE):
                 try:
                     self.upload_cover(parent, relpath, storage, mi, stream)
                     # Upload the apnx file
-                    if self.is_kindle and self.get_pref('apnx').get('send', False):
-                        name = path[-1].rpartition('.')[0]
-                        debug('Uploading APNX file for', name)
-                        self.upload_apnx(parent, name, storage, mi, infile)
+                    if self.is_kindle:
+                        from calibre.devices.kindle.driver import get_apnx_opts
+                        apnx_opts = get_apnx_opts()
+                        if apnx_opts.send_apnx:
+                            name = path[-1].rpartition('.')[0]
+                            debug('Uploading APNX file for', name)
+                            self.upload_apnx(parent, name, storage, mi, infile, apnx_opts)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -643,7 +639,7 @@ class MTP_DEVICE(BASE):
         debug(f'Restored {count} cover thumbnails that were destroyed by Amazon')
     # }}}
 
-    def upload_apnx(self, parent, name, storage, mi, filepath):
+    def upload_apnx(self, parent, name, storage, mi, filepath, apnx_opts):
         debug('upload_apnx() called')
         from calibre.devices.kindle.apnx import APNXBuilder
         from calibre.ptempfile import PersistentTemporaryFile
@@ -653,18 +649,17 @@ class MTP_DEVICE(BASE):
         apnx_local_file.close()
 
         try:
-            pref = self.get_pref('apnx')
             custom_page_count = 0
-            cust_col_name = pref.get('custom_column_page_count')
+            cust_col_name = apnx_opts.custom_col_name
             if cust_col_name:
                 try:
                     custom_page_count = int(mi.get(cust_col_name, 0))
                 except Exception:
                     pass
 
-            method = pref.get('method', 'fast')
+            method = apnx_opts.apnx_method
 
-            cust_col_method = pref.get('custom_column_method')
+            cust_col_method = apnx_opts.method_col_name
             if cust_col_method:
                 try:
                     method = str(mi.get(cust_col_method)).lower()

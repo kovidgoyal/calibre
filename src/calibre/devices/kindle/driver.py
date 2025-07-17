@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+from typing import NamedTuple
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG, filesystem_encoding
@@ -364,6 +365,18 @@ class KINDLE(USBMS):
                 mi.tags = ['Clippings']
                 mi.comments = last_update
                 db.add_books([bm.value['path']], ['txt'], [mi])
+
+
+class APNXOpts(NamedTuple):
+    send_apnx: bool = True
+    apnx_method: str = 'fast'
+    custom_col_name: str = ''
+    method_col_name: str = ''
+    overwrite: bool = True
+
+
+def get_apnx_opts() -> APNXOpts:
+    return APNXOpts(*KINDLE2.settings().extra_customization)
 
 
 class KINDLE2(KINDLE):

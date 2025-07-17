@@ -354,7 +354,10 @@ class FormatRules(QGroupBox):
 
 
 class APNX(QWidget):  # {{{
-    def __init__(self, apnx):
+    def __init__(self):
+        from calibre.devices.kindle.apnx import APNXBuilder
+        from calibre.devices.kindle.driver import KINDLE2, get_apnx_opts
+        apnx_opts = get_apnx_opts()
         QWidget.__init__(self)
         self.layout = l = QVBoxLayout()
         self.setLayout(l)
@@ -362,17 +365,19 @@ class APNX(QWidget):  # {{{
         self.layout.setAlignment(Qt.AlignTop)
 
         self.send = f1 = QCheckBox(_('Send page number information when sending books'))
-        f1.setChecked(bool(apnx.get('send')))
+        f1.setChecked(bool(apnx_opts.send_apnx))
         l.addWidget(f1)
+        f1.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX])
 
         label2 = QLabel('<p>' + _('Page count calculation method') + '</p>')
         label2.setWordWrap(True)
         l.addWidget(label2)
         self.method = f2 = QComboBox(self)
-        f2.addItem(_('fast'), 'fast')
-        f2.addItem(_('accurate'), 'accurate')
-        f2.addItem(_('page break'), 'pagebreak')
-        if (idx := f2.findData(apnx.get('method') or 'fast')) > -1:
+        label2.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_METHOD])
+        f2.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_METHOD])
+        for key in sorted(APNXBuilder.generators.keys()):
+            f2.addItem(key, key)
+        if (idx := f2.findData(apnx_opts.apnx_method)) > -1:
             f2.setCurrentIndex(idx)
         l.addWidget(f2)
 
@@ -380,25 +385,30 @@ class APNX(QWidget):  # {{{
         label3.setWordWrap(True)
         l.addWidget(label3)
         self.column_page_count = f3 = QLineEdit(self)
-        f3.setText(apnx.get('custom_column_page_count') or '')
+        f3.setText(apnx_opts.custom_col_name)
+        label3.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_CUST_COL])
+        f3.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_CUST_COL])
         l.addWidget(f3)
 
         label4 = QLabel('<p>' + _('Custom column name to retrieve calculation method from') + '</p>')
         label4.setWordWrap(True)
         l.addWidget(label4)
         self.column_method = f4 = QLineEdit(self)
-        f4.setText(apnx.get('custom_column_method') or '')
+        f4.setText(apnx_opts.method_col_name)
+        label4.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_METHOD_COL])
+        f4.setToolTip(KINDLE2.EXTRA_CUSTOMIZATION_MESSAGE[KINDLE2.OPT_APNX_METHOD_COL])
         l.addWidget(f4)
+        l.addWidget(QLabel(_('Note that these settings apply to all Kindle devices not just this particular one')))
 
-    @property
-    def apnx(self):
-        result = {
-            'send': bool(self.send.isChecked()),
-            'method': str(self.method.currentData()).strip(),
-            'custom_column_page_count': str(self.column_page_count.text()).strip(),
-            'custom_column_method': str(self.column_method.text()).strip(),
-        }
-        return result
+    def commit(self):
+        from calibre.devices.kindle.driver import KINDLE2
+        vals = list(KINDLE2.EXTRA_CUSTOMIZATION_DEFAULT)
+        vals[KINDLE2.OPT_APNX] = bool(self.send.isChecked())
+        vals[KINDLE2.OPT_APNX_METHOD] = str(self.method.currentData()).strip()
+        vals[KINDLE2.OPT_APNX_CUST_COL] = str(self.column_page_count.text()).strip()
+        vals[KINDLE2.OPT_APNX_METHOD_COL] = str(self.column_method.text()).strip()
+        p = KINDLE2._configProxy()
+        p['extra_customization'] = vals
 # }}}
 
 
@@ -472,7 +482,7 @@ class MTPConfig(QTabWidget):
             l.setRowStretch(7, 100)
 
             if device.is_kindle:
-                self.apnx_tab = APNX(self.get_pref('apnx') or {})
+                self.apnx_tab = APNX()
                 self.addTab(self.apnx_tab, _('Page numbering (APNX)'))
 
         self.igntab = IgnoredDevices(self.device.prefs['history'],
@@ -563,9 +573,8 @@ class MTPConfig(QTabWidget):
             if self.current_ignored_folders != self.initial_ignored_folders:
                 p['ignored_folders'] = self.current_ignored_folders
 
-            p.pop('apnx', None)
             if hasattr(self, 'apnx_tab'):
-                p['apnx'] = self.apnx_tab.apnx
+                self.apnx_tab.commit()
 
             if self.current_device_key is not None:
                 self.device.prefs[self.current_device_key] = p
