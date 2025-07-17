@@ -217,6 +217,26 @@ class KOBO(USBMS):
             debug_print(f"Kobo::get_device_model_id - didn't get model id from file' - Exception: {e}")
         return ''
 
+    def post_open_callback(self):
+        from calibre.devices.kobo.db import Database
+        self.device_version_info(reload=True)
+        # delete empty directories in root they get left behind when deleting
+        # books on device.
+        for prefix in (self._main_prefix, self._card_a_prefix, self._card_b_prefix):
+            if prefix:
+                with suppress(OSError):
+                    for de in os.scandir(prefix):
+                        if not de.name.startswith('.') and de.is_dir():
+                            with suppress(OSError):
+                                os.rmdir(de.path)
+        self.device_database_path = os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'KoboReader.sqlite')
+        self.db_manager = Database(self.device_database_path)
+        self.dbversion = self.db_manager.dbversion or self.dbversion
+
+    def database_transaction(self, use_row_factory=False):
+        self.db_manager.use_row_factory = use_row_factory
+        return self.db_manager
+
     def sanitize_path_components(self, components):
         invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
         return [invalid_filename_chars_re.sub('_', x) for x in components]
@@ -1600,28 +1620,8 @@ class KOBOTOUCH(KOBO):
         self.set_device_name()
         return super().get_device_information(end_session)
 
-    def post_open_callback(self):
-        from calibre.devices.kobo.db import Database
-        self.device_version_info(reload=True)
-        # delete empty directories in root they get left behind when deleting
-        # books on device.
-        for prefix in (self._main_prefix, self._card_a_prefix, self._card_b_prefix):
-            if prefix:
-                with suppress(OSError):
-                    for de in os.scandir(prefix):
-                        if not de.name.startswith('.') and de.is_dir():
-                            with suppress(OSError):
-                                os.rmdir(de.path)
-        self.device_database_path = os.path.join(self._main_prefix, KOBO_ROOT_DIR_NAME, 'KoboReader.sqlite')
-        self.db_manager = Database(self.device_database_path)
-        self.dbversion = self.db_manager.dbversion
-
     def on_device_close(self):
         self.__class__.gui_name = GENERIC_GUI_NAME
-
-    def database_transaction(self, use_row_factory=False):
-        self.db_manager.use_row_factory = use_row_factory
-        return self.db_manager
 
     def open_linux(self):
         super().open_linux()
