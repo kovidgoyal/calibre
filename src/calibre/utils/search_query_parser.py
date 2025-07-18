@@ -154,7 +154,7 @@ class Parser:
     REPLACEMENTS = tuple(('\\' + x, codepoint_to_chr(i + 1)) for i, x in enumerate('\\"()'))
 
     # the sep must be a printable character sequence that won't actually appear naturally
-    docstring_sep = '□ༀ؆'  # Unicode white square, Tibetian Om, Arabic-Indic Cube Root
+    docstring_sep = '□ༀ؆'  # Unicode white square, Tibetan Om, Arabic-Indic Cube Root
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
