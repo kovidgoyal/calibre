@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 from urllib.parse import quote, urlencode
 from uuid import uuid4
 
+from html5_parser import parse
+from lxml import etree
+
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -45,13 +48,13 @@ def parse_txt(ty):
     tag_map = {
         'text': lambda: [ty.get('value', '')],
         'scaps': lambda: [
-            f'<span style="font-variant: all-small-caps;">{"".join(parse_txt(c))}</span>'
+            f'<span style="text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;">{"".join(parse_txt(c))}</span>'
             for c in children
         ],
         'bold': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'drop_caps': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
-        'linebreak': lambda: ['<hr>'],
+        'linebreak': lambda: ['<br>'],
         'external_link': lambda: [
             f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'
         ]
@@ -63,6 +66,8 @@ def parse_txt(ty):
         if children
         else [],
         'ufinish': lambda: [text for c in children for text in parse_txt(c)],
+        'subscript': lambda: [f'<sub>{"".join(parse_txt(c))}</sub>' for c in children],
+        'superscript': lambda: [f'<sup>{"".join(parse_txt(c))}</sup>' for c in children],
     }
 
     if typ in tag_map:
@@ -239,7 +244,7 @@ class EconomistNews(BasicNewsRecipe):
 
     def economist_test_article(self):
         return [('Articles', [{'title': 'test',
-            'url': 'https://www.economist.com/1843/2025/05/16/the-rise-fall-and-contested-future-of-hizbullah'
+            'url': 'https://www.economist.com/letters/2025/07/17/the-politicisation-of-the-federal-reserve'
         }])]
 
     def economist_return_index(self, ans):
@@ -313,7 +318,27 @@ class EconomistNews(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw, url):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
-        return load_article_from_web_json(raw)
+        html = load_article_from_web_json(raw)
+        root = parse(html)
+        for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
+            x.getparent().remove(x)
+        # the economist uses <small> for small caps with a custom font
+        for init in root.xpath('//span[@data-caps="initial"]'):
+            init.set('style', 'font-weight:bold;')
+        for x in root.xpath('//small'):
+            if x.text and len(x) == 0:
+                x.text = x.text.upper()
+                x.tag = 'span'
+                x.set('style', 'text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;')
+        for h2 in root.xpath('//h2'):
+            h2.tag = 'h4'
+        for x in root.xpath('//figcaption'):
+            x.set('style', 'text-align:center; font-size:small;')
+        for x in root.xpath('//cite'):
+            x.tag = 'blockquote'
+            x.set('style', 'color:#404040;')
+        raw = etree.tostring(root, encoding='unicode')
+        return raw
 
     def get_article(self, url):
         query = {
