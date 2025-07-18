@@ -43,7 +43,7 @@
 
 - [2116065] Fix series and publisher mapping rules not handling commas correctly when downloading metadata one book at a time
 
-- Edit metadata dialog: When there are only a few cusotm comments like fields stretch them vertically to take up unused psace
+- Edit metadata dialog: When there are only a few cusotm comments like fields stretch them vertically to take up unused space
 
 :: improved recipes
 - New York Magazine
