@@ -91,7 +91,7 @@ class SaveTemplate(QWidget, Ui_Form):
             return True
         try:
             t = validation_formatter.validate(tmpl)
-            if not t:
+            if not t or t == tmpl:
                 return question_dialog(self, _('Constant template'),
                     _('The template contains no {fields}, so all '
                       'books will have the same name. Is this OK?'))
