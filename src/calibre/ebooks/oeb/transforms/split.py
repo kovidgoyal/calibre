@@ -14,6 +14,7 @@ import functools
 import os
 import re
 from collections import OrderedDict
+from contextlib import suppress
 
 from css_selectors import Select, SelectorError
 from lxml import etree
@@ -64,8 +65,17 @@ class Split:
         self.log('Splitting markup on page breaks and flow limits, if any...')
         self.opts = opts
         self.map = {}
+        nav_href = getattr(opts, 'epub3_nav_href', '')
+        output_supports_nav = False
+        with suppress(Exception):
+            output_supports_nav = int(opts.epub_version) >= 3
+        def is_nav(item):
+            ans = item.href == nav_href and output_supports_nav
+            if ans:
+                self.log(f'Not splitting {nav_href} as it is the EPUB3 nav document')
+            return ans
         for item in list(self.oeb.manifest.items):
-            if item.spine_position is not None and etree.iselement(item.data):
+            if item.spine_position is not None and etree.iselement(item.data) and not is_nav(item):
                 self.split_item(item)
 
         self.fix_links()
