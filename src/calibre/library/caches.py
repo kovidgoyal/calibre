@@ -293,6 +293,8 @@ class ResultCache(SearchQueryParser):  # {{{
         will almost never be correct.
         '''
         def relop_eq(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             if db.year == query.year:
                 if field_count == 1:
                     return True
@@ -303,6 +305,8 @@ class ResultCache(SearchQueryParser):  # {{{
             return False
 
         def relop_gt(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             if db.year > query.year:
                 return True
             if field_count > 1 and db.year == query.year:
@@ -312,6 +316,8 @@ class ResultCache(SearchQueryParser):  # {{{
             return False
 
         def relop_lt(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             if db.year < query.year:
                 return True
             if field_count > 1 and db.year == query.year:
@@ -321,12 +327,18 @@ class ResultCache(SearchQueryParser):  # {{{
             return False
 
         def relop_ne(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             return not relop_eq(db, query, field_count)
 
         def relop_ge(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             return not relop_lt(db, query, field_count)
 
         def relop_le(db, query, field_count):
+            if db.tzinfo != query.tzinfo:
+                db = db.astimezone(tz=query.tzinfo)
             return not relop_gt(db, query, field_count)
 
         self.date_search_relops = {
@@ -417,7 +429,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 continue
             v = item[loc]
             if isinstance(v, (bytes, str)):
-                v = parse_date(v)
+                v = parse_date(v, as_utc=False)
             if relop(v, qd, field_count):
                 matches.add(item[0])
         return matches
