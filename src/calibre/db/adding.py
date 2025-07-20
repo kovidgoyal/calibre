@@ -10,7 +10,6 @@ import time
 from collections import defaultdict
 from contextlib import contextmanager, suppress
 from functools import partial
-from operator import attrgetter
 
 from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
@@ -123,7 +122,7 @@ def list_only_files_in_dir(root, sort_by_mtime=False):
                 return x.stat(follow_symlinks=True).st_mtime_ns
             return 0
         items = sorted(items, key=safe_mtime)
-    yield from map(attrgetter('name'), items)
+    yield from (make_long_path_useable(os.path.join(root, x.name)) for x in items)
 
 
 def allow_path(path, ext, compiled_rules):
