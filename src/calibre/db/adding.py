@@ -8,8 +8,9 @@ import os
 import re
 import time
 from collections import defaultdict
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from functools import partial
+from operator import attrgetter
 
 from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
@@ -109,6 +110,22 @@ def listdir(root, sort_by_mtime=False):
             yield path
 
 
+def list_only_files_in_dir(root, sort_by_mtime=False):
+    def files_iter():
+        for x in os.scandir(root):
+            with suppress(OSError):
+                if x.is_file(follow_symlinks=True):
+                    yield x
+    items = files_iter()
+    if sort_by_mtime:
+        def safe_mtime(x: os.DirEntry):
+            with suppress(OSError):
+                return x.stat(follow_symlinks=True).st_mtime_ns
+            return 0
+        items = sorted(items, key=safe_mtime)
+    yield from map(attrgetter('name'), items)
+
+
 def allow_path(path, ext, compiled_rules):
     ans = filter_filename(compiled_rules, os.path.basename(path))
     if ans is None:
@@ -138,7 +155,7 @@ def run_import_plugins(formats):
     return ans
 
 
-def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=listdir):
+def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=list_only_files_in_dir):
     dirpath = make_long_path_useable(os.path.abspath(dirpath))
     if single_book_per_directory:
         formats = {}
@@ -231,7 +248,7 @@ def recursive_import(db, root, single_book_per_directory=True,
 
 def cdb_find_in_dir(dirpath, single_book_per_directory, compiled_rules):
     return find_books_in_directory(dirpath, single_book_per_directory=single_book_per_directory,
-            compiled_rules=compiled_rules, listdir_impl=partial(listdir, sort_by_mtime=True))
+            compiled_rules=compiled_rules, listdir_impl=partial(list_only_files_in_dir, sort_by_mtime=True))
 
 
 def cdb_recursive_find(root, single_book_per_directory=True, compiled_rules=()):
