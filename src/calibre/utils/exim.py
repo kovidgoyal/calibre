@@ -366,7 +366,9 @@ class Importer:
         self.tail_size = tail_size = struct.calcsize(Exporter.TAIL_FMT)
         self.version = -1
         for name in os.listdir(path_to_export_dir):
-            if name.lower().endswith(Exporter.EXT):
+            # Exclude the "appledouble" files created by macOS.
+            # See https://bugs.launchpad.net/calibre/+bug/2117345
+            if name.lower().endswith(Exporter.EXT) and not name.startswith('._'):
                 path = os.path.join(path_to_export_dir, name)
                 with open(path, 'rb') as f:
                     f.seek(0, os.SEEK_END)
