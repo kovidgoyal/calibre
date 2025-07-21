@@ -100,7 +100,8 @@ generates \:ref\:\`get_note() <ff_get_note>\`
 [*][B]Example program code text blocks.[/B] Surround the code block with ``[CODE]``
 and ``[/CODE]`` tags. These tags must be first on a line. Example:
 [CODE]
-[CODE]program:
+[CODE]
+program:
     get_note('authors', 'Isaac Asimov', 1)
 [\/CODE]
 [/CODE]
