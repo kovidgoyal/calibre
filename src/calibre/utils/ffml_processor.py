@@ -393,7 +393,7 @@ class FFMLProcessor:
                 t = t + ' '
             result += f'``{t}``'
         elif tree.node_kind() == NodeKinds.CODE_BLOCK:
-            result += "\n[CODE]\n" + tree.text().replace('[/CODE]', '[\/CODE]') + "[/CODE]\n"
+            result += "\n[CODE]\n" + tree.text().replace('[/CODE]', r'[\/CODE]') + "[/CODE]\n"
         elif tree.node_kind() == NodeKinds.END_SUMMARY:
             result += '[/]'
         elif tree.node_kind() == NodeKinds.ERROR_TEXT:
