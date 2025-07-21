@@ -65,7 +65,7 @@
              </size>
             </property>
             <property name="toolTip">
-             <string>Search for an item in the first column using the text in this box.  The search ignores case.</string>
+             <string>Search for an item in the first column using the text in this box. The search ignores case.</string>
             </property>
             <property name="clearButtonEnabled">
              <bool>true</bool>
