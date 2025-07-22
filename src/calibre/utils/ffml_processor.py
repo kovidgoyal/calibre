@@ -361,6 +361,86 @@ class FFMLProcessor:
         result = f'<a href="ffdoc:{fname}">{fname}</a>{result[paren:]}'
         return result
 
+    def tree_to_transifex(self, tree, depth=0):
+        '''
+        Given a Formatter Function Markup Language (FFML) parse tree, return a
+        string containing an encoding suitable for transifex. Simplified
+        explanation: non-significant newlines are removed, collapsing a series
+        of lines into a single line. There are no semantic changes. Assuming
+        correct FFML input, transifex'ed output re-run through the FFML
+        processor produces html and rst documents identical to the original
+        FFML input.
+
+        :param tree:   the parsed FFML.
+        :param depth:  the recursion level. This is used for debugging.
+
+        :return:       a string containing the HTML text
+        '''
+        result = ''
+        if tree.node_kind() == NodeKinds.TEXT:
+            t = tree.text()
+            t = t.replace('\n', ' ')
+            result += t
+        if tree.node_kind() == NodeKinds.BOLD_TEXT:
+            result += f'[B]{tree.text()}[/B]'
+        elif tree.node_kind() == NodeKinds.BLANK_LINE:
+            result += '\n\n'
+        elif tree.node_kind() == NodeKinds.CHARACTER:
+            result += '\\' + tree.text()
+        elif tree.node_kind() == NodeKinds.CODE_TEXT:
+            t = tree.text()
+            if t.endswith('`'):
+                t = t + ' '
+            result += f'``{t}``'
+        elif tree.node_kind() == NodeKinds.CODE_BLOCK:
+            result += "\n[CODE]\n" + tree.text().replace('[/CODE]', r'[\/CODE]') + "[/CODE]\n"
+        elif tree.node_kind() == NodeKinds.END_SUMMARY:
+            result += '[/]'
+        elif tree.node_kind() == NodeKinds.ERROR_TEXT:
+            result += f'{tree.text()}'
+        elif tree.node_kind() == NodeKinds.GUI_LABEL:
+            result += f':guilabel:`{tree.text()}`'
+        elif tree.node_kind() == NodeKinds.ITALIC_TEXT:
+            result += f'`{tree.text()}`'
+        elif tree.node_kind() == NodeKinds.LIST:
+            result += '[LIST]\n'
+            for child in tree.children():
+                result += '[*]'
+                t = self.tree_to_transifex(child, depth=depth+1)
+                if t.endswith('\n\n'):
+                    t = t[0:-1]
+                result += t
+            result += '[/LIST]\n'
+        elif tree.node_kind() == NodeKinds.REF:
+            result += f':ref:`{tree.text()}`'
+        elif tree.node_kind() == NodeKinds.URL:
+            result += f'[URL href="{tree.url()}"]{tree.label()}[/URL]'
+        elif tree.node_kind() == NodeKinds.LIST_ITEM:
+            for child in tree.children():
+                result += self.tree_to_transifex(child, depth=depth+1)
+            result += '\n'
+        elif tree.node_kind() == NodeKinds.DOCUMENT:
+            for child in tree.children():
+                result += self.tree_to_transifex(child, depth=depth+1)
+        return result
+
+    def document_to_transifex(self, document, name, safe=True):
+        '''
+        Given a document in the Formatter Function Markup Language (FFML), return
+        that document suitable for transifex.
+
+        :param document: the text in FFML.
+        :param name: the name of the document, used during error
+                     processing. It is usually the name of the function.
+        :param safe: if true, do not propagate exceptions. Instead attempt to
+                     recover using the English version as well as display an error.
+
+        :return: a string containing the output for transifex.
+
+        '''
+        tree = self.parse_document(document, name, safe=safe)
+        return self.tree_to_transifex(tree, 0)
+
     def tree_to_rst(self, tree, indent, result=None):
         '''
         Given a Formatter Function Markup Language (FFML) parse tree, return

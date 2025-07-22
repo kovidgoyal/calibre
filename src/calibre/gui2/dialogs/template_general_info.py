@@ -90,17 +90,18 @@ will become an empty line in the output.
 [*][B]URLs.[/B] The syntax is similar to BBCODE: ``[URL href="http..."]Link text[/URL]``.\
   Example: ``[URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]`` produces [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
 [*][B]Internal function reference links[/B]. These are links to formatter function
-documentation. The syntax is the same as guilabel. Example: ``:ref:\`get_note\```.
+documentation. The syntax is the same as guilabel. Example: ``:ref:`get_note` ``.
 The characters '()' are automatically added to the function name when
 displayed. For HTML it generates the same as the inline program code text
 operator (\`\`) with no link. Example: ``:ref:`add` `` produces ``add()``.
 For RST it generates a ``:ref:`` reference that works only in an RST document
-containing formatter function documentation. Example: ``:ref:\`get_note\```
+containing formatter function documentation. Example: ``:ref:`get_note` ``
 generates \:ref\:\`get_note() <ff_get_note>\`
 [*][B]Example program code text blocks.[/B] Surround the code block with ``[CODE]``
 and ``[/CODE]`` tags. These tags must be first on a line. Example:
 [CODE]
-[CODE]program:
+[CODE]
+program:
     get_note('authors', 'Isaac Asimov', 1)
 [\/CODE]
 [/CODE]
