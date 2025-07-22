@@ -66,8 +66,9 @@ a space before the closing \`\` characters. Trailing blanks in the code text are
   Example: \:guilabel\:\`Preferences->Advanced->Template functions\`. For HTML the produced text is in a different font, as in: :guilabel:`Some text`
 [*][B]Empty lines[/B], indicated by two newlines in a row. A visible empty line in the FFML
 will become an empty line in the output.
-[*][B]URLs.[/B] The syntax is similar to BBCODE: ``[URL href="http..."]Link text[/URL]``.\
-  Example: ``[URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]`` produces [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
+[*][B]URLs.[/B] The syntax is similar to BBCODE: ``[URL href="http..."]Link text[/URL]``.
+Example: ``[URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]``
+produces [URL href="https://en.wikipedia.org/wiki/ISO_8601"]ISO[/URL]
 [*][B]Internal function reference links[/B]. These are links to formatter function
 documentation. The syntax is the same as guilabel. Example: ``:ref:`get_note` ``.
 The characters '()' are automatically added to the function name when

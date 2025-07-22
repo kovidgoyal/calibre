@@ -304,7 +304,7 @@ class FFMLProcessor:
         elif tree.node_kind() == NodeKinds.ITALIC_TEXT:
             result += f'<i>{tree.escaped_text()}</i>'
         elif tree.node_kind() == NodeKinds.LIST:
-            result += '\n<ul>\n'
+            result += '<ul>\n'
             for child in tree.children():
                 result += '<li>\n'
                 result += self.tree_to_html(child, depth=depth+1)
@@ -378,9 +378,7 @@ class FFMLProcessor:
         '''
         result = ''
         if tree.node_kind() == NodeKinds.TEXT:
-            t = tree.text()
-            t = t.replace('\n', ' ')
-            result += t
+            result += tree.text()
         if tree.node_kind() == NodeKinds.BOLD_TEXT:
             result += f'[B]{tree.text()}[/B]'
         elif tree.node_kind() == NodeKinds.BLANK_LINE:
@@ -392,7 +390,7 @@ class FFMLProcessor:
             t = t + ' ' if t.endswith('`') else t
             result += f'``{t}``'
         elif tree.node_kind() == NodeKinds.CODE_BLOCK:
-            result += '\n[CODE]\n' + tree.text().replace('[/CODE]', r'[\/CODE]') + '[/CODE]\n'
+            result += '[CODE]\n' + tree.text().replace('[/CODE]', r'[\/CODE]') + '[/CODE]\n'
         elif tree.node_kind() == NodeKinds.END_SUMMARY:
             result += '[/]'
         elif tree.node_kind() == NodeKinds.ERROR_TEXT:
@@ -732,7 +730,8 @@ class FFMLProcessor:
         while True:
             p = self.find_one_of()
             if p > 0:
-                txt = self.text_to(p).replace('\n', ' ')
+                txt = self.text_to(p)
+                txt = txt[:-1].replace('\n', ' ') + txt[-1]
                 parent.add_child(TextNode(txt))
                 self.move_pos(p)
             elif p == NodeKinds.BLANK_LINE:
