@@ -3,7 +3,6 @@
 
 import json
 import os
-import re
 from contextlib import suppress
 
 from setup.revendor import ReVendor
@@ -14,8 +13,8 @@ class PiperVoices(ReVendor):
     description = 'Download the list of Piper voices'
     NAME = 'piper_voices'
     TAR_NAME = 'piper voice list'
-    VERSION = 'master'
-    DOWNLOAD_URL = f'https://raw.githubusercontent.com/rhasspy/piper/{VERSION}/VOICES.md'
+    VERSION = 'main'
+    DOWNLOAD_URL = f'https://huggingface.co/rhasspy/piper-voices/raw/{VERSION}/voices.json'
     CAN_USE_SYSTEM_VERSION = False
 
     @property
@@ -30,36 +29,21 @@ class PiperVoices(ReVendor):
         else:
             url = opts.piper_voices_url
             src = self.download_securely(url).decode('utf-8')
+        data = json.loads(src)
         lang_map = {}
-        current_lang = current_voice = ''
-        lang_pat = re.compile(r'\((.+?)\)')
-        model_pat = re.compile(r'\[model\]\((.+?)\)')
-        config_pat = re.compile(r'\[config\]\((.+?)\)')
-        for line in src.splitlines():
-            if line.startswith('* '):
-                if m := lang_pat.search(line):
-                    current_lang = m.group(1).partition(',')[0].replace('`', '')
-                    lang_map[current_lang] = {}
-                    current_voice = ''
-            else:
-                line = line.strip()
-                if not line.startswith('*'):
-                    continue
-                if '[model]' in line:
-                    if current_lang and current_voice:
-                        qual_map = lang_map[current_lang][current_voice]
-                        quality = line.partition('-')[0].strip().lstrip('*').strip()
-                        model = config = ''
-                        if m := model_pat.search(line):
-                            model = m.group(1)
-                        if m := config_pat.search(line):
-                            config = m.group(1)
-                        if not quality or not model or not config:
-                            raise SystemExit('Failed to parse piper voice model definition from:\n' + line)
-                        qual_map[quality] = {'model': model, 'config': config}
+        for voice in data.values():
+            language_code = voice['language']['code']
+            lang_entry = lang_map.setdefault(language_code, {})
+            voice_entry = lang_entry.setdefault(voice['name'], {})
+            quality_entry = voice_entry.setdefault(voice['quality'], {})
+            for f, metadata in voice['files'].items():
+                if f.endswith('.json'):
+                    key = 'config'
+                elif f.endswith('.onnx'):
+                    key = 'model'
                 else:
-                    current_voice = line.partition(' ')[-1].strip()
-                    lang_map[current_lang][current_voice] = {}
+                    key = 'card'
+                quality_entry[key] = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/' + f
         if not lang_map:
             raise SystemExit(f'Failed to read any piper voices from: {url}')
         if 'en_US' not in lang_map:
