@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import errno
 import glob
 import hashlib
+import inspect
 import json
 import os
 import re
@@ -26,6 +27,20 @@ from polyglot.builtins import codepoint_to_chr, iteritems
 from setup import Command, __appname__, __version__, build_cache_dir, dump_json, edit_file, is_ci, require_git_master
 from setup.iso_codes import iso_data
 from setup.parallel_build import batched_parallel_jobs
+
+
+def serialize_msgid(text):
+    '''Serialize a string in the format used by msgid in GNU POT files.'''
+    if not text:
+        return 'msgid ""\n'
+    # Escape backslashes and quotes
+    escaped = text.replace('\\', r'\\').replace('"', r'\"')
+    ans = ['msgid ""']
+    lines = escaped.splitlines()
+    for line in lines:
+        trailer = '"' if line is lines[-1] else r'\n"'
+        ans.append(f'"{line}{trailer}')
+    return '\n'.join(ans)
 
 
 def qt_sources():
@@ -70,6 +85,15 @@ class POT(Command):  # {{{
                 if name.endswith('.py'):
                     ans.append(self.a(self.j(root, name)))
         return ans
+
+    def get_ffml_docs(self):
+        from calibre.utils.formatter_functions import _formatter_builtins as b
+        ans = []
+        for ff in b:
+            lnum = inspect.getsourcelines(ff.__doc__getter__)[1]
+            text = ff.__doc__getter__().msgid
+            ans.append(f'#: src/calibre/utils/formatter_function.py:{lnum}\n' + serialize_msgid(text) + '\nmsgstr ""\n\n')
+        return ''.join(ans)
 
     def get_tweaks_docs(self):
         path = self.a(self.j(self.SRC, '..', 'resources', 'default_tweaks.py'))
@@ -218,12 +242,12 @@ class POT(Command):  # {{{
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
                                    '--no-wrap', '-kQT_TRANSLATE_NOOP:2', '-ktr', '-ktranslate:2',
                 ] + qt_inputs)
-
             with open(out.name, 'rb') as f:
                 src = f.read().decode('utf-8')
             os.remove(out.name)
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
+            src += '\n\n' + self.get_ffml_docs()
             bdir = os.path.join(self.TRANSLATIONS, __appname__)
             if not os.path.exists(bdir):
                 os.makedirs(bdir)

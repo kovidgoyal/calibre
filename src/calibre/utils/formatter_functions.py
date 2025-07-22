@@ -60,20 +60,20 @@ URL_FUNCTIONS = _('URL functions')
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
 
-    def __new__(cls, raw_english, raw_other, formatted_english, formatted_other):
+    def __new__(cls, raw_english, raw_other, formatted_english, formatted_other, msgid):
         instance = super().__new__(cls, formatted_other)
         instance.raw_english = raw_english
         instance.raw_other = raw_other
         instance.formatted_english = formatted_english
         instance.formatted_other = formatted_other
+        instance.msgid = msgid
         instance.did_format = False
         return instance
 
     def format(self, *args, **kw):
         formatted_english = self.raw_english.format(*args, **kw)
         formatted_other = self.raw_other.format(*args, **kw)
-        v = TranslatedStringWithRaw(self.raw_english, self.raw_other,
-                                       formatted_english, formatted_other)
+        v = TranslatedStringWithRaw(self.raw_english, self.raw_other, formatted_english, formatted_other, self.msgid)
         v.saved_args = args
         v.saved_kwargs = kw
         v.did_format = True
@@ -87,9 +87,11 @@ class TranslatedStringWithRaw(str):
 
 def translate_ffml(txt):
     from calibre.utils.ffml_processor import FFMLProcessor
-    lookup = FFMLProcessor().document_to_transifex(txt, '', safe=True)
-    translated = xlated(lookup)
-    return TranslatedStringWithRaw(txt, translated, txt, translated)
+    msgid = FFMLProcessor().document_to_transifex(txt, '', safe=True).strip()
+    translated = xlated(msgid)
+    if translated == msgid:
+        translated = txt
+    return TranslatedStringWithRaw(txt, translated, txt, translated, msgid)
 
 
 class StoredObjectType(Enum):
