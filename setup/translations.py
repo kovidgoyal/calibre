@@ -87,12 +87,17 @@ class POT(Command):  # {{{
         return ans
 
     def get_ffml_docs(self):
+        from calibre.gui2.dialogs.template_general_info import ffml_doc, general_doc
         from calibre.utils.formatter_functions import _formatter_builtins as b
         ans = []
         for ff in b:
             lnum = inspect.getsourcelines(ff.__doc__getter__)[1]
             text = ff.__doc__getter__().msgid
             ans.append(f'#: src/calibre/utils/formatter_function.py:{lnum}\n' + serialize_msgid(text) + '\nmsgstr ""\n\n')
+        for ff in (ffml_doc, general_doc):
+            lnum = inspect.getsourcelines(ff)[1]
+            text = ff().msgid
+            ans.append(f'#: src/calibre/gui2/dialogs/template_general_info.py:{lnum}\n' + serialize_msgid(text) + '\nmsgstr ""\n\n')
         return ''.join(ans)
 
     def get_tweaks_docs(self):
