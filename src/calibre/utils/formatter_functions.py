@@ -234,6 +234,7 @@ class FormatterFunction:
     arg_count = 0
     aliases = []
     object_type = StoredObjectType.PythonFunction
+    _cached_program_text = None
 
     def __doc__getter__(self) -> str:
         return _('No documentation provided')
@@ -245,6 +246,18 @@ class FormatterFunction:
     @property
     def __doc__(self):
         return self.__doc__getter__()
+
+    @property
+    def program_text(self) -> str:
+        if self._cached_program_text is None:
+            eval_func = inspect.getmembers(self.__class__,
+                            lambda x: inspect.isfunction(x) and x.__name__ == 'evaluate')
+            try:
+                lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
+            except Exception:
+                lines = []
+            self._cached_program_text = ''.join(lines)
+        return self._cached_program_text
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -281,20 +294,7 @@ class FormatterFunction:
 class BuiltinFormatterFunction(FormatterFunction):
 
     def __init__(self):
-        self._cached_program_text = None
         formatter_functions().register_builtin(self)
-
-    @property
-    def program_text(self) -> str:
-        if self._cached_program_text is None:
-            eval_func = inspect.getmembers(self.__class__,
-                            lambda x: inspect.isfunction(x) and x.__name__ == 'evaluate')
-            try:
-                lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
-            except Exception:
-                lines = []
-            self._cached_program_text = ''.join(lines)
-        return self._cached_program_text
 
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
@@ -3691,7 +3691,7 @@ class FormatterUserFunction(FormatterFunction):
         self.name = name
         self.user_doc = doc
         self.arg_count = arg_count
-        self._cached_program_text = program_text
+        self._cached_program_text = program_text or ''
         self.cached_compiled_text = None
         # Keep this for external code compatibility. Set it to True if we have a
         # python template function, otherwise false. This might break something
