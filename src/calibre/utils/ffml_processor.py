@@ -389,8 +389,7 @@ class FFMLProcessor:
             result += '\\' + tree.text()
         elif tree.node_kind() == NodeKinds.CODE_TEXT:
             t = tree.text()
-            if t.endswith('`'):
-                t = t + ' '
+            t = t + ' ' if t.endswith('`') else t
             result += f'``{t}``'
         elif tree.node_kind() == NodeKinds.CODE_BLOCK:
             result += '\n[CODE]\n' + tree.text().replace('[/CODE]', r'[\/CODE]') + '[/CODE]\n'
@@ -407,9 +406,7 @@ class FFMLProcessor:
             for child in tree.children():
                 result += '[*]'
                 t = self.tree_to_transifex(child, depth=depth+1)
-                if t.endswith('\n\n'):
-                    t = t[0:-1]
-                result += t
+                result += t[0:-1] if t.endswith('\n\n') else t
             result += '[/LIST]\n'
         elif tree.node_kind() == NodeKinds.REF:
             result += f':ref:`{tree.text()}`'
