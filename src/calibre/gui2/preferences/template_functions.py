@@ -13,6 +13,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortInitialize, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
+from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter_functions import (
     StoredObjectType,
     compile_user_function,
@@ -31,6 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.library_view.model().db
+        self.ffml = FFMLProcessor()
 
         help_text = _('''
         <p>Here you can add and remove functions used in template processing. A
@@ -387,7 +389,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         func = self.funcs[txt]
         self.argument_count.setValue(func.arg_count)
-        self.documentation.setText(func.doc)
+        self.documentation.setHtml(self.ffml.document_to_html(func.doc, txt))
         if txt in self.builtins:
             if hasattr(func, 'program_text') and func.program_text:
                 self.program.setPlainText(func.program_text)
