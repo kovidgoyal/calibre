@@ -135,6 +135,14 @@
 		"needs_c++": "17"
     },
     {
+        "name": "piper",
+        "sources": "calibre/utils/tts/piper.cpp",
+		"needs_c++": "17",
+        "libraries": "!piper_libs",
+        "lib_dirs": "!piper_lib_dirs",
+        "inc_dirs": "!piper_inc_dirs"
+    },
+    {
         "name": "html_as_json",
         "sources": "calibre/srv/html_as_json.cpp",
 		"needs_c++": "11"
