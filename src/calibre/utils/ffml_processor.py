@@ -576,6 +576,16 @@ class FFMLProcessor:
                 '\\':           NodeKinds.CHARACTER
             }
 
+    can_be_inlined =    (   NodeKinds.CODE_TEXT,
+                            NodeKinds.ITALIC_TEXT,
+                            NodeKinds.BOLD_TEXT,
+                            NodeKinds.END_SUMMARY,
+                            NodeKinds.GUI_LABEL,
+                            NodeKinds.REF,
+                            NodeKinds.URL,
+                            NodeKinds.CHARACTER
+                        )
+
     def __init__(self):
         self.document = DocumentNode()
         self.input = None
@@ -584,11 +594,10 @@ class FFMLProcessor:
     def error(self, message):
         raise ValueError(f'{message} on line {self.input_line} in "{self.document_name}"')
 
-    def find(self, for_what):
-        p = self.input.find(for_what, self.input_pos)
-        if p < 0:
-            return -1
-        return -1 if p < 0 else p - self.input_pos
+    def find(self, for_what, at_pos=-1):
+        pos = at_pos if at_pos >= 0 else self.input_pos
+        p = self.input.find(for_what, pos)
+        return -1 if p < 0 else p - pos
 
     def move_pos(self, to_where):
         for c in self.input[self.input_pos:self.input_pos+to_where]:
@@ -614,13 +623,14 @@ class FFMLProcessor:
     def startswith(self, txt):
         return self.input.startswith(txt, self.input_pos)
 
-    def find_one_of(self):
+    def find_one_of(self, at_pos=-1):
         positions = []
+        pos = at_pos if at_pos >= 0 else self.input_pos
         for s in self.keywords:
-            p = self.find(s)
+            p = self.find(s, pos)
             if p == 0:
                 return self.keywords[s]
-            positions.append(self.find(s))
+            positions.append(p)
         positions = list(filter(lambda x: x >= 0, positions))
         if positions:
             return min(positions)
@@ -731,8 +741,18 @@ class FFMLProcessor:
             p = self.find_one_of()
             if p > 0:
                 txt = self.text_to(p)
-                txt = txt[:-1].replace('\n', ' ') + txt[-1]
-                parent.add_child(TextNode(txt))
+                if txt != '\n':
+                    # Look ahead to see if the next parse node's text can be
+                    # inline with this text. If so, change a trailing newline
+                    # to a trailing space.
+                    last_char = txt[-1]
+                    txt = txt[:-1].replace('\n', ' ')
+                    if last_char == '\n' and self.find_one_of(self.input_pos + p) in self.can_be_inlined:
+                        last_char = ' '
+                    parent.add_child(TextNode(txt + last_char))
+                else:
+                    # Bare newlines are passed through unchanged
+                    parent.add_child(TextNode(txt))
                 self.move_pos(p)
             elif p == NodeKinds.BLANK_LINE:
                 parent.add_child(BlankLineNode())

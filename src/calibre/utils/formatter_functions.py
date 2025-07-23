@@ -2445,7 +2445,7 @@ r'''
 ``virtual_libraries()`` -- return a comma-separated list of Virtual libraries that
 contain this book.[/] This function works only in the GUI. If you want to use these
 values in save-to-disk or send-to-device templates then you must make a custom
-"Column built from other columns", use the function in that column's template,
+`Column built from other columns`, use the function in that column's template,
 and use that column's value in your save/send templates.
 ''')
 
