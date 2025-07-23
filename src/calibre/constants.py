@@ -258,6 +258,7 @@ class ExtensionsImporter:
             'rcc_backend',
             'icu',
             'speedup',
+            'piper',
             'html_as_json',
             'fast_css_transform',
             'fast_html_entities',
