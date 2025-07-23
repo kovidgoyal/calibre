@@ -110,11 +110,21 @@ static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL}
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
+static void
+cleanup_module(void*) {
+    if (initialized) {
+        initialized = false;
+        voice_set = false;
+        espeak_Terminate();
+    }
+}
+
 CALIBRE_MODINIT_FUNC PyInit_piper(void) {
 	module_def.m_name = "piper";
 	module_def.m_slots = slots;
 	module_def.m_doc = doc;
 	module_def.m_methods = methods;
+    module_def.m_free = cleanup_module;
 	return PyModuleDef_Init(&module_def);
 }
 // }}}
