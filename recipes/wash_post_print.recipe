@@ -30,12 +30,14 @@ class wapoprint(BasicNewsRecipe):
     language = 'en_US'
     remove_attributes = ['style', 'height', 'width']
     publication_type = 'newspaper'
+    resolve_internal_links = True
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/93/The_Logo_of_The_Washington_Post_Newspaper.svg'
     extra_css = '''
         .img { text-align:center; font-size:small; }
         .auth { font-weight:bold; font-size:small; }
         .time { font-size:small; color: #202020; }
+        .subt { font-style: italic; }
     '''
 
     def get_browser(self, *args, **kwargs):
@@ -78,15 +80,30 @@ class wapoprint(BasicNewsRecipe):
                 feeds.append((secname, articles))
         return feeds
 
-    def preprocess_raw_html(self, raw, *a):
+    def preprocess_raw_html(self, raw, url):
+        if '/interactive/' in url:
+            return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
         root = parse(raw)
         m = root.xpath('//script[@id="__NEXT_DATA__"]')
 
         data = json.loads(m[0].text)
         data = data['props']['pageProps']['globalContent']
 
+        text = data.get('label', {}).get('basic', {}).get('text', '')
+        label = f'<p class="time">{text}</p>' if text else ''
         title = '<h1>' + data['headlines']['basic'] + '</h1>'
-        subhead = '<h3>' + data['description'].get('basic', '') + '</h3>'
+        subhead = '<p class="subt">' + data['description'].get('basic', '') + '</h3>'
+
+        promo_img = ''
+        if data.get('promo_items', {}).get('basic', {}).get('type', '') == 'image':
+            pi = data['promo_items']['basic']
+            promo_img = (
+                '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                    pi['url'], pi['credits_caption_display']
+                )
+            )
 
         author = ''
         if 'credits' in data:
@@ -109,14 +126,29 @@ class wapoprint(BasicNewsRecipe):
                         x['promo_image']['url'], x['description'].get('basic', '')
                     )
             elif x['type'] == 'image':
-                body += (
+                img_ = (
                     '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
                         x['url'], x['credits_caption_display']
                     )
                 )
+                if img_ != promo_img:
+                    body += img_
+            elif x['type'] == 'list':
+                body += '<ul>'
+                for li in x['items']:
+                    if li.get('content', '') != '':
+                        body += f'<li>{li["content"]}</li>'
+                body += '</ul>'
 
         return (
-            '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+            '<html><body><div>'
+            + label
+            + title
+            + subhead
+            + promo_img
+            + author
+            + body
+            + '</div></body></html>'
         )
 
     def preprocess_html(self, soup):
@@ -124,10 +156,9 @@ class wapoprint(BasicNewsRecipe):
             img['src'] = (
                 'https://www.washingtonpost.com/wp-apps/imrs.php?src='
                 + img['src']
-                + '&w=916'
+                + '&w=600'
             )
         return soup
 
     def populate_article_metadata(self, article, soup, first):
-        article.summary = self.tag_to_string(soup.find('h3'))
-        article.text_summary = self.tag_to_string(soup.find('h3'))
+        article.summary = article.text_summary = self.tag_to_string(soup.find('p', attrs={'class':'subt'}))
