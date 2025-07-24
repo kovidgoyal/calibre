@@ -93,7 +93,11 @@ class TheWashingtonPost(BasicNewsRecipe):
         ('Commanders', 'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
 
-    def preprocess_raw_html(self, raw, *a):
+    def preprocess_raw_html(self, raw, url):
+        if '/interactive/' in url:
+            return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
+                    'This article is supposed to be read in a browser.'
+                    '</em></article></body></html>')
         root = parse(raw)
         m = root.xpath('//script[@id="__NEXT_DATA__"]')
 
@@ -102,10 +106,7 @@ class TheWashingtonPost(BasicNewsRecipe):
 
         text = data.get('label', {}).get('basic', {}).get('text', '')
         label = f'<p class="time">{text}</p>' if text else ''
-        if data.get('headlines'):
-            title = '<h1>' + data['headlines']['basic'] + '</h1>'
-        elif data.get('metadata'):
-            title = '<h1>' + data['metadata']['headlines']['basic'] + '</h1>'
+        title = '<h1>' + data['headlines']['basic'] + '</h1>'
         subhead = '<p class="subt">' + data['description'].get('basic', '') + '</h3>'
 
         promo_img = ''
