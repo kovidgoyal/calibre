@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-__license__ = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.washingtonpost.com
 '''
@@ -15,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheWashingtonPost(BasicNewsRecipe):
     title = 'The Washington Post'
-    __author__ = 'Darko Miletic, unkn0wn'
+    __author__ = 'unkn0wn'
     description = (
         'Leading source for news, video and opinion on politics, business, '
         'world and national news, science, travel, entertainment and more. '
@@ -33,6 +31,7 @@ class TheWashingtonPost(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en_US'
     remove_empty_feeds = True
+    resolve_internal_links = True
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/93/The_Logo_of_The_Washington_Post_Newspaper.svg'
     publication_type = 'newspaper'
@@ -56,6 +55,7 @@ class TheWashingtonPost(BasicNewsRecipe):
         .img { text-align:center; font-size:small; }
         .auth { font-weight:bold; font-size:small; }
         .time { font-size:small; color: #202020; }
+        .subt { font-style: italic; }
     '''
 
     def get_cover_url(self):
@@ -100,8 +100,22 @@ class TheWashingtonPost(BasicNewsRecipe):
         data = json.loads(m[0].text)
         data = data['props']['pageProps']['globalContent']
 
-        title = '<h1>' + data['headlines']['basic'] + '</h1>'
-        subhead = '<h3>' + data['description'].get('basic', '') + '</h3>'
+        text = data.get('label', {}).get('basic', {}).get('text', '')
+        label = f'<p class="time">{text}</p>' if text else ''
+        if data.get('headlines'):
+            title = '<h1>' + data['headlines']['basic'] + '</h1>'
+        elif data.get('metadata'):
+            title = '<h1>' + data['metadata']['headlines']['basic'] + '</h1>'
+        subhead = '<p class="subt">' + data['description'].get('basic', '') + '</h3>'
+
+        promo_img = ''
+        if data.get('promo_items', {}).get('basic', {}).get('type', '') == 'image':
+            pi = data['promo_items']['basic']
+            promo_img = (
+                '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                    pi['url'], pi['credits_caption_display']
+                )
+            )
 
         author = ''
         if 'credits' in data:
@@ -124,14 +138,29 @@ class TheWashingtonPost(BasicNewsRecipe):
                         x['promo_image']['url'], x['description'].get('basic', '')
                     )
             elif x['type'] == 'image':
-                body += (
+                img_ = (
                     '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
                         x['url'], x['credits_caption_display']
                     )
                 )
+                if img_ != promo_img:
+                    body += img_
+            elif x['type'] == 'list':
+                body += '<ul>'
+                for li in x['items']:
+                    if li.get('content', '') != '':
+                        body += f'<li>{li["content"]}</li>'
+                body += '</ul>'
 
         return (
-            '<html><body><div>' + title + subhead + author + body + '</div></body></html>'
+            '<html><body><div>'
+            + label
+            + title
+            + subhead
+            + promo_img
+            + author
+            + body
+            + '</div></body></html>'
         )
 
     def preprocess_html(self, soup):
@@ -139,6 +168,6 @@ class TheWashingtonPost(BasicNewsRecipe):
             img['src'] = (
                 'https://www.washingtonpost.com/wp-apps/imrs.php?src='
                 + img['src']
-                + '&w=916'
+                + '&w=600'
             )
         return soup
