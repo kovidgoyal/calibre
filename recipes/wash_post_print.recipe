@@ -81,11 +81,11 @@ class wapoprint(BasicNewsRecipe):
         return feeds
 
     def preprocess_raw_html(self, raw, url):
+        root = parse(raw)
         if '/interactive/' in url:
             return ('<html><body><article><h1>' + root.xpath('//h1')[0].text + '</h1><em>'
                     'This article is supposed to be read in a browser.'
                     '</em></article></body></html>')
-        root = parse(raw)
         m = root.xpath('//script[@id="__NEXT_DATA__"]')
 
         data = json.loads(m[0].text)
