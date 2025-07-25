@@ -53,21 +53,14 @@ class DeTijd(BasicNewsRecipe):
     ]
     remove_tags_after = dict(name='div', attrs={'id': 'art_author'})
 
-    feeds = [(u'Volledig nieuwsaanbod', u'http://www.tijd.be/rss/nieuws.xml'),
-             (u'Markten', u'http://www.tijd.be/rss/markten.xml'),
-             (u'Ondernemingen', u'http://www.tijd.be/rss/ondernemingen.xml'),
-             (u'Chemie-Farma', u'http://www.tijd.be/rss/chemie_farma.xml'),
-             (u'Consumptie', u'http://www.tijd.be/rss/consumptie.xml'),
-             (u'Diensten', u'http://www.tijd.be/rss/diensten.xml'),
-             (u'Energie', u'http://www.tijd.be/rss/energie.xml'),
-             (u'Financen', u'http://www.tijd.be/rss/financien.xml'),
-             (u'Industrie', u'http://www.tijd.be/rss/industrie.xml'),
-             (u'Media', u'http://www.tijd.be/rss/media_telecom.xml'),
-             (u'Technologie', u'http://www.tijd.be/rss/technologie.xml'),
-             (u'Economie & Financien', u'http://www.tijd.be/rss/economie.xml'),
-             (u'Binnenland', u'http://www.tijd.be/rss/binnenland.xml'),
-             (u'Buitenland', u'http://www.tijd.be/rss/buitenland.xml'),
-             (u'De wijde wereld', u'http://www.tijd.be/rss/cultuur.xml')]
+    feeds = [(u'Volledig nieuwsaanbod', u'https://www.tijd.be/rss/nieuws.xml'),
+             (u'Ondernemen', u'https://www.tijd.be/rss/ondernemen.xml'),
+             (u'Politiek en Economie', u'https://www.tijd.be/rss/politiek.xml'),
+             (u'Markten', u'https://www.tijd.be/rss/markten_live.xml'),
+             (u'Opinie', u'https://www.tijd.be/rss/opinie.xml'),
+             (u'Cultuur', u'https://www.tijd.be/rss/cultuur.xml'),
+             (u'Netto', u'https://www.tijd.be/rss/netto.xml'),
+             (u'Sabato', u'https://www.tijd.be/rss/sabato.xml')]
 
     def preprocess_html(self, soup):
         del soup.body['onload']
