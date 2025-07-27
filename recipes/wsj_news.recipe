@@ -135,9 +135,15 @@ class WSJ(BasicNewsRecipe):
         from calibre import browser
         from calibre.utils.img import save_cover_data_to
         br = browser()
-        raw = br.open('https://www.frontpages.com/the-wall-street-journal/')
+        raw = br.open('https://wsjtodaysedition.cmail19.com/t/d-e-suujjg-thithlkhlr-r/')
         soup = BeautifulSoup(raw.read())
-        cu = 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        cu = soup.find(
+                'img',
+                attrs={
+                    'class': 'responsive-img',
+                    'src': lambda x: x and 'WSJNewsPaper' in x
+                }
+            )['src']
         self.report_progress(1, _('Downloading cover from %s')%cu)
         with closing(br.open(cu, timeout=self.timeout)) as r:
             cdata = r.read()
