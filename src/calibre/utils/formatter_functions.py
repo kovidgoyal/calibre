@@ -2805,10 +2805,10 @@ r'''
 ``globals(id[=expression] [, id[=expression]]*)`` -- Retrieves "global variables"
 that can be passed into the formatter.[/] The name ``id`` is the name of the global
 variable. It both declares and initializes local variables with the names of the
-global variables passed in (the ``id`` parameters. If the corresponding variable is not
+global variables passed in the ``id`` parameters. If the corresponding variable is not
 provided in the globals then it assigns that variable the provided default
 value. If there is no default value then the variable is set to the empty
-string.)
+string.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
