@@ -1982,7 +1982,9 @@ r'''
 items in ``list1`` and ``list2``[/], removing duplicate items using a case-insensitive
 comparison. If items differ in case, the one in ``list1`` is used.
 The items in ``list1`` and ``list2`` are separated by ``separator``, as are the
-items in the returned list. Aliases: ``merge_lists()``, ``list_union()``
+items in the returned list.
+
+Aliases: ``merge_lists()``, ``list_union()``
 ''')
     aliases = ['merge_lists']
 
