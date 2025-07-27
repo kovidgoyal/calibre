@@ -2098,7 +2098,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``list_intersection(list1, list2, separator)`` -- return a list made by removing
-from ``list1`` any item not found in ``list2``[/], using a case-insensitive
+from ``list1`` any item not found in ``list2``[/] using a case-insensitive
 comparison. The items in ``list1`` and ``list2`` are separated by ``separator``, as
 are the items in the returned list.
 ''')
