@@ -2191,7 +2191,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``list_re_group(src_list, separator, include_re, search_re [,template_for_group]*)``
--- Like list_re except replacements are not optional.[/] It
+-- Like ``list_re()`` except replacements are not optional.[/] It
 uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 ''')
 
