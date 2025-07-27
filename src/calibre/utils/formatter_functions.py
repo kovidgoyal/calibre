@@ -754,7 +754,7 @@ class BuiltinSubstr(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``substr(value, start, end)`` -- returns the ``start``'th through the ``end``'th
-characters of ``value``[/]. The first character in ``value`` is the zero'th character.
+characters of ``value``.[/] The first character in ``value`` is the zero'th character.
 If ``end`` is negative then it indicates that many characters counting from the
 right. If ``end`` is zero, then it indicates the last character. For example,
 ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)``
@@ -772,7 +772,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``lookup(value, [ pattern, key, ]* else_key)`` -- The patterns will be checked against
-the ``value`` in order[/]. If a ``pattern`` matches then the value of the field named by
+the ``value`` in order.[/] If a ``pattern`` matches then the value of the field named by
 ``key`` is returned. If no pattern matches then the value of the field named by
 ``else_key`` is returned. See also the :ref:`switch` function.
 ''')
@@ -818,7 +818,7 @@ class BuiltinContains(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``contains(value, pattern, text_if_match, text_if_not_match)`` -- checks if the value
-is matched by the regular expression ``pattern``[/]. Returns ``text_if_match`` if
+is matched by the regular expression ``pattern``.[/] Returns ``text_if_match`` if
 the pattern matches the value, otherwise returns ``text_if_not_match``.
 ''')
 
@@ -1982,7 +1982,9 @@ r'''
 items in ``list1`` and ``list2``[/], removing duplicate items using a case-insensitive
 comparison. If items differ in case, the one in ``list1`` is used.
 The items in ``list1`` and ``list2`` are separated by ``separator``, as are the
-items in the returned list. Aliases: ``merge_lists()``, ``list_union()``
+items in the returned list.
+
+Aliases: ``merge_lists()``, ``list_union()``
 ''')
     aliases = ['merge_lists']
 
@@ -2098,7 +2100,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``list_intersection(list1, list2, separator)`` -- return a list made by removing
-from ``list1`` any item not found in ``list2``[/], using a case-insensitive
+from ``list1`` any item not found in ``list2``[/] using a case-insensitive
 comparison. The items in ``list1`` and ``list2`` are separated by ``separator``, as
 are the items in the returned list.
 ''')
@@ -2191,7 +2193,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``list_re_group(src_list, separator, include_re, search_re [,template_for_group]*)``
--- Like list_re except replacements are not optional.[/] It
+-- Like ``list_re()`` except replacements are not optional.[/] It
 uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 ''')
 
@@ -2805,10 +2807,10 @@ r'''
 ``globals(id[=expression] [, id[=expression]]*)`` -- Retrieves "global variables"
 that can be passed into the formatter.[/] The name ``id`` is the name of the global
 variable. It both declares and initializes local variables with the names of the
-global variables passed in (the ``id`` parameters. If the corresponding variable is not
+global variables passed in the ``id`` parameters. If the corresponding variable is not
 provided in the globals then it assigns that variable the provided default
 value. If there is no default value then the variable is set to the empty
-string.)
+string.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
