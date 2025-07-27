@@ -157,6 +157,28 @@ class WSJ(BasicNewsRecipe):
             pan.name = 'div'
         return soup
 
+    def _download_cover(self):
+        import os
+        from contextlib import closing
+
+        from calibre.utils.img import save_cover_data_to
+        br = browser()
+        raw = br.open('https://wsjtodaysedition.cmail19.com/t/d-e-suujjg-thithlkhlr-r/')
+        soup = BeautifulSoup(raw.read())
+        cu = soup.find(
+                'img',
+                attrs={
+                    'class': 'responsive-img',
+                    'src': lambda x: x and 'WSJMagazine' in x
+                }
+            )['src']
+        self.report_progress(1, _('Downloading cover from %s')%cu)
+        with closing(br.open(cu, timeout=self.timeout)) as r:
+            cdata = r.read()
+        cpath = os.path.join(self.output_dir, 'cover.jpg')
+        save_cover_data_to(cdata, cpath)
+        self.cover_path = cpath
+
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         br.addheaders += [
