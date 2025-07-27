@@ -576,15 +576,16 @@ class FFMLProcessor:
                 '\\':           NodeKinds.CHARACTER
             }
 
-    can_be_inlined =    (   NodeKinds.CODE_TEXT,
-                            NodeKinds.ITALIC_TEXT,
-                            NodeKinds.BOLD_TEXT,
-                            NodeKinds.END_SUMMARY,
-                            NodeKinds.GUI_LABEL,
-                            NodeKinds.REF,
-                            NodeKinds.URL,
-                            NodeKinds.CHARACTER
-                        )
+    can_be_inlined =    (
+        NodeKinds.CODE_TEXT,
+        NodeKinds.ITALIC_TEXT,
+        NodeKinds.BOLD_TEXT,
+        NodeKinds.END_SUMMARY,
+        NodeKinds.GUI_LABEL,
+        NodeKinds.REF,
+        NodeKinds.URL,
+        NodeKinds.CHARACTER
+    )
 
     def __init__(self):
         self.document = DocumentNode()
