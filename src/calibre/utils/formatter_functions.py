@@ -754,7 +754,7 @@ class BuiltinSubstr(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``substr(value, start, end)`` -- returns the ``start``'th through the ``end``'th
-characters of ``value``[/]. The first character in ``value`` is the zero'th character.
+characters of ``value``.[/] The first character in ``value`` is the zero'th character.
 If ``end`` is negative then it indicates that many characters counting from the
 right. If ``end`` is zero, then it indicates the last character. For example,
 ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)``
@@ -772,7 +772,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``lookup(value, [ pattern, key, ]* else_key)`` -- The patterns will be checked against
-the ``value`` in order[/]. If a ``pattern`` matches then the value of the field named by
+the ``value`` in order.[/] If a ``pattern`` matches then the value of the field named by
 ``key`` is returned. If no pattern matches then the value of the field named by
 ``else_key`` is returned. See also the :ref:`switch` function.
 ''')
@@ -818,7 +818,7 @@ class BuiltinContains(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``contains(value, pattern, text_if_match, text_if_not_match)`` -- checks if the value
-is matched by the regular expression ``pattern``[/]. Returns ``text_if_match`` if
+is matched by the regular expression ``pattern``.[/] Returns ``text_if_match`` if
 the pattern matches the value, otherwise returns ``text_if_not_match``.
 ''')
 
