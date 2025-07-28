@@ -13,6 +13,9 @@
 #include <memory>
 #include <onnxruntime_cxx_api.h>
 #include <queue>
+#include <cstdint>
+#include <algorithm>
+#include <limits>
 
 #define CLAUSE_INTONATION_FULL_STOP 0x00000000
 #define CLAUSE_INTONATION_COMMA 0x00001000
@@ -270,6 +273,8 @@ start(PyObject *self, PyObject *args) {
 
 static PyObject*
 next(PyObject *self, PyObject *args) {
+    int as_16bit_samples = 1;
+    if (!PyArg_ParseTuple(args, "|p", &as_16bit_samples)) return NULL;
     if (phoneme_id_queue.empty()) return Py_BuildValue("yiiO", "", 0, current_sample_rate, Py_True);
     std::vector<Ort::Value> output_tensors;
     std::vector<Ort::Value> input_tensors;
@@ -329,12 +334,32 @@ next(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    auto audio_shape =
-        output_tensors.front().GetTensorTypeAndShapeInfo().GetShape();
-    int num_samples = audio_shape[audio_shape.size() - 1];
+    int num_samples; const float *audio_tensor_data;
+    Py_BEGIN_ALLOW_THREADS;
+    auto audio_shape = output_tensors.front().GetTensorTypeAndShapeInfo().GetShape();
+    num_samples = audio_shape[audio_shape.size() - 1];
+    audio_tensor_data = output_tensors.front().GetTensorData<float>();
+    Py_END_ALLOW_THREADS;
 
-    const float *audio_tensor_data = output_tensors.front().GetTensorData<float>();
-    PyObject *ans = Py_BuildValue("y#iiO", audio_tensor_data, sizeof(float)*num_samples, num_samples, current_sample_rate, phoneme_id_queue.empty() ? Py_True : Py_False);
+    PyObject *ans = NULL;
+    if (as_16bit_samples) {
+        PyObject *data = PyBytes_FromStringAndSize(NULL, sizeof(int16_t) * num_samples);
+        if (data) {
+            int16_t *x = (int16_t*)PyBytes_AS_STRING(data);
+            Py_BEGIN_ALLOW_THREADS;
+            for (int i = 0; i < num_samples; i++) {
+                x[i] = std::max(-1.f, std::min(audio_tensor_data[i], 1.f)) * std::numeric_limits<int16_t>::max();
+            }
+            Py_END_ALLOW_THREADS;
+            ans = Py_BuildValue(
+                "NiiO", data, sizeof(float)*num_samples, num_samples, current_sample_rate,
+                phoneme_id_queue.empty() ? Py_True : Py_False);
+        }
+    } else {
+        ans = Py_BuildValue(
+            "y#iiO", audio_tensor_data, sizeof(float)*num_samples, num_samples, current_sample_rate,
+            phoneme_id_queue.empty() ? Py_True : Py_False);
+    }
 
     // Clean up
     for (std::size_t i = 0; i < output_tensors.size(); i++) {
@@ -358,8 +383,8 @@ static PyMethodDef methods[] = {
     {"start", (PyCFunction)start, METH_VARARGS,
      "start(text) -> Start synthesizing the specified text, call next() repeatedly to get the audiodata."
     },
-    {"next", (PyCFunction)next, METH_NOARGS,
-     "next() -> Return the next chunk of audio data (audio_data, num_samples, sample_rate, is_last). Here audio_data is a bytes object consisting of an array of floats in native endianness."
+    {"next", (PyCFunction)next, METH_VARARGS,
+     "next(as_16bit_samples=True) -> Return the next chunk of audio data (audio_data, num_samples, sample_rate, is_last). Here audio_data is a bytes object consisting of either native 16bit integer audio samples or native floats in the range [-1, 1]."
     },
 
     {"set_espeak_voice_by_name", (PyCFunction)set_espeak_voice_by_name, METH_O,
