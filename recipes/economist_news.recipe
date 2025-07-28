@@ -109,6 +109,12 @@ def process_web_node(node):
         elif node.get('textJson'):
             return f'<blockquote>{parse_textjson(node["textJson"])}</blockquote>'
         return f'<blockquote>{node.get("text", "")}</blockquote>'
+    elif ntype == 'BLOCK_QUOTE':
+        if node.get('textHtml'):
+            return f'<blockquote><i>{node.get("textHtml")}</i></blockquote>'
+        elif node.get('textJson'):
+            return f'<blockquote><i>{parse_textjson(node["textJson"])}</i></blockquote>'
+        return f'<blockquote><i>{node.get("text", "")}</i></blockquote>'
     elif ntype == 'DIVIDER':
         return '<hr>'
     elif ntype == 'INFOGRAPHIC':
