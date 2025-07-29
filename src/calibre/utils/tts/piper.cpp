@@ -77,7 +77,6 @@ initialize(PyObject *self, PyObject *args) {
         if (!normalize_data.func) return NULL;
         normalize_data.args = Py_BuildValue("(ss)", "NFD", "");
         if (!normalize_data.args) return NULL;
-    Py_DECREF(unicodedata);
     }
     Py_RETURN_NONE;
 }
@@ -151,15 +150,15 @@ set_voice(PyObject *self, PyObject *args) {
 #define G(name, dest, conv) { \
         PyObject *sr = PyObject_GetAttrString(cfg, #name); \
         if (!sr) return NULL; \
-        dest = conv(sr); \
-        Py_CLEAR(sr); \
+        dest = conv(sr); Py_CLEAR(sr); \
+        if (PyErr_Occurred()) return NULL; \
 }
     G(sample_rate, current_sample_rate, PyLong_AsLong);
     G(num_speakers, current_num_speakers, PyLong_AsLong);
     G(length_scale, current_length_scale, PyFloat_AsDouble);
     G(noise_scale, current_noise_scale, PyFloat_AsDouble);
     G(noise_w, current_noise_w, PyFloat_AsDouble);
-    G(sentence, current_sentence_delay, PyFloat_AsDouble);
+    G(sentence_delay, current_sentence_delay, PyFloat_AsDouble);
 #undef G
 
     PyObject *map = PyObject_GetAttrString(cfg, "phoneme_id_map");
@@ -168,14 +167,17 @@ set_voice(PyObject *self, PyObject *args) {
     PyObject *key, *value; Py_ssize_t pos = 0;
     while (PyDict_Next(map, &pos, &key, &value)) {
         unsigned long cp = PyLong_AsUnsignedLong(key);
+        if (PyErr_Occurred()) break;
         std::vector<PhonemeId> ids;
         for (Py_ssize_t i = 0; i < PyList_GET_SIZE(value); i++) {
             unsigned long id = PyLong_AsUnsignedLong(PyList_GET_ITEM(value, i));
+            if (PyErr_Occurred()) break;
             ids.push_back(id);
         }
         current_phoneme_id_map[cp] = ids;
     }
     Py_CLEAR(map);
+    if (PyErr_Occurred()) return NULL;
 
     // Load onnx model
     Py_BEGIN_ALLOW_THREADS;
@@ -369,8 +371,8 @@ next(PyObject *self, PyObject *args) {
     }
     if (data) {
         ans = Py_BuildValue(
-            "NiiO", data, sizeof(float)*num_samples, num_samples, current_sample_rate,
-            phoneme_id_queue.empty() ? Py_True : Py_False);
+            "OiiO", data, num_samples, current_sample_rate, phoneme_id_queue.empty() ? Py_True : Py_False);
+        Py_DECREF(data);
     }
 
     // Clean up
