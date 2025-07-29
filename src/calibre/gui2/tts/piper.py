@@ -355,7 +355,7 @@ class Piper(TTSBackend):
         if err is not None:
             self._errors_from_piper.append(str(err))
             self._errors_from_piper.append(tb)
-        else:
+        elif self._utterances_being_synthesized:
             u = self._utterances_being_synthesized[0]
             if u.id == sr.utterance_id:
                 u.audio_data.append(sr.audio_data)
