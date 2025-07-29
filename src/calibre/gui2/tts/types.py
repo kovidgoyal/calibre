@@ -9,7 +9,7 @@ from typing import Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
-from calibre.constants import islinux, ismacos, iswindows, piper_cmdline
+from calibre.constants import islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import canonicalize_lang
@@ -234,12 +234,11 @@ def available_engines() -> dict[str, EngineMetadata]:
             ), True)
         elif x == 'speechd':
             continue
-    if piper_cmdline():
-        ans['piper'] = EngineMetadata('piper', _('The Piper Neural Engine'), _(
-            'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
-            'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
-        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True,
-        has_sentence_delay=True)
+    ans['piper'] = EngineMetadata('piper', _('The Piper Neural Engine'), _(
+        'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
+        'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
+    ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True,
+    has_sentence_delay=True)
     if islinux:
         try:
             from speechd.paths import SPD_SPAWN_CMD
