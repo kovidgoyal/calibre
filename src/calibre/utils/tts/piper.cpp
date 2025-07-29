@@ -11,11 +11,14 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include <onnxruntime_cxx_api.h>
 #include <queue>
 #include <cstdint>
 #include <algorithm>
 #include <limits>
+#ifdef _WIN32
+#define ORT_DLL_IMPORT
+#endif
+#include <onnxruntime_cxx_api.h>
 
 #define CLAUSE_INTONATION_FULL_STOP 0x00000000
 #define CLAUSE_INTONATION_COMMA 0x00001000
@@ -137,8 +140,8 @@ phonemize(PyObject *self, PyObject *pytext) {
 
 static PyObject*
 set_voice(PyObject *self, PyObject *args) {
-    PyObject *cfg; const char *model_path;
-    if (!PyArg_ParseTuple(args, "Os", &cfg, &model_path)) return NULL;
+    PyObject *cfg; PyObject *pymp;
+    if (!PyArg_ParseTuple(args, "OU", &cfg, &pymp)) return NULL;
 
     PyObject *evn = PyObject_GetAttrString(cfg, "espeak_voice_name");
     if (!evn) return NULL;
@@ -155,10 +158,10 @@ set_voice(PyObject *self, PyObject *args) {
 }
     G(sample_rate, current_sample_rate, PyLong_AsLong);
     G(num_speakers, current_num_speakers, PyLong_AsLong);
-    G(length_scale, current_length_scale, PyFloat_AsDouble);
-    G(noise_scale, current_noise_scale, PyFloat_AsDouble);
-    G(noise_w, current_noise_w, PyFloat_AsDouble);
-    G(sentence_delay, current_sentence_delay, PyFloat_AsDouble);
+    G(length_scale, current_length_scale, (float)PyFloat_AsDouble);
+    G(noise_scale, current_noise_scale, (float)PyFloat_AsDouble);
+    G(noise_w, current_noise_w, (float)PyFloat_AsDouble);
+    G(sentence_delay, current_sentence_delay, (float)PyFloat_AsDouble);
 #undef G
 
     PyObject *map = PyObject_GetAttrString(cfg, "phoneme_id_map");
@@ -187,7 +190,14 @@ set_voice(PyObject *self, PyObject *args) {
     opts.DisableProfiling();
     Ort::Env ort_env{ORT_LOGGING_LEVEL_WARNING, "piper"};
     session.reset();
+#ifdef _WIN32
+    wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
+    if (!model_path) return NULL;
     session = std::make_unique<Ort::Session>(Ort::Session(ort_env, model_path, opts));
+    PyMem_Free(model_path);
+#else
+    session = std::make_unique<Ort::Session>(Ort::Session(ort_env, PyUnicode_AsUTF8(pymp), opts));
+#endif
     Py_END_ALLOW_THREADS;
 
     Py_RETURN_NONE;
@@ -341,20 +351,20 @@ next(PyObject *self, PyObject *args) {
     int num_samples; const float *audio_tensor_data;
     Py_BEGIN_ALLOW_THREADS;
     auto audio_shape = output_tensors.front().GetTensorTypeAndShapeInfo().GetShape();
-    num_samples = audio_shape[audio_shape.size() - 1];
+    num_samples = (int)audio_shape[audio_shape.size() - 1];
     audio_tensor_data = output_tensors.front().GetTensorData<float>();
     Py_END_ALLOW_THREADS;
 
     PyObject *ans = NULL, *data = NULL;
     int num_of_silence_samples = 0;
-    if (current_sentence_delay > 0) num_of_silence_samples = current_sample_rate * current_sentence_delay;
+    if (current_sentence_delay > 0) num_of_silence_samples = (int)(current_sample_rate * current_sentence_delay);
     if (as_16bit_samples) {
         data = PyBytes_FromStringAndSize(NULL, sizeof(int16_t) * (num_samples + num_of_silence_samples));
         if (data) {
             Py_BEGIN_ALLOW_THREADS;
             int16_t *x = (int16_t*)PyBytes_AS_STRING(data);
             for (int i = 0; i < num_samples; i++) {
-                x[i] = std::max(-1.f, std::min(audio_tensor_data[i], 1.f)) * std::numeric_limits<int16_t>::max();
+                x[i] = (int16_t)(std::max(-1.f, std::min(audio_tensor_data[i], 1.f)) * std::numeric_limits<int16_t>::max());
             }
             memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
             Py_END_ALLOW_THREADS;

@@ -18,7 +18,6 @@ import zipfile
 from bypy.constants import CL, LINK, MT, PREFIX, RC, SIGNTOOL, SW, build_dir, python_major_minor_version, worker_env
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import cleanup_site_packages, extract_extension_modules, freeze_python, path_to_freeze_dir
-from bypy.pkgs.piper import copy_piper_dir
 from bypy.utils import mkdtemp, py_compile, run, walk
 
 iv = globals()['init_env']
@@ -96,6 +95,7 @@ class Env:
         self.lib_dir = j(self.app_base, 'Lib')
         self.pylib = j(self.app_base, 'pylib.zip')
         self.dll_dir = j(self.app_base, 'bin')
+        self.share_dir = j(self.app_base, 'share')
         self.portable_base = j(d(self.base), 'Calibre Portable')
         self.obj_dir = j(build_dir, 'launcher')
         self.installer_dir = j(build_dir, 'wix')
@@ -105,6 +105,7 @@ class Env:
 def initbase(env):
     os.makedirs(env.app_base)
     os.mkdir(env.dll_dir)
+    os.mkdir(env.share_dir)
     try:
         shutil.rmtree(env.dist)
     except EnvironmentError as err:
@@ -130,18 +131,24 @@ def freeze(env, ext_dir, incdir):
             shutil.copy2(x + '.manifest', dest)
 
     bindir = os.path.join(PREFIX, 'bin')
+    libdir = os.path.join(PREFIX, 'lib')
     for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'pdftotext', 'jpegtran-calibre', 'cjpeg-calibre', 'optipng-calibre', 'cwebp-calibre', 'JXRDecApp-calibre'):
         copybin(os.path.join(bindir, x + '.exe'))
+    # piper
+    for x in ('espeak-ng-data',):
+        shutil.copytree(os.path.join(PREFIX, 'share', x), os.path.join(env.share_dir, x))
+    copybin(os.path.join(libdir, "onnxruntime.dll"))
+
     for f in glob.glob(os.path.join(bindir, '*.dll')):
         if re.search(r'(easylzma|icutest)', f.lower()) is None:
             copybin(f)
+
     ossm = os.path.join(env.dll_dir, 'ossl-modules')
     os.mkdir(ossm)
-    for f in glob.glob(os.path.join(PREFIX, 'lib', 'ossl-modules', '*.dll')):
+    for f in glob.glob(os.path.join(libdir, 'ossl-modules', '*.dll')):
         copybin(f, ossm)
     for f in glob.glob(os.path.join(PREFIX, 'ffmpeg', 'bin', '*.dll')):
         copybin(f)
-    copy_piper_dir(PREFIX, env.dll_dir)
 
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver.replace('.', '')))
     copybin(os.path.join(env.python_base, 'python%s.dll' % env.py_ver[0]))

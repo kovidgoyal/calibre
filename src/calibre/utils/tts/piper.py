@@ -12,6 +12,7 @@ from threading import Lock, Thread
 from typing import Any, NamedTuple
 
 import calibre_extensions.piper as piper
+from calibre.constants import iswindows
 
 DEFAULT_LENGTH_SCALE = 1.0
 DEFAULT_NOISE_SCALE = 0.667
@@ -61,6 +62,8 @@ def load_voice_config(path: str) -> VoiceConfig:
 def espeak_data_dir() -> str:
     if not getattr(sys, 'frozen', False):
         return ''
+    if iswindows:
+        return os.path.join(os.path.dirname(sys.executables_location), 'share', 'espeak-ng-data')
     return os.path.join(sys.executables_location, 'share', 'espeak-ng-data')
 
 
