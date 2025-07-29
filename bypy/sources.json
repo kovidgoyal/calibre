@@ -18,9 +18,9 @@
         "name": "cmake",
         "os": "macos",
         "unix": {
-            "filename": "cmake-3.27.6.tar.gz",
-            "hash": "sha256:ef3056df528569e0e8956f6cf38806879347ac6de6a4ff7e4105dc4578732cfb",
-            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.27.6/{filename}"]
+            "filename": "cmake-3.31.8.tar.gz",
+            "hash": "sha256:e3cde3ca83dc2d3212105326b8f1b565116be808394384007e7ef1c253af6caa",
+            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.31.8/{filename}"]
         }
     },
 

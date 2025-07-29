@@ -181,6 +181,9 @@ if iswindows:
     zlib_lib_dirs = [sw_lib_dir]
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
+    piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
+    piper_lib_dirs = [sw_lib_dir]
+    piper_libs = ['espeak-ng', 'onnxruntime']
 elif ismacos:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     sw_inc_dir  = os.path.join(sw, 'include')
