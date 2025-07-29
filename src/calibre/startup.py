@@ -174,9 +174,9 @@ def initialize_calibre():
 
     builtins.__dict__['connect_lambda'] = connect_lambda
 
-    if islinux or ismacos or isfreebsd:
+    if sys.version_info[:2] < (3, 14) and (islinux or ismacos or isfreebsd):
         # Name all threads at the OS level created using the threading module, see
-        # http://bugs.python.org/issue15500
+        # https://github.com/python/cpython/issues/59705
         import threading
 
         from calibre_extensions import speedup
