@@ -1195,37 +1195,19 @@
     },
     {
         "name": "onnx",
-		"comment": "This is newer than the version needed for the version of piper-phonemize to get it to build on macOS (see CMakeLists.txt in piper-phonemize)",
         "unix": {
-            "filename": "onnx-1.20.2.tar.gz",
-            "hash": "sha256:6780b0b4f11d22f30a827dbbd3bd626e85e9c48e98719e9a535eda543446eab8",
-            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.20.2.tar.gz"]
+            "filename": "onnx-1.22.1.tar.gz",
+            "hash": "sha256:9eacbf624d6f7466da81d9beb4399cb8683808b15c1276b7cd56c6907bf59f77",
+            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.22.1.tar.gz"]
         }
     },
     {
-        "name": "piper-espeak",
-		"comment": "This is the version needed for the version of piper-phonemize we use (see CMakeLists.txt in piper-phonemize)",
+        "name": "espeak",
+        "comment": "We need the espeak_TextToPhonemesWithTerminator() function. No release of espeak-ng with that function has been made yet, so use a commit that includes it",
         "unix": {
-            "filename": "espeak-1.zip",
-            "hash": "sha256:150fc955926a084a77ebe25c9e8287bde2e2a17bbf9b23a25c147b556837949f",
-            "urls": ["https://github.com/rhasspy/espeak-ng/archive/0f65aa301e0d6bae5e172cc74197d32a6182200f.zip"]
-        }
-    },
-    {
-        "name": "piper-phonemize",
-		"comment": "This is the version needed for the version of piper we use (see CMakeLists.txt in piper)",
-        "unix": {
-            "filename": "piper-phonemize-1.zip",
-            "hash": "sha256:cc57a4a00a0f5bd50555a93c94c0622da065a2a90b9c896bfbe8b45519e2e9c2",
-            "urls": ["https://github.com/rhasspy/piper-phonemize/archive/bfc2e7549957829b0227c66a305d11cc88167bda.zip"]
-        }
-    },
-    {
-        "name": "piper",
-        "unix": {
-            "filename": "piper-2023.11.14.tar.gz",
-            "hash": "sha256:8b684e102cfe23af097830db9555a8641f17735725853c531a1daeb34b6ed1a8",
-            "urls": ["https://github.com/rhasspy/piper/archive/refs/tags/2023.11.14-2.tar.gz"]
+            "filename": "espeak-a4ca101.zip",
+            "hash": "sha256:3cbbd7bb84bc9b4391c3f3bb86750094a38f4bd6fcdc4fda7e2516d2955d3366",
+            "urls": ["https://github.com/espeak-ng/espeak-ng/archive/a4ca101c99de35345f89df58195b2159748b7092.zip"]
         }
     }
 ]
