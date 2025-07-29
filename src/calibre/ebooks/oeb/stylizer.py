@@ -185,9 +185,17 @@ class StylizerRules:
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
                 style['font-size'] = f'{self.profile.fnames[size]/float(self.profile.fbase):.1f}rem'
-        if '-epub-writing-mode' in style:
-            for x in ('-webkit-writing-mode', 'writing-mode'):
-                style[x] = style.get(x, style['-epub-writing-mode'])
+        UNPREFIXED_PROPERTIES = (
+            ['writing-mode'] +
+            [f'text-emphasis{x}' for x in ('', '-color', '-position', '-style')]
+        )
+        for unprefixed_property in UNPREFIXED_PROPERTIES:
+            epub_property = f'-epub-{unprefixed_property}'
+            webkit_property = f'-webkit-{unprefixed_property}'
+            if epub_property in style:
+                value = style[epub_property]
+                style[unprefixed_property] = style.get(unprefixed_property, value)
+                style[webkit_property] = style.get(webkit_property, value)
         return style
 
     def _apply_text_align(self, text):
