@@ -50,6 +50,7 @@ static int current_num_speakers = 1;
 static float current_length_scale = 1;
 static float current_noise_scale = 1;
 static float current_noise_w  = 1;
+static float current_sentence_delay  = 0;
 std::unique_ptr<Ort::Session> session;
 std::queue<std::vector<PhonemeId>> phoneme_id_queue;
 std::vector<float> chunk_samples;
@@ -158,6 +159,7 @@ set_voice(PyObject *self, PyObject *args) {
     G(length_scale, current_length_scale, PyFloat_AsDouble);
     G(noise_scale, current_noise_scale, PyFloat_AsDouble);
     G(noise_w, current_noise_w, PyFloat_AsDouble);
+    G(sentence, current_sentence_delay, PyFloat_AsDouble);
 #undef G
 
     PyObject *map = PyObject_GetAttrString(cfg, "phoneme_id_map");
@@ -341,23 +343,33 @@ next(PyObject *self, PyObject *args) {
     audio_tensor_data = output_tensors.front().GetTensorData<float>();
     Py_END_ALLOW_THREADS;
 
-    PyObject *ans = NULL;
+    PyObject *ans = NULL, *data = NULL;
+    int num_of_silence_samples = 0;
+    if (current_sentence_delay > 0) num_of_silence_samples = current_sample_rate * current_sentence_delay;
     if (as_16bit_samples) {
-        PyObject *data = PyBytes_FromStringAndSize(NULL, sizeof(int16_t) * num_samples);
+        data = PyBytes_FromStringAndSize(NULL, sizeof(int16_t) * (num_samples + num_of_silence_samples));
         if (data) {
-            int16_t *x = (int16_t*)PyBytes_AS_STRING(data);
             Py_BEGIN_ALLOW_THREADS;
+            int16_t *x = (int16_t*)PyBytes_AS_STRING(data);
             for (int i = 0; i < num_samples; i++) {
                 x[i] = std::max(-1.f, std::min(audio_tensor_data[i], 1.f)) * std::numeric_limits<int16_t>::max();
             }
+            memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
             Py_END_ALLOW_THREADS;
-            ans = Py_BuildValue(
-                "NiiO", data, sizeof(float)*num_samples, num_samples, current_sample_rate,
-                phoneme_id_queue.empty() ? Py_True : Py_False);
-        }
+       }
     } else {
+        data = PyBytes_FromStringAndSize(NULL, sizeof(float) * (num_samples * num_of_silence_samples));
+        if (data) {
+            Py_BEGIN_ALLOW_THREADS;
+            float *x = (float*)PyBytes_AS_STRING(data);
+            memcpy(x, audio_tensor_data, sizeof(float) * num_samples);
+            memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
+            Py_END_ALLOW_THREADS;
+        }
+    }
+    if (data) {
         ans = Py_BuildValue(
-            "y#iiO", audio_tensor_data, sizeof(float)*num_samples, num_samples, current_sample_rate,
+            "NiiO", data, sizeof(float)*num_samples, num_samples, current_sample_rate,
             phoneme_id_queue.empty() ? Py_True : Py_False);
     }
 

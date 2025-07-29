@@ -19,8 +19,7 @@ class VoiceConfig(NamedTuple):
     noise_scale: float
     noise_w: float
     num_speakers: int
-
-    sentence_delay: float = 0
+    sentence_delay: float
 
 
 def translate_voice_config(x: Any) -> VoiceConfig:
@@ -56,8 +55,9 @@ def espeak_data_dir() -> str:
     return ''   # TODO: get the correct path when using frozen builds
 
 
-def set_voice(config_path: str, model_path:str, length_scale_multiplier: float, sentence_delay: float) -> None:
+def set_voice(config_path: str, model_path:str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> None:
     piper.initialize(espeak_data_dir())
     cfg = load_voice_config(config_path)
-    cfg = cfg._replace(sentence_delay=sentence_delay, length_scale=cfg.length_scale * length_scale_multiplier)
+    m = max(0.1, 1 + -1 * max(-1, min(length_scale_multiplier, 1)))  # maps -1 to 1 to 2 to 0.1
+    cfg = cfg._replace(sentence_delay=sentence_delay, length_scale=cfg.length_scale * m)
     piper.set_voice(cfg, model_path)
