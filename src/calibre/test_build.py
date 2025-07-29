@@ -123,14 +123,9 @@ class BuildTest(unittest.TestCase):
         from speechd.client import SSIPClient
         del SSIPClient
 
-    @unittest.skipIf('SKIP_SPEECH_TESTS' in os.environ, 'Speech support is opted out')
     def test_piper(self):
-        import subprocess
-
-        from calibre.constants import piper_cmdline
-        self.assertTrue(piper_cmdline())
-        raw = subprocess.check_output(piper_cmdline() + ('-h',), stderr=subprocess.STDOUT).decode()
-        self.assertIn('--sentence_silence', raw)
+        from calibre.utils.tts.piper import simple_test
+        simple_test()
 
     def test_zeroconf(self):
         import ifaddr

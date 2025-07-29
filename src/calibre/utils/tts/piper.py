@@ -83,6 +83,13 @@ class SynthesisResult(NamedTuple):
     is_last: bool
 
 
+def simple_test():
+    piper.initialize(espeak_data_dir())
+    piper.set_espeak_voice_by_name('en-us')
+    if not piper.phonemize('simple test'):
+        raise ValueError('No phonemes returned by phonemize()')
+
+
 class Piper(Thread):
 
     def __init__(self):
@@ -172,6 +179,10 @@ def global_piper_instance() -> Piper:
     return _global_piper_instance
 
 
+def global_piper_instance_if_exists() -> Piper | None:
+    return _global_piper_instance
+
+
 def play_wav_data(wav_data: bytes):
     from qt.core import QAudioOutput, QBuffer, QByteArray, QCoreApplication, QIODevice, QMediaPlayer, QUrl
     app = QCoreApplication([])
@@ -188,6 +199,11 @@ def play_wav_data(wav_data: bytes):
     m.errorOccurred.connect(lambda e, s: (print(e, s, file=sys.stderr), app.quit()))
     m.play()
     app.exec()
+
+
+def play_pcm_data(pcm_data, sample_rate):
+    from calibre_extensions.ffmpeg import wav_header_for_pcm_data
+    play_wav_data(wav_header_for_pcm_data(len(pcm_data), sample_rate) + pcm_data)
 
 
 def develop():
@@ -210,10 +226,7 @@ def develop():
         print(f'Got {len(sr.audio_data)} bytes of audio data', flush=True)
         if sr.is_last:
             break
-    from calibre_extensions.ffmpeg import wav_header_for_pcm_data
-    pcm_data = b''.join(all_data)
-    wav_data = wav_header_for_pcm_data(len(pcm_data), sample_rate) + pcm_data
-    play_wav_data(wav_data)
+    play_pcm_data(b''.join(all_data), sample_rate)
 
 
 if __name__ == '__main__':
