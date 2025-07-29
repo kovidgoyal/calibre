@@ -59,7 +59,9 @@ def load_voice_config(path: str) -> VoiceConfig:
 
 
 def espeak_data_dir() -> str:
-    return ''   # TODO: get the correct path when using frozen builds
+    if not getattr(sys, 'frozen', False):
+        return ''
+    return os.path.join(sys.executables_location, 'share', 'espeak-ng-data')
 
 
 def create_voice_config(config_path: str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> VoiceConfig:
@@ -84,10 +86,13 @@ class SynthesisResult(NamedTuple):
 
 
 def simple_test():
-    piper.initialize(espeak_data_dir())
+    d = espeak_data_dir()
+    if d and not os.path.exists(os.path.join(d, 'voices')):
+        raise AssertionError(f'{d} does not contain espeak-ng data')
+    piper.initialize(d)
     piper.set_espeak_voice_by_name('en-us')
     if not piper.phonemize('simple test'):
-        raise ValueError('No phonemes returned by phonemize()')
+        raise AssertionError('No phonemes returned by phonemize()')
 
 
 class Piper(Thread):
