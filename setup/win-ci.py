@@ -84,6 +84,7 @@ def setup_env():
     os.environ['CI'] = 'true'
     os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
     os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
+    os.environ['CALIBRE_ESPEAK_DATA_DIR'] = os.path.join(SW, 'share', 'espeak-ng-data')
 
 
 def main():
