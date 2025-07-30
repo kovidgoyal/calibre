@@ -43,6 +43,7 @@ if ismacos:
         if old:
             old += ':'
         setenv('DYLD_FALLBACK_LIBRARY_PATH', old + '$SW/lib')
+        setenv('CALIBRE_ESPEAK_DATA_DIR', '$SW/share/espeak-ng-data')
 else:
 
     SWBASE = '/sw'
@@ -57,6 +58,7 @@ else:
         setenv('PKG_CONFIG_PATH', '$SW/lib/pkgconfig')
         setenv('QMAKE', '$SW/qt/bin/qmake')
         setenv('CALIBRE_QT_PREFIX', '$SW/qt')
+        setenv('CALIBRE_ESPEAK_DATA_DIR', '$SW/share/espeak-ng-data')
 
 
 def run(*args, timeout=600):
