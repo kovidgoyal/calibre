@@ -137,7 +137,10 @@ def freeze(env, ext_dir, incdir):
     # piper
     for x in ('espeak-ng-data',):
         shutil.copytree(os.path.join(PREFIX, 'share', x), os.path.join(env.share_dir, x))
-    copybin(os.path.join(libdir, "onnxruntime.dll"))
+    for f in glob.glob(os.path.join(libdir, 'onnxruntime*.dll')):
+        copybin(f)
+    for f in glob.glob(os.path.join(libdir, 'DirectML*.dll')):
+        copybin(f)
 
     for f in glob.glob(os.path.join(bindir, '*.dll')):
         if re.search(r'(easylzma|icutest)', f.lower()) is None:
