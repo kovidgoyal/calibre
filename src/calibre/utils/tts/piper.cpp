@@ -229,30 +229,11 @@ set_voice(PyObject *self, PyObject *args) {
     // Load onnx model
     Py_BEGIN_ALLOW_THREADS;
     static Ort::SessionOptions opts;
-
-    // for (const auto& p : available_providers) {
-    //     std::unordered_map<std::string, std::string> provider_options;
-    //     try {
-    //         opts.AppendExecutionProvider(p, provider_options);
-    //     } catch (const Ort::Exception& e) {
-    //         fprintf(stderr, "Failed to append execution provider: '%s' with error: %s\n", p.c_str(), e.what());
-    //     }
-    // }
-    // OrtDnnlProviderOptions* dnnl_options_ptr = nullptr;
-    // OrtStatus* status = Ort::GetApi().CreateDnnlProviderOptions(&dnnl_options_ptr);
-    // if (status == nullptr) {
-    //     printf("11111111111111111 %d\n", __LINE__);
-    // try {
-    //     opts.AppendExecutionProvider_Dnnl(*dnnl_options_ptr);
-    //     printf("11111111111111111 %d\n", __LINE__);
-    // } catch (const Ort::Exception& e) {
-    //     fprintf(stderr, "Failed to append execution provider with error: %s\n", e.what());
-    // }}
-
     opts.DisableCpuMemArena();
     opts.DisableMemPattern();
     opts.DisableProfiling();
     Ort::Env ort_env{ORT_LOGGING_LEVEL_WARNING, "piper"};
+    ort_env.DisableTelemetryEvents();
     session.reset();
 #ifdef _WIN32
     wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
