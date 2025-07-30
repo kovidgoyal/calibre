@@ -28,6 +28,7 @@ class VoiceConfig(NamedTuple):
     noise_w: float
     num_speakers: int
     sentence_delay: float = 0
+    normalize_volume: bool = False
 
 
 def translate_voice_config(x: Any) -> VoiceConfig:
