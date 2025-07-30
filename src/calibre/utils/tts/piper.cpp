@@ -57,6 +57,7 @@ static float current_length_scale = 1;
 static float current_noise_scale = 1;
 static float current_noise_w  = 1;
 static float current_sentence_delay  = 0;
+static bool current_normalize_volume = true;
 std::unique_ptr<Ort::Session> session;
 std::queue<std::vector<PhonemeId>> phoneme_id_queue;
 std::vector<float> chunk_samples;
@@ -231,6 +232,7 @@ set_voice(PyObject *self, PyObject *args) {
     G(noise_scale, current_noise_scale, (float)PyFloat_AsDouble);
     G(noise_w, current_noise_w, (float)PyFloat_AsDouble);
     G(sentence_delay, current_sentence_delay, (float)PyFloat_AsDouble);
+    G(normalize_volume, current_normalize_volume, PyObject_IsTrue);
 #undef G
 
     PyObject *map = PyObject_GetAttrString(cfg, "phoneme_id_map");
