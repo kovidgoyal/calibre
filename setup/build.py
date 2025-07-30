@@ -326,6 +326,8 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
                 cflags.append(f'{splat}/{I}')
             for L in 'sdk/lib/um crt/lib sdk/lib/ucrt'.split():
                 ldflags.append(f'/libpath:{splat}/{L}')
+            for L in os.environ.get('CROSS_LIBDIRS', '').split(os.pathsep):
+                ldflags.append(f'/libpath:{L}')
         else:
             for p in win_inc:
                 cflags.append('-I'+p)

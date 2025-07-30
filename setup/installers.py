@@ -238,10 +238,15 @@ class ExtDev(Command):
 
     description = 'Develop a single native extension conveniently'
 
+    def add_options(self, parser):
+        parser.add_option('-L', '--libdir', default=[], action='append',
+                          help='Path to directory from which to load extra libraries, relative to pkg directory of cross compile target.')
+
     def run(self, opts):
         which, ext = opts.cli_args[:2]
         cmd = opts.cli_args[2:] or ['calibre-debug', '--test-build']
         if which == 'windows':
+            os.environ['CROSS_LIBDIRS'] = os.pathsep.join(f'bypy/b/windows/64/pkg/{x}' for x in opts.libdir)
             cp = subprocess.run([sys.executable, 'setup.py', 'build', '--cross-compile-extensions=windows', f'--only={ext}'])
             if cp.returncode != 0:
                 raise SystemExit(cp.returncode)
@@ -250,6 +255,7 @@ class ExtDev(Command):
             path = '/cygdrive/c/Program Files/Calibre2/app/bin/{}.pyd'
             bin_dir = '/cygdrive/c/Program Files/Calibre2'
         elif which == 'macos':
+            os.environ['CROSS_LIBDIRS'] = os.pathsep.join(f'bypy/b/macos/pkg/{x}' for x in opts.libdir)
             ext_dir = build_only(which, '', ext)
             src = os.path.join(ext_dir, f'{ext}.so')
             print(
@@ -269,13 +275,13 @@ class ExtDev(Command):
             raise SystemExit(1)
         try:
             path = path.format(ext)
-            subprocess.check_call(['ssh', '-S', control_path, host, 'chmod', '+wx', f'"{path}"'])
+            subprocess.call(['ssh', '-S', control_path, host, 'chmod', '+wx', f'"{path}"'])
             with open(src, 'rb') as f:
                 p = subprocess.Popen(['ssh', '-S', control_path, host, f'cat - > "{path}"'], stdin=subprocess.PIPE)
                 p.communicate(f.read())
             if p.wait() != 0:
                 raise SystemExit(1)
-            subprocess.check_call(['ssh', '-S', control_path, host, './update-calibre'])
+            subprocess.check_call(['ssh', '-S', control_path, host, 'bin/update-calibre'])
             enc = json.dumps(cmd)
             if not isinstance(enc, bytes):
                 enc = enc.encode('utf-8')
