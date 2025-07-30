@@ -12,7 +12,7 @@ from threading import Lock, Thread
 from typing import Any, NamedTuple
 
 import calibre_extensions.piper as piper
-from calibre.constants import iswindows
+from calibre.constants import ismacos, iswindows
 
 DEFAULT_LENGTH_SCALE = 1.0
 DEFAULT_NOISE_SCALE = 0.667
@@ -64,6 +64,8 @@ def espeak_data_dir() -> str:
         return ''
     if iswindows:
         return os.path.join(os.path.dirname(sys.executables_location), 'share', 'espeak-ng-data')
+    if ismacos:
+        return os.path.join(os.path.dirname(sys.frameworks_dir), 'Resources', 'espeak-ng-data')
     return os.path.join(sys.executables_location, 'share', 'espeak-ng-data')
 
 

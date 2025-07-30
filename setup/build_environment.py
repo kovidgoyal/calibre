@@ -200,6 +200,9 @@ elif ismacos:
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
     if os.path.exists(os.path.join(sw_bin_dir, 'cmake')):
         CMAKE = os.path.join(sw_bin_dir, 'cmake')
+    piper_inc_dirs = [sw_inc_dir, os.path.join(sw_inc_dir, 'onnxruntime')]
+    piper_lib_dirs = [sw_lib_dir]
+    piper_libs = ['espeak-ng', 'onnxruntime']
 else:
     freetype_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
             '/usr/include/freetype2')
