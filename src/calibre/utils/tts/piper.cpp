@@ -431,32 +431,28 @@ next(PyObject *self, PyObject *args) {
     }
 
     int num_samples; const float *audio_tensor_data;
-    Py_BEGIN_ALLOW_THREADS;
+    PyObject *ans = NULL, *data = NULL;
+    int num_of_silence_samples = 0;
     auto audio_shape = output_tensors.front().GetTensorTypeAndShapeInfo().GetShape();
     num_samples = (int)audio_shape[audio_shape.size() - 1];
     audio_tensor_data = output_tensors.front().GetTensorData<float>();
-    Py_END_ALLOW_THREADS;
+    float maxval = 1.f;
 
-    PyObject *ans = NULL, *data = NULL;
-    int num_of_silence_samples = 0;
+    Py_BEGIN_ALLOW_THREADS;
     if (current_sentence_delay > 0) num_of_silence_samples = (int)(current_sample_rate * current_sentence_delay);
-    const float *normalized = audio_tensor_data;
     if (num_samples) {
-        float maxval = std::abs(audio_tensor_data[0]), q;
+        maxval = std::abs(audio_tensor_data[0]); float q;
         for (int i = 1; i < num_samples; i++) if ((q = std::abs(audio_tensor_data[i])) > maxval) maxval = q;
-        if (maxval > 1e-8) {
-            float *temp = (float*)malloc(num_samples * sizeof(audio_tensor_data[0]));
-            for (int i = 0; i < num_samples; i++) temp[i] /= maxval;
-            normalized = temp;
-        }
+        if (maxval <= 1e-8) maxval = 1.f;
     }
+    Py_END_ALLOW_THREADS;
     if (as_16bit_samples) {
         data = PyBytes_FromStringAndSize(NULL, sizeof(int16_t) * (num_samples + num_of_silence_samples));
         if (data) {
             Py_BEGIN_ALLOW_THREADS;
             int16_t *x = (int16_t*)PyBytes_AS_STRING(data);
             for (int i = 0; i < num_samples; i++) {
-                x[i] = (int16_t)(audio_tensor_data[i]  * std::numeric_limits<int16_t>::max());
+                x[i] = (int16_t)((audio_tensor_data[i]/maxval) * std::numeric_limits<int16_t>::max());
             }
             memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
             Py_END_ALLOW_THREADS;
@@ -466,12 +462,11 @@ next(PyObject *self, PyObject *args) {
         if (data) {
             Py_BEGIN_ALLOW_THREADS;
             float *x = (float*)PyBytes_AS_STRING(data);
-            memcpy(x, audio_tensor_data, sizeof(float) * num_samples);
+            for (int i = 0; i < num_samples; i++) x[i] = audio_tensor_data[i]/maxval;
             memset(x + num_samples, 0, num_of_silence_samples * sizeof(int16_t));
             Py_END_ALLOW_THREADS;
         }
     }
-    if (normalized != audio_tensor_data) free((void*)normalized);
     if (data) {
         ans = Py_BuildValue(
             "OiiO", data, num_samples, current_sample_rate, phoneme_id_queue.empty() ? Py_True : Py_False);
