@@ -61,6 +61,49 @@ static struct {
     PyObject *func, *args;
 } normalize_data = {0};
 
+static const std::vector<std::string>& PRIORITY_ORDER = {
+#ifdef _WIN32
+    "DML", "DmlExecutionProvider", "DirectMLExecutionProvider",
+#endif
+#ifdef __APPLE__
+    "CoreML", "CoreMLExecutionProvider",
+#endif
+    "ROCMExecutionProvider",  // AMD GPU
+    "TensorRTExecutionProvider", "CUDAExecutionProvider", // NVIDIA GPU
+    "OpenVINO", "OpenVINOExecutionProvider", // Intel GPU and CPU
+    // The various CPU providers
+    "DnnlExecutionProvider",  // CPU with AVX 512
+    "CPUExecutionProvider",  // the default, always available provider
+};
+
+static void
+sort_providers_by_priority(std::vector<std::string>& providers, const std::vector<std::string>& priority_order) {
+    // Build a priority map: provider name -> order index
+    std::unordered_map<std::string, size_t> priority_map;
+    for (size_t i = 0; i < priority_order.size(); ++i) {
+        priority_map[priority_order[i]] = i;
+    }
+
+    // Stable sort so original order is preserved for equal priority
+    std::stable_sort(providers.begin(), providers.end(),
+        [&priority_map, &priority_order](const std::string& a, const std::string& b) {
+            auto it_a = priority_map.find(a);
+            auto it_b = priority_map.find(b);
+            size_t index_a = it_a != priority_map.end() ? it_a->second : priority_order.size();
+            size_t index_b = it_b != priority_map.end() ? it_b->second : priority_order.size();
+            return index_a < index_b;
+        });
+}
+
+static std::vector<std::string> available_providers;
+
+static void
+set_available_providers() {
+    if (!available_providers.empty()) return;
+    available_providers = Ort::GetAvailableProviders();
+    sort_providers_by_priority(available_providers, PRIORITY_ORDER);
+}
+
 static PyObject*
 initialize(PyObject *self, PyObject *args) {
     const char *path = "";
@@ -80,6 +123,7 @@ initialize(PyObject *self, PyObject *args) {
         if (!normalize_data.func) return NULL;
         normalize_data.args = Py_BuildValue("(ss)", "NFD", "");
         if (!normalize_data.args) return NULL;
+        set_available_providers();
     }
     Py_RETURN_NONE;
 }
@@ -184,7 +228,27 @@ set_voice(PyObject *self, PyObject *args) {
 
     // Load onnx model
     Py_BEGIN_ALLOW_THREADS;
-    Ort::SessionOptions opts;
+    static Ort::SessionOptions opts;
+
+    // for (const auto& p : available_providers) {
+    //     std::unordered_map<std::string, std::string> provider_options;
+    //     try {
+    //         opts.AppendExecutionProvider(p, provider_options);
+    //     } catch (const Ort::Exception& e) {
+    //         fprintf(stderr, "Failed to append execution provider: '%s' with error: %s\n", p.c_str(), e.what());
+    //     }
+    // }
+    // OrtDnnlProviderOptions* dnnl_options_ptr = nullptr;
+    // OrtStatus* status = Ort::GetApi().CreateDnnlProviderOptions(&dnnl_options_ptr);
+    // if (status == nullptr) {
+    //     printf("11111111111111111 %d\n", __LINE__);
+    // try {
+    //     opts.AppendExecutionProvider_Dnnl(*dnnl_options_ptr);
+    //     printf("11111111111111111 %d\n", __LINE__);
+    // } catch (const Ort::Exception& e) {
+    //     fprintf(stderr, "Failed to append execution provider with error: %s\n", e.what());
+    // }}
+
     opts.DisableCpuMemArena();
     opts.DisableMemPattern();
     opts.DisableProfiling();
@@ -199,6 +263,7 @@ set_voice(PyObject *self, PyObject *args) {
     session = std::make_unique<Ort::Session>(Ort::Session(ort_env, PyUnicode_AsUTF8(pymp), opts));
 #endif
     Py_END_ALLOW_THREADS;
+
 
     Py_RETURN_NONE;
 }
@@ -338,8 +403,9 @@ next(PyObject *self, PyObject *args) {
     std::array<const char *, 1> output_names = {"output"};
 
     // Infer
+    Ort::RunOptions ro;
     output_tensors = session->Run(
-        Ort::RunOptions{nullptr}, input_names.data(), input_tensors.data(),
+        ro, input_names.data(), input_tensors.data(),
         input_tensors.size(), output_names.data(), output_names.size());
     Py_END_ALLOW_THREADS;
 
