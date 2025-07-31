@@ -95,6 +95,9 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
         self.search.clicked.connect(self.toggle_search)
+        self.search_title.returnPressed.connect(self.toggle_search)
+        self.search_author.returnPressed.connect(self.toggle_search)
+        self.search_edit.returnPressed.connect(self.toggle_search)
         self.checker.timeout.connect(self.get_results)
         self.progress_checker.timeout.connect(self.check_progress)
         self.results_view.activated.connect(self.result_item_activated)
