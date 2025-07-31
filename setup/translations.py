@@ -20,7 +20,7 @@ import tempfile
 import textwrap
 import time
 from collections import defaultdict
-from functools import partial
+from functools import lru_cache, partial
 from locale import normalize as normalize_locale
 
 from polyglot.builtins import codepoint_to_chr, iteritems
@@ -54,6 +54,11 @@ def qt_sources():
     ]))
 
 
+@lru_cache(maxsize=2)
+def tx_exe():
+    return os.environ.get('TX', shutil.which('tx-cli') or shutil.which('tx') or 'tx')
+
+
 class POT(Command):  # {{{
 
     description = 'Update the .pot translation template and upload it'
@@ -64,7 +69,7 @@ class POT(Command):  # {{{
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
         if hasattr(cmd, 'format'):
             cmd = shlex.split(cmd)
-        cmd = [os.environ.get('TX', 'tx')] + cmd
+        cmd = [tx_exe()] + cmd
         self.info(' '.join(cmd))
         return subprocess.check_call(cmd, **kw)
 
