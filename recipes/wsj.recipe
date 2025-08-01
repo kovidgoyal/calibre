@@ -255,7 +255,10 @@ class WSJ(BasicNewsRecipe):
                 for arts in art['collectionItems']:
                     mobi = arts['content']['mobileSummary']
                     title = mobi['headline']['text']
-                    desc = mobi['description']['content']['text']
+                    try:
+                        desc = mobi['description']['content']['text']
+                    except TypeError:
+                        desc = ''
                     url = arts['id']
                     self.log('          ', title, '\n\t', desc)
                     articles.append({'title': title, 'description': desc, 'url': url})
