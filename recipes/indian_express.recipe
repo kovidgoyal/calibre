@@ -173,7 +173,7 @@ class IndianExpress(BasicNewsRecipe):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             width = w
-        if h2 := (soup.find(attrs={'itemprop': 'description'}) or soup.find(**classes('synopsis'))):
+        if h2 := (soup.find(attrs={'itemprop': 'description'}) or soup.find(**classes('synopsis top-description'))):
             h2.name = 'p'
             h2['id'] = 'sub-d'
         for span in soup.findAll(
