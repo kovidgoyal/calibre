@@ -15,7 +15,7 @@ from calibre.utils.ipc import gui_socket_address, socket_address
 
 
 def unix_socket(timeout=10):
-    ans = socket.socket(socket.AF_UNIX)
+    ans = socket.socket(socket.AF_UNIX)  # created as non-inheritable by Python
     ans.settimeout(timeout)
     return ans
 
@@ -41,7 +41,7 @@ class Listener(QLocalServer):
             if not self.listen(s.detach()):
                 raise OSError(f'Could not start Listener for IPC at address @{self.address[1:]} with error: {self.errorString()}')
         else:
-            if not self.listen(self.address):
+            if not self.listen(self.address):  # Qt sets bhandleInteritable = False so not inheritable
                 if self.serverError() == QAbstractSocket.SocketError.AddressInUseError and self.uses_filesystem:
                     self.removeServer(self.address)
                     if self.listen(self.address):
