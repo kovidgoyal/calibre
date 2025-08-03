@@ -79,7 +79,7 @@ class SimilarBooksAction(InterfaceAction):
             # back to the default
             if col not in mi.all_field_keys():
                 col = db.prefs.defaults[key]
-            val = mi.get(col, None)
+            val = db.new_api.split_if_is_multiple_composite(col, mi.get(col, None))
         if not val:
             return
 
