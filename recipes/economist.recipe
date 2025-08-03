@@ -31,7 +31,7 @@ def process_web_list(li_node):
             li_html += f'<li>{parse_textjson(li["textJson"])}</li>'
         else:
             li_html += f'<li>{li.get("text", "")}</li>'
-    return li_html
+    return '<ul>' + li_html + '</ul>'
 
 
 def process_info_box(bx):
