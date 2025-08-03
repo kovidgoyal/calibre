@@ -247,6 +247,11 @@ class Economist(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
+    def canonicalize_internal_url(self, url, is_link=True):
+        if url.endswith('/print'):
+            url = url.rpartition('/')[0]
+        return BasicNewsRecipe.canonicalize_internal_url(self, url, is_link=is_link)
+
     def publication_date(self):
         edition_date = self.recipe_specific_options.get('date')
         if edition_date and isinstance(edition_date, str):
