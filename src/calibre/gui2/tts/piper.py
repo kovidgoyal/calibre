@@ -395,9 +395,10 @@ class Piper(TTSBackend):
     def _queue_current_utterance(self) -> None:
         if self._utterances_being_synthesized:
             u = self._utterances_being_synthesized[0]
-            global_piper_instance().synthesize(u.id, u.sentence)
-            u.started = True
-            debug(f'Utterance {u.id} synthesis queued')
+            if not u.started:
+                global_piper_instance().synthesize(u.id, u.sentence)
+                u.started = True
+                debug(f'Utterance {u.id} synthesis queued')
 
     def audio_sink_state_changed(self, state: QAudio.State) -> None:
         self._update_status()
