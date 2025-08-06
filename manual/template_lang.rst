@@ -24,7 +24,7 @@ For the book "The Foundation" by "Isaac Asimov" the  will become::
 
     Asimov, Isaac/The Foundation/The Foundation - Isaac Asimov
 
-The slashes are not ``template expressions`` because they are in between in ``{}``. Such text is left where it appears. For example, if the template is::
+The slashes are not ``template expressions`` because they are not in between in ``{}``. Such text is left where it appears. For example, if the template is::
 
     {author_sort} Some Important Text {title}/{title} - {authors}
 
