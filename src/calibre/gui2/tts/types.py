@@ -234,11 +234,18 @@ def available_engines() -> dict[str, EngineMetadata]:
             ), True)
         elif x == 'speechd':
             continue
-    ans['piper'] = EngineMetadata('piper', _('The Piper Neural Engine'), _(
-        'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
-        'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
-    ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True,
-    has_sentence_delay=True)
+
+    try:
+        import calibre_extensions.piper
+    except ImportError:
+        pass
+    else:
+        ans['piper'] = EngineMetadata('piper', _('The Piper Neural Engine'), _(
+            'The "piper" engine can track the currently spoken sentence on screen. It uses a neural network '
+            'for natural sounding voices. The neural network is run locally on your computer, it is fairly resource intensive to run.'
+        ), TrackingCapability.Sentence, can_change_pitch=False, voices_have_quality_metadata=True, has_managed_voices=True,
+        has_sentence_delay=True)
+
     if islinux:
         try:
             from speechd.paths import SPD_SPAWN_CMD
@@ -322,10 +329,15 @@ def create_tts_backend(force_engine: str | None = None, config_name: str = CONFI
     if not available_engines():
         raise OSError('There are no available TTS engines. Install a TTS engine before trying to use Read Aloud, such as flite or speech-dispatcher')
     prefs = load_config(config_name)
-    engine_name = prefs.get('engine', '') if force_engine is None else force_engine
-    engine_name = engine_name or default_engine_name()
-    if engine_name not in available_engines():
-        engine_name = default_engine_name()
+    if force_engine is not None:
+        engine_name = force_engine
+        if engine_name not in available_engines():
+            raise OSError(f'TTS engine {force_engine} is not available.')
+    else:
+        engine_name = prefs.get('engine', '')
+        engine_name = engine_name or default_engine_name()
+        if engine_name not in available_engines():
+            engine_name = default_engine_name()
     if engine_name == 'piper':
         if engine_name not in engine_instances:
             from calibre.gui2.tts.piper import Piper
