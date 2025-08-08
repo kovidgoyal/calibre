@@ -258,7 +258,7 @@ General Program Mode
     times_div_op    ::= '*' | '/'
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
     expression      ::= identifier | constant | function | assignment | field_reference |
-                        if_expr | for_expr | break_expr | continue_expr |
+                        if_expr | for_expr | break_expr | continue_expr | return_stmt
                         '(' expression_list ')' | function_def
     field_reference ::= '$' [ '$' ] [ '#' ] identifier
     identifier      ::= id_start [ id_rest ]*
@@ -282,6 +282,7 @@ General Program Mode
     list_expr       ::= top_expression
     break_expr      ::= 'break'
     continue_expr   ::= 'continue'
+    return_stmt     ::= 'return' top_expression
     separator_expr  ::= top_expression
     start_expr      ::= top_expression
     stop_expr       ::= top_expression
@@ -379,6 +380,10 @@ If the original Genre is `History.Military, Science Fiction.Alternate History, R
 :guilabel:`Edit metadata in bulk -> Search & replace` with :guilabel:`Search for` set to ``template`` to strip off the first level of the hierarchy and assign the resulting value to Genre.
 
 Note: the last line in the template, ``new_tags``, isn't strictly necessary in this case because ``for`` returns the value of the last top_expression in the expression list. The value of an assignment is the value of its expression, so the value of the ``for`` statement is what was assigned to ``new_tags``.
+
+**Return stmt**
+
+Return the value of the ``expression``. If executed in a function then it returns the value of the expression to the caller. If executed in the outermost context (the template) then it sets the value of the template to the value of the expression and exits the template.
 
 **Function definition**
 
