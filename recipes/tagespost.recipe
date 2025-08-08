@@ -1,28 +1,74 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-__license__ = 'GPL v3'
-__copyright__ = '2020, Pat Stapleton <pat.stapleton at gmail.com>'
 '''
 Recipe for Die Tagespost
 '''
-from calibre.web.feeds.news import BasicNewsRecipe
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-class AdvancedUserRecipe1589629735(BasicNewsRecipe):
-    title          = 'Tagespost'
-    language       = 'de'
-    __author__     = 'Pat Stapleton'
-    description = ('Die Tagespost trägt den Untertitel Katholische Wochenzeitung für Politik, Gesellschaft'
-        ' und Kultur und ist eine überregionale, wöchentlich im Johann Wilhelm Naumann Verlag in Würzburg erscheinende Zeitung.')
-    oldest_article = 7
-    max_articles_per_feed = 100
-    auto_cleanup   = True
-    use_embedded_content = False
-
-    feeds          = [
-        ('Tagespost', 'https://www.die-tagespost.de/storage/rss/rss/die-tagespost-komplett.xml'),
+class Tagespost(BasicNewsRecipe):
+    title = 'Tagespost'
+    language = 'de'
+    __author__ = 'unkn0wn'
+    description = (
+        'Die Tagespost trägt den Untertitel Katholische Wochenzeitung für Politik, Gesellschaft'
+        ' und Kultur und ist eine überregionale, wöchentlich im Johann Wilhelm Naumann Verlag '
+        'in Würzburg erscheinende Zeitung.'
+    )
+    oldest_article = 2
+    encoding = 'utf-8'
+    ignore_duplicate_articles = {'url'}
+    masthead_url = 'https://www.die-tagespost.de/design2020/images/tp_logo_small.webp'
+    remove_javascript = True
+    keep_only_tags = [
+        classes('topline headline description datetime autor-name article_main')
     ]
+    remove_tags = [
+        dict(name=['source', 'svg', 'aside', 'clearfix', 'footer']),
+        classes('content-box extras jwnIconTeaser behindWall'),
+    ]
+    remove_tags_after = [classes('abbinder-text')]
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = ['style', 'height', 'width']
+    recipe_specific_options = {
+        'days': {
+            'short': 'Oldest article to download from this news source. In days ',
+            'long': 'For example, 0.5, gives you articles from the past 12 hours',
+            'default': str(oldest_article),
+        },
+    }
 
-    extra_css = 'td.textb {font-size: medium;}'
+    def __init__(self, *args, **kwargs):
+        BasicNewsRecipe.__init__(self, *args, **kwargs)
+        d = self.recipe_specific_options.get('days')
+        if d and isinstance(d, str):
+            self.oldest_article = float(d)
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.ikiosk.de/shop/epaper/die-tagespost.html')
+        return soup.find('a', attrs={'class': 'preview-cover'})['href']
+
+    feeds = [
+        (
+            'Tagespost',
+            'https://www.die-tagespost.de/storage/rss/rss/die-tagespost-komplett.xml',
+        ),
+    ]
+    extra_css = '''
+        .abbinder-text,
+        .calibre-nuked-tag-figcaption,
+        .topline {
+            font-size:small;
+        }
+        .description { font-style: italic; } 
+    '''
+
+    def preprocess_html(self, soup):
+        desc = soup.find(**classes('description'))
+        if desc:
+            desc.name = 'p'
+        for h2 in soup.findAll(['h2', 'h3']):
+            h2.name = 'h4'
+        return soup
