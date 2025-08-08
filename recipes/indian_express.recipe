@@ -82,85 +82,6 @@ class IndianExpress(BasicNewsRecipe):
         'https://indianexpress.com/feed',
     ]
 
-    # def parse_index(self):
-
-        # section_list = [
-            # ('Daily Briefing', 'https://indianexpress.com/section/live-news/'),
-            # ('Front Page', 'https://indianexpress.com/print/front-page/'),
-            # ('India', 'https://indianexpress.com/section/india/'),
-            # # ('Express Network', 'https://indianexpress.com/print/express-network/'),
-            # ('Delhi Confidential', 'https://indianexpress.com/section/delhi-confidential/'),
-            # ('Editorials', 'https://indianexpress.com/section/opinion/editorials/'),
-            # ('Columns', 'https://indianexpress.com/section/opinion/columns/'),
-            # ('UPSC-CSE Key', 'https://indianexpress.com/section/upsc-current-affairs/'),
-            # ('Explained', 'https://indianexpress.com/section/explained/'),
-            # ('Business', 'https://indianexpress.com/section/business/'),
-            # # ('Political Pulse', 'https://indianexpress.com/section/political-pulse/'),
-            # ('Sunday Eye', 'https://indianexpress.com/section/express-sunday-eye/'),
-            # ('World', 'https://indianexpress.com/section/world/'),
-            # # ('Education', 'https://indianexpress.com/section/education/'),
-            # # ('Gadgets', 'https://indianexpress.com/section/technology/gadgets/'),
-            # ('Tech Review', 'https://indianexpress.com/section/technology/tech-reviews/'),
-            # # ('Techhook', 'https://indianexpress.com/section/technology/techook/'),
-            # # ('Laptops', 'https://indianexpress.com/section/technology/laptops/'),
-            # # ('Mobiles & Tabs', 'https://indianexpress.com/section/technology/mobile-tabs/'),
-            # ('Science', 'https://indianexpress.com/section/technology/science/'),
-            # ('Movie Review', 'https://indianexpress.com/section/entertainment/movie-review/'),
-        # ]
-
-        # feeds = []
-
-        # # For each section title, fetch the article urls
-        # for section in section_list:
-            # section_title = section[0]
-            # section_url = section[1]
-            # self.log(section_title, section_url)
-            # soup = self.index_to_soup(section_url)
-            # if '/world/' in section_url or '/explained/' in section_url:
-                # articles = self.articles_from_page(soup)
-            # else:
-                # articles = self.articles_from_soup(soup)
-            # if articles:
-                # feeds.append((section_title, articles))
-        # return feeds
-
-    # def articles_from_page(self, soup):
-        # ans = []
-        # for div in soup.findAll(attrs={'class': ['northeast-topbox', 'explained-section-grid']}):
-            # for a in div.findAll('a', href=True):
-                # if not a.find('img') and '/section/' not in a['href']:
-                    # url = a['href']
-                    # title = self.tag_to_string(a)
-                    # self.log('\t', title, '\n\t\t', url)
-                    # ans.append({'title': title, 'url': url, 'description': ''})
-        # return ans
-
-    # def articles_from_soup(self, soup):
-        # ans = []
-        # div = soup.find('div', attrs={'class': ['nation', 'o-opin', 'myie-nation', 'opinion-more-wrapper']})
-        # for art in div.findAll(
-            # attrs={'class': ['articles', 'o-opin-article', 'myie-articles']}
-        # ):
-            # for a in art.findAll('a', href=True):
-                # if not a.find('img') and not any(
-                    # x in a['href'] for x in ['/profile/', '/agency/', '/section/']
-                # ):
-                    # url = a['href']
-                    # title = self.tag_to_string(a)
-                    # desc = ''
-                    # if p := (art.find('p') or art.find(attrs={'class': 'opinion-news-para'})):
-                        # desc = self.tag_to_string(p)
-                    # if da := art.find(
-                        # attrs={'class': ['date', 'o-opin-date', 'opinion-date', 'my-time']}
-                    # ):
-                        # date = parse_date(self.tag_to_string(da)).replace(tzinfo=None)
-                        # today = datetime.now()
-                        # if (today - date) > timedelta(self.oldest_article):
-                            # continue
-                    # self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                    # ans.append({'title': title, 'url': url, 'description': desc})
-        # return ans
-
     def get_cover_url(self):
         soup = self.index_to_soup(
             'https://www.readwhere.com/newspaper/indian-express/Nagpur/38726'
@@ -186,7 +107,7 @@ class IndianExpress(BasicNewsRecipe):
             # date = parse_date(span['content']).replace(tzinfo=None)
             # today = datetime.now()
             # if (today - date) > timedelta(self.oldest_article):
-                # self.abort_article('Skipping old article')
+            #     self.abort_article('Skipping old article')
         for img in soup.findAll('img', attrs={'src': True}):
             img['src'] = img['src'].split('?')[0] + '?w=' + width
         return soup

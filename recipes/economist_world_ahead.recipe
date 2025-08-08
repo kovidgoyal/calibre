@@ -7,8 +7,8 @@ from urllib.parse import quote, urlencode
 from uuid import uuid4
 
 from html5_parser import parse
-from mechanize import Request
 from lxml import etree
+from mechanize import Request
 
 from calibre import browser
 from calibre.ptempfile import PersistentTemporaryFile
