@@ -236,7 +236,8 @@ def available_engines() -> dict[str, EngineMetadata]:
             continue
 
     try:
-        import calibre_extensions.piper
+        import calibre_extensions.piper as check_that_piper_imports
+        del check_that_piper_imports
     except ImportError:
         pass
     else:
