@@ -62,7 +62,7 @@ class Tagespost(BasicNewsRecipe):
         .topline {
             font-size:small;
         }
-        .description { font-style: italic; } 
+        .description { font-style: italic; }
     '''
 
     def preprocess_html(self, soup):
