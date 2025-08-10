@@ -2,6 +2,7 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Stratechery(BasicNewsRecipe):
     title          = 'Stratechery'
     language       = 'en'
