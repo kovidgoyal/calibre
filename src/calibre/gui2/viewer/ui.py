@@ -6,51 +6,50 @@ import os
 import re
 import sys
 import time
+import uuid
 from collections import defaultdict, namedtuple
 from hashlib import sha256
 from threading import Thread
+from datetime import datetime
 
 from qt.core import (
-    QApplication,
-    QCursor,
-    QDockWidget,
-    QEvent,
-    QMainWindow,
-    QMenu,
-    QMimeData,
-    QModelIndex,
-    QPixmap,
-    Qt,
-    QTimer,
-    QToolBar,
-    QUrl,
-    QVBoxLayout,
-    QWidget,
-    pyqtSignal,
-    sip,
+    QAbstractItemView, QAction, QApplication, QCursor, QDockWidget, QEvent,
+    QMainWindow, QMenu, QMimeData, QModelIndex, QPixmap, Qt, QTimer, QToolBar,
+    QUrl, QVBoxLayout, QWidget, pyqtSignal, sip
 )
 
 from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
+from calibre.gui2 import (
+    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
+)
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
-from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
+from calibre.gui2.viewer import (
+    get_boss, get_current_book_data, performance_monitor
+)
+from calibre.gui2.viewer.annotations import (
+    AnnotationsSaveWorker, annotations_dir, parse_annotations
+)
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
+from calibre.gui2.viewer.config import (
+    get_session_pref, load_reading_rates, save_reading_rates, vprefs
+)
 from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
-from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
-from calibre.gui2.viewer.lookup import Lookup
+from calibre.gui2.viewer.integration import (
+    get_book_library_details, load_annotations_map_from_library
+)
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
-from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
+from calibre.gui2.viewer.web_view import (
+    WebView, get_path_for_name, set_book_path
+)
 from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
@@ -71,10 +70,8 @@ def is_float(x):
 def dock_defs():
     Dock = namedtuple('Dock', 'name title initial_area allowed_areas')
     ans = {}
-
     def d(title, name, area, allowed=Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea):
         ans[name] = Dock(name + '-dock', title, area, allowed)
-
     d(_('Table of Contents'), 'toc', Qt.DockWidgetArea.LeftDockWidgetArea)
     d(_('Lookup'), 'lookup', Qt.DockWidgetArea.RightDockWidgetArea)
     d(_('Bookmarks'), 'bookmarks', Qt.DockWidgetArea.RightDockWidgetArea)
@@ -98,6 +95,8 @@ class EbookViewer(MainWindow):
     def __init__(self, open_at=None, continue_reading=None, force_reload=False, calibre_book_data=None):
         MainWindow.__init__(self, None)
         get_boss(self)
+
+        self.pending_note_for_next_highlight = None
         self.annotations_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
@@ -156,7 +155,8 @@ class EbookViewer(MainWindow):
         self.search_dock.setWidget(w)
         self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
-        self.lookup_widget = w = Lookup(self)
+        from calibre.gui2.viewer.lookup import Lookup
+        self.lookup_widget = w = Lookup(self, viewer=self)
         self.lookup_dock.visibilityChanged.connect(self.lookup_widget.visibility_changed)
         self.lookup_dock.setWidget(w)
 
@@ -207,8 +207,8 @@ class EbookViewer(MainWindow):
         self.web_view.update_reading_rates.connect(self.update_reading_rates)
         self.web_view.edit_book.connect(self.edit_book)
         self.web_view.content_file_changed.connect(self.content_file_changed)
+
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
-        at.update_action_state(False)
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()
@@ -219,14 +219,25 @@ class EbookViewer(MainWindow):
         self.highlights_widget.notes_edited_signal.connect(self.notes_edited)
         if continue_reading:
             self.continue_reading()
+
         self.setup_mouse_auto_hide()
+
+        try:
+            self.lookup_widget.llm_add_note_requested.disconnect(self.add_note_to_highlight)
+        except TypeError:
+            pass
+        self.lookup_widget.llm_add_note_requested.connect(self.add_note_to_highlight)
+
+    def create_uuid(self):
+        return uuid.uuid4().hex
 
     def shortcuts_changed(self, smap):
         rmap = defaultdict(list)
         for k, v in iteritems(smap):
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
-        self.highlights_widget.set_tooltips(rmap)
+        if hasattr(self, 'highlights_widget'):
+            self.highlights_widget.set_tooltips(rmap)
 
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
@@ -399,7 +410,6 @@ class EbookViewer(MainWindow):
 
     def bookmarks_edited(self, bookmarks):
         self.current_book_data['annotations_map']['bookmark'] = bookmarks
-        # annotations will be saved in book file on exit
         self.save_annotations(in_book_file=False)
 
     def goto_cfi(self, cfi, add_to_history=False):
@@ -419,22 +429,18 @@ class EbookViewer(MainWindow):
                 self.image_popup.current_url = QUrl.fromLocalFile(path)
                 self.image_popup()
             else:
-                error_dialog(self, _('Invalid image'), _(
-                    'Failed to load the image {}').format(name), show=True)
+                error_dialog(self, _('Invalid image'), _('Failed to load the image {}').format(name), show=True)
         else:
-            error_dialog(self, _('Image not found'), _(
-                    'Failed to find the image {}').format(name), show=True)
+            error_dialog(self, _('Image not found'), _('Failed to find the image {}').format(name), show=True)
 
     def copy_image(self, name):
         path = get_path_for_name(name)
         if not path:
-            return error_dialog(self, _('Image not found'), _(
-                'Failed to find the image {}').format(name), show=True)
+            return error_dialog(self, _('Image not found'), _('Failed to find the image {}').format(name), show=True)
         try:
             img = image_from_path(path)
         except Exception:
-            return error_dialog(self, _('Invalid image'), _(
-                'Failed to load the image {}').format(name), show=True)
+            return error_dialog(self, _('Invalid image'), _('Failed to load the image {}').format(name), show=True)
         url = QUrl.fromLocalFile(path)
         md = QMimeData()
         md.setImageData(img)
@@ -470,8 +476,7 @@ class EbookViewer(MainWindow):
 
     def print_book(self):
         if not hasattr(set_book_path, 'pathtoebook'):
-            error_dialog(self, _('Cannot print book'), _(
-                'No book is currently open'), show=True)
+            error_dialog(self, _('Cannot print book'), _('No book is currently open'), show=True)
             return
         from .printing import print_book
         print_book(set_book_path.pathtoebook, book_title=self.current_book_data['metadata']['title'], parent=self)
@@ -496,8 +501,7 @@ class EbookViewer(MainWindow):
     def ask_for_open_from_js(self, path):
         if path and not os.path.exists(path):
             self.web_view.remove_recently_opened(path)
-            error_dialog(self, _('Book does not exist'), _(
-                'Cannot open {} as it no longer exists').format(path), show=True)
+            error_dialog(self, _('Book does not exist'), _('Cannot open {} as it no longer exists').format(path), show=True)
         else:
             self.ask_for_open(path)
 
@@ -577,9 +581,7 @@ class EbookViewer(MainWindow):
             if last_line.startswith('calibre.ebooks.DRMError'):
                 DRMErrorMessage(self).exec()
             else:
-                error_dialog(self, _('Loading book failed'), _(
-                    'Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']),
-                    det_msg=tb, show=True)
+                error_dialog(self, _('Loading book failed'), _('Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']), det_msg=tb, show=True)
             self.loading_overlay.hide()
             self.web_view.show_home_page()
             return
@@ -631,6 +633,8 @@ class EbookViewer(MainWindow):
         rates = load_reading_rates(self.current_book_data['annotations_path_key'])
         self.web_view.start_book_load(initial_position=initial_position, highlights=highlights, current_book_data=self.current_book_data, reading_rates=rates)
         performance_monitor('webview loading requested')
+
+        self.lookup_widget.book_loaded(self.current_book_data)
 
     def load_book_data(self, calibre_book_data=None):
         self.current_book_data['book_library_details'] = get_book_library_details(self.current_book_data['pathtoebook'])
@@ -700,8 +704,7 @@ class EbookViewer(MainWindow):
     def cfi_changed(self, cfi):
         if not self.current_book_data:
             return
-        self.current_book_data['annotations_map']['last-read'] = [{
-            'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow().isoformat()}]
+        self.current_book_data['annotations_map']['last-read'] = [{'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow().isoformat()}]
         self.save_pos_timer.start()
     # }}}
 
@@ -732,46 +735,22 @@ class EbookViewer(MainWindow):
         if key and rates:
             save_reading_rates(key, rates)
 
-    def highlights_changed(self, highlights):
-        if not self.current_book_data:
-            return
-        amap = self.current_book_data['annotations_map']
-        amap['highlight'] = highlights
-        self.highlights_widget.refresh(highlights)
-        self.save_annotations()
-
-    def notes_edited(self, uuid, notes):
-        for h in self.current_book_data['annotations_map']['highlight']:
-            if h.get('uuid') == uuid:
-                h['notes'] = notes
-                h['timestamp'] = utcnow().isoformat()
-                break
-        else:
-            return
-        self.save_annotations()
-
     def edit_book(self, file_name, progress_frac, selected_text):
         import subprocess
-
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
         try:
             path = set_book_path.pathtoebook
         except AttributeError:
-            return error_dialog(self, _('Cannot edit book'), _(
-                'No book is currently open'), show=True)
+            return error_dialog(self, _('Cannot edit book'), _('No book is currently open'), show=True)
         fmt = path.rpartition('.')[-1].upper().replace('ORIGINAL_', '')
         if fmt not in SUPPORTED:
-            return error_dialog(self, _('Cannot edit book'), _(
-                'The book must be in the %s formats to edit.'
-                '\n\nFirst convert the book to one of these formats.'
-            ) % (_(' or ').join(SUPPORTED)), show=True)
+            return error_dialog(self, _('Cannot edit book'), _('The book must be in the %s formats to edit.\n\nFirst convert the book to one of these formats.') % (_(' or ').join(SUPPORTED)), show=True)
         exe = 'ebook-edit'
         if ismacos:
             exe = os.path.join(macos_edit_book_bundle_path(), exe)
         else:
             exe = exe_path(exe)
-
         cmd = [exe] if isinstance(exe, str) else list(exe)
         if selected_text:
             cmd += ['--select-text', selected_text]
@@ -859,7 +838,6 @@ class EbookViewer(MainWindow):
             self.hide_cursor_timer.start()
         elif et == QEvent.Type.FocusIn:
             if iswindows and obj and obj.objectName() == 'EbookViewerClassWindow' and self.isFullScreen():
-                # See https://bugs.launchpad.net/calibre/+bug/1918591
                 self.web_view.repair_after_fullscreen_switch()
         return False
 
@@ -868,3 +846,139 @@ class EbookViewer(MainWindow):
             self.cursor_hidden = True
             QApplication.instance().setOverrideCursor(Qt.CursorShape.BlankCursor)
     # }}}
+
+    def highlights_changed(self, changed_annotations: list):
+        try:
+            if self.pending_note_for_next_highlight:
+                old_uuids = {h.get('uuid') for h in self.current_book_data.get('annotations_map', {}).get('highlight', []) if h.get('uuid')}
+                new_master_uuids = {h.get('uuid') for h in changed_annotations if h.get('uuid')}
+                newly_created_uuids = new_master_uuids - old_uuids
+
+                if newly_created_uuids:
+                    new_uuid = newly_created_uuids.pop()
+                    note_to_add = self.pending_note_for_next_highlight
+
+                    js_payload_note = {'uuid': new_uuid, 'notes': note_to_add}
+                    self.web_view.generic_action('set-notes-in-highlight', js_payload_note)
+
+                    for h in changed_annotations:
+                        if h.get('uuid') == new_uuid:
+                            h['notes'] = note_to_add
+                            break
+
+                    js_payload_focus = {'uuid': new_uuid}
+                    self.web_view.generic_action('show-highlight-selection-bar', js_payload_focus)
+
+                    self.pending_note_for_next_highlight = None
+                else:
+                    self.pending_note_for_next_highlight = None
+
+            master_map = self.current_book_data.setdefault('annotations_map', {})
+            master_map['highlight'] = changed_annotations
+            self.highlights_widget.load(changed_annotations)
+            self.save_annotations()
+
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def notes_edited(self, uuid, notes):
+        for h in self.current_book_data['annotations_map']['highlight']:
+            if h.get('uuid') == uuid:
+                h['notes'] = notes
+                h['timestamp'] = utcnow().isoformat()
+                break
+        else:
+            return
+        self.save_annotations()
+        self.web_view.generic_action('set-notes-in-highlight', {'uuid': uuid, 'notes': notes})
+
+    def _format_llm_note_entry(self, history: list) -> str:
+        """
+        Formats a conversation history into a standardized, self-contained note entry.
+        """
+        if not history:
+            return ""
+
+        main_response = ''
+        for message in reversed(history):
+            if message.get('role') == 'assistant':
+                main_response = message.get('content', '').strip()
+                break
+
+        if not main_response:
+            return ""
+
+        def clean_text(text):
+            return text.replace('<i>', '').replace('</i>', '')
+
+        timestamp = datetime.now().strftime("%b %d, %Y, %I:%M:%S %p")
+        header = f"--- AI Assistant Note ({timestamp}) ---"
+
+        record_lines = []
+        for message in history:
+            role = "You" if message.get('role') == 'user' else "Assistant"
+            content = clean_text(message.get('content', ''))
+
+            prompt_part = content
+            text_part = ""
+            if "\nOn text:" in content:
+                parts = content.split("\nOn text:", 1)
+                prompt_part = parts[0].strip()
+                text_part = f"On text:{parts[1]}"
+
+            entry = f"{role}: {prompt_part}"
+            if text_part:
+                entry += f"\n\n{text_part}"
+            record_lines.append(entry)
+
+        record_body = "\n\n".join(record_lines)
+        record_header = "--- Conversation Record ---"
+
+        return (
+            f"{header}\n\n{main_response}\n\n"
+            f"------------------------------------\n\n"
+            f"{record_header}\n\n{record_body}"
+        )
+
+    def add_note_to_highlight(self, payload):
+        highlight_uuid = payload.get('highlight')
+        history = payload.get('conversation_history', [])
+
+        new_self_contained_entry = self._format_llm_note_entry(history)
+        if not new_self_contained_entry:
+            return
+
+        if highlight_uuid:
+            found_highlight = False
+            highlight_list = self.current_book_data.setdefault('annotations_map', {}).get('highlight', [])
+            for h in highlight_list:
+                if h.get('uuid') == highlight_uuid:
+                    found_highlight = True
+                    existing_note = h.get('notes', '').strip()
+
+                    separator = f"\n\n------------------------------------\n\n"
+                    combined_note = f"{existing_note}{separator}{new_self_contained_entry}" if existing_note else new_self_contained_entry
+
+                    h['notes'] = combined_note
+                    h['timestamp'] = utcnow().isoformat()
+
+                    js_payload = {'uuid': highlight_uuid, 'notes': combined_note}
+                    self.web_view.generic_action('set-notes-in-highlight', js_payload)
+
+                    self.save_annotations()
+                    self.statusBar().showMessage('Note appended to highlight', 3000)
+                    break
+
+            if not found_highlight:
+                # This case should ideally not be hit if the logic is sound, but it is a safe fallback.
+                pass
+
+        else:
+            self.pending_note_for_next_highlight = new_self_contained_entry
+            js_payload = {
+                'type': 'apply-highlight',
+                'style': {'type': 'builtin', 'kind': 'color', 'which': vprefs.get('llm_highlight_color', 'yellow')},
+            }
+            self.web_view.generic_action('annotations', js_payload)
+            self.statusBar().showMessage('Creating highlight with note...', 3000)
