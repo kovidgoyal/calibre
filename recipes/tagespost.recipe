@@ -59,6 +59,8 @@ class Tagespost(BasicNewsRecipe):
     extra_css = '''
         .abbinder-text,
         .calibre-nuked-tag-figcaption,
+        .datetime,
+        .autor-name,
         .topline {
             font-size:small;
         }
