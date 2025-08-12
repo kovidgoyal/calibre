@@ -1,0 +1,260 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+from __future__ import print_function
+__version__ = '0.0.2'
+
+"""
+recipe repository and docs: https://github.com/rga5321/todoist2ebook
+
+0.0.2: Calibre footer with the source URL. (adapted for calibre)
+0.0.1: First working version
+
+
+**URL_KEYWORD_EXCEPTIONS** (list of keywords such as, if the URL of the article contains any keyword, then the plugin will ignore the article)
+
+**ARCHIVE_DOWNLOADED** (True or False) do you want to archive articles after fetching
+
+**TODOIST_PROJECT_ID** (string) your Todoist project ID, you can find it in the URL of your Todoist project, e.g. https://todoist.com/app/project/1234567890abcdef12345678
+
+**TODOIST_API_KEY** (string) your Todoist API key, you can find it in your Todoist account settings under "Integrations" or "API tokens"
+
+
+
+"""
+# CONFIGURATION ###########################################################
+
+URL_KEYWORD_EXCEPTIONS = ['XXXX','YYYYY']
+ARCHIVE_DOWNLOADED = False
+TODOIST_PROJECT_ID = 'XXXXXXX'
+TODOIST_API_KEY = 'YYYYYY'
+
+SITE_PACKAGE_PATH = ''
+#############################################################################
+from calibre.web.feeds.news import BasicNewsRecipe
+from collections import namedtuple
+from os import path
+from time import strftime
+from urllib.parse import urlparse
+
+#############################################################################
+
+SITE_PACKAGE_PATH = ''
+
+import json
+import mechanize
+import re
+from datetime import datetime
+
+__license__ = 'GPL v3'
+__copyright__ = '2025, ARG'
+
+
+class Todoist2ebook(BasicNewsRecipe):
+
+        __author__ = 'ARG'
+        description = 'prueba'
+        publisher = 'Todoist.com'
+        category = 'info, custom, Todoist'
+
+        # User-configurable settings -----------------------------------------------
+        archive_downloaded = ARCHIVE_DOWNLOADED
+        series_name = 'Todoist'
+
+
+        todoist_project_id =TODOIST_PROJECT_ID
+        todoist_api_key = TODOIST_API_KEY
+
+        publication_type = 'magazine'
+        title = "Todoist"
+        # timefmt = '' # uncomment to remove date from the filenames, if commented then you will get something like `Todoist [Wed, 13 May 2020]`
+        masthead_url = "https://raw.githubusercontent.com/rga5321/todoist2ebook/master/img/todoist-logo.png"
+        # will make square cover; this will replace text and cover of the default
+        cover_url = "https://raw.githubusercontent.com/rga5321/todoist2ebook/master/img/todoist-cover.png"
+        # --------------------------------------------------------------------------
+        
+        # Inherited developer settings
+        auto_cleanup = True
+        no_stylesheets = True
+        use_embedded_content = False
+
+        # Custom developer settings
+        to_archive = []
+
+        simultaneous_downloads = 10
+        
+        extra_css = '.touchscreen_navbar {display: none;}'
+        extra_css = '.calibre_navbar { visibility: hidden; }'
+
+        def parse_index(self):
+
+                articles = []
+                section_dict = {} #dictionary with the domains and its articles.
+
+                url = f"https://api.todoist.com/rest/v2/tasks?project_id={self.todoist_project_id}"
+                headers = {"Authorization": f"Bearer {self.todoist_api_key}"}
+                request = mechanize.Request(url, headers=headers);
+                
+                response = self.browser.open(request)
+                if response.code != 200:
+                        raise Exception("No se pudieron recuperar las tareas de Todoist")
+                data = response.read().decode("utf-8")
+                tasks = json.loads(data)
+                articles_todoist = []
+                
+                url_regex = re.compile(r'\[([^\]]+)\]\(\s*(https?://[^\s\)]+)\s*\)')
+                for task in tasks:
+                        match = url_regex.search(task['content'])
+                        if match:
+                                title = match.group(1).strip()
+                                url = match.group(2).strip()
+                                date_added = task.get('created_at', datetime.now().isoformat())
+                                articles_todoist.append({
+                                        'title': title or url,
+                                        'url': url,
+                                        'date_added': date_added,
+                                        'item_id': task['id']
+                                })
+
+
+                if not articles_todoist:
+                    self.abort_recipe_processing('No unread articles in the Todoist project "{}"'.format(self.todoist_project_id))
+                else:
+                    for item in articles_todoist:
+  
+                        # If the URL contains any URL_KEYWORD_EXCEPTIONS, ignore article
+                        if any(pattern in item['url'] for pattern in URL_KEYWORD_EXCEPTIONS):
+                            print("Ignoring article due to keyword patterns:" + item['url'])
+                            del item
+                        else:
+                            # Extract domain from the URL
+                            domain =  urlparse(item['url']).netloc.replace('www.', '')
+
+                            url = item['url']                           
+
+                            # Add the article under its domain
+                            if domain not in section_dict:
+                                    section_dict[domain] = [item]
+                            else:
+                                    section_dict[domain].append(item)
+
+                            print("Adding article: " + item['url'] + " to section: " + domain)
+
+                    ############ APPEND ARTS FOR EACH DOMAIN #############
+                    # At this point the section_dict is completed
+
+                    for section in section_dict:
+                        arts = []
+                        for item in section_dict.get(section):
+                            try:
+                                title = item['title']
+                            except KeyError:
+                                title = 'error: title'
+                            try:
+                                url =  item['url']
+                            except KeyError:
+                                url = 'error: url'
+ 
+                            arts.append({
+                                        'title': title,
+                                        'url': url,
+                                        'date': item['date_added']})
+
+                            if (
+                                self.archive_downloaded
+                                and item['item_id'] not in self.to_archive
+                            ):
+                                self.to_archive.append(item['item_id'] )
+
+
+                        if arts:
+                                articles.append((section, arts))
+
+                    if not articles:
+                        self.abort_recipe_processing('No articles in the Todoist project account %s to download' % (self.todoist_project_id))
+                    return articles
+        
+
+        def get_browser(self, *args, **kwargs):
+                self.browser = BasicNewsRecipe.get_browser(self)
+                return self.browser
+
+        def cleanup(self):
+                if not self.to_archive:
+                        return
+        
+                for task_id in self.to_archive:
+                        url = f"https://api.todoist.com/rest/v2/tasks/{task_id}/close"
+                        req = mechanize.Request(
+                                url,
+                                headers={
+                                        "Authorization": f"Bearer {self.todoist_api_key}",
+                                        "Content-Type": "application/json"
+                                }
+                        )
+                        req.get_method = lambda: "POST"
+
+                        try:
+                                br = mechanize.Browser()
+                                response = br.open(req)
+                                if response.code == 204:
+                                        print(f"Task {task_id} corectly closed.")
+                                else:
+                                        print(f"Error while closing task {task_id}: {response.code}")
+                        except Exception as e:
+                                print(f"Exception while closing task {task_id}: {e}")
+
+
+        # TODO: This works with EPUB, but not mobi/azw3
+        # BUG: https://bugs.launchpad.net/calibre/+bug/1838486
+        def postprocess_book(self, oeb, opts, log):
+                oeb.metadata.add('series', self.series_name)
+
+
+
+        def _postprocess_html(self, soup, first_fetch, job_info):
+
+                title = soup.find('title').text # get title
+
+
+                h1s = soup.findAll('h1')  # get all h1 headers
+                for h1 in h1s:
+                        if title in h1.text:
+                                h1 = h1.clear()  # clean this tag, so the h1 will be there only
+
+                h2s = soup.findAll('h2')  # get all h2 headers
+                for h2 in h2s:
+                        if title in h2.text:
+                                h2 = h2.clear()  # clean this tag, so the h1 will be there only
+
+                body = soup.find('body')
+                new_tag = soup.new_tag('h1')
+                new_tag.append(title)
+                body.insert(0, new_tag)
+
+                return soup
+
+        def default_cover(self, cover_file):
+                """
+                Create a generic cover for recipes that don't have a cover
+                This override adds time to the cover
+                """
+                try:
+                        from calibre.ebooks import calibre_cover
+                        # Python 2/3 compatibility for unicode
+                        try:
+                            unicode_type = unicode
+                        except NameError:
+                            unicode_type = str
+                        title = self.title if isinstance(self.title, unicode_type) else \
+                                self.title.encode('utf-8', 'replace').decode('utf-8', 'replace')
+                        # print('>> title', title, file=sys.stderr)
+                        date = strftime(self.timefmt)
+                        time = strftime('%a %d %b %Y %-H:%M')
+                        img_data = calibre_cover(title, date, time)
+                        cover_file.write(img_data)
+                        cover_file.flush()
+                except:
+                        self.log.exception('Failed to generate default cover')
+                        return False
+                return True
