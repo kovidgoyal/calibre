@@ -96,8 +96,8 @@
     {
         "name": "unrar",
         "unix": {
-            "filename": "unrarsrc-6.2.11.tar.gz",
-            "hash": "sha256:a805e150d56445770f71a85c3fbdc9ab4b04fbe61b01cb57182d86fe3e7e6cec",
+            "filename": "unrarsrc-7.1.10.tar.gz",
+            "hash": "sha256:72a9ccca146174f41876e8b21ab27e973f039c6d10b13aabcb320e7055b9bb98",
             "urls": ["https://www.rarlab.com/rar/{filename}"]
         }
     },
