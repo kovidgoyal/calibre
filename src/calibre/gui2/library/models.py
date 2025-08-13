@@ -628,6 +628,7 @@ class BooksModel(QAbstractTableModel):  # {{{
     def get_book_display_info(self, idx):
         mi = self.db.get_metadata(idx)
         mi.size = mi._proxy_metadata.book_size
+        mi.book_display_info_is_from_device = False
         mi.cover_data = ('jpg', self.cover(idx))
         mi.id = self.db.id(idx)
         mi.field_metadata = self.db.field_metadata
@@ -1722,6 +1723,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         mi.device_collections = list(item.device_collections)
         mi.tags = list(getattr(item, 'tags', []))
         mi.comments = getattr(item, 'comments', None)
+        mi.book_display_info_is_from_device = True
         series = getattr(item, 'series', None)
         if series:
             sidx = getattr(item, 'series_index', 0)

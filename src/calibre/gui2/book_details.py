@@ -1569,6 +1569,10 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         self.show_book_info.emit()
 
     def show_data(self, data):
+        from calibre.gui2.ui import get_gui
+
+        if getattr(data, 'book_display_info_is_from_device', False) and (gui := get_gui()) and gui.current_view is gui.library_view:
+            return
         try:
             self.last_data = {'title':data.title, 'authors':data.authors, 'book_id': getattr(data, 'id', None)}
         except Exception:
