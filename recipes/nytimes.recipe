@@ -2,19 +2,15 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import datetime
 import json
 import re
-
-import mechanize
+from pprint import pprint
 
 from calibre import strftime
-from calibre.ebooks.BeautifulSoup import Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
-from polyglot.urllib import urlencode
 
 is_web_edition = True
 use_wayback_machine = False
@@ -80,6 +76,12 @@ def new_tag(soup, name, attrs=()):
     if impl is not None:
         return impl(name, attrs=dict(attrs))
     return Tag(soup, name, attrs=attrs or None)
+
+
+def absolutize_href(href):
+    if not href.startswith('http'):
+        href = 'https://www.nytimes.com/' + href.lstrip('/')
+    return href
 
 
 class NewYorkTimes(BasicNewsRecipe):
@@ -185,92 +187,32 @@ class NewYorkTimes(BasicNewsRecipe):
             if c.lower() == 'yes':
                 self.compress_news_images = True
 
-    def read_todays_paper(self):
+    def todays_paper_url(self):
         pdate = self.recipe_specific_options.get('date')
-        templ = 'https://www.nytimes.com/issue/todayspaper/{}/todays-new-york-times'
         if pdate and isinstance(pdate, str):
-            return pdate, self.index_to_soup(templ.format(pdate))
-        # Cant figure out how to get the date so just try todays and yesterdays dates
-        date = datetime.date.today()
-        pdate = date.strftime('%Y/%m/%d')
-        try:
-            soup = self.index_to_soup(templ.format(pdate))
-        except Exception as e:
-            if getattr(e, 'code', None) == 404:
-                date -= datetime.timedelta(days=1)
-                pdate = date.strftime('%Y/%m/%d')
-                soup = self.index_to_soup(templ.format(pdate))
-            else:
-                raise
-        self.log("Using today's paper from:", pdate)
-        return pdate, soup
-
-    def read_nyt_metadata(self):
-        pdate, soup = self.read_todays_paper()
-        date = strptime(pdate, '%Y/%m/%d', assume_utc=False, as_utc=False)
-        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
-        self.timefmt = strftime(' [%d %b, %Y]', date)
-        self.nytimes_publication_date = pdate
-        script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
-        script = type(u'')(script)
-        raw_json = script[script.find('{'):script.rfind(';')].strip().rstrip(';')  # }}
-        clean_json = self.nyt_parser.clean_js_json(raw_json)
-        self.nytimes_graphql_config = json.loads(clean_json)['config']
-        return soup
-
-    def nyt_graphql_query(self, qid, operationName='CollectionsQuery'):
-        query = {
-            'operationName': operationName,
-            'variables': json.dumps({
-                'id': qid,
-                'first': 10,
-                'exclusionMode': 'HIGHLIGHTS_AND_EMBEDDED',
-                'isFetchMore':False,
-                'isTranslatable':False,
-                'isEspanol':False,
-                'highlightsListUri':'nyt://per/personalized-list/__null__',
-                'highlightsListFirst':0,
-                'hasHighlightsList':False
-            }, separators=',:'),
-            'extensions': json.dumps({
-                'persistedQuery': {
-                    'version':1,
-                    'sha256Hash': persistedQuery,
-                },
-            }, separators=',:')
-        }
-        url = self.nytimes_graphql_config['gqlUrlClient'] + '?' + urlencode(query)
-        br = self.browser
-        # br.set_debug_http(True)
-        headers = dict(self.nytimes_graphql_config['gqlRequestHeaders'])
-        headers['Accept'] = 'application/json'
-        req = mechanize.Request(url, headers=headers)
-        raw = br.open(req).read()
-        # open('/t/raw.json', 'wb').write(raw)
-        return json.loads(raw)
+            return 'https://www.nytimes.com/issue/todayspaper/{}/todays-new-york-times'.format(pdate)
+        return 'https://www.nytimes.com/section/todayspaper'
 
     def parse_todays_page(self):
-        self.read_nyt_metadata()
-        query_id = '/issue/todayspaper/{}/todays-new-york-times'.format(self.nytimes_publication_date)
-        data = self.nyt_graphql_query(query_id)
-        return parse_todays_page(data, self.log)
+        url = self.todays_paper_url()
+        soup = self.index_to_soup(url)
+        return parse_todays_page(soup)
 
     def parse_web_sections(self):
-        self.read_nyt_metadata()
         feeds = []
         for section_title, slug in web_sections:
-            query_id = '/section/' + slug
-            try:
-                data = self.nyt_graphql_query(query_id)
-                self.log('Section:', section_title)
-                articles = parse_web_section(data, log=self.log, title=section_title)
-            except Exception as e:
-                self.log('Failed to parse section:', section_title, 'with error:', e)
-                articles = []
+            url = 'https://www.nytimes.com/section/' + slug
+            self.log('Download section index:', url)
+            soup = self.index_to_soup(url)
+            # with open('/t/raw.html', 'w') as f:
+            #     f.write(str(soup))
+            self.log('Section:', section_title)
+            articles = parse_web_section(soup)
             if articles:
                 feeds.append((section_title, articles))
+                for a in articles:
+                    self.log('\t', a['title'], a['url'])
             else:
-                # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
                 self.log('  No articles found in section:', section_title)
             if self.test and len(feeds) >= self.test[0]:
                 break
@@ -282,7 +224,15 @@ class NewYorkTimes(BasicNewsRecipe):
         # ])]
         if self.is_web_edition:
             return self.parse_web_sections()
-        return self.parse_todays_page()
+        date, feeds = self.parse_todays_page()
+        for s, articles in feeds:
+            self.log('Section:', s)
+            for a in articles:
+                self.log('\t', a['title'], a['url'])
+        pdate = date.strftime('%Y/%m/%d')
+        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
+        self.timefmt = strftime(' [%d %b, %Y]', date)
+        return feeds
 
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
@@ -309,57 +259,75 @@ class NewYorkTimes(BasicNewsRecipe):
         self.log('\tSkipping ', url)
 
 
+def parse_web_section(soup):
+    seen = set()
+    ans = []
+
+    def handle_h3(h3):
+        if h3.parent.name == 'a':
+            href = h3.parent['href']
+            parent = h3.parent.parent
+        else:
+            href = h3.find('a')['href']
+            parent = h3.parent
+        if href.startswith('/video/') or href in seen:
+            return
+        seen.add(href)
+        title = h3.get_text(separator=' ', strip=True)
+        desc = ''
+        for p in parent.find_all('p'):
+            desc += p.get_text(separator=' ', strip=True)
+        ans.append({'title': title, 'url': absolutize_href(href), 'description': desc})
+
+    tuple(map(handle_h3, soup.find(id='collection-highlights-container').find_all('h3')))
+    tuple(map(handle_h3, soup.find(attrs={'data-testid': 'main-collection'}).find_all('h3')))
+    return ans
+
+
 def asset_to_article(asset):
     title = asset['headline']['default']
     return {'title': title, 'url': asset['url'], 'description': asset['summary']}
 
 
-def parse_todays_page(data, log=print):
-    containers = data['data']['legacyCollection']['groupings'][0]['containers']
+def parse_todays_page(soup):
+    m = soup.find('meta', attrs={'name':'nyt-collection:uri'})['content'].split('/')
+    pdate = strptime('{}/{}/{}'.format(*m[-4:-1]), '%Y/%m/%d', assume_utc=False, as_utc=False)
+    from calibre.web.site_parsers.nytimes import clean_js_json
+    candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
+    script = candidates[0]
+    script = str(script)
+    raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')  # }
+    raw = clean_js_json(raw)
+    # with open('/t/raw.json', 'w') as f:
+    #     f.write(raw)
+    data = json.loads(raw)['initialState']
+    article_map = {}
+    for k, v in data.items():
+        if v['__typename'] == 'Article':
+            article_map[k] = asset_to_article(v)
     feeds = []
-    for cont in containers:
-        if cont['__typename'] != 'LegacyCollectionContainer':
-            continue
-        section_name = cont['label'].strip()
-        if not section_name:
-            continue
-        log(section_name)
-        articles = []
-        for rel in cont['relations']:
-            if rel.get('__typename') == 'LegacyCollectionRelation':
-                asset = rel['asset']
-                if asset['__typename'] == 'Article':
-                    articles.append(asset_to_article(asset))
-                    log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
-        if articles:
-            feeds.append((section_name, articles))
-    return feeds
-
-
-def parse_web_section(data, log=print, title=''):
-    articles = []
-    try:
-        containers = data['data']['legacyCollection']['collectionsPage']
-        if containers.get('embeddedCollections'):
-            containers = containers['embeddedCollections']
-        else:
-            containers = [containers]
-    except Exception as e:
-        log('Failed to parse web section', title, 'with error:', e)
-        return articles
-    for cont in containers:
-        for s in cont['stream']['edges']:
-            asset = s['node']
-            if asset['__typename'] == 'Article':
-                articles.append(asset_to_article(asset))
-                log(' ', articles[-1]['title'] + ':', articles[-1]['url'])
-    return articles
+    for v in data['ROOT_QUERY'].values():
+        if isinstance(v, dict):
+            for g in data[v['__ref']]['groupings']:
+                for c in g['containers']:
+                    articles = []
+                    for r in c['relations']:
+                        ref = r['asset']['__ref']
+                        if ref in article_map:
+                            articles.append(article_map[ref])
+                    if articles:
+                        feeds.append((c['label'], articles))
+    return pdate, feeds
 
 
 if __name__ == '__main__':
     import sys
-    data = json.loads(open(sys.argv[-1], 'rb').read())
+    with open(sys.argv[-1]) as f:
+        html = f.read()
+    soup = BeautifulSoup(html)
     if is_web_edition:
-        parse_web_section(data)
+        pprint(parse_web_section(soup))
     else:
-        parse_todays_page(data)
+        pdate, feeds = parse_todays_page(soup)
+        print(pdate)
+        pprint(feeds)
