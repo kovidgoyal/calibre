@@ -23,32 +23,31 @@ persistedQuery = '1f99120a11e94dd62a9474f68ee1255537ee3cf7eac20a0377819edb2fa1fe
 # The sections to download when downloading the web edition, comment out
 # the section you are not interested in
 web_sections = [
-    ('World', 'world'),
-    ('U.S.', 'us'),
-    ('Politics', 'politics'),
-    ('New York', 'nyregion'),
-    ('Business', 'business'),
-    ('Technology', 'technology'),
-    ('Sports', 'sports'),
-    ('Science', 'science'),
-    ('Health', 'health'),
-    ('Opinion', 'opinion'),
-    ('Arts', 'arts'),
-    # ('Books', 'books'),
-    ('Movies', 'movies'),
-    ('Music', 'arts/music'),
-    ('Television', 'arts/television'),
-    ('Style', 'style'),
-    ('Dining & Wine', 'food'),
-    ('Fashion & Style', 'fashion'),
-    # ('Home & Garden', 'garden'),
-    ('Travel', 'travel'),
-    ('Education', 'education'),
-    ('Multimedia', 'multimedia'),
-    ('Obituaries', 'obituaries'),
-    ('Sunday Magazine', 'magazine')
+    'world',
+    'us',
+    'politics',
+    'nyregion',
+    'business',
+    'technology',
+    'sports',
+    'science',
+    'health',
+    'opinion',
+    'arts',
+    'books',
+    'movies',
+    'arts/music',
+    'arts/television',
+    'style',
+    'food',
+    'fashion',
+    'travel',
+    'education',
+    'multimedia',
+    'obituaries',
+    'magazine',
 ]
-# web_sections = [ ('Business', 'business'), ]
+# web_sections = [ 'business' ]
 url_date_pat = re.compile(r'/(2\d\d\d)/(\d\d)/(\d\d)/')
 
 
@@ -200,14 +199,14 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def parse_web_sections(self):
         feeds = []
-        for section_title, slug in web_sections:
+        for slug in web_sections:
             url = 'https://www.nytimes.com/section/' + slug
             self.log('Download section index:', url)
             soup = self.index_to_soup(url)
             # with open('/t/raw.html', 'w') as f:
             #     f.write(str(soup))
+            section_title, articles = parse_web_section(soup)
             self.log('Section:', section_title)
-            articles = parse_web_section(soup)
             if articles:
                 feeds.append((section_title, articles))
                 for a in articles:
@@ -222,16 +221,16 @@ class NewYorkTimes(BasicNewsRecipe):
         # return [('All articles', [
         #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2020/11/27/world/americas/coronavirus-migrants-venezuela.html'},
         # ])]
+        date, feeds = self.parse_todays_page()
+        pdate = date.strftime('%Y/%m/%d')
+        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
+        self.timefmt = strftime(' [%d %b, %Y]', date)
         if self.is_web_edition:
             return self.parse_web_sections()
-        date, feeds = self.parse_todays_page()
         for s, articles in feeds:
             self.log('Section:', s)
             for a in articles:
                 self.log('\t', a['title'], a['url'])
-        pdate = date.strftime('%Y/%m/%d')
-        self.cover_url = 'https://static01.nyt.com/images/{}/nytfrontpage/scan.jpg'.format(pdate)
-        self.timefmt = strftime(' [%d %b, %Y]', date)
         return feeds
 
     def get_browser(self, *args, **kwargs):
@@ -259,39 +258,7 @@ class NewYorkTimes(BasicNewsRecipe):
         self.log('\tSkipping ', url)
 
 
-def parse_web_section(soup):
-    seen = set()
-    ans = []
-
-    def handle_h3(h3):
-        if h3.parent.name == 'a':
-            href = h3.parent['href']
-            parent = h3.parent.parent
-        else:
-            href = h3.find('a')['href']
-            parent = h3.parent
-        if href.startswith('/video/') or href in seen:
-            return
-        seen.add(href)
-        title = h3.get_text(separator=' ', strip=True)
-        desc = ''
-        for p in parent.find_all('p'):
-            desc += p.get_text(separator=' ', strip=True)
-        ans.append({'title': title, 'url': absolutize_href(href), 'description': desc})
-
-    tuple(map(handle_h3, soup.find(id='collection-highlights-container').find_all('h3')))
-    tuple(map(handle_h3, soup.find(attrs={'data-testid': 'main-collection'}).find_all('h3')))
-    return ans
-
-
-def asset_to_article(asset):
-    title = asset['headline']['default']
-    return {'title': title, 'url': asset['url'], 'description': asset['summary']}
-
-
-def parse_todays_page(soup):
-    m = soup.find('meta', attrs={'name':'nyt-collection:uri'})['content'].split('/')
-    pdate = strptime('{}/{}/{}'.format(*m[-4:-1]), '%Y/%m/%d', assume_utc=False, as_utc=False)
+def preloaded_data(soup):
     from calibre.web.site_parsers.nytimes import clean_js_json
     candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     script = candidates[0]
@@ -300,14 +267,53 @@ def parse_todays_page(soup):
     raw = clean_js_json(raw)
     # with open('/t/raw.json', 'w') as f:
     #     f.write(raw)
-    data = json.loads(raw)['initialState']
+    return json.loads(raw)['initialState']
+
+
+def asset_to_article(asset):
+    title = asset['headline']['default']
+    return {'title': title, 'url': asset['url'], 'description': asset['summary']}
+
+
+def parse_web_section(soup):
+    data = preloaded_data(soup)
     article_map = {}
     for k, v in data.items():
         if v['__typename'] == 'Article':
             article_map[k] = asset_to_article(v)
+    articles = []
+    for k, v in data['ROOT_QUERY'].items():
+        if k.startswith('workOrLocation'):
+            c = data[v['__ref']]
+            section_title = c['name']
+            for k, v in c['collectionsPage'].items():
+                if k.startswith('stream'):
+                    for k, v in v.items():
+                        if k.startswith('edges'):
+                            for q in v:
+                                r = q['node']['__ref']
+                                if r.startswith('Article:'):
+                                    articles.append(article_map[r])
+            if not articles:
+                for c in c['collectionsPage']['embeddedCollections']:
+                    for e in c['stream']['edges']:
+                        for k, v in e.items():
+                            if k.startswith('node'):
+                                articles.append(article_map[v['__ref']])
+    return section_title, articles
+
+
+def parse_todays_page(soup):
+    m = soup.find('meta', attrs={'name':'nyt-collection:uri'})['content'].split('/')
+    pdate = strptime('{}/{}/{}'.format(*m[-4:-1]), '%Y/%m/%d', assume_utc=False, as_utc=False)
+    article_map = {}
+    data = preloaded_data(soup)
+    for k, v in data.items():
+        if v['__typename'] == 'Article':
+            article_map[k] = asset_to_article(v)
     feeds = []
-    for v in data['ROOT_QUERY'].values():
-        if isinstance(v, dict):
+    for k, v in data['ROOT_QUERY'].items():
+        if k.startswith('workOrLocation'):
             for g in data[v['__ref']]['groupings']:
                 for c in g['containers']:
                     articles = []
@@ -326,7 +332,9 @@ if __name__ == '__main__':
         html = f.read()
     soup = BeautifulSoup(html)
     if is_web_edition:
-        pprint(parse_web_section(soup))
+        section_title, articles = parse_web_section(soup)
+        print(section_title)
+        pprint(articles)
     else:
         pdate, feeds = parse_todays_page(soup)
         print(pdate)
