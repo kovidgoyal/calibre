@@ -25,6 +25,7 @@ from qt.core import (
     QPalette,
     QPushButton,
     QSize,
+    QTabWidget,
     Qt,
     QTimer,
     QUrl,
@@ -37,6 +38,7 @@ from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QW
 from calibre import prints, random_user_agent
 from calibre.ebooks.metadata.sources.search_engines import google_consent_cookies
 from calibre.gui2 import error_dialog
+from calibre.gui2.viewer.llm import LLMPanel
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
@@ -90,6 +92,10 @@ vprefs.defaults['lookup_locations'] = [
     },
 ]
 vprefs.defaults['lookup_location'] = 'Google dictionary'
+vprefs.defaults['llm_lookup_tab_index'] = 0
+vprefs.defaults['llm_api_key'] = ''
+vprefs.defaults['llm_model_id'] = 'google/gemini-flash-1.5'
+vprefs.defaults['llm_quick_actions'] = '[]'
 
 
 class SourceEditor(Dialog):
@@ -327,19 +333,40 @@ def blank_html():
     return html
 
 
-class Lookup(QWidget):
+class Lookup(QTabWidget):
 
     def __init__(self, parent):
-        QWidget.__init__(self, parent)
+        QTabWidget.__init__(self, parent)
+        self.setDocumentMode(True)
+        self.setTabsClosable(False)
+
         self.is_visible = False
         self.selected_text = ''
         self.current_query = ''
         self.current_source = ''
-        self.l = l = QVBoxLayout(self)
-        self.h = h = QHBoxLayout()
-        l.addLayout(h)
+        self.llm_panel = None
+        self.llm_tab_index = -1
+
         self.debounce_timer = t = QTimer(self)
         t.setInterval(150), t.timeout.connect(self.update_query)
+
+        # Create Dictionary Panel
+        self.dictionary_panel = self._create_dictionary_panel()
+        self.addTab(self.dictionary_panel, _('Dictionary'))
+
+        # Create LLM Panel (placeholder)
+        self.llm_placeholder = self._create_llm_placeholder_widget()
+        self.llm_tab_index = self.addTab(self.llm_placeholder, _('LLM'))
+
+        self.currentChanged.connect(self._tab_changed)
+        set_sync_override.instance = self
+
+    def _create_dictionary_panel(self):
+        panel = QWidget(self)
+        l = QVBoxLayout(panel)
+        h = QHBoxLayout()
+        l.addLayout(h)
+
         self.source_box = sb = QComboBox(self)
         self.label = la = QLabel(_('Lookup &in:'))
         h.addWidget(la), h.addWidget(sb), la.setBuddy(sb)
@@ -360,9 +387,9 @@ class Lookup(QWidget):
         self.refresh_button = rb = QPushButton(QIcon.ic('view-refresh.png'), _('Refresh'))
         rb.setToolTip(_('Refresh the result to match the currently selected text'))
         rb.clicked.connect(self.update_query)
-        h = QHBoxLayout()
-        l.addLayout(h)
-        h.addWidget(b), h.addWidget(rb)
+        h_bottom = QHBoxLayout()
+        l.addLayout(h_bottom)
+        h_bottom.addWidget(b), h_bottom.addWidget(rb)
         self.auto_update_query = a = QCheckBox(_('Update on selection change'), self)
         self.disallow_auto_update = False
         a.setToolTip(textwrap.fill(
@@ -372,7 +399,34 @@ class Lookup(QWidget):
         a.stateChanged.connect(self.auto_update_state_changed)
         l.addWidget(a)
         self.update_refresh_button_status()
-        set_sync_override.instance = self
+        return panel
+
+    def _create_llm_placeholder_widget(self):
+        container = QWidget(self)
+        layout = QVBoxLayout(container)
+        layout.addStretch(1)
+        label = QLabel(_('The LLM feature is not yet initialized.'))
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(label)
+        init_button = QPushButton(_('Activate LLM Feature'), self)
+        init_button.clicked.connect(self._activate_llm_panel)
+        layout.addWidget(init_button, 0, Qt.AlignmentFlag.AlignHCenter)
+        layout.addStretch(1)
+        return container
+
+    def _activate_llm_panel(self):
+        if self.llm_panel is None:
+            self.llm_panel = LLMPanel(self)
+            self.removeTab(self.llm_tab_index)
+            self.llm_tab_index = self.addTab(self.llm_panel, _('LLM'))
+            self.setCurrentIndex(self.llm_tab_index)
+            self.llm_panel.update_with_text(self.selected_text)
+
+    def _tab_changed(self, index):
+        vprefs.set('llm_lookup_tab_index', index)
+        if index == self.llm_tab_index and self.llm_panel is None:
+            self._activate_llm_panel()
+        self.update_query()
 
     def set_sync_override(self, allowed):
         self.disallow_auto_update = not allowed
@@ -427,6 +481,10 @@ class Lookup(QWidget):
 
     def visibility_changed(self, is_visible):
         self.is_visible = is_visible
+        if is_visible:
+            last_idx = vprefs.get('llm_lookup_tab_index', 0)
+            if 0 <= last_idx < self.count():
+                self.setCurrentIndex(last_idx)
         self.update_query()
 
     @property
@@ -459,28 +517,36 @@ class Lookup(QWidget):
 
     def update_query(self):
         self.debounce_timer.stop()
-        query = self.selected_text or self.current_query
-        if self.query_is_up_to_date:
+        if not self.is_visible:
             return
-        if not self.is_visible or not query:
-            return
-        self.current_source = self.url_template
-        sp = self.special_processor
-        if sp is None:
-            url = self.current_source.format(word=query)
-        else:
-            url = sp(query)
 
-        self.view.load(QUrl(url))
-        self.current_query = query
-        self.update_refresh_button_status()
+        current_idx = self.currentIndex()
+        if current_idx == self.llm_tab_index:
+            if self.llm_panel:
+                self.llm_panel.update_with_text(self.selected_text)
+        else:
+            query = self.selected_text or self.current_query
+            if self.query_is_up_to_date or not query:
+                return
+            self.current_source = self.url_template
+            sp = self.special_processor
+            if sp is None:
+                url = self.current_source.format(word=query)
+            else:
+                url = sp(query)
+
+            self.view.load(QUrl(url))
+            self.current_query = query
+            self.update_refresh_button_status()
 
     def selected_text_changed(self, text, annot_id):
-        already_has_text = bool(self.current_query)
+        already_has_text = bool(self.current_query or self.selected_text)
         self.selected_text = text or ''
         if not self.disallow_auto_update and (self.auto_update_query.isChecked() or not already_has_text):
             self.debounce_timer.start()
         self.update_refresh_button_status()
+        if self.llm_panel:
+            self.llm_panel.update_with_text(self.selected_text)
 
     def on_forced_show(self):
         self.update_query()
