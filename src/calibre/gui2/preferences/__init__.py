@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
 import textwrap
 
 from qt.core import (
@@ -480,8 +481,8 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
 class ListViewWithMoveByKeyPress(QListView):
 
     def set_movement_functions(self, up_function, down_function):
-        self.up_function = up_function
-        self.down_function = down_function
+        self.up_function = partial(up_function, use_kbd_modifiers=False)
+        self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, event):
         if (event.type() == QEvent.KeyPress and
@@ -497,8 +498,8 @@ class ListViewWithMoveByKeyPress(QListView):
 class ListWidgetWithMoveByKeyPress(QListWidget):
 
     def set_movement_functions(self, up_function, down_function):
-        self.up_function = up_function
-        self.down_function = down_function
+        self.up_function = partial(up_function, use_kbd_modifiers=False)
+        self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, event):
         if (event.type() == QEvent.KeyPress and
@@ -514,8 +515,8 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
 class TableWidgetWithMoveByKeyPress(QTableWidget):
 
     def set_movement_functions(self, up_function, down_function):
-        self.up_function = up_function
-        self.down_function = down_function
+        self.up_function = partial(up_function, use_kbd_modifiers=False)
+        self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, event):
         if (event.type() == QEvent.KeyPress and
@@ -526,6 +527,19 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
                 self.down_function()
             return True
         return QTableWidget.event(self, event)
+
+
+def get_move_count(row_count):
+    mods = QApplication.keyboardModifiers()
+    if mods == Qt.KeyboardModifier.ShiftModifier:
+        count = 5
+    elif mods == Qt.KeyboardModifier.ControlModifier:
+        count = 10
+    elif mods == (Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
+        count = row_count
+    else:
+        count = 1
+    return count
 
 
 # Testing {{{

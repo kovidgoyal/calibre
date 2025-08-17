@@ -7,12 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 import sys
+from functools import partial
 from contextlib import suppress
 
-from qt.core import QAbstractItemView, QApplication, QIcon, Qt, QTableWidgetItem
+from qt.core import QAbstractItemView, QIcon, Qt, QTableWidgetItem
 
 from calibre.gui2 import Application, error_dialog, gprefs, question_dialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, get_move_count, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 
@@ -42,8 +43,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                          default=0) + 1
         self.created_count = self.initial_created_count
 
-        self.column_up.clicked.connect(self.up_column)
-        self.column_down.clicked.connect(self.down_column)
+        self.column_up.clicked.connect(partial(self.up_column, use_kbd_modifiers=True))
+        self.column_down.clicked.connect(partial(self.down_column, use_kbd_modifiers=True))
         self.opt_columns.setSelectionMode(QAbstractItemView.SingleSelection)
         self.opt_columns.set_movement_functions(self.up_column, self.down_column)
         self.del_custcol_button.clicked.connect(self.del_custcol)
@@ -278,20 +279,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         key = self.opt_columns.item(row, self.KEY_COLUMN).text()
         self.setup_row(row, key, row, force_checked_to=checked)
 
-    def get_move_count(self):
-        mods = QApplication.keyboardModifiers()
-        if mods == Qt.KeyboardModifier.ShiftModifier:
-            count = 5
-        elif mods == Qt.KeyboardModifier.ControlModifier:
-            count = 10
-        elif mods == (Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
-            count = self.opt_columns.rowCount()
-        else:
-            count = 1
-        return count
-
-    def up_column(self):
-        count = self.get_move_count()
+    def up_column(self, use_kbd_modifiers):
+        count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
         for _ in range(count):
             row = self.opt_columns.currentRow()
             if row > 0:
@@ -307,8 +296,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.changed_signal.emit()
                 self.opt_columns.setSortingEnabled(True)
 
-    def down_column(self):
-        count = self.get_move_count()
+    def down_column(self, use_kbd_modifiers):
+        count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
         for _ in range(count):
             row = self.opt_columns.currentRow()
             if row < self.opt_columns.rowCount()-1:

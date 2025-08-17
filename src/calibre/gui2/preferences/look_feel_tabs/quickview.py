@@ -50,8 +50,8 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
         mu = partial(move_field_up, self.qv_display_order, self.qv_display_model)
         md = partial(move_field_down, self.qv_display_order, self.qv_display_model)
         self.qv_display_order.set_movement_functions(mu, md)
-        self.qv_up_button.clicked.connect(mu)
-        self.qv_down_button.clicked.connect(md)
+        self.qv_up_button.clicked.connect(partial(mu, use_kbd_modifiers=True))
+        self.qv_down_button.clicked.connect(partial(md, use_kbd_modifiers=True))
 
     def lazy_initialize(self):
         self.qv_display_model.initialize()
