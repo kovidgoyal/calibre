@@ -100,7 +100,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
             self.tb_search_order.addItem(item)
             node = v
 
-    def move_tb_search_up(self):
+    def move_tb_search_up(self, *args, **kwargs):
         idx = self.tb_search_order.currentRow()
         if idx <= 0:
             return
@@ -109,7 +109,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_search_order.setCurrentRow(idx-1)
         self.changed_signal.emit()
 
-    def move_tb_search_down(self):
+    def move_tb_search_down(self, *args, **kwargs):
         idx = self.tb_search_order.currentRow()
         if idx < 0 or idx == 3:
             return

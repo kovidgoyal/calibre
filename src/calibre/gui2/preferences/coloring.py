@@ -51,7 +51,7 @@ from calibre.constants import config_dir
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, open_local_file, pixmap_to_data, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
-from calibre.gui2.preferences import ListViewWithMoveByKeyPress
+from calibre.gui2.preferences import get_move_count, ListViewWithMoveByKeyPress
 from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key
@@ -1275,27 +1275,29 @@ class EditRules(QWidget):  # {{{
                 self.model.remove_rule(row)
             self.changed.emit()
 
-    def move_rows(self, moving_up=True):
-        sm = self.rules_view.selectionModel()
-        rows = sorted(sm.selectedRows(), reverse=not moving_up)
-        if rows:
-            if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):
-                return
-            sm.clear()
-            indices_to_select = []
-            for idx in rows:
-                if idx.isValid():
-                    idx = self.model.move(idx, -1 if moving_up else 1)
-                    if idx is not None:
-                        indices_to_select.append(idx)
-            if indices_to_select:
-                new_selections = QItemSelection()
-                for idx in indices_to_select:
-                    new_selections.merge(QItemSelection(idx, idx),
-                                         QItemSelectionModel.SelectionFlag.Select)
-                sm.select(new_selections, QItemSelectionModel.SelectionFlag.Select)
-                self.rules_view.scrollTo(indices_to_select[0])
-            self.changed.emit()
+    def move_rows(self, moving_up=True, use_kbd_modifiers=True):
+        count = get_move_count(self.rules_view.model().rowCount()) if use_kbd_modifiers else 1
+        for _ in range(count):
+            sm = self.rules_view.selectionModel()
+            rows = sorted(sm.selectedRows(), reverse=not moving_up)
+            if rows:
+                if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):
+                    return
+                sm.clear()
+                indices_to_select = []
+                for idx in rows:
+                    if idx.isValid():
+                        idx = self.model.move(idx, -1 if moving_up else 1)
+                        if idx is not None:
+                            indices_to_select.append(idx)
+                if indices_to_select:
+                    new_selections = QItemSelection()
+                    for idx in indices_to_select:
+                        new_selections.merge(QItemSelection(idx, idx),
+                                             QItemSelectionModel.SelectionFlag.Select)
+                    sm.select(new_selections, QItemSelectionModel.SelectionFlag.Select)
+                    self.rules_view.scrollTo(indices_to_select[0])
+                self.changed.emit()
 
     def clear(self):
         self.model.clear()

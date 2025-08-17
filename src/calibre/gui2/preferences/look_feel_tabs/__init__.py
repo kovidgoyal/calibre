@@ -29,7 +29,7 @@ from calibre.ebooks.metadata.search_internet import qquote
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import LazyConfigWidgetBase
+from calibre.gui2.preferences import get_move_count, LazyConfigWidgetBase
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter
@@ -204,6 +204,11 @@ class DisplayedFields(QAbstractListModel):
             self.db.new_api.set_pref(self.pref_name, self.fields)
 
     def move(self, idx, delta):
+        row = idx.row()
+        if delta > 0:
+            delta = delta if row + delta < self.rowCount() else self.rowCount() - row - 1
+        else:
+            delta = -row if row + delta < 0 else delta
         row = idx.row() + delta
         if row >= 0 and row < len(self.fields):
             t = self.fields[row]
@@ -294,20 +299,22 @@ def reset_layout(in_widget, model=None):
     in_widget.changed_signal.emit()
 
 
-def move_field_up(widget, model):
+def move_field_up(widget, model, *args, use_kbd_modifiers=True):
+    count = get_move_count(model.rowCount()) if use_kbd_modifiers else 1
     idx = widget.currentIndex()
     if idx.isValid():
-        idx = model.move(idx, -1)
+        idx = model.move(idx, -count)
         if idx is not None:
             sm = widget.selectionModel()
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
 
 
-def move_field_down(widget, model):
+def move_field_down(widget, model, *args, use_kbd_modifiers=True):
+    count = get_move_count(model.rowCount()) if use_kbd_modifiers else 1
     idx = widget.currentIndex()
     if idx.isValid():
-        idx = model.move(idx, 1)
+        idx = model.move(idx, count)
         if idx is not None:
             sm = widget.selectionModel()
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)

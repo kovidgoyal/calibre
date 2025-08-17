@@ -71,36 +71,16 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_reset_layout_button.clicked.connect(partial(reset_layout, self, model=self.tb_display_model))
         self.tb_export_layout_button.clicked.connect(partial(export_layout, self, model=self.tb_display_model))
         self.tb_import_layout_button.clicked.connect(partial(import_layout, self, model=self.tb_display_model))
-        self.tb_up_button.clicked.connect(self.tb_up_button_clicked)
-        self.tb_down_button.clicked.connect(self.tb_down_button_clicked)
-        self.tb_display_order.set_movement_functions(self.tb_up_button_clicked, self.tb_down_button_clicked)
+
+        mu = partial(move_field_up, self.tb_display_order, self.tb_display_model)
+        md = partial(move_field_down, self.tb_display_order, self.tb_display_model)
+        self.tb_up_button.clicked.connect(partial(mu, use_kbd_modifiers=True))
+        self.tb_down_button.clicked.connect(partial(md, use_kbd_modifiers=True))
+        self.tb_display_order.set_movement_functions(mu, md)
 
     def lazy_initialize(self):
         self.tb_display_model.initialize()
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
-
-    def tb_down_button_clicked(self):
-        idx = self.tb_display_order.currentIndex()
-        if idx.isValid():
-            row = idx.row()
-            model = self.tb_display_model
-            fields = model.fields
-            key = fields[row][0]
-            if not is_standard_category(key):
-                return
-            if row < len(fields) and is_standard_category(fields[row+1][0]):
-                move_field_down(self.tb_display_order, model)
-
-    def tb_up_button_clicked(self):
-        idx = self.tb_display_order.currentIndex()
-        if idx.isValid():
-            row = idx.row()
-            model = self.tb_display_model
-            fields = model.fields
-            key = fields[row][0]
-            if not is_standard_category(key):
-                return
-            move_field_up(self.tb_display_order, model)
 
     def restore_defaults(self):
         LazyConfigWidgetBase.restore_defaults(self)

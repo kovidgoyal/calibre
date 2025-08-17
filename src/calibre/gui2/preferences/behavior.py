@@ -16,7 +16,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.gui2 import config, dynamic, gprefs, info_dialog
 from calibre.gui2.actions.choose_library import get_change_library_action_plugin
-from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, get_move_count, Setting, test_widget
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
@@ -67,9 +67,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('virtual_lib_on_startup', db.prefs, choices=choices)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation_dialogs)
 
-        self.input_up_button.clicked.connect(self.up_input)
-        self.input_down_button.clicked.connect(self.down_input)
-        self.opt_input_order.set_movement_functions(self.up_input, self.down_input)
+        self.input_up_button.clicked.connect(partial(self.up_input, use_kbd_modifiers=True))
+        self.input_down_button.clicked.connect(partial(self.down_input, use_kbd_modifiers=True))
+        self.opt_input_order.set_movement_functions(partial(self.up_input, use_kbd_modifiers=False),
+                                                    partial(self.down_input, use_kbd_modifiers=False))
         self.opt_input_order.dropEvent = partial(input_order_drop_event, self)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
@@ -158,19 +159,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             item.setData(Qt.ItemDataRole.UserRole, (format))
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsDragEnabled)
 
-    def up_input(self, *args):
-        idx = self.opt_input_order.currentRow()
-        if idx > 0:
-            self.opt_input_order.insertItem(idx-1, self.opt_input_order.takeItem(idx))
-            self.opt_input_order.setCurrentRow(idx-1)
-            self.changed_signal.emit()
+    def up_input(self, use_kbd_modifiers, *args):
+        count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
+        for _ in range(count):
+            idx = self.opt_input_order.currentRow()
+            if idx > 0:
+                self.opt_input_order.insertItem(idx-1, self.opt_input_order.takeItem(idx))
+                self.opt_input_order.setCurrentRow(idx-1)
+                self.changed_signal.emit()
 
-    def down_input(self, *args):
-        idx = self.opt_input_order.currentRow()
-        if idx < self.opt_input_order.count()-1:
-            self.opt_input_order.insertItem(idx+1, self.opt_input_order.takeItem(idx))
-            self.opt_input_order.setCurrentRow(idx+1)
-            self.changed_signal.emit()
+    def down_input(self, use_kbd_modifiers, *args):
+        count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
+        for _ in range(count):
+            idx = self.opt_input_order.currentRow()
+            if idx < self.opt_input_order.count()-1:
+                self.opt_input_order.insertItem(idx+1, self.opt_input_order.takeItem(idx))
+                self.opt_input_order.setCurrentRow(idx+1)
+                self.changed_signal.emit()
 
     # }}}
 

@@ -208,8 +208,8 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.field_display_order.setModel(self.display_model)
         mu = partial(move_field_up, self.field_display_order, self.display_model)
         md = partial(move_field_down, self.field_display_order, self.display_model)
-        self.df_up_button.clicked.connect(mu)
-        self.df_down_button.clicked.connect(md)
+        self.df_up_button.clicked.connect(partial(mu, use_kbd_modifiers=True))
+        self.df_down_button.clicked.connect(partial(md, use_kbd_modifiers=True))
         self.field_display_order.set_movement_functions(mu, md)
 
         self.opt_book_details_css.textChanged.connect(self.changed_signal)
