@@ -51,7 +51,7 @@ from calibre.constants import config_dir
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, open_local_file, pixmap_to_data, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
-from calibre.gui2.preferences import get_move_count, ListViewWithMoveByKeyPress
+from calibre.gui2.preferences import ListViewWithMoveByKeyPress, get_move_count
 from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key

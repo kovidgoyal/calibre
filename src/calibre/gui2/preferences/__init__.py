@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
 import textwrap
+from functools import partial
 
 from qt.core import (
     QAbstractSpinBox,
@@ -530,16 +530,10 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
 
 
 def get_move_count(row_count):
-    mods = QApplication.keyboardModifiers()
-    if mods == Qt.KeyboardModifier.ShiftModifier:
-        count = 5
-    elif mods == Qt.KeyboardModifier.ControlModifier:
-        count = 10
-    elif mods == (Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier):
-        count = row_count
-    else:
-        count = 1
-    return count
+    mods = QApplication.keyboardModifiers() & (
+        Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
+    return {Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier: row_count,
+            Qt.KeyboardModifier.ShiftModifier: 5, Qt.KeyboardModifier.ControlModifier: 10}.get(mods, 1)
 
 
 # Testing {{{

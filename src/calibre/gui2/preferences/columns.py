@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 import sys
-from functools import partial
 from contextlib import suppress
+from functools import partial
 
 from qt.core import QAbstractItemView, QIcon, Qt, QTableWidgetItem
 

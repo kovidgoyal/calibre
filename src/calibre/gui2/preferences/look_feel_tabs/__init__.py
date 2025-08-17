@@ -29,7 +29,7 @@ from calibre.ebooks.metadata.search_internet import qquote
 from calibre.gui2 import choose_files, choose_save_file, error_dialog
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import get_move_count, LazyConfigWidgetBase
+from calibre.gui2.preferences import LazyConfigWidgetBase, get_move_count
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter

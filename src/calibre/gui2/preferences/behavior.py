@@ -16,7 +16,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.gui2 import config, dynamic, gprefs, info_dialog
 from calibre.gui2.actions.choose_library import get_change_library_action_plugin
-from calibre.gui2.preferences import ConfigWidgetBase, get_move_count, Setting, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, Setting, get_move_count, test_widget
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
