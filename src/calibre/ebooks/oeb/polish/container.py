@@ -1193,8 +1193,8 @@ class EpubContainer(Container):
                     zf = ZipFile(stream)
                     zf.extractall(tdir)
                 except Exception:
-                    log.exception('EPUB appears to be invalid ZIP file, trying a'
-                            ' more forgiving ZIP parser')
+                    if log is not None:
+                        log.exception('EPUB appears to be invalid ZIP file, trying a more forgiving ZIP parser')
                     from calibre.utils.localunzip import extractall
                     stream.seek(0)
                     extractall(stream, path=tdir)
@@ -1353,7 +1353,8 @@ class EpubContainer(Container):
                     key = item.text.rpartition(':')[-1]
                     key = uuid.UUID(key).bytes
                 except Exception:
-                    self.log.exception('Failed to parse obfuscation key')
+                    if self.log is not None:
+                        self.log.exception('Failed to parse obfuscation key')
                     key = None
 
         for font, alg in iteritems(fonts):
@@ -1586,7 +1587,8 @@ class AZW3Container(Container):
             'calibre.ebooks.oeb.polish.container', 'do_explode',
             args=(pathtoazw3, tdir), no_output=True)['result']
         except WorkerError as e:
-            log(e.orig_tb)
+            if log is not None:
+                log(e.orig_tb)
             raise InvalidMobi('Failed to explode MOBI')
         super().__init__(rootpath=tdir, opfpath=opf_path, log=log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
@@ -1634,7 +1636,7 @@ def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -
     if own_tdir:
         tdir = PersistentTemporaryDirectory(f'_{ebook_cls.book_type}_container')
     try:
-        ebook = ebook_cls(path, log=log, tdir=tdir)
+        ebook = ebook_cls(path, log=log or default_log, tdir=tdir)
         ebook.tweak_mode = tweak_mode
     except BaseException:
         if own_tdir:
