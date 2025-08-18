@@ -117,6 +117,11 @@
               <property name="text">
                <string>...</string>
               </property>
+              <property name="toolTip">
+               <string>&lt;p&gt;Click to move the row up 1. Shift+click to move the row up 5.
+Ctrl+click to move the row up 10. Ctrl+Shift+click to move the row to the top.
+Keyboard shortcut: Ctrl-Up arrow&lt;/p&gt;</string>
+              </property>
               <property name="icon">
                <iconset resource="../../../../resources/images.qrc">
                 <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
@@ -140,6 +145,11 @@
              <widget class="QToolButton" name="input_down_button">
               <property name="text">
                <string>...</string>
+              </property>
+              <property name="toolTip">
+               <string>&lt;p&gt;Click to move the row down 1. Shift+click to move the row down 5.
+Ctrl+click to move the row down 10. Ctrl+Shift+click to move the row to the bottom.
+Keyboard shortcut: Ctrl-Down arrow&lt;/p&gt;</string>
               </property>
               <property name="icon">
                <iconset resource="../../../../resources/images.qrc">

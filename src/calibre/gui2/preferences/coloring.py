@@ -1060,12 +1060,18 @@ class EditRules(QWidget):  # {{{
 
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-up.png'))
-        b.setToolTip(_('Move the selected rule up'))
+        b.setToolTip('<p>' + _('Click to move the row up 1. Shift+click '
+                       'to move the row up 5. Ctrl+click to move the row up 10. '
+                       'Ctrl+Shift+click to move the row to the top. '
+                       'Keyboard shortcut: Ctrl-Up arrow') + '</p>')
         b.clicked.connect(partial(self.move_rows, moving_up=True))
         g.addWidget(b, 0, 1, 1, 1, Qt.AlignmentFlag.AlignTop)
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-down.png'))
-        b.setToolTip(_('Move the selected rule down'))
+        b.setToolTip('<p>' + _('Click to move the row down 1. Shift+click to move the '
+                        'row down 5. Ctrl+click to move the row down 10. Ctrl+Shift+click '
+                        'to move the row to the bottom. '
+                        'Keyboard shortcut: Ctrl-Down arrow') + '</p>')
         b.clicked.connect(partial(self.move_rows, moving_up=False))
         self.rules_view.set_movement_functions(partial(self.move_rows, moving_up=True),
                                                partial(self.move_rows, moving_up=False))

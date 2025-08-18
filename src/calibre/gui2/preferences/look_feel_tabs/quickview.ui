@@ -61,7 +61,9 @@ column being examined (the left-hand panel)&lt;/p&gt;</string>
       <item row="0" column="1">
        <widget class="QToolButton" name="qv_up_button">
         <property name="toolTip">
-         <string>Move up. Keyboard shortcut: Ctrl-Up arrow</string>
+         <string>&lt;p&gt;Click to move the row up 1. Shift+click to move the row up 5.
+Ctrl+click to move the row up 10. Ctrl+Shift+click to move the row to the top.
+Keyboard shortcut: Ctrl-Up arrow&lt;/p&gt;</string>
         </property>
         <property name="icon">
         <iconset resource="../../../../../resources/images.qrc">
@@ -72,7 +74,9 @@ column being examined (the left-hand panel)&lt;/p&gt;</string>
       <item row="2" column="1">
        <widget class="QToolButton" name="qv_down_button">
         <property name="toolTip">
-         <string>Move down. Keyboard shortcut: Ctrl-Down arrow</string>
+         <string>&lt;p&gt;Click to move the row down 1. Shift+click to move the row down 5.
+Ctrl+click to move the row down 10. Ctrl+Shift+click to move the row to the bottom.
+Keyboard shortcut: Ctrl-Down arrow&lt;/p&gt;</string>
         </property>
         <property name="icon">
         <iconset resource="../../../../../resources/images.qrc">
