@@ -48,6 +48,7 @@ class OEB2HTML:
             self.book_title = _('Unknown')
         self.links = {}
         self.images = {}
+        self.fonts = {}
         self.base_hrefs = [item.href for item in oeb_book.spine]
         self.map_resources(oeb_book)
 
@@ -86,6 +87,13 @@ class OEB2HTML:
                 ext = os.path.splitext(item.href)[1]
                 fname = f'{len(self.images):06d}{ext}'
                 self.images[item.href] = fname
+        from calibre.ebooks.oeb.polish.utils import OEB_FONTS
+        fonts = sorted((item for item in oeb_book.manifest if item.media_type in OEB_FONTS), key=attrgetter('href'))
+        for item in fonts:
+            if item.href not in self.fonts:
+                ext = os.path.splitext(item.href)[1]
+                fname = f'{len(self.fonts):06d}{ext}'
+                self.fonts[item.href] = fname
 
         for item in oeb_book.spine:
             self.get_link_id(item.href)
@@ -114,6 +122,8 @@ class OEB2HTML:
             return f'images/{self.images[abs_url]}'
         if abs_url in self.links:
             return self.links[abs_url]
+        if abs_url in self.fonts:
+            return f'fonts/{self.fonts[abs_url]}'
         return url
 
     def rewrite_ids(self, root, page):
