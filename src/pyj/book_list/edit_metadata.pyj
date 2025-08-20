@@ -969,7 +969,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
         if changes.cover is '--remove--':
             img.removeAttribute('src')
             changes.cover = None
-        else:
+        elif jstype(changes.cover) is not 'string':
             r = FileReader()
             r.onload = def(evt):
                 img.src = evt.target.result
