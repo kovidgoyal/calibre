@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 8  # Needed for dynamic plugin loading
+store_version = 9  # Needed for dynamic plugin loading
 
 import mimetypes
 
@@ -79,6 +79,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
         if not s.formats:
             continue
 
+        s.drm = SearchResult.DRM_UNLOCKED
         yield s
 
 
