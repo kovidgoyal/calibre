@@ -6,6 +6,8 @@ __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
+from contextlib import suppress
+
 from qt.core import QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTableWidgetItem, QTimer
 
 from calibre.gui2 import error_dialog, gprefs
@@ -109,8 +111,10 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.buttonBox.rejected.connect(self.reject)
         self.ignore_next_key = False
 
-        search_text = self.device_db[self.current_device_book_id].title
+        self.device_book_title = self.device_db[self.current_device_book_id].title.strip()
+        search_text = self.device_book_title
         search_text = search_text.replace('(', '\\(').replace(')', '\\)')
+        self.device_book_search_query = search_text
         self.search_text.setText(search_text)
         if search_text and len(self.library_db.new_api.all_book_ids()) < 8000:
             QTimer.singleShot(0, self.search_button.click)
@@ -140,6 +144,24 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             except ParseException as e:
                 return error_dialog(self.gui, _('Could not search'), _(
                     'The search expression {} is not valid.').format(query), det_msg=str(e), show=True)
+            if not books and query == self.device_book_search_query:
+                import re
+                modified = re.sub(r'\s*\([^)]*\)$', '', self.device_book_title).replace('(', r'\(').replace(')', r'\)')
+                if modified:
+                    with suppress(ParseException):
+                        books = self.library_db.data.search(modified, return_matches=True)
+                if not books:
+                    again = False
+                    if ':' in modified:
+                        modified = modified.partition(':')[0]
+                        again = True
+                    elif ':' in self.device_book_title:
+                        modified = self.device_book_title.partition(':')[0]
+                        modified = modified.replace('(', r'\(').replace(')', r'\)')
+                        again = True
+                    if again:
+                        with suppress(ParseException):
+                            books = self.library_db.data.search(modified, return_matches=True)
             self.books_table.setRowCount(len(books))
 
             self.books_table.setSortingEnabled(False)
