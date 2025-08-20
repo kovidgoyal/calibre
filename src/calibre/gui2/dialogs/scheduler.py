@@ -666,7 +666,7 @@ class Scheduler(QObject):
         if history:
             for arg in reversed(history):
                 ac = QAction(arg['title'], m)
-                ac.setIcon(QIcon(self.recipe_model.favicon_for_urn(arg['urn'])))
+                ac.setIcon(self.recipe_model.favicon_for_urn(arg['urn']))
                 m.addAction(ac)
                 ac.triggered.connect(partial(self.download, arg['urn']))
             m.addSeparator()

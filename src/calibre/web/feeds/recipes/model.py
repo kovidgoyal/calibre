@@ -171,8 +171,8 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
-        self.default_icon = (QIcon.ic('news.png'))
-        self.custom_icon = (QIcon.ic('user_profile.png'))
+        self.default_icon = QIcon.ic('news.png')
+        self.custom_icon = QIcon.ic('user_profile.png')
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         self.favicon_cache = {}
@@ -288,7 +288,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.root = new_root
         self.reset()
 
-    def favicon_for_urn(self, urn: str) -> QPixmap:
+    def favicon_for_urn(self, urn: str) -> QIcon:
         icon = urn[8:] + '.png'
         if not (p := self.favicon_cache.get(icon)):
             p = QPixmap()
@@ -299,6 +299,9 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
                         p.loadFromData(zf.read(self.favicons[icon]))
                 except Exception:
                     pass
+            elif urn.startswith('custom:'):
+                p = self.custom_icon
+            p = QIcon(p)
             self.favicon_cache[icon] = p
         return p
 
