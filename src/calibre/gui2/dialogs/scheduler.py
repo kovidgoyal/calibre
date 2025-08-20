@@ -666,11 +666,22 @@ class Scheduler(QObject):
         if history:
             for arg in reversed(history):
                 ac = QAction(arg['title'], m)
+                ac.setIcon(QIcon(self.recipe_model.favicon_for_urn(arg['urn'])))
                 m.addAction(ac)
                 ac.triggered.connect(partial(self.download, arg['urn']))
+            m.addSeparator()
+            ac = QAction(_('Clear this list'), m)
+            ac.setIcon(QIcon.ic('trash.png'))
+            m.addAction(ac)
+            ac.triggered.connect(self.clear_history)
         else:
             nrdnac = QAction(_('No recently downloaded news'), m)
             m.addAction(nrdnac)
+
+    def clear_history(self):
+        p = sprefs()
+        with suppress(KeyError):
+            del p['history']
 
     @property
     def db(self):

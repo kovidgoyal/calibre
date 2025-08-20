@@ -175,6 +175,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.custom_icon = (QIcon.ic('user_profile.png'))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
+        self.favicon_cache = {}
         try:
             with zipfile.ZipFile(P('builtin_recipes.zip',
                     allow_user_override=False), 'r') as zf:
@@ -286,6 +287,20 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         new_root.sort()
         self.root = new_root
         self.reset()
+
+    def favicon_for_urn(self, urn: str) -> QPixmap:
+        icon = urn[8:] + '.png'
+        if not (p := self.favicon_cache.get(icon)):
+            p = QPixmap()
+            if icon in self.favicons:
+                try:
+                    f = P('builtin_recipes.zip', allow_user_override=False)
+                    with zipfile.ZipFile(f, 'r') as zf:
+                        p.loadFromData(zf.read(self.favicons[icon]))
+                except Exception:
+                    pass
+            self.favicon_cache[icon] = p
+        return p
 
     def reset(self):
         self.beginResetModel(), self.endResetModel()
