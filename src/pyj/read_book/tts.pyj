@@ -269,13 +269,14 @@ class Client:
                 apos(_('Bottom right'), 'bottom-right')
                 apos(_('Bottom left'), 'bottom-left')
 
-                select = E.select(size='5', id=voice_id)
+                select = E.select(size='5', id=voice_id, style='display:block')
                 voices = window.speechSynthesis.getVoices()
                 voices.sort(def (a, b):
                     a = a.name.toLowerCase()
                     b = b.name.toLowerCase()
                     return -1 if a < b else (0 if a is b else 1)
                 )
+                voice_filter = E.input(type='text', placeholder=_('Filter voices'), style='display: block')
                 seen = {}
                 for voice in voices:
                     if not seen[voice.voiceURI]:
@@ -290,13 +291,29 @@ class Client:
                 if len(voices) < 1:
                     select.appendChild(E.option(_('No voices available')))
                     select.lastChild.disabled = True
+                else:
+                    original = Array.from(select.options).map(def(o): return {'text': o.text, 'value': o.value};)
+                    voice_filter.addEventListener('input', def(ev):
+                        q = voice_filter.value.trim().toLowerCase()
+                        filtered = original.filter(def(item): return item.text.toLowerCase().includes(q);)
+                        frag = document.createDocumentFragment()
+                        if filtered.length is 0:
+                            frag.appendChild(E.option(_('No matches'), disabled=True))
+                        else:
+                            for item in filtered:
+                                frag.appendChild(E.option(item.text, value=item.value))
+                        select.replaceChildren(frag)
+                        if select.selectedIndex > -1:
+                            select.options[select.selectedIndex].scrollIntoView()
+                    )
                 parent_div.appendChild(E.div(_('Speed of speech:') + '\xa0'))
                 parent_div.lastChild.appendChild(
                     E.input(type='range', id=rate_id, min=(self.min_rate * 10) + '', max=(self.max_rate * 10) + '', value=((self.current_rate or 1) * 10) + ''))
                 parent_div.appendChild(E.div(_('Voice:') + '\xa0'))
-                parent_div.lastChild.appendChild(select)
-                if select.options.selectedIndex? and select.options[select.options.selectedIndex]:
-                    select.options[select.options.selectedIndex].scrollIntoView()
+                voice_div = E.div(select, voice_filter, style='display: inline-block; vertical-align: middle')
+                parent_div.lastChild.appendChild(voice_div)
+                if select.selectedIndex > -1 and select.options[select.selectedIndex]:
+                    select.options[select.selectedIndex].scrollIntoView()
                 parent_div.appendChild(E.div(_('Position of bar:') + '\xa0', pos_select, style='margin-top: 1rem'))
                 parent_div.appendChild(E.div(
                         style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
