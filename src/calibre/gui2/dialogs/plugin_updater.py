@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import datetime
 import re
 import traceback
+from enum import Enum
 
 from qt.core import (
     QAbstractItemView,
@@ -59,6 +60,47 @@ FILTER_ALL = 0
 FILTER_INSTALLED = 1
 FILTER_UPDATE_AVAILABLE = 2
 FILTER_NOT_INSTALLED = 3
+
+
+class Category(Enum):
+    Store = 'Store'
+    FileType = 'File Type'
+    LibraryClosed = 'Library Closed'
+    Editor = 'Editor'
+    ConversionInput = 'Conversion Input'
+    ConversionOutput = 'Conversion Output'
+    Device = 'Device'
+    MetadataWriter = 'Metadata Writer'
+    MetadataReader = 'Metadata Reader'
+    MetadataSource = 'Metadata Source'
+    UserInterface = 'GUI'
+
+    @property
+    def human_name(self) -> str:
+        match self:
+            case Category.Store:
+                return _('Sources of books')
+            case Category.FileType:
+                return _('Customize handling of ebooks')
+            case Category.LibraryClosed:
+                return _('Actions when closing libraries')
+            case Category.Editor:
+                return _('Extend the calibre Editor')
+            case Category.ConversionInput:
+                return _('Conversion from extra formats')
+            case Category.ConversionOutput:
+                return _('Conversion to extra formats')
+            case Category.Device:
+                return _('Devices to manage')
+            case Category.MetadataWriter:
+                return _('Set metadata in files')
+            case Category.MetadataReader:
+                return _('Get metadata from files')
+            case Category.MetadataSource:
+                return _('Download metadata for books')
+            case Category.UserInterface:
+                return _('Extend calibre generally')
+        return self.value
 
 
 def get_plugin_updates_available(raise_error=False):
@@ -199,6 +241,30 @@ class PluginFilterComboBox(QComboBox):
         self.addItems(items)
 
 
+class CategoryFilterComboBox(QComboBox):
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+        self.addItem(_('All'), None)
+        for c in Category:
+            self.addItem(c.human_name, c)
+
+    @property
+    def filter_value(self) -> str:
+        v = self.currentData()
+        if v:
+            return v.value
+        return ''
+
+    def set_category(self, c: Category | None) -> None:
+        if c is None:
+            self.setCurrentIndex(0)
+        else:
+            idx = self.findData(c)
+            if idx > -1:
+                self.setCurrentIndex(idx)
+
+
 class DisplayPlugin:
 
     def __init__(self, plugin):
@@ -213,6 +279,7 @@ class DisplayPlugin:
         self.release_date = datetime.datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).date()
         self.calibre_required_version = tuple(plugin['minimum_calibre_version'])
         self.author = plugin['author']
+        self.category = plugin.get('category', '')
         self.platforms = plugin['supported_platforms']
         self.uninstall_plugins = plugin['uninstall'] or []
         self.has_changelog = plugin['history']
@@ -230,6 +297,11 @@ class DisplayPlugin:
     def name_matches_filter(self, filter_text):
         # filter_text is already lowercase @set_filter_text
         return filter_text in icu_lower(self.name)  # case-insensitive filtering
+
+    def category_matches_filter(self, filter_text):
+        if not filter_text:
+            return True
+        return filter_text == self.category
 
     def is_upgrade_available(self):
         if isinstance(self.installed_version, str):
@@ -258,18 +330,22 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
         self.filter_text = ''
+        self.filter_by_category = ''
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         index = self.sourceModel().index(sourceRow, 0, sourceParent)
         display_plugin = self.sourceModel().display_plugins[index.row()]
+        matches_filters = display_plugin.name_matches_filter(self.filter_text) and display_plugin.category_matches_filter(self.filter_by_category)
         if self.filter_criteria == FILTER_ALL:
-            return not (display_plugin.is_deprecated and not display_plugin.is_installed()) and display_plugin.name_matches_filter(self.filter_text)
+            return (
+                    not (display_plugin.is_deprecated and not display_plugin.is_installed()) and
+                    matches_filters)
         if self.filter_criteria == FILTER_INSTALLED:
-            return display_plugin.is_installed() and display_plugin.name_matches_filter(self.filter_text)
+            return display_plugin.is_installed() and matches_filters
         if self.filter_criteria == FILTER_UPDATE_AVAILABLE:
-            return display_plugin.is_upgrade_available() and display_plugin.name_matches_filter(self.filter_text)
+            return display_plugin.is_upgrade_available() and matches_filters
         if self.filter_criteria == FILTER_NOT_INSTALLED:
-            return not display_plugin.is_installed() and not display_plugin.is_deprecated and display_plugin.name_matches_filter(self.filter_text)
+            return not display_plugin.is_installed() and not display_plugin.is_deprecated and matches_filters
         return False
 
     def set_filter_criteria(self, filter_value):
@@ -278,6 +354,10 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
 
     def set_filter_text(self, filter_text_value):
         self.filter_text = icu_lower(str(filter_text_value))
+        self.invalidateFilter()
+
+    def set_filter_category(self, filter_text_value):
+        self.filter_by_category = filter_text_value
         self.invalidateFilter()
 
 
@@ -459,9 +539,13 @@ class PluginUpdaterDialog(SizePersistedDialog):
     initial_extra_size = QSize(350, 100)
     forum_label_text = _('Plugin homepage')
 
-    def __init__(self, gui, initial_filter=FILTER_UPDATE_AVAILABLE):
-        SizePersistedDialog.__init__(self, gui, 'Plugin Updater plugin:plugin updater dialog')
-        self.gui = gui
+    @property
+    def gui(self):
+        from calibre.gui2.ui import get_gui
+        return get_gui()
+
+    def __init__(self, parent, initial_filter=FILTER_UPDATE_AVAILABLE, initial_category: Category | None = None):
+        SizePersistedDialog.__init__(self, parent, 'Plugin Updater plugin:plugin updater dialog')
         self.forum_link = None
         self.zip_url = None
         self.model = None
@@ -474,7 +558,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         except Exception:
             display_plugins = []
             import traceback
-            error_dialog(self.gui, _('Update Check Failed'),
+            error_dialog(self.parent(), _('Update Check Failed'),
                         _('Unable to reach the plugin index page.'),
                         det_msg=traceback.format_exc(), show=True)
 
@@ -487,6 +571,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.plugin_view.selectionModel().currentRowChanged.connect(self._plugin_current_changed)
             self.plugin_view.doubleClicked.connect(self.install_button.click)
             self.filter_combo.setCurrentIndex(initial_filter)
+            if initial_category:
+                self.category_combo.set_category(initial_category)
             self._select_and_focus_view()
         else:
             self.filter_combo.setEnabled(False)
@@ -505,12 +591,18 @@ class PluginUpdaterDialog(SizePersistedDialog):
         header_layout = QHBoxLayout()
         layout.addLayout(header_layout)
         self.filter_combo = PluginFilterComboBox(self)
-        self.filter_combo.setMinimumContentsLength(20)
+        self.filter_combo.setMinimumContentsLength(12)
         self.filter_combo.currentIndexChanged.connect(self._filter_combo_changed)
-        la = QLabel(_('Filter list of &plugins')+':', self)
+        la = QLabel(_('&Install type')+':', self)
         la.setBuddy(self.filter_combo)
         header_layout.addWidget(la)
         header_layout.addWidget(self.filter_combo)
+        self.category_combo = CategoryFilterComboBox(self)
+        self.category_combo.currentIndexChanged.connect(self._category_combo_changed)
+        la = QLabel(_('&Category')+':', self)
+        la.setBuddy(self.filter_combo)
+        header_layout.addWidget(la)
+        header_layout.addWidget(self.category_combo)
         header_layout.addStretch(10)
 
         # filter plugins by name
@@ -616,7 +708,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
     def _finished(self, *args):
         if self.model:
             update_plugins = list(filter(filter_upgradeable_plugins, self.model.display_plugins))
-            self.gui.recalc_update_label(len(update_plugins))
+            if self.gui is not None:
+                self.gui.recalc_update_label(len(update_plugins))
 
     def _plugin_current_changed(self, current, previous):
         if current.isValid():
@@ -667,6 +760,11 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.plugin_view.sortByColumn(5, Qt.SortOrder.DescendingOrder)
         else:
             self.plugin_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
+        self._select_and_focus_view()
+
+    def _category_combo_changed(self, idx):
+        self.filter_by_name_lineedit.setText('')  # clear the name filter text when a different group was selected
+        self.proxy_model.set_filter_category(self.category_combo.filter_value)
         self._select_and_focus_view()
 
     def _filter_name_lineedit_changed(self, text):
