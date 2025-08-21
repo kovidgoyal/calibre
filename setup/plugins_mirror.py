@@ -122,7 +122,7 @@ def parse_index(raw=None):  # {{{
         for category, q in category_offsets:
             if offset >= q:
                 return category
-        raise ValueError(f'Could not find category for offset: {offset}')
+        raise ValueError('Could not find category for offset: ' + str(offset))
 
     for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
         name, url, rest = u(match.group(2)), u(match.group(1)), match.group(3)
