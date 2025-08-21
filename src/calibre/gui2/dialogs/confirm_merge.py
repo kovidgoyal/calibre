@@ -4,9 +4,10 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import os
 from typing import NamedTuple
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser, QVBoxLayout, QWidget
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QSplitter, Qt, QTextBrowser, QUrl, QVBoxLayout, QWidget
 
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import field_metadata
@@ -26,6 +27,14 @@ class Target(QTextBrowser):
         fm = field_metadata
         if mi.series:
             series = _('{num} of {series}').format(num=mi.format_series_index(), series=f'<i>{mi.series}</i>')
+        cover_html = has_cover_row = ''
+        if mi.cover:
+            cover_html = f'<img src="{QUrl.fromLocalFile(mi.cover).toString()}">'.format()
+            self.document().setDefaultStyleSheet(
+                'img { max-width: 100%; width: 100%; height: auto; display: block; }'
+            )
+        else:
+            has_cover_row = f"<tr><td>{_('Has cover')}:</td><td>{_('Yes') if mi.has_cover else _('No')}</td></tr>"
         self.setHtml('''
 <h3 style="text-align:center">{mb}</h3>
 <p><b>{title}</b> - <i>{authors}</i><br></p>
@@ -34,18 +43,24 @@ class Target(QTextBrowser):
 <tr><td>{fm[pubdate][name]}:</td><td>{published}</td></tr>
 <tr><td>{fm[formats][name]}:</td><td>{formats}</td></tr>
 <tr><td>{fm[series][name]}:</td><td>{series}</td></tr>
-<tr><td>{has_cover_title}:</td><td>{has_cover}</td></tr>
+{has_cover_row}
 </table>
+{cover_html}
         '''.format(
             mb=_('Target book'),
             title=mi.title,
-            has_cover_title=_('Has cover'), has_cover=_('Yes') if mi.has_cover else _('No'),
+            has_cover_row=has_cover_row,
             authors=authors_to_string(mi.authors),
             date=format_date(mi.timestamp, tweaks['gui_timestamp_display_format']), fm=fm,
             published=(format_date(mi.pubdate, tweaks['gui_pubdate_display_format']) if mi.pubdate else ''),
             formats=', '.join(mi.formats or ()),
-            series=series
+            series=series, cover_html=cover_html,
         ))
+
+    def sizeHint(self):
+        ans = super().sizeHint()
+        ans.setHeight(max(600, ans.height()))
+        return ans
 
 
 class ConfirmMerge(Dialog):
@@ -110,8 +125,13 @@ class ChooseMerge(Dialog):
 
     def __init__(self, dest_id, src_ids, gui):
         self.dest_id, self.src_ids = dest_id, src_ids
-        self.mi = gui.current_db.new_api.get_metadata(dest_id)
+        self.mi = gui.current_db.new_api.get_metadata(dest_id, get_cover=True)
         Dialog.__init__(self, _('Merge books'), 'choose-merge-dialog', parent=gui)
+        self.finished.connect(self.cleanup_resources)
+
+    def cleanup_resources(self):
+        if self.mi.cover:
+            os.remove(self.mi.cover)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
