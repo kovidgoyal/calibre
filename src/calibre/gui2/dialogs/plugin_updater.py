@@ -538,6 +538,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     initial_extra_size = QSize(350, 100)
     forum_label_text = _('Plugin homepage')
+    warn_about_neededing_restart = True
 
     @property
     def gui(self):
@@ -546,6 +547,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def __init__(self, parent, initial_filter=FILTER_UPDATE_AVAILABLE, initial_category: Category | None = None):
         SizePersistedDialog.__init__(self, parent, 'Plugin Updater plugin:plugin updater dialog')
+        self.number_installed = 0
         self.forum_link = None
         self.zip_url = None
         self.model = None
@@ -855,7 +857,11 @@ class PluginUpdaterDialog(SizePersistedDialog):
             widget.gui = self.gui
             widget.check_for_add_to_toolbars(plugin, previously_installed=plugin.name in installed_plugins)
             self.gui.status_bar.showMessage(_('Plugin installed: %s') % display_plugin.name)
-            do_restart = notify_on_successful_install(self.gui, plugin)
+            if self.warn_about_neededing_restart:
+                do_restart = notify_on_successful_install(self.gui, plugin)
+            else:
+                info_dialog(self, _('Plugin installed'), _('The plugin {} was successfully installed.').format(display_plugin.name), show=True)
+            self.number_installed += 1
             display_plugin.plugin = plugin
             # We cannot read the 'actual' version information as the plugin will not be loaded yet
             display_plugin.installed_version = display_plugin.available_version

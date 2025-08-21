@@ -77,6 +77,17 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="add_new_source_button">
+            <property name="text">
+             <string>&amp;Add new source</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -164,7 +175,7 @@
               <x>0</x>
               <y>0</y>
               <width>350</width>
-              <height>441</height>
+              <height>455</height>
              </rect>
             </property>
             <property name="sizePolicy">

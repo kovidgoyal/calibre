@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from operator import attrgetter
-
 from qt.core import (
     QAbstractListModel,
     QAbstractTableModel,
@@ -29,6 +27,7 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
+from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext
 from polyglot.builtins import iteritems
 
@@ -43,10 +42,16 @@ class SourcesModel(QAbstractTableModel):  # {{{
         self.enabled_overrides = {}
         self.cover_overrides = {}
 
+    def reload_plugins(self):
+        self.beginResetModel()
+        self.plugins = list(all_metadata_plugins())
+        self.plugins.sort(key=lambda p: primary_sort_key(p.name))
+        self.endResetModel()
+
     def initialize(self):
         self.beginResetModel()
         self.plugins = list(all_metadata_plugins())
-        self.plugins.sort(key=attrgetter('name'))
+        self.plugins.sort(key=lambda p: primary_sort_key(p.name))
         self.enabled_overrides = {}
         self.cover_overrides = {}
         self.endResetModel()
@@ -352,6 +357,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         l = self.page.layout()
         l.setStretch(0, 1)
         l.setStretch(1, 1)
+        self.add_new_source_button.clicked.connect(self.add_new_source)
+
+    def add_new_source(self):
+        from calibre.gui2.dialogs.plugin_updater import FILTER_NOT_INSTALLED, Category, PluginUpdaterDialog
+        d = PluginUpdaterDialog(self, initial_filter=FILTER_NOT_INSTALLED, initial_category=Category.MetadataSource)
+        d.warn_about_neededing_restart = False
+        d.exec()
+        if d.number_installed:
+            self.sources_model.reload_plugins()
+            self.fields_model.initialize()
 
     def context_menu(self, pos):
         m = QMenu(self)
