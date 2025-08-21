@@ -871,6 +871,12 @@ header template will show the title on odd pages and the author on even pages::
         <div class="odd-page"><i>_TITLE_</i></div>
     </header>
 
+In addition there are some more classes you can use in the headers and footers,
+documented below:
+
+  * ``first-section-page`` - include only on the first page of top level sections
+  * ``not-first-section-page`` - exclude from the first page of top level sections
+
 calibre will automatically replace :code:`_TITLE_` and :code:`_AUTHOR_` with
 the title and author of the document being converted. Setting
 :code:`justify-content` to :code:`flex-end` will cause the text to be right

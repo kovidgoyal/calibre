@@ -1060,10 +1060,14 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         ans.set('style', style)
         for child in ans.xpath('descendant-or-self::*[@class]'):
             cls = frozenset(child.get('class').split())
-            q = 'even-page' if page_num % 2 else 'odd-page'
-            if q in cls or q.replace('-', '_') in cls:
-                style = child.get('style') or ''
-                child.set('style', style + '; display: none')
+            classes_to_hide = [
+                'even-page' if page_num % 2 else 'odd-page',
+                'not-first-section-page' if toplevel_pagenum_map[page_num - 1] == 1 else 'first-section-page',
+            ]
+            for c in classes_to_hide:
+                if c in cls or c.replace('-', '_') in cls:
+                    style = child.get('style') or ''
+                    child.set('style', style + '; display: none')
         return ans
 
     pages_in_doc = pdf_doc.page_count()
