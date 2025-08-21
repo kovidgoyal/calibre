@@ -245,7 +245,6 @@ class Client:
         voice_id = unique_id()
         rate_id = unique_id()
         select_id = unique_id()
-        default_voice = None
         sd = get_session_data()
         current_bar_pos = sd.get('tts_bar_position')
 
@@ -255,7 +254,6 @@ class Client:
             document.getElementById(select_id).value = session_defaults().tts_bar_position
 
         create_custom_dialog(_('Configure Text-to-Speech'), def (parent_div, close_modal):
-                nonlocal default_voice
                 pos_select = E.select(id=select_id)
 
                 def apos(text, name):
@@ -278,22 +276,28 @@ class Client:
                     b = b.name.toLowerCase()
                     return -1 if a < b else (0 if a is b else 1)
                 )
+                seen = {}
                 for voice in voices:
-                    dflt = ''
-                    if voice.default:
-                        default_voice = voice.voiceURI
-                        dflt = '-- {}'.format(_('default'))
-                    option = E.option(f'{voice.name} ({voice.lang}){dflt}', value=voice.voiceURI)
-                    if (self.current_voice_uri and voice.voiceURI is self.current_voice_uri) or (not self.current_voice_uri and voice.default):
-                        option.setAttribute('selected', 'selected')
-                    select.appendChild(option)
-                parent_div.appendChild(E.div(_('Speed of speech:')))
-                parent_div.appendChild(E.input(type='range', id=rate_id, min=(self.min_rate * 10) + '', max=(self.max_rate * 10) + '', value=((self.current_rate or 1) * 10) + ''))
-                parent_div.appendChild(E.div(_('Pick a voice below:')))
-                parent_div.appendChild(select)
+                    if not seen[voice.voiceURI]:
+                        cloud = ''
+                        if not voice.localService:
+                            cloud = ' -- ' + _('cloud based')
+                        option = E.option(f'{voice.name} ({voice.lang}){cloud}', value=voice.voiceURI)
+                        if self.current_voice_uri and voice.voiceURI is self.current_voice_uri:
+                            option.setAttribute('selected', 'selected')
+                        select.appendChild(option)
+                        seen[voice.voiceURI] = True
+                if len(voices) < 1:
+                    select.appendChild(E.option(_('No voices available')))
+                    select.lastChild.disabled = True
+                parent_div.appendChild(E.div(_('Speed of speech:') + '\xa0'))
+                parent_div.lastChild.appendChild(
+                    E.input(type='range', id=rate_id, min=(self.min_rate * 10) + '', max=(self.max_rate * 10) + '', value=((self.current_rate or 1) * 10) + ''))
+                parent_div.appendChild(E.div(_('Voice:') + '\xa0'))
+                parent_div.lastChild.appendChild(select)
                 if select.options.selectedIndex? and select.options[select.options.selectedIndex]:
                     select.options[select.options.selectedIndex].scrollIntoView()
-                parent_div.appendChild(E.div(_('Position of control bar:') + '\xa0', pos_select, style='margin-top: 1rem'))
+                parent_div.appendChild(E.div(_('Position of bar:') + '\xa0', pos_select, style='margin-top: 1rem'))
                 parent_div.appendChild(E.div(
                         style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
                         create_button(_('Restore defaults'), action=restore_defaults),
@@ -301,13 +305,11 @@ class Client:
                 ))
 
             , on_close=def():
-                voice = document.getElementById(voice_id).value
+                voice = document.getElementById(voice_id).value or ''
                 bar_pos = document.getElementById(select_id).value
                 rate = int(document.getElementById(rate_id).value) / 10
                 if rate is 1:
                     rate = None
-                if voice is default_voice:
-                    voice = ''
                 changed = voice is not self.current_voice_uri or rate is not self.current_rate or bar_pos is not current_bar_pos
                 if changed:
                     self.current_voice_uri = voice
