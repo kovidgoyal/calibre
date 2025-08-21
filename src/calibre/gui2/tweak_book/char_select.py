@@ -6,6 +6,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 import textwrap
+import unicodedata
 from bisect import bisect
 from functools import partial
 
@@ -843,7 +844,7 @@ class CharSelect(Dialog):
         self.parent().activateWindow()
         w = self.parent().focusWidget()
         e = QInputMethodEvent('', [])
-        e.setCommitString(c)
+        e.setCommitString(unicodedata.normalize('NFC', c))
         if hasattr(w, 'no_popup'):
             oval = w.no_popup
             w.no_popup = True
