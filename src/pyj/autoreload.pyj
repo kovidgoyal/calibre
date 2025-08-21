@@ -37,7 +37,7 @@ class Watcher:
 
         self.ws.onmessage = def(event):
             if event.data is not 'ping':
-                print('Received mesasge from reload server: ' + event.data)
+                print('Received message from reload server: ' + event.data)
             if event.data is 'reload':
                 self.reload_app()
 
