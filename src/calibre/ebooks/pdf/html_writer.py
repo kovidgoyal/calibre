@@ -1211,14 +1211,14 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         log('Removed', num_removed, 'duplicate images')
 
     if opts.pdf_odd_even_offset:
-        for i in range(1, pdf_doc.page_count()):
-            margins = page_margins_map[i]
-            mult = -1 if i % 2 else 1
+        for page_num in range(1, pdf_doc.page_count() + 1):
+            margins = page_margins_map[page_num - 1]
+            mult = -1 if page_num % 2 else 1
             val = opts.pdf_odd_even_offset
             if abs(val) < min(margins.left, margins.right):
-                box = list(pdf_doc.get_page_box('CropBox', i))
+                box = list(pdf_doc.get_page_box('CropBox', page_num))
                 box[0] += val * mult
-                pdf_doc.set_page_box('CropBox', i, *box)
+                pdf_doc.set_page_box('CropBox', page_num, *box)
 
     if cover_data:
         add_cover(pdf_doc, cover_data, page_layout, opts)
