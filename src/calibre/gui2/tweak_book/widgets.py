@@ -1274,6 +1274,9 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     def selected_text_from_cursor(self, cursor):
         return unicodedata.normalize('NFC', str(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
+    def paste(self):
+        super().paste()
+
     @property
     def selected_text(self):
         return self.selected_text_from_cursor(self.textCursor())

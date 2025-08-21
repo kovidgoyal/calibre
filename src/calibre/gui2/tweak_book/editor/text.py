@@ -179,8 +179,14 @@ class TextEdit(PlainTextEdit):
 
         def insert_text(text):
             c = self.textCursor()
-            c.insertText(text)
+            c.insertText(unicodedata.normalize('NFC', text))
             self.setTextCursor(c)
+            text = self.toPlainText()
+            if (ntext := unicodedata.normalize('NFC', text)) != text:
+                pos = c.position()
+                self.setPlainText(ntext)
+                c.setPosition(pos)
+                self.setTextCursor(c)
             self.ensureCursorVisible()
 
         def add_file(name, data, mt=None):
