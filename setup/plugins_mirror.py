@@ -56,7 +56,7 @@ PLUGINS = 'plugins.json.bz2'
 INDEX = MR_URL + 'showpost.php?p=1362767&postcount=1'
 # INDEX = 'file:///t/raw.html'
 
-IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id')
+IndexEntry = namedtuple('IndexEntry', 'name url donate history uninstall deprecated thread_id category')
 socket.setdefaulttimeout(30)
 
 
@@ -103,16 +103,33 @@ def url_to_plugin_id(url, deprecated):
 def parse_index(raw=None):  # {{{
     raw = raw or read(INDEX).decode('utf-8', 'replace')
 
-    dep_start = raw.index('>Deprecated/Renamed/Retired Plugins:<')
     dpat = re.compile(r'''(?is)Donate\s*:\s*<a\s+href=['"](.+?)['"]''')
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
     seen = {}
+    dep_start = -1
+    category_offsets = []
+    deprecated_category = 'Deprecated/Renamed/Retired'
+    for match in re.finditer(r'''<b>\s*(.+?)\s*Plugins:?\s*</b>''', raw):
+        category = match.group(1).strip()
+        category_offsets.append((category, match.start()))
+        if category == deprecated_category:
+            dep_start = match.start()
+    if dep_start < 1:
+        raise ValueError('Could not find start of deprecated plugins')
+    category_offsets = tuple(reversed(category_offsets))
+
+    def category_at(offset):
+        for category, q in category_offsets:
+            if offset >= q:
+                return category
+        raise ValueError(f'Could not find category for offset: {offset}')
 
     for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
-        deprecated = match.start() > dep_start
+        name, url, rest = u(match.group(2)), u(match.group(1)), match.group(3)
+        category = category_at(match.start(2))
+        deprecated = category == deprecated_category
         donate = uninstall = None
         history = False
-        name, url, rest = u(match.group(2)), u(match.group(1)), match.group(3)
         m = dpat.search(rest)
         if m is not None:
             donate = u(m.group(1))
@@ -127,7 +144,7 @@ def parse_index(raw=None):  # {{{
         if thread_id in seen:
             raise ValueError(f'thread_id for {seen[thread_id]} and {name} is the same: {thread_id}')
         seen[thread_id] = name
-        entry = IndexEntry(name, url, donate, history, uninstall, deprecated, thread_id)
+        entry = IndexEntry(name, url, donate, history, uninstall, deprecated, thread_id, category)
         yield entry
 # }}}
 
@@ -362,6 +379,7 @@ def get_plugin_info(raw_zip):
 def update_plugin_from_entry(plugin, entry):
     plugin['index_name'] = entry.name
     plugin['thread_url'] = entry.url
+    plugin['category'] = entry.category
     for x in ('donate', 'history', 'deprecated', 'uninstall', 'thread_id'):
         plugin[x] = getattr(entry, x)
 
@@ -650,61 +668,6 @@ def main():
         raise SystemExit(1)
 
 
-def test_parse():  # {{{
-    raw = read(INDEX).decode('utf-8', 'replace')
-
-    old_entries = []
-    from lxml import html
-    root = html.fromstring(raw)
-    list_nodes = root.xpath('//div[@id="post_message_1362767"]/ul/li')
-    # Add our deprecated plugins which are nested in a grey span
-    list_nodes.extend(root.xpath('//div[@id="post_message_1362767"]/span/ul/li'))
-    for list_node in list_nodes:
-        name = list_node.xpath('a')[0].text_content().strip()
-        url = list_node.xpath('a/@href')[0].strip()
-
-        description_text = list_node.xpath('i')[0].text_content()
-        description_parts = description_text.partition('Version:')
-
-        details_text = description_parts[1] + description_parts[2].replace('\r\n','')
-        details_pairs = details_text.split(';')
-        details = {}
-        for details_pair in details_pairs:
-            pair = details_pair.split(':')
-            if len(pair) == 2:
-                key = pair[0].strip().lower()
-                value = pair[1].strip()
-                details[key] = value
-
-        donation_node = list_node.xpath('i/span/a/@href')
-        donate = donation_node[0] if donation_node else None
-        uninstall = tuple(x.strip() for x in details.get('uninstall', '').strip().split(',') if x.strip()) or None
-        history = details.get('history', 'No').lower() in ['yes', 'true']
-        deprecated = details.get('deprecated', 'No').lower() in ['yes', 'true']
-        old_entries.append(IndexEntry(name, url, donate, history, uninstall, deprecated, url_to_plugin_id(url, deprecated)))
-
-    new_entries = tuple(parse_index(raw))
-    for i, entry in enumerate(old_entries):
-        if entry != new_entries[i]:
-            print(f'The new entry: {new_entries[i]} != {entry}')
-            raise SystemExit(1)
-    pool = ThreadPool(processes=20)
-    urls = [e.url for e in new_entries]
-    data = pool.map(read, urls)
-    for url, raw in zip(urls, data):
-        sys.stdout.flush()
-        root = html.fromstring(raw)
-        attachment_nodes = root.xpath('//fieldset/table/tr/td/a')
-        full_url = None
-        for attachment_node in attachment_nodes:
-            filename = attachment_node.text_content().lower()
-            if filename.find('.zip') != -1:
-                full_url = MR_URL + attachment_node.attrib['href']
-                break
-        new_url, aname = parse_plugin_zip_url(raw)
-        if new_url != full_url:
-            print(f'new url ({aname}): {new_url} != {full_url} for plugin at: {url}')
-            raise SystemExit(1)
 # }}}
 
 
@@ -745,5 +708,7 @@ if __name__ == '__main__':
     # test_parse_metadata()
     # import pprint
     # pprint.pprint(get_plugin_info(open(sys.argv[-1], 'rb').read()))
+
+    # print('\n'.join(map(str, parse_index())))
 
     main()
