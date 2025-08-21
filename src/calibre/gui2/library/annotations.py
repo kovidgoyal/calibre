@@ -210,6 +210,7 @@ class AnnotsResultsDelegate(ResultsDelegate):
 
     add_ellipsis = False
     emphasize_text = False
+    has_icons = True
 
     def result_data(self, result):
         if not isinstance(result, dict):
@@ -397,6 +398,8 @@ class ResultsList(QTreeWidget):
         self.currentItemChanged.connect(self.current_item_changed)
         self.number_of_results = 0
         self.item_map = []
+        self.icon_size = 12
+        self.setIconSize(QSize(self.icon_size, self.icon_size))
 
     def show_context_menu(self, pos):
         item = self.itemAt(pos)
@@ -438,6 +441,9 @@ class ResultsList(QTreeWidget):
             self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
 
     def set_results(self, results, emphasize_text):
+        from calibre.gui2.viewer.highlights import decoration_for_style
+        is_dark = is_dark_theme()
+        dpr = self.devicePixelRatioF()
         self.clear()
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
@@ -463,6 +469,11 @@ class ResultsList(QTreeWidget):
                 item.setData(0, Qt.ItemDataRole.UserRole, result)
                 item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
                 self.number_of_results += 1
+                a = result.get('annotation')
+                if a and (s := a.get('style')):
+                    dec = decoration_for_style(self.palette(), s, self.icon_size, dpr, is_dark)
+                    if dec:
+                        item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
         if self.item_map:
             self.setCurrentItem(self.item_map[0])
 

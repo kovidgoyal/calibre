@@ -14,6 +14,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 
     add_ellipsis = True
     emphasize_text = True
+    has_icons = False
 
     def result_data(self, result):
         if not hasattr(result, 'is_hidden'):
@@ -40,7 +41,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             else:
                 emphasis_font = font
             flags = Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine | Qt.TextFlag.TextIncludeTrailingSpaces
-            rect = option.rect.adjusted(option.decorationSize.width() + 4 if is_hidden else 0, 0, 0, 0)
+            rect = option.rect.adjusted(option.decorationSize.width() + (6 if self.has_icons else 4) if self.has_icons or is_hidden else 0, 0, 0, 0)
             painter.setClipRect(rect)
             before = re.sub(r'\s+', ' ', result_before)
             if show_leading_dot:
