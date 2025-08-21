@@ -999,10 +999,13 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             section_nums.append(counter)
         return totals, section_nums
 
+    # For page number n in the document:
+    # toplevel_pagetotal_map[n-1] returns the total number of pages in its containing top-level section
+    # toplevel_pagenum_map[n-1] returns its 1-indexed page number within its containing top-level section
     if toc is None:
         page_toc_map = stack_to_map(())
         toplevel_toc_map = stack_to_map(())
-        toplevel_pagenum_map, toplevel_pages_map = page_counts_map(())
+        toplevel_pagetotal_map, toplevel_pagenum_map = page_counts_map(())
     else:
         page_toc_map = stack_to_map(create_toc_stack(toc.iterdescendants(level=0)))
 
@@ -1011,7 +1014,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
                 yield 0, x
 
         toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
-        toplevel_pagenum_map, toplevel_pages_map = page_counts_map(tc())
+        toplevel_pagetotal_map, toplevel_pagenum_map = page_counts_map(tc())
 
     dpi = 96  # don't know how to query Qt for this, seems to be the same on all platforms
     def pt_to_px(pt): return int(pt * dpi / 72)
@@ -1038,8 +1041,8 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
 
     def format_template(template, page_num, height, margins):
         div_width_px = pt_to_px(page_layout.paintRectPoints().width() - margins.left - margins.right)
-        template = template.replace('_TOP_LEVEL_SECTION_PAGES_', str(toplevel_pagenum_map[page_num - 1]))
-        template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', str(toplevel_pages_map[page_num - 1]))
+        template = template.replace('_TOP_LEVEL_SECTION_PAGES_', str(toplevel_pagetotal_map[page_num - 1]))
+        template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', str(toplevel_pagenum_map[page_num - 1]))
         template = template.replace('_TOTAL_PAGES_', str(pages_in_doc))
         template = template.replace('_PAGENUM_', str(page_number_display_map[page_num]))
         template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
