@@ -23,6 +23,39 @@
 # - title by author
 # }}}
 
+{{{ 8.9.0 2025-08-22
+
+:: new features
+
+- [2109496] Annotations browser: Add a color swatch in the results list to make seeing the type of highlight easier
+
+- [2117322] Match books in library window: When doing the initial search using the title of the book on the device, if no matches are found remove trailing text in parentheses or after a colon and try again
+
+- [2118371] When merging books via drag and drop show the cover of the target book
+
+- [2120726] HTMLZ Output: Add support for embedded fonts
+
+- Plugin installation window: Allow filtering available plugins by category
+
+- [2119557] Fetch news: Add a sub-menu to the right click menu of the Fetch news button that shows recently downloaded news sources
+
+:: bug fixes
+
+- [2099740] Edit book: When pasting text from the clipboard ensure it is normalized to NFC form
+
+- [2109789] Content server viewer: Improve the selection dialog for choosing a Text-to-speech voice
+
+- [2117412] Content server: Fix an error when editing a book's metadata to change both the cover and another field
+
+:: improved recipes
+- New York Times
+- Todoist
+- Tagespost
+
+:: new recipes
+- Startechery by thekabistro
+}}}
+
 {{{ 8.8.0 2025-08-08
 
 :: new features
