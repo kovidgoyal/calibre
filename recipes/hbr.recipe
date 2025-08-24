@@ -3,10 +3,10 @@
 import json
 import re
 from collections import OrderedDict
-
 from urllib.parse import urlparse
-from mechanize import Request
+
 from html5_parser import parse
+from mechanize import Request
 
 from calibre import browser, random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe, classes
