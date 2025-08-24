@@ -115,19 +115,22 @@ class HBR(BasicNewsRecipe):
     def parse_index(self):
         d = self.recipe_specific_options.get('issue')
         if not (d and isinstance(d, str)):
-            issue_url = f'{self.base_url}/magazine'
+            soup = self.index_to_soup(f'{self.base_url}/magazine')
+            a = soup.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
+            cov_url = a.find('img', attrs={'src': True})['src']
+            self.cover_url = absurl(cov_url)
+            issue_url = absurl(a['href'])
         else:
-            issue_url = self.base_url + '/archive-toc/BR' + d
+            issue_url = 'https://hbr.org/archive-toc/BR' + d
+            mobj = re.search(r'archive-toc/(?P<issue>(BR)?\d+)\b', issue_url)
+            if mobj:
+                self.cover_url = f'https://hbr.org/resources/images/covers/{mobj.group("issue")}_500.png'
+
         soup = self.index_to_soup(issue_url)
-        div = soup.find(**classes('backdrop-lightest'))
-        a = div.find('a', href=lambda x: x and x.startswith('/archive-toc/'))
-        index = absurl(a['href'])
-        self.timefmt = ' [' + self.tag_to_string(div.find('h2')) + ']'
-        self.log('Downloading issue: ', index, self.timefmt)
-        cov_url = a.find('img', src=True)
-        if cov_url:
-            self.cover_url = absurl(cov_url['src'])
-        soup = self.index_to_soup(index)
+        issue_title = soup.find('h1')
+        if issue_title:
+            self.timefmt = f' [{self.tag_to_string(issue_title)}]'
+
 
         feeds = OrderedDict()
 
