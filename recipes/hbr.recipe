@@ -131,7 +131,6 @@ class HBR(BasicNewsRecipe):
         if issue_title:
             self.timefmt = f' [{self.tag_to_string(issue_title)}]'
 
-
         feeds = OrderedDict()
 
         for h3 in soup.findAll('h3', attrs={'class': 'hed'}):
