@@ -22,7 +22,7 @@ class CiperChile(BasicNewsRecipe):
     auto_cleanup = False
     remove_empty_feeds = True
     publication_type = 'blog'
-    masthead_url = 'http://ciperchile.cl/wp-content/themes/cipertheme/css/ui/ciper-logo.png'
+    masthead_url = 'https://www.ciperchile.cl/wp-content/themes/syms/assets/img/ciper_logo_full_dark.svg'
     extra_css             = '''
                                body{font-family: Arial,sans-serif}
                                .excerpt{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: 1.25em}
@@ -47,11 +47,5 @@ class CiperChile(BasicNewsRecipe):
 
     feeds = [
 
-    (u'Opinion del lector', u'http://ciperchile.cl/category/opinion-del-lector/feed/'),
-    (u'Reportajes de investigacion', u'http://ciperchile.cl/category/reportajes-de-investigacion/feed/'),
-    (u'Actualidad y Entrevistas', u'http://ciperchile.cl/category/actualidad-y-entrevistas/feed/'),
-    (u'Opinion', u'http://ciperchile.cl/category/opinion/feed/'),
-    (u'Accesso a la informacion', u'http://ciperchile.cl/category/acceso-a-la-informacion/feed/'),
-    (u'Libros', u'http://ciperchile.cl/category/libros/feed/'),
-    (u'Blog', u'http://ciperchile.cl/category/blog/feed/')
+    (u'Noticias de portada', u'https://www.ciperchile.cl/feed'),
     ]
