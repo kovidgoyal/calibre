@@ -177,7 +177,7 @@ class HBR(BasicNewsRecipe):
             div.name = 'blockquote'
         for sidebar in soup.findAll(('article-sidebar', 'article-ideainbrief')):
             sidebar.name = 'blockquote'
-        for img in soup.findAll(attrs={'srcset': True}):
+        for img in soup.findAll('img', attrs={'srcset': True}):
             split = img['srcset'].split(',')
             for x in split:
                 if '700w' in x:
