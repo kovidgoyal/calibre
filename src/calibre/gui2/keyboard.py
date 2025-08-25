@@ -702,7 +702,7 @@ class ShortcutConfig(QWidget):  # {{{
         self.delegate.changed_signal.connect(self.changed_signal)
         self.search = SearchBox2(self)
         self.search.initialize('shortcuts_search_history',
-                help_text=_('Search for a shortcut by name or shortcut'))
+                help_text=_('Search for a shortcut by name or key combination'))
         self.search.search.connect(self.find)
         self._h = h = QHBoxLayout()
         l.addLayout(h)
