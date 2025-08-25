@@ -352,8 +352,13 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                     sc = self.data[c].children[p].data
                 except Exception:
                     continue
-                if query in lower(sc['name']):
+                if query in lower(sc['name']) or query in lower(sc.get('desc') or ''):
                     ans.add((c, p))
+                else:
+                    for key in sc['keys']:
+                        if query in lower(key.toString(QKeySequence.SequenceFormat.NativeText)):
+                            ans.add((c, p))
+                            break
         return ans
 
     def find(self, query):
@@ -697,7 +702,7 @@ class ShortcutConfig(QWidget):  # {{{
         self.delegate.changed_signal.connect(self.changed_signal)
         self.search = SearchBox2(self)
         self.search.initialize('shortcuts_search_history',
-                help_text=_('Search for a shortcut by name'))
+                help_text=_('Search for a shortcut by name or shortcut'))
         self.search.search.connect(self.find)
         self._h = h = QHBoxLayout()
         l.addLayout(h)
