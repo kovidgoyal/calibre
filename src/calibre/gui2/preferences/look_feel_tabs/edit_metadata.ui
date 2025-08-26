@@ -43,7 +43,7 @@
         <property name="toolTip">
          <string>&lt;p&gt;Click to move the row up 1. Shift+click to move the row up 5.
 Ctrl+click to move the row up 10. Ctrl+Shift+click to move the row to the top.
-Keyboard shortcut: Ctrl-Up arrow&lt;/p&gt;</string>
+Keyboard shortcut: Ctrl+Up arrow&lt;/p&gt;</string>
         </property>
         <property name="icon">
          <iconset resource="../../../../../resources/images.qrc">
@@ -56,7 +56,7 @@ Keyboard shortcut: Ctrl-Up arrow&lt;/p&gt;</string>
         <property name="toolTip">
          <string>&lt;p&gt;Click to move the row up 1. Shift+click to move the row up 5.
 Ctrl+click to move the row up 10. Ctrl+Shift+click to move the row to the top.
-Keyboard shortcut: Ctrl-Down arrow&lt;/p&gt;</string>
+Keyboard shortcut: Ctrl+Down arrow&lt;/p&gt;</string>
         </property>
         <property name="icon">
          <iconset resource="../../../../../resources/images.qrc">
