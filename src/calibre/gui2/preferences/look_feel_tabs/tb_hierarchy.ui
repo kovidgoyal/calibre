@@ -133,7 +133,7 @@ that don't have children.&lt;/p&gt;</string>
    <item row="12" column="1">
     <widget class="QToolButton" name="tb_search_order_up_button">
      <property name="toolTip">
-      <string>Move up. Keyboard shortcut: Ctrl-+Up arrow</string>
+      <string>Move up. Keyboard shortcut: Ctrl+Up arrow</string>
      </property>
      <property name="icon">
      <iconset resource="../../../../../resources/images.qrc">
