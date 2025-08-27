@@ -8,48 +8,50 @@ import sys
 import time
 import uuid
 from collections import defaultdict, namedtuple
+from datetime import datetime
 from hashlib import sha256
 from threading import Thread
-from datetime import datetime
 
 from qt.core import (
-    QAbstractItemView, QAction, QApplication, QCursor, QDockWidget, QEvent,
-    QMainWindow, QMenu, QMimeData, QModelIndex, QPixmap, Qt, QTimer, QToolBar,
-    QUrl, QVBoxLayout, QWidget, pyqtSignal, sip
+    QApplication,
+    QCursor,
+    QDockWidget,
+    QEvent,
+    QMainWindow,
+    QMenu,
+    QMimeData,
+    QModelIndex,
+    QPixmap,
+    Qt,
+    QTimer,
+    QToolBar,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+    sip,
 )
 
 from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import (
-    add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
-)
+from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.viewer import (
-    get_boss, get_current_book_data, performance_monitor
-)
-from calibre.gui2.viewer.annotations import (
-    AnnotationsSaveWorker, annotations_dir, parse_annotations
-)
+from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
+from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import (
-    get_session_pref, load_reading_rates, save_reading_rates, vprefs
-)
+from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
-from calibre.gui2.viewer.integration import (
-    get_book_library_details, load_annotations_map_from_library
-)
+from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
-from calibre.gui2.viewer.web_view import (
-    WebView, get_path_for_name, set_book_path
-)
+from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
 from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
@@ -581,7 +583,9 @@ class EbookViewer(MainWindow):
             if last_line.startswith('calibre.ebooks.DRMError'):
                 DRMErrorMessage(self).exec()
             else:
-                error_dialog(self, _('Loading book failed'), _('Failed to open the book at {0}. Click "Show details" for more info.').format(data['pathtoebook']), det_msg=tb, show=True)
+                error_dialog(self, _('Loading book failed'), _(
+                    'Failed to open the book at {0}. Click "Show details" for more info.').format(
+                        data['pathtoebook']), det_msg=tb, show=True)
             self.loading_overlay.hide()
             self.web_view.show_home_page()
             return
@@ -737,6 +741,7 @@ class EbookViewer(MainWindow):
 
     def edit_book(self, file_name, progress_frac, selected_text):
         import subprocess
+
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
         try:
@@ -745,7 +750,9 @@ class EbookViewer(MainWindow):
             return error_dialog(self, _('Cannot edit book'), _('No book is currently open'), show=True)
         fmt = path.rpartition('.')[-1].upper().replace('ORIGINAL_', '')
         if fmt not in SUPPORTED:
-            return error_dialog(self, _('Cannot edit book'), _('The book must be in the %s formats to edit.\n\nFirst convert the book to one of these formats.') % (_(' or ').join(SUPPORTED)), show=True)
+            return error_dialog(self, _('Cannot edit book'), _(
+                'The book must be in the {} formats to edit.\n\nFirst convert the book to one of these formats.').format(
+                    _(' or ').join(SUPPORTED)), show=True)
         exe = 'ebook-edit'
         if ismacos:
             exe = os.path.join(macos_edit_book_bundle_path(), exe)
@@ -894,11 +901,11 @@ class EbookViewer(MainWindow):
         self.web_view.generic_action('set-notes-in-highlight', {'uuid': uuid, 'notes': notes})
 
     def _format_llm_note_entry(self, history: list) -> str:
-        """
+        '''
         Formats a conversation history into a standardized, self-contained note entry.
-        """
+        '''
         if not history:
-            return ""
+            return ''
 
         main_response = ''
         for message in reversed(history):
@@ -907,38 +914,38 @@ class EbookViewer(MainWindow):
                 break
 
         if not main_response:
-            return ""
+            return ''
 
         def clean_text(text):
             return text.replace('<i>', '').replace('</i>', '')
 
-        timestamp = datetime.now().strftime("%b %d, %Y, %I:%M:%S %p")
-        header = f"--- AI Assistant Note ({timestamp}) ---"
+        timestamp = datetime.now().strftime('%b %d, %Y, %I:%M:%S %p')
+        header = f'--- AI Assistant Note ({timestamp}) ---'
 
         record_lines = []
         for message in history:
-            role = "You" if message.get('role') == 'user' else "Assistant"
+            role = 'You' if message.get('role') == 'user' else 'Assistant'
             content = clean_text(message.get('content', ''))
 
             prompt_part = content
-            text_part = ""
-            if "\nOn text:" in content:
-                parts = content.split("\nOn text:", 1)
+            text_part = ''
+            if '\nOn text:' in content:
+                parts = content.split('\nOn text:', 1)
                 prompt_part = parts[0].strip()
-                text_part = f"On text:{parts[1]}"
+                text_part = f'On text:{parts[1]}'
 
-            entry = f"{role}: {prompt_part}"
+            entry = f'{role}: {prompt_part}'
             if text_part:
-                entry += f"\n\n{text_part}"
+                entry += f'\n\n{text_part}'
             record_lines.append(entry)
 
-        record_body = "\n\n".join(record_lines)
-        record_header = "--- Conversation Record ---"
+        record_body = '\n\n'.join(record_lines)
+        record_header = '--- Conversation Record ---'
 
         return (
-            f"{header}\n\n{main_response}\n\n"
-            f"------------------------------------\n\n"
-            f"{record_header}\n\n{record_body}"
+            f'{header}\n\n{main_response}\n\n'
+            f'------------------------------------\n\n'
+            f'{record_header}\n\n{record_body}'
         )
 
     def add_note_to_highlight(self, payload):
@@ -957,8 +964,8 @@ class EbookViewer(MainWindow):
                     found_highlight = True
                     existing_note = h.get('notes', '').strip()
 
-                    separator = f"\n\n------------------------------------\n\n"
-                    combined_note = f"{existing_note}{separator}{new_self_contained_entry}" if existing_note else new_self_contained_entry
+                    separator = '\n\n------------------------------------\n\n'
+                    combined_note = f'{existing_note}{separator}{new_self_contained_entry}' if existing_note else new_self_contained_entry
 
                     h['notes'] = combined_note
                     h['timestamp'] = utcnow().isoformat()

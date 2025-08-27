@@ -3,6 +3,7 @@
 import json
 import sys
 import textwrap
+from contextlib import suppress
 from functools import lru_cache
 
 from qt.core import (
@@ -24,8 +25,8 @@ from qt.core import (
     QPalette,
     QPushButton,
     QSize,
-    QTabWidget,
     Qt,
+    QTabWidget,
     QTimer,
     QUrl,
     QVBoxLayout,
@@ -426,7 +427,7 @@ class Lookup(QTabWidget):
 
     def _activate_llm_panel(self):
         if self.llm_panel is None:
-            # Deferred import to avoid circular dependencies and improve startup time; import may be redundant 
+            # Deferred import to avoid circular dependencies and improve startup time; import may be redundant
             from calibre.gui2.viewer.llm import LLMPanel
             self.llm_panel = LLMPanel(self, viewer=self.viewer, lookup_widget=self)
 
@@ -566,14 +567,11 @@ class Lookup(QTabWidget):
     def _find_highlight_by_uuid(self, uuid):
         if not uuid or not self.viewer:
             return None
-        try:
+        with suppress(Exception):
             highlight_list = self.viewer.current_book_data['annotations_map']['highlight']
             for h in highlight_list:
                 if h.get('uuid') == uuid:
                     return h
-        except Exception:
-            # A defensive block -> In a production environment, it is aimed to fail silently; it'll proceed to return None, which is the desired outcome on failure
-            pass
         return None
 
     def selected_text_changed(self, text, annot_data):
