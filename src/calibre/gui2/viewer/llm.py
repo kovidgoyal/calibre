@@ -4,17 +4,35 @@ import json
 from threading import Thread
 from urllib import request
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from qt.core import (
-    QAbstractItemView, QComboBox, QDialog, QDialogButtonBox, QEvent, QFormLayout,
-    QGridLayout, QGroupBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget,
-    QListWidgetItem, QMessageBox, QPushButton, QSizePolicy, Qt, QTextBrowser,
-    QTextEdit, QVBoxLayout, QWidget, pyqtSignal
+    QAbstractItemView,
+    QComboBox,
+    QDialog,
+    QDialogButtonBox,
+    QEvent,
+    QFormLayout,
+    QGridLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox,
+    QPushButton,
+    QSizePolicy,
+    Qt,
+    QTextBrowser,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
 )
 
 from calibre.gui2.viewer.config import vprefs
-from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 # --- Backend Abstraction & Cost Data ---
@@ -67,7 +85,7 @@ MODEL_COSTS = {
 
 API_PROVIDERS = {
     'openrouter': {
-        'url': "https://openrouter.ai/api/v1/chat/completions",
+        'url': 'https://openrouter.ai/api/v1/chat/completions',
         'headers': lambda api_key: {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json',
@@ -75,8 +93,8 @@ API_PROVIDERS = {
             'X-Title': 'Calibre E-book Viewer'
         },
         'payload': lambda model_id, messages: {
-            "model": model_id,
-            "messages": messages
+            'model': model_id,
+            'messages': messages
         },
         'parse_response': lambda r_json: (
             r_json['choices'][0]['message']['content'],
@@ -113,7 +131,7 @@ class LLMAPICall(Thread):
             if 'error' in response_json:
                 raise Exception(response_json['error'].get('message', 'Unknown API error'))
             if not response_json.get('choices'):
-                raise Exception("API response did not contain any choices.")
+                raise Exception('API response did not contain any choices.')
 
             result_text, usage_data = self.provider_config['parse_response'](response_json)
             self.signal_emitter.emit(result_text, usage_data)
@@ -199,7 +217,7 @@ class LLMPanel(QWidget):
         self.layout.addLayout(response_actions_layout)
 
         footer_layout = QHBoxLayout()
-        self.settings_button = QPushButton("⚙️ Settings")
+        self.settings_button = QPushButton('⚙️ Settings')
         self.settings_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.api_usage_label = QLabel('API calls: 0 | Cost: ~$0.0000')
@@ -248,9 +266,11 @@ class LLMPanel(QWidget):
         api_key_hex = vprefs.get('llm_api_key', '') or ''
         api_key = from_hex_unicode(api_key_hex)
         if not api_key:
-            self.show_response("<p style='color:orange;'><b>Welcome!</b> Please add your OpenRouter.ai API key by clicking the <b>⚙️ Settings</b> button below.</p>", {})
+            self.show_response(
+                "<p style='color:orange;'><b>Welcome!</b> "
+                "Please add your OpenRouter.ai API key by clicking the <b>⚙️ Settings</b> button below.</p>", {})
         else:
-            self.show_response("<b>Ready.</b> Select text in the book to begin.", {})
+            self.show_response('<b>Ready.</b> Select text in the book to begin.', {})
 
     def update_with_text(self, text, highlight_data, is_read_only_view=False):
         new_uuid = highlight_data.get('uuid') if highlight_data else None
@@ -280,10 +300,10 @@ class LLMPanel(QWidget):
             if text:
                 self.show_response(f"<b>Selected:</b><br><i>'{text[:200]}...'</i>", {})
             else:
-                self.show_response("<b>Ready.</b> Ask a follow-up question.", {})
+                self.show_response('<b>Ready.</b> Ask a follow-up question.', {})
 
         if self.latched_highlight_uuid:
-            self.save_note_button.setToolTip('Append this response to the existing highlight\'s note')
+            self.save_note_button.setToolTip("Append this response to the existing highlight's note")
         else:
             self.save_note_button.setToolTip('Create a new highlight for the selected text and save this response as its note')
 
@@ -303,15 +323,15 @@ class LLMPanel(QWidget):
         self.show_initial_message()
 
     def _render_conversation_html(self, thinking=False):
-        base_table_style = "width: 95%; border-spacing: 0px; margin: 8px 5px;"
-        base_cell_style = "padding: 8px; vertical-align: top;"
-        text_style = "color: #E2E8F0;"
-        user_bgcolor = "#2D3748"
-        assistant_bgcolor = "#4A5568"
-        thinking_style = "color: #A0AEC0; font-style: italic; margin: 5px; padding: 8px;"
+        base_table_style = 'width: 95%; border-spacing: 0px; margin: 8px 5px;'
+        base_cell_style = 'padding: 8px; vertical-align: top;'
+        text_style = 'color: #E2E8F0;'
+        user_bgcolor = '#2D3748'
+        assistant_bgcolor = '#4A5568'
+        thinking_style = 'color: #A0AEC0; font-style: italic; margin: 5px; padding: 8px;'
         save_button_style = (
-            "color: #E2E8F0; text-decoration: none; font-weight: bold; "
-            "font-family: monospace; padding: 2px 6px; border: 1px solid #A0AEC0; border-radius: 4px;"
+            'color: #E2E8F0; text-decoration: none; font-weight: bold; '
+            'font-family: monospace; padding: 2px 6px; border: 1px solid #A0AEC0; border-radius: 4px;'
         )
         html_output = ''
         for i, message in enumerate(self.conversation_history):
@@ -319,14 +339,14 @@ class LLMPanel(QWidget):
             content_for_display = message.get('content', '').replace('\n', '<br>')
             if role == 'user':
                 bgcolor = user_bgcolor
-                label = "You"
+                label = 'You'
                 html_output += f'''
                 <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
                     <tr><td style="{base_cell_style}"><p style="{text_style}"><b>{label}:</b><br>{content_for_display}</p></td></tr>
                 </table>'''
             elif role == 'assistant':
                 bgcolor = assistant_bgcolor
-                label = "Assistant"
+                label = 'Assistant'
                 save_button_href = f'http://{self._SAVE_ACTION_URL_SCHEME}/save?index={i}'
                 html_output += f'''
                 <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
@@ -353,25 +373,25 @@ class LLMPanel(QWidget):
 
         is_first_message = not self.conversation_history
         if is_first_message:
-            display_prompt_content = f"{action_prompt}\n\n<i>On text: \"{self.latched_conversation_text[:100]}...\"</i>"
+            display_prompt_content = f'{action_prompt}\n\n<i>On text: "{self.latched_conversation_text[:100]}..."</i>'
         else:
             display_prompt_content = action_prompt
         self.conversation_history.append({'role': 'user', 'content': display_prompt_content})
 
-        context_header = ""
+        context_header = ''
         if self.book_title:
-            context_header += f"The user is currently reading the book \"{self.book_title}\""
+            context_header += f'The user is currently reading the book "{self.book_title}"'
             if self.book_authors:
-                context_header += f" by {self.book_authors}."
+                context_header += f' by {self.book_authors}.'
             else:
-                context_header += "."
+                context_header += '.'
 
         api_prompt_content = (
-            f"{context_header}\n\n"
-            f"{action_prompt}\n\n"
-            f"---\n\n"
-            f"Text to analyze:\n\n"
-            f"\"{self.latched_conversation_text}\""
+            f'{context_header}\n\n'
+            f'{action_prompt}\n\n'
+            f'---\n\n'
+            f'Text to analyze:\n\n'
+            f'"{self.latched_conversation_text}"'
         )
 
         api_call_history = list(self.conversation_history)
@@ -390,7 +410,7 @@ class LLMPanel(QWidget):
 
     def show_response(self, response_text, usage_data):
         self.last_response_text = ''
-        is_error_or_status = "<b>" in response_text
+        is_error_or_status = '<b>' in response_text
 
         if not is_error_or_status:
             self.session_api_calls += 1
@@ -466,6 +486,7 @@ class LLMPanel(QWidget):
         self.custom_prompt_edit.setEnabled(enabled)
         self.custom_prompt_button.setEnabled(enabled)
 
+
 class ActionEditDialog(QDialog):
     def __init__(self, action=None, parent=None):
         super().__init__(parent)
@@ -500,6 +521,7 @@ class ActionEditDialog(QDialog):
 
     def get_action(self):
         return {'name': self.name_edit.text().strip(), 'prompt': self.prompt_edit.toPlainText().strip()}
+
 
 class LLMSettingsDialog(QDialog):
     actions_updated = pyqtSignal()
@@ -617,7 +639,7 @@ class LLMSettingsDialog(QDialog):
             self.actions_list.takeItem(self.actions_list.row(item))
 
     def reset_actions(self):
-        if QMessageBox.question(self, 'Confirm Reset', "Reset all quick actions to their default state?",
+        if QMessageBox.question(self, 'Confirm Reset', 'Reset all quick actions to their default state?',
                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
             vprefs.set('llm_quick_actions', json.dumps(self.DEFAULT_ACTIONS))
             self.load_actions_from_prefs()
