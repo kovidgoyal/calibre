@@ -392,7 +392,7 @@ class DisplayPluginModel(QAbstractTableModel):
                 return display_plugin.name
             if col == 1:
                 if display_plugin.donation_link:
-                    return _('PayPal')
+                    return _('Donate')
             if col == 2:
                 return self._get_status(display_plugin)
             if col == 3:
@@ -417,7 +417,7 @@ class DisplayPluginModel(QAbstractTableModel):
         elif role == Qt.ItemDataRole.ToolTipRole:
             if col == 1 and display_plugin.donation_link:
                 return _('This plugin is FREE but you can reward the developer for their effort\n'
-                                  'by donating to them via PayPal.\n\n'
+                                  'by donating to them via a payment service.\n\n'
                                   'Right-click and choose Donate to reward: ')+display_plugin.author
             else:
                 return self._get_status_tooltip(display_plugin)
