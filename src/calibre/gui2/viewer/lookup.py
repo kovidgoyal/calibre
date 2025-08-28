@@ -356,10 +356,10 @@ class Lookup(QTabWidget):
         t.setInterval(150), t.timeout.connect(self.update_query)
 
         self.dictionary_panel = self._create_dictionary_panel()
-        self.addTab(self.dictionary_panel, _('Dictionary'))
+        self.addTab(self.dictionary_panel, _('&Dictionary'))
 
         self.llm_placeholder = self._create_llm_placeholder_widget()
-        self.llm_tab_index = self.addTab(self.llm_placeholder, _('LLM'))
+        self.llm_tab_index = self.addTab(self.llm_placeholder, _('Ask &AI'))
 
         self.currentChanged.connect(self._tab_changed)
         set_sync_override.instance = self
@@ -441,7 +441,7 @@ class Lookup(QTabWidget):
             self.llm_panel.add_note_requested.connect(self.llm_add_note_requested)
 
             self.removeTab(self.llm_tab_index)
-            self.llm_tab_index = self.addTab(self.llm_panel, _('LLM'))
+            self.llm_tab_index = self.addTab(self.llm_panel, _('Ask &AI'))
             self.setCurrentIndex(self.llm_tab_index)
             self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
 
