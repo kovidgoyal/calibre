@@ -33,6 +33,7 @@ from qt.core import (
     pyqtSignal,
 )
 
+from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.config import vprefs
@@ -216,17 +217,17 @@ class LLMPanel(QWidget):
         self.layout.setContentsMargins(5, 5, 5, 5)
 
         self.quick_actions_group = QGroupBox(self)
-        self.quick_actions_group.setTitle('Quick Actions')
+        self.quick_actions_group.setTitle(_('Quick actions'))
         self.quick_actions_layout = QGridLayout(self.quick_actions_group)
         self.layout.addWidget(self.quick_actions_group)
         self.rebuild_actions_ui()
 
         custom_prompt_group = QGroupBox(self)
-        custom_prompt_group.setTitle('Custom Prompt')
+        custom_prompt_group.setTitle(_('Custom prompt'))
         custom_prompt_layout = QHBoxLayout(custom_prompt_group)
         self.custom_prompt_edit = QLineEdit(self)
-        self.custom_prompt_edit.setPlaceholderText('Or, enter your own request...')
-        self.custom_prompt_button = QPushButton('Send', self)
+        self.custom_prompt_edit.setPlaceholderText(_('Or, enter your own request...'))
+        self.custom_prompt_button = QPushButton(_('&Send'), self)
         custom_prompt_layout.addWidget(self.custom_prompt_edit)
         custom_prompt_layout.addWidget(self.custom_prompt_button)
         self.layout.addWidget(custom_prompt_group)
@@ -242,7 +243,7 @@ class LLMPanel(QWidget):
         self.save_note_button.clicked.connect(self.save_as_note)
 
         self.new_chat_button = QPushButton(QIcon.ic('edit-clear.png'), 'New Chat', self)
-        self.new_chat_button.setToolTip('Clear the current conversation history and start a new one')
+        self.new_chat_button.setToolTip(_('Clear the current conversation history and start a new one'))
         self.new_chat_button.clicked.connect(self.start_new_conversation)
         self.new_chat_button.setEnabled(False)
 
@@ -252,10 +253,10 @@ class LLMPanel(QWidget):
         self.layout.addLayout(response_actions_layout)
 
         footer_layout = QHBoxLayout()
-        self.settings_button = QPushButton('⚙️ Settings')
+        self.settings_button = QPushButton(_('Se&ttings'))
         self.settings_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.api_usage_label = QLabel('API calls: 0 | Cost: ~$0.0000')
+        self.api_usage_label = QLabel(_('API calls: 0 | Cost: ~$0.0000'))
         footer_layout.addWidget(self.settings_button)
         footer_layout.addStretch()
         footer_layout.addWidget(self.api_usage_label)
@@ -270,7 +271,7 @@ class LLMPanel(QWidget):
     def update_book_metadata(self, metadata):
         self.book_title = metadata.get('title', '')
         authors = metadata.get('authors', [])
-        self.book_authors = ' & '.join(authors)
+        self.book_authors = authors_to_string(authors)
 
     def rebuild_actions_ui(self):
         while self.quick_actions_layout.count():
@@ -331,14 +332,14 @@ class LLMPanel(QWidget):
             self.latched_conversation_text = text
 
             if text:
-                self.show_response(f"<b>Selected:</b><br><i>'{text[:200]}...'</i>", {})
+                self.show_response(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}...'</i>", {})
             else:
-                self.show_response('<b>Ready.</b> Ask a follow-up question.', {})
+                self.show_response(_('<b>Ready.</b> Ask a follow-up question.'), {})
 
         if self.latched_highlight_uuid:
-            self.save_note_button.setToolTip("Append this response to the existing highlight's note")
+            self.save_note_button.setToolTip(_("Append this response to the existing highlight's note"))
         else:
-            self.save_note_button.setToolTip('Create a new highlight for the selected text and save this response as its note')
+            self.save_note_button.setToolTip(_('Create a new highlight for the selected text and save this response as its note'))
 
     def run_custom_prompt(self):
         prompt = self.custom_prompt_edit.text().strip()
@@ -379,34 +380,34 @@ class LLMPanel(QWidget):
                 </table>'''
             elif role == 'assistant':
                 bgcolor = assistant_bgcolor
-                label = 'Assistant'
+                label = _('Assistant')
                 save_button_href = f'http://{self._SAVE_ACTION_URL_SCHEME}/save?index={i}'
                 html_output += f'''
                 <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
                     <tr>
                         <td style="{base_cell_style}"><p style="{text_style}"><b>{label}:</b><br>{content_for_display}</p></td>
                         <td style="padding: 8px; width: 60px; text-align: center; vertical-align: middle;">
-                            <a style="{save_button_style}" href="{save_button_href}" title="Save this specific response to the note">[ Save ]</a>
+                            <a style="{save_button_style}" href="{save_button_href}" title="{_('Save this specific response to the note')}">[ {_('Save')} ]</a>
                         </td>
                     </tr>
                 </table>'''
         if thinking:
-            html_output += f'<div style="{thinking_style}"><i>Querying model...</i></div>'
+            html_output += f'<div style="{thinking_style}"><i>{_("Querying model...")}</i></div>'
         return html_output
 
     def start_api_call(self, action_prompt):
         api_key_hex = vprefs.get('llm_api_key', '') or ''
         api_key = from_hex_unicode(api_key_hex)
         if not api_key:
-            self.show_response("<p style='color:orange;'><b>API Key Missing.</b> Click the <b>⚙️ Settings</b> button to add your key.</p>", {})
+            self.show_response(f"<p style='color:orange;'><b>{_('API Key Missing.')}</b> Click the <b>{_('Settings')}</b> button to add your key.</p>", {})
             return
         if not self.latched_conversation_text:
-            self.show_response("<p style='color:red;'><b>Error:</b> No text is selected for this conversation.</p>", {})
+            self.show_response(f"<p style='color:red;'><b>{_('Error')}:</b> {_('No text is selected for this conversation.')}</p>", {})
             return
 
         is_first_message = not self.conversation_history
         if is_first_message:
-            display_prompt_content = f'{action_prompt}\n\n<i>On text: "{self.latched_conversation_text[:100]}..."</i>'
+            display_prompt_content = f'{action_prompt}\n\n<i>{_("On text")}: "{self.latched_conversation_text[:100]}..."</i>'
         else:
             display_prompt_content = action_prompt
         self.conversation_history.append({'role': 'user', 'content': display_prompt_content})
@@ -474,7 +475,7 @@ class LLMPanel(QWidget):
             prompt_cost = (prompt_tokens / 1_000_000) * costs[0]
             completion_cost = (completion_tokens / 1_000_000) * costs[1]
         self.session_cost += prompt_cost + completion_cost
-        self.api_usage_label.setText(f'API calls: {self.session_api_calls} | Cost: ~${self.session_cost:.4f}')
+        self.api_usage_label.setText(f'{_("API calls")}: {self.session_api_calls} | {_("Cost")}: ~${self.session_cost:.4f}')
 
     def save_as_note(self):
         if self.last_response_text and self.latched_conversation_text:
