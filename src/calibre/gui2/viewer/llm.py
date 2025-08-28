@@ -1,7 +1,10 @@
 # License: GPL v3 Copyright: 2025, Amir Tehrani and Kovid Goyal
 
 import json
+import textwrap
+from functools import lru_cache, partial
 from threading import Thread
+from typing import NamedTuple
 from urllib import request
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlparse
@@ -20,21 +23,22 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QPlainTextEdit,
     QPushButton,
     QSizePolicy,
     Qt,
     QTextBrowser,
-    QTextEdit,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
 )
 
-from calibre.gui2 import Application
+from calibre.gui2 import Application, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.icu import primary_sort_key
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 # --- Backend Abstraction & Cost Data ---
@@ -152,18 +156,47 @@ class LLMAPICall(Thread):
             self.signal_emitter.emit(f"<p style='color:red;'><b>An unexpected error occurred:</b> {e}</p>", {})
 
 
+class Action(NamedTuple):
+    name: str
+    human_name: str
+    prompt_text: str
+    is_builtin: bool = True
+    is_disabled: bool = False
+
+    @property
+    def as_custom_action_dict(self):
+        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_text': self.prompt_text}
+
+
+@lru_cache(2)
+def default_actions() -> tuple[Action, ...]:
+    return (
+        Action('summarize', _('Summarize'), 'Provide a concise summary of the following text.'),
+        Action('explain', _('Explain'), 'Explain the following text in simple, easy-to-understand terms.'),
+        Action('points', _('Key points'), 'Extract the key points from the following text as a bulleted list.'),
+        Action('define', _('Define'), 'Identify and define any technical or complex terms in the following text.'),
+        Action('grammar', _('Correct grammar'), 'Correct any grammatical errors in the following text and provide the corrected version.'),
+        Action('english', _('As English'), 'Translate the following text into English.'),
+    )
+
+
+def current_actions(include_disabled=False):
+    p = vprefs.get('llm_quick_actions') or {}
+    dd = p.get('disabled_default_actions', ())
+    for x in default_actions():
+        x = x._replace(is_disabled=x.name in dd)
+        if include_disabled or not x.is_disabled:
+            yield x
+    for title, c in p.get('custom_actions', {}).items():
+        x = Action(f'custom-{title}', title, c['prompt_text'], is_builtin=False, is_disabled=c['disabled'])
+        if include_disabled or x.is_disabled:
+            yield x
+
+
 class LLMPanel(QWidget):
     response_received = pyqtSignal(str, dict)
     add_note_requested = pyqtSignal(dict)
     _SAVE_ACTION_URL_SCHEME = 'calibre-llm-action'
-    DEFAULT_ACTIONS = (
-        {'human_name': _('Summarize'), 'prompt': 'Provide a concise summary of the following text.'},
-        {'human_name': _('Explain simply'), 'prompt': 'Explain the following text in simple, easy-to-understand terms.'},
-        {'human_name': _('Key points'), 'prompt': 'Extract the key points from the following text as a bulleted list.'},
-        {'human_name': _('Define terms'), 'prompt': 'Identify and define any technical or complex terms in the following text.'},
-        {'human_name': _('Correct grammar'), 'prompt': 'Correct any grammatical errors in the following text and provide the corrected version.'},
-        {'human_name': _('Translate to English'), 'prompt': 'Translate the following text into English.'},
-    )
 
     def __init__(self, parent=None, viewer=None, lookup_widget=None):
         super().__init__(parent)
@@ -244,19 +277,18 @@ class LLMPanel(QWidget):
             child = self.quick_actions_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        actions_json = vprefs.get('llm_quick_actions', json.dumps(LLMPanel.DEFAULT_ACTIONS))
-        try:
-            actions = json.loads(actions_json)
-        except json.JSONDecodeError:
-            actions = LLMPanel.DEFAULT_ACTIONS
+        actions = sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name))
         positions = [(i, j) for i in range(4) for j in range(2)]
         for i, action in enumerate(actions):
             if i >= len(positions):
                 break
-            button = QPushButton(action['name'], self)
-            button.clicked.connect(lambda _, p=action['prompt']: self.start_api_call(p))
+            button = QPushButton(action.human_name, self)
+            button.clicked.connect(partial(self.activate_action, action))
             row, col = positions[i]
             self.quick_actions_layout.addWidget(button, row, col)
+
+    def activate_action(self, action: Action) -> None:
+        self.start_api_call(action.prompt_text)
 
     def show_settings(self):
         dialog = LLMSettingsDialog(self)
@@ -489,23 +521,23 @@ class LLMPanel(QWidget):
 
 
 class ActionEditDialog(QDialog):
-    def __init__(self, action=None, parent=None):
+    def __init__(self, action: Action | None=None, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Edit Quick Action' if action else 'Add Quick Action')
+        self.setWindowTitle(_('Edit Quick action') if action else _('Add Quick action'))
         self.layout = QFormLayout(self)
+        self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.name_edit = QLineEdit(self)
-        self.prompt_edit = QTextEdit(self)
-        self.prompt_edit.setAcceptRichText(False)
+        self.prompt_edit = QPlainTextEdit(self)
         self.prompt_edit.setMinimumHeight(100)
-        self.layout.addRow('Button Name:', self.name_edit)
-        self.layout.addRow('System Prompt:', self.prompt_edit)
+        self.layout.addRow(_('Name:'), self.name_edit)
+        self.layout.addRow(_('Prompt:'), self.prompt_edit)
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.layout.addWidget(self.button_box)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-        if action:
-            self.name_edit.setText(action.get('name', ''))
-            self.prompt_edit.setPlainText(action.get('prompt', ''))
+        if action is not None:
+            self.name_edit.setText(action.human_name)
+            self.prompt_edit.setPlainText(action.prompt_text)
         self.name_edit.installEventFilter(self)
         self.prompt_edit.installEventFilter(self)
 
@@ -520,8 +552,9 @@ class ActionEditDialog(QDialog):
                     return True
         return super().eventFilter(obj, event)
 
-    def get_action(self):
-        return {'name': self.name_edit.text().strip(), 'prompt': self.prompt_edit.toPlainText().strip()}
+    def get_action(self) -> Action:
+        title = self.name_edit.text().strip()
+        return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip())
 
 
 class LLMSettingsDialog(Dialog):
@@ -560,18 +593,15 @@ class LLMSettingsDialog(Dialog):
         self.add_button = QPushButton(QIcon.ic('plus.png'), _('&Add'))
         self.edit_button = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
         self.remove_button = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
-        self.reset_button = QPushButton(_('Restore &defaults'))
         actions_button_layout.addWidget(self.add_button)
         actions_button_layout.addWidget(self.edit_button)
         actions_button_layout.addWidget(self.remove_button)
-        actions_button_layout.addStretch()
-        actions_button_layout.addWidget(self.reset_button)
+        actions_button_layout.addStretch(100)
         l.addLayout(actions_button_layout)
         self.layout.addWidget(self.bb)
         self.add_button.clicked.connect(self.add_action)
         self.edit_button.clicked.connect(self.edit_action)
         self.remove_button.clicked.connect(self.remove_action)
-        self.reset_button.clicked.connect(self.reset_actions)
         self.actions_list.itemDoubleClicked.connect(self.edit_action)
         self.load_settings()
         self.actions_list.setFocus()
@@ -583,49 +613,52 @@ class LLMSettingsDialog(Dialog):
             self.highlight_color_combo.highlight_style_name = hsn
         self.load_actions_from_prefs()
 
+    def action_as_item(self, ac: Action) -> QListWidgetItem:
+        item = QListWidgetItem(ac.human_name, self.actions_list)
+        item.setData(Qt.ItemDataRole.UserRole, ac)
+        item.setCheckState(Qt.CheckState.Unchecked if ac.is_disabled else Qt.CheckState.Checked)
+        item.setToolTip(textwrap.fill(ac.prompt_text))
+
     def load_actions_from_prefs(self):
         self.actions_list.clear()
-        actions_json = vprefs.get('llm_quick_actions') or json.dumps(LLMPanel.DEFAULT_ACTIONS)
-        try:
-            actions = json.loads(actions_json)
-        except json.JSONDecodeError:
-            actions = LLMPanel.DEFAULT_ACTIONS
-        for action in actions:
-            item = QListWidgetItem(action['name'], self.actions_list)
-            item.setData(Qt.ItemDataRole.UserRole, action)
+        for ac in sorted(current_actions(include_disabled=True), key=lambda ac: primary_sort_key(ac.human_name)):
+            self.action_as_item(ac)
 
     def add_action(self):
         dialog = ActionEditDialog(parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             action = dialog.get_action()
-            if action['name'] and action['prompt']:
-                item = QListWidgetItem(action['name'], self.actions_list)
-                item.setData(Qt.ItemDataRole.UserRole, action)
+            if action.human_name and action.prompt_text:
+                self.action_as_item(action)
 
     def edit_action(self):
         item = self.actions_list.currentItem()
         if not item:
             return
         action = item.data(Qt.ItemDataRole.UserRole)
+        if action.is_builtin:
+            return error_dialog(self, _('Cannot edit'), _(
+                'Cannot edit builtin actions. Instead uncheck this action and create a new action with the same name.'), show=True)
         dialog = ActionEditDialog(action, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             new_action = dialog.get_action()
-            if new_action['name'] and new_action['prompt']:
-                item.setText(new_action['name'])
+            if new_action.human_name and new_action.prompt_text:
+                item.setText(new_action.human_name)
                 item.setData(Qt.ItemDataRole.UserRole, new_action)
 
     def remove_action(self):
         item = self.actions_list.currentItem()
+        if not item:
+            return
+        action = item.data(Qt.ItemDataRole.UserRole)
+        if action.is_builtin:
+            return error_dialog(self, _('Cannot remove'), _(
+                'Cannot remove builtin actions. Instead simply uncheck it to prevent it from showing up as a button.'), show=True)
         if item and confirm(
             _('Remove the {} action?').format(item.text()), 'confirm_remove_llm_action',
             confirm_msg=_('&Show this confirmation again'), parent=self,
         ):
             self.actions_list.takeItem(self.actions_list.row(item))
-
-    def reset_actions(self):
-        if confirm(_('Reset all quick actions to their default state?'), parent=self):
-            vprefs.set('llm_quick_actions', json.dumps(LLMPanel.DEFAULT_ACTIONS))
-            self.load_actions_from_prefs()
 
     def accept(self):
         vprefs.set('llm_api_key', as_hex_unicode(self.api_key_edit.text().strip()))
@@ -634,11 +667,23 @@ class LLMSettingsDialog(Dialog):
         selected_internal_name = self.highlight_color_combo.currentData()
         vprefs.set('llm_highlight_style', selected_internal_name)
 
-        actions = []
+        disabled_defaults = []
+        custom_actions = {}
         for i in range(self.actions_list.count()):
             item = self.actions_list.item(i)
-            actions.append(item.data(Qt.ItemDataRole.UserRole))
-        vprefs.set('llm_quick_actions', json.dumps(actions))
+            action:Action = item.data(Qt.ItemDataRole.UserRole)
+            action = action._replace(is_disabled=item.checkState() == Qt.CheckState.Unchecked)
+            if action.is_builtin:
+                if action.is_disabled:
+                    disabled_defaults.append(action.name)
+            else:
+                custom_actions[action.human_name] = action.as_custom_action_dict
+        s = {}
+        if disabled_defaults:
+            s['disabled_default_actions'] = disabled_defaults
+        if custom_actions:
+            s['custom_actions'] = custom_actions
+        vprefs.set('llm_quick_actions', s)
         self.actions_updated.emit()
         super().accept()
 
