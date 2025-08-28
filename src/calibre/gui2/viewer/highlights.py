@@ -10,6 +10,7 @@ from itertools import chain
 from qt.core import (
     QAbstractItemView,
     QColor,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFont,
@@ -51,7 +52,7 @@ from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.annotations import ChapterGroup, Details, render_notes
 from calibre.gui2.library.annotations import Export as ExportBase
 from calibre.gui2.viewer import get_boss, link_prefix_for_location_links
-from calibre.gui2.viewer.config import vprefs
+from calibre.gui2.viewer.config import get_session_pref, vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
 from calibre.gui2.widgets2 import Dialog
@@ -86,8 +87,65 @@ def compute_style_key(style):
     return tuple((k, style[k]) for k in sorted(style))
 
 
-def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark):
-    style_key = (is_dark, icon_size, device_pixel_ratio, compute_style_key(style))
+def custom_highlight_styles():
+    c = get_session_pref('custom_highlight_styles', [], '')
+    ans = {}
+    for s in c:
+        s = s.copy()
+        s['type'] = 'custom'
+        ans[f'custom-{s["friendly_name"]}'] = s
+    return ans
+
+
+@lru_cache(2)
+def builtin_highlight_styles():
+    ans = {}
+    for which in builtin_colors_light:
+        ans[f'color-{which}'] = {'kind': 'color', 'which': which, 'type': 'builtin'}
+    for which in builtin_decorations:
+        ans[f'decoration-{which}'] = {'kind': 'decoration', 'which': which, 'type': 'builtin'}
+    return ans
+
+
+class HighlightColorCombo(QComboBox):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        is_dark = is_dark_theme()
+        sz = self.iconSize().width()
+        dpr = self.devicePixelRatioF()
+        self.default_style_name = ''
+        for name, style in custom_highlight_styles().items():
+            self.addItem(QIcon(decoration_for_style(
+                self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
+        for name, style in builtin_highlight_styles().items():
+            self.default_style_name = self.default_style_name or name
+            self.addItem(QIcon(decoration_for_style(
+                self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
+        self.setCurrentIndex(self.findData(self.default_style_name))
+
+    @property
+    def highlight_style_name(self) -> str:
+        return self.currentData()
+
+    @highlight_style_name.setter
+    def highlight_style_name(self, val):
+        idx = self.findData(val)
+        if idx > -1:
+            self.setCurrentIndex(idx)
+
+
+def style_definition_for_name(name: str) -> dict[str, object]:
+    bs = builtin_highlight_styles()
+    if ans := bs.get(name):
+        return ans
+    if ans := custom_highlight_styles().get(name):
+        return ans
+    return next(iter(bs.values()))
+
+
+def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark, as_pixmap_only=False):
+    style_key = (is_dark, icon_size, device_pixel_ratio, compute_style_key(style), as_pixmap_only)
     sentinel = object()
     ans = decoration_cache.get(style_key, sentinel)
     if ans is not sentinel:
@@ -149,6 +207,12 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark)
         ans = QPixmap.fromImage(canvas)
     elif 'background-color' in style:
         ans = QColor(style['background-color'])
+    if as_pixmap_only and isinstance(ans, QColor):
+        sz = math.ceil(icon_size * device_pixel_ratio)
+        canvas = QImage(sz, sz, QImage.Format.Format_ARGB32)
+        canvas.fill(ans)
+        canvas.setDevicePixelRatio(device_pixel_ratio)
+        ans = QPixmap.fromImage(canvas)
     decoration_cache[style_key] = ans
     return ans
 
