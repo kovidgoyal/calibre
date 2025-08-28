@@ -45,7 +45,7 @@ from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_d
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import prepare_book
-from calibre.gui2.viewer.highlights import HighlightsPanel
+from calibre.gui2.viewer.highlights import HighlightsPanel, style_definition_for_name
 from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
@@ -985,7 +985,7 @@ class EbookViewer(MainWindow):
             self.pending_note_for_next_highlight = new_self_contained_entry
             js_payload = {
                 'type': 'apply-highlight',
-                'style': {'type': 'builtin', 'kind': 'color', 'which': vprefs.get('llm_highlight_color', 'yellow')},
+                'style': style_definition_for_name(vprefs.get('llm_highlight_style', '')),
             }
             self.web_view.generic_action('annotations', js_payload)
             self.statusBar().showMessage('Creating highlight with note...', 3000)

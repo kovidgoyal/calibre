@@ -8,7 +8,6 @@ from urllib.parse import parse_qs, urlparse
 
 from qt.core import (
     QAbstractItemView,
-    QComboBox,
     QDialog,
     QDialogButtonBox,
     QEvent,
@@ -21,7 +20,6 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
-    QMessageBox,
     QPushButton,
     QSizePolicy,
     Qt,
@@ -32,7 +30,11 @@ from qt.core import (
     pyqtSignal,
 )
 
+from calibre.gui2 import Application
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.config import vprefs
+from calibre.gui2.viewer.highlights import HighlightColorCombo
+from calibre.gui2.widgets2 import Dialog
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 # --- Backend Abstraction & Cost Data ---
@@ -154,14 +156,14 @@ class LLMPanel(QWidget):
     response_received = pyqtSignal(str, dict)
     add_note_requested = pyqtSignal(dict)
     _SAVE_ACTION_URL_SCHEME = 'calibre-llm-action'
-    DEFAULT_ACTIONS = [
-        {'name': 'Summarize', 'prompt': 'Provide a concise summary of the following text.'},
-        {'name': 'Explain Simply', 'prompt': 'Explain the following text in simple, easy-to-understand terms.'},
-        {'name': 'Key Points', 'prompt': 'Extract the key points from the following text as a bulleted list.'},
-        {'name': 'Define Terms', 'prompt': 'Identify and define any technical or complex terms in the following text.'},
-        {'name': 'Correct Grammar', 'prompt': 'Correct any grammatical errors in the following text and provide the corrected version.'},
-        {'name': 'Translate to English', 'prompt': 'Translate the following text into English.'},
-    ]
+    DEFAULT_ACTIONS = (
+        {'human_name': _('Summarize'), 'prompt': 'Provide a concise summary of the following text.'},
+        {'human_name': _('Explain simply'), 'prompt': 'Explain the following text in simple, easy-to-understand terms.'},
+        {'human_name': _('Key points'), 'prompt': 'Extract the key points from the following text as a bulleted list.'},
+        {'human_name': _('Define terms'), 'prompt': 'Identify and define any technical or complex terms in the following text.'},
+        {'human_name': _('Correct grammar'), 'prompt': 'Correct any grammatical errors in the following text and provide the corrected version.'},
+        {'human_name': _('Translate to English'), 'prompt': 'Translate the following text into English.'},
+    )
 
     def __init__(self, parent=None, viewer=None, lookup_widget=None):
         super().__init__(parent)
@@ -242,11 +244,11 @@ class LLMPanel(QWidget):
             child = self.quick_actions_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        actions_json = vprefs.get('llm_quick_actions', json.dumps(self.DEFAULT_ACTIONS))
+        actions_json = vprefs.get('llm_quick_actions', json.dumps(LLMPanel.DEFAULT_ACTIONS))
         try:
             actions = json.loads(actions_json)
         except json.JSONDecodeError:
-            actions = self.DEFAULT_ACTIONS
+            actions = LLMPanel.DEFAULT_ACTIONS
         positions = [(i, j) for i in range(4) for j in range(2)]
         for i, action in enumerate(actions):
             if i >= len(positions):
@@ -266,11 +268,10 @@ class LLMPanel(QWidget):
         api_key_hex = vprefs.get('llm_api_key', '') or ''
         api_key = from_hex_unicode(api_key_hex)
         if not api_key:
-            self.show_response(
-                "<p style='color:orange;'><b>Welcome!</b> "
-                "Please add your OpenRouter.ai API key by clicking the <b>⚙️ Settings</b> button below.</p>", {})
+            self.show_response('<p>' + _(
+                'Please add your API key for an AI service by clicking the <b>Settings</b> button below.'), {})
         else:
-            self.show_response('<b>Ready.</b> Select text in the book to begin.', {})
+            self.show_response(_('Select text in the book to begin.'), {})
 
     def update_with_text(self, text, highlight_data, is_read_only_view=False):
         new_uuid = highlight_data.get('uuid') if highlight_data else None
@@ -523,60 +524,50 @@ class ActionEditDialog(QDialog):
         return {'name': self.name_edit.text().strip(), 'prompt': self.prompt_edit.toPlainText().strip()}
 
 
-class LLMSettingsDialog(QDialog):
+class LLMSettingsDialog(Dialog):
     actions_updated = pyqtSignal()
-    DEFAULT_ACTIONS = LLMPanel.DEFAULT_ACTIONS
-    COLOR_MAP = {
-        'yellow': 'Yellow highlight',
-        'green': 'Green highlight',
-        'blue': 'Blue highlight',
-        'red': 'Pink highlight',
-        'purple': 'Purple highlight',
-    }
 
     def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle('LLM Settings (OpenRouter)')
+        super().__init__(title=_('LLM Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
+
+    def setup_ui(self):
         self.setMinimumWidth(550)
         self.layout = QVBoxLayout(self)
         api_model_layout = QFormLayout()
-        api_key_layout = QHBoxLayout()
+        api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.api_key_edit = QLineEdit(self)
-        self.api_key_edit.setPlaceholderText('Paste your OpenRouter.ai API key here')
-        self.clear_api_key_button = QPushButton('Clear', self)
-        api_key_layout.addWidget(self.api_key_edit)
-        api_key_layout.addWidget(self.clear_api_key_button)
+        self.api_key_edit.setPlaceholderText(_('Paste your API key here'))
+        self.api_key_edit.setClearButtonEnabled(True)
         self.model_edit = QLineEdit(self)
         self.model_edit.setPlaceholderText('google/gemini-flash-1.5')
 
-        self.highlight_color_combo = QComboBox(self)
+        self.highlight_color_combo = HighlightColorCombo(self)
 
-        model_label = QLabel('Model (<a href="https://openrouter.ai/models">see list</a>):')
+        model_label = QLabel(_('&Model (<a href="{}">see list</a>):').format('https://openrouter.ai/models'))
         model_label.setOpenExternalLinks(True)
-        api_model_layout.addRow('API Key:', api_key_layout)
+        model_label.setBuddy(self.model_edit)
+        api_model_layout.addRow(_('API &key:'), self.api_key_edit)
         api_model_layout.addRow(model_label, self.model_edit)
-        api_model_layout.addRow('Highlight Color:', self.highlight_color_combo)
+        api_model_layout.addRow(_('&Highlight style:'), self.highlight_color_combo)
         self.layout.addLayout(api_model_layout)
-        self.layout.addWidget(QLabel('<h3>Quick Actions</h3>'))
+        self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
+        self.layout.addWidget(gb)
+        gb.l = l = QVBoxLayout(gb)
         self.actions_list = QListWidget(self)
         self.actions_list.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
-        self.layout.addWidget(self.actions_list)
+        l.addWidget(self.actions_list)
         actions_button_layout = QHBoxLayout()
-        self.add_button = QPushButton('Add...')
-        self.edit_button = QPushButton('Edit...')
-        self.remove_button = QPushButton('Remove')
-        self.reset_button = QPushButton('Reset to Defaults')
+        self.add_button = QPushButton(QIcon.ic('plus.png'), _('&Add'))
+        self.edit_button = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
+        self.remove_button = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
+        self.reset_button = QPushButton(_('Restore &defaults'))
         actions_button_layout.addWidget(self.add_button)
         actions_button_layout.addWidget(self.edit_button)
         actions_button_layout.addWidget(self.remove_button)
         actions_button_layout.addStretch()
         actions_button_layout.addWidget(self.reset_button)
-        self.layout.addLayout(actions_button_layout)
-        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self.layout.addWidget(self.button_box)
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
-        self.clear_api_key_button.clicked.connect(self.clear_api_key)
+        l.addLayout(actions_button_layout)
+        self.layout.addWidget(self.bb)
         self.add_button.clicked.connect(self.add_action)
         self.edit_button.clicked.connect(self.edit_action)
         self.remove_button.clicked.connect(self.remove_action)
@@ -588,26 +579,17 @@ class LLMSettingsDialog(QDialog):
     def load_settings(self):
         self.api_key_edit.setText(from_hex_unicode(vprefs.get('llm_api_key', '')))
         self.model_edit.setText(vprefs.get('llm_model_id', 'google/gemini-flash-1.5'))
-
-        self.highlight_color_combo.clear()
-        current_color_internal_name = vprefs.get('llm_highlight_color', 'yellow')
-
-        for internal_name, friendly_name in self.COLOR_MAP.items():
-            self.highlight_color_combo.addItem(friendly_name, internal_name)
-
-        index_to_set = self.highlight_color_combo.findData(current_color_internal_name)
-        if index_to_set != -1:
-            self.highlight_color_combo.setCurrentIndex(index_to_set)
-
+        if hsn := vprefs.get('llm_highlight_style'):
+            self.highlight_color_combo.highlight_style_name = hsn
         self.load_actions_from_prefs()
 
     def load_actions_from_prefs(self):
         self.actions_list.clear()
-        actions_json = vprefs.get('llm_quick_actions', json.dumps(self.DEFAULT_ACTIONS))
+        actions_json = vprefs.get('llm_quick_actions') or json.dumps(LLMPanel.DEFAULT_ACTIONS)
         try:
             actions = json.loads(actions_json)
         except json.JSONDecodeError:
-            actions = self.DEFAULT_ACTIONS
+            actions = LLMPanel.DEFAULT_ACTIONS
         for action in actions:
             item = QListWidgetItem(action['name'], self.actions_list)
             item.setData(Qt.ItemDataRole.UserRole, action)
@@ -634,25 +616,23 @@ class LLMSettingsDialog(QDialog):
 
     def remove_action(self):
         item = self.actions_list.currentItem()
-        if item and QMessageBox.question(self, 'Confirm Remove', f"Remove the '{item.text()}' action?",
-                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
+        if item and confirm(
+            _('Remove the {} action?').format(item.text()), 'confirm_remove_llm_action',
+            confirm_msg=_('&Show this confirmation again'), parent=self,
+        ):
             self.actions_list.takeItem(self.actions_list.row(item))
 
     def reset_actions(self):
-        if QMessageBox.question(self, 'Confirm Reset', 'Reset all quick actions to their default state?',
-                                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
-            vprefs.set('llm_quick_actions', json.dumps(self.DEFAULT_ACTIONS))
+        if confirm(_('Reset all quick actions to their default state?'), parent=self):
+            vprefs.set('llm_quick_actions', json.dumps(LLMPanel.DEFAULT_ACTIONS))
             self.load_actions_from_prefs()
-
-    def clear_api_key(self):
-        self.api_key_edit.clear()
 
     def accept(self):
         vprefs.set('llm_api_key', as_hex_unicode(self.api_key_edit.text().strip()))
         vprefs.set('llm_model_id', self.model_edit.text().strip() or 'google/gemini-flash-1.5')
 
         selected_internal_name = self.highlight_color_combo.currentData()
-        vprefs.set('llm_highlight_color', selected_internal_name or 'yellow')
+        vprefs.set('llm_highlight_style', selected_internal_name)
 
         actions = []
         for i in range(self.actions_list.count()):
@@ -661,3 +641,8 @@ class LLMSettingsDialog(QDialog):
         vprefs.set('llm_quick_actions', json.dumps(actions))
         self.actions_updated.emit()
         super().accept()
+
+
+if __name__ == '__main__':
+    app = Application([])
+    LLMSettingsDialog().exec()
