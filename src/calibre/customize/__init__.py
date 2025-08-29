@@ -817,3 +817,32 @@ class LibraryClosedPlugin(Plugin):  # {{{
         raise NotImplementedError('LibraryClosedPlugin '
                 'run method must be overridden in subclass')
 # }}}
+
+
+class AIProviderPlugin(Plugin):  # {{{
+    '''
+    AIProvider plugins abstract AI services that can be used by the rest of calibre.
+    '''
+    type = _('AI provider')
+
+    # minimum version when support for this plugin type was added
+    minimum_calibre_version = (8, 10, 0)
+
+    # Used by builtin AI Provider plugins to live load the backend code
+    builtin_live_module_name = ''
+
+    @property
+    def builtin_live_module(self):
+        if not self.builtin_live_module_name:
+            return None
+        if (ans := self._builtin_live_module) is None:
+            from calibre.live import Strategy, load_module
+            ans = self._builtin_live_module = load_module(self.builtin_live_module_name, strategy=Strategy.fast)
+        return ans
+
+    def initialize(self):
+        self._builtin_live_module = None
+
+    def customization_help(self):
+        return ''
+# }}}
