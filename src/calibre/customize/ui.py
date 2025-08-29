@@ -7,10 +7,12 @@ import shutil
 import sys
 import traceback
 from collections import defaultdict
+from collections.abc import Iterator
 from itertools import chain, repeat
 
 from calibre.constants import DEBUG, ismacos, numeric_version, system_plugins_loc
 from calibre.customize import (
+    AIProviderPlugin,
     CatalogPlugin,
     EditBookToolPlugin,
     FileTypePlugin,
@@ -354,6 +356,18 @@ def has_library_closed_plugins():
             if not is_disabled(plugin):
                 return True
     return False
+# }}}
+
+
+# AI Provider Plugins {{{
+def available_ai_provider_plugins() -> Iterator[AIProviderPlugin]:
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, AIProviderPlugin):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+
 # }}}
 
 
