@@ -106,7 +106,7 @@ class TestFetchBackend(unittest.TestCase):
         br = browser_class(user_agent='test-ua', headers=(('th', '1'),), start_worker=True)
 
         def u(path=''):
-            return f'http://localhost:{self.port}{path}'
+            return f'http://{self.host}:{self.port}{path}'
 
         def get(path='', headers=None, timeout=None, data=None):
             url = u(path)
@@ -178,19 +178,23 @@ class TestFetchBackend(unittest.TestCase):
 
     def run_server(self):
         from http.server import HTTPServer
+        from socketserver import TCPServer
 
         def create_handler(*a):
             ans = Handler(self, *a)
             return ans
 
-        httpd = HTTPServer(('localhost', 0), create_handler, bind_and_activate=False)
-        httpd.allow_reuse_address = True
-        httpd.allow_reuse_port = True
-        with httpd:
+        class Server(HTTPServer):
+
+            def server_bind(self):
+                # Avoid calling socket.getfqdn() which is slow on some systems
+                TCPServer.server_bind(self)
+                self.server_name, self.server_port = self.server_address[:2]
+
+        with Server(('localhost', 0), create_handler) as httpd:
             self.server = httpd
-            httpd.server_bind()
             self.port = httpd.server_port
-            httpd.server_activate()
+            self.host = httpd.server_name
             self.server_started.set()
             httpd.serve_forever()
 
