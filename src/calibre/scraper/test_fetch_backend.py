@@ -82,7 +82,8 @@ class TestFetchBackend(unittest.TestCase):
         self.server_started = Event()
         self.server_thread = Thread(target=self.run_server, daemon=True)
         self.server_thread.start()
-        if not self.server_started.wait(15):
+        # For some reason binding the server socket has a 30 second timeout on macOS. DNS related?
+        if not self.server_started.wait(60):
             raise Exception('Test server failed to start')
         self.request_count = 0
         self.dont_send_response = self.dont_send_body = False
@@ -176,15 +177,20 @@ class TestFetchBackend(unittest.TestCase):
             br.shutdown()
 
     def run_server(self):
-        from http.server import ThreadingHTTPServer
+        from http.server import HTTPServer
 
         def create_handler(*a):
             ans = Handler(self, *a)
             return ans
 
-        with ThreadingHTTPServer(('', 0), create_handler) as httpd:
+        httpd = HTTPServer(('localhost', 0), create_handler, bind_and_activate=False)
+        httpd.allow_reuse_address = True
+        httpd.allow_reuse_port = True
+        with httpd:
             self.server = httpd
-            self.port = httpd.server_address[1]
+            httpd.server_bind()
+            self.port = httpd.server_port
+            httpd.server_activate()
             self.server_started.set()
             httpd.serve_forever()
 
