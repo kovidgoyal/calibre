@@ -253,7 +253,7 @@ class LLMPanel(QWidget):
         self.layout.addLayout(response_actions_layout)
 
         footer_layout = QHBoxLayout()
-        self.settings_button = QPushButton(_('Se&ttings'))
+        self.settings_button = QPushButton(QIcon.ic('config'), _('Se&ttings'))
         self.settings_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.api_usage_label = QLabel(_('API calls: 0 | Cost: ~$0.0000'))
@@ -284,6 +284,7 @@ class LLMPanel(QWidget):
             if i >= len(positions):
                 break
             button = QPushButton(action.human_name, self)
+            button.setToolTip(action.prompt_text)
             button.clicked.connect(partial(self.activate_action, action))
             row, col = positions[i]
             self.quick_actions_layout.addWidget(button, row, col)
