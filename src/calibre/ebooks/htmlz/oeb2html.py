@@ -38,6 +38,7 @@ class OEB2HTML:
         self.log = default_log if log is None else log
         self.links = {}
         self.images = {}
+        self.fonts = {}
 
     def oeb2html(self, oeb_book, opts):
         self.log.info('Converting OEB book to HTML...')
