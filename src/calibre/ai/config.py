@@ -1,26 +1,69 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
-from copy import deepcopy
-from functools import lru_cache
-from typing import Any
-
-from calibre.utils.config import JSONConfig
-
-
-@lru_cache(2)
-def prefs() -> JSONConfig:
-    ans = JSONConfig('ai')
-    ans.defaults['providers'] = {}
-    return ans
+from calibre.ai import AICapabilities
+from calibre.ai.prefs import prefs
+from calibre.customize.ui import available_ai_provider_plugins
+from calibre.gui2 import Application, error_dialog
 
 
-def pref_for_provider(name: str, key: str, defval: Any = None) -> Any:
-    return prefs()['providers'].get(key, defval)
+class ConfigureAI(QWidget):
+
+    def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None):
+        super().__init__(parent)
+        plugins = tuple(p for p in available_ai_provider_plugins() if p.capabilities & purpose == purpose)
+        self.available_plugins = plugins
+        self.purpose = purpose
+        self.plugin_config_widgets: tuple[QWidget, ...] = tuple(p.config_widget() for p in plugins)
+        v = QVBoxLayout(self)
+        self.gb = QGroupBox(self)
+        self.stack = s = QStackedLayout(self.gb)
+        for pc in self.plugin_config_widgets:
+            pc.setParent(self)
+            s.addWidget(pc)
+        if len(plugins) > 1:
+            self.provider_combo = pcb = QComboBox(self)
+            pcb.addItems([p.name for p in plugins])
+            la = QLabel(_('AI &provider:'))
+            la.setBuddy(pcb)
+            h = QHBoxLayout()
+            h.addWidget(la), h.addWidget(pcb), h.addStretch()
+            v.addLayout(h)
+            pcb.currentIndexChanged.connect(self.stack.setCurrentIndex)
+            idx = pcb.findText(prefs()['purpose_map'].get(str(self.purpose), ''))
+            pcb.setCurrentIndex(max(0, idx))
+        elif len(plugins) == 1:
+            self.gb.setTitle(_('Configure AI provider: {}').format(plugins[0].name))
+        else:
+            self.none_label = la = QLabel(_('No AI providers found that have the capabilities: {}. Make sure you have not'
+                               ' disabled some AI provider plugins').format(purpose))
+            s.addWidget()
+        v.addWidget(self.gb)
+
+    def commit(self) -> bool:
+        if not self.available_plugins:
+            error_dialog(self, _('No AI providers'), self.none_label.text(), show=True)
+            return False
+        if len(self.available_plugins) == 1:
+            idx = 0
+        else:
+            idx = self.provider_combo.currentIndex()
+        p, w = self.available_plugins[idx], self.plugin_config_widgets[idx]
+        if not w.validate():
+            return False
+        p.save_settings(w)
+        pmap = prefs()['purpose_map']
+        pmap[str(self.purpose)] = p.name
+        prefs().set('purpose_map', pmap)
+        return True
 
 
-def set_prefs_for_provider(name: str, pref_map: dict[str, Any]) -> None:
-    p = prefs()
-    p['providers'][name] = deepcopy(pref_map)
-    p.set('providers', p['providers'])
+if __name__ == '__main__':
+    app = Application([])
+    d = QDialog()
+    v = QVBoxLayout(d)
+    w = ConfigureAI(parent=d)
+    v.addWidget(w)
+    d.exec()

@@ -831,6 +831,12 @@ class AIProviderPlugin(Plugin):  # {{{
     # Used by builtin AI Provider plugins to live load the backend code
     builtin_live_module_name = ''
 
+    # See the AICapabilities enum. Sub-classes *must* implement this to the
+    # capabilities they support. Note this is independent of configuration.
+    @property
+    def capabilities(self):
+        raise NotImplementedError()
+
     @property
     def builtin_live_module(self):
         if not self.builtin_live_module_name:
@@ -845,4 +851,14 @@ class AIProviderPlugin(Plugin):  # {{{
 
     def customization_help(self):
         return ''
+
+    def config_widget(self):
+        if self.builtin_live_module_name:
+            return self.builtin_live_module.config_widget()
+        raise NotImplementedError()
+
+    def save_settings(self, config_widget):
+        if self.builtin_live_module_name:
+            return self.builtin_live_module.save_settings(config_widget)
+        raise NotImplementedError()
 # }}}

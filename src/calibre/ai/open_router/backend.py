@@ -11,6 +11,7 @@ from threading import Thread
 from typing import NamedTuple
 
 from calibre import browser
+from calibre.ai import AICapabilities
 from calibre.constants import __version__, cache_dir
 from calibre.utils.lock import SingleInstance
 
@@ -106,18 +107,25 @@ class Model(NamedTuple):
     pricing: Pricing
     parameters: tuple[str, ...]
     is_moderated: bool
-    supports_text_to_text: bool
+    capabilities: AICapabilities
     tokenizer: str
 
     @classmethod
     def from_dict(cls, x: dict[str, object]) -> 'Model':
         arch = x['architecture']
+        capabilities = AICapabilities.none
+        if 'text' in arch['input_modalities']:
+            if 'text' in arch['output_modalities']:
+                capabilities |= AICapabilities.text_to_text
+            if 'image' in arch['output_modalities']:
+                capabilities |= AICapabilities.text_to_image
+
         return Model(
             name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.timezone.utc),
             description=x['description'], context_length=x['context_length'],
             parameters=tuple(x['supported_parameters']), pricing=Pricing.from_dict(x['pricing']),
             is_moderated=x['top_provider']['is_moderated'], tokenizer=arch['tokenizer'],
-            supports_text_to_text='text' in arch['input_modalities'] and 'text' in arch['output_modalities'],
+            capabilities=capabilities,
         )
 
 
@@ -127,6 +135,15 @@ def parse_models_list(entries) -> dict[str, Model]:
         e = Model.from_dict(entry)
         ans[e.id] = e
     return ans
+
+
+def config_widget():
+    from calibre.ai.open_router.config import ConfigWidget
+    return ConfigWidget()
+
+
+def save_settings(config_widget):
+    config_widget.save_settings()
 
 
 if __name__ == '__main__':
