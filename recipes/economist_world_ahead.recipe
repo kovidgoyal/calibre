@@ -31,7 +31,7 @@ def process_web_list(li_node):
             li_html += f'<li>{parse_textjson(li["textJson"])}</li>'
         else:
             li_html += f'<li>{li.get("text", "")}</li>'
-    return li_html
+    return '<ul>' + li_html + '</ul>'
 
 
 def process_info_box(bx):
@@ -44,7 +44,12 @@ def process_info_box(bx):
 def parse_txt(ty):
     typ = ty.get('type', '')
     children = ty.get('children', [])
-    attr = ty.get('attributes', [{}])[0].get('value', '#')
+    href = '#'
+    attributes = ty.get('attributes') or ()
+    for a in attributes:
+        if a.get('name') == 'href':
+            href = a.get('value', href)
+            break
 
     tag_map = {
         'text': lambda: [ty.get('value', '')],
@@ -57,12 +62,12 @@ def parse_txt(ty):
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
         'linebreak': lambda: ['<br>'],
         'external_link': lambda: [
-            f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'
+            f'<a href="{href}">{"".join(parse_txt(children[0]))}</a>'
         ]
         if children
         else [],
         'internal_link': lambda: [
-            f'<a href="{attr}">{"".join(parse_txt(children[0]))}</a>'
+            f'<a href="{href}">{"".join(parse_txt(children[0]))}</a>'
         ]
         if children
         else [],
