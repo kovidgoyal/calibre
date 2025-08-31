@@ -97,6 +97,10 @@ class Pricing(NamedTuple):
             input_cache_read=float(x.get('input_cache_read', 0)), input_cache_write=float(x.get('input_cache_write', 0)),
         )
 
+    @property
+    def is_free(self) -> bool:
+        return max(self) == 0
+
 
 class Model(NamedTuple):
     name: str

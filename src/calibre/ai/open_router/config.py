@@ -2,17 +2,42 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from qt.core import QAbstractListModel, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSortFilterProxyModel, Qt, QWidget, pyqtSignal
+from qt.core import (
+    QAbstractItemView,
+    QAbstractListModel,
+    QDialog,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QListView,
+    QModelIndex,
+    QPushButton,
+    QSize,
+    QSortFilterProxyModel,
+    QSplitter,
+    Qt,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
+from calibre.ai import AICapabilities
+from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
 from calibre.customize.ui import available_ai_provider_plugins
-from calibre.gui2 import error_dialog
-
-from . import OpenRouterAI
+from calibre.ebooks.txt.processor import create_markdown_object
+from calibre.gui2 import Application, error_dialog, safe_open_url
+from calibre.gui2.widgets2 import Dialog
+from calibre.utils.icu import primary_sort_key
 
 pref = partial(pref_for_provider, OpenRouterAI.name)
+
+if TYPE_CHECKING:
+    from calibre.ai.open_router.backend import Model as AIModel
 
 
 class Model(QWidget):
@@ -43,7 +68,7 @@ class Model(QWidget):
 
 class ModelsModel(QAbstractListModel):
 
-    def __init__(self, parent: QWidget | None = None):
+    def __init__(self, capabilities, parent: QWidget | None = None):
         super().__init__(parent)
         for plugin in available_ai_provider_plugins():
             if plugin.name == OpenRouterAI.name:
@@ -52,7 +77,8 @@ class ModelsModel(QAbstractListModel):
         else:
             raise ValueError('Could not find OpenRouterAI plugin')
         self.all_models_map = self.backend.get_available_models()
-        self.all_models = sorted(self.all_models_map.values(), key=lambda m: m.created, reverse=True)
+        self.all_models = tuple(filter(
+            lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
 
     def rowCount(self, parent):
         return len(self.all_models)
@@ -71,11 +97,12 @@ class ModelsModel(QAbstractListModel):
 
 class ProxyModels(QSortFilterProxyModel):
 
-    def __init__(self, parent=None):
+    def __init__(self, capabilities, parent=None):
         super().__init__(parent)
-        self.source_model = ModelsModel(self)
+        self.source_model = ModelsModel(capabilities, self)
         self.setSourceModel(self.source_model)
         self.filters = []
+        self.sort_key_funcs = [lambda x: primary_sort_key(x.name)]
 
     def filterAcceptsRow(self, source_row: int, source_parent) -> bool:
         try:
@@ -87,11 +114,87 @@ class ProxyModels(QSortFilterProxyModel):
                 return False
         return True
 
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
+        a, b = left.data(Qt.ItemDataRole.UserRole), right.data(Qt.ItemDataRole.UserRole)
+        ka = tuple(f(a) for f in self.sort_key_funcs)
+        kb = tuple(f(b) for f in self.sort_key_funcs)
+        return ka < kb
 
-class ChooseModel(QWidget):
+    def set_filters(self, *filters):
+        self.filters = filters
+        self.invalidate()
 
-    def __init__(self, parent: QWidget | None = None):
+    def set_sorts(self, *sorts):
+        self.sort_key_funcs = sorts
+        self.invalidate()
+
+
+class ModelDetails(QTextBrowser):
+
+    def __init__(self, parent=None):
         super().__init__(parent)
+        self.setOpenLinks(False)
+        self.anchorClicked.connect(self.open_link)
+
+    def show_model_details(self, m: 'AIModel'):
+        # we use output token price since there are typically more output than input tokens
+        if m.pricing.is_free:
+            price = f"<b>{_('Free')}</b>"
+        else:
+            price = ''
+            if m.pricing.input_token:
+                price += f'$ {m.pricing.input_token * 1e6:.2g}/M {_("input tokens")} '
+            if m.pricing.output_token:
+                price += f'$ {m.pricing.output_token * 1e6:.2g}/M {_("output tokens")} '
+            if m.pricing.image:
+                price += f'$ {m.pricing.image * 1e3:.2g}/K {_("input images")} '
+        md = create_markdown_object(extensions=())
+        html = f'''
+        <h2>{_('Description')}</h2>
+        <div>{md.convert(m.description)}</div>
+        <h2>{_('Price')}</h2>
+        <p>{price}</p>
+        '''
+        self.setText(html)
+
+    def sizeHint(self):
+        return QSize(350, 500)
+
+    def open_link(self, url):
+        safe_open_url(url)
+
+
+class ChooseModel(Dialog):
+
+    def __init__(
+        self, model_id: str = '', capabilities: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None
+    ):
+        self.capabilities = capabilities
+        super().__init__(title=_('Choose an AI model'), name='open-router-choose-model', parent=parent)
+
+    def sizeHint(self):
+        return QSize(700, 500)
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        self.splitter = s = QSplitter(self)
+        l.addWidget(s)
+        self.models = m = QListView(self)
+        m.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.proxy_model = pm = ProxyModels(self.capabilities, m)
+        m.setModel(pm)
+        s.addWidget(m)
+        self.details = d = ModelDetails(self)
+        s.addWidget(d)
+        m.selectionModel().currentChanged.connect(self.current_changed)
+
+        l.addWidget(self.bb)
+
+    def current_changed(self):
+        idx = self.models.selectionModel().currentIndex()
+        if idx.isValid():
+            model = idx.data(Qt.ItemDataRole.UserRole)
+            self.details.show_model_details(model)
 
 
 class ConfigWidget(QWidget):
@@ -116,12 +219,13 @@ class ConfigWidget(QWidget):
         self.text_model = tm = Model(parent=self)
         tm.select_model.connect(self.select_model)
         l.addRow(_('Model for &text tasks:'), tm)
-        self.choose_model = cm = ChooseModel(self)
-        cm.setVisible(False)
-        l.addRow(cm)
 
     def select_model(self, model_id: str, for_text: bool) -> None:
-        self.model_choice_target = self.sender()
+        model_choice_target = self.sender()
+        caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
+        d = ChooseModel(model_id, caps, self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            model_choice_target.set(d.model_id, d.name)
 
     @property
     def api_key(self) -> str:
@@ -141,3 +245,9 @@ class ConfigWidget(QWidget):
 
     def save_settings(self):
         set_prefs_for_provider(OpenRouterAI.name, self.settings)
+
+
+if __name__ == '__main__':
+    app = Application([])
+    d = ChooseModel()
+    d.exec()

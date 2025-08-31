@@ -103,7 +103,7 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
 
 
-def create_markdown_object(extensions):
+def create_markdown_object(extensions=DEFAULT_MD_EXTENSIONS):
     # Need to load markdown extensions without relying on pkg_resources
     import importlib
 
