@@ -13,6 +13,7 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QListView,
+    QLocale,
     QModelIndex,
     QPushButton,
     QSize,
@@ -32,6 +33,7 @@ from calibre.customize.ui import available_ai_provider_plugins
 from calibre.ebooks.txt.processor import create_markdown_object
 from calibre.gui2 import Application, error_dialog, safe_open_url
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
 
 pref = partial(pref_for_provider, OpenRouterAI.name)
@@ -137,7 +139,6 @@ class ModelDetails(QTextBrowser):
         self.anchorClicked.connect(self.open_link)
 
     def show_model_details(self, m: 'AIModel'):
-        # we use output token price since there are typically more output than input tokens
         if m.pricing.is_free:
             price = f"<b>{_('Free')}</b>"
         else:
@@ -149,11 +150,17 @@ class ModelDetails(QTextBrowser):
             if m.pricing.image:
                 price += f'$ {m.pricing.image * 1e3:.2g}/K {_("input images")} '
         md = create_markdown_object(extensions=())
+        created = qt_from_dt(m.created).date()
         html = f'''
         <h2>{_('Description')}</h2>
         <div>{md.convert(m.description)}</div>
         <h2>{_('Price')}</h2>
         <p>{price}</p>
+        <h2>{_('Details')}</h2>
+        <p>{_('Created:')} {QLocale.system().toString(created, QLocale.FormatType.ShortFormat)}<br>
+           {_('Context length:')} {QLocale.system().toString(m.context_length)}<br>
+           {_('See the model on')} <a href="https://openrouter.ai/{m.slug}">OpenRouter.ai</a>
+        </p>
         '''
         self.setText(html)
 
