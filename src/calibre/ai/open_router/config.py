@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Any
 
@@ -8,9 +9,12 @@ from qt.core import (
     QAbstractItemView,
     QAbstractListModel,
     QCheckBox,
+    QComboBox,
     QDialog,
+    QDialogButtonBox,
     QFormLayout,
     QHBoxLayout,
+    QIcon,
     QLabel,
     QLineEdit,
     QListView,
@@ -83,6 +87,10 @@ class ModelsModel(QAbstractListModel):
         self.all_models_map = self.backend.get_available_models()
         self.all_models = tuple(filter(
             lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
+        self.sorts = tuple(primary_sort_key(m.name) for m in self.all_models)
+
+    def generate_sorts(self, *sorts):
+        self.sorts = tuple(tuple(f(m) for f in sorts) for m in self.all_models)
 
     def rowCount(self, parent):
         return len(self.all_models)
@@ -96,6 +104,8 @@ class ModelsModel(QAbstractListModel):
             return m.name
         if role == Qt.ItemDataRole.UserRole:
             return m
+        if role == Qt.ItemDataRole.UserRole + 1:
+            return self.sorts[index.row()]
         return None
 
 
@@ -104,9 +114,10 @@ class ProxyModels(QSortFilterProxyModel):
     def __init__(self, capabilities, parent=None):
         super().__init__(parent)
         self.source_model = ModelsModel(capabilities, self)
+        self.source_model.generate_sorts(lambda x: primary_sort_key(x.name))
         self.setSourceModel(self.source_model)
         self.filters = []
-        self.sort_key_funcs = [lambda x: primary_sort_key(x.name)]
+        self.setSortRole(Qt.ItemDataRole.UserRole+1)
 
     def filterAcceptsRow(self, source_row: int, source_parent) -> bool:
         try:
@@ -118,19 +129,23 @@ class ProxyModels(QSortFilterProxyModel):
                 return False
         return True
 
-    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
-        a, b = left.data(Qt.ItemDataRole.UserRole), right.data(Qt.ItemDataRole.UserRole)
-        ka = tuple(f(a) for f in self.sort_key_funcs)
-        kb = tuple(f(b) for f in self.sort_key_funcs)
-        return ka < kb
+    def lessThan(self, left, right):
+        return left.data(self.sortRole()) < right.data(self.sortRole())
 
     def set_filters(self, *filters):
         self.filters = filters
         self.invalidate()
 
     def set_sorts(self, *sorts):
-        self.sort_key_funcs = sorts
+        self.source_model.generate_sorts(*sorts)
         self.invalidate()
+
+    def index_for_model_id(self, model_id: str) -> QModelIndex():
+        for i in range(self.rowCount(QModelIndex())):
+            ans = self.index(i, 0)
+            if ans.data(Qt.ItemDataRole.UserRole).id == model_id:
+                return ans
+        return QModelIndex()
 
 
 class ModelDetails(QTextBrowser):
@@ -139,22 +154,36 @@ class ModelDetails(QTextBrowser):
         super().__init__(parent)
         self.setOpenLinks(False)
         self.anchorClicked.connect(self.open_link)
+        self.show_help()
+
+    def show_help(self):
+        self.setText(f'''
+        <p>{_('Pick an AI model to use. Generally, newer models are more capable but also more expensive.')}</p>
+        <p>{_('By default, an appropriate AI model is chosen automatically based on the query being made.'
+              ' By picking a model explicitly, you have more control over this process.')}</p>
+        <p>{_('Another critera to look for are whether the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
+        ''')
 
     def show_model_details(self, m: 'AIModel'):
         if m.pricing.is_free:
             price = f"<b>{_('Free')}</b>"
         else:
+            def fmt(p: float) -> str:
+                ans = f'$ {p:.2f}'
+                if ans.endswith('.00'):
+                    ans = ans[:-3]
+                return ans
             price = ''
             if m.pricing.input_token:
-                price += f'$ {m.pricing.input_token * 1e6:.2g}/M {_("input tokens")} '
+                price += f'{fmt(m.pricing.input_token * 1e6)}/M {_("input tokens")} '
             if m.pricing.output_token:
-                price += f'$ {m.pricing.output_token * 1e6:.2g}/M {_("output tokens")} '
+                price += f'{fmt(m.pricing.output_token * 1e6)}/M {_("output tokens")} '
             if m.pricing.image:
-                price += f'$ {m.pricing.image * 1e3:.2g}/K {_("input images")} '
+                price += f'$ {fmt(m.pricing.image * 1e3)}/K {_("input images")} '
         md = create_markdown_object(extensions=())
         created = qt_from_dt(m.created).date()
         html = f'''
-        <h2>{_('Description')}</h2>
+        <h2>{m.name}</h2>
         <div>{md.convert(m.description)}</div>
         <h2>{_('Price')}</h2>
         <p>{price}</p>
@@ -176,6 +205,40 @@ class ModelDetails(QTextBrowser):
         safe_open_url(url)
 
 
+class SortLoc(QComboBox):
+
+    def __init__(self, initial='', parent=None):
+        super().__init__(parent)
+        self.addItem('', '')
+        self.addItem(_('Newest'), 'newest')
+        self.addItem(_('Cheapest'), 'cheapest')
+        self.addItem(_('Name'), 'name')
+        self.addItem(_('Oldest'), 'oldest')
+        self.addItem(_('Most expensive'), 'expensive')
+        if (idx := self.findData(initial)) > -1:
+            self.setCurrentIndex(idx)
+
+    @property
+    def sort_key(self) -> str:
+        return self.currentData()
+
+    @property
+    def sort_key_func(self):
+        match self.sort_key:
+            case 'oldest':
+                return lambda x: x.created
+            case 'newest':
+                now = datetime.datetime.now(datetime.timezone.utc)
+                return lambda x: now - x.created
+            case 'cheapest':
+                return lambda x: x.pricing.output_token
+            case 'expensive':
+                return lambda x: -x.pricing.output_token
+            case 'name':
+                return lambda x: primary_sort_key(x.name)
+        return lambda x: ''
+
+
 class ChooseModel(Dialog):
 
     def __init__(
@@ -183,9 +246,22 @@ class ChooseModel(Dialog):
     ):
         self.capabilities = capabilities
         super().__init__(title=_('Choose an AI model'), name='open-router-choose-model', parent=parent)
+        self.model_id = model_id
 
     def sizeHint(self):
         return QSize(700, 500)
+
+    @property
+    def model_id(self) -> str:
+        ci = self.models.currentIndex()
+        if ci.isValid():
+            return ci.data(Qt.ItemDataRole.UserRole).id
+        return ''
+        self.models.currentIndex().data(Qt.ItemDataRole.UserRole).id
+
+    @model_id.setter
+    def model_id(self, val):
+        self.models.setCurrentIndex(self.models.model().index_for_model_id(val))
 
     def setup_ui(self):
         l = QVBoxLayout(self)
@@ -202,6 +278,21 @@ class ChooseModel(Dialog):
         h = QHBoxLayout()
         h.addWidget(f), h.addWidget(of), h.addWidget(ou)
         l.addLayout(h)
+
+        h = QHBoxLayout()
+        la = QLabel(_('S&ort by:'))
+        h.addWidget(la)
+        sorts = tuple(gprefs.get('openrouter-model-sorts') or ('newest', 'cheapest', 'name')) + ('', '', '')
+        self.sorts = tuple(SortLoc(loc, self) for loc in sorts[:3])
+        for s in self.sorts:
+            h.addWidget(s)
+            if s is not self.sorts[-1]:
+                h.addWidget(QLabel(' ' + _('and') + ' '))
+            s.currentIndexChanged.connect(self.update_sorts)
+        la.setBuddy(self.sorts[0])
+        h.addStretch()
+        l.addLayout(h)
+
         self.splitter = s = QSplitter(self)
         l.addWidget(s)
         self.models = m = QListView(self)
@@ -213,17 +304,29 @@ class ChooseModel(Dialog):
         s.addWidget(d)
         m.selectionModel().currentChanged.connect(self.current_changed)
 
+        b = self.bb.addButton(_('Clear choice'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('trash.png'))
+        b.clicked.connect(lambda : setattr(self, 'model_id', ''))
+        b.setToolTip(_('Let the AI model be chosen dynamically based on the query being made'))
         h = QHBoxLayout()
         self.counts = QLabel('')
         h.addWidget(self.counts), h.addStretch(), h.addWidget(self.bb)
         l.addLayout(h)
         self.update_filters()
+        self.update_sorts()
 
     def current_changed(self):
         idx = self.models.selectionModel().currentIndex()
         if idx.isValid():
             model = idx.data(Qt.ItemDataRole.UserRole)
             self.details.show_model_details(model)
+        else:
+            self.details.show_help()
+
+    def update_sorts(self):
+        self.proxy_model.set_sorts(*(s.sort_key_func for s in self.sorts))
+        gprefs.set('openrouter-model-sorts', tuple(s.sort_key for s in self.sorts))
+        self.proxy_model.sort(0, Qt.SortOrder.AscendingOrder)
 
     def update_filters(self):
         filters = []
@@ -254,6 +357,7 @@ class ChooseModel(Dialog):
             self.counts.setText(_('{} models').format(num_showing))
         else:
             self.counts.setText(_('{0} of {1} models').format(num_showing, total))
+        self.current_changed()
 
 
 class ConfigWidget(QWidget):
@@ -310,3 +414,4 @@ if __name__ == '__main__':
     app = Application([])
     d = ChooseModel()
     d.exec()
+    print(d.model_id)
