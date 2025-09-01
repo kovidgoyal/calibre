@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from qt.core import (
     QAbstractItemView,
     QAbstractListModel,
+    QCheckBox,
     QDialog,
     QFormLayout,
     QHBoxLayout,
@@ -21,6 +22,7 @@ from qt.core import (
     QSplitter,
     Qt,
     QTextBrowser,
+    QUrl,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -31,7 +33,7 @@ from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.ebooks.txt.processor import create_markdown_object
-from calibre.gui2 import Application, error_dialog, safe_open_url
+from calibre.gui2 import Application, error_dialog, gprefs, safe_open_url
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
@@ -158,6 +160,7 @@ class ModelDetails(QTextBrowser):
         <p>{price}</p>
         <h2>{_('Details')}</h2>
         <p>{_('Created:')} {QLocale.system().toString(created, QLocale.FormatType.ShortFormat)}<br>
+           {_('Content moderated:')} {_('yes') if m.is_moderated else _('no')}<br>
            {_('Context length:')} {QLocale.system().toString(m.context_length)}<br>
            {_('See the model on')} <a href="https://openrouter.ai/{m.slug}">OpenRouter.ai</a>
         </p>
@@ -167,7 +170,9 @@ class ModelDetails(QTextBrowser):
     def sizeHint(self):
         return QSize(350, 500)
 
-    def open_link(self, url):
+    def open_link(self, url: QUrl):
+        if url.host() == '':
+            url = 'https://openrouter.ai/' + url.path().lstrip('/')
         safe_open_url(url)
 
 
@@ -184,6 +189,19 @@ class ChooseModel(Dialog):
 
     def setup_ui(self):
         l = QVBoxLayout(self)
+        self.only_free = of = QCheckBox(_('Only &free'))
+        of.setChecked(bool(gprefs.get('openrouter-filter-only-free')))
+        of.toggled.connect(self.update_filters)
+        self.only_unmoderated = ou = QCheckBox(_('Only &unmoderated'))
+        ou.setChecked(bool(gprefs.get('openrouter-filter-only-unmoderated')))
+        ou.toggled.connect(self.update_filters)
+        self.search = f = QLineEdit(self)
+        f.setPlaceholderText(_('Search for models by name'))
+        f.textChanged.connect(self.update_filters)
+        f.setClearButtonEnabled(True)
+        h = QHBoxLayout()
+        h.addWidget(f), h.addWidget(of), h.addWidget(ou)
+        l.addLayout(h)
         self.splitter = s = QSplitter(self)
         l.addWidget(s)
         self.models = m = QListView(self)
@@ -195,13 +213,47 @@ class ChooseModel(Dialog):
         s.addWidget(d)
         m.selectionModel().currentChanged.connect(self.current_changed)
 
-        l.addWidget(self.bb)
+        h = QHBoxLayout()
+        self.counts = QLabel('')
+        h.addWidget(self.counts), h.addStretch(), h.addWidget(self.bb)
+        l.addLayout(h)
+        self.update_filters()
 
     def current_changed(self):
         idx = self.models.selectionModel().currentIndex()
         if idx.isValid():
             model = idx.data(Qt.ItemDataRole.UserRole)
             self.details.show_model_details(model)
+
+    def update_filters(self):
+        filters = []
+        text = self.search.text().strip()
+        if text:
+            search_tokens = text.lower().split()
+            def model_matches(m):
+                name_tokens = m.name.lower().split()
+                for tok in search_tokens:
+                    for q in name_tokens:
+                        if tok in q:
+                            break
+                    else:
+                        return False
+                return True
+            filters.append(model_matches)
+        with gprefs:
+            gprefs.set('openrouter-filter-only-free', self.only_free.isChecked())
+            gprefs.set('openrouter-filter-only-unmoderated', self.only_unmoderated.isChecked())
+        if self.only_free.isChecked():
+            filters.append(lambda m: m.pricing.is_free)
+        if self.only_unmoderated.isChecked():
+            filters.append(lambda m: not m.is_moderated)
+        self.proxy_model.set_filters(*filters)
+        num_showing = self.proxy_model.rowCount(QModelIndex())
+        total = self.proxy_model.sourceModel().rowCount(QModelIndex())
+        if num_showing == total:
+            self.counts.setText(_('{} models').format(num_showing))
+        else:
+            self.counts.setText(_('{0} of {1} models').format(num_showing, total))
 
 
 class ConfigWidget(QWidget):
