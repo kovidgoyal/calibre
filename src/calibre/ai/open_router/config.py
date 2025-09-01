@@ -161,7 +161,7 @@ class ModelDetails(QTextBrowser):
         <p>{_('Pick an AI model to use. Generally, newer models are more capable but also more expensive.')}</p>
         <p>{_('By default, an appropriate AI model is chosen automatically based on the query being made.'
               ' By picking a model explicitly, you have more control over this process.')}</p>
-        <p>{_('Another critera to look for are whether the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
+        <p>{_('Another critera to look for is if the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
         ''')
 
     def show_model_details(self, m: 'AIModel'):
