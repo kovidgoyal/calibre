@@ -105,6 +105,7 @@ class Pricing(NamedTuple):
 class Model(NamedTuple):
     name: str
     id: str
+    slug: str
     created: int
     description: str
     context_length: int
@@ -126,7 +127,7 @@ class Model(NamedTuple):
 
         return Model(
             name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.timezone.utc),
-            description=x['description'], context_length=x['context_length'],
+            description=x['description'], context_length=x['context_length'], slug=x['canonical_slug'],
             parameters=tuple(x['supported_parameters']), pricing=Pricing.from_dict(x['pricing']),
             is_moderated=x['top_provider']['is_moderated'], tokenizer=arch['tokenizer'],
             capabilities=capabilities,
