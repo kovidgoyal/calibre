@@ -8,7 +8,6 @@ import sys
 import time
 import uuid
 from collections import defaultdict, namedtuple
-from datetime import datetime
 from hashlib import sha256
 from threading import Thread
 
@@ -900,59 +899,9 @@ class EbookViewer(MainWindow):
         self.save_annotations()
         self.web_view.generic_action('set-notes-in-highlight', {'uuid': uuid, 'notes': notes})
 
-    def _format_llm_note_entry(self, history: list) -> str:
-        '''
-        Formats a conversation history into a standardized, self-contained note entry.
-        '''
-        if not history:
-            return ''
-
-        main_response = ''
-        for message in reversed(history):
-            if message.get('role') == 'assistant':
-                main_response = message.get('content', '').strip()
-                break
-
-        if not main_response:
-            return ''
-
-        def clean_text(text):
-            return text.replace('<i>', '').replace('</i>', '')
-
-        timestamp = datetime.now().strftime('%b %d, %Y, %I:%M:%S %p')
-        header = f'--- AI Assistant Note ({timestamp}) ---'
-
-        record_lines = []
-        for message in history:
-            role = 'You' if message.get('role') == 'user' else 'Assistant'
-            content = clean_text(message.get('content', ''))
-
-            prompt_part = content
-            text_part = ''
-            if '\nOn text:' in content:
-                parts = content.split('\nOn text:', 1)
-                prompt_part = parts[0].strip()
-                text_part = f'On text:{parts[1]}'
-
-            entry = f'{role}: {prompt_part}'
-            if text_part:
-                entry += f'\n\n{text_part}'
-            record_lines.append(entry)
-
-        record_body = '\n\n'.join(record_lines)
-        record_header = '--- Conversation Record ---'
-
-        return (
-            f'{header}\n\n{main_response}\n\n'
-            f'------------------------------------\n\n'
-            f'{record_header}\n\n{record_body}'
-        )
-
     def add_note_to_highlight(self, payload):
         highlight_uuid = payload.get('highlight')
-        history = payload.get('conversation_history', [])
-
-        new_self_contained_entry = self._format_llm_note_entry(history)
+        new_self_contained_entry = payload.get('llm_note', '')
         if not new_self_contained_entry:
             return
 
