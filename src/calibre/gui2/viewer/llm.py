@@ -34,7 +34,9 @@ from qt.core import (
     pyqtSignal,
 )
 
+from calibre.ai import AICapabilities
 from calibre.ai.config import ConfigureAI
+from calibre.ai.prefs import plugin_for_purpose
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -42,7 +44,6 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.binary import from_hex_unicode
 
 # --- Backend Abstraction & Cost Data ---
 MODEL_COSTS = {
@@ -115,14 +116,10 @@ API_PROVIDERS = {
 
 
 class LLMAPICall(Thread):
-    def __init__(self, conversation_history, api_key, model_id, signal_emitter, provider_config):
-        super().__init__()
+    def __init__(self, conversation_history, signal_emitter):
+        super().__init__(daemon=True)
         self.conversation_history = conversation_history
-        self.api_key = api_key
-        self.model_id = model_id
         self.signal_emitter = signal_emitter
-        self.provider_config = provider_config
-        self.daemon = True
 
     def run(self):
         try:
@@ -299,13 +296,16 @@ class LLMPanel(QWidget):
         dialog.actions_updated.connect(self.rebuild_actions_ui)
         dialog.exec()
 
+    @property
+    def is_ready_for_use(self) -> bool:
+        p = plugin_for_purpose(AICapabilities.text_to_text)
+        return p is not None and p.is_ready_for_use
+
     def show_initial_message(self):
         self.save_note_button.setEnabled(False)
-        api_key_hex = vprefs.get('llm_api_key', '') or ''
-        api_key = from_hex_unicode(api_key_hex)
-        if not api_key:
+        if not self.is_ready_for_use:
             self.show_response('<p>' + _(
-                'Please add your API key for an AI service by clicking the <b>Settings</b> button below.'), {})
+                'Please configure an AI provider by clicking the <b>Settings</b> button below.'), {})
         else:
             self.show_response(_('Select text in the book to begin.'), {})
 
@@ -399,10 +399,9 @@ class LLMPanel(QWidget):
         return html_output
 
     def start_api_call(self, action_prompt):
-        api_key_hex = vprefs.get('llm_api_key', '') or ''
-        api_key = from_hex_unicode(api_key_hex)
-        if not api_key:
-            self.show_response(f"<p style='color:orange;'><b>{_('API Key Missing.')}</b> Click the <b>{_('Settings')}</b> button to add your key.</p>", {})
+        if not self.is_ready_for_use:
+            self.show_response(f"<p style='color:orange;'><b>{_('AI provider not configured')}</b> Click the <b>{_(
+                'Settings')}</b> button to configure an AI service provider.</p>", {})
             return
         if not self.latched_conversation_text:
             self.show_response(f"<p style='color:red;'><b>{_('Error')}:</b> {_('No text is selected for this conversation.')}</p>", {})
@@ -438,11 +437,7 @@ class LLMPanel(QWidget):
         self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
         self.set_all_inputs_enabled(False)
 
-        model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
-        provider_config = API_PROVIDERS['openrouter']
-        api_call_thread = LLMAPICall(
-            api_call_history, api_key, model_id, self.response_received, provider_config
-        )
+        api_call_thread = LLMAPICall(api_call_history, self.response_received)
         api_call_thread.start()
 
     def show_response(self, response_text, usage_data):

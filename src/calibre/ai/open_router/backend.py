@@ -8,14 +8,20 @@ import tempfile
 from contextlib import closing, suppress
 from functools import lru_cache
 from threading import Thread
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from calibre import browser
 from calibre.ai import AICapabilities
+from calibre.ai.open_router import OpenRouterAI
+from calibre.ai.prefs import pref_for_provider
 from calibre.constants import __version__, cache_dir
 from calibre.utils.lock import SingleInstance
 
 module_version = 1  # needed for live updates
+
+
+def pref(key: str, defval: Any = None) -> Any:
+    return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
 def get_browser():
@@ -149,6 +155,14 @@ def config_widget():
 
 def save_settings(config_widget):
     config_widget.save_settings()
+
+
+def api_key() -> str:
+    return pref('api_key')
+
+
+def is_ready_for_use() -> bool:
+    return bool(api_key())
 
 
 if __name__ == '__main__':

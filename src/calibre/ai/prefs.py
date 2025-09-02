@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterator
 from copy import deepcopy
 from functools import lru_cache
 from typing import Any
 
+from calibre.ai import AICapabilities
+from calibre.customize import AIProviderPlugin
+from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.config import JSONConfig
 
 
@@ -24,3 +28,19 @@ def set_prefs_for_provider(name: str, pref_map: dict[str, Any]) -> None:
     p = prefs()
     p['providers'][name] = deepcopy(pref_map)
     p.set('providers', p['providers'])
+
+
+def plugins_for_purpose(purpose: AICapabilities) -> Iterator[AIProviderPlugin]:
+    for p in sorted(available_ai_provider_plugins(), key=lambda p: (p.priority, p.name.lower())):
+        if p.capabilities & purpose == purpose:
+            yield p
+
+
+def plugin_for_purpose(purpose: AICapabilities) -> AIProviderPlugin | None:
+    compatible_plugins = {p.name: p for p in plugins_for_purpose(purpose)}
+    q = prefs()['purpose_map'].get(str(purpose), '')
+    if ans := compatible_plugins.get(q):
+        return ans
+    if compatible_plugins:
+        return next(iter(compatible_plugins.values()))
+    return None
