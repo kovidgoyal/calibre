@@ -42,14 +42,28 @@ class ConfigureAI(QWidget):
             s.addWidget()
         v.addWidget(self.gb)
 
-    def commit(self) -> bool:
+    @property
+    def is_ready_for_use(self) -> bool:
+        if not self.available_plugins:
+            return False
+        return self.plugin_config_widgets[self.current_idx].is_ready_for_use
+
+    @property
+    def current_idx(self) -> int:
+        if len(self.available_plugins) < 2:
+            return 0
+        return self.provider_combo.currentIndex()
+
+    def validate(self) -> bool:
         if not self.available_plugins:
             error_dialog(self, _('No AI providers'), self.none_label.text(), show=True)
             return False
-        if len(self.available_plugins) == 1:
-            idx = 0
-        else:
-            idx = self.provider_combo.currentIndex()
+        return self.plugin_config_widgets[self.current_idx].validate()
+
+    def commit(self) -> bool:
+        if not self.validate():
+            return False
+        idx = self.current_idx
         p, w = self.available_plugins[idx], self.plugin_config_widgets[idx]
         if not w.validate():
             return False

@@ -41,6 +41,7 @@ from calibre.gui2 import Application, error_dialog, gprefs, safe_open_url
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 pref = partial(pref_for_provider, OpenRouterAI.name)
 
@@ -161,7 +162,7 @@ class ModelDetails(QTextBrowser):
         <p>{_('Pick an AI model to use. Generally, newer models are more capable but also more expensive.')}</p>
         <p>{_('By default, an appropriate AI model is chosen automatically based on the query being made.'
               ' By picking a model explicitly, you have more control over this process.')}</p>
-        <p>{_('Another critera to look for is if the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
+        <p>{_('Another criterion to look for is if the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
         ''')
 
     def show_model_details(self, m: 'AIModel'):
@@ -378,7 +379,7 @@ class ConfigWidget(QWidget):
         a.setPlaceholderText(_('An API key is required to use OpenRouter'))
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
-            a.setText(key)
+            a.setText(from_hex_unicode(key))
         self.text_model = tm = Model(parent=self)
         tm.select_model.connect(self.select_model)
         l.addRow(_('Model for &text tasks:'), tm)
@@ -396,7 +397,11 @@ class ConfigWidget(QWidget):
 
     @property
     def settings(self) -> dict[str, Any]:
-        return {'api_key': self.api_key}
+        return {'api_key': as_hex_unicode(self.api_key)}
+
+    @property
+    def is_ready_for_use(self) -> bool:
+        return bool(self.api_key)
 
     def validate(self) -> bool:
         if self.api_key:

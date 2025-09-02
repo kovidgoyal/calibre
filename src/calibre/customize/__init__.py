@@ -853,6 +853,11 @@ class AIProviderPlugin(Plugin):  # {{{
         return ''
 
     def config_widget(self):
+        '''
+        The config widget for an AI plugin must support validate() and additionally the property
+        is_ready_for_use which must be true iff the plugin is ready to be used,
+        i.e. it does not require configuration such as an API key or the API key is already set.
+        '''
         if self.builtin_live_module_name:
             return self.builtin_live_module.config_widget()
         raise NotImplementedError()
