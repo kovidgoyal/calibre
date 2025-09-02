@@ -428,6 +428,8 @@ class Lookup(QTabWidget):
     def _activate_llm_panel(self):
         if self.llm_panel is None:
             # Deferred import to avoid circular dependencies and improve startup time; import may be redundant
+            from calibre.live import start_worker
+            start_worker()  # needed for live loading of AI backends
             from calibre.gui2.viewer.llm import LLMPanel
             self.llm_panel = LLMPanel(self, viewer=self.viewer, lookup_widget=self)
 

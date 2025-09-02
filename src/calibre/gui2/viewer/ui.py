@@ -51,6 +51,7 @@ from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
 from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
+from calibre.live import async_stop_worker
 from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
@@ -810,6 +811,7 @@ class EbookViewer(MainWindow):
                 self.web_view.prepare_for_close()
             return
         self.shutting_down = True
+        wait_for_worker = async_stop_worker()
         self.search_widget.shutdown()
         self.web_view.shutdown()
         try:
@@ -822,6 +824,7 @@ class EbookViewer(MainWindow):
         except Exception:
             import traceback
             traceback.print_exc()
+        wait_for_worker()
         self.shutdown_done = True
         return MainWindow.closeEvent(self, ev)
     # }}}
