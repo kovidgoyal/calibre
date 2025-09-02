@@ -2,7 +2,9 @@
 
 import json
 import textwrap
+from collections.abc import Iterator
 from functools import lru_cache, partial
+from itertools import count
 from threading import Thread
 from typing import NamedTuple
 from urllib import request
@@ -11,6 +13,7 @@ from urllib.parse import parse_qs, urlparse
 
 from qt.core import (
     QAbstractItemView,
+    QDateTime,
     QDialog,
     QDialogButtonBox,
     QEvent,
@@ -23,6 +26,7 @@ from qt.core import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QLocale,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
@@ -34,7 +38,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre.ai import AICapabilities
+from calibre.ai import AICapabilities, ChatMessage, ChatMessageType
 from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
 from calibre.ebooks.metadata import authors_to_string
@@ -46,61 +50,14 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 
 # --- Backend Abstraction & Cost Data ---
-MODEL_COSTS = {
-    # Anthropic
-    'anthropic/claude-3-haiku': (0.25, 1.25),
-    'anthropic/claude-3.5-sonnet': (3.00, 15.00),
-    'anthropic/claude-3.7-sonnet': (3.00, 15.00),
-    'anthropic/claude-sonnet-4': (3.00, 15.00),
-
-    # DeepSeek
-    'deepseek/deepseek-chat-v3-0324': (0.18, 0.72),
-
-    # Google
-    'google/gemini-1.5-flash': (0.075, 0.30),
-    'google/gemini-1.5-pro': (1.25, 5.00),
-    'google/gemini-2.0-flash-001': (0.10, 0.40),
-    'google/gemini-2.5-flash': (0.30, 2.50),
-    'google/gemini-2.5-flash-lite': (0.10, 0.40),
-    'google/gemini-2.5-pro': (1.25, 10.00),
-
-    # Meta
-    'meta-llama/llama-3.1-8b-instruct': (0.015, 0.02),
-    'meta-llama/llama-3.1-70b-instruct': (0.10, 0.28),
-
-    # Mistral
-    'mistralai/mistral-7b-instruct': (0.028, 0.054),
-    'mistralai/mistral-nemo': (0.008, 0.05),
-
-    # MoonshotAI
-    'moonshotai/kimi-k2': (0.14, 2.49),
-
-    # OpenAI
-    'openai/gpt-4.1-mini': (0.40, 1.60),
-    'openai/gpt-4o': (2.50, 10.00),
-    'openai/gpt-4o-mini': (0.15, 0.60),
-    'openai/gpt-5': (1.25, 10.00),
-    'openai/gpt-5-mini': (0.25, 2.00),
-    'openai/gpt-oss-120b': (0.072, 0.28),
-
-    # Qwen
-    'qwen/qwen3-coder': (0.20, 0.80),
-
-    # ZhipuAI
-    'z-ai/glm-4.5': (0.20, 0.80),
-
-    # Default Fallback
-    'default': (0.50, 1.50)
-}
-
 API_PROVIDERS = {
     'openrouter': {
         'url': 'https://openrouter.ai/api/v1/chat/completions',
         'headers': lambda api_key: {
             'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://github.com/kovidgoyal/calibre',
-            'X-Title': 'Calibre E-book Viewer'
+            'HTTP-Referer': 'https://calibre-ebook.com',
+            'X-Title': 'calibre'
         },
         'payload': lambda model_id, messages: {
             'model': model_id,
@@ -193,6 +150,78 @@ def current_actions(include_disabled=False):
             yield x
 
 
+class ConversationHistory:
+
+    def __init__(self, conversation_text: str = ''):
+        self.items: list[ChatMessage] = []
+        self.conversation_text: str = conversation_text
+
+    def __iter__(self) -> Iterator[ChatMessage]:
+        return iter(self.items)
+
+    def __len__(self) -> int:
+        return len(self.items)
+
+    def __bool__(self) -> bool:
+        return bool(self.items)
+
+    def append(self, x: ChatMessage) -> None:
+        self.items.append(x)
+
+    def copy(self, upto: int | None = None) -> 'ConversationHistory':
+        ans = ConversationHistory(self.conversation_text)
+        if upto is None:
+            ans.items = list(self.items)
+        else:
+            ans.items = self.items[:upto]
+        return ans
+
+    def at(self, x: int) -> ChatMessage:
+        return self.items[x]
+
+
+def format_llm_note(conversation: ConversationHistory) -> str:
+    '''
+    Formats a conversation history into a standardized, self-contained note entry.
+    '''
+    if not conversation:
+        return ''
+
+    main_response = ''
+    for message in reversed(conversation):
+        if message.from_assistant:
+            main_response = message.query.strip()
+            break
+
+    if not main_response:
+        return ''
+
+    timestamp = QLocale.system().toString(QDateTime.currentDateTime(), QLocale.FormatType.LongFormat)
+    header = f'--- {_("AI Assistant Note")} ({timestamp}) ---'
+
+    record_lines = []
+    for message in conversation:
+        match message.type:
+            case ChatMessageType.user:
+                role = _('You')
+            case ChatMessageType.assistant:
+                role = _('Assistant')
+            case _:
+                continue
+        content = message.query.strip()
+        entry = f'{role}: {content}'
+        record_lines.append(entry)
+
+    record_body = '\n\n'.join(record_lines)
+    record_header = f'--- {_("Conversation Record")} ---'
+
+    return (
+        f'{header}\n\n{main_response}\n\n'
+        f'------------------------------------\n\n'
+        f'{record_header}\n\n{record_body}'
+    )
+
+
 class LLMPanel(QWidget):
     response_received = pyqtSignal(str, dict)
     add_note_requested = pyqtSignal(dict)
@@ -201,9 +230,10 @@ class LLMPanel(QWidget):
     def __init__(self, parent=None, viewer=None, lookup_widget=None):
         super().__init__(parent)
         self.viewer = viewer
+        self.counter = count(start=1)
         self.lookup_widget = lookup_widget
 
-        self.conversation_history = []
+        self.conversation_history = ConversationHistory()
         self.last_response_text = ''
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
@@ -305,9 +335,9 @@ class LLMPanel(QWidget):
         self.save_note_button.setEnabled(False)
         if not self.is_ready_for_use:
             self.show_response('<p>' + _(
-                'Please configure an AI provider by clicking the <b>Settings</b> button below.'), {})
+                'Please configure an AI provider by clicking the <b>Settings</b> button below.'), is_error_or_status=True)
         else:
-            self.show_response(_('Select text in the book to begin.'), {})
+            self.show_response(_('Select text in the book to begin.'), is_error_or_status=True)
 
     def update_with_text(self, text, highlight_data, is_read_only_view=False):
         new_uuid = highlight_data.get('uuid') if highlight_data else None
@@ -329,15 +359,15 @@ class LLMPanel(QWidget):
             start_new_convo = True
 
         if start_new_convo:
-            self.conversation_history = []
             self.last_response_text = ''
             self.latched_highlight_uuid = new_uuid
             self.latched_conversation_text = text
+            self.conversation_history = ConversationHistory()
 
             if text:
-                self.show_response(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}...'</i>", {})
+                self.show_response(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}...'</i>", is_error_or_status=True)
             else:
-                self.show_response(_('<b>Ready.</b> Ask a follow-up question.'), {})
+                self.show_response(_('<b>Ready.</b> Ask a follow-up question.'), is_error_or_status=True)
 
         if self.latched_highlight_uuid:
             self.save_note_button.setToolTip(_("Append this response to the existing highlight's note"))
@@ -350,7 +380,7 @@ class LLMPanel(QWidget):
             self.start_api_call(prompt)
 
     def start_new_conversation(self):
-        self.conversation_history = []
+        self.conversation_history = ConversationHistory()
         self.last_response_text = ''
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
@@ -372,16 +402,15 @@ class LLMPanel(QWidget):
         )
         html_output = ''
         for i, message in enumerate(self.conversation_history):
-            role = message.get('role')
-            content_for_display = message.get('content', '').replace('\n', '<br>')
-            if role == 'user':
+            content_for_display = message.for_display_to_human()
+            if not message.from_assistant:
                 bgcolor = user_bgcolor
-                label = 'You'
+                label = _('You')
                 html_output += f'''
                 <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
                     <tr><td style="{base_cell_style}"><p style="{text_style}"><b>{label}:</b><br>{content_for_display}</p></td></tr>
                 </table>'''
-            elif role == 'assistant':
+            else:
                 bgcolor = assistant_bgcolor
                 label = _('Assistant')
                 save_button_href = f'http://{self._SAVE_ACTION_URL_SCHEME}/save?index={i}'
@@ -400,39 +429,27 @@ class LLMPanel(QWidget):
 
     def start_api_call(self, action_prompt):
         if not self.is_ready_for_use:
-            self.show_response(f"<p style='color:orange;'><b>{_('AI provider not configured')}</b> Click the <b>{_(
-                'Settings')}</b> button to configure an AI service provider.</p>", {})
+            self.show_response(f"<p style='color:orange'><b>{_('AI provider not configured')}</b> {_(
+                'Click the <b>Settings</b> button to configure an AI service provider.')}</p>", is_error_or_status=True)
             return
         if not self.latched_conversation_text:
-            self.show_response(f"<p style='color:red;'><b>{_('Error')}:</b> {_('No text is selected for this conversation.')}</p>", {})
+            self.show_response(f"<p style='color:red'><b>{_('Error')}:</b> {_('No text is selected for this conversation.')}</p>", is_error_or_status=True)
             return
 
-        is_first_message = not self.conversation_history
-        if is_first_message:
-            display_prompt_content = f'{action_prompt}\n\n<i>{_("On text")}: "{self.latched_conversation_text[:100]}..."</i>'
-        else:
-            display_prompt_content = action_prompt
-        self.conversation_history.append({'role': 'user', 'content': display_prompt_content})
-
-        context_header = ''
-        if self.book_title:
-            context_header += f'The user is currently reading the book "{self.book_title}"'
-            if self.book_authors:
-                context_header += f' by {self.book_authors}.'
-            else:
-                context_header += '.'
-
-        api_prompt_content = (
-            f'{context_header}\n\n'
-            f'{action_prompt}\n\n'
-            f'---\n\n'
-            f'Text to analyze:\n\n'
-            f'"{self.latched_conversation_text}"'
-        )
-
-        api_call_history = list(self.conversation_history)
-        api_call_history[-1] = {'role': 'user', 'content': api_prompt_content}
-
+        if not self.conversation_history:
+            self.conversation_history.conversation_text = self.latched_conversation_text
+            context_header = ''
+            if self.book_title:
+                context_header = f'I am currently reading the book: {self.book_title}'
+                if self.book_authors:
+                    context_header += f' by {self.book_authors}'
+                context_header += '.\n\n'
+            context_header += f'I have selected the following text from this book:\n{self.latched_conversation_text}\n\n'
+            self.conversation_history.append(ChatMessage(
+                id=next(self.counter), query=context_header, type=ChatMessage.system, extra_data=self.latched_conversation_text))
+        self.conversation_history.append(ChatMessage(
+            id=next(self.counter), query=action_prompt, type=ChatMessageType.user))
+        api_call_history = self.conversation_history.copy()
         self.result_display.setHtml(self._render_conversation_html(thinking=True))
         self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
         self.set_all_inputs_enabled(False)
@@ -440,15 +457,14 @@ class LLMPanel(QWidget):
         api_call_thread = LLMAPICall(api_call_history, self.response_received)
         api_call_thread.start()
 
-    def show_response(self, response_text, usage_data):
+    def show_response(self, response_text, usage_data=None, is_error_or_status=False):
         self.last_response_text = ''
-        is_error_or_status = '<b>' in response_text
-
         if not is_error_or_status:
             self.session_api_calls += 1
-            self.update_cost(usage_data)
+            if usage_data:
+                self.update_cost(usage_data)
             self.last_response_text = response_text
-            self.conversation_history.append({'role': 'assistant', 'content': response_text})
+            self.conversation_history.append(ChatMessage(id=next(self.counter), query=response_text, type=ChatMessageType.assistant))
             self.new_chat_button.setEnabled(True)
 
         self.save_note_button.setEnabled(bool(self.last_response_text) and bool(self.latched_conversation_text))
@@ -479,20 +495,19 @@ class LLMPanel(QWidget):
         if self.last_response_text and self.latched_conversation_text:
             payload = {
                 'highlight': self.latched_highlight_uuid,
-                'conversation_history': self.conversation_history
+                'llm_note': format_llm_note(self.conversation_history),
             }
             self.add_note_requested.emit(payload)
 
     def save_specific_note(self, message_index):
         if not (0 <= message_index < len(self.conversation_history)):
             return
-        target_message = self.conversation_history[message_index]
-        if target_message.get('role') != 'assistant':
+        if not self.conversation_history.at(message_index).from_assistant:
             return
-        history_for_record = self.conversation_history[:message_index + 1]
+        history_for_record = self.conversation_history.copy(message_index + 1)
         payload = {
             'highlight': self.latched_highlight_uuid,
-            'conversation_history': history_for_record
+            'llm_note': format_llm_note(history_for_record),
         }
         self.add_note_requested.emit(payload)
 
