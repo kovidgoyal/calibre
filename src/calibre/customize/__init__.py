@@ -846,6 +846,12 @@ class AIProviderPlugin(Plugin):  # {{{
             ans = self._builtin_live_module = load_module(self.builtin_live_module_name, strategy=Strategy.fast)
         return ans
 
+    @property
+    def is_ready_for_use(self) -> bool:
+        if not self.builtin_live_module_name:
+            return False
+        return self.builtin_live_module.is_ready_for_use()
+
     def initialize(self):
         self._builtin_live_module = None
 

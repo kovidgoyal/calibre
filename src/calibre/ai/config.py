@@ -4,8 +4,7 @@
 from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
-from calibre.ai.prefs import prefs
-from calibre.customize.ui import available_ai_provider_plugins
+from calibre.ai.prefs import plugins_for_purpose, prefs
 from calibre.gui2 import Application, error_dialog
 
 
@@ -13,7 +12,7 @@ class ConfigureAI(QWidget):
 
     def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None):
         super().__init__(parent)
-        plugins = tuple(p for p in available_ai_provider_plugins() if p.capabilities & purpose == purpose)
+        plugins = tuple(plugins_for_purpose(purpose))
         self.available_plugins = plugins
         self.purpose = purpose
         self.plugin_config_widgets: tuple[QWidget, ...] = tuple(p.config_widget() for p in plugins)
