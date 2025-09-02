@@ -27,12 +27,14 @@ from qt.core import (
     QPushButton,
     QSizePolicy,
     Qt,
+    QTabWidget,
     QTextBrowser,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
 )
 
+from calibre.ai.config import ConfigureAI
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -40,7 +42,7 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.binary import as_hex_unicode, from_hex_unicode
+from polyglot.binary import from_hex_unicode
 
 # --- Backend Abstraction & Cost Data ---
 MODEL_COSTS = {
@@ -559,30 +561,17 @@ class ActionEditDialog(QDialog):
         return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip())
 
 
-class LLMSettingsDialog(Dialog):
-    actions_updated = pyqtSignal()
+class LLMSettingsWidget(QWidget):
 
     def __init__(self, parent=None):
-        super().__init__(title=_('LLM Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
-
-    def setup_ui(self):
+        super().__init__(parent)
         self.setMinimumWidth(550)
         self.layout = QVBoxLayout(self)
         api_model_layout = QFormLayout()
         api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        self.api_key_edit = QLineEdit(self)
-        self.api_key_edit.setPlaceholderText(_('Paste your API key here'))
-        self.api_key_edit.setClearButtonEnabled(True)
-        self.model_edit = QLineEdit(self)
-        self.model_edit.setPlaceholderText('google/gemini-flash-1.5')
 
         self.highlight_color_combo = HighlightColorCombo(self)
 
-        model_label = QLabel(_('&Model (<a href="{}">see list</a>):').format('https://openrouter.ai/models'))
-        model_label.setOpenExternalLinks(True)
-        model_label.setBuddy(self.model_edit)
-        api_model_layout.addRow(_('API &key:'), self.api_key_edit)
-        api_model_layout.addRow(model_label, self.model_edit)
         api_model_layout.addRow(_('&Highlight style:'), self.highlight_color_combo)
         self.layout.addLayout(api_model_layout)
         self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
@@ -600,7 +589,6 @@ class LLMSettingsDialog(Dialog):
         actions_button_layout.addWidget(self.remove_button)
         actions_button_layout.addStretch(100)
         l.addLayout(actions_button_layout)
-        self.layout.addWidget(self.bb)
         self.add_button.clicked.connect(self.add_action)
         self.edit_button.clicked.connect(self.edit_action)
         self.remove_button.clicked.connect(self.remove_action)
@@ -609,8 +597,6 @@ class LLMSettingsDialog(Dialog):
         self.actions_list.setFocus()
 
     def load_settings(self):
-        self.api_key_edit.setText(from_hex_unicode(vprefs.get('llm_api_key', '')))
-        self.model_edit.setText(vprefs.get('llm_model_id', 'google/gemini-flash-1.5'))
         if hsn := vprefs.get('llm_highlight_style'):
             self.highlight_color_combo.highlight_style_name = hsn
         self.load_actions_from_prefs()
@@ -662,13 +648,9 @@ class LLMSettingsDialog(Dialog):
         ):
             self.actions_list.takeItem(self.actions_list.row(item))
 
-    def accept(self):
-        vprefs.set('llm_api_key', as_hex_unicode(self.api_key_edit.text().strip()))
-        vprefs.set('llm_model_id', self.model_edit.text().strip() or 'google/gemini-flash-1.5')
-
+    def commit(self) -> bool:
         selected_internal_name = self.highlight_color_combo.currentData()
         vprefs.set('llm_highlight_style', selected_internal_name)
-
         disabled_defaults = []
         custom_actions = {}
         for i in range(self.actions_list.count()):
@@ -686,6 +668,33 @@ class LLMSettingsDialog(Dialog):
         if custom_actions:
             s['custom_actions'] = custom_actions
         vprefs.set('llm_quick_actions', s)
+        return True
+
+
+class LLMSettingsDialog(Dialog):
+    actions_updated = pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        self.tabs = tabs = QTabWidget(self)
+        self.ai_config = ai = ConfigureAI(parent=self)
+        tabs.addTab(ai, QIcon.ic('ai.png'), _('AI &Provider'))
+        self.llm_config = llm = LLMSettingsWidget(self)
+        tabs.addTab(llm, QIcon.ic('config.png'), _('Actions and &highlights'))
+        tabs.setCurrentWidget(llm if self.ai_config.is_ready_for_use else ai)
+        l.addWidget(tabs)
+        l.addWidget(self.bb)
+
+    def accept(self):
+        if not self.ai_config.commit():
+            self.tabs.setCurrentWidget(self.ai_config)
+            return
+        if not self.llm_config.commit():
+            self.tabs.setCurrentWidget(self.llm_config)
+            return
         self.actions_updated.emit()
         super().accept()
 
