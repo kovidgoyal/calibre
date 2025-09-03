@@ -310,7 +310,10 @@ def text_chat_implementation(messages: Iterable[ChatMessage]) -> Iterator[ChatRe
             if c or r:
                 yield ChatResponse(content=c, reasoning=r, type=ChatMessageType(role))
         if u := data.get('usage'):
-            yield ChatResponse(cost=float(u['cost'] or 0))
+            yield ChatResponse(
+                cost=float(u['cost'] or 0), currency=_('credits'), provider=data.get('provider') or '',
+                model=data.get('model') or '', has_metadata=True,
+            )
 
     with opener().open(rq) as response:
         if response.status != http.HTTPStatus.OK:
@@ -350,9 +353,8 @@ def develop():
             raise SystemExit(str(x.exception))
         if x.content:
             print(end=x.content, flush=True)
-        if x.cost:
-            print(f'Cost: {x.cost}')
-    print()
+        if x.has_metadata:
+            print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider} Model: {x.model}')
 
 
 if __name__ == '__main__':
