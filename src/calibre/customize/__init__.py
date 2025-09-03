@@ -6,9 +6,15 @@ import importlib
 import os
 import sys
 import zipfile
+from typing import TYPE_CHECKING
 
 from calibre.constants import ismacos, iswindows, numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from calibre.ai import ChatMessage, ChatResponse
 
 if iswindows:
     platform = 'windows'
@@ -872,4 +878,14 @@ class AIProviderPlugin(Plugin):  # {{{
         if self.builtin_live_module_name:
             return self.builtin_live_module.save_settings(config_widget)
         raise NotImplementedError()
+
+    def text_chat(self, messages: 'Iterable[ChatMessage]', use_model: str = '') -> 'Iterator[ChatResponse]':
+        '''
+        Send the specified chat messages to the AI and return an iterable over its streaming responses.
+        The :code:`use_model` parameter will cause the plugin to use a specific model, useful when having
+        a conversation, to ensure the same model responds for every subsequent query.
+        '''
+        if not self.builtin_live_module_name:
+            raise NotImplementedError()
+        yield from self.builtin_live_module.text_chat(messages, use_model)
 # }}}

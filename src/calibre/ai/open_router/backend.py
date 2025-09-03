@@ -10,6 +10,7 @@ import tempfile
 from collections.abc import Iterable, Iterator
 from contextlib import closing, suppress
 from functools import lru_cache
+from pprint import pprint
 from threading import Thread
 from typing import Any, NamedTuple
 from urllib.error import HTTPError
@@ -19,6 +20,7 @@ from calibre import browser, get_proxies
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
+from calibre.ai.utils import StreamedResponseAccumulator
 from calibre.constants import __version__, cache_dir
 from calibre.utils.lock import SingleInstance
 from polyglot.binary import from_hex_unicode
@@ -274,12 +276,17 @@ def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/co
     return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
 
 
-def text_chat_implementation(messages: Iterable[ChatMessage]) -> Iterator[ChatResponse]:
-    models = tuple(model_choice_for_text())
-    if not models:
-        models = (get_available_models()['openrouter/auto'],)
+def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
+    if use_model:
+        models = ()
+        model_id = use_model
+    else:
+        models = tuple(model_choice_for_text())
+        if not models:
+            models = (get_available_models()['openrouter/auto'],)
+        model_id = models[0].id
     data = {
-        'model': models[0].id,
+        'model': model_id,
         'messages': [m.for_assistant() for m in messages],
         'usage': {'include': True},
         'stream': True,
@@ -306,9 +313,10 @@ def text_chat_implementation(messages: Iterable[ChatMessage]) -> Iterator[ChatRe
             d = choice['delta']
             c = d.get('content') or ''
             r = d.get('reasoning') or ''
+            rd = d.get('reasoning_details') or ()
             role = d.get('role') or 'assistant'
-            if c or r:
-                yield ChatResponse(content=c, reasoning=r, type=ChatMessageType(role))
+            if c or r or rd:
+                yield ChatResponse(content=c, reasoning=r, reasoning_details=rd, type=ChatMessageType(role))
         if u := data.get('usage'):
             yield ChatResponse(
                 cost=float(u['cost'] or 0), currency=_('credits'), provider=data.get('provider') or '',
@@ -330,9 +338,9 @@ def text_chat_implementation(messages: Iterable[ChatMessage]) -> Iterator[ChatRe
         yield from read_response(buffer)
 
 
-def text_chat(messages: Iterable[ChatMessage]) -> Iterator[ChatResponse]:
+def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     try:
-        yield from text_chat_implementation(messages)
+        yield from text_chat_implementation(messages, use_model)
     except HTTPError as e:
         try:
             details = e.fp.read().decode()
@@ -344,17 +352,32 @@ def text_chat(messages: Iterable[ChatMessage]) -> Iterator[ChatResponse]:
         yield ChatResponse(exception=e, error_details=traceback.format_exc())
 
 
-def develop():
-    for x in text_chat((ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
-                        ChatMessage('Give me twenty lines on my supremely beautiful wife.'))):
+def develop(use_model: str = ''):
+    # calibre-debug -c 'from calibre.ai.open_router.backend import *; develop()'
+    acc = StreamedResponseAccumulator()
+    messages = [
+        ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
+        ChatMessage('Give me twenty lines on my supremely beautiful wife.')
+    ]
+    for x in text_chat(messages, use_model):
         if x.exception:
             if x.error_details:
                 print(x.error_details, file=sys.stderr)
             raise SystemExit(str(x.exception))
+        acc.accumulate(x)
         if x.content:
             print(end=x.content, flush=True)
-        if x.has_metadata:
-            print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider} Model: {x.model}')
+    acc.finalize()
+    if acc.all_reasoning:
+        print('Reasoning:')
+        print(acc.all_reasoning)
+    if acc.metadata.has_metadata:
+        x = acc.metadata
+        print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider!r} Model: {x.model!r}')
+    messages.extend(acc.messages)
+    print('Messages:')
+    for msg in messages:
+        pprint(msg.for_assistant())
 
 
 if __name__ == '__main__':
