@@ -71,6 +71,10 @@ class Model(QWidget):
         l.addWidget(la), l.addWidget(b)
         b.clicked.connect(self._select_model)
 
+    def set(self, model_id: str, model_name: str) -> None:
+        self.model_id, self.model_name = model_id, model_name
+        self.la.setText(self.model_name)
+
     def _select_model(self):
         self.select_model.emit(self.model_id, self.for_text)
 
@@ -380,8 +384,9 @@ class ConfigWidget(QWidget):
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
             a.setText(from_hex_unicode(key))
+
         self.model_strategy = ms = QComboBox(self)
-        l.addRow(_('Model choice strategy:'), ms)
+        l.addRow(_('Model &choice strategy:'), ms)
         ms.addItem(_('Free only'), 'free-only')
         ms.addItem(_('Free or paid'), 'free-or-paid')
         ms.addItem(_('High quality'), 'native')
@@ -397,6 +402,18 @@ class ConfigWidget(QWidget):
             '<li><b>High quality</b> - Automatically choose a model based on the query, for best possible'
             " results, regardless of cost. Uses OpenRouter's own automatic model selection."
         ))
+
+        self.reasoning_strat = rs = QComboBox(self)
+        l.addRow(_('&Reasoning effort:'), rs)
+        rs.addItem(_('Medium'), 'medium')
+        rs.addItem(_('High'), 'high')
+        rs.addItem(_('Low'), 'low')
+        rs.addItem(_('No reasoning'), 'none')
+        if strat := pref('reasoning_strategy'):
+            rs.setCurrentIndex(max(0, rs.findData(strat)))
+        rs.setToolTip('<p>'+_(
+            'Select how much "reasoning" AI does when aswering queries. More reasoning leads to'
+            ' better quality responses at the cost of increased cost and reduced speed.'))
 
         self.text_model = tm = Model(parent=self)
         tm.select_model.connect(self.select_model)
@@ -418,8 +435,16 @@ class ConfigWidget(QWidget):
         return self.model_strategy.currentData()
 
     @property
+    def reasoning_strategy(self) -> str:
+        return self.reasoning_strat.currentData()
+
+    @property
     def settings(self) -> dict[str, Any]:
-        return {'api_key': as_hex_unicode(self.api_key), 'model_choice_strategy': self.model_choice_strategy}
+        ans = {'api_key': as_hex_unicode(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
+               'reasoning_strategy': self.reasoning_strategy}
+        if self.text_model.model_id:
+            ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
+        return ans
 
     @property
     def is_ready_for_use(self) -> bool:

@@ -35,6 +35,7 @@ class ChatMessage(NamedTuple):
 
 class ChatResponse(NamedTuple):
     content: str = ''
+    reasoning: str = ''
     cost: float = 0
     currency: str = 'USD'
     exception: Exception | None = None

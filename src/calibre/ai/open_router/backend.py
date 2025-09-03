@@ -228,6 +228,10 @@ def free_model_choice_for_text(allow_paid: bool = False) -> tuple[Model, ...]:
 
 
 def model_choice_for_text() -> Iterator[Model, ...]:
+    model_id, model_name = pref('text_model', ('', ''))
+    if m := get_available_models().get(model_id):
+        yield m
+        return
     match pref('model_choice_strategy', 'free'):
         case 'free-or-paid':
             yield from free_model_choice_for_text(allow_paid=True)
@@ -245,6 +249,21 @@ def text_chat(messages: Sequence[ChatMessage]) -> Iterator[ChatResponse]:
         yield ChatResponse(exception=e, traceback=traceback.format_exc())
     if not models:
         models = (get_available_models()['openrouter/auto'],)
+    data = {
+        'model': models[0].id,
+        'messages': [m.for_assistant() for m in messages],
+        'usage': {'include': True},
+        'stream': True,
+        'reasoning': {'enabled': True},
+    }
+    if len(models) > 1:
+        data['models'] = [m.id for m in models[1:]]
+    s = pref('reasoning_strategy')
+    match s:
+        case 'low' | 'medium' | 'high':
+            data['reasoning']['effort'] = s
+        case _:
+            data['reasoning']['enabled'] = False
 
 
 if __name__ == '__main__':
