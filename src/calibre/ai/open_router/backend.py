@@ -5,13 +5,14 @@ import datetime
 import json
 import os
 import tempfile
+from collections.abc import Iterator, Sequence
 from contextlib import closing, suppress
 from functools import lru_cache
 from threading import Thread
 from typing import Any, NamedTuple
 
 from calibre import browser
-from calibre.ai import AICapabilities
+from calibre.ai import AICapabilities, ChatMessage, ChatResponse, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.constants import __version__, cache_dir
@@ -72,7 +73,7 @@ def schedule_update_of_cached_models_data(cache_loc):
 
 
 @lru_cache(2)
-def get_available_models():
+def get_available_models() -> dict[str, 'Model']:
     cache_loc = os.path.join(cache_dir(), 'openrouter', 'models-v1.json')
     with suppress(OSError):
         data = json.loads(atomic_read(cache_loc))
@@ -121,6 +122,21 @@ class Model(NamedTuple):
     capabilities: AICapabilities
     tokenizer: str
 
+    @property
+    def creator(self) -> str:
+        return self.name.partition(':')[0].lower()
+
+    @property
+    def family(self) -> str:
+        parts = self.name.split(':')
+        if len(parts) > 1:
+            return parts[1].strip().partition(' ')[0].lower()
+        return ''
+
+    @property
+    def name_without_creator(self) -> str:
+        return self.name.partition(':')[-1].lower().strip()
+
     @classmethod
     def from_dict(cls, x: dict[str, object]) -> 'Model':
         arch = x['architecture']
@@ -163,6 +179,72 @@ def api_key() -> str:
 
 def is_ready_for_use() -> bool:
     return bool(api_key())
+
+
+@lru_cache(2)
+def free_model_choice_for_text(allow_paid: bool = False) -> tuple[Model, ...]:
+    gemini_free, gemini_paid = [], []
+    deep_seek_free, deep_seek_paid = [], []
+    gpt5_free, gpt5_paid = [], []
+    gpt_oss_free, gpt_oss_paid = [], []
+    opus_free, opus_paid = [], []
+
+    def only_newest(models: list[Model]) -> tuple[Model, ...]:
+        if models:
+            models.sort(key=lambda m: m.created, reverse=True)
+            return (models[0],)
+        return ()
+
+    def only_cheapest(models: list[Model]) -> tuple[Model, ...]:
+        if models:
+            models.sort(key=lambda m: m.pricing.output_token)
+            return (models[0],)
+        return ()
+
+    for model in get_available_models().values():
+        if AICapabilities.text_to_text not in model.capabilities:
+            continue
+        match model.creator:
+            case 'google':
+                if model.family == 'gemini':
+                    gemini_free.append(model) if model.pricing.is_free else gemini_paid.append(model)
+            case 'deepseek':
+                deep_seek_free.append(model) if model.pricing.is_free else deep_seek_paid.append(model)
+            case 'openai':
+                n = model.name_without_creator
+                if n.startswith('gpt-5'):
+                    gpt5_free.append(model) if model.pricing.is_free else gpt5_paid.append(model)
+                elif n.startswith('gpt-oss'):
+                    gpt_oss_free.append(model) if model.pricing.is_free else gpt_oss_paid.append(model)
+            case 'anthropic':
+                if model.family == 'opus':
+                    opus_free.append(model) if model.pricing.is_free else opus_paid.append(model)
+    free = only_newest(gemini_free) + only_newest(gpt5_free) + only_newest(gpt_oss_free) + only_newest(opus_free) + only_newest(deep_seek_free)
+    if free:
+        return free
+    if not allow_paid:
+        raise NoFreeModels(_('No free models were found for text to text generation'))
+    return only_cheapest(gemini_paid) + only_cheapest(gpt5_paid) + only_cheapest(opus_paid) + only_cheapest(deep_seek_paid)
+
+
+def model_choice_for_text() -> Iterator[Model, ...]:
+    match pref('model_choice_strategy', 'free'):
+        case 'free-or-paid':
+            yield from free_model_choice_for_text(allow_paid=True)
+        case 'free-only':
+            yield from free_model_choice_for_text(allow_paid=False)
+        case _:
+            yield get_available_models()['openrouter/auto']
+
+
+def text_chat(messages: Sequence[ChatMessage]) -> Iterator[ChatResponse]:
+    try:
+        models = tuple(model_choice_for_text())
+    except Exception as e:
+        import traceback
+        yield ChatResponse(exception=e, traceback=traceback.format_exc())
+    if not models:
+        models = (get_available_models()['openrouter/auto'],)
 
 
 if __name__ == '__main__':

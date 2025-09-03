@@ -33,6 +33,18 @@ class ChatMessage(NamedTuple):
         return escape(self.query).replace('\n', '<br>')
 
 
+class ChatResponse(NamedTuple):
+    content: str = ''
+    cost: float = 0
+    currency: str = 'USD'
+    exception: Exception | None = None
+    traceback: str = ''
+
+
+class NoFreeModels(Exception):
+    pass
+
+
 class AICapabilities(Flag):
     none = auto()
     text_to_text = auto()
