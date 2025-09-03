@@ -379,6 +379,7 @@ class ConfigWidget(QWidget):
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
+
         self.api_key_edit = a = QLineEdit(self)
         a.setPlaceholderText(_('An API key is required to use OpenRouter'))
         l.addRow(_('API &key:'), a)
@@ -459,6 +460,7 @@ class ConfigWidget(QWidget):
         return False
 
     def save_settings(self):
+        print(111111111111, self.settings)
         set_prefs_for_provider(OpenRouterAI.name, self.settings)
 
 

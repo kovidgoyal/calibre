@@ -2,21 +2,26 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import datetime
+import http
 import json
 import os
+import sys
 import tempfile
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator
 from contextlib import closing, suppress
 from functools import lru_cache
 from threading import Thread
 from typing import Any, NamedTuple
+from urllib.error import HTTPError
+from urllib.request import ProxyHandler, Request, build_opener
 
-from calibre import browser
-from calibre.ai import AICapabilities, ChatMessage, ChatResponse, NoFreeModels
+from calibre import browser, get_proxies
+from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.constants import __version__, cache_dir
 from calibre.utils.lock import SingleInstance
+from polyglot.binary import from_hex_unicode
 
 module_version = 1  # needed for live updates
 
@@ -25,8 +30,12 @@ def pref(key: str, defval: Any = None) -> Any:
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
+def user_agent() -> str:
+    return f'calibre {__version__}'
+
+
 def get_browser():
-    ans = browser(user_agent=f'calibre {__version__}')
+    ans = browser(user_agent=user_agent())
     return ans
 
 
@@ -241,12 +250,32 @@ def model_choice_for_text() -> Iterator[Model, ...]:
             yield get_available_models()['openrouter/auto']
 
 
-def text_chat(messages: Sequence[ChatMessage]) -> Iterator[ChatResponse]:
-    try:
-        models = tuple(model_choice_for_text())
-    except Exception as e:
-        import traceback
-        yield ChatResponse(exception=e, traceback=traceback.format_exc())
+def opener():
+    proxies = get_proxies(debug=False)
+    proxy_handler = ProxyHandler(proxies)
+    return build_opener(proxy_handler)
+
+
+def decoded_api_key() -> str:
+    ans = api_key()
+    if not ans:
+        raise ValueError('API key required for OpenRouter')
+    return from_hex_unicode(ans)
+
+
+def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/completions') -> Request:
+    headers = {
+        'Authorization': f'Bearer {decoded_api_key()}',
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://calibre-ebook.com',
+        'X-Title': 'calibre',
+        'User-agent': user_agent(),
+    }
+    return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
+
+
+def text_chat_implementation(messages: Iterable[ChatMessage]) -> Iterator[ChatResponse]:
+    models = tuple(model_choice_for_text())
     if not models:
         models = (get_available_models()['openrouter/auto'],)
     data = {
@@ -264,6 +293,66 @@ def text_chat(messages: Sequence[ChatMessage]) -> Iterator[ChatResponse]:
             data['reasoning']['effort'] = s
         case _:
             data['reasoning']['enabled'] = False
+    rq = chat_request(data)
+
+    def read_response(buffer: str) -> Iterator[ChatResponse]:
+        if not buffer.startswith('data: '):
+            return
+        buffer = buffer[6:].rstrip()
+        if buffer == '[DONE]':
+            return
+        data = json.loads(buffer)
+        for choice in data['choices']:
+            d = choice['delta']
+            c = d.get('content') or ''
+            r = d.get('reasoning') or ''
+            role = d.get('role') or 'assistant'
+            if c or r:
+                yield ChatResponse(content=c, reasoning=r, type=ChatMessageType(role))
+        if u := data.get('usage'):
+            yield ChatResponse(cost=float(u['cost'] or 0))
+
+    with opener().open(rq) as response:
+        if response.status != http.HTTPStatus.OK:
+            raise Exception(f'OpenRouter API failed with status code: {response.status} and body: {response.read().decode("utf-8", "replace")}')
+        buffer = ''
+        for raw_line in response:
+            line = raw_line.decode('utf-8')
+            if line.strip() == '':
+                if buffer:
+                    yield from read_response(buffer)
+                    buffer = ''
+            else:
+                buffer += line
+        yield from read_response(buffer)
+
+
+def text_chat(messages: Iterable[ChatMessage]) -> Iterator[ChatResponse]:
+    try:
+        yield from text_chat_implementation(messages)
+    except HTTPError as e:
+        try:
+            details = e.fp.read().decode()
+        except Exception:
+            details = ''
+        yield ChatResponse(exception=e, error_details=details)
+    except Exception as e:
+        import traceback
+        yield ChatResponse(exception=e, error_details=traceback.format_exc())
+
+
+def develop():
+    for x in text_chat((ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
+                        ChatMessage('Give me twenty lines on my supremely beautiful wife.'))):
+        if x.exception:
+            if x.error_details:
+                print(x.error_details, file=sys.stderr)
+            raise SystemExit(str(x.exception))
+        if x.content:
+            print(end=x.content, flush=True)
+        if x.cost:
+            print(f'Cost: {x.cost}')
+    print()
 
 
 if __name__ == '__main__':

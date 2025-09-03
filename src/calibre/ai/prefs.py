@@ -21,7 +21,10 @@ def prefs() -> JSONConfig:
 
 
 def pref_for_provider(name: str, key: str, defval: Any = None) -> Any:
-    return prefs()['providers'].get(key, defval)
+    try:
+        return prefs()['providers'][name][key]
+    except Exception:
+        return defval
 
 
 def set_prefs_for_provider(name: str, pref_map: dict[str, Any]) -> None:

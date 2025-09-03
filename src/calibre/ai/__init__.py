@@ -6,18 +6,18 @@ from typing import Any, NamedTuple
 
 
 class ChatMessageType(Enum):
-    system = auto()
-    user = auto()
-    assistant = auto()
-    tool = auto()
-    developer = auto()
+    system = 'system'
+    user = 'user'
+    assistant = 'assistant'
+    tool = 'tool'
+    developer = 'developer'
 
 
 class ChatMessage(NamedTuple):
-    id: int
     query: str
     type: ChatMessageType = ChatMessageType.user
     extra_data: Any = None
+    id: int | None = None
 
     @property
     def from_assistant(self) -> bool:
@@ -36,10 +36,11 @@ class ChatMessage(NamedTuple):
 class ChatResponse(NamedTuple):
     content: str = ''
     reasoning: str = ''
+    type: ChatMessageType = ChatMessageType.assistant
     cost: float = 0
     currency: str = 'USD'
     exception: Exception | None = None
-    traceback: str = ''
+    error_details: str = ''  # can be traceback or error message from HTTP response
 
 
 class NoFreeModels(Exception):
