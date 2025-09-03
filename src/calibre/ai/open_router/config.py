@@ -59,13 +59,13 @@ class Model(QWidget):
         l.setContentsMargins(0, 0, 0, 0)
         self.for_text = for_text
         self.model_id, self.model_name = pref(
-            'text_model' if for_text else 'text_to_image_model', ('', _('Automatic (low cost)')))
+            'text_model' if for_text else 'text_to_image_model', ('', _('Automatic')))
         self.la = la = QLabel(self.model_name)
         self.setToolTip(_('The model to use for text related tasks') if for_text else _(
             'The model to use for generating images from text'))
         self.setToolTip(self.toolTip() + '\n\n' + _(
-            'If not specified an appropriate free to use model is chosen automatically.\n'
-            'If no free model is available then cheaper ones are preferred.'))
+            'If not specified an appropriate model is chosen automatically.\n'
+            'See the option for "Model choice strategy" to control how models are automatically chosen.'))
         self.b = b = QPushButton(_('&Change'))
         b.setToolTip(_('Choose a model'))
         l.addWidget(la), l.addWidget(b)
@@ -380,6 +380,24 @@ class ConfigWidget(QWidget):
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
             a.setText(from_hex_unicode(key))
+        self.model_strategy = ms = QComboBox(self)
+        l.addRow(_('Model choice strategy:'), ms)
+        ms.addItem(_('Free only'), 'free-only')
+        ms.addItem(_('Free or paid'), 'free-or-paid')
+        ms.addItem(_('High quality'), 'native')
+        if strat := pref('model_choice_strategy'):
+            ms.setCurrentIndex(max(0, ms.findData(strat)))
+        ms.setToolTip('<p>' + _(
+            'The model choice strategy controls how a model to query is chosen when no specific'
+            ' model is specified. The choices are:<ul>\n'
+            '<li><b>Free only</b> - Only uses free models. Can lead to lower quality/slower'
+            ' results, with some rate limiting as well. Prefers unmoderated models where possible. If no free models'
+            ' are available, will fail with an error.\n'
+            '<li><b>Free or paid</b> - Like Free only, but fallback to non-free models if no free ones are available.\n'
+            '<li><b>High quality</b> - Automatically choose a model based on the query, for best possible'
+            " results, regardless of cost. Uses OpenRouter's own automatic model selection."
+        ))
+
         self.text_model = tm = Model(parent=self)
         tm.select_model.connect(self.select_model)
         l.addRow(_('Model for &text tasks:'), tm)
@@ -396,8 +414,12 @@ class ConfigWidget(QWidget):
         return self.api_key_edit.text().strip()
 
     @property
+    def model_choice_strategy(self) -> str:
+        return self.model_strategy.currentData()
+
+    @property
     def settings(self) -> dict[str, Any]:
-        return {'api_key': as_hex_unicode(self.api_key)}
+        return {'api_key': as_hex_unicode(self.api_key), 'model_choice_strategy': self.model_choice_strategy}
 
     @property
     def is_ready_for_use(self) -> bool:
