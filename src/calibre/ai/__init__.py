@@ -37,10 +37,17 @@ class ChatResponse(NamedTuple):
     content: str = ''
     reasoning: str = ''
     type: ChatMessageType = ChatMessageType.assistant
-    cost: float = 0
-    currency: str = 'USD'
+
     exception: Exception | None = None
     error_details: str = ''  # can be traceback or error message from HTTP response
+
+    # This metadata will typically be present in the last response from a
+    # streaming chat session.
+    has_metadata: bool = False
+    cost: float = 0
+    currency: str = 'USD'
+    provider: str = ''
+    model: str = ''
 
 
 class NoFreeModels(Exception):
