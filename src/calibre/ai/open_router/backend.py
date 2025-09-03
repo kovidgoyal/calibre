@@ -368,9 +368,11 @@ def develop(use_model: str = ''):
         if x.content:
             print(end=x.content, flush=True)
     acc.finalize()
+    print()
     if acc.all_reasoning:
         print('Reasoning:')
         print(acc.all_reasoning)
+    print()
     if acc.metadata.has_metadata:
         x = acc.metadata
         print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider!r} Model: {x.model!r}')

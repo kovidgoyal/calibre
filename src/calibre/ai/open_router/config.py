@@ -196,6 +196,7 @@ class ModelDetails(QTextBrowser):
         <p>{_('Created:')} {QLocale.system().toString(created, QLocale.FormatType.ShortFormat)}<br>
            {_('Content moderated:')} {_('yes') if m.is_moderated else _('no')}<br>
            {_('Context length:')} {QLocale.system().toString(m.context_length)}<br>
+           {_('Identifier:')} {m.id}<br>
            {_('See the model on')} <a href="https://openrouter.ai/{m.slug}">OpenRouter.ai</a>
         </p>
         '''
