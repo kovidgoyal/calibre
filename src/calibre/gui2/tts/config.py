@@ -572,7 +572,7 @@ class ConfigDialog(Dialog):
 
     def accept(self):
         engine_name = self.engine_choice.value
-        tts = create_tts_backend(engine_name or None)
+        tts = create_tts_backend(engine_name)
         s = self.engine_specific_config.as_settings()
         if not tts.validate_settings(s, self):
             return

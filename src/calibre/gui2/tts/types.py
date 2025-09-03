@@ -326,11 +326,11 @@ class TTSBackend(QObject):
 engine_instances: dict[str, TTSBackend] = {}
 
 
-def create_tts_backend(force_engine: str | None = None, config_name: str = CONFIG_NAME) -> TTSBackend:
+def create_tts_backend(force_engine: str = '', config_name: str = CONFIG_NAME) -> TTSBackend:
     if not available_engines():
         raise OSError('There are no available TTS engines. Install a TTS engine before trying to use Read Aloud, such as flite or speech-dispatcher')
     prefs = load_config(config_name)
-    if force_engine is not None:
+    if force_engine:
         engine_name = force_engine
         if engine_name not in available_engines():
             raise OSError(f'TTS engine {force_engine} is not available.')
