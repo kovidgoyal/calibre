@@ -1,10 +1,66 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+import datetime
+import os
+import tempfile
 from collections.abc import Iterator
+from contextlib import suppress
+from threading import Thread
 from typing import Any
+from urllib.request import ProxyHandler, build_opener
 
+from calibre import get_proxies
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
+from calibre.constants import __version__
+
+
+def atomic_write(path, data):
+    mode = 'w' if isinstance(data, str) else 'wb'
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode, delete=False, dir=os.path.dirname(path)) as f:
+        f.write(data)
+    os.replace(f.name, path)
+
+
+def opener(user_agent=f'calibre {__version__}'):
+    proxies = get_proxies(debug=False)
+    proxy_handler = ProxyHandler(proxies)
+    ans = build_opener(proxy_handler)
+    ans.addheaders = [('User-agent', user_agent)]
+    return ans
+
+
+def download_data(url: str) -> bytes:
+    with opener().open(url) as f:
+        return f.read()
+
+
+def update_cached_data(path: str, url: str) -> None:
+    raw = download_data(url)
+    atomic_write(path, raw)
+
+
+def schedule_update_of_cached_data(path: str, url: str) -> None:
+    mtime = 0
+    with suppress(OSError):
+        mtime = os.path.getmtime(path)
+    modtime = datetime.datetime.fromtimestamp(mtime)
+    current_time = datetime.datetime.now()
+    if current_time - modtime < datetime.timedelta(days=1):
+        return
+    Thread(daemon=True, name='AIDataDownload', target=update_cached_data, args=(path, url)).start()
+
+
+def get_cached_resource(path: str, url: str) -> bytes:
+    with suppress(OSError):
+        with open(path, 'rb') as f:
+            data = f.read()
+        schedule_update_of_cached_data(path, url)
+        return data
+    data = download_data(url)
+    atomic_write(path, data)
+    return data
 
 
 class StreamedResponseAccumulator:

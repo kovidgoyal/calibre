@@ -7,72 +7,33 @@ import json
 import os
 import re
 import sys
-import tempfile
 from collections.abc import Iterable, Iterator
-from contextlib import suppress
 from functools import lru_cache
 from pprint import pprint
-from threading import Thread
 from typing import Any, NamedTuple
 from urllib.error import HTTPError, URLError
-from urllib.request import ProxyHandler, Request, build_opener
+from urllib.request import Request
 
-from calibre import get_proxies
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
-from calibre.ai.utils import StreamedResponseAccumulator
-from calibre.constants import __version__, cache_dir
+from calibre.ai.utils import StreamedResponseAccumulator, get_cached_resource, opener
+from calibre.constants import cache_dir
 from polyglot.binary import from_hex_unicode
 
 module_version = 1  # needed for live updates
+MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
 def pref(key: str, defval: Any = None) -> Any:
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
-def atomic_write(path, data):
-    mode = 'w' if isinstance(data, str) else 'wb'
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode, delete=False, dir=os.path.dirname(path)) as f:
-        f.write(data)
-    os.replace(f.name, path)
-
-
-def download_models_list(url='https://openrouter.ai/api/v1/models'):
-    with opener().open(url) as f:
-        return f.read()
-
-
-def update_cached_models_data(cache_loc):
-    raw = download_models_list()
-    atomic_write(cache_loc, raw)
-
-
-def schedule_update_of_cached_models_data(cache_loc):
-    mtime = 0
-    with suppress(OSError):
-        mtime = os.path.getmtime(cache_loc)
-    modtime = datetime.datetime.fromtimestamp(mtime)
-    current_time = datetime.datetime.now()
-    if current_time - modtime < datetime.timedelta(days=1):
-        return
-
-    Thread(daemon=True, name='OpenRouterModels', target=update_cached_models_data, args=(cache_loc,)).start()
-
-
 @lru_cache(2)
 def get_available_models() -> dict[str, 'Model']:
     cache_loc = os.path.join(cache_dir(), 'openrouter', 'models-v1.json')
-    with suppress(OSError):
-        with open(cache_loc, 'rb') as f:
-            data = json.loads(f.read())
-        schedule_update_of_cached_models_data(cache_loc)
-        return parse_models_list(data)
-    raw = download_models_list()
-    atomic_write(cache_loc, raw)
-    return parse_models_list(json.loads(raw))
+    data = get_cached_resource(cache_loc, MODELS_URL)
+    return parse_models_list(json.loads(data))
 
 
 def human_readable_model_name(model_id: str) -> str:
@@ -157,7 +118,7 @@ class Model(NamedTuple):
         )
 
 
-def parse_models_list(entries) -> dict[str, Model]:
+def parse_models_list(entries: dict[str, Any]) -> dict[str, Model]:
     ans = {}
     for entry in entries['data']:
         e = Model.from_dict(entry)
@@ -240,14 +201,6 @@ def model_choice_for_text() -> Iterator[Model, ...]:
             yield from free_model_choice_for_text(allow_paid=False)
         case _:
             yield get_available_models()['openrouter/auto']
-
-
-def opener(user_agent=f'calibre {__version__}'):
-    proxies = get_proxies(debug=False)
-    proxy_handler = ProxyHandler(proxies)
-    ans = build_opener(proxy_handler)
-    ans.addheaders = [('User-agent', user_agent)]
-    return ans
 
 
 def decoded_api_key() -> str:
