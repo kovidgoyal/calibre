@@ -371,7 +371,7 @@ class LLMPanel(QWidget):
             if not content_for_display:
                 continue
             if you_block := not message.from_assistant:
-                header = f'{_("You")}'
+                header = ''
             else:
                 header = f'''<table width="100%" cellpadding="0" cellspacing="0"><tr><td><b><i>{assistant}\xa0</td>
                 <td style="text-align: right"><a style="text-decoration: none"
