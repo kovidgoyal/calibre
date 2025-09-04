@@ -628,6 +628,7 @@ class DB:
         defs['styled_columns'] = {}
         defs['edit_metadata_ignore_display_order'] = False
         defs['fts_enabled'] = False
+        defs['column_tooltip_templates'] = {}
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

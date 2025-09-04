@@ -1004,10 +1004,23 @@ class BooksModel(QAbstractTableModel):  # {{{
                                                      self.db.id(idx))
             return f
 
+        def template_tooltip(key, orig_tt_func):
+            def f(idx):
+                template = self.db.new_api.pref('column_tooltip_templates', {}).get(key, '')
+                if template:
+                    global_vars = {'column_lookup_name': key, 'original_text': orig_tt_func(idx)}
+                    mi = self.db.new_api.get_proxy_metadata(self.db.data.index_to_id(idx))
+                    return self.formatter.safe_format(template, {}, _('tooltip template error'),
+                                                      mi, global_vars=global_vars)
+                return orig_tt_func(idx)
+            return f
+
         for f, allow_half in iteritems(rating_fields):
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         for f in bool_fields:
             tc[f] = bool_tooltip(f)
+        for f in self.db.new_api.pref('column_tooltip_templates', {}):
+            tc[f] = template_tooltip(f, tc[f])
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
         self.column_to_tc_map = [tc[col] for col in self.column_map]
