@@ -13,7 +13,7 @@ from functools import lru_cache
 from pprint import pprint
 from threading import Thread
 from typing import Any, NamedTuple
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
 
 from calibre import browser, get_proxies
@@ -346,7 +346,14 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
             details = e.fp.read().decode()
         except Exception:
             details = ''
+        try:
+            error_json = json.loads(details)
+            details = error_json.get('error', {}).get('message', details)
+        except Exception:
+            pass
         yield ChatResponse(exception=e, error_details=details)
+    except URLError as e:
+        yield ChatResponse(exception=e, error_details=f'Network error: {e.reason}')
     except Exception as e:
         import traceback
         yield ChatResponse(exception=e, error_details=traceback.format_exc())
