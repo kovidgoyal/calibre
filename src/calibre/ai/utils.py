@@ -2,13 +2,16 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import datetime
+import http
+import json
 import os
 import tempfile
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from threading import Thread
 from typing import Any
-from urllib.request import ProxyHandler, build_opener
+from urllib.error import HTTPError, URLError
+from urllib.request import ProxyHandler, Request, build_opener
 
 from calibre import get_proxies
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
@@ -61,6 +64,55 @@ def get_cached_resource(path: str, url: str) -> bytes:
     data = download_data(url)
     atomic_write(path, data)
     return data
+
+
+def _read_response(buffer: str) -> Iterator[dict[str, Any]]:
+    if not buffer.startswith('data: '):
+        return
+    buffer = buffer[6:].rstrip()
+    if buffer == '[DONE]':
+        return
+    yield json.loads(buffer)
+
+
+def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:
+    with opener().open(rq) as response:
+        if response.status != http.HTTPStatus.OK:
+            details = ''
+            with suppress(Exception):
+                details = response.read().decode('utf-8', 'replace')
+            raise Exception(f'Reading from AI provider failed with HTTP response status: {response.status} and body: {details}')
+        buffer = ''
+        for raw_line in response:
+            line = raw_line.decode('utf-8')
+            if line.strip() == '':
+                if buffer:
+                    yield from _read_response(buffer)
+                    buffer = ''
+            else:
+                buffer += line
+        yield from _read_response(buffer)
+
+
+def chat_with_error_handler(it: Iterable[ChatResponse]) -> Iterator[ChatResponse]:
+    try:
+        yield from it
+    except HTTPError as e:
+        try:
+            details = e.fp.read().decode('utf-8', 'replace')
+        except Exception:
+            details = ''
+        try:
+            error_json = json.loads(details)
+            details = error_json.get('error', {}).get('message', details)
+        except Exception:
+            pass
+        yield ChatResponse(exception=e, error_details=details)
+    except URLError as e:
+        yield ChatResponse(exception=e, error_details=f'Network error: {e.reason}')
+    except Exception as e:
+        import traceback
+        yield ChatResponse(exception=e, error_details=traceback.format_exc())
 
 
 class StreamedResponseAccumulator:
