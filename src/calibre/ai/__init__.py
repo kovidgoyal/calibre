@@ -34,12 +34,6 @@ class ChatMessage(NamedTuple):
             ans['content'] = self.query
         return ans
 
-    def for_display_to_human(self) -> str:
-        if self.type is ChatMessageType.system:
-            return ''
-        from html import escape
-        return escape(self.query).replace('\n', '<br>')
-
 
 class ChatResponse(NamedTuple):
     content: str = ''

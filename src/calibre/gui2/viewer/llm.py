@@ -1,8 +1,10 @@
 # License: GPL v3 Copyright: 2025, Amir Tehrani and Kovid Goyal
 
+import re
 import textwrap
 from collections.abc import Iterator
 from functools import lru_cache, partial
+from html import escape
 from itertools import count
 from threading import Thread
 from typing import NamedTuple
@@ -50,6 +52,14 @@ from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.short_uuid import uuid4
+
+
+def for_display_to_human(self: ChatMessage) -> str:
+    if self.type is ChatMessageType.system:
+        return ''
+    ans = escape(self.query)
+    # blank lines should be preserved, otherwise text should be reflowed.
+    return re.sub(r'\n\n', '<br><br>', ans)
 
 
 class Action(NamedTuple):
@@ -367,7 +377,7 @@ class LLMPanel(QWidget):
                     <tr><td>{html}</td></tr></table>'''
         assistant = self.assistant_name
         for i, message in enumerate(self.conversation_history):
-            content_for_display = message.for_display_to_human()
+            content_for_display = for_display_to_human(message)
             if not content_for_display:
                 continue
             if you_block := not message.from_assistant:
@@ -379,7 +389,7 @@ class LLMPanel(QWidget):
                     'Save')}</a></td></tr></table>'''
             html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>', you_block)
         if self.conversation_history.api_call_active:
-            content_for_display = ChatMessage(self.conversation_history.accumulator.all_content).for_display_to_human()
+            content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
             header = f'''<div>{_('{} thinking…').format(assistant)}</div>'''
             html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>')
         return html_output
