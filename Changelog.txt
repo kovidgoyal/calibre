@@ -23,6 +23,30 @@
 # - title by author
 # }}}
 
+{{{ 8.10.0 2025-09-05
+
+:: new features
+
+- Book list: Allow controlling the tooltips displayed for every column using a template. Right click the column header and choose "Define tooltip template" to set the tooltip for that column
+
+- [2121304] MTP driver: Allow creating format specific destinations for audiobook files
+
+- Preferences->Keyboard: Allow searching by shortcut as well as by name
+
+:: bug fixes
+
+- [2121737] Kindle MTP driver: Fix APNX files being placed in incorrect location when books are sent to subfolders inside the root folder
+
+- [2121897] E-book viewer: Read Aloud: Fix regression in previous release that broke changing voices when engine is set to 'Automatically select'
+
+- [2121701] Fix a regression in the previous release that broke markdown output
+
+:: improved recipes
+- Harvard Business Review
+- Outlook Magazine
+
+}}}
+
 {{{ 8.9.0 2025-08-22
 
 :: new features
