@@ -635,8 +635,8 @@ class BooksView(TableView):  # {{{
             db = self._model.db.new_api
             tt_prefs = db.pref('column_tooltip_templates', {})
             ans.addAction(QIcon.ic('edit_input.png'),
-                          (_('Define column tooltip template for %s') if col not in tt_prefs
-                            else _('Edit column tooltip template for %s')) % name,
+                          (_('Define tooltip template for "%s"') if col not in tt_prefs
+                            else _('Edit tooltip template for "%s"')) % name,
                           partial(handler, action='tt_template', ))
         if self.is_library_view:
             if self._model.db.field_metadata[col]['datatype'] == 'enumeration':
