@@ -9,7 +9,7 @@ import re
 import sys
 import tempfile
 from collections.abc import Iterable, Iterator
-from contextlib import closing, suppress
+from contextlib import suppress
 from functools import lru_cache
 from pprint import pprint
 from threading import Thread
@@ -17,13 +17,12 @@ from typing import Any, NamedTuple
 from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
 
-from calibre import browser, get_proxies
+from calibre import get_proxies
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.ai.utils import StreamedResponseAccumulator
 from calibre.constants import __version__, cache_dir
-from calibre.utils.lock import SingleInstance
 from polyglot.binary import from_hex_unicode
 
 module_version = 1  # needed for live updates
@@ -33,38 +32,17 @@ def pref(key: str, defval: Any = None) -> Any:
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
-def user_agent() -> str:
-    return f'calibre {__version__}'
-
-
-def get_browser():
-    ans = browser(user_agent=user_agent())
-    return ans
-
-
-def singleinstance():
-    return SingleInstance('calibre-open-router')
-
-
 def atomic_write(path, data):
     mode = 'w' if isinstance(data, str) else 'wb'
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with tempfile.NamedTemporaryFile(mode, delete=False, dir=os.path.dirname(path)) as f:
         f.write(data)
-    with singleinstance():
-        os.replace(f.name, path)
+    os.replace(f.name, path)
 
 
-def atomic_read(path):
-    with singleinstance(), open(path, 'rb') as f:
+def download_models_list(url='https://openrouter.ai/api/v1/models'):
+    with opener().open(url) as f:
         return f.read()
-
-
-def download_models_list():
-    url = 'https://openrouter.ai/api/v1/models'
-    br = get_browser()
-    with closing(br.open(url)) as src:
-        return src.read()
 
 
 def update_cached_models_data(cache_loc):
@@ -88,7 +66,8 @@ def schedule_update_of_cached_models_data(cache_loc):
 def get_available_models() -> dict[str, 'Model']:
     cache_loc = os.path.join(cache_dir(), 'openrouter', 'models-v1.json')
     with suppress(OSError):
-        data = json.loads(atomic_read(cache_loc))
+        with open(cache_loc, 'rb') as f:
+            data = json.loads(f.read())
         schedule_update_of_cached_models_data(cache_loc)
         return parse_models_list(data)
     raw = download_models_list()
@@ -263,10 +242,12 @@ def model_choice_for_text() -> Iterator[Model, ...]:
             yield get_available_models()['openrouter/auto']
 
 
-def opener():
+def opener(user_agent=f'calibre {__version__}'):
     proxies = get_proxies(debug=False)
     proxy_handler = ProxyHandler(proxies)
-    return build_opener(proxy_handler)
+    ans = build_opener(proxy_handler)
+    ans.addheaders = [('User-agent', user_agent)]
+    return ans
 
 
 def decoded_api_key() -> str:
@@ -282,7 +263,6 @@ def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/co
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://calibre-ebook.com',
         'X-Title': 'calibre',
-        'User-agent': user_agent(),
     }
     return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
 
