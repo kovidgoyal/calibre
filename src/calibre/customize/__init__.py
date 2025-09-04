@@ -888,4 +888,10 @@ class AIProviderPlugin(Plugin):  # {{{
         if not self.builtin_live_module_name:
             raise NotImplementedError()
         yield from self.builtin_live_module.text_chat(messages, use_model)
+
+    def human_readable_model_name(self, model_id: str) -> str:
+        ' Return a human readable model name for the specified model id'
+        if not self.builtin_live_module_name:
+            return model_id
+        return self.builtin_live_module.human_readable_model_name(model_id)
 # }}}

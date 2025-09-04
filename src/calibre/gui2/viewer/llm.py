@@ -143,7 +143,7 @@ class ConversationHistory:
             self.currency = self.accumulator.metadata.currency
 
 
-def format_llm_note(conversation: ConversationHistory) -> str:
+def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> str:
     '''
     Formats a conversation history into a standardized, self-contained note entry.
     '''
@@ -168,7 +168,7 @@ def format_llm_note(conversation: ConversationHistory) -> str:
             case ChatMessageType.user:
                 role = _('You')
             case ChatMessageType.assistant:
-                role = _('Assistant')
+                role = assistant_name
             case _:
                 continue
         content = message.query.strip()
@@ -202,6 +202,7 @@ class LLMPanel(QWidget):
         self.session_cost = 0.0
         self.book_title = ''
         self.book_authors = ''
+        self.update_ai_provider_plugin()
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(5, 5, 5, 5)
@@ -292,10 +293,10 @@ class LLMPanel(QWidget):
         dialog = LLMSettingsDialog(self)
         dialog.actions_updated.connect(self.rebuild_actions_ui)
         dialog.exec()
+        self.update_ai_provider_plugin()
 
-    @property
-    def ai_provider_plugin(self) -> AIProviderPlugin | None:
-        return plugin_for_purpose(AICapabilities.text_to_text)
+    def update_ai_provider_plugin(self):
+        self.ai_provider_plugin = plugin_for_purpose(AICapabilities.text_to_text)
 
     @property
     def is_ready_for_use(self) -> bool:
@@ -310,8 +311,8 @@ class LLMPanel(QWidget):
             self.show_html('<p>' + _('Select text in the book to begin.'))
 
     def update_with_text(self, text, highlight_data=None):
+        self.update_ai_provider_plugin()
         new_uuid = (highlight_data or {}).get('uuid')
-
         if not text and not new_uuid:
             if self.latched_conversation_text is not None or self.latched_highlight_uuid is not None:
                 self.start_new_conversation()
@@ -352,6 +353,10 @@ class LLMPanel(QWidget):
         self.save_note_button.setEnabled(False)
         self.show_initial_message()
 
+    @property
+    def assistant_name(self) -> str:
+        return self.ai_provider_plugin.human_readable_model_name(self.conversation_history.model_used) or _('Assistant')
+
     def render_conversation_html(self):
         html_output = ''
         pal = self.palette()
@@ -360,6 +365,7 @@ class LLMPanel(QWidget):
         def format_block(html: str, you_block: bool = False) -> str:
             return f'''<table width="100%" style="background-color: {you_color if you_block else assistant_color}" cellpadding="2">
                     <tr><td>{html}</td></tr></table>'''
+        assistant = self.assistant_name
         for i, message in enumerate(self.conversation_history):
             content_for_display = message.for_display_to_human()
             if not content_for_display:
@@ -367,14 +373,14 @@ class LLMPanel(QWidget):
             if you_block := not message.from_assistant:
                 header = f'{_("You")}'
             else:
-                header = f'''<table width="100%"><tr><td>{_('Assistant:')}</td>
+                header = f'''<table width="100%" cellpadding="0" cellspacing="0"><tr><td><b><i>{assistant}\xa0</td>
                 <td style="text-align: right"><a style="text-decoration: none"
                 href="http://{self.save_note_hostname}/{i}" title="{_('Save this specific response as the note')}">{_(
                     'Save')}</a></td></tr></table>'''
             html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>', you_block)
         if self.conversation_history.api_call_active:
             content_for_display = ChatMessage(self.conversation_history.accumulator.all_content).for_display_to_human()
-            header = f'''<div>{_('Assistant thinking…')}</div>'''
+            header = f'''<div>{_('{} thinking…').format(assistant)}</div>'''
             html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>')
         return html_output
 
@@ -463,7 +469,7 @@ class LLMPanel(QWidget):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
             payload = {
                 'highlight': self.latched_highlight_uuid,
-                'llm_note': format_llm_note(self.conversation_history),
+                'llm_note': format_llm_note(self.conversation_history, self.assistant_name),
             }
             self.add_note_requested.emit(payload)
 
@@ -475,7 +481,7 @@ class LLMPanel(QWidget):
         history_for_record = self.conversation_history.copy(message_index + 1)
         payload = {
             'highlight': self.latched_highlight_uuid,
-            'llm_note': format_llm_note(history_for_record),
+            'llm_note': format_llm_note(history_for_record, self.assistant_name),
         }
         self.add_note_requested.emit(payload)
 
@@ -682,6 +688,7 @@ def develop():
     llm = LLMPanel(d)
     llm.update_with_text('developing')
     h = llm.conversation_history
+    h.model_used = 'google/gemini-2.5-flash-image-preview:free'
     h.append(ChatMessage('Testing rendering of conversation widget'))
     h.append(ChatMessage('This is a reply from the LLM', type=ChatMessageType.assistant))
     h.append(ChatMessage('Another query from the user'))
