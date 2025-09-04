@@ -431,7 +431,7 @@ class Lookup(QTabWidget):
             from calibre.live import start_worker
             start_worker()  # needed for live loading of AI backends
             from calibre.gui2.viewer.llm import LLMPanel
-            self.llm_panel = LLMPanel(self, viewer=self.viewer, lookup_widget=self)
+            self.llm_panel = LLMPanel(self)
 
             if self.current_book_metadata:
                 self.llm_panel.update_book_metadata(self.current_book_metadata)
@@ -604,57 +604,6 @@ class Lookup(QTabWidget):
 
         self.current_highlight_data = processed_annot_data
         self.selected_text = text or ''
-
-        if self.current_highlight_data and self.llm_panel:
-            note_text = self.current_highlight_data.get('notes', '')
-            if '--- Conversation Record ---' in note_text:
-                record_part = note_text.split('--- Conversation Record ---', 1)[-1]
-                history = []
-
-                current_message = None
-                for line in record_part.strip().splitlines():
-                    line = line.strip()
-                    if not line:
-                        continue
-
-                    if line.startswith('You: '):
-                        if current_message:
-                            history.append(current_message)
-                        current_message = {'role': 'user', 'content': line[len('You: '):]}
-                    elif line.startswith('Assistant: '):
-                        if current_message:
-                            history.append(current_message)
-                        current_message = {'role': 'assistant', 'content': line[len('Assistant: '):]}
-                    elif current_message:
-                        current_message['content'] += '\n' + line
-
-                if current_message:
-                    history.append(current_message)
-
-                if history:
-                    temp_history = self.llm_panel.conversation_history
-                    self.llm_panel.conversation_history = history
-                    chat_bubbles_html = self.llm_panel._render_conversation_html()
-
-                    header_html = '''
-                    <div style="text-align: center; margin: 10px; color: #A0AEC0;">
-                        <h3 style="margin-bottom: 2px;">Conversation Record</h3>
-                        <p style="font-size: 0.9em; margin-top: 2px;">
-                            <i>This is a read-only record. Select new text to start a new chat.</i>
-                        </p>
-                    </div>
-                    '''
-                    record_container_html = f'''
-                    <div style="border-left: 3px solid #4A5568; padding-left: 10px; margin-right: 5px;">
-                        {chat_bubbles_html}
-                    </div>
-                    '''
-                    final_html = header_html + record_container_html
-                    self.llm_panel.result_display.setHtml(final_html)
-                    self.llm_panel.conversation_history = temp_history
-
-                    self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data, is_read_only_view=True)
-                    return
 
         if self.selected_text and self.currentIndex() == self.llm_tab_index:
             self.viewer_parent.web_view.generic_action('suppress-selection-popup', True)

@@ -14,6 +14,7 @@ from qt.core import (
     QDialogButtonBox,
     QEvent,
     QFormLayout,
+    QFrame,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -23,6 +24,7 @@ from qt.core import (
     QListWidget,
     QListWidgetItem,
     QLocale,
+    QPalette,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
@@ -94,6 +96,11 @@ class ConversationHistory:
         self.items: list[ChatMessage] = []
         self.conversation_text: str = conversation_text
         self.model_used = ''
+        self.api_call_active = False
+        self.current_response_completed = True
+        self.cost = 0.
+        self.response_count = 0
+        self.currency = ''
 
     def __iter__(self) -> Iterator[ChatMessage]:
         return iter(self.items)
@@ -118,6 +125,22 @@ class ConversationHistory:
 
     def at(self, x: int) -> ChatMessage:
         return self.items[x]
+
+    def new_api_call(self) -> None:
+        self.accumulator = StreamedResponseAccumulator()
+        self.current_response_completed = False
+        self.api_call_active = True
+
+    def finalize_response(self) -> None:
+        self.current_response_completed = True
+        self.api_call_active = False
+        self.accumulator.finalize()
+        self.items.extend(self.accumulator)
+        self.response_count += 1
+        if self.accumulator.metadata.has_metadata:
+            self.model_used = self.accumulator.metadata.model
+            self.cost += self.accumulator.metadata.cost
+            self.currency = self.accumulator.metadata.currency
 
 
 def format_llm_note(conversation: ConversationHistory) -> str:
@@ -153,7 +176,7 @@ def format_llm_note(conversation: ConversationHistory) -> str:
         record_lines.append(entry)
 
     record_body = '\n\n'.join(record_lines)
-    record_header = f'--- {_("Conversation Record")} ---'
+    record_header = f'--- {_("Conversation record")} ---'
 
     return (
         f'{header}\n\n{main_response}\n\n'
@@ -166,19 +189,16 @@ class LLMPanel(QWidget):
     response_received = pyqtSignal(int, object)
     add_note_requested = pyqtSignal(dict)
 
-    def __init__(self, parent=None, viewer=None, lookup_widget=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.save_note_hostname = f'{uuid4().lower()}.calibre'
         self.configure_ai_hostname = f'{uuid4().lower()}.calibre'
-        self.viewer = viewer
         self.counter = count(start=1)
-        self.lookup_widget = lookup_widget
 
         self.conversation_history = ConversationHistory()
-        self.last_response_text = ''
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
-        self.session_api_calls = 0
+        self.current_api_call_number = 0
         self.session_cost = 0.0
         self.book_title = ''
         self.book_authors = ''
@@ -202,17 +222,19 @@ class LLMPanel(QWidget):
         custom_prompt_layout.addWidget(self.custom_prompt_button)
         self.layout.addWidget(custom_prompt_group)
 
-        self.result_display = QTextBrowser(self)
-        self.result_display.setOpenLinks(False)
-        self.result_display.setMinimumHeight(150)
-        self.result_display.anchorClicked.connect(self._on_chat_link_clicked)
-        self.layout.addWidget(self.result_display)
+        self.result_display = rd = QTextBrowser(self)
+        rd.setOpenLinks(False)
+        rd.setMinimumHeight(150)
+        rd.anchorClicked.connect(self.on_chat_link_clicked)
+        rd.setFrameShape(QFrame.Shape.NoFrame)
+        rd.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(rd)
 
         response_actions_layout = QHBoxLayout()
-        self.save_note_button = QPushButton(QIcon.ic('plus.png'), 'Save as Note', self)
+        self.save_note_button = QPushButton(QIcon.ic('plus.png'), _('Save as note'), self)
         self.save_note_button.clicked.connect(self.save_as_note)
 
-        self.new_chat_button = QPushButton(QIcon.ic('edit-clear.png'), 'New Chat', self)
+        self.new_chat_button = QPushButton(QIcon.ic('edit-clear.png'), _('New chat'), self)
         self.new_chat_button.setToolTip(_('Clear the current conversation history and start a new one'))
         self.new_chat_button.clicked.connect(self.start_new_conversation)
         self.new_chat_button.setEnabled(False)
@@ -237,6 +259,10 @@ class LLMPanel(QWidget):
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
         self.settings_button.clicked.connect(self.show_settings)
         self.show_initial_message()
+
+    def set_html(self, html: str) -> None:
+        self.result_display.setHtml(html)
+        self.result_display.document().setDocumentMargin(0)
 
     def update_book_metadata(self, metadata):
         self.book_title = metadata.get('title', '')
@@ -283,17 +309,12 @@ class LLMPanel(QWidget):
         else:
             self.show_html('<p>' + _('Select text in the book to begin.'))
 
-    def update_with_text(self, text, highlight_data, is_read_only_view=False):
-        new_uuid = highlight_data.get('uuid') if highlight_data else None
+    def update_with_text(self, text, highlight_data=None):
+        new_uuid = (highlight_data or {}).get('uuid')
 
         if not text and not new_uuid:
             if self.latched_conversation_text is not None or self.latched_highlight_uuid is not None:
                 self.start_new_conversation()
-            return
-
-        if is_read_only_view:
-            self.latched_highlight_uuid = new_uuid
-            self.latched_conversation_text = text
             return
 
         start_new_convo = False
@@ -303,13 +324,12 @@ class LLMPanel(QWidget):
             start_new_convo = True
 
         if start_new_convo:
-            self.last_response_text = ''
             self.latched_highlight_uuid = new_uuid
             self.latched_conversation_text = text
             self.conversation_history = ConversationHistory()
 
             if text:
-                self.show_html(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}...'</i>")
+                self.show_html(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}…'</i>")
             else:
                 self.show_html(_('<b>Ready.</b> Ask a follow-up question.'))
 
@@ -325,7 +345,6 @@ class LLMPanel(QWidget):
 
     def start_new_conversation(self):
         self.conversation_history = ConversationHistory()
-        self.last_response_text = ''
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
 
@@ -333,43 +352,34 @@ class LLMPanel(QWidget):
         self.save_note_button.setEnabled(False)
         self.show_initial_message()
 
-    def _render_conversation_html(self, thinking=False):
-        base_table_style = 'width: 95%; border-spacing: 0px; margin: 8px 5px;'
-        base_cell_style = 'padding: 8px; vertical-align: top;'
-        text_style = 'color: #E2E8F0;'
-        user_bgcolor = '#2D3748'
-        assistant_bgcolor = '#4A5568'
-        thinking_style = 'color: #A0AEC0; font-style: italic; margin: 5px; padding: 8px;'
-        save_button_style = (
-            'color: #E2E8F0; text-decoration: none; font-weight: bold; '
-            'font-family: monospace; padding: 2px 6px; border: 1px solid #A0AEC0; border-radius: 4px;'
-        )
+    def render_conversation_html(self):
         html_output = ''
+        pal = self.palette()
+        assistant_color = pal.color(QPalette.ColorRole.Window).name()
+        you_color = pal.color(QPalette.ColorRole.Base).name()
+        def format_block(html: str, you_block: bool = False) -> str:
+            return f'''<table width="100%" style="background-color: {you_color if you_block else assistant_color}" cellpadding="2">
+                    <tr><td>{html}</td></tr></table>'''
         for i, message in enumerate(self.conversation_history):
             content_for_display = message.for_display_to_human()
-            if not message.from_assistant:
-                bgcolor = user_bgcolor
-                label = _('You')
-                html_output += f'''
-                <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
-                    <tr><td style="{base_cell_style}"><p style="{text_style}"><b>{label}:</b><br>{content_for_display}</p></td></tr>
-                </table>'''
+            if not content_for_display:
+                continue
+            if you_block := not message.from_assistant:
+                header = f'{_("You")}'
             else:
-                bgcolor = assistant_bgcolor
-                label = _('Assistant')
-                save_button_href = f'http://{self.save_note_hostname}/{i}'
-                html_output += f'''
-                <table style="{base_table_style}" bgcolor="{bgcolor}" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td style="{base_cell_style}"><p style="{text_style}"><b>{label}:</b><br>{content_for_display}</p></td>
-                        <td style="padding: 8px; width: 60px; text-align: center; vertical-align: middle;">
-                            <a style="{save_button_style}" href="{save_button_href}" title="{_('Save this specific response to the note')}">[ {_('Save')} ]</a>
-                        </td>
-                    </tr>
-                </table>'''
-        if thinking:
-            html_output += f'<div style="{thinking_style}"><i>{_("Querying model...")}</i></div>'
+                header = f'''<table width="100%"><tr><td>{_('Assistant:')}</td>
+                <td style="text-align: right"><a style="text-decoration: none"
+                href="http://{self.save_note_hostname}/{i}" title="{_('Save this specific response as the note')}">{_(
+                    'Save')}</a></td></tr></table>'''
+            html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>', you_block)
+        if self.conversation_history.api_call_active:
+            content_for_display = ChatMessage(self.conversation_history.accumulator.all_content).for_display_to_human()
+            header = f'''<div>{_('Assistant thinking…')}</div>'''
+            html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>')
         return html_output
+
+    def scroll_to_bottom(self) -> None:
+        self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
 
     def start_api_call(self, action_prompt):
         if not self.is_ready_for_use:
@@ -389,17 +399,17 @@ class LLMPanel(QWidget):
                     context_header += f' by {self.book_authors}'
                 context_header += '.\n\n'
             context_header += f'I have selected the following text from this book:\n{self.latched_conversation_text}\n\n'
-            self.conversation_history.append(ChatMessage(
-                query=context_header, type=ChatMessage.system, extra_data=self.latched_conversation_text))
-        self.conversation_history.append(ChatMessage(query=action_prompt, type=ChatMessageType.user))
-        self.result_display.setHtml(self._render_conversation_html(thinking=True))
-        self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
+            self.conversation_history.append(ChatMessage(context_header, type=ChatMessageType.system))
+        self.conversation_history.append(ChatMessage(action_prompt))
+        self.set_html(self.render_conversation_html())
         self.set_all_inputs_enabled(False)
+        self.scroll_to_bottom()
 
         self.current_api_call_number = next(self.counter)
-        api_call = Thread(name='LLMAPICall', daemon=True, target=self.do_api_call, args=(
-            self.conversation_history.copy(), self.current_api_call_number, self.ai_provider_plugin))
-        api_call.start()
+        self.conversation_history.new_api_call()
+        Thread(name='LLMAPICall', daemon=True, target=self.do_api_call, args=(
+            self.conversation_history.copy(), self.current_api_call_number, self.ai_provider_plugin)).start()
+        self.show_ai_conversation()
 
     def do_api_call(
         self, conversation_history: ConversationHistory, current_api_call_number: int, ai_plugin: AIProviderPlugin
@@ -415,34 +425,23 @@ class LLMPanel(QWidget):
             self.conversation_history.finalize_response()
         else:
             self.conversation_history.accumulator.accumulate(r)
+        self.show_ai_conversation()
 
-    def show_response(self, response_text, usage_data=None, is_error_or_status=False):
-        self.last_response_text = ''
-        if not is_error_or_status:
-            self.session_api_calls += 1
-            if usage_data:
-                self.update_cost(usage_data)
-            self.last_response_text = response_text
-            self.conversation_history.append(ChatMessage(id=next(self.counter), query=response_text, type=ChatMessageType.assistant))
-            self.new_chat_button.setEnabled(True)
-
-        self.save_note_button.setEnabled(bool(self.last_response_text) and bool(self.latched_conversation_text))
-
-        if is_error_or_status:
-            self.result_display.setHtml(response_text)
-        else:
-            self.result_display.setHtml(self._render_conversation_html())
-
-        self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
-        self.set_all_inputs_enabled(True)
-        self.custom_prompt_edit.clear()
+    def show_ai_conversation(self):
+        self.save_note_button.setEnabled(self.latched_conversation_text and self.conversation_history.response_count > 0)
+        self.set_html(self.render_conversation_html())
+        self.post_show()
 
     def show_html(self, html: str) -> None:
-        self.save_note_button.setEnabled(bool(self.last_response_text) and bool(self.latched_conversation_text))
-        self.result_display.setHtml(html)
-        self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
+        self.save_note_button.setEnabled(False)
+        self.set_html(html)
+        self.post_show()
+
+    def post_show(self):
+        self.new_chat_button.setEnabled(True)
         self.set_all_inputs_enabled(True)
         self.custom_prompt_edit.clear()
+        self.scroll_to_bottom()
 
     def show_error(self, html: str, is_critical: bool = False) -> None:
         self.show_html(f'<p style="color: {"red" if is_critical else "orange"}">{html}')
@@ -458,10 +457,10 @@ class LLMPanel(QWidget):
             prompt_cost = (prompt_tokens / 1_000_000) * costs[0]
             completion_cost = (completion_tokens / 1_000_000) * costs[1]
         self.session_cost += prompt_cost + completion_cost
-        self.api_usage_label.setText(f'{_("API calls")}: {self.session_api_calls} | {_("Cost")}: ~${self.session_cost:.4f}')
+        self.api_usage_label.setText(f'{_("API calls")}: {self.current_api_call_number} | {_("Cost")}: ~${self.session_cost:.4f}')
 
     def save_as_note(self):
-        if self.last_response_text and self.latched_conversation_text:
+        if self.conversation_history.response_count > 0 and self.latched_conversation_text:
             payload = {
                 'highlight': self.latched_highlight_uuid,
                 'llm_note': format_llm_note(self.conversation_history),
@@ -480,7 +479,7 @@ class LLMPanel(QWidget):
         }
         self.add_note_requested.emit(payload)
 
-    def _on_chat_link_clicked(self, qurl: QUrl):
+    def on_chat_link_clicked(self, qurl: QUrl):
         match qurl.host():
             case self.save_note_hostname:
                 index = int(qurl.path().strip('/'))
@@ -496,6 +495,8 @@ class LLMPanel(QWidget):
         self.custom_prompt_edit.setEnabled(enabled)
         self.custom_prompt_button.setEnabled(enabled)
 
+
+# Settings {{{
 
 class ActionEditDialog(QDialog):
     def __init__(self, action: Action | None=None, parent=None):
@@ -670,8 +671,36 @@ class LLMSettingsDialog(Dialog):
             return
         self.actions_updated.emit()
         super().accept()
+# }}}
+
+
+def develop():
+    app = Application([])
+    # LLMSettingsDialog().exec()
+    d = QDialog()
+    l = QVBoxLayout(d)
+    llm = LLMPanel(d)
+    llm.update_with_text('developing')
+    h = llm.conversation_history
+    h.append(ChatMessage('Testing rendering of conversation widget'))
+    h.append(ChatMessage('This is a reply from the LLM', type=ChatMessageType.assistant))
+    h.append(ChatMessage('Another query from the user'))
+    h.append(
+        ChatMessage('''\
+Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
+Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
+Phasellus id risus vitae nisl ullamcorper congue. Proin est.
+
+Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultricies quis, magna.
+Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
+Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
+Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
+Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
+    llm.show_ai_conversation()
+    l.addWidget(llm)
+    d.exec()
+    del app
 
 
 if __name__ == '__main__':
-    app = Application([])
-    LLMSettingsDialog().exec()
+    develop()

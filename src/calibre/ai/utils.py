@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from collections.abc import Iterator
 from typing import Any
 
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
@@ -19,6 +20,9 @@ class StreamedResponseAccumulator:
 
         self.current_reasoning_details: list[dict[str, Any]] = []
         self.current_content = ''
+
+    def __iter__(self) -> Iterator[ChatMessage]:
+        return iter(self.messages)
 
     def commit_content(self) -> None:
         if self.current_content:
