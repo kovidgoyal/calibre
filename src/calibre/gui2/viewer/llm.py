@@ -286,6 +286,10 @@ class LLMPanel(QWidget):
             if child.widget():
                 child.widget().deleteLater()
         actions = sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name))
+        if not actions:
+            self.quick_actions_group.setVisible(False)
+            return
+        self.quick_actions_group.setVisible(True)
         positions = [(i, j) for i in range(4) for j in range(2)]
         for i, action in enumerate(actions):
             if i >= len(positions):
@@ -701,30 +705,31 @@ class LLMSettingsDialog(Dialog):
 # }}}
 
 
-def develop():
+def develop(show_initial_messages: bool = False):
     app = Application([])
-    # LLMSettingsDialog().exec()
+    # return LLMSettingsDialog().exec()
     d = QDialog()
     l = QVBoxLayout(d)
     llm = LLMPanel(d)
     llm.update_with_text('developing')
     h = llm.conversation_history
-    h.model_used = 'google/gemini-2.5-flash-image-preview:free'
-    h.append(ChatMessage('Testing rendering of conversation widget'))
-    h.append(ChatMessage('This is a reply from the LLM', type=ChatMessageType.assistant))
-    h.append(ChatMessage('Another query from the user'))
-    h.append(
-        ChatMessage('''\
-Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
-Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
-Phasellus id risus vitae nisl ullamcorper congue. Proin est.
+    if show_initial_messages:
+        h.model_used = 'google/gemini-2.5-flash-image-preview:free'
+        h.append(ChatMessage('Testing rendering of conversation widget'))
+        h.append(ChatMessage('This is a reply from the LLM', type=ChatMessageType.assistant))
+        h.append(ChatMessage('Another query from the user'))
+        h.append(
+            ChatMessage('''\
+    Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
+    Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
+    Phasellus id risus vitae nisl ullamcorper congue. Proin est.
 
-Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultricies quis, magna.
-Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
-Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
-Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
-Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
-    llm.show_ai_conversation()
+    Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultricies quis, magna.
+    Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
+    Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
+    Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
+    Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
+        llm.show_ai_conversation()
     l.addWidget(llm)
     d.exec()
     del app
