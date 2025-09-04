@@ -1163,6 +1163,12 @@ class ActionStore(InterfaceActionBase):
         save(config_widget)
 
 
+class ActionColumnTooltip(InterfaceActionBase):
+    name = 'Column Tooltip'
+    actual_plugin = 'calibre.gui2.actions.column_tooltips:ColumnTooltipsAction'
+    description = _('Open a template dialog to define and edit column tooltips')
+
+
 class ActionPluginUpdater(InterfaceActionBase):
     name = 'Plugin Updater'
     author = 'Grant Drake'
@@ -1170,8 +1176,8 @@ class ActionPluginUpdater(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 
-plugins += [ActionAdd, ActionAllActions, ActionFetchAnnotations, ActionGenerateCatalog,
-        ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
+plugins += [ActionAdd, ActionAllActions, ActionColumnTooltip, ActionFetchAnnotations,
+        ActionGenerateCatalog, ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails, ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,

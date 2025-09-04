@@ -574,11 +574,8 @@ class BooksView(TableView):  # {{{
             text_is_placeholder = False
             if not template:
                 text_is_placeholder = True
-                template = _(
-                    'Notes:\n'
-                    '• The template global variable "{0}" contains the column lookup name.\n'
-                    '• The global variable "{1}" contains the original tooltip text').format(
-                          'column_lookup_name', 'original_text')
+                from calibre.gui2.actions.column_tooltips import column_template_placeholder_text
+                template = column_template_placeholder_text()
             d = TemplateDialog(self, template, mi=mi, text_is_placeholder=text_is_placeholder)
             if d.exec():
                 tt_dict[column] = d.rule[1]
