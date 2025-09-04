@@ -14,6 +14,8 @@ def column_template_placeholder_text():
             '• The global variable "{1}" contains the original tooltip text').format('column_lookup_name',
 
                                                                                      'original_text')
+
+
 class ColumnTooltipsAction(InterfaceAction):
 
     name = 'Column tooltips'
