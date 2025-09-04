@@ -440,7 +440,12 @@ class LLMPanel(QWidget):
         if r is None:
             self.conversation_history.finalize_response()
         else:
-            self.conversation_history.accumulator.accumulate(r)
+            if r.exception is not None:
+                self.show_error(f'''{_('Talking to AI provider failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
+                self.conversation_history = ConversationHistory()
+                self.update_ui_state()
+            else:
+                self.conversation_history.accumulator.accumulate(r)
         self.show_ai_conversation()
 
     def show_ai_conversation(self):
@@ -459,8 +464,14 @@ class LLMPanel(QWidget):
         self.custom_prompt_edit.clear()
         self.scroll_to_bottom()
 
-    def show_error(self, html: str, is_critical: bool = False) -> None:
-        self.show_html(f'<p style="color: {"red" if is_critical else "orange"}">{html}')
+    def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
+        html = f'<p style="color: {"red" if is_critical else "orange"}">{html}</p>'
+        if details:
+            html += f'''<pre>{_('Details:')}\n{details}</pre>'''
+        self.show_html(html)
+
+    def update_ui_state(self) -> None:
+        pass
 
     def update_cost(self, usage_data):
         model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
