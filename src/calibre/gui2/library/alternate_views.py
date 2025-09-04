@@ -752,6 +752,15 @@ class CoverDelegate(QStyledItemDelegate):
                 if on_device:
                     val = _('This book is on the device in %s') % on_device
                     tt += '<br><br>' + val
+                template = db.pref('column_tooltip_templates', {}).get('title', '')
+                if template:
+                    try:
+                        global_vars = {'column_lookup_name': 'title', 'original_text': tt}
+                        mi = db.get_proxy_metadata(book_id)
+                        tt = index.model().formatter.safe_format(
+                                template, {}, _('tooltip template error'), mi, global_vars=global_vars)
+                    except Exception as e:
+                        tt = str(e)
                 QToolTip.showText(event.globalPos(), tt, view)
                 return True
         return False
