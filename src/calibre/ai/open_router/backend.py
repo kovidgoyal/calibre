@@ -5,6 +5,7 @@ import datetime
 import http
 import json
 import os
+import re
 import sys
 import tempfile
 from collections.abc import Iterable, Iterator
@@ -80,7 +81,7 @@ def schedule_update_of_cached_models_data(cache_loc):
     if current_time - modtime < datetime.timedelta(days=1):
         return
 
-    Thread(daemon=True, target=update_cached_models_data, args=(cache_loc,)).start()
+    Thread(daemon=True, name='OpenRouterModels', target=update_cached_models_data, args=(cache_loc,)).start()
 
 
 @lru_cache(2)
@@ -93,6 +94,12 @@ def get_available_models() -> dict[str, 'Model']:
     raw = download_models_list()
     atomic_write(cache_loc, raw)
     return parse_models_list(json.loads(raw))
+
+
+def human_readable_model_name(model_id: str) -> str:
+    if m := get_available_models().get(model_id):
+        model_id = m.name_without_creator_preserving_case
+    return model_id
 
 
 class Pricing(NamedTuple):
@@ -146,7 +153,11 @@ class Model(NamedTuple):
 
     @property
     def name_without_creator(self) -> str:
-        return self.name.partition(':')[-1].lower().strip()
+        return self.name_without_creator_preserving_case.lower()
+
+    @property
+    def name_without_creator_preserving_case(self) -> str:
+        return re.sub(r' \(free\)$', '', self.name.partition(':')[-1].strip()).strip()
 
     @classmethod
     def from_dict(cls, x: dict[str, object]) -> 'Model':
