@@ -548,9 +548,7 @@ class MTP_DEVICE(BASE):
                         from calibre.devices.kindle.driver import get_apnx_opts
                         apnx_opts = get_apnx_opts()
                         if apnx_opts.send_apnx:
-                            name = path[-1].rpartition('.')[0]
-                            debug('Uploading APNX file for', name)
-                            self.upload_apnx(parent, name, storage, mi, infile, apnx_opts)
+                            self.upload_apnx(path, storage, mi, infile, apnx_opts)
                 except Exception:
                     import traceback
                     traceback.print_exc()
@@ -639,8 +637,10 @@ class MTP_DEVICE(BASE):
         debug(f'Restored {count} cover thumbnails that were destroyed by Amazon')
     # }}}
 
-    def upload_apnx(self, parent, name, storage, mi, filepath, apnx_opts):
+    def upload_apnx(self, path_of_book_on_device, storage, mi, filepath, apnx_opts):
         debug('upload_apnx() called')
+        name = path_of_book_on_device[-1].rpartition('.')[0]
+        debug('Uploading APNX file for', path_of_book_on_device)
         from calibre.devices.kindle.apnx import APNXBuilder
         from calibre.ptempfile import PersistentTemporaryFile
 
@@ -677,8 +677,9 @@ class MTP_DEVICE(BASE):
 
             with open(apnx_local_path, 'rb') as apnx_stream:
                 apnx_filename = f'{name}.apnx'
-                apnx_path = parent.name, f'{name}.sdr', apnx_filename
+                apnx_path = tuple(path_of_book_on_device[:-1]) + (f'{name}.sdr', apnx_filename)
                 sdr_parent = self.ensure_parent(storage, apnx_path)
+                debug('Uploading APNX to:', apnx_path)
                 self.put_file(sdr_parent, apnx_filename, apnx_stream, apnx_size)
         except Exception:
             print('Failed to generate APNX', file=sys.stderr)
