@@ -42,8 +42,8 @@ from qt.core import (
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, islinux
 from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, FunctionDispatcher, error_dialog, gprefs, show_restart_warning
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface

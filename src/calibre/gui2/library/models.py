@@ -1006,12 +1006,15 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         def template_tooltip(key, orig_tt_func):
             def f(idx):
-                template = self.db.new_api.pref('column_tooltip_templates', {}).get(key, '')
-                if template:
-                    global_vars = {'column_lookup_name': key, 'original_text': orig_tt_func(idx)}
-                    mi = self.db.new_api.get_proxy_metadata(self.db.data.index_to_id(idx))
-                    return self.formatter.safe_format(template, {}, _('tooltip template error'),
-                                                      mi, global_vars=global_vars)
+                try:
+                    template = self.db.new_api.pref('column_tooltip_templates', {}).get(key, '')
+                    if template:
+                        global_vars = {'column_lookup_name': key, 'original_text': orig_tt_func(idx)}
+                        mi = self.db.new_api.get_proxy_metadata(self.db.data.index_to_id(idx))
+                        return self.formatter.safe_format(
+                                template, {}, _('tooltip template error'), mi, global_vars=global_vars)
+                except Exception as e:
+                    return str(e)
                 return orig_tt_func(idx)
             return f
 
