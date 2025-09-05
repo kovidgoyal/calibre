@@ -136,7 +136,7 @@ class ChatWidget(QWidget):
         html = f'<div style="{style}">{msg_html}</div>'
         if details:
             html += f"<pre>{_('Details:')}\n{escape(details)}</pre>"
-        self.current_message = html
+        self.current_message = f'<table width="100%" cellpadding="2"><tr><td>{html}</td></tr></table>'
         self.re_render()
 
     def clear(self) -> None:
