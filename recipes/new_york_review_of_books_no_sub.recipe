@@ -64,9 +64,12 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
 
         # Find TOC
         articles = []
-        for h4 in soup.findAll('h4'):
+        for h4 in soup.findAll('h2'):
             title = self.tag_to_string(h4).strip()
-            url = absurl(h4.find('a')['href'])
+            a = h4.find('a')
+            if a is None:
+                continue
+            url = absurl(a['href'])
             author = self.tag_to_string(h4.parent.parent.find('a'))
             title = title + ' (%s)' % author
             desc = ''
