@@ -358,8 +358,9 @@ class Lookup(QTabWidget):
         self.dictionary_panel = self._create_dictionary_panel()
         self.addTab(self.dictionary_panel, QIcon.ic('dialog_question.png'), _('&Dictionary'))
 
-        self.llm_placeholder = self._create_llm_placeholder_widget()
-        self.llm_tab_index = self.addTab(self.llm_placeholder, QIcon.ic('ai.png'), _('Ask &AI'))
+        self.llm_container = QWidget(self)
+        QVBoxLayout(self.llm_container).setContentsMargins(0, 0, 0, 0)
+        self.llm_tab_index = self.addTab(self.llm_container, QIcon.ic('ai.png'), _('Ask &AI'))
 
         self.currentChanged.connect(self._tab_changed)
         set_sync_override.instance = self
@@ -412,19 +413,6 @@ class Lookup(QTabWidget):
         self.update_refresh_button_status()
         return panel
 
-    def _create_llm_placeholder_widget(self):
-        container = QWidget(self)
-        layout = QVBoxLayout(container)
-        layout.addStretch(1)
-        label = QLabel(_('The LLM feature is not yet initialized.'))
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(label)
-        init_button = QPushButton(_('Activate LLM Feature'), self)
-        init_button.clicked.connect(self._activate_llm_panel)
-        layout.addWidget(init_button, 0, Qt.AlignmentFlag.AlignHCenter)
-        layout.addStretch(1)
-        return container
-
     def _activate_llm_panel(self):
         if self.llm_panel is None:
             # Deferred import to avoid circular dependencies and improve startup time; import may be redundant
@@ -432,6 +420,7 @@ class Lookup(QTabWidget):
             start_worker()  # needed for live loading of AI backends
             from calibre.gui2.viewer.llm import LLMPanel
             self.llm_panel = LLMPanel(self)
+            self.llm_container.layout().addWidget(self.llm_panel)
 
             if self.current_book_metadata:
                 self.llm_panel.update_book_metadata(self.current_book_metadata)

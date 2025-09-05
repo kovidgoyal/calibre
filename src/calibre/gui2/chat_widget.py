@@ -5,7 +5,7 @@ from html import escape
 from math import ceil
 from typing import NamedTuple
 
-from qt.core import QFrame, QPalette, QTextBrowser, QTextEdit, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QFrame, QPalette, Qt, QTextBrowser, QTextEdit, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.utils.logging import INFO, WARN
 
@@ -54,6 +54,8 @@ class Header(NamedTuple):
 
 class Input(QTextEdit):
 
+    returnPressed = pyqtSignal()
+
     def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
         super().__init__(parent)
         self.setPlaceholderText(placeholder_text)
@@ -69,13 +71,23 @@ class Input(QTextEdit):
         return ceil(line_height + self.height_for_frame)
 
     def adjust_height(self) -> None:
-        doc_height = self.document().size().height()
-        self.setFixedHeight(max(self.min_height, min(doc_height + self.height_for_frame), self.maximum_height))
+        doc_height = ceil(self.document().size().height())
+        self.setFixedHeight(max(self.min_height, min(doc_height + self.height_for_frame, self.maximum_height)))
         self.ensureCursorVisible()
 
     def set_max_height(self, val: int) -> None:
         self.maximum_height = val
         self.adjust_height()
+
+    def keyPressEvent(self, event):
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            mods = event.modifiers() & (
+                Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |
+                Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
+            if mods in (Qt.KeyboardModifier.NoModifier, Qt.KeyboardModifier.ControlModifier):
+                self.returnPressed.emit()
+                return
+        super().keyPressEvent(event)
 
 
 class ChatWidget(QWidget):
