@@ -16,7 +16,6 @@ from qt.core import (
     QDialogButtonBox,
     QEvent,
     QFormLayout,
-    QFrame,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -26,13 +25,11 @@ from qt.core import (
     QListWidget,
     QListWidgetItem,
     QLocale,
-    QPalette,
     QPlainTextEdit,
     QPushButton,
     QSizePolicy,
     Qt,
     QTabWidget,
-    QTextBrowser,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -46,11 +43,13 @@ from calibre.ai.utils import StreamedResponseAccumulator
 from calibre.customize import AIProviderPlugin
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
+from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 
 
@@ -223,22 +222,9 @@ class LLMPanel(QWidget):
         self.layout.addWidget(self.quick_actions_group)
         self.rebuild_actions_ui()
 
-        custom_prompt_group = QGroupBox(self)
-        custom_prompt_group.setTitle(_('Custom prompt'))
-        custom_prompt_layout = QHBoxLayout(custom_prompt_group)
-        self.custom_prompt_edit = QLineEdit(self)
-        self.custom_prompt_edit.setPlaceholderText(_('Or, enter your own request...'))
-        self.custom_prompt_button = QPushButton(_('&Send'), self)
-        custom_prompt_layout.addWidget(self.custom_prompt_edit)
-        custom_prompt_layout.addWidget(self.custom_prompt_button)
-        self.layout.addWidget(custom_prompt_group)
-
-        self.result_display = rd = QTextBrowser(self)
-        rd.setOpenLinks(False)
-        rd.setMinimumHeight(150)
-        rd.anchorClicked.connect(self.on_chat_link_clicked)
-        rd.setFrameShape(QFrame.Shape.NoFrame)
-        rd.setContentsMargins(0, 0, 0, 0)
+        self.result_display = rd = ChatWidget(self, _('Type a question to the AI'))
+        rd.link_clicked.connect(self.on_chat_link_clicked)
+        rd.input_from_user.connect(self.run_custom_prompt)
         self.layout.addWidget(rd)
 
         response_actions_layout = QHBoxLayout()
@@ -265,15 +251,9 @@ class LLMPanel(QWidget):
         footer_layout.addWidget(self.api_usage_label)
         self.layout.addLayout(footer_layout)
 
-        self.custom_prompt_button.clicked.connect(self.run_custom_prompt)
-        self.custom_prompt_edit.returnPressed.connect(self.run_custom_prompt)
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
         self.settings_button.clicked.connect(self.show_settings)
         self.show_initial_message()
-
-    def set_html(self, html: str) -> None:
-        self.result_display.setHtml(html)
-        self.result_display.document().setDocumentMargin(0)
 
     def update_book_metadata(self, metadata):
         self.book_title = metadata.get('title', '')
@@ -319,10 +299,11 @@ class LLMPanel(QWidget):
 
     def show_initial_message(self):
         self.save_note_button.setEnabled(False)
-        if not self.is_ready_for_use:
-            self.show_html(f'<p><a href="http://{self.configure_ai_hostname}">{_("First, configure an AI provider")}')
+        if self.is_ready_for_use:
+            msg = _('Select text in the book to begin.')
         else:
-            self.show_html('<p>' + _('Select text in the book to begin.'))
+            msg = f'<a href="http://{self.configure_ai_hostname}">{_("First, configure an AI provider")}'
+        self.result_display.show_message(msg)
 
     def update_with_text(self, text, highlight_data=None):
         self.update_ai_provider_plugin()
@@ -344,18 +325,18 @@ class LLMPanel(QWidget):
             self.conversation_history = ConversationHistory()
 
             if text:
-                self.show_html(f"<b>{_('Selected')}:</b><br><i>'{text[:200]}…'</i>")
+                msg = f"<b>{_('Selected')}:</b><br><i>'{text[:200]}…'</i>"
             else:
-                self.show_html(_('<b>Ready.</b> Ask a follow-up question.'))
+                msg = _('<b>Ready.</b> Ask a follow-up question.')
+            self.result_display.show_message(msg)
 
         if self.latched_highlight_uuid:
             self.save_note_button.setToolTip(_("Append this response to the existing highlight's note"))
         else:
             self.save_note_button.setToolTip(_('Create a new highlight for the selected text and save this response as its note'))
 
-    def run_custom_prompt(self):
-        prompt = self.custom_prompt_edit.text().strip()
-        if prompt:
+    def run_custom_prompt(self, prompt: str) -> None:
+        if prompt := prompt.strip():
             self.start_api_call(prompt)
 
     def start_new_conversation(self):
@@ -371,35 +352,25 @@ class LLMPanel(QWidget):
     def assistant_name(self) -> str:
         return self.ai_provider_plugin.human_readable_model_name(self.conversation_history.model_used) or _('Assistant')
 
-    def render_conversation_html(self):
-        html_output = ''
-        pal = self.palette()
-        assistant_color = pal.color(QPalette.ColorRole.Window).name()
-        you_color = pal.color(QPalette.ColorRole.Base).name()
-        def format_block(html: str, you_block: bool = False) -> str:
-            return f'''<table width="100%" style="background-color: {you_color if you_block else assistant_color}" cellpadding="2">
-                    <tr><td>{html}</td></tr></table>'''
+    def show_ai_conversation(self):
         assistant = self.assistant_name
         for i, message in enumerate(self.conversation_history):
             content_for_display = for_display_to_human(message)
             if not content_for_display:
                 continue
             if you_block := not message.from_assistant:
-                header = ''
+                header = Header()
             else:
-                header = f'''<table width="100%" cellpadding="0" cellspacing="0"><tr><td><b><i>{assistant}\xa0</td>
-                <td style="text-align: right"><a style="text-decoration: none"
-                href="http://{self.save_note_hostname}/{i}" title="{_('Save this specific response as the note')}">{_(
-                    'Save')}</a></td></tr></table>'''
-            html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>', you_block)
+                header = Header(assistant, (Button(
+                    _('Save'), f'http://{self.save_note_hostname}/{i}', _('Save this specific response as the note')),))
+            self.result_display.add_block(content_for_display, header, not you_block)
         if self.conversation_history.api_call_active:
             content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
-            header = f'''<div>{_('{} thinking…').format(assistant)}</div>'''
-            html_output += format_block(f'<div>{header}</div><div>{content_for_display}</div>')
-        return html_output
+            self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)))
+        self.result_display.re_render()
 
     def scroll_to_bottom(self) -> None:
-        self.result_display.verticalScrollBar().setValue(self.result_display.verticalScrollBar().maximum())
+        self.result_display.scroll_to_bottom()
 
     def start_api_call(self, action_prompt):
         if not self.is_ready_for_use:
@@ -421,9 +392,8 @@ class LLMPanel(QWidget):
             context_header += f'I have selected the following text from this book:\n{self.latched_conversation_text}\n\n'
             self.conversation_history.append(ChatMessage(context_header, type=ChatMessageType.system))
         self.conversation_history.append(ChatMessage(action_prompt))
-        self.set_html(self.render_conversation_html())
-        self.set_all_inputs_enabled(False)
-        self.scroll_to_bottom()
+        self.show_ai_conversation()
+        self.update_ui_state()
 
         self.current_api_call_number = next(self.counter)
         self.conversation_history.new_api_call()
@@ -452,30 +422,12 @@ class LLMPanel(QWidget):
                 self.conversation_history.accumulator.accumulate(r)
         self.show_ai_conversation()
 
-    def show_ai_conversation(self):
-        self.save_note_button.setEnabled(self.latched_conversation_text and self.conversation_history.response_count > 0)
-        self.set_html(self.render_conversation_html())
-        self.post_show()
-
-    def show_html(self, html: str) -> None:
-        self.save_note_button.setEnabled(False)
-        self.set_html(html)
-        self.post_show()
-
-    def post_show(self):
-        self.new_chat_button.setEnabled(True)
-        self.set_all_inputs_enabled(True)
-        self.custom_prompt_edit.clear()
-        self.scroll_to_bottom()
-
     def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
-        html = f'<p style="color: {"red" if is_critical else "orange"}">{html}</p>'
-        if details:
-            html += f'''<pre>{_('Details:')}\n{details}</pre>'''
-        self.show_html(html)
+        level = ERROR if is_critical else WARN
+        self.result_display.show_message(html, details, level)
 
     def update_ui_state(self) -> None:
-        pass
+        self.save_note_button.setEnabled(self.latched_conversation_text and self.conversation_history.response_count > 0)
 
     def update_cost(self, usage_data):
         model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
@@ -523,8 +475,7 @@ class LLMPanel(QWidget):
             widget = self.quick_actions_layout.itemAt(i).widget()
             if widget:
                 widget.setEnabled(enabled)
-        self.custom_prompt_edit.setEnabled(enabled)
-        self.custom_prompt_button.setEnabled(enabled)
+        self.result_display.set_input_enabled(enabled)
 
 
 # Settings {{{
