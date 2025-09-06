@@ -353,17 +353,19 @@ class LLMPanel(QWidget):
         return self.ai_provider_plugin.human_readable_model_name(self.conversation_history.model_used) or _('Assistant')
 
     def show_ai_conversation(self):
+        self.result_display.clear()
         assistant = self.assistant_name
         for i, message in enumerate(self.conversation_history):
             content_for_display = for_display_to_human(message)
             if not content_for_display:
                 continue
-            if you_block := not message.from_assistant:
-                header = Header()
-            else:
+            header = Header()
+            alternate = False
+            if message.from_assistant:
+                alternate = True
                 header = Header(assistant, (Button(
                     _('Save'), f'http://{self.save_note_hostname}/{i}', _('Save this specific response as the note')),))
-            self.result_display.add_block(content_for_display, header, not you_block)
+            self.result_display.add_block(content_for_display, header, alternate)
         if self.conversation_history.api_call_active:
             content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
             self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)))
@@ -399,7 +401,6 @@ class LLMPanel(QWidget):
         self.conversation_history.new_api_call()
         Thread(name='LLMAPICall', daemon=True, target=self.do_api_call, args=(
             self.conversation_history.copy(), self.current_api_call_number, self.ai_provider_plugin)).start()
-        self.show_ai_conversation()
 
     def do_api_call(
         self, conversation_history: ConversationHistory, current_api_call_number: int, ai_plugin: AIProviderPlugin
@@ -661,6 +662,7 @@ def develop(show_initial_messages: bool = False):
     # return LLMSettingsDialog().exec()
     d = QDialog()
     l = QVBoxLayout(d)
+    l.setContentsMargins(0, 0, 0, 0)
     llm = LLMPanel(d)
     llm.update_with_text('developing')
     h = llm.conversation_history

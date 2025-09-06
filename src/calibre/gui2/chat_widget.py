@@ -98,6 +98,7 @@ class ChatWidget(QWidget):
     def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
         super().__init__(parent)
         l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
         self.browser = b = Browser(self)
         b.anchorClicked.connect(self.link_clicked)
         l.addWidget(b)
@@ -110,6 +111,10 @@ class ChatWidget(QWidget):
         self.alternate_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
 
+    def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:
+        style = f'style="background-color: {background_color}"' if background_color else ''
+        return f'''<table width="100%" {style} cellpadding="2"><tr><td>{html}</td></tr></table>'''
+
     # API {{{
     def add_block(self, body_html: str, header: Header = Header(), is_alternate: bool = False) -> None:
         self.current_message = ''
@@ -118,8 +123,7 @@ class ChatWidget(QWidget):
             html += f'<div>{header.as_html}</div>'
         html += f'<div>{body_html}</div>'
         bg = self.alternate_color if is_alternate else self.base_color
-        html = f'''<table width="100%" style="background-color: {bg}" cellpadding="2"><tr><td>{html}</td></tr></table>'''
-        self.blocks.append(html)
+        self.blocks.append(self.wrap_content_in_padding_table(html, bg))
 
     def replace_last_block(self, body_html: str, header: Header = Header(), is_alternate: bool = False) -> None:
         if self.blocks:
@@ -136,7 +140,7 @@ class ChatWidget(QWidget):
         html = f'<div style="{style}">{msg_html}</div>'
         if details:
             html += f"<pre>{_('Details:')}\n{escape(details)}</pre>"
-        self.current_message = f'<table width="100%" cellpadding="2"><tr><td>{html}</td></tr></table>'
+        self.current_message = self.wrap_content_in_padding_table(html)
         self.re_render()
 
     def clear(self) -> None:
@@ -158,7 +162,8 @@ class ChatWidget(QWidget):
     def re_render(self) -> None:
         if self.current_message:
             self.browser.setHtml(self.current_message)
-            return
+        else:
+            self.browser.setHtml('\n\n'.join(self.blocks))
 
     def on_input(self) -> None:
         text = self.input.toPlainText()

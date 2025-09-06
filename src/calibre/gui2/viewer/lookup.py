@@ -414,31 +414,22 @@ class Lookup(QTabWidget):
         return panel
 
     def _activate_llm_panel(self):
-        if self.llm_panel is None:
-            # Deferred import to avoid circular dependencies and improve startup time; import may be redundant
-            from calibre.live import start_worker
-            start_worker()  # needed for live loading of AI backends
-            from calibre.gui2.viewer.llm import LLMPanel
-            self.llm_panel = LLMPanel(self)
-            self.llm_container.layout().addWidget(self.llm_panel)
-
-            if self.current_book_metadata:
-                self.llm_panel.update_book_metadata(self.current_book_metadata)
-
-            try:
-                self.llm_panel.add_note_requested.disconnect(self.llm_add_note_requested)
-            except TypeError:
-                pass
-            self.llm_panel.add_note_requested.connect(self.llm_add_note_requested)
-
-            self.removeTab(self.llm_tab_index)
-            self.llm_tab_index = self.addTab(self.llm_panel, QIcon.ic('ai.png'), _('Ask &AI'))
-            self.setCurrentIndex(self.llm_tab_index)
-            self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
+        ' Only load LLM code when actually requested by the user '
+        if self.llm_panel is not None:
+            return
+        from calibre.live import start_worker
+        start_worker()  # needed for live loading of AI backends
+        from calibre.gui2.viewer.llm import LLMPanel
+        self.llm_panel = LLMPanel(self)
+        self.llm_container.layout().addWidget(self.llm_panel)
+        if self.current_book_metadata:
+            self.llm_panel.update_book_metadata(self.current_book_metadata)
+        self.llm_panel.add_note_requested.connect(self.llm_add_note_requested)
+        self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
 
     def _tab_changed(self, index):
         vprefs.set('llm_lookup_tab_index', index)
-        if index == self.llm_tab_index and self.llm_panel is None:
+        if index == self.llm_tab_index:
             self._activate_llm_panel()
         self.update_query()
 
