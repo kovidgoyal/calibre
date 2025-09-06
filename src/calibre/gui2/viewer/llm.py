@@ -1,6 +1,5 @@
 # License: GPL v3 Copyright: 2025, Amir Tehrani and Kovid Goyal
 
-import re
 import textwrap
 from collections.abc import Callable, Iterator
 from functools import lru_cache
@@ -30,6 +29,7 @@ from qt.core import (
     QSizePolicy,
     Qt,
     QTabWidget,
+    QTextBrowser,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -63,12 +63,7 @@ def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> s
     if is_initial_query and (idx := q.find(prompt_sep)) > -1:
         q = q[:idx] + '\n\n' + q[idx + len(prompt_sep):]
     ans = escape(q)
-    # blank lines should be preserved, otherwise text should be reflowed.
-    def sub(m):
-        if (n := len(m.group())) <= 1:
-            return '\n'
-        return '<br><br>' * (n - 1)
-    return re.sub(r'\n+', sub, ans)
+    return ans.replace('\n', '<br>')
 
 
 class Action(NamedTuple):
@@ -225,6 +220,7 @@ class LLMPanel(QWidget):
         self.configure_ai_hostname = f'{hid}.config.calibre'
         self.copy_hostname = f'{hid}.copy.calibre'
         self.quick_action_hostname = f'{hid}.quick.calibre'
+        self.reasoning_hostname = f'{hid}.reasoning.calibre'
         self.counter = count(start=1)
 
         self.latched_highlight_uuid = None
@@ -368,12 +364,16 @@ class LLMPanel(QWidget):
             is_response = False
             if message.from_assistant:
                 is_response = True
-                header = Header(assistant, (
+                buttons = (
                     Button('save.png', f'http://{self.save_note_hostname}/{i}', _(
                         'Save this specific response as the note')),
                     Button('edit-copy.png', f'http://{self.copy_hostname}/{i}', _(
                         'Copy this specific response to the clipboard')),
-                ))
+                )
+                if message.reasoning:
+                    buttons += (Button('reports.png', f'http://{self.reasoning_hostname}/{i}', _(
+                        'Show the reasoning behind this response from the AI')),)
+                header = Header(assistant, buttons)
             self.result_display.add_block(content_for_display, header, is_response)
         if self.conversation_history.api_call_active:
             a = self.conversation_history.accumulator
@@ -508,6 +508,22 @@ class LLMPanel(QWidget):
         }
         self.add_note_requested.emit(payload)
 
+    def show_reasoning(self, message_index: int) -> None:
+        h = self.get_conversation_history_for_specific_response(message_index)
+        m = h.at(len(h)-1)
+        if m.reasoning:
+            d = QDialog(self)
+            l = QVBoxLayout(d)
+            b = QTextBrowser(d)
+            b.setPlainText(m.reasoning)
+            l.addWidget(b)
+            d.setWindowTitle(_('Reasoning used by AI'))
+            d.setWindowIcon(QIcon.ic('reports.png'))
+            bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
+            l.addWidget(bb)
+            d.resize(600, 500)
+            d.exec()
+
     def copy_specific_note(self, message_index: int) -> None:
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         text = format_llm_note(history_for_record, self.assistant_name)
@@ -527,6 +543,9 @@ class LLMPanel(QWidget):
             case self.copy_hostname:
                 index = int(qurl.path().strip('/'))
                 self.copy_specific_note(index)
+            case self.reasoning_hostname:
+                index = int(qurl.path().strip('/'))
+                self.show_reasoning(index)
             case self.configure_ai_hostname:
                 self.show_settings()
             case self.quick_action_hostname:
