@@ -86,7 +86,7 @@ class ElDiplo2023(BasicNewsRecipe):
 
         soup = self.index_to_soup(url_sumario)
 
-        container = soup.find('div', class_='px-16')
+        container = soup.find('div', class_='px-5')
         url = container.find('img')['src']
 
         return getattr(self, 'cover_url', url)
@@ -108,6 +108,11 @@ class ElDiplo2023(BasicNewsRecipe):
         # make the footnotes smaller
         for p in soup.find('div', id='nota_pie').findChildren('p', recursive=False):
             p['style'] = f'font-size: {font_size};'
+
+        # remove extra text
+        extra_text = soup.find(string="POST TYPE: post")
+        if extra_text:
+            extra_text.parent.decompose()
 
         return soup
 
