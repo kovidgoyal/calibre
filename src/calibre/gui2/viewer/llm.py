@@ -3,7 +3,7 @@
 import re
 import textwrap
 from collections.abc import Callable, Iterator
-from functools import lru_cache, partial
+from functools import lru_cache
 from html import escape
 from itertools import count
 from threading import Thread
@@ -17,7 +17,6 @@ from qt.core import (
     QDialogButtonBox,
     QEvent,
     QFormLayout,
-    QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QIcon,
@@ -52,6 +51,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
 def for_display_to_human(self: ChatMessage) -> str:
@@ -81,7 +81,7 @@ def default_actions() -> tuple[Action, ...]:
         Action('explain', _('Explain'), 'Explain the selected text in simple, easy-to-understand terms.'),
         Action('points', _('Key points'), 'Extract the key points from the selected text as a bulleted list.'),
         Action('define', _('Define'), 'Identify and define any technical or complex terms in the selected text.'),
-        Action('grammar', _('Correct grammar'), 'Correct any grammatical errors in the selected text and provide the corrected version.'),
+        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the selected text and provide the corrected version.'),
         Action('english', _('As English'), 'Translate the selected text into English.'),
     )
 
@@ -95,7 +95,7 @@ def current_actions(include_disabled=False):
             yield x
     for title, c in p.get('custom_actions', {}).items():
         x = Action(f'custom-{title}', title, c['prompt_text'], is_builtin=False, is_disabled=c['disabled'])
-        if include_disabled or x.is_disabled:
+        if include_disabled or not x.is_disabled:
             yield x
 
 
@@ -215,9 +215,9 @@ class LLMPanel(QWidget):
         self.save_note_hostname = f'{hid}.save.calibre'
         self.configure_ai_hostname = f'{hid}.config.calibre'
         self.copy_hostname = f'{hid}.copy.calibre'
+        self.quick_action_hostname = f'{hid}.quick.calibre'
         self.counter = count(start=1)
 
-        self.conversation_history = ConversationHistory()
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
         self.current_api_call_number = 0
@@ -225,15 +225,10 @@ class LLMPanel(QWidget):
         self.book_title = ''
         self.book_authors = ''
         self.update_ai_provider_plugin()
+        self.clear_current_conversation()
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(5, 5, 5, 5)
-
-        self.quick_actions_group = QGroupBox(self)
-        self.quick_actions_group.setTitle(_('Quick actions'))
-        self.quick_actions_layout = QGridLayout(self.quick_actions_group)
-        self.layout.addWidget(self.quick_actions_group)
-        self.rebuild_actions_ui()
 
         self.result_display = rd = ChatWidget(self, _('Type a question to the AI'))
         rd.link_clicked.connect(self.on_chat_link_clicked)
@@ -278,34 +273,27 @@ class LLMPanel(QWidget):
         authors = metadata.get('authors', [])
         self.book_authors = authors_to_string(authors)
 
-    def rebuild_actions_ui(self):
-        while self.quick_actions_layout.count():
-            child = self.quick_actions_layout.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+    @property
+    def quick_actions_as_html(self) -> str:
         actions = sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name))
         if not actions:
-            self.quick_actions_group.setVisible(False)
-            return
-        self.quick_actions_group.setVisible(True)
-        positions = [(i, j) for i in range(4) for j in range(2)]
-        for i, action in enumerate(actions):
-            if i >= len(positions):
-                break
-            button = QPushButton(action.human_name, self)
-            button.setToolTip(action.prompt_text)
-            button.clicked.connect(partial(self.activate_action, action))
-            row, col = positions[i]
-            self.quick_actions_layout.addWidget(button, row, col)
+            return ''
+        ans = []
+        for action in actions:
+            hn = action.human_name.replace(' ', '\xa0')
+            ans.append(f'''<a title="{action.prompt_text}"
+            href="http://{self.quick_action_hostname}/{as_hex_unicode(action.name)}"
+            style="text-decoration: none">{hn}</a>''')
+        links = '\xa0\xa0\xa0 '.join(ans)
+        return f'<h3>{_("Quick actions")}</h3> {links}'
 
     def activate_action(self, action: Action) -> None:
         self.start_api_call(action.prompt_text)
 
     def show_settings(self):
-        dialog = LLMSettingsDialog(self)
-        dialog.actions_updated.connect(self.rebuild_actions_ui)
-        dialog.exec()
+        LLMSettingsDialog(self).exec()
         self.update_ai_provider_plugin()
+        self.update_ui_state()
 
     def update_ai_provider_plugin(self):
         self.ai_provider_plugin = plugin_for_purpose(AICapabilities.text_to_text)
@@ -339,19 +327,7 @@ class LLMPanel(QWidget):
         if start_new_convo:
             self.latched_highlight_uuid = new_uuid
             self.latched_conversation_text = text
-            self.conversation_history = ConversationHistory()
-
-            if text:
-                msg = f"<b>{_('Selected')}:</b><br><i>'{text[:200]}…'</i>"
-            else:
-                msg = _('<b>Ready.</b> Ask a follow-up question.')
-            self.result_display.show_message(msg)
-
-        if self.latched_highlight_uuid:
-            tt = _("Append this response to the existing highlight's note")
-        else:
-            tt = _('Create a new highlight for the selected text and save this response as its note')
-        self.response_buttons[self.save_as_note].setToolTip(tt)
+            self.clear_current_conversation()
         self.update_ui_state()
 
     def run_custom_prompt(self, prompt: str) -> None:
@@ -359,10 +335,10 @@ class LLMPanel(QWidget):
             self.start_api_call(prompt)
 
     def start_new_conversation(self):
-        self.conversation_history = ConversationHistory()
+        self.clear_current_conversation()
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
-        self.show_initial_message()
+        self.update_ui_state()
 
     @property
     def assistant_name(self) -> str:
@@ -390,6 +366,7 @@ class LLMPanel(QWidget):
             content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
             self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)), is_response=True)
         self.result_display.re_render()
+        self.scroll_to_bottom()
 
     def scroll_to_bottom(self) -> None:
         self.result_display.scroll_to_bottom()
@@ -414,13 +391,11 @@ class LLMPanel(QWidget):
             context_header += f'I have selected the following text from this book:\n{self.latched_conversation_text}\n\n'
             self.conversation_history.append(ChatMessage(context_header, type=ChatMessageType.system))
         self.conversation_history.append(ChatMessage(action_prompt))
-        self.show_ai_conversation()
-        self.update_ui_state()
-
         self.current_api_call_number = next(self.counter)
         self.conversation_history.new_api_call()
         Thread(name='LLMAPICall', daemon=True, target=self.do_api_call, args=(
             self.conversation_history.copy(), self.current_api_call_number, self.ai_provider_plugin)).start()
+        self.update_ui_state()
 
     def do_api_call(
         self, conversation_history: ConversationHistory, current_api_call_number: int, ai_plugin: AIProviderPlugin
@@ -437,20 +412,42 @@ class LLMPanel(QWidget):
         else:
             if r.exception is not None:
                 self.show_error(f'''{_('Talking to AI provider failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
-                self.conversation_history = ConversationHistory()
-                self.update_ui_state()
             else:
                 self.conversation_history.accumulator.accumulate(r)
-        self.show_ai_conversation()
+        self.update_ui_state()
 
     def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
+        self.clear_current_conversation()
         level = ERROR if is_critical else WARN
         self.result_display.show_message(html, details, level)
 
+    def clear_current_conversation(self) -> None:
+        self.conversation_history = ConversationHistory()
+
     def update_ui_state(self) -> None:
-        enabled = self.conversation_history.response_count > 0
+        if self.conversation_history:
+            self.show_ai_conversation()
+        else:
+            if self.latched_conversation_text:
+                st = self.latched_conversation_text
+                if len(st) > 200:
+                    st = st[:200] + '…'
+                msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
+                msg += self.quick_actions_as_html
+                msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
+                msg += '<i>Explain the etymology of the selected word</i>'
+                self.result_display.show_message(msg)
+            else:
+                self.show_initial_message()
+        has_responses = self.conversation_history.response_count > 0
         for b in self.response_buttons.values():
-            b.setEnabled(enabled)
+            b.setEnabled(has_responses)
+        if has_responses:
+            if self.latched_highlight_uuid:
+                tt = _("Append this response to the existing highlight's note")
+            else:
+                tt = _('Create a new highlight for the selected text and save this response as its note')
+            self.response_buttons[self.save_as_note].setToolTip(tt)
 
     def update_cost(self, usage_data):
         model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
@@ -510,6 +507,12 @@ class LLMPanel(QWidget):
                 self.copy_specific_note(index)
             case self.configure_ai_hostname:
                 self.show_settings()
+            case self.quick_action_hostname:
+                name = from_hex_unicode(qurl.path().strip('/'))
+                for ac in current_actions():
+                    if ac.name == name:
+                        self.activate_action(ac)
+                        break
 
     def set_all_inputs_enabled(self, enabled):
         for i in range(self.quick_actions_layout.count()):
