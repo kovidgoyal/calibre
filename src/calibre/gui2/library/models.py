@@ -1022,7 +1022,10 @@ class BooksModel(QAbstractTableModel):  # {{{
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         for f in bool_fields:
             tc[f] = bool_tooltip(f)
-        for f in self.db.new_api.pref('column_tooltip_templates', {}):
+        # Make all columns use the template tooltip renderer. This avoids the
+        # "first time" problem where a template tooltip is added but not
+        # used until calibre is restarted
+        for f in self.column_map:
             tc[f] = template_tooltip(f, tc[f])
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
