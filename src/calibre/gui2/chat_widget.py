@@ -8,6 +8,7 @@ from typing import NamedTuple
 from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, QSize, QSizePolicy, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.utils.logging import INFO, WARN
+from calibre.utils.resources import get_image_path
 
 
 class Browser(QTextBrowser):
@@ -33,22 +34,24 @@ class Browser(QTextBrowser):
 
 
 class Button(NamedTuple):
-    text: str
+    icon: str
     link: str
     tooltip: str = ''
 
-    @property
-    def as_html(self) -> str:
-        return f'''<a style="text-decoration: none" href="{escape(self.link)}" title="{escape(self.tooltip)}">{escape(self.text)}</a>'''
+    def as_html(self, line_spacing: int) -> str:
+        path = get_image_path(self.icon)
+        url = QUrl.fromLocalFile(path).toString(QUrl.ComponentFormattingOption.FullyEncoded)
+        sz = line_spacing - 2
+        return f'''<a style="text-decoration: none" href="{escape(self.link)}" title="{escape(self.tooltip)}"
+><img height="{sz}" width="{sz}" src="{url}"></a>'''
 
 
 class Header(NamedTuple):
     title: str = ''
     buttons: tuple[Button, ...] = ()
 
-    @property
-    def as_html(self) -> str:
-        links = '\xa0\xa0'.join(b.as_html for b in self.buttons)
+    def as_html(self, line_spacing: int) -> str:
+        links = '\xa0\xa0'.join(b.as_html(line_spacing) for b in self.buttons)
         title = '<b><i>' + escape(self.title)
         if links:
             return f'''<table width="100%" cellpadding="0" cellspacing="0"><tr><td>{title}\xa0</td>
@@ -152,6 +155,7 @@ class ChatWidget(QWidget):
         self.response_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.line_spacing = self.browser.fontMetrics().lineSpacing()
 
     def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:
         style = f'style="background-color: {background_color}"' if background_color else ''
@@ -162,7 +166,7 @@ class ChatWidget(QWidget):
         self.current_message = ''
         html = ''
         if header.title or header.buttons:
-            html += f'<div>{header.as_html}</div>'
+            html += f'<div>{header.as_html(self.line_spacing)}</div>'
         html += f'<div>{body_html}</div>'
         bg = self.response_color if is_response else self.base_color
         self.blocks.append(self.wrap_content_in_padding_table(html, bg))
