@@ -54,6 +54,7 @@ from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 prompt_sep = '\n\n------\n\n'
+reasoning_icon = 'reports.png'
 
 
 def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> str:
@@ -371,7 +372,7 @@ class LLMPanel(QWidget):
                         'Copy this specific response to the clipboard')),
                 )
                 if message.reasoning:
-                    buttons += (Button('reports.png', f'http://{self.reasoning_hostname}/{i}', _(
+                    buttons += (Button(reasoning_icon, f'http://{self.reasoning_hostname}/{i}', _(
                         'Show the reasoning behind this response from the AI')),)
                 header = Header(assistant, buttons)
             self.result_display.add_block(content_for_display, header, is_response)
@@ -518,7 +519,7 @@ class LLMPanel(QWidget):
             b.setPlainText(m.reasoning)
             l.addWidget(b)
             d.setWindowTitle(_('Reasoning used by AI'))
-            d.setWindowIcon(QIcon.ic('reports.png'))
+            d.setWindowIcon(QIcon.ic(reasoning_icon))
             bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
             l.addWidget(bb)
             d.resize(600, 500)
