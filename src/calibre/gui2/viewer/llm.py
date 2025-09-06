@@ -402,8 +402,8 @@ class LLMPanel(QWidget):
 
     def start_api_call(self, action_prompt):
         if not self.is_ready_for_use:
-            self.show_error(f"<b>{_('AI provider not configured.')}</b> <a href='http://configure-ai.com'>{_(
-                'Configure AI provider')}</a>", is_critical=False)
+            self.show_error(f'''<b>{_('AI provider not configured.')}</b> <a href="http://configure-ai.com">{_(
+                'Configure AI provider')}</a>''', is_critical=False)
             return
         if not self.latched_conversation_text:
             self.show_error(f"<b>{_('Error')}:</b> {_('No text is selected for this conversation.')}", is_critical=True)
