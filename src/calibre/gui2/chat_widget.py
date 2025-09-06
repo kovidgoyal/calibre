@@ -39,7 +39,7 @@ class Button(NamedTuple):
 
     @property
     def as_html(self) -> str:
-        return f'''<a style="text-decoration: none" href="{escape(self.link)}" tooltip="{escape(self.tooltip)}">{escape(self.text)}</a>'''
+        return f'''<a style="text-decoration: none" href="{escape(self.link)}" title="{escape(self.tooltip)}">{escape(self.text)}</a>'''
 
 
 class Header(NamedTuple):
@@ -48,7 +48,7 @@ class Header(NamedTuple):
 
     @property
     def as_html(self) -> str:
-        links = '\xa0'.join(b.as_html for b in self.buttons)
+        links = '\xa0\xa0'.join(b.as_html for b in self.buttons)
         title = '<b><i>' + escape(self.title)
         if links:
             return f'''<table width="100%" cellpadding="0" cellspacing="0"><tr><td>{title}\xa0</td>
@@ -149,7 +149,7 @@ class ChatWidget(QWidget):
         self.blocks: list[str] = []
         self.current_message = ''
         pal = self.palette()
-        self.alternate_color = pal.color(QPalette.ColorRole.Window).name()
+        self.response_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -158,19 +158,19 @@ class ChatWidget(QWidget):
         return f'''<table width="100%" {style} cellpadding="2"><tr><td>{html}</td></tr></table>'''
 
     # API {{{
-    def add_block(self, body_html: str, header: Header = Header(), is_alternate: bool = False) -> None:
+    def add_block(self, body_html: str, header: Header = Header(), is_response: bool = False) -> None:
         self.current_message = ''
         html = ''
         if header.title or header.buttons:
             html += f'<div>{header.as_html}</div>'
         html += f'<div>{body_html}</div>'
-        bg = self.alternate_color if is_alternate else self.base_color
+        bg = self.response_color if is_response else self.base_color
         self.blocks.append(self.wrap_content_in_padding_table(html, bg))
 
-    def replace_last_block(self, body_html: str, header: Header = Header(), is_alternate: bool = False) -> None:
+    def replace_last_block(self, body_html: str, header: Header = Header(), is_response: bool = False) -> None:
         if self.blocks:
             del self.blocks[-1]
-        self.add_block(body_html, header, is_alternate)
+        self.add_block(body_html, header, is_response)
 
     def show_message(self, msg_html: str, details: str = '', level: int = INFO) -> None:
         self.blocks = []

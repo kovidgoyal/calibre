@@ -11,6 +11,7 @@ from typing import NamedTuple
 
 from qt.core import (
     QAbstractItemView,
+    QApplication,
     QDateTime,
     QDialog,
     QDialogButtonBox,
@@ -114,6 +115,9 @@ class ConversationHistory:
     def __iter__(self) -> Iterator[ChatMessage]:
         return iter(self.items)
 
+    def reverse_iter(self) -> Iterator[ChatMessage]:
+        return reversed(self.items)
+
     def __len__(self) -> int:
         return len(self.items)
 
@@ -130,6 +134,11 @@ class ConversationHistory:
             ans.items = list(self.items)
         else:
             ans.items = self.items[:upto]
+        return ans
+
+    def only(self, message_index: int) -> 'ConversationHistory':
+        ans = self.copy(message_index + 1)
+        ans.items = [ans.items[-1]]
         return ans
 
     def at(self, x: int) -> ChatMessage:
@@ -160,7 +169,7 @@ def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> s
         return ''
 
     main_response = ''
-    for message in reversed(conversation):
+    for message in conversation.reverse_iter():
         if message.from_assistant:
             main_response = message.query.strip()
             break
@@ -168,8 +177,11 @@ def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> s
     if not main_response:
         return ''
 
-    timestamp = QLocale.system().toString(QDateTime.currentDateTime(), QLocale.FormatType.LongFormat)
-    header = f'--- {_("AI Assistant Note")} ({timestamp}) ---'
+    timestamp = QLocale.system().toString(QDateTime.currentDateTime(), QLocale.FormatType.ShortFormat)
+    sep = '―――'
+    header = f'{sep} {_("AI Assistant Note")} ({timestamp}) {sep}'
+    if len(conversation) == 1:
+        return f'{header}\n\n{main_response}'
 
     record_lines = []
     for message in conversation:
@@ -185,11 +197,10 @@ def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> s
         record_lines.append(entry)
 
     record_body = '\n\n'.join(record_lines)
-    record_header = f'--- {_("Conversation record")} ---'
+    record_header = f'{sep} {_("Conversation record")} {sep}'
 
     return (
         f'{header}\n\n{main_response}\n\n'
-        f'------------------------------------\n\n'
         f'{record_header}\n\n{record_body}'
     )
 
@@ -200,8 +211,10 @@ class LLMPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.save_note_hostname = f'{uuid4().lower()}.calibre'
-        self.configure_ai_hostname = f'{uuid4().lower()}.calibre'
+        hid = uuid4().lower()
+        self.save_note_hostname = f'{hid}.save.calibre'
+        self.configure_ai_hostname = f'{hid}.config.calibre'
+        self.copy_hostname = f'{hid}.copy.calibre'
         self.counter = count(start=1)
 
         self.conversation_history = ConversationHistory()
@@ -360,15 +373,19 @@ class LLMPanel(QWidget):
             if not content_for_display:
                 continue
             header = Header()
-            alternate = False
+            is_response = False
             if message.from_assistant:
-                alternate = True
-                header = Header(assistant, (Button(
-                    _('Save'), f'http://{self.save_note_hostname}/{i}', _('Save this specific response as the note')),))
-            self.result_display.add_block(content_for_display, header, alternate)
+                is_response = True
+                header = Header(assistant, (
+                    Button(_('💾'), f'http://{self.save_note_hostname}/{i}', _(
+                        'Save this specific response as the note')),
+                    Button('📋', f'http://{self.copy_hostname}/{i}', _(
+                        'Copy this specific response to the clipboard')),
+                ))
+            self.result_display.add_block(content_for_display, header, is_response)
         if self.conversation_history.api_call_active:
             content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
-            self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)))
+            self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)), is_response=True)
         self.result_display.re_render()
 
     def scroll_to_bottom(self) -> None:
@@ -451,23 +468,36 @@ class LLMPanel(QWidget):
             }
             self.add_note_requested.emit(payload)
 
-    def save_specific_note(self, message_index):
+    def get_conversation_history_for_specific_response(self, message_index: int) -> ConversationHistory | None:
         if not (0 <= message_index < len(self.conversation_history)):
-            return
-        if not self.conversation_history.at(message_index).from_assistant:
-            return
-        history_for_record = self.conversation_history.copy(message_index + 1)
+            return None
+        ans = self.conversation_history.at(message_index)
+        if not ans.from_assistant:
+            return None
+        return self.conversation_history.only(message_index)
+
+    def save_specific_note(self, message_index: int) -> None:
+        history_for_record = self.get_conversation_history_for_specific_response(message_index)
         payload = {
             'highlight': self.latched_highlight_uuid,
             'llm_note': format_llm_note(history_for_record, self.assistant_name),
         }
         self.add_note_requested.emit(payload)
 
+    def copy_specific_note(self, message_index: int) -> None:
+        history_for_record = self.get_conversation_history_for_specific_response(message_index)
+        text = format_llm_note(history_for_record, self.assistant_name)
+        if text:
+            QApplication.instance().clipboard().setText(text)
+
     def on_chat_link_clicked(self, qurl: QUrl):
         match qurl.host():
             case self.save_note_hostname:
                 index = int(qurl.path().strip('/'))
                 self.save_specific_note(index)
+            case self.copy_hostname:
+                index = int(qurl.path().strip('/'))
+                self.copy_specific_note(index)
             case self.configure_ai_hostname:
                 self.show_settings()
 
