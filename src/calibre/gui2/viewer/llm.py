@@ -369,9 +369,9 @@ class LLMPanel(QWidget):
             if message.from_assistant:
                 is_response = True
                 header = Header(assistant, (
-                    Button(_('💾'), f'http://{self.save_note_hostname}/{i}', _(
+                    Button('save.png', f'http://{self.save_note_hostname}/{i}', _(
                         'Save this specific response as the note')),
-                    Button('📋', f'http://{self.copy_hostname}/{i}', _(
+                    Button('edit-copy.png', f'http://{self.copy_hostname}/{i}', _(
                         'Copy this specific response to the clipboard')),
                 ))
             self.result_display.add_block(content_for_display, header, is_response)
