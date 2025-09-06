@@ -231,6 +231,7 @@ class LLMPanel(QWidget):
         self.latched_conversation_text = None
         self.current_api_call_number = 0
         self.session_cost = 0.0
+        self.session_cost_currency = ''
         self.book_title = ''
         self.book_authors = ''
         self.update_ai_provider_plugin()
@@ -431,6 +432,7 @@ class LLMPanel(QWidget):
             return
         if r is None:
             self.conversation_history.finalize_response()
+            self.update_cost()
         else:
             if r.exception is not None:
                 self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
@@ -471,18 +473,16 @@ class LLMPanel(QWidget):
                 tt = _('Create a new highlight for the selected text and save this response as its note')
             self.response_buttons[self.save_as_note].setToolTip(tt)
 
-    def update_cost(self, usage_data):
-        model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
-        prompt_tokens = usage_data.get('prompt_tokens', 0)
-        completion_tokens = usage_data.get('completion_tokens', 0)
-        prompt_cost = 0.0
-        completion_cost = 0.0
-        if not model_id.endswith(':free'):
-            costs = MODEL_COSTS.get(model_id, MODEL_COSTS['default'])
-            prompt_cost = (prompt_tokens / 1_000_000) * costs[0]
-            completion_cost = (completion_tokens / 1_000_000) * costs[1]
-        self.session_cost += prompt_cost + completion_cost
-        self.api_usage_label.setText(f'{_("API calls")}: {self.current_api_call_number} | {_("Cost")}: ~${self.session_cost:.4f}')
+    def update_cost(self):
+        h = self.conversation_history
+        if self.session_cost_currency != h.currency:
+            self.session_cost = 0
+            self.session_cost_currency = h.currency
+        self.session_cost += h.cost
+        cost = _('free')
+        if self.session_cost:
+            cost = f'{self.session_cost:.2f}'.rstrip('0').rstrip('.') + f' {self.session_cost_currency}'
+        self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number} @ {_("Cost")}: {cost}')
 
     def save_as_note(self):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
@@ -729,7 +729,7 @@ def develop(show_initial_messages: bool = False):
     l = QVBoxLayout(d)
     l.setContentsMargins(0, 0, 0, 0)
     llm = LLMPanel(d)
-    llm.update_with_text('developing')
+    llm.update_with_text('developing my thoughts on the AI apocalypse')
     h = llm.conversation_history
     if show_initial_messages:
         h.model_used = 'google/gemini-2.5-flash-image-preview:free'
