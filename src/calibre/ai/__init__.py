@@ -19,6 +19,7 @@ class ChatMessage(NamedTuple):
     type: ChatMessageType = ChatMessageType.user
     extra_data: Any = None
     reasoning_details: Sequence[dict[str, Any]] = ()
+    reasoning: str = ''
     id: int | None = None
 
     @property
@@ -26,12 +27,9 @@ class ChatMessage(NamedTuple):
         return self.type is ChatMessageType.assistant
 
     def for_assistant(self) -> dict[str, Any]:
-        ans = {'role': self.type.value}
+        ans = {'role': self.type.value, 'content': self.query}
         if self.reasoning_details:
             ans['reasoning_details'] = self.reasoning_details
-            ans['content'] = ''
-        else:
-            ans['content'] = self.query
         return ans
 
 
