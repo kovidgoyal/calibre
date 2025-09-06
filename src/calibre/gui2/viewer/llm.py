@@ -53,13 +53,22 @@ from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
+prompt_sep = '\n\n------\n\n'
 
-def for_display_to_human(self: ChatMessage) -> str:
+
+def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> str:
     if self.type is ChatMessageType.system:
         return ''
-    ans = escape(self.query)
+    q = self.query
+    if is_initial_query and (idx := q.find(prompt_sep)) > -1:
+        q = q[:idx] + '\n\n' + q[idx + len(prompt_sep):]
+    ans = escape(q)
     # blank lines should be preserved, otherwise text should be reflowed.
-    return re.sub(r'\n\n', '<br><br>', ans)
+    def sub(m):
+        if (n := len(m.group())) <= 1:
+            return '\n'
+        return '<br><br>' * (n - 1)
+    return re.sub(r'\n+', sub, ans)
 
 
 class Action(NamedTuple):
@@ -77,12 +86,12 @@ class Action(NamedTuple):
 @lru_cache(2)
 def default_actions() -> tuple[Action, ...]:
     return (
-        Action('summarize', _('Summarize'), 'Provide a concise summary of the selected text.'),
-        Action('explain', _('Explain'), 'Explain the selected text in simple, easy-to-understand terms.'),
-        Action('points', _('Key points'), 'Extract the key points from the selected text as a bulleted list.'),
-        Action('define', _('Define'), 'Identify and define any technical or complex terms in the selected text.'),
-        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the selected text and provide the corrected version.'),
-        Action('english', _('As English'), 'Translate the selected text into English.'),
+        Action('summarize', _('Summarize'), 'Provide a concise summary of the following text.'),
+        Action('explain', _('Explain'), 'Explain the following text in simple, easy-to-understand terms.'),
+        Action('points', _('Key points'), 'Extract the key points from the following text as a bulleted list.'),
+        Action('define', _('Define'), 'Identify and define any technical or complex terms in the following text.'),
+        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the following text and provide the corrected version.'),
+        Action('english', _('As English'), 'Translate the following text into English.'),
     )
 
 
@@ -347,8 +356,11 @@ class LLMPanel(QWidget):
     def show_ai_conversation(self):
         self.result_display.clear()
         assistant = self.assistant_name
+        is_initial_query = True
         for i, message in enumerate(self.conversation_history):
-            content_for_display = for_display_to_human(message)
+            content_for_display = for_display_to_human(message, is_initial_query)
+            if message.type is ChatMessageType.user:
+                is_initial_query = False
             if not content_for_display:
                 continue
             header = Header()
@@ -363,13 +375,29 @@ class LLMPanel(QWidget):
                 ))
             self.result_display.add_block(content_for_display, header, is_response)
         if self.conversation_history.api_call_active:
-            content_for_display = for_display_to_human(ChatMessage(self.conversation_history.accumulator.all_content))
-            self.result_display.add_block(content_for_display, Header(_('{} thinking…').format(assistant)), is_response=True)
+            a = self.conversation_history.accumulator
+            has_content = bool(a.all_content)
+            content_for_display = for_display_to_human(ChatMessage(a.all_content or a.all_reasoning))
+            activity = _('answering') if has_content else _('thinking')
+            if not has_content:
+                content_for_display = '<i>' + content_for_display + '</i>'
+            self.result_display.add_block(
+                content_for_display, Header(_('{assistant} {activity}…').format(
+                    assistant=assistant, activity=activity)), is_response=True)
         self.result_display.re_render()
         self.scroll_to_bottom()
 
     def scroll_to_bottom(self) -> None:
         self.result_display.scroll_to_bottom()
+
+    def create_initial_messages(self, action_prompt: str, selected_text: str) -> Iterator[ChatMessage]:
+        if self.book_title:
+            context_header = f'I am currently reading the book: {self.book_title}'
+            if self.book_authors:
+                context_header += f' by {self.book_authors}'
+            context_header += '. I have some questions about content from this book.'
+            yield ChatMessage(context_header, type=ChatMessageType.system)
+        yield ChatMessage(f'{action_prompt}{prompt_sep}Text to analyze: {selected_text}')
 
     def start_api_call(self, action_prompt):
         if not self.is_ready_for_use:
@@ -382,14 +410,8 @@ class LLMPanel(QWidget):
 
         if not self.conversation_history:
             self.conversation_history.conversation_text = self.latched_conversation_text
-            context_header = ''
-            if self.book_title:
-                context_header = f'I am currently reading the book: {self.book_title}'
-                if self.book_authors:
-                    context_header += f' by {self.book_authors}'
-                context_header += '.\n\n'
-            context_header += f'I have selected the following text from this book:\n{self.latched_conversation_text}\n\n'
-            self.conversation_history.append(ChatMessage(context_header, type=ChatMessageType.system))
+            for msg in self.create_initial_messages(action_prompt, self.conversation_history.conversation_text):
+                self.conversation_history.append(msg)
         self.conversation_history.append(ChatMessage(action_prompt))
         self.current_api_call_number = next(self.counter)
         self.conversation_history.new_api_call()
@@ -411,7 +433,7 @@ class LLMPanel(QWidget):
             self.conversation_history.finalize_response()
         else:
             if r.exception is not None:
-                self.show_error(f'''{_('Talking to AI provider failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
+                self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
             else:
                 self.conversation_history.accumulator.accumulate(r)
         self.update_ui_state()
@@ -435,7 +457,7 @@ class LLMPanel(QWidget):
                 msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
                 msg += self.quick_actions_as_html
                 msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
-                msg += '<i>Explain the etymology of the selected word</i>'
+                msg += '<i>Explain the etymology of the following text</i>'
                 self.result_display.show_message(msg)
             else:
                 self.show_initial_message()
