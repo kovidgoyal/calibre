@@ -5,7 +5,7 @@ from html import escape
 from math import ceil
 from typing import NamedTuple
 
-from qt.core import QFrame, QPalette, Qt, QTextBrowser, QTextEdit, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.utils.logging import INFO, WARN
 
@@ -52,7 +52,7 @@ class Header(NamedTuple):
         return f'<div>{title}</div>'
 
 
-class Input(QTextEdit):
+class InputEdit(QTextEdit):
 
     returnPressed = pyqtSignal()
 
@@ -89,6 +89,40 @@ class Input(QTextEdit):
                 return
         super().keyPressEvent(event)
 
+    @property
+    def value(self) -> str:
+        return self.toPlainText()
+
+    @value.setter
+    def value(self, val: str) -> None:
+        self.setPlainText(val)
+
+
+class Input(QWidget):
+
+    send_requested = pyqtSignal()
+
+    def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
+        super().__init__(parent)
+        l = QHBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.text_input = ti = InputEdit(self, placeholder_text)
+        ti.returnPressed.connect(self.send_requested)
+        l.addWidget(ti)
+        self.send_button = b = QToolButton(self)
+        b.setIcon(QIcon.ic('send.png'))
+        b.setToolTip(_('Send query to AI'))
+        b.clicked.connect(self.send_requested)
+        l.addWidget(b, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    @property
+    def value(self) -> str:
+        return self.text_input.value
+
+    @value.setter
+    def value(self, val: str) -> None:
+        self.text_input.value = val
+
 
 class ChatWidget(QWidget):
 
@@ -103,7 +137,7 @@ class ChatWidget(QWidget):
         b.anchorClicked.connect(self.link_clicked)
         l.addWidget(b)
         self.input = iw = Input(parent=self, placeholder_text=placeholder_text)
-        iw.returnPressed.connect(self.on_input)
+        iw.send_requested.connect(self.on_input)
         l.addWidget(iw)
         self.blocks: list[str] = []
         self.current_message = ''
@@ -166,6 +200,6 @@ class ChatWidget(QWidget):
             self.browser.setHtml('\n\n'.join(self.blocks))
 
     def on_input(self) -> None:
-        text = self.input.toPlainText()
-        self.input.setPlainText('')
+        text = self.input.value
+        self.input.value = ''
         self.input_from_user.emit(text)
