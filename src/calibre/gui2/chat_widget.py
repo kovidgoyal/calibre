@@ -5,7 +5,7 @@ from html import escape
 from math import ceil
 from typing import NamedTuple
 
-from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, QSize, QSizePolicy, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.utils.logging import INFO, WARN
 
@@ -19,6 +19,10 @@ class Browser(QTextBrowser):
         self.setFrameShape(QFrame.Shape.NoFrame)
         self.setContentsMargins(0, 0, 0, 0)
         self.document().setDocumentMargin(0)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+    def sizeHint(self) -> QSize:
+        return QSize(600, 500)
 
     def setHtml(self, html: str) -> None:
         super().setHtml(html)
@@ -123,6 +127,9 @@ class Input(QWidget):
     def value(self, val: str) -> None:
         self.text_input.value = val
 
+    def set_max_height(self, val: int) -> None:
+        self.text_input.set_max_height(val)
+
 
 class ChatWidget(QWidget):
 
@@ -144,6 +151,7 @@ class ChatWidget(QWidget):
         pal = self.palette()
         self.alternate_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
     def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:
         style = f'style="background-color: {background_color}"' if background_color else ''
