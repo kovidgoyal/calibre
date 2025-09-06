@@ -134,7 +134,6 @@ class StreamedResponseAccumulator:
 
     def commit_content(self) -> None:
         if self.current_content:
-            self.all_content += self.current_content
             self.messages.append(ChatMessage(type=self.in_role, query=self.current_content))
             self.current_content = ''
 
@@ -167,9 +166,11 @@ class StreamedResponseAccumulator:
                 self.in_reasoning = False
                 if m.content:
                     self.current_content += m.content
+                    self.all_content += m.content
         else:
             if m.content:
                 self.current_content += m.content
+                self.all_content += m.content
             else:
                 self.commit_content()
                 if m.reasoning_details:
