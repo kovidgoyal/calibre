@@ -2,7 +2,7 @@
 
 import re
 import textwrap
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import lru_cache, partial
 from html import escape
 from itertools import count
@@ -241,16 +241,21 @@ class LLMPanel(QWidget):
         self.layout.addWidget(rd)
 
         response_actions_layout = QHBoxLayout()
-        self.save_note_button = QPushButton(QIcon.ic('plus.png'), _('Save as note'), self)
-        self.save_note_button.clicked.connect(self.save_as_note)
+        self.response_buttons = {}
 
-        self.new_chat_button = QPushButton(QIcon.ic('edit-clear.png'), _('New chat'), self)
-        self.new_chat_button.setToolTip(_('Clear the current conversation history and start a new one'))
-        self.new_chat_button.clicked.connect(self.start_new_conversation)
-        self.new_chat_button.setEnabled(False)
+        def button(action: Callable[[], None], icon: str, text: str, tooltip: str) -> QPushButton:
+            b = QPushButton(QIcon.ic(icon), text, self)
+            b.setToolTip(tooltip)
+            b.setEnabled(False)
+            self.response_buttons[action] = b
+            b.clicked.connect(action)
+            response_actions_layout.addWidget(b)
+            return b
 
-        response_actions_layout.addWidget(self.save_note_button)
-        response_actions_layout.addWidget(self.new_chat_button)
+        button(self.save_as_note, 'save.png', _('&Save as note'), _('Save this conversation as a note on the current highlight'))
+        button(self.start_new_conversation, 'edit-clear.png', _('&New chat'), _('Start a new conversation'))
+        button(self.copy_to_clipboard, 'edit-copy.png', _('&Copy'), _('Copy this conversation to the clipboard'))
+
         response_actions_layout.addStretch()
         self.layout.addLayout(response_actions_layout)
 
@@ -311,7 +316,6 @@ class LLMPanel(QWidget):
         return p is not None and p.is_ready_for_use
 
     def show_initial_message(self):
-        self.save_note_button.setEnabled(False)
         if self.is_ready_for_use:
             msg = _('Select text in the book to begin.')
         else:
@@ -344,9 +348,11 @@ class LLMPanel(QWidget):
             self.result_display.show_message(msg)
 
         if self.latched_highlight_uuid:
-            self.save_note_button.setToolTip(_("Append this response to the existing highlight's note"))
+            tt = _("Append this response to the existing highlight's note")
         else:
-            self.save_note_button.setToolTip(_('Create a new highlight for the selected text and save this response as its note'))
+            tt = _('Create a new highlight for the selected text and save this response as its note')
+        self.response_buttons[self.save_as_note].setToolTip(tt)
+        self.update_ui_state()
 
     def run_custom_prompt(self, prompt: str) -> None:
         if prompt := prompt.strip():
@@ -356,9 +362,6 @@ class LLMPanel(QWidget):
         self.conversation_history = ConversationHistory()
         self.latched_highlight_uuid = None
         self.latched_conversation_text = None
-
-        self.new_chat_button.setEnabled(False)
-        self.save_note_button.setEnabled(False)
         self.show_initial_message()
 
     @property
@@ -445,7 +448,9 @@ class LLMPanel(QWidget):
         self.result_display.show_message(html, details, level)
 
     def update_ui_state(self) -> None:
-        self.save_note_button.setEnabled(self.latched_conversation_text and self.conversation_history.response_count > 0)
+        enabled = self.conversation_history.response_count > 0
+        for b in self.response_buttons.values():
+            b.setEnabled(enabled)
 
     def update_cost(self, usage_data):
         model_id = vprefs.get('llm_model_id', 'google/gemini-1.5-flash')
@@ -487,6 +492,11 @@ class LLMPanel(QWidget):
     def copy_specific_note(self, message_index: int) -> None:
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         text = format_llm_note(history_for_record, self.assistant_name)
+        if text:
+            QApplication.instance().clipboard().setText(text)
+
+    def copy_to_clipboard(self) -> None:
+        text = format_llm_note(self.conversation_history, self.assistant_name)
         if text:
             QApplication.instance().clipboard().setText(text)
 
@@ -703,16 +713,18 @@ def develop(show_initial_messages: bool = False):
         h.append(ChatMessage('Another query from the user'))
         h.append(
             ChatMessage('''\
-    Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
-    Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
-    Phasellus id risus vitae nisl ullamcorper congue. Proin est.
+Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
+Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
+Phasellus id risus vitae nisl ullamcorper congue. Proin est.
 
-    Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultricies quis, magna.
-    Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
-    Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
-    Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
-    Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
+Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultricies quis, magna.
+Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
+Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
+Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
+Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
+        h.response_count = 2
         llm.show_ai_conversation()
+        llm.update_ui_state()
     l.addWidget(llm)
     d.exec()
     del app
