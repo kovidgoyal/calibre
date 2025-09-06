@@ -227,12 +227,16 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         if not models:
             models = (get_available_models()['openrouter/auto'],)
         model_id = models[0].id
+    data_collection = pref('data_collection', 'deny')
+    if data_collection not in ('allow', 'deny'):
+        data_collection = 'deny'
     data = {
         'model': model_id,
         'messages': [m.for_assistant() for m in messages],
         'usage': {'include': True},
         'stream': True,
         'reasoning': {'enabled': True},
+        'provider': {'data_collection': data_collection},
     }
     if len(models) > 1:
         data['models'] = [m.id for m in models[1:]]

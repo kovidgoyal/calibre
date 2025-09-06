@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import datetime
+import textwrap
 from functools import partial
 from typing import TYPE_CHECKING, Any
 
@@ -374,9 +375,11 @@ class ConfigWidget(QWidget):
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         la = QLabel('<p>'+_(
             'You have to create an account at {0}, then generate an'
-            ' API key and purchase a token amount of credits. After that, you can use any '
-            ' <a href="{1}">AI model</a> you like, including free ones.'
-        ).format('<a href="https://openrouter.ai">OpenRouter.ai</a>', 'https://openrouter.ai/rankings'))
+            ' API key and purchase a token amount of credits. After that, you can use any'
+            ' <a href="{1}">AI model</a> you like, including free ones. Your requests are'
+            ' sent to remote providers via OpenRouter.ai, see the <a href="{2}">privacy policy</a>.'
+        ).format('<a href="https://openrouter.ai">OpenRouter.ai</a>', 'https://openrouter.ai/rankings',
+                 'https://openrouter.ai/docs/features/privacy-and-logging'))
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -414,8 +417,15 @@ class ConfigWidget(QWidget):
         if strat := pref('reasoning_strategy'):
             rs.setCurrentIndex(max(0, rs.findData(strat)))
         rs.setToolTip('<p>'+_(
-            'Select how much "reasoning" AI does when aswering queries. More reasoning leads to'
+            'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
             ' better quality responses at the cost of increased cost and reduced speed.'))
+
+        self.data_retention = dr = QCheckBox(_('Allow usage of providers that &store prompts'), self)
+        dr.setToolTip(textwrap.fill(_(
+            'Some AI providers might store your prompts, usually to use as data for training.'
+            ' When disabled, such providers will not be used. This may prevent usage of some models.')))
+        dr.setChecked(pref('data_collection', 'deny') == 'allow')
+        l.addRow(dr)
 
         self.text_model = tm = Model(parent=self)
         tm.select_model.connect(self.select_model)
@@ -441,9 +451,13 @@ class ConfigWidget(QWidget):
         return self.reasoning_strat.currentData()
 
     @property
+    def data_collection(self) -> str:
+        return 'allow' if self.data_retention.isChecked() else 'deny'
+
+    @property
     def settings(self) -> dict[str, Any]:
         ans = {'api_key': as_hex_unicode(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
-               'reasoning_strategy': self.reasoning_strategy}
+               'reasoning_strategy': self.reasoning_strategy, 'data_collection': self.data_collection}
         if self.text_model.model_id:
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
         return ans
@@ -461,7 +475,6 @@ class ConfigWidget(QWidget):
         return False
 
     def save_settings(self):
-        print(111111111111, self.settings)
         set_prefs_for_provider(OpenRouterAI.name, self.settings)
 
 
