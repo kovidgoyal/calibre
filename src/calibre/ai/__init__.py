@@ -63,6 +63,9 @@ class AICapabilities(Flag):
     none = auto()
     text_to_text = auto()
     text_to_image = auto()
+    text_and_image_to_image = auto()
+    tts = auto()
+    embedding = auto()
 
     @property
     def supports_text_to_text(self) -> bool:
