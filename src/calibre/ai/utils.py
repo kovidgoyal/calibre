@@ -5,9 +5,11 @@ import datetime
 import http
 import json
 import os
+import re
 import tempfile
 from collections.abc import Iterable, Iterator
 from contextlib import suppress
+from functools import lru_cache
 from threading import Thread
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -140,3 +142,63 @@ class StreamedResponseAccumulator:
             type=ChatMessageType.assistant, query=self.all_content, reasoning=self.all_reasoning,
             reasoning_details=tuple(self.all_reasoning_details)
         ))
+
+
+@lru_cache(2)
+def markdown_patterns(detect_code: bool = False) -> dict[re.Pattern[str], float]:
+    ans = {re.compile(pat): score for pat, score in {
+        # Check for Markdown headers (# Header, ## Subheader, etc.)
+        r'(?m)^#{1,6}\s+.+$': 0.15,
+
+        # Check for bold (**text**)
+        r'\*\*.+?\*\*': 0.05,
+
+        # Check for italics (*text*)
+        r'\*[^*\n]+\*': 0.05,
+
+        # Check for unordered lists
+        r'(?m)^[\s]*[-*+][\s]+.+$': 0.1,
+
+        # Check for ordered lists
+        r'(?m)^[\s]*\d+\.[\s]+.+$': 0.1,
+
+        # Check for blockquotes
+        r'(?m)^[\s]*>[\s]*.+$': 0.1,
+
+        # Check for links ([text](url))
+        r'\[.+?\]\(.+?\)': 0.15,
+
+        # Check for tables
+        r'\|.+\|[\s]*\n\|[\s]*[-:]+[-|\s:]+[\s]*\n': 0.1,
+
+    }.items()}
+    if detect_code:
+        # Check for inline code (`code`)
+        ans[re.compile(r'`[^`\n]+`')] = 0.1
+        # Check for code blocks (```code```)
+        ans[re.compile(r'```[\s\S]*?```')] = 0.2  # very markdown specific
+    return ans
+
+
+def is_probably_markdown(text: str, threshold: float = -1, detect_code: bool = False) -> bool:
+    if threshold < 0:
+        threshold = 0.4 if detect_code else 0.2
+    if not text:
+        return False
+    score = 0
+    for pattern, pscore in markdown_patterns().items():
+        if pattern.search(text) is not None:
+            score += pscore
+            if score >= threshold:
+                return True
+    return False
+
+
+@lru_cache(64)
+def response_to_html(text: str, detect_code: bool = False) -> str:
+    if is_probably_markdown(text, threshold=0.2, detect_code=detect_code):
+        from calibre.ebooks.txt.processor import create_markdown_object
+        md = create_markdown_object(('tables',))
+        return md.convert(text)
+    from html import escape
+    return escape(text).replace('\n', '<br>')

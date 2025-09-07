@@ -41,7 +41,7 @@ from qt.core import (
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse
 from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
-from calibre.ai.utils import StreamedResponseAccumulator
+from calibre.ai.utils import StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
@@ -66,8 +66,7 @@ def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> s
     q = self.query
     if is_initial_query and (idx := q.find(prompt_sep)) > -1:
         q = q[:idx] + '\n\n' + q[idx + len(prompt_sep):]
-    ans = escape(q)
-    return ans.replace('\n', '<br>')
+    return response_to_html(q)
 
 
 class Action(NamedTuple):
