@@ -141,28 +141,25 @@ def is_ready_for_use() -> bool:
     return bool(api_key())
 
 
-@lru_cache(2)
-def free_model_choice_for_text(allow_paid: bool = False) -> tuple[Model, ...]:
+@lru_cache(64)
+def free_model_choice(
+    capabilities: AICapabilities = AICapabilities.text_to_text, allow_paid: bool = False
+) -> tuple[Model, ...]:
     gemini_free, gemini_paid = [], []
     deep_seek_free, deep_seek_paid = [], []
+    grok_free, grok_paid = [], []
     gpt5_free, gpt5_paid = [], []
     gpt_oss_free, gpt_oss_paid = [], []
-    opus_free, opus_paid = [], []
+    claude_free, claude_paid = [], []
 
-    def only_newest(models: list[Model]) -> tuple[Model, ...]:
-        if models:
-            models.sort(key=lambda m: m.created, reverse=True)
-            return (models[0],)
-        return ()
-
-    def only_cheapest(models: list[Model]) -> tuple[Model, ...]:
-        if models:
-            models.sort(key=lambda m: m.pricing.output_token)
-            return (models[0],)
-        return ()
+    def only(*model_groups: list[Model], sort_key=lambda m: m.created, reverse=True) -> Iterator[Model]:
+        for models in model_groups:
+            if models:
+                models.sort(key=sort_key, reverse=reverse)
+                yield models[0]
 
     for model in get_available_models().values():
-        if AICapabilities.text_to_text not in model.capabilities:
+        if AICapabilities.text_to_text & capabilities != capabilities:
             continue
         match model.creator:
             case 'google':
@@ -177,14 +174,17 @@ def free_model_choice_for_text(allow_paid: bool = False) -> tuple[Model, ...]:
                 elif n.startswith('gpt-oss'):
                     gpt_oss_free.append(model) if model.pricing.is_free else gpt_oss_paid.append(model)
             case 'anthropic':
-                if model.family == 'opus':
-                    opus_free.append(model) if model.pricing.is_free else opus_paid.append(model)
-    free = only_newest(gemini_free) + only_newest(gpt5_free) + only_newest(gpt_oss_free) + only_newest(opus_free) + only_newest(deep_seek_free)
+                if model.family == 'claude':
+                    claude_free.append(model) if model.pricing.is_free else claude_paid.append(model)
+            case 'xai':
+                if model.family == 'grok' and 'code fast' not in model.name_without_creator:
+                    grok_free.append(model) if model.pricing.is_free else grok_paid.append(model)
+    free = tuple(only(gemini_free, gpt5_free, grok_free, gpt_oss_free, claude_free, deep_seek_free))
     if free:
         return free
     if not allow_paid:
         raise NoFreeModels(_('No free models were found for text to text generation'))
-    return only_cheapest(gemini_paid) + only_cheapest(gpt5_paid) + only_cheapest(opus_paid) + only_cheapest(deep_seek_paid)
+    return tuple(sorted(only(gemini_paid, gpt5_paid, grok_paid, claude_paid, deep_seek_paid), key=lambda m: m.pricing.output_token))
 
 
 def model_choice_for_text() -> Iterator[Model, ...]:
@@ -194,9 +194,9 @@ def model_choice_for_text() -> Iterator[Model, ...]:
         return
     match pref('model_choice_strategy', 'free-or-paid'):
         case 'free-or-paid':
-            yield from free_model_choice_for_text(allow_paid=True)
+            yield from free_model_choice(allow_paid=True)
         case 'free-only':
-            yield from free_model_choice_for_text(allow_paid=False)
+            yield from free_model_choice(allow_paid=False)
         case _:
             yield get_available_models()['openrouter/auto']
 
