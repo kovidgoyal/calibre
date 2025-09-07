@@ -30,7 +30,7 @@ class ConfigWidget(QWidget):
         l.addRow(la)
 
         self.api_key_edit = a = QLineEdit(self)
-        a.setPlaceholderText(_('An API key is required to use OpenRouter'))
+        a.setPlaceholderText(_('An API key is required to use Google AI'))
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
             a.setText(decode_secret(key))

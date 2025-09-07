@@ -16,8 +16,8 @@ MODELS_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
 
 
 def pref(key: str, defval: Any = None) -> Any:
-    from calibre.ai.google import OpenRouterAI
-    return pref_for_provider(OpenRouterAI.name, key, defval)
+    from calibre.ai.google import GoogleAI
+    return pref_for_provider(GoogleAI.name, key, defval)
 
 
 def api_key() -> str:
