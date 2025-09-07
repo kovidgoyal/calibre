@@ -1,12 +1,13 @@
 # License: GPL v3 Copyright: 2025, Amir Tehrani and Kovid Goyal
 
+import string
 import textwrap
 from collections.abc import Callable, Iterator
 from functools import lru_cache
 from html import escape
 from itertools import count
 from threading import Thread
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from qt.core import (
     QAbstractItemView,
@@ -26,6 +27,7 @@ from qt.core import (
     QLocale,
     QPlainTextEdit,
     QPushButton,
+    QSize,
     QSizePolicy,
     Qt,
     QTabWidget,
@@ -49,6 +51,7 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode, from_hex_unicode
@@ -70,24 +73,49 @@ def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> s
 class Action(NamedTuple):
     name: str
     human_name: str
-    prompt_text: str
+    prompt_template: str
     is_builtin: bool = True
     is_disabled: bool = False
 
     @property
-    def as_custom_action_dict(self):
-        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_text': self.prompt_text}
+    def as_custom_action_dict(self) -> dict[str, Any]:
+        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
+
+    @property
+    def uses_selected_text(self) -> bool:
+        for _, fname, _, _ in string.Formatter().parse(self.prompt_template):
+            if fname == 'selected':
+                return True
+        return False
+
+    def prompt_text(self, selected_text: str = '') -> str:
+        probably_has_multiple_words = len(selected_text) > 20 or ' ' in selected_text
+        pt = self.prompt_template
+        what = 'Text to analyze: ' if probably_has_multiple_words else 'Word to analyze: '
+        if not probably_has_multiple_words:
+            match self.name:
+                case 'explain':
+                    pt = 'Explain the meaning, etymology and common usages of the following word in simple, easy to understand language. {selected}'
+                case 'define':
+                    pt = 'Explain the meaning and common usages of the following word. {selected}'
+                case 'translate':
+                    pt = 'Translate the following word into the language {language}. {selected}'
+
+        selected_text = (prompt_sep + what + selected_text) if selected_text else ''
+        return pt.format(
+            selected=selected_text, language=calibre_langcode_to_name(canonicalize_lang(get_lang()) or 'English', localize=False)
+        ).strip()
 
 
 @lru_cache(2)
 def default_actions() -> tuple[Action, ...]:
     return (
-        Action('summarize', _('Summarize'), 'Provide a concise summary of the following text.'),
-        Action('explain', _('Explain'), 'Explain the following text in simple, easy-to-understand terms.'),
-        Action('points', _('Key points'), 'Extract the key points from the following text as a bulleted list.'),
-        Action('define', _('Define'), 'Identify and define any technical or complex terms in the following text.'),
-        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the following text and provide the corrected version.'),
-        Action('english', _('As English'), 'Translate the following text into English.'),
+        Action('explain', _('Explain'), 'Explain the following text in simple, easy to understand language. {selected}'),
+        Action('define', _('Define'), 'Identify and define any technical or complex terms in the following text. {selected}'),
+        Action('summarize', _('Summarize'), 'Provide a concise summary of the following text. {selected}'),
+        Action('points', _('Key points'), 'Extract the key points from the following text as a bulleted list. {selected}'),
+        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the following text and provide the corrected version. {selected}'),
+        Action('translate', _('Translate'), 'Translate the following text into the language {language}. {selected}'),
     )
 
 
@@ -289,14 +317,14 @@ class LLMPanel(QWidget):
         ans = []
         for action in actions:
             hn = action.human_name.replace(' ', '\xa0')
-            ans.append(f'''<a title="{action.prompt_text}"
+            ans.append(f'''<a title="{action.prompt_text()}"
             href="http://{self.quick_action_hostname}/{as_hex_unicode(action.name)}"
             style="text-decoration: none">{hn}</a>''')
         links = '\xa0\xa0\xa0 '.join(ans)
         return f'<h3>{_("Quick actions")}</h3> {links}'
 
     def activate_action(self, action: Action) -> None:
-        self.start_api_call(action.prompt_text)
+        self.start_api_call(action.prompt_text(self.latched_conversation_text), action.uses_selected_text)
 
     def show_settings(self):
         LLMSettingsDialog(self).exec()
@@ -396,11 +424,14 @@ class LLMPanel(QWidget):
             context_header = f'I am currently reading the book: {self.book_title}'
             if self.book_authors:
                 context_header += f' by {self.book_authors}'
-            context_header += '. I have some questions about content from this book.'
+            if selected_text:
+                context_header += '. I have some questions about content from this book.'
+            else:
+                context_header += '. I have some questions about this book.'
             yield ChatMessage(context_header, type=ChatMessageType.system)
-        yield ChatMessage(f'{action_prompt}{prompt_sep}Text to analyze: {selected_text}')
+        yield ChatMessage(action_prompt)
 
-    def start_api_call(self, action_prompt):
+    def start_api_call(self, action_prompt: str, uses_selected_text: bool = False):
         if not self.is_ready_for_use:
             self.show_error(f'''<b>{_('AI provider not configured.')}</b> <a href="http://configure-ai.com">{_(
                 'Configure AI provider')}</a>''', is_critical=False)
@@ -409,11 +440,12 @@ class LLMPanel(QWidget):
             self.show_error(f"<b>{_('Error')}:</b> {_('No text is selected for this conversation.')}", is_critical=True)
             return
 
-        if not self.conversation_history:
+        if self.conversation_history:
+            self.conversation_history.append(ChatMessage(action_prompt))
+        else:
             self.conversation_history.conversation_text = self.latched_conversation_text
-            for msg in self.create_initial_messages(action_prompt, self.conversation_history.conversation_text):
+            for msg in self.create_initial_messages(action_prompt, self.latched_conversation_text if uses_selected_text else ''):
                 self.conversation_history.append(msg)
-        self.conversation_history.append(ChatMessage(action_prompt))
         self.current_api_call_number = next(self.counter)
         self.conversation_history.new_api_call()
         Thread(name='LLMAPICall', daemon=True, target=self.do_api_call, args=(
@@ -459,7 +491,7 @@ class LLMPanel(QWidget):
                 msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
                 msg += self.quick_actions_as_html
                 msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
-                msg += '<i>Explain the etymology of the following text</i>'
+                msg += '<i>Summarize this book.</i>'
                 self.result_display.show_message(msg)
             else:
                 self.show_initial_message()
@@ -568,15 +600,27 @@ class ActionEditDialog(QDialog):
         self.prompt_edit.setMinimumHeight(100)
         self.layout.addRow(_('Name:'), self.name_edit)
         self.layout.addRow(_('Prompt:'), self.prompt_edit)
+        self.help_label = la = QLabel('<p>' + _(
+            'The prompt is a template. If you want the prompt to operate on the currently selected'
+            ' text, add <b>{0}</b> to the end of the prompt. Similarly, use <b>{1}</b>'
+            ' when you want the AI to respond in the current language (not all AIs work well with all languages).'
+        ).format('selected', 'Respond in {language}'))
+        la.setWordWrap(True)
+        self.layout.addRow(la)
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.layout.addWidget(self.button_box)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         if action is not None:
             self.name_edit.setText(action.human_name)
-            self.prompt_edit.setPlainText(action.prompt_text)
+            self.prompt_edit.setPlainText(action.prompt_template)
         self.name_edit.installEventFilter(self)
         self.prompt_edit.installEventFilter(self)
+
+    def sizeHint(self) -> QSize:
+        ans = super().sizeHint()
+        ans.setWidth(max(500, ans.width()))
+        return ans
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.KeyPress:
@@ -638,7 +682,7 @@ class LLMSettingsWidget(QWidget):
         item = QListWidgetItem(ac.human_name, self.actions_list)
         item.setData(Qt.ItemDataRole.UserRole, ac)
         item.setCheckState(Qt.CheckState.Unchecked if ac.is_disabled else Qt.CheckState.Checked)
-        item.setToolTip(textwrap.fill(ac.prompt_text))
+        item.setToolTip(textwrap.fill(ac.prompt_template))
 
     def load_actions_from_prefs(self):
         self.actions_list.clear()
@@ -649,7 +693,7 @@ class LLMSettingsWidget(QWidget):
         dialog = ActionEditDialog(parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             action = dialog.get_action()
-            if action.human_name and action.prompt_text:
+            if action.human_name and action.prompt_template:
                 self.action_as_item(action)
 
     def edit_action(self):
@@ -663,7 +707,7 @@ class LLMSettingsWidget(QWidget):
         dialog = ActionEditDialog(action, parent=self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             new_action = dialog.get_action()
-            if new_action.human_name and new_action.prompt_text:
+            if new_action.human_name and new_action.prompt_template:
                 item.setText(new_action.human_name)
                 item.setData(Qt.ItemDataRole.UserRole, new_action)
 
