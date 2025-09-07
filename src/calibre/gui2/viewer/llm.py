@@ -224,7 +224,8 @@ class LLMPanel(QWidget):
         self.reasoning_hostname = f'{hid}.reasoning.calibre'
         self.counter = count(start=1)
 
-        self.latched_conversation_text = None
+        self.latched_conversation_text = ''
+        self.current_selected_text = ''
         self.current_api_call_number = 0
         self.session_cost = 0.0
         self.session_cost_currency = ''
@@ -264,7 +265,7 @@ class LLMPanel(QWidget):
         self.settings_button = QPushButton(QIcon.ic('config'), _('Se&ttings'))
         self.settings_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.api_usage_label = QLabel(_('API calls: 0 | Cost: ~$0.0000'))
+        self.api_usage_label = QLabel('')
         footer_layout.addWidget(self.settings_button)
         footer_layout.addStretch()
         footer_layout.addWidget(self.api_usage_label)
@@ -273,6 +274,7 @@ class LLMPanel(QWidget):
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
         self.settings_button.clicked.connect(self.show_settings)
         self.show_initial_message()
+        self.update_cost()
 
     def update_book_metadata(self, metadata):
         self.book_title = metadata.get('title', '')
@@ -317,12 +319,15 @@ class LLMPanel(QWidget):
         self.result_display.show_message(msg)
 
     def update_with_text(self, text: str) -> None:
+        self.current_selected_text = text
         self.update_ai_provider_plugin()
         if not text:
-            if self.latched_conversation_text is not None:
-                self.start_new_conversation()
+            if self.conversation_history:
+                # preserve the current
+                return
+            self.latched_conversation_text = ''
+            self.update_ui_state()
             return
-
         start_new_convo = False
         if text != self.latched_conversation_text:
             start_new_convo = True
@@ -338,7 +343,7 @@ class LLMPanel(QWidget):
 
     def start_new_conversation(self):
         self.clear_current_conversation()
-        self.latched_conversation_text = None
+        self.latched_conversation_text = ''
         self.update_ui_state()
 
     @property
@@ -475,6 +480,8 @@ class LLMPanel(QWidget):
 
     def save_as_note(self):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
+            if not self.current_selected_text:
+                return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
             self.add_note_requested.emit(
                 format_llm_note(self.conversation_history, self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
@@ -487,6 +494,8 @@ class LLMPanel(QWidget):
         return self.conversation_history.only(message_index)
 
     def save_specific_note(self, message_index: int) -> None:
+        if not self.current_selected_text:
+            return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         self.add_note_requested.emit(
             format_llm_note(history_for_record, self.assistant_name), vprefs.get('llm_highlight_style', ''))
