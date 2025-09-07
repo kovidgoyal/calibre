@@ -7,7 +7,7 @@ import json
 import os
 import re
 import tempfile
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from contextlib import suppress
 from functools import lru_cache
 from threading import Thread
@@ -36,17 +36,19 @@ def opener(user_agent=f'calibre {__version__}'):
     return ans
 
 
-def download_data(url: str) -> bytes:
-    with opener().open(url) as f:
+def download_data(url: str, headers: Sequence[tuple[str, str]] = ()) -> bytes:
+    o = opener()
+    o.addheaders.extend(headers)
+    with o.open(url) as f:
         return f.read()
 
 
-def update_cached_data(path: str, url: str) -> None:
-    raw = download_data(url)
+def update_cached_data(path: str, url: str, headers: Sequence[tuple[str, str]] = ()) -> None:
+    raw = download_data(url, headers)
     atomic_write(path, raw)
 
 
-def schedule_update_of_cached_data(path: str, url: str) -> None:
+def schedule_update_of_cached_data(path: str, url: str, headers: Sequence[tuple[str, str]] = ()) -> None:
     mtime = 0
     with suppress(OSError):
         mtime = os.path.getmtime(path)
@@ -54,16 +56,16 @@ def schedule_update_of_cached_data(path: str, url: str) -> None:
     current_time = datetime.datetime.now()
     if current_time - modtime < datetime.timedelta(days=1):
         return
-    Thread(daemon=True, name='AIDataDownload', target=update_cached_data, args=(path, url)).start()
+    Thread(daemon=True, name='AIDataDownload', target=update_cached_data, args=(path, url, headers)).start()
 
 
-def get_cached_resource(path: str, url: str) -> bytes:
+def get_cached_resource(path: str, url: str, headers: Sequence[tuple[str, str]] = ()) -> bytes:
     with suppress(OSError):
         with open(path, 'rb') as f:
             data = f.read()
-        schedule_update_of_cached_data(path, url)
+        schedule_update_of_cached_data(path, url, headers)
         return data
-    data = download_data(url)
+    data = download_data(url, headers)
     atomic_write(path, data)
     return data
 

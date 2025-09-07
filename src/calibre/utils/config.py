@@ -307,8 +307,9 @@ class XMLConfig(dict):
 
     EXTENSION = '.plist'
 
-    def __init__(self, rel_path_to_cf_file, base_path=config_dir):
+    def __init__(self, rel_path_to_cf_file, base_path=config_dir, permissions=0o666):
         dict.__init__(self)
+        self.file_permissions = permissions
         self.no_commit = False
         self.defaults = {}
         self.file_path = os.path.join(base_path,
@@ -395,11 +396,9 @@ class XMLConfig(dict):
     def commit(self):
         if self.no_commit:
             return
-        if getattr(self, 'file_path', None):
-            dpath = os.path.dirname(self.file_path)
-            if not os.path.exists(dpath):
-                os.makedirs(dpath, mode=CONFIG_DIR_MODE)
-            commit_data(self.file_path, self.to_raw())
+        if path := getattr(self, 'file_path', None):
+            os.makedirs(os.path.dirname(path), exist_ok=True, mode=CONFIG_DIR_MODE)
+            commit_data(path, self.to_raw(), self.file_permissions)
 
     def __enter__(self):
         self.no_commit = True

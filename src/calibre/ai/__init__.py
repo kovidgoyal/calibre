@@ -55,6 +55,10 @@ class NoFreeModels(Exception):
     pass
 
 
+class NoAPIKey(Exception):
+    pass
+
+
 class AICapabilities(Flag):
     none = auto()
     text_to_text = auto()

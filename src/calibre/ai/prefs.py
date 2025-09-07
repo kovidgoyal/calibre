@@ -10,11 +10,12 @@ from calibre.ai import AICapabilities
 from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.config import JSONConfig
+from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
 @lru_cache(2)
 def prefs() -> JSONConfig:
-    ans = JSONConfig('ai')
+    ans = JSONConfig('ai', permissions=0o600)  # make readable only by user as it stores secrets
     ans.defaults['providers'] = {}
     ans.defaults['purpose_map'] = {}
     return ans
@@ -47,3 +48,11 @@ def plugin_for_purpose(purpose: AICapabilities) -> AIProviderPlugin | None:
     if compatible_plugins:
         return next(iter(compatible_plugins.values()))
     return None
+
+
+def encode_secret(text: str) -> str:
+    return as_hex_unicode(text)
+
+
+def decode_secret(text: str) -> str:
+    return from_hex_unicode(text)

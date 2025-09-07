@@ -12,11 +12,10 @@ from pprint import pprint
 from typing import Any, NamedTuple
 from urllib.request import Request
 
-from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
-from calibre.ai.prefs import pref_for_provider
+from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, NoFreeModels
+from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import StreamedResponseAccumulator, chat_with_error_handler, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
-from polyglot.binary import from_hex_unicode
 
 module_version = 1  # needed for live updates
 MODELS_URL = 'https://openrouter.ai/api/v1/models'
@@ -204,8 +203,8 @@ def model_choice_for_text() -> Iterator[Model, ...]:
 def decoded_api_key() -> str:
     ans = api_key()
     if not ans:
-        raise ValueError('API key required for OpenRouter')
-    return from_hex_unicode(ans)
+        raise NoAPIKey('API key required for OpenRouter')
+    return decode_secret(ans)
 
 
 def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/completions') -> Request:

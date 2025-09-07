@@ -378,14 +378,14 @@ def read_data(file_path):
     return retry_on_fail(r)
 
 
-def commit_data(file_path, data):
+def commit_data(file_path, data, permissions=0o666):
     import tempfile
     bdir = os.path.dirname(file_path)
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
     try:
         with tempfile.NamedTemporaryFile(dir=bdir, prefix=os.path.basename(file_path).split('.')[0] + '-atomic-', delete=False) as f:
             if hasattr(os, 'fchmod'):
-                os.fchmod(f.fileno(), 0o666 & ~get_umask())
+                os.fchmod(f.fileno(), permissions & ~get_umask())
             f.write(data)
         retry_on_fail(os.replace, f.name, file_path)
     finally:

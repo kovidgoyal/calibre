@@ -35,14 +35,13 @@ from qt.core import (
 
 from calibre.ai import AICapabilities
 from calibre.ai.open_router import OpenRouterAI
-from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
+from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.ebooks.txt.processor import create_markdown_object
 from calibre.gui2 import Application, error_dialog, gprefs, safe_open_url
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
-from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 pref = partial(pref_for_provider, OpenRouterAI.name)
 
@@ -388,7 +387,7 @@ class ConfigWidget(QWidget):
         a.setPlaceholderText(_('An API key is required to use OpenRouter'))
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
-            a.setText(from_hex_unicode(key))
+            a.setText(decode_secret(key))
 
         self.model_strategy = ms = QComboBox(self)
         l.addRow(_('Model &choice strategy:'), ms)
@@ -456,7 +455,7 @@ class ConfigWidget(QWidget):
 
     @property
     def settings(self) -> dict[str, Any]:
-        ans = {'api_key': as_hex_unicode(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
+        ans = {'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
                'reasoning_strategy': self.reasoning_strategy, 'data_collection': self.data_collection}
         if self.text_model.model_id:
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
@@ -467,7 +466,7 @@ class ConfigWidget(QWidget):
         return bool(self.api_key)
 
     def validate(self) -> bool:
-        if self.api_key:
+        if self.is_ready_for_use:
             return True
         error_dialog(self, _('No API key'), _(
             'You must supply an API key to use OpenRouter. Remember to also buy a few credits, even if you'

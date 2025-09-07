@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import glob
 import os
 
+from calibre.ai.google import GoogleAI
 from calibre.ai.open_router import OpenRouterAI
 from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
@@ -1977,7 +1978,7 @@ plugins += [
 
 # }}}
 
-plugins.extend((OpenRouterAI,))
+plugins.extend((OpenRouterAI, GoogleAI))
 
 if __name__ == '__main__':
     # Test load speed
