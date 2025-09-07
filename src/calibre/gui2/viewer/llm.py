@@ -637,6 +637,18 @@ class ActionEditDialog(QDialog):
         title = self.name_edit.text().strip()
         return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip())
 
+    def accept(self) -> None:
+        ac = self.get_action()
+        if not ac.human_name:
+            return error_dialog(self, _('No name specified'), _('You must specify a name for the Quick action'), show=True)
+        if not ac.prompt_template:
+            return error_dialog(self, _('No prompt specified'), _('You must specify a prompt for the Quick action'), show=True)
+        try:
+            ac.prompt_text()
+        except Exception as e:
+            return error_dialog(self, _('Invalid prompt'), _('The prompt you specified is not valid. Error: {}').format(e), show=True)
+        super().accept()
+
 
 class LLMSettingsWidget(QWidget):
 
