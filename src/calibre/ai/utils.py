@@ -196,7 +196,7 @@ def is_probably_markdown(text: str, threshold: float = -1, detect_code: bool = F
 
 @lru_cache(64)
 def response_to_html(text: str, detect_code: bool = False) -> str:
-    if is_probably_markdown(text, threshold=0.2, detect_code=detect_code):
+    if is_probably_markdown(text, detect_code=detect_code):
         from calibre.ebooks.txt.processor import create_markdown_object
         md = create_markdown_object(('tables',))
         return md.convert(text)
