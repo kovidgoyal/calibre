@@ -98,7 +98,6 @@ class EbookViewer(MainWindow):
         MainWindow.__init__(self, None)
         get_boss(self)
 
-        self.pending_note_for_next_highlight = None
         self.annotations_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
@@ -223,12 +222,7 @@ class EbookViewer(MainWindow):
             self.continue_reading()
 
         self.setup_mouse_auto_hide()
-
-        try:
-            self.lookup_widget.llm_add_note_requested.disconnect(self.add_note_to_highlight)
-        except TypeError:
-            pass
-        self.lookup_widget.llm_add_note_requested.connect(self.add_note_to_highlight)
+        self.lookup_widget.add_note_requested.connect(self.add_notes_or_create_highlight)
 
     def create_uuid(self):
         return uuid.uuid4().hex
@@ -858,35 +852,10 @@ class EbookViewer(MainWindow):
 
     def highlights_changed(self, changed_annotations: list):
         try:
-            if self.pending_note_for_next_highlight:
-                old_uuids = {h.get('uuid') for h in self.current_book_data.get('annotations_map', {}).get('highlight', []) if h.get('uuid')}
-                new_master_uuids = {h.get('uuid') for h in changed_annotations if h.get('uuid')}
-                newly_created_uuids = new_master_uuids - old_uuids
-
-                if newly_created_uuids:
-                    new_uuid = newly_created_uuids.pop()
-                    note_to_add = self.pending_note_for_next_highlight
-
-                    js_payload_note = {'uuid': new_uuid, 'notes': note_to_add}
-                    self.web_view.generic_action('set-notes-in-highlight', js_payload_note)
-
-                    for h in changed_annotations:
-                        if h.get('uuid') == new_uuid:
-                            h['notes'] = note_to_add
-                            break
-
-                    js_payload_focus = {'uuid': new_uuid}
-                    self.web_view.generic_action('show-highlight-selection-bar', js_payload_focus)
-
-                    self.pending_note_for_next_highlight = None
-                else:
-                    self.pending_note_for_next_highlight = None
-
             master_map = self.current_book_data.setdefault('annotations_map', {})
             master_map['highlight'] = changed_annotations
             self.highlights_widget.load(changed_annotations)
             self.save_annotations()
-
         except Exception:
             import traceback
             traceback.print_exc()
@@ -902,42 +871,11 @@ class EbookViewer(MainWindow):
         self.save_annotations()
         self.web_view.generic_action('set-notes-in-highlight', {'uuid': uuid, 'notes': notes})
 
-    def add_note_to_highlight(self, payload):
-        highlight_uuid = payload.get('highlight')
-        new_self_contained_entry = payload.get('llm_note', '')
-        if not new_self_contained_entry:
+    def add_notes_or_create_highlight(self, notes: str, style_name_for_new_highlight: str = ''):
+        if not notes:
             return
-
-        if highlight_uuid:
-            found_highlight = False
-            highlight_list = self.current_book_data.setdefault('annotations_map', {}).get('highlight', [])
-            for h in highlight_list:
-                if h.get('uuid') == highlight_uuid:
-                    found_highlight = True
-                    existing_note = h.get('notes', '').strip()
-
-                    separator = '\n\n------------------------------------\n\n'
-                    combined_note = f'{existing_note}{separator}{new_self_contained_entry}' if existing_note else new_self_contained_entry
-
-                    h['notes'] = combined_note
-                    h['timestamp'] = utcnow().isoformat()
-
-                    js_payload = {'uuid': highlight_uuid, 'notes': combined_note}
-                    self.web_view.generic_action('set-notes-in-highlight', js_payload)
-
-                    self.save_annotations()
-                    self.statusBar().showMessage('Note appended to highlight', 3000)
-                    break
-
-            if not found_highlight:
-                # This case should ideally not be hit if the logic is sound, but it is a safe fallback.
-                pass
-
-        else:
-            self.pending_note_for_next_highlight = new_self_contained_entry
-            js_payload = {
-                'type': 'apply-highlight',
-                'style': style_definition_for_name(vprefs.get('llm_highlight_style', '')),
-            }
-            self.web_view.generic_action('annotations', js_payload)
-            self.statusBar().showMessage('Creating highlight with note...', 3000)
+        data = {
+            'style': style_definition_for_name(style_name_for_new_highlight),
+            'notes': notes,
+        }
+        self.web_view.generic_action('add-notes-or-create-highlight', data)

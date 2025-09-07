@@ -212,7 +212,7 @@ def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> s
 
 class LLMPanel(QWidget):
     response_received = pyqtSignal(int, object)
-    add_note_requested = pyqtSignal(dict)
+    add_note_requested = pyqtSignal(str, str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -224,7 +224,6 @@ class LLMPanel(QWidget):
         self.reasoning_hostname = f'{hid}.reasoning.calibre'
         self.counter = count(start=1)
 
-        self.latched_highlight_uuid = None
         self.latched_conversation_text = None
         self.current_api_call_number = 0
         self.session_cost = 0.0
@@ -317,22 +316,18 @@ class LLMPanel(QWidget):
             msg = f'<a href="http://{self.configure_ai_hostname}">{_("First, configure an AI provider")}'
         self.result_display.show_message(msg)
 
-    def update_with_text(self, text, highlight_data=None):
+    def update_with_text(self, text: str) -> None:
         self.update_ai_provider_plugin()
-        new_uuid = (highlight_data or {}).get('uuid')
-        if not text and not new_uuid:
-            if self.latched_conversation_text is not None or self.latched_highlight_uuid is not None:
+        if not text:
+            if self.latched_conversation_text is not None:
                 self.start_new_conversation()
             return
 
         start_new_convo = False
-        if new_uuid != self.latched_highlight_uuid:
-            start_new_convo = True
-        elif new_uuid is None and text != self.latched_conversation_text:
+        if text != self.latched_conversation_text:
             start_new_convo = True
 
         if start_new_convo:
-            self.latched_highlight_uuid = new_uuid
             self.latched_conversation_text = text
             self.clear_current_conversation()
         self.update_ui_state()
@@ -343,7 +338,6 @@ class LLMPanel(QWidget):
 
     def start_new_conversation(self):
         self.clear_current_conversation()
-        self.latched_highlight_uuid = None
         self.latched_conversation_text = None
         self.update_ui_state()
 
@@ -467,12 +461,6 @@ class LLMPanel(QWidget):
         has_responses = self.conversation_history.response_count > 0
         for b in self.response_buttons.values():
             b.setEnabled(has_responses)
-        if has_responses:
-            if self.latched_highlight_uuid:
-                tt = _("Append this response to the existing highlight's note")
-            else:
-                tt = _('Create a new highlight for the selected text and save this response as its note')
-            self.response_buttons[self.save_as_note].setToolTip(tt)
 
     def update_cost(self):
         h = self.conversation_history
@@ -487,11 +475,8 @@ class LLMPanel(QWidget):
 
     def save_as_note(self):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
-            payload = {
-                'highlight': self.latched_highlight_uuid,
-                'llm_note': format_llm_note(self.conversation_history, self.assistant_name),
-            }
-            self.add_note_requested.emit(payload)
+            self.add_note_requested.emit(
+                format_llm_note(self.conversation_history, self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
     def get_conversation_history_for_specific_response(self, message_index: int) -> ConversationHistory | None:
         if not (0 <= message_index < len(self.conversation_history)):
@@ -503,11 +488,8 @@ class LLMPanel(QWidget):
 
     def save_specific_note(self, message_index: int) -> None:
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
-        payload = {
-            'highlight': self.latched_highlight_uuid,
-            'llm_note': format_llm_note(history_for_record, self.assistant_name),
-        }
-        self.add_note_requested.emit(payload)
+        self.add_note_requested.emit(
+            format_llm_note(history_for_record, self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
     def show_reasoning(self, message_index: int) -> None:
         h = self.get_conversation_history_for_specific_response(message_index)

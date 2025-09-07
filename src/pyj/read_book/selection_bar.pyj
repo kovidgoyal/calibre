@@ -989,6 +989,26 @@ class SelectionBar:
         get_session_data().set('highlight_style', self.current_highlight_style.style)
         self.focus()
 
+    def add_notes_or_create_highlight(self, notes, style):
+        if self.state is EDITING:
+            self.hide_editor()
+        annot_id = self.view.currently_showing.selection.annot_id
+        if annot_id:
+            am = self.annotations_manager
+            existing_notes = am.notes_for_highlight(annot_id)
+            if existing_notes:
+                notes = existing_notes + '\n\n------------------------------------\n\n' + notes
+            q = am.style_for_highlight(annot_id)
+            if q:
+                style = q
+        self.current_notes = notes
+        self.send_message(
+            'apply-highlight', style=style, uuid=short_uuid(), has_notes=v'!!self.current_notes', existing=annot_id,
+        )
+        self.state = WAITING
+        self.update_position()
+        self.focus()
+
     def editor_container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
     # }}}
@@ -1119,8 +1139,7 @@ class SelectionBar:
                 before = get_toc_nodes_bordering_spine_item()[0]
                 if before:
                     toc_family = family_for_toc_node(before.id)
-            self.annotations_manager.add_highlight(
-                msg, self.current_highlight_style.style, notes, toc_family)
+            self.annotations_manager.add_highlight(msg, msg.style, notes, toc_family)
         elif msg.type is 'highlight-overlapped':
             question_dialog(
                 _('Are you sure?'), _('This highlight overlaps existing highlights. Creating it will cause notes'

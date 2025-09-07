@@ -333,7 +333,7 @@ def blank_html():
 
 
 class Lookup(QTabWidget):
-    llm_add_note_requested = pyqtSignal(dict)
+    add_note_requested = pyqtSignal(str, str)
 
     def __init__(self, parent, viewer=None):
         QTabWidget.__init__(self, parent)
@@ -344,7 +344,6 @@ class Lookup(QTabWidget):
 
         self.is_visible = False
         self.selected_text = ''
-        self.current_highlight_data = None
         self.current_highlight_cache = None
         self.current_query = ''
         self.current_source = ''
@@ -424,8 +423,8 @@ class Lookup(QTabWidget):
         self.llm_container.layout().addWidget(self.llm_panel)
         if self.current_book_metadata:
             self.llm_panel.update_book_metadata(self.current_book_metadata)
-        self.llm_panel.add_note_requested.connect(self.llm_add_note_requested)
-        self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
+        self.llm_panel.add_note_requested.connect(self.add_note_requested)
+        self.llm_panel.update_with_text(self.selected_text)
 
     def _tab_changed(self, index):
         vprefs.set('llm_lookup_tab_index', index)
@@ -530,7 +529,7 @@ class Lookup(QTabWidget):
         current_idx = self.currentIndex()
         if current_idx == self.llm_tab_index:
             if self.llm_panel:
-                self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
+                self.llm_panel.update_with_text(self.selected_text)
         else:
             query = self.selected_text or self.current_query
             if self.query_is_up_to_date or not query:
@@ -582,7 +581,6 @@ class Lookup(QTabWidget):
         if processed_annot_data and processed_annot_data.get('uuid'):
             self.current_highlight_cache = processed_annot_data
 
-        self.current_highlight_data = processed_annot_data
         self.selected_text = text or ''
 
         if self.selected_text and self.currentIndex() == self.llm_tab_index:
@@ -593,7 +591,7 @@ class Lookup(QTabWidget):
 
         self.update_refresh_button_status()
         if self.llm_panel:
-            self.llm_panel.update_with_text(self.selected_text, self.current_highlight_data)
+            self.llm_panel.update_with_text(self.selected_text)
 
     def on_forced_show(self):
         self.update_query()

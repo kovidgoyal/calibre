@@ -859,14 +859,14 @@ class IframeBoss:
         else:
             end_reference_mode()
 
-    def apply_highlight(self, uuid, existing, has_notes, style):
+    def apply_highlight(self, uuid, existing, has_notes, style_defn):
         sel = window.getSelection()
         if not sel.rangeCount:
             return
         anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.book.manifest.page_list_anchor_map)
         text = sel.toString()
         bounds = cfi_for_selection()
-        style = highlight_style_as_css(style, opts.is_dark_theme, opts.color_scheme.foreground)
+        style = highlight_style_as_css(style_defn, opts.is_dark_theme, opts.color_scheme.foreground)
         cls = 'crw-has-dot' if has_notes else None
         annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
         removed_highlights = v'[]'
@@ -891,7 +891,7 @@ class IframeBoss:
             'annotations',
             type='highlight-applied',
             uuid=uuid, ok=annot_id is not None,
-            bounds=bounds,
+            bounds=bounds, style=style_defn,
             removed_highlights=removed_highlights,
             highlighted_text=text,
             anchor_before=anchor_before
