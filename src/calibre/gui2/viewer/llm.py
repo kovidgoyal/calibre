@@ -103,7 +103,8 @@ class Action(NamedTuple):
 
         selected_text = (prompt_sep + what + selected_text) if selected_text else ''
         return pt.format(
-            selected=selected_text, language=calibre_langcode_to_name(canonicalize_lang(get_lang()) or 'English', localize=False)
+            selected=selected_text,
+            language=calibre_langcode_to_name(canonicalize_lang(get_lang()) or 'English', localize=False),
         ).strip()
 
 
