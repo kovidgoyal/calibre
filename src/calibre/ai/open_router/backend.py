@@ -299,6 +299,4 @@ def develop(use_model: str = ''):
 
 
 if __name__ == '__main__':
-    from pprint import pprint
-    for m in get_available_models().values():
-        pprint(m)
+    develop()
