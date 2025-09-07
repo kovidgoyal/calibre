@@ -395,7 +395,7 @@ class ConfigWidget(QWidget):
         ms.addItem(_('Free only'), 'free-only')
         ms.addItem(_('Free or paid'), 'free-or-paid')
         ms.addItem(_('High quality'), 'native')
-        if strat := pref('model_choice_strategy'):
+        if strat := pref('model_choice_strategy', 'free-or-paid'):
             ms.setCurrentIndex(max(0, ms.findData(strat)))
         ms.setToolTip('<p>' + _(
             'The model choice strategy controls how a model to query is chosen when no specific'

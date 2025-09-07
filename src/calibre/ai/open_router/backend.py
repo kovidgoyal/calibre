@@ -13,7 +13,6 @@ from typing import Any, NamedTuple
 from urllib.request import Request
 
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoFreeModels
-from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.ai.utils import StreamedResponseAccumulator, chat_with_error_handler, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
@@ -24,6 +23,7 @@ MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
 def pref(key: str, defval: Any = None) -> Any:
+    from calibre.ai.open_router import OpenRouterAI
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
@@ -192,7 +192,7 @@ def model_choice_for_text() -> Iterator[Model, ...]:
     if m := get_available_models().get(model_id):
         yield m
         return
-    match pref('model_choice_strategy', 'free'):
+    match pref('model_choice_strategy', 'free-or-paid'):
         case 'free-or-paid':
             yield from free_model_choice_for_text(allow_paid=True)
         case 'free-only':
