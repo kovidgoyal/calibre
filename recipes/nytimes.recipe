@@ -267,7 +267,7 @@ def preloaded_data(soup):
     raw = clean_js_json(raw)
     # with open('/t/raw.json', 'w') as f:
     #     f.write(raw)
-    return json.loads(raw)['initialState']
+    return json.JSONDecoder(strict=False).raw_decode(raw)[0]['initialState']
 
 
 def asset_to_article(asset):

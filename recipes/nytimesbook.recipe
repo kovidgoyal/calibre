@@ -132,7 +132,7 @@ def preloaded_data(soup):
     script = str(script)
     raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')  # }
     raw = clean_js_json(raw)
-    return json.loads(raw)['initialState']
+    return json.JSONDecoder(strict=False).raw_decode(raw)[0]['initialState']
 
 
 def parse_toc(soup):

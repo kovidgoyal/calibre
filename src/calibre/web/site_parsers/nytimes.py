@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 13  # needed for live updates
+module_version = 14  # needed for live updates
 pprint
 
 
@@ -207,7 +207,7 @@ def clean_js_json(text):
 
 
 def json_to_html(raw):
-    data = json.loads(clean_js_json(raw))
+    data = json.JSONDecoder(strict=False).raw_decode(raw)[0]
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
     try:
         data = data['initialData']['data']
