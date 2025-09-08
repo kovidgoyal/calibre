@@ -21,7 +21,7 @@ jobs:
                 pacman -S --noconfirm tar
 
             - name: Checkout source code
-              uses: actions/checkout@master
+              uses: actions/checkout@v5
               with:
                 fetch-depth: 2
                 persist-credentials: false

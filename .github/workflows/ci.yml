@@ -12,13 +12,13 @@ jobs:
                 os: [ubuntu-latest, macos-latest, windows-latest]
         steps:
             - name: Checkout source code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v5
               with:
                 fetch-depth: 10
                 persist-credentials: false
 
             - name: Set up Python
-              uses: actions/setup-python@v3
+              uses: actions/setup-python@v6
               with:
                 python-version: "3.10"
 
@@ -51,7 +51,7 @@ jobs:
                 pacman -S --noconfirm tar
 
             - name: Checkout source code
-              uses: actions/checkout@master
+              uses: actions/checkout@v5
               with:
                 fetch-depth: 10
 
