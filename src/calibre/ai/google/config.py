@@ -23,8 +23,12 @@ class ConfigWidget(QWidget):
             'You have to create an account at {0}, then generate an'
             ' API key. After that, you can use the Google AI services a limited number of times a day for free.'
             ' For more extensive use, you will need to setup a <a href="{1}">Google Cloud billing account</a>.'
-            ' Note that Google might use your prompts for their training data unless you setup the billing account.'
-        ).format('<a href="https://aistudio.google.com/">Google AI Studio</a>', 'https://aistudio.google.com/usage'))
+            ' Note that Google will use your prompts for their training data unless you setup the billing account.'
+            ' <a href="{2}>Pricing details</a> for different models.'
+        ).format(
+            '<a href="https://aistudio.google.com/">Google AI Studio</a>',
+            'https://aistudio.google.com/usage', 'https://ai.google.dev/gemini-api/docs/pricing',
+        ))
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -45,6 +49,18 @@ class ConfigWidget(QWidget):
             'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
             ' quality results.'
         ))
+        self.reasoning_strat = rs = QComboBox(self)
+        l.addRow(_('&Reasoning effort:'), rs)
+        rs.addItem(_('Automatic'), 'auto')
+        rs.addItem(_('Medium'), 'medium')
+        rs.addItem(_('High'), 'high')
+        rs.addItem(_('Low'), 'low')
+        rs.addItem(_('No reasoning'), 'none')
+        if strat := pref('reasoning_strategy', 'auto'):
+            rs.setCurrentIndex(max(0, rs.findData(strat)))
+        rs.setToolTip('<p>'+_(
+            'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
+            ' better quality responses at the cost of increased cost and reduced speed.'))
 
     @property
     def api_key(self) -> str:
@@ -55,8 +71,12 @@ class ConfigWidget(QWidget):
         return self.model_strategy.currentData()
 
     @property
+    def reasoning_strategy(self) -> str:
+        return self.model_strategy.currentData()
+
+    @property
     def settings(self) -> dict[str, str]:
-        return {'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy}
+        return {'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy, 'reasoning_strategy': self.reasoning_strategy}
 
     @property
     def is_ready_for_use(self) -> bool:

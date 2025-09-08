@@ -5,16 +5,15 @@ import datetime
 import json
 import os
 import re
-import sys
 from collections.abc import Iterable, Iterator
 from functools import lru_cache
-from pprint import pprint
 from typing import Any, NamedTuple
 from urllib.request import Request
 
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, NoFreeModels
+from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
-from calibre.ai.utils import StreamedResponseAccumulator, chat_with_error_handler, get_cached_resource, read_streaming_response
+from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
 
 module_version = 1  # needed for live updates
@@ -22,7 +21,6 @@ MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
 def pref(key: str, defval: Any = None) -> Any:
-    from calibre.ai.open_router import OpenRouterAI
     return pref_for_provider(OpenRouterAI.name, key, defval)
 
 
@@ -40,15 +38,15 @@ def human_readable_model_name(model_id: str) -> str:
 
 
 class Pricing(NamedTuple):
-    # Values are in USD per token/request/unit
-    input_token: float  # cost per input token
-    output_token: float  # cost per output token
-    request: float  # per API request
-    image: float  # per image
-    web_search: float  # per web search
-    internal_reasoning: float  # cost per internal reasoning token
-    input_cache_read: float  # cost per cached input token read
-    input_cache_write: float  # cost per cached input token write
+    # Values are in credits per token/request/unit
+    input_token: float        = 0  # cost per input token
+    output_token: float       = 0  # cost per output token
+    request: float            = 0  # per API request
+    image: float              = 0  # per image
+    web_search: float         = 0  # per web search
+    internal_reasoning: float = 0  # cost per internal reasoning token
+    input_cache_read: float   = 0  # cost per cached input token read
+    input_cache_write: float  = 0  # cost per cached input token write
 
     @classmethod
     def from_dict(cls, x: dict[str, str]) -> 'Pricing':
@@ -217,6 +215,13 @@ def chat_request(data: dict[str, Any], url='https://openrouter.ai/api/v1/chat/co
     return Request(url, data=json.dumps(data).encode('utf-8'), headers=headers, method='POST')
 
 
+def for_assistant(self: ChatMessage) -> dict[str, Any]:
+    ans = {'role': self.type.value, 'content': self.query}
+    if self.reasoning_details:
+        ans['reasoning_details'] = self.reasoning_details
+    return ans
+
+
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     if use_model:
         models = ()
@@ -231,7 +236,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         data_collection = 'deny'
     data = {
         'model': model_id,
-        'messages': [m.for_assistant() for m in messages],
+        'messages': [for_assistant(m) for m in messages],
         'usage': {'include': True},
         'stream': True,
         'reasoning': {'enabled': True},
@@ -247,7 +252,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
             data['reasoning']['enabled'] = False
     rq = chat_request(data)
 
-    for data in read_streaming_response(rq):
+    for data in read_streaming_response(rq, OpenRouterAI.name):
         for choice in data['choices']:
             d = choice['delta']
             c = d.get('content') or ''
@@ -255,11 +260,11 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
             rd = d.get('reasoning_details') or ()
             role = d.get('role') or 'assistant'
             if c or r or rd:
-                yield ChatResponse(content=c, reasoning=r, reasoning_details=rd, type=ChatMessageType(role))
+                yield ChatResponse(content=c, reasoning=r, reasoning_details=rd, type=ChatMessageType(role), plugin_name=OpenRouterAI.name)
         if u := data.get('usage'):
             yield ChatResponse(
                 cost=float(u['cost'] or 0), currency=_('credits'), provider=data.get('provider') or '',
-                model=data.get('model') or '', has_metadata=True,
+                model=data.get('model') or '', has_metadata=True, plugin_name=OpenRouterAI.name
             )
 
 
@@ -269,32 +274,7 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
 
 def develop(use_model: str = ''):
     # calibre-debug -c 'from calibre.ai.open_router.backend import *; develop()'
-    acc = StreamedResponseAccumulator()
-    messages = [
-        ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
-        ChatMessage('Give me twenty lines on my supremely beautiful wife.')
-    ]
-    for x in text_chat(messages, use_model):
-        if x.exception:
-            if x.error_details:
-                print(x.error_details, file=sys.stderr)
-            raise SystemExit(str(x.exception))
-        acc.accumulate(x)
-        if x.content:
-            print(end=x.content, flush=True)
-    acc.finalize()
-    print()
-    if acc.all_reasoning:
-        print('Reasoning:')
-        print(acc.all_reasoning)
-    print()
-    if acc.metadata.has_metadata:
-        x = acc.metadata
-        print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider!r} Model: {x.model!r}')
-    messages.extend(acc.messages)
-    print('Messages:')
-    for msg in messages:
-        pprint(msg.for_assistant())
+    develop_text_chat(develop, use_model)
 
 
 if __name__ == '__main__':

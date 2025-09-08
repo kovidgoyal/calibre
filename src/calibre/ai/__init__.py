@@ -26,12 +26,6 @@ class ChatMessage(NamedTuple):
     def from_assistant(self) -> bool:
         return self.type is ChatMessageType.assistant
 
-    def for_assistant(self) -> dict[str, Any]:
-        ans = {'role': self.type.value, 'content': self.query}
-        if self.reasoning_details:
-            ans['reasoning_details'] = self.reasoning_details
-        return ans
-
 
 class ChatResponse(NamedTuple):
     content: str = ''
@@ -46,9 +40,10 @@ class ChatResponse(NamedTuple):
     # streaming chat session.
     has_metadata: bool = False
     cost: float = 0
-    currency: str = 'USD'
+    currency: str = ''  # no currency means unknown
     provider: str = ''
     model: str = ''
+    plugin_name: str = ''
 
 
 class NoFreeModels(Exception):
@@ -57,6 +52,83 @@ class NoFreeModels(Exception):
 
 class NoAPIKey(Exception):
     pass
+
+
+class PromptBlockReason(Enum):
+    unknown = auto()
+    safety = auto()
+    blocklist = auto()
+    prohibited_content = auto()
+    unsafe_image_generated = auto()
+
+    @property
+    def for_human(self) -> str:
+        match self:
+            case PromptBlockReason.safety:
+                return _('Prompt would cause dangerous content to be generated')
+            case PromptBlockReason.blocklist:
+                return _('Prompt contains terms from a blocklist')
+            case PromptBlockReason.prohibited_content:
+                return _('Prompt would cause prohibited content to be generated')
+            case PromptBlockReason.unsafe_image_generated:
+                return _('Prompt would cause unsafe image content to be generated')
+        return _('Prompt was blocked for an unknown reason')
+
+
+class ResultBlockReason(Enum):
+    unknown = auto()
+    max_tokens = auto()
+    safety = auto()
+    recitation = auto()
+    unsupported_language = auto()
+    blocklist = auto()
+    prohibited_content = auto()
+    personally_identifiable_info = auto()
+    malformed_function_call = auto()
+    unsafe_image_generated = auto()
+    unexpected_tool_call = auto()
+    too_many_tool_calls = auto()
+
+    @property
+    def for_human(self) -> str:
+        match self:
+            case ResultBlockReason.max_tokens:
+                return _('Result would contain too many tokens')
+            case ResultBlockReason.safety:
+                return _('Result would contain dangerous content')
+            case ResultBlockReason.recitation:
+                return _('Result would contain copyrighted content')
+            case ResultBlockReason.unsupported_language:
+                return _('Result would contain an unsupported language')
+            case ResultBlockReason.personally_identifiable_info:
+                return _('Result would contain personally identifiable information')
+            case ResultBlockReason.blocklist:
+                return _('Result contains terms from a blocklist')
+            case ResultBlockReason.prohibited_content:
+                return _('Rusult would contain prohibited content')
+            case ResultBlockReason.unsafe_image_generated:
+                return _('Result would contain unsafe image content')
+            case ResultBlockReason.malformed_function_call:
+                return _('Result would contain a malformed function call/tool invocation')
+            case ResultBlockReason.unexpected_tool_call:
+                return _('Model tried to use a tool with no tools configured')
+            case ResultBlockReason.too_many_tool_calls:
+                return _('Model tried to use too many tools')
+        return _('Result was blocked for an unknown reason')
+
+
+class PromptBlocked(ValueError):
+
+    def __init__(self, reason: PromptBlockReason):
+        super().__init__(reason.for_human)
+        self.reason = reason
+
+
+class ResultBlocked(ValueError):
+
+    def __init__(self, reason: ResultBlockReason):
+        super().__init__(reason.for_human)
+        self.reason = reason
 
 
 class AICapabilities(Flag):

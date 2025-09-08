@@ -6,8 +6,9 @@ import http
 import json
 import os
 import re
+import sys
 import tempfile
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import suppress
 from functools import lru_cache
 from threading import Thread
@@ -79,13 +80,13 @@ def _read_response(buffer: str) -> Iterator[dict[str, Any]]:
     yield json.loads(buffer)
 
 
-def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:
+def read_streaming_response(rq: Request, provider_name: str = 'AI provider') -> Iterator[dict[str, Any]]:
     with opener().open(rq) as response:
         if response.status != http.HTTPStatus.OK:
             details = ''
             with suppress(Exception):
                 details = response.read().decode('utf-8', 'replace')
-            raise Exception(f'Reading from AI provider failed with HTTP response status: {response.status} and body: {details}')
+            raise Exception(f'Reading from {provider_name} failed with HTTP response status: {response.status} and body: {details}')
         buffer = ''
         for raw_line in response:
             line = raw_line.decode('utf-8')
@@ -204,3 +205,33 @@ def response_to_html(text: str, detect_code: bool = False) -> str:
         return md.convert(text)
     from html import escape
     return escape(text).replace('\n', '<br>')
+
+
+def develop_text_chat(text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]], use_model: str = ''):
+    acc = StreamedResponseAccumulator()
+    messages = [
+        ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
+        ChatMessage('Give me twenty lines on my supremely beautiful wife.')
+    ]
+    for x in text_chat(messages, use_model):
+        if x.exception:
+            if x.error_details:
+                print(x.error_details, file=sys.stderr)
+            raise SystemExit(str(x.exception))
+        acc.accumulate(x)
+        if x.content:
+            print(end=x.content, flush=True)
+    acc.finalize()
+    print()
+    if acc.all_reasoning:
+        print('Reasoning:')
+        print(acc.all_reasoning)
+    print()
+    if acc.metadata.has_metadata:
+        x = acc.metadata
+        print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider!r} Model: {x.model!r}')
+    messages.extend(acc.messages)
+    print('Messages:')
+    from pprint import pprint
+    for msg in messages:
+        pprint(msg)

@@ -504,11 +504,14 @@ class LLMPanel(QWidget):
         if self.session_cost_currency != h.currency:
             self.session_cost = 0
             self.session_cost_currency = h.currency
-        self.session_cost += h.cost
-        cost = _('free')
-        if self.session_cost:
-            cost = f'{self.session_cost:.2f}'.rstrip('0').rstrip('.') + f' {self.session_cost_currency}'
-        self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number} @ {_("Cost")}: {cost}')
+        if self.session_cost_currency:
+            self.session_cost += h.cost
+            cost = _('free')
+            if self.session_cost:
+                cost = f'{self.session_cost:.2f}'.rstrip('0').rstrip('.') + f' {self.session_cost_currency}'
+            self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number} @ {_("Cost")}: {cost}')
+        else:
+            self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number}')
 
     def save_as_note(self):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
