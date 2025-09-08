@@ -508,8 +508,8 @@ class LLMPanel(QWidget):
             self.session_cost += h.cost
             cost = _('free')
             if self.session_cost:
-                cost = f'{self.session_cost:.2f}'.rstrip('0').rstrip('.') + f' {self.session_cost_currency}'
-            self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number} @ {_("Cost")}: {cost}')
+                cost = f'{self.session_cost:.6f}'.rstrip('0').rstrip('.') + f' {self.session_cost_currency}'
+            self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number} @ {cost}')
         else:
             self.api_usage_label.setText(f'{_("Queries:")} {self.current_api_call_number}')
 
