@@ -16,9 +16,21 @@ from collections import defaultdict, namedtuple
 from itertools import groupby
 
 from qt.core import (
-    QAbstractTableModel, QApplication, QColor, QDateTime,
-    QFont, QFontMetrics, QIcon, QImage, QLocale, QModelIndex, QPainter,
-    QPixmap, Qt, pyqtSignal)
+    QAbstractTableModel,
+    QApplication,
+    QColor,
+    QDateTime,
+    QFont,
+    QFontMetrics,
+    QIcon,
+    QImage,
+    QLocale,
+    QModelIndex,
+    QPainter,
+    QPixmap,
+    Qt,
+    pyqtSignal,
+)
 
 from calibre import fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding

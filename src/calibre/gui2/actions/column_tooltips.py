@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2022, Charles Haley
 #
 
-from qt.core import Qt, QDialogButtonBox, QVBoxLayout
+from qt.core import QDialogButtonBox, Qt, QVBoxLayout
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -22,7 +22,7 @@ class ToolTipDialog(Dialog):
 
     def __init__(self, title, prefs):
         super().__init__(title, 'show_tooltip_dialog',
-                         prefs = prefs,
+                         prefs=prefs,
                          default_buttons=QDialogButtonBox.StandardButton.Ok)
 
     def setup_ui(self):

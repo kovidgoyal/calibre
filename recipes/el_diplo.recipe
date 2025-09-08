@@ -110,7 +110,7 @@ class ElDiplo2023(BasicNewsRecipe):
             p['style'] = f'font-size: {font_size};'
 
         # remove extra text
-        extra_text = soup.find(string="POST TYPE: post")
+        extra_text = soup.find(string='POST TYPE: post')
         if extra_text:
             extra_text.parent.decompose()
 
