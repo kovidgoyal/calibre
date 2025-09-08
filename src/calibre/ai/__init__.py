@@ -27,6 +27,21 @@ class ChatMessage(NamedTuple):
         return self.type is ChatMessageType.assistant
 
 
+class WebLink(NamedTuple):
+    title: str = ''
+    uri: str = ''
+
+    def __bool__(self) -> bool:
+        return bool(self.title and self.uri)
+
+
+class Citation(NamedTuple):
+    links: Sequence[int]
+    start_offset: int
+    end_offset: int
+    text: str = ''
+
+
 class ChatResponse(NamedTuple):
     content: str = ''
     reasoning: str = ''
@@ -44,6 +59,8 @@ class ChatResponse(NamedTuple):
     provider: str = ''
     model: str = ''
     plugin_name: str = ''
+    citations: Sequence[Citation] = ()
+    web_links: Sequence[WebLink] = ()
 
 
 class NoFreeModels(Exception):
@@ -105,7 +122,7 @@ class ResultBlockReason(Enum):
             case ResultBlockReason.blocklist:
                 return _('Result contains terms from a blocklist')
             case ResultBlockReason.prohibited_content:
-                return _('Rusult would contain prohibited content')
+                return _('Result would contain prohibited content')
             case ResultBlockReason.unsafe_image_generated:
                 return _('Result would contain unsafe image content')
             case ResultBlockReason.malformed_function_call:
