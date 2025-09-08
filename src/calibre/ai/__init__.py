@@ -146,3 +146,7 @@ class AICapabilities(Flag):
     @property
     def supports_text_to_image(self) -> bool:
         return AICapabilities.text_to_image in self
+
+    @property
+    def purpose(self) -> str:
+        return 'AICapabilities.'+'|'.join(sorted(x.name for x in self))

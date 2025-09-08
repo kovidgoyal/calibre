@@ -68,7 +68,7 @@ class ConfigureAI(QWidget):
             return False
         p.save_settings(w)
         pmap = prefs()['purpose_map']
-        pmap[str(self.purpose)] = p.name
+        pmap[self.purpose.purpose] = p.name
         prefs().set('purpose_map', pmap)
         return True
 

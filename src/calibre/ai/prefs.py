@@ -42,7 +42,7 @@ def plugins_for_purpose(purpose: AICapabilities) -> Iterator[AIProviderPlugin]:
 
 def plugin_for_purpose(purpose: AICapabilities) -> AIProviderPlugin | None:
     compatible_plugins = {p.name: p for p in plugins_for_purpose(purpose)}
-    q = prefs()['purpose_map'].get(str(purpose), '')
+    q = prefs()['purpose_map'].get(purpose.purpose, '')
     if ans := compatible_plugins.get(q):
         return ans
     if compatible_plugins:
