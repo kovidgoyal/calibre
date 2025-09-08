@@ -10,6 +10,7 @@ from calibre.ai import AICapabilities
 from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.utils.config import JSONConfig
+from calibre.utils.icu import primary_sort_key
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 
 
@@ -35,7 +36,7 @@ def set_prefs_for_provider(name: str, pref_map: dict[str, Any]) -> None:
 
 
 def plugins_for_purpose(purpose: AICapabilities) -> Iterator[AIProviderPlugin]:
-    for p in sorted(available_ai_provider_plugins(), key=lambda p: (p.priority, p.name.lower())):
+    for p in sorted(available_ai_provider_plugins(), key=lambda p: primary_sort_key(p.name)):
         if p.capabilities & purpose == purpose:
             yield p
 
