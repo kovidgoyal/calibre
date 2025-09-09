@@ -41,7 +41,7 @@ from qt.core import (
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse
 from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
-from calibre.ai.utils import StreamedResponseAccumulator, response_to_html
+from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
@@ -60,13 +60,13 @@ prompt_sep = '\n\n------\n\n'
 reasoning_icon = 'reports.png'
 
 
-def for_display_to_human(self: ChatMessage, is_initial_query: bool = False) -> str:
+def for_display_to_human(self: ChatMessage, is_initial_query: bool = False, content_type: ContentType = ContentType.unknown) -> str:
     if self.type is ChatMessageType.system:
         return ''
     q = self.query
     if is_initial_query and (idx := q.find(prompt_sep)) > -1:
         q = q[:idx] + '\n\n' + q[idx + len(prompt_sep):]
-    return response_to_html(q)
+    return response_to_html(q, content_type=content_type)
 
 
 class Action(NamedTuple):
@@ -382,8 +382,9 @@ class LLMPanel(QWidget):
         self.result_display.clear()
         assistant = self.assistant_name
         is_initial_query = True
+        content_type = self.conversation_history.accumulator.content_type
         for i, message in enumerate(self.conversation_history):
-            content_for_display = for_display_to_human(message, is_initial_query)
+            content_for_display = for_display_to_human(message, is_initial_query, content_type)
             if message.type is ChatMessageType.user:
                 is_initial_query = False
             if not content_for_display:

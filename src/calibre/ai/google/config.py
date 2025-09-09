@@ -4,7 +4,7 @@
 
 from functools import partial
 
-from qt.core import QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
+from qt.core import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
 
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
@@ -49,6 +49,9 @@ class ConfigWidget(QWidget):
             'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
             ' quality results.'
         ))
+        self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
+        aws.setChecked(pref('allow_web_searches', True))
+        aws.setToolTip(_('If enabled, Gemini will use Google Web searches to return accurate and up-to-date information for queries, where possible'))
         self.reasoning_strat = rs = QComboBox(self)
         l.addRow(_('&Reasoning effort:'), rs)
         rs.addItem(_('Automatic'), 'auto')
@@ -75,8 +78,15 @@ class ConfigWidget(QWidget):
         return self.model_strategy.currentData()
 
     @property
+    def allow_web_searches(self) -> bool:
+        return self._allow_web_searches.isChecked()
+
+    @property
     def settings(self) -> dict[str, str]:
-        return {'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy, 'reasoning_strategy': self.reasoning_strategy}
+        return {
+            'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
+            'reasoning_strategy': self.reasoning_strategy, 'allow_web_searches': self.allow_web_searches,
+        }
 
     @property
     def is_ready_for_use(self) -> bool:

@@ -16,7 +16,19 @@ from functools import lru_cache
 from typing import Any, NamedTuple
 from urllib.request import Request
 
-from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, PromptBlocked, PromptBlockReason, ResultBlocked, ResultBlockReason
+from calibre.ai import (
+    AICapabilities,
+    ChatMessage,
+    ChatMessageType,
+    ChatResponse,
+    Citation,
+    NoAPIKey,
+    PromptBlocked,
+    PromptBlockReason,
+    ResultBlocked,
+    ResultBlockReason,
+    WebLink,
+)
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
@@ -205,12 +217,12 @@ def gemini_models(version: float = 0) -> dict[str, Model]:
     version = version or max(gemini)
     ans = {}
     for m in gemini[version]:
-        if 'pro' in m.name_parts:
+        if m.name_parts[-1] == 'pro':
             ans['high'] = m
-        elif 'lite' in m.name_parts:
-            ans['low'] = m
-        else:
+        elif m.name_parts[-1] == 'flash':
             ans['medium'] = m
+        elif m.name_parts[-2:] == ('flash', 'lite'):
+            ans['low'] = m
     return ans
 
 
@@ -291,6 +303,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
         if br := pf.get('blockReason'):
             yield ChatResponse(exception=PromptBlocked(block_reason(br)))
             return
+    grounding_chunks, grounding_supports = [], []
     for c in d['candidates']:
         has_metadata = False
         cost, currency = 0, ''
@@ -302,6 +315,22 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
                 yield ChatResponse(exception=ResultBlocked(result_block_reason(fr)))
                 return
         content = c['content']
+        if gm := c.get('groundingMetadata'):
+            grounding_chunks.extend(gm['groundingChunks'])
+            grounding_supports.extend(gm['groundingSupports'])
+        citations, web_links = [], []
+        if has_metadata:
+            for x in grounding_chunks:
+                if w := x.get('web'):
+                    web_links.append(WebLink(**w))
+                else:
+                    web_links.append(WebLink())
+
+            for s in grounding_supports:
+                if links := tuple(i for i in s['groundingChunkIndices'] if web_links[i]):
+                    seg = s['segment']
+                    citations.append(Citation(
+                        links, start_offset=seg.get('startIndex', 0), end_offset=seg.get('endIndex', 0), text=seg.get('text', '')))
         role = ChatMessageType.user if 'user' == content.get('role') else ChatMessageType.assistant
         content_parts = []
         reasoning_parts = []
@@ -314,7 +343,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
         yield ChatResponse(
             type=role, content=''.join(content_parts), reasoning=''.join(reasoning_parts),
             reasoning_details=tuple(reasoning_details), has_metadata=has_metadata, model=model.id,
-            cost=cost, plugin_name=GoogleAI.name, currency=currency,
+            cost=cost, plugin_name=GoogleAI.name, currency=currency, citations=citations, web_links=web_links,
         )
 
 
@@ -343,6 +372,8 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         data['system_instruction'] = {'parts': system_instructions}
     if contents:
         data['contents'] = [{'parts': contents}]
+    if pref('allow_web_searches', True):
+        data['tools'] = [{'google_search': {}}]
     rq = chat_request(data, model)
 
     for datum in read_streaming_response(rq, GoogleAI.name):
@@ -353,10 +384,11 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
-def develop(use_model: str = '') -> None:
+def develop(use_model: str = '', msg: str = '') -> None:
     # calibre-debug -c 'from calibre.ai.google.backend import develop; develop()'
     print('\n'.join(f'{k}:{m.id}' for k, m in gemini_models().items()))
-    develop_text_chat(text_chat, ('models/' + use_model) if use_model else '')
+    m = (ChatMessage(msg),) if msg else ()
+    develop_text_chat(text_chat, ('models/' + use_model) if use_model else '', messages=m)
 
 
 if __name__ == '__main__':

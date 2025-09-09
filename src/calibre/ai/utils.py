@@ -6,10 +6,10 @@ import http
 import json
 import os
 import re
-import sys
 import tempfile
 from collections.abc import Callable, Iterable, Iterator, Sequence
 from contextlib import suppress
+from enum import Enum, auto
 from functools import lru_cache
 from threading import Thread
 from typing import Any
@@ -17,7 +17,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
 
 from calibre import get_proxies
-from calibre.ai import ChatMessage, ChatMessageType, ChatResponse
+from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, WebLink
 from calibre.constants import __version__
 
 
@@ -120,6 +120,41 @@ def chat_with_error_handler(it: Iterable[ChatResponse]) -> Iterator[ChatResponse
         yield ChatResponse(exception=e, error_details=traceback.format_exc())
 
 
+class ContentType(Enum):
+    unknown = auto()
+    markdown = auto()
+
+
+ref_link_prefix = 'calibre-link-'
+
+
+def add_citation(text: str, citation: Citation, web_links: Sequence[WebLink], escaped_titles: Sequence[str]) -> str:
+    if len(citation.links) == 1:
+        wl = web_links[citation.links[0]]
+        escaped_title = escaped_titles[citation.links[0]]
+        return (
+            text[:citation.start_offset] +
+            f'[{text[citation.start_offset:citation.end_offset]}]({wl.uri} "{escaped_title}")' +
+            text[citation.end_offset:])
+    citation_links = []
+    for i, link_num in enumerate(citation.links):
+        wl = web_links[link_num]
+        title = escaped_titles[link_num]
+        citation_links.append(f'[{i+1}]({wl.uri} "{title}")')
+    return text[:citation.end_offset] + '<sup>' + ', '.join(citation_links) + '</sup>' + text[citation.end_offset:]
+
+
+def add_citations(text: str, metadata: ChatMessage) -> str:
+    citations, web_links = metadata.citations, metadata.web_links
+    if not citations or not web_links:
+        return text
+    escaped_titles = tuple(wl.title.replace('"', r'\"') for wl in web_links)
+    for citation in sorted(citations, key=lambda c: c.end_offset, reverse=True):
+        if citation.links:
+            text = add_citation(text, citation, web_links, escaped_titles)
+    return text
+
+
 class StreamedResponseAccumulator:
 
     def __init__(self):
@@ -127,6 +162,10 @@ class StreamedResponseAccumulator:
         self.all_reasoning_details: list[dict[str, Any]] = []
         self.metadata = ChatResponse()
         self.messages: list[ChatMessage] = []
+
+    @property
+    def content_type(self) -> ContentType:
+        return ContentType.markdown if self.metadata.citations else ContentType.unknown
 
     def __iter__(self) -> Iterator[ChatMessage]:
         return iter(self.messages)
@@ -142,7 +181,7 @@ class StreamedResponseAccumulator:
 
     def finalize(self) -> None:
         self.messages.append(ChatMessage(
-            type=ChatMessageType.assistant, query=self.all_content, reasoning=self.all_reasoning,
+            type=ChatMessageType.assistant, query=add_citations(self.all_content, self.metadata), reasoning=self.all_reasoning,
             reasoning_details=tuple(self.all_reasoning_details)
         ))
 
@@ -152,6 +191,9 @@ def markdown_patterns(detect_code: bool = False) -> dict[re.Pattern[str], float]
     ans = {re.compile(pat): score for pat, score in {
         # Check for Markdown headers (# Header, ## Subheader, etc.)
         r'(?m)^#{1,6}\s+.+$': 0.15,
+
+        # Check for Markdown two part links and footnotes [..]:
+        r'(?m)^\[\.+?\]: ': 0.15,
 
         # Check for bold (**text**)
         r'\*\*.+?\*\*': 0.05,
@@ -198,26 +240,28 @@ def is_probably_markdown(text: str, threshold: float = -1, detect_code: bool = F
 
 
 @lru_cache(64)
-def response_to_html(text: str, detect_code: bool = False) -> str:
-    if is_probably_markdown(text, detect_code=detect_code):
+def response_to_html(text: str, content_type: ContentType = ContentType.unknown, detect_code: bool = False) -> str:
+    is_markdown = is_probably_markdown(text, detect_code=detect_code) if ContentType is ContentType.unknown else True
+    if is_markdown:
         from calibre.ebooks.txt.processor import create_markdown_object
-        md = create_markdown_object(('tables',))
+        md = create_markdown_object(('tables', 'footnotes'))
         return md.convert(text)
     from html import escape
     return escape(text).replace('\n', '<br>')
 
 
-def develop_text_chat(text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]], use_model: str = ''):
+def develop_text_chat(
+    text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]], use_model: str = '',
+    messages: Sequence[ChatMessage] = (),
+):
     acc = StreamedResponseAccumulator()
-    messages = [
+    messages = messages or (
         ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
         ChatMessage('Give me twenty lines on my supremely beautiful wife.')
-    ]
+    )
     for x in text_chat(messages, use_model):
         if x.exception:
-            if x.error_details:
-                print(x.error_details, file=sys.stderr)
-            raise SystemExit(str(x.exception))
+            raise SystemExit(str(x.exception) + (': ' + x.error_details) if x.error_details else '')
         acc.accumulate(x)
         if x.content:
             print(end=x.content, flush=True)
@@ -225,13 +269,36 @@ def develop_text_chat(text_chat: Callable[[Iterable[ChatMessage], str], Iterator
     print()
     if acc.all_reasoning:
         print('Reasoning:')
-        print(acc.all_reasoning)
+        print(acc.all_reasoning.strip())
     print()
+    if acc.metadata.citations:
+        print('Response with citations inline:')
+        print(acc.messages[-1].query.strip())
     if acc.metadata.has_metadata:
         x = acc.metadata
         print(f'\nCost: {x.cost} {x.currency} Provider: {x.provider!r} Model: {x.model!r}')
+    messages = list(messages)
     messages.extend(acc.messages)
     print('Messages:')
     from pprint import pprint
     for msg in messages:
         pprint(msg)
+
+
+def find_tests() -> None:
+    import unittest
+    class TestAIUtils(unittest.TestCase):
+
+        def test_ai_response_accumulator(self):
+            a = StreamedResponseAccumulator()
+            a.accumulate(ChatResponse('an initial msg'))
+            a.accumulate(ChatResponse('. more text.'))
+            a.accumulate(ChatResponse(has_metadata=True, citations=[
+                Citation([0], 3, 3 + len('initial')),
+                Citation([0, 1], 3 + len('initial '), 3 + len('initial msg'))
+            ], web_links=[WebLink('link1', 'dest1'), WebLink('link2', 'dest2')]
+            ))
+            a.finalize()
+            self.assertEqual(a.messages[-1].query, 'an [initial](dest1 "link1") msg<sup>[1](dest1 "link1"), [2](dest2 "link2")</sup>. more text.')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestAIUtils)
