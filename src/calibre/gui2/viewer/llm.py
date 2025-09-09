@@ -1,4 +1,5 @@
-# License: GPL v3 Copyright: 2025, Amir Tehrani and Kovid Goyal
+#!/usr/bin/env python
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net> and Amir Tehrani
 
 import string
 import textwrap
@@ -44,7 +45,7 @@ from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.ebooks.metadata import authors_to_string
-from calibre.gui2 import Application, error_dialog
+from calibre.gui2 import Application, error_dialog, safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.config import vprefs
@@ -564,24 +565,32 @@ class LLMPanel(QWidget):
             QApplication.instance().clipboard().setText(text)
 
     def on_chat_link_clicked(self, qurl: QUrl):
+        if qurl.scheme() not in ('http', 'https'):
+            return
         match qurl.host():
             case self.save_note_hostname:
                 index = int(qurl.path().strip('/'))
                 self.save_specific_note(index)
+                return
             case self.copy_hostname:
                 index = int(qurl.path().strip('/'))
                 self.copy_specific_note(index)
+                return
             case self.reasoning_hostname:
                 index = int(qurl.path().strip('/'))
                 self.show_reasoning(index)
+                return
             case self.configure_ai_hostname:
                 self.show_settings()
+                return
             case self.quick_action_hostname:
                 name = from_hex_unicode(qurl.path().strip('/'))
                 for ac in current_actions():
                     if ac.name == name:
                         self.activate_action(ac)
                         break
+                return
+        safe_open_url(qurl)
 
     def set_all_inputs_enabled(self, enabled):
         for i in range(self.quick_actions_layout.count()):
