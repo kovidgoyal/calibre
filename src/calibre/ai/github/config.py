@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-
+from collections.abc import Sequence
 from functools import partial
 
-from qt.core import QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
+from qt.core import QComboBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QWidget
 
 from calibre.ai.github import GitHubAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
-from calibre.ai.utils import configure
+from calibre.ai.utils import configure, plugin_for_name
 from calibre.gui2 import error_dialog
 
 pref = partial(pref_for_provider, GitHubAI.name)
@@ -50,6 +50,23 @@ class ConfigWidget(QWidget):
             'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
             ' quality results.'
         ))
+        self.text_model_edit = lm = QLineEdit(self)
+        lm.setClearButtonEnabled(True)
+        lm.setToolTip(_(
+            'Enter a name of the model to use for text based tasks.'
+            ' If not specified, one is chosen automatically.'
+        ))
+        lm.setPlaceholderText(_('Optionally, enter name of model to use'))
+        self.browse_label = la = QLabel(f'<a href="https://github.com/marketplace?type=models">{_("Browse")}</a>')
+        tm = QWidget()
+        la.setOpenExternalLinks(True)
+        h = QHBoxLayout(tm)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.addWidget(lm), h.addWidget(la)
+        l.addRow(_('Model for &text tasks:'), tm)
+        self.initial_text_model = pm = pref('text_model') or {'name': '', 'id': ''}
+        if pm:
+            lm.setText(pm['name'])
 
     @property
     def api_key(self) -> str:
@@ -61,19 +78,37 @@ class ConfigWidget(QWidget):
 
     @property
     def settings(self) -> dict[str, str]:
-        return {
+        name = self.text_model_edit.text().strip()
+        ans = {
             'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
         }
+        if name:
+            ans['text_model'] = {'name': name, 'id': self.model_ids_for_name(name)[0]}
+        return ans
 
     @property
     def is_ready_for_use(self) -> bool:
         return bool(self.api_key)
 
+    def model_ids_for_name(self, name: str) -> Sequence[str]:
+        if name and name == self.initial_text_model['name']:
+            return (self.initial_text_model['id'],)
+        plugin = plugin_for_name(GitHubAI.name)
+        return tuple(plugin.builtin_live_module.find_models_matching_name(name))
+
     def validate(self) -> bool:
-        if self.is_ready_for_use:
-            return True
-        error_dialog(self, _('No API key'), _('You must supply a Personal access token to use GitHub AI.'), show=True)
-        return False
+        if not self.is_ready_for_use:
+            error_dialog(self, _('No API key'), _('You must supply a Personal access token to use GitHub AI.'), show=True)
+            return False
+        if (name := self.text_model_edit.text().strip()) and name:
+            num = len(self.model_ids_for_name(name))
+            if num == 0:
+                error_dialog(self, _('No matching model'), _('No model named {} found on GitHub').format(name), show=True)
+                return False
+            if num > 1:
+                error_dialog(self, _('Ambiguous model name'), _('The name {} matches more than one model on GitHub').format(name), show=True)
+                return False
+        return True
 
     def save_settings(self):
         set_prefs_for_provider(GitHubAI.name, self.settings)

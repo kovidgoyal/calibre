@@ -185,7 +185,7 @@ def parse_models_list(entries: list[dict[str, Any]]) -> dict[str, Model]:
 @lru_cache(2)
 def get_available_models() -> dict[str, 'Model']:
     api_key = decoded_api_key()
-    cache_loc = os.path.join(cache_dir(), 'google-ai', 'models-v1.json')
+    cache_loc = os.path.join(cache_dir(), 'ai', f'{GoogleAI.name}-models-v1.json')
     data = get_cached_resource(cache_loc, MODELS_URL, headers=(('X-goog-api-key', api_key),))
     return parse_models_list(json.loads(data))
 
@@ -377,7 +377,10 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
     rq = chat_request(data, model)
 
     for datum in read_streaming_response(rq, GoogleAI.name):
-        yield from as_chat_responses(datum, model)
+        for res in as_chat_responses(datum, model):
+            yield res
+            if res.exception:
+                break
 
 
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:

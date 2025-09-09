@@ -136,8 +136,8 @@ class ResultBlockReason(Enum):
 
 class PromptBlocked(ValueError):
 
-    def __init__(self, reason: PromptBlockReason):
-        super().__init__(reason.for_human)
+    def __init__(self, reason: PromptBlockReason = PromptBlockReason.unknown, custom_message: str = ''):
+        super().__init__(custom_message or reason.for_human)
         self.reason = reason
 
 

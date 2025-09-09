@@ -15,6 +15,5 @@ class GitHubAI(AIProviderPlugin):
     def capabilities(self):
         from calibre.ai import AICapabilities
         return (
-            AICapabilities.text_to_text | AICapabilities.text_to_image | AICapabilities.text_and_image_to_image |
-            AICapabilities.embedding
+            AICapabilities.text_to_text | AICapabilities.embedding
         )

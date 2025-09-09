@@ -19,6 +19,7 @@ from urllib.request import ProxyHandler, Request, build_opener
 from calibre import get_proxies
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, WebLink
 from calibre.constants import __version__
+from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
 
 
@@ -286,17 +287,20 @@ def develop_text_chat(
         pprint(msg)
 
 
+def plugin_for_name(plugin_name: str) -> AIProviderPlugin:
+    for plugin in available_ai_provider_plugins():
+        if plugin.name == plugin_name:
+            return plugin
+    raise KeyError(f'No plugin named {plugin_name} is available')
+
+
 def configure(plugin_name: str, parent: Any = None) -> None:
     from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
     from calibre.gui2 import ensure_app
     ensure_app(headless=False)
-    for plugin in available_ai_provider_plugins():
-        if plugin.name == plugin_name:
-            cw = plugin.config_widget()
-            break
-    else:
-        raise KeyError(f'No plugin named: {plugin_name}')
+    plugin = plugin_for_name(plugin_name)
+    cw = plugin.config_widget()
     class D(QDialog):
         def accept(self):
             if not cw.validate():

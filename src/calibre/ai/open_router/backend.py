@@ -26,7 +26,7 @@ def pref(key: str, defval: Any = None) -> Any:
 
 @lru_cache(2)
 def get_available_models() -> dict[str, 'Model']:
-    cache_loc = os.path.join(cache_dir(), 'openrouter', 'models-v1.json')
+    cache_loc = os.path.join(cache_dir(), 'ai', f'{OpenRouterAI.name}-models-v1.json')
     data = get_cached_resource(cache_loc, MODELS_URL)
     return parse_models_list(json.loads(data))
 
