@@ -8,6 +8,7 @@ from qt.core import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QWidge
 
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
+from calibre.ai.utils import configure
 from calibre.gui2 import error_dialog
 
 pref = partial(pref_for_provider, GoogleAI.name)
@@ -100,3 +101,7 @@ class ConfigWidget(QWidget):
 
     def save_settings(self):
         set_prefs_for_provider(GoogleAI.name, self.settings)
+
+
+if __name__ == '__main__':
+    configure(GoogleAI.name)

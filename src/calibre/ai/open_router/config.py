@@ -36,9 +36,10 @@ from qt.core import (
 from calibre.ai import AICapabilities
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
+from calibre.ai.utils import configure
 from calibre.customize.ui import available_ai_provider_plugins
 from calibre.ebooks.txt.processor import create_markdown_object
-from calibre.gui2 import Application, error_dialog, gprefs, safe_open_url
+from calibre.gui2 import error_dialog, gprefs, safe_open_url
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
@@ -478,7 +479,4 @@ class ConfigWidget(QWidget):
 
 
 if __name__ == '__main__':
-    app = Application([])
-    d = ChooseModel()
-    d.exec()
-    print(d.model_id)
+    configure(OpenRouterAI.name)
