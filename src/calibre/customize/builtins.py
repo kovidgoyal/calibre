@@ -7,7 +7,6 @@ import os
 from calibre.ai.github import GitHubAI
 from calibre.ai.google import GoogleAI
 from calibre.ai.open_router import OpenRouterAI
-from calibre.ai.openai import OpenAI
 from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
@@ -1980,7 +1979,7 @@ plugins += [
 
 # }}}
 
-plugins.extend((OpenRouterAI, GoogleAI, GitHubAI, OpenAI))
+plugins.extend((OpenRouterAI, GoogleAI, GitHubAI,))
 
 if __name__ == '__main__':
     # Test load speed

@@ -162,6 +162,9 @@ def for_assistant(self: ChatMessage) -> dict[str, Any]:
 
 def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
     # See https://platform.openai.com/docs/api-reference/responses/object
+    print(1111111111, d)
+    if True:
+        return
     content = ''
     for choice in d['choices']:
         content += choice['delta'].get('content', '')
@@ -174,11 +177,12 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
         has_metadata = True
     if has_metadata or content:
         yield ChatResponse(
+            id=d['id'],
             type=ChatMessageType.assistant, content=content, has_metadata=has_metadata, model=model.id, plugin_name=OpenAI.name)
 
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    # https://docs.github.com/en/rest/models/inference
+    # See https://platform.openai.com/docs/guides/text?api-mode=responses
     if use_model:
         model = get_available_models()[use_model]
     else:
@@ -209,7 +213,7 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
 
 
 def develop(use_model: str = '', msg: str = '') -> None:
-    # calibre-debug -c 'from calibre.ai.github.backend import develop; develop()'
+    # calibre-debug -c 'from calibre.ai.openai.backend import develop; develop()'
     m = (ChatMessage(msg),) if msg else ()
     develop_text_chat(text_chat, use_model, messages=m)
 
