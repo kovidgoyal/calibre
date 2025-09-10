@@ -1,7 +1,9 @@
 [
     {
         "name": "nasm",
+		"spdx": "BSD-2-Clause",
         "os": "macos,windows",
+		"type": "build",
         "unix": {
             "filename": "nasm-2.16.01.tar.xz",
             "hash": "sha256:c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558",
@@ -16,7 +18,9 @@
 
     {
         "name": "cmake",
+        "spdx": "BSD-3-Clause",
         "os": "macos",
+		"type": "build",
         "unix": {
             "filename": "cmake-3.31.8.tar.gz",
             "hash": "sha256:e3cde3ca83dc2d3212105326b8f1b565116be808394384007e7ef1c253af6caa",
@@ -26,7 +30,9 @@
 
     {
         "name": "autoconf",
+        "spdx": "GPL-3.0-or-later",
         "os": "macos",
+		"type": "build",
         "unix": {
             "filename": "autoconf-2.71.tar.xz",
             "hash": "sha256:f14c83cfebcc9427f2c3cea7258bd90df972d92eb26752da4ddad81c87a0faa4",
@@ -36,7 +42,9 @@
 
     {
         "name": "automake",
+        "spdx": "GPL-2.0-or-later",
         "os": "macos",
+		"type": "build",
         "unix": {
             "filename": "automake-1.16.5.tar.xz",
             "hash": "sha256:f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469",
@@ -46,7 +54,9 @@
 
     {
         "name": "libtool",
+		"spdx": "LGPL-2.1-or-later",
         "os": "macos",
+		"type": "build",
         "unix": {
             "filename": "libtool-2.4.7.tar.xz",
             "hash": "sha256:4f7f217f057ce655ff22559ad221a0fd8ef84ad1fc5fcb6990cecc333aa1635d",
@@ -56,7 +66,9 @@
 
     {
         "name": "easylzma",
+		"spdx": "LGPL-2.1-or-later",
         "os": "windows",
+		"type": "build",
         "windows": {
             "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.gz",
             "hash": "sha256:7664240898fe09bce8b39cd428407dd24ac3b87200e6b40d4007c78f2c725254",
@@ -66,6 +78,7 @@
 
     {
         "name": "zlib",
+        "spdx": "Zlib",
         "unix": {
             "filename": "zlib-1.3.1.tar.xz",
             "hash": "sha256:38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
@@ -75,6 +88,7 @@
 
     {
         "name": "bzip2",
+        "spdx": "bzip2-1.0.8",
         "os": "linux",
         "unix": {
             "filename": "bzip2-1.0.8.tar.gz",
@@ -85,6 +99,7 @@
 
     {
         "name": "xz",
+        "spdx": "0BSD",
         "os": "macos,linux",
         "unix": {
             "filename": "xz-5.4.4.tar.gz",
@@ -95,6 +110,7 @@
 
     {
         "name": "unrar",
+		"spdx": "unrar",
         "unix": {
             "filename": "unrarsrc-7.1.10.tar.gz",
             "hash": "sha256:72a9ccca146174f41876e8b21ab27e973f039c6d10b13aabcb320e7055b9bb98",
@@ -104,6 +120,7 @@
 
     {
         "name": "brotli",
+        "spdx": "MIT",
         "unix": {
             "filename": "libbrotli-1.1.0.tar.gz",
             "hash": "sha256:e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
@@ -113,6 +130,7 @@
 
     {
         "name": "libdeflate",
+        "spdx": "MIT",
         "comment": "Used optionally libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
         "os": "linux",
         "unix": {
@@ -124,6 +142,7 @@
 
     {
         "name": "zstd",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "zstd-1.5.7.tar.gz",
             "hash": "sha256:eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
@@ -133,6 +152,7 @@
 
     {
         "name": "expat",
+        "spdx": "MIT",
         "unix": {
             "filename": "expat-2.5.0.tar.bz2",
             "hash": "sha256:6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67",
@@ -142,6 +162,7 @@
 
     {
         "name": "sqlite",
+        "spdx": "blessing",
         "unix": {
             "filename": "sqlite-autoconf-3430000.tar.gz",
             "hash": "sha256:49008dbf3afc04d4edc8ecfc34e4ead196973034293c997adad2f63f01762ae1",
@@ -151,6 +172,7 @@
 
     {
         "name": "libffi",
+        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "filename": "libffi-3.4.4.tar.gz",
@@ -161,6 +183,7 @@
 
     {
         "name": "hyphen",
+		"spdx": "MPL-1.1",
         "unix": {
             "filename": "hyphen-2.8.8.tar.gz",
             "hash": "sha1:0556c392beb59433e577e3517575801212201df6",
@@ -170,6 +193,7 @@
 
     {
         "name": "openssl",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "openssl-3.1.7.tar.gz",
             "hash": "sha256:053a31fa80cf4aebe1068c987d2ef1e44ce418881427c4464751ae800c31d06c",
@@ -179,6 +203,7 @@
 
     {
         "name": "ncurses",
+        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "filename": "ncurses-6.4.tar.gz",
@@ -189,6 +214,7 @@
 
     {
         "name": "readline",
+        "spdx": "GPL-3.0-only",
         "os": "linux",
         "unix": {
             "filename": "readline-8.2.tar.gz",
@@ -199,6 +225,7 @@
 
     {
         "name": "python",
+        "spdx": "PSF-2.0",
         "unix": {
             "filename": "Python-3.11.12.tar.xz",
             "hash": "sha256:849da87af4df137710c1796e276a955f7a85c9f971081067c8f565d15c352a09",
@@ -208,6 +235,7 @@
 
     {
         "name": "icu",
+		"spdx": "ICU",
         "unix": {
             "filename": "icu4c-73_2-src.tgz",
             "hash": "sha256:818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
@@ -223,6 +251,7 @@
 
     {
         "name": "libstemmer",
+        "spdx": "BSD-2-Clause",
         "unix": {
             "filename": "libstemmer_c-2.2.0.tar.gz",
             "hash": "sha256:b941d9fe9cf36b4e2f8d3873cd4d8b8775bd94867a1df8d8c001bb8b688377c3",
@@ -232,6 +261,7 @@
 
     {
         "name": "libjpeg",
+		"spdx": "IJG",
         "unix": {
             "filename": "libjpeg-turbo-3.0.0.tar.gz",
             "hash": "sha256:c77c65fcce3d33417b2e90432e7a0eb05f59a7fff884022a9d931775d583bfaa",
@@ -241,6 +271,7 @@
 
     {
         "name": "libpng",
+        "spdx": "libpng-2.0",
         "unix": {
             "filename": "libpng-1.6.40.tar.xz",
             "hash": "sha256:535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
@@ -250,6 +281,7 @@
 
     {
         "name": "libjbig",
+        "spdx": "GPL-2.0-or-later",
         "comment": "Needed for libtiff",
         "unix": {
             "filename": "jbigkit-2.1.tar.gz",
@@ -260,6 +292,7 @@
 
     {
         "name": "libtiff",
+		"spdx": "libtiff",
         "unix": {
             "filename": "tiff-4.6.0.tar.xz",
             "hash": "sha256:e178649607d1e22b51cf361dd20a3753f244f022eefab1f2f218fc62ebaf87d2",
@@ -269,6 +302,7 @@
 
     {
         "name": "libwebp",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "libwebp-1.3.2.tar.gz",
             "hash": "sha256:2a499607df669e40258e53d0ade8035ba4ec0175244869d1025d460562aa09b4",
@@ -278,6 +312,7 @@
 
     {
         "name": "jxrlib",
+        "spdx": "BSD-2-Clause",
         "unix": {
             "filename": "jxrlib-0.2.4.tar.gz",
             "hash": "sha256:324af02e341bcb9e3b31a6d6892f47231f95f9f87ab4fe7645be619dcaf965a7",
@@ -287,6 +322,7 @@
 
     {
         "name": "freetype",
+        "spdx": "FTL",
         "os": "macos,windows",
         "unix": {
             "filename": "freetype-2.13.2.tar.xz",
@@ -297,6 +333,7 @@
 
     {
         "name": "graphite",
+        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "filename": "graphite2-1.3.14.tgz",
@@ -307,6 +344,7 @@
 
     {
         "name": "fontconfig",
+        "spdx": "MIT",
         "os": "macos",
         "unix": {
             "filename": "fontconfig-2.14.2.tar.xz",
@@ -317,6 +355,7 @@
 
     {
         "name": "iconv",
+        "spdx": "LGPL-2.0-only",
         "unix": {
             "filename": "libiconv-1.17.tar.gz",
             "hash": "sha256:8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313",
@@ -331,6 +370,7 @@
 
     {
         "name": "libxml2",
+        "spdx": "MIT",
         "unix": {
             "filename": "libxml2-2.12.6.tar.xz",
             "hash": "sha256:889c593a881a3db5fdd96cc9318c87df34eb648edfc458272ad46fd607353fbb",
@@ -340,6 +380,7 @@
 
     {
         "name": "libxslt",
+        "spdx": "MIT",
         "unix": {
             "filename": "libxslt-1.1.39.tar.xz",
             "hash": "sha256:2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0",
@@ -349,6 +390,7 @@
 
     {
         "name": "chmlib",
+		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "filename": "chmlib-0.40.tar.bz2",
             "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
@@ -358,6 +400,7 @@
 
     {
         "name": "optipng",
+        "spdx": "Zlib",
         "unix": {
             "filename": "optipng-0.7.7.tar.gz",
             "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
@@ -367,6 +410,7 @@
 
     {
         "name": "mozjpeg",
+		"spdx": "IJG",
         "unix": {
             "filename": "mozjpeg-4.1.4.tar.gz",
             "hash": "sha256:8a5018dc93c08a49fba3aff8d1a0be0a3e26460e315d1db45abb64402935e0db",
@@ -376,6 +420,7 @@
 
     {
         "name": "libusb",
+		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
             "filename": "libusb-1.0.26.tar.bz2",
@@ -386,6 +431,7 @@
 
     {
         "name": "libmtp",
+		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
             "filename": "libmtp-1.1.21.tar.gz",
@@ -396,6 +442,7 @@
 
     {
         "name": "openjpeg",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "openjpeg-2.5.0.tar.gz",
             "hash": "sha256:0333806d6adecc6f7a91243b2b839ff4d2053823634d4f6ed7a59bc87409122a",
@@ -405,6 +452,7 @@
 
     {
         "name": "poppler",
+        "spdx": "GPL-2.0-only",
         "unix": {
             "filename": "poppler-23.08.0.tar.xz",
             "hash": "sha256:4a4bf7fc903b9f1a2ab7d04b7c5d8220db9bc6261cc73fdb9a826dc272f49aa8",
@@ -414,6 +462,7 @@
 
     {
         "name": "podofo",
+		"spdx": "LGPL-2.0-or-later",
         "unix": {
             "filename": "podofo-0.10.3.tar.gz",
             "hash": "sha256:61f4d2175b75726d2881ad027c0275b8f5814b53058625d7b3411a055e2dca79",
@@ -423,6 +472,7 @@
 
     {
         "name": "libgpg-error",
+		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "filename": "libgpg-error-1.47.tar.bz2",
@@ -433,6 +483,7 @@
 
     {
         "name": "libgcrypt",
+		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "filename": "libgcrypt-1.10.2.tar.bz2",
@@ -443,6 +494,7 @@
 
     {
         "name": "glib",
+        "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "filename": "glib-2.78.0.tar.xz",
@@ -453,6 +505,7 @@
 
     {
         "name": "dbus",
+        "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "filename": "dbus-1.15.8.tar.xz",
@@ -463,6 +516,7 @@
 
     {
         "name": "dbusglib",
+        "spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
             "filename": "dbus-glib-0.112.tar.gz",
@@ -473,6 +527,8 @@
 
     {
         "name": "gnuwin32",
+		"spdx": "GPL-2.0-only",
+		"type": "build",
         "os": "windows",
 		"windows": {
 			"filename": "gnuwin32.zip",
@@ -483,6 +539,7 @@
 
     {
         "name": "hunspell",
+		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "filename": "hunspell-1.7.2.tar.gz",
             "hash": "sha256:11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8",
@@ -497,6 +554,8 @@
 
     {
         "name": "ninja",
+        "spdx": "Apache-2.0",
+		"type": "build",
 		"comment": "Needed for Qt",
         "os": "macos,windows",
         "unix": {
@@ -508,6 +567,8 @@
 
     {
         "name": "nodejs",
+        "spdx": "MIT",
+		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
         "unix": {
@@ -519,6 +580,8 @@
 
     {
         "name": "nv-codec-headers",
+        "spdx": "MIT",
+		"type": "build",
 		"comment": "Needed for building Qt Multimedia, see https://code.qt.io/cgit/qt/qt5.git/tree/coin/provisioning/common/unix/install-ffmpeg.sh only change the version when bumping ffmpeg and qt versions.",
         "os": "linux",
         "unix": {
@@ -530,6 +593,7 @@
 
     {
         "name": "ffmpeg",
+		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
 		"unix": {
 			"filename": "ffmpeg-7.1.tar.xz",
@@ -540,6 +604,7 @@
 
     {
         "name": "qt-base",
+		"spdx": "GPL-3.0-only",
         "version": "6.8.2",
         "hashes": {
             "unix": "sha256:012043ce6d411e6e8a91fdc4e05e6bedcfa10fcb1347d3c33908f7fdd10dfe05"
@@ -548,6 +613,7 @@
 
     {
         "name": "qt-svg",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:aa2579f21ca66d19cbcf31d87e9067e07932635d36869c8239d4decd0a9dc1fa"
         }
@@ -555,6 +621,7 @@
 
     {
         "name": "qt-shadertools",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:d1d5f90e8885fc70d63ac55a4ce4d9a2688562033a000bc4aff9320f5f551871"
         }
@@ -562,6 +629,7 @@
 
     {
         "name": "qt-declarative",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:144d876adc8bb55909735143e678d1e24eadcd0a380a0186792d88b731346d56"
         }
@@ -569,6 +637,7 @@
 
     {
         "name": "qt-imageformats",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:d2a1bbb84707b8a0aec29227b170be00f04383fbf2361943596d09e7e443c8e1"
         }
@@ -576,6 +645,7 @@
 
     {
         "name": "qt-webchannel",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:869f1e53f44673a57670005b1239cd67b9a5f372c8cae799c1e4af3f1c68b7ac"
         }
@@ -583,6 +653,7 @@
 
     {
         "name": "qt-positioning",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:df30664f4e936466a7e1157ff26abc61efb5e94c9eb8750e1bcdffeec95db8e5"
         }
@@ -590,6 +661,7 @@
 
     {
         "name": "qt-wayland",
+		"spdx": "GPL-3.0-only",
         "os": "linux",
         "hashes": {
             "unix": "sha256:5e46157908295f2bf924462d8c0855b0508ba338ced9e810891fefa295dc9647"
@@ -598,6 +670,7 @@
 
     {
         "name": "qt-sensors",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:8a817c9b001ad0abdbf15064826ca6a8ee6b66fef8f04b4343ac9f7b2ddbf4ca"
         }
@@ -605,6 +678,7 @@
 
     {
         "name": "qt-multimedia",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:34f561fdc07b158bcc4ad040b596fc6086c48908060e854b473b557e4feb1569"
         }
@@ -612,6 +686,7 @@
 
     {
         "name": "qt-speech",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:e09b52336bb90090f4582a382fa084f7573ebd207cc81f3066ef94cc1bf202c3"
         }
@@ -619,6 +694,7 @@
 
     {
         "name": "qt-webengine",
+		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:ff95987f16c197b31ad4d96972f8d9b00c740c5bed70c3e68ee42d673ee54802"
         }
@@ -626,6 +702,8 @@
 
     {
         "name": "installer",
+        "spdx": "MIT",
+		"type": "build",
         "comment": "Needed infrastructure for installing pure python packages (wheels)",
         "unix": {
             "filename": "installer-0.7.0-py3-none-any.whl",
@@ -636,6 +714,8 @@
 
     {
         "name": "packaging",
+        "spdx": "BSD-2-Clause",
+		"type": "build",
 		"comment": "Needed for build which needed for setuptools based packages",
         "unix": {
             "filename": "packaging-23.1-py3-none-any.whl",
@@ -646,6 +726,8 @@
 
     {
         "name": "pyproject_hooks",
+        "spdx": "MIT",
+		"type": "build",
 		"comment": "Needed for build which needed for setuptools based packages",
         "unix": {
             "filename": "pyproject_hooks-1.0.0-py3-none-any.whl",
@@ -656,6 +738,8 @@
 
     {
         "name": "wheel",
+        "spdx": "MIT",
+		"type": "build",
 		"comment": "Needed for build which needed for setuptools based packages",
         "unix": {
             "filename": "wheel-0.41.2-py3-none-any.whl",
@@ -666,6 +750,8 @@
 
     {
         "name": "build",
+        "spdx": "MIT",
+		"type": "build",
 		"comment": "Needed for setuptools based packages",
         "unix": {
             "filename": "build-1.0.3-py3-none-any.whl",
@@ -676,6 +762,8 @@
 
     {
         "name": "setuptools",
+        "spdx": "MIT",
+		"type": "build",
         "unix": {
             "filename": "setuptools-75.8.2-py3-none-any.whl",
             "hash": "sha256:558e47c15f1811c1fa7adbd0096669bf76c1d3f433f58324df69f3f5ecac4e8f",
@@ -685,6 +773,8 @@
 
     {
         "name": "setuptools_scm",
+        "spdx": "MIT",
+		"type": "build",
         "comment": "Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even though it is needed only for sdist not building wheels",
         "unix": {
             "filename": "setuptools_scm-8.0.3-py3-none-any.whl",
@@ -695,6 +785,7 @@
 
     {
         "name": "six",
+        "spdx": "MIT",
         "unix": {
             "filename": "six-1.16.0-py2.py3-none-any.whl",
             "hash": "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254",
@@ -704,6 +795,7 @@
 
     {
         "name": "unrardll",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "unrardll-0.1.7.tar.gz",
             "hash": "sha256:e1067fe27bb4de204ef8f3692f23d93c5d3b4292f78b292c6fc7dc4f75749f76",
@@ -713,6 +805,7 @@
 
     {
         "name": "lxml",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "lxml-5.2.1.tar.gz",
             "hash": "sha256:3f7765e69bbce0906a7c74d5fe46d2c7a7596147318dbc08e4a2431f3060e306",
@@ -722,6 +815,7 @@
 
     {
         "name": "pychm",
+        "spdx": "GPL-2.0-or-later",
         "unix": {
             "filename": "pychm-0.8.6.tar.gz",
             "hash": "sha256:26606fec1e30cf7506c7afa943460c31e8dac87f35b7f178f437574d654cf672",
@@ -731,6 +825,7 @@
 
     {
         "name": "html5-parser",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "html5-parser-0.4.12.tar.gz",
             "hash": "sha256:3d7f89841aa48b976311f43863178c34c141abcf1dd45b67a7339e61cffe5306",
@@ -740,6 +835,7 @@
 
     {
         "name": "css-parser",
+		"spdx": "LGPL-3.0-or-later",
         "unix": {
             "filename": "css_parser-1.0.10-py2.py3-none-any.whl",
             "hash": "sha256:d2e955a114829f0a327cc5535c2e65fe2e40b883b892881017d419a3b6dd05b7",
@@ -749,6 +845,7 @@
 
     {
         "name": "dateutil",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "python_dateutil-2.8.2-py2.py3-none-any.whl",
             "hash": "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9",
@@ -758,6 +855,7 @@
 
     {
         "name": "jeepney",
+		"spdx": "MIT",
         "os": "linux",
         "unix": {
             "filename": "jeepney-0.8.0-py3-none-any.whl",
@@ -768,6 +866,7 @@
 
     {
         "name": "dnspython",
+        "spdx": "ISC",
         "unix": {
             "filename": "dnspython-2.4.2-py3-none-any.whl",
             "hash": "sha256:57c6fbaaeaaf39c891292012060beb141791735dbb4004798328fc2c467402d8",
@@ -777,6 +876,7 @@
 
     {
         "name": "mechanize",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "mechanize-0.4.8-py2.py3-none-any.whl",
             "hash": "sha256:961fd171b5eb37a7578fce62ba81ba85803dff3c5ba4ac24f6f569ae27198439",
@@ -786,6 +886,7 @@
 
     {
         "name": "feedparser",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "feedparser-6.0.10-py3-none-any.whl",
             "hash": "sha256:79c257d526d13b944e965f6095700587f27388e50ea16fd245babe4dfae7024f",
@@ -795,6 +896,7 @@
 
     {
         "name": "sgmllib3k",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "sgmllib3k-1.0.0.tar.gz",
             "hash": "sha256:7868fb1c8bfa764c1ac563d3cf369c381d1325d36124933a726f29fcdaa812e9",
@@ -804,6 +906,7 @@
 
     {
         "name": "markdown",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "Markdown-3.4.4-py3-none-any.whl",
             "hash": "sha256:a4c1b65c0957b4bd9e7d86ddc7b3c9868fb9670660f6f99f6d1bca8954d5a941",
@@ -813,6 +916,7 @@
 
     {
         "name": "html2text",
+		"spdx": "GPL-3.0-or-later",
         "unix": {
             "filename": "html2text-2020.1.16-py3-none-any.whl",
             "hash": "sha256:c7c629882da0cf377d66f073329ccf34a12ed2adf0169b9285ae4e63ef54c82b",
@@ -822,6 +926,7 @@
 
     {
         "name": "soupsieve",
+		"spdx": "MIT",
         "unix": {
             "filename": "soupsieve-2.5-py3-none-any.whl",
             "hash": "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7",
@@ -831,6 +936,7 @@
 
     {
         "name": "beautifulsoup4",
+		"spdx": "MIT",
         "unix": {
             "filename": "beautifulsoup4-4.12.2-py3-none-any.whl",
             "hash": "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a",
@@ -840,6 +946,7 @@
 
     {
         "name": "regex",
+		"spdx": ["Apache-2.0", "CNRI-Python"],
         "unix": {
             "filename": "regex-2023.8.8.tar.gz",
             "hash": "sha256:fcbdc5f2b0f1cd0f6a56cdb46fe41d2cce1e644e3b68832f3eeebc5fb0f7712e",
@@ -849,6 +956,7 @@
 
     {
         "name": "chardet",
+		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "filename": "chardet-5.2.0-py3-none-any.whl",
             "hash": "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970",
@@ -858,6 +966,7 @@
 
     {
         "name": "uchardet",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "uchardet-0.0.8.tar.xz",
             "hash": "sha256:e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0",
@@ -867,6 +976,7 @@
 
     {
         "name": "msgpack",
+        "spdx": "Apache-2.0",
         "unix": {
             "filename": "msgpack-1.0.7.tar.gz",
             "hash": "sha256:572efc93db7a4d27e404501975ca6d2d9775705c2d922390d878fcf768d92c87",
@@ -876,6 +986,7 @@
 
     {
         "name": "pygments",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "Pygments-2.16.1-py3-none-any.whl",
             "hash": "sha256:13fc09fa63bc8d8671a6d247e1eb303c4b343eaee81d861f3404db2935653692",
@@ -885,6 +996,7 @@
 
     {
         "name": "pycryptodome",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "pycryptodome-3.19.0.tar.gz",
             "hash": "sha256:bc35d463222cdb4dbebd35e0784155c81e161b9284e567e7e933d722e533331e",
@@ -894,6 +1006,7 @@
 
     {
         "name": "apsw",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "apsw-3.43.0.0.zip",
             "hash": "sha256:7440d5f976a369ab87477e064545a8a62a93e413ead7bfe0be4efc75b1f30bb0",
@@ -903,6 +1016,7 @@
 
     {
         "name": "webencodings",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "webencodings-0.5.1-py2.py3-none-any.whl",
             "hash": "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78",
@@ -912,6 +1026,7 @@
 
     {
         "name": "html5lib",
+		"spdx": "MIT",
         "unix": {
             "filename": "html5lib-1.1-py2.py3-none-any.whl",
             "hash": "sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d",
@@ -921,6 +1036,7 @@
 
     {
         "name": "pillow",
+		"spdx": "MIT-CMU",
         "unix": {
             "filename": "Pillow-10.0.1.tar.gz",
             "hash": "sha256:d72967b06be9300fed5cfbc8b5bafceec48bf7cdc7dab66b1d2549035287191d",
@@ -930,6 +1046,7 @@
 
     {
         "name": "netifaces",
+		"spdx": "MIT",
         "unix": {
             "filename": "netifaces-0.11.0.tar.gz",
             "hash": "sha256:043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32",
@@ -939,6 +1056,7 @@
 
     {
         "name": "psutil",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "psutil-5.9.5.tar.gz",
             "hash": "sha256:5410638e4df39c54d957fc51ce03048acd8e6d60abc0f5107af51e5fb566eb3c",
@@ -948,6 +1066,7 @@
 
     {
         "name": "ifaddr",
+		"spdx": "MIT",
         "unix": {
             "filename": "ifaddr-0.2.0.tar.gz",
             "hash": "sha256:cc0cbfcaabf765d44595825fb96a99bb12c79716b73b44330ea38ee2b0c4aed4",
@@ -957,6 +1076,7 @@
 
     {
         "name": "texttable",
+		"spdx": "MIT",
 		"comment": "needed for py7zr",
         "unix": {
             "filename": "texttable-1.6.7-py2.py3-none-any.whl",
@@ -967,6 +1087,7 @@
 
     {
         "name": "multivolumefile",
+		"spdx": "LGPL-2.0-or-later",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "multivolumefile-0.2.3-py3-none-any.whl",
@@ -977,6 +1098,7 @@
 
     {
         "name": "python-brotli",
+		"spdx": "MIT",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "Brotli-1.1.0.tar.gz",
@@ -987,6 +1109,7 @@
 
     {
         "name": "pyzstd",
+		"spdx": "BSD-3-Clause",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "pyzstd-0.17.0.tar.gz",
@@ -997,6 +1120,7 @@
 
     {
         "name": "pyppmd",
+		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "pyppmd-1.2.0.tar.gz",
@@ -1007,6 +1131,7 @@
 
     {
         "name": "pybcj",
+		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "pybcj-1.0.1.tar.gz",
@@ -1017,6 +1142,7 @@
 
     {
         "name": "inflate64",
+		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed by py7zr",
         "unix": {
             "filename": "inflate64-1.0.3.tar.gz",
@@ -1027,6 +1153,7 @@
 
     {
         "name": "py7zr",
+		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "filename": "py7zr-1.0.0-py3-none-any.whl",
             "hash": "sha256:6f42d2ff34c808e9026ad11b721c13b41b0673cf2b4e8f8fb34f9d65ae143dd1",
@@ -1036,6 +1163,7 @@
 
     {
         "name": "jaconv",
+		"spdx": "MIT",
         "unix": {
             "filename": "jaconv-0.40.tar.gz",
             "hash": "sha256:32da74b247f276e09a52d6b35c153df2387965cb85a6f034cc8af21d446f8161",
@@ -1045,6 +1173,7 @@
 
     {
         "name": "wrapt",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "wrapt-1.16.0-py3-none-any.whl",
             "hash": "sha256:6906c4100a8fcbf2fa735f6059214bb13b97f75b1a61777fcf6432121ef12ef1",
@@ -1054,6 +1183,7 @@
 
     {
         "name": "deprecated",
+		"spdx": "MIT",
         "unix": {
             "filename": "Deprecated-1.2.14-py2.py3-none-any.whl",
             "hash": "sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c",
@@ -1063,6 +1193,7 @@
 
     {
         "name": "pykakasi",
+		"spdx": "GPL-3.0-or-later",
         "unix": {
             "filename": "pykakasi-2.3.0-py3-none-any.whl",
             "hash": "sha256:26d21b090048ff45c6a4d8e962426b7951767216008ec30358e8a9d74af77f29",
@@ -1072,6 +1203,7 @@
 
     {
         "name": "poetry_core",
+		"spdx": "MIT",
         "comment": "Needed for building zeroconf",
         "unix": {
             "filename": "poetry_core-1.7.0-py3-none-any.whl",
@@ -1082,6 +1214,7 @@
 
     {
         "name": "zeroconf",
+		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "filename": "zeroconf-0.115.0.tar.gz",
             "hash": "sha256:da8c12f0a4b15578c22bf274f479fffd90a944407ebad904c891bf771aad83e7",
@@ -1091,6 +1224,7 @@
 
     {
         "name": "fonttools",
+		"spdx": "MIT",
         "unix": {
             "filename": "fonttools-4.47.0-py3-none-any.whl",
             "hash": "sha256:d6477ba902dd2d7adda7f0fd3bfaeb92885d45993c9e1928c9f28fc3961415f7",
@@ -1100,6 +1234,7 @@
 
     {
         "name": "lxml-html-clean",
+		"spdx": "BSD-3-Clause",
         "unix": {
             "filename": "lxml_html_clean-0.1.1-py3-none-any.whl",
             "hash": "sha256:58c04176593c9caf72ec92e033d2f38859e918b3eff0cc0f8051ad27dc2ab8ef",
@@ -1109,6 +1244,8 @@
 
     {
         "name": "ply",
+		"spdx": "BSD-2-Clause",
+		"type": "build",
 		"comment": "Needed for sip (build time dependency)",
         "unix": {
             "filename": "ply-3.11-py2.py3-none-any.whl",
@@ -1119,6 +1256,7 @@
 
     {
         "name": "sip",
+		"spdx": "BSD-2-Clause",
 		"comment": "build time dependency",
         "unix": {
             "filename": "sip-6.10.0-1-py3-none-any.whl",
@@ -1129,6 +1267,8 @@
 
     {
         "name": "pyqt-builder",
+		"spdx": "BSD-2-Clause",
+		"type": "build",
 		"comment": "build time dependency",
         "unix": {
             "filename": "PyQt_builder-1.18.1-py3-none-any.whl",
@@ -1139,6 +1279,7 @@
 
     {
         "name": "pyqt-sip",
+		"spdx": "BSD-2-Clause",
 		"comment": "runtime sip module for PyQt",
         "unix": {
             "filename": "PyQt6_sip-13.10.0.tar.gz",
@@ -1149,6 +1290,7 @@
 
     {
         "name": "pyqt",
+		"spdx": "GPL-3.0-only",
         "unix": {
             "filename": "PyQt6-6.8.1.tar.gz",
             "hash": "sha256:91d937d6166274fafd70f4dee11a8da6dbfdb0da53de05f5d62361ddf775e256",
@@ -1158,6 +1300,7 @@
 
     {
         "name": "pyqt-webengine",
+		"spdx": "GPL-3.0-only",
         "unix": {
             "filename": "PyQt6_WebEngine-6.8.0.tar.gz",
             "hash": "sha256:64045ea622b6a41882c2b18f55ae9714b8660acff06a54e910eb72822c2f3ff2",
@@ -1167,6 +1310,7 @@
 
     {
         "name": "speech-dispatcher-client",
+		"spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
             "filename": "speech-dispatcher-0.11.5.tar.gz",
@@ -1178,6 +1322,7 @@
 
     {
         "name": "macfsevents",
+		"spdx": "BSD-2-Clause",
         "os": "macos",
         "unix": {
             "filename": "MacFSEvents-0.8.4.tar.gz",
@@ -1187,6 +1332,7 @@
     },
     {
         "name": "xxhash",
+		"spdx": "BSD-2-Clause",
         "unix": {
             "filename": "xxhash-3.3.0.tar.gz",
             "hash": "sha256:c3f9e322b1ebeebd44e3d9d2d9b124e0c550c1ef41bd552afdcdd719516ee41a",
@@ -1195,6 +1341,7 @@
     },
     {
         "name": "onnx",
+		"spdx": "MIT",
         "unix": {
             "filename": "onnx-1.22.1.tar.gz",
             "hash": "sha256:9eacbf624d6f7466da81d9beb4399cb8683808b15c1276b7cd56c6907bf59f77",
@@ -1203,6 +1350,7 @@
     },
     {
         "name": "espeak",
+		"spdx": "GPL-3.0-only",
         "comment": "We need the espeak_TextToPhonemesWithTerminator() function. No release of espeak-ng with that function has been made yet, so use a commit that includes it",
         "unix": {
             "filename": "espeak-a4ca101.zip",
