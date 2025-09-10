@@ -319,6 +319,35 @@ def configure(plugin_name: str, parent: Any = None) -> None:
         plugin.save_settings(cw)
 
 
+def reasoning_strategy_config_widget(current_val: str = 'auto', parent: Any = None) -> Any:
+    from qt.core import QComboBox
+    rs = QComboBox(parent)
+    rs.addItem(_('Automatic'), 'auto')
+    rs.addItem(_('Medium'), 'medium')
+    rs.addItem(_('High'), 'high')
+    rs.addItem(_('Low'), 'low')
+    rs.addItem(_('No reasoning'), 'none')
+    rs.setCurrentIndex(max(0, rs.findData(current_val)))
+    rs.setToolTip('<p>'+_(
+        'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
+        ' better quality responses at the cost of increased cost and reduced speed.'))
+    return rs
+
+
+def model_choice_strategy_config_widget(current_val: str = 'medium', parent: Any = None) -> Any:
+    from qt.core import QComboBox
+    ms = QComboBox(parent)
+    ms.addItem(_('Cheap and fastest'), 'low')
+    ms.addItem(_('Medium'), 'medium')
+    ms.addItem(_('High quality, expensive and slower'), 'high')
+    ms.setCurrentIndex(max(0, ms.findData(current_val)))
+    ms.setToolTip('<p>' + _(
+        'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
+        ' quality results.'
+    ))
+    return ms
+
+
 def find_tests() -> None:
     import unittest
     class TestAIUtils(unittest.TestCase):

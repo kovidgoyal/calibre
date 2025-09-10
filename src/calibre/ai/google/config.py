@@ -4,11 +4,11 @@
 
 from functools import partial
 
-from qt.core import QCheckBox, QComboBox, QFormLayout, QLabel, QLineEdit, QWidget
+from qt.core import QCheckBox, QFormLayout, QLabel, QLineEdit, QWidget
 
 from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
-from calibre.ai.utils import configure
+from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
 from calibre.gui2 import error_dialog
 
 pref = partial(pref_for_provider, GoogleAI.name)
@@ -39,32 +39,13 @@ class ConfigWidget(QWidget):
         l.addRow(_('API &key:'), a)
         if key := pref('api_key'):
             a.setText(decode_secret(key))
-        self.model_strategy = ms = QComboBox(self)
+        self.model_strategy = ms = model_choice_strategy_config_widget(pref('model_choice_strategy', 'medium'), self)
         l.addRow(_('Model &choice strategy:'), ms)
-        ms.addItem(_('Cheap and fastest'), 'low')
-        ms.addItem(_('Medium'), 'medium')
-        ms.addItem(_('High quality, expensive and slower'), 'high')
-        if strat := pref('model_choice_strategy', 'medium'):
-            ms.setCurrentIndex(max(0, ms.findData(strat)))
-        ms.setToolTip('<p>' + _(
-            'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
-            ' quality results.'
-        ))
         self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
         aws.setChecked(pref('allow_web_searches', True))
         aws.setToolTip(_('If enabled, Gemini will use Google Web searches to return accurate and up-to-date information for queries, where possible'))
-        self.reasoning_strat = rs = QComboBox(self)
+        self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy'), self)
         l.addRow(_('&Reasoning effort:'), rs)
-        rs.addItem(_('Automatic'), 'auto')
-        rs.addItem(_('Medium'), 'medium')
-        rs.addItem(_('High'), 'high')
-        rs.addItem(_('Low'), 'low')
-        rs.addItem(_('No reasoning'), 'none')
-        if strat := pref('reasoning_strategy', 'auto'):
-            rs.setCurrentIndex(max(0, rs.findData(strat)))
-        rs.setToolTip('<p>'+_(
-            'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
-            ' better quality responses at the cost of increased cost and reduced speed.'))
 
     @property
     def api_key(self) -> str:
@@ -76,7 +57,7 @@ class ConfigWidget(QWidget):
 
     @property
     def reasoning_strategy(self) -> str:
-        return self.model_strategy.currentData()
+        return self.reasoning_strat.currentData()
 
     @property
     def allow_web_searches(self) -> bool:

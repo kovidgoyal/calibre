@@ -4,11 +4,11 @@
 from collections.abc import Sequence
 from functools import partial
 
-from qt.core import QComboBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QWidget
+from qt.core import QFormLayout, QHBoxLayout, QLabel, QLineEdit, QWidget
 
 from calibre.ai.github import GitHubAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
-from calibre.ai.utils import configure, plugin_for_name
+from calibre.ai.utils import configure, model_choice_strategy_config_widget, plugin_for_name
 from calibre.gui2 import error_dialog
 
 pref = partial(pref_for_provider, GitHubAI.name)
@@ -39,17 +39,8 @@ class ConfigWidget(QWidget):
         l.addRow(_('Access &token:'), a)
         if key := pref('api_key'):
             a.setText(decode_secret(key))
-        self.model_strategy = ms = QComboBox(self)
+        self.model_strategy = ms = model_choice_strategy_config_widget(pref('model_choice_strategy', 'medium'), self)
         l.addRow(_('Model &choice strategy:'), ms)
-        ms.addItem(_('Cheap and fastest'), 'low')
-        ms.addItem(_('Medium'), 'medium')
-        ms.addItem(_('High quality, expensive and slower'), 'high')
-        if strat := pref('model_choice_strategy', 'medium'):
-            ms.setCurrentIndex(max(0, ms.findData(strat)))
-        ms.setToolTip('<p>' + _(
-            'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
-            ' quality results.'
-        ))
         self.text_model_edit = lm = QLineEdit(self)
         lm.setClearButtonEnabled(True)
         lm.setToolTip(_(
