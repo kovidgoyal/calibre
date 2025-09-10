@@ -164,6 +164,7 @@ class StreamedResponseAccumulator:
         self.all_reasoning_details: list[dict[str, Any]] = []
         self.metadata = ChatResponse()
         self.messages: list[ChatMessage] = []
+        self.response_id: str = ''
 
     @property
     def content_type(self) -> ContentType:
@@ -180,11 +181,13 @@ class StreamedResponseAccumulator:
             self.all_reasoning_details.extend(m.reasoning_details)
         if m.content:
             self.all_content += m.content
+        if m.id:
+            self.response_id = m.id
 
     def finalize(self) -> None:
         self.messages.append(ChatMessage(
             type=ChatMessageType.assistant, query=add_citations(self.all_content, self.metadata), reasoning=self.all_reasoning,
-            reasoning_details=tuple(self.all_reasoning_details)
+            reasoning_details=tuple(self.all_reasoning_details), response_id=self.response_id,
         ))
 
 

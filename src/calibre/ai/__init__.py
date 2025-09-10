@@ -20,7 +20,7 @@ class ChatMessage(NamedTuple):
     extra_data: Any = None
     reasoning_details: Sequence[dict[str, Any]] = ()
     reasoning: str = ''
-    id: int | None = None
+    response_id: str = ''  # response id from remote provider
 
     @property
     def from_assistant(self) -> bool:
@@ -47,6 +47,7 @@ class ChatResponse(NamedTuple):
     reasoning: str = ''
     reasoning_details: Sequence[dict[str, Any]] = ()
     type: ChatMessageType = ChatMessageType.assistant
+    id: str = ''  # response id from remote provider
 
     exception: Exception | None = None
     error_details: str = ''  # can be traceback or error message from HTTP response
