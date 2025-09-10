@@ -43,7 +43,7 @@ class ConfigWidget(QWidget):
         l.addRow(_('Model &choice strategy:'), ms)
         self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
         aws.setChecked(pref('allow_web_searches', True))
-        aws.setToolTip(_('If enabled, Gemini will use Google Web searches to return accurate and up-to-date information for queries, where possible'))
+        aws.setToolTip('<p>' + _('If enabled, Gemini will use Google Web searches to return accurate and up-to-date information for queries, where possible'))
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy'), self)
         l.addRow(_('&Reasoning effort:'), rs)
 

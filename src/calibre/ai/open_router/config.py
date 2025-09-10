@@ -407,6 +407,11 @@ class ConfigWidget(QWidget):
             '<li><b>High quality</b> - Automatically choose a model based on the query, for best possible'
             " results, regardless of cost. Uses OpenRouter's own automatic model selection."
         ))
+        self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
+        aws.setChecked(pref('allow_web_searches', False))
+        aws.setToolTip('<p>' + _(
+            'If enabled, OpenRouter will use Exa.ai web searches to return accurate and up-to-date'
+            ' information for queries, where possible. This adds about two cents to the cost of every request.'))
 
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy', 'auto'), self)
         l.addRow(_('&Reasoning effort:'), rs)

@@ -5,7 +5,7 @@ import datetime
 import json
 import os
 import re
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Sequence
 from functools import lru_cache
 from typing import Any, NamedTuple
 from urllib.request import Request
@@ -222,6 +222,12 @@ def for_assistant(self: ChatMessage) -> dict[str, Any]:
     return ans
 
 
+def add_websearch_if_desired(data: dict[str, Any], models: Sequence[Model]) -> None:
+    # https://openrouter.ai/docs/features/web-search
+    if pref('allow_web_searches', False):
+        data['plugins'].append({'id': 'web'})
+
+
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     if use_model:
         models = ()
@@ -236,6 +242,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         data_collection = 'deny'
     data = {
         'model': model_id,
+        'plugins': [],
         'messages': [for_assistant(m) for m in messages],
         'usage': {'include': True},
         'stream': True,
@@ -250,6 +257,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
             data['reasoning']['effort'] = s
         case _:
             data['reasoning']['enabled'] = False
+    add_websearch_if_desired(data, models)
     rq = chat_request(data)
 
     for data in read_streaming_response(rq, OpenRouterAI.name):
@@ -272,9 +280,10 @@ def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[
     yield from chat_with_error_handler(text_chat_implementation(messages, use_model))
 
 
-def develop(use_model: str = ''):
+def develop(msg: str = '', use_model: str = ''):
     # calibre-debug -c 'from calibre.ai.open_router.backend import *; develop()'
-    develop_text_chat(develop, use_model)
+    m = (ChatMessage(msg),) if msg else ()
+    develop_text_chat(text_chat, use_model, messages=m)
 
 
 if __name__ == '__main__':
