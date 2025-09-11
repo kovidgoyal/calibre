@@ -144,8 +144,8 @@ class PromptBlocked(ValueError):
 
 class ResultBlocked(ValueError):
 
-    def __init__(self, reason: ResultBlockReason):
-        super().__init__(reason.for_human)
+    def __init__(self, reason: ResultBlockReason = ResultBlockReason.unknown, custom_message: str = ''):
+        super().__init__(custom_message or reason.for_human)
         self.reason = reason
 
 

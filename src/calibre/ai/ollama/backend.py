@@ -10,7 +10,7 @@ from typing import Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
 from urllib.request import Request
 
-from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, PromptBlocked
+from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, read_streaming_response
@@ -99,7 +99,6 @@ def model_choice_for_text() -> Model:
 
 def chat_request(data: dict[str, Any], model: Model) -> Request:
     data['stream'] = True
-    data['stream_options'] = {'include_usage': True}
     return Request(
         api_url('api/chat'), data=json.dumps(data).encode('utf-8'),
         headers=dict(headers()), method='POST')
@@ -112,24 +111,19 @@ def for_assistant(self: ChatMessage) -> dict[str, Any]:
 
 
 def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
-    # See https://docs.github.com/en/rest/models/inference
-    content = ''
-    for choice in d['choices']:
-        content += choice['delta'].get('content', '')
-        if (fr := choice['finish_reason']) and fr != 'stop':
-            yield ChatResponse(exception=PromptBlocked(custom_message=_('Result was blocked for reason: {}').format(fr)))
-            return
-    has_metadata = False
-    if u := d.get('usage'):
-        u  # TODO: implement costing
-        has_metadata = True
+    msg = d['message']
+    content = msg['content']
+    has_metadata = d['done']
+    if has_metadata and (dr := d['done_reason']) != 'stop':
+        yield ChatResponse(exception=ResultBlocked(custom_message=_('Result was blocked for reason: {}').format(dr)))
+        return
     if has_metadata or content:
         yield ChatResponse(
             type=ChatMessageType.assistant, content=content, has_metadata=has_metadata, model=model.id, plugin_name=OllamaAI.name)
 
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-    # https://docs.github.com/en/rest/models/inference
+    # https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion
     if use_model:
         model = get_available_models()[use_model]
     else:

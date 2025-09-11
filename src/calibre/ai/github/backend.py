@@ -9,7 +9,7 @@ from functools import lru_cache
 from typing import Any, NamedTuple
 from urllib.request import Request
 
-from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, PromptBlocked
+from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, ResultBlocked
 from calibre.ai.github import GitHubAI
 from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
@@ -173,7 +173,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
     for choice in d['choices']:
         content += choice['delta'].get('content', '')
         if (fr := choice['finish_reason']) and fr != 'stop':
-            yield ChatResponse(exception=PromptBlocked(custom_message=_('Result was blocked for reason: {}').format(fr)))
+            yield ChatResponse(exception=ResultBlocked(custom_message=_('Result was blocked for reason: {}').format(fr)))
             return
     has_metadata = False
     if u := d.get('usage'):
