@@ -2,9 +2,11 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import datetime
+import http
 import json
 import posixpath
 from collections.abc import Iterable, Iterator, Sequence
+from contextlib import suppress
 from functools import lru_cache
 from typing import Any, NamedTuple
 from urllib.parse import urlparse, urlunparse
@@ -13,7 +15,7 @@ from urllib.request import Request
 from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider
-from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, read_streaming_response
+from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, opener
 
 module_version = 1  # needed for live updates
 
@@ -120,6 +122,17 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
     if has_metadata or content:
         yield ChatResponse(
             type=ChatMessageType.assistant, content=content, has_metadata=has_metadata, model=model.id, plugin_name=OllamaAI.name)
+
+
+def read_streaming_response(rq: Request, provider_name: str = 'AI provider') -> Iterator[dict[str, Any]]:
+    with opener().open(rq) as response:
+        if response.status != http.HTTPStatus.OK:
+            details = ''
+            with suppress(Exception):
+                details = response.read().decode('utf-8', 'replace')
+            raise Exception(f'Reading from {provider_name} failed with HTTP response status: {response.status} and body: {details}')
+        for raw_line in response:
+            yield json.loads(raw_line)
 
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
