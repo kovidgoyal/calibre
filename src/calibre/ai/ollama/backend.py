@@ -124,6 +124,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     # https://github.com/ollama/ollama/blob/main/docs/api.md#generate-a-chat-completion
+    # Doesnt use SSE
     if use_model:
         model = get_available_models()[use_model]
     else:
