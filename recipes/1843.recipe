@@ -61,15 +61,11 @@ def parse_txt(ty):
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
         'linebreak': lambda: ['<br>'],
         'external_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(children[0]))}</a>'
-        ]
-        if children
-        else [],
+            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
+        ],
         'internal_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(children[0]))}</a>'
-        ]
-        if children
-        else [],
+            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
+        ],
         'ufinish': lambda: [text for c in children for text in parse_txt(c)],
         'subscript': lambda: [f'<sub>{"".join(parse_txt(c))}</sub>' for c in children],
         'superscript': lambda: [f'<sup>{"".join(parse_txt(c))}</sup>' for c in children],
