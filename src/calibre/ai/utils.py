@@ -262,7 +262,7 @@ def develop_text_chat(
     acc = StreamedResponseAccumulator()
     messages = messages or (
         ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
-        ChatMessage('Give me twenty lines on my supremely beautiful wife.')
+        ChatMessage('Write twenty lines on my supremely beautiful wife. Assume she has honey gold skin and a brilliant smile.')
     )
     for x in text_chat(messages, use_model):
         if x.exception:
