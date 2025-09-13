@@ -127,13 +127,13 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
             type=ChatMessageType.assistant, reasoning=reasoning, content=content, has_metadata=has_metadata, model=model.id, plugin_name=OllamaAI.name)
 
 
-def read_streaming_response(rq: Request, provider_name: str = 'AI provider') -> Iterator[dict[str, Any]]:
+def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:
     with opener().open(rq) as response:
         if response.status != http.HTTPStatus.OK:
             details = ''
             with suppress(Exception):
                 details = response.read().decode('utf-8', 'replace')
-            raise Exception(f'Reading from {provider_name} failed with HTTP response status: {response.status} and body: {details}')
+            raise Exception(f'Reading from {OllamaAI.name} failed with HTTP response status: {response.status} and body: {details}')
         for raw_line in response:
             yield json.loads(raw_line)
 
@@ -150,7 +150,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         'messages': [for_assistant(m) for m in messages],
     }
     rq = chat_request(data, model)
-    for datum in read_streaming_response(rq, OllamaAI.name):
+    for datum in read_streaming_response(rq):
         for res in as_chat_responses(datum, model):
             yield res
             if res.exception:
