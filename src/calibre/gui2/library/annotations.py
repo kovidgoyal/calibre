@@ -68,6 +68,8 @@ def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
         spine_index = (1 + hl['spine_index']) * 2
         link = (link_prefix + quote(f'epubcfi(/{spine_index}{cfi})')).replace(')', '%29')
         date = f'[{date}]({link})'
+    if as_markdown:
+        date = f'*{date}*'
     lines.append(date)
     notes = hl.get('notes')
     if notes:
