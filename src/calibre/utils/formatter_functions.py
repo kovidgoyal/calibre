@@ -55,6 +55,7 @@ CASE_CHANGES = _('Case changes')
 DATE_FUNCTIONS = _('Date functions')
 DB_FUNCS = _('Database functions')
 URL_FUNCTIONS = _('URL functions')
+GUI_FUNCTIONS = __('GUI functions')
 
 
 # Class and method to save an untranslated copy of translated strings
@@ -1249,7 +1250,7 @@ string.
 class BuiltinApproximateFormats(BuiltinFormatterFunction):
     name = 'approximate_formats'
     arg_count = 0
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``approximate_formats()`` -- return a comma-separated list of formats associated
@@ -1278,7 +1279,7 @@ column's value in your save/send templates.
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
     arg_count = 1
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``formats_modtimes(date_format_string)`` -- return a comma-separated list of
@@ -1302,7 +1303,7 @@ that format names are always uppercase, as in EPUB.
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
     name = 'formats_sizes'
     arg_count = 0
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 
@@ -1323,7 +1324,7 @@ format names are always uppercase, as in EPUB.
 class BuiltinFormatsPaths(BuiltinFormatterFunction):
     name = 'formats_paths'
     arg_count = -1
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``formats_paths([separator])`` -- return a ``separator``-separated list of
@@ -1345,7 +1346,7 @@ format names are always uppercase, as in EPUB.
 class BuiltinFormatsPathSegments(BuiltinFormatterFunction):
     name = 'formats_path_segments'
     arg_count = 5
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``formats_path_segments(with_author, with_title, with_format, with_ext, sep)``
@@ -1775,7 +1776,7 @@ template, and use that column\'s value in your save/send templates.
 class BuiltinAnnotationCount(BuiltinFormatterFunction):
     name = 'annotation_count'
     arg_count = 0
-    category = GET_FROM_METADATA
+    category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``annotation_count()`` -- return the total number of annotations of all types
@@ -3649,6 +3650,116 @@ This can be useful to truncate a value.
         return pat.sub(repl, template)
 
 
+class BuiltinSelectedBooks(BuiltinFormatterFunction):
+    name = 'selected_books'
+    arg_count = 0
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``selected_books([sorted_by, ascending])`` -- returns a list of book ids in
+selection order for the currently selected books.
+
+This function can be used only in the GUI.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        from calibre.gui2.ui import get_gui
+        g = get_gui()
+        book_ids = g.current_view().get_selected_ids()
+        return ', '.join([str(book_id) for book_id in book_ids])
+
+
+class BuiltinSortBookIds(BuiltinFormatterFunction):
+    name = 'sort_book_ids'
+    arg_count = -1
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``sort_book_ids(book_ids, sorted_by, ascending [, sorted_by, ascending]*)`` --
+returns the list of book ids sorted by the column specified by the lookup name
+in ``sorted_by`` in the order specified by ``ascending``. If ``ascending`` is
+``'1'`` then the books are sorted by the value in the 'sorted_by' column in
+ascending order, otherwise in descending order. You can have multiple pairs of
+``sorted_by, ascending``. The first pair specifies the major order.
+
+This function can be used only in the GUI.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, book_ids, *args):
+        from calibre.gui2.ui import get_gui
+        g = get_gui()
+        bids = [int(b.strip()) for b in book_ids.split(',')]
+        if len(args) < 2:
+            raise ValueError(_('The sort_book_ids function requires at least 3 arguments'))
+        if len(args) % 2 != 0:
+            raise ValueError(_('The id and direction arguments must be in pairs'))
+        sort_spec = []
+        for i in range(0, len(args), 2):
+            sort_by = args[i]
+            asc = True if args[i+1] == '1' else False
+            sort_spec.append((sort_by, asc))
+        bids = g.current_db.new_api.multisort(sort_spec, bids)
+        return ', '.join([str(b) for b in bids])
+
+
+class BuiltinSelectedColumn(BuiltinFormatterFunction):
+    name = 'selected_column'
+    arg_count = 0
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``selected_column()`` -- returns the lookup name of the column containing the currently
+selected cell. It returns ``''`` if no cell is selected.
+
+This function can be used only in the GUI.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        from calibre.gui2.ui import get_gui
+        v = get_gui().current_view()
+        idx = v.currentIndex()
+        if idx.isValid():
+            key = v.column_map[idx.column()]
+            return key
+        return ''
+
+
+class BuiltinShowDialog(BuiltinFormatterFunction):
+    name = 'show_dialog'
+    arg_count = 1
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``show_dialog(html_or_text)`` -- show a dialog containing the html or text. The
+function returns ``'1'`` if the user presses OK, ``''`` if Cancel.
+
+This function can be used only in the GUI.
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, html):
+        from calibre.gui2.widgets2 import Dialog, HTMLDisplay
+        from qt.core import QDialog, QVBoxLayout
+
+        class HTMLDialog(Dialog):
+
+            def __init__(self, title, prefs):
+                super().__init__(title, 'formatter_html_dialog', prefs=prefs)
+
+            def setup_ui(self):
+                l = QVBoxLayout(self)
+                d = self.display = HTMLDisplay()
+                l.addWidget(d)
+                l.addWidget(self.bb)
+
+            def set_html(self, tt_text):
+                self.display.setHtml(tt_text)
+
+        db = get_database(mi, 'show_dialog')
+        d = HTMLDialog(_('Template output'), db.new_api.backend.prefs)
+        d.set_html(html)
+        return '1' if d.exec() == QDialog.DialogCode.Accepted else ''
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -3677,8 +3788,10 @@ _formatter_builtins = [
     BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
     BuiltinOr(), BuiltinPrint(), BuiltinQueryString(), BuiltinRatingToStars(),
     BuiltinRange(), BuiltinRawField(), BuiltinRawList(),
-    BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),
-    BuiltinSetGlobals(), BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
+    BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(),
+    BuiltinSelectedBooks(), BuiltinSelectedColumn(), BuiltinSeriesSort(),
+    BuiltinSetGlobals(), BuiltinShorten(), BuiltinShowDialog(), BuiltinSortBookIds(),
+    BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(), BuiltinSwitchIf(),

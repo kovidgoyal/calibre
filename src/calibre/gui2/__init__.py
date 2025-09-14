@@ -488,6 +488,8 @@ def create_defs():
     defs['book_details_note_link_icon_width'] = 1.0
     defs['tag_browser_show_category_icons'] = True
     defs['tag_browser_show_value_icons'] = True
+    defs['template_editor_run_as_you_type'] = True
+    defs['template_editor_show_all_selected_books'] = True
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
