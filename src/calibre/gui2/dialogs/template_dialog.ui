@@ -206,14 +206,13 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="break_box">
+            <widget class="QCheckBox" name="run_as_you_type_box">
              <property name="text">
-              <string>Enable &amp;breakpoints</string>
+              <string>R&amp;un as you type</string>
              </property>
              <property name="toolTip">
-              <string>&lt;p&gt;If checked, the template evaluator will stop when it
-evaluates an expression on a double-clicked line number, opening a dialog showing
-you the value as well as all the local variables&lt;/p&gt;</string>
+              <string>&lt;p&gt;If checked then the template will be run (tested) after every
+keystroke. If unchecked then the template will be run when the "Go" button is pushed.&lt;/p&gt;</string>
              </property>
             </widget>
            </item>
@@ -237,7 +236,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
               <set>Qt::ToolButtonTextBesideIcon</set>
              </property>
              <property name="toolTip">
-              <string>If 'Enable breakpoints' is checked then click this button to run your template</string>
+              <string>If 'Run as you type' is not checked then click this button to run your template</string>
              </property>
             </widget>
            </item>
@@ -245,6 +244,18 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             <widget class="Separator">
              <property name="buddy">
               <cstring>go_button</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="break_box">
+             <property name="text">
+              <string>Enable &amp;breakpoints</string>
+             </property>
+             <property name="toolTip">
+              <string>&lt;p&gt;If checked, the template evaluator will stop when it
+evaluates an expression on a double-clicked line number, opening a dialog showing
+you the value as well as all the local variables&lt;/p&gt;</string>
              </property>
             </widget>
            </item>
@@ -378,17 +389,34 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </widget>
          </item>
          <item row="7" column="0">
-          <widget class="QLabel">
-           <property name="text">
-            <string>Template value:</string>
-           </property>
-           <property name="buddy">
-            <cstring>template_value</cstring>
-           </property>
-           <property name="toolTip">
-            <string>The value of the template using the current book in the library view</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QLabel">
+             <property name="text">
+              <string>Template value:</string>
+             </property>
+             <property name="buddy">
+              <cstring>template_value</cstring>
+             </property>
+             <property name="toolTip">
+              <string>The value of the template using the currently selected book(s)
+in the library view</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="show_all_selected_books">
+             <property name="text">
+              <string>Show template result for all selected books</string>
+             </property>
+             <property name="toolTip">
+              <string>&lt;p&gt;If checked then the template will be evaluated for all selected
+books. If not checked then the template will be evaluated for the first selected book. Unchecking this
+box is useful if the template uses the selected books to generate a report.&lt;/p&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="8" column="0" colspan="3">
           <widget class="QTableWidget" name="template_value">

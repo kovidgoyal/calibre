@@ -60,6 +60,7 @@ class Node:
     NODE_SWITCH = 31
     NODE_SWITCH_IF = 32
     NODE_LIST_COUNT_FIELD = 33
+    NODE_WITH = 34
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -72,6 +73,14 @@ class Node:
     @property
     def line_number(self):
         return self.my_line_number
+
+
+class WithNode(Node):
+    def __init__(self, line_number, book_id, block):
+        Node.__init__(self, line_number, 'if ...')
+        self.node_type = self.NODE_WITH
+        self.book_id = book_id
+        self.block = block
 
 
 class IfNode(Node):
@@ -600,6 +609,20 @@ class _Parser:
     def local_call_expression(self, name, arguments):
         return LocalFunctionCallNode(self.line_number, name, arguments)
 
+    def with_expression(self):
+        self.consume()
+        line_number = self.line_number
+        book_id = self.top_expr()
+        if not self.token_op_is(':'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('with', ':', self.token_text()))
+        self.consume()
+        block = self.expression_list()
+        if not self.token_is('htiw'):
+            self.error(_("'{0}' statement: missing the closing '{1}'").format('def', 'fed'))
+        self.consume()
+        return WithNode(line_number, book_id, block)
+
     def call_expression(self, name, arguments):
         compiled_func = self.funcs[name].cached_compiled_text
         if compiled_func is None:
@@ -692,6 +715,7 @@ class _Parser:
             'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
             'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.top_expr())),
             'def':      (lambda self: None, define_function_expression),
+            'with':     (lambda self: None, with_expression)
     }
 
     # {inlined_function_name: tuple(constraint on number of length, node builder) }
@@ -1016,6 +1040,27 @@ class _Interpreter:
             e.set_value(val)
             raise e
         return val
+
+    def do_node_with(self, prog):
+        line_number = prog.line_number
+        parent_book = self.parent_book
+        v = None
+        try:
+            book_id = int(self.expr(prog.book_id))
+            if self.break_reporter:
+                self.break_reporter("'with': book id ", str(book_id), line_number)
+            self.parent_book = self.parent.book = get_database(
+                    self.parent_book, 'with statement').new_api.get_proxy_metadata(book_id)
+            v = self.expression_list(prog.block)
+            if self.break_reporter:
+                self.break_reporter("'with': block value", v, line_number)
+            return v
+        except (StopException, ValueError, ReturnExecuted) as e:
+            raise e
+        except Exception as e:
+            self.error(_("Unhandled exception '{0}'").format(e), line_number)
+        finally:
+            self.parent_book = self.parent.book = parent_book
 
     def do_node_if(self, prog):
         line_number = prog.line_number
@@ -1608,7 +1653,8 @@ class _Interpreter:
         Node.NODE_LOCAL_FUNCTION_DEFINE: do_node_local_function_define,
         Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
         Node.NODE_LIST_COUNT_FIELD:      do_node_list_count_field,
-        }
+        Node.NODE_WITH:                  do_node_with,
+    }
 
     def expr(self, prog):
         try:
@@ -1707,6 +1753,7 @@ class TemplateFormatter(string.Formatter):
             (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
             (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
             (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
+            (r'(with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
             (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
             (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),
