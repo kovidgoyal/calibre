@@ -55,7 +55,7 @@ CASE_CHANGES = _('Case changes')
 DATE_FUNCTIONS = _('Date functions')
 DB_FUNCS = _('Database functions')
 URL_FUNCTIONS = _('URL functions')
-GUI_FUNCTIONS = __('GUI functions')
+GUI_FUNCTIONS = _('GUI functions')
 
 
 # Class and method to save an untranslated copy of translated strings
@@ -3737,8 +3737,9 @@ This function can be used only in the GUI.
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, html):
-        from calibre.gui2.widgets2 import Dialog, HTMLDisplay
         from qt.core import QDialog, QVBoxLayout
+
+        from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 
         class HTMLDialog(Dialog):
 

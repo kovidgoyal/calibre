@@ -743,7 +743,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         tv.setHorizontalHeaderLabels((_('Book title'), '', _('Template value')))
         tv.horizontalHeader().setStretchLastSection(True)
         tv.horizontalHeader().sectionResized.connect(self.table_column_resized)
-        tv.setRowCount(len(mi) )
+        tv.setRowCount(len(mi))
         # Set the height of the table
         h = tv.rowHeight(0) * min(row_count, 5)
         h += 2 * tv.frameWidth() + tv.horizontalHeader().height()
