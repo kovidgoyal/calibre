@@ -1,3 +1,12 @@
+# Security Policy
+
+## Supported Versions
+
+There are no security specific releases of calibre. Security bugs are fixed
+and released just like all other bugs.
+
+## Reporting a vulnerability
+
 To report security vulnerabilities, open a normal bug report in the
 [calibre bug tracker](https://calibre-ebook.com/bugs) and mark it private.
 
