@@ -323,7 +323,7 @@ class Worker:
             s.settimeout(5)
             try:
                 if self.uses_ssl:
-                    s = ssl.create_default_context().wrap_socket(s)
+                    s = ssl._create_stdlib_context().wrap_socket(s)
                 s.connect(('localhost', self.port))
                 return
             except OSError:
