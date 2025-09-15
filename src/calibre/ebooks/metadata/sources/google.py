@@ -577,7 +577,7 @@ if __name__ == '__main__':  # tests {{{
     ]),
 
     ({
-        # requires using web search to find the book
+        # requires using web search to find the book, but web search is broken currently
         'title': 'Dragon Done It',
         'authors': ['Eric Flint'],
     }, [
@@ -586,6 +586,6 @@ if __name__ == '__main__':  # tests {{{
     ]),
 
     ]
-    test_identify_plugin(GoogleBooks.name, tests[-1:])
+    test_identify_plugin(GoogleBooks.name, tests)
 
 # }}}
