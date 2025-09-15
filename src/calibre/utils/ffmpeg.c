@@ -510,7 +510,7 @@ resample_raw_audio_16bit(PyObject *self, PyObject *args) {
     );
     Py_END_ALLOW_THREADS
     if (ret < 0) { free_resources; return averror_as_python_with_gil_held(ret, __LINE__); }
-    output_size = ret * output_num_channels * bytes_per_sample;
+    output_size = (int64_t)ret * (int64_t)output_num_channels * bytes_per_sample;
     PyObject *ans = PyBytes_FromStringAndSize((char*)output, output_size);
     free_resources;
 #undef free_resources

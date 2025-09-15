@@ -224,8 +224,8 @@ static int make_decode_table(unsigned int nsyms, unsigned int nbits,
   unsigned int next_symbol = bit_mask; /* base of allocation for long codes */
 
   /* fill entries for codes short enough for a direct mapping */
-  for (bit_num = 1; bit_num <= nbits; bit_num++) {
-    for (sym = 0; sym < nsyms; sym++) {
+  for (bit_num = 1; (unsigned)bit_num <= nbits; bit_num++) {
+    for (sym = 0; (unsigned)sym < nsyms; sym++) {
       if (length[sym] != bit_num) continue;
       leaf = pos;
       if((pos += bit_mask) > table_mask) return 1; /* table overrun */
@@ -239,7 +239,7 @@ static int make_decode_table(unsigned int nsyms, unsigned int nbits,
   if (pos == table_mask) return 0;
 
   /* clear the remainder of the table */
-  for (sym = pos; sym < table_mask; sym++) table[sym] = 0xFFFF;
+  for (sym = pos; (unsigned)sym < table_mask; sym++) table[sym] = 0xFFFF;
 
   /* allow codes to be up to nbits+16 long, instead of nbits */
   pos <<= 16;
@@ -247,7 +247,7 @@ static int make_decode_table(unsigned int nsyms, unsigned int nbits,
   bit_mask = 1 << 15;
 
   for (bit_num = nbits+1; bit_num <= 16; bit_num++) {
-    for (sym = 0; sym < nsyms; sym++) {
+    for (sym = 0; (unsigned)sym < nsyms; sym++) {
       if (length[sym] != bit_num) continue;
 
       leaf = pos >> 16;
@@ -273,7 +273,7 @@ static int make_decode_table(unsigned int nsyms, unsigned int nbits,
   if (pos == table_mask) return 0;
 
   /* either erroneous table, or all elements are 0 - let's find out. */
-  for (sym = 0; sym < nsyms; sym++) if (length[sym]) return 1;
+  for (sym = 0; (unsigned)sym < nsyms; sym++) if (length[sym]) return 1;
   return 0;
 }
 

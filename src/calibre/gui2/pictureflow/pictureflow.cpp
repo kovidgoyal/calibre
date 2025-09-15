@@ -587,7 +587,7 @@ void PictureFlowPrivate::resetSlides()
   {
     SlideInfo& si = leftSlides[i];
     si.angle = itilt;
-    si.cx = -(offsetX + spacing*i*PFREAL_ONE);
+    si.cx = -(offsetX + (long)spacing*i*PFREAL_ONE);
     si.cy = offsetY;
     si.slideIndex = centerIndex-1-i;
     //qDebug() << "Left[" << i << "] x=" << fixedToFloat(si.cx) << ", y=" << fixedToFloat(si.cy) ;
@@ -599,7 +599,7 @@ void PictureFlowPrivate::resetSlides()
   {
     SlideInfo& si = rightSlides[i];
     si.angle = -itilt;
-    si.cx = offsetX + spacing*i*PFREAL_ONE;
+    si.cx = offsetX + (long)spacing*i*PFREAL_ONE;
     si.cy = offsetY;
     si.slideIndex = centerIndex+1+i;
     //qDebug() << "Right[" << i << "] x=" << fixedToFloat(si.cx) << ", y=" << fixedToFloat(si.cy) ;
@@ -1118,7 +1118,7 @@ void PictureFlowPrivate::updateAnimation()
     speed = 512 + 16384 * (PFREAL_ONE+fsin(ia))/PFREAL_ONE;
   }
 
-  slideFrame += speed*step;
+  slideFrame += (long long)speed*step;
 
   int index = slideFrame >> 16;
   int pos = slideFrame & 0xffff;
@@ -1161,7 +1161,7 @@ void PictureFlowPrivate::updateAnimation()
   {
     SlideInfo& si = leftSlides[i];
     si.angle = itilt;
-    si.cx = -(offsetX + spacing*i*PFREAL_ONE + step*spacing*ftick);
+    si.cx = -(offsetX + (long)spacing*i*PFREAL_ONE + (long)step*spacing*ftick);
     si.cy = offsetY;
   }
 
@@ -1169,7 +1169,7 @@ void PictureFlowPrivate::updateAnimation()
   {
     SlideInfo& si = rightSlides[i];
     si.angle = -itilt;
-    si.cx = offsetX + spacing*i*PFREAL_ONE - step*spacing*ftick;
+    si.cx = offsetX + (long)spacing*i*PFREAL_ONE - (long)step*spacing*ftick;
     si.cy = offsetY;
   }
 

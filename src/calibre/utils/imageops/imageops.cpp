@@ -174,7 +174,7 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     if (buffer.isNull()) throw std::bad_alloc();
     buf1.resize(matrix_size);
     scanblock = buf1.data();
-    buf2.resize(matrix_size * matrix_size);
+    buf2.resize((qsizetype)matrix_size * matrix_size);
     normalize_matrix = buf2.data();
 
     // create normalized matrix

@@ -18,7 +18,6 @@
 #define LZ_ONEBUFFER 1
 #define LAZY 1
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h> /* for memset on Linux */
@@ -1143,7 +1142,7 @@ int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
       build_huffman_tree(LZX_ALIGNED_SIZE, 7, lzxd->aligned_freq_table, lzxd->aligned_tree);
       for (i = 0; i < LZX_ALIGNED_SIZE; i++) {
 	uncomp_bits += lzxd->aligned_freq_table[i]* 3;
-	comp_bits += lzxd->aligned_freq_table[i]* lzxd->aligned_tree[i].codelength;
+	comp_bits += (long)lzxd->aligned_freq_table[i]* lzxd->aligned_tree[i].codelength;
       }
       comp_bits_ovh = comp_bits + LZX_ALIGNED_SIZE * 3;
       if (comp_bits_ovh < uncomp_bits)

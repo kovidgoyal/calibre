@@ -27,7 +27,7 @@ typedef struct {
 
 static MemoryItem*** alloc_memory(int32_t needle_len, int32_t max_haystack_len) {
     MemoryItem ***ans = NULL, **d1 = NULL, *d2 = NULL;
-    size_t num = max_haystack_len * max_haystack_len * needle_len;
+    size_t num = (size_t)max_haystack_len * (size_t)max_haystack_len * needle_len;
     size_t position_sz = needle_len * sizeof(int32_t);
     size_t sz = (num * (sizeof(MemoryItem) + position_sz)) + (max_haystack_len * sizeof(MemoryItem**)) + (needle_len * sizeof(MemoryItem*));
     int32_t hidx, nidx, last_idx, i, j;
@@ -85,7 +85,7 @@ typedef struct {
 static void alloc_stack(Stack *stack, int32_t needle_len, int32_t max_haystack_len) {
     StackItem *ans = NULL;
     char *base = NULL;
-    size_t num = max_haystack_len * needle_len;
+    size_t num = (size_t)max_haystack_len * needle_len;
     size_t position_sz = needle_len * sizeof(int32_t);
     size_t sz = sizeof(StackItem) + position_sz;
     size_t i = 0;
@@ -416,7 +416,7 @@ Matcher_calculate_scores(Matcher *self, PyObject *args) {
     items = PyTuple_New(self->item_count);
     positions = PyTuple_New(self->item_count);
     matches = (Match*)calloc(self->item_count, sizeof(Match));
-    final_positions = (int32_t*) calloc(needle_char_len * self->item_count, sizeof(int32_t));
+    final_positions = (int32_t*) calloc((size_t)needle_char_len * self->item_count, sizeof(int32_t));
     if (items == NULL || matches == NULL || final_positions == NULL || positions == NULL) {PyErr_NoMemory(); goto end;}
 
     for (i = 0; i < self->item_count; i++) {
