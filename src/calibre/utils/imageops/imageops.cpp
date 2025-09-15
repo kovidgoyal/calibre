@@ -159,7 +159,7 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     float *m, *normalize_matrix, normalize, r, g, b;
     QImage img(image);
     QVector<QRgb*> buf1 = QVector<QRgb*>(matrix_size);
-    QVector<float> buf2 = QVector<float>(matrix_size * matrix_size);
+    QVector<float> buf2 = QVector<float>((qsizetype)matrix_size * matrix_size);
 
     if(!(matrix_size % 2))
         throw std::out_of_range("Convolution kernel width must be an odd number");
