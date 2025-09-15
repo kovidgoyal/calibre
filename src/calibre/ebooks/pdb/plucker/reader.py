@@ -189,7 +189,6 @@ class SectionMetadata:
 
     def __init__(self, raw):
         self.default_encoding = 'latin-1'
-        self.exceptional_uid_encodings = {}
         self.owner_id = None
 
         record_count, = struct.unpack('>H', raw[0:2])
@@ -207,12 +206,7 @@ class SectionMetadata:
                 self.default_encoding = MIBNUM_TO_NAME.get(val, 'latin-1')
             # ExceptionalCharSets
             elif type == 2:
-                ii_adv = 0
-                for ii in range(length // 2):
-                    uid, = struct.unpack('>H', raw[6+adv+ii_adv:8+adv+ii_adv])
-                    mib, = struct.unpack('>H', raw[8+adv+ii_adv:10+adv+ii_adv])
-                    self.exceptional_uid_encodings[uid] = MIBNUM_TO_NAME.get(mib, 'latin-1')
-                    ii_adv += 4
+                pass  # not handled
             # OwnerID
             elif type == 3:
                 self.owner_id = struct.unpack('>I', raw[6+adv:10+adv])
@@ -297,7 +291,6 @@ class Reader(FormatReader):
         # list of sections.
         self.uid_section_number = OrderedDict()
         self.uid_text_secion_number = OrderedDict()
-        self.uid_text_secion_encoding = {}
         self.uid_image_section_number = {}
         self.uid_composite_image_section_number = {}
         self.metadata_section_number = None
@@ -342,8 +335,6 @@ class Reader(FormatReader):
         # to make access easier.
         if self.metadata_section_number:
             mdata_section = self.sections[self.metadata_section_number][1]
-            for k, v in mdata_section.exceptional_uid_encodings.items():
-                self.uid_text_secion_encoding[k] = v
             self.default_encoding = mdata_section.default_encoding
             self.owner_id = mdata_section.owner_id
 
