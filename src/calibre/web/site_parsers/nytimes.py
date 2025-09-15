@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 16  # needed for live updates
+module_version = 17  # needed for live updates
 pprint
 
 
@@ -213,7 +213,8 @@ def clean_js_json(text):
 
 
 def json_to_html(raw):
-    data = json.loads(clean_js_json(raw))
+    cleaned = clean_js_json(raw)
+    data = json.JSONDecoder(strict=False).raw_decode(cleaned)[0]
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
     try:
         data = data['initialData']['data']
@@ -290,7 +291,7 @@ def extract_html(soup, url):
             'This is an interactive article, which is supposed to be read in a browser.'
             '</p></em></body></html>'
         )
-    candidates = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)
+    candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     if not candidates:
         if soup.find('script', src='https://ct.captcha-delivery.com/c.js'):
             raise ValueError('NYTimes returned a CAPTCHA page from captcha-delivery.com')
@@ -333,6 +334,6 @@ if __name__ == '__main__':
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
         soup = BeautifulSoup(raw)
-        print(extract_html(soup))
+        print(extract_html(soup, 'moose'))
     else:
         print(json_to_html(raw))

@@ -128,8 +128,7 @@ class NewYorkTimes(BasicNewsRecipe):
         return self.index_to_soup(url, raw=True)
 
     def preprocess_raw_html(self, raw_html, url):
-        cleaned = self.nyt_parser.clean_js_json(raw_html)
-        return self.nyt_parser.extract_html(self.index_to_soup(cleaned), url)
+        return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
     articles_are_obfuscated = use_wayback_machine
 
