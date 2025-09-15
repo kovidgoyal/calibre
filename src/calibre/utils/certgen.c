@@ -369,8 +369,8 @@ static PyObject* serialize_rsa_key(PyObject *self, PyObject *args) {
 
     mem = BIO_new(BIO_s_mem());
     if (!mem) {set_error("BIO_new"); goto error; }
-    if (password && *password) ok = PEM_write_bio_PrivateKey(mem, keypair, EVP_des_ede3_cbc(), NULL, 0, 0, password);
-    else ok = PEM_write_bio_PrivateKey(mem, keypair, NULL, NULL, 0, 0, NULL);
+    if (password && *password) ok = PEM_write_bio_PKCS8PrivateKey(mem, keypair, EVP_aes_256_cbc(), NULL, 0, 0, password);
+    else ok = PEM_write_bio_PKCS8PrivateKey(mem, keypair, NULL, NULL, 0, 0, NULL);
     if (!ok) { set_error("PEM_write_bio_PrivateKey"); goto error; }
     sz = BIO_get_mem_data(mem, &p);
     Py_ssize_t psz = sz;
