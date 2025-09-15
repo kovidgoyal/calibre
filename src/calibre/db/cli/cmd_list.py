@@ -55,7 +55,7 @@ def implementation(
         for sf in sort_fields:
             if sf not in afields:
                 return f'Unknown sort field: {sf}'
-        sort_spec = [(sf, ascending) for sf in sort_fields]
+        sort_spec = [((sf if not sf.startswith('*') else '#'+sf[1:]), ascending) for sf in sort_fields]
         if not set(fields).issubset(afields):
             return 'Unknown fields: {}'.format(', '.join(set(fields) - afields))
         if search_text:
