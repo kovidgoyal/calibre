@@ -823,12 +823,11 @@ class TextEdit(PlainTextEdit):
             return self.text_for_range(c.block(), r)
 
     def select_class_name_at_cursor(self, cursor):
-        valid = re.compile(r'[\w_0-9\-]+', flags=re.UNICODE)
+        valid = re.compile(r'^[\w_-]+$', flags=re.UNICODE)
 
         def keep_going():
             q = cursor.selectedText()
-            m = valid.match(q)
-            return m is not None and m.group() == q
+            return valid.match(q) is not None
 
         def run_loop(forward=True):
             cursor.setPosition(pos)

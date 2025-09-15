@@ -6,6 +6,7 @@ import re
 
 from qt.core import QApplication, QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
 
+from calibre.ebooks.oeb.base import ENTITY_RE
 from calibre.gui2.palette import dark_link_color, light_link_color
 
 
@@ -31,7 +32,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         'HeaderLine': re.compile(r'(?u)^(-|=)+\s*$'),
         'HR': re.compile(r'(?u)^(\s*(\*|-|_)\s*){3,}$'),
         'Html': re.compile(r'(?u)</?[^/\s].*?(?<!\\)>'),
-        'Entity': re.compile(r'&([A-z]{2,7}|#\d{1,7}|#x[\dA-Fa-f]{1,6});'),
+        'Entity': ENTITY_RE,
     }
 
     key_theme_maps = {

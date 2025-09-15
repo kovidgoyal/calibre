@@ -351,7 +351,7 @@ OEB_IMAGES        = {GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME}
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
-ENTITY_RE     = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
+ENTITY_RE     = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9._:-]+);')
 COLLAPSE_RE   = re.compile(r'[ \t\r\n\v]+')
 QNAME_RE      = re.compile(r'^[{][^{}]+[}][^{}]+$')
 PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
