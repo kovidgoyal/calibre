@@ -31,7 +31,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 2, 14)
+current_version = (1, 2, 15)
 minimum_calibre_version = (2, 80, 0)
 webcache = {}
 webcache_lock = Lock()
@@ -116,7 +116,7 @@ def quote_term(x):
     return ans
 
 
-# DDG + Wayback machine {{{
+# DDG + Wayback machine DDG does a captcha after 2-3 requests {{{
 
 def ddg_url_processor(url):
     return url
@@ -134,7 +134,7 @@ def ddg_term(t):
 def ddg_href(url):
     if url.startswith('/'):
         q = url.partition('?')[2]
-        url = parse_qs(q.encode('utf-8'))['uddg'][0].decode('utf-8')
+        url = parse_qs(q.encode('utf-8'))[b'uddg'][0].decode('utf-8')
     return url
 
 
@@ -207,7 +207,7 @@ def ddg_develop():
 # }}}
 
 
-# Bing {{{
+# Bing uses a CAPTCHA {{{
 
 def bing_term(t):
     t = t.replace('"', '')
@@ -278,7 +278,7 @@ def bing_develop(terms='heroes abercrombie'):
 # }}}
 
 
-# Google {{{
+# Google only serves JS enabled search pages as of Sep 11, 2025 {{{
 
 def google_term(t):
     t = t.replace('"', '')
@@ -433,7 +433,7 @@ def google_develop(search_terms='1423146786', raw_from=''):
 # }}}
 
 
-# Yandex {{{
+# Yandex uses a CAPTCHA {{{
 def yandex_term(t):
     t = t.replace('"', '')
     if t in {'OR', 'AND', 'NOT'}:
