@@ -32,6 +32,7 @@ def select_nodes_from_range(r, predicate):
     iterator = doc.createNodeIterator(parent)
     in_range = False
     ans = v'[]'
+    check_for_end = not (r.startContainer.isSameNode(r.endContainer) and r.startContainer.isSameNode(parent))
     while True:
         node = iterator.nextNode()
         if not node:
@@ -41,7 +42,7 @@ def select_nodes_from_range(r, predicate):
         if in_range:
             if predicate(node):
                 ans.push(node)
-            if node.isSameNode(r.endContainer):
+            if check_for_end and node.isSameNode(r.endContainer):
                 break
     return ans
 
@@ -51,6 +52,7 @@ def select_first_node_from_range(r, predicate):
     doc = parent.ownerDocument or document
     iterator = doc.createNodeIterator(parent)
     in_range = False
+    check_for_end = not (r.startContainer.isSameNode(r.endContainer) and r.startContainer.isSameNode(parent))
     while True:
         node = iterator.nextNode()
         if not node:
@@ -60,7 +62,7 @@ def select_first_node_from_range(r, predicate):
         if in_range:
             if predicate(node):
                 return node
-            if node.isSameNode(r.endContainer):
+            if check_for_end and node.isSameNode(r.endContainer):
                 break
 
 
@@ -74,6 +76,7 @@ def all_annots_in_range(r, annot_id_uuid_map, ans):
     iterator = doc.createNodeIterator(parent)
     is_full_tree = parent is doc.documentElement
     in_range = is_full_tree
+    check_for_end = not is_full_tree and not (r.startContainer.isSameNode(r.endContainer) and r.startContainer.isSameNode(parent))
     while True:
         node = iterator.nextNode()
         if not node:
@@ -87,7 +90,7 @@ def all_annots_in_range(r, annot_id_uuid_map, ans):
                     if not ans:
                         return annot_id
                     ans[annot_id] = True
-            if not is_full_tree and node.isSameNode(r.endContainer):
+            if check_for_end and node.isSameNode(r.endContainer):
                 break
     return ans
 
