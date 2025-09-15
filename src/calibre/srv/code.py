@@ -455,7 +455,7 @@ def tag_browser(ctx, rd):
     opts = categories_settings(rd.query, db, gst_container=tuple)
     vl = rd.query.get('vl') or ''
     etag = json_dumps([db.last_modified().isoformat(), rd.username, library_id, vl, list(opts)])
-    etag = hashlib.sha1(etag).hexdigest()
+    etag = hashlib.sha256(etag).hexdigest()
 
     def generate():
         return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl))

@@ -8,7 +8,7 @@ import os
 import tempfile
 import time
 from functools import partial
-from hashlib import sha1
+from hashlib import sha256
 from threading import Lock, RLock
 
 from calibre.constants import cache_dir, iswindows
@@ -58,7 +58,7 @@ def books_cache_dir():
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
     raw = json_dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
-    return as_unicode(sha1(raw).hexdigest())
+    return as_unicode(sha256(raw).hexdigest())
 
 
 staging_cleaned = False
