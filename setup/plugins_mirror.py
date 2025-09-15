@@ -124,7 +124,7 @@ def parse_index(raw=None):  # {{{
                 return category
         raise ValueError('Could not find category for offset: ' + str(offset))
 
-    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
+    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www\.mobileread\.com/forums/showthread\.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
         name, url, rest = u(match.group(2)), u(match.group(1)), match.group(3)
         category = category_at(match.start(2))
         deprecated = category == deprecated_category

@@ -336,7 +336,7 @@ def google_parse_results(root, raw, log=prints, ignore_uncached=True):
             purl = urlparse(url)
         except Exception:
             continue
-        if 'google.com' in purl.netloc:
+        if purl.hostname.endswith('google.com'):
             continue
         try:
             title = tostring(next(a.iterchildren('span')))
