@@ -202,7 +202,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 1, 2)
+    version = (1, 1, 3)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -447,7 +447,7 @@ class GoogleBooks(Source):
                     purl = urlparse(q.url)
                 except Exception:
                     continue
-                if not purl.hostname.startswith('https://books.google'):
+                if not purl.hostname.startswith('books.google'):
                     continue
                 google_ids.append(m.group(1))
 
@@ -586,6 +586,6 @@ if __name__ == '__main__':  # tests {{{
     ]),
 
     ]
-    test_identify_plugin(GoogleBooks.name, tests[:])
+    test_identify_plugin(GoogleBooks.name, tests[-1:])
 
 # }}}

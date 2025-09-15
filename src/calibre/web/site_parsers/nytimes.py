@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 15  # needed for live updates
+module_version = 16  # needed for live updates
 pprint
 
 
@@ -52,9 +52,15 @@ def parse_vid(v):
             yield f'<div class="cap">{v["promotionalSummary"]}</div>'
 
 
+def get_data_wrapper(html: str | None) -> str:
+    m = re.search(r'datawrapper.dwcdn.net/(.{5})', html or '')
+    if m is not None:
+        return m.group(1)
+    return ''
+
+
 def parse_emb(e):
-    if e.get('html') and 'datawrapper.dwcdn.net' in e.get('html', ''):
-        dw = re.search(r'datawrapper.dwcdn.net/(.{5})', e['html']).group(1)
+    if dw := get_data_wrapper(e.get('html')):
         yield f'<div><img src="https://datawrapper.dwcdn.net/{dw}/full.png"></div>'
     elif e.get('promotionalMedia'):
         if e.get('headline'):
