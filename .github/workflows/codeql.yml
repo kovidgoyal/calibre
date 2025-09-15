@@ -1,0 +1,48 @@
+name: "CodeQL Advanced"
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+        # The branches below must be a subset of the branches above
+        branches: [master]
+    schedule:
+        - cron: '42 8 * * 3'
+
+permissions:
+    contents: read # to fetch code (actions/checkout)
+
+jobs:
+    CodeQL-Build:
+
+        permissions:
+            contents: read # to fetch code (actions/checkout)
+            security-events: write # to upload SARIF results (github/codeql-action/analyze)
+
+        runs-on: ubuntu-latest
+
+        steps:
+
+        - name: Checkout repository
+          uses: actions/checkout@v3
+          with:
+              # We must fetch at least the immediate parents so that if this is
+              # a pull request then we can checkout the head.
+              fetch-depth: 2
+
+        # Initializes the CodeQL tools for scanning.
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v3
+          with:
+              languages: python
+
+        - name: Install calibre dependencies
+          run:
+              python setup/unix-ci.py install
+
+        - name: Bootstrap calibre
+          run:
+              python setup/unix-ci.py bootstrap
+
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
