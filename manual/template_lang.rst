@@ -279,6 +279,7 @@ General Program Mode
     for_range       ::= 'for' identifier 'in' range_expr ':' expression_list 'rof'
     range_expr      ::= 'range' '(' [ start_expr ',' ] stop_expr
                         [ ',' step_expr [ ',' limit_expr ] ] ')'
+    with_expr       ::= 'with' top_expression ':' expression_list 'htiw'
     list_expr       ::= top_expression
     break_expr      ::= 'break'
     continue_expr   ::= 'continue'
@@ -380,6 +381,29 @@ If the original Genre is `History.Military, Science Fiction.Alternate History, R
 :guilabel:`Edit metadata in bulk -> Search & replace` with :guilabel:`Search for` set to ``template`` to strip off the first level of the hierarchy and assign the resulting value to Genre.
 
 Note: the last line in the template, ``new_tags``, isn't strictly necessary in this case because ``for`` returns the value of the last top_expression in the expression list. The value of an assignment is the value of its expression, so the value of the ``for`` statement is what was assigned to ``new_tags``.
+
+**with expressions**
+
+The ``with`` expression:
+
+#. changes the current book to the book with calibre book id (an integer) produced by valuating the ``top_expression``.
+#. runs the ``expression_list``.
+#. then resets the current book back to what it was.
+
+The ``with`` expression returns the result of the last ``top_expression`` in the evaluated
+``expression_list``, or the empty string if no expression list was evaluated.
+
+For example, this template returns a list of the titles of each book selected in the GUI::
+
+  program:
+    res = '';
+    ids = selected_books();
+    for id in ids:
+        with id:
+            res = (if res then res & ', ' fi) & $title
+        htiw
+    rof;
+    res
 
 **Return stmt**
 
