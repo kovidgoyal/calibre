@@ -4,7 +4,7 @@
 from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
-from calibre.ai.prefs import plugins_for_purpose, prefs
+from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
 from calibre.gui2 import Application, error_dialog
 
 
@@ -31,7 +31,7 @@ class ConfigureAI(QWidget):
             h.addWidget(la), h.addWidget(pcb), h.addStretch()
             v.addLayout(h)
             pcb.currentIndexChanged.connect(self.stack.setCurrentIndex)
-            idx = pcb.findText(prefs()['purpose_map'].get(str(self.purpose), ''))
+            idx = pcb.findText(getattr(plugin_for_purpose(self.purpose), 'name', ''))
             pcb.setCurrentIndex(max(0, idx))
         elif len(plugins) == 1:
             self.gb.setTitle(_('Configure AI provider: {}').format(plugins[0].name))

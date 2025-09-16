@@ -47,6 +47,12 @@ def plugin_for_purpose(purpose: AICapabilities) -> AIProviderPlugin | None:
     if ans := compatible_plugins.get(q):
         return ans
     if compatible_plugins:
+        from calibre.ai.google import GoogleAI
+        # Prefer Google for text to text as it give us 1500 free web searches per day
+        if purpose == AICapabilities.text_to_text:
+            for name, p in compatible_plugins.items():
+                if name == GoogleAI.name:
+                    return p
         return next(iter(compatible_plugins.values()))
     return None
 
