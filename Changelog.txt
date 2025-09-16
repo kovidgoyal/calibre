@@ -44,7 +44,6 @@
 :: improved recipes
 - Harvard Business Review
 - Outlook Magazine
-
 }}}
 
 {{{ 8.9.0 2025-08-22
