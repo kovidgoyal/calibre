@@ -1,611 +1,583 @@
 [
     {
-        "name": "nasm",
+        "name": "nasm 2.16.01",
 		"spdx": "BSD-2-Clause",
         "os": "macos,windows",
 		"type": "build",
         "unix": {
-            "filename": "nasm-2.16.01.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558",
-            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/{filename}"]
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/{version}/{filename}"]
         },
         "windows": {
-            "filename": "nasm-2.16.01-win64.zip",
+            "file_extension": "nasm-2.16.01-win64.zip",
             "hash": "sha256:029eed31faf0d2c5f95783294432cbea6c15bf633430f254bb3c1f195c67ca3a",
-            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.16.01/win64/{filename}"]
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/{version}/win64/{name}-{version}-win64.zip"]
         }
     },
 
     {
-        "name": "cmake",
+        "name": "cmake 3.31.8",
         "spdx": "BSD-3-Clause",
         "os": "macos",
 		"type": "build",
         "unix": {
-            "filename": "cmake-3.31.8.tar.gz",
+            "file_extension": "tar.gz",
             "hash": "sha256:e3cde3ca83dc2d3212105326b8f1b565116be808394384007e7ef1c253af6caa",
-            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.31.8/{filename}"]
+            "urls": ["https://github.com/Kitware/CMake/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "autoconf",
+        "name": "autoconf 2.71",
         "spdx": "GPL-3.0-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
-            "filename": "autoconf-2.71.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:f14c83cfebcc9427f2c3cea7258bd90df972d92eb26752da4ddad81c87a0faa4",
             "urls": ["https://ftp.gnu.org/gnu/autoconf/{filename}"]
         }
     },
 
     {
-        "name": "automake",
+        "name": "automake 1.16.5",
         "spdx": "GPL-2.0-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
-            "filename": "automake-1.16.5.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:f01d58cd6d9d77fbdca9eb4bbd5ead1988228fdb73d6f7a201f5f8d6b118b469",
             "urls": ["https://ftp.gnu.org/gnu/automake/{filename}"]
         }
     },
 
     {
-        "name": "libtool",
+        "name": "libtool 2.4.7",
 		"spdx": "LGPL-2.1-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
-            "filename": "libtool-2.4.7.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:4f7f217f057ce655ff22559ad221a0fd8ef84ad1fc5fcb6990cecc333aa1635d",
             "urls": ["https://ftp.gnu.org/gnu/libtool/{filename}"]
         }
     },
 
     {
-        "name": "easylzma",
+        "name": "easylzma 1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
 		"spdx": "LGPL-2.1-or-later",
         "os": "windows",
 		"type": "build",
         "windows": {
-            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.gz",
             "hash": "sha256:7664240898fe09bce8b39cd428407dd24ac3b87200e6b40d4007c78f2c725254",
             "urls": ["github:lloyd/easylzma"]
         }
     },
 
     {
-        "name": "zlib",
+        "name": "zlib 1.3.1",
         "spdx": "Zlib",
         "unix": {
-            "filename": "zlib-1.3.1.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
             "urls": ["https://zlib.net/{filename}"]
         }
     },
 
     {
-        "name": "bzip2",
-        "spdx": "bzip2-1.0.8",
+        "name": "bzip2 1.0.8",
+        "spdx": "bzip2-1.0.6",
         "os": "linux",
         "unix": {
-            "filename": "bzip2-1.0.8.tar.gz",
+            "file_extension": "tar.gz",
             "hash": "sha256:ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
-            "urls": ["https://sourceware.org/pub/bzip2/{filename}"]
+            "urls": ["https://www.sourceware.org/pub/{name}/{filename}"]
         }
     },
 
     {
-        "name": "xz",
+        "name": "xz 5.4.4",
         "spdx": "0BSD",
         "os": "macos,linux",
         "unix": {
-            "filename": "xz-5.4.4.tar.gz",
             "hash": "sha256:aae39544e254cfd27e942d35a048d592959bd7a79f9a624afb0498bb5613bdf8",
             "urls": ["https://tukaani.org/xz/{filename}"]
         }
     },
 
     {
-        "name": "unrar",
+        "name": "unrar 7.1.10",
 		"spdx": "unrar",
         "unix": {
-            "filename": "unrarsrc-7.1.10.tar.gz",
             "hash": "sha256:72a9ccca146174f41876e8b21ab27e973f039c6d10b13aabcb320e7055b9bb98",
-            "urls": ["https://www.rarlab.com/rar/{filename}"]
+            "urls": ["https://www.rarlab.com/rar/unrarsrc-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "brotli",
+        "name": "brotli 1.1.0",
         "spdx": "MIT",
         "unix": {
-            "filename": "libbrotli-1.1.0.tar.gz",
             "hash": "sha256:e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
-            "urls": ["https://github.com/google/brotli/archive/refs/tags/v1.1.0.tar.gz"]
+            "urls": ["https://github.com/google/brotli/archive/refs/tags/v{version}.tar.gz"]
         }
     },
 
     {
-        "name": "libdeflate",
+        "name": "libdeflate 1.21",
         "spdx": "MIT",
-        "comment": "Used optionally libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
+        "comment": "Used optionally by libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
         "os": "linux",
         "unix": {
-            "filename": "libdeflate-1.21.tar.gz",
             "hash": "sha256:7f05b533dd1d95e48a9f7d633beab67d8c6f502c01a2a5f46b204c16d1e748ad",
-            "urls": ["https://github.com/ebiggers/libdeflate/releases/download/v1.21/{filename}"]
+            "urls": ["https://github.com/ebiggers/libdeflate/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "zstd",
+        "name": "zstd 1.5.7",
 		"spdx": "BSD-2-Clause",
         "unix": {
-            "filename": "zstd-1.5.7.tar.gz",
             "hash": "sha256:eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
-            "urls": ["https://github.com/facebook/zstd/releases/download/v1.5.7/{filename}"]
+            "urls": ["https://github.com/facebook/zstd/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "expat",
+        "name": "expat 2.5.0",
         "spdx": "MIT",
         "unix": {
-            "filename": "expat-2.5.0.tar.bz2",
+            "file_extension": "tar.bz2",
             "hash": "sha256:6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67",
-            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_2_5_0/{filename}"]
+            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_{version_with_underscores}/{filename}"]
         }
     },
 
     {
-        "name": "sqlite",
+        "name": "sqlite 3430000",
         "spdx": "blessing",
         "unix": {
-            "filename": "sqlite-autoconf-3430000.tar.gz",
             "hash": "sha256:49008dbf3afc04d4edc8ecfc34e4ead196973034293c997adad2f63f01762ae1",
-            "urls": ["https://www.sqlite.org/2023/{filename}"]
+            "urls": ["https://www.sqlite.org/2023/{name}-autoconf-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libffi",
+        "name": "libffi 3.4.4",
         "spdx": "MIT",
         "os": "linux",
         "unix": {
-            "filename": "libffi-3.4.4.tar.gz",
             "hash": "sha256:d66c56ad259a82cf2a9dfc408b32bf5da52371500b84745f7fb8b645712df676",
-            "urls": ["https://github.com/libffi/libffi/releases/download/v3.4.4/{filename}"]
+            "urls": ["https://github.com/libffi/libffi/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "hyphen",
+        "name": "hyphen 2.8.8",
 		"spdx": "MPL-1.1",
         "unix": {
-            "filename": "hyphen-2.8.8.tar.gz",
             "hash": "sha1:0556c392beb59433e577e3517575801212201df6",
             "urls": ["https://downloads.sourceforge.net/hunspell/{filename}"]
         }
     },
 
     {
-        "name": "openssl",
+        "name": "openssl 3.1.7",
         "spdx": "Apache-2.0",
         "unix": {
-            "filename": "openssl-3.1.7.tar.gz",
             "hash": "sha256:053a31fa80cf4aebe1068c987d2ef1e44ce418881427c4464751ae800c31d06c",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
 
     {
-        "name": "ncurses",
+        "name": "ncurses 6.4",
         "spdx": "MIT",
         "os": "linux",
         "unix": {
-            "filename": "ncurses-6.4.tar.gz",
             "hash": "sha256:6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159",
             "urls": ["https://ftp.gnu.org/gnu/ncurses/{filename}"]
         }
     },
 
     {
-        "name": "readline",
+        "name": "readline 8.2",
         "spdx": "GPL-3.0-only",
         "os": "linux",
         "unix": {
-            "filename": "readline-8.2.tar.gz",
             "hash": "sha256:3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35",
             "urls": ["https://ftp.gnu.org/gnu/readline/{filename}"]
         }
     },
 
     {
-        "name": "python",
+        "name": "python 3.11.12",
         "spdx": "PSF-2.0",
         "unix": {
-            "filename": "Python-3.11.12.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:849da87af4df137710c1796e276a955f7a85c9f971081067c8f565d15c352a09",
-            "urls": ["https://www.python.org/ftp/python/3.11.12/{filename}"]
+            "urls": ["https://www.python.org/ftp/python/{version}/Python-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "icu",
+        "name": "icu 73-2",
 		"spdx": "ICU",
         "unix": {
-            "filename": "icu4c-73_2-src.tgz",
+            "file_extension": "tgz",
             "hash": "sha256:818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-73-2/{filename}"]
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version_with_underscores}-src.{file_extension}"]
         },
         "windows": {
-            "filename": "icu4c-73_2-src.zip",
+            "file_extension": "zip",
             "hash": "sha256:2c4300315141942178502f85f1167c0a6a65847c9b683e95c79535b373c1e369",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-73-2/{filename}"]
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version_with_underscores}-src.{file_extension}"]
         }
 
     },
 
     {
-        "name": "libstemmer",
+        "name": "libstemmer 2.2.0",
         "spdx": "BSD-2-Clause",
         "unix": {
-            "filename": "libstemmer_c-2.2.0.tar.gz",
             "hash": "sha256:b941d9fe9cf36b4e2f8d3873cd4d8b8775bd94867a1df8d8c001bb8b688377c3",
-            "urls": ["https://snowballstem.org/dist/{filename}"]
+            "urls": ["https://snowballstem.org/dist/libstemmer_c-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libjpeg",
+        "name": "libjpeg 3.0.0",
 		"spdx": "IJG",
         "unix": {
-            "filename": "libjpeg-turbo-3.0.0.tar.gz",
             "hash": "sha256:c77c65fcce3d33417b2e90432e7a0eb05f59a7fff884022a9d931775d583bfaa",
-            "urls": ["https://downloads.sourceforge.net/project/libjpeg-turbo/3.0.0/{filename}"]
+            "urls": ["https://downloads.sourceforge.net/project/libjpeg-turbo/{version}/libjpeg-turbo-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libpng",
+        "name": "libpng 1.6.40",
         "spdx": "libpng-2.0",
         "unix": {
-            "filename": "libpng-1.6.40.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
             "urls": ["https://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
         }
     },
 
     {
-        "name": "libjbig",
+        "name": "libjbig 2.1",
         "spdx": "GPL-2.0-or-later",
         "comment": "Needed for libtiff",
         "unix": {
-            "filename": "jbigkit-2.1.tar.gz",
             "hash": "sha256:de7106b6bfaf495d6865c7dd7ac6ca1381bd12e0d81405ea81e7f2167263d932",
-            "urls": ["https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/{filename}"]
+            "urls": ["https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/jbigkit-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libtiff",
+        "name": "libtiff 4.6.0",
 		"spdx": "libtiff",
         "unix": {
-            "filename": "tiff-4.6.0.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:e178649607d1e22b51cf361dd20a3753f244f022eefab1f2f218fc62ebaf87d2",
-            "urls": ["http://download.osgeo.org/libtiff/{filename}"]
+            "urls": ["http://download.osgeo.org/libtiff/tiff-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libwebp",
+        "name": "libwebp 1.3.2",
         "spdx": "Apache-2.0",
         "unix": {
-            "filename": "libwebp-1.3.2.tar.gz",
             "hash": "sha256:2a499607df669e40258e53d0ade8035ba4ec0175244869d1025d460562aa09b4",
             "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
         }
     },
 
     {
-        "name": "jxrlib",
+        "name": "jxrlib 0.2.4",
         "spdx": "BSD-2-Clause",
         "unix": {
-            "filename": "jxrlib-0.2.4.tar.gz",
             "hash": "sha256:324af02e341bcb9e3b31a6d6892f47231f95f9f87ab4fe7645be619dcaf965a7",
-            "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v0.2.4.tar.gz"]
+            "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "freetype",
+        "name": "freetype 2.13.2",
         "spdx": "FTL",
         "os": "macos,windows",
         "unix": {
-            "filename": "freetype-2.13.2.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:12991c4e55c506dd7f9b765933e62fd2be2e06d421505d7950a132e4f1bb484d",
             "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
     },
 
     {
-        "name": "graphite",
+        "name": "graphite 1.3.14",
         "spdx": "MIT",
         "os": "linux",
         "unix": {
-            "filename": "graphite2-1.3.14.tgz",
+            "file_extension": "tgz",
             "hash": "sha256:f99d1c13aa5fa296898a181dff9b82fb25f6cc0933dbaa7a475d8109bd54209d",
-            "urls": ["https://github.com/silnrsi/graphite/releases/download/1.3.14/{filename}"]
+            "urls": ["https://downloads.sourceforge.net/silgraphite/graphite2-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "fontconfig",
+        "name": "fontconfig 2.14.2",
         "spdx": "MIT",
         "os": "macos",
         "unix": {
-            "filename": "fontconfig-2.14.2.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:dba695b57bce15023d2ceedef82062c2b925e51f5d4cc4aef736cf13f60a468b",
             "urls": ["https://www.fontconfig.org/release/{filename}"]
         }
     },
 
     {
-        "name": "iconv",
+        "name": "iconv 1.17",
         "spdx": "LGPL-2.0-only",
         "unix": {
-            "filename": "libiconv-1.17.tar.gz",
             "hash": "sha256:8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313",
-            "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
+            "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/lib{filename}"]
         },
         "windows": {
-            "filename": "libiconv-for-Windows-1.16.zip",
+            "file_extension": "zip",
             "hash": "sha256:61b4445e67a3855945f88908c3c86801ef328feac15ef558b7e471269eca49fb",
             "urls": ["https://github.com/pffang/libiconv-for-Windows/archive/1353455a6c4e15c9db6865fd9c2bf7203b59c0ec.zip"]
         }
     },
 
     {
-        "name": "libxml2",
+        "name": "libxml2 2.12.6",
         "spdx": "MIT",
         "unix": {
-            "filename": "libxml2-2.12.6.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:889c593a881a3db5fdd96cc9318c87df34eb648edfc458272ad46fd607353fbb",
-            "urls": ["https://download.gnome.org/sources/libxml2/2.12/{filename}"]
+            "urls": ["https://download.gnome.org/sources/libxml2/{version_except_last}/{filename}"]
         }
     },
 
     {
-        "name": "libxslt",
+        "name": "libxslt 1.1.39",
         "spdx": "MIT",
         "unix": {
-            "filename": "libxslt-1.1.39.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0",
-            "urls": ["https://download.gnome.org/sources/libxslt/1.1/{filename}"]
+            "urls": ["https://download.gnome.org/sources/libxslt/{version_except_last}/{filename}"]
         }
     },
 
     {
-        "name": "chmlib",
+        "name": "chmlib 0.40",
 		"spdx": "LGPL-2.1-or-later",
         "unix": {
-            "filename": "chmlib-0.40.tar.bz2",
+            "file_extension": "tar.bz2",
             "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
             "urls": ["http://www.jedrea.com/chmlib/{filename}"]
         }
     },
 
     {
-        "name": "optipng",
+        "name": "optipng 0.7.7",
         "spdx": "Zlib",
         "unix": {
-            "filename": "optipng-0.7.7.tar.gz",
             "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
             "urls": ["https://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
         }
     },
 
     {
-        "name": "mozjpeg",
+        "name": "mozjpeg 4.1.4",
 		"spdx": "IJG",
         "unix": {
-            "filename": "mozjpeg-4.1.4.tar.gz",
             "hash": "sha256:8a5018dc93c08a49fba3aff8d1a0be0a3e26460e315d1db45abb64402935e0db",
-            "urls": ["https://github.com/mozilla/mozjpeg/archive/v4.1.4.tar.gz"]
+            "urls": ["https://github.com/mozilla/mozjpeg/archive/v{version}.tar.gz"]
         }
     },
 
     {
-        "name": "libusb",
+        "name": "libusb 1.0.26",
 		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
-            "filename": "libusb-1.0.26.tar.bz2",
+            "file_extension": "tar.bz2",
             "hash": "sha256:12ce7a61fc9854d1d2a1ffe095f7b5fac19ddba095c259e6067a46500381b5a5",
-            "urls": ["https://github.com/libusb/libusb/releases/download/v1.0.26/{filename}"]
+            "urls": ["https://github.com/libusb/libusb/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "libmtp",
+        "name": "libmtp 1.1.21",
 		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
-            "filename": "libmtp-1.1.21.tar.gz",
             "hash": "sha256:c4ffa5ab8c8f48c91b0047f2e253c101c418d5696a5ed65c839922a4280872a7",
             "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
         }
     },
 
     {
-        "name": "openjpeg",
+        "name": "openjpeg 2.5.0",
 		"spdx": "BSD-2-Clause",
         "unix": {
-            "filename": "openjpeg-2.5.0.tar.gz",
             "hash": "sha256:0333806d6adecc6f7a91243b2b839ff4d2053823634d4f6ed7a59bc87409122a",
-            "urls": ["https://github.com/uclouvain/openjpeg/archive/v2.5.0/{filename}"]
+            "urls": ["https://github.com/uclouvain/openjpeg/archive/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "poppler",
+        "name": "poppler 23.08.0",
         "spdx": "GPL-2.0-only",
         "unix": {
-            "filename": "poppler-23.08.0.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:4a4bf7fc903b9f1a2ab7d04b7c5d8220db9bc6261cc73fdb9a826dc272f49aa8",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
 
     {
-        "name": "podofo",
+        "name": "podofo f7797f620f151475d05c87c1fab3db20b2f00c0e",
 		"spdx": "LGPL-2.0-or-later",
         "unix": {
-            "filename": "podofo-0.10.3.tar.gz",
             "hash": "sha256:61f4d2175b75726d2881ad027c0275b8f5814b53058625d7b3411a055e2dca79",
             "urls": ["https://github.com/podofo/podofo/archive/f7797f620f151475d05c87c1fab3db20b2f00c0e.tar.gz"]
         }
     },
 
     {
-        "name": "libgpg-error",
+        "name": "libgpg-error 1.47",
 		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
-            "filename": "libgpg-error-1.47.tar.bz2",
+            "file_extension": "tar.bz2",
             "hash": "sha256:9e3c670966b96ecc746c28c2c419541e3bcb787d1a73930f5e5f5e1bcbbb9bdb",
             "urls": ["https://gnupg.org/ftp/gcrypt/libgpg-error/{filename}"]
         }
     },
 
     {
-        "name": "libgcrypt",
+        "name": "libgcrypt 1.10.2",
 		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
-            "filename": "libgcrypt-1.10.2.tar.bz2",
+            "file_extension": "tar.bz2",
             "hash": "sha256:3b9c02a004b68c256add99701de00b383accccf37177e0d6c58289664cce0c03",
             "urls": ["https://gnupg.org/ftp/gcrypt/libgcrypt/{filename}"]
         }
     },
 
     {
-        "name": "glib",
+        "name": "glib 2.78.0",
         "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
-            "filename": "glib-2.78.0.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:44eaab8b720877ce303c5540b657b126f12dc94972d9880b52959f43fb537b30",
-            "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/2.78/{filename}"]
+            "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/{version_except_last}/{filename}"]
         }
     },
 
     {
-        "name": "dbus",
+        "name": "dbus 1.15.8",
         "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
-            "filename": "dbus-1.15.8.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:84fc597e6ec82f05dc18a7d12c17046f95bad7be99fc03c15bc254c4701ed204",
             "urls": ["https://dbus.freedesktop.org/releases/dbus/{filename}"]
         }
     },
 
     {
-        "name": "dbusglib",
+        "name": "dbusglib 0.112",
         "spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
-            "filename": "dbus-glib-0.112.tar.gz",
             "hash": "sha256:7d550dccdfcd286e33895501829ed971eeb65c614e73aadb4a08aeef719b143a",
-            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/{filename}"]
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "gnuwin32",
+        "name": "gnuwin32 1",
 		"spdx": "GPL-2.0-only",
 		"type": "build",
         "os": "windows",
 		"windows": {
-			"filename": "gnuwin32.zip",
+			"file_extension": "zip",
 			"hash": "sha256:4a9dc893cc0a1695a16102a42ef47ef2e228652891f4afea67fadd452b63656b",
-			"urls": ["http://download.qt.io/development_releases/gnuwin32/{filename}"]
+			"urls": ["http://download.qt.io/development_releases/gnuwin32/{name}.zip"]
 		}
     },
 
     {
-        "name": "hunspell",
+        "name": "hunspell 1.7.2",
 		"spdx": "LGPL-2.1-or-later",
         "unix": {
-            "filename": "hunspell-1.7.2.tar.gz",
             "hash": "sha256:11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8",
-            "urls": ["https://github.com/hunspell/hunspell/releases/download/v1.7.2/{filename}"]
+            "urls": ["https://github.com/hunspell/hunspell/releases/download/v{version}/{filename}"]
         },
         "windows": {
-            "filename": "hunspell-1.7.2.zip",
+            "file_extension": "zip",
             "hash": "sha256:1d6b3ea1ab9ad4603335f0a663f260e88814d5f35b0ab69f0f24f6c19c02a3e1",
-            "urls": ["https://github.com/hunspell/hunspell/archive/refs/tags/v1.7.2.zip"]
+            "urls": ["https://github.com/hunspell/hunspell/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "ninja",
+        "name": "ninja 1.11.1",
         "spdx": "Apache-2.0",
 		"type": "build",
 		"comment": "Needed for Qt",
         "os": "macos,windows",
         "unix": {
-            "filename": "ninja-src.tar.gz",
             "hash": "sha256:31747ae633213f1eda3842686f83c2aa1412e0f5691d1c14dbbcc67fe7400cea",
-            "urls": ["https://github.com/ninja-build/ninja/archive/refs/tags/v1.11.1.tar.gz"]
+            "urls": ["https://github.com/ninja-build/ninja/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "nodejs",
+        "name": "nodejs 20.7.0",
         "spdx": "MIT",
 		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
         "unix": {
-            "filename": "nodejs-src.tar.gz",
             "hash": "sha256:059ea8ab31a1a4fe090751e8c82fca16d2f7339f309e15b2c65820dff83b579a",
-            "urls": ["https://github.com/nodejs/node/archive/refs/tags/v20.7.0.tar.gz"]
+            "urls": ["https://github.com/nodejs/node/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "nv-codec-headers",
+        "name": "nv-codec-headers 11.1",
         "spdx": "MIT",
 		"type": "build",
 		"comment": "Needed for building Qt Multimedia, see https://code.qt.io/cgit/qt/qt5.git/tree/coin/provisioning/common/unix/install-ffmpeg.sh only change the version when bumping ffmpeg and qt versions.",
         "os": "linux",
         "unix": {
-            "filename": "nv-codec-headers-11.1.zip",
+            "file_extension": "zip",
             "hash": "sha256:d0262edcd464c36eddd35c754faf29799161a30b4f8635a4aa06f9ecedf053e2",
-            "urls": ["https://github.com/FFmpeg/nv-codec-headers/archive/refs/heads/sdk/11.1.zip"]
+            "urls": ["https://github.com/FFmpeg/nv-codec-headers/archive/refs/heads/sdk/{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "ffmpeg",
+        "name": "ffmpeg 7.1",
 		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
 		"unix": {
-			"filename": "ffmpeg-7.1.tar.xz",
+			"file_extension": "tar.xz",
 			"hash": "sha256:40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6",
 			"urls": ["https://www.ffmpeg.org/releases/{filename}"]
 		}
     },
 
     {
-        "name": "qt-base",
+        "name": "qt-base 6.8.2",
 		"spdx": "GPL-3.0-only",
-        "version": "6.8.2",
         "hashes": {
             "unix": "sha256:012043ce6d411e6e8a91fdc4e05e6bedcfa10fcb1347d3c33908f7fdd10dfe05"
         }
@@ -701,661 +673,32 @@
     },
 
     {
-        "name": "installer",
-        "spdx": "MIT",
-		"type": "build",
-        "comment": "Needed infrastructure for installing pure python packages (wheels)",
-        "unix": {
-            "filename": "installer-0.7.0-py3-none-any.whl",
-            "hash": "sha256:05d1933f0a5ba7d8d6296bb6d5018e7c94fa473ceb10cf198a92ccea19c27b53",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "packaging",
-        "spdx": "BSD-2-Clause",
-		"type": "build",
-		"comment": "Needed for build which needed for setuptools based packages",
-        "unix": {
-            "filename": "packaging-23.1-py3-none-any.whl",
-            "hash": "sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyproject_hooks",
-        "spdx": "MIT",
-		"type": "build",
-		"comment": "Needed for build which needed for setuptools based packages",
-        "unix": {
-            "filename": "pyproject_hooks-1.0.0-py3-none-any.whl",
-            "hash": "sha256:283c11acd6b928d2f6a7c73fa0d01cb2bdc5f07c57a2eeb6e83d5e56b97976f8",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "wheel",
-        "spdx": "MIT",
-		"type": "build",
-		"comment": "Needed for build which needed for setuptools based packages",
-        "unix": {
-            "filename": "wheel-0.41.2-py3-none-any.whl",
-            "hash": "sha256:75909db2664838d015e3d9139004ee16711748a52c8f336b52882266540215d8",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "build",
-        "spdx": "MIT",
-		"type": "build",
-		"comment": "Needed for setuptools based packages",
-        "unix": {
-            "filename": "build-1.0.3-py3-none-any.whl",
-            "hash": "sha256:589bf99a67df7c9cf07ec0ac0e5e2ea5d4b37ac63301c4986d1acb126aa83f8f",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "setuptools",
-        "spdx": "MIT",
-		"type": "build",
-        "unix": {
-            "filename": "setuptools-75.8.2-py3-none-any.whl",
-            "hash": "sha256:558e47c15f1811c1fa7adbd0096669bf76c1d3f433f58324df69f3f5ecac4e8f",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "setuptools_scm",
-        "spdx": "MIT",
-		"type": "build",
-        "comment": "Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even though it is needed only for sdist not building wheels",
-        "unix": {
-            "filename": "setuptools_scm-8.0.3-py3-none-any.whl",
-            "hash": "sha256:813822234453438a13c78d05c8af29918fbc06f88efb33d38f065340bbb48c39",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "six",
-        "spdx": "MIT",
-        "unix": {
-            "filename": "six-1.16.0-py2.py3-none-any.whl",
-            "hash": "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "unrardll",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "unrardll-0.1.7.tar.gz",
-            "hash": "sha256:e1067fe27bb4de204ef8f3692f23d93c5d3b4292f78b292c6fc7dc4f75749f76",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "lxml",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "lxml-5.2.1.tar.gz",
-            "hash": "sha256:3f7765e69bbce0906a7c74d5fe46d2c7a7596147318dbc08e4a2431f3060e306",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pychm",
-        "spdx": "GPL-2.0-or-later",
-        "unix": {
-            "filename": "pychm-0.8.6.tar.gz",
-            "hash": "sha256:26606fec1e30cf7506c7afa943460c31e8dac87f35b7f178f437574d654cf672",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "html5-parser",
-        "spdx": "Apache-2.0",
-        "unix": {
-            "filename": "html5-parser-0.4.12.tar.gz",
-            "hash": "sha256:3d7f89841aa48b976311f43863178c34c141abcf1dd45b67a7339e61cffe5306",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "css-parser",
-		"spdx": "LGPL-3.0-or-later",
-        "unix": {
-            "filename": "css_parser-1.0.10-py2.py3-none-any.whl",
-            "hash": "sha256:d2e955a114829f0a327cc5535c2e65fe2e40b883b892881017d419a3b6dd05b7",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "dateutil",
-        "spdx": "Apache-2.0",
-        "unix": {
-            "filename": "python_dateutil-2.8.2-py2.py3-none-any.whl",
-            "hash": "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "jeepney",
-		"spdx": "MIT",
-        "os": "linux",
-        "unix": {
-            "filename": "jeepney-0.8.0-py3-none-any.whl",
-            "hash": "sha256:c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "dnspython",
-        "spdx": "ISC",
-        "unix": {
-            "filename": "dnspython-2.4.2-py3-none-any.whl",
-            "hash": "sha256:57c6fbaaeaaf39c891292012060beb141791735dbb4004798328fc2c467402d8",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "mechanize",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "mechanize-0.4.8-py2.py3-none-any.whl",
-            "hash": "sha256:961fd171b5eb37a7578fce62ba81ba85803dff3c5ba4ac24f6f569ae27198439",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "feedparser",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "feedparser-6.0.10-py3-none-any.whl",
-            "hash": "sha256:79c257d526d13b944e965f6095700587f27388e50ea16fd245babe4dfae7024f",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "sgmllib3k",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "sgmllib3k-1.0.0.tar.gz",
-            "hash": "sha256:7868fb1c8bfa764c1ac563d3cf369c381d1325d36124933a726f29fcdaa812e9",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "markdown",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "Markdown-3.4.4-py3-none-any.whl",
-            "hash": "sha256:a4c1b65c0957b4bd9e7d86ddc7b3c9868fb9670660f6f99f6d1bca8954d5a941",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "html2text",
-		"spdx": "GPL-3.0-or-later",
-        "unix": {
-            "filename": "html2text-2020.1.16-py3-none-any.whl",
-            "hash": "sha256:c7c629882da0cf377d66f073329ccf34a12ed2adf0169b9285ae4e63ef54c82b",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "soupsieve",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "soupsieve-2.5-py3-none-any.whl",
-            "hash": "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "beautifulsoup4",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "beautifulsoup4-4.12.2-py3-none-any.whl",
-            "hash": "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "regex",
-		"spdx": ["Apache-2.0", "CNRI-Python"],
-        "unix": {
-            "filename": "regex-2023.8.8.tar.gz",
-            "hash": "sha256:fcbdc5f2b0f1cd0f6a56cdb46fe41d2cce1e644e3b68832f3eeebc5fb0f7712e",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "chardet",
-		"spdx": "LGPL-2.1-or-later",
-        "unix": {
-            "filename": "chardet-5.2.0-py3-none-any.whl",
-            "hash": "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "uchardet",
-        "spdx": "Apache-2.0",
-        "unix": {
-            "filename": "uchardet-0.0.8.tar.xz",
-            "hash": "sha256:e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0",
-            "urls": ["https://www.freedesktop.org/software/uchardet/releases/{filename}"]
-        }
-    },
-
-    {
-        "name": "msgpack",
-        "spdx": "Apache-2.0",
-        "unix": {
-            "filename": "msgpack-1.0.7.tar.gz",
-            "hash": "sha256:572efc93db7a4d27e404501975ca6d2d9775705c2d922390d878fcf768d92c87",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pygments",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "Pygments-2.16.1-py3-none-any.whl",
-            "hash": "sha256:13fc09fa63bc8d8671a6d247e1eb303c4b343eaee81d861f3404db2935653692",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pycryptodome",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "pycryptodome-3.19.0.tar.gz",
-            "hash": "sha256:bc35d463222cdb4dbebd35e0784155c81e161b9284e567e7e933d722e533331e",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "apsw",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "apsw-3.43.0.0.zip",
-            "hash": "sha256:7440d5f976a369ab87477e064545a8a62a93e413ead7bfe0be4efc75b1f30bb0",
-            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.43.0.0/{filename}"]
-        }
-    },
-
-    {
-        "name": "webencodings",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "webencodings-0.5.1-py2.py3-none-any.whl",
-            "hash": "sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "html5lib",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "html5lib-1.1-py2.py3-none-any.whl",
-            "hash": "sha256:0d78f8fde1c230e99fe37986a60526d7049ed4bf8a9fadbad5f00e22e58e041d",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pillow",
-		"spdx": "MIT-CMU",
-        "unix": {
-            "filename": "Pillow-10.0.1.tar.gz",
-            "hash": "sha256:d72967b06be9300fed5cfbc8b5bafceec48bf7cdc7dab66b1d2549035287191d",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "netifaces",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "netifaces-0.11.0.tar.gz",
-            "hash": "sha256:043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "psutil",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "psutil-5.9.5.tar.gz",
-            "hash": "sha256:5410638e4df39c54d957fc51ce03048acd8e6d60abc0f5107af51e5fb566eb3c",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "ifaddr",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "ifaddr-0.2.0.tar.gz",
-            "hash": "sha256:cc0cbfcaabf765d44595825fb96a99bb12c79716b73b44330ea38ee2b0c4aed4",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "texttable",
-		"spdx": "MIT",
-		"comment": "needed for py7zr",
-        "unix": {
-            "filename": "texttable-1.6.7-py2.py3-none-any.whl",
-            "hash": "sha256:b7b68139aa8a6339d2c320ca8b1dc42d13a7831a346b446cb9eb385f0c76310c",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "multivolumefile",
-		"spdx": "LGPL-2.0-or-later",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "multivolumefile-0.2.3-py3-none-any.whl",
-            "hash": "sha256:237f4353b60af1703087cf7725755a1f6fcaeeea48421e1896940cd1c920d678",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "python-brotli",
-		"spdx": "MIT",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "Brotli-1.1.0.tar.gz",
-            "hash": "sha256:81de08ac11bcb85841e440c13611c00b67d3bf82698314928d0b676362546724",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyzstd",
-		"spdx": "BSD-3-Clause",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "pyzstd-0.17.0.tar.gz",
-            "hash": "sha256:d84271f8baa66c419204c1dd115a4dec8b266f8a2921da21b81764fa208c1db6",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyppmd",
-		"spdx": "LGPL-2.1-or-later",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "pyppmd-1.2.0.tar.gz",
-            "hash": "sha256:cc04af92f1d26831ec96963439dfb27c96467b5452b94436a6af696649a121fd",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pybcj",
-		"spdx": "LGPL-2.1-or-later",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "pybcj-1.0.1.tar.gz",
-            "hash": "sha256:8b682ed08caabfb7c042d4be083e28ddc692afb1deff5567111f8855071b75c3",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "inflate64",
-		"spdx": "LGPL-2.1-or-later",
-		"comment": "Needed by py7zr",
-        "unix": {
-            "filename": "inflate64-1.0.3.tar.gz",
-            "hash": "sha256:a89edd416c36eda0c3a5d32f31ff1555db2c5a3884aa8df95e8679f8203e12ee",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "py7zr",
-		"spdx": "LGPL-2.1-or-later",
-        "unix": {
-            "filename": "py7zr-1.0.0-py3-none-any.whl",
-            "hash": "sha256:6f42d2ff34c808e9026ad11b721c13b41b0673cf2b4e8f8fb34f9d65ae143dd1",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "jaconv",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "jaconv-0.40.tar.gz",
-            "hash": "sha256:32da74b247f276e09a52d6b35c153df2387965cb85a6f034cc8af21d446f8161",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "wrapt",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "wrapt-1.16.0-py3-none-any.whl",
-            "hash": "sha256:6906c4100a8fcbf2fa735f6059214bb13b97f75b1a61777fcf6432121ef12ef1",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "deprecated",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "Deprecated-1.2.14-py2.py3-none-any.whl",
-            "hash": "sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pykakasi",
-		"spdx": "GPL-3.0-or-later",
-        "unix": {
-            "filename": "pykakasi-2.3.0-py3-none-any.whl",
-            "hash": "sha256:26d21b090048ff45c6a4d8e962426b7951767216008ec30358e8a9d74af77f29",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "poetry_core",
-		"spdx": "MIT",
-        "comment": "Needed for building zeroconf",
-        "unix": {
-            "filename": "poetry_core-1.7.0-py3-none-any.whl",
-            "hash": "sha256:38e174cdb00a84ee4a1cab66a378b435747f72414f5573bc18cfc3850a94df38",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "zeroconf",
-		"spdx": "LGPL-2.1-or-later",
-        "unix": {
-            "filename": "zeroconf-0.115.0.tar.gz",
-            "hash": "sha256:da8c12f0a4b15578c22bf274f479fffd90a944407ebad904c891bf771aad83e7",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "fonttools",
-		"spdx": "MIT",
-        "unix": {
-            "filename": "fonttools-4.47.0-py3-none-any.whl",
-            "hash": "sha256:d6477ba902dd2d7adda7f0fd3bfaeb92885d45993c9e1928c9f28fc3961415f7",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "lxml-html-clean",
-		"spdx": "BSD-3-Clause",
-        "unix": {
-            "filename": "lxml_html_clean-0.1.1-py3-none-any.whl",
-            "hash": "sha256:58c04176593c9caf72ec92e033d2f38859e918b3eff0cc0f8051ad27dc2ab8ef",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "ply",
-		"spdx": "BSD-2-Clause",
-		"type": "build",
-		"comment": "Needed for sip (build time dependency)",
-        "unix": {
-            "filename": "ply-3.11-py2.py3-none-any.whl",
-            "hash": "sha256:096f9b8350b65ebd2fd1346b12452efe5b9607f7482813ffca50c22722a807ce",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "sip",
-		"spdx": "BSD-2-Clause",
-		"comment": "build time dependency",
-        "unix": {
-            "filename": "sip-6.10.0-1-py3-none-any.whl",
-            "hash": "sha256:3bd6e5ab6e5bc8e5531bbf4ff299781bc2ee5c39da876072e0465efdad215896",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyqt-builder",
-		"spdx": "BSD-2-Clause",
-		"type": "build",
-		"comment": "build time dependency",
-        "unix": {
-            "filename": "PyQt_builder-1.18.1-py3-none-any.whl",
-            "hash": "sha256:59ba2b1df2692986f3b3d3ba7395a6476c54cab0cc0ece18030ffba574657afc",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyqt-sip",
-		"spdx": "BSD-2-Clause",
-		"comment": "runtime sip module for PyQt",
-        "unix": {
-            "filename": "PyQt6_sip-13.10.0.tar.gz",
-            "hash": "sha256:d6daa95a0bd315d9ec523b549e0ce97455f61ded65d5eafecd83ed2aa4ae5350",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyqt",
-		"spdx": "GPL-3.0-only",
-        "unix": {
-            "filename": "PyQt6-6.8.1.tar.gz",
-            "hash": "sha256:91d937d6166274fafd70f4dee11a8da6dbfdb0da53de05f5d62361ddf775e256",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "pyqt-webengine",
-		"spdx": "GPL-3.0-only",
-        "unix": {
-            "filename": "PyQt6_WebEngine-6.8.0.tar.gz",
-            "hash": "sha256:64045ea622b6a41882c2b18f55ae9714b8660acff06a54e910eb72822c2f3ff2",
-            "urls": ["pypi"]
-        }
-    },
-
-    {
-        "name": "speech-dispatcher-client",
+        "name": "speech-dispatcher-client 0.11.5",
 		"spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
-            "filename": "speech-dispatcher-0.11.5.tar.gz",
             "hash": "sha256:1ce4759ffabbaf1aeb433a5ec0739be0676e9bdfbae9444a7b3be1b2af3ec12b",
-            "urls": ["https://github.com/brailcom/speechd/releases/download/0.11.5/{filename}"]
+            "urls": ["https://github.com/brailcom/speechd/releases/download/{version}/speech-dispatcher-{version}.{file_extension}"]
         }
     },
 
-
     {
-        "name": "macfsevents",
-		"spdx": "BSD-2-Clause",
-        "os": "macos",
-        "unix": {
-            "filename": "MacFSEvents-0.8.4.tar.gz",
-            "hash": "sha256:bf7283f1d517764ccdc8195b21631dbbac1c506b920bf9a8ea2956b3127651cb",
-            "urls": ["pypi"]
-        }
-    },
-    {
-        "name": "xxhash",
-		"spdx": "BSD-2-Clause",
-        "unix": {
-            "filename": "xxhash-3.3.0.tar.gz",
-            "hash": "sha256:c3f9e322b1ebeebd44e3d9d2d9b124e0c550c1ef41bd552afdcdd719516ee41a",
-            "urls": ["pypi"]
-        }
-    },
-    {
-        "name": "onnx",
+        "name": "onnx 1.22.1",
 		"spdx": "MIT",
         "unix": {
-            "filename": "onnx-1.22.1.tar.gz",
             "hash": "sha256:9eacbf624d6f7466da81d9beb4399cb8683808b15c1276b7cd56c6907bf59f77",
-            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v1.22.1.tar.gz"]
+            "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
+
     {
-        "name": "espeak",
+        "name": "espeak a4ca101c99de35345f89df58195b2159748b7092",
 		"spdx": "GPL-3.0-only",
         "comment": "We need the espeak_TextToPhonemesWithTerminator() function. No release of espeak-ng with that function has been made yet, so use a commit that includes it",
         "unix": {
-            "filename": "espeak-a4ca101.zip",
+            "file_extension": "zip",
             "hash": "sha256:3cbbd7bb84bc9b4391c3f3bb86750094a38f4bd6fcdc4fda7e2516d2955d3366",
-            "urls": ["https://github.com/espeak-ng/espeak-ng/archive/a4ca101c99de35345f89df58195b2159748b7092.zip"]
+            "urls": ["https://github.com/espeak-ng/espeak-ng/archive/{version}.{file_extension}"]
         }
     }
 ]
