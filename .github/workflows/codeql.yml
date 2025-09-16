@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL"
 
 on:
     push:
@@ -19,7 +19,16 @@ jobs:
             contents: read # to fetch code (actions/checkout)
             security-events: write # to upload SARIF results (github/codeql-action/analyze)
 
-        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            include:
+               - language: python
+                 os: ubuntu-latest
+               - language: c
+                 os: ubuntu-latest
+
+        runs-on: ${{ matrix.os }}
 
         steps:
 
@@ -34,13 +43,15 @@ jobs:
         - name: Initialize CodeQL
           uses: github/codeql-action/init@v3
           with:
-              languages: python, c
+              languages: ${{ matrix.language }}
 
         - name: Install calibre dependencies
+          if: matrix.language == 'c'
           run:
               python setup/unix-ci.py install
 
         - name: Bootstrap calibre
+          if: matrix.language == 'c'
           run:
               python setup/unix-ci.py bootstrap
 
