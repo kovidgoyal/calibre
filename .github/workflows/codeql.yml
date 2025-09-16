@@ -27,6 +27,8 @@ jobs:
                  os: ubuntu-latest
                - language: c
                  os: ubuntu-latest
+               - language: c
+                 os: windows-latest
 
         runs-on: ${{ matrix.os }}
 
