@@ -453,6 +453,16 @@ win64                   Build the 64-bit windows calibre installer
 xwin                    Install the Windows headers for cross compilation
 ====================    ========
 
+Pre-commit Checks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To facilitate the verification and correction of errors in the code, is possible to use the third-party tool `pre-commit <https://pre-commit.com>`_. To install it, use the two following commands::
+
+    pip install pre-commit
+    pre-commit install
+
+Once installed and configured, pre-commit will run each time when the :command:`git commit` command is executed, and will cancel it if errors are found in the summited code.
+
 
 Using calibre in your projects
 ----------------------------------------
