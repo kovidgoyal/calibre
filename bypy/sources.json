@@ -155,11 +155,11 @@
     },
 
     {
-        "name": "sqlite 3430000",
+        "name": "sqlite 3.43.0",
         "spdx": "blessing",
         "unix": {
             "hash": "sha256:49008dbf3afc04d4edc8ecfc34e4ead196973034293c997adad2f63f01762ae1",
-            "urls": ["https://www.sqlite.org/2023/{name}-autoconf-{version}.{file_extension}"]
+            "urls": ["https://www.sqlite.org/2023/{name}-autoconf-3430000.{file_extension}"]
         }
     },
 
