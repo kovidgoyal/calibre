@@ -128,7 +128,7 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
 
 
 def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:
-    with opener().open(rq) as response:
+    with opener().open(rq, timeout=pref('timeout', 120)) as response:
         if response.status != http.HTTPStatus.OK:
             details = ''
             with suppress(Exception):

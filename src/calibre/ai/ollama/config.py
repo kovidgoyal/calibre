@@ -3,7 +3,7 @@
 
 from functools import partial
 
-from qt.core import QFormLayout, QLabel, QLineEdit, QWidget
+from qt.core import QFormLayout, QLabel, QLineEdit, QSpinBox, QWidget
 
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
@@ -33,6 +33,10 @@ class ConfigWidget(QWidget):
             'https://my-ollama-server.com:11434'))
         self.text_model_edit = lm = QLineEdit(self)
         l.addRow(_('Ollama &URL:'), a)
+        self.timeout_sb = t = QSpinBox(self)
+        t.setRange(15, 600), t.setSingleStep(1), t.setSuffix(_(' seconds'))
+        t.setValue(pref('timeout', 120))
+
         lm.setClearButtonEnabled(True)
         lm.setToolTip(_(
             'Enter the name of the model to use for text based tasks.'
@@ -56,9 +60,13 @@ class ConfigWidget(QWidget):
         return self.text_model_edit.text().strip()
 
     @property
+    def timeout(self) -> int:
+        return self.timeout_sb.value()
+
+    @property
     def settings(self) -> dict[str, str]:
         ans = {
-            'text_model': self.text_model,
+            'text_model': self.text_model, 'timeout': self.timeout,
         }
         url = self.api_url_edit.text().strip()
         if url:
