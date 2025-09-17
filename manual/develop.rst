@@ -387,6 +387,72 @@ that the calibre environment is fully initialized, so you can use all the calibr
 
 The ``--`` causes all subsequent arguments to be passed to your script.
 
+calibre developement toolkit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+With the use of the command :command:`calibre-debug setup.py`, you can acces to the numberous internal tools used by calibre to check its code, launch unit test and build the binaries. The toolkit is running like any calibre scripts as described above and are separated into different sub-commands which use the following syntax::
+
+    calibre-debug setup.py -- sub-command --option1 arg1 ...
+
+Here the summary of all the sub-commands available in the toolkit. Note that some of them require the installation of third-party tools to function proprely.
+
+====================    ============
+sub-command             description
+====================    ============
+bootstrap               Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers
+build                   Build calibre C/C++ extension modules
+build_dep               Build a calibre dependency. For example, build_dep windows expat. Without arguments builds all deps for specified platform. Use linux-arm64 for Linux ARM. Use build_dep all somedep to build a dep for all platforms.
+cacerts                 Get updated mozilla CA certificate bundle
+check                   Check for errors in the calibre source code
+develop                 Setup a development environment for calibre
+export_packages         Export built deps to a server for CI testing
+extdev                  Develop a single native extension conveniently
+get_translations        Get updated translations from Transifex
+git_version             Update the version from git metadata
+gui                     Compile all GUI forms
+hyphenation             Download the hyphenation dictionaries
+install                 Install calibre from source
+iso3166                 Compile country code maps for performance
+iso639                  Compile language code maps for performance
+iso_data                Get ISO codes name localization data
+liberation_fonts        Download the Liberation fonts
+linux
+linux64                 Build the 64-bit Linux calibre installer
+linuxarm64              Build the 64-bit ARM Linux calibre installer
+man_pages               Build the man pages
+manual                  Build the User Manual
+mathjax                 Create the MathJax bundle
+osx
+piper_voices            Download the list of Piper voices
+pot                     Update the .pot translation template and upload it
+publish                 Publish a new calibre release
+publish_betas
+publish_preview
+rapydscript             Compile RapydScript to JavaScript
+recent_uas              Get updated list of common browser user agents
+resources               Compile various needed calibre resources
+reupload                Re-upload any installers present in dist/
+sdist                   Create a source distribution
+stage1                  Stage 1 of the publish process
+stage2                  Stage 2 of the publish process, builds the binaries
+stage3                  Stage 3 of the publish process
+stage4                  Stage 4 of the publish process
+stage5                  Stage 5 of the publish process
+stylelint               Update the bundled copy of stylelint
+tag_release             Tag a new release in git
+test                    Run the calibre test suite
+test_rs                 Run tests for RapydScript code
+translations            Compile the translations
+upgrade_source_code     Upgrade python source code
+upload_demo             Rebuild and upload various demos
+upload_installers
+upload_to_server        Upload miscellaneous data to calibre server
+upload_user_manual      Build and upload the User Manual
+win
+win64                   Build the 64-bit windows calibre installer
+xwin                    Install the Windows headers for cross compilation
+====================    ========
+
 
 Using calibre in your projects
 ----------------------------------------
