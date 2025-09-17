@@ -1,0 +1,8 @@
+repos:
+  - repo: local
+    hooks:
+      - id: calibre-setup-check
+        name: calibre-setup-check
+        entry: calibre-debug -e setup.py -- check --no-editor -f
+        language: system
+        files: .(py|pyj|recipe)$

@@ -56,6 +56,10 @@ dependencies = [
 	"xxhash == 3.3.0",
 ]
 
+[project.optional-dependencies]
+dev = ["calibre[pre-commit]"]
+pre-commit = ["pre-commit == 4.3.0"]
+
 [project.urls]
 Homepage = "https://calibre-ebook.com"
 FAQ = "https://manual.calibre-ebook.com/faq.html"
