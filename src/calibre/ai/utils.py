@@ -82,8 +82,8 @@ def _read_response(buffer: str) -> Iterator[dict[str, Any]]:
     yield json.loads(buffer)
 
 
-def read_streaming_response(rq: Request, provider_name: str = 'AI provider') -> Iterator[dict[str, Any]]:
-    with opener().open(rq) as response:
+def read_streaming_response(rq: Request, provider_name: str = 'AI provider', timeout: int = 120) -> Iterator[dict[str, Any]]:
+    with opener().open(rq, timeout=timeout) as response:
         if response.status != http.HTTPStatus.OK:
             details = ''
             with suppress(Exception):
