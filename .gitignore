@@ -56,3 +56,4 @@
 /cmake-build-*
 /bypy/b
 /bypy/virtual-machines.conf
+*.egg-info
