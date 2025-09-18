@@ -362,7 +362,7 @@ def build_portable(env):
             obj, 'User32.lib', 'Shell32.lib']
         run(*cmd)
         launchers.append(exe)
-        sign_files(launchers)
+        # sign_files(launchers)
 
     printf('Creating portable installer')
     shutil.copytree(env.base, j(base, 'Calibre'))
@@ -598,7 +598,7 @@ def sign_executables(env):
     for path in walk(env.base):
         if path.lower().endswith('.exe') or path.lower().endswith('.dll'):
             files_to_sign.append(path)
-    sign_files(files_to_sign)
+    # sign_files(files_to_sign)
 
 
 def main():
