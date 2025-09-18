@@ -1,7 +1,6 @@
 [
     {
         "name": "nasm 2.16.01",
-		"spdx": "BSD-2-Clause",
         "os": "macos,windows",
 		"type": "build",
         "unix": {
@@ -18,7 +17,6 @@
 
     {
         "name": "cmake 3.31.8",
-        "spdx": "BSD-3-Clause",
         "os": "macos",
 		"type": "build",
         "unix": {
@@ -30,7 +28,6 @@
 
     {
         "name": "autoconf 2.71",
-        "spdx": "GPL-3.0-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
@@ -42,7 +39,6 @@
 
     {
         "name": "automake 1.16.5",
-        "spdx": "GPL-2.0-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
@@ -54,7 +50,6 @@
 
     {
         "name": "libtool 2.4.7",
-		"spdx": "LGPL-2.1-or-later",
         "os": "macos",
 		"type": "build",
         "unix": {
@@ -66,7 +61,6 @@
 
     {
         "name": "easylzma 1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
-		"spdx": "LGPL-2.1-or-later",
         "os": "windows",
 		"type": "build",
         "windows": {
@@ -77,7 +71,6 @@
 
     {
         "name": "zlib 1.3.1",
-        "spdx": "Zlib",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:38ef96b8dfe510d42707d9c781877914792541133e1870841463bfa73f883e32",
@@ -87,7 +80,6 @@
 
     {
         "name": "bzip2 1.0.8",
-        "spdx": "bzip2-1.0.6",
         "os": "linux",
         "unix": {
             "file_extension": "tar.gz",
@@ -98,7 +90,6 @@
 
     {
         "name": "xz 5.4.4",
-        "spdx": "0BSD",
         "os": "macos,linux",
         "unix": {
             "hash": "sha256:aae39544e254cfd27e942d35a048d592959bd7a79f9a624afb0498bb5613bdf8",
@@ -108,7 +99,6 @@
 
     {
         "name": "unrar 7.1.10",
-		"spdx": "unrar",
         "unix": {
             "hash": "sha256:72a9ccca146174f41876e8b21ab27e973f039c6d10b13aabcb320e7055b9bb98",
             "urls": ["https://www.rarlab.com/rar/unrarsrc-{version}.{file_extension}"]
@@ -117,7 +107,6 @@
 
     {
         "name": "brotli 1.1.0",
-        "spdx": "MIT",
         "unix": {
             "hash": "sha256:e720a6ca29428b803f4ad165371771f5398faba397edf6778837a18599ea13ff",
             "urls": ["https://github.com/google/brotli/archive/refs/tags/v{version}.tar.gz"]
@@ -126,7 +115,6 @@
 
     {
         "name": "libdeflate 1.21",
-        "spdx": "MIT",
         "comment": "Used optionally by libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
         "os": "linux",
         "unix": {
@@ -137,7 +125,6 @@
 
     {
         "name": "zstd 1.5.7",
-		"spdx": "BSD-2-Clause",
         "unix": {
             "hash": "sha256:eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3",
             "urls": ["https://github.com/facebook/zstd/releases/download/v{version}/{filename}"]
@@ -146,7 +133,6 @@
 
     {
         "name": "expat 2.5.0",
-        "spdx": "MIT",
         "unix": {
             "file_extension": "tar.bz2",
             "hash": "sha256:6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67",
@@ -156,7 +142,6 @@
 
     {
         "name": "sqlite 3.43.0",
-        "spdx": "blessing",
         "unix": {
             "hash": "sha256:49008dbf3afc04d4edc8ecfc34e4ead196973034293c997adad2f63f01762ae1",
             "urls": ["https://www.sqlite.org/2023/{name}-autoconf-3430000.{file_extension}"]
@@ -165,7 +150,6 @@
 
     {
         "name": "libffi 3.4.4",
-        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "hash": "sha256:d66c56ad259a82cf2a9dfc408b32bf5da52371500b84745f7fb8b645712df676",
@@ -175,7 +159,6 @@
 
     {
         "name": "hyphen 2.8.8",
-		"spdx": "MPL-1.1",
         "unix": {
             "hash": "sha1:0556c392beb59433e577e3517575801212201df6",
             "urls": ["https://downloads.sourceforge.net/hunspell/{filename}"]
@@ -184,7 +167,6 @@
 
     {
         "name": "openssl 3.1.7",
-        "spdx": "Apache-2.0",
         "unix": {
             "hash": "sha256:053a31fa80cf4aebe1068c987d2ef1e44ce418881427c4464751ae800c31d06c",
             "urls": ["https://www.openssl.org/source/{filename}"]
@@ -193,7 +175,6 @@
 
     {
         "name": "ncurses 6.4",
-        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "hash": "sha256:6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159",
@@ -203,7 +184,6 @@
 
     {
         "name": "readline 8.2",
-        "spdx": "GPL-3.0-only",
         "os": "linux",
         "unix": {
             "hash": "sha256:3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35",
@@ -213,7 +193,6 @@
 
     {
         "name": "python 3.11.12",
-        "spdx": "PSF-2.0",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:849da87af4df137710c1796e276a955f7a85c9f971081067c8f565d15c352a09",
@@ -223,7 +202,6 @@
 
 	{
         "name": "uchardet 0.0.8",
-        "spdx": "Apache-2.0",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0",
@@ -233,7 +211,6 @@
 
     {
         "name": "icu 73-2",
-		"spdx": "ICU",
         "unix": {
             "file_extension": "tgz",
             "hash": "sha256:818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
@@ -249,7 +226,6 @@
 
     {
         "name": "libstemmer 2.2.0",
-        "spdx": "BSD-2-Clause",
         "unix": {
             "hash": "sha256:b941d9fe9cf36b4e2f8d3873cd4d8b8775bd94867a1df8d8c001bb8b688377c3",
             "urls": ["https://snowballstem.org/dist/libstemmer_c-{version}.{file_extension}"]
@@ -258,7 +234,6 @@
 
     {
         "name": "libjpeg 3.0.0",
-		"spdx": "IJG",
         "unix": {
             "hash": "sha256:c77c65fcce3d33417b2e90432e7a0eb05f59a7fff884022a9d931775d583bfaa",
             "urls": ["https://downloads.sourceforge.net/project/libjpeg-turbo/{version}/libjpeg-turbo-{version}.{file_extension}"]
@@ -267,7 +242,6 @@
 
     {
         "name": "libpng 1.6.40",
-        "spdx": "libpng-2.0",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:535b479b2467ff231a3ec6d92a525906fb8ef27978be4f66dbe05d3f3a01b3a1",
@@ -277,7 +251,6 @@
 
     {
         "name": "libjbig 2.1",
-        "spdx": "GPL-2.0-or-later",
         "comment": "Needed for libtiff",
         "unix": {
             "hash": "sha256:de7106b6bfaf495d6865c7dd7ac6ca1381bd12e0d81405ea81e7f2167263d932",
@@ -287,7 +260,6 @@
 
     {
         "name": "libtiff 4.6.0",
-		"spdx": "libtiff",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:e178649607d1e22b51cf361dd20a3753f244f022eefab1f2f218fc62ebaf87d2",
@@ -297,7 +269,6 @@
 
     {
         "name": "libwebp 1.3.2",
-        "spdx": "Apache-2.0",
         "unix": {
             "hash": "sha256:2a499607df669e40258e53d0ade8035ba4ec0175244869d1025d460562aa09b4",
             "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
@@ -306,7 +277,6 @@
 
     {
         "name": "jxrlib 0.2.4",
-        "spdx": "BSD-2-Clause",
         "unix": {
             "hash": "sha256:324af02e341bcb9e3b31a6d6892f47231f95f9f87ab4fe7645be619dcaf965a7",
             "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v{version}.{file_extension}"]
@@ -315,7 +285,6 @@
 
     {
         "name": "freetype 2.13.2",
-        "spdx": "FTL",
         "os": "macos,windows",
         "unix": {
             "file_extension": "tar.xz",
@@ -326,7 +295,6 @@
 
     {
         "name": "graphite 1.3.14",
-        "spdx": "MIT",
         "os": "linux",
         "unix": {
             "file_extension": "tgz",
@@ -337,7 +305,6 @@
 
     {
         "name": "fontconfig 2.14.2",
-        "spdx": "MIT",
         "os": "macos",
         "unix": {
             "file_extension": "tar.xz",
@@ -348,7 +315,6 @@
 
     {
         "name": "iconv 1.17",
-        "spdx": "LGPL-2.0-only",
         "unix": {
             "hash": "sha256:8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313",
             "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/lib{filename}"]
@@ -362,7 +328,6 @@
 
     {
         "name": "libxml2 2.12.6",
-        "spdx": "MIT",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:889c593a881a3db5fdd96cc9318c87df34eb648edfc458272ad46fd607353fbb",
@@ -372,7 +337,6 @@
 
     {
         "name": "libxslt 1.1.39",
-        "spdx": "MIT",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:2a20ad621148339b0759c4d4e96719362dee64c9a096dbba625ba053846349f0",
@@ -382,7 +346,6 @@
 
     {
         "name": "chmlib 0.40",
-		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "file_extension": "tar.bz2",
             "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
@@ -392,7 +355,6 @@
 
     {
         "name": "optipng 0.7.7",
-        "spdx": "Zlib",
         "unix": {
             "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
             "urls": ["https://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
@@ -401,7 +363,6 @@
 
     {
         "name": "mozjpeg 4.1.4",
-		"spdx": "IJG",
         "unix": {
             "hash": "sha256:8a5018dc93c08a49fba3aff8d1a0be0a3e26460e315d1db45abb64402935e0db",
             "urls": ["https://github.com/mozilla/mozjpeg/archive/v{version}.tar.gz"]
@@ -410,7 +371,6 @@
 
     {
         "name": "libusb 1.0.26",
-		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
             "file_extension": "tar.bz2",
@@ -421,7 +381,6 @@
 
     {
         "name": "libmtp 1.1.21",
-		"spdx": "LGPL-2.1-or-later",
         "os": "macos, linux",
         "unix": {
             "hash": "sha256:c4ffa5ab8c8f48c91b0047f2e253c101c418d5696a5ed65c839922a4280872a7",
@@ -431,7 +390,6 @@
 
     {
         "name": "openjpeg 2.5.0",
-		"spdx": "BSD-2-Clause",
         "unix": {
             "hash": "sha256:0333806d6adecc6f7a91243b2b839ff4d2053823634d4f6ed7a59bc87409122a",
             "urls": ["https://github.com/uclouvain/openjpeg/archive/v{version}/{filename}"]
@@ -440,7 +398,6 @@
 
     {
         "name": "poppler 23.08.0",
-        "spdx": "GPL-2.0-only",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:4a4bf7fc903b9f1a2ab7d04b7c5d8220db9bc6261cc73fdb9a826dc272f49aa8",
@@ -450,7 +407,6 @@
 
     {
         "name": "podofo f7797f620f151475d05c87c1fab3db20b2f00c0e",
-		"spdx": "LGPL-2.0-or-later",
         "unix": {
             "hash": "sha256:61f4d2175b75726d2881ad027c0275b8f5814b53058625d7b3411a055e2dca79",
             "urls": ["https://github.com/podofo/podofo/archive/f7797f620f151475d05c87c1fab3db20b2f00c0e.tar.gz"]
@@ -459,7 +415,6 @@
 
     {
         "name": "libgpg-error 1.47",
-		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "file_extension": "tar.bz2",
@@ -470,7 +425,6 @@
 
     {
         "name": "libgcrypt 1.10.2",
-		"spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "file_extension": "tar.bz2",
@@ -481,7 +435,6 @@
 
     {
         "name": "glib 2.78.0",
-        "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "file_extension": "tar.xz",
@@ -492,7 +445,6 @@
 
     {
         "name": "dbus 1.15.8",
-        "spdx": "LGPL-2.1-or-later",
         "os": "linux",
         "unix": {
             "file_extension": "tar.xz",
@@ -503,7 +455,6 @@
 
     {
         "name": "dbusglib 0.112",
-        "spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
             "hash": "sha256:7d550dccdfcd286e33895501829ed971eeb65c614e73aadb4a08aeef719b143a",
@@ -513,7 +464,6 @@
 
     {
         "name": "gnuwin32 1",
-		"spdx": "GPL-2.0-only",
 		"type": "build",
         "os": "windows",
 		"windows": {
@@ -525,7 +475,6 @@
 
     {
         "name": "hunspell 1.7.2",
-		"spdx": "LGPL-2.1-or-later",
         "unix": {
             "hash": "sha256:11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8",
             "urls": ["https://github.com/hunspell/hunspell/releases/download/v{version}/{filename}"]
@@ -539,7 +488,6 @@
 
     {
         "name": "ninja 1.11.1",
-        "spdx": "Apache-2.0",
 		"type": "build",
 		"comment": "Needed for Qt",
         "os": "macos,windows",
@@ -551,7 +499,6 @@
 
     {
         "name": "nodejs 20.7.0",
-        "spdx": "MIT",
 		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
@@ -563,7 +510,6 @@
 
     {
         "name": "nv-codec-headers 11.1",
-        "spdx": "MIT",
 		"type": "build",
 		"comment": "Needed for building Qt Multimedia, see https://code.qt.io/cgit/qt/qt5.git/tree/coin/provisioning/common/unix/install-ffmpeg.sh only change the version when bumping ffmpeg and qt versions.",
         "os": "linux",
@@ -576,7 +522,6 @@
 
     {
         "name": "ffmpeg 7.1",
-		"spdx": "LGPL-2.1-or-later",
 		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
 		"unix": {
 			"file_extension": "tar.xz",
@@ -587,7 +532,6 @@
 
     {
         "name": "qt-base 6.8.2",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:012043ce6d411e6e8a91fdc4e05e6bedcfa10fcb1347d3c33908f7fdd10dfe05"
         }
@@ -595,7 +539,6 @@
 
     {
         "name": "qt-svg",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:aa2579f21ca66d19cbcf31d87e9067e07932635d36869c8239d4decd0a9dc1fa"
         }
@@ -603,7 +546,6 @@
 
     {
         "name": "qt-shadertools",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:d1d5f90e8885fc70d63ac55a4ce4d9a2688562033a000bc4aff9320f5f551871"
         }
@@ -611,7 +553,6 @@
 
     {
         "name": "qt-declarative",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:144d876adc8bb55909735143e678d1e24eadcd0a380a0186792d88b731346d56"
         }
@@ -619,7 +560,6 @@
 
     {
         "name": "qt-imageformats",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:d2a1bbb84707b8a0aec29227b170be00f04383fbf2361943596d09e7e443c8e1"
         }
@@ -627,7 +567,6 @@
 
     {
         "name": "qt-webchannel",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:869f1e53f44673a57670005b1239cd67b9a5f372c8cae799c1e4af3f1c68b7ac"
         }
@@ -635,7 +574,6 @@
 
     {
         "name": "qt-positioning",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:df30664f4e936466a7e1157ff26abc61efb5e94c9eb8750e1bcdffeec95db8e5"
         }
@@ -643,7 +581,6 @@
 
     {
         "name": "qt-wayland",
-		"spdx": "GPL-3.0-only",
         "os": "linux",
         "hashes": {
             "unix": "sha256:5e46157908295f2bf924462d8c0855b0508ba338ced9e810891fefa295dc9647"
@@ -652,7 +589,6 @@
 
     {
         "name": "qt-sensors",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:8a817c9b001ad0abdbf15064826ca6a8ee6b66fef8f04b4343ac9f7b2ddbf4ca"
         }
@@ -660,7 +596,6 @@
 
     {
         "name": "qt-multimedia",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:34f561fdc07b158bcc4ad040b596fc6086c48908060e854b473b557e4feb1569"
         }
@@ -668,7 +603,6 @@
 
     {
         "name": "qt-speech",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:e09b52336bb90090f4582a382fa084f7573ebd207cc81f3066ef94cc1bf202c3"
         }
@@ -676,7 +610,6 @@
 
     {
         "name": "qt-webengine",
-		"spdx": "GPL-3.0-only",
         "hashes": {
             "unix": "sha256:ff95987f16c197b31ad4d96972f8d9b00c740c5bed70c3e68ee42d673ee54802"
         }
@@ -684,7 +617,6 @@
 
     {
         "name": "speech-dispatcher-client 0.11.5",
-		"spdx": "GPL-2.0-or-later",
         "os": "linux",
         "unix": {
             "hash": "sha256:1ce4759ffabbaf1aeb433a5ec0739be0676e9bdfbae9444a7b3be1b2af3ec12b",
@@ -694,7 +626,6 @@
 
     {
         "name": "onnx 1.22.1",
-		"spdx": "MIT",
         "unix": {
             "hash": "sha256:9eacbf624d6f7466da81d9beb4399cb8683808b15c1276b7cd56c6907bf59f77",
             "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v{version}.{file_extension}"]
@@ -703,7 +634,6 @@
 
     {
         "name": "espeak a4ca101c99de35345f89df58195b2159748b7092",
-		"spdx": "GPL-3.0-only",
         "comment": "We need the espeak_TextToPhonemesWithTerminator() function. No release of espeak-ng with that function has been made yet, so use a commit that includes it",
         "unix": {
             "file_extension": "zip",
