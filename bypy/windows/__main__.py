@@ -382,9 +382,9 @@ def build_portable(env):
 
 def sign_files(files):
     printf('Signing {} files'.format(len(files)))
+    evars = os.environ.copy()
     if USE_KEYLOCKER:
         cspath = os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing')
-        evars = os.environ.copy()
         with open(os.path.join(cspath, 'digicert-api-key')) as f:
             evars['SM_API_KEY'] = f.read().strip()
         with open(os.path.join(cspath, 'digicert-client-certificate-password')) as f:
