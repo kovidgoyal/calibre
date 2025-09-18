@@ -61,6 +61,7 @@ class Node:
     NODE_SWITCH_IF = 32
     NODE_LIST_COUNT_FIELD = 33
     NODE_WITH = 34
+    NODE_FSTRING = 35
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -77,7 +78,7 @@ class Node:
 
 class WithNode(Node):
     def __init__(self, line_number, book_id, block):
-        Node.__init__(self, line_number, 'if ...')
+        Node.__init__(self, line_number, 'with ...')
         self.node_type = self.NODE_WITH
         self.book_id = book_id
         self.block = block
@@ -346,6 +347,13 @@ class ListCountFieldNode(Node):
         Node.__init__(self, line_number, 'list_count_field()')
         self.node_type = self.NODE_LIST_COUNT_FIELD
         self.expression = expression
+
+
+class FStringNode(Node):
+    def __init__(self, line_number, string):
+        Node.__init__(self, line_number, 'f_string')
+        self.node_type = self.NODE_FSTRING
+        self.string = string
 
 
 class _Parser:
@@ -743,7 +751,9 @@ class _Parser:
         'strcat':           (lambda _: True,
                              lambda ln, args: StrcatNode(ln, args)),
         'list_count_field': (lambda args: len(args) == 1,
-                             lambda ln, args: ListCountFieldNode(ln, args[0]))
+                             lambda ln, args: ListCountFieldNode(ln, args[0])),
+        'f_string':         (lambda args: len(args) == 1,
+                             lambda ln, args: FStringNode(ln, args[0])),
     }
 
     def expr(self):
@@ -1392,6 +1402,14 @@ class _Interpreter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
+    def do_node_f_string(self, prog):
+        def repl(mo):
+            print(mo.group()[1:-1])
+            p = self.parent.gpm_parser.program(self.parent, self.funcs,
+                                               self.parent.lex_scanner.scan(mo.group()[1:-1]))
+            return self.expr(p)
+        return str(re.sub(r'\{.*?\}', repl, self.expr(prog.string)))
+
     def do_node_list_count_field(self, prog):
         name = field_metadata.search_term_to_field_key(self.expr(prog.expression))
         res = getattr(self.parent_book, name, None)
@@ -1654,6 +1672,7 @@ class _Interpreter:
         Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
         Node.NODE_LIST_COUNT_FIELD:      do_node_list_count_field,
         Node.NODE_WITH:                  do_node_with,
+        Node.NODE_FSTRING:               do_node_f_string,
     }
 
     def expr(self, prog):

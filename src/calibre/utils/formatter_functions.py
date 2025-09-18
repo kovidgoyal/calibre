@@ -3761,6 +3761,49 @@ This function can be used only in the GUI.
         return '1' if d.exec() == QDialog.DialogCode.Accepted else ''
 
 
+class BuiltinFString(BuiltinFormatterFunction):
+    name = 'f_string'
+    arg_count = 1
+    category = FORMATTING_VALUES
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``f_string(string)`` -- interpret ``string`` similar to how python interprets ``f`` strings.
+The indended use is to simplify long sequences of ``str & str`` or strcat(a,b,c) expressions.
+
+Text between braces (``{`` and ``}``) must be General Program Mode template
+expressions. The expressions, which can be expression lists, are evaluated in
+the current context (current book and local variables). Text not between
+braces is passed through unchanged.
+
+Examples:
+[LIST]
+[*]``f_string('Here is the title: {$title}')`` - returns the string with ``{$title}``
+replaced with the title of the current book. For example, if the book's title is
+`20,000 Leagues Under the Sea` then the ``f_string()`` returns
+`Here is the title: 20,000 Leagues Under the Sea`.
+[*]Assuming the current date is 18 Sept 2025, this ``f_string()``
+[CODE]
+f_string("Today's date: the {d = today(); format_date(d, 'd')} of {format_date(d, 'MMMM')}, {format_date(d, 'yyyy')}")
+[/CODE]
+returns the string `Today's date: the 18 of September, 2025`.
+Note the expression list (an assignment then an ``if`` statement) used in the first ``{ ... }`` group to assign today's date to a local variable.
+[*]If the book is book #3 in a series named `Foo` that has 5 books then this template
+[CODE]
+program:
+    if $series then
+        series_count = book_count('series:"""=' & $series & '"""', 0);
+        return f_string("{$series}, book {$series_index} of {series_count}")
+    fi;
+    return 'This book is not in a series'
+[/CODE]
+returns `Foo, book 3 of 5`
+[/LIST]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, fstring):
+        raise ValueError(_('This function cannot be called directly. It is built into the formatter'))
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
@@ -3776,7 +3819,7 @@ _formatter_builtins = [
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatDuration(), BuiltinFormatNumber(),
     BuiltinFormatsModtimes(),BuiltinFormatsPaths(), BuiltinFormatsPathSegments(),
-    BuiltinFormatsSizes(), BuiltinFractionalPart(),BuiltinGetLink(),
+    BuiltinFormatsSizes(), BuiltinFractionalPart(),BuiltinFString(), BuiltinGetLink(),
     BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
     BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinIsDarkMode(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
