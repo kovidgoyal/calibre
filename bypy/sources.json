@@ -222,10 +222,10 @@
     },
 
 	{
-        "name": "uchardet",
+        "name": "uchardet 0.0.8",
         "spdx": "Apache-2.0",
         "unix": {
-            "filename": "uchardet-0.0.8.tar.xz",
+            "file_extension": "tar.xz",
             "hash": "sha256:e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0",
             "urls": ["https://www.freedesktop.org/software/uchardet/releases/{filename}"]
         }
