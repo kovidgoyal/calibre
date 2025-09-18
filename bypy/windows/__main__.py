@@ -24,6 +24,7 @@ iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
 QT_PREFIX = os.path.join(PREFIX, 'qt')
 QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
+USE_KEYLOCKER = False
 
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 WINVER = VERSION + '.0'
@@ -362,7 +363,8 @@ def build_portable(env):
             obj, 'User32.lib', 'Shell32.lib']
         run(*cmd)
         launchers.append(exe)
-        # sign_files(launchers)
+        if not USE_KEYLOCKER:
+            sign_files(launchers)
 
     printf('Creating portable installer')
     shutil.copytree(env.base, j(base, 'Calibre'))
@@ -380,34 +382,36 @@ def build_portable(env):
 
 def sign_files(files):
     printf('Signing {} files'.format(len(files)))
-    cspath = os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing')
-    evars = os.environ.copy()
-    with open(os.path.join(cspath, 'digicert-api-key')) as f:
-        evars['SM_API_KEY'] = f.read().strip()
-    with open(os.path.join(cspath, 'digicert-client-certificate-password')) as f:
-        evars['SM_CLIENT_CERT_PASSWORD'] = f.read().strip()
-    evars['SM_CLIENT_CERT_FILE'] = os.path.abspath(os.path.join(cspath, 'digicert-client-certificate.p12'))
-    evars['SM_HOST'] = 'https://clientauth.one.digicert.com'
-    evars['PATH'] += os.pathsep + os.path.dirname(SIGNTOOL)
-    keylocker_path = r'C:\Program Files\DigiCert\DigiCert Keylocker Tools'
-    evars['PATH'] += os.pathsep + keylocker_path
-    subprocess.check_call([os.path.join(keylocker_path, 'smctl.exe'), 'healthcheck'], env=evars)
-    # To get the certificate thumbprint run the following commands with SM_API_KEY set to the key from digicert-api-key.
-    # smctl is found in C:\Program Files\DigiCert\DigiCert Keylocker Tools
-    # To get keypair alias:
-    # smctl keypair list
-    # To get certificate thumbprint:
-    # smctl windows certsync --keypair-alias=alias from previous step
-    certificate_thumbprint = 'e30cac630f80fbe04964e221b56d07b4a177c96a'
-    args = [SIGNTOOL, 'sign', '/sha1', certificate_thumbprint,
-            '/fd', 'sha256', '/td', 'sha256', '/d', 'calibre - E-book management',
-            '/du', 'https://calibre-ebook.com', '/v', '/debug', '/tr']
-    # with open(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\cert-cred')) as f:
-    #     pw = f.read().strip()
-    # CODESIGN_CERT = os.path.abspath(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\authenticode.pfx'))
-    # args = [SIGNTOOL, 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
-    #         'calibre - E-book management', '/du',
-    #         'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
+    if USE_KEYLOCKER:
+        cspath = os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing')
+        evars = os.environ.copy()
+        with open(os.path.join(cspath, 'digicert-api-key')) as f:
+            evars['SM_API_KEY'] = f.read().strip()
+        with open(os.path.join(cspath, 'digicert-client-certificate-password')) as f:
+            evars['SM_CLIENT_CERT_PASSWORD'] = f.read().strip()
+        evars['SM_CLIENT_CERT_FILE'] = os.path.abspath(os.path.join(cspath, 'digicert-client-certificate.p12'))
+        evars['SM_HOST'] = 'https://clientauth.one.digicert.com'
+        evars['PATH'] += os.pathsep + os.path.dirname(SIGNTOOL)
+        keylocker_path = r'C:\Program Files\DigiCert\DigiCert Keylocker Tools'
+        evars['PATH'] += os.pathsep + keylocker_path
+        subprocess.check_call([os.path.join(keylocker_path, 'smctl.exe'), 'healthcheck'], env=evars)
+        # To get the certificate thumbprint run the following commands with SM_API_KEY set to the key from digicert-api-key.
+        # smctl is found in C:\Program Files\DigiCert\DigiCert Keylocker Tools
+        # To get keypair alias:
+        # smctl keypair list
+        # To get certificate thumbprint:
+        # smctl windows certsync --keypair-alias=alias from previous step
+        certificate_thumbprint = 'e30cac630f80fbe04964e221b56d07b4a177c96a'
+        args = [SIGNTOOL, 'sign', '/sha1', certificate_thumbprint,
+                '/fd', 'sha256', '/td', 'sha256', '/d', 'calibre - E-book management',
+                '/du', 'https://calibre-ebook.com', '/v', '/debug', '/tr']
+    else:
+        with open(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\cert-cred')) as f:
+            pw = f.read().strip()
+        CODESIGN_CERT = os.path.abspath(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\authenticode.pfx'))
+        args = [SIGNTOOL, 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
+                'calibre - E-book management', '/du',
+                'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
 
     def runcmd(cmd):
         # See https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710 for list of timestamp servers
@@ -598,7 +602,8 @@ def sign_executables(env):
     for path in walk(env.base):
         if path.lower().endswith('.exe') or path.lower().endswith('.dll'):
             files_to_sign.append(path)
-    # sign_files(files_to_sign)
+    if not USE_KEYLOCKER:
+        sign_files(files_to_sign)
 
 
 def main():
