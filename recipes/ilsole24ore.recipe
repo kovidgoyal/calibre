@@ -46,10 +46,19 @@ class IlSole24Ore(BasicNewsRecipe):
             return article
         if link.split('/')[-1] == 'story01.htm':
             link = link.split('/')[-2]
-            a = ['0B', '0C', '0D', '0E', '0F', '0G', '0N', '0L0S', '0A']
-            b = ['.', '/', '?', '-', '=', '&', '.com', 'www.', '0']
-            for i in range(len(a)):
-                link = link.replace(a[i], b[i])
+            t = (
+                ('0B', '.'),
+                ('0C', '/'),
+                ('0D', '?'),
+                ('0E', '-'),
+                ('0F', '='),
+                ('0G', '&'),
+                ('0N', '.com'),
+                ('0L0S', 'www.'),
+                ('0A', '0'),
+            )
+            for a,b in t:
+                link = link.replace(a, b)
             link = 'http://' + link
         return link
 
