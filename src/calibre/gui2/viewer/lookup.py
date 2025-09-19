@@ -92,9 +92,6 @@ vprefs.defaults['lookup_locations'] = [
 ]
 vprefs.defaults['lookup_location'] = 'Google dictionary'
 vprefs.defaults['llm_lookup_tab_index'] = 0
-vprefs.defaults['llm_api_key'] = ''
-vprefs.defaults['llm_model_id'] = 'google/gemini-flash-1.5'
-vprefs.defaults['llm_quick_actions'] = '[]'
 
 
 class SourceEditor(Dialog):
