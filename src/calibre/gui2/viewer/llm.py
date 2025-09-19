@@ -128,7 +128,7 @@ def current_actions(include_disabled=False):
         if include_disabled or not x.is_disabled:
             yield x
     for title, c in p.get('custom_actions', {}).items():
-        x = Action(f'custom-{title}', title, c['prompt_text'], is_builtin=False, is_disabled=c['disabled'])
+        x = Action(f'custom-{title}', title, c['prompt_template'], is_builtin=False, is_disabled=c['disabled'])
         if include_disabled or not x.is_disabled:
             yield x
 
@@ -648,7 +648,7 @@ class ActionEditDialog(QDialog):
 
     def get_action(self) -> Action:
         title = self.name_edit.text().strip()
-        return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip())
+        return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip(), is_builtin=False)
 
     def accept(self) -> None:
         ac = self.get_action()
