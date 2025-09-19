@@ -3768,7 +3768,7 @@ class BuiltinFString(BuiltinFormatterFunction):
     def __doc__getter__(self): return translate_ffml(
 r'''
 ``f_string(string)`` -- interpret ``string`` similar to how python interprets ``f`` strings.
-The indended use is to simplify long sequences of ``str & str`` or strcat(a,b,c) expressions.
+The intended use is to simplify long sequences of ``str & str`` or strcat(a,b,c) expressions.
 
 Text between braces (``{`` and ``}``) must be General Program Mode template
 expressions. The expressions, which can be expression lists, are evaluated in
