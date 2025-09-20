@@ -47,6 +47,10 @@ class Check(Command):
     def add_options(self, parser):
         parser.add_option('--fix', '--auto-fix', default=False, action='store_true',
                 help='Try to automatically fix some of the smallest errors instead of opening an editor for bad files.')
+        parser.add_option('-f', '--file', dest='files', type='string', action='append',
+                help='Specific file to be check. Can be repeat to check severals.')
+        parser.add_option('--no-editor', default=False, action='store_true',
+                help="Don't open the editor when a bad file is found.")
 
     def get_files(self):
         yield from checkable_python_files(self.SRC)
@@ -83,9 +87,9 @@ class Check(Command):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
             if self.auto_fix:
-                p = subprocess.Popen(['ruff', 'check', '--fix', f])
+                p = subprocess.Popen(['ruff', 'check', '-q', '--fix', f])
             else:
-                p = subprocess.Popen(['ruff', 'check', f])
+                p = subprocess.Popen(['ruff', 'check', '-q', f])
             return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -99,6 +103,8 @@ class Check(Command):
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         self.auto_fix = opts.fix
+        self.files = opts.files
+        self.no_editor = opts.no_editor
         self.run_check_files()
 
     def run_check_files(self):
@@ -109,18 +115,24 @@ class Check(Command):
         except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
-        dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+        if self.files:
+            dirty_files = tuple(self.files)
+        else:
+            dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
         try:
             for i, f in enumerate(dirty_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info(f'{len(dirty_files) - i - 1} files left to check')
+                    e = SystemExit(1)
+                    if self.no_editor:
+                        raise e
                     try:
                         edit_file(f)
                     except FileNotFoundError:
-                        pass  # continue if the configured editor fail to be open
+                        raise e  # raise immediately to skip second check
                     if self.file_has_errors(f):
-                        raise SystemExit(1)
+                        raise e
                 cache[f] = self.file_hash(f)
         finally:
             self.save_cache(cache)
