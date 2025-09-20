@@ -498,12 +498,12 @@
     },
 
     {
-        "name": "nodejs 20.7.0",
+        "name": "nodejs 20.19.2",
 		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
         "unix": {
-            "hash": "sha256:059ea8ab31a1a4fe090751e8c82fca16d2f7339f309e15b2c65820dff83b579a",
+            "hash": "sha256:045deaf3179e85ddd871e925f39b04214f37c7d16b6980fab2f061d6739d8207",
             "urls": ["https://github.com/nodejs/node/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
