@@ -437,6 +437,10 @@ def calibre_langcode_to_name(lc, localize=True):
     return lc
 
 
+def ui_language_as_english() -> str:
+    return calibre_langcode_to_name(canonicalize_lang(get_lang()) or 'eng', localize=False) or 'English'
+
+
 def countrycode_to_name(cc, localize=True):
     iso3166 = load_iso3166()
     q = cc.upper()

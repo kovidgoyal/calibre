@@ -13,6 +13,7 @@ from typing import Any, NamedTuple
 from qt.core import (
     QAbstractItemView,
     QApplication,
+    QCheckBox,
     QDateTime,
     QDialog,
     QDialogButtonBox,
@@ -52,7 +53,7 @@ from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang
+from calibre.utils.localization import ui_language_as_english
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode, from_hex_unicode
@@ -102,10 +103,7 @@ class Action(NamedTuple):
                     pt = 'Translate the following word into the language {language}. {selected}'
 
         selected_text = (prompt_sep + what + selected_text) if selected_text else ''
-        return pt.format(
-            selected=selected_text,
-            language=calibre_langcode_to_name(canonicalize_lang(get_lang()) or 'English', localize=False),
-        ).strip()
+        return pt.format(selected=selected_text, language=ui_language_as_english()).strip()
 
 
 @lru_cache(2)
@@ -193,6 +191,13 @@ class ConversationHistory:
             self.model_used = self.accumulator.metadata.model
             self.cost += self.accumulator.metadata.cost
             self.currency = self.accumulator.metadata.currency
+
+
+def get_language_instruction() -> str:
+    if vprefs['llm_localized_results'] != 'always':
+        return ''
+    lang = ui_language_as_english()
+    return f'If you can speak in {lang}, then respond in {lang}.'
 
 
 def format_llm_note(conversation: ConversationHistory, assistant_name: str) -> str:
@@ -430,6 +435,8 @@ class LLMPanel(QWidget):
                 context_header += '. I have some questions about content from this book.'
             else:
                 context_header += '. I have some questions about this book.'
+            if language_instruction := get_language_instruction():
+                context_header += ' ' + language_instruction
             yield ChatMessage(context_header, type=ChatMessageType.system)
         yield ChatMessage(action_prompt)
 
@@ -676,6 +683,11 @@ class LLMSettingsWidget(QWidget):
 
         api_model_layout.addRow(_('&Highlight style:'), self.highlight_color_combo)
         self.layout.addLayout(api_model_layout)
+        self.localized_results = lr = QCheckBox(_('Ask the AI to respond in the current language'))
+        lr.setToolTip('<p>' + _('Ask the AI to respond in the current calibre user interface language. Note that how well'
+                        ' this works depends on the individual model being used. Different models support'
+                        ' different languages.'))
+        api_model_layout.addRow(lr)
         self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
         self.layout.addWidget(gb)
         gb.l = l = QVBoxLayout(gb)
@@ -701,6 +713,7 @@ class LLMSettingsWidget(QWidget):
     def load_settings(self):
         if hsn := vprefs.get('llm_highlight_style'):
             self.highlight_color_combo.highlight_style_name = hsn
+        self.localized_results.setChecked(vprefs['llm_localized_results'] == 'always')
         self.load_actions_from_prefs()
 
     def action_as_item(self, ac: Action) -> QListWidgetItem:
@@ -753,6 +766,7 @@ class LLMSettingsWidget(QWidget):
     def commit(self) -> bool:
         selected_internal_name = self.highlight_color_combo.currentData()
         vprefs.set('llm_highlight_style', selected_internal_name)
+        vprefs.set('llm_localized_results', 'always' if self.localized_results.isChecked() else 'never')
         disabled_defaults = []
         custom_actions = {}
         for i in range(self.actions_list.count()):

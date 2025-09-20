@@ -20,6 +20,7 @@ vprefs.defaults['old_prefs_migrated'] = False
 vprefs.defaults['bookmarks_sort'] = 'title'
 vprefs.defaults['highlight_export_format'] = 'txt'
 vprefs.defaults['auto_update_lookup'] = True
+vprefs.defaults['llm_localized_results'] = 'never'
 
 
 def get_session_pref(name, default=None, group='standalone_misc_settings'):
