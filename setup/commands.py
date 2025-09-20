@@ -15,6 +15,7 @@ __all__ = [
     'export_packages',
     'extdev',
     'get_translations',
+    'git_hooks',
     'git_version',
     'gui',
     'hyphenation',
@@ -101,6 +102,10 @@ piper_voices = PiperVoices()
 from setup.liberation import LiberationFonts
 
 liberation_fonts = LiberationFonts()
+
+from setup.git_hooks import GitHooks
+
+git_hooks = GitHooks()
 
 from setup.git_version import GitVersion
 
