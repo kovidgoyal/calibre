@@ -13,4 +13,4 @@ os.chdir(base)
 action = [x.decode('utf-8') if isinstance(x, bytes) else x for x in sys.argv[1:]][0]
 
 if action == 'rebase':
-    subprocess.check_call(['./setup.py', 'gui', '--summary'])
+    subprocess.check_call([sys.executable, './setup.py', 'gui', '--summary'])
