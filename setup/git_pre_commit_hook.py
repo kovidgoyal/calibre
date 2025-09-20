@@ -37,7 +37,7 @@ filenames = tuple(filter(testfile, output))
 if not filenames:
     sys.exit(0)
 
-check_args = [sys.executable, './setup.py', 'check', '--no-editor']
+check_args = [sys.executable, './setup.py', '--', 'check', '--no-editor']
 # let's hope that too many arguments do not hold any surprises
 for f in filenames:
     check_args.append('-f')
