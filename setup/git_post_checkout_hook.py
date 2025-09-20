@@ -21,7 +21,7 @@ if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
     rebase_in_progress = os.path.exists('.git/rebase-apply') or os.path.exists('.git/rebase-merge')
 
-    subprocess.check_call('./setup.py gui --summary'.split())
+    subprocess.check_call([sys.executable, './setup.py', 'gui', '--summary'])
 
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):
