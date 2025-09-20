@@ -2,10 +2,11 @@
 # License: GPLv3 Copyright: 2025, un_pogaz <un.pogaz@gmail.com>
 
 import os
+import sys
 from contextlib import suppress
 from typing import NamedTuple
 
-from setup import Command
+from setup import Command, iswindows
 
 HOOK_TEMPLATE = '''\
 #!/usr/bin/env -S calibre-debug -e -- --
@@ -104,7 +105,10 @@ class GitHooks(Command):
                 os.remove(path)  # remove if symlink
             with open(path, 'wb') as f:
                 f.write(script.encode('utf-8'))
-            os.chmod(path, 0o744, follow_symlinks=False)
+            if iswindows and sys.version_info[:2] <= (3, 12):
+                os.chmod(path, 0o744)
+            else:
+                os.chmod(path, 0o744, follow_symlinks=False)
 
     def uninstall(self):
         self.info('Uninstalling the hooks:', ', '.join(self.names))
