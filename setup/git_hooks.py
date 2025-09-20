@@ -28,6 +28,7 @@ Hook = namedtuple('Hook', ['name', 'file', 'args_count', 'default'])
 HOOKS = {h.name:h for h in (
     Hook('post-checkout', 'git_post_checkout_hook.py', 3, True),
     Hook('post-rewrite', 'git_post_rewrite_hook.py', 1, True),
+    Hook('pre-commit', 'git_pre_commit_hook.py', 0, True),
     # disable by default, because except Kovid, nobody can run this hook
     Hook('commit-msg', 'git_commit_msg_hook.py', 1, False),
 )}
