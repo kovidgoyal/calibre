@@ -104,7 +104,10 @@ class GitHooks(Command):
                 os.remove(path)  # remove if symlink
             with open(path, 'wb') as f:
                 f.write(script.encode('utf-8'))
-            os.chmod(path, 0o744, follow_symlinks=False)
+            try:
+                os.chmod(path, 0o744, follow_symlinks=False)
+            except TypeError:
+                os.chmod(path, 0o744)
 
     def uninstall(self):
         self.info('Uninstalling the hooks:', ', '.join(self.names))
