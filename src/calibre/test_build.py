@@ -113,6 +113,14 @@ class BuildTest(unittest.TestCase):
         from html5_parser import parse
         parse('<p>xxx')
 
+    def test_poppler(self):
+        import subprocess
+
+        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML, popen
+        p = popen([PDFTOHTML, '--help'], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        if p.wait() != 0:
+            raise RuntimeError(f'pdftohtml --help failed with return code: {p.returncode}')
+
     def test_bs4(self):
         import bs4
         import soupsieve

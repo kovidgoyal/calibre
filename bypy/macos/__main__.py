@@ -484,7 +484,7 @@ class Freeze:
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.130.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.130.dylib', 'liblcms2.2.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdftotext'):
             self.install_dylib(
