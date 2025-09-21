@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import runpy
 import subprocess
 import sys
 
@@ -37,11 +38,15 @@ filenames = tuple(filter(testfile, output))
 if not filenames:
     sys.exit(0)
 
-check_args = [sys.executable, './setup.py', 'check', '--no-editor']
+check_args = ['./setup.py', 'check', '--no-editor']
 # let's hope that too many arguments do not hold any surprises
 for f in filenames:
     check_args.append('-f')
     check_args.append(f)
 
-returncode = subprocess.call(check_args)
-sys.exit(returncode)
+before = sys.argv
+try:
+    sys.argv = check_args
+    runpy.run_path('setup.py', run_name='__main__')
+finally:
+    sys.argv = before

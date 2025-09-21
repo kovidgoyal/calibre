@@ -4,6 +4,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+import runpy
 import subprocess
 import sys
 
@@ -21,7 +22,12 @@ if flags == '1':  # A branch checkout
     prev_branch, cur_branch = list(map(get_branch_name, (prev_rev, current_rev)))
     rebase_in_progress = os.path.exists('.git/rebase-apply') or os.path.exists('.git/rebase-merge')
 
-    subprocess.check_call([sys.executable, './setup.py', 'gui', '--summary'])
+    before = sys.argv
+    try:
+        sys.argv = ['setup.py', 'gui', '--summary']
+        runpy.run_path('setup.py', run_name='__main__')
+    finally:
+        sys.argv = before
 
     # Remove .pyc files as some of them might have been orphaned
     for dirpath, dirnames, filenames in os.walk('.'):
