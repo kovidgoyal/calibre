@@ -106,7 +106,7 @@ class GitHooks(Command):
                 f.write(script.encode('utf-8'))
             try:
                 os.chmod(path, 0o744, follow_symlinks=False)
-            except TypeError:
+            except NotImplementedError:  # old python on windows
                 os.chmod(path, 0o744)
 
     def uninstall(self):
