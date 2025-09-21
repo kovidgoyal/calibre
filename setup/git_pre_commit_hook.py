@@ -11,7 +11,7 @@ setup_py = os.path.realpath('./setup.py')
 
 def testfile(file):
     def t(f, start, end, exclude_end=None):
-        return f.startswith(start) and f.endswith(end) and not f.endswith(exclude_end) if exclude_end else True
+        return f.startswith(start) and f.endswith(end) and not (f.endswith(exclude_end) if exclude_end else False)
     if t(file, ('src/odf', 'src/calibre'), '.py', exclude_end='_ui.py'):
         return True
     if t(file, 'recipes', '.recipe'):
