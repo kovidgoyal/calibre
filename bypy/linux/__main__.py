@@ -254,7 +254,12 @@ def strip_files(files, argv_max=(256 * 1024)):
             all_files = cmd[len(STRIPCMD):]
             unwritable_files = tuple(filter(None, (None if os.access(x, os.W_OK) else (x, os.stat(x).st_mode) for x in all_files)))
             [os.chmod(x, stat.S_IWRITE | old_mode) for x, old_mode in unwritable_files]
-            subprocess.check_call(cmd)
+            try:
+                subprocess.check_call(cmd)
+            except subprocess.CalledProcessError:
+                # Sometimes get file is busy errors
+                time.sleep(1)
+                subprocess.check_call(cmd)
             [os.chmod(x, old_mode) for x, old_mode in unwritable_files]
 
 

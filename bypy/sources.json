@@ -328,6 +328,7 @@
 
     {
         "name": "libxml2 2.15.0",
+		"comment": "When updating this, must rebuild at least: libxslt, lxml, html5-parser, podofo, qt-webengine",
         "unix": {
             "file_extension": "tar.xz",
             "hash": "sha256:5abc766497c5b1d6d99231f662e30c99402a90d03b06c67b62d6c1179dedd561",
