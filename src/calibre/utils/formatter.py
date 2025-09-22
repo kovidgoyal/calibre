@@ -469,7 +469,7 @@ class _Parser:
         except Exception:
             return _("'End of program'")
 
-    def program(self, parent, funcs, prog):
+    def program(self, parent, funcs, prog, local_functions=None):
         self.line_number = 1
         self.lex_pos = 0
         self.parent = parent
@@ -477,7 +477,7 @@ class _Parser:
         self.func_names = frozenset(set(self.funcs.keys()))
         self.prog = prog[0]
         self.prog_len = len(self.prog)
-        self.local_functions = set()
+        self.local_functions = local_functions if local_functions is not None else set()
         if prog[1] != '':
             self.error(_("Failed to scan program. Invalid input '{0}'").format(prog[1]))
         tree = self.expression_list()
@@ -1404,9 +1404,9 @@ class _Interpreter:
 
     def do_node_f_string(self, prog):
         def repl(mo):
-            print(mo.group()[1:-1])
             p = self.parent.gpm_parser.program(self.parent, self.funcs,
-                                               self.parent.lex_scanner.scan(mo.group()[1:-1]))
+                                               self.parent.lex_scanner.scan(mo.group()[1:-1]),
+                                               local_functions=self.local_functions)
             return self.expr(p)
         return str(re.sub(r'\{.*?\}', repl, self.expr(prog.string)))
 
