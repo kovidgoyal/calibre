@@ -27,7 +27,8 @@ def download_with_retry(url, count=5):
         count -= 1
         try:
             print('Downloading', url, flush=True)
-            return urlopen(url).read()
+            with urlopen(url) as f:
+                return f.read()
         except Exception:
             if count <= 0:
                 raise

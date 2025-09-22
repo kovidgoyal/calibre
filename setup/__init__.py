@@ -70,14 +70,15 @@ def curl_supports_etags():
     return '--etag-compare' in subprocess.check_output(['curl', '--help', 'all']).decode('utf-8')
 
 
-def download_securely(url):
+def _download_securely(url):
     # We use curl here as on some OSes (OS X) when bootstrapping calibre,
     # python will be unable to validate certificates until after cacerts is
     # installed
     if is_ci and iswindows:
         # curl is failing for wikipedia urls on CI (used for browser_data)
         from urllib.request import urlopen
-        return urlopen(url).read()
+        with urlopen(url) as f:
+            return f.read()
     if not curl_supports_etags():
         return subprocess.check_output(['curl', '-fsSL', url])
     url_hash = hashlib.sha1(url.encode('utf-8')).hexdigest()
@@ -89,6 +90,17 @@ def download_securely(url):
     )
     with open(os.path.join(cache_dir, 'data.bin'), 'rb') as f:
         return f.read()
+
+
+def download_securely(url, retry_count: int = 5 if is_ci else 3, sleep_time: float = 1):
+    for i in range(retry_count):
+        try:
+            return _download_securely(url)
+        except Exception as err:
+            if i >= retry_count - 1:
+                raise
+            print(f'Download of {url} failed with error {err}, retrying...', file=sys.stderr)
+            time.sleep(sleep_time)
 
 
 def build_cache_dir():
