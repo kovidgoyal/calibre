@@ -192,10 +192,10 @@
     },
 
     {
-        "name": "python 3.11.12",
+        "name": "python 3.11.13",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:849da87af4df137710c1796e276a955f7a85c9f971081067c8f565d15c352a09",
+            "hash": "sha256:8fb5f9fbc7609fa822cb31549884575db7fd9657cbffb89510b5d7975963a83a",
             "urls": ["https://www.python.org/ftp/python/{version}/Python-{version}.{file_extension}"]
         }
     },
@@ -416,10 +416,10 @@
     },
 
     {
-        "name": "podofo f7797f620f151475d05c87c1fab3db20b2f00c0e",
+        "name": "podofo 0.10.5",
         "unix": {
-            "hash": "sha256:61f4d2175b75726d2881ad027c0275b8f5814b53058625d7b3411a055e2dca79",
-            "urls": ["https://github.com/podofo/podofo/archive/f7797f620f151475d05c87c1fab3db20b2f00c0e.tar.gz"]
+            "hash": "sha256:49b159e88ba177ad2561b5cf6cbd68ecbe83272f5488bc527e44f97dbf695273",
+            "urls": ["https://github.com/podofo/podofo/archive/refs/tags/{version}.{file_extension}"]
         }
     },
 
@@ -531,11 +531,11 @@
     },
 
     {
-        "name": "ffmpeg 7.1",
+        "name": "ffmpeg 7.1.2",
 		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
 		"unix": {
 			"file_extension": "tar.xz",
-			"hash": "sha256:40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6",
+			"hash": "sha256:089bc60fb59d6aecc5d994ff530fd0dcb3ee39aa55867849a2bbc4e555f9c304",
 			"urls": ["https://www.ffmpeg.org/releases/{filename}"]
 		}
     },
