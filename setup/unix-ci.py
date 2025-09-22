@@ -11,7 +11,6 @@ import sys
 import tarfile
 import time
 from tempfile import NamedTemporaryFile
-from urllib.request import urlopen
 
 _plat = sys.platform.lower()
 ismacos = 'darwin' in _plat
@@ -20,6 +19,20 @@ iswindows = 'win32' in _plat or 'win64' in _plat
 
 def setenv(key, val):
     os.environ[key] = os.path.expandvars(val)
+
+
+def download_with_retry(url, count=5):
+    from urllib.request import urlopen
+    while count > 0:
+        count -= 1
+        try:
+            print('Downloading', url, flush=True)
+            return urlopen(url).read()
+        except Exception:
+            if count <= 0:
+                raise
+            print('Download failed retrying...')
+            time.sleep(1)
 
 
 if ismacos:
@@ -123,8 +136,7 @@ def install_linux_deps():
 def get_tx():
     url = 'https://github.com/transifex/cli/releases/latest/download/tx-linux-amd64.tar.gz'
     print('Downloading:', url)
-    with urlopen(url) as f:
-        raw = f.read()
+    raw = download_with_retry(url)
     with tarfile.open(fileobj=io.BytesIO(raw), mode='r') as tf:
         tf.extract('tx')
 

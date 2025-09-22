@@ -15,9 +15,8 @@ def printf(*args, **kw):
     sys.stdout.flush()
 
 
-def download_file(url):
+def download_with_retry(url, count=5):
     from urllib.request import urlopen
-    count = 5
     while count > 0:
         count -= 1
         try:
@@ -34,7 +33,7 @@ def sw():
     sw = os.environ['SW']
     os.chdir(sw)
     url = 'https://download.calibre-ebook.com/ci/calibre7/windows-64.tar.xz'
-    tarball = download_file(url)
+    tarball = download_with_retry(url)
     with tarfile.open(fileobj=io.BytesIO(tarball)) as tf:
         tf.extractall()
     printf('Download complete')
