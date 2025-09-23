@@ -4,6 +4,7 @@
 
 import glob
 import io
+import json
 import os
 import shlex
 import subprocess
@@ -11,6 +12,7 @@ import sys
 import tarfile
 import time
 from tempfile import NamedTemporaryFile
+from urllib.request import Request
 
 _plat = sys.platform.lower()
 ismacos = 'darwin' in _plat
@@ -142,6 +144,75 @@ def get_tx():
         tf.extract('tx')
 
 
+def install_grype() -> str:
+    dest = os.path.join(SW, 'bin')
+    rq = Request('https://api.github.com/repos/anchore/grype/releases/latest', headers={
+        'Accept': 'application/vnd.github.v3+json',
+    })
+    m = json.loads(download_with_retry(rq))
+    for asset in m['assets']:
+        if asset['name'].endswith('_linux_amd64.tar.gz'):
+            url = asset['browser_download_url']
+            break
+    else:
+        raise ValueError('Could not find linux binary for grype')
+    os.makedirs(dest, exist_ok=True)
+    data = download_with_retry(url)
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r') as tf:
+        tf.extract('grype', path=dest, filter='fully_trusted')
+    return os.path.join(dest, 'grype')
+
+
+IGNORED_DEPENDENCY_CVES = [
+    # Python stdlib
+    'CVE-2025-8194',  # DoS in tarfile
+    'CVE-2025-6069',  # DoS in HTMLParser
+    # glib
+    'CVE-2025-4056',  # Only affects Windows, on which we dont run
+]
+
+
+LINUX_BUNDLE = 'linux-64'
+MACOS_BUNDLE = 'macos-64'
+
+
+def install_bundle(dest=SW, which=''):
+    run('sudo', 'mkdir', '-p', SW)
+    run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
+    tball = which or (MACOS_BUNDLE if ismacos else LINUX_BUNDLE)
+    download_and_decompress(
+        f'https://download.calibre-ebook.com/ci/calibre7/{tball}.tar.xz', dest
+    )
+
+
+def check_dependencies() -> None:
+    grype = install_grype()
+    with open((gc := os.path.expanduser('~/.grype.yml')), 'w') as f:
+        print('ignore:', file=f)
+        for x in IGNORED_DEPENDENCY_CVES:
+            print('  - vulnerability:', x, file=f)
+    dest = os.path.join(SW, LINUX_BUNDLE)
+    os.makedirs(dest, exist_ok=True)
+    install_bundle(dest, os.path.basename(dest))
+    dest = os.path.join(SW, MACOS_BUNDLE)
+    os.makedirs(dest, exist_ok=True)
+    install_bundle(dest, os.path.basename(dest))
+    cmdline = [grype, '--by-cve', '--config', gc, '--fail-on', 'medium', '--only-fixed', '--add-cpes-if-none']
+    if (cp := subprocess.run(cmdline + ['dir:' + SW])).returncode != 0:
+        raise SystemExit(cp.returncode)
+    # Now test against the SBOM
+    import runpy
+    orig = sys.argv, sys.stdout
+    sys.argv = ['bypy', 'sbom', 'myproject', '1.0.0']
+    buf = io.StringIO()
+    sys.stdout = buf
+    runpy.run_path('bypy-src')
+    sys.argv, sys.stdout = orig
+    print(buf.getvalue())
+    if (cp := subprocess.run(cmdline, input=buf.getvalue().encode())).returncode != 0:
+        raise SystemExit(cp.returncode)
+
+
 def main():
     if iswindows:
         import runpy
@@ -149,19 +220,16 @@ def main():
         return m['main']()
     action = sys.argv[1]
     if action == 'install':
-        run('sudo', 'mkdir', '-p', SW)
-        run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
-
-        tball = 'macos-64' if ismacos else 'linux-64'
-        download_and_decompress(
-            f'https://download.calibre-ebook.com/ci/calibre7/{tball}.tar.xz', SW
-        )
+        install_bundle()
         if not ismacos:
             install_linux_deps()
 
     elif action == 'bootstrap':
         install_env()
         run_python('setup.py bootstrap --ephemeral')
+
+    elif action == 'check-dependencies':
+        check_dependencies()
 
     elif action == 'pot':
         transifexrc = '''\
