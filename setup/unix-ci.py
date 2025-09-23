@@ -168,7 +168,13 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2025-8194',  # DoS in tarfile
     'CVE-2025-6069',  # DoS in HTMLParser
     # glib
-    'CVE-2025-4056',  # Only affects Windows, on which we dont run
+    'CVE-2025-4056',  # Only affects Windows, on which we dont use glib
+    # libtiff
+    'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
+    # hyphen
+    'CVE-2017-1000376',  # false match in the database
+    # espeak
+    'CVE-2023-4990',  # false match because we currently build with a specific commit pending release of espeak 1.53
 ]
 
 
