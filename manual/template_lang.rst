@@ -20,7 +20,7 @@ A basic template consists one or more ``template expressions``. A ``template exp
 
     {author_sort}/{title}/{title} - {authors}
 
-For the book "The Foundation" by "Isaac Asimov" the  will become::
+For the book "The Foundation" by "Isaac Asimov" the template will become::
 
     Asimov, Isaac/The Foundation/The Foundation - Isaac Asimov
 
