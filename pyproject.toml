@@ -27,7 +27,7 @@ dependencies = [
 	"msgpack == 1.0.7",
 	"Pygments == 2.16.1",
 	"pycryptodome == 3.19.1",
-	"apsw == 3.43.0.0",
+	"apsw == 3.50.4.0",
 	"webencodings == 0.5.1",
 	"html5lib == 1.1",
 	"pillow == 10.3.0",

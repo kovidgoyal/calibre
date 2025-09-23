@@ -89,10 +89,10 @@
     },
 
     {
-        "name": "xz 5.4.4",
+        "name": "xz 5.8.1",
         "os": "macos,linux",
         "unix": {
-            "hash": "sha256:aae39544e254cfd27e942d35a048d592959bd7a79f9a624afb0498bb5613bdf8",
+            "hash": "sha256:507825b599356c10dca1cd720c9d0d0c9d5400b9de300af00e4d1ea150795543",
             "urls": ["https://tukaani.org/xz/{filename}"]
         }
     },
@@ -141,10 +141,11 @@
     },
 
     {
-        "name": "sqlite 3.43.0",
+        "name": "sqlite 3.50.4",
+		"comment": "When updating this also update apsw in pyproject.toml",
         "unix": {
-            "hash": "sha256:49008dbf3afc04d4edc8ecfc34e4ead196973034293c997adad2f63f01762ae1",
-            "urls": ["https://www.sqlite.org/2023/{name}-autoconf-3430000.{file_extension}"]
+            "hash": "sha256:a3db587a1b92ee5ddac2f66b3edb41b26f9c867275782d46c3a088977d6a5b18",
+            "urls": ["https://www.sqlite.org/2025/{name}-autoconf-3500400.{file_extension}"]
         }
     },
 
