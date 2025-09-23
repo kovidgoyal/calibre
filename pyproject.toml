@@ -48,7 +48,7 @@ dependencies = [
 	"pykakasi == 2.3.0",
 	"zeroconf == 0.115.0",
 	"fonttools == 4.47.0",
-	"lxml_html_clean == 0.1.1",
+	"lxml_html_clean == 0.4.2",
 	"PyQt6_sip == 13.10.0",
 	"PyQt6 == 6.8.1",
 	"PyQt6_WebEngine == 6.8.0",
@@ -72,7 +72,7 @@ requires = [
 	"pyproject_hooks == 1.0.0", # Needed for build which is needed for setuptools
 	"wheel == 0.41.2", # Needed for build which is needed for setuptools
 	"build == 1.0.3", # Needed for build which is needed for setuptools
-	"setuptools == 75.8.2",
+	"setuptools == 78.1.1",
 	# Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even
 	# though it is needed only for sdist not building wheels
 	"setuptools_scm == 8.0.3",

@@ -167,9 +167,9 @@
     },
 
     {
-        "name": "openssl 3.1.7",
+        "name": "openssl 3.1.8",
         "unix": {
-            "hash": "sha256:053a31fa80cf4aebe1068c987d2ef1e44ce418881427c4464751ae800c31d06c",
+            "hash": "sha256:d319da6aecde3aa6f426b44bbf997406d95275c5c59ab6f6ef53caaa079f456f",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
