@@ -556,8 +556,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         for cat in tuple(c for c in cats if c.startswith('@')):  # user categories
             cats.pop(cat, None)
 
-        all_values = {cat: {t.name for t in cats[cat]} for cat in cats.keys()}
-        for category,vdict in gprefs['tags_browser_value_icons'].items():
+        self.all_values = all_values = {cat: {t.name for t in cats[cat]} for cat in cats.keys()}
+        for category, vdict in gprefs['tags_browser_value_icons'].items():
             if category in field_metadata:
                 if category not in all_values:  # can this happen? Perhaps because of GIGO
                     all_values[category] = set()
@@ -571,7 +571,6 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 continue
             else:
                 all_values[category] = set()
-            self.all_values = all_values
             with block_signals(self.rules_table):
                 for item_value in vdict:
                     if (only_current_library and item_value != TEMPLATE_ICON_INDICATOR and
