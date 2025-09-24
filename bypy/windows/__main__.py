@@ -19,12 +19,13 @@ from bypy.constants import CL, LINK, MT, PREFIX, RC, SIGNTOOL, SW, build_dir, py
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import cleanup_site_packages, extract_extension_modules, freeze_python, path_to_freeze_dir
 from bypy.utils import mkdtemp, py_compile, run, walk
+from bypy.sign_server import sign_file_in_client
+from bypy.pe_sign_check import has_signature
 
 iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
 QT_PREFIX = os.path.join(PREFIX, 'qt')
 QT_DLLS, QT_PLUGINS, PYQT_MODULES = iv['QT_DLLS'], iv['QT_PLUGINS'], iv['PYQT_MODULES']
-USE_KEYLOCKER = False
 
 APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 WINVER = VERSION + '.0'
@@ -33,6 +34,7 @@ j, d, a, b = os.path.join, os.path.dirname, os.path.abspath, os.path.basename
 create_installer = runpy.run_path(
     j(d(a(__file__)), 'wix.py'), {'calibre_constants': calibre_constants}
 )['create_installer']
+signatures = set()
 
 DESCRIPTIONS = {
     'calibre': 'The main calibre program',
@@ -81,6 +83,12 @@ def printf(*args, **kw):
 
 def run_compiler(env, *cmd):
     run(*cmd, cwd=env.obj_dir)
+
+
+def sign_file(path: str) -> None:
+    global num_signatures
+    sign_file_in_client(path)
+    signatures.add(path)
 
 
 class Env:
@@ -362,9 +370,7 @@ def build_portable(env):
             '/OUT:' + exe, embed_resources(env, exe, desc=desc, product_description=desc),
             obj, 'User32.lib', 'Shell32.lib']
         run(*cmd)
-        launchers.append(exe)
-        if not USE_KEYLOCKER:
-            sign_files(launchers)
+        sign_file(exe)
 
     printf('Creating portable installer')
     shutil.copytree(env.base, j(base, 'Calibre'))
@@ -378,72 +384,6 @@ def build_portable(env):
 
     env.portable_uncompressed_size = os.path.getsize(name)
     subprocess.check_call([PREFIX + r'\bin\elzma.exe', '-9', '--lzip', name])
-
-
-def sign_files(files):
-    printf('Signing {} files'.format(len(files)))
-    evars = os.environ.copy()
-    if USE_KEYLOCKER:
-        cspath = os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing')
-        with open(os.path.join(cspath, 'digicert-api-key')) as f:
-            evars['SM_API_KEY'] = f.read().strip()
-        with open(os.path.join(cspath, 'digicert-client-certificate-password')) as f:
-            evars['SM_CLIENT_CERT_PASSWORD'] = f.read().strip()
-        evars['SM_CLIENT_CERT_FILE'] = os.path.abspath(os.path.join(cspath, 'digicert-client-certificate.p12'))
-        evars['SM_HOST'] = 'https://clientauth.one.digicert.com'
-        evars['PATH'] += os.pathsep + os.path.dirname(SIGNTOOL)
-        keylocker_path = r'C:\Program Files\DigiCert\DigiCert Keylocker Tools'
-        evars['PATH'] += os.pathsep + keylocker_path
-        subprocess.check_call([os.path.join(keylocker_path, 'smctl.exe'), 'healthcheck'], env=evars)
-        # To get the certificate thumbprint run the following commands with SM_API_KEY set to the key from digicert-api-key.
-        # smctl is found in C:\Program Files\DigiCert\DigiCert Keylocker Tools
-        # To get keypair alias:
-        # smctl keypair list
-        # To get certificate thumbprint:
-        # smctl windows certsync --keypair-alias=alias from previous step
-        certificate_thumbprint = 'e30cac630f80fbe04964e221b56d07b4a177c96a'
-        args = [SIGNTOOL, 'sign', '/sha1', certificate_thumbprint,
-                '/fd', 'sha256', '/td', 'sha256', '/d', 'calibre - E-book management',
-                '/du', 'https://calibre-ebook.com', '/v', '/debug', '/tr']
-    else:
-        with open(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\cert-cred')) as f:
-            pw = f.read().strip()
-        CODESIGN_CERT = os.path.abspath(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\authenticode.pfx'))
-        args = [SIGNTOOL, 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
-                'calibre - E-book management', '/du',
-                'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
-
-    def runcmd(cmd):
-        # See https://gist.github.com/Manouchehri/fd754e402d98430243455713efada710 for list of timestamp servers
-        for timeserver in (
-            'http://timestamp.digicert.com',  # DigiCert
-            'http://timestamp.acs.microsoft.com/',  # this is Microsoft Azure Code Signing
-            'http://rfc3161.ai.moda/windows',  # this is a load balancer
-            'http://timestamp.comodoca.com/rfc3161',
-            'http://timestamp.sectigo.com'
-        ):
-            try:
-                subprocess.check_call(cmd + [timeserver] + list(files), env=evars)
-                break
-            except subprocess.CalledProcessError:
-                print(f'Signing failed with timestamp server {timeserver}, retrying with different timestamp server')
-        else:
-            raise SystemExit('Signing failed')
-
-    runcmd(args)
-
-
-def sign_installers(env):
-    printf('Signing installers...')
-    installers = set()
-    for f in glob.glob(j(env.dist, '*')):
-        if f.rpartition('.')[-1].lower() in {'exe', 'msi'}:
-            installers.add(f)
-        else:
-            os.remove(f)
-    if not installers:
-        raise ValueError('No installers found')
-    sign_files(installers)
 
 
 def add_dir_to_zip(zf, path, prefix=''):
@@ -491,7 +431,7 @@ def build_utils(env):
     build(j(base, 'eject.c'), 'calibre-eject.exe')
 
 
-def build_launchers(env, incdir, debug=False):
+def build_launchers(env, incdir, sign, debug=False):
     if not os.path.exists(env.obj_dir):
         os.makedirs(env.obj_dir)
     dflags = (['/Zi'] if debug else [])
@@ -580,7 +520,8 @@ def copy_crt_and_d3d(env):
 
     def copy_dll(dll):
         shutil.copy2(dll, env.dll_dir)
-        os.chmod(os.path.join(env.dll_dir, b(dll)), stat.S_IRWXU)
+        dest = os.path.join(env.dll_dir, b(dll))
+        os.chmod(dest, stat.S_IRWXU)
 
     for dll in glob.glob(os.path.join(d3d_path, '*.dll')):
         if os.path.basename(dll).lower().startswith('d3dcompiler_'):
@@ -597,13 +538,10 @@ def copy_crt_and_d3d(env):
             copy_dll(dll)
 
 
-def sign_executables(env):
-    files_to_sign = []
+def sign_all_pe_files(env):
     for path in walk(env.base):
-        if path.lower().endswith('.exe') or path.lower().endswith('.dll'):
-            files_to_sign.append(path)
-    if not USE_KEYLOCKER:
-        sign_files(files_to_sign)
+        if path.rpartition('.')[-1].lower() in ('dll', 'pyd', 'exe') and not has_signature(path):
+            sign_file(path)
 
 
 def main():
@@ -614,19 +552,19 @@ def main():
     incdir = mkdtemp('include')
     initbase(env)
     freeze(env, ext_dir, incdir)
-    build_launchers(env, incdir)
+    build_launchers(env, incdir, args.sign_installers)
     build_utils(env)
     embed_manifests(env)
     copy_crt_and_d3d(env)
+    if args.sign_installers:
+        sign_all_pe_files(env)
     if not args.skip_tests:
         run_tests(os.path.join(env.base, 'calibre-debug.exe'), env.base)
-    if args.sign_installers:
-        sign_executables(env)
     create_installer(env, args.compression_level)
     build_portable(env)
     build_portable_installer(env)
     if args.sign_installers:
-        sign_installers(env)
+        print(f'Signed {len(signatures)} files')
 
 
 def develop_launcher():
