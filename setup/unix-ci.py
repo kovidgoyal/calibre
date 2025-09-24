@@ -183,7 +183,7 @@ MACOS_BUNDLE = 'macos-64'
 
 
 def install_bundle(dest=SW, which=''):
-    run('sudo', 'mkdir', '-p', SW)
+    run('sudo', 'mkdir', '-p', dest)
     run('sudo', 'chown', '-R', os.environ['USER'], SWBASE)
     tball = which or (MACOS_BUNDLE if ismacos else LINUX_BUNDLE)
     download_and_decompress(
@@ -193,10 +193,8 @@ def install_bundle(dest=SW, which=''):
 
 def check_dependencies() -> None:
     dest = os.path.join(SW, LINUX_BUNDLE)
-    os.makedirs(dest, exist_ok=True)
     install_bundle(dest, os.path.basename(dest))
     dest = os.path.join(SW, MACOS_BUNDLE)
-    os.makedirs(dest, exist_ok=True)
     install_bundle(dest, os.path.basename(dest))
     grype = install_grype()
     with open((gc := os.path.expanduser('~/.grype.yml')), 'w') as f:
