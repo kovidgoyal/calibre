@@ -9,7 +9,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from calibre.utils.iso8601 import parse_iso8601
 
-module_version = 17  # needed for live updates
+module_version = 18  # needed for live updates
 pprint
 
 
@@ -270,6 +270,9 @@ def live_json_to_html(data):
     for k, v in data['ROOT_QUERY'].items():
         if isinstance(v, dict) and 'id' in v:
             root = data[v['id']]
+            break
+    else:
+        raise ValueError('No id found in ROOT_QUERY')
     s = data[root['storylines'][0]['id']]
     s = data[s['storyline']['id']]
     title = s['displayName']
