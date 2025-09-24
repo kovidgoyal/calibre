@@ -408,7 +408,7 @@ def add_dir_to_zip(zf, path, prefix=''):
         os.chdir(cwd)
 
 
-def build_utils(env):
+def build_utils(env, sign):
 
     def build(src, name, subsys='CONSOLE', libs='setupapi.lib'.split()):
         printf('Building ' + name)
@@ -426,6 +426,8 @@ def build_utils(env):
             '/SUBSYSTEM:' + subsys, '/RELEASE', '/MANIFEST:EMBED', '/MANIFESTINPUT:' + mf,
             '/OUT:' + exe] + [embed_resources(env, exe), obj] + libs
         run(*cmd)
+        if sign:
+            sign_file(exe)
     base = d(a(__file__))
     build(j(base, 'file_dialogs.cpp'), 'calibre-file-dialog.exe', 'WINDOWS', 'Ole32.lib Shell32.lib'.split())
     build(j(base, 'eject.c'), 'calibre-eject.exe')
@@ -457,6 +459,8 @@ def build_launchers(env, incdir, sign, debug=False):
             '/delayload:python%s.dll' % env.py_ver.replace('.', '')]
     printf('Linking calibre-launcher.dll')
     run(*cmd)
+    if sign:
+        sign_file(dll)
 
     src = j(base, 'main.c')
     shutil.copy2(dll, env.dll_dir)
@@ -491,6 +495,8 @@ def build_launchers(env, incdir, sign, debug=False):
                 'user32.lib', 'kernel32.lib',
                 '/OUT:' + exe] + u32 + dlflags + [embed_resources(env, exe), dest, lib]
             run(*cmd)
+            if sign:
+                sign_file(exe)
 
 
 def copy_crt_and_d3d(env):
@@ -553,7 +559,7 @@ def main():
     initbase(env)
     freeze(env, ext_dir, incdir)
     build_launchers(env, incdir, args.sign_installers)
-    build_utils(env)
+    build_utils(env, args.sign_installers)
     embed_manifests(env)
     copy_crt_and_d3d(env)
     if args.sign_installers:
