@@ -180,8 +180,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     # }}}
 
     def reset_confirmation_dialogs(self, *args):
+        from calibre.gui2.tweak_book import tprefs
         from calibre.gui2.viewer.config import vprefs
-        for confloc in (dynamic, vprefs):
+        for confloc in (dynamic, vprefs, tprefs):
             for key in confloc.keys():
                 if key.endswith('_again') and confloc[key] is False:
                     confloc[key] = True
