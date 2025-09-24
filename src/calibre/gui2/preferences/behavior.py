@@ -180,9 +180,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     # }}}
 
     def reset_confirmation_dialogs(self, *args):
-        for key in dynamic.keys():
-            if key.endswith('_again') and dynamic[key] is False:
-                dynamic[key] = True
+        from calibre.gui2.viewer.config import vprefs
+        for confloc in (dynamic, vprefs):
+            for key in confloc.keys():
+                if key.endswith('_again') and confloc[key] is False:
+                    confloc[key] = True
         gprefs['questions_to_auto_skip'] = []
         info_dialog(self, _('Done'),
                 _('Confirmation dialogs have all been reset'), show=True)
