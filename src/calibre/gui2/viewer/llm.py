@@ -435,6 +435,7 @@ class LLMPanel(QWidget):
                 context_header += '. I have some questions about content from this book.'
             else:
                 context_header += '. I have some questions about this book.'
+            context_header += ' When you answer the questions use markdown formatting for the answers wherever possible.'
             if language_instruction := get_language_instruction():
                 context_header += ' ' + language_instruction
             yield ChatMessage(context_header, type=ChatMessageType.system)
