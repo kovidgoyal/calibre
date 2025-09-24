@@ -180,6 +180,7 @@ IGNORED_DEPENDENCY_CVES = [
 
 LINUX_BUNDLE = 'linux-64'
 MACOS_BUNDLE = 'macos-64'
+WINDOWS_BUNDLE = 'windows-64'
 
 
 def install_bundle(dest=SW, which=''):
@@ -195,6 +196,8 @@ def check_dependencies() -> None:
     dest = os.path.join(SW, LINUX_BUNDLE)
     install_bundle(dest, os.path.basename(dest))
     dest = os.path.join(SW, MACOS_BUNDLE)
+    install_bundle(dest, os.path.basename(dest))
+    dest = os.path.join(SW, WINDOWS_BUNDLE)
     install_bundle(dest, os.path.basename(dest))
     grype = install_grype()
     with open((gc := os.path.expanduser('~/.grype.yml')), 'w') as f:
