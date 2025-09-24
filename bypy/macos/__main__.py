@@ -537,7 +537,7 @@ class Freeze:
             self.fix_dependencies_in_lib(dest)
 
         for x in (
-            'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
+            'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3', 'hunspell-1.7.0',
             'icudata.73', 'icui18n.73', 'icuio.73', 'icuuc.73', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.16', 'z.1', 'unrar', 'lzma.5',
             'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
