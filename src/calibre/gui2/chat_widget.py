@@ -139,8 +139,12 @@ class ChatWidget(QWidget):
     link_clicked = pyqtSignal(QUrl)
     input_from_user = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
+    def __init__(self, parent: QWidget = None, placeholder_text: str = '', disclaimer_text: str | None = None):
         super().__init__(parent)
+        if disclaimer_text is None:
+            disclaimer_text = _(
+                'AI generated answers can be inaccurate, please verify any answers before acting on them.')
+        self.disclaimer_text = disclaimer_text
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.browser = b = Browser(self)
@@ -209,7 +213,9 @@ class ChatWidget(QWidget):
         if self.current_message:
             self.browser.setHtml(self.current_message)
         else:
-            self.browser.setHtml('\n\n'.join(self.blocks))
+            html = '\n\n'.join(self.blocks)
+            html += self.wrap_content_in_padding_table(f'<p><i>{escape(self.disclaimer_text)}</i></p>')
+            self.browser.setHtml(html)
 
     def on_input(self) -> None:
         text = self.input.value
