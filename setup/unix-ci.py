@@ -192,17 +192,17 @@ def install_bundle(dest=SW, which=''):
 
 
 def check_dependencies() -> None:
-    grype = install_grype()
-    with open((gc := os.path.expanduser('~/.grype.yml')), 'w') as f:
-        print('ignore:', file=f)
-        for x in IGNORED_DEPENDENCY_CVES:
-            print('  - vulnerability:', x, file=f)
     dest = os.path.join(SW, LINUX_BUNDLE)
     os.makedirs(dest, exist_ok=True)
     install_bundle(dest, os.path.basename(dest))
     dest = os.path.join(SW, MACOS_BUNDLE)
     os.makedirs(dest, exist_ok=True)
     install_bundle(dest, os.path.basename(dest))
+    grype = install_grype()
+    with open((gc := os.path.expanduser('~/.grype.yml')), 'w') as f:
+        print('ignore:', file=f)
+        for x in IGNORED_DEPENDENCY_CVES:
+            print('  - vulnerability:', x, file=f)
     cmdline = [grype, '--by-cve', '--config', gc, '--fail-on', 'medium', '--only-fixed', '--add-cpes-if-none']
     if (cp := subprocess.run(cmdline + ['dir:' + SW])).returncode != 0:
         raise SystemExit(cp.returncode)
