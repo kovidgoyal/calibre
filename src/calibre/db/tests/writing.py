@@ -729,6 +729,13 @@ class WritingTest(BaseTest):
 
     def test_dump_and_restore(self):  # {{{
         ' Test roundtripping the db through SQL '
+        try:
+            from apsw import shell
+        except Exception:
+            # apsw frozen without shell module
+            self.skipTest('apsw frozen without shell module')
+            return
+        del shell
         import warnings
         with warnings.catch_warnings():
             # on python 3.10 apsw raises a deprecation warning which causes this test to fail on CI
