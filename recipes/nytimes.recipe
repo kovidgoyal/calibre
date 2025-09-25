@@ -11,6 +11,7 @@ from calibre import strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.utils.date import strptime
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.functools import lru_cache
 
 is_web_edition = True
 use_wayback_machine = False
@@ -83,6 +84,12 @@ def absolutize_href(href):
     return href
 
 
+@lru_cache(2)
+def parser_module():
+    from calibre.live import load_module
+    return load_module('calibre.web.site_parsers.nytimes')
+
+
 class NewYorkTimes(BasicNewsRecipe):
     if is_web_edition:
         title = 'The New York Times (Web)'
@@ -115,11 +122,7 @@ class NewYorkTimes(BasicNewsRecipe):
 
     @property
     def nyt_parser(self):
-        ans = getattr(self, '_nyt_parser', None)
-        if ans is None:
-            from calibre.live import load_module
-            self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
-        return ans
+        return parser_module()
 
     def get_nyt_page(self, url, skip_wayback=False):
         if use_wayback_machine and not skip_wayback:
@@ -258,13 +261,11 @@ class NewYorkTimes(BasicNewsRecipe):
 
 
 def preloaded_data(soup):
-    from calibre.live import load_module
-    clean_js_json = load_module('calibre.web.site_parsers.nytimes').clean_js_json
     candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     script = candidates[0]
     script = str(script)
     raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')  # }
-    raw = clean_js_json(raw)
+    raw = parser_module().clean_js_json(raw)
     # with open('/t/raw.json', 'w') as f:
     #     f.write(raw)
     return json.JSONDecoder(strict=False).raw_decode(raw)[0]['initialState']

@@ -8,6 +8,7 @@ from pprint import pprint
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
+from polyglot.functools import lru_cache
 
 use_wayback_machine = False
 
@@ -16,6 +17,12 @@ def absolutize(url):
     if url.startswith('/'):
         url = 'https://www.nytimes.com' + url
     return url
+
+
+@lru_cache(2)
+def parser_module():
+    from calibre.live import load_module
+    return load_module('calibre.web.site_parsers.nytimes')
 
 
 class NewYorkTimesBookReview(BasicNewsRecipe):
@@ -50,11 +57,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
 
     @property
     def nyt_parser(self):
-        ans = getattr(self, '_nyt_parser', None)
-        if ans is None:
-            from calibre.live import load_module
-            self._nyt_parser = ans = load_module('calibre.web.site_parsers.nytimes')
-        return ans
+        return parser_module()
 
     def get_nyt_page(self, url, skip_wayback=False):
         if use_wayback_machine and not skip_wayback:
@@ -126,13 +129,11 @@ def asset_to_article(asset):
 
 
 def preloaded_data(soup):
-    from calibre.live import load_module
-    clean_js_json = load_module('calibre.web.site_parsers.nytimes').clean_js_json
     candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     script = candidates[0]
     script = str(script)
     raw = script[script.find('{') : script.rfind(';')].strip().rstrip(';')  # }
-    raw = clean_js_json(raw)
+    raw = parser_module().clean_js_json(raw)
     return json.JSONDecoder(strict=False).raw_decode(raw)[0]['initialState']
 
 
