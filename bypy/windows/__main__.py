@@ -20,7 +20,7 @@ from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import cleanup_site_packages, extract_extension_modules, freeze_python, path_to_freeze_dir
 from bypy.utils import mkdtemp, py_compile, run, walk
 from bypy.sign_server import sign_file_in_client
-from bypy.pe_sign_check import has_signature
+from bypy.authenticode import has_signature
 
 iv = globals()['init_env']
 calibre_constants = iv['calibre_constants']
