@@ -204,6 +204,9 @@ class PopupIframeBoss:
 
     def initialize(self, data):
         window.addEventListener('error', self.on_error)
+        document.addEventListener('contextmenu', def(ev):
+            ev.preventDefault()
+        )
 
     def on_error(self, evt):
         msg = evt.message
