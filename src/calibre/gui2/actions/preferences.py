@@ -42,6 +42,7 @@ class PreferencesAction(InterfaceAction):
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
             x.triggered.connect(self.do_config)
+        self.action_map = {}
 
     def initialization_complete(self):
         # Add the individual preferences to the menu.
@@ -60,7 +61,7 @@ class PreferencesAction(InterfaceAction):
                 current_cat = p.category_order
                 cm = pm.addMenu(p.gui_category.replace('&', '&&'))
                 cm.setIcon(config_icon)
-            self.create_menu_action(cm, p.name, p.gui_name.replace('&', '&&'),
+            self.action_map[p.name] = self.create_menu_action(cm, p.name, p.gui_name.replace('&', '&&'),
                                     icon=QIcon.ic(p.icon), shortcut=None, shortcut_name=p.gui_name,
                                     triggered=partial(self.do_config, initial_plugin=(p.category, p.name),
                                                       close_after_initial=True))
