@@ -126,7 +126,8 @@ def asset_to_article(asset):
 
 
 def preloaded_data(soup):
-    from calibre.web.site_parsers.nytimes import clean_js_json
+    from calibre.live import load_module
+    clean_js_json = load_module('calibre.web.site_parsers.nytimes').clean_js_json
     candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     script = candidates[0]
     script = str(script)
