@@ -204,9 +204,14 @@ class PopupIframeBoss:
 
     def initialize(self, data):
         window.addEventListener('error', self.on_error)
+        window.addEventListener('keydown', self.on_keydown)
         document.addEventListener('contextmenu', def(ev):
             ev.preventDefault()
         )
+
+    def on_keydown(self, ev):
+        if ev.key is 'Escape':
+            self.comm.send_message('close_requested', from_keypress=True)
 
     def on_error(self, evt):
         msg = evt.message

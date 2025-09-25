@@ -60,6 +60,7 @@ class ContentPopupOverlay:
             'content_loaded': self.on_content_loaded,
             'print': self.on_print,
             'link_activated': self.on_link_activated,
+            'close_requested': self.on_close_requested,
         }
         iframe_kw = {
             'seamless': True, 'sandbox': 'allow-scripts', 'style': 'width: 100%; max-height: 70vh'
@@ -80,6 +81,9 @@ class ContentPopupOverlay:
 
     def on_link_activated(self, data):
         self.view.link_in_content_popup_activated(data.name, data.frag, data.is_popup, data.title)
+
+    def on_close_requested(self, data):
+        self.hide()
 
     @property
     def container(self):
