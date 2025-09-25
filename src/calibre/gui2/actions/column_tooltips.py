@@ -4,7 +4,7 @@
 
 from qt.core import QDialogButtonBox, Qt, QVBoxLayout
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -30,6 +30,7 @@ class ToolTipDialog(Dialog):
         d = self.display = HTMLDisplay()
         l.addWidget(d)
         l.addWidget(self.bb)
+        d.anchor_clicked.connect(safe_open_url)
 
     def set_html(self, tt_text):
         self.display.setHtml(tt_text)
