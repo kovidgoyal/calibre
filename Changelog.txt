@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 8.11.0 2025-09-26
+{{{ 8.11.1 2025-09-26
 
 :: new features
 
@@ -49,6 +49,8 @@
 - E-book viewer: Fix placement of selection handles in some books when modifying an existing highlight
 
 - Windows build: Sign the .pyd DLLs in addition to the .dll DLLs
+
+- [2125742] Windows: Fix regression in (8.11.0) causing conversion to be broken when metadata contains non-BMP characters
 
 :: improved recipes
 - New York Times
