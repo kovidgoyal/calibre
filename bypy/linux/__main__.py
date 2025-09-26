@@ -38,7 +38,7 @@ def binary_includes():
         j(PREFIX, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
         ] + list(map(
             get_dll_path,
-            ('usb-1.0 mtp expat sqlite3 ffi z lzma openjp2 poppler dbus-1 iconv xml2 xslt jpeg png16'
+            ('usb-1.0 mtp expat ffi z lzma openjp2 poppler dbus-1 iconv xml2 xslt jpeg png16'
              ' webp webpmux webpdemux sharpyuv exslt ncursesw readline chm hunspell-1.7 hyphen'
              ' icudata icui18n icuuc icuio stemmer gcrypt gpg-error uchardet graphite2 espeak-ng'
              ' brotlicommon brotlidec brotlienc zstd podofo ssl crypto deflate tiff onnxruntime'
@@ -51,7 +51,7 @@ def binary_includes():
             # than libc and libpthread we bundle the Ubuntu one here
             glob.glob('/usr/lib/*/libpcre.so.3')[0],
 
-            get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'),
+            get_dll_path('bz2', 2), j(PREFIX, 'lib', 'libunrar.so'), get_dll_path('sqlite3', 0),
             get_dll_path('python' + py_ver, 2), get_dll_path('jbig', 2),
 
             # We don't include libstdc++.so as the OpenGL dlls on the target
