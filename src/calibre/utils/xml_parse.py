@@ -102,7 +102,8 @@ def find_tests():
 
 def develop():
     import sys
-    safe_xml_fromstring(open(sys.argv[-1], 'rb').read())
+    # print(etree.tostring(fs('<r/>')).decode())
+    print(etree.tostring(safe_xml_fromstring(open(sys.argv[-1], 'rb').read())).decode())
 
 
 if __name__ == '__main__':
