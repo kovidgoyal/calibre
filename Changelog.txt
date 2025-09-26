@@ -23,6 +23,41 @@
 # - title by author
 # }}}
 
+{{{ 8.11.0 2025-09-26
+
+:: new features
+
+- [major] E-book viewer: Add an "Ask AI" tab to the dictionary lookup panel. Allows you to query AI about the currently selected text.
+
+  Supports hundreds of AI models via Providers such as Google, OpenRouter, GitHub and locally running models via Ollama.
+  Many of them can be used free of charge. Note that this feature is completely optional and no AI related code is even loaded until you configure an AI provider.
+
+- [2122257] Preferences: Show the keyboard shortcut for each category in preferences in the tooltip
+
+:: bug fixes
+
+- [2122747] E-book viewer: Fix modifying an existing highlight causing duplicates to be created in some books
+
+- E-book viewer: Fix very large e-books sometimes having a few non working links on Windows
+
+- [2123829] PDB Input: Fix failure to convert some PDB files with sightly malformed headers
+
+- [2125438] Fix error when trying to add the first icon rule to the Tag browser
+
+- [2041848] E-book viewer: Fix Esc key not closing footnote popup when the popup has keyboard focus
+
+- E-book viewer: Fix placement of selection handles in some books when modifying an existing highlight
+
+- Windows build: Sign the .pyd DLLs in addition to the .dll DLLs
+
+:: improved recipes
+- New York Times
+- Economist
+- El Diplo
+- New York Review of Books
+
+}}}
+
 {{{ 8.10.0 2025-09-05
 
 :: new features
