@@ -100,6 +100,11 @@ def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestXMLParse)
 
 
+def develop():
+    import sys
+    safe_xml_fromstring(open(sys.argv[-1], 'rb').read())
+
+
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_tests
     run_tests(find_tests)
