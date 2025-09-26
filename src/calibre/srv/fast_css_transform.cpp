@@ -743,7 +743,7 @@ class TokenQueue {
             if (changed && queue.size()) {
                 const size_t pos = queue[0].get_output_position();
                 out.resize(pos ? pos - 1: 0);
-                for (auto tok : queue) tok.serialize(out);
+                for (auto & tok : queue) tok.serialize(out);
             }
 			return_tokens_to_pool();
 		}
