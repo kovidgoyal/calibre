@@ -30,7 +30,6 @@ def safe_xml_fromstring(string_or_bytes, recover=True):
     except etree.XMLSyntaxError:
         # this happens on windows where if string_or_bytes is unicode and
         # contains non-BMP chars lxml chokes
-        # ebook-convert file.epub .azw3 -m metadata.opf
         if sys.platform != 'win32' or not isinstance(string_or_bytes, str):
             raise
         ans = fs(string_or_bytes.encode('utf-8'), parser=create_parser(True, encoding='utf-8'))
