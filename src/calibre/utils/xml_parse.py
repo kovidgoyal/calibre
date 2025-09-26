@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+import sys
+
 from lxml import etree
 
 # resolving of SYSTEM entities is turned off as entities can cause
@@ -23,16 +25,15 @@ def create_parser(recover, encoding=None):
 
 
 def safe_xml_fromstring(string_or_bytes, recover=True):
-    ans = fs(string_or_bytes, parser=create_parser(recover))
-    if ans is None and recover:
+    try:
+        ans = fs(string_or_bytes, parser=create_parser(recover))
+    except etree.XMLSyntaxError:
         # this happens on windows where if string_or_bytes is unicode and
         # contains non-BMP chars lxml chokes
-        if not isinstance(string_or_bytes, bytes):
-            string_or_bytes = string_or_bytes.encode('utf-8')
-            ans = fs(string_or_bytes, parser=create_parser(True, encoding='utf-8'))
-            if ans is not None:
-                return ans
-        ans = fs(string_or_bytes, parser=create_parser(False))
+        # ebook-convert file.epub .azw3 -m metadata.opf
+        if sys.platform != 'win32' or not isinstance(string_or_bytes, str):
+            raise
+        ans = fs(string_or_bytes.encode('utf-8'), parser=create_parser(True, encoding='utf-8'))
     return ans
 
 
@@ -101,9 +102,10 @@ def find_tests():
 
 
 def develop():
-    import sys
+    from calibre.ebooks.chardet import xml_to_unicode
     # print(etree.tostring(fs('<r/>')).decode())
-    print(etree.tostring(safe_xml_fromstring(open(sys.argv[-1], 'rb').read())).decode())
+    data = xml_to_unicode(open(sys.argv[-1], 'rb').read(), strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)[0]
+    print(etree.tostring(safe_xml_fromstring(data)).decode())
 
 
 if __name__ == '__main__':
