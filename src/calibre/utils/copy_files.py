@@ -104,6 +104,9 @@ class WindowsFileCopier:
 
     def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> 'winutil.Handle':
         flags = winutil.FILE_FLAG_BACKUP_SEMANTICS if is_folder else winutil.FILE_FLAG_SEQUENTIAL_SCAN
+        if os.path.islink(path):
+            # Do not open symbolic link target to prevent unwanted delete_on_close
+            flags |= 0x00200000 # winutil.FILE_FLAG_OPEN_REPARSE_POINT
         access_flags = winutil.GENERIC_READ
         if self.delete_all:
             access_flags |= winutil.DELETE
