@@ -6,7 +6,6 @@ from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStacked
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
 from calibre.gui2 import Application, error_dialog
-from calibre.gui2.widgets import BusyCursor
 
 
 class ConfigureAI(QWidget):
@@ -61,9 +60,8 @@ class ConfigureAI(QWidget):
         return self.plugin_config_widgets[self.current_idx].validate()
 
     def commit(self) -> bool:
-        with BusyCursor():
-            if not self.validate():
-                return False
+        if not self.validate():
+            return False
         idx = self.current_idx
         p, w = self.available_plugins[idx], self.plugin_config_widgets[idx]
         if not w.validate():

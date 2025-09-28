@@ -9,6 +9,7 @@ from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, plugin_for_name
 from calibre.gui2 import error_dialog
+from calibre.gui2.widgets import BusyCursor
 
 pref = partial(pref_for_provider, OllamaAI.name)
 
@@ -86,14 +87,18 @@ class ConfigWidget(QWidget):
         if not self.text_model:
             error_dialog(self, _('No model specified'), _('You specify a model to use for text based tasks.'), show=True)
             return False
-        if not self.does_model_exist_locally(self.text_model):
-            try:
-                avail = self.available_models()
-            except Exception:
-                import traceback
-                det_msg = _('Failed to get list of available models with error:') + '\n' + traceback.format_exc()
-            else:
-                det_msg = _('Available models:') + '\n' + '\n'.join(avail)
+        with BusyCursor():
+            exists = self.does_model_exist_locally(self.text_model)
+
+        if not exists:
+            with BusyCursor():
+                try:
+                    avail = self.available_models()
+                except Exception:
+                    import traceback
+                    det_msg = _('Failed to get list of available models with error:') + '\n' + traceback.format_exc()
+                else:
+                    det_msg = _('Available models:') + '\n' + '\n'.join(avail)
 
             error_dialog(self, _('No matching model'), _(
                 'No model named {} found in Ollama. Click "Show details" to see a list of available models.').format(
