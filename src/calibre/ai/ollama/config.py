@@ -50,7 +50,7 @@ class ConfigWidget(QWidget):
         if not model_name:
             return False
         plugin = plugin_for_name(OllamaAI.name)
-        return plugin.builtin_live_module.does_model_exist_locally(model_name)
+        return plugin.builtin_live_module.does_model_exist_locally(model_name, self.api_url)
 
     def available_models(self) -> list[str]:
         plugin = plugin_for_name(OllamaAI.name)
@@ -65,11 +65,15 @@ class ConfigWidget(QWidget):
         return self.timeout_sb.value()
 
     @property
+    def api_url(self) -> str:
+        return self.api_url_edit.text().strip()
+
+    @property
     def settings(self) -> dict[str, str]:
         ans = {
             'text_model': self.text_model, 'timeout': self.timeout,
         }
-        url = self.api_url_edit.text().strip()
+        url = self.api_url
         if url:
             ans['api_url'] = url
         return ans

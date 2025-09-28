@@ -52,8 +52,8 @@ class Model(NamedTuple):
         )
 
 
-def api_url(path: str = '') -> str:
-    ans = pref('api_url') or OllamaAI.DEFAULT_URL
+def api_url(path: str = '', use_api_url: str = '') -> str:
+    ans = use_api_url or pref('api_url') or OllamaAI.DEFAULT_URL
     purl = urlparse(ans)
     base_path = purl.path or '/'
     if path:
@@ -62,12 +62,12 @@ def api_url(path: str = '') -> str:
     return urlunparse(purl)
 
 
-@lru_cache(2)
-def get_available_models() -> dict[str, Model]:
+@lru_cache(8)
+def get_available_models(use_api_url: str = '') -> dict[str, Model]:
     ans = {}
     o = opener()
-    for model in json.loads(download_data(api_url('api/tags')))['models']:
-        rq = Request(api_url('api/show'), data=json.dumps({'model': model['model']}).encode(), method='POST')
+    for model in json.loads(download_data(api_url('api/tags', use_api_url)))['models']:
+        rq = Request(api_url('api/show', use_api_url), data=json.dumps({'model': model['model']}).encode(), method='POST')
         with o.open(rq) as f:
             details = json.loads(f.read())
         e = Model.from_dict(model, details)
@@ -75,9 +75,9 @@ def get_available_models() -> dict[str, Model]:
     return ans
 
 
-def does_model_exist_locally(model_id: str) -> bool:
+def does_model_exist_locally(model_id: str, use_api_url: str = '') -> bool:
     try:
-        return model_id in get_available_models()
+        return model_id in get_available_models(use_api_url)
     except Exception:
         return False
 
