@@ -73,6 +73,27 @@
      </property>
     </widget>
    </item>
+   <item row="15" column="0">
+    <layout class="QHBoxLayout" name="desc_layout">
+     <item>
+      <widget class="QLabel" name="desc_label">
+       <property name="text">
+        <string>Li&amp;brary description:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_library_description</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="opt_library_description">
+       <property name="toolTip">
+        <string>Text put here will show in the calibre window title bar after the library name</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="6" column="1">
     <widget class="QCheckBox" name="opt_disable_animations">
      <property name="toolTip">
@@ -121,15 +142,29 @@
      </item>
     </layout>
    </item>
-   <item row="11" column="1">
-    <widget class="QSpinBox" name="opt_book_list_extra_row_spacing">
-     <property name="suffix">
-      <string> px</string>
-     </property>
-     <property name="minimum">
-      <number>-20</number>
-     </property>
-    </widget>
+   <item row="11" column="0">
+    <layout class="QHBoxLayout" name="layout_spacing">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>E&amp;xtra spacing to add between rows in the book list (can be negative):</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_book_list_extra_row_spacing</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="opt_book_list_extra_row_spacing">
+       <property name="suffix">
+        <string> px</string>
+       </property>
+       <property name="minimum">
+        <number>-20</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="7" column="1">
     <widget class="QCheckBox" name="opt_show_splash_screen">
@@ -263,29 +298,6 @@
      </layout>
     </widget>
    </item>
-   <item row="16" column="0">
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>E&amp;xtra spacing to add between rows in the book list (can be negative):</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_book_list_extra_row_spacing</cstring>
-     </property>
-    </widget>
-   </item>
    <item row="7" column="0">
     <widget class="QCheckBox" name="opt_disable_tray_notification">
      <property name="toolTip">
@@ -339,7 +351,7 @@
      </property>
     </widget>
    </item>
-   <item row="15" column="0">
+   <item row="100" column="0">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

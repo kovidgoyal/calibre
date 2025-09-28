@@ -1050,8 +1050,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             font.setBold(True)
             font.setItalic(True)
         self.virtual_library.setFont(font)
-        title = '{} — || {}{} ||'.format(
-                __appname__, self.iactions['Choose Library'].library_name(), restrictions)
+        d = db.new_api.pref('library_description', default='')
+        description = f' ({d})' if d else ''
+        name = self.iactions['Choose Library'].library_name()
+        title = '{} — || {}{}{} ||'.format(__appname__, name, description, restrictions)
         self.setWindowTitle(title)
 
     def location_selected(self, location):

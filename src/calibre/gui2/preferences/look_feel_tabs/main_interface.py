@@ -58,6 +58,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         r('cover_corner_radius_unit', gprefs, choices=[(_('Pixels'), 'px'), (_('Percentage'), '%')])
         r('book_list_extra_row_spacing', gprefs)
         r('booklist_grid', gprefs)
+        r('library_description', gui.current_db.new_api.backend.prefs)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -160,6 +161,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
 
     def commit(self):
         rr = LazyConfigWidgetBase.commit(self)
+        self.gui.set_window_title()
         with BusyCursor():
             if self.current_font != self.initial_font:
                 gprefs['font'] = (self.current_font[:4] if self.current_font else None)
