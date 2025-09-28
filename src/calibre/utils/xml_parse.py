@@ -25,16 +25,12 @@ def create_parser(recover, encoding=None):
 
 
 def safe_xml_fromstring(string_or_bytes, recover=True):
-    try:
-        ans = fs(string_or_bytes, parser=create_parser(recover))
-    except etree.XMLSyntaxError:
-        # this happens on windows where if string_or_bytes is unicode and
-        # contains non-BMP chars lxml chokes
+    if isinstance(string_or_bytes, str):
+        # libxml2 anyway converts to UTF-8 to parse internally
+        # and does so with bugs, see
         # https://bugs.launchpad.net/lxml/+bug/2125756
-        if sys.platform != 'win32' or not isinstance(string_or_bytes, str):
-            raise
-        ans = fs(string_or_bytes.encode('utf-8'), parser=create_parser(True, encoding='utf-8'))
-    return ans
+        string_or_bytes = string_or_bytes.encode('utf-8')
+    return fs(string_or_bytes, parser=create_parser(recover))
 
 
 def unsafe_xml_fromstring(string_or_bytes):
