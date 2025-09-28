@@ -76,7 +76,10 @@ def get_available_models() -> dict[str, Model]:
 
 
 def does_model_exist_locally(model_id: str) -> bool:
-    return model_id in get_available_models()
+    try:
+        return model_id in get_available_models()
+    except Exception:
+        return False
 
 
 def config_widget():

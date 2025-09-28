@@ -36,6 +36,7 @@ class ConfigWidget(QWidget):
         self.timeout_sb = t = QSpinBox(self)
         t.setRange(15, 600), t.setSingleStep(1), t.setSuffix(_(' seconds'))
         t.setValue(pref('timeout', 120))
+        l.addRow(_('&Timeout:'), t)
 
         lm.setClearButtonEnabled(True)
         lm.setToolTip(_(
