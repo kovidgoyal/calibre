@@ -34,7 +34,7 @@ class ISOData(Command):
             with open(opts.path_to_isocodes, 'rb') as f:
                 self._zip_data = f.read()
             # get top level directory
-            top = {item.split('/')[0] for item in zipfile.ZipFile(self.zip_data).namelist()}
+            top = {item.split('/')[0] for item in zipfile.ZipFile(BytesIO(self.zip_data)).namelist()}
             assert len(top) == 1
             self.top_level_filename = top.pop()
 
