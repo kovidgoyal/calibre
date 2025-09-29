@@ -164,11 +164,11 @@ class TXTInput(InputFormatPlugin):
                     with open(x, 'rb') as tf:
                         txt += tf.read() + b'\n\n'
             if os.path.exists('metadata.opf'):
-                from lxml import etree
+                from calibre.utils.xml_parse import safe_xml_fromstring
                 with open('metadata.opf', 'rb') as mf:
                     raw = mf.read()
                 try:
-                    root = etree.fromstring(raw)
+                    root = safe_xml_fromstring(raw)
                 except Exception:
                     pass
                 else:

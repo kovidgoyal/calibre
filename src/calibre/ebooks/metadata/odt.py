@@ -24,7 +24,7 @@ import json
 import os
 import re
 
-from lxml.etree import fromstring, tostring
+from lxml.etree import tostring
 from odf.draw import Frame as odFrame
 from odf.draw import Image as odImage
 from odf.namespaces import DCNS, METANS, OFFICENS
@@ -34,6 +34,7 @@ from calibre.ebooks.metadata import MetaInformation, authors_to_string, check_is
 from calibre.utils.date import isoformat, parse_date
 from calibre.utils.imghdr import identify
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile, safe_replace
 from polyglot.builtins import as_unicode
 
@@ -74,7 +75,7 @@ def get_metadata(stream, extract_cover=True):
 
     with ZipFile(stream) as zf:
         meta = zf.read('meta.xml')
-        root = fromstring(meta)
+        root = safe_xml_fromstring(meta)
 
         def find(field):
             ns, tag = fields[field]
@@ -175,7 +176,7 @@ def set_metadata(stream, mi):
 
 
 def _set_metadata(raw, mi):
-    root = fromstring(raw)
+    root = safe_xml_fromstring(raw)
     namespaces = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
     nsrmap = {v: k for k, v in namespaces.items()}
 

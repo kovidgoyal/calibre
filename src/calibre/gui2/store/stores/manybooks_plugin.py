@@ -10,14 +10,13 @@ __docformat__ = 'restructuredtext en'
 import mimetypes
 from contextlib import closing
 
-from lxml import etree
-
 from calibre import browser
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://www.manybooks.net/opds/'):
@@ -45,8 +44,7 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
     br = browser()
     with closing(br.open(url, timeout=timeout)) as f:
         raw_data = f.read()
-        raw_data = raw_data.decode('utf-8', 'replace')
-        doc = etree.fromstring(raw_data, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
+        doc = safe_xml_fromstring(raw_data)
         for data in doc.xpath('//*[local-name() = "entry"]'):
             if counter <= 0:
                 break
@@ -71,7 +69,7 @@ def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://
 
             # Follow the detail link to get the rest of the info.
             with closing(br.open(detail_href, timeout=timeout/4)) as df:
-                ddoc = etree.fromstring(df.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
+                ddoc = safe_xml_fromstring(df.read())
                 ddata = ddoc.xpath('//*[local-name() = "entry"][1]')
                 if ddata:
                     ddata = ddata[0]

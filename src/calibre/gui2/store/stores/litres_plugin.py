@@ -17,7 +17,6 @@ except ImportError:
 
 from contextlib import closing
 
-from lxml import etree
 from qt.core import QUrl
 
 from calibre import browser, prints, url_slash_cleaner
@@ -27,6 +26,7 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 class LitResStore(BasicStoreConfig, StorePlugin):
@@ -65,7 +65,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             ungzipResponse(r, br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
-            doc = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
+            doc = safe_xml_fromstring(raw)
             for data in doc.xpath('//*[local-name() = "fb2-book"]'):
                 if counter <= 0:
                     break

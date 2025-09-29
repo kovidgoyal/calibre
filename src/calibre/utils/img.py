@@ -763,8 +763,10 @@ def read_text_from_container(container, target_lang=''):
 
 def read_alt_text_from_xmp(xmp, target_lang='') -> str:
     from lxml import etree
+
+    from calibre.utils.xml_parse import safe_xml_fromstring
     try:
-        root = etree.fromstring(xmp)
+        root = safe_xml_fromstring(xmp)
     except Exception:
         return ''
     # print(etree.tostring(root, encoding='utf-8', pretty_print=True).decode())

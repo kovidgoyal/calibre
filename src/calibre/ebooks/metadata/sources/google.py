@@ -75,8 +75,7 @@ def XPath(x):
 
 
 def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
-    from lxml import etree
-
+    from calibre.utils.xml_parse import safe_xml_fromstring
     # total_results  = XPath('//openSearch:totalResults')
     # start_index    = XPath('//openSearch:startIndex')
     # items_per_page = XPath('//openSearch:itemsPerPage')
@@ -111,10 +110,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
             with open(os.path.join(tempfile.gettempdir(), 'Google-' + details_url.split('/')[-1] + '.xml'), 'wb') as f:
                 f.write(raw)
                 print('Book details saved to:', f.name, file=sys.stderr)
-        feed = etree.fromstring(
-            xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
-            parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
-        )
+        feed = safe_xml_fromstring(xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0])
         return entry(feed)[0]
 
     if isinstance(entry_, str):
@@ -494,7 +490,7 @@ class GoogleBooks(Source):
         identifiers={},
         timeout=30
     ):
-        from lxml import etree
+        from calibre.utils.xml_parse import safe_xml_fromstring
         entry = XPath('//atom:entry')
         identifiers = identifiers.copy()
         br = self.browser
@@ -525,10 +521,7 @@ class GoogleBooks(Source):
                 return False, as_unicode(e)
 
             try:
-                feed = etree.fromstring(
-                    xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
-                    parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
-                )
+                feed = safe_xml_fromstring(xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0])
                 return True, entry(feed)
             except Exception as e:
                 log.exception('Failed to parse identify results')

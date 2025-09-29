@@ -1425,6 +1425,7 @@ class Page:
 class PDFDocument:
 
     def __init__(self, xml, opts, log):
+        from calibre.utils.xml_parse import safe_xml_fromstring
         # from calibre.rpdb import set_trace;  set_trace()
 
         self.opts, self.log = opts, log
@@ -1435,8 +1436,7 @@ class PDFDocument:
         if self.opts.pdf_footer_regex is None:
             self.opts.pdf_footer_regex = ''  # Do nothing
 
-        parser = etree.XMLParser(recover=True)
-        self.root = etree.fromstring(xml, parser=parser)
+        self.root = safe_xml_fromstring(xml)
         idc = iter(range(sys.maxsize))
         self.stats = DocStats()
 
