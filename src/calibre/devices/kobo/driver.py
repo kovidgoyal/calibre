@@ -3030,6 +3030,7 @@ class KOBOTOUCH(KOBO):
                         #       Unfortunately, optipng doesn't support reading
                         #       pipes, so this gets a bit clunky as we have go
                         #       through a temporary file...
+                        debug_print(f'KoboTouch:_upload_cover - uploaded to {fpath}')
                         if png_covers:
                             tmp_cover = better_mktemp()
                             with open(tmp_cover, 'wb') as f:
