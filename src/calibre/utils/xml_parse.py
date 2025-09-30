@@ -25,12 +25,14 @@ def create_parser(recover, encoding=None):
 
 
 def safe_xml_fromstring(string_or_bytes, recover=True):
+    encoding = None
     if isinstance(string_or_bytes, str):
         # libxml2 anyway converts to UTF-8 to parse internally
         # and does so with bugs, see
         # https://bugs.launchpad.net/lxml/+bug/2125756
         string_or_bytes = string_or_bytes.encode('utf-8')
-    return fs(string_or_bytes, parser=create_parser(recover))
+        encoding = 'utf-8'
+    return fs(string_or_bytes, parser=create_parser(recover, encoding=encoding))
 
 
 def unsafe_xml_fromstring(string_or_bytes):
