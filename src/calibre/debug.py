@@ -63,6 +63,8 @@ as a shebang in scripts, like this:
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
+    parser.add_option('--with-library', default=None, action='store',
+                      help=_('Use the library located at the specified path.'))
     parser.add_option('--run-without-debug', default=False, action='store_true', help=_("Don't run with the DEBUG flag set"))
     parser.add_option('-w', '--viewer', default=False, action='store_true',
                       help=_('Run the E-book viewer in debug mode'))
@@ -227,6 +229,8 @@ def main(args=sys.argv):
     from calibre.constants import debug
 
     opts, args = option_parser().parse_args(args)
+    if opts.with_library:
+        args.extend(('--with-library', opts.with_library))
     if not opts.run_without_debug:
         debug()
     if opts.gui:
