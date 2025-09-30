@@ -18,13 +18,13 @@ class Resolver(etree.Resolver):
         return self.resolve_string('', context)
 
 
-def create_parser(recover, encoding=None):
+def create_parser(recover: bool, encoding: str | None = None) -> etree.XMLParser:
     parser = etree.XMLParser(recover=recover, no_network=True, encoding=encoding)
     parser.resolvers.add(Resolver())
     return parser
 
 
-def safe_xml_fromstring(string_or_bytes, recover=True):
+def safe_xml_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> etree.Element:
     encoding = None
     if isinstance(string_or_bytes, str):
         # libxml2 anyway converts to UTF-8 to parse internally
