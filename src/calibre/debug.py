@@ -60,7 +60,7 @@ as a shebang in scripts, like this:
                       help=_('Run the GUI with debugging enabled. Debug output is '
                              'printed to stdout and stderr. To pass command line'
                              ' arguments use -- followed by the arguments, for example:'
-                             ' calibre-debug -g -- --with-library /path/to/library'))
+                             ' calibre-debug -g -- /path/to/ebook'))
     parser.add_option('--gui-debug', default=None,
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
