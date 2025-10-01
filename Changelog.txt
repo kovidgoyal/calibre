@@ -23,6 +23,22 @@
 # - title by author
 # }}}
 
+{{{ 8.12.0 2025-xx-xx
+
+:: new features
+
+- Tolino driver: Support for latest Tolino firmware 5.11.230427
+
+- Ollama AI: Allow setting arbitrary HTTP headers to send with every request
+
+:: bug fixes
+
+- [2126569] Fix a regression in the previous release that broke conversion of HTML that does not parse as XHTML
+
+- Ollama AI: Fix configuration of custom URL not working
+
+}}}
+
 {{{ 8.11.1 2025-09-26
 
 :: new features
