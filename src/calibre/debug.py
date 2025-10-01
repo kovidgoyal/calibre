@@ -58,14 +58,16 @@ as a shebang in scripts, like this:
                       help=_('Debug device detection'))
     parser.add_option('-g', '--gui', default=False, action='store_true',
                       help=_('Run the GUI with debugging enabled. Debug output is '
-                      'printed to stdout and stderr.'))
+                             'printed to stdout and stderr. To pass command line'
+                             ' arguments use -- followed by the arguments, for example:'
+                             ' calibre-debug -g -- --with-library /path/to/library'))
     parser.add_option('--gui-debug', default=None,
                       help=_('Run the GUI with a debug console, logging to the'
                       ' specified path. For internal use only, use the -g'
                       ' option to run the GUI in debug mode'))
     parser.add_option('--run-without-debug', default=False, action='store_true', help=_("Don't run with the DEBUG flag set"))
     parser.add_option('-w', '--viewer', default=False, action='store_true',
-                      help=_('Run the E-book viewer in debug mode'))
+                      help=_('Run the E-book viewer in debug mode. As with -g use -- to pass command line arguments.'))
     parser.add_option('--paths', default=False, action='store_true',
             help=_('Output the paths necessary to setup the calibre environment'))
     parser.add_option('--add-simple-plugin', default=None,
@@ -76,7 +78,7 @@ as a shebang in scripts, like this:
             default=False,
             help=_('Inspect the MOBI file(s) at the specified path(s)'))
     parser.add_option('-t', '--edit-book', action='store_true',
-            help=_('Launch the calibre "Edit book" tool in debug mode.'))
+            help=_('Launch the calibre "Edit book" tool in debug mode. As with -g use -- to pass command line arguments.'))
     parser.add_option('-x', '--explode-book', default=False, action='store_true',
             help=_('Explode the book into the specified folder.\nUsage: '
             '-x file.epub output_dir\n'
