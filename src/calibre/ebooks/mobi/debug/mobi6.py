@@ -18,6 +18,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import parse_index_record, parse_tagx_section
 from calibre.ebooks.mobi.utils import decint, decode_hex_number, decode_tbs, read_font_record
 from calibre.utils.imghdr import what
+from calibre.utils.xml_parse import safe_html_fromstring
 from polyglot.builtins import as_bytes, iteritems, print_to_binary_file
 
 
@@ -794,7 +795,7 @@ def inspect_mobi(mobi_file, ddir):
             alltext += rec.raw
         of.seek(0)
 
-    root = html.fromstring(alltext.decode(f.mobi_header.encoding))
+    root = safe_html_fromstring(alltext.decode(f.mobi_header.encoding))
     with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
         of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
             include_meta_content_type=True))

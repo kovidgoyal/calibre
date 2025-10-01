@@ -9,11 +9,11 @@ import time
 from contextlib import closing
 from threading import Thread
 
-from lxml import html
 from qt.core import QObject, pyqtSignal
 
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult
+from calibre.utils.xml_parse import safe_html_fromstring
 
 
 class CacheUpdateThread(Thread, QObject):
@@ -61,7 +61,7 @@ class CacheUpdateThread(Thread, QObject):
         # Turn books listed in the HTML file into SearchResults's.
         books = []
         try:
-            data = html.fromstring(raw_data)
+            data = safe_html_fromstring(raw_data)
             raw_books = data.xpath('//ul/li')
             self.total_changed.emit(len(raw_books))
 

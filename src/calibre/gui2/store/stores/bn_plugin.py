@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 from contextlib import closing
 
@@ -21,6 +21,11 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    safe_html_fromstring = html.fromstring
+
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):
     url = 'https://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), quote_plus(query))
@@ -33,7 +38,7 @@ def search_bn(query, max_results=10, timeout=60, write_html_to=''):
         if write_html_to:
             with open(write_html_to, 'wb') as f:
                 f.write(raw)
-        doc = html.fromstring(raw)
+        doc = safe_html_fromstring(raw)
         for data in doc.xpath('//section[@id="gridView"]//div[contains(@class, "product-shelf-tile-book")]'):
             if counter <= 0:
                 break

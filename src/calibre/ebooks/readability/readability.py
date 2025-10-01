@@ -5,11 +5,11 @@ import re
 import sys
 from collections import defaultdict
 
-from lxml.html import document_fromstring, fragment_fromstring
 from lxml.html import tostring as htostring
 
 from calibre.ebooks.readability.cleaners import clean_attributes, html_cleaner
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
+from calibre.utils.xml_parse import document_fromstring, fragment_fromstring
 from polyglot.builtins import reraise
 
 

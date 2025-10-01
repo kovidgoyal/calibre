@@ -3,13 +3,14 @@
 
 import sys
 
-from lxml import etree
+from lxml import etree, html
 
 # resolving of SYSTEM entities is turned off as entities can cause
 # reads of local files, for example:
 # <!DOCTYPE foo [ <!ENTITY passwd SYSTEM "file:///etc/passwd" >]>
 
 fs = etree.fromstring
+hfs = html.fromstring
 
 
 class Resolver(etree.Resolver):
@@ -24,7 +25,13 @@ def create_parser(recover: bool, encoding: str | None = None) -> etree.XMLParser
     return parser
 
 
-def safe_xml_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> etree.Element:
+def create_html_parser(recover: bool, encoding: str | None = None) -> etree.HTMLParser:
+    parser = etree.HTMLParser(recover=recover, no_network=True, encoding=encoding)
+    parser.resolvers.add(Resolver())
+    return parser
+
+
+def prepare_for_parsing(string_or_bytes: str | bytes) -> tuple[bytes, str | None]:
     encoding = None
     if isinstance(string_or_bytes, str):
         # libxml2 anyway converts to UTF-8 to parse internally
@@ -32,7 +39,27 @@ def safe_xml_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> e
         # https://bugs.launchpad.net/lxml/+bug/2125756
         string_or_bytes = string_or_bytes.encode('utf-8')
         encoding = 'utf-8'
-    return fs(string_or_bytes, parser=create_parser(recover, encoding=encoding))
+    return string_or_bytes, encoding
+
+
+def safe_xml_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> etree.Element:
+    raw, encoding = prepare_for_parsing(string_or_bytes)
+    return fs(raw, parser=create_parser(recover, encoding=encoding))
+
+
+def safe_html_fromstring(string_or_bytes: str | bytes, recover: bool = True) -> etree.Element:
+    raw, encoding = prepare_for_parsing(string_or_bytes)
+    return hfs(raw, parser=create_html_parser(recover, encoding=encoding))
+
+
+def fragment_fromstring(string_or_bytes: str | bytes) -> etree.Element:
+    raw, encoding = prepare_for_parsing(string_or_bytes)
+    return html.fragment_fromstring(raw, parser=create_html_parser(True, encoding=encoding))
+
+
+def document_fromstring(string_or_bytes: str | bytes) -> etree.Element:
+    raw, encoding = prepare_for_parsing(string_or_bytes)
+    return html.document_fromstring(raw, parser=create_html_parser(True, encoding=encoding))
 
 
 def unsafe_xml_fromstring(string_or_bytes):

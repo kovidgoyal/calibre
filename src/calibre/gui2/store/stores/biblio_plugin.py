@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 2  # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012, Alex Stanev <alex@stanev.org>'
@@ -14,14 +14,17 @@ except ImportError:
 
 from contextlib import closing
 
-from lxml import html
-
 from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 
 class BiblioStore(BasicStoreConfig, StorePlugin):
@@ -51,7 +54,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
     def get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
+            idata = safe_html_fromstring(nf.read())
             search_result.formats = ''
             search_result.drm = SearchResult.DRM_LOCKED
 
@@ -72,7 +75,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
             page = f.read().decode('utf-8')
-            doc = html.fromstring(page)
+            doc = safe_html_fromstring(page)
 
             for data in doc.xpath('//ul[contains(@class,"book_list")]/li'):
                 if max_results <= 0:

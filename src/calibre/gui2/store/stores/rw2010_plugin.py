@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 1  # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
@@ -15,7 +15,6 @@ try:
 except ImportError:
     from urllib import urlencode
 
-from lxml import html
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -24,6 +23,11 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 
 class RW2010Store(BasicStoreConfig, StorePlugin):
@@ -50,7 +54,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         with closing(br.open(url, data=urlencode(values), timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = safe_html_fromstring(f.read())
             for data in doc.xpath('//div[@class="ProductDetail"]'):
                 if counter <= 0:
                     break
@@ -60,7 +64,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
                     continue
 
                 with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
+                    idata = safe_html_fromstring(nf.read())
                     cover_url = ''.join(idata.xpath('//div[@class="boxa"]//div[@class="img"]/img/@src'))
                     author = ''.join(idata.xpath('//div[@class="boxb"]//h3[text()="Autor: "]/span/text()'))
                     title = ''.join(idata.xpath('//div[@class="boxb"]/h2[1]/text()'))

@@ -782,9 +782,10 @@ class BasicNewsRecipe(Recipe):
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
         '''
-        from lxml.html import document_fromstring, fragment_fromstring, tostring
+        from lxml.html import tostring
 
         from calibre.ebooks.readability import readability
+        from calibre.utils.xml_parse import document_fromstring, fragment_fromstring
 
         doc = readability.Document(html, self.log, url=url,
                 keep_elements=self.auto_cleanup_keep)

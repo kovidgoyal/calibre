@@ -115,6 +115,7 @@ class CHMInput(InputFormatPlugin):
 
         from calibre.ebooks.chardet import xml_to_unicode
         from calibre.ebooks.oeb.base import urlquote
+        from calibre.utils.xml_parse import safe_html_fromstring
         from polyglot.urllib import unquote as _unquote
         try:
             hhcdata = self._read_file(hhcpath)
@@ -125,7 +126,7 @@ class CHMInput(InputFormatPlugin):
         hhcdata = hhcdata.decode(encoding)
         hhcdata = xml_to_unicode(hhcdata, verbose=True,
                             strip_encoding_pats=True, resolve_entities=True)[0]
-        hhcroot = html.fromstring(hhcdata)
+        hhcroot = safe_html_fromstring(hhcdata)
         toc = self._process_nodes(hhcroot)
         # print('=============================')
         # print('Printing hhcroot')

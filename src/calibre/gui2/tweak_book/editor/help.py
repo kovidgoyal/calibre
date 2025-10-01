@@ -7,12 +7,11 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import json
 from functools import partial
 
-from lxml import html
-
 from calibre import browser
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.resources import get_path as P
+from calibre.utils.xml_parse import safe_html_fromstring
 
 
 class URLMap:
@@ -73,7 +72,7 @@ def get_mdn_tag_index(category):
         url = url.replace('Element', 'Reference')
     br = browser()
     raw = br.open(url).read()
-    root = html.fromstring(raw)
+    root = safe_html_fromstring(raw)
     ans = {}
     if category == 'CSS':
         xpath = '//div[@class="index"]/descendant::a[contains(@href, "/Web/CSS/")]/@href'

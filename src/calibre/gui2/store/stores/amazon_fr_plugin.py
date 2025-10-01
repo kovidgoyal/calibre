@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 16  # Needed for dynamic plugin loading
+store_version = 17  # Needed for dynamic plugin loading
 
 from contextlib import closing
 
@@ -12,13 +12,18 @@ try:
 except ImportError:
     from urllib import urlencode
 
-from lxml import etree, html
+from lxml import etree
 from qt.core import QUrl
 
 from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 SEARCH_BASE_URL = 'https://www.amazon.fr/s/'
 SEARCH_BASE_QUERY = {'i': 'digital-text'}
@@ -57,7 +62,7 @@ def search_amazon(query, max_results=10, timeout=60,
         if write_html_to is not None:
             with open(write_html_to, 'wb') as f:
                 f.write(raw)
-        doc = html.fromstring(raw)
+        doc = safe_html_fromstring(raw)
         for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
             kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
             # Even though we are searching digital-text only Amazon will still
@@ -111,7 +116,7 @@ class AmazonKindleStore(StorePlugin):
 
         br = browser(user_agent=get_user_agent())
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
+            idata = safe_html_fromstring(nf.read())
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
                            DRM_SEARCH_TEXT + '")])'):
                 if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +

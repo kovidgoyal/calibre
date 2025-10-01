@@ -28,6 +28,7 @@ from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data_to
 from calibre.utils.imghdr import what
 from calibre.utils.logging import default_log
+from calibre.utils.xml_parse import safe_html_fromstring
 from polyglot.builtins import iteritems
 
 
@@ -189,15 +190,15 @@ class MobiReader:
         self.log.debug('Parsing HTML...')
         self.processed_html = clean_xml_chars(self.processed_html)
         try:
-            root = html.fromstring(self.processed_html)
+            root = safe_html_fromstring(self.processed_html)
             if len(root.xpath('//html')) > 5:
-                root = html.fromstring(self.processed_html.replace('\x0c',
+                root = safe_html_fromstring(self.processed_html.replace('\x0c',
                     '').replace('\x14', ''))
         except Exception:
             self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
             self.processed_html = self.remove_random_bytes(self.processed_html)
             try:
-                root = html.fromstring(self.processed_html)
+                root = safe_html_fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup could not be parsed by lxml using html5-parser')
                 # Happens on windows with python 3 where lxml causes libxml to die with an
@@ -227,7 +228,7 @@ class MobiReader:
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
-            nroot = html.fromstring('<html><head></head><body></body></html>')
+            nroot = safe_html_fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
             for child in list(root):
                 child.getparent().remove(child)

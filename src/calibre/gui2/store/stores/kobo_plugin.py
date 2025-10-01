@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 12  # Needed for dynamic plugin loading
+store_version = 14  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -22,6 +22,11 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    safe_html_fromstring = html.fromstring
+
 
 def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
@@ -40,7 +45,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     if write_html_to is not None:
         with open(write_html_to, 'w') as f:
             f.write(raw)
-    doc = html.fromstring(raw)
+    doc = safe_html_fromstring(raw)
     select = Select(doc)
     for i, item in enumerate(select('[data-testid=search-results-items] [role=listitem]')):
         if i == max_results:
@@ -114,7 +119,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
     def get_details(self, search_result, timeout):
         raw = read_url(search_result.detail_item, timeout=timeout)
-        idata = html.fromstring(raw)
+        idata = safe_html_fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):
             if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "DRM-Free")])'):
                 search_result.drm = SearchResult.DRM_UNLOCKED

@@ -9,7 +9,12 @@ from lxml import etree, html
 from calibre.gui2.store.search_result import SearchResult
 from calibre.scraper.simple import read_url
 
-module_version = 1  # needed for live updates
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    safe_html_fromstring = html.fromstring
+
+module_version = 2  # needed for live updates
 
 
 def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
@@ -29,7 +34,7 @@ def search_amazon(self, query, max_results=10, timeout=60, write_html_to=None):
     if write_html_to is not None:
         with open(write_html_to, 'w') as f:
             f.write(raw)
-    doc = html.fromstring(raw)
+    doc = safe_html_fromstring(raw)
     for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
         kformat = ''.join(result.xpath(f'.//a[contains(text(), "{self.KINDLE_EDITION}")]//text()'))
         # Even though we are searching digital-text only Amazon will still

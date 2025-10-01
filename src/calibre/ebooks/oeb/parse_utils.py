@@ -7,15 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from lxml import etree, html
+from lxml import etree
 
 from calibre import force_unicode, xml_replace_entities
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
-from calibre.utils.xml_parse import safe_xml_fromstring
+from calibre.utils.xml_parse import safe_html_fromstring, safe_xml_fromstring
 from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
-RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 XMLNS_NS     = 'http://www.w3.org/2000/xmlns/'
 
@@ -110,7 +109,7 @@ def html5_parse(data, max_nesting_depth=100):
 
 
 def _html4_parse(data):
-    data = html.fromstring(data)
+    data = safe_html_fromstring(data)
     data.attrib.pop('xmlns', None)
     for elem in data.iter(tag=etree.Comment):
         if elem.text:

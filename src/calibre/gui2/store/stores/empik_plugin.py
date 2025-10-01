@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 10  # Needed for dynamic plugin loading
+store_version = 11  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
@@ -15,7 +15,6 @@ try:
 except ImportError:
     from urllib import quote
 
-from lxml import html
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -24,6 +23,11 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 
 def as_base64(data):
@@ -63,7 +67,7 @@ class EmpikStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = safe_html_fromstring(f.read())
             for data in doc.xpath('//div[@class="search-content js-search-content"]/div'):
                 if counter <= 0:
                     break

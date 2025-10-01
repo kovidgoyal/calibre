@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012-2017, Tomasz Długosz <tomek3d@gmail.com>'
@@ -14,7 +14,6 @@ except ImportError:
 from base64 import b64encode
 from contextlib import closing
 
-from lxml import html
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -23,6 +22,11 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 
 def as_base64(data):
@@ -62,7 +66,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         page = 1
         while counter:
             with closing(br.open('http://www.publio.pl/e-booki,strona{}.html?q={}'.format(page, quote(query)), timeout=timeout)) as f:
-                doc = html.fromstring(f.read())
+                doc = safe_html_fromstring(f.read())
                 for data in doc.xpath('//div[@class="products-list"]//div[@class="product-tile"]'):
                     if counter <= 0:
                         break

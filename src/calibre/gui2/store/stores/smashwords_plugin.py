@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -11,12 +11,13 @@ import random
 import re
 from contextlib import closing
 
+from lxml import html
+
 try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
 
-from lxml import html
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
@@ -25,6 +26,11 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+
+try:
+    from calibre.utils.xml_parse import safe_html_fromstring
+except ImportError:
+    from lxml.html import fromstring as safe_html_fromstring
 
 
 def search(query, max_results=10, timeout=60, save_raw=None):
@@ -42,11 +48,11 @@ def search(query, max_results=10, timeout=60, save_raw=None):
         if save_raw:
             with open(save_raw, 'wb') as r:
                 r.write(raw)
-        doc = html.fromstring(raw)
+        doc = safe_html_fromstring(raw)
         for data in doc.xpath('//div[@id="pageContent"]//div[contains(@class, "library-book")]'):
             if counter <= 0:
                 break
-            data = html.fromstring(html.tostring(data))
+            data = safe_html_fromstring(html.tostring(data))
 
             id_a = ''.join(data.xpath('//span[contains(@class, "library-title")]/a/@href'))
             if not id_a:
@@ -113,7 +119,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
+            idata = safe_html_fromstring(nf.read())
             search_result.formats = ', '.join(list(set(idata.xpath('//p//abbr//text()'))))
         return True
 
