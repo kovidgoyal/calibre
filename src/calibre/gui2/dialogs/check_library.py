@@ -566,6 +566,18 @@ class CheckLibraryDialog(QDialog):
             if not dirnames and not filenames:
                 os.rmdir(path_ath_lib)
 
+    def fix_malformed_formats(self):
+        tl = self.top_level_items['malformed_formats']
+        child_count = tl.childCount()
+        for i in range(child_count):
+            item = tl.child(i)
+            id_ = int(item.data(0, Qt.ItemDataRole.UserRole))
+            lib_path = item.text(2)
+            book_path = os.path.join(*lib_path.split(os.sep)[:-1])
+            ext = os.path.splitext(lib_path)[1].strip('.')
+            filename = self.db.new_api.format_files(id_)[ext.upper()] +'.'+ ext.lower()
+            os.rename(os.path.join((self.db.library_path, lib_path)), os.path.join((self.db.library_path, book_path, filename)))
+
     def fix_items(self):
         for check in CHECKS:
             attr = check[0]

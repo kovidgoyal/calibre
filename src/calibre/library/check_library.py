@@ -41,6 +41,7 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
           ('extra_files',       _('Unknown files in books'), True, False),
           ('missing_covers',    _('Missing cover files'), False, True),
           ('extra_covers',      _('Cover files not in database'), True, True),
+          ('malformed_formats', _('Malformed formats'), False, True),  # need to be perform before malformed_paths
           ('malformed_paths',   _('Malformed book paths'), False, True),
           ('failed_folders',    _('Folders raising exception'), False, False),
       ]
@@ -68,6 +69,7 @@ class CheckLibrary:
 
         self.malformed_paths = []
         self.malformed_paths_ids = set()
+        self.malformed_formats = []
         self.invalid_authors = []
         self.extra_authors = []
 
@@ -194,12 +196,15 @@ class CheckLibrary:
                                    f == COVER_FILE_NAME))
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
+        formats_lower = frozenset(map(str.lower, filenames))
         book_formats = frozenset(x[0]+'.'+x[1].lower() for x in
                             self.db.format_files(book_id, index_is_id=True))
 
         if self.is_case_sensitive:
             unknowns = frozenset(filenames-formats-NORMALS)
             missing = book_formats - formats
+            missing_lower = frozenset(map(str.lower, missing))
+
             # Check: any books that aren't formats or normally there?
             for fn in unknowns:
                 if fn in missing:  # An unknown format correctly registered
@@ -210,12 +215,18 @@ class CheckLibrary:
             for fn in missing:
                 if fn in unknowns:  # An unknown format correctly registered
                     continue
-                self.missing_formats.append((title_dir, os.path.join(db_path, fn), book_id))
+                if fn.lower() in formats_lower:  # An known format that is malformed
+                    pass
+                else:
+                    self.missing_formats.append((title_dir, os.path.join(db_path, fn), book_id))
 
             # Check: any book formats that shouldn't be there?
             extra = formats - book_formats - NORMALS
             for e in extra:
-                self.extra_formats.append((title_dir, os.path.join(db_path, e), book_id))
+                if e.lower() in missing_lower:
+                    self.malformed_formats.append((title_dir, os.path.join(db_path, e), book_id))
+                else:
+                    self.extra_formats.append((title_dir, os.path.join(db_path, e), book_id))
         else:
             def lc_map(fnames, fset):
                 fn = {}
