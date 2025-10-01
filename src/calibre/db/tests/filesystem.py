@@ -104,7 +104,7 @@ class FilesystemTest(BaseTest):
                 expected_contents.add(fname + '.' + fmt.lower())
             ae(expected_contents, bookdir_contents)
             fs_path = bookdir.split(os.sep)[-2:]
-            db_path = cache.field_for('path', book_id).split('/')
+            db_path = cache.get_book_path(book_id, sep='/').split('/')
             ae(db_path, fs_path)
             ae(initial_side_data, side_data(book_id))
 
