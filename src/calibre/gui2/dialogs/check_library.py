@@ -548,6 +548,24 @@ class CheckLibraryDialog(QDialog):
             id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, True)
 
+    def fix_malformed_paths(self):
+        tl = self.top_level_items['malformed_paths']
+        child_count = tl.childCount()
+        for i in range(child_count):
+            item = tl.child(i)
+            id_ = int(item.data(0, Qt.ItemDataRole.UserRole))
+            lib_path = item.text(2)
+            db_path = self.db.path(id_, index_is_id=True)
+            path_ath_lib = os.path.join(self.db.library_path, lib_path.split(os.sep)[0])
+            path_ath_db = os.path.join(self.db.library_path, db_path.split(os.sep)[0])
+            path_lib = os.path.join(self.db.library_path, lib_path)
+            path_db = os.path.join(self.db.library_path, db_path)
+            os.makedirs(path_ath_db, exist_ok=True)
+            os.rename(path_lib, path_db)
+            dirpath, dirnames, filenames = next(os.walk(path_ath_lib))
+            if not dirnames and not filenames:
+                os.rmdir(path_ath_lib)
+
     def fix_items(self):
         for check in CHECKS:
             attr = check[0]

@@ -41,7 +41,8 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
           ('extra_files',       _('Unknown files in books'), True, False),
           ('missing_covers',    _('Missing cover files'), False, True),
           ('extra_covers',      _('Cover files not in database'), True, True),
-          ('failed_folders',    _('Folders raising exception'), False, False)
+          ('malformed_paths',   _('Malformed book paths'), False, True),
+          ('failed_folders',    _('Folders raising exception'), False, False),
       ]
 
 
@@ -65,7 +66,8 @@ class CheckLibrary:
         self.dirs = []
         self.book_dirs = []
 
-        self.potential_authors = {}
+        self.malformed_paths = []
+        self.malformed_paths_ids = set()
         self.invalid_authors = []
         self.extra_authors = []
 
@@ -110,8 +112,6 @@ class CheckLibrary:
                 self.invalid_authors.append((auth_dir, auth_dir, 0))
                 continue
 
-            self.potential_authors[auth_dir] = {}
-
             # Look for titles in the author directories
             found_titles = False
             try:
@@ -129,9 +129,13 @@ class CheckLibrary:
                     id_ = m.group(1)
                     # Third check: the id_ must be in the DB and the paths must match
                     if self.is_case_sensitive:
-                        if int(id_) not in self.all_ids or db_path not in self.all_dbpaths:
-                            self.extra_titles.append((title_dir, db_path, 0))
-                            continue
+                        if db_path not in self.all_dbpaths:
+                            if int(id_) not in self.all_ids or os.path.exists(os.path.join(lib, self.dbpath(int(id_)))):
+                                self.extra_titles.append((title_dir, db_path, 0))
+                                continue
+                            else:
+                                self.malformed_paths.append((db_path, db_path, id_))
+                                self.malformed_paths_ids.add(int(id_))
                     else:
                         if int(id_) not in self.all_ids or db_path.lower() not in self.all_lc_dbpaths:
                             self.extra_titles.append((title_dir, db_path, 0))
@@ -161,6 +165,9 @@ class CheckLibrary:
         for id_ in self.all_ids:
             path = self.dbpath(id_)
             if not os.path.exists(os.path.join(lib, path)):
+                if self.is_case_sensitive and id_ in self.malformed_paths_ids:
+                    continue
+
                 title_dir = os.path.basename(path)
                 book_formats = frozenset(x for x in self.db.format_files(id_, index_is_id=True))
                 for fmt in book_formats:
