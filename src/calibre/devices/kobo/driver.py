@@ -1524,7 +1524,7 @@ class KOBOTOUCH(KOBO):
     KOBO_AUDIOBOOKS_MIMETYPES = ['application/octet-stream', 'application/x-kobo-mp3z']
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
-    # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
+    # Note: "300" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
     # NOTE: Values pulled from Nickel by @geek1011,
     #       c.f., this handy recap: https://github.com/shermp/Kobo-UNCaGED/issues/16#issuecomment-494229994
@@ -1534,9 +1534,9 @@ class KOBOTOUCH(KOBO):
     # Common to all Kobo models
     COMMON_COVER_FILE_ENDINGS = {
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
-                          ' - N3_LIBRARY_FULL.parsed':              [(355,530),0, 200,False,],
+                          ' - N3_LIBRARY_FULL.parsed':              [(355,530),0, 300,False,],
                           # Used for library lists
-                          ' - N3_LIBRARY_GRID.parsed':              [(149,223),0, 200,False,],
+                          ' - N3_LIBRARY_GRID.parsed':              [(149,223),0, 300,False,],
                           # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':              [(60,90),0, 53,False,],
                           # Used for Details screen from FW2.8.1
@@ -1545,58 +1545,58 @@ class KOBOTOUCH(KOBO):
     # Legacy 6" devices
     LEGACY_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(600,800),0, 200,True,],
+                          ' - N3_FULL.parsed':        [(600,800),0, 300,True,],
                           }
     # Glo
     GLO_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(758,1024),0, 200,True,],
+                          ' - N3_FULL.parsed':        [(758,1024),0, 300,True,],
                           }
     # Aura
     AURA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           # NOTE: The Aura's bezel covers 10 pixels at the bottom.
                           #       Kobo officially advertised the screen resolution with those chopped off.
-                          ' - N3_FULL.parsed':        [(758,1014),0, 200,True,],
+                          ' - N3_FULL.parsed':        [(758,1014),0, 300,True,],
                           }
     # Glo HD, Clara HD, Clara 2E, Clara BW, Clara Colour share resolution, so the image sizes should be the same.
     GLO_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(1072,1448), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1072,1448), 0, 300,True,],
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1080,1440), 0, 300,True,],
                           }
     AURA_H2O_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           # NOTE: The H2O's bezel covers 11 pixels at the top.
                           #       Unlike on the Aura, Nickel fails to account for this when generating covers.
                           #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
-                          ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1080,1429), 0, 300,True,],
                           }
     # Aura ONE and Elipsa have the same resolution.
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1404,1872), 0, 300,True,],
                           }
     FORMA_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           # NOTE: Nickel currently fails to honor the real screen resolution when generating covers,
                           #       choosing instead to follow the Aura One codepath.
-                          ' - N3_FULL.parsed':        [(1440,1920), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1440,1920), 0, 300,True,],
                           }
     LIBRA_H2O_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(1264,1680), 0, 200,True,],
+                          ' - N3_FULL.parsed':        [(1264,1680), 0, 300,True,],
                           }
     TOLINO_SHINE_COVER_FILE_ENDINGS = {
                           # There's probably only one ending used
-                          '':                         [(1072,1448), 0, 200,True,],
+                          '':                         [(1072,1448), 0, 300,True,],
     }
     TOLINO_VISION_COVER_FILE_ENDINGS = {
                           # There's probably only one ending used
-                          '':                         [(1264,1680), 0, 200,True,],
+                          '':                         [(1264,1680), 0, 300,True,],
     }
     # Following are the sizes used with pre2.1.4 firmware
     # COVER_FILE_ENDINGS = {
