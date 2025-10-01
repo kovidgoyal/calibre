@@ -271,6 +271,15 @@ class WSJ(BasicNewsRecipe):
             article.url = lnk['title']
 
     def print_version(self, url):
+        # query = {
+                # 'operationName': 'ArticleContent',
+                # 'variables': '{{"id":"{}","idType":"originid"}}'.format(url),
+                # 'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"9b0e21df0753a90766c892f57603a7dc1b4c6cb87a2612bdf825c76e4e41a2fb"}}',
+            # }
+        # art_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
+                # query, safe='()!', quote_via=quote
+            # )
+        # art_raw = self.index_to_soup(art_url, raw=True)
         art_cont = get_article(url)
         pt = PersistentTemporaryFile('.html')
         pt.write(art_cont)

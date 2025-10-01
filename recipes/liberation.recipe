@@ -91,7 +91,7 @@ class Liberation(BasicNewsRecipe):
     articles_are_obfuscated = True
     timefmt = ' [%s]' % datetime.now().strftime(m_fr[datetime.now().month] + ' %d, %Y')
     ignore_duplicate_articles = {'title', 'url'}
-    key = 'ZWplZVBlaW5nZWl0YWVnaG8zd2VlbmdlZXlvaHB1'
+    key = 'YTdYMjltQnZRZVAxTGQ5OENnRjJySzV1VHpXWTRo'
     masthead_url = 'https://journal.liberation.fr/img/logo.svg'
     extra_css = '''
         .desc { font-style:italic; color:#202020; }
