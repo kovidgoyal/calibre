@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 8.12.0 2025-xx-xx
+{{{ 8.12.0 2025-10-01
 
 :: new features
 
