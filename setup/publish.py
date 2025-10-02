@@ -90,6 +90,12 @@ class Stage5(Command):
         subprocess.check_call('rm -rf build/* dist/*', shell=True)
 
 
+def require_hsm_for_signing():
+    cp = subprocess.run(['pkcs11-tool', '-L'], stdout=subprocess.DEVNULL)
+    if cp.returncode != 0:
+        raise SystemExit('Attach the HSM for authenticode signing first')
+
+
 class Publish(Command):
 
     description = 'Publish a new calibre release'
@@ -104,6 +110,7 @@ class Publish(Command):
     def pre_sub_commands(self, opts):
         require_git_master()
         require_clean_git()
+        require_hsm_for_signing()
         version = tuple(map(int, __version__.split('.')))  # noqa: RUF048
         if version[2] > 99:
             raise SystemExit(f'The version number {__version__} indicates a preview release, did you mean to run ./setup.py publish_preview?')
