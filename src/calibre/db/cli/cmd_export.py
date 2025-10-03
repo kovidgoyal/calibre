@@ -168,7 +168,7 @@ def main(opts, args, dbctx):
         export(opts, dbctx, book_id, dest, dbproxy, length, i == 0)
         if opts.progress:
             num = i + 1
-            print(f'\r  {num / total:.0%} [{num}/{total}]', end=' '*20)
+            print(f'\r  {num / total:.1%} [{num}/{total}]', end=' '*20)
     if opts.progress:
         print()
     return 0
