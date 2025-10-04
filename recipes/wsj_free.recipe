@@ -1,57 +1,39 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
-import random
 import time
-from base64 import standard_b64encode
-from datetime import date, timedelta
+from urllib.parse import quote, urlencode
 
-from css_selectors import Select
-from mechanize import Request
-
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-
-try:
-    import urllib.parse as urlparse
-except ImportError:
-    import urlparse
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-needs_subscription = False
 
 
 class WSJ(BasicNewsRecipe):
-
-    if needs_subscription:
-        title = 'The Wall Street Journal'
-    else:
-        title = 'The Wall Street Journal (free)'
-    __author__ = 'Kovid Goyal'
-    description = 'Old code. Use WSJ recipes by unkn0wn'
+    title = 'The Wall Street Journal'
+    __author__ = 'unkn0wn'
+    description = (
+        'The Print Edition of WSJ. The Wall Street Journal is your source '
+        'for breaking news, analysis and insights from the U.S. and '
+        "around the world, the world's leading business and finance publication."
+    )
     language = 'en_US'
     masthead_url = 'https://s.wsj.net/media/wsj_amp_masthead_lg.png'
-
-    compress_news_images = True
-    compress_news_images_auto_size = 7
-
-    timefmt = ' [%a, %b %d, %Y]'
+    encoding = 'utf-8'
+    no_javascript = True
     no_stylesheets = True
-    ignore_duplicate_articles = {'url'}
-    remove_attributes = ['style','height','width']
-    needs_subscription = needs_subscription
-    WSJ_ITP = 'https://www.wsj.com/print-edition/today'
-    delay = 1
+    remove_attributes = ['style', 'height', 'width']
+    resolve_internal_links = True
 
-    storage = []
+    recipe_specific_options = {
+        'date': {
+            'short': 'The date of the edition to download (YYYY-MM-DD format)\nOnly the past 6 editions will be available ',
+            'long': 'For example, 2024-05-13',
+        },
+        'res': {
+            'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
+            'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
+            'default': '600',
+        },
+    }
 
     extra_css = '''
         #big-top-caption { font-size:small; text-align:center; }
@@ -60,70 +42,89 @@ class WSJ(BasicNewsRecipe):
         .sub, em, i { color: #202020; }
     '''
 
-    def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-wall-street-journal/')
-        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
-
     keep_only_tags = [
         dict(name=['h1', 'h2']),
-        dict(attrs={'aria-describedby':'big-top-caption'}),
-        dict(attrs={'id':'big-top-caption'}),
-        dict(name='article', attrs={'style':lambda x: x and 'article-body' in x})
+        dict(attrs={'aria-describedby': 'big-top-caption'}),
+        dict(attrs={'id': 'big-top-caption'}),
+        dict(name='article', attrs={'style': lambda x: x and 'article-body' in x}),
     ]
 
     remove_tags = [
-        dict(attrs={'data-type':['inset', 'video']}),
-        dict(attrs={'data-testid':'ad-container'}),
-        dict(attrs={'data-spotim-app':'conversation'}),
+        dict(attrs={'data-type': ['inset', 'video']}),
+        dict(attrs={'data-testid': 'ad-container'}),
+        dict(attrs={'data-spotim-app': 'conversation'}),
         dict(name=['button', 'svg', 'old-script', 'video']),
-        dict(attrs={'aria-label':[
-            'Sponsored Offers', 'Listen To Article', 'What to Read Next', 'Utility Bar',
-            'Conversation', 'List of Comments', 'Comment', 'JR More Articles'
-        ]}),
-        dict(attrs={'data-spot-im-class':['message-text', 'messages-list', 'message-view', 'conversation-root']}),
-        dict(attrs={'id':lambda x: x and x.startswith(
-            ('comments_sector', 'wrapper-INLINE', 'audio-tag-inner-audio-', 'article-comments-tool')
-        )}),
-        dict(name='div', attrs={'data-message-depth':True})
+        dict(
+            attrs={
+                'aria-label': [
+                    'Sponsored Offers',
+                    'Listen To Article',
+                    'What to Read Next',
+                    'Utility Bar',
+                    'Conversation',
+                    'List of Comments',
+                    'Comment',
+                    'JR More Articles',
+                ]
+            }
+        ),
+        dict(
+            attrs={
+                'data-spot-im-class': [
+                    'message-text',
+                    'messages-list',
+                    'message-view',
+                    'conversation-root',
+                ]
+            }
+        ),
+        dict(
+            attrs={
+                'id': lambda x: x
+                and x.startswith((
+                    'comments_sector',
+                    'wrapper-INLINE',
+                    'audio-tag-inner-audio-',
+                    'article-comments-tool',
+                ))
+            }
+        ),
+        dict(name='div', attrs={'data-message-depth': True}),
     ]
 
     articles_are_obfuscated = True
+
     def get_obfuscated_article(self, url):
         from calibre.scraper.simple import read_url
-        br = self.get_browser()
-        br.set_handle_redirect(False)
-        try:
-            br.open(url)
-        except Exception as e:
-            hdrs_location = e.hdrs.get('location')
-            if hdrs_location:
-                url = e.hdrs.get('location')
-        raw = read_url(self.storage, 'https://archive.is/latest/' + url)
-        pt = PersistentTemporaryFile('.html')
-        pt.write(raw.encode('utf-8'))
-        pt.close()
-        return pt.name
+        raw = read_url([], 'https://archive.is/latest/' + url)
+        return {'data': raw, 'url': url}
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'old-src':True}):
-            img['src'] = img['old-src']
-        for p in soup.findAll('div', attrs={'data-type':['paragraph', 'image']}):
+        res = '?width=600'
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str):
+            res = '?width=' + w
+        for img in soup.findAll('img', attrs={'currentsourceurl': True}):
+            img['src'] = img['currentsourceurl'].split('?')[0] + res
+        for p in soup.findAll('div', attrs={'data-type': ['paragraph', 'image']}):
             p.name = 'p'
         for a in soup.findAll('a', href=True):
             a['href'] = 'http' + a['href'].split('http')[-1]
         for figc in soup.findAll('figcaption'):
             figc['id'] = 'big-top-caption'
-        if name:= soup.find('h2', attrs={'itemprop':'name'}):
+        if name := soup.find('h2', attrs={'itemprop': 'name'}):
             name.extract()
         for h2 in soup.findAll('h2'):
             if self.tag_to_string(h2).startswith(('What to Read Next', 'Conversation')):
                 h2.extract()
             h2.name = 'h3'
             h2['class'] = 'sub'
-        for ph in soup.findAll('a', attrs={'data-type':['phrase', 'link']}):
+        for ph in soup.findAll('a', attrs={'data-type': ['phrase', 'link']}):
             if div := ph.findParent('div'):
                 div.name = 'span'
-        for auth in soup.findAll('a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}):
+        for auth in soup.findAll(
+            'a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}
+        ):
             if div := auth.find_previous_sibling('div'):
                 div.name = 'span'
             if parent := auth.findParent('div'):
@@ -133,186 +134,102 @@ class WSJ(BasicNewsRecipe):
                 y.extract()
         return soup
 
-    # login {{{
-
-    def get_browser_for_wsj(self, *a, **kw):
-        br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.set_cookie('wsjregion', 'na,us', '.wsj.com')
-        br.set_cookie('gdprApplies', 'false', '.wsj.com')
-        br.set_cookie('ccpaApplies', 'false', '.wsj.com')
+    def get_browser(self, *args, **kw):
+        br = BasicNewsRecipe.get_browser(self, *args, **kw)
+        br.addheaders += [
+            ('apollographql-client-name', 'wsj-mobile-android-release'),
+        ]
         return br
 
-    if False and needs_subscription:  # disabled as we currently use archive.is
-        def get_browser(self, *a, **kw):
-            from pprint import pprint
-            pprint
-            # To understand the login logic read app-min.js from
-            # https://sso.accounts.dowjones.com/login
-            itp = quote(self.WSJ_ITP, safe='')
-            start_url = 'https://accounts.wsj.com/login?target=' + itp
-            self.log('Starting login process at', start_url)
-            br = self.get_browser_for_wsj(*a, **kw)
-            # br.set_debug_http(True)
-            res = br.open(start_url)
-            sso_url = res.geturl()
-            query = urlparse.parse_qs(urlparse.urlparse(sso_url).query)
-            query = {k:v[0] for k, v in query.items()}
-            # pprint(query)
-            request_query = {
-                'username': self.username,
-                'password': self.password,
-                'client_id': query['client'],
-                'tenant': 'sso',
-                '_intstate': 'deprecated',
-                'connection': 'DJldap',
-                'headers': {
-                    'X-REMOTE-USER': self.username,
-                    'x-_dj-_client__id': query['client'],
-                },
-            }
-            for cookie in br.cookiejar:
-                if cookie.name in ('_csrf', 'csrf'):
-                    request_query['_csrf'] = cookie.value
-            for k in 'scope connection nonce state ui_locales ns mars protocol redirect_uri'.split():
-                if k in query:
-                    request_query[k] = query[k]
-            # pprint(request_query)
-            login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
-            # you can get the version below from lib-min.js
-            # search for: "\d+\.\d+\.\d+"
-            # This might need to be updated in the future
-            auth0_client = json.dumps({'name': 'auth0.js-ulp', 'version': '9.11.3'})
-            if not isinstance(auth0_client, bytes):
-                auth0_client = auth0_client.encode('utf-8')
-            auth0_client = standard_b64encode(auth0_client)
-            if isinstance(auth0_client, bytes):
-                auth0_client = auth0_client.decode('ascii')
-            rq = Request(login_url, headers={
-                'Accept': 'text/html',
-                'Accept-Language': 'en-US,en;q=0.8',
-                'Origin': 'https://sso.accounts.dowjones.com',
-                'Auth0-Client': auth0_client.rstrip('='),
-                'X-HTTP-Method-Override': 'POST',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-Remote-User': self.username,
-                'x-dj-client_id': request_query['client_id'],
-            }, data=request_query)
-            self.log('Sending login request...')
-            try:
-                res = br.open(rq)
-            except Exception as err:
-                if hasattr(err, 'read'):
-                    raise Exception('Login request failed with error: {} and body: {}'.format(err, err.read().decode('utf-8', 'replace')))
-                raise
-            if res.code != 200:
-                raise ValueError('Failed to login, check your username and password')
-            br.select_form(nr=0)
-            self.log('Performing login callback...')
-            res = br.submit()
-            self.log('Print edition resolved url:', res.geturl())
-            self.wsj_itp_page = raw = res.read()
-            if b'/logout' not in raw:
-                raise ValueError(
-                    'Failed to login (callback URL failed), check username and password')
-            return br
-    else:
-        def get_browser(self, *a, **kw):
-            br = self.get_browser_for_wsj(*a, **kw)
-            res = br.open(self.WSJ_ITP)
-            url = res.geturl()
-            if '/20210913/' in url:
-                today = date.today()
-                q = today.isoformat().replace('-', '')
-                try:
-                    res = br.open(url.replace('/20210913/', '/' + q + '/'))
-                except Exception:
-                    today -= timedelta(days=1)
-                    q = today.isoformat().replace('-', '')
-                    res = br.open(url.replace('/20210913/', '/' + q + '/'))
-            self.log('Print edition resolved url:', res.geturl())
-            self.wsj_itp_page = res.read()
-            return br
-    # }}}
+    def _download_cover(self):
+        import os
+        from contextlib import closing
 
-    def abs_wsj_url(self, href, modify_query=True):
-        if not href.startswith('http'):
-            href = 'https://www.wsj.com' + href
-        if modify_query:
-            href = href
-        return href.split('?')[0]
+        from calibre import browser
+        from calibre.utils.img import save_cover_data_to
 
-    def wsj_find_articles(self, url, ahed=False):
-        root = self.index_to_soup(url, as_tree=True)
-        CSSSelect = Select(root)
-        articles = []
-        for container in root.xpath('descendant::div[contains(@class, "WSJTheme--list-item--")]'):
-            heading = next(CSSSelect('h2, h3', container))
-            a = next(CSSSelect('a', heading))
-            title = self.tag_to_string(a)
-            url = self.abs_wsj_url(a.get('href'))
-            desc = ''
-            for p in container.xpath('descendant::p[contains(@class, "WSJTheme--description--")]'):
-                q = self.tag_to_string(p)
-                if 'Subscriber Content' in q:
-                    continue
-                desc += q
-                break
-
-            articles.append({'title': title, 'url': url,
-                             'description': desc, 'date': ''})
-            self.log('\tFound article:', title)
-            self.log('\t\t', desc + ' ' + url)
-            if self.test and len(articles) >= self.test[1]:
-                break
-
-        return articles
-
-    def wsj_add_feed(self, feeds, title, url):
-        try:
-            for i in range(5):
-                articles = self.wsj_find_articles(url)
-                if articles:
-                    break
-                else:
-                    pause = random.choice((1, 1.5, 2, 2.5))
-                    self.log.warn('No articles found in', url, 'retrying after', pause, 'seconds')
-                    time.sleep(pause)
-        except Exception:
-            self.log.exception('Failed to parse section:', title)
-            articles = []
-        if articles:
-            feeds.append((title, articles))
-        else:
-            self.log.warn('No articles found in', url)
+        br = browser()
+        raw = br.open(
+            'https://frontpages.freedomforum.org/newspapers/wsj-The_Wall_Street_Journal'
+        )
+        soup = BeautifulSoup(raw.read())
+        cu = soup.find(
+            'img',
+            attrs={
+                'alt': 'Front Page Image',
+                'src': lambda x: x and x.endswith('front-page-large.jpg'),
+            },
+        )['src'].replace('-large', '-medium')
+        self.report_progress(1, _('Downloading cover from %s') % cu)
+        with closing(br.open(cu, timeout=self.timeout)) as r:
+            cdata = r.read()
+        cpath = os.path.join(self.output_dir, 'cover.jpg')
+        save_cover_data_to(cdata, cpath)
+        self.cover_path = cpath
 
     def parse_index(self):
-        # return self.test_wsj_index()
-        root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
-        CSSSelect = Select(root)
-        # from calibre.utils.ipython import ipython
-        # ipython({'root': root, 'CSSSelect': CSSSelect, 'raw': self.wsj_itp_page})
-        for inp in CSSSelect('.DayPickerInput > input'):
-            if inp.get('placeholder'):
-                self.timefmt = inp.get('placeholder')
-                break
+        query = {
+            'operationName': 'IssueQuery',
+            'variables': '{"publication":"WSJ","region":"US","masthead":"ITPNEXTGEN"}',
+            'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"d938226e7d1c1fff050e7d084c72179e2713dcf4736d3a442c618c55b896f847"}}',
+        }
+        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
+            query, safe='()!', quote_via=quote
+        )
+        raw = self.index_to_soup(url, raw=True)
+
+        cat_data = json.loads(raw)['data']['mobileIssuesByMasthead']
+        edit = [x['datedLabel'] for x in cat_data][1:]
+        self.log('**Past Editions available : ' + ' | '.join(edit))
+
+        past_edition = self.recipe_specific_options.get('date')
+
+        for itm in cat_data:
+            if past_edition and isinstance(past_edition, str):
+                if past_edition in itm['publishedDateUtc']:
+                    self.timefmt = ' [' + itm['datedLabel']
+                    sections_ = itm['sections']
+                    break
+            self.timefmt = f' [{itm["datedLabel"]}]'
+            sections_ = itm['sections']
+            break
+
+        self.log('Downloading ', self.timefmt)
 
         feeds = []
-        for container in root.xpath('descendant::*[contains(@class, "WSJTheme--top-menu-item--")]'):
-            for a in container.xpath('descendant::a[contains(@class, "WSJTheme--section-link--")]'):
-                title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
-                if not title:
-                    continue
-                url = self.abs_wsj_url(a.get('href'), modify_query=False)
-                self.log('Found section:', title, 'at', url)
-                self.wsj_add_feed(feeds, title, url)
-                if self.test and len(feeds) >= self.test[0]:
-                    break
-        return feeds
 
-    def test_wsj_index(self):
-        return [
-            ('Testing', [
-                {'title': 'Subscriber Article',
-                 'url': self.abs_wsj_url('https://www.wsj.com/articles/remington-gun-call-of-duty-video-game-93059a66')},
-            ]),
-        ]
+        for sec in sections_[:-1]:
+            time.sleep(3)
+            section = sec['label']
+            self.log(section)
+            cont_id = sec['key']
+
+            query = {
+                'operationName': 'SectionQuery',
+                'variables': '{{"id":"{}"}}'.format(cont_id),
+                'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"207fe93376f379bf223ed2734cf9313a28291293366a803db923666fa6b45026"}}',
+            }
+            sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
+                query, safe='()!', quote_via=quote
+            )
+            sec_raw = self.index_to_soup(sec_url, raw=True)
+
+            sec_data = json.loads(sec_raw)['data']['summaryCollectionContent'][
+                'collectionItems'
+            ]
+
+            articles = []
+
+            for art in sec_data:
+                for arts in art['collectionItems']:
+                    mobi = arts['content']['mobileSummary']
+                    title = mobi['headline']['text']
+                    try:
+                        desc = mobi['description']['content']['text']
+                    except TypeError:
+                        desc = ''
+                    url = arts['content']['sourceUrl']
+                    self.log('          ', title, '\n\t', desc, '\n\t', url)
+                    articles.append({'title': title, 'description': desc, 'url': url})
+            feeds.append((section, articles))
+        return feeds
