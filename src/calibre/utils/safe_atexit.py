@@ -6,11 +6,12 @@
 import atexit
 import json
 import os
+import subprocess
 import sys
 import time
 from contextlib import suppress
 from functools import wraps
-from threading import RLock
+from threading import RLock, Thread
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
@@ -19,6 +20,7 @@ lock = RLock()
 worker = None
 RMTREE_ACTION = 'rmtree'
 UNLINK_ACTION = 'unlink'
+RUN_PROGRAM_ACTION = 'run_program'
 
 
 def thread_safe(f):
@@ -40,11 +42,21 @@ def remove_file_atexit(path: str) -> None:
     _send_command(UNLINK_ACTION, os.path.abspath(path))
 
 
+@thread_safe
+def run_program_now(cmdline: list[str]) -> None:
+    _send_command(RUN_PROGRAM_ACTION, cmdline)
+
+
 def unlink(path):
     with suppress(Exception):
         import os as oss
         if oss.path.exists(path):
             oss.remove(path)
+
+
+def run_program(cmdline: list[str]) -> None:
+    process = subprocess.Popen(cmdline)
+    Thread(name='WaitProgram', target=process.wait, daemon=True).start()
 
 
 def close_worker(worker):
@@ -72,7 +84,7 @@ def reset_after_fork():
     worker = None
 
 
-def _send_command(action: str, payload: str) -> None:
+def _send_command(action: str, payload: str | list[str]) -> None:
     worker = ensure_worker()
     worker.stdin.write(json.dumps({'action': action, 'payload': payload}).encode('utf-8'))
     worker.stdin.write(os.linesep.encode())
@@ -105,19 +117,37 @@ else:
             shutil.rmtree(x, ignore_errors=True)
 
 
+def reset_dll_dir():
+    import ctypes
+    from ctypes import wintypes
+    _set_dll_directory_w = ctypes.WinDLL('kernel32', use_last_error=True).SetDllDirectoryW
+    _set_dll_directory_w.argtypes = [wintypes.LPCWSTR]
+    _set_dll_directory_w.restype = wintypes.BOOL
+    if not _set_dll_directory_w(None):
+        error_code = ctypes.get_last_error()
+        raise ctypes.WinError(error_code)
+
+
 def main():
-    if not iswindows:
+    if iswindows:
+        reset_dll_dir()
+    else:
         import signal
         signal.signal(signal.SIGINT, signal.SIG_IGN)
-    ac_map = {RMTREE_ACTION: remove_dir, UNLINK_ACTION: unlink}
-    for line in sys.stdin.buffer:
-        if line:
-            try:
-                cmd = json.loads(line)
-                atexit.register(ac_map[cmd['action']], cmd['payload'])
-            except Exception:
-                import traceback
-                traceback.print_exc()
+    from calibre.constants import sanitize_env_vars
+    with sanitize_env_vars():
+        ac_map = {RMTREE_ACTION: remove_dir, UNLINK_ACTION: unlink}
+        for line in sys.stdin.buffer:
+            if line:
+                try:
+                    cmd = json.loads(line)
+                    if cmd['action'] == RUN_PROGRAM_ACTION:
+                        run_program(cmd['payload'])
+                    else:
+                        atexit.register(ac_map[cmd['action']], cmd['payload'])
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
 
 
 def main_for_test(do_forced_exit=False, check_tdir=False):

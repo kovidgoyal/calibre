@@ -6,6 +6,7 @@ import collections.abc
 import locale
 import os
 import sys
+from contextlib import contextmanager
 from functools import lru_cache
 
 from polyglot.builtins import environ_item, hasenv
@@ -507,3 +508,47 @@ def bundled_binaries_dir() -> str:
     if (islinux or isbsd) and getattr(sys, 'frozen', False):
         return os.path.join(sys.executables_location, 'bin')
     return ''
+
+
+@contextmanager
+def sanitize_env_vars():
+    '''Unset various environment variables that calibre uses. This
+    is needed to prevent library conflicts when launching external utilities.'''
+
+    if islinux and isfrozen:
+        env_vars = {
+            'LD_LIBRARY_PATH':'/lib', 'OPENSSL_MODULES': '/lib/ossl-modules',
+        }
+    elif iswindows:
+        env_vars = {'OPENSSL_MODULES': None, 'QTWEBENGINE_DISABLE_SANDBOX': None}
+        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+            env_vars['SSL_CERT_FILE'] = None
+    elif ismacos:
+        env_vars = {k:None for k in (
+                    'FONTCONFIG_FILE FONTCONFIG_PATH OPENSSL_ENGINES OPENSSL_MODULES').split()}
+        if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
+            env_vars['SSL_CERT_FILE'] = None
+    else:
+        env_vars = {}
+
+    originals = {x:os.environ.get(x, '') for x in env_vars}
+    changed = {x:False for x in env_vars}
+    for var, suffix in env_vars.items():
+        paths = [x for x in originals[var].split(os.pathsep) if x]
+        npaths = [] if suffix is None else [x for x in paths if x != (sys.frozen_path + suffix)]
+        if len(npaths) < len(paths):
+            if npaths:
+                os.environ[var] = os.pathsep.join(npaths)
+            else:
+                del os.environ[var]
+            changed[var] = True
+
+    try:
+        yield
+    finally:
+        for var, orig in originals.items():
+            if changed[var]:
+                if orig:
+                    os.environ[var] = orig
+                elif var in os.environ:
+                    del os.environ[var]

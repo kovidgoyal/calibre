@@ -39,6 +39,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.resources import get_image_path as I
+from calibre.utils.safe_atexit import run_program_now
 from polyglot.builtins import iteritems, string_or_bytes
 
 ENTRY_ROLE = Qt.ItemDataRole.UserRole
@@ -53,9 +54,15 @@ def pixmap_to_data(pixmap):
 
 
 def run_program(entry, path, parent):
+    import shutil
     import subprocess
     cmdline = entry_to_cmdline(entry, path)
     print('Running Open With commandline:', repr(cmdline))
+    if not shutil.which(cmdline[0]):
+        return error_dialog(_('Failed to run'), _(
+            'Failed to run {0} as it was not found.').format(cmdline[0]), show=True)
+    if iswindows:
+        return run_program_now(cmdline)
     try:
         with sanitize_env_vars():
             process = subprocess.Popen(cmdline)
