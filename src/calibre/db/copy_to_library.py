@@ -112,7 +112,7 @@ def copy_one_book(
         new_book_id = newdb.add_books(
             [(mi, format_map)], add_duplicates=True, apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
             preserve_uuid=preserve_uuid, run_hooks=False)[0][0]
-        bp = db.field_for('path', book_id)
+        bp = db.get_book_path(book_id, sep='/', unsafe=True)
         if bp:
             for (relpath, src_path, stat_result) in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
                 nbp = newdb.field_for('path', new_book_id)
