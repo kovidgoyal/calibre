@@ -4,6 +4,7 @@ import json
 import time
 from urllib.parse import quote, urlencode
 
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
