@@ -2,31 +2,9 @@
 # vim:fileencoding=utf-8
 import json
 import time
-from itertools import zip_longest
 from urllib.parse import quote, urlencode
 
-from calibre import browser
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.web.feeds.news import BasicNewsRecipe, classes
-
-
-def get_article(article_id):
-    from mechanize import Request
-    mat_url = 'https://mats.mobile.dowjones.io/translate/' + article_id + '/jpml'
-    headers = {
-        'User-Agent': 'okhttp/4.10.0',
-        'Accept-Encoding': 'gzip',
-        'Cache-Control': 'no-cache',
-        'x-api-key': ('e''0''5''9''9''5''f''f''4''4''2''1''4''3''2''5''5''e''b''8''3''8''1''f''7''2''d''4''9''1''3''b''f''7''5''0''3''d''6''c'),  # noqa: ISC001
-    }
-    br = browser()
-    req = Request(
-        mat_url,
-        headers=headers,
-    )
-    res = br.open(req)
-    return res.read()
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class WSJ(BasicNewsRecipe):
@@ -44,7 +22,6 @@ class WSJ(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     resolve_internal_links = True
-    simultaneous_downloads = 20
 
     recipe_specific_options = {
         'date': {
@@ -59,114 +36,109 @@ class WSJ(BasicNewsRecipe):
     }
 
     extra_css = '''
-        #subhed, em { font-style:italic; color:#202020; }
-        #byline, #time-to-read, #orig-pubdate-string, .article-byline, time, #flashline { font-size:small; }
-        .figc { font-size:small; text-align:center; }
-        img {display:block; margin:0 auto;}
+        #big-top-caption { font-size:small; text-align:center; }
+        [data-type:"tagline"] { font-style:italic; color:#202020; }
+        .auth, time { font-size:small; }
+        .sub, em, i { color: #202020; }
     '''
 
-    remove_tags = [
-        dict(name='panel', attrs={'id': 'summary-image'}),
-        dict(name='panel', attrs={'layout': 'inline'}),
-        dict(name='panel', attrs={'embed': 'inner-article-ad'}),
-        dict(name='span', attrs={'embed': 'ticker'}),
-        classes('lamrelated-articles-inset-panel'),
-        dict(
-            name='p',
-            attrs={
-                'id': [
-                    'keywords',
-                    'orig-pubdate-number',
-                    'type',
-                    'is-custom-flashline',
-                    'grouphed',
-                    'author-ids',
-                    'article-manifest',
-                    'body-extract',
-                    'category',
-                    'sub-category',
-                    'socialhed',
-                    'summary',
-                    'deckline',
-                    'article-flashline',
-                ]
-            },
-        ),
+    keep_only_tags = [
+        dict(name=['h1', 'h2']),
+        dict(attrs={'aria-describedby': 'big-top-caption'}),
+        dict(attrs={'id': 'big-top-caption'}),
+        dict(name='article', attrs={'style': lambda x: x and 'article-body' in x}),
     ]
 
-    remove_tags_before = [dict(name='p', attrs={'id': 'orig-pubdate-string'})]
+    remove_tags = [
+        dict(attrs={'data-type': ['inset', 'video']}),
+        dict(attrs={'data-testid': 'ad-container'}),
+        dict(attrs={'data-spotim-app': 'conversation'}),
+        dict(name=['button', 'svg', 'old-script', 'video']),
+        dict(
+            attrs={
+                'aria-label': [
+                    'Sponsored Offers',
+                    'Listen To Article',
+                    'What to Read Next',
+                    'Utility Bar',
+                    'Conversation',
+                    'List of Comments',
+                    'Comment',
+                    'JR More Articles',
+                ]
+            }
+        ),
+        dict(
+            attrs={
+                'data-spot-im-class': [
+                    'message-text',
+                    'messages-list',
+                    'message-view',
+                    'conversation-root',
+                ]
+            }
+        ),
+        dict(
+            attrs={
+                'id': lambda x: x
+                and x.startswith((
+                    'comments_sector',
+                    'wrapper-INLINE',
+                    'audio-tag-inner-audio-',
+                    'article-comments-tool',
+                ))
+            }
+        ),
+        dict(name='div', attrs={'data-message-depth': True}),
+    ]
 
-    def media_bucket(self, x):
+    articles_are_obfuscated = True
+
+    def get_obfuscated_article(self, url):
+        from calibre.scraper.simple import read_url
+        raw = read_url([], 'https://archive.is/latest/' + url)
+        return {'data': raw, 'url': url}
+
+    def preprocess_html(self, soup):
         res = '?width=600'
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             res = '?width=' + w
-        if x.get('type', '') == 'image':
-            if (
-                x.get('subtype', '') == 'graphic'
-                or 'images.wsj.net' not in x['manifest-url']
-            ):
-                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                    x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
-                )
-            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                x['manifest-url'].split('?')[0] + res,
-                x['caption'] + '<i> ' + x['credit'] + '</i>',
-            )
-        if x.get('type', '') == 'video':
-            return (
-                '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
-                    x['share_link'],
-                    x['thumbnail_url'].split('?')[0] + res,
-                    x['caption'] + '<i> ' + x['credit'] + '</i>',
-                )
-            )
-        return
-
-    def preprocess_html(self, soup):
-        jpml = soup.find('jpml')
-        if jpml:
-            jpml.name = 'article'
-        h1 = soup.find('p', attrs={'id': 'headline'})
-        if h1:
-            h1.name = 'h1'
+        for img in soup.findAll('img', attrs={'currentsourceurl': True}):
+            img['src'] = img['currentsourceurl'].split('?')[0] + res
+        for p in soup.findAll('div', attrs={'data-type': ['paragraph', 'image']}):
+            p.name = 'p'
+        for a in soup.findAll('a', href=True):
+            a['href'] = 'http' + a['href'].split('http')[-1]
+        for figc in soup.findAll('figcaption'):
+            figc['id'] = 'big-top-caption'
+        if name := soup.find('h2', attrs={'itemprop': 'name'}):
+            name.extract()
         for h2 in soup.findAll('h2'):
-            h2.name = 'h4'
-        dt = soup.find('p', attrs={'id': 'orig-pubdate-string'})
-        read = soup.find('p', attrs={'id': 'time-to-read'})
-        byl = soup.find('p', attrs={'id': 'byline'})
-        fl = soup.find('p', attrs={'id': 'flashline'})
-        if dt and byl and read and fl:
-            dt.name = read.name = byl.name = fl.name = 'div'
-            byl.insert(0, dt)
-            byl.insert(0, read)
-        url = soup.find('p', attrs={'id': 'share-link'})
-        if url:
-            url.name = 'div'
-            url['title'] = self.tag_to_string(url).strip()
-            url.string = ''
-        panel = soup.find('panel', attrs={'id': 'metadata'})
-        if panel:
-            buck = panel.find('p', attrs={'id': 'media-bucket'})
-            if buck:
-                data = json.loads(buck.string)
-                buck.extract()
-                i_lst = [self.media_bucket(x) for x in data['items']]
-                m_itm = soup.findAll('panel', attrs={'class': 'media-item'})
-                if i_lst and m_itm:
-                    for x, y in list(zip_longest(m_itm, i_lst)):
-                        x.insert_after(BeautifulSoup(y, 'html.parser'))
-        return soup
-
-    def postprocess_html(self, soup, first_fetch):
-        for pan in soup.findAll('panel'):
-            pan.name = 'div'
+            if self.tag_to_string(h2).startswith(('What to Read Next', 'Conversation')):
+                h2.extract()
+            h2.name = 'h3'
+            h2['class'] = 'sub'
+        for ph in soup.findAll('a', attrs={'data-type': ['phrase', 'link']}):
+            if div := ph.findParent('div'):
+                div.name = 'span'
+        for auth in soup.findAll(
+            'a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}
+        ):
+            if div := auth.find_previous_sibling('div'):
+                div.name = 'span'
+            if parent := auth.findParent('div'):
+                parent['class'] = 'auth'
+        for x in soup.findAll('ufc-follow-author-widget'):
+            if y := x.findParent('div'):
+                y.extract()
         return soup
 
     def _download_cover(self):
         import os
         from contextlib import closing
 
+        from calibre import browser
         from calibre.utils.img import save_cover_data_to
 
         br = browser()
@@ -259,29 +231,8 @@ class WSJ(BasicNewsRecipe):
                         desc = mobi['description']['content']['text']
                     except TypeError:
                         desc = ''
-                    url = arts['id']
-                    self.log('          ', title, '\n\t', desc)
+                    url = arts['content']['sourceUrl']
+                    self.log('          ', title, '\n\t', desc, '\n\t', url)
                     articles.append({'title': title, 'description': desc, 'url': url})
             feeds.append((section, articles))
         return feeds
-
-    def populate_article_metadata(self, article, soup, first):
-        lnk = soup.find('div', attrs={'id': 'share-link'})
-        if lnk:
-            article.url = lnk['title']
-
-    def print_version(self, url):
-        # query = {
-        #         'operationName': 'ArticleContent',
-        #         'variables': '{{"id":"{}","idType":"originid"}}'.format(url),
-        #         'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"9b0e21df0753a90766c892f57603a7dc1b4c6cb87a2612bdf825c76e4e41a2fb"}}',
-        #         }
-        # art_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
-        #         query, safe='()!', quote_via=quote
-        #         )
-        # art_raw = self.index_to_soup(art_url, raw=True)
-        art_cont = get_article(url)
-        pt = PersistentTemporaryFile('.html')
-        pt.write(art_cont)
-        pt.close()
-        return 'file:///' + pt.name
