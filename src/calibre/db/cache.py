@@ -3155,9 +3155,9 @@ class Cache:
             poff += 1
 
         @contextmanager
-        def tempfile_for_export(name: str) -> Iterator[str]:
+        def tempfile_for_export(which: str) -> Iterator[str]:
             import tempfile
-            fd, ans = tempfile.mkstemp(suffix=name, dir=exporter.base)
+            fd, ans = tempfile.mkstemp(suffix=f'-{which}.db', dir=exporter.base)
             os.close(fd)
             try:
                 yield ans
@@ -3165,19 +3165,19 @@ class Cache:
                 os.remove(ans)
 
         report_progress('metadata.db')
-        with tempfile_for_export('-export.db') as tf:
+        with tempfile_for_export('metadata') as tf:
             self.backend.backup_database(tf)
             dbkey = key_prefix + ':::' + 'metadata.db'
             with open(tf, 'rb') as f:
                 exporter.add_file(f, dbkey)
         if has_fts:
             report_progress('full-text-search.db')
-            with tempfile_for_export('-export.db') as tf:
+            with tempfile_for_export('fts') as tf:
                 self.backend.backup_fts_database(tf)
                 ftsdbkey = key_prefix + ':::full-text-search.db'
                 with open(tf, 'rb') as f:
                     exporter.add_file(f, ftsdbkey)
-        with tempfile_for_export('-export.db') as tf, open(tf, 'r+b') as pt:
+        with tempfile_for_export('notes') as tf, open(tf, 'r+b') as pt:
             self.backend.export_notes_data(pt)
             pt.flush()
             pt.seek(0)
