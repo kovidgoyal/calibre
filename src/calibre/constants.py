@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 import codecs
-import collections
-import collections.abc
 import locale
 import os
 import sys
+from collections import namedtuple
+from collections.abc import Mapping
 from contextlib import contextmanager
 from functools import lru_cache
 
@@ -86,7 +86,6 @@ def get_osx_version():
     global _osx_ver
     if _osx_ver is None:
         import platform
-        from collections import namedtuple
         OSX = namedtuple('OSX', 'major minor tertiary')
         try:
             ver = platform.mac_ver()[0].split('.')
@@ -318,7 +317,7 @@ if iswindows:
     from calibre_extensions import winutil
 
 
-class Plugins(collections.abc.Mapping):
+class Plugins(Mapping):
 
     def __iter__(self):
         from importlib.resources import contents
