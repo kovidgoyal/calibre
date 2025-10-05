@@ -42,7 +42,7 @@ def implementation(db, notify_changes, query, adata):
     try:
         return db.fts_search(
             query, use_stemming=adata['use_stemming'], highlight_start=adata['start_marker'], highlight_end=adata['end_marker'],
-            return_text=include_snippets, restrict_to_book_ids=restrict_to, result_type=tuple if adata['as_tuple'] else lambda x: x,
+            return_text=include_snippets, restrict_to_book_ids=restrict_to,
             process_each_result=add_metadata, snippet_size=64
         ), metadata_cache
     except FTSQueryError as e:
@@ -160,12 +160,10 @@ def main(opts, args, dbctx):
     try:
         results, metadata_cache = dbctx.run('fts_search', search_expression, {
             'start_marker': opts.match_start_marker, 'end_marker': opts.match_end_marker, 'use_stemming': opts.use_stemming,
-            'include_snippets': opts.include_snippets, 'restrict_to': restrict_to, 'as_tuple': dbctx.is_remote,
+            'include_snippets': opts.include_snippets, 'restrict_to': restrict_to,
             'threshold': max(0, min(opts.indexing_threshold, 100)) / 100
         })
         if opts.output_format == 'json':
-            if not dbctx.is_remote:
-                results = tuple(results)
             for r in results:
                 m = metadata_cache[r['book_id']]
                 r['title'], r['authors'] = m['title'], m['authors']
