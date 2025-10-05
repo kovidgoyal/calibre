@@ -166,7 +166,7 @@ if iswindows:
         argv = winutil.parse_cmdline(cmdline)
         exe = argv[0]
         rest = subprocess.list2cmdline(argv[1:])
-        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', exe, repr(rest))
+        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', exe, rest)
         try:
             with sanitize_env_vars():
                 os.startfile(exe, 'open', rest)
