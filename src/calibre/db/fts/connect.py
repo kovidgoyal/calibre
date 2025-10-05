@@ -175,10 +175,14 @@ class FTS:
         conn = self.get_connection()
         temp_table_name = ''
         if restrict_to_book_ids:
-            temp_table_name = f'fts_restrict_search_{next(self.temp_table_counter)}'
-            conn.execute(f'CREATE TABLE temp.{temp_table_name}(x INTEGER)')
-            conn.executemany(f'INSERT INTO temp.{temp_table_name} VALUES (?)', tuple((x,) for x in restrict_to_book_ids))
-            query += f' fts_db.books_text.book IN temp.{temp_table_name} AND '
+            if len(restrict_to_book_ids) == 1:
+                only_book = next(iter(restrict_to_book_ids))
+                query += f' fts_db.books_text.book == {only_book} AND '
+            else:
+                temp_table_name = f'fts_restrict_search_{next(self.temp_table_counter)}'
+                conn.execute(f'CREATE TABLE temp.{temp_table_name}(x INTEGER)')
+                conn.executemany(f'INSERT INTO temp.{temp_table_name} VALUES (?)', tuple((x,) for x in restrict_to_book_ids))
+                query += f' fts_db.books_text.book IN temp.{temp_table_name} AND '
         query += f' "{fts_table}" MATCH ?'
         data.append(fts_engine_query)
         query += f' ORDER BY {fts_table}.rank '
