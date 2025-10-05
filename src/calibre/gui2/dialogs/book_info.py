@@ -306,7 +306,7 @@ class BookInfo(QDialog, DropMixin):
                 dbn = db.new_api
                 mi = dbn.get_metadata(book_id, get_cover=False)
                 mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
-                mi.path = dbn._field_for('path', book_id)
+                mi.path = dbn.get_book_path(book_id, sep='/')
                 mi.format_files = dbn.format_files(book_id)
                 mi.marked = db.data.get_marked(book_id)
                 mi.field_metadata = db.field_metadata

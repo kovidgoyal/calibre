@@ -325,7 +325,7 @@ class LibraryDatabase:
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         book_id = index if index_is_id else self.id(index)
-        return self.new_api.field_for('path', book_id).replace('/', os.sep)
+        return self.new_api.get_book_path(book_id)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
