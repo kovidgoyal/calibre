@@ -896,6 +896,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
                 import traceback
+                traceback.print_exc()
                 error_dialog(self, _('Failed to update annotations'), _(
                     'Failed to update annotations in the database for the book being currently viewed.'), det_msg=traceback.format_exc(), show=True)
         elif msg.startswith('bookedited:'):
