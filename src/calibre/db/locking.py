@@ -10,6 +10,7 @@ import sys
 import traceback
 from contextlib import contextmanager
 from threading import Condition, Lock, current_thread
+from time import monotonic
 
 
 @contextmanager
@@ -246,29 +247,34 @@ class DebugRWLockWrapper(RWLockWrapper):
     def __init__(self, *args, **kwargs):
         RWLockWrapper.__init__(self, *args, **kwargs)
         self.print_lock = Lock()
+        self.st = monotonic()
 
     def acquire(self):
         t = current_thread()
         tid = f'{os.getpid()} - {t.name} - {t.native_id}'
+        at = monotonic() - self.st
         with self.print_lock:
             print('#' * 120, file=sys.stderr)
-            print('acquire called: thread id:', tid, 'shared:', self._is_shared, file=sys.stderr)
+            print(f'acquire called at {at:.4f}: thread id:', tid, 'shared:', self._is_shared, file=sys.stderr)
             traceback.print_stack()
         RWLockWrapper.acquire(self)
+        at = monotonic() - self.st
         with self.print_lock:
-            print('acquire done: thread id:', tid, file=sys.stderr)
+            print(f'acquire done at {at:.4f}: thread id:', tid, file=sys.stderr)
             print('_' * 120, file=sys.stderr)
 
     def release(self, *args):
         t = current_thread()
         tid = f'{os.getpid()} - {t.name} - {t.native_id}'
+        at = monotonic() - self.st
         with self.print_lock:
             print('*' * 120, file=sys.stderr)
-            print('release called: thread id:', tid, 'shared:', self._is_shared, file=sys.stderr)
+            print(f'release called at {at:.4f}: thread id:', tid, 'shared:', self._is_shared, file=sys.stderr)
             traceback.print_stack()
+        at = monotonic() - self.st
         RWLockWrapper.release(self)
         with self.print_lock:
-            print('release done: thread id:', tid, 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive,
+            print(f'release done at {at:.4f}: thread id:', tid, 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive,
                   file=sys.stderr)
             print('_' * 120, file=sys.stderr)
 
