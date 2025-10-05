@@ -14,7 +14,8 @@ import sys
 import traceback
 import weakref
 from collections import defaultdict
-from collections.abc import Iterable, MutableSet, Set
+from collections.abc import Iterable, Iterator, MutableSet, Set
+from contextlib import contextmanager
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
@@ -3153,29 +3154,35 @@ class Cache:
                 progress(fname, poff, total)
             poff += 1
 
+        @contextmanager
+        def tempfile_for_export(name: str) -> Iterator[str]:
+            import tempfile
+            fd, ans = tempfile.mkstemp(suffix=name, dir=exporter.base)
+            os.close(fd)
+            try:
+                yield ans
+            finally:
+                os.remove(ans)
+
         report_progress('metadata.db')
-        pt = PersistentTemporaryFile('-export.db')
-        pt.close()
-        self.backend.backup_database(pt.name)
-        dbkey = key_prefix + ':::' + 'metadata.db'
-        with open(pt.name, 'rb') as f:
-            exporter.add_file(f, dbkey)
-        os.remove(pt.name)
+        with tempfile_for_export('-export.db') as tf:
+            self.backend.backup_database(tf)
+            dbkey = key_prefix + ':::' + 'metadata.db'
+            with open(tf, 'rb') as f:
+                exporter.add_file(f, dbkey)
         if has_fts:
             report_progress('full-text-search.db')
-            pt = PersistentTemporaryFile('-export.db')
-            pt.close()
-            self.backend.backup_fts_database(pt.name)
-            ftsdbkey = key_prefix + ':::full-text-search.db'
-            with open(pt.name, 'rb') as f:
-                exporter.add_file(f, ftsdbkey)
-            os.remove(pt.name)
-        notesdbkey = key_prefix + ':::notes.db'
-        with PersistentTemporaryFile('-export.db') as pt:
+            with tempfile_for_export('-export.db') as tf:
+                self.backend.backup_fts_database(tf)
+                ftsdbkey = key_prefix + ':::full-text-search.db'
+                with open(tf, 'rb') as f:
+                    exporter.add_file(f, ftsdbkey)
+        with tempfile_for_export('-export.db') as tf, open(tf, 'r+b') as pt:
             self.backend.export_notes_data(pt)
             pt.flush()
             pt.seek(0)
             report_progress('notes.db')
+            notesdbkey = key_prefix + ':::notes.db'
             exporter.add_file(pt, notesdbkey)
 
         format_metadata = {}
