@@ -39,7 +39,6 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.resources import get_image_path as I
-from calibre.utils.safe_atexit import run_program_now
 from polyglot.builtins import iteritems, string_or_bytes
 
 ENTRY_ROLE = Qt.ItemDataRole.UserRole
@@ -54,15 +53,9 @@ def pixmap_to_data(pixmap):
 
 
 def run_program(entry, path, parent):
-    import shutil
     import subprocess
     cmdline = entry_to_cmdline(entry, path)
     print('Running Open With commandline:', repr(cmdline))
-    if not shutil.which(cmdline[0]):
-        return error_dialog(_('Failed to run'), _(
-            'Failed to run {0} as it was not found.').format(cmdline[0]), show=True)
-    if iswindows:
-        return run_program_now(cmdline)
     try:
         with sanitize_env_vars():
             process = subprocess.Popen(cmdline)
@@ -169,24 +162,19 @@ if iswindows:
     del run_program
 
     def run_program(entry, path, parent):
-        import re
         cmdline = entry_to_cmdline(entry, path)
-        flags = subprocess.CREATE_DEFAULT_ERROR_MODE | subprocess.CREATE_NEW_PROCESS_GROUP
-        if re.match(r'"[^"]+?(.bat|.cmd|.com)"', cmdline, flags=re.I):
-            flags |= subprocess.CREATE_NO_WINDOW
-            console = ' (console)'
-        else:
-            flags |= subprocess.DETACHED_PROCESS
-            console = ''
-        print(f'Running Open With commandline{console}:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
+        argv = winutil.parse_cmdline(cmdline)
+        exe = argv[0]
+        rest = subprocess.list2cmdline(argv[1:])
+        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', exe, repr(rest))
         try:
             with sanitize_env_vars():
-                winutil.run_cmdline(cmdline, flags, 2000)
+                os.startfile(exe, 'open', rest)
         except Exception as err:
             return error_dialog(
                 parent, _('Failed to run'), _(
                 'Failed to run program, click "Show details" for more information'),
-                det_msg=f'Command line: {cmdline!r}\n{as_unicode(err)}')
+                det_msg=f'Command line: {cmdline!r}\n{err}')
     # }}}
 
 elif ismacos:
