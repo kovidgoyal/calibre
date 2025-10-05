@@ -176,7 +176,7 @@ class FTS:
         temp_table_name = ''
         if restrict_to_book_ids:
             if len(restrict_to_book_ids) == 1:
-                only_book = next(iter(restrict_to_book_ids))
+                only_book = int(next(iter(restrict_to_book_ids)))
                 query += f' fts_db.books_text.book == {only_book} AND '
             else:
                 temp_table_name = f'fts_restrict_search_{next(self.temp_table_counter)}'
