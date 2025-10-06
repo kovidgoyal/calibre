@@ -206,13 +206,19 @@ def main(args=sys.argv):
 
     libraries = args[1:]
     for lib in libraries:
-        if not lib or not LibraryDatabase.exists_at(lib):
+        if not lib or (not LibraryDatabase.exists_at(lib) and not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH')):
             raise SystemExit(_('There is no calibre library at: %s') % lib)
     libraries = libraries or load_gui_libraries()
     if not libraries:
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries = [prefs['library_path']]
+    if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH'):
+        if len(libraries) > 1:
+            raise SystemExit(_('Cannot use more than one library with CALIBRE_OVERRIDE_DATABASE_PATH'))
+        if not os.path.exists(os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']):
+            raise SystemExit(_('No database found at CALIBRE_OVERRIDE_DATABASE_PATH: {}').format(
+                os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']))
 
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
