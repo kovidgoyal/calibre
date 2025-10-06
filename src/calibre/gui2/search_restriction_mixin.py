@@ -19,12 +19,14 @@ from qt.core import (
     QLineEdit,
     QListView,
     QMenu,
+    QPlainTextEdit,
     QRadioButton,
     QSize,
     QSortFilterProxyModel,
     QStringListModel,
     Qt,
     QTextBrowser,
+    QTextCursor,
     QVBoxLayout,
 )
 
@@ -118,6 +120,19 @@ def _build_full_search_string(gui):
 
 class CreateVirtualLibrary(QDialog):  # {{{
 
+    @property
+    def search_expression(self) -> str:
+        return ' '.join(x.strip() for x in self.vl_text.toPlainText().strip().splitlines())
+
+    @search_expression.setter
+    def search_expression(self, val: str) -> None:
+        cache = gprefs.get('vl-search-expression-multiline-forms', [])
+        for k, v in cache:
+            if val == k:
+                val = v
+                break
+        self.vl_text.setPlainText(val)
+
     def __init__(self, gui, existing_names, editing=None):
         QDialog.__init__(self, gui)
 
@@ -148,14 +163,13 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
         self.la2 = la2 = QLabel(_('&Search expression:'))
         gl.addWidget(la2, 1, 0)
-        self.vl_text = QLineEdit()
-        self.vl_text.setClearButtonEnabled(True)
+        self.vl_text = QPlainTextEdit(self)
         self.vl_text.textChanged.connect(self.search_text_changed)
         la2.setBuddy(self.vl_text)
         gl.addWidget(self.vl_text, 1, 1)
         # Trigger the textChanged signal to initialize the saved searches box
-        self.vl_text.setText(' ')
-        self.vl_text.setText(_build_full_search_string(self.gui))
+        self.search_expression = ' '
+        self.search_expression = _build_full_search_string(self.gui)
 
         self.sl = sl = QLabel('<p>'+_('Create a Virtual library based on: ')+
             ('<a href="author.{0}">{0}</a>, '
@@ -205,7 +219,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                     self.vl_name.setCurrentIndex(dex)
                     self.original_index = dex
             self.original_search = virt_libs.get(editing, '')
-            self.vl_text.setText(self.original_search)
+            self.search_expression = self.original_search
             self.new_name = editing
             self.vl_name.currentIndexChanged.connect(self.name_index_changed)
             self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
@@ -213,7 +227,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.resize(self.sizeHint()+QSize(150, 25))
         self.restore_geometry(gprefs, 'create-virtual-library-dialog')
 
-    def search_text_changed(self, txt):
+    def search_text_changed(self):
+        txt = self.search_expression
         db = self.gui.current_db
         searches = [_('Saved searches recognized in the expression:')]
         txt = str(txt)
@@ -250,7 +265,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.new_name = str(new_name)
 
     def name_index_changed(self, dex):
-        if self.editing and (self.vl_text.text() != self.original_search or
+        if self.editing and (self.search_expression != self.original_search or
                              self.new_name != self.editing):
             if not question_dialog(self.gui, _('Search text changed'),
                          _('The Virtual library name or the search text has changed. '
@@ -264,7 +279,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.new_name = self.editing = self.vl_name.currentText()
         self.original_index = dex
         self.original_search = str(self.vl_name.itemData(dex) or '')
-        self.vl_text.setText(self.original_search)
+        self.search_expression = self.original_search
 
     def link_activated(self, url):
         db = self.gui.current_db
@@ -284,8 +299,8 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 if not self.editing:
                     self.vl_name.lineEdit().setText(next(d.names))
                     self.vl_name.lineEdit().setCursorPosition(0)
-                self.vl_text.setText(d.match_type.join(search))
-                self.vl_text.setCursorPosition(0)
+                self.search_expression = d.match_type.join(search)
+                self.vl_text.moveCursor(QTextCursor.MoveOperation.Start)
 
     def accept(self):
         n = str(self.vl_name.currentText()).strip()
@@ -308,7 +323,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                             default_yes=False):
                 return
 
-        v = str(self.vl_text.text()).strip()
+        v = self.search_expression
         if not v:
             error_dialog(self.gui, _('No search string'),
                          _('You must provide a search to define the new Virtual library'),
@@ -334,6 +349,10 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.library_name = n
         self.library_search = v
         self.save_geometry(gprefs, 'create-virtual-library-dialog')
+        cache = gprefs.get('vl-search-expression-multiline-forms', [])
+        cache = [(k, v) for (k, v) in cache if k != v]
+        cache.insert(0, (v, self.vl_text.toPlainText().strip()))
+        gprefs['vl-search-expression-multiline-forms'] = cache[:50]
         QDialog.accept(self)
 
     def reject(self):
