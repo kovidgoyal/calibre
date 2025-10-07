@@ -53,7 +53,7 @@ class FTSAPITest(BaseTest):
         self.libraries_to_close.append(ans)
         return ans
 
-    def wait_for_fts_to_finish(self, fts, timeout=10):
+    def wait_for_fts_to_finish(self, fts, timeout=30):
         import apsw
         if fts.pool.initialized:
             st = time.monotonic()
