@@ -382,7 +382,6 @@ def get_metadata(stream):
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
-    return
 
 
 if __name__ == '__main__':

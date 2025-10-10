@@ -118,4 +118,3 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             model, id, path = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
             path = str(path)
             self.result.append((model, id, path))
-        return

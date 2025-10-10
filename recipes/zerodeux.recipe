@@ -94,4 +94,3 @@ class ZeroDeuxRecipe(BasicNewsRecipe):
             if author.startswith('par '):
                 author = author[4:]
             article.author = author
-        return

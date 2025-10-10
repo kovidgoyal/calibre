@@ -75,4 +75,3 @@ class OEBWriter:
             if opfname and mime == OPF_MIME:
                 href = opfname
             output.write(href, xml2str(data, pretty_print=pretty_print))
-        return
