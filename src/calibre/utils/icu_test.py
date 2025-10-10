@@ -8,7 +8,7 @@ import sys
 import unittest
 from contextlib import contextmanager
 
-import calibre.utils.icu as icu
+from calibre.utils import icu
 from polyglot.builtins import cmp, iteritems
 
 

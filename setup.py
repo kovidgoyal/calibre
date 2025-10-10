@@ -33,8 +33,7 @@ check_version_info()
 
 sys.path.insert(0, src_base)
 
-import setup.commands as commands
-from setup import get_warnings, prints
+from setup import commands, get_warnings, prints
 
 
 def option_parser():

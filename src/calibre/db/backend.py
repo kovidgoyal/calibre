@@ -2215,7 +2215,7 @@ class DB:
         os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
         if iswindows:
-            import calibre_extensions.winutil as winutil
+            from calibre_extensions import winutil
             winutil.set_file_attributes(tdir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash(during_init=during_init)
