@@ -114,7 +114,7 @@ def do_list(fields, data, opts):
         lines = max(map(len, text))
         for l in range(lines):
             for i, field in enumerate(text):
-                ft = text[i][l] if l < len(text[i]) else ''
+                ft = field[l] if l < len(field) else ''
                 filler = ' '*(widths[i] - len(ft) - 1)
                 print(ft.encode('utf-8') + filler.encode('utf-8'), end=separator)
             print()
