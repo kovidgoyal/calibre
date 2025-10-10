@@ -1339,9 +1339,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self.list_number_map[number_class] = self.list_number_map[tglc]
             else:
                 self.list_number_map.pop(number_class, None)
-        else:
-            if not continue_numbering:
-                self.list_number_map.pop(number_class, None)
+        elif not continue_numbering:
+            self.list_number_map.pop(number_class, None)
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:

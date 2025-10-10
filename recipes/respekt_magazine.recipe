@@ -122,10 +122,9 @@ class respektRecipe(BasicNewsRecipe):
                     text = child.text_content()
                     if next.text:
                         next.text = next.text + u' • ' + text
-                    else:
-                        if next.getchildren():
-                            next_child = next.getchildren()[0]
-                            next_child.text = next_child.text + u' • ' + text
+                    elif next.getchildren():
+                        next_child = next.getchildren()[0]
+                        next_child.text = next_child.text + u' • ' + text
                     par.getparent().remove(par)
         # Insert text length
         text = root.xpath("//div[@id='postcontent']")[0]

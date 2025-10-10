@@ -362,11 +362,10 @@ def remove_links_to(container, predicate):
                 if predicate(hname, href, frag):
                     if attr is None:
                         el.text = None
+                    elif el.tag == XHTML('link') or el.tag == XHTML('img'):
+                        extract(el)
                     else:
-                        if el.tag == XHTML('link') or el.tag == XHTML('img'):
-                            extract(el)
-                        else:
-                            del el.attrib[attr]
+                        del el.attrib[attr]
                     removed = True
             for tag in stylepath(root):
                 if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':

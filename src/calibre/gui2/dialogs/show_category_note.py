@@ -67,11 +67,10 @@ class ShowNoteDialog(Dialog):
             l1 = self.extra_link
             l1tt = self.extra_link_tooltip
             l2 = self.item_link
+        elif self.item_link:
+            l1 = self.item_link
         else:
-            if self.item_link:
-                l1 = self.item_link
-            else:
-                l2, l2tt = self.extra_link, self.extra_link_tooltip
+            l2, l2tt = self.extra_link, self.extra_link_tooltip
         if l1:
             src = f'<a href="{x(l1, True)}" style="text-decoration: none" title="{x(l1tt, True)}">{src}</a>'
         if l2:

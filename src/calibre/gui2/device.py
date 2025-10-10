@@ -913,19 +913,18 @@ class DeviceMenu(QMenu):  # {{{
             if action.dest in ('main:', 'carda:0', 'cardb:0'):
                 if not enable:
                     action.setEnabled(False)
-                else:
-                    if action.dest == 'main:':
+                elif action.dest == 'main:':
+                    action.setEnabled(True)
+                elif action.dest == 'carda:0':
+                    if card_prefix and card_prefix[0] is not None:
                         action.setEnabled(True)
-                    elif action.dest == 'carda:0':
-                        if card_prefix and card_prefix[0] is not None:
-                            action.setEnabled(True)
-                        else:
-                            action.setEnabled(False)
-                    elif action.dest == 'cardb:0':
-                        if card_prefix and card_prefix[1] is not None:
-                            action.setEnabled(True)
-                        else:
-                            action.setEnabled(False)
+                    else:
+                        action.setEnabled(False)
+                elif action.dest == 'cardb:0':
+                    if card_prefix and card_prefix[1] is not None:
+                        action.setEnabled(True)
+                    else:
+                        action.setEnabled(False)
 
         annot_enable = enable and getattr(device, 'SUPPORTS_ANNOTATIONS', False)
         self.annotation_action.setEnabled(annot_enable)
@@ -1623,11 +1622,10 @@ class DeviceMixin:  # {{{
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                elif specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))):
+                    auto.append(id)
                 else:
-                    if specific_format in list(set(settings.format_map).intersection(set(available_output_formats()))):
-                        auto.append(id)
-                    else:
-                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                    bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
             format = specific_format if specific_format in \
@@ -2091,9 +2089,8 @@ class DeviceMixin:  # {{{
                         except Exception:
                             prints('Problem creating temporary file for', fmt_name)
                             traceback.print_exc()
-                    else:
-                        if DEBUG:
-                            prints("DeviceJob: book doesn't have that format")
+                    elif DEBUG:
+                        prints("DeviceJob: book doesn't have that format")
                 if files:
                     self.upload_books(files, names, metadata)
             except Exception:

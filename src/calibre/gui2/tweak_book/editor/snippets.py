@@ -433,9 +433,8 @@ class SnippetManager(QObject):
             if at is not None:
                 if at.jump_to_next(editor) is None:
                     self.active_templates.remove(at)
-                else:
-                    if not at.remains_active():
-                        self.active_templates.remove(at)
+                elif not at.remains_active():
+                    self.active_templates.remove(at)
                 ev.accept()
                 return True
             lst, self.last_selected_text = self.last_selected_text, editor.selected_text

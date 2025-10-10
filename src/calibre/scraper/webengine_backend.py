@@ -81,10 +81,9 @@ class DownloadRequest(QObject):
         if self.aborted_on_timeout:
             self.result['error'] = 'Timed out'
             self.result['worth_retry'] = True
-        else:
-            if r:
-                self.result['error'] = r['error']
-                self.result['worth_retry'] = True  # usually some kind of network error
+        elif r:
+            self.result['error'] = r['error']
+            self.result['worth_retry'] = True  # usually some kind of network error
         return self.result
 
     def too_slow_or_timed_out(self, now: float) -> bool:

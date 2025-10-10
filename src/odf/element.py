@@ -384,9 +384,8 @@ class Element(Node):
         '''
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText(f'The <{self.tagName}> element does not allow text')
-        else:
-            if text != '':
-                self.appendChild(Text(text))
+        elif text != '':
+            self.appendChild(Text(text))
 
     def addCDATA(self, cdata, check_grammar=True):
         ''' Adds CDATA to an element

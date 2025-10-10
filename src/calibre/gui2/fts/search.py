@@ -68,15 +68,14 @@ def jump_to_book(book_id, parent=None):
         parent = parent or gui
         if gui.library_view.select_rows((book_id,)):
             gui.raise_and_focus()
+        elif gprefs['fts_library_restrict_books']:
+            error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
         else:
-            if gprefs['fts_library_restrict_books']:
-                error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
-            else:
-                error_dialog(parent, _('Not found'), _(
-                    'This book is not currently visible in the calibre library.'
-                    ' If you have a search or Virtual library active, try clearing that.'
-                    ' Or click the "Restrict searched books" checkbox in this window to'
-                    ' only search currently visible books.'), show=True)
+            error_dialog(parent, _('Not found'), _(
+                'This book is not currently visible in the calibre library.'
+                ' If you have a search or Virtual library active, try clearing that.'
+                ' Or click the "Restrict searched books" checkbox in this window to'
+                ' only search currently visible books.'), show=True)
 
 
 def show_in_viewer(book_id, text, fmt):

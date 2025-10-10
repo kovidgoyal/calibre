@@ -432,11 +432,10 @@ class HTMLConverter:
                             pdict[key][pseudo] = val
                     else:
                         pdict[key] = {pseudo:val}
+                elif key in sdict:
+                    sdict[key].update(val)
                 else:
-                    if key in sdict:
-                        sdict[key].update(val)
-                    else:
-                        sdict[key] = val
+                    sdict[key] = val
         return sdict, pdict
 
     def parse_style_properties(self, props):
@@ -1202,27 +1201,26 @@ class HTMLConverter:
                         ans = int(font_size('smaller'))
                     if ans < 0:
                         ans = normal
-            else:
-                if ans == 0:
-                    ans = int(font_size('smaller'))
-                elif 'smaller' in val:
-                    ans = normal - 20
-                elif 'xx-small' in val:
-                    ans = 40
-                elif 'x-small' in val:
-                    ans = 60
-                elif 'small' in val:
-                    ans = 80
-                elif 'medium' in val:
-                    ans = 100
-                elif 'larger' in val:
-                    ans = normal + 20
-                elif 'xx-large' in val:
-                    ans = 180
-                elif 'x-large' in val:
-                    ans = 140
-                elif 'large' in val:
-                    ans = 120
+            elif ans == 0:
+                ans = int(font_size('smaller'))
+            elif 'smaller' in val:
+                ans = normal - 20
+            elif 'xx-small' in val:
+                ans = 40
+            elif 'x-small' in val:
+                ans = 60
+            elif 'small' in val:
+                ans = 80
+            elif 'medium' in val:
+                ans = 100
+            elif 'larger' in val:
+                ans = normal + 20
+            elif 'xx-large' in val:
+                ans = 180
+            elif 'x-large' in val:
+                ans = 140
+            elif 'large' in val:
+                ans = 120
             if ans is not None:
                 ans += int(self.font_delta * 20)
                 ans = str(ans)

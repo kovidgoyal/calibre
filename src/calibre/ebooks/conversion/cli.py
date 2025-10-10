@@ -92,11 +92,10 @@ def option_recommendation_to_cli_option(add_option, rec):
     if isinstance(rec.recommended_value, bool):
         attrs['action'] = 'store_false' if rec.recommended_value else \
                           'store_true'
-    else:
-        if isinstance(rec.recommended_value, numbers.Integral):
-            attrs['type'] = 'int'
-        elif isinstance(rec.recommended_value, numbers.Real):
-            attrs['type'] = 'float'
+    elif isinstance(rec.recommended_value, numbers.Integral):
+        attrs['type'] = 'int'
+    elif isinstance(rec.recommended_value, numbers.Real):
+        attrs['type'] = 'float'
 
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'

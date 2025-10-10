@@ -225,9 +225,8 @@ file.
             if in_see:
                 if bracket_count == end_bracket_count and token_info == 'cb<nu<clos-brack':
                     in_see = 0
-                else:
-                    if token_info == 'tx<nu<__________':
-                        see_string += line[17:]
+                elif token_info == 'tx<nu<__________':
+                    see_string += line[17:]
             else:
                 if token_info == 'cw<in<index-see_':
                     end_bracket_count = bracket_count - 1
@@ -260,11 +259,10 @@ file.
                 if bracket_count == end_bracket_count and token_info == 'cb<nu<clos-brack':
                     in_bookmark = 0
                     index_string += f'{line}\n'
+                elif token_info == 'tx<nu<__________':
+                    bookmark_string += line[17:]
                 else:
-                    if token_info == 'tx<nu<__________':
-                        bookmark_string += line[17:]
-                    else:
-                        index_string += f'{line}\n'
+                    index_string += f'{line}\n'
             else:
                 if token_info == 'cw<an<place_____':
                     end_bracket_count = bracket_count - 1
@@ -347,14 +345,13 @@ file.
                 if bracket_count == end_bracket_count and token_info == 'cb<nu<clos-brack':
                     in_bookmark = 0
                     toc_string += f'{line}\n'
+                elif token_info == 'tx<nu<__________':
+                    if book_type == 'start':
+                        book_start_string += line[17:]
+                    elif book_type == 'end':
+                        book_end_string += line[17:]
                 else:
-                    if token_info == 'tx<nu<__________':
-                        if book_type == 'start':
-                            book_start_string += line[17:]
-                        elif book_type == 'end':
-                            book_end_string += line[17:]
-                    else:
-                        toc_string += f'{line}\n'
+                    toc_string += f'{line}\n'
             else:
                 if token_info == 'cw<an<book-mk-st' or token_info =='cw<an<book-mk-en':
                     if token_info == 'cw<an<book-mk-st':

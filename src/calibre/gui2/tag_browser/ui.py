@@ -469,16 +469,13 @@ class TagBrowserMixin:  # {{{
                     except ValueError:
                         continue
                     changes[book_id] = existing
-                else:
-                    if item_name not in existing:
-                        changes[book_id] = existing + [item_name]
-            else:
-                if remove:
-                    if existing == item_name:
-                        changes[book_id] = None
-                else:
-                    if existing != item_name:
-                        changes[book_id] = item_name
+                elif item_name not in existing:
+                    changes[book_id] = existing + [item_name]
+            elif remove:
+                if existing == item_name:
+                    changes[book_id] = None
+            elif existing != item_name:
+                changes[book_id] = item_name
         if changes:
             db.set_field(field_name, changes)
             if series_index_field is not None:

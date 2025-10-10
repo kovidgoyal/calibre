@@ -138,9 +138,8 @@ def as_string_type(pat, for_unicode):
     if for_unicode:
         if isinstance(pat, bytes):
             pat = pat.decode('utf-8')
-    else:
-        if isinstance(pat, str):
-            pat = pat.encode('utf-8')
+    elif isinstance(pat, str):
+        pat = pat.encode('utf-8')
     return pat
 
 
@@ -1545,9 +1544,8 @@ class TOC:
             if child is node:
                 self.nodes.remove(child)
                 return True
-            else:
-                if child.remove(node):
-                    return True
+            elif child.remove(node):
+                return True
         return False
 
     def iter(self):

@@ -373,11 +373,10 @@ class ImageView(QDialog):
         if on:
             self.maximized_at_last_fullscreen = self.isMaximized()
             self.showFullScreen()
+        elif self.maximized_at_last_fullscreen:
+            self.showMaximized()
         else:
-            if self.maximized_at_last_fullscreen:
-                self.showMaximized()
-            else:
-                self.showNormal()
+            self.showNormal()
 
 
 class ImagePopup:

@@ -703,26 +703,25 @@ class KOBO(USBMS):
         elif oncard == 'carda':
             path = path.replace('file:///mnt/sd/', self._card_a_prefix)
             # print('SD Card: ' + path)
-        else:
-            if ContentType == '6' and MimeType == 'Shortcover':
-                # This is a hack as the kobo files do not exist
-                # but the path is required to make a unique id
-                # for calibre's reference
-                path = self._main_prefix + path + '.kobo'
-                # print('Path: ' + path)
-            elif (ContentType == '6' or ContentType == '10') and (
-                MimeType == 'application/x-kobo-epub+zip' or (
-                MimeType == 'application/epub+zip' and self.isTolinoDevice())
-            ):
-                if path.startswith('file:///mnt/onboard/'):
-                    path = self._main_prefix + path.replace('file:///mnt/onboard/', '')
-                else:
-                    path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/kepub/' + path
-                # print('Internal: ' + path)
+        elif ContentType == '6' and MimeType == 'Shortcover':
+            # This is a hack as the kobo files do not exist
+            # but the path is required to make a unique id
+            # for calibre's reference
+            path = self._main_prefix + path + '.kobo'
+            # print('Path: ' + path)
+        elif (ContentType == '6' or ContentType == '10') and (
+            MimeType == 'application/x-kobo-epub+zip' or (
+            MimeType == 'application/epub+zip' and self.isTolinoDevice())
+        ):
+            if path.startswith('file:///mnt/onboard/'):
+                path = self._main_prefix + path.replace('file:///mnt/onboard/', '')
             else:
-                # if path.startswith('file:///mnt/onboard/'):
-                path = path.replace('file:///mnt/onboard/', self._main_prefix)
-                path = path.replace('/mnt/onboard/', self._main_prefix)
+                path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/kepub/' + path
+            # print('Internal: ' + path)
+        else:
+            # if path.startswith('file:///mnt/onboard/'):
+            path = path.replace('file:///mnt/onboard/', self._main_prefix)
+            path = path.replace('/mnt/onboard/', self._main_prefix)
                 # print('Internal: ' + path)
 
         return path
@@ -2193,25 +2192,24 @@ class KOBOTOUCH(KOBO):
 
         if oncard == 'cardb':
             print('path from_contentid cardb')
-        else:
-            if (ContentType == '6' or ContentType == '10'):
-                if (MimeType == 'application/octet-stream'):  # Audiobooks purchased from Kobo are in a different location.
-                    path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
-                elif (MimeType == 'audio/mpeg' and self.isTolinoDevice()):
-                    path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
-                elif path.startswith('file:///mnt/onboard/'):
-                    path = self._main_prefix + path.replace('file:///mnt/onboard/', '')
-                elif path.startswith('file:///mnt/sd/'):
-                    path = self._card_a_prefix + path.replace('file:///mnt/sd/', '')
-                elif externalId:
-                    path = self._card_a_prefix + 'koboExtStorage/kepub/' + path
-                else:
-                    path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/kepub/' + path
-            else:   # Should never get here, but, just in case...
-                # if path.startswith('file:///mnt/onboard/'):
-                path = path.replace('file:///mnt/onboard/', self._main_prefix)
-                path = path.replace('file:///mnt/sd/', self._card_a_prefix)
-                path = path.replace('/mnt/onboard/', self._main_prefix)
+        elif (ContentType == '6' or ContentType == '10'):
+            if (MimeType == 'application/octet-stream'):  # Audiobooks purchased from Kobo are in a different location.
+                path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
+            elif (MimeType == 'audio/mpeg' and self.isTolinoDevice()):
+                path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
+            elif path.startswith('file:///mnt/onboard/'):
+                path = self._main_prefix + path.replace('file:///mnt/onboard/', '')
+            elif path.startswith('file:///mnt/sd/'):
+                path = self._card_a_prefix + path.replace('file:///mnt/sd/', '')
+            elif externalId:
+                path = self._card_a_prefix + 'koboExtStorage/kepub/' + path
+            else:
+                path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/kepub/' + path
+        else:   # Should never get here, but, just in case...
+            # if path.startswith('file:///mnt/onboard/'):
+            path = path.replace('file:///mnt/onboard/', self._main_prefix)
+            path = path.replace('file:///mnt/sd/', self._card_a_prefix)
+            path = path.replace('/mnt/onboard/', self._main_prefix)
                 # print('Internal: ' + path)
 
         return path
@@ -2730,9 +2728,8 @@ class KOBOTOUCH(KOBO):
                                 if show_debug:
                                     debug_print('            adding category to book.device_collections', book.device_collections)
                                 book.device_collections.append(category)
-                            else:
-                                if show_debug:
-                                    debug_print('            category not added to book.device_collections', book.device_collections)
+                            elif show_debug:
+                                debug_print('            category not added to book.device_collections', book.device_collections)
                         debug_print(f"KoboTouch:update_device_database_collections - end for category='{category}'")
 
                 elif have_bookshelf_attributes:  # No collections but have set the shelf option
@@ -3306,11 +3303,10 @@ class KOBOTOUCH(KOBO):
         if ContentID is not None:
             query += ' WHERE ContentId = ?'
             values.append(ContentID)
-        else:
-            if oncard == 'carda':
-                query += " WHERE ContentID like 'file:///mnt/sd/%'"
-            elif oncard != 'carda' and oncard != 'cardb':
-                query += " WHERE ContentID not like 'file:///mnt/sd/%'"
+        elif oncard == 'carda':
+            query += " WHERE ContentID like 'file:///mnt/sd/%'"
+        elif oncard != 'carda' and oncard != 'cardb':
+            query += " WHERE ContentID not like 'file:///mnt/sd/%'"
 
         if bookshelves:
             placeholder = '?'

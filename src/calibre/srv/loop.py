@@ -155,9 +155,8 @@ def is_ip_trusted(remote_addr, trusted_ips):
         if hasattr(tip, 'hosts'):
             if remote_addr in tip:
                 return True
-        else:
-            if tip == remote_addr:
-                return True
+        elif tip == remote_addr:
+            return True
     return False
 
 
@@ -599,15 +598,14 @@ class ServerLoop:
                     write_needed.append(s)
                 if conn.read_buffer.has_data:
                     readable.append(s)
-                else:
-                    if has_ssl:
-                        conn.drain_ssl_buffer()
-                        if conn.ready:
-                            (readable if conn.read_buffer.has_data else read_needed).append(s)
-                        else:
-                            close_needed.append((s, conn))
+                elif has_ssl:
+                    conn.drain_ssl_buffer()
+                    if conn.ready:
+                        (readable if conn.read_buffer.has_data else read_needed).append(s)
                     else:
-                        read_needed.append(s)
+                        close_needed.append((s, conn))
+                else:
+                    read_needed.append(s)
             elif wf is WRITE:
                 write_needed.append(s)
 

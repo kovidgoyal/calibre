@@ -50,11 +50,10 @@ def find_existing_jacket(container):
             root = container.parsed(name)
             if is_current_jacket(root):
                 return name
-        else:
-            if name.rpartition('/')[-1].startswith('jacket') and name.endswith('.xhtml'):
-                root = container.parsed(name)
-                if is_current_jacket(root) or is_legacy_jacket(root):
-                    return name
+        elif name.rpartition('/')[-1].startswith('jacket') and name.endswith('.xhtml'):
+            root = container.parsed(name)
+            if is_current_jacket(root) or is_legacy_jacket(root):
+                return name
 
 
 def replace_jacket(container, name):

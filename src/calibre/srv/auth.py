@@ -151,9 +151,8 @@ class DigestAuth:  # {{{
                 raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported digest qop')
             if not (self.cnonce and self.nonce_count):
                 raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
-        else:
-            if self.cnonce or self.nonce_count:
-                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop missing')
+        elif self.cnonce or self.nonce_count:
+            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop missing')
 
     def H(self, val):
         return md5_hex(val)

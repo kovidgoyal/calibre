@@ -283,11 +283,10 @@ class TBS:  # {{{
                 for l in itervalues(depth_map):
                     l.sort(key=lambda x:x.offset)
                 self.periodical_tbs(data, first, depth_map)
+        elif not data:
+            self.bytestring = b''
         else:
-            if not data:
-                self.bytestring = b''
-            else:
-                self.book_tbs(data, first)
+            self.book_tbs(data, first)
 
     def periodical_tbs(self, data, first, depth_map):
         buf = io.BytesIO()
@@ -316,26 +315,25 @@ class TBS:  # {{{
             else:
                 parent_section_index = max(iter(self.section_map))
 
-        else:
-            # Non terminal record
+        # Non terminal record
 
-            if spanner is not None:
-                # record is spanned by a single article
-                parent_section_index = spanner.parent_index
-                typ = (self.type_110 if parent_section_index == 1 else
-                        self.type_010)
-            elif not depth_map[1]:
-                # has only article nodes, i.e. spanned by a section
+        elif spanner is not None:
+            # record is spanned by a single article
+            parent_section_index = spanner.parent_index
+            typ = (self.type_110 if parent_section_index == 1 else
+                    self.type_010)
+        elif not depth_map[1]:
+            # has only article nodes, i.e. spanned by a section
+            parent_section_index = depth_map[2][0].parent_index
+            typ = (self.type_111 if parent_section_index == 1 else
+                    self.type_010)
+        else:
+            # has section transitions
+            if depth_map[2]:
                 parent_section_index = depth_map[2][0].parent_index
-                typ = (self.type_111 if parent_section_index == 1 else
-                        self.type_010)
             else:
-                # has section transitions
-                if depth_map[2]:
-                    parent_section_index = depth_map[2][0].parent_index
-                else:
-                    parent_section_index = depth_map[1][0].index
-                typ = self.type_011
+                parent_section_index = depth_map[1][0].index
+            typ = self.type_011
 
         buf.write(typ)
 
@@ -864,13 +862,12 @@ class Indexer:  # {{{
                         data['completes'].append(index)
                     else:
                         data['starts'].append(index)
-                else:
-                    # Node starts before current records
-                    if index.next_offset <= next_offset:
-                        # Node ends in current record
-                        data['ends'].append(index)
-                    elif index.depth == deepest:
-                        data['spans'] = index
+                # Node starts before current records
+                elif index.next_offset <= next_offset:
+                    # Node ends in current record
+                    data['ends'].append(index)
+                elif index.depth == deepest:
+                    data['spans'] = index
 
             if (data['ends'] or data['completes'] or data['starts'] or
                     data['spans'] is not None):

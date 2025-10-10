@@ -441,9 +441,8 @@ class Boss(QObject):
                     ef = [ef]
                 for i in ef:
                     self.gui.file_list.request_edit(i)
-            else:
-                if tprefs['restore_book_state']:
-                    self.restore_book_edit_state()
+            elif tprefs['restore_book_state']:
+                self.restore_book_edit_state()
             self.gui.toc_view.update_if_visible()
             self.add_savepoint(_('Start of editing session'))
             if st:

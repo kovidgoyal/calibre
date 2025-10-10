@@ -96,11 +96,10 @@ class HeuristicProcessor:
                 return '<'+tag+' '+pstyle+'>'
             else:
                 return '<'+tag+' '+pstyle+'>'+span
+        elif not span:
+            return '<'+tag+' style="text-indent:3%">'
         else:
-            if not span:
-                return '<'+tag+' style="text-indent:3%">'
-            else:
-                return '<'+tag+' style="text-indent:3%">'+span
+            return '<'+tag+' style="text-indent:3%">'+span
 
     def no_markup(self, raw, percent):
         '''

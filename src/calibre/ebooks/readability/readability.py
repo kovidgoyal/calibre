@@ -133,18 +133,17 @@ class Document:
                 best_candidate = self.select_best_candidate(candidates)
                 if best_candidate:
                     article = self.get_article(candidates, best_candidate)
+                elif ruthless:
+                    self.log.debug('ruthless removal did not work. ')
+                    ruthless = False
+                    self.debug('ended up stripping too much - going for a safer _parse')
+                    # try again
+                    continue
                 else:
-                    if ruthless:
-                        self.log.debug('ruthless removal did not work. ')
-                        ruthless = False
-                        self.debug('ended up stripping too much - going for a safer _parse')
-                        # try again
-                        continue
-                    else:
-                        self.log.debug('Ruthless and lenient parsing did not work. Returning raw html')
-                        article = self.html.find('body')
-                        if article is None:
-                            article = self.html
+                    self.log.debug('Ruthless and lenient parsing did not work. Returning raw html')
+                    article = self.html.find('body')
+                    if article is None:
+                        article = self.html
 
                 cleaned_article = self.sanitize(article, candidates)
                 of_acceptable_length = len(cleaned_article or '') >= (self.options['retry_length'] or self.RETRY_LENGTH)

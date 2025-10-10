@@ -358,13 +358,12 @@ class OEBReader:
             item = manifest.ids[idref]
             if item.media_type.lower() in OEB_DOCS and hasattr(item.data, 'xpath') and not getattr(item.data, 'tag', '').endswith('}ncx'):
                 spine.add(item, elem.get('linear'))
+            elif hasattr(item.data, 'tag') and item.data.tag and item.data.tag.endswith('}html'):
+                item.media_type = XHTML_MIME
+                spine.add(item, elem.get('linear'))
             else:
-                if hasattr(item.data, 'tag') and item.data.tag and item.data.tag.endswith('}html'):
-                    item.media_type = XHTML_MIME
-                    spine.add(item, elem.get('linear'))
-                else:
-                    self.oeb.log.warn(f'The item {item.href} is not a XML document.'
-                        ' Removing it from spine.')
+                self.oeb.log.warn(f'The item {item.href} is not a XML document.'
+                    ' Removing it from spine.')
         if len(spine) == 0:
             raise OEBError('Spine is empty')
         self._spine_add_extra()

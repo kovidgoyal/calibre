@@ -107,12 +107,11 @@ class Configure:
         configuration_dir = return_dict.get('configuration-directory')
         if configuration_dir is None:
             return_dict['configure-directory'] = None
+        elif not os.path.isdir(configuration_dir):
+            sys.stderr.write(f'The directory "{configuration_dir}" does not appear to be a directory.\n')
+            return 1
         else:
-            if not os.path.isdir(configuration_dir):
-                sys.stderr.write(f'The directory "{configuration_dir}" does not appear to be a directory.\n')
-                return 1
-            else:
-                return_dict['configure-directory'] = configuration_dir
+            return_dict['configure-directory'] = configuration_dir
         smart_output = return_dict.get('smart-output')
         if not smart_output:
             return_dict['smart-output'] = 0

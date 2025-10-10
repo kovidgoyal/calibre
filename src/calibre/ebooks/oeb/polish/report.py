@@ -184,19 +184,18 @@ def links_data(container, *args):
     for base, frag, dest, location, text in links:
         if dest is None:
             link = Link(location, text, True, base, True, True, Anchor(frag, None, None))
-        else:
-            if dest in anchor_map:
-                loc = LinkLocation(dest, None, None)
-                if frag:
-                    anchor = anchor_map[dest].get(frag)
-                    if anchor is None:
-                        link = Link(location, text, False, dest, True, False, Anchor(frag, loc, None))
-                    else:
-                        link = Link(location, text, False, dest, True, True, Anchor(frag, *anchor))
+        elif dest in anchor_map:
+            loc = LinkLocation(dest, None, None)
+            if frag:
+                anchor = anchor_map[dest].get(frag)
+                if anchor is None:
+                    link = Link(location, text, False, dest, True, False, Anchor(frag, loc, None))
                 else:
-                    link = Link(location, text, False, dest, True, True, Anchor(None, loc, None))
+                    link = Link(location, text, False, dest, True, True, Anchor(frag, *anchor))
             else:
-                link = Link(location, text, False, dest, False, False, Anchor(frag, None, None))
+                link = Link(location, text, False, dest, True, True, Anchor(None, loc, None))
+        else:
+            link = Link(location, text, False, dest, False, False, Anchor(frag, None, None))
         yield link
 
 

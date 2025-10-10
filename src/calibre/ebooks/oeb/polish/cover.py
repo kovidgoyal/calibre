@@ -23,11 +23,10 @@ def set_azw3_cover(container, cover_path, report, options=None):
     if existing_image:
         name = cover_path
         found = False
-    else:
-        if name is None or not container.has_name(name):
-            item = container.generate_item(name='cover.jpeg', id_prefix='cover')
-            name = container.href_to_name(item.get('href'), container.opf_name)
-            found = False
+    elif name is None or not container.has_name(name):
+        item = container.generate_item(name='cover.jpeg', id_prefix='cover')
+        name = container.href_to_name(item.get('href'), container.opf_name)
+        found = False
     href = container.name_to_href(name, container.opf_name)
     guide = container.opf_xpath('//opf:guide')[0]
     container.insert_into_xml(guide, guide.makeelement(
@@ -365,26 +364,25 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         style = 'style="height: 100%%"'
         templ = CoverManager.NONSVG_TEMPLATE.replace('__style__', style)
         has_svg = False
+    elif callable(cover_path):
+        templ = (options or {}).get('template', CoverManager.SVG_TEMPLATE)
+        has_svg = 'xlink:href' in templ
     else:
-        if callable(cover_path):
-            templ = (options or {}).get('template', CoverManager.SVG_TEMPLATE)
-            has_svg = 'xlink:href' in templ
-        else:
-            width, height = 600, 800
-            has_svg = True
-            try:
-                if existing_image:
-                    width, height = identify(container.raw_data(existing_image, decode=False))[1:]
-                else:
-                    with open(cover_path, 'rb') as csrc:
-                        width, height = identify(csrc)[1:]
-            except Exception:
-                container.log.exception('Failed to get width and height of cover')
-            ar = 'xMidYMid meet' if keep_aspect else 'none'
-            templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
-            templ = templ.replace('__viewbox__', f'0 0 {width} {height}')
-            templ = templ.replace('__width__', str(width))
-            templ = templ.replace('__height__', str(height))
+        width, height = 600, 800
+        has_svg = True
+        try:
+            if existing_image:
+                width, height = identify(container.raw_data(existing_image, decode=False))[1:]
+            else:
+                with open(cover_path, 'rb') as csrc:
+                    width, height = identify(csrc)[1:]
+        except Exception:
+            container.log.exception('Failed to get width and height of cover')
+        ar = 'xMidYMid meet' if keep_aspect else 'none'
+        templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
+        templ = templ.replace('__viewbox__', f'0 0 {width} {height}')
+        templ = templ.replace('__width__', str(width))
+        templ = templ.replace('__height__', str(height))
     folder = recommended_folders[tname]
     if folder:
         tname = folder + '/' + tname

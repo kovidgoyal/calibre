@@ -248,10 +248,9 @@ class USBMS(CLI, Device):
                         if self.update_metadata_item(bl[idx]):
                             # print('update_metadata_item returned true')
                             changed = True
-                    else:
-                        if bl.add_book(self.book_from_path(prefix, lpath),
-                                              replace_metadata=False):
-                            changed = True
+                    elif bl.add_book(self.book_from_path(prefix, lpath),
+                                          replace_metadata=False):
+                        changed = True
                 except Exception:  # Probably a filename encoding error
                     import traceback
                     traceback.print_exc()

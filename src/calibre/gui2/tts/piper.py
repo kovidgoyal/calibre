@@ -385,9 +385,8 @@ class Piper(TTSBackend):
         elif state is QAudio.State.StoppedState:
             if self._audio_sink.error() not in (QAudio.Error.NoError, QAudio.Error.UnderrunError):
                 self._set_error(f'Audio playback failed with error: {self._audio_sink.error()}')
-            else:
-                if self._state is not QTextToSpeech.State.Error:
-                    self._set_state(QTextToSpeech.State.Ready)
+            elif self._state is not QTextToSpeech.State.Error:
+                self._set_state(QTextToSpeech.State.Ready)
         elif state is QAudio.State.IdleState:
             if not self._utterances_being_synthesized and not self._utterances_being_spoken:
                 self._set_state(QTextToSpeech.State.Ready)

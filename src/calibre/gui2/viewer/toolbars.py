@@ -290,14 +290,13 @@ class ActionsToolBar(ToolBar):
                 except Exception:
                     import traceback
                     traceback.print_exc()
-        else:
-            if self.prevent_sleep_cookie is not None:
-                try:
-                    allow_sleep(self.prevent_sleep_cookie)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-                self.prevent_sleep_cookie = None
+        elif self.prevent_sleep_cookie is not None:
+            try:
+                allow_sleep(self.prevent_sleep_cookie)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+            self.prevent_sleep_cookie = None
 
     def update_autoscroll_action(self, active):
         self.autoscroll_action.setChecked(active)

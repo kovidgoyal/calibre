@@ -185,10 +185,9 @@ def render_notes(notes, tag='p'):
     for line in notes.splitlines():
         if line:
             current_lines.append(''.join(render_note_line(line)))
-        else:
-            if current_lines:
-                yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
-                current_lines = []
+        elif current_lines:
+            yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
+            current_lines = []
     if current_lines:
         yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
 

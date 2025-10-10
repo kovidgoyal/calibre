@@ -43,9 +43,8 @@ if iswindows:
                     destination, netmask, gateway, interface, metric = parts
                 if gateway == default_gateway:
                     return interface
-            else:
-                if parts == 'Network Destination Netmask Gateway Interface Metric'.split():
-                    in_table = True
+            elif parts == 'Network Destination Netmask Gateway Interface Metric'.split():
+                in_table = True
 
     def get_default_route_src_address_api():
         from calibre.utils.iphlpapi import routes

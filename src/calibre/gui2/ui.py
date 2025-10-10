@@ -1365,15 +1365,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 dynamic['systray_msg'] = True
             self.hide_windows()
             e.ignore()
+        elif self.confirm_quit():
+            try:
+                self.shutdown(write_settings=False)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+            e.accept()
         else:
-            if self.confirm_quit():
-                try:
-                    self.shutdown(write_settings=False)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-                e.accept()
-            else:
-                e.ignore()
+            e.ignore()
 
     # }}}

@@ -131,10 +131,9 @@ class Render(QWebEnginePage):
             if monotonic() - self.start_time > PRINT_TIMEOUT:
                 self.hang_timer.stop()
                 QApplication.instance().exit(4)
-        else:
-            if monotonic() - self.start_time > LOAD_TIMEOUT:
-                self.hang_timer.stop()
-                QApplication.instance().exit(3)
+        elif monotonic() - self.start_time > LOAD_TIMEOUT:
+            self.hang_timer.stop()
+            QApplication.instance().exit(3)
 
     def start_print(self, data):
         margins = QMarginsF(0, 0, 0, 0)

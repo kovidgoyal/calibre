@@ -118,9 +118,8 @@ def parse_text_formatting(text):
                     r[-1] = offset - r[-2]
                     if r[-1] > 0:
                         ranges.append(r)
-            else:
-                if tag in {'b', 'strong', 'i', 'em'}:
-                    open_ranges.append([tag, offset, -1])
+            elif tag in {'b', 'strong', 'i', 'em'}:
+                open_ranges.append([tag, offset, -1])
         else:
             offset += len(tok.replace('&amp;', '&'))
             text.append(tok)

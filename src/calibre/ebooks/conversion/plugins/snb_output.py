@@ -142,23 +142,21 @@ class SNBOutput(OutputFormatPlugin):
                     item = tocitem.href.split('#')
                     if len(item) != 2:
                         log.error(f'Error in TOC item: {tocitem}')
+                    elif item[0] in outputFiles:
+                        outputFiles[item[0]].append((item[1], tocitem.title))
                     else:
-                        if item[0] in outputFiles:
-                            outputFiles[item[0]].append((item[1], tocitem.title))
-                        else:
-                            outputFiles[item[0]] = []
-                            if '' not in outputFiles[item[0]]:
-                                outputFiles[item[0]].append(('', tocitem.title + _(' (Preface)')))
-                                ch = etree.SubElement(tocBody, 'chapter')
-                                ch.set('src', ProcessFileName(item[0]) + '.snbc')
-                                ch.text = tocitem.title + _(' (Preface)')
-                            outputFiles[item[0]].append((item[1], tocitem.title))
+                        outputFiles[item[0]] = []
+                        if '' not in outputFiles[item[0]]:
+                            outputFiles[item[0]].append(('', tocitem.title + _(' (Preface)')))
+                            ch = etree.SubElement(tocBody, 'chapter')
+                            ch.set('src', ProcessFileName(item[0]) + '.snbc')
+                            ch.text = tocitem.title + _(' (Preface)')
+                        outputFiles[item[0]].append((item[1], tocitem.title))
+                elif tocitem.href in outputFiles:
+                    outputFiles[tocitem.href].append(('', tocitem.title))
                 else:
-                    if tocitem.href in outputFiles:
-                        outputFiles[tocitem.href].append(('', tocitem.title))
-                    else:
-                        outputFiles[tocitem.href] = []
-                        outputFiles[tocitem.href].append(('', tocitem.title))
+                    outputFiles[tocitem.href] = []
+                    outputFiles[tocitem.href].append(('', tocitem.title))
                 ch = etree.SubElement(tocBody, 'chapter')
                 ch.set('src', ProcessFileName(tocitem.href) + '.snbc')
                 ch.text = tocitem.title
@@ -178,12 +176,11 @@ class SNBOutput(OutputFormatPlugin):
                     if item.href not in outputFiles:
                         log.debug(f'File {item.href} is unused in TOC. Continue in last chapter')
                         mergeLast = True
-                    else:
-                        if oldTree is not None and mergeLast:
-                            log.debug(f'Output the modified chapter again: {lastName}')
-                            with open(os.path.join(snbcDir, lastName), 'wb') as f:
-                                f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
-                            mergeLast = False
+                    elif oldTree is not None and mergeLast:
+                        log.debug(f'Output the modified chapter again: {lastName}')
+                        with open(os.path.join(snbcDir, lastName), 'wb') as f:
+                            f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
+                        mergeLast = False
 
                     log.debug(f'Converting {item.href} to snbc...')
                     snbwriter = SNBMLizer(log)

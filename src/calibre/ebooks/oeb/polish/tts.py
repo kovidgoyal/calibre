@@ -493,9 +493,8 @@ def embed_tts(container, report_progress=None, callback_to_download_voices=None)
         name_map.pop(rname)
     if callback_to_download_voices is None:
         piper.ensure_voices_downloaded(iter(all_voices))
-    else:
-        if not callback_to_download_voices(partial(piper.ensure_voices_downloaded, iter(all_voices))):
-            return False
+    elif not callback_to_download_voices(partial(piper.ensure_voices_downloaded, iter(all_voices))):
+        return False
     stage = _('Converting text to speech')
     if report_progress(stage, '', 0, total_num_sentences):
         return False

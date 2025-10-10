@@ -469,11 +469,10 @@ class EmailMixin:  # {{{
                         auto.append(id)
                     else:
                         bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                elif specific_format in list(set(fmts).intersection(set(available_output_formats()))):
+                    auto.append(id)
                 else:
-                    if specific_format in list(set(fmts).intersection(set(available_output_formats()))):
-                        auto.append(id)
-                    else:
-                        bad.append(self.library_view.model().db.title(id, index_is_id=True))
+                    bad.append(self.library_view.model().db.title(id, index_is_id=True))
 
         if auto != []:
             format = specific_format if specific_format in list(set(fmts).intersection(set(available_output_formats()))) else None

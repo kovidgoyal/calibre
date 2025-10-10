@@ -411,11 +411,10 @@ class Adder(QObject):
                     a(_('With error:')), a(traceback.format_exc())
             else:
                 self.add_book(mi, cover_path, paths)
+        elif duplicate_info or icu_lower(mi.title or _('Unknown')) in self.added_duplicate_info:
+            self.duplicates.append((mi, cover_path, paths))
         else:
-            if duplicate_info or icu_lower(mi.title or _('Unknown')) in self.added_duplicate_info:
-                self.duplicates.append((mi, cover_path, paths))
-            else:
-                self.add_book(mi, cover_path, paths)
+            self.add_book(mi, cover_path, paths)
 
     def merge_books(self, mi, cover_path, paths, identical_book_ids):
         self.merged_books.add((mi.title, ' & '.join(mi.authors)))

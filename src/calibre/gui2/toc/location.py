@@ -184,16 +184,15 @@ class Page(QWebEnginePage):  # {{{
         if 'preview_background' in prefs.defaults and 'preview_foreground' in prefs.defaults:
             from calibre.gui2.tweak_book.preview import get_editor_settings
             settings = get_editor_settings(prefs)
+        elif is_dark_theme():
+            settings = {
+                'is_dark_theme': True,
+                'bg': dark_color.name(),
+                'fg': dark_text_color.name(),
+                'link': dark_link_color.name(),
+            }
         else:
-            if is_dark_theme():
-                settings = {
-                    'is_dark_theme': True,
-                    'bg': dark_color.name(),
-                    'fg': dark_text_color.name(),
-                    'link': dark_link_color.name(),
-                }
-            else:
-                settings = {}
+            settings = {}
         js = js.replace('SETTINGS', json.dumps(settings), 1)
         s.setSourceCode(js)
         self.scripts().insert(s)

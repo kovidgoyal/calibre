@@ -427,15 +427,14 @@ class TextileMLizer(OEB2HTML):
                     text.append('&')
                     tags.append('&')
                     self.style_smallcap = True
-            else:
-                if self.in_a_link == False:  # noqa: E712
-                    txt = '%'
-                    if self.opts.keep_links:
-                        txt += self.check_id_tag(attribs)
-                        txt += self.check_styles(style)
-                    if txt != '%':
-                        text.append(txt)
-                        tags.append('%')
+            elif self.in_a_link == False:  # noqa: E712
+                txt = '%'
+                if self.opts.keep_links:
+                    txt += self.check_id_tag(attribs)
+                    txt += self.check_styles(style)
+                if txt != '%':
+                    text.append(txt)
+                    tags.append('%')
 
         if self.opts.keep_links and 'id' in attribs:
             if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'table'):

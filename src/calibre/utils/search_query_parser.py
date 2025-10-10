@@ -360,13 +360,12 @@ class SearchQueryParser:
             yield from self._walk_expr(tree[2])
         elif tree[0] == 'not':
             yield from self._walk_expr(tree[1])
+        elif tree[1] == 'search':
+            query, search_name_lower = self._check_saved_search_recursion(tree[2])
+            yield from self._walk_expr(self._get_tree(query))
+            self.searches_seen.discard(search_name_lower)
         else:
-            if tree[1] == 'search':
-                query, search_name_lower = self._check_saved_search_recursion(tree[2])
-                yield from self._walk_expr(self._get_tree(query))
-                self.searches_seen.discard(search_name_lower)
-            else:
-                yield tree[1], tree[2]
+            yield tree[1], tree[2]
 
     def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing

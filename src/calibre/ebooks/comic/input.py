@@ -213,9 +213,8 @@ class PageProcessor(list):  # {{{
                     # to leave it as original size
                     img = resize_image(img, newsizex, newsizey)
                     img = add_borders_to_image(img, left=deltax, right=deltax, top=deltay, bottom=deltay)
-            else:
-                if SCRWIDTH < MAX_SCREEN_SIZE and SCRHEIGHT < MAX_SCREEN_SIZE:
-                    img = resize_image(img, SCRWIDTH, SCRHEIGHT)
+            elif SCRWIDTH < MAX_SCREEN_SIZE and SCRHEIGHT < MAX_SCREEN_SIZE:
+                img = resize_image(img, SCRWIDTH, SCRHEIGHT)
 
             if not self.opts.dont_sharpen:
                 img = gaussian_sharpen_image(img, 0.0, 1.0)

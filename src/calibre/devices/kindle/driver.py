@@ -296,17 +296,16 @@ class KINDLE(USBMS):
                                 text=(user_notes[location]['text'] if
                                       user_notes[location]['type'] == 'Note' else
                                       '<i>{}</i>'.format(user_notes[location]['text']))))
+                elif bookmark.book_format == 'pdf':
+                    annotations.append(
+                            _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % dict(
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type']))
                 else:
-                    if bookmark.book_format == 'pdf':
-                        annotations.append(
-                                _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % dict(
-                                    dl=user_notes[location]['displayed_location'],
-                                    typ=user_notes[location]['type']))
-                    else:
-                        annotations.append(
-                                _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % dict(
-                                    dl=user_notes[location]['displayed_location'],
-                                    typ=user_notes[location]['type']))
+                    annotations.append(
+                            _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % dict(
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type']))
 
             for annotation in annotations:
                 annot = BeautifulSoup('<span>' + annotation + '</span>').find('span')

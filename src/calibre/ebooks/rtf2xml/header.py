@@ -215,9 +215,8 @@ class Header:
                 if line == 'mi<mk<header-clo\n':
                     return string_to_return
                 string_to_return += line
-            else:
-                if line == look_for:
-                    found_head = True
+            elif line == look_for:
+                found_head = True
 
     def __join_from_temp(self):
         '''

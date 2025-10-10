@@ -214,10 +214,9 @@ class ChooseMerge(Dialog):
                 msg += '<br><br>' + _(
                 'Any duplicate formats in the selected books '
                 'will be permanently <b>deleted</b> from your calibre library.')
-        else:
-            if mf:
-                msg += _(
-                    'Any formats not in the target book will be added to it from the selected books.')
+        elif mf:
+            msg += _(
+                'Any formats not in the target book will be added to it from the selected books.')
         if not msg.endswith('<br>'):
             msg += '<br><br>'
 

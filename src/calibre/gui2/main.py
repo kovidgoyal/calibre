@@ -418,12 +418,11 @@ def run_gui_(opts, args, app, gui_debug=None):
         after_quit_actions['restart_after_quit'] = True
         after_quit_actions['debug_on_restart'] = getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None
         after_quit_actions['no_plugins_on_restart'] = getattr(runner.main, 'no_plugins_on_restart', False)
-    else:
-        if iswindows:
-            try:
-                runner.main.system_tray_icon.hide()
-            except Exception:
-                pass
+    elif iswindows:
+        try:
+            runner.main.system_tray_icon.hide()
+        except Exception:
+            pass
     if getattr(runner.main, 'gui_debug', None) is not None:
         debugfile = runner.main.gui_debug
         from calibre.gui2 import open_local_file

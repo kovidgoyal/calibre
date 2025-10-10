@@ -281,11 +281,10 @@ class EPUBOutput(OutputFormatPlugin):
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
             if self.opts.epub_version == '3':
                 encryption = self.upgrade_to_epub3(tdir, opf, encryption)
-            else:
-                if cb := getattr(self, 'container_callback', None):
-                    container, cxpath, encpath = self.create_container(tdir, opf, encryption)
-                    cb(container)
-                    encryption = self.end_container(cxpath, encpath)
+            elif cb := getattr(self, 'container_callback', None):
+                container, cxpath, encpath = self.create_container(tdir, opf, encryption)
+                cb(container)
+                encryption = self.end_container(cxpath, encpath)
 
             from calibre.ebooks.epub import initialize_container
             with initialize_container(output_path, os.path.basename(opf),

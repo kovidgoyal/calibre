@@ -124,12 +124,11 @@ def parse_bdy(item):
         elif c.get('cmsType') == 'editorsNote':
             if 'note' in c:
                 yield '<blockquote>' + c['note'] + '</blockquote>'
+    elif c['mrkup'].strip().startswith('<'):
+        yield c['mrkup']
     else:
-        if c['mrkup'].strip().startswith('<'):
-            yield c['mrkup']
-        else:
-            yield '<{tag}>{markup}</{tag}>'.format(
-                tag=item['type'], markup=c['mrkup'])
+        yield '<{tag}>{markup}</{tag}>'.format(
+            tag=item['type'], markup=c['mrkup'])
 
 
 def parse_article(edg):

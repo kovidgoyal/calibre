@@ -508,9 +508,8 @@ class HTTPConnection(HTTPRequest):
             if self.response_protocol is HTTP11:
                 if self.close_after_response:
                     outheaders.set('Connection', 'close')
-            else:
-                if not self.close_after_response:
-                    outheaders.set('Connection', 'Keep-Alive')
+            elif not self.close_after_response:
+                outheaders.set('Connection', 'Keep-Alive')
 
         ct = outheaders.get('Content-Type', '')
         if ct.startswith('text/') and 'charset=' not in ct:
@@ -610,15 +609,14 @@ class HTTPConnection(HTTPRequest):
         chunk = next(output)
         if chunk is None:
             self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(b'0\r\n\r\n'), output, last=True)
+        elif chunk:
+            if not isinstance(chunk, bytes):
+                chunk = chunk.encode('utf-8')
+            chunk = (f'{len(chunk):X}\r\n').encode('ascii') + chunk + b'\r\n'
+            self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(chunk), output)
         else:
-            if chunk:
-                if not isinstance(chunk, bytes):
-                    chunk = chunk.encode('utf-8')
-                chunk = (f'{len(chunk):X}\r\n').encode('ascii') + chunk + b'\r\n'
-                self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(chunk), output)
-            else:
-                # Empty chunk, ignore it
-                self.write_iter(output, event)
+            # Empty chunk, ignore it
+            self.write_iter(output, event)
 
     def write_chunk(self, buf, output, event, last=False):
         if self.write(buf):

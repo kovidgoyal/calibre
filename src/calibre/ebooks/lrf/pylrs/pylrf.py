@@ -405,13 +405,12 @@ class LrfTag:
                     writeString(lrf, struct.pack(f, *p))
                 else:
                     writeString(lrf, struct.pack(f, p))
+            elif f in [writeUnicode, writeRaw, writeEmpDots]:
+                if encoding is None:
+                    raise LrfError('Tag requires encoding')
+                f(lrf, p, encoding)
             else:
-                if f in [writeUnicode, writeRaw, writeEmpDots]:
-                    if encoding is None:
-                        raise LrfError('Tag requires encoding')
-                    f(lrf, p, encoding)
-                else:
-                    f(lrf, p)
+                f(lrf, p)
 
 
 STREAM_SCRAMBLED = 0x200

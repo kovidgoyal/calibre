@@ -436,10 +436,9 @@ class CategoryModel(QAbstractItemModel):
                 return self.bold_font
             if role == Qt.ItemDataRole.DecorationRole and index.row() == 0:
                 return self.fav_icon
-        else:
-            if role == Qt.ItemDataRole.DisplayRole:
-                item = self.categories[pid - 1][1][index.row()]
-                return item[0]
+        elif role == Qt.ItemDataRole.DisplayRole:
+            item = self.categories[pid - 1][1][index.row()]
+            return item[0]
         return None
 
     def get_range(self, index):
@@ -491,11 +490,10 @@ class CategoryView(QTreeView):
         ans = self._model.get_range(index)
         if ans is not None:
             self.category_selected.emit(*ans)
+        elif self.isExpanded(index):
+            self.collapse(index)
         else:
-            if self.isExpanded(index):
-                self.collapse(index)
-            else:
-                self.expand(index)
+            self.expand(index)
 
     def get_chars(self):
         ans = self._model.get_range(self.currentIndex())

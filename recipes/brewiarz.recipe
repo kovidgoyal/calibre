@@ -94,15 +94,14 @@ class brewiarz(BasicNewsRecipe):
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
+                elif link.findParent(name='ol'):
+                    continue
                 else:
-                    if link.findParent(name='ol'):
-                        continue
-                    else:
-                        link_title = self.tag_to_string(link)
-                        link_url_print = link['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
-                        link_url = url[:-10] + link_url_print
-                        current_articles.append({'title': link_title,
-                                                 'url': link_url, 'description': '', 'date': ''})
+                    link_title = self.tag_to_string(link)
+                    link_url_print = link['href'].replace('php3', 'php3?kr=_druk&wr=lg&')
+                    link_url = url[:-10] + link_url_print
+                    current_articles.append({'title': link_title,
+                                             'url': link_url, 'description': '', 'date': ''})
             return current_articles
         else:
             return None

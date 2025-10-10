@@ -827,9 +827,8 @@ class Convert:
                         border_style.margin_top, style.margin_top = style.margin_top, inherit
                 if p is not run[-1]:
                     style.padding_bottom = 0
-                else:
-                    if has_visible_border:
-                        border_style.margin_bottom, style.margin_bottom = style.margin_bottom, inherit
+                elif has_visible_border:
+                    border_style.margin_bottom, style.margin_bottom = style.margin_bottom, inherit
                 style.clear_borders()
                 if p is not run[-1]:
                     style.apply_between_border()

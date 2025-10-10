@@ -372,10 +372,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
-        else:
-            if self.__run_level > 3:
-                msg = f'no entry for {self.__token_info}\n'
-                raise self.__bug_handler(msg)
+        elif self.__run_level > 3:
+            msg = f'no entry for {self.__token_info}\n'
+            raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
         '''
@@ -383,10 +382,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
             self.__att_val_dict['tabs'] += f'{leader}^'
-        else:
-            if self.__run_level > 3:
-                msg = f'no entry for {self.__token_info}\n'
-                raise self.__bug_handler(msg)
+        elif self.__run_level > 3:
+            msg = f'no entry for {self.__token_info}\n'
+            raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
         '''

@@ -118,17 +118,16 @@ class Bookmark:  # {{{
                         #                                             start//MAGIC_MOBI_CONSTANT + 1))
                         user_notes[start]['displayed_location'] = start // MAGIC_MOBI_CONSTANT + 1
                         user_notes.pop(end_loc)
-                    else:
-                        # If a bookmark coincides with a user annotation, the locs could
-                        # be the same - cheat by nudging -1
-                        # Skip bookmark for last_read_location
-                        if end_loc != self.last_read:
-                            # print(' adding Bookmark at 0x%x (%d)' % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1))
-                            displayed_location = end_loc // MAGIC_MOBI_CONSTANT + 1
-                            user_notes[end_loc - 1] = {'id': self.id,
-                                                       'displayed_location': displayed_location,
-                                                       'type': 'Bookmark',
-                                                       'text': None}
+                    # If a bookmark coincides with a user annotation, the locs could
+                    # be the same - cheat by nudging -1
+                    # Skip bookmark for last_read_location
+                    elif end_loc != self.last_read:
+                        # print(' adding Bookmark at 0x%x (%d)' % (end_loc, end_loc/MAGIC_MOBI_CONSTANT + 1))
+                        displayed_location = end_loc // MAGIC_MOBI_CONSTANT + 1
+                        user_notes[end_loc - 1] = {'id': self.id,
+                                                   'displayed_location': displayed_location,
+                                                   'type': 'Bookmark',
+                                                   'text': None}
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     eo += rec_len + 8
                     sig = data[eo:eo+4]

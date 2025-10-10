@@ -452,17 +452,16 @@ class MobiReader:
                         pass
                     elif tag.tag == 'img':
                         tag.set('height', height)
-                    else:
-                        if tag.tag == 'div' and not tag.text and \
+                    elif tag.tag == 'div' and not tag.text and \
                                 (not tag.tail or not tag.tail.strip()) and \
                                 not list(tag.iterdescendants()):
-                            # Paragraph spacer
-                            # Insert nbsp so that the element is never
-                            # discarded by a renderer
-                            tag.text = '\u00a0'  # nbsp
-                            styles.append(f'height: {self.ensure_unit(height)}')
-                        else:
-                            styles.append(f'margin-top: {self.ensure_unit(height)}')
+                        # Paragraph spacer
+                        # Insert nbsp so that the element is never
+                        # discarded by a renderer
+                        tag.text = '\u00a0'  # nbsp
+                        styles.append(f'height: {self.ensure_unit(height)}')
+                    else:
+                        styles.append(f'margin-top: {self.ensure_unit(height)}')
             if 'width' in attrib:
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):

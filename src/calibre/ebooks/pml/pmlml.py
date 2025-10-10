@@ -375,11 +375,10 @@ class PMLMLizer:
             # a new text block.
             if tag == 'block':
                 text.append('\n\n')
+            # closing \c and \r need to be placed
+            # on the next line per PML spec.
+            elif tag in ('c', 'r'):
+                text.append(f'\n\\{tag}')
             else:
-                # closing \c and \r need to be placed
-                # on the next line per PML spec.
-                if tag in ('c', 'r'):
-                    text.append(f'\n\\{tag}')
-                else:
-                    text.append(rf'\{tag}')
+                text.append(rf'\{tag}')
         return text

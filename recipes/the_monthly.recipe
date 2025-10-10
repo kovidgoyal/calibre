@@ -43,9 +43,8 @@ class monthly(BasicNewsRecipe):
         for art in main.findAll(**classes('article')):
             if hr := art.find('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
                 url = 'https://www.themonthly.com.au' + hr['href']
-            else:
-                if hr := art.findParent('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
-                    url = 'https://www.themonthly.com.au' + hr['href']
+            elif hr := art.findParent('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
+                url = 'https://www.themonthly.com.au' + hr['href']
             title = self.tag_to_string(art.find(**classes('article__title')))
             desc = ''
             if text := art.find(**classes('article__text')):

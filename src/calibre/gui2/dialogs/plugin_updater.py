@@ -482,11 +482,10 @@ class DisplayPluginModel(QAbstractTableModel):
                     icon_name = 'plugin_upgrade_invalid.png'
             else:
                 icon_name = 'plugin_upgrade_ok.png'
-        else:  # A plugin available not currently installed
-            if display_plugin.is_valid_to_install():
-                icon_name = 'plugin_new_valid.png'
-            else:
-                icon_name = 'plugin_new_invalid.png'
+        elif display_plugin.is_valid_to_install():
+            icon_name = 'plugin_new_valid.png'
+        else:
+            icon_name = 'plugin_new_invalid.png'
         return QIcon.ic('plugins/' + icon_name)
 
     def _get_status_tooltip(self, display_plugin):

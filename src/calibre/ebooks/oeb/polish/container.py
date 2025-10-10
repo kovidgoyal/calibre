@@ -733,11 +733,10 @@ class Container(ContainerBase):  # {{{
                             item.set('properties', ' '.join(props))
                         else:
                             del item.attrib['properties']
-                else:
-                    if name == iname:
-                        added_names.append(iname)
-                        props.append(prop)
-                        item.set('properties', ' '.join(props))
+                elif name == iname:
+                    added_names.append(iname)
+                    props.append(prop)
+                    item.set('properties', ' '.join(props))
         self.dirty(self.opf_name)
         return removed_names, added_names
 
@@ -1059,16 +1058,15 @@ class Container(ContainerBase):  # {{{
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
-        else:
-            if self.cloned and allow_modification and os.path.exists(path) and nlinks_file(path) > 1:
-                # Decouple this file from its links
-                temp = path + 'xxx'
-                shutil.copyfile(path, temp)
-                if iswindows:
-                    retry_on_fail(os.unlink, path)
-                else:
-                    os.unlink(path)
-                os.rename(temp, path)
+        elif self.cloned and allow_modification and os.path.exists(path) and nlinks_file(path) > 1:
+            # Decouple this file from its links
+            temp = path + 'xxx'
+            shutil.copyfile(path, temp)
+            if iswindows:
+                retry_on_fail(os.unlink, path)
+            else:
+                os.unlink(path)
+            os.rename(temp, path)
         return path
 
     def open(self, name, mode='rb'):
@@ -1146,11 +1144,10 @@ class EpubContainer(Container):
             try:
                 if v.major == 2:
                     ans += ' 2'
+                elif not v.minor:
+                    ans += f' {v.major}'
                 else:
-                    if not v.minor:
-                        ans += f' {v.major}'
-                    else:
-                        ans += f' {v.major}.{v.minor}'
+                    ans += f' {v.major}.{v.minor}'
             except Exception:
                 pass
         return ans

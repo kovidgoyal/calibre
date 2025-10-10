@@ -268,10 +268,9 @@ class KTCollectionsBookList(CollectionsBookList):
                         if fm['datatype'] == 'text' and len(category) > 1 and \
                                 category[0] == '[' and category[-1] == ']':
                             continue
-                    else:                       # is a standard field
-                        if attr == 'tags' and len(category) > 1 and \
-                                category[0] == '[' and category[-1] == ']':
-                            continue
+                    elif attr == 'tags' and len(category) > 1 and \
+                            category[0] == '[' and category[-1] == ']':
+                        continue
 
                     # The category should not be None, but, it has happened.
                     if not category:

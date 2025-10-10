@@ -85,9 +85,8 @@ class BasicSettings(QWidget):  # {{{
                 widget.valueChanged.connect(self.emit_changed)
             else:
                 raise TypeError(f'Unknown setting type for setting: {name}')
-        else:
-            if getter is None or setter is None:
-                raise ValueError(f'getter or setter not provided for: {name}')
+        elif getter is None or setter is None:
+            raise ValueError(f'getter or setter not provided for: {name}')
         self._prevent_changed = True
         setter(widget, inval)
         self._prevent_changed = False
@@ -602,16 +601,15 @@ class ToolbarSettings(QWidget):
         for key in items:
             if key is None:
                 QListWidgetItem(blank, '--- {} ---'.format(_('Separator')), self.current)
+            elif key == 'donate':
+                QListWidgetItem(QIcon.ic('donate.png'), _('Donate'), self.current).setData(Qt.ItemDataRole.UserRole, 'donate')
             else:
-                if key == 'donate':
-                    QListWidgetItem(QIcon.ic('donate.png'), _('Donate'), self.current).setData(Qt.ItemDataRole.UserRole, 'donate')
+                try:
+                    ac = all_items[key]
+                except KeyError:
+                    pass
                 else:
-                    try:
-                        ac = all_items[key]
-                    except KeyError:
-                        pass
-                    else:
-                        to_item(key, ac, self.current)
+                    to_item(key, ac, self.current)
 
     def bar_changed(self):
         name = self.current_name

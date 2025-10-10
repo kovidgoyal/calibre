@@ -138,9 +138,8 @@ class Fields:
                     self.fields.append(field)
                     for r in self.namespace.XPath('descendant::w:r')(elem):
                         field.contents.append(r)
-            else:
-                if stack:
-                    stack[-1].contents.append(elem)
+            elif stack:
+                stack[-1].contents.append(elem)
 
         field_types = ('hyperlink', 'xe', 'index', 'ref', 'noteref')
         parsers = {x.upper():getattr(self, 'parse_'+x) for x in field_types}

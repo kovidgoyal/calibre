@@ -105,14 +105,13 @@ def expand_file_list(items, is_paths=True, cross_compile_for='native'):
                 items = [f'bypy/b/windows/64/{pkg}/{category}']
                 items = expand_file_list(item, is_paths=is_paths, cross_compile_for=cross_compile_for)
             ans.extend(items)
+        elif '*' in item:
+            ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths, cross_compile_for=cross_compile_for))
         else:
-            if '*' in item:
-                ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths, cross_compile_for=cross_compile_for))
-            else:
-                item = [item]
-                if is_paths:
-                    item = absolutize(item)
-                ans.extend(item)
+            item = [item]
+            if is_paths:
+                item = absolutize(item)
+            ans.extend(item)
     return ans
 
 
