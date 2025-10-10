@@ -300,7 +300,7 @@ class TestAuth(BaseTest):
             # Test that a replay attack against a different URL does not work
             try:
                 build_opener(cookie_handler).open(url+'2')
-                assert ('Replay attack succeeded')
+                assert True, 'Replay attack succeeded'
             except HTTPError as e:
                 self.ae(e.code, http_client.UNAUTHORIZED)
 

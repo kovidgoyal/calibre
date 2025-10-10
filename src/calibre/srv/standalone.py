@@ -220,7 +220,7 @@ def main(args=sys.argv):
             raise SystemExit(_('No database found at CALIBRE_OVERRIDE_DATABASE_PATH: {}').format(
                 os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']))
 
-    opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
+    opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))  # noqa: PLW1508
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     if opts.log and os.path.isdir(opts.log):
         raise SystemExit('The --log option must point to a file, not a directory')

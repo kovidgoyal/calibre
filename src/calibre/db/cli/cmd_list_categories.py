@@ -77,7 +77,7 @@ def do_list(fields, data, opts):
     widths = [0 for x in fields]
     for i in data:
         for j, field in enumerate(fields):
-            widths[j] = max(widths[j], max(len(field), len(str(i[field]))))
+            widths[j] = max(widths[j], len(field), len(str(i[field])))
 
     screen_width = geometry()[0]
     if not screen_width:
