@@ -190,7 +190,7 @@ class MetadataUpdater:
                 else:
                     return pack('>B', b).decode('iso-8859-1')
             else:
-                if len(ans):
+                if ans:
                     ans.append(b|0x80)
                 else:
                     ans.append(b)

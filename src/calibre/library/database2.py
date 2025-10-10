@@ -2177,7 +2177,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             items.append(Tag(srch,
                              sort=srch, category='search',
                              is_editable=False))
-        if len(items):
+        if items:
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
             categories['search'] = items

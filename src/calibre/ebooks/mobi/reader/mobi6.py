@@ -455,7 +455,7 @@ class MobiReader:
                     else:
                         if tag.tag == 'div' and not tag.text and \
                                 (not tag.tail or not tag.tail.strip()) and \
-                                not len(list(tag.iterdescendants())):
+                                not list(tag.iterdescendants()):
                             # Paragraph spacer
                             # Insert nbsp so that the element is never
                             # discarded by a renderer

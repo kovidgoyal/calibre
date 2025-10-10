@@ -126,7 +126,7 @@ def decint(value):
     while True:
         b = value & 0x7f
         value >>= 7
-        if len(ans):
+        if ans:
             b |= 0x80
         ans.append(b)
         if value == 0:

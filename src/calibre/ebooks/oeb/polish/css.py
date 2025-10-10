@@ -260,7 +260,7 @@ def remove_unused_css(
         if q.any_unused:
             container.dirty(name)
     num_sheets_removed = 0
-    if remove_unreferenced_sheets and len(unreferenced_sheets):
+    if remove_unreferenced_sheets and unreferenced_sheets:
         num_sheets_removed += len(unreferenced_sheets)
         for uname in unreferenced_sheets:
             container.remove_item(uname)

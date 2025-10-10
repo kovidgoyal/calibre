@@ -2113,7 +2113,7 @@ class CatalogBuilder:
                         genre_list.append(tag_list)
 
         if self.opts.verbose:
-            if len(genre_list):
+            if genre_list:
                 self.opts.log.info(f'  Genre summary: {len(genre_list)} active genre tags used in generating catalog with {len(self.books_to_catalog)} titles')
 
                 for genre in genre_list:

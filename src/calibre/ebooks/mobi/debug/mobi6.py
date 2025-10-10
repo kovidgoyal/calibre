@@ -601,7 +601,7 @@ class TBSIndexing:  # {{{
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
-        if len(byts):
+        if byts:
             outermost_index, extra, consumed = decode_tbs(byts, flag_size=3)
             byts = byts[consumed:]
             for k in extra:
