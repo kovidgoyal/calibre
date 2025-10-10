@@ -251,7 +251,7 @@ def split_string_separator(txt, size):
     '''
     Splits the text by putting \n\n at the point size.
     '''
-    if len(txt) > size and size > 3:
+    if len(txt) > size > 3:
         size -= 2
         ans = []
         for part in split_utf8(txt, size):
