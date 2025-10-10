@@ -131,7 +131,7 @@ def escape_funcs():
 
 class TabStop(str):
 
-    def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):
+    def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # noqa: PLW0211
         if raw.endswith('}'):
             unescape = escape_funcs()[1]
             num, default = raw[2:-1].partition(':')[0::2]
@@ -304,7 +304,7 @@ class EditorTabStop:
 
 class Template(list):
 
-    def __new__(self, tab_stops):
+    def __new__(self, tab_stops):  # noqa: PLW0211
         self = list.__new__(self)
         self.left_most_ts = self.right_most_ts = None
         self.extend(tab_stops)
