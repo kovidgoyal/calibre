@@ -107,11 +107,13 @@ ignore = [
     'E402', 'E741',
     'UP012', 'UP030', 'C413', 'C420', 'PIE790', 'ISC003',
     'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
+    'PLE1205',
     'RUF059',  # unused unpacked variable
 ]
 select = [
     'E', 'F', 'I', 'W', 'INT',
     'Q', 'UP', 'YTT', 'TID', 'C4', 'COM818', 'PIE', 'RET501', 'ISC',
+    'PLE',
     'RUF',  # note: RUF can flag many unsolicited errors
     # preview rules
     'RUF051', 'RUF056',  # useless dict operation

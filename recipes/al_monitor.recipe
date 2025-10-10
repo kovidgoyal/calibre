@@ -192,7 +192,7 @@ class AlMonitor(BasicNewsRecipe):
             abs_url = 'http://www.al-monitor.com' + url
         else:
             self._p('Not sure how to make abs_url: ' + url)
-            raise
+            raise ValueError('Not sure how to make abs_url: ' + url)
 
         if '#' in abs_url:
             abs_url = ''.join(abs_url.split('#')[0:-1])
