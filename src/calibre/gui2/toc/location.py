@@ -116,7 +116,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif path.startswith('/mathjax/'):
             try:
-                ignore, ignore, base, rest = path.split('/', 3)
+                _ign, _ign, base, rest = path.split('/', 3)
             except ValueError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
                 rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
