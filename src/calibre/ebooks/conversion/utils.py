@@ -117,8 +117,7 @@ class HeuristicProcessor:
         # self.log.debug("There are " + str(tot_ln_fds) + " total Line feeds, and " +
         #         str(tot_htm_ends) + " marked up endings")
 
-        percent = min(percent, 1)
-        percent = max(percent, 0)
+        percent = min(max(percent, 0), 1)
 
         min_lns = tot_ln_fds * percent
         # self.log.debug("There must be fewer than " + str(min_lns) + " unmarked lines to add markup")

@@ -123,8 +123,7 @@ class DocAnalysis:
             if lengths[i] > max_line:
                 del lengths[i]
 
-        percent = min(percent, 1)
-        percent = max(percent, 0)
+        percent = min(max(percent, 0), 1)
 
         index = int(len(lengths) * percent) - 1
 
