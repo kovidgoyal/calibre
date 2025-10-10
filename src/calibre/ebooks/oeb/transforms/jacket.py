@@ -391,9 +391,9 @@ def render_jacket(mi, output_profile,
 
         if False:
             print('Custom column values available in jacket template:')
-            for key in args.keys():
+            for key, values in args.items():
                 if key.startswith('_') and not key.endswith('_label'):
-                    print(' {}: {}'.format('#' + key[1:], args[key]))
+                    print(' {}: {}'.format('#' + key[1:], values))
 
         # Used in the comment describing use of custom columns in templates
         # Don't change this unless you also change it in template.xhtml

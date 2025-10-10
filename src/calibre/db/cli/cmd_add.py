@@ -68,8 +68,8 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
                 input_formats = {q.upper():q for q in format_map}
                 common_formats = book_formats & set(input_formats)
                 if not common_formats:
-                    for x in input_formats:
-                        add_format(book_id, input_formats[x])
+                    for x, format in input_formats.items():
+                        add_format(book_id, format)
                 else:
                     new_formats = set(input_formats) - book_formats
                     if new_formats:

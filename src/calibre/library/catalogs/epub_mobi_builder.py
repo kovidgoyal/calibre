@@ -1286,8 +1286,8 @@ class CatalogBuilder:
         for normalized in normalized_set:
             if normalized_tags.count(normalized) > 1:
                 self.opts.log.warn(f"      Warning: multiple tags resolving to genre '{normalized}':")
-                for key in genre_tags_dict:
-                    if genre_tags_dict[key] == normalized:
+                for key, tags in genre_tags_dict.items():
+                    if tags == normalized:
                         self.opts.log.warn(f'       {key}')
         if self.opts.verbose:
             self.opts.log.info('{}'.format(_format_tag_list(genre_tags_dict, header='enabled genres')))

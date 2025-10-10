@@ -134,11 +134,10 @@ class SolHaberRecipe(BasicNewsRecipe):
                 else:
                     articles_dict[category] = [article]
 
-        for category in articles_dict.keys():
+        for category, entrys in articles_dict.items():
             if category in self.category_dict:
-                result.append(
-                    (self.category_dict[category], articles_dict[category]))
+                result.append((self.category_dict[category], entrys))
             else:
-                result.append((category, articles_dict[category]))
+                result.append((category, entrys))
 
         return result

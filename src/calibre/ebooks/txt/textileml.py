@@ -157,16 +157,16 @@ class TextileMLizer(OEB2HTML):
 
     def check_halign(self, style):
         tests = {'left':'<','justify':'<>','center':'=','right':'>'}
-        for i in tests:
+        for i,v in tests.items():
             if style['text-align'] == i:
-                return tests[i]
+                return v
         return ''
 
     def check_valign(self, style):
         tests = {'top':'^','bottom':'~'}  # , 'middle':'-'}
-        for i in tests:
+        for i,v in tests.items():
             if style['vertical-align'] == i:
-                return tests[i]
+                return v
         return ''
 
     def check_padding(self, style, stylizer):

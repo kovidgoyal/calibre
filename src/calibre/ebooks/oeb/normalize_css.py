@@ -251,9 +251,9 @@ condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': si
 def condense_rule(style):
     expanded = {'margin-':[], 'padding-':[], 'border-':[]}
     for prop in style.getProperties():
-        for x in expanded:
+        for x,t in iteritems(expanded):
             if prop.name and prop.name.startswith(x):
-                expanded[x].append(prop)
+                t.append(prop)
                 break
     for prefix, vals in iteritems(expanded):
         if len(vals) > 1 and {x.priority for x in vals} == {''}:

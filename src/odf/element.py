@@ -322,11 +322,11 @@ class Element(Node):
                 self.setAttrNS(attr[0], attr[1], value)
         if allowed_attrs is not None:
             # Load the attributes from the 'args' argument
-            for arg in args.keys():
-                self.setAttribute(arg, args[arg])
+            for arg, attrs in args.items():
+                self.setAttribute(arg, attrs)
         else:
-            for arg in args.keys():  # If any attribute is allowed
-                self.attributes[arg]=args[arg]
+            for arg, attrs in args.items():  # If any attribute is allowed
+                self.attributes[arg]=attrs
         if not check_grammar:
             return
         # Test that all mandatory attributes have been added.

@@ -61,8 +61,7 @@ def read_ncx(sections, index, codec):
             entry['name'] = text
             entry['num'] = num
 
-            for tag in tag_fieldname_map:
-                fieldname, i = tag_fieldname_map[tag]
+            for tag, (fieldname, i) in tag_fieldname_map.items():
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]
                     if tag == 6:

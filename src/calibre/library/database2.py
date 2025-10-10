@@ -333,10 +333,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 catmap[ucl] = []
             catmap[ucl].append(uc)
         cats_changed = False
-        for uc in catmap:
-            if len(catmap[uc]) > 1:
-                prints('found user category case overlap', catmap[uc])
-                cat = catmap[uc][0]
+        for uc, user_cat in catmap.items():
+            if len(user_cat) > 1:
+                prints('found user category case overlap', user_cat)
+                cat = user_cat[0]
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
@@ -2119,8 +2119,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # do the verification in the category loop much faster, at the cost of
         # temporarily duplicating the categories lists.
         taglist = {}
-        for c in categories.keys():
-            taglist[c] = {icu_lower(t.name): t for t in categories[c]}
+        for c, ct in categories.items():
+            taglist[c] = {icu_lower(t.name): t for t in ct}
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
