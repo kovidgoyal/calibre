@@ -115,7 +115,7 @@ def svg_path_to_painter_path(d):
             x += parse_float()
             y += parse_float()
             path.moveTo(x, y)
-        elif cmd == closepath1 or cmd == closepath2:
+        elif cmd in (closepath1, closepath2):
             path.closeSubpath()
         elif cmd == lineto_abs:
             x, y = parse_floats(2)
@@ -143,7 +143,7 @@ def svg_path_to_painter_path(d):
             x1, y1, x2, y2, x, y = parse_floats(6, x, y)
             path.cubicTo(x1, y1, x2, y2, x, y)
         elif cmd == smoothcurveto_abs:
-            if last_cmd == curveto_abs or last_cmd == curveto_rel or last_cmd == smoothcurveto_abs or last_cmd == smoothcurveto_rel:
+            if last_cmd in (curveto_abs, curveto_rel, smoothcurveto_abs, smoothcurveto_rel):
                 x1 = 2 * x - x2
                 y1 = 2 * y - y2
             else:
@@ -151,7 +151,7 @@ def svg_path_to_painter_path(d):
             x2, y2, x, y = parse_floats(4)
             path.cubicTo(x1, y1, x2, y2, x, y)
         elif cmd == smoothcurveto_rel:
-            if last_cmd == curveto_abs or last_cmd == curveto_rel or last_cmd == smoothcurveto_abs or last_cmd == smoothcurveto_rel:
+            if last_cmd in (curveto_abs, curveto_rel, smoothcurveto_abs, smoothcurveto_rel):
                 x1 = 2 * x - x2
                 y1 = 2 * y - y2
             else:

@@ -862,7 +862,7 @@ class MobiReader:
             l = self.mobi_html.find(b'<', end)
             r = self.mobi_html.find(b'>', end)
             anchor = b'<a id="filepos%d"></a>'
-            if r > -1 and (r < l or l == end or l == -1):
+            if r > -1 and (r < l or l in (end, -1)):
                 p = self.mobi_html.rfind(b'<', 0, end + 1)
                 if (pos < end and p > -1 and not end_tag_re.match(self.mobi_html[p:r]) and
                         not self.mobi_html[p:r + 1].endswith(b'/>')):

@@ -304,23 +304,23 @@ class GetOptions:
         else:
             options_dict['empty-paragraphs'] = 1
         form_lists = options_dict.get('lists')
-        if form_lists == 'true' or form_lists == '1':
+        if form_lists in {'true', '1'}:
             options_dict['form-lists'] = 1
-        elif form_lists == 'false' or form_lists == '0':
+        elif form_lists in {'false', '0'}:
             options_dict['form-lists'] = 0
         else:
             options_dict['form-lists'] = 0
         group_styles = options_dict.get('group-styles')
-        if group_styles == 'true' or group_styles == '1':
+        if group_styles in {'true', '1'}:
             options_dict['group-styles'] = 1
-        elif group_styles == 'false' or group_styles == '0':
+        elif group_styles in {'false', '0'}:
             options_dict['group-styles'] = 0
         else:
             options_dict['group-styles'] = 0
         group_borders = options_dict.get('group-borders')
-        if group_borders == 'true' or group_borders == '1':
+        if group_borders in {'true', '1'}:
             options_dict['group-borders'] = 1
-        elif group_borders == 'false' or group_borders == '0':
+        elif group_borders in {'false', '0'}:
             options_dict['group-borders'] = 0
         else:
             options_dict['group-borders'] = 0

@@ -194,7 +194,7 @@ class TimesColonist(BasicNewsRecipe):
             ptext = self.tag_to_string(
                 ptag, use_alt=False, normalize_whitespace=True)
             ptext = re.sub(r'\s+', '', ptext)
-            if (ptext == '') or (ptext == '&nbsp;'):
+            if ptext in {'', '&nbsp;'}:
                 ptag.extract()
         return self.strip_anchors(soup)
 

@@ -353,7 +353,7 @@ file.
                 else:
                     toc_string += f'{line}\n'
             else:
-                if token_info == 'cw<an<book-mk-st' or token_info =='cw<an<book-mk-en':
+                if token_info in {'cw<an<book-mk-st', 'cw<an<book-mk-en'}:
                     if token_info == 'cw<an<book-mk-st':
                         book_type = 'start'
                     if token_info == 'cw<an<book-mk-en':

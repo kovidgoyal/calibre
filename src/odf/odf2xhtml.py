@@ -1605,7 +1605,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             for c in node.childNodes:
                 self._walknode(c)
             self.endElementNS(node.qname, node.tagName)
-        if node.nodeType == Node.TEXT_NODE or node.nodeType == Node.CDATA_SECTION_NODE:
+        if node.nodeType in (Node.TEXT_NODE, Node.CDATA_SECTION_NODE):
             self.characters(str(node))
 
     def odf2xhtml(self, odffile):

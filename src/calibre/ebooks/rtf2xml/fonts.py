@@ -139,8 +139,7 @@ class Fonts:
             )
         elif self.__token_info == 'cw<ci<font-style':
             self.__font_num = line[20:-1]
-        elif self.__token_info == 'tx<nu<__________' or \
-        self.__token_info == 'tx<ut<__________':
+        elif self.__token_info in {'tx<nu<__________', 'tx<ut<__________'}:
             self.__text_line += line[17:-1]
         elif self.__token_info == 'mi<mk<fonttb-end':
             self.__found_end_font_table_func()

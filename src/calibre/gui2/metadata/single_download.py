@@ -697,7 +697,7 @@ class CoversModel(QAbstractListModel):  # {{{
             return None
         if role == Qt.ItemDataRole.DecorationRole:
             return pmap
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.ToolTipRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return text
         if role == Qt.ItemDataRole.UserRole:
             return waiting

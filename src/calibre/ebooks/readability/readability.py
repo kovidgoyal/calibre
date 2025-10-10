@@ -395,7 +395,7 @@ class Document:
                 if counts['p'] and counts['img'] > counts['p']:
                     reason = 'too many images ({})'.format(counts['img'])
                     to_remove = True
-                elif counts['li'] > counts['p'] and tag != 'ul' and tag != 'ol':
+                elif counts['li'] > counts['p'] and tag not in {'ul', 'ol'}:
                     reason = 'more <li>s than <p>s'
                     to_remove = True
                 elif counts['input'] > (counts['p'] / 3):

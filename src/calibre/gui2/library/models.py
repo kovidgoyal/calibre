@@ -1855,7 +1855,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def data(self, index, role):
         row, col = index.row(), index.column()
         cname = self.column_map[col]
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if cname == 'title':
                 text = self.db[self.map[row]].title
                 if not text:

@@ -65,7 +65,7 @@ class NRCNext(BasicNewsRecipe):
         subst = '\\1'
         for name in namelist:
             _, ext = os.path.splitext(name)
-            if (ext == '.html') or (ext == '.ncx'):
+            if ext in {'.html', '.ncx'}:
                 fname = os.path.join(self.output_dir, name)
                 with open(fname) as f:
                     s = f.read()

@@ -362,7 +362,7 @@ class MTP_DEVICE(BASE):
                     metadata = get_metadata(stream, stream_type=ext,
                             force_read_metadata=True,
                             pattern=self.build_template_regexp())
-                if metadata.title != 'metadata' and metadata.title != 'Unknown':
+                if metadata.title not in {'metadata', 'Unknown'}:
                     return metadata
         stream = self.get_mtp_file(mtp_file)
         with quick_metadata:

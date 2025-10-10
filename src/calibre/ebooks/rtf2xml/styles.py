@@ -543,7 +543,7 @@ class Styles:
                                 self.__styles_dict[type][key][style] = \
                                 changed_value
                         else:
-                            if value == 0 or value == '0':
+                            if value in {0, '0'}:
                                 pass
                             elif self.__run_level > 4:
                                 msg = f'{type} {key} is based on {value}\n'

@@ -278,8 +278,7 @@ class Text(Element):
             if m_self and m_other:
                 self.raw = m_self.group(1)
                 other.raw = m_other.group(1)
-        elif self.font_size_em != other.font_size_em \
-          and self.font_size_em != 1.00:
+        elif self.font_size_em not in (other.font_size_em, 1.0):
             if not self.raw.startswith(r'<span'):
                 self.raw = f'<span style="font-size:{self.font_size_em!s}em">{self.raw}</span>'
             # Try to allow for a very large initial character
@@ -949,13 +948,7 @@ class Page:
                 t.tag = 'h2'  # It won't get set later
             # Centered if left and right margins are within FACTOR%
             # Because indents can waver a bit, use between indent_min and indent_max as == indent
-            if (lmargin < indent_min or lmargin > indent_max) \
-              and lmargin > left_max \
-              and lmargin != xmargin \
-              and lmargin != ymargin \
-              and lmargin >= rmargin - rmargin*CENTER_FACTOR \
-              and lmargin <= rmargin + rmargin*CENTER_FACTOR \
-              and '"float:right"' not in t.raw:
+            if (lmargin < indent_min or lmargin > indent_max) and lmargin > left_max and lmargin not in (xmargin, ymargin) and lmargin >= rmargin - rmargin * CENTER_FACTOR and lmargin <= rmargin + rmargin * CENTER_FACTOR and '"float:right"' not in t.raw:
                 # and t.left + t.width + t.left >= self.width + l_offset - t.average_character_width \
                 # and t.left + t.width + t.left <= self.width + l_offset + t.average_character_width:
                 t.align = 'C'
@@ -1311,7 +1304,7 @@ class Page:
         # Font sizes start as pixels/points, but em is more useful
         for text in self.texts:
             text.font_size_em = self.font_map[text.font.id].size_em
-            if text.font_size_em != 0.00 and text.font_size_em != 1.00:
+            if text.font_size_em not in {0.0, 1.0}:
                 text.raw = f'<span style="font-size:{text.font_size_em!s}em">{text.raw}</span>'
 
     def second_pass(self, stats, opts):

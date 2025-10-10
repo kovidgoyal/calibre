@@ -140,7 +140,7 @@ class CodeEditor(QPlainTextEdit):
             ev.accept()
             return
         key = ev.key()
-        if key == Qt.Key_Tab or key == Qt.Key_Backtab:
+        if key in (Qt.Key_Tab, Qt.Key_Backtab):
             '''
             Handle indenting usingTab and Shift Tab. This is remarkably
             difficult because of the way Qt represents the edit buffer.

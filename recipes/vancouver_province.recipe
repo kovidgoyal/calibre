@@ -261,7 +261,7 @@ class CanWestPaper(BasicNewsRecipe):
         ans = []
 
         def handle_article(adiv, key):
-            if adiv.name == 'h1' or adiv.name == 'h3':
+            if adiv.name in {'h1', 'h3'}:
                 h1tag = adiv
             else:
                 h1tag = adiv.h1

@@ -115,7 +115,7 @@ class Configure:
         smart_output = return_dict.get('smart-output')
         if not smart_output:
             return_dict['smart-output'] = 0
-        elif smart_output != 'true' and smart_output != 'false':
+        elif smart_output not in {'true', 'false'}:
             sys.stderr.write('"smart-output" must be true or false.\n')
             return 1
         elif smart_output == 'false':
@@ -143,7 +143,7 @@ class Configure:
             value = return_dict.get(font)
             if not value:
                 return_dict[font] = 0
-            elif value != 'true' and value != 'false':
+            elif value not in {'true', 'false'}:
                 sys.stderr.write(
                     f'"{font}" must be true or false.\n')
             elif value == 'false':

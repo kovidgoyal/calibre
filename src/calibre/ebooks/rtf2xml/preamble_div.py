@@ -148,8 +148,7 @@ class PreambleDiv:
             'mi<mk<rtfhed-end\n'
             )
             self.__state = 'preamble'
-        elif self.__token_info == 'tx<nu<__________' or \
-            self.__token_info == 'cw<pf<par-def___':
+        elif self.__token_info in {'tx<nu<__________', 'cw<pf<par-def___'}:
             self.__state = 'body'
             self.__rtf_final = (
             'mi<mk<rtfhed-beg\n' +

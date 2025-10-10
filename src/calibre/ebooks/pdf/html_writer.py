@@ -124,7 +124,7 @@ def fix_fullscreen_images(container):
             svg = None
             for elem in body.iterdescendants('*'):
                 name = local_name(elem.tag)
-                if name != 'style' and name != 'script':
+                if name not in {'style', 'script'}:
                     names.append(name)
                     if name == 'svg':
                         svg = elem

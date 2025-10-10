@@ -359,7 +359,7 @@ class Textile:
             if m:
                 rowspan = m.group(1)
 
-        if element == 'td' or element == 'tr':
+        if element in {'td', 'tr'}:
             m = re.search(rf'({self.vlgn})', matched)
             if m:
                 style.append(f'vertical-align:{self.vAlign(m.group(1))};')

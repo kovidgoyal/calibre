@@ -224,7 +224,7 @@ class Dehyphenator:
             searchresult = self.html.find(lookupword.lower())
         except Exception:
             return hyphenated
-        if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
+        if self.format in {'html_cleanup', 'txt_cleanup'}:
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
                     self.log('    Cleanup:returned dehyphenated word: ' + dehyphenated)

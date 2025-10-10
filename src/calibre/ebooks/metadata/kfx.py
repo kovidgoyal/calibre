@@ -194,7 +194,7 @@ class PackedIon(PackedData):
         if data_type == DT_STRING:
             return self.extract(data_len).decode('utf8')
 
-        if data_type == DT_STRUCT or data_type == DT_LIST:
+        if data_type in (DT_STRUCT, DT_LIST):
             ion = PackedIon(self.extract(data_len))
             result = []
 
