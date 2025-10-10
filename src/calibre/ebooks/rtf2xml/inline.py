@@ -400,7 +400,15 @@ class Inline:
                 for line in read_obj:
                     token = line[0:-1]
                     self.__token_info = ''
-                    if token in {'tx<mc<__________<rdblquote', 'tx<mc<__________<ldblquote', 'tx<mc<__________<lquote', 'tx<mc<__________<rquote', 'tx<mc<__________<emdash', 'tx<mc<__________<endash', 'tx<mc<__________<bullet'}:
+                    if token in {
+                        'tx<mc<__________<rdblquote',
+                        'tx<mc<__________<ldblquote',
+                        'tx<mc<__________<lquote',
+                        'tx<mc<__________<rquote',
+                        'tx<mc<__________<emdash',
+                        'tx<mc<__________<endash',
+                        'tx<mc<__________<bullet',
+                    }:
                         self.__token_info = 'text'
                     else:
                         self.__token_info = line[:16]

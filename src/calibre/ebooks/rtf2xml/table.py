@@ -122,7 +122,12 @@ class Table:
             a row and start a cell.
         '''
         # 'cell'               : ('tb', 'cell______', self.default_func),
-        if self.__token_info in {'mi<mk<not-in-tbl', 'mi<mk<sect-start', 'mi<mk<sect-close', 'mi<mk<body-close'}:
+        if self.__token_info in {
+            'mi<mk<not-in-tbl',
+            'mi<mk<sect-start',
+            'mi<mk<sect-close',
+            'mi<mk<body-close',
+        }:
             self.__close_table(line)
         elif self.__token_info == 'mi<mk<pard-start':
             self.__start_row_func(line)
@@ -423,7 +428,12 @@ class Table:
         '''
         # cw<tb<cell______<nu<true
         # mi<mk<sect-start
-        if self.__token_info in {'mi<mk<not-in-tbl', 'mi<mk<sect-start', 'mi<mk<sect-close', 'mi<mk<body-close'}:
+        if self.__token_info in {
+            'mi<mk<not-in-tbl',
+            'mi<mk<sect-start',
+            'mi<mk<sect-close',
+            'mi<mk<body-close',
+        }:
             self.__end_cell_func(line)
             self.__end_row_func(line)
             self.__close_table(line)
@@ -450,7 +460,12 @@ class Table:
         self.__write_obj.write('mi<mk<closecell_\n')
 
     def __in_row_func(self, line):
-        if self.__token_info in {'mi<mk<not-in-tbl', 'mi<mk<sect-start', 'mi<mk<sect-close', 'mi<mk<body-close'}:
+        if self.__token_info in {
+            'mi<mk<not-in-tbl',
+            'mi<mk<sect-start',
+            'mi<mk<sect-close',
+            'mi<mk<body-close',
+        }:
             self.__end_row_func(line)
             self.__close_table(line)
             self.__write_obj.write(line)

@@ -426,7 +426,7 @@ class PDFStream:
             if fmt == QImage.Format.Format_MonoLSB:
                 image = image.convertToFormat(QImage.Format.Format_Mono)
             fmt = QImage.Format.Format_Mono
-        elif (fmt not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32)):
+        elif fmt not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32):
             image = image.convertToFormat(QImage.Format.Format_ARGB32)
             fmt = QImage.Format.Format_ARGB32
 

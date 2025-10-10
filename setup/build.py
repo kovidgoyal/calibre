@@ -441,7 +441,7 @@ class Build(Command):
             os.makedirs(x, exist_ok=True)
         pyqt_extensions, extensions = [], []
         for ext in all_extensions:
-            if opts.only not in ('all', ext.name):
+            if opts.only not in {'all', ext.name}:
                 continue
             if not is_ext_allowed(self.compiling_for, ext):
                 continue

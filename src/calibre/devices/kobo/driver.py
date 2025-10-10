@@ -709,7 +709,7 @@ class KOBO(USBMS):
             # for calibre's reference
             path = self._main_prefix + path + '.kobo'
             # print('Path: ' + path)
-        elif (ContentType in {'6', '10'}) and (
+        elif ContentType in {'6', '10'} and (
             MimeType == 'application/x-kobo-epub+zip' or (
             MimeType == 'application/epub+zip' and self.isTolinoDevice())
         ):
@@ -1797,7 +1797,7 @@ class KOBOTOUCH(KOBO):
                         allow_shelves = False
                         if show_debug:
                             debug_print('KoboTouch:update_booklist - have a deleted book')
-                    elif self.supports_kobo_archive() and (accessibility in {1, 2}):
+                    elif self.supports_kobo_archive() and accessibility in {1, 2}:
                         playlist_map[lpath].append('Archived')
                         allow_shelves = True
 
@@ -2192,7 +2192,7 @@ class KOBOTOUCH(KOBO):
 
         if oncard == 'cardb':
             print('path from_contentid cardb')
-        elif (ContentType in {'6', '10'}):
+        elif ContentType in {'6', '10'}:
             if (MimeType == 'application/octet-stream'):  # Audiobooks purchased from Kobo are in a different location.
                 path = self._main_prefix + KOBO_ROOT_DIR_NAME + '/audiobook/' + path
             elif (MimeType == 'audio/mpeg' and self.isTolinoDevice()):
