@@ -130,8 +130,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
                 if human_readable_size:
                     file = FileFormatter(file)
                     size = len(file.human_readable_size)
-                if size > maxlen:
-                    maxlen = size
+                maxlen = max(maxlen, size)
         for file in files:
             file = FileFormatter(file)
             name = file.name if ll else file.isdir_name

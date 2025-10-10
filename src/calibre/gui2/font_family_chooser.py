@@ -286,8 +286,7 @@ class FontFamilyDialog(QDialog):
 
     def find(self, backwards=False):
         i = self.view.currentIndex().row()
-        if i < 0:
-            i = 0
+        i = max(i, 0)
         q = icu_lower(str(self.search.text())).strip()
         if not q:
             return

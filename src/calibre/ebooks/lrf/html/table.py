@@ -148,8 +148,7 @@ class Cell:
             word = word[0] if word else ''
             fl, ft, fr, fb = font.getbbox(word)
             width = fr - fl
-            if width > mwidth:
-                mwidth = width
+            mwidth = max(mwidth, width)
         return parindent + mwidth + 2
 
     def text_block_size(self, tb, maxwidth=sys.maxsize, debug=False):
@@ -363,8 +362,7 @@ class Table:
 
         xpos = [sum(widths[:i]) for i in range(cols)]
         delta = maxwidth - sum(widths)
-        if delta < 0:
-            delta = 0
+        delta = max(delta, 0)
         for r in range(len(cellmatrix)):
             yield None, 0, heights[r], 0, self.rows[r].targets
             for c in range(len(cellmatrix[r])):

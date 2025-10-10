@@ -217,8 +217,7 @@ def get_metadata_(src, encoding=None):
     if rating:
         try:
             mi.rating = float(rating)
-            if mi.rating < 0:
-                mi.rating = 0
+            mi.rating = max(mi.rating, 0)
             if mi.rating > 10:
                 mi.rating = 0
         except Exception:

@@ -486,8 +486,7 @@ class Table:
         else:
             self.__write_obj.write('mi<tg<empty_____<row\n')
             self.__rows_in_table += 1
-        if self.__cells_in_row > self.__max_number_cells_in_row:
-            self.__max_number_cells_in_row = self.__cells_in_row
+        self.__max_number_cells_in_row = max(self.__max_number_cells_in_row, self.__cells_in_row)
         self.__list_of_cells_in_row.append(self.__cells_in_row)
 
     def __empty_cell(self, line):

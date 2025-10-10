@@ -639,8 +639,7 @@ class SearchRestrictionMixin:
             r = 0
         else:
             r = self.search_restriction.findText(name)
-            if r < 0:
-                r = 0
+            r = max(r, 0)
         self.search_restriction.setCurrentIndex(r)
         self.apply_search_restriction(r)
 

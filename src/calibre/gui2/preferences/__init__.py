@@ -249,8 +249,7 @@ class Setting:
                 val = str(self.gui_obj.text())
             else:
                 idx = self.gui_obj.currentIndex()
-                if idx < 0:
-                    idx = 0
+                idx = max(idx, 0)
                 val = str(self.gui_obj.itemData(idx) or '')
         return val
 

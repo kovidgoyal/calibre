@@ -440,8 +440,7 @@ class Offsets:
     'Calculate offsets for a paginated view'
 
     def __init__(self, offset, delta, total):
-        if offset < 0:
-            offset = 0
+        offset = max(offset, 0)
         if offset >= total:
             raise HTTPNotFound(f'Invalid offset: {offset!r}')
         last_allowed_index = total - 1
@@ -452,11 +451,9 @@ class Offsets:
         if self.next_offset > last_allowed_index:
             self.next_offset = -1
         self.previous_offset = self.offset - delta
-        if self.previous_offset < 0:
-            self.previous_offset = 0
+        self.previous_offset = max(self.previous_offset, 0)
         self.last_offset = last_allowed_index - delta
-        if self.last_offset < 0:
-            self.last_offset = 0
+        self.last_offset = max(self.last_offset, 0)
 
 
 _use_roman = None

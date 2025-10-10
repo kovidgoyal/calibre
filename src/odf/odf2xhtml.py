@@ -1268,10 +1268,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def s_text_h(self, tag, attrs):
         ''' Headings start '''
         level = int(attrs[(TEXTNS,'outline-level')])
-        if level > 6:
-            level = 6  # Heading levels go only to 6 in XHTML
-        if level < 1:
-            level = 1
+        level = min(level, 6)  # Heading levels go only to 6 in XHTML
+        level = max(level, 1)
         self.headinglevels[level] = self.headinglevels[level] + 1
         name = self.classname(attrs)
         for x in range(level + 1, 10):
@@ -1290,10 +1288,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         '''
         self.writedata()
         level = int(attrs[(TEXTNS,'outline-level')])
-        if level > 6:
-            level = 6  # Heading levels go only to 6 in XHTML
-        if level < 1:
-            level = 1
+        level = min(level, 6)  # Heading levels go only to 6 in XHTML
+        level = max(level, 1)
         lev = self.headinglevels[1:level+1]
         outline = '.'.join(map(str, lev))
         heading = ''.join(self.data)

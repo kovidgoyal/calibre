@@ -325,8 +325,7 @@ class ISBNMerge:
             for r in results:
                 if r.pubdate is not None:
                     candidate = as_utc(r.pubdate)
-                    if candidate < min_date:
-                        min_date = candidate
+                    min_date = min(min_date, candidate)
             if min_date.year < 3000:
                 ans.pubdate = min_date
 

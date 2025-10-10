@@ -724,8 +724,7 @@ class ProcessTokens:
                        'should have a number and does not\nnumerator is'
                        f'"{numerator}"\ndenominator is "{denominator}"\n')
                 raise self.__bug_handler(msg)
-            if 5 > self.__return_code:
-                self.__return_code = 5
+            self.__return_code = max(self.__return_code, 5)
             return 0
         num = f'{round(numerator/denominator, 2):0.2f}'
         return num

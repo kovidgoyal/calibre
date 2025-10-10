@@ -505,8 +505,7 @@ class BZZDecoder:
             return self.decode_binary(self.ctx, i, bits)
         for i in range(self.xsize):
             ctxid = CTXIDS - 1
-            if ctxid > mtfno:
-                ctxid = mtfno
+            ctxid = min(ctxid, mtfno)
             if zc(ctxid):
                 mtfno = 0
                 outbuf[i] = mtf[mtfno]
@@ -664,8 +663,7 @@ class BZZDecoder:
         bit = (ctx[index] & 1)
         # Avoid interval reversion
         d = 0x6000 + ((z + self.a) >> 2)
-        if z > d:
-            z = d
+        z = min(z, d)
         # Test MPS/LPS
         if z > self.code:
             # LPS branch

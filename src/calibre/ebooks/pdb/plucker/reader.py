@@ -404,10 +404,8 @@ class Reader(FormatReader):
                                 raise Exception(f'Image with uid: {col} missing.')
                             w, h = identify(open(f'{col}.jpg', 'rb'))[1:]
                             row_width += w
-                            if col_height < h:
-                                col_height = h
-                        if width < row_width:
-                            width = row_width
+                            col_height = max(col_height, h)
+                        width = max(width, row_width)
                         height += col_height
                     # Create a new image the total size of all image
                     # parts. Put the parts into the new image.
@@ -421,8 +419,7 @@ class Reader(FormatReader):
                                 canvas.compose(im, x_off, y_off)
                                 w, h = im.width(), im.height()
                                 x_off += w
-                                if largest_height < h:
-                                    largest_height = h
+                                largest_height = max(largest_height, h)
                             y_off += largest_height
                     with open(f'{uid}.jpg') as out:
                         out.write(canvas.export(compression_quality=70))

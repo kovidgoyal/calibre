@@ -1132,8 +1132,7 @@ class HTMLConverter:
         for prop in ('topskip', 'footskip', 'sidemargin'):
             if isinstance(ans[prop], string_or_bytes):
                 ans[prop] = int(ans[prop])
-            if ans[prop] < 0:
-                ans[prop] = 0
+            ans[prop] = max(ans[prop], 0)
 
         return ans
 
@@ -1767,8 +1766,7 @@ class HTMLConverter:
                 for name in targets:
                     self.targets[self.target_prefix+name] = canvases[-1]
             else:
-                if xpos > 65535:
-                    xpos = 65535
+                xpos = min(xpos, 65535)
                 canvases[-1].put_object(block, xpos + int(delta/2), ypos)
 
         for canvas in canvases:

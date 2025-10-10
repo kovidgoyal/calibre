@@ -123,10 +123,8 @@ class DocAnalysis:
             if lengths[i] > max_line:
                 del lengths[i]
 
-        if percent > 1:
-            percent = 1
-        if percent < 0:
-            percent = 0
+        percent = min(percent, 1)
+        percent = max(percent, 0)
 
         index = int(len(lengths) * percent) - 1
 
@@ -171,8 +169,7 @@ class DocAnalysis:
         # Find the biggest bucket
         maxValue = 0
         for i in range(len(h)):
-            if h[i] > maxValue:
-                maxValue = h[i]
+            maxValue = max(maxValue, h[i])
 
         if maxValue < percent:
             # print('Line lengths are too variable. Not unwrapping.')

@@ -1752,8 +1752,7 @@ class PDFDocument:
             if bcount < self.bottoms[b]:
                 # and b > self.stats.bottom*0.9:
                 bcount = self.bottoms[b]
-            if b > self.stats.bottom:
-                self.stats.bottom = b
+            self.stats.bottom = max(self.stats.bottom, b)
 
     def find_header_footer(self):
         # If requested, scan first few pages for possible headers/footers
