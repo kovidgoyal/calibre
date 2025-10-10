@@ -1749,7 +1749,7 @@ class PDFDocument:
         # Or most popular bottom?  Or the max used value within 10% of max value?
         bcount = 0
         for b in self.bottoms:
-            if bcount < self.bottoms[b]:
+            if bcount < self.bottoms[b]:  # noqa: PLR1730
                 # and b > self.stats.bottom*0.9:
                 bcount = self.bottoms[b]
             self.stats.bottom = max(self.stats.bottom, b)
