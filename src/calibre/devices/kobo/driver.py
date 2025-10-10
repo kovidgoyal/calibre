@@ -722,7 +722,7 @@ class KOBO(USBMS):
             # if path.startswith('file:///mnt/onboard/'):
             path = path.replace('file:///mnt/onboard/', self._main_prefix)
             path = path.replace('/mnt/onboard/', self._main_prefix)
-                # print('Internal: ' + path)
+            # print('Internal: ' + path)
 
         return path
 
@@ -2210,7 +2210,7 @@ class KOBOTOUCH(KOBO):
             path = path.replace('file:///mnt/onboard/', self._main_prefix)
             path = path.replace('file:///mnt/sd/', self._card_a_prefix)
             path = path.replace('/mnt/onboard/', self._main_prefix)
-                # print('Internal: ' + path)
+            # print('Internal: ' + path)
 
         return path
 
