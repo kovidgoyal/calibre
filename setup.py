@@ -26,7 +26,7 @@ def check_version_info():
     else:
         is_ok = sys.version_info > q
     if not is_ok:
-        exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
+        sys.exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
 
 
 check_version_info()
