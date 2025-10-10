@@ -817,11 +817,10 @@ class CatalogBuilder:
                                         books_by_current_author))
             else:
                 books_by_current_author += 1
-        else:
-            # Add final author to list or single-author dataset
-            if (current_author == author and len(authors) > 1) or not multiple_authors:
-                unique_authors.append((current_author[0], icu_title(current_author[1]),
-                                        books_by_current_author))
+        # Add final author to list or single-author dataset
+        if (current_author == author and len(authors) > 1) or not multiple_authors:
+            unique_authors.append((current_author[0], icu_title(current_author[1]),
+                                    books_by_current_author))
 
         self.authors = list(unique_authors)
         self.books_by_author = books_by_author
