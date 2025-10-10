@@ -250,7 +250,7 @@ class PinTableView(TableView):
         sizes = state.get('column_sizes', {})
         for col, size in sizes.items():
             if col in cmap:
-                sz = sizes[col]
+                sz = size
                 if sz < 3:
                     sz = h.sectionSizeHint(cmap[col])
                 h.resizeSection(cmap[col], sz)
