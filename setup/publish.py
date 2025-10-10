@@ -131,6 +131,7 @@ class PublishBetas(Command):
 
     def pre_sub_commands(self, opts):
         require_clean_git()
+        require_hsm_for_signing()
         # require_git_master()
 
     def run(self, opts):
@@ -150,6 +151,7 @@ class PublishPreview(Command):
             raise SystemExit('Must set calibre version to have patch level greater than 100')
         require_clean_git()
         require_git_master()
+        require_hsm_for_signing()
 
     def run(self, opts):
         dist = self.a(self.j(self.d(self.SRC), 'dist'))
