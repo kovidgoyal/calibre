@@ -125,6 +125,8 @@ Insert an arbitrary HTML tag [<<]
 
 This allows you to insert an arbitrary full HTML tag (or wrap previously
 selected text in the tag). To use it, simply type ``<<`` and press |ct|.
+If you want to wrap selected text, first select the text, press |ct| then
+type ``<<`` and press |ct| again.
 The editor will expand it to::
 
     <|></>
