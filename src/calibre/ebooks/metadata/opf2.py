@@ -89,7 +89,6 @@ class Resource:  # {{{
                 path = path.decode(filesystem_encoding)
             self.path = path
         else:
-            href_or_path = href_or_path
             url = urlparse(href_or_path)
             if url[0] not in ('', 'file'):
                 self._href = href_or_path

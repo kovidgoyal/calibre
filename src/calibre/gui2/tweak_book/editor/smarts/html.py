@@ -108,7 +108,7 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxsize):
             return Tag(block, boundary, eblock, eboundary, self_closing=True)
         return find_closest_containing_tag(eblock, eboundary.offset + 1)
     stack = []
-    block, tag_end = block, boundary
+    tag_end = boundary
     while block is not None and max_tags > 0:
         sblock, tag_start = prev_tag_boundary(block, tag_end.offset)
         if sblock is None or not tag_start.is_start:

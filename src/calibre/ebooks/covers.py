@@ -220,7 +220,6 @@ class Block:
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
-    title, subtitle, footer = title, subtitle, footer
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
     title_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)

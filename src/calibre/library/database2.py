@@ -1602,7 +1602,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
 
     def original_fmt(self, book_id, fmt):
-        fmt = fmt
         nfmt = (f'ORIGINAL_{fmt}').upper()
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt

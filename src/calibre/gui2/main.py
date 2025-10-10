@@ -83,7 +83,6 @@ def find_portable_library():
         lib = None
         q = os.path.basename(lp)
         for c in candidates:
-            c = c
             if c.lower() == q.lower():
                 lib = os.path.join(base, c)
                 break

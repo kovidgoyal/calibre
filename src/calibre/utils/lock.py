@@ -145,7 +145,6 @@ elif islinux:
         name = '{}-singleinstance-{}-{}'.format(
             __appname__, (os.geteuid() if per_user else ''), name
         )
-        name = name
         address = '\0' + name.replace(' ', '_')
         sock = socket.socket(family=socket.AF_UNIX)
         try:

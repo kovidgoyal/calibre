@@ -1222,7 +1222,6 @@ class KOBO(USBMS):
                 if bookmark_extension:
                     for vol in storage:
                         bkmk_path = path_map[book_id]['path']
-                        bkmk_path = bkmk_path
                         if os.path.exists(bkmk_path):
                             path_map[book_id] = bkmk_path
                             book_ext[book_id] = book_extension

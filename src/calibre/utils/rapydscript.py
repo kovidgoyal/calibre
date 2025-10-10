@@ -525,7 +525,6 @@ def create_pot(source_files):
     for fname in source_files:
         with open(fname, 'rb') as f:
             code = f.read().decode('utf-8')
-            fname = fname
         c.eval('RapydScript.gettext_parse(window.catalog, {}, {}); 1'.format(*map(json.dumps, (code, fname))))
 
     buf = c.eval('ans = []; RapydScript.gettext_output(window.catalog, window.gettext_options, ans.push.bind(ans)); ans;')
