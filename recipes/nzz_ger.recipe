@@ -131,22 +131,22 @@ class Nzz(BasicNewsRecipe):
         # First, find the first <hr> tag.
         hr_tag = soup.find('hr')
         if hr_tag:
-            self.log.debug(f"Found <hr> tag: {hr_tag}")
+            self.log.debug(f'Found <hr> tag: {hr_tag}')
             # Then, if the next direct sibling after the `hr_tag` is a <div> of class "mx-auto", "items-start",
             # "justify-between" and "text-left", remove that <div>, as it is the metadata block.
             next_sibling = hr_tag.find_next_sibling()
             if next_sibling and next_sibling.name == 'div':
-                 self.log.debug(f"Found next sibling <div>: {next_sibling}")
-                 next_sibling_classes = next_sibling.get('class', [])
-                 if all(c in next_sibling_classes for c in ['items-start', 'justify-between', 'text-left']):
-                    self.log.debug("Removing the article metadata block.")
+                self.log.debug(f'Found next sibling <div>: {next_sibling}')
+                next_sibling_classes = next_sibling.get('class', [])
+                if all(c in next_sibling_classes for c in ['items-start', 'justify-between', 'text-left']):
+                    self.log.debug('Removing the article metadata block.')
                     next_sibling.decompose()
 
         # Remove the social media share box, which should delimit the end of the article.
         sharebox_div = soup.find('div', attrs={'componenttype': 'sharebox'})
-        self.log.debug(f"Searching for sharebox <div> with attrs {{'componenttype': 'sharebox'}}.")
+        self.log.debug("Searching for sharebox <div> with attrs {'componenttype': 'sharebox'}.")
         if sharebox_div:
-            self.log.debug(f"Found sharebox <div> that will now be removed.")
+            self.log.debug('Found sharebox <div> that will now be removed.')
             sharebox_div.decompose()
 
         return soup
