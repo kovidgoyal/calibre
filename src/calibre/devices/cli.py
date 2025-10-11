@@ -296,8 +296,7 @@ def main():
             if args[0].startswith('dev:'):
                 outfile = args[1]
                 path = args[0][4:]
-                if path.endswith('/'):
-                    path = path[:-1]
+                path = path.removesuffix('/')
                 if os.path.isdir(outfile):
                     outfile = os.path.join(outfile, path[path.rfind('/')+1:])
                 try:

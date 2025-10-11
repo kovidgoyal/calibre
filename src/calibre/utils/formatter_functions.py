@@ -3417,7 +3417,7 @@ See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for
         if qs:
             qs = '?' + qs
         return (f"{scheme}://{authority}{'/' if authority else ''}"
-                f"{path[1:] if path.startswith('/') else path}{qs}")
+                f"{path.removeprefix('/')}{qs}")
 
 
 class BuiltinQueryString(BuiltinFormatterFunction):

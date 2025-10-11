@@ -157,8 +157,7 @@ def main(opts, args, dbctx):
     def fmtr(v):
         v = v or 0
         ans = f'{v:.1f}'
-        if ans.endswith('.0'):
-            ans = ans[:-2]
+        ans = ans.removesuffix('.0')
         return ans
 
     if not opts.item_count:

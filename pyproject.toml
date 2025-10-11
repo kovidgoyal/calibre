@@ -105,7 +105,7 @@ quote-style = 'single'
 explicit-preview-rules = true
 ignore = [
     'E402', 'E741',
-    'UP012', 'UP030', 'C413', 'C420', 'PIE790', 'ISC003', 'FURB122', 'FURB166', 'FURB167', 'FURB116', 'FURB136', 'FURB188',
+    'UP012', 'UP030', 'C413', 'C420', 'PIE790', 'ISC003', 'FURB122', 'FURB166', 'FURB167', 'FURB116', 'FURB136',
     'RUF001', 'RUF002', 'RUF003', 'RUF005', 'RUF012', 'RUF013', 'RUF015', 'RUF031', 'RUF100',
     'PLE1205', 'PLW0602', 'PLW0603', 'PLW1510', 'PLW1641', 'PLW2901', 'PLC0415',
     'PLR0911', 'PLR0912', 'PLR0913', 'PLR0914', 'PLR0915', 'PLR0916', 'PLR0917', 'PLR1702', 'PLR1704', 'PLR2004', 'PLR6301',
@@ -129,11 +129,11 @@ select = [
 unfixable = ['PIE794', 'ISC001']
 
 [tool.ruff.lint.per-file-ignores]
-"recipes/*" = ['UP']
+"recipes/*" = ['UP', 'FURB188']
 "setup/changelog.py" = ['ISC001']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
-"src/calibre/ebooks/metadata/sources/*" = ['UP']
-"src/calibre/gui2/store/stores/*" = ['UP']
+"src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
+"src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 

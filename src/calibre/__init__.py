@@ -238,8 +238,7 @@ def get_proxies(debug=True):
             proxy = proxy[len(key)+3:]
         if key == 'https' and proxy.startswith('http://'):
             proxy = proxy[7:]
-        if proxy.endswith('/'):
-            proxy = proxy[:-1]
+        proxy = proxy.removesuffix('/')
         if len(proxy) > 4:
             proxies[key] = proxy
         else:
@@ -571,8 +570,7 @@ def human_readable(size, sep=' '):
     size = str(float(size)/divisor)
     if size.find('.') > -1:
         size = size[:size.find('.')+2]
-    if size.endswith('.0'):
-        size = size[:-2]
+    size = size.removesuffix('.0')
     return size + sep + suffix
 
 

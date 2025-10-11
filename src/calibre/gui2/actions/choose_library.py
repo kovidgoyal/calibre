@@ -127,8 +127,7 @@ class LibraryUsageStats:  # {{{
             yield self.pretty(loc), loc
 
     def pretty(self, loc):
-        if loc.endswith('/'):
-            loc = loc[:-1]
+        loc = loc.removesuffix('/')
         return loc.split('/')[-1]
 
     def rename(self, location, newloc):

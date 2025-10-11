@@ -1389,8 +1389,7 @@ class CatalogBuilder:
          (dict): formatted args for templating
         '''
         series_index = str(book['series_index'])
-        if series_index.endswith('.0'):
-            series_index = series_index[:-2]
+        series_index = series_index.removesuffix('.0')
         args = dict(
                 title=book['title'],
                 series=book['series'],
@@ -2667,8 +2666,7 @@ class CatalogBuilder:
         if book['series']:
             series = book['series']
             series_index = str(book['series_index'])
-            if series_index.endswith('.0'):
-                series_index = series_index[:-2]
+            series_index = series_index.removesuffix('.0')
 
         # Author, author_prefix (read|reading|none symbol or missing symbol)
         author = book['author']
@@ -3043,8 +3041,7 @@ class CatalogBuilder:
             sec_id = 'book{}ID'.format(int(book['id']))
             if book['series']:
                 series_index = str(book['series_index'])
-                if series_index.endswith('.0'):
-                    series_index = series_index[:-2]
+                series_index = series_index.removesuffix('.0')
                 if self.generate_for_kindle_mobi:
                     # Don't include Author for Kindle
                     sec_text = self.format_ncx_text('{} ({} [{}])'.format(book['title'], book['series'], series_index), dest='title')

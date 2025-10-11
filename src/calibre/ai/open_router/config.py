@@ -176,8 +176,7 @@ class ModelDetails(QTextBrowser):
         else:
             def fmt(p: float) -> str:
                 ans = f'$ {p:.2f}'
-                if ans.endswith('.00'):
-                    ans = ans[:-3]
+                ans = ans.removesuffix('.00')
                 return ans
             price = ''
             if m.pricing.input_token:

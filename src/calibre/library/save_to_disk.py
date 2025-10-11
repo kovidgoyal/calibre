@@ -190,8 +190,7 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
         format_args['author'] = format_args['authors']
     if mi.tags:
         format_args['tags'] = mi.format_tags()
-        if format_args['tags'].startswith('/'):
-            format_args['tags'] = format_args['tags'][1:]
+        format_args['tags'] = format_args['tags'].removeprefix('/')
     else:
         format_args['tags'] = ''
     if mi.series:
