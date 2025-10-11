@@ -299,6 +299,8 @@ class Convert:
             if name is None:
                 cname = self.docx.document_name.split('/')
                 cname[-1] = defname
+                if self.docx.exists('/'.join(cname)):
+                    name = cname
             if name and name.startswith('word/word') and not self.docx.exists(name):
                 name = name.partition('/')[2]
             return name
