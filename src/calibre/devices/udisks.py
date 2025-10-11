@@ -31,7 +31,7 @@ def node_mountpoint(node):
                 return de_mangle(row['mntpoint'].encode('utf-8'))
     else:
         with open('/proc/mounts', 'rb') as src:
-            for line in src.readlines():
+            for line in src:
                 line = line.split()
                 if line[0] == node:
                     return de_mangle(line[1])
