@@ -648,6 +648,22 @@ class Build(Command):
         bdir = self.j(self.build_dir, 'headless')
         if os.path.exists(bdir):
             shutil.rmtree(bdir)
+        sdir = os.path.join(bdir, 'src')
+        shutil.copytree(os.path.dirname(sources[0]), sdir)
+        with open(os.path.join(sdir, 'CMakeLists.txt'), 'r+') as f:
+            raw = f.read()
+            qt = lazy_load('qt')
+            if qt['version'] >= (6, 10):
+                fp = 'find_package(Qt6 REQUIRED COMPONENTS Gui GuiPrivate Core CorePrivate)'
+                ll = 'target_link_libraries(headless PRIVATE Qt6::Gui Qt6::GuiPrivate Qt6::Core Qt6::CorePrivate)'
+            else:
+                fp = 'find_package(Qt6Gui REQUIRED)'
+                ll = 'target_link_libraries(headless PRIVATE Qt::Gui Qt::GuiPrivate Qt::Core Qt::CorePrivate)'
+            raw = raw.replace('__FIND_GUI__', fp)
+            raw = raw.replace('__LINK_TARGETS__', ll)
+            f.seek(0), f.truncate()
+            f.write(raw)
+        bdir = os.path.join(bdir, 'build')
         cmd = [CMAKE]
         if is_macos_universal_build:
             cmd += ['-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64']
@@ -657,7 +673,7 @@ class Build(Command):
         cwd = os.getcwd()
         os.chdir(bdir)
         try:
-            self.check_call(cmd + ['-S', os.path.dirname(sources[0])])
+            self.check_call(cmd + ['-S', sdir])
             self.check_call([self.env.make] + [f'-j{cpu_count or 1}'])
         finally:
             os.chdir(cwd)
