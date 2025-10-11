@@ -274,20 +274,19 @@ class Mobi8Reader:
                     format = 'file'
                     dir = 'images'
                     fname = 'svgimg' + nstr + '.svg'
+            # search for CDATA and if exists inline it
+            elif flowpart.find(b'[CDATA[') >= 0:
+                typ = 'css'
+                flowpart = b'<style type="text/css">\n' + flowpart + b'\n</style>\n'
+                format = 'inline'
+                dir = None
+                fname = None
             else:
-                # search for CDATA and if exists inline it
-                if flowpart.find(b'[CDATA[') >= 0:
-                    typ = 'css'
-                    flowpart = b'<style type="text/css">\n' + flowpart + b'\n</style>\n'
-                    format = 'inline'
-                    dir = None
-                    fname = None
-                else:
-                    # css - assume as standalone css file
-                    typ = 'css'
-                    format = 'file'
-                    dir = 'styles'
-                    fname = nstr + '.css'
+                # css - assume as standalone css file
+                typ = 'css'
+                format = 'file'
+                dir = 'styles'
+                fname = nstr + '.css'
 
             self.flows[j] = flowpart
             self.flowinfo.append(FlowInfo(typ, format, dir, fname))

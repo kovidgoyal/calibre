@@ -40,9 +40,8 @@ def get_document_info(stream):
             found = True
             pos = stream.tell() - actual_block_size + idx - len(prefix)
             stream.seek(pos)
-        else:
-            if block.find(br'\sect') > -1:
-                break
+        elif block.find(br'\sect') > -1:
+            break
     if not found:
         return None, 0
     data, count, = [], 0

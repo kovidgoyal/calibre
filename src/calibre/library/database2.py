@@ -333,10 +333,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 catmap[ucl] = []
             catmap[ucl].append(uc)
         cats_changed = False
-        for uc in catmap:
-            if len(catmap[uc]) > 1:
-                prints('found user category case overlap', catmap[uc])
-                cat = catmap[uc][0]
+        for uc, user_cat in catmap.items():
+            if len(user_cat) > 1:
+                prints('found user category case overlap', user_cat)
+                cat = user_cat[0]
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
@@ -1417,29 +1417,28 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     windows_atomic_move.copy_path_to(path, dest)
-        else:
-            if hasattr(dest, 'write'):
-                with open(path, 'rb') as f:
-                    shutil.copyfileobj(f, dest)
-                if hasattr(dest, 'flush'):
-                    dest.flush()
-            elif dest:
-                if samefile(dest, path):
-                    if not self.is_case_sensitive and path != dest:
-                        # Ensure that the file has the same case as dest
-                        try:
-                            os.rename(path, dest)
-                        except Exception:
-                            pass  # Nothing too catastrophic happened, the cases mismatch, that's all
-                else:
-                    if use_hardlink:
-                        try:
-                            hardlink_file(path, dest)
-                            return
-                        except Exception:
-                            pass
-                    with open(path, 'rb') as f, open(dest, 'wb') as d:
-                        shutil.copyfileobj(f, d)
+        elif hasattr(dest, 'write'):
+            with open(path, 'rb') as f:
+                shutil.copyfileobj(f, dest)
+            if hasattr(dest, 'flush'):
+                dest.flush()
+        elif dest:
+            if samefile(dest, path):
+                if not self.is_case_sensitive and path != dest:
+                    # Ensure that the file has the same case as dest
+                    try:
+                        os.rename(path, dest)
+                    except Exception:
+                        pass  # Nothing too catastrophic happened, the cases mismatch, that's all
+            else:
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return
+                    except Exception:
+                        pass
+                with open(path, 'rb') as f, open(dest, 'wb') as d:
+                    shutil.copyfileobj(f, d)
 
     def copy_cover_to(self, index, dest, index_is_id=False,
             windows_atomic_move=None, use_hardlink=False):
@@ -1466,29 +1465,28 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
-        else:
-            if os.access(path, os.R_OK):
-                try:
-                    f = open(path, 'rb')
-                except OSError:
-                    time.sleep(0.2)
-                    f = open(path, 'rb')
-                with f:
-                    if hasattr(dest, 'write'):
-                        shutil.copyfileobj(f, dest)
-                        if hasattr(dest, 'flush'):
-                            dest.flush()
-                        return True
-                    elif dest and not samefile(dest, path):
-                        if use_hardlink:
-                            try:
-                                hardlink_file(path, dest)
-                                return True
-                            except Exception:
-                                pass
-                        with open(dest, 'wb') as d:
-                            shutil.copyfileobj(f, d)
-                        return True
+        elif os.access(path, os.R_OK):
+            try:
+                f = open(path, 'rb')
+            except OSError:
+                time.sleep(0.2)
+                f = open(path, 'rb')
+            with f:
+                if hasattr(dest, 'write'):
+                    shutil.copyfileobj(f, dest)
+                    if hasattr(dest, 'flush'):
+                        dest.flush()
+                    return True
+                elif dest and not samefile(dest, path):
+                    if use_hardlink:
+                        try:
+                            hardlink_file(path, dest)
+                            return True
+                        except Exception:
+                            pass
+                    with open(dest, 'wb') as d:
+                        shutil.copyfileobj(f, d)
+                    return True
         return False
 
     def format(self, index, format, index_is_id=False, as_file=False,
@@ -1572,14 +1570,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if copy_function is not None:
             copy_function(dest)
             size = os.path.getsize(dest)
-        else:
-            if (not getattr(stream, 'name', False) or not samefile(dest,
-                stream.name)):
-                with open(dest, 'wb') as f:
-                    shutil.copyfileobj(stream, f)
-                    size = f.tell()
-            elif os.path.exists(dest):
-                size = os.path.getsize(dest)
+        elif (not getattr(stream, 'name', False) or not samefile(dest,
+            stream.name)):
+            with open(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
+                size = f.tell()
+        elif os.path.exists(dest):
+            size = os.path.getsize(dest)
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.update_last_modified([id], commit=False)
@@ -1602,7 +1599,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
 
     def original_fmt(self, book_id, fmt):
-        fmt = fmt
         nfmt = (f'ORIGINAL_{fmt}').upper()
         opath = self.format_abspath(book_id, nfmt, index_is_id=True)
         return fmt if opath is None else nfmt
@@ -2120,8 +2116,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # do the verification in the category loop much faster, at the cost of
         # temporarily duplicating the categories lists.
         taglist = {}
-        for c in categories.keys():
-            taglist[c] = {icu_lower(t.name): t for t in categories[c]}
+        for c, ct in categories.items():
+            taglist[c] = {icu_lower(t.name): t for t in ct}
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -2178,7 +2174,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             items.append(Tag(srch,
                              sort=srch, category='search',
                              is_editable=False))
-        if len(items):
+        if items:
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
             categories['search'] = items

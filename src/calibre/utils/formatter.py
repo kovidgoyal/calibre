@@ -820,7 +820,7 @@ class _Parser:
             if function_tuple and function_tuple[0](arguments):
                 return function_tuple[1](line_number, arguments)
             # More complicated special cases
-            if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
+            if id_ in {'arguments', 'globals', 'set_globals'}:
                 new_args = []
                 for arg_list in arguments:
                     arg = arg_list[0]

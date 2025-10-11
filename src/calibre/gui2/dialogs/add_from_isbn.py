@@ -130,9 +130,8 @@ class AddFromISBN(QDialog):
                         self.books.append({'isbn': isbn, 'path': path, '': 'isbn'})
                 else:
                     bad.add(parts[0])
-            else:
-                if prefix != 'path':
-                    self.books.append({prefix: val, 'path': path, '':prefix})
+            elif prefix != 'path':
+                self.books.append({prefix: val, 'path': path, '':prefix})
         if bad:
             if self.books:
                 if not question_dialog(self, _('Some invalid ISBNs'),

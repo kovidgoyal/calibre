@@ -899,15 +899,14 @@ class Text(LRFStream):
             elif c is None:
                 p = open_containers.pop()
                 s += p.close_html()
+            elif c.name == 'P':
+                in_p = True
+            elif c.name == 'CR':
+                s += '<br />' if in_p else '<p>'
             else:
-                if c.name == 'P':
-                    in_p = True
-                elif c.name == 'CR':
-                    s += '<br />' if in_p else '<p>'
-                else:
-                    s += c.to_html()
-                    if not c.self_closing:
-                        open_containers.append(c)
+                s += c.to_html()
+                if not c.self_closing:
+                    open_containers.append(c)
 
         if len(open_containers) > 0:
             raise LRFParseError(f'Malformed text stream {[i.name for i in open_containers if isinstance(i, Text.TextTag)]}')

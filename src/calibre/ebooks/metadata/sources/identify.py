@@ -122,14 +122,13 @@ class ISBNMerge:
                     if xw.is_alive():
                         self.log.error('Query to xISBN timed out')
                         self.use_xisbn = False
+                    elif xw.exception:
+                        self.log.error('Query to xISBN failed:')
+                        self.log.debug(xw.tb)
                     else:
-                        if xw.exception:
-                            self.log.error('Query to xISBN failed:')
-                            self.log.debug(xw.tb)
-                        else:
-                            isbns, min_year = xw.isbns, xw.min_year
-                            if not msprefs['find_first_edition_date']:
-                                min_year = None
+                        isbns, min_year = xw.isbns, xw.min_year
+                        if not msprefs['find_first_edition_date']:
+                            min_year = None
                 if not isbns:
                     isbns = frozenset([isbn])
                 if isbns in self.pools:
@@ -325,8 +324,7 @@ class ISBNMerge:
             for r in results:
                 if r.pubdate is not None:
                     candidate = as_utc(r.pubdate)
-                    if candidate < min_date:
-                        min_date = candidate
+                    min_date = min(min_date, candidate)
             if min_date.year < 3000:
                 ans.pubdate = min_date
 

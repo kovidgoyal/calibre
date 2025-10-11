@@ -431,8 +431,7 @@ class FB2MLizer:
         # Number of blank lines above tag
         try:
             ems = round((float(style.marginTop) / style.fontSize) - 1)
-            if ems < 0:
-                ems = 0
+            ems = max(ems, 0)
         except Exception:
             ems = 0
 

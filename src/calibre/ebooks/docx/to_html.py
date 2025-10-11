@@ -299,8 +299,6 @@ class Convert:
             if name is None:
                 cname = self.docx.document_name.split('/')
                 cname[-1] = defname
-                if self.docx.exists('/'.join(cname)):
-                    name = name
             if name and name.startswith('word/word') and not self.docx.exists(name):
                 name = name.partition('/')[2]
             return name
@@ -829,9 +827,8 @@ class Convert:
                         border_style.margin_top, style.margin_top = style.margin_top, inherit
                 if p is not run[-1]:
                     style.padding_bottom = 0
-                else:
-                    if has_visible_border:
-                        border_style.margin_bottom, style.margin_bottom = style.margin_bottom, inherit
+                elif has_visible_border:
+                    border_style.margin_bottom, style.margin_bottom = style.margin_bottom, inherit
                 style.clear_borders()
                 if p is not run[-1]:
                     style.apply_between_border()

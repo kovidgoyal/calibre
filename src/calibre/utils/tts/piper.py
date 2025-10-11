@@ -11,8 +11,8 @@ from queue import Queue
 from threading import Lock, Thread
 from typing import Any, NamedTuple
 
-import calibre_extensions.piper as piper
 from calibre.constants import ismacos, iswindows
+from calibre_extensions import piper
 
 DEFAULT_LENGTH_SCALE = 1.0
 DEFAULT_NOISE_SCALE = 0.667

@@ -205,8 +205,7 @@ class RuleEdit(QWidget):
         def sc(name):
             c = getattr(self, name)
             idx = c.findData(str(rule.get(name, '')))
-            if idx < 0:
-                idx = 0
+            idx = max(idx, 0)
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
         ac = self.action.currentData()

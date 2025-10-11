@@ -51,12 +51,12 @@ class Sfnt:
                 self.tables[table_tag] = self.TABLE_MAP.get(
                     table_tag, UnknownTable)(table)
         else:
-            for table_tag in {
+            for table_tag in (
                 b'cmap', b'hhea', b'head', b'hmtx', b'maxp', b'name', b'OS/2',
                 b'post', b'cvt ', b'fpgm', b'glyf', b'loca', b'prep', b'CFF ',
                 b'VORG', b'EBDT', b'EBLC', b'EBSC', b'BASE', b'GSUB', b'GPOS',
                 b'GDEF', b'JSTF', b'gasp', b'hdmx', b'kern', b'LTSH', b'PCLT',
-                b'VDMX', b'vhea', b'vmtx', b'MATH'}:
+                b'VDMX', b'vhea', b'vmtx', b'MATH'):
                 table = bytes(raw_or_get_table(table_tag))
                 if table:
                     self.tables[table_tag] = self.TABLE_MAP.get(

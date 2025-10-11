@@ -26,15 +26,14 @@ def check_version_info():
     else:
         is_ok = sys.version_info > q
     if not is_ok:
-        exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
+        sys.exit(f'calibre requires Python {minver}. Current Python version: {".".join(map(str, sys.version_info[:3]))}')
 
 
 check_version_info()
 
 sys.path.insert(0, src_base)
 
-import setup.commands as commands
-from setup import get_warnings, prints
+from setup import commands, get_warnings, prints
 
 
 def option_parser():

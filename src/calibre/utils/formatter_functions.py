@@ -1443,7 +1443,7 @@ Python[/URL] documentation for more examples. Returns the empty string if format
 ''')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, template):
-        if val == '' or val == 'None':
+        if val in {'', 'None'}:
             return ''
         if '{' not in template:
             template = '{0:' + template + '}'

@@ -1268,10 +1268,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def s_text_h(self, tag, attrs):
         ''' Headings start '''
         level = int(attrs[(TEXTNS,'outline-level')])
-        if level > 6:
-            level = 6  # Heading levels go only to 6 in XHTML
-        if level < 1:
-            level = 1
+        level = min(max(level, 1), 6)  # Heading levels go only to 6 in XHTML
         self.headinglevels[level] = self.headinglevels[level] + 1
         name = self.classname(attrs)
         for x in range(level + 1, 10):
@@ -1290,10 +1287,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         '''
         self.writedata()
         level = int(attrs[(TEXTNS,'outline-level')])
-        if level > 6:
-            level = 6  # Heading levels go only to 6 in XHTML
-        if level < 1:
-            level = 1
+        level = min(level, 6)  # Heading levels go only to 6 in XHTML
+        level = max(level, 1)
         lev = self.headinglevels[1:level+1]
         outline = '.'.join(map(str, lev))
         heading = ''.join(self.data)
@@ -1344,9 +1339,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self.list_number_map[number_class] = self.list_number_map[tglc]
             else:
                 self.list_number_map.pop(number_class, None)
-        else:
-            if not continue_numbering:
-                self.list_number_map.pop(number_class, None)
+        elif not continue_numbering:
+            self.list_number_map.pop(number_class, None)
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:
@@ -1611,7 +1605,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             for c in node.childNodes:
                 self._walknode(c)
             self.endElementNS(node.qname, node.tagName)
-        if node.nodeType == Node.TEXT_NODE or node.nodeType == Node.CDATA_SECTION_NODE:
+        if node.nodeType in (Node.TEXT_NODE, Node.CDATA_SECTION_NODE):
             self.characters(str(node))
 
     def odf2xhtml(self, odffile):

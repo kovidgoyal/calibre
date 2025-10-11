@@ -189,11 +189,10 @@ class MetadataUpdater:
                         return pack('>BB',ans[1],ans[0]).decode('iso-8859-1')
                 else:
                     return pack('>B', b).decode('iso-8859-1')
+            elif ans:
+                ans.append(b|0x80)
             else:
-                if len(ans):
-                    ans.append(b|0x80)
-                else:
-                    ans.append(b)
+                ans.append(b)
 
         # If value == 0, return 0
         return pack('>B', 0x0).decode('iso-8859-1')
@@ -382,7 +381,6 @@ def get_metadata(stream):
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
-    return
 
 
 if __name__ == '__main__':

@@ -40,16 +40,15 @@ class Listener(QLocalServer):
             s.listen(16)
             if not self.listen(s.detach()):
                 raise OSError(f'Could not start Listener for IPC at address @{self.address[1:]} with error: {self.errorString()}')
-        else:
-            if not self.listen(self.address):  # Qt sets bhandleInteritable = False so not inheritable
-                if self.serverError() == QAbstractSocket.SocketError.AddressInUseError and self.uses_filesystem:
-                    self.removeServer(self.address)
-                    if self.listen(self.address):
-                        return
-                code = self.serverError()
-                if code == QAbstractSocket.SocketError.AddressInUseError:
-                    raise OSError(errno.EADDRINUSE, os.strerror(errno.EADDRINUSE), self.address)
-                raise OSError(f'Could not start Listener for IPC at address {self.address} with error: {self.errorString()}')
+        elif not self.listen(self.address):  # Qt sets bhandleInteritable = False so not inheritable
+            if self.serverError() == QAbstractSocket.SocketError.AddressInUseError and self.uses_filesystem:
+                self.removeServer(self.address)
+                if self.listen(self.address):
+                    return
+            code = self.serverError()
+            if code == QAbstractSocket.SocketError.AddressInUseError:
+                raise OSError(errno.EADDRINUSE, os.strerror(errno.EADDRINUSE), self.address)
+            raise OSError(f'Could not start Listener for IPC at address {self.address} with error: {self.errorString()}')
 
     def on_new_connection(self):
         while True:

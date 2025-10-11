@@ -1349,10 +1349,9 @@ class Application(QApplication):
                 f.setFamily('Segoe UI')
                 f.setPointSize(9)
                 QApplication.setFont(f)
-        else:
-            if q == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
-                f.setPointSize(10)
-                QApplication.setFont(f)
+        elif q == ('Sans Serif', 9):  # Hard coded Qt settings, no user preference detected
+            f.setPointSize(10)
+            QApplication.setFont(f)
         f = QFontInfo(f)
         self.original_font = (f.family(), f.pointSize(), f.weight(), f.italic(), 100)
 

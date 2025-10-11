@@ -105,14 +105,13 @@ def expand_file_list(items, is_paths=True, cross_compile_for='native'):
                 items = [f'bypy/b/windows/64/{pkg}/{category}']
                 items = expand_file_list(item, is_paths=is_paths, cross_compile_for=cross_compile_for)
             ans.extend(items)
+        elif '*' in item:
+            ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths, cross_compile_for=cross_compile_for))
         else:
-            if '*' in item:
-                ans.extend(expand_file_list(sorted(glob.glob(os.path.join(SRC, item))), is_paths=is_paths, cross_compile_for=cross_compile_for))
-            else:
-                item = [item]
-                if is_paths:
-                    item = absolutize(item)
-                ans.extend(item)
+            item = [item]
+            if is_paths:
+                item = absolutize(item)
+            ans.extend(item)
     return ans
 
 
@@ -442,7 +441,7 @@ class Build(Command):
             os.makedirs(x, exist_ok=True)
         pyqt_extensions, extensions = [], []
         for ext in all_extensions:
-            if opts.only != 'all' and opts.only != ext.name:
+            if opts.only not in {'all', ext.name}:
                 continue
             if not is_ext_allowed(self.compiling_for, ext):
                 continue

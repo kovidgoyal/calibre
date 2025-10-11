@@ -1066,22 +1066,21 @@ class TOCView(QWidget):  # {{{
             c = self.create_item(self.root, child)
             self.tocw.setCurrentItem(c, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.tocw.scrollToItem(c)
+        elif where is None:
+            # Editing existing entry
+            self.populate_item(item, child)
         else:
-            if where is None:
-                # Editing existing entry
-                self.populate_item(item, child)
+            if where == 'inside':
+                parent = item
+                idx = -1
             else:
-                if where == 'inside':
-                    parent = item
-                    idx = -1
-                else:
-                    parent = item.parent() or self.root
-                    idx = parent.indexOfChild(item)
-                    if where == 'after':
-                        idx += 1
-                c = self.create_item(parent, child, idx=idx)
-                self.tocw.setCurrentItem(c, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-                self.tocw.scrollToItem(c)
+                parent = item.parent() or self.root
+                idx = parent.indexOfChild(item)
+                if where == 'after':
+                    idx += 1
+            c = self.create_item(parent, child, idx=idx)
+            self.tocw.setCurrentItem(c, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            self.tocw.scrollToItem(c)
 
     def create_toc(self):
         root = TOC()

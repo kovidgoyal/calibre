@@ -113,24 +113,23 @@ class TextRun:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
                 r.append(text)
+            elif text:
+                for x in self.soft_hyphen_pat.split(text):
+                    if x == '\u00ad':
+                        # trailing spaces in <w:t> before a soft hyphen are
+                        # ignored, so put them in a preserve whitespace
+                        # element with a single space.
+                        if not preserve_whitespace and len(r) and r[-1].text and r[-1].text.endswith(' '):
+                            r[-1].text = r[-1].text.rstrip()
+                            add_text(' ', True)
+                        makeelement(r, 'w:softHyphen')
+                    elif x:
+                        if not preserve_whitespace and x.startswith(' ') and len(r) and r[-1].tag and 'softHyphen' in r[-1].tag:
+                            x = x.lstrip()
+                            add_text(' ', True)
+                        add_text(x, preserve_whitespace)
             else:
-                if text:
-                    for x in self.soft_hyphen_pat.split(text):
-                        if x == '\u00ad':
-                            # trailing spaces in <w:t> before a soft hyphen are
-                            # ignored, so put them in a preserve whitespace
-                            # element with a single space.
-                            if not preserve_whitespace and len(r) and r[-1].text and r[-1].text.endswith(' '):
-                                r[-1].text = r[-1].text.rstrip()
-                                add_text(' ', True)
-                            makeelement(r, 'w:softHyphen')
-                        elif x:
-                            if not preserve_whitespace and x.startswith(' ') and len(r) and r[-1].tag and 'softHyphen' in r[-1].tag:
-                                x = x.lstrip()
-                                add_text(' ', True)
-                            add_text(x, preserve_whitespace)
-                else:
-                    add_text('', preserve_whitespace)
+                add_text('', preserve_whitespace)
             if bookmark is not None:
                 makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
 
@@ -537,15 +536,14 @@ class Convert:
                 elif display in {'table', 'inline-table'}:
                     self.blocks.end_current_block()
                     self.blocks.start_new_table(html_tag, tag_style)
+            elif tagname == 'img' and is_float:
+                # Image is floating so don't start a new paragraph for it
+                self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
             else:
-                if tagname == 'img' and is_float:
-                    # Image is floating so don't start a new paragraph for it
-                    self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
-                else:
-                    if tagname == 'hr':
-                        for edge in 'right bottom left'.split():
-                            tag_style.set(f'border-{edge}-style', 'none')
-                    self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
+                if tagname == 'hr':
+                    for edge in 'right bottom left'.split():
+                        tag_style.set(f'border-{edge}-style', 'none')
+                self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
             for child in html_tag.iterchildren():
                 if isinstance(getattr(child, 'tag', None), string_or_bytes):
@@ -614,13 +612,12 @@ class Convert:
         elif tagname == 'img':
             block = self.create_block_from_parent(html_tag, stylizer)
             self.images_manager.add_image(html_tag, block, stylizer, bookmark=bmark)
-        else:
-            if html_tag.text:
-                block = self.create_block_from_parent(html_tag, stylizer)
-                block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
-            elif bmark:
-                block = self.create_block_from_parent(html_tag, stylizer)
-                block.add_text('', tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
+        elif html_tag.text:
+            block = self.create_block_from_parent(html_tag, stylizer)
+            block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
+        elif bmark:
+            block = self.create_block_from_parent(html_tag, stylizer)
+            block.add_text('', tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
 
     def bookmark_for_anchor(self, anchor, html_tag):
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)

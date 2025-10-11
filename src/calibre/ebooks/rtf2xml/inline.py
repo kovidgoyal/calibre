@@ -132,11 +132,10 @@ class Inline:
                 self.__place = 'not_in_list'
                 self.__inline_list = self.__body_inline_list
                 self.__groups_in_waiting = self.__groups_in_waiting_body
-        else:
-            if self.__token_info == 'mi<mk<lst-tx-beg':
-                self.__place = 'in_list'
-                self.__inline_list = self.__list_inline_list
-                self.__groups_in_waiting = self.__groups_in_waiting_list
+        elif self.__token_info == 'mi<mk<lst-tx-beg':
+            self.__place = 'in_list'
+            self.__inline_list = self.__list_inline_list
+            self.__groups_in_waiting = self.__groups_in_waiting_list
 
     def __default_func(self, line):
         '''
@@ -243,15 +242,14 @@ class Inline:
                     self.__write_obj.write('mi<mk<font-end__\n')
                 if 'caps' in the_keys:
                     self.__write_obj.write('mi<mk<caps-end__\n')
-        else:
-            # close out only if in a paragraph
-            if 'contains_inline' in the_keys and the_dict['contains_inline'] == 1\
-                and self.__in_para and self.__groups_in_waiting[0] == 0:
-                self.__write_obj.write('mi<tg<close_____<inline\n')
-                if 'font-style' in the_keys:
-                    self.__write_obj.write('mi<mk<font-end__\n')
-                if 'caps' in the_keys:
-                    self.__write_obj.write('mi<mk<caps-end__\n')
+        # close out only if in a paragraph
+        elif 'contains_inline' in the_keys and the_dict['contains_inline'] == 1\
+            and self.__in_para and self.__groups_in_waiting[0] == 0:
+            self.__write_obj.write('mi<tg<close_____<inline\n')
+            if 'font-style' in the_keys:
+                self.__write_obj.write('mi<mk<font-end__\n')
+            if 'caps' in the_keys:
+                self.__write_obj.write('mi<mk<caps-end__\n')
         self.__inline_list.pop()
         if self.__groups_in_waiting[0] != 0:
             self.__groups_in_waiting[0] -= 1
@@ -272,12 +270,11 @@ class Inline:
         '''
         if self.__place == 'in_list':
             self.__write_inline()
-        else:
-            if not self.__in_para:
-                self.__in_para = 1
-                self.__start_para_func(line)
-            elif self.__groups_in_waiting[0] != 0:
-                self.__write_inline()
+        elif not self.__in_para:
+            self.__in_para = 1
+            self.__start_para_func(line)
+        elif self.__groups_in_waiting[0] != 0:
+            self.__write_inline()
 
     def __write_inline(self):
         '''
@@ -403,13 +400,15 @@ class Inline:
                 for line in read_obj:
                     token = line[0:-1]
                     self.__token_info = ''
-                    if token == 'tx<mc<__________<rdblquote'\
-                        or token == 'tx<mc<__________<ldblquote'\
-                        or token == 'tx<mc<__________<lquote'\
-                        or token == 'tx<mc<__________<rquote'\
-                        or token == 'tx<mc<__________<emdash'\
-                        or token == 'tx<mc<__________<endash'\
-                        or token == 'tx<mc<__________<bullet':
+                    if token in {
+                        'tx<mc<__________<rdblquote',
+                        'tx<mc<__________<ldblquote',
+                        'tx<mc<__________<lquote',
+                        'tx<mc<__________<rquote',
+                        'tx<mc<__________<emdash',
+                        'tx<mc<__________<endash',
+                        'tx<mc<__________<bullet',
+                    }:
                         self.__token_info = 'text'
                     else:
                         self.__token_info = line[:16]

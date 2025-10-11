@@ -92,31 +92,28 @@ def wrap_button_text(text, max_len=MAX_TEXT_LENGTH):
     for word in parts:
         if broken:
             ans += ' ' + word
-        else:
-            if len(ans) + len(word) < max_len:
-                if ans:
-                    ans += ' ' + word
-                else:
-                    ans = word
+        elif len(ans) + len(word) < max_len:
+            if ans:
+                ans += ' ' + word
             else:
-                if ans:
-                    ans += '\n' + word
-                    broken = True
-                else:
-                    ans = word
+                ans = word
+        elif ans:
+            ans += '\n' + word
+            broken = True
+        else:
+            ans = word
     if broken:
         prefix, suffix = ans.split('\n', 1)
         if len(suffix) > len(prefix) and len(suffix) > MAX_TEXT_LENGTH and len(prefix) < MAX_TEXT_LENGTH and suffix.count(' ') > 1:
             word, rest = suffix.split(' ', 1)
             if len(word) + len(prefix) <= len(rest):
                 ans = prefix + ' ' + word + '\n' + rest
+    elif ' ' in ans:
+        ans = '\n'.join(ans.split(' ', 1))
+    elif '/' in ans:
+        ans = '/\n'.join(ans.split('/', 1))
     else:
-        if ' ' in ans:
-            ans = '\n'.join(ans.split(' ', 1))
-        elif '/' in ans:
-            ans = '/\n'.join(ans.split('/', 1))
-        else:
-            ans += '\n\xa0'
+        ans += '\n\xa0'
     return ans
 
 

@@ -102,8 +102,8 @@ class BT(BasicNewsRecipe):
 
         # Append what is left over...
 
-        for i in sections:
-            feeds.append((i, sections[i]))
+        for i,s in sections.items():
+            feeds.append((i, s))
 
         return feeds
 

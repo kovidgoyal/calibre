@@ -20,8 +20,7 @@ from struct import pack
 from lxml import etree
 
 import calibre
-import calibre.ebooks.lit.maps as maps
-import calibre.ebooks.lit.mssha1 as mssha1
+from calibre.ebooks.lit import maps, mssha1
 from calibre.ebooks.lit.lzx import Compressor
 from calibre.ebooks.lit.reader import DirectoryEntry
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
@@ -126,7 +125,7 @@ def decint(value):
     while True:
         b = value & 0x7f
         value >>= 7
-        if len(ans):
+        if ans:
             b |= 0x80
         ans.append(b)
         if value == 0:

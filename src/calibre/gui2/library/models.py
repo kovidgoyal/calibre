@@ -887,16 +887,15 @@ class BooksModel(QAbstractTableModel):  # {{{
                         if val is None:
                             return None
                         return by if val else bn
+                elif m['display'].get('bools_show_icons', True):
+                    def func(idx):
+                        val = force_to_bool(fffunc(field_obj, idfunc(idx)))
+                        if val is None:
+                            return None if bt else bn
+                        return by if val else bn
                 else:
-                    if m['display'].get('bools_show_icons', True):
-                        def func(idx):
-                            val = force_to_bool(fffunc(field_obj, idfunc(idx)))
-                            if val is None:
-                                return None if bt else bn
-                            return by if val else bn
-                    else:
-                        def func(idx):
-                            return None
+                    def func(idx):
+                        return None
             elif field == 'size':
                 sz_mult = 1/(1024**2)
 
@@ -929,21 +928,19 @@ class BooksModel(QAbstractTableModel):  # {{{
                         else:
                             def func(idx):
                                 return (fffunc(field_obj, idfunc(idx), default_value=''))
+                    elif do_sort:
+                        def func(idx):
+                            return (jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
                     else:
-                        if do_sort:
-                            def func(idx):
-                                return (jv.join(sorted(fffunc(field_obj, idfunc(idx), default_value=()), key=sort_key)))
-                        else:
-                            def func(idx):
-                                return (jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                        def func(idx):
+                            return (jv.join(fffunc(field_obj, idfunc(idx), default_value=())))
+                elif dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
+                    def func(idx):
+                        text = fffunc(field_obj, idfunc(idx))
+                        return (text) if force_to_bool(text) is None else None
                 else:
-                    if dt in {'text', 'composite', 'enumeration'} and m['display'].get('use_decorations', False):
-                        def func(idx):
-                            text = fffunc(field_obj, idfunc(idx))
-                            return (text) if force_to_bool(text) is None else None
-                    else:
-                        def func(idx):
-                            return fffunc(field_obj, idfunc(idx), default_value='')
+                    def func(idx):
+                        return fffunc(field_obj, idfunc(idx), default_value='')
             elif dt == 'datetime':
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE)
@@ -1858,7 +1855,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def data(self, index, role):
         row, col = index.row(), index.column()
         cname = self.column_map[col]
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if cname == 'title':
                 text = self.db[self.map[row]].title
                 if not text:

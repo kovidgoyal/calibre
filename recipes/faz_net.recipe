@@ -9,7 +9,7 @@ def format_tickaroo_liveblog(soup):
         sources = img['srcset'].split()
         i=0
         for x in sources:
-            if x == '960w,' or x == '960w':
+            if x in {'960w,', '960w'}:
                 img['src'] = sources[i-1]
                 break
             i = i + 1

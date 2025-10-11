@@ -739,7 +739,7 @@ class SMTP:
             to_addrs = [to_addrs]
         for each in to_addrs:
             code, resp = self.rcpt(each, rcpt_options)
-            if (code != 250) and (code != 251):
+            if code not in {250, 251}:
                 senderrs[each] = (code, resp)
         if len(senderrs) == len(to_addrs):
             # the server refused all our recipients

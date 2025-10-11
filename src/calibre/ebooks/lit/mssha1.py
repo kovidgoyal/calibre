@@ -218,8 +218,7 @@ class mssha1:
             while i + 63 < leninBuf:
                 self._transform(_bytelist2longBigEndian(inBuf[i:i+64]))
                 i = i + 64
-            else:
-                self.input = inBuf[i:leninBuf]
+            self.input = inBuf[i:leninBuf]
         else:
             i = 0
             self.input = self.input + inBuf

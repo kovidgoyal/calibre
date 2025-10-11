@@ -347,10 +347,9 @@ class Styles:
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
-        else:
-            if self.__run_level > 3:
-                msg = f'no entry for {self.__token_info}\n'
-                raise self.__bug_handler(msg)
+        elif self.__run_level > 3:
+            msg = f'no entry for {self.__token_info}\n'
+            raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
         '''
@@ -372,10 +371,9 @@ class Styles:
             except KeyError:
                 self.__enter_dict_entry('tabs', '')
                 self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{leader};'
-        else:
-            if self.__run_level > 3:
-                msg = f'no entry for {self.__token_info}\n'
-                raise self.__bug_handler(msg)
+        elif self.__run_level > 3:
+            msg = f'no entry for {self.__token_info}\n'
+            raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
         '''
@@ -439,10 +437,9 @@ class Styles:
             type_dict = self.__styles_dict['par']
         elif self.__type_of_style == 'char':
             type_dict = self.__styles_dict['char']
-        else:
-            if self.__run_level > 3:
-                msg = self.__type_of_style + 'error\n'
-                raise self.__bug_handler(msg)
+        elif self.__run_level > 3:
+            msg = self.__type_of_style + 'error\n'
+            raise self.__bug_handler(msg)
         smallest_dict = {}
         smallest_dict[att] = value
         type_dict[self.__styles_num] = smallest_dict
@@ -546,13 +543,12 @@ class Styles:
                                 self.__styles_dict[type][key][style] = \
                                 changed_value
                         else:
-                            if value == 0 or value == '0':
+                            if value in {0, '0'}:
                                 pass
-                            else:
-                                if self.__run_level > 4:
-                                    msg = f'{type} {key} is based on {value}\n'
-                                    msg = f'There is no style with {value}\n'
-                                    raise self.__bug_handler(msg)
+                            elif self.__run_level > 4:
+                                msg = f'{type} {key} is based on {value}\n'
+                                msg = f'There is no style with {value}\n'
+                                raise self.__bug_handler(msg)
                             del self.__styles_dict[type][key][style]
 
     def __print_style_table(self):

@@ -139,11 +139,10 @@ def appendTextElements(e, contentsList, se):
             lastElement = newElement
             lastElement.tail = ''
             e.append(lastElement)
+        elif lastElement is None:
+            e.text = uconcat(e.text, content.text, se)
         else:
-            if lastElement is None:
-                e.text = uconcat(e.text, content.text, se)
-            else:
-                lastElement.tail = uconcat(lastElement.tail, content.text, se)
+            lastElement.tail = uconcat(lastElement.tail, content.text, se)
 
 
 class Delegator:
@@ -178,10 +177,9 @@ class Delegator:
         for d in self.delegates:
             if hasattr(d, 'applySetting'):
                 applied = applied or d.applySetting(name, value)
-            else:
-                if name in d.getSettings():
-                    setattr(d, name, value)
-                    applied = True
+            elif name in d.getSettings():
+                setattr(d, name, value)
+                applied = True
 
         if testValid and not applied:
             raise LrsError(f'setting {name} not valid')

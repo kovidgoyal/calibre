@@ -418,10 +418,7 @@ class CSSFlattener:
                             esize = 3 + force_int(size)
                         except Exception:
                             esize = 3
-                        if esize < 1:
-                            esize = 1
-                        if esize > 7:
-                            esize = 7
+                        esize = min(max(esize, 1), 7)
                         font_size = fnums[esize]
                     else:
                         try:

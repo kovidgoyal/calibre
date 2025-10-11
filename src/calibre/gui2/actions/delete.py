@@ -296,9 +296,9 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
             cv, row = self.gui.current_view(), -1
             if cv is not self.gui.library_view:
                 row = cv.currentIndex().row()
-            for model in paths:
-                job = self.gui.remove_paths(paths[model])
-                self.delete_memory[job] = (paths[model], model)
+            for model, entrys in paths.items():
+                job = self.gui.remove_paths(entrys)
+                self.delete_memory[job] = (entrys, model)
 
                 model.mark_for_deletion(job, ids[model], rows_are_ids=True)
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)

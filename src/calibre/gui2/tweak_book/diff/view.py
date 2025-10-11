@@ -337,13 +337,12 @@ class TextBrowser(PlainTextEdit):  # {{{
                     painter.setPen(self.line_number_palette.color(QPalette.ColorRole.BrightText))
                 if text == '-':
                     painter.drawLine(r.left() + 2, (top + bottom)//2, r.right() - 2, (top + bottom)//2)
+                elif self.right:
+                    painter.drawText(r.left() + 3, top, r.right(), self.fontMetrics().height(),
+                            Qt.AlignmentFlag.AlignLeft, text)
                 else:
-                    if self.right:
-                        painter.drawText(r.left() + 3, top, r.right(), self.fontMetrics().height(),
-                                Qt.AlignmentFlag.AlignLeft, text)
-                    else:
-                        painter.drawText(r.left() + 2, top, r.right() - 5, self.fontMetrics().height(),
-                                Qt.AlignmentFlag.AlignRight, text)
+                    painter.drawText(r.left() + 2, top, r.right() - 5, self.fontMetrics().height(),
+                            Qt.AlignmentFlag.AlignRight, text)
                 if is_start:
                     painter.restore()
             block = block.next()

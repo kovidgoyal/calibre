@@ -699,7 +699,7 @@ class ProcessTokens:
         # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
     def bool_st_func(self, pre, token, num):
-        if num is None or num == '' or num == '1':
+        if num is None or num in {'', '1'}:
             return f'cw<{pre}<{token}<nu<true\n'
             # return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
         elif num == '0':
@@ -724,8 +724,7 @@ class ProcessTokens:
                        'should have a number and does not\nnumerator is'
                        f'"{numerator}"\ndenominator is "{denominator}"\n')
                 raise self.__bug_handler(msg)
-            if 5 > self.__return_code:
-                self.__return_code = 5
+            self.__return_code = max(self.__return_code, 5)
             return 0
         num = f'{round(numerator/denominator, 2):0.2f}'
         return num

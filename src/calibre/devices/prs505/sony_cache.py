@@ -766,8 +766,7 @@ class XMLCache:
             id_ = x.get('id')
             try:
                 num = int(id_)
-                if num > ans:
-                    ans = num
+                ans = max(ans, num)
             except Exception:
                 continue
         return ans

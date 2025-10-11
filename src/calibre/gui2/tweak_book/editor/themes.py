@@ -240,21 +240,20 @@ def read_theme(raw):
         for i, token in enumerate(line.split()):
             if i == 0:
                 name = token
-            else:
-                if token == 'bold':
-                    bold = True
-                elif token == 'italic':
-                    italic = True
-                elif '=' in token:
-                    prefix, val = token.partition('=')[0::2]
-                    if prefix == 'us':
-                        underline = val if val in underline_styles else None
-                    elif prefix == 'uc':
-                        underline_color = read_color(val)
-                    elif prefix == 'fg':
-                        fg = read_color(val)
-                    elif prefix == 'bg':
-                        bg = read_color(val)
+            elif token == 'bold':
+                bold = True
+            elif token == 'italic':
+                italic = True
+            elif '=' in token:
+                prefix, val = token.partition('=')[0::2]
+                if prefix == 'us':
+                    underline = val if val in underline_styles else None
+                elif prefix == 'uc':
+                    underline_color = read_color(val)
+                elif prefix == 'fg':
+                    fg = read_color(val)
+                elif prefix == 'bg':
+                    bg = read_color(val)
         if name is not None:
             ans[name] = Highlight(fg, bg, bold, italic, underline, underline_color)
     return ans

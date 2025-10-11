@@ -337,11 +337,10 @@ class ListTable:
         elif self.__token_info == 'cw<ls<list-name_':
             self.__state = 'list_name'
             self.__list_name_ob_count = self.__ob_count
-        else:
-            if self.__run_level > 3:
-                msg = 'No matching token after open bracket\n'
-                msg += f'token is "{line}\n"'
-                raise self.__bug_handler
+        elif self.__run_level > 3:
+            msg = 'No matching token after open bracket\n'
+            msg += f'token is "{line}\n"'
+            raise self.__bug_handler
 
     def __add_to_final_line(self):
         '''

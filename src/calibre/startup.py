@@ -137,7 +137,7 @@ def initialize_calibre():
 
     #
     # Setup resources
-    import calibre.utils.resources as resources
+    from calibre.utils import resources
     resources
 
     #

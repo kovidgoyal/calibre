@@ -697,7 +697,7 @@ class CoversModel(QAbstractListModel):  # {{{
             return None
         if role == Qt.ItemDataRole.DecorationRole:
             return pmap
-        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.ToolTipRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return text
         if role == Qt.ItemDataRole.UserRole:
             return waiting
@@ -995,14 +995,13 @@ class CoversWidget(QWidget):  # {{{
         num = self.covers_view.model().rowCount()
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
+        elif num == 2:
+            txt = _('Found a cover for {title}').format(title=self.title)
         else:
-            if num == 2:
-                txt = _('Found a cover for {title}').format(title=self.title)
-            else:
-                txt = _(
-                    'Found <b>{num}</b> covers for {title}. When the download completes,'
-                    ' the covers will be sorted by size.').format(
-                            title=self.title, num=num-1)
+            txt = _(
+                'Found <b>{num}</b> covers for {title}. When the download completes,'
+                ' the covers will be sorted by size.').format(
+                        title=self.title, num=num-1)
         self.msg.setText(txt)
         self.msg.setWordWrap(True)
         self.covers_view.stop()
@@ -1158,9 +1157,8 @@ class FullFetch(QDialog):  # {{{
         if DEBUG_DIALOG:
             if self.stack.currentIndex() == 2:
                 return QDialog.accept(self)
-        else:
-            if self.stack.currentIndex() == 1:
-                return QDialog.accept(self)
+        elif self.stack.currentIndex() == 1:
+            return QDialog.accept(self)
 
     def reject(self):
         self.save_geometry(gprefs, 'metadata_single_gui_geom')

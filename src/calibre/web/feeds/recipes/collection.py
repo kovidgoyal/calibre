@@ -423,8 +423,7 @@ class SchedulerConfig:
     def serialize_schedule(self, typ, schedule):
         s = E.schedule({'type':typ})
         if typ == 'interval':
-            if schedule < 0.04:
-                schedule = 0.04
+            schedule = max(schedule, 0.04)
             text = f'{schedule:f}'
         elif typ == 'day/time':
             text = f'{int(schedule[0])}:{int(schedule[1])}:{int(schedule[2])}'

@@ -212,9 +212,8 @@ class Printing(QProgressDialog):
         if self.thread.tb or self.thread.log:
             error_dialog(self, _('Failed to convert to PDF'), _(
                 'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.thread.tb or self.thread.log, show=True)
-        else:
-            if self.show_file:
-                open_local_file(self.thread.data['output'])
+        elif self.show_file:
+            open_local_file(self.thread.data['output'])
         self.accept()
 
     def do_cancel(self):

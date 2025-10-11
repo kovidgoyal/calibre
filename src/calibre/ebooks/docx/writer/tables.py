@@ -324,12 +324,11 @@ class Table:
                         if tcell is None:
                             nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in range(idx - len(nrow.cells))])
                             nrow.cells.append(sc)
+                        elif isinstance(tcell, SpannedCell):
+                            # Conflict between rowspan and colspan
+                            break
                         else:
-                            if isinstance(tcell, SpannedCell):
-                                # Conflict between rowspan and colspan
-                                break
-                            else:
-                                nrow.cells.insert(idx, sc)
+                            nrow.cells.insert(idx, sc)
 
     def start_new_row(self, html_tag, html_style):
         if self.current_row is not None:

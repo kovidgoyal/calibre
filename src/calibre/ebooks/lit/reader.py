@@ -14,9 +14,8 @@ import struct
 
 from lxml import etree
 
-import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks import DRMError
-from calibre.ebooks.lit import LitError
+from calibre.ebooks.lit import LitError, mssha1
 from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader

@@ -352,7 +352,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
     for srch in sorted(queries, key=sort_key):
         items.append(Tag(srch, sort=srch, search_expression=queries[srch],
                          category='search', is_editable=False))
-    if len(items):
+    if items:
         categories['search'] = items
 
     return categories

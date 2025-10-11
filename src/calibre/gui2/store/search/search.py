@@ -377,10 +377,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.hang_check >= self.hang_time:
             self.search_pool.abort()
             self.checker.stop()
-        else:
-            # Stop the checker if not threads are running.
-            if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
-                self.checker.stop()
+        # Stop the checker if not threads are running.
+        elif not self.search_pool.threads_running() and not self.search_pool.has_tasks():
+            self.checker.stop()
 
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()

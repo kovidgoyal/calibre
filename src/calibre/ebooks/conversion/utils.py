@@ -96,11 +96,10 @@ class HeuristicProcessor:
                 return '<'+tag+' '+pstyle+'>'
             else:
                 return '<'+tag+' '+pstyle+'>'+span
+        elif not span:
+            return '<'+tag+' style="text-indent:3%">'
         else:
-            if not span:
-                return '<'+tag+' style="text-indent:3%">'
-            else:
-                return '<'+tag+' style="text-indent:3%">'+span
+            return '<'+tag+' style="text-indent:3%">'+span
 
     def no_markup(self, raw, percent):
         '''
@@ -117,10 +116,7 @@ class HeuristicProcessor:
         # self.log.debug("There are " + str(tot_ln_fds) + " total Line feeds, and " +
         #         str(tot_htm_ends) + " marked up endings")
 
-        if percent > 1:
-            percent = 1
-        if percent < 0:
-            percent = 0
+        percent = min(max(percent, 0), 1)
 
         min_lns = tot_ln_fds * percent
         # self.log.debug("There must be fewer than " + str(min_lns) + " unmarked lines to add markup")

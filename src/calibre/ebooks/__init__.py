@@ -201,7 +201,6 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
         elif unit in ('ex', 'en'):
             # This is a hack for ex since we have no way to know
             # the x-height of the font
-            font = font
             result = value * font * 0.5
         elif unit == 'pc':
             result = value * 12.0

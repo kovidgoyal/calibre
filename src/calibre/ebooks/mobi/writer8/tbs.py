@@ -124,8 +124,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
             for entry in entries:
                 if first_entry is None:
                     first_entry = entry
-                if entry.length_offset > max_length_offset:
-                    max_length_offset = entry.length_offset
+                max_length_offset = max(max_length_offset, entry.length_offset)
 
     for strand in strands:
         strand_seqs = []

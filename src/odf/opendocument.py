@@ -674,11 +674,10 @@ def load(odffile):
             __loadxmlparts(z, manifest, subdoc, mentry)
         elif mentry[:7] == 'Object ':
             pass  # Don't load subobjects as opaque objects
+        elif mvalue['full-path'][-1] == '/':
+            doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], None))
         else:
-            if mvalue['full-path'][-1] == '/':
-                doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], None))
-            else:
-                doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], z.read(mentry)))
+            doc._extra.append(OpaqueObject(mvalue['full-path'], mvalue['media-type'], z.read(mentry)))
             # Add the SUN junk here to the struct somewhere
             # It is cached data, so it can be out-of-date
     z.close()

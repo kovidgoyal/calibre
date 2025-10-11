@@ -160,27 +160,25 @@ class ParseOptions:
             # option and argument already paired
             elif '=' in arg:
                 new_system_string .append(arg)
-            else:
-                # this option takes an argument
-                if arg in self.__opt_with_args:
-                    # option is the last in the list
-                    if counter + 1 > opt_len:
-                        sys.stderr.write(f'option "{arg}" must take an argument\n')
-                        new_system_string.append(arg)
-                        self.__options_okay = 0
-                    else:
-                        #  the next item in list is also an option
-                        if self.__system_string[counter][0] == '-':
-                            sys.stderr.write(f'option "{arg}" must take an argument\n')
-                            new_system_string.append(arg)
-                            self.__options_okay = 0
-                        #  the next item in the list is the argument
-                        else:
-                            new_system_string.append(arg + '=' + self.__system_string[counter])
-                            slurp_value = 1
-                #  this option does not take an argument
-                else:
+            # this option takes an argument
+            elif arg in self.__opt_with_args:
+                # option is the last in the list
+                if counter + 1 > opt_len:
+                    sys.stderr.write(f'option "{arg}" must take an argument\n')
                     new_system_string.append(arg)
+                    self.__options_okay = 0
+                #  the next item in list is also an option
+                elif self.__system_string[counter][0] == '-':
+                    sys.stderr.write(f'option "{arg}" must take an argument\n')
+                    new_system_string.append(arg)
+                    self.__options_okay = 0
+                #  the next item in the list is the argument
+                else:
+                    new_system_string.append(arg + '=' + self.__system_string[counter])
+                    slurp_value = 1
+            #  this option does not take an argument
+            else:
+                new_system_string.append(arg)
         return new_system_string
 
     def __get_just_options(self):

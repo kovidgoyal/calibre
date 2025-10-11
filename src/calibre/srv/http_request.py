@@ -316,10 +316,9 @@ class HTTPRequest(Connection):
             # Both server and client are HTTP/1.1
             if inheaders.get('Connection', '') == 'close':
                 self.close_after_response = True
-        else:
-            # Either the server or client (or both) are HTTP/1.0
-            if inheaders.get('Connection', '') != 'Keep-Alive':
-                self.close_after_response = True
+        # Either the server or client (or both) are HTTP/1.0
+        elif inheaders.get('Connection', '') != 'Keep-Alive':
+            self.close_after_response = True
 
         # Transfer-Encoding support
         te = ()
@@ -352,11 +351,10 @@ class HTTPRequest(Connection):
         buf = SpooledTemporaryFile(prefix='rq-body-', max_size=DEFAULT_BUFFER_SIZE, dir=self.tdir)
         if chunked_read:
             self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, [0])
+        elif request_content_length > 0:
+            self.set_state(READ, self.sized_read, inheaders, buf, request_content_length)
         else:
-            if request_content_length > 0:
-                self.set_state(READ, self.sized_read, inheaders, buf, request_content_length)
-            else:
-                self.prepare_response(inheaders, BytesIO())
+            self.prepare_response(inheaders, BytesIO())
 
     def sized_read(self, inheaders, buf, request_content_length, event):
         if self.read(buf, request_content_length):

@@ -37,11 +37,10 @@ def split_range(start_code, end_code, cmap):  # {{{
             if not in_order:
                 in_order = True
                 ordered_begin = last_code
-        else:
-            if in_order:
-                in_order = False
-                sub_ranges.append((ordered_begin, last_code))
-                ordered_begin = None
+        elif in_order:
+            in_order = False
+            sub_ranges.append((ordered_begin, last_code))
+            ordered_begin = None
 
         last_id = glyph_id
         last_code = code

@@ -218,9 +218,8 @@ def remove_attrs(attrs, tag):
         if a == '*':
             changed = True
             tag.attrib.clear()
-        else:
-            if tag.attrib.pop(a, None) is not None:
-                changed = True
+        elif tag.attrib.pop(a, None) is not None:
+            changed = True
     return changed
 
 

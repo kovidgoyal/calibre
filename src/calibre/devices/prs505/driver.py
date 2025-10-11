@@ -277,13 +277,12 @@ class PRS505(USBMS):
             prefix = None
             if is_main:
                 prefix = self._main_prefix
-            else:
-                if self._card_a_prefix and \
-                    path.startswith(self._card_a_prefix):
-                    prefix = self._card_a_prefix
-                elif self._card_b_prefix and \
-                        path.startswith(self._card_b_prefix):
-                    prefix = self._card_b_prefix
+            elif self._card_a_prefix and \
+                path.startswith(self._card_a_prefix):
+                prefix = self._card_a_prefix
+            elif self._card_b_prefix and \
+                    path.startswith(self._card_b_prefix):
+                prefix = self._card_b_prefix
             if prefix is None:
                 prints('WARNING: Failed to find prefix for:', filepath)
                 return

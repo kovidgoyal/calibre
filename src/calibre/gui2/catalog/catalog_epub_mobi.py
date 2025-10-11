@@ -859,11 +859,10 @@ class CheckableTableWidgetItem(QTableWidgetItem):
             self.setFlags(self.flags() | Qt.ItemFlag.ItemIsTristate)
         if checked:
             self.setCheckState(Qt.CheckState.Checked)
+        elif is_tristate and checked is None:
+            self.setCheckState(Qt.CheckState.PartiallyChecked)
         else:
-            if is_tristate and checked is None:
-                self.setCheckState(Qt.CheckState.PartiallyChecked)
-            else:
-                self.setCheckState(Qt.CheckState.Unchecked)
+            self.setCheckState(Qt.CheckState.Unchecked)
 
     def get_boolean_value(self):
         '''
@@ -1162,17 +1161,16 @@ class GenericRulesTable(QTableWidget):
             values = []
         elif source_field == _('Tags'):
             values = sorted(self.db.all_tags(), key=sort_key)
-        else:
-            if self.eligible_custom_fields[str(source_field)]['datatype'] in ['enumeration', 'text']:
-                values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                            self.eligible_custom_fields[str(source_field)]['field']))
-                values = sorted(values, key=sort_key)
-            elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['bool']:
-                values = [_('True'),_('False'),_('unspecified')]
-            elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['composite']:
-                values = [_('any value'),_('unspecified')]
-            elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['datetime']:
-                values = [_('any date'),_('unspecified')]
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['enumeration', 'text']:
+            values = self.db.all_custom(self.db.field_metadata.key_to_label(
+                                        self.eligible_custom_fields[str(source_field)]['field']))
+            values = sorted(values, key=sort_key)
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['bool']:
+            values = [_('True'),_('False'),_('unspecified')]
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['composite']:
+            values = [_('any value'),_('unspecified')]
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['datetime']:
+            values = [_('any date'),_('unspecified')]
 
         values_combo = ComboBox(self, values, pattern)
         values_combo.currentIndexChanged.connect(partial(self.values_index_changed, values_combo))

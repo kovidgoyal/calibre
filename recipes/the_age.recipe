@@ -77,8 +77,8 @@ class TheAge(BasicNewsRecipe):
 
         # Append what is left over...
 
-        for i in sections:
-            feeds.append((i, sections[i]))
+        for i,s in sections.items():
+            feeds.append((i, s))
 
         return feeds
 
@@ -101,7 +101,7 @@ class TheAge(BasicNewsRecipe):
             # Collapse the paragraph by joining the non-tag contents
 
             contents = [i for i in p.contents if isinstance(i, type(u''))]
-            if len(contents):
+            if contents:
                 contents = ''.join(contents)
 
                 # Filter out what's left of the text-mode navigation stuff

@@ -430,9 +430,8 @@ class SearchFilter(SearchQueryParser):
                         if accessor(sr) == SearchResult.DRM_LOCKED:
                             matches.add(sr)
                     # Testing for something or nothing.
-                    else:
-                        if accessor(sr) is not None:
-                            matches.add(sr)
+                    elif accessor(sr) is not None:
+                        matches.add(sr)
                     continue
                 if query == 'false':
                     # True/False.
@@ -444,9 +443,8 @@ class SearchFilter(SearchQueryParser):
                         if accessor(sr) == SearchResult.DRM_UNLOCKED:
                             matches.add(sr)
                     # Testing for something or nothing.
-                    else:
-                        if accessor(sr) is None:
-                            matches.add(sr)
+                    elif accessor(sr) is None:
+                        matches.add(sr)
                     continue
                 # this is bool or treated as bool, so can't match below.
                 if locvalue in ('affiliate', 'drm', 'download', 'downloads'):

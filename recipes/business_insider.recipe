@@ -55,10 +55,9 @@ class Business_insider(BasicNewsRecipe):
         for item in soup.findAll('a'):
             if item['href'].startswith('http://feedads'):
                 item.extract()
-            else:
-                if item.string is not None:
-                    tstr = item.string
-                    item.replaceWith(tstr)
+            elif item.string is not None:
+                tstr = item.string
+                item.replaceWith(tstr)
         for item in soup.findAll('img', alt=False):
             item['alt'] = 'image'
         return soup

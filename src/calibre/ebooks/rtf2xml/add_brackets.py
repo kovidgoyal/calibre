@@ -225,9 +225,8 @@ class AddBrackets:
             if self.__copy:
                 copy_obj.copy_file(self.__write_to, 'add_brackets.data')
             copy_obj.rename(self.__write_to, self.__file)
-        else:
-            if self.__run_level > 0:
-                sys.stderr.write(
-                    'Sorry, but this files has a mix of old and new RTF.\n'
-                    'Some characteristics cannot be converted.\n')
+        elif self.__run_level > 0:
+            sys.stderr.write(
+                'Sorry, but this files has a mix of old and new RTF.\n'
+                'Some characteristics cannot be converted.\n')
         os.remove(self.__write_to)

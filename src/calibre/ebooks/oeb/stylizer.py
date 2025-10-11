@@ -732,8 +732,7 @@ class Style:
                 result = self._unit_convert(self._style['max-width'], base=base)
                 if isinstance(result, (str, bytes)):
                     result = self._width
-                if result < self._width:
-                    self._width = result
+                self._width = min(self._width, result)
 
         return self._width
 
@@ -769,8 +768,7 @@ class Style:
                 result = self._unit_convert(self._style['max-height'], base=base)
                 if isinstance(result, (str, bytes)):
                     result = self._height
-                if result < self._height:
-                    self._height = result
+                self._height = min(self._height, result)
 
         return self._height
 

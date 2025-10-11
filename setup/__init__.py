@@ -250,7 +250,7 @@ class Command:
         self.run_cmd(self, opts)
 
     def add_command_options(self, command, parser):
-        import setup.commands as commands
+        from setup import commands
         command.sub_commands = [getattr(commands, cmd) for cmd in
                 command.sub_commands]
         for cmd in command.sub_commands:

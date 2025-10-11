@@ -817,11 +817,10 @@ class CatalogBuilder:
                                         books_by_current_author))
             else:
                 books_by_current_author += 1
-        else:
-            # Add final author to list or single-author dataset
-            if (current_author == author and len(authors) > 1) or not multiple_authors:
-                unique_authors.append((current_author[0], icu_title(current_author[1]),
-                                        books_by_current_author))
+        # Add final author to list or single-author dataset
+        if (current_author == author and len(authors) > 1) or not multiple_authors:
+            unique_authors.append((current_author[0], icu_title(current_author[1]),
+                                    books_by_current_author))
 
         self.authors = list(unique_authors)
         self.books_by_author = books_by_author
@@ -1041,11 +1040,10 @@ class CatalogBuilder:
         # If a list of ids are provided, don't use search_text
         if self.opts.ids:
             self.opts.search_text = search_phrase
+        elif self.opts.search_text:
+            self.opts.search_text += ' ' + search_phrase
         else:
-            if self.opts.search_text:
-                self.opts.search_text += ' ' + search_phrase
-            else:
-                self.opts.search_text = search_phrase
+            self.opts.search_text = search_phrase
 
         # Fetch the database as a dictionary
         data = self.plugin.search_sort_db(self.db, self.opts)
@@ -1287,8 +1285,8 @@ class CatalogBuilder:
         for normalized in normalized_set:
             if normalized_tags.count(normalized) > 1:
                 self.opts.log.warn(f"      Warning: multiple tags resolving to genre '{normalized}':")
-                for key in genre_tags_dict:
-                    if genre_tags_dict[key] == normalized:
+                for key, tags in genre_tags_dict.items():
+                    if tags == normalized:
                         self.opts.log.warn(f'       {key}')
         if self.opts.verbose:
             self.opts.log.info('{}'.format(_format_tag_list(genre_tags_dict, header='enabled genres')))
@@ -2114,7 +2112,7 @@ class CatalogBuilder:
                         genre_list.append(tag_list)
 
         if self.opts.verbose:
-            if len(genre_list):
+            if genre_list:
                 self.opts.log.info(f'  Genre summary: {len(genre_list)} active genre tags used in generating catalog with {len(self.books_to_catalog)} titles')
 
                 for genre in genre_list:
@@ -3053,20 +3051,19 @@ class CatalogBuilder:
                 else:
                     # Include Author for non-Kindle
                     sec_text = self.format_ncx_text('{} ({} [{}]) · {} '.format(book['title'], book['series'], series_index, book['author']), dest='title')
+            elif self.generate_for_kindle_mobi:
+                # Don't include Author for Kindle
+                title_str = self.format_ncx_text('{}'.format(book['title']), dest='title')
+                if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
+                    # dots = int((book['percent_read'] + 5)/10)
+                    # dot_string = '+' * dots
+                    # empty_dots = '-' * (10 - dots)
+                    # title_str += ' %s%s' % (dot_string,empty_dots)
+                    title_str += '*'
+                sec_text = title_str
             else:
-                if self.generate_for_kindle_mobi:
-                    # Don't include Author for Kindle
-                    title_str = self.format_ncx_text('{}'.format(book['title']), dest='title')
-                    if self.opts.connected_kindle and book['id'] in self.bookmarked_books:
-                        # dots = int((book['percent_read'] + 5)/10)
-                        # dot_string = '+' * dots
-                        # empty_dots = '-' * (10 - dots)
-                        # title_str += ' %s%s' % (dot_string,empty_dots)
-                        title_str += '*'
-                    sec_text = title_str
-                else:
-                    # Include Author for non-Kindle
-                    sec_text = self.format_ncx_text('{} · {}'.format(book['title'], book['author']), dest='title')
+                # Include Author for non-Kindle
+                sec_text = self.format_ncx_text('{} · {}'.format(book['title'], book['author']), dest='title')
 
             content_src='content/book_{}.html#book{}'.format(int(book['id']), int(book['id']))
             cm_tags = {}
@@ -3143,11 +3140,10 @@ class CatalogBuilder:
                 title_letters.append(current_letter)
                 current_series = book['series']
                 current_series_list = [book['series']]
-            else:
-                if len(current_series_list) < self.opts.description_clip and \
-                    book['series'] != current_series:
-                    current_series = book['series']
-                    current_series_list.append(book['series'])
+            elif len(current_series_list) < self.opts.description_clip and \
+                book['series'] != current_series:
+                current_series = book['series']
+                current_series_list.append(book['series'])
 
         # Add the last book list
         _add_to_series_by_letter(current_series_list)
@@ -3227,11 +3223,10 @@ class CatalogBuilder:
                 title_letters.append(current_letter)
                 current_book = book['title']
                 current_book_list = [book['title']]
-            else:
-                if len(current_book_list) < self.opts.description_clip and \
-                    book['title'] != current_book:
-                    current_book = book['title']
-                    current_book_list.append(book['title'])
+            elif len(current_book_list) < self.opts.description_clip and \
+                book['title'] != current_book:
+                current_book = book['title']
+                current_book_list.append(book['title'])
 
         # Add the last book list
         _add_to_books_by_letter(current_book_list)
@@ -3305,9 +3300,8 @@ class CatalogBuilder:
                 # Start the new list
                 current_letter = self.letter_or_symbol(sort_equivalents[idx])
                 current_author_list = [author[0]]
-            else:
-                if len(current_author_list) < self.opts.description_clip:
-                    current_author_list.append(author[0])
+            elif len(current_author_list) < self.opts.description_clip:
+                current_author_list.append(author[0])
 
         # Add the last author list
         _add_to_author_list(current_author_list, current_letter)
@@ -4229,17 +4223,15 @@ class CatalogBuilder:
                             if record in filtered_data_set:
                                 filtered_data_set.remove(record)
                             break
-                        else:
-                            if record not in filtered_data_set:
-                                filtered_data_set.append(record)
+                        elif record not in filtered_data_set:
+                            filtered_data_set.append(record)
                     elif field_contents is None and pat == 'None':
                         exclusion_set.append(record)
                         if record in filtered_data_set:
                             filtered_data_set.remove(record)
-                    else:
-                        if (record not in filtered_data_set and
-                            record not in exclusion_set):
-                            filtered_data_set.append(record)
+                    elif (record not in filtered_data_set and
+                        record not in exclusion_set):
+                        filtered_data_set.append(record)
             return filtered_data_set
         else:
             return data_set

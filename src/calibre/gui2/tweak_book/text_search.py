@@ -187,11 +187,10 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
                 if ed.find_text(pat, complete=True):
                     show_editor(fname)
                     return True
-            else:
-                if file_matches_pattern(fname, pat):
-                    edit_file(fname, syntax)
-                    if editors[fname].find_text(pat, complete=True):
-                        return True
+            elif file_matches_pattern(fname, pat):
+                edit_file(fname, syntax)
+                if editors[fname].find_text(pat, complete=True):
+                    return True
 
     msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(search['find']) + '</pre>')
     return error_dialog(gui_parent, _('Not found'), msg, show=True)

@@ -61,7 +61,7 @@ class Tracker:
                     text = []
                     index_in_positions = max(0, len(self.positions) - 1)
                     offset_in_text = text_len
-        if len(text):
+        if text:
             commit()
         self.marked_text = marked_text
         return self.current_text()
@@ -107,7 +107,7 @@ class Tracker:
             elif pos.offset_in_text >= end:
                 break
             self.last_pos += 1
-        if len(matches):
+        if matches:
             return matches[0].mark, matches[-1].mark
         return None
 

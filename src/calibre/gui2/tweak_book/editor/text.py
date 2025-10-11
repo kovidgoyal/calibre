@@ -415,11 +415,10 @@ class TextEdit(PlainTextEdit):
                 start, end = textpos + end, textpos + start
             else:
                 start, end = m_start + start, m_start + end
+        elif reverse:
+            start, end = m_start + end, m_start + start
         else:
-            if reverse:
-                start, end = m_start + end, m_start + start
-            else:
-                start, end = c.anchor() + start, c.anchor() + end
+            start, end = c.anchor() + start, c.anchor() + end
 
         c.clearSelection()
         c.setPosition(start)
@@ -505,13 +504,12 @@ class TextEdit(PlainTextEdit):
             if reverse:
                 textpos = c.anchor()
                 start, end = textpos + end, textpos + start
+        elif reverse:
+            # Put the cursor at the start of the match
+            start, end = end, start
         else:
-            if reverse:
-                # Put the cursor at the start of the match
-                start, end = end, start
-            else:
-                textpos = c.anchor()
-                start, end = textpos + start, textpos + end
+            textpos = c.anchor()
+            start, end = textpos + start, textpos + end
         c.clearSelection()
         c.setPosition(start)
         c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)

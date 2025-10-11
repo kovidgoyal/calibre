@@ -154,7 +154,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             counts[v] = counts.get(v, 0) + 1
         labels = sorted(counts.keys(), key=sort_key)
         self.show_marked_with_text.clear()
-        if len(labels):
+        if labels:
             labs = labels[0:40]
             self.show_marked_with_text.setEnabled(True)
             for t in labs:

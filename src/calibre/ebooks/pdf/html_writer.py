@@ -124,7 +124,7 @@ def fix_fullscreen_images(container):
             svg = None
             for elem in body.iterdescendants('*'):
                 name = local_name(elem.tag)
-                if name != 'style' and name != 'script':
+                if name not in {'style', 'script'}:
                     names.append(name)
                     if name == 'svg':
                         svg = elem
@@ -189,7 +189,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif path.startswith('/mathjax/'):
             try:
-                ignore, ignore, base, rest = path.split('/', 3)
+                _ign, _ign, base, rest = path.split('/', 3)
             except ValueError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
                 rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)

@@ -157,7 +157,7 @@ class PluginWidget(QWidget):
         set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget
-        if len(fields):
+        if fields:
             return {'fields':fields}
         else:
             return {'fields':['all']}

@@ -76,13 +76,12 @@ class Novosti(BasicNewsRecipe):
             if item.string is not None:
                 str = item.string
                 item.replaceWith(str)
+            elif limg:
+                item.name = 'div'
+                item.attrs = []
             else:
-                if limg:
-                    item.name = 'div'
-                    item.attrs = []
-                else:
-                    str = self.tag_to_string(item)
-                    item.replaceWith(str)
+                str = self.tag_to_string(item)
+                item.replaceWith(str)
         for item in soup.findAll('img', alt=False):
             item['alt'] = 'image'
         return soup

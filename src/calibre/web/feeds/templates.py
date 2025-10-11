@@ -36,9 +36,9 @@ class Template:
     def generate(self, *args, **kwargs):
         if 'style' not in kwargs:
             kwargs['style'] = ''
-        for key in kwargs.keys():
-            if isbytestring(kwargs[key]):
-                kwargs[key] = kwargs[key].decode('utf-8', 'replace')
+        for key, val in kwargs.items():
+            if isbytestring(val):
+                kwargs[key] = val.decode('utf-8', 'replace')
             if kwargs[key] is None:
                 kwargs[key] = ''
         args = list(args)

@@ -452,17 +452,16 @@ class MobiReader:
                         pass
                     elif tag.tag == 'img':
                         tag.set('height', height)
-                    else:
-                        if tag.tag == 'div' and not tag.text and \
+                    elif tag.tag == 'div' and not tag.text and \
                                 (not tag.tail or not tag.tail.strip()) and \
-                                not len(list(tag.iterdescendants())):
-                            # Paragraph spacer
-                            # Insert nbsp so that the element is never
-                            # discarded by a renderer
-                            tag.text = '\u00a0'  # nbsp
-                            styles.append(f'height: {self.ensure_unit(height)}')
-                        else:
-                            styles.append(f'margin-top: {self.ensure_unit(height)}')
+                                not list(tag.iterdescendants()):
+                        # Paragraph spacer
+                        # Insert nbsp so that the element is never
+                        # discarded by a renderer
+                        tag.text = '\u00a0'  # nbsp
+                        styles.append(f'height: {self.ensure_unit(height)}')
+                    else:
+                        styles.append(f'margin-top: {self.ensure_unit(height)}')
             if 'width' in attrib:
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
@@ -863,7 +862,7 @@ class MobiReader:
             l = self.mobi_html.find(b'<', end)
             r = self.mobi_html.find(b'>', end)
             anchor = b'<a id="filepos%d"></a>'
-            if r > -1 and (r < l or l == end or l == -1):
+            if r > -1 and (r < l or l in {end, -1}):
                 p = self.mobi_html.rfind(b'<', 0, end + 1)
                 if (pos < end and p > -1 and not end_tag_re.match(self.mobi_html[p:r]) and
                         not self.mobi_html[p:r + 1].endswith(b'/>')):

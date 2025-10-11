@@ -667,7 +667,7 @@ class Metadata:
         '''
         Returns the tuple (display_name, formatted_value)
         '''
-        name, val, ign, ign = self.format_field_extended(key, series_with_index)
+        name, val, _ign, _ign = self.format_field_extended(key, series_with_index)
         return name, val
 
     def format_field_extended(self, key, series_with_index=True):

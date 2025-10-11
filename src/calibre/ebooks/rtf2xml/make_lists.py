@@ -411,11 +411,10 @@ class MakeLists:
         if self.__style_name in self.__headings:
             if self.__headings_to_sections:
                 return 1
+            elif self.__no_headings_as_list:
+                return 1
             else:
-                if self.__no_headings_as_list:
-                    return 1
-                else:
-                    return 0
+                return 0
         else:
             return 0
 

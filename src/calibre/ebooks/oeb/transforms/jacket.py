@@ -180,7 +180,7 @@ def get_rating(rating, rchar, e_rchar):
 
 class Series(str):
 
-    def __new__(self, series, series_index):
+    def __new__(cls, series, series_index):
         if series and series_index is not None:
             roman = _('{1} of <em>{0}</em>').format(
                 escape(series), escape(fmt_sidx(series_index, use_roman=True)))
@@ -188,7 +188,7 @@ class Series(str):
                 escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
             combined = roman = escape(series or '')
-        s = str.__new__(self, combined)
+        s = str.__new__(cls, combined)
         s.roman = roman
         s.name = escape(series or '')
         s.number = escape(fmt_sidx(series_index or 1.0, use_roman=False))
@@ -219,9 +219,9 @@ class Timestamp:
 
 class Tags(str):
 
-    def __new__(self, tags, output_profile):
+    def __new__(cls, tags, output_profile):
         tags = [escape(x) for x in tags or ()]
-        t = str.__new__(self, ', '.join(tags))
+        t = str.__new__(cls, ', '.join(tags))
         t.alphabetical = ', '.join(sorted(tags, key=sort_key))
         t.tags_list = tags
         return t
@@ -391,9 +391,9 @@ def render_jacket(mi, output_profile,
 
         if False:
             print('Custom column values available in jacket template:')
-            for key in args.keys():
+            for key, values in args.items():
                 if key.startswith('_') and not key.endswith('_label'):
-                    print(' {}: {}'.format('#' + key[1:], args[key]))
+                    print(' {}: {}'.format('#' + key[1:], values))
 
         # Used in the comment describing use of custom columns in templates
         # Don't change this unless you also change it in template.xhtml

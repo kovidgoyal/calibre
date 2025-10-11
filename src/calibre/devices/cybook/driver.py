@@ -9,10 +9,9 @@ Device driver for Bookeen's Cybook Gen 3 and Opus and Orizon
 import os
 import re
 
-import calibre.devices.cybook.t2b as t2b
-import calibre.devices.cybook.t4b as t4b
 from calibre import fsync
 from calibre.constants import isunix
+from calibre.devices.cybook import t2b, t4b
 from calibre.devices.usbms.driver import USBMS
 
 

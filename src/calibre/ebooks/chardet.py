@@ -70,9 +70,8 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
     if is_binary:
         if not isinstance(enc, bytes):
             enc = enc.encode('ascii')
-    else:
-        if isinstance(enc, bytes):
-            enc = enc.decode('ascii')
+    elif isinstance(enc, bytes):
+        enc = enc.decode('ascii')
 
     def sub(m):
         ans = m.group()

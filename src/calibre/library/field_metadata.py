@@ -656,11 +656,10 @@ class FieldMetadata:
             key = self.custom_field_prefix+label
             if key not in self._tb_cats:
                 key = label
+        elif label in self._tb_cats:
+            key = label
         else:
-            if label in self._tb_cats:
-                key = label
-            else:
-                key = self.custom_field_prefix+label
+            key = self.custom_field_prefix+label
         self._tb_cats[key]['rec_index'] = index  # let the exception fly ...
 
     def get_search_terms(self):

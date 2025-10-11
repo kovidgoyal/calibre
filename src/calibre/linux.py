@@ -873,7 +873,7 @@ class PostInstall:
             cc = partial(check_call, env=env)
 
         if getattr(self.opts, 'staged_install', False):
-            for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
+            for d in ('applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'):
                 os.makedirs(os.path.join(self.opts.staging_root, 'share', d), exist_ok=True)
 
         with TemporaryDirectory() as tdir, CurrentDir(tdir):

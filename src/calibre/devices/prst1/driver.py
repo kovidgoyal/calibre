@@ -465,11 +465,10 @@ class PRST1(USBMS):
                         author = newmi.author_sort
                     else:
                         author = authors_to_sort_string(newmi.authors)
+                elif use_sony_authors:
+                    author = newmi.authors[0]
                 else:
-                    if use_sony_authors:
-                        author = newmi.authors[0]
-                    else:
-                        author = authors_to_string(newmi.authors)
+                    author = authors_to_string(newmi.authors)
             except Exception:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')

@@ -716,13 +716,12 @@ class LinksWidget(QWidget):
         if index.column() < 3:
             # Jump to source
             jump_to_location(link.location)
-        else:
-            # Jump to destination
-            if link.is_external:
-                if link.href:
-                    open_url(link.href)
-            elif link.anchor.location:
-                jump_to_location(link.anchor.location)
+        # Jump to destination
+        elif link.is_external:
+            if link.href:
+                open_url(link.href)
+        elif link.anchor.location:
+            jump_to_location(link.anchor.location)
 
     def save(self):
         self.links.save_table('links-table')

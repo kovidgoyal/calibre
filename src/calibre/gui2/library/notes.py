@@ -131,7 +131,7 @@ class ResultsList(QTreeWidget):
             name = current_db().get_item_name(result['field'], result['item_id']) or ''
             m.addAction(QIcon.ic('edit_input.png'), _('Edit notes for {}').format(name), partial(self.edit_note, item))
         results = tuple(self.selected_results())
-        if len(results):
+        if results:
             m.addAction(QIcon.ic('save.png'), _('Export selected'), self.export)
         m.addSeparator()
         m.addAction(_('Select all'), self.selectAll)

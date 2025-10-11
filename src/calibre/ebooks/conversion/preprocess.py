@@ -123,10 +123,7 @@ class DocAnalysis:
             if lengths[i] > max_line:
                 del lengths[i]
 
-        if percent > 1:
-            percent = 1
-        if percent < 0:
-            percent = 0
+        percent = min(max(percent, 0), 1)
 
         index = int(len(lengths) * percent) - 1
 
@@ -171,8 +168,7 @@ class DocAnalysis:
         # Find the biggest bucket
         maxValue = 0
         for i in range(len(h)):
-            if h[i] > maxValue:
-                maxValue = h[i]
+            maxValue = max(maxValue, h[i])
 
         if maxValue < percent:
             # print('Line lengths are too variable. Not unwrapping.')
@@ -228,7 +224,7 @@ class Dehyphenator:
             searchresult = self.html.find(lookupword.lower())
         except Exception:
             return hyphenated
-        if self.format == 'html_cleanup' or self.format == 'txt_cleanup':
+        if self.format in {'html_cleanup', 'txt_cleanup'}:
             if self.html.find(lookupword) != -1 or searchresult != -1:
                 if self.verbose > 2:
                     self.log('    Cleanup:returned dehyphenated word: ' + dehyphenated)

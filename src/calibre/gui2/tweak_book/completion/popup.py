@@ -225,11 +225,10 @@ class ChoosePopupWidget(QWidget):
                     self.current_index = len(self.current_results) - 1
                 else:
                     self.current_index -= 1
+            elif self.current_index == len(self.current_results) - 1:
+                self.current_index = -1
             else:
-                if self.current_index == len(self.current_results) - 1:
-                    self.current_index = -1
-                else:
-                    self.current_index += 1
+                self.current_index += 1
             self.ensure_index_visible(self.current_index)
             self.update()
 

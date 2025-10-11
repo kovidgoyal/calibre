@@ -64,9 +64,8 @@ def add(ctxt, msgid, msgstr, fuzzy):
             MESSAGES[msgid] = msgstr
         else:
             MESSAGES[b'%b\x04%b' % (ctxt, msgid)] = msgstr
-    else:
-        if msgid:
-            STATS['untranslated'] += 1
+    elif msgid:
+        STATS['untranslated'] += 1
 
 
 def generate():

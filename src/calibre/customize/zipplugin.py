@@ -353,10 +353,9 @@ class CalibrePluginFinder:
                 plugin_name = f'dummy{c}'
                 if plugin_name not in self.loaded_plugins:
                     break
-        else:
-            if self._identifier_pat.match(plugin_name) is None:
-                raise InvalidPlugin(
-                    f'The plugin at {path_to_zip_file!r} uses an invalid import name: {plugin_name!r}')
+        elif self._identifier_pat.match(plugin_name) is None:
+            raise InvalidPlugin(
+                f'The plugin at {path_to_zip_file!r} uses an invalid import name: {plugin_name!r}')
 
         pynames = [x for x in names if x.endswith('.py')]
 

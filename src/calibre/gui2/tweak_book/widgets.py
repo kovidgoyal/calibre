@@ -1132,13 +1132,11 @@ class CoverView(QWidget):
         canvas_size = self.rect()
         width = self.current_pixmap_size.width()
         extrax = canvas_size.width() - width
-        if extrax < 0:
-            extrax = 0
+        extrax = max(extrax, 0)
         x = int(extrax/2.)
         height = self.current_pixmap_size.height()
         extray = canvas_size.height() - height
-        if extray < 0:
-            extray = 0
+        extray = max(extray, 0)
         y = int(extray/2.)
         target = QRect(x, y, min(canvas_size.width(), width), min(canvas_size.height(), height))
         p = QPainter(self)

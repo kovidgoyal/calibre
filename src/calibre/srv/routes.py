@@ -149,9 +149,8 @@ class Route:
                         self.type_checkers[name] = type(default)
                     if is_sponge and not isinstance(default, str):
                         raise route_error('Soak up path component must have a default value of string type')
-                else:
-                    if found_optional_part is not False:
-                        raise route_error('Cannot have non-optional path components after optional ones')
+                elif found_optional_part is not False:
+                    raise route_error('Cannot have non-optional path components after optional ones')
                 if is_sponge:
                     self.soak_up_extra = name
                 matchers.append((name, True))

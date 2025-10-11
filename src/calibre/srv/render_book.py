@@ -369,9 +369,8 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
             parent_seq = smil_map.get(target)
             if parent_seq is None:
                 smil_map[target] = parent_seq = {'textref': [target, ''], 'par':[], 'seq':[], 'type': 'root'}
-        else:
-            if parent_seq['textref'][0] != target:
-                return  # child seqs must be in the same HTML file as parent
+        elif parent_seq['textref'][0] != target:
+            return  # child seqs must be in the same HTML file as parent
         parent_seq['seq'].append(seq)
         for child in seq_xml_element.iterchildren('*'):
             if child.tag == par_tag:
@@ -656,12 +655,11 @@ def process_exploded_book(
     f = partial(process_book_file, virtualize_resources, book_render_data['link_uid'], container, present_names)
     if num_workers < 2:
         results.extend(map(f, names_that_need_work))
+    elif forked_map_is_supported:
+        results.extend(forked_map(f, names_that_need_work, num_workers=num_workers))
     else:
-        if forked_map_is_supported:
-            results.extend(forked_map(f, names_that_need_work, num_workers=num_workers))
-        else:
-            with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                results.extend(executor.map(f, names_that_need_work))
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            results.extend(executor.map(f, names_that_need_work))
 
     ltm = book_render_data['link_to_map']
     html_data = {}

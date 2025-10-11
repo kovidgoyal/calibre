@@ -347,19 +347,16 @@ class BooleanSearch:  # {{{
                 if val is None or not val:  # item is None or set to false
                     if query in {self.local_no, self.local_unchecked, 'unchecked', '_unchecked', 'no', '_no', 'false'}:
                         matches |= book_ids
-                else:  # item is explicitly set to true
-                    if query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
-                        matches |= book_ids
-            else:
-                if val is None:
-                    if query in {self.local_empty, self.local_blank, 'blank', '_blank', 'empty', '_empty', 'false'}:
-                        matches |= book_ids
-                elif not val:  # is not None and false
-                    if query in {self.local_no, self.local_unchecked, 'unchecked', '_unchecked', 'no', '_no', 'true'}:
-                        matches |= book_ids
-                else:  # item is not None and true
-                    if query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
-                        matches |= book_ids
+                elif query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
+                    matches |= book_ids
+            elif val is None:
+                if query in {self.local_empty, self.local_blank, 'blank', '_blank', 'empty', '_empty', 'false'}:
+                    matches |= book_ids
+            elif not val:  # is not None and false
+                if query in {self.local_no, self.local_unchecked, 'unchecked', '_unchecked', 'no', '_no', 'true'}:
+                    matches |= book_ids
+            elif query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
+                matches |= book_ids
         return matches
 
 # }}}

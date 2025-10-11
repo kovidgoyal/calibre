@@ -383,11 +383,10 @@ class Bootstrap(Command):
             clone_cmd.insert(2, '--depth=1')
             subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
             print(f'Downloaded translations in {int(time.time() - st)} seconds')
+        elif os.path.exists(tdir):
+            subprocess.check_call(['git', 'pull'], cwd=tdir)
         else:
-            if os.path.exists(tdir):
-                subprocess.check_call(['git', 'pull'], cwd=tdir)
-            else:
-                subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
+            subprocess.check_call(clone_cmd, cwd=self.d(self.SRC))
 
     def run(self, opts):
         self.info(f'\n\nAll done! You should now be able to run "{sys.executable} setup.py install" to install calibre')

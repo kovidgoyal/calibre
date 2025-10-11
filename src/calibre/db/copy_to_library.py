@@ -97,7 +97,7 @@ def copy_one_book(
             # Scanning for dupes can be slow on a large library so
             # only do it if the option is set
             if identical_books_data is None:
-                identical_books_data = identical_books_data = newdb.data_for_find_identical_books()
+                identical_books_data = newdb.data_for_find_identical_books()
             identical_book_list = find_identical_books(mi, identical_books_data)
             if identical_book_list:  # books with same author and nearly same title exist in newdb
                 if duplicate_action == 'add_formats_to_existing':

@@ -1637,7 +1637,7 @@ class BulkText(BulkBase):
                     _('You have entered values. In order to use this '
                        'editor you must first discard them. '
                        'Discard the values?'))
-            if d == QMessageBox.StandardButton.Cancel or d == QMessageBox.StandardButton.No:
+            if d in (QMessageBox.StandardButton.Cancel, QMessageBox.StandardButton.No):
                 return
             widget.setText('')
         d = TagEditor(self.parent, self.db, key=('#'+self.col_metadata['label']))

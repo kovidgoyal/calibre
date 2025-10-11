@@ -757,12 +757,11 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     from calibre.gui2.ui import get_gui
     if add_popup_action:
         menu.addMenu(get_gui().iactions['Show Book Details'].qaction.menu())
-    else:
-        # We can't open edit metadata from a locked window because EM expects to
-        # be editing the current book, which this book probably isn't
-        if edit_metadata is not None:
-            ema = get_gui().iactions['Edit Metadata'].menuless_qaction
-            menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
+    # We can't open edit metadata from a locked window because EM expects to
+    # be editing the current book, which this book probably isn't
+    elif edit_metadata is not None:
+        ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
     if not reindex_fmt_added:
         menu.addSeparator()
         menu.addAction(_(
@@ -869,13 +868,11 @@ class CoverView(QWidget):  # {{{
         canvas_size = self.rect()
         width = self.current_pixmap_size.width()
         extrax = canvas_size.width() - width
-        if extrax < 0:
-            extrax = 0
+        extrax = max(extrax, 0)
         x = int(extrax//2)
         height = self.current_pixmap_size.height()
         extray = canvas_size.height() - height
-        if extray < 0:
-            extray = 0
+        extray = max(extray, 0)
         y = int(extray//2)
         target = QRect(x, y, width, height)
         p = QPainter(self)

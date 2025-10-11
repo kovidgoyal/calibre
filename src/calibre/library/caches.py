@@ -646,19 +646,16 @@ class ResultCache(SearchQueryParser):  # {{{
                 if val is None or not val:  # item is None or set to false
                     if query in (self.local_no, self.local_unchecked, '_no', 'false'):
                         matches.add(item[0])
-                else:  # item is explicitly set to true
-                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
-                        matches.add(item[0])
-            else:
-                if val is None:
-                    if query in (self.local_empty, self.local_blank, '_empty', 'false'):
-                        matches.add(item[0])
-                elif not val:  # is not None and false
-                    if query in (self.local_no, self.local_unchecked, '_no', 'true'):
-                        matches.add(item[0])
-                else:  # item is not None and true
-                    if query in (self.local_yes, self.local_checked, '_yes', 'true'):
-                        matches.add(item[0])
+                elif query in (self.local_yes, self.local_checked, '_yes', 'true'):
+                    matches.add(item[0])
+            elif val is None:
+                if query in (self.local_empty, self.local_blank, '_empty', 'false'):
+                    matches.add(item[0])
+            elif not val:  # is not None and false
+                if query in (self.local_no, self.local_unchecked, '_no', 'true'):
+                    matches.add(item[0])
+            elif query in (self.local_yes, self.local_checked, '_yes', 'true'):
+                matches.add(item[0])
         return matches
 
     def get_matches(self, location, query, candidates=None,

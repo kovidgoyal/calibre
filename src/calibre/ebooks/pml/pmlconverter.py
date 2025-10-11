@@ -314,16 +314,15 @@ class PML_HTMLizer:
                 text = self.STATES_TAGS[code][1] % self.state[code][1]
             else:
                 text = self.STATES_TAGS[code][1]
-        else:
-            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
-                val = self.code_value(stream)
-                if code in self.STATES_VALUE_REQ:
-                    text = self.STATES_TAGS[code][0] % val
-                else:
-                    text = self.STATES_TAGS[code][0] % (val, val)
-                self.state[code][1] = val
+        elif code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
+            val = self.code_value(stream)
+            if code in self.STATES_VALUE_REQ:
+                text = self.STATES_TAGS[code][0] % val
             else:
-                text = self.STATES_TAGS[code][0]
+                text = self.STATES_TAGS[code][0] % (val, val)
+            self.state[code][1] = val
+        else:
+            text = self.STATES_TAGS[code][0]
 
         return text
 
@@ -406,16 +405,15 @@ class PML_HTMLizer:
                     else:
                         text += self.STATES_TAGS[c][0]
         # Open code.
-        else:
-            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
-                val = self.code_value(stream)
-                if code in self.STATES_VALUE_REQ:
-                    text += self.STATES_TAGS[code][0] % val
-                else:
-                    text += self.STATES_TAGS[code][0] % (val, val)
-                self.state[code][1] = val
+        elif code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
+            val = self.code_value(stream)
+            if code in self.STATES_VALUE_REQ:
+                text += self.STATES_TAGS[code][0] % val
             else:
-                text += self.STATES_TAGS[code][0]
+                text += self.STATES_TAGS[code][0] % (val, val)
+            self.state[code][1] = val
+        else:
+            text += self.STATES_TAGS[code][0]
 
         return text
 
@@ -436,21 +434,20 @@ class PML_HTMLizer:
                 text += self.STATES_TAGS[code][1] % self.state[code][1]
             else:
                 text += self.STATES_TAGS[code][1]
-        else:
-            # Open tag
-            if code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
-                val = self.code_value(stream)
-                if code in self.LINK_STATES:
-                    val = val.lstrip('#')
-                if pre:
-                    val = f'{pre}-{val}'
-                if code in self.STATES_VALUE_REQ:
-                    text += self.STATES_TAGS[code][0] % val
-                else:
-                    text += self.STATES_TAGS[code][0] % (val, val)
-                self.state[code][1] = val
+        # Open tag
+        elif code in self.STATES_VALUE_REQ or code in self.STATES_VALUE_REQ_2:
+            val = self.code_value(stream)
+            if code in self.LINK_STATES:
+                val = val.lstrip('#')
+            if pre:
+                val = f'{pre}-{val}'
+            if code in self.STATES_VALUE_REQ:
+                text += self.STATES_TAGS[code][0] % val
             else:
-                text += self.STATES_TAGS[code][0]
+                text += self.STATES_TAGS[code][0] % (val, val)
+            self.state[code][1] = val
+        else:
+            text += self.STATES_TAGS[code][0]
 
         # Re-open all spans if code was a div based on state
         for c in self.SPAN_STATES:

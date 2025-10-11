@@ -125,9 +125,8 @@ class ColoredStream(Detect):
         if self.is_binary:
             if not isinstance(what, bytes):
                 what = what.encode('utf-8')
-        else:
-            if isinstance(what, bytes):
-                what = what.decode('utf-8', 'replace')
+        elif isinstance(what, bytes):
+            what = what.decode('utf-8', 'replace')
         self.stream.write(what)
 
     def __enter__(self):

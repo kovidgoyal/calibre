@@ -475,11 +475,10 @@ class LLMPanel(QWidget):
         if r is None:
             self.conversation_history.finalize_response()
             self.update_cost()
+        elif r.exception is not None:
+            self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
         else:
-            if r.exception is not None:
-                self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
-            else:
-                self.conversation_history.accumulator.accumulate(r)
+            self.conversation_history.accumulator.accumulate(r)
         self.update_ui_state()
 
     def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
@@ -493,18 +492,17 @@ class LLMPanel(QWidget):
     def update_ui_state(self) -> None:
         if self.conversation_history:
             self.show_ai_conversation()
+        elif self.latched_conversation_text:
+            st = self.latched_conversation_text
+            if len(st) > 200:
+                st = st[:200] + '…'
+            msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
+            msg += self.quick_actions_as_html
+            msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
+            msg += '<i>Summarize this book.</i>'
+            self.result_display.show_message(msg)
         else:
-            if self.latched_conversation_text:
-                st = self.latched_conversation_text
-                if len(st) > 200:
-                    st = st[:200] + '…'
-                msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
-                msg += self.quick_actions_as_html
-                msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
-                msg += '<i>Summarize this book.</i>'
-                self.result_display.show_message(msg)
-            else:
-                self.show_initial_message()
+            self.show_initial_message()
         has_responses = self.conversation_history.response_count > 0
         for b in self.response_buttons.values():
             b.setEnabled(has_responses)

@@ -94,9 +94,7 @@ class MyBlockingBusy(QDialog):  # {{{
             args.do_swap_ta, args.do_title_case and not
             args.do_swap_ta, args.do_title_sort, bool(args.au),
             args.do_auto_author, bool(args.aus) and args.do_aus,
-            args.cover_action == 'remove' or args.cover_action ==
-            'generate' or args.cover_action == 'trim' or
-            args.cover_action == 'clone', args.restore_original,
+            args.cover_action in {'remove', 'generate', 'trim', 'clone'}, args.restore_original,
             args.rating != -1, args.clear_pub, bool(args.pub),
             args.clear_series, args.pubdate is not None, args.adddate
             is not None, args.do_series, bool(args.series) and

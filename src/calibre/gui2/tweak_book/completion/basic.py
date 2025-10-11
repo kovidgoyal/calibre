@@ -68,8 +68,8 @@ def get_data(data_conn, data_type, data=None):
 
 class Name(str):
 
-    def __new__(self, name, mime_type, spine_names):
-        ans = str.__new__(self, name)
+    def __new__(cls, name, mime_type, spine_names):
+        ans = str.__new__(cls, name)
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
         return ans

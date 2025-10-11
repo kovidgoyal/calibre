@@ -224,7 +224,7 @@ html_spell_tags = {'script', 'style', 'link'}
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
     if tag.text is not None and isinstance(tag.tag, str) and barename(tag.tag) not in html_spell_tags:
         add_words_from_text(tag, 'text', words, file_name, locale)
-    for attr in {'alt', 'title'}:
+    for attr in ('alt', 'title'):
         add_words_from_attr(tag, attr, words, file_name, locale)
     if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
         add_words_from_text(tag, 'tail', words, file_name, parent_locale)
@@ -233,7 +233,7 @@ def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
 def count_chars_in_html_tag(tag, counter, file_name, parent_locale, locale):
     if tag.text is not None and isinstance(tag.tag, str) and barename(tag.tag) not in html_spell_tags:
         count_chars_in_text(tag, 'text', counter, file_name, locale)
-    for attr in {'alt', 'title'}:
+    for attr in ('alt', 'title'):
         count_chars_in_attr(tag, attr, counter, file_name, locale)
     if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
         count_chars_in_text(tag, 'tail', counter, file_name, parent_locale)

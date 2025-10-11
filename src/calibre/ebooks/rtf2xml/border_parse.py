@@ -184,7 +184,6 @@ class BorderParse:
             new_border_dict[att] = 'hairline'
         elif 'single' in border_style_list:
             new_border_dict[att] = 'single'
-        else:
-            if border_style_list:
-                new_border_dict[att] = border_style_list[0]
+        elif border_style_list:
+            new_border_dict[att] = border_style_list[0]
         return new_border_dict

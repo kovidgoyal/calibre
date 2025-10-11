@@ -147,7 +147,7 @@ def jpeg_dimensions(stream):
         while marker == 0xff:
             marker = read_byte()
         q = marker
-        if 0xc0 <= q <= 0xcf and q != 0xc4 and q != 0xcc:
+        if 0xc0 <= q <= 0xcf and q not in {0xc4, 0xcc}:
             # SOFn marker
             stream.seek(3, os.SEEK_CUR)
             return unpack(b'>HH', read(4))

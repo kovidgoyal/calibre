@@ -118,9 +118,8 @@ def parse_text_formatting(text):
                     r[-1] = offset - r[-2]
                     if r[-1] > 0:
                         ranges.append(r)
-            else:
-                if tag in {'b', 'strong', 'i', 'em'}:
-                    open_ranges.append([tag, offset, -1])
+            elif tag in {'b', 'strong', 'i', 'em'}:
+                open_ranges.append([tag, offset, -1])
         else:
             offset += len(tok.replace('&amp;', '&'))
             text.append(tok)
@@ -220,7 +219,6 @@ class Block:
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
-    title, subtitle, footer = title, subtitle, footer
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
     title_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)

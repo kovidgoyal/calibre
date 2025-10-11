@@ -34,7 +34,6 @@ class PageGroup:
             assert self.__page_number_type == PageNumberTypes.Custom
             self.page_locations.append(page_location[0])
             self.__page_number_labels.append(page_location[1])
-        return
 
     @property
     def page_number_types(self) -> PageNumberTypes:

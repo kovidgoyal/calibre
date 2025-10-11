@@ -154,9 +154,8 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
                 plugin_toolbar_actions.append(ac)
             ac.popup_mode = {'instant':QToolButton.ToolButtonPopupMode.InstantPopup, 'button':QToolButton.ToolButtonPopupMode.MenuButtonPopup}.get(
                 tool.toolbar_button_popup_mode, QToolButton.ToolButtonPopupMode.DelayedPopup)
-        else:
-            if plugin_menu_actions is not None:
-                plugin_menu_actions.append(ac)
+        elif plugin_menu_actions is not None:
+            plugin_menu_actions.append(ac)
     return ac
 
 

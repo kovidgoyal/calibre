@@ -230,11 +230,10 @@ class PaletteManager(QObject):
 
         if force_calibre_style:
             self.using_calibre_style = True
+        elif iswindows or ismacos:
+            self.using_calibre_style = ui_style != 'system'
         else:
-            if iswindows or ismacos:
-                self.using_calibre_style = ui_style != 'system'
-            else:
-                self.using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
+            self.using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
 
         args = []
         self.args_to_qt = tuple(args)

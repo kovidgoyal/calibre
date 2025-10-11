@@ -71,8 +71,6 @@ class GlobalUndoHistory(QAbstractListModel):
             msg = _('Current state') + ('' if not msg else _(' [was %s]') % msg)
         elif not msg:
             msg = _('[Unnamed state]')
-        else:
-            msg = msg
         return msg
 
     def label_for_container(self, container):

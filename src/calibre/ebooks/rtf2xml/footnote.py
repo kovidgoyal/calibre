@@ -215,9 +215,8 @@ class Footnote:
                 if line == 'mi<mk<footnt-clo\n':
                     return string_to_return
                 string_to_return = string_to_return + line
-            else:
-                if line == look_for:
-                    found_foot = 1
+            elif line == look_for:
+                found_foot = 1
 
     def __join_from_temp(self):
         '''

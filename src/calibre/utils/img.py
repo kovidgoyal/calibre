@@ -426,9 +426,8 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
         scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
         if scaled:
             img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-    else:
-        if img.width() != width or img.height() != height:
-            img = img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+    elif img.width() != width or img.height() != height:
+        img = img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     fmt = 'PNG' if as_png else 'JPEG'
     w, h = img.width(), img.height()
     return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)

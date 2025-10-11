@@ -1400,11 +1400,10 @@ class Highlighter(QSyntaxHighlighter):
                     if ch == '<':
                         if text[pos:pos+4] == '<!--':
                             state = State_Comment
+                        elif text[pos:pos+9].upper() == '<!DOCTYPE':
+                            state = State_DocType
                         else:
-                            if text[pos:pos+9].upper() == '<!DOCTYPE':
-                                state = State_DocType
-                            else:
-                                state = State_TagStart
+                            state = State_TagStart
                         break
                     elif ch == '&':
                         start = pos

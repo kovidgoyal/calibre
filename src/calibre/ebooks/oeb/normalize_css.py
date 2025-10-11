@@ -131,9 +131,8 @@ def normalize_font(cssvalue, font_family_as_list=False):
     if font_family_as_list:
         if isinstance(ans['font-family'], string_or_bytes):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
-    else:
-        if not isinstance(ans['font-family'], string_or_bytes):
-            ans['font-family'] = serialize_font_family(ans['font-family'])
+    elif not isinstance(ans['font-family'], string_or_bytes):
+        ans['font-family'] = serialize_font_family(ans['font-family'])
     return ans
 
 
@@ -251,9 +250,9 @@ condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': si
 def condense_rule(style):
     expanded = {'margin-':[], 'padding-':[], 'border-':[]}
     for prop in style.getProperties():
-        for x in expanded:
+        for x,t in iteritems(expanded):
             if prop.name and prop.name.startswith(x):
-                expanded[x].append(prop)
+                t.append(prop)
                 break
     for prefix, vals in iteritems(expanded):
         if len(vals) > 1 and {x.priority for x in vals} == {''}:

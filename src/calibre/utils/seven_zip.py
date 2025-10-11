@@ -109,10 +109,10 @@ def test_basic():
 
         os.mkdir('ex')
         extract('a.7z', 'ex')
-        for name in tdata:
+        for name, data in tdata.items():
             if name not in '1 2 symlink'.split():
                 with open(os.path.join(tdir, 'ex', name), 'rb') as s:
-                    if s.read() != tdata[name]:
+                    if s.read() != data:
                         raise ValueError(f'Did not extract {name} properly')
         if extract_member('a.7z', name='one.txt')[1] != tdata['one.txt']:
             raise ValueError('extract_member failed')

@@ -2,7 +2,7 @@ def _optimize(tagList, tagName, conversion):
     # copy the tag of interest plus any text
     newTagList = []
     for tag in tagList:
-        if tag.name == tagName or tag.name == 'rawtext':
+        if tag.name in {tagName, 'rawtext'}:
             newTagList.append(tag)
 
     # now, eliminate any duplicates (leaving the last one)

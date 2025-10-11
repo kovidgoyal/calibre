@@ -322,11 +322,11 @@ class Element(Node):
                 self.setAttrNS(attr[0], attr[1], value)
         if allowed_attrs is not None:
             # Load the attributes from the 'args' argument
-            for arg in args.keys():
-                self.setAttribute(arg, args[arg])
+            for arg, attrs in args.items():
+                self.setAttribute(arg, attrs)
         else:
-            for arg in args.keys():  # If any attribute is allowed
-                self.attributes[arg]=args[arg]
+            for arg, attrs in args.items():  # If any attribute is allowed
+                self.attributes[arg]=attrs
         if not check_grammar:
             return
         # Test that all mandatory attributes have been added.
@@ -384,9 +384,8 @@ class Element(Node):
         '''
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText(f'The <{self.tagName}> element does not allow text')
-        else:
-            if text != '':
-                self.appendChild(Text(text))
+        elif text != '':
+            self.appendChild(Text(text))
 
     def addCDATA(self, cdata, check_grammar=True):
         ''' Adds CDATA to an element

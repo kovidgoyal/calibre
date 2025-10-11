@@ -44,7 +44,7 @@ class Reader(FormatReader):
     def decompress_text(self, number):
         if self.header_record.compression == 1:
             return self.section_data(number)
-        if self.header_record.compression == 2 or self.header_record.compression == 258:
+        if self.header_record.compression in {2, 258}:
             from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number))
         return b''

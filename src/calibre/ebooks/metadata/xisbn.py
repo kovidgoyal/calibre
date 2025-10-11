@@ -90,8 +90,7 @@ class xISBN:
         for x in data:
             try:
                 year = int(x['year'])
-                if year < min_year:
-                    min_year = year
+                min_year = min(min_year, year)
             except Exception:
                 continue
         if min_year == 100000:

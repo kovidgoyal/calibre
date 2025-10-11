@@ -185,16 +185,15 @@ class NotesUtilities:
                 else:
                     item.setIcon(QIcon.cached_icon('notes.png'))
                     item.set_sort_val(NotesTableWidgetItem.UNCHANGED)
+            elif has_value:
+                item.setIcon(QIcon.cached_icon('modified.png'))
+                item.set_sort_val(NotesTableWidgetItem.EDITED)
+            elif not bool(self.modified_notes[id_]):
+                item.setIcon(QIcon.cached_icon())
+                item.set_sort_val(NotesTableWidgetItem.EMPTY)
             else:
-                if has_value:
-                    item.setIcon(QIcon.cached_icon('modified.png'))
-                    item.set_sort_val(NotesTableWidgetItem.EDITED)
-                elif not bool(self.modified_notes[id_]):
-                    item.setIcon(QIcon.cached_icon())
-                    item.set_sort_val(NotesTableWidgetItem.EMPTY)
-                else:
-                    item.setIcon(QIcon.cached_icon('trash.png'))
-                    item.set_sort_val(NotesTableWidgetItem.DELETED)
+                item.setIcon(QIcon.cached_icon('trash.png'))
+                item.set_sort_val(NotesTableWidgetItem.DELETED)
         self.table.cellChanged.emit(item.row(), item.column())
         self.table.itemChanged.emit(item)
 

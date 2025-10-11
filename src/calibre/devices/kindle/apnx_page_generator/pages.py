@@ -17,7 +17,6 @@ class Pages:
 
     def append(self, page_location: PageGroup) -> None:
         self.__pages_groups.append(page_location)
-        return
 
     @property
     def last_group(self) -> PageGroup:

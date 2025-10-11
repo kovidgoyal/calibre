@@ -704,10 +704,10 @@ class DB:
                 catmap[ucl] = []
             catmap[ucl].append(uc)
         cats_changed = False
-        for uc in catmap:
-            if len(catmap[uc]) > 1:
-                prints('found user category case overlap', catmap[uc])
-                cat = catmap[uc][0]
+        for uc, user_cat in catmap.items():
+            if len(user_cat) > 1:
+                prints('found user category case overlap', user_cat)
+                cat = user_cat[0]
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
@@ -969,11 +969,10 @@ class DB:
                         metadata['column'] = 'extra'
                         metadata['table'] = link_table
                         tables[label] = OneToOneTable(label, metadata)
+            elif data['datatype'] == 'composite':
+                tables[label] = CompositeTable(label, metadata)
             else:
-                if data['datatype'] == 'composite':
-                    tables[label] = CompositeTable(label, metadata)
-                else:
-                    tables[label] = OneToOneTable(label, metadata)
+                tables[label] = OneToOneTable(label, metadata)
 
         self.FIELD_MAP['ondevice'] = base = base+1
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
@@ -1734,34 +1733,33 @@ class DB:
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
-        else:
-            if os.access(path, os.R_OK):
-                try:
-                    f = open(path, 'rb')
-                except OSError:
-                    if iswindows:
-                        time.sleep(0.2)
-                    f = open(path, 'rb')
-                with f:
-                    if hasattr(dest, 'write'):
-                        if report_file_size is not None:
-                            f.seek(0, os.SEEK_END)
-                            report_file_size(f.tell())
-                            f.seek(0)
-                        shutil.copyfileobj(f, dest)
-                        if hasattr(dest, 'flush'):
-                            dest.flush()
-                        return True
-                    elif dest and not samefile(dest, path):
-                        if use_hardlink:
-                            try:
-                                hardlink_file(path, dest)
-                                return True
-                            except Exception:
-                                pass
-                        with open(dest, 'wb') as d:
-                            shutil.copyfileobj(f, d)
-                        return True
+        elif os.access(path, os.R_OK):
+            try:
+                f = open(path, 'rb')
+            except OSError:
+                if iswindows:
+                    time.sleep(0.2)
+                f = open(path, 'rb')
+            with f:
+                if hasattr(dest, 'write'):
+                    if report_file_size is not None:
+                        f.seek(0, os.SEEK_END)
+                        report_file_size(f.tell())
+                        f.seek(0)
+                    shutil.copyfileobj(f, dest)
+                    if hasattr(dest, 'flush'):
+                        dest.flush()
+                    return True
+                elif dest and not samefile(dest, path):
+                    if use_hardlink:
+                        try:
+                            hardlink_file(path, dest)
+                            return True
+                        except Exception:
+                            pass
+                    with open(dest, 'wb') as d:
+                        shutil.copyfileobj(f, d)
+                    return True
         return False
 
     def cover_or_cache(self, path, timestamp, as_what='bytes'):
@@ -1821,18 +1819,17 @@ class DB:
                     if iswindows:
                         time.sleep(0.2)
                     os.remove(path)
+        elif no_processing:
+            with open(path, 'wb') as f:
+                f.write(data)
         else:
-            if no_processing:
-                with open(path, 'wb') as f:
-                    f.write(data)
-            else:
-                from calibre.utils.img import save_cover_data_to
-                try:
-                    save_cover_data_to(data, path)
-                except OSError:
-                    if iswindows:
-                        time.sleep(0.2)
-                    save_cover_data_to(data, path)
+            from calibre.utils.img import save_cover_data_to
+            try:
+                save_cover_data_to(data, path)
+            except OSError:
+                if iswindows:
+                    time.sleep(0.2)
+                save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
                        windows_atomic_move=None, use_hardlink=False, report_file_size=None):
@@ -1853,33 +1850,32 @@ class DB:
                         pass  # Nothing too catastrophic happened, the cases mismatch, that's all
                 else:
                     windows_atomic_move.copy_path_to(path, dest)
-        else:
-            if hasattr(dest, 'write'):
-                with open(path, 'rb') as f:
-                    if report_file_size is not None:
-                        f.seek(0, os.SEEK_END)
-                        report_file_size(f.tell())
-                        f.seek(0)
-                    shutil.copyfileobj(f, dest)
-                if hasattr(dest, 'flush'):
-                    dest.flush()
-            elif dest:
-                if samefile(dest, path):
-                    if not self.is_case_sensitive and path != dest:
-                        # Ensure that the file has the same case as dest
-                        try:
-                            os.rename(path, dest)
-                        except OSError:
-                            pass  # Nothing too catastrophic happened, the cases mismatch, that's all
-                else:
-                    if use_hardlink:
-                        try:
-                            hardlink_file(path, dest)
-                            return True
-                        except Exception:
-                            pass
-                    with open(path, 'rb') as f, open(make_long_path_useable(dest), 'wb') as d:
-                        shutil.copyfileobj(f, d)
+        elif hasattr(dest, 'write'):
+            with open(path, 'rb') as f:
+                if report_file_size is not None:
+                    f.seek(0, os.SEEK_END)
+                    report_file_size(f.tell())
+                    f.seek(0)
+                shutil.copyfileobj(f, dest)
+            if hasattr(dest, 'flush'):
+                dest.flush()
+        elif dest:
+            if samefile(dest, path):
+                if not self.is_case_sensitive and path != dest:
+                    # Ensure that the file has the same case as dest
+                    try:
+                        os.rename(path, dest)
+                    except OSError:
+                        pass  # Nothing too catastrophic happened, the cases mismatch, that's all
+            else:
+                if use_hardlink:
+                    try:
+                        hardlink_file(path, dest)
+                        return True
+                    except Exception:
+                        pass
+                with open(path, 'rb') as f, open(make_long_path_useable(dest), 'wb') as d:
+                    shutil.copyfileobj(f, d)
         return True
 
     def windows_check_if_files_in_use(self, paths):
@@ -2215,7 +2211,7 @@ class DB:
         os.makedirs(os.path.join(tdir, 'b'), exist_ok=True)
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
         if iswindows:
-            import calibre_extensions.winutil as winutil
+            from calibre_extensions import winutil
             winutil.set_file_attributes(tdir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash(during_init=during_init)

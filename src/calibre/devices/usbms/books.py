@@ -285,9 +285,8 @@ class CollectionsBookList(BookList):
                         else:
                             collections[cat_name][lpath] = \
                                 (book, book.get(attr+'_index', sys.maxsize), tsval)
-                    else:
-                        if lpath not in collections[cat_name]:
-                            collections[cat_name][lpath] = (book, tsval, tsval)
+                    elif lpath not in collections[cat_name]:
+                        collections[cat_name][lpath] = (book, tsval, tsval)
 
             # All books by author
             if all_by_author:
