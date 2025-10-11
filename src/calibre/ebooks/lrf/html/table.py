@@ -288,10 +288,10 @@ class Table:
         conv.in_table = False
 
     def number_of_columns(self):
-        max = 0
+        val = 0
         for row in self.rows:
-            max = row.number_of_cells() if row.number_of_cells() > max else max
-        return max
+            val = max(val, row.number_of_cells())
+        return val
 
     def number_or_rows(self):
         return len(self.rows)
