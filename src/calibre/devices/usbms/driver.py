@@ -239,8 +239,7 @@ class USBMS(CLI, Device):
             if path_to_ext(filename) in all_formats and self.is_allowed_book_file(filename, path, prefix):
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
-                    if lpath.startswith(os.sep):
-                        lpath = lpath[len(os.sep):]
+                    lpath = lpath.removeprefix(os.sep)
                     lpath = lpath.replace('\\', '/')
                     idx = bl_cache.get(lpath, None)
                     if idx is not None:

@@ -344,8 +344,7 @@ class MobiReader:
             for ref in guide.xpath('descendant::reference'):
                 if 'cover' in ref.get('type', '').lower():
                     href = ref.get('href', '')
-                    if href.startswith('#'):
-                        href = href[1:]
+                    href = href.removeprefix('#')
                     anchors = root.xpath(f'//*[@id="{href}"]')
                     if anchors:
                         cpos = anchors[0]

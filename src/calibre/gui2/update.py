@@ -130,8 +130,7 @@ class UpdateNotification(QDialog):
         self.logo.setMaximumWidth(110)
         self.logo.setPixmap(QIcon.ic('lt.png').pixmap(100, 100))
         ver = calibre_version
-        if ver.endswith('.0'):
-            ver = ver[:-2]
+        ver = ver.removesuffix('.0')
         self.label = QLabel('<p>'+ _(
             'New version <b>{ver}</b> of {app} is available for download. '
             'See the <a href="{url}">new features</a>.').format(

@@ -161,11 +161,11 @@ class Cell:
             if left + width > maxwidth:
                 left = width + ws
                 top += ls
-                bottom = top+ls if top+ls > bottom else bottom
+                bottom = max(bottom, top + ls)
             else:
                 left += (width + ws)
-                right = left if left > right else right
-                bottom = top+ls if top+ls > bottom else bottom
+                right = max(right, left)
+                bottom = max(bottom, top + ls)
             return left, right, top, bottom
 
         for token, attrs in tokens(tb):
@@ -288,10 +288,10 @@ class Table:
         conv.in_table = False
 
     def number_of_columns(self):
-        max = 0
+        val = 0
         for row in self.rows:
-            max = row.number_of_cells() if row.number_of_cells() > max else max
-        return max
+            val = max(val, row.number_of_cells())
+        return val
 
     def number_or_rows(self):
         return len(self.rows)

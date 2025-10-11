@@ -150,8 +150,7 @@ class FB2Input(InputFormatPlugin):
             for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
                 href = img.get(f'{{{XLINK_NS}}}href', img.get('href', None))
                 if href is not None:
-                    if href.startswith('#'):
-                        href = href[1:]
+                    href = href.removeprefix('#')
                     cpath = os.path.abspath(href)
                     break
 

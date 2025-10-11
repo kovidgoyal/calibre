@@ -121,8 +121,7 @@ def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
             return None, None
         raise
     etag = res.headers['etag']
-    if etag.startswith('W/'):
-        etag = etag[2:]
+    etag = etag.removeprefix('W/')
     etag = etag[1:-1]
     if res.headers['content-encoding'] == 'gzip':
         data = gzip.GzipFile(fileobj=res).read()

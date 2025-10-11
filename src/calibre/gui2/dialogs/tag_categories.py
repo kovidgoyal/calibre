@@ -129,7 +129,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def item_sort_key(self, v):
         # Add the key so the order of identical items is predictable.
         # The tab ensures that the values sort together regardless of key
-        return primary_sort_key(v.v + '\t ' + (v.k[1:] if v.k.startswith('#') else v.k))
+        return primary_sort_key(v.v + '\t ' + (v.k.removeprefix('#')))
 
     def initialize_category_lists(self):
         cfb = self.category_filter_box

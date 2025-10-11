@@ -8,8 +8,6 @@ import re
 import socket
 import subprocess
 import sys
-import urllib.error
-import urllib.parse
 import urllib.request
 
 from lxml import html

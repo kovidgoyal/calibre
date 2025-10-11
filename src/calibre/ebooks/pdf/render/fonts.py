@@ -59,7 +59,7 @@ class FontStream(Stream):
 
 
 def to_hex_string(c):
-    ans = hex(int(c))[2:]
+    ans = f'{int(c):x}'
     if isinstance(ans, bytes):
         ans = ans.decode('ascii')
     return ans.rjust(4, '0')

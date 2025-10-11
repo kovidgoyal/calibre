@@ -596,10 +596,8 @@ def get_hardlink_function(src, dest):
     if not iswindows:
         return os.link
     from calibre_extensions import winutil
-    if src.startswith(long_path_prefix):
-        src = src[len(long_path_prefix):]
-    if dest.startswith(long_path_prefix):
-        dest = dest[len(long_path_prefix):]
+    src = src.removeprefix(long_path_prefix)
+    dest = dest.removeprefix(long_path_prefix)
     root = dest[0] + ':\\'
     if src[0].lower() == dest[0].lower() and winutil.supports_hardlinks(root):
         return windows_fast_hardlink

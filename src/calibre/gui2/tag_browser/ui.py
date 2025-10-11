@@ -246,8 +246,7 @@ class TagBrowserMixin:  # {{{
         '''
         Delete the User category named category_name. Any leading '@' is removed
         '''
-        if category_name.startswith('@'):
-            category_name = category_name[1:]
+        category_name = category_name.removeprefix('@')
         db = self.library_view.model().db
         user_cats = db.new_api.pref('user_categories', {})
         cat_keys = sorted(user_cats.keys(), key=sort_key)
@@ -282,8 +281,7 @@ class TagBrowserMixin:  # {{{
         Delete the item (item_name, item_category) from the User category with
         key user_cat. Any leading '@' characters are removed
         '''
-        if user_cat.startswith('@'):
-            user_cat = user_cat[1:]
+        user_cat = user_cat.removeprefix('@')
         db = self.library_view.model().db
         user_cats = db.new_api.pref('user_categories', {})
         if user_cat not in user_cats:

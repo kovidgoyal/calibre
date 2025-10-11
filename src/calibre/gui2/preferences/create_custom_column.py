@@ -707,8 +707,7 @@ class CreateCustomColumn(QDialog):
         col = str(self.column_name_box.text()).strip()
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
-        if col.startswith('#'):
-            col = col[1:]
+        col = col.removeprefix('#')
         if re.match(r'^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
             return self.simple_error('', _('The lookup name must contain only '
                     'lower case letters, digits and underscores, and start with a letter'))

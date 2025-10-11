@@ -427,8 +427,7 @@ class SearchQueryParser:
     #     return self.evaluate(argument[0], candidates)
 
     def _check_saved_search_recursion(self, query):
-        if query.startswith('='):
-            query = query[1:]
+        query = query.removeprefix('=')
         search_name_lower = query.lower()
         if search_name_lower in self.searches_seen:
             raise ParseException(_('Recursive saved search: {0}').format(query))

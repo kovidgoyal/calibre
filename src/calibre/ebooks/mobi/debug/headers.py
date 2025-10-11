@@ -461,7 +461,7 @@ class MOBIHeader:  # {{{
         a(f'Huffman record count: {self.huffman_record_count}')
         r('Huffman table offset', 'datp_record_offset')
         a(f'Huffman table length: {self.datp_record_count!r}')
-        a(f'EXTH flags: {bin(self.exth_flags)[2:]} ({self.has_exth})')
+        a(f'EXTH flags: {self.exth_flags:b} ({self.has_exth})')
         if self.has_drm_data:
             a(f'Unknown3: {self.unknown3!r}')
             r('DRM Offset', 'drm_offset')

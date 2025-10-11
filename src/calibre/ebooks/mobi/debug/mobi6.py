@@ -593,7 +593,7 @@ class TBSIndexing:  # {{{
                     ans.append(f'\t\tIndex Entry: {x.index} (Parent index: {x.parent_index}, Depth: {x.depth}, Offset: {x.offset}, Size: {x.size}) [{x.label}]')
 
         def bin4(num):
-            ans = bin(num)[2:]
+            ans = f'{num:b}'
             return as_bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
@@ -620,7 +620,7 @@ class TBSIndexing:  # {{{
                     print(f'Failed to decode TBS bytes for record: {r.idx}')
                 ans += a
             if byts:
-                sbyts = tuple(hex(b)[2:] for b in byts)
+                sbyts = tuple(f'{b:x}' for b in byts)
                 ans.append('Remaining bytes: {}'.format(' '.join(sbyts)))
 
         ans.append('')

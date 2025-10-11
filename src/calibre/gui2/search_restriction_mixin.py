@@ -250,8 +250,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                             possible_search = possible_search.partition(')')
                     txt = possible_search[2]  # grab remainder of the string
                     search_name = possible_search[0]
-                    if search_name.startswith('='):
-                        search_name = search_name[1:]
+                    search_name = search_name.removeprefix('=')
                     if search_name in db.saved_search_names():
                         searches.append(search_name + '=' +
                                         db.saved_search_lookup(search_name))

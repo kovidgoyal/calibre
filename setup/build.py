@@ -78,8 +78,7 @@ class Extension:
 
 
 def lazy_load(name):
-    if name.startswith('!'):
-        name = name[1:]
+    name = name.removeprefix('!')
     from setup import build_environment
     try:
         return getattr(build_environment, name)
