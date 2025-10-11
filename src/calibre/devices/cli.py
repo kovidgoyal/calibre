@@ -110,7 +110,7 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
         for row in table:
             c = 0
             for item in row:
-                rowwidths[c] = len(item) if len(item) > rowwidths[c] else rowwidths[c]
+                rowwidths[c] = max(rowwidths[c], len(item))
                 c += 1
         return rowwidths
 

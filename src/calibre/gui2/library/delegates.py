@@ -95,7 +95,7 @@ class UpdateEditorGeometry:
         # Compute the maximum we can show if we consume the entire viewport
         max_width = self.parent().viewport().rect().width()
         # What we have to display might not fit. If so, adjust down
-        new_width = new_width if new_width < max_width else max_width
+        new_width = min(max_width, new_width)
 
         # See if we need to change the editor's geometry
         if new_width <= orig_width:

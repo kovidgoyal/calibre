@@ -161,11 +161,11 @@ class Cell:
             if left + width > maxwidth:
                 left = width + ws
                 top += ls
-                bottom = top+ls if top+ls > bottom else bottom
+                bottom = max(bottom, top + ls)
             else:
                 left += (width + ws)
-                right = left if left > right else right
-                bottom = top+ls if top+ls > bottom else bottom
+                right = max(right, left)
+                bottom = max(bottom, top + ls)
             return left, right, top, bottom
 
         for token, attrs in tokens(tb):
