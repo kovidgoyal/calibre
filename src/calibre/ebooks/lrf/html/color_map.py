@@ -107,7 +107,7 @@ def lrs_color(html_color):
         return '0x00'+match.group(1)+match.group(2)+match.group(3)
     match = rgb_pat.search(hcol)
     if match:
-        return '0x00'+hex(int(match.group(1)))[2:]+hex(int(match.group(2)))[2:]+hex(int(match.group(3)))[2:]
+        return f'0x00{int(match.group(1)):x}{int(match.group(2)):x}{int(match.group(3)):x}'
     if hcol in NAME_MAP:
         return NAME_MAP[hcol].replace('#', '0x00')
     return '0x00000000'
