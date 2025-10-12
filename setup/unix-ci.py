@@ -180,6 +180,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2025-59733', 'CVE-2025-59731', 'CVE-2025-59732',  # OpenEXR image files, not supported by calibre
     'CVE-2025-59734',  # SANM decoding unused by calibre
     'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
+    'CVE-2025-11579',  # Go rardecode package probably from grype's own dependencies calibre does not use Go code
 ]
 
 
