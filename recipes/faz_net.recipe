@@ -1,4 +1,4 @@
-﻿import json
+import json
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
