@@ -293,7 +293,7 @@ class Sdist(Command):
         self.info('\tRunning git export...')
         os.mkdir(tdir)
         subprocess.check_call('git archive HEAD | tar -x -C ' + tdir, shell=True)
-        for x in open('.gitignore').readlines():
+        for x in open('.gitignore'):
             if not x.startswith('/resources/'):
                 continue
             x = x[1:]

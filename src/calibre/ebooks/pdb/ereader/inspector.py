@@ -21,11 +21,11 @@ def ereader_header_info(header):
 
     if len(h0) == 132:
         print('Header Type:     Dropbook compatible')
-        print('')
+        print()
         ereader_header_info132(h0)
     elif len(h0) == 202:
         print('Header Type:     Makebook compatible')
-        print('')
+        print()
         ereader_header_info202(h0)
     else:
         raise EreaderError(f'Size mismatch. eReader header record size {len(h0)} KB is not supported.')
@@ -33,16 +33,16 @@ def ereader_header_info(header):
 
 def pdb_header_info(header):
     print('PDB Header Info:')
-    print('')
+    print()
     print(f'Identity:        {header.ident}')
     print(f'Total Sections:   {header.num_sections}')
     print(f'Title:           {header.title}')
-    print('')
+    print()
 
 
 def ereader_header_info132(h0):
     print('Ereader Record 0 (Header) Info:')
-    print('')
+    print()
     print(f"0-2 Version:             {struct.unpack('>H', h0[0:2])[0]}")
     print(f"2-4:                     {struct.unpack('>H', h0[2:4])[0]}")
     print(f"4-6:                     {struct.unpack('>H', h0[4:6])[0]}")
@@ -74,12 +74,12 @@ def ereader_header_info132(h0):
     for i in range(54, 131, 2):
         print(f"{i}-{i + 2}:                   {struct.unpack('>H', h0[i:i + 2])[0]}")
 
-    print('')
+    print()
 
 
 def ereader_header_info202(h0):
     print('Ereader Record 0 (Header) Info:')
-    print('')
+    print()
     print(f"0-2 Version:             {struct.unpack('>H', h0[0:2])[0]}")
     print(f"2-4 Garbage:             {struct.unpack('>H', h0[2:4])[0]}")
     print(f"4-6 Garbage:             {struct.unpack('>H', h0[4:6])[0]}")
@@ -105,14 +105,14 @@ def ereader_header_info202(h0):
     for i in range(116, 202, 2):
         print(f"{i}-{i + 2}:                 {struct.unpack('>H', h0[i:i + 2])[0]}")
 
-    print('')
+    print()
     print('* Garbage: Random values.')
-    print('')
+    print()
 
 
 def section_lengths(header):
     print('Section Sizes')
-    print('')
+    print()
 
     for i in range(header.section_count()):
         size = len(header.section_data(i))

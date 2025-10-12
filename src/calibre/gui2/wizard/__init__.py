@@ -453,8 +453,7 @@ def get_manufacturers():
     mans = set()
     for x in get_devices():
         mans.add(x.manufacturer)
-    if Device.manufacturer in mans:
-        mans.remove(Device.manufacturer)
+    mans.discard(Device.manufacturer)
     return [Device.manufacturer] + sorted(mans)
 
 

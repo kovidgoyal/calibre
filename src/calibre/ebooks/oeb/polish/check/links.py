@@ -314,8 +314,7 @@ def check_links(container):
 
     def fl(x):
         x = repr(x)
-        if x.startswith('u'):
-            x = x[1:]
+        x = x.removeprefix('u')
         return x
 
     for name, mt in iteritems(container.mime_map):

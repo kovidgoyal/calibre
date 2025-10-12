@@ -3417,7 +3417,7 @@ See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for
         if qs:
             qs = '?' + qs
         return (f"{scheme}://{authority}{'/' if authority else ''}"
-                f"{path[1:] if path.startswith('/') else path}{qs}")
+                f"{path.removeprefix('/')}{qs}")
 
 
 class BuiltinQueryString(BuiltinFormatterFunction):
@@ -3587,7 +3587,7 @@ This can be useful to truncate a value.
                     # We know that m.group(1) is a single character so the only
                     # exception possible is that the character is not in the string
                     dex = 'smhdw'.index(m.group(1).lower())
-                    highest_index = dex if dex > highest_index else highest_index
+                    highest_index = max(highest_index, dex)
                 except Exception:
                     raise ValueError(_('The {} format specifier is not valid').format(m.group()))
             largest_unit = 'smhdw'[highest_index]

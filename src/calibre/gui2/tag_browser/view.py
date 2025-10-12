@@ -1060,7 +1060,7 @@ class TagsView(QTreeView):  # {{{
                             p = path[:]
                             for k in sorted(tree_dict.keys(), key=sort_key):
                                 p.append(k)
-                                n = k[1:] if k.startswith('@') else k
+                                n = k.removeprefix('@')
                                 m.addAction(self.user_category_icon, n,
                                     partial(self.context_menu_handler,
                                             'add_to_category',

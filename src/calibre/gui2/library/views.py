@@ -312,7 +312,7 @@ class AdjustColumnSize(QDialog):  # {{{
     def resize_to_fit_button_clicked(self):
         self.view.resizeColumnToContents(self.column)
         w = self.view.horizontalHeader().sectionSize(self.column)
-        w = w if w <= self.maximum_size else self.maximum_size
+        w = min(w, self.maximum_size)
         self.spin_box.setValue(w)
 
     def set_maximum_button_clicked(self):

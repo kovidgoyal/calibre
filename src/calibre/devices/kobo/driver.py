@@ -282,8 +282,7 @@ class KOBO(USBMS):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
-                if lpath.startswith(os.sep):
-                    lpath = lpath[len(os.sep):]
+                lpath = lpath.removeprefix(os.sep)
                 lpath = lpath.replace('\\', '/')
                 # debug_print("LPATH: ", lpath, "  - Title:  ", title)
 
@@ -1756,8 +1755,7 @@ class KOBOTOUCH(KOBO):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
-                if lpath.startswith(os.sep):
-                    lpath = lpath[len(os.sep):]
+                lpath = lpath.removeprefix(os.sep)
                 lpath = lpath.replace('\\', '/')
                 # debug_print("KoboTouch:update_booklist - LPATH: ", lpath, "  - Title:  ", title)
 

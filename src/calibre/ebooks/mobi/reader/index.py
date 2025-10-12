@@ -39,7 +39,7 @@ class NotATAGXSection(InvalidFile):
 
 def format_bytes(byts):
     byts = bytearray(byts)
-    byts = [hex(b)[2:] for b in byts]
+    byts = [f'{b:x}' for b in byts]
     return ' '.join(byts)
 
 
