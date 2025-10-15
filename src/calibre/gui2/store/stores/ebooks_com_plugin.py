@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # License: GPLv3 Copyright: 2015-2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 import re
 from contextlib import closing
