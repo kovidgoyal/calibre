@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
-# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
+# License: GPLv3 Copyright: 2015-2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 store_version = 5  # Needed for dynamic plugin loading
 
 import re
 from contextlib import closing
+from urllib.parse import quote_plus
 
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
-
-
-from calibre import browser
+from calibre import browser, url_slash_cleaner
+from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
+from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
 def absolutize(url):
@@ -90,6 +86,22 @@ def ec_details(search_result, timeout=30, write_data_to=''):
 
 
 class EbookscomStore(BasicStoreConfig, StorePlugin):
+
+    def open(self, parent=None, detail_item=None, external=False):
+        if detail_item:
+            purl = detail_item
+            url = purl
+        else:
+            purl = None
+            url = 'https://www.ebooks.com'
+
+        if external or self.config.get('open_external', False):
+            open_url(url_slash_cleaner(url))
+        else:
+            d = WebStoreDialog(self.gui, url, parent, purl)
+            d.setWindowTitle(self.name)
+            d.set_tags(self.config.get('tags', ''))
+            d.exec()
 
     def search(self, query, max_results=10, timeout=60):
         yield from search_ec(query, max_results, timeout)

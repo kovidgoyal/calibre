@@ -1675,7 +1675,7 @@ class StoreEbookscomStore(StoreBase):
 
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
-    affiliate = True
+    affiliate = False
 
 
 class StoreEbooksGratuitsStore(StoreBase):
