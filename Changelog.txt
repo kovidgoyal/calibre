@@ -23,6 +23,29 @@
 # - title by author
 # }}}
 
+{{{ 8.13.0 2025-10-18
+
+:: new features
+
+- [2126881] Virtual libraries: Allow defining their search expressions more comfortably in a multi-line edit box
+
+- Open with: On Windows launch the specified program via the windows API for executing programs to decouple it more thoroughly from the calibre environment
+
+:: bug fixes
+
+- Get books: Fix ebooks.com plugin
+
+- calibre-server: Fix CALIBRE_OVERRIDE_DATABASE_PATH not working
+
+- Export library: Dont use /tmp on Linux fixes export breaking with large FTS database on Linux distros that mount /tmp in RAM
+
+- [2126611] Fix a regression in 8.11 that caused errors when trying to open a book from the full text search results while the search was still running
+
+:: improved recipes
+- Todoist
+- NZZ
+}}}
+
 {{{ 8.12.0 2025-10-01
 
 :: new features
