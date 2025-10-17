@@ -160,7 +160,9 @@ def install_grype() -> str:
     data = download_with_retry(url)
     with tarfile.open(fileobj=io.BytesIO(data), mode='r') as tf:
         tf.extract('grype', path=dest, filter='fully_trusted')
-    return os.path.join(dest, 'grype')
+    exe = os.path.join(dest, 'grype')
+    subprocess.run([exe, 'db', 'update'])
+    return exe
 
 
 IGNORED_DEPENDENCY_CVES = [
@@ -222,7 +224,7 @@ def check_dependencies() -> None:
     print('Testing against the SBOM', flush=True)
     import runpy
     orig = sys.argv, sys.stdout
-    sys.argv = ['bypy', 'sbom', 'myproject', '1.0.0']
+    sys.argv = ['bypy', 'sbom', 'calibre', '1.0.0']
     buf = io.StringIO()
     sys.stdout = buf
     runpy.run_path('bypy-src')
