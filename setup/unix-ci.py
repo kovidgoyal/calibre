@@ -161,7 +161,7 @@ def install_grype() -> str:
     with tarfile.open(fileobj=io.BytesIO(data), mode='r') as tf:
         tf.extract('grype', path=dest, filter='fully_trusted')
     exe = os.path.join(dest, 'grype')
-    subprocess.run([exe, 'db', 'update'])
+    subprocess.check_call([exe, 'db', 'update'])
     return exe
 
 
