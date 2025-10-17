@@ -77,8 +77,10 @@ class Todoist2ebook(BasicNewsRecipe):
     }
 
     __author__ = 'rga5321'
-    description = 'Calibre recipe to fetch articles from a Todoist project. The recipe is available in Calibre and in' \
-    'the original repository https://github.com/rga5321/todoist2ebook, where an script to automate the ebook conversion and email sending is also available.'
+    description = (
+        'Calibre recipe to fetch articles from a Todoist project. The recipe is available in Calibre and in'
+        ' the original repository https://github.com/rga5321/todoist2ebook, where an script to automate'
+        ' the ebook conversion and email sending is also available.')
     publisher = 'Todoist.com'
     category = 'info, custom, Todoist'
 
