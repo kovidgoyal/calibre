@@ -37,7 +37,7 @@
 
 - calibre-server: Fix CALIBRE_OVERRIDE_DATABASE_PATH not working
 
-- Export library: Dont use /tmp on Linux fixes export breaking with large FTS database on Linux distros that mount /tmp in RAM
+- Export library: Don't use /tmp on Linux fixes export breaking with large FTS database on Linux distros that mount /tmp in RAM
 
 - [2126611] Fix a regression in 8.11 that caused errors when trying to open a book from the full text search results while the search was still running
 
