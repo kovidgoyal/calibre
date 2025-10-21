@@ -4,6 +4,7 @@
 import json
 from xml.sax.saxutils import escape, quoteattr
 
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 from calibre.web.feeds.news import prefixed_classes as prefix_classes
 
@@ -30,12 +31,16 @@ def json_to_html(raw):
     # open('/t/p.json', 'w').write(json.dumps(data, indent=2))
     data = sorted((v['data'] for v in data['props']['pageProps']['urqlState'].values()), key=len)[-1]
     article = json.loads(data)['article']
+    # open('/t/p.json', 'w').write(json.dumps(article, indent=2))
     lines = []
     lines.append('<h1 style="align: center">' + escape(article['title']) + '</h1>')
     lines.append('<h2 style="align: center">' + escape(article['dek']) + '</h2>')
     auts = ', '.join(x['displayName'] for x in article['authors'])
     if auts:
         lines.append('<p style="align: center">by ' + escape(auts) + '</p>')
+    dp = article['datePublished']
+    dt = parse_iso8601(dp)
+    lines.append('<p style="align: center">' + escape(dt.strftime('%a, %d %b %Y')) + '</p>')
     if article.get('leadArt') and 'image' in article['leadArt']:
         process_image_block(lines, article['leadArt']['image'])
     for item in article['content']:
@@ -101,7 +106,7 @@ class TheAtlantic(BasicNewsRecipe):
             ' lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
         prefix_classes(
-            'ArticleHeader_root__ ArticleLayoutSection_main__ ArticleBody_root__'
+            'ArticleHeader_root__ ArticleLayoutSection_main__ ArticleHero_timestamp__ ArticleBody_root__'
         ),
         dict(itemprop='articleBody'),
         # these are for photos articles
