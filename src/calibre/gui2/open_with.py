@@ -157,6 +157,8 @@ if iswindows:
     def entry_to_cmdline(entry, path):
         cmdline = entry['cmdline']
         qpath = path.replace('"', r'\"')
+        if '%1' not in cmdline:
+            cmdline += ' "%1"'
         return cmdline.replace('%1', qpath)
 
     del run_program
@@ -166,7 +168,7 @@ if iswindows:
         argv = winutil.parse_cmdline(cmdline)
         exe = argv[0]
         rest = subprocess.list2cmdline(argv[1:])
-        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', exe, rest)
+        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(exe), repr(rest))
         try:
             with sanitize_env_vars():
                 os.startfile(exe, 'open', rest)
