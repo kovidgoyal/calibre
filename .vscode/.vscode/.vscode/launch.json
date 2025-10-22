@@ -1,0 +1,200 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🚀 Calibre Main",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src",
+                "CALIBRE_DEVELOP_FROM": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "📖 E-book Viewer",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "ebook-viewer"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "📖 E-book Viewer (Open File)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "ebook-viewer",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "✏️ E-book Editor",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "ebook-edit"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "✏️ E-book Editor (Open File)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "ebook-edit",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🌐 Content Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "calibre-server"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🌐 Content Server (Custom Port)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-w",
+                "calibre-server",
+                "--port=8080"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🔍 Debug Verbose",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-v"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🔍 GUI Debug Mode",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "--gui-debug"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🔄 E-book Converter",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-c",
+                "from calibre.ebooks.conversion.cli import main; main()"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "📚 Library Management",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/calibre/debug.py",
+            "args": [
+                "-c",
+                "from calibre.library.cli import main; main()"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🧪 Run Current Python File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        },
+        {
+            "name": "🧪 Run Current Test File",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}",
+                "-v",
+                "-s"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "🐛 Debug Current Test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "${file}::${selectedText}",
+                "-v",
+                "-s"
+            ],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false
+        },
+        {
+            "name": "⚙️ Python Interactive Console",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "code",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
+        }
+    ]
+}

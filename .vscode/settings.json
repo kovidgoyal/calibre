@@ -1,0 +1,158 @@
+{
+    // Python Interpreter
+    "python.defaultInterpreterPath": "${workspaceFolder}/calibre-env/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    // Type Checking & IntelliSense
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    // Linting - Multiple Linters
+    "python.linting.enabled": true,
+    "python.linting.lintOnSave": true,
+    // Pylint
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=C0111,C0103,W0703,R0913,R0914,C0301",
+        "--max-line-length=120",
+        "--ignore=build,dist,calibre-env"
+    ],
+    // Flake8
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--max-line-length=120",
+        "--ignore=E501,W503,E203",
+        "--exclude=build,dist,calibre-env,__pycache__"
+    ],
+    // MyPy (Type Checking)
+    "python.linting.mypyEnabled": false,
+    "python.linting.mypyArgs": [
+        "--ignore-missing-imports",
+        "--follow-imports=silent"
+    ],
+    // Formatting
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120",
+        "--target-version=py38"
+    ],
+    // Import Sorting
+    "python.sortImports.args": [
+        "--profile=black",
+        "--line-length=120"
+    ],
+    // Testing
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    // Editor Settings
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.rulers": [
+        80,
+        120
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.wordWrap": "on",
+    "editor.suggestSelection": "first",
+    "editor.snippetSuggestions": "top",
+    "editor.inlineSuggest.enabled": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "editor.semanticHighlighting.enabled": true,
+    "editor.minimap.enabled": true,
+    "editor.minimap.maxColumn": 120,
+    // Code Actions
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "explicit"
+    },
+    // Files
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/*.pyo": true,
+        "**/.pytest_cache": true,
+        "**/.mypy_cache": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/*.egg-info": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true,
+        "**/calibre-env/**": true,
+        "**/build/**": true,
+        "**/dist/**": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    // Terminal
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.fontSize": 13,
+    "terminal.integrated.scrollback": 10000,
+    // Git
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    // Search
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/calibre-env": true,
+        "**/build": true,
+        "**/dist": true,
+        "**/.git": true,
+        "**/__pycache__": true,
+        "**/*.pyc": true
+    },
+    // TODO Highlighting
+    "todohighlight.keywords": [
+        {
+            "text": "TODO:",
+            "color": "#ff6b6b",
+            "backgroundColor": "rgba(255,107,107,0.2)"
+        },
+        {
+            "text": "FIXME:",
+            "color": "#ffd93d",
+            "backgroundColor": "rgba(255,217,61,0.2)"
+        },
+        {
+            "text": "NOTE:",
+            "color": "#6bcf7f",
+            "backgroundColor": "rgba(107,207,127,0.2)"
+        },
+        {
+            "text": "HACK:",
+            "color": "#ff9ff3",
+            "backgroundColor": "rgba(255,159,243,0.2)"
+        }
+    ],
+    // Error Lens
+    "errorLens.enabledDiagnosticLevels": [
+        "error",
+        "warning"
+    ],
+    "errorLens.fontSize": "0.9em",
+    // Calibre-Specific
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/src"
+    ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/src"
+    ],
+    "liveServer.settings.port": 5501
+}

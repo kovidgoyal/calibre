@@ -1,0 +1,228 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🚀 Run Calibre",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "src/calibre/debug.py"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "🔍 Run Calibre (Verbose)",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "src/calibre/debug.py",
+                "-v"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🧪 Run All Tests",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "setup.py",
+                "test"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "🧪 Run Tests with Coverage",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pytest",
+                "--cov=src/calibre",
+                "--cov-report=html",
+                "--cov-report=term"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🧪 Run Single Test File",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pytest",
+                "${file}",
+                "-v"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔨 Build Calibre",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "setup.py",
+                "build"
+            ],
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "🔨 Clean Build",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "setup.py",
+                "clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔨 Full Rebuild",
+            "type": "shell",
+            "dependsOn": [
+                "🔨 Clean Build",
+                "🔨 Build Calibre"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "📦 Install Development Mode",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "setup.py",
+                "develop"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔍 Lint with Pylint",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pylint",
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔍 Lint with Flake8",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "flake8",
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔍 Type Check with MyPy",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "mypy",
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "✨ Format with Black",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "black",
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "✨ Sort Imports",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "isort",
+                "${file}"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "✨ Format & Lint Current File",
+            "dependsOn": [
+                "✨ Format with Black",
+                "✨ Sort Imports",
+                "🔍 Lint with Flake8"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "📊 Generate Documentation",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pydoc",
+                "-b"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🧹 Clean Python Cache",
+            "type": "shell",
+            "command": "find . -type d -name '__pycache__' -exec rm -rf {} + && find . -type f -name '*.pyc' -delete",
+            "windows": {
+                "command": "Get-ChildItem -Path . -Include __pycache__ -Recurse -Force | Remove-Item -Force -Recurse; Get-ChildItem -Path . -Filter *.pyc -Recurse -Force | Remove-Item -Force"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "📦 Update Dependencies",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "-r",
+                "requirements.txt"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "📦 List Installed Packages",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pip",
+                "list"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "🔄 Git Pull & Update",
+            "type": "shell",
+            "command": "git pull && ${config:python.defaultInterpreterPath} -m pip install --upgrade -r requirements.txt",
+            "problemMatcher": []
+        }
+    ]
+}

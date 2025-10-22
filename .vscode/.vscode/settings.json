@@ -1,0 +1,24 @@
+{
+"python.defaultInterpreterPath": "${workspaceFolder}/calibre-env/Scripts/python.exe",
+"python.terminal.activateEnvironment": true,
+"python.analysis.typeCheckingMode": "basic",
+"python.analysis.autoImportCompletions": true,
+"python.linting.enabled": true,
+"python.linting.pylintEnabled": true,
+"python.linting.pylintArgs": [
+"--disable=C0111,C0103,W0703,R0913,R0914"
+],
+"python.formatting.provider": "black",
+"python.formatting.blackArgs": [
+"--line-length=120"
+],
+"editor.formatOnSave": true,
+"editor.rulers": [120],
+"files.exclude": {
+"**/__pycache__": true,
+"**/*.pyc": true,
+"**/*.pyo": true
+},
+"files.trimTrailingWhitespace": true,
+"files.insertFinalNewline": true
+}
