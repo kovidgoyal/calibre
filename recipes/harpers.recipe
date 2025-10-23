@@ -66,21 +66,24 @@ class Harpers(BasicNewsRecipe):
         issues_soup = self.index_to_soup('https://harpers.org/issues/')
         a_ele = issues_soup.select_one('div.issue-card a')
         self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class':'issue-title'})) + ']'
-        url = a_ele['href']
+        url = 'https://harpers.org' + a_ele['href']
 
         edition = self.recipe_specific_options.get('date')
         if edition and isinstance(edition, str):
             url = 'https://harpers.org/archive/' + edition
             self.timefmt = ' [' + edition + ']'
 
+        self.log('Fetching articles from:', url)
         soup = self.index_to_soup(url)
+        # open('/t/raw.html', 'w').write(str(soup))
         cov_div = soup.find('div', attrs={'class':'issue-cover'})
         if cov_div:
             self.cover_url = cov_div.find('img', attrs={'class':'cover-img'})['src']
         ans = []
-        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + '/')}):
+        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/')}):
             if not a.find('img') and a.find(['h1', 'h2', 'h3', 'h4']):
                 url = a['href']
+                url = 'https://harpers.org' + url
                 title = self.tag_to_string(a).strip()
                 desc = ''
                 div = a.findParent('div').find('div', attrs={'class':'byline'})
