@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 '''
 afriquexxi.info
 '''
@@ -7,13 +5,12 @@ afriquexxi.info
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from calibre import browser
+from calibre.utils.img import image_from_data
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AfriqueXXIRecipe(BasicNewsRecipe):
     title = 'Afrique XXI'
-    __author__ = 'Kabonix'
     description = 'Journal panafricain en ligne'
     language = 'fr'
     oldest_article = 30
@@ -37,70 +34,132 @@ class AfriqueXXIRecipe(BasicNewsRecipe):
 
     def default_cover(self, cover_file):
         '''
-        Crée une couverture personnalisée avec le logo
+        Crée une couverture personnalisée pour Afrique XXI
         '''
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+
         try:
+            # Préparation de l'environnement Qt
             ensure_app()
             load_builtin_fonts()
 
+            # Date en français
             today = datetime.now(ZoneInfo('Europe/Paris'))
             wkd = today.weekday()
             french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
             french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
-                          7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+                            7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]
             date_str = f'{weekday} {today.day} {month} {today.year}'
-            edition = today.strftime('Édition de %Hh')
+            edition = today.strftime('Édition de %Hh%M')
 
-            # Image de base
-            img = QImage(1400, 1920, QImage.Format_RGB888)
-            img.fill(QColor('lightgreen'))
+            # Création de l'image de base (ratio ~1.6 pour format livre)
+            img = QImage(1200, 1920, QImage.Format_RGB888)
+            img.fill(QColor(0, 255, 0))  # Fond vert électrique (lime)
 
-            # Charger le logo
+            # Télécharger le logo
             logo_url = 'https://upload.wikimedia.org/wikipedia/fr/7/74/Afrique_xxi.png'
-            logo_data = browser().open(logo_url).read()
-            logo = QImage()
-            logo.loadFromData(logo_data)
 
-            # Redimensionner le logo (garder les proportions)
-            logo_width = 800  # Largeur souhaitée
-            scaled_logo = logo.scaledToWidth(logo_width, Qt.SmoothTransformation)
+            # Utiliser urllib pour télécharger l'image
+            try:
+                logo_data = self.get_browser().open(logo_url).read()
+                logo_img = image_from_data(logo_data)
+                if not logo_img.isNull():
+                    # Calculer la largeur proportionnelle pour une hauteur de 300px
+                    logo_height = 300
+                    logo_width = int(logo_img.width() * (logo_height / logo_img.height()))
 
-            # Position du logo (centré)
-            x = (img.width() - scaled_logo.width()) // 2
-            y = (img.height() - scaled_logo.height()) // 2 - 100  # Un peu au-dessus du centre
+                    # Texte du titre
+                    p = QPainter(img)
 
-            # Dessiner le logo
-            p = QPainter(img)
-            p.drawImage(x, y, scaled_logo)
-            p.end()
+                    # Centrer le logo
+                    logo_x = (1200 - logo_width) // 2
+                    logo_y = 300  # Positionnement au-dessus du titre
 
-            # Ajouter la date
-            p = QPainter(img)
-            p.setPen(QPen(QColor('black')))
+                    # Dessiner le logo
+                    p.drawImage(QRect(logo_x, logo_y, logo_width, logo_height), logo_img)
 
-            font = QFont('Liberation Sans', 36)
-            p.setFont(font)
+                    # Couleur texte (noir)
+                    pen = QPen(QColor('black'))
+                    p.setPen(pen)
 
-            r = QRect(0, y + scaled_logo.height() + 50, img.width(), 100)
-            p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, date_str)
+                    # Titre principal
+                    font = QFont()
+                    font.setFamily('Liberation Sans')
+                    font.setPointSize(60)
+                    font.setBold(True)
+                    p.setFont(font)
 
-            # Ajouter l'édition
-            font.setItalic(True)
-            font.setPointSize(32)
-            p.setFont(font)
+                    # Ajuster la position du titre pour être sous le logo
+                    title_rect = QRect(0, 700, 1200, 100)
+                    p.drawText(title_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, 'AFRIQUE')
 
-            r = QRect(0, y + scaled_logo.height() + 150, img.width(), 100)
-            p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, edition)
+                    # Sous-titre
+                    font.setPointSize(40)
+                    p.setFont(font)
+                    subtitle_rect = QRect(0, 800, 1200, 100)
+                    p.drawText(subtitle_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, 'XXI')
 
-            p.end()
+                    # Date et édition
+                    font.setPointSize(36)
+                    font.setBold(False)
+                    p.setFont(font)
+                    date_rect = QRect(0, 950, 1200, 100)
+                    p.drawText(date_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, date_str)
 
-            # Sauvegarder
+                    font.setPointSize(32)
+                    font.setItalic(True)
+                    p.setFont(font)
+                    edition_rect = QRect(0, 1050, 1200, 100)
+                    p.drawText(edition_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, edition)
+
+                    p.end()
+
+            except Exception as e:
+                self.log.error(f'Erreur lors du téléchargement ou du traitement du logo: {e}')
+
+                # Si échec du téléchargement du logo, créer quand même la couverture sans logo
+                p = QPainter(img)
+                pen = QPen(QColor('black'))
+                p.setPen(pen)
+
+                # Titre principal
+                font = QFont()
+                font.setFamily('Liberation Sans')
+                font.setPointSize(60)
+                font.setBold(True)
+                p.setFont(font)
+
+                # Positions standard sans logo
+                title_rect = QRect(0, 700, 1200, 100)
+                p.drawText(title_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, 'AFRIQUE')
+
+                # Sous-titre
+                font.setPointSize(40)
+                p.setFont(font)
+                subtitle_rect = QRect(0, 800, 1200, 100)
+                p.drawText(subtitle_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, 'XXI')
+
+                # Date et édition
+                font.setPointSize(36)
+                font.setBold(False)
+                p.setFont(font)
+                date_rect = QRect(0, 950, 1200, 100)
+                p.drawText(date_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, date_str)
+
+                font.setPointSize(32)
+                font.setItalic(True)
+                p.setFont(font)
+                edition_rect = QRect(0, 1050, 1200, 100)
+                p.drawText(edition_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, edition)
+
+                p.end()
+
+            # Sauvegarde de l'image
             img_data = pixmap_to_data(img)
             cover_file.write(img_data)
             cover_file.flush()

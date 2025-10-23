@@ -2,12 +2,10 @@
 '''
 orientxxi.info
 '''
-import os
-import tempfile
-import urllib.request
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from calibre.utils.img import image_from_data
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -69,13 +67,8 @@ class OrientXXIRecipe(BasicNewsRecipe):
 
             # Utiliser urllib pour télécharger l'image
             try:
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                temp_file.close()
-
-                urllib.request.urlretrieve(logo_url, temp_file.name)
-
-                # Charger le logo téléchargé
-                logo_img = QImage(temp_file.name)
+                logo_data = self.get_browser().open(logo_url).read()
+                logo_img = image_from_data(logo_data)
 
                 if not logo_img.isNull():
                     # Calculer la largeur proportionnelle pour une hauteur de 300px
@@ -127,13 +120,6 @@ class OrientXXIRecipe(BasicNewsRecipe):
                     p.drawText(edition_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, edition)
 
                     p.end()
-
-                # Supprimer le fichier temporaire
-                try:
-                    os.unlink(temp_file.name)
-                except Exception:
-                    pass
-
             except Exception as e:
                 self.log.error(f'Erreur lors du téléchargement ou du traitement du logo: {e}')
 
