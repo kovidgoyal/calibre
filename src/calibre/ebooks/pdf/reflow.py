@@ -902,6 +902,7 @@ class Page:
                     if match.left < frag.right:
                         # Text overlaps. Do we have a blurred character?
                         if len(match.text_as_string) == 1 \
+                          and len(frag.text_as_string) != 0 \
                           and match.left + match.width > frag.right \
                           and frag.text_as_string[-1] == match.text_as_string[0]:
                             break  # Overlapping same character, so ignore it
