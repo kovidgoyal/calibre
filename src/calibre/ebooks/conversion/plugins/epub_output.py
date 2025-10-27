@@ -65,7 +65,7 @@ max_image_size_help = _(
     ' their height is no more than {4} pixels. Note that this only affects the size of the actual'
     ' image files themselves. Any given image may be rendered at a different size depending on the styling'
     ' applied to it in the document.'
-).format('none', 'profile', '100x200', 100, 200)
+).format('profile', 'none', '100x200', 100, 200)
 
 
 class EPUBOutput(OutputFormatPlugin):
