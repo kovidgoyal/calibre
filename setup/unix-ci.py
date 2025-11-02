@@ -145,7 +145,7 @@ def get_tx():
 
 
 def install_grype() -> str:
-    dest = os.path.join(SW, 'bin')
+    dest = '/tmp'
     rq = Request('https://api.github.com/repos/anchore/grype/releases/latest', headers={
         'Accept': 'application/vnd.github.v3+json',
     })
