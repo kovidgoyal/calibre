@@ -553,6 +553,7 @@ class Lookup(QTabWidget):
         return None
 
     def selected_text_changed(self, text, annot_data):
+        text = text.replace('\u00ad', '')  # remove soft hyphens
         processed_annot_data = None
         uuid_from_signal = None
 
