@@ -27,6 +27,7 @@ class Target(QTextBrowser):
         fm = field_metadata
         if mi.series:
             series = _('{num} of {series}').format(num=mi.format_series_index(), series=f'<i>{mi.series}</i>')
+            series = f'<tr><td>{fm["series"]["name"]}:</td><td>{series}</td></tr>'
         cover_html = has_cover_row = ''
         if mi.cover:
             cover_html = f'<img src="{QUrl.fromLocalFile(mi.cover).toString()}">'.format()
@@ -42,13 +43,14 @@ class Target(QTextBrowser):
 <tr><td>{fm[timestamp][name]}:</td><td>{date}</td></tr>
 <tr><td>{fm[pubdate][name]}:</td><td>{published}</td></tr>
 <tr><td>{fm[formats][name]}:</td><td>{formats}</td></tr>
-<tr><td>{fm[series][name]}:</td><td>{series}</td></tr>
+<tr><td>{fm[id][name]}:</td><td>{book_id}</td></tr>
+{series}
 {has_cover_row}
 </table>
 {cover_html}
         '''.format(
             mb=_('Target book'),
-            title=mi.title,
+            title=mi.title, book_id=getattr(mi, 'id', ''),
             has_cover_row=has_cover_row,
             authors=authors_to_string(mi.authors),
             date=format_date(mi.timestamp, tweaks['gui_timestamp_display_format']), fm=fm,
