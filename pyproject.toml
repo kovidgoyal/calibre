@@ -36,7 +36,7 @@ dependencies = [
 	"ifaddr == 0.2.0",
 	"texttable == 1.6.7",
 	"multivolumefile == 0.2.3",
-	"Brotli == 1.1.0",
+	"Brotli == 1.2.0",
 	"pyzstd == 0.17.0",
 	"pyppmd == 1.2.0",
 	"pybcj == 1.0.1",
