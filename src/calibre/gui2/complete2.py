@@ -51,6 +51,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
+        self.use_startswith_search = tweaks['completion_mode'] == 'prefix'
 
     def set_items(self, items):
         if self.strip_completion_entries:
@@ -75,7 +76,7 @@ class CompleteModel(QAbstractListModel):  # {{{
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
-        func = primary_startswith if tweaks['completion_mode'] == 'prefix' else containsq
+        func = primary_startswith if self.use_startswith_search else containsq
         if func is primary_startswith and hierarchy_separator:
             if hierarchy_separator != '.':
                 func = partial(hierarchy_startswith, sep=hierarchy_separator)
@@ -353,6 +354,9 @@ class LineEdit(QLineEdit, LineEditECM):
         self.no_popup = False
 
     # Interface {{{
+    def set_use_startswith_search(self, yes: bool) -> None:
+        self.mcompleter.model().use_startswith_search = yes
+
     def set_sort_func(self, sort_func):
         self.mcompleter.model().sort_func = sort_func
 
