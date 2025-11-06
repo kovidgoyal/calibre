@@ -380,6 +380,7 @@ class SearchRestrictionMixin:
 
         self.search_based_vl_name = None
         self.search_based_vl = None
+        self.currently_applied_virtual_library = self.previous_virtual_library = None
 
         self.virtual_library_menu = QMenu(self.virtual_library)
         self.virtual_library.setMenu(self.virtual_library_menu)
@@ -486,12 +487,20 @@ class SearchRestrictionMixin:
     def rebuild_vl_tabs(self):
         self.vl_tabs.rebuild()
 
+    def clear_vl_history(self):
+        self.currently_applied_virtual_library = self.previous_virtual_library = None
+
+    def switch_to_previous_virtual_library(self):
+        self.apply_virtual_library(self.previous_virtual_library)
+
     def apply_virtual_library(self, library=None, update_tabs=True):
         db = self.library_view.model().db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         if not library:
             db.data.set_base_restriction('')
             db.data.set_base_restriction_name('')
+            self.previous_virtual_library = self.currently_applied_virtual_library
+            self.currently_applied_virtual_library = library
         elif library == '*':
             if not self.search.current_text:
                 # Clear the temporary VL if the search box is empty
@@ -517,6 +526,8 @@ class SearchRestrictionMixin:
         elif library in virt_libs:
             db.data.set_base_restriction(virt_libs[library])
             db.data.set_base_restriction_name(library)
+            self.previous_virtual_library = self.currently_applied_virtual_library
+            self.currently_applied_virtual_library = library
         self.virtual_library.setToolTip(self.virtual_library_tooltip + '\n' +
                                         db.data.get_base_restriction())
         self._apply_search_restriction(db.data.get_search_restriction(),

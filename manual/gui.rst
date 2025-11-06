@@ -1004,3 +1004,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Browse notes associated with authors/series/tags/etc.
     * - :kbd:`Alt+Shift+L`
       - Toggle the layout between wide and narrow views
+    * - :kbd:`Ctrl+Alt+P`
+      - Switch to previous library, if any
+    * - :kbd:`Ctrl+Alt+Shift+P`
+      - Switch to previous virtual library, if any
