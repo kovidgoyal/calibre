@@ -102,3 +102,15 @@ class LanguagesEdit(EditWithComplete):
                 if code is None:
                     bad.append(name)
         return bad
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    from qt.core import QMainWindow
+    w = LanguagesEdit()
+    w.setMaximumHeight(50)
+    d = QMainWindow()
+    d.setCentralWidget(w)
+    d.show()
+    app.exec()

@@ -32,7 +32,7 @@ from qt.core import (
 from calibre.constants import ismacos
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
-from calibre.utils.icu import primary_contains, primary_startswith, sort_key
+from calibre.utils.icu import primary_contains, primary_find, primary_startswith, sort_key
 
 
 def containsq(x, prefix):
@@ -84,6 +84,17 @@ class CompleteModel(QAbstractListModel):  # {{{
                 func = hierarchy_startswith
         self.beginResetModel()
         self.current_items = tuple(x for x in universe if func(x, prefix))
+        if func is containsq:
+            def skey(x):
+                x = x.lower()
+                try:
+                    ans = primary_find(prefix, x)[0]
+                    if ans == -1:
+                        ans = len(x) + 10
+                    return ans
+                except Exception:
+                    return len(x) + 10
+            self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
 
     def rowCount(self, *args):
