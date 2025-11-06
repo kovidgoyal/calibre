@@ -73,6 +73,7 @@ requires = [
 	"wheel == 0.41.2", # Needed for build which is needed for setuptools
 	"build == 1.0.3", # Needed for build which is needed for setuptools
 	"setuptools == 78.1.1",
+    "pkgconfig == 1.5.5",  # Needed by Brotli
 	# Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even
 	# though it is needed only for sdist not building wheels
 	"setuptools_scm == 8.0.3",
