@@ -169,7 +169,7 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.fb2 import base64_decode
         self.image_map = {}
         for elem in doc.xpath('./*'):
-            if elem.text and 'binary' in elem.tag and 'id' in elem.attrib:
+            if elem.text and 'binary' in elem.tag and elem.get('id', ''):
                 ct = elem.get('content-type', '').lower()
                 fname = sanitize_file_name(elem.get('id'))
                 if ct.startswith('image/'):
