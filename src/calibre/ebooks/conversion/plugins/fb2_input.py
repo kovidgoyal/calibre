@@ -122,7 +122,7 @@ class FB2Input(InputFormatPlugin):
 
         for img in result.xpath('//img[@src]'):
             src = img.get('src')
-            img.set('src', self.binary_map.get(src, src))
+            img.set('src', self.image_map.get(src, src))
 
         # make paragraphs <p> tags
         has_block_elements = etree.XPath('descendant::*[name()="div" or name()="table"]')
@@ -165,18 +165,19 @@ class FB2Input(InputFormatPlugin):
         return os.path.join(os.getcwd(), 'metadata.opf')
 
     def extract_embedded_content(self, doc):
+        from calibre import guess_extension, sanitize_file_name
         from calibre.ebooks.fb2 import base64_decode
-        self.binary_map = {}
+        self.image_map = {}
         for elem in doc.xpath('./*'):
             if elem.text and 'binary' in elem.tag and 'id' in elem.attrib:
-                ct = elem.get('content-type', '')
-                fname = elem.attrib['id']
-                ext = ct.rpartition('/')[-1].lower()
-                if ext in ('png', 'jpeg', 'jpg'):
-                    if fname.lower().rpartition('.')[-1] not in {'jpg', 'jpeg',
-                            'png'}:
-                        fname += '.' + ext
-                    self.binary_map[elem.get('id')] = fname
+                ct = elem.get('content-type', '').lower()
+                fname = sanitize_file_name(elem.get('id'))
+                if ct.startswith('image/'):
+                    ext = guess_extension(ct)
+                    if ext:
+                        fname += ext
+                        fname = sanitize_file_name(fname)
+                        self.image_map[elem.get('id')] = fname
                 raw = elem.text.strip()
                 try:
                     data = base64_decode(raw)
