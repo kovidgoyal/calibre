@@ -28,7 +28,7 @@ class VirtualLibraryAction(InterfaceAction):
             _('Quick select Virtual library'), default_keys=('Ctrl+T',),
             action=self.qs_action, description=_('Quick select a Virtual library'),
             group=self.action_spec[0])
-        ac = self.create_action(spec=(_('Switch to previous Virtual library'), 'vl.png', None, None),
+        ac = self.create_action(spec=(_('Switch to last used Virtual library'), 'vl.png', None, None),
                                       attr='action_previous_virtual_library')
         ac.triggered.connect(self.switch_to_previous_virtual_library, type=Qt.ConnectionType.QueuedConnection)
         self.gui.keyboard.register_shortcut(

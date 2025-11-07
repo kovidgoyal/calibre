@@ -375,7 +375,7 @@ class SearchRestrictionMixin:
         self.addAction(self.current_search_action)
         self.keyboard.register_shortcut(
             'vl-from-current-search', _('Virtual library from current search'), description=_(
-                'Create a temporary Virtual library from the current search'), group=pgettext('search restriction group name', 'Miscellaneous'),
+                'Create a temporary Virtual library from the current search'), group=_('Virtual library'),
             default_keys=('Ctrl+*',), action=self.current_search_action)
 
         self.search_based_vl_name = None
