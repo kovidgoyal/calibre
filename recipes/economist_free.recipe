@@ -259,10 +259,10 @@ class Economist(BasicNewsRecipe):
             return parse_only_date(edition_date, as_utc=False)
         try:
             url = self.browser.open('https://www.economist.com/printedition').geturl()
+            return parse_only_date(url.split('/')[-1], as_utc=False)
         except Exception as e:
             self.log('Failed to fetch publication date with error: ' + str(e))
             return super().publication_date()
-        return parse_only_date(url.split('/')[-1], as_utc=False)
 
     def economist_return_index(self, ans):
         if not ans:
