@@ -45,7 +45,8 @@ class Fokus(BasicNewsRecipe):
         dict(name='p', class_='article-metadata'),              # Dynamically created by the recipe.
         dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
         dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
-        dict(name='div', class_='sesamy-protected-content'),    # Article body.
+        dict(name='div', class_='Single__content'),             # Article body of "Single" type articles.
+        dict(name='div', class_='Longread__content'),           # Article body of "Longread" type articles.
     ]
 
     def extract_cover_url(self, a_tag) -> str:
@@ -230,7 +231,7 @@ class Fokus(BasicNewsRecipe):
         '''
         self.log(f'Assigning each of the {len(articles)} articles to a section...')
         section_to_articles = {}
-        for article_url, article_dict in articles.items():
+        for _, article_dict in articles.items():
             section_title = article_dict['category']
             if section_title not in section_to_articles:
                 section_to_articles[section_title] = []
