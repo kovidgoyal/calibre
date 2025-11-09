@@ -11,7 +11,7 @@ from mechanize import Request
 
 from calibre import browser
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.date import parse_only_date
+from calibre.utils.date import local_tz
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -256,10 +256,11 @@ class Economist(BasicNewsRecipe):
     def publication_date(self):
         edition_date = self.recipe_specific_options.get('date')
         if edition_date and isinstance(edition_date, str):
-            return parse_only_date(edition_date, as_utc=False)
+            return datetime.strptime(edition_date, '%Y-%m-%d').replace(tzinfo=local_tz)
         try:
             url = self.browser.open('https://www.economist.com/printedition').geturl()
-            return parse_only_date(url.split('/')[-1], as_utc=False)
+            date_str = url.split('/')[-1]
+            return datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=local_tz)
         except Exception as e:
             self.log('Failed to fetch publication date with error: ' + str(e))
             return super().publication_date()
