@@ -34,7 +34,7 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link, ngettext, pgettext
+from calibre.utils.localization import localize_user_manual_link, ngettext
 from calibre.utils.search_query_parser import ParseException
 
 
