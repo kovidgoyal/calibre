@@ -45,7 +45,8 @@ class Fokus(BasicNewsRecipe):
         dict(name='p', class_='article-metadata'),              # Dynamically created by the recipe.
         dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
         dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
-        dict(name='div', class_='sesamy-protected-content'),    # Article body.
+        dict(name='div', class_='Single__content'),             # Article body of "Single" type articles.
+        dict(name='div', class_='Longread__content'),           # Article body of "Longread" type articles.
     ]
 
     def extract_cover_url(self, a_tag) -> str:
@@ -74,31 +75,55 @@ class Fokus(BasicNewsRecipe):
     def get_current_edition_url(self) -> str:
         '''Return the URL of the current (weekly) edition of Fokus.'''
         current_year = datetime.now().year
+        current_week = datetime.now().isocalendar().week
         try:
             soup = self.index_to_soup(f'{self.main_url}/vara-utgavor')
 
-            # Identify all <a> tags of class 'Issue' that have an href attribute containing the current year.
+            # Identify all <a> tags of class 'Issue' that have an href attribute.
             a_tags = soup.find_all('a', class_='Issue', href=True)
 
             # Keep only the href, and subset to only those links that contain the current year.
-            edition_links = [a_tag['href'] for a_tag in a_tags if str(current_year) in a_tag['href']]
+            edition_links = [
+                a_tag['href'] for a_tag in a_tags if str(current_year) in a_tag['href']
+            ]
 
-            # In order to successfully sort the links chronologically, first convert the data structure to a dict, wherein
-            # the key consists of only the date part of the URL and the value consists of the entire (unmodified) URL.
-            edition_links = {link.removesuffix('/').split('/')[-1]: link for link in edition_links}
+            # To successfully sort the links chronologically, first convert the data structure to a dict, wherein the
+            # key consists of only the date part of the URL and the value consists of the entire (unmodified) URL.
+            edition_links = {
+                link.removesuffix('/').split('/')[-1]: link for link in edition_links
+            }
 
-            # Then, shorten the key further by keeping only the part after the first hyphen. This removes the year and
-            # typically results in only the calendar week number remaining, e.g., '1', '21' or '52'. Note however that
-            # editions can sometimes cover multiples weeks, e.g., '1-2', '01-03' or '50-51-52'. In order to sort correctly,
-            # it is therefore necessary to additionally keep only the first part of the week number(s) after the hyphen.
-            edition_links = {key.split('-', 1)[-1].split('-', 1)[0]: value for key, value in edition_links.items()}
+            # Shorten the key by removing the year prefix.
+            edition_links = {
+                key.split('-', 1)[-1]: value for key, value in edition_links.items()
+            }
 
-            # Now, convert the resulting keys to integers
+            # Most keys in the `edition_links` dict now correspond to calendar week numbers, e.g., '1', '02', '21' or
+            # '52'. Note however that editions can sometimes cover multiples weeks, e.g., '1-2', '01-03', '50-51-52',
+            # '26/27' or '50/51/52'. For entries where this is the case, split the entry into multiple entries.
+            _edition_links = {}
+            for key, value in edition_links.items():
+                # Handle both '-' and '/' as week number separators.
+                if '-' in key:
+                    week_numbers = key.split('-')
+                elif '/' in key:
+                    week_numbers = key.split('/')
+                else:
+                    week_numbers = [key]
+                for week_number in week_numbers:
+                    _edition_links[week_number] = value
+            edition_links = _edition_links
+
+            # Convert the resulting keys to integers.
             edition_links = {int(key): value for key, value in edition_links.items()}
 
-            # Finally, sort in descending order, so that the most recent edition is first.
-            edition_links = dict(sorted(edition_links.items(), reverse=True))
-            current_edition_url = edition_links[list(edition_links.keys())[0]]
+            if current_week in edition_links:
+                # If there exists an entry that corresponds to the `current_week`, use that entry.
+                current_edition_url = edition_links[current_week]
+            else:
+                # Otherwise, use the entry that corresponds to the highest week number.
+                max_week_number = max(edition_links.keys())
+                current_edition_url = edition_links[max_week_number]
 
             self.log(f"Identified {len(edition_links)} editions, of which the most recent is '{current_edition_url}'.")
 
@@ -206,7 +231,7 @@ class Fokus(BasicNewsRecipe):
         '''
         self.log(f'Assigning each of the {len(articles)} articles to a section...')
         section_to_articles = {}
-        for article_url, article_dict in articles.items():
+        for _, article_dict in articles.items():
             section_title = article_dict['category']
             if section_title not in section_to_articles:
                 section_to_articles[section_title] = []
