@@ -493,12 +493,12 @@ def entity_regex():
 
 def replace_entities(raw, encoding=None):
     from calibre_extensions.fast_html_entities import replace_all_entities
-    replace_all_entities(raw)
+    return replace_all_entities(raw)
 
 
 def xml_replace_entities(raw, encoding=None):
     from calibre_extensions.fast_html_entities import replace_all_entities
-    replace_all_entities(raw, True)
+    return replace_all_entities(raw, True)
 
 
 def prepare_string_for_xml(raw, attribute=False):
