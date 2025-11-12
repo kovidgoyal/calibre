@@ -492,23 +492,13 @@ def entity_regex():
 
 
 def replace_entities(raw, encoding=None):
-    if encoding is None:
-        try:
-            from calibre_extensions.fast_html_entities import replace_all_entities
-            replace_all_entities(raw)
-        except ImportError:  # Running from source without updated binaries
-            pass
-    return entity_regex().sub(partial(entity_to_unicode, encoding=encoding), raw)
+    from calibre_extensions.fast_html_entities import replace_all_entities
+    replace_all_entities(raw)
 
 
 def xml_replace_entities(raw, encoding=None):
-    if encoding is None:
-        try:
-            from calibre_extensions.fast_html_entities import replace_all_entities
-            replace_all_entities(raw, True)
-        except ImportError:  # Running from source without updated binaries
-            pass
-    return entity_regex().sub(partial(xml_entity_to_unicode, encoding=encoding), raw)
+    from calibre_extensions.fast_html_entities import replace_all_entities
+    replace_all_entities(raw, True)
 
 
 def prepare_string_for_xml(raw, attribute=False):
