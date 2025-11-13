@@ -576,7 +576,7 @@ class CheckLibraryDialog(QDialog):
             book_path = os.path.join(*lib_path.split(os.sep)[:-1])
             ext = os.path.splitext(lib_path)[1].strip('.')
             filename = self.db.new_api.format_files(id_)[ext.upper()] +'.'+ ext.lower()
-            os.rename(os.path.join((self.db.library_path, lib_path)), os.path.join((self.db.library_path, book_path, filename)))
+            os.rename(os.path.join(self.db.library_path, lib_path), os.path.join(self.db.library_path, book_path, filename))
 
     def fix_items(self):
         for check in CHECKS:
