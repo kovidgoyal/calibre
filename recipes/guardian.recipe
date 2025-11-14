@@ -44,9 +44,11 @@ class Guardian(BasicNewsRecipe):
     remove_tags = [
         dict(attrs={'class': lambda x: x and '--twitter' in x}),
         dict(attrs={'class': lambda x: x and 'submeta' in x.split()}),
-        dict(attrs={'data-component': ['share', 'social', 'nav', 'nav2']}),
+        dict(name='gu-island'),
+        dict(attrs={'data-component': ['share', 'social', 'nav', 'nav2', 'topbar']}),
         dict(attrs={'data-link-name': 'block share'}),
         dict(attrs={'data-print-layout': 'hide'}),
+        dict(attrs={'data-spacefinder-type': 'model.dotcomrendering.pageElements.NewsletterSignupBlockElement'}),
         dict(id=['dfp-ad--survey', 'sub-nav-root', 'the-caption', 'bannerandheader']),
         {'for': 'the-checkbox'},
         dict(href=['#maincontent', '#navigation']),
@@ -111,6 +113,9 @@ class Guardian(BasicNewsRecipe):
                 yield title, articles
 
     def parse_index(self):
+        # return [('Test', [{'url':
+        #     'https://www.theguardian.com/environment/2025/nov/07/if-theres-a-free-alternative-ill-eat-healthily-how-sweden-devised-brilliant-school-meals',
+        #     'title': 'test'}])]
         feeds = list(self.parse_section(self.base_url))
         feeds += list(self.parse_section('https://www.theguardian.com/uk/sport'))
         return feeds
@@ -119,4 +124,8 @@ class Guardian(BasicNewsRecipe):
         for table in soup.findAll('table'):
             if len(table.findAll('tr')) > 20:
                 table.decompose()
+        for dateline in soup.findAll(attrs={'data-gu-name': 'dateline'}):
+            for s in dateline.findAll('summary'):
+                s.extract()
+            dateline.name = 'div'
         return soup
