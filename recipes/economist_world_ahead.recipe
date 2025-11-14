@@ -258,7 +258,7 @@ class EconomistWorld(BasicNewsRecipe):
             data = json.loads(script_tag.string)
             # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
             self.title = safe_dict(data, 'props', 'pageProps', 'content', 'headline')
-            self.cover_url = 'https://mma.prnewswire.com/media/2561745/The_Economist_World_Ahead_2025_cover.jpg?w=600'
+            self.cover_url = 'https://pbs.twimg.com/media/G5j0UuqXsAI9Rv3.jpg'
 
             feeds = []
 
