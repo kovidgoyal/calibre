@@ -237,7 +237,7 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         # kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Google-InspectionTool/1.0)'
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
+        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
