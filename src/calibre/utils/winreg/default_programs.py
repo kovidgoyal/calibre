@@ -113,7 +113,7 @@ def register():
         exe = os.path.join(base, program)
         capabilities_path = cap_path(data)
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
+        ext_map = {ext:mt for ext, mt in ext_map.items() if mt}
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
 
         with Key(capabilities_path) as key:
@@ -124,11 +124,11 @@ def register():
 
             with Key('FileAssociations', root=key) as fak, Key('MimeAssociations', root=key) as mak:
                 # previous_associations = set(fak.values())
-                for ext, prog_id in iteritems(prog_id_map):
+                for ext, prog_id in prog_id_map.items():
                     mt = ext_map[ext]
                     fak.set('.' + ext, prog_id)
                     mak.set(mt, prog_id)
-        for ext, prog_id in iteritems(prog_id_map):
+        for ext, prog_id in prog_id_map.items():
             create_prog_id(ext, prog_id, ext_map, exe)
 
         with Key(r'Software\RegisteredApplications') as key:
@@ -141,14 +141,14 @@ def unregister():
     for program, data in iteritems(default_programs()):
         capabilities_path = cap_path(data).rpartition('\\')[0]
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
+        ext_map = {ext:mt for ext, mt in ext_map.items() if mt}
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
         with Key(r'Software\RegisteredApplications') as key:
             key.delete_value(data['name'])
         parent, sk = capabilities_path.rpartition('\\')[0::2]
         with Key(parent) as key:
             key.delete_tree(sk)
-        for ext, prog_id in iteritems(prog_id_map):
+        for ext, prog_id in prog_id_map.items():
             with Key(rf'Software\Classes\.{ext}\OpenWithProgIDs') as key:
                 key.delete_value(prog_id)
             with Key(r'Software\Classes') as key:

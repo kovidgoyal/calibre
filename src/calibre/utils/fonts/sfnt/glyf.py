@@ -9,7 +9,6 @@ from collections import OrderedDict
 from struct import unpack_from
 
 from calibre.utils.fonts.sfnt import UnknownTable
-from polyglot.builtins import iteritems
 
 ARG_1_AND_2_ARE_WORDS      = 0x0001  # if set args are words otherwise they are bytes
 ARGS_ARE_XY_VALUES         = 0x0002  # if set args are xy values, otherwise they are points
@@ -82,7 +81,7 @@ class GlyfTable(UnknownTable):
         ans = OrderedDict()
         offset = 0
         block = []
-        for glyph_id, glyph in iteritems(sorted_glyph_map):
+        for glyph_id, glyph in sorted_glyph_map.items():
             raw = glyph()
             pad = 4 - (len(raw) % 4)
             if pad < 4:

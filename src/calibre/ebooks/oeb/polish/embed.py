@@ -13,7 +13,7 @@ from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
@@ -152,7 +152,7 @@ def do_embed(container, font, report):
     with container.open(name, 'wb') as out:
         out.write(data)
     href = container.name_to_href(name)
-    rule = {k:font.get(k, v) for k, v in iteritems(props)}
+    rule = {k:font.get(k, v) for k, v in props.items()}
     rule['src'] = f'url({href})'
     rule['name'] = name
     return rule
@@ -186,7 +186,7 @@ def embed_font(container, font, all_font_rules, report, warned):
     else:
         name = rule['src']
         href = container.name_to_href(name)
-        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in iteritems(props)}
+        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in props.items()}
         rule['src'] = f'url({href})'
         rule['name'] = name
         return rule
@@ -237,7 +237,7 @@ def embed_all_fonts(container, stats, report):
 
     # Write out CSS
     rules = [';\n\t'.join('{}: {}'.format(
-        k, f'"{v}"' if k == 'font-family' else v) for k, v in iteritems(rulel) if (k in props and props[k] != v and v != '400') or k == 'src')
+        k, f'"{v}"' if k == 'font-family' else v) for k, v in rulel.items() if (k in props and props[k] != v and v != '400') or k == 'src')
         for rulel in rules]
     css = '\n\n'.join([f'@font-face {{\n\t{r}\n}}' for r in rules])
     item = container.generate_item('fonts.css', id_prefix='font_embed')

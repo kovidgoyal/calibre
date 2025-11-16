@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, String, UTF16String, current_log
-from polyglot.builtins import iteritems
 from polyglot.urllib import unquote, urlparse
 
 
@@ -44,7 +43,7 @@ class Links:
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
-        for anchor, pos in iteritems(anchors):
+        for anchor, pos in anchors.items():
             a[anchor] = Destination(start_page, pos, self.pdf.get_pageref)
         for link in links:
             href, page, rect = link

@@ -69,7 +69,7 @@ from calibre.utils.img import image_to_data, save_image
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.queue import Empty, Queue
 
 # }}}
@@ -524,7 +524,7 @@ class IdentifyWidget(QWidget):  # {{{
             parts.append('authors:'+authors_to_string(authors))
             simple_desc += _('Authors: %s ') % authors_to_string(authors)
         if identifiers:
-            x = ', '.join(f'{k}:{v}' for k, v in iteritems(identifiers))
+            x = ', '.join(f'{k}:{v}' for k, v in identifiers.items())
             parts.append(x)
             if 'isbn' in identifiers:
                 simple_desc += 'ISBN: {}'.format(identifiers['isbn'])
@@ -705,7 +705,7 @@ class CoversModel(QAbstractListModel):  # {{{
 
     def plugin_for_index(self, index):
         row = index.row() if hasattr(index, 'row') else index
-        for k, v in iteritems(self.plugin_map):
+        for k, v in self.plugin_map.items():
             if row in v:
                 return k
 
@@ -776,7 +776,7 @@ class CoversModel(QAbstractListModel):  # {{{
         else:
             # single cover plugin
             idx = None
-            for plugin, rows in iteritems(self.plugin_map):
+            for plugin, rows in self.plugin_map.items():
                 if plugin.name == plugin_name:
                     idx = rows[0]
                     break

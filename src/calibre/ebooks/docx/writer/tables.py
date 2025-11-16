@@ -9,7 +9,6 @@ from collections import namedtuple
 from calibre.ebooks.docx.writer.styles import border_edges
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb
 from calibre.ebooks.docx.writer.utils import convert_color
-from polyglot.builtins import iteritems
 
 
 class Dummy:
@@ -124,7 +123,7 @@ class Cell:
             makeelement(tcPr, 'w:shd', w_val='clear', w_color='auto', w_fill=bc)
 
         b = makeelement(tcPr, 'w:tcBorders', append=False)
-        for edge, border in iteritems(self.borders):
+        for edge, border in self.borders.items():
             if border is not None and border.width > 0 and border.style != 'none':
                 makeelement(b, 'w:' + edge, w_val=border.style, w_sz=str(border.width), w_color=border.color)
         if len(b) > 0:

@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.prints import debug_print
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import cmp, itervalues, string_or_bytes
 
 
 def none_cmp(xx, yy):
@@ -306,7 +306,7 @@ class CollectionsBookList(BookList):
         # Sort collections
         result = {}
 
-        for category, lpaths in iteritems(collections):
+        for category, lpaths in collections.items():
             books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         return result

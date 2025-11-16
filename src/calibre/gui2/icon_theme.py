@@ -74,7 +74,7 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
-from polyglot.builtins import as_bytes, iteritems, reraise
+from polyglot.builtins import as_bytes, reraise
 from polyglot.queue import Empty, Queue
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -247,7 +247,7 @@ def create_cover(report=None, icons=(), cols=5, size=120, padding=16, darkbg=Fal
 def verify_theme(report):
     must_use_qt()
     report.bad = bad = {}
-    for name, path in iteritems(report.name_map):
+    for name, path in report.name_map.items():
         reader = QImageReader(os.path.join(report.path, path))
         img = reader.read()
         if img.isNull():

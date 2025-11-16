@@ -279,7 +279,7 @@ class Pool(Thread):
     def terminal_error(self):
         if self.shutting_down:
             return
-        for worker, job in iteritems(self.busy_workers):
+        for worker, job in self.busy_workers.items():
             self.results.put(WorkerResult(job.id, Result(None, None, None), True, worker))
             self.tracker.task_done()
         while self.pending_jobs:

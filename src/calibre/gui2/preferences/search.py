@@ -14,7 +14,6 @@ from calibre.library.caches import set_use_primary_find_in_search
 from calibre.utils.config import prefs
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -279,7 +278,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.do_search()
 
     def clear_histories(self, *args):
-        for key, val in iteritems(config.defaults):
+        for key, val in config.defaults.items():
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()

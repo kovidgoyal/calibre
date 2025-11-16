@@ -26,7 +26,7 @@ from calibre.library.save_to_disk import find_plugboard, get_path_components, pl
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.queue import Empty
 
 BookId = namedtuple('BookId', 'title authors')
@@ -35,7 +35,7 @@ BookId = namedtuple('BookId', 'title authors')
 def ensure_unique_components(data):  # {{{
     cmap = defaultdict(set)
     bid_map = {}
-    for book_id, (mi, components, fmts) in iteritems(data):
+    for book_id, (mi, components, fmts) in data.items():
         cmap[tuple(components)].add(book_id)
         bid_map[book_id] = components
 
@@ -358,7 +358,7 @@ class Saver(QObject):
             text = force_unicode(text)
             return '\xa0\xa0\xa0\xa0' + '\n\xa0\xa0\xa0\xa0'.join(text.splitlines())
 
-        for book_id, errors in iteritems(self.errors):
+        for book_id, errors in self.errors.items():
             types = {t for t, data in errors}
             title, authors = self.book_id_data(book_id).title, authors_to_string(self.book_id_data(book_id).authors[:1])
             if report:

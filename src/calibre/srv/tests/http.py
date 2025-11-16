@@ -18,7 +18,6 @@ from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_path as P
 from polyglot import http_client
-from polyglot.builtins import iteritems
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -33,7 +32,7 @@ class TestHTTP(BaseTest):
             p = HTTPHeaderParser()
             p.push(*lines)
             self.assertTrue(p.finished)
-            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in iteritems(kwargs)}, name + ' failed')
+            self.assertSetEqual(set(p.hdict.items()), {(k.replace('_', '-').title(), v) for k, v in kwargs.items()}, name + ' failed')
 
         test('Continuation line parsing',
              b'a: one',

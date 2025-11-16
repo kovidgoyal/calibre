@@ -283,7 +283,7 @@ class IdentifiersEdit(LineEdit):
 
     @as_dict.setter
     def as_dict(self, val):
-        val = (f'{k}:{v}' for k, v in iteritems(val))
+        val = (f'{k}:{v}' for k, v in val.items())
         self.setText(', '.join(val))
         self.setCursorPosition(0)
 
@@ -576,14 +576,14 @@ class CompareSingle(QWidget):
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
         self.initial_vals = {}
-        for field, widgets in iteritems(self.widgets):
+        for field, widgets in self.widgets.items():
             widgets.old.from_mi(oldmi)
             widgets.new.from_mi(newmi)
             self.initial_vals[field] = widgets.new.current_val
 
     def apply_changes(self):
         changed = False
-        for field, widgets in iteritems(self.widgets):
+        for field, widgets in self.widgets.items():
             val = widgets.new.current_val
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)

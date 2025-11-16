@@ -8,7 +8,6 @@ import string
 
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import iteritems
 
 CONTAINER_DND_MIMETYPE = 'application/x-calibre-container-name-list'
 tprefs = JSONConfig('tweak_book_gui')
@@ -136,7 +135,7 @@ dictionaries = Dictionaries()
 
 
 def editor_name(editor):
-    for n, ed in iteritems(editors):
+    for n, ed in editors.items():
         if ed is editor:
             return n
 

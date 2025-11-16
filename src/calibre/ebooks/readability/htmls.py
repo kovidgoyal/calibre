@@ -5,7 +5,6 @@ from lxml.html import tostring
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.readability.cleaners import clean_attributes, normalize_spaces
-from polyglot.builtins import iteritems
 
 
 def build_doc(page):
@@ -29,7 +28,7 @@ def normalize_entities(cur_title):
         '\u00bb': '"',
         '&quot;': '"',
     }
-    for c, r in iteritems(entities):
+    for c, r in entities.items():
         if c in cur_title:
             cur_title = cur_title.replace(c, r)
 

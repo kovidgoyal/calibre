@@ -416,7 +416,7 @@ def create_identifiers(xmp, identifiers):
     xmp.append(xmpid)
     bag = xmpid.makeelement(expand('rdf:Bag'))
     xmpid.append(bag)
-    for scheme, value in iteritems(identifiers):
+    for scheme, value in identifiers.items():
         li = bag.makeelement(expand('rdf:li'))
         li.set(expand('rdf:parseType'), 'Resource')
         bag.append(li)
@@ -452,7 +452,7 @@ def create_user_metadata(calibre, all_user_metadata):
     calibre.append(s)
     bag = s.makeelement(expand('rdf:Bag'))
     s.append(bag)
-    for name, fm in iteritems(all_user_metadata):
+    for name, fm in all_user_metadata.items():
         try:
             fm = copy.copy(fm)
             encode_is_multiple(fm)
@@ -511,9 +511,9 @@ def metadata_to_xmp_packet(mi):
     identifiers = mi.get_identifiers()
     if identifiers:
         create_identifiers(xmp, identifiers)
-        for scheme, val in iteritems(identifiers):
+        for scheme, val in identifiers.items():
             if scheme in {'isbn', 'doi'}:
-                for prefix, parent in iteritems(extra_ids):
+                for prefix, parent in extra_ids.items():
                     ie = parent.makeelement(expand(f'{prefix}:{scheme}'))
                     ie.text = val
                     parent.append(ie)
@@ -562,7 +562,7 @@ def find_used_namespaces(elem):
 
 def find_preferred_prefix(namespace, elems):
     for elem in elems:
-        ans = {v:k for k, v in iteritems(elem.nsmap)}.get(namespace, None)
+        ans = {v:k for k, v in elem.nsmap.items()}.get(namespace, None)
         if ans is not None:
             return ans
         return find_preferred_prefix(namespace, elem.iterchildren(etree.Element))
@@ -574,7 +574,7 @@ def find_nsmap(elems):
         used_namespaces |= find_used_namespaces(elem)
     ans = {}
     used_namespaces -= {NS_MAP['xml'], NS_MAP['x'], None, NS_MAP['rdf']}
-    rmap = {v:k for k, v in iteritems(NS_MAP)}
+    rmap = {v:k for k, v in NS_MAP.items()}
     i = 0
     for ns in used_namespaces:
         if ns in rmap:

@@ -45,7 +45,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import now
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import primary_sort_key, sort_key
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 class Preview(QLabel):
@@ -331,7 +331,7 @@ class CoverSettingsWidget(QWidget):
         if not self.for_global_prefs and lu in self.colors_map and self.colors_map[lu].checkState() == Qt.CheckState.Checked:
             self.colors_map[lu].setSelected(True)
         else:
-            for name, li in iteritems(self.colors_map):
+            for name, li in self.colors_map.items():
                 if li.checkState() == Qt.CheckState.Checked:
                     li.setSelected(True)
                     break
@@ -349,7 +349,7 @@ class CoverSettingsWidget(QWidget):
         if not self.for_global_prefs and lu in self.style_map and self.style_map[lu].checkState() == Qt.CheckState.Checked:
             self.style_map[lu].setSelected(True)
         else:
-            for name, li in iteritems(self.style_map):
+            for name, li in self.style_map.items():
                 if li.checkState() == Qt.CheckState.Checked:
                     li.setSelected(True)
                     break
@@ -364,27 +364,27 @@ class CoverSettingsWidget(QWidget):
 
     @property
     def disabled_colors(self):
-        for name, li in iteritems(self.colors_map):
+        for name, li in self.colors_map.items():
             if li.checkState() == Qt.CheckState.Unchecked:
                 yield name
 
     @property
     def custom_colors(self):
         ans = {}
-        for name, li in iteritems(self.colors_map):
+        for name, li in self.colors_map.items():
             if name.startswith('#'):
                 ans[name] = li.data(Qt.ItemDataRole.UserRole)
         return ans
 
     @property
     def current_style(self):
-        for name, li in iteritems(self.style_map):
+        for name, li in self.style_map.items():
             if li.isSelected():
                 return name
 
     @property
     def disabled_styles(self):
-        for name, li in iteritems(self.style_map):
+        for name, li in self.style_map.items():
             if li.checkState() == Qt.CheckState.Unchecked:
                 yield name
 
@@ -412,7 +412,7 @@ class CoverSettingsWidget(QWidget):
             self.colors_list.insertItem(0, li)
             cm = OrderedDict()
             cm[name] = li
-            for k, v in iteritems(self.colors_map):
+            for k, v in self.colors_map.items():
                 cm[k] = v
             self.colors_map = cm
             li.setSelected(True)
@@ -531,7 +531,7 @@ class CoverSettingsWidget(QWidget):
 
     def save_as_prefs(self):
         with self.original_prefs:
-            for k, v in iteritems(self.current_prefs):
+            for k, v in self.current_prefs.items():
                 self.original_prefs[k] = v
 
     @property

@@ -193,7 +193,7 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
     if library_paths is None:
         library_paths = all_known_libraries()
     dbmap = dbmap or {}
-    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in iteritems(dbmap)}
+    dbmap = {os.path.normcase(os.path.abspath(k)):v for k, v in dbmap.items()}
     exporter = Exporter(destdir)
     exporter.metadata['libraries'] = libraries = {}
     total = len(library_paths) + 1

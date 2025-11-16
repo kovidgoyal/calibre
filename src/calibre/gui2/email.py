@@ -28,7 +28,7 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.smtp import compose_mail, extract_email_address, sendmail
 from calibre.utils.smtp import config as email_config
 from polyglot.binary import from_hex_unicode
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 class Worker(Thread):
@@ -353,7 +353,7 @@ class EmailMixin:  # {{{
 
         for to, fmts, subject in recipients:
             rfmts = set(fmts)
-            ok_ids = {book_id for book_id, bfmts in iteritems(db_fmt_map) if bfmts.intersection(rfmts)}
+            ok_ids = {book_id for book_id, bfmts in db_fmt_map.items() if bfmts.intersection(rfmts)}
             convert_ids = ids - ok_ids
             self.send_by_mail(to, fmts, delete_from_library, subject=subject, send_ids=ok_ids, do_auto_convert=False)
             if not rfmts.intersection(ofmts):
@@ -372,7 +372,7 @@ class EmailMixin:  # {{{
             titles = {db.title(book_id, index_is_id=True) for book_id in titles}
             if self.auto_convert_question(
                 _('Auto convert the following books before sending via email?'), list(titles)):
-                for ofmt, data in iteritems(auto_convert_map):
+                for ofmt, data in auto_convert_map.items():
                     ids = {bid for x in data for bid in x[2]}
                     data = [(to, subject) for to, subject, x in data]
                     self.iactions['Convert Books'].auto_convert_multiple_mail(ids, data, ofmt, delete_from_library)
@@ -381,7 +381,7 @@ class EmailMixin:  # {{{
             det_msg = []
             titles = {book_id for x in itervalues(bad_recipients) for book_id in x[0]}
             titles = {book_id:db.title(book_id, index_is_id=True) for book_id in titles}
-            for to, (ids, nooutput) in iteritems(bad_recipients):
+            for to, (ids, nooutput) in bad_recipients.items():
                 msg = _('This recipient has no valid formats defined') if nooutput else \
                         _('These books have no suitable input formats for conversion')
                 det_msg.append(f'{to} - {msg}')

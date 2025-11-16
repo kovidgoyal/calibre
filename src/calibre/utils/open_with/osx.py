@@ -13,7 +13,7 @@ from plistlib import loads
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
@@ -208,7 +208,7 @@ PUBLIC_UTI_MAP = {
     'zip':          'com.pkware.zip-archive',
 }
 PUBLIC_UTI_RMAP = defaultdict(set)
-for ext, uti in iteritems(PUBLIC_UTI_MAP):
+for ext, uti in PUBLIC_UTI_MAP.items():
     PUBLIC_UTI_RMAP[uti].add(ext)
 PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 

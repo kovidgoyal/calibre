@@ -429,7 +429,7 @@ class Translations(POT):  # {{{
 
         with tempfile.TemporaryDirectory() as tdir:
             iso_data.extract_po_files('iso_639-3', tdir)
-            for f, (locale, dest) in iteritems(fmap):
+            for f, (locale, dest) in fmap.items():
                 iscpo = {'zh_HK':'zh_CN'}.get(locale, locale)
                 iso639 = self.j(tdir, f'{iscpo}.po')
                 if os.path.exists(iso639):
@@ -451,7 +451,7 @@ class Translations(POT):  # {{{
         }
         with tempfile.TemporaryDirectory() as tdir:
             iso_data.extract_po_files('iso_3166-1', tdir)
-            for f, (locale, dest) in iteritems(fmap):
+            for f, (locale, dest) in fmap.items():
                 pofile = self.j(tdir, f'{locale}.po')
                 if os.path.exists(pofile):
                     files.append((pofile, self.j(self.d(dest), 'iso3166.mo')))
@@ -562,7 +562,7 @@ class Translations(POT):  # {{{
                     files.append((f, d))
             self.compile_group(files, handle_stats=handle_stats)
 
-            for locale, translated in iteritems(stats):
+            for locale, translated in stats.items():
                 if translated >= threshold:
                     with open(os.path.join(tdir, locale + '.mo'), 'rb') as f:
                         raw = f.read()
@@ -623,7 +623,7 @@ class Translations(POT):  # {{{
             stats['untranslated'] += data['untranslated']
 
         self.compile_group(files, handle_stats=handle_stats)
-        for locale, stats in iteritems(all_stats):
+        for locale, stats in all_stats.items():
             dump_json(stats, self.j(srcbase, locale, 'stats.json'))
             total = stats['translated'] + stats['untranslated']
             # Raise the 30% threshold in the future
@@ -701,7 +701,7 @@ class GetTranslations(Translations):  # {{{
                         changes[slug].add(lang)
                 if changed:
                     f.save()
-        for slug, languages in iteritems(changes):
+        for slug, languages in changes.items():
             print('Pushing fixes for languages: {} in {}'.format(', '.join(languages), slug))
             self.tx('push -r calibre.{} -t -l {}'.format(slug, ','.join(languages)))
 

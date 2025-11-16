@@ -17,7 +17,7 @@ from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
 from polyglot import http_client
 from polyglot.binary import as_base64_bytes
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.http_cookie import CookieJar
 from polyglot.urllib import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError, build_opener
 
@@ -143,7 +143,7 @@ class TestAuth(BaseTest):
 
             def library_info(username=None):
                 lmap, defaultlib = ctx.library_info(Data(username))
-                lmap = {k:os.path.basename(v) for k, v in iteritems(lmap)}
+                lmap = {k:os.path.basename(v) for k, v in lmap.items()}
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')

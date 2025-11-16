@@ -370,7 +370,7 @@ def all():
             print()
     if warnings:
         print('\n\nWarnings:')
-    for name, w in iteritems(warnings):
+    for name, w in warnings.items():
         if w:
             print(name)
             print('', '\n\t'.join(w), sep='\t')

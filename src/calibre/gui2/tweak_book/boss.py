@@ -574,7 +574,7 @@ class Boss(QObject):
         if files:
             folder_map = get_recommended_folders(current_container(), files)
             files = {x:('/'.join((folder, os.path.basename(x))) if folder else os.path.basename(x))
-                     for x, folder in iteritems(folder_map)}
+                     for x, folder in folder_map.items()}
             self.add_savepoint(_('Before: Add files'))
             c = current_container()
             added_fonts = set()
@@ -850,7 +850,7 @@ class Boss(QObject):
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.set_modified()
-        for oldname, newname in iteritems(name_map):
+        for oldname, newname in name_map.items():
             if oldname in editors:
                 editors[newname] = ed = editors.pop(oldname)
                 ed.change_document_name(newname)
@@ -1192,7 +1192,7 @@ class Boss(QObject):
         search = {'find': text, 'mode': 'normal', 'case_sensitive': True, 'direction': 'down'}
         pat = get_search_regex(search)
         searchable_names = set(self.gui.file_list.searchable_names['text'])
-        for name, ed in iteritems(editors):
+        for name, ed in editors.items():
             searchable_names.discard(name)
             if ed.find_text(pat, complete=True):
                 self.show_editor(name)
@@ -1306,7 +1306,7 @@ class Boss(QObject):
         actions on the current container '''
         changed = False
         with BusyCursor():
-            for name, ed in iteritems(editors):
+            for name, ed in editors.items():
                 if not ed.is_synced_to_container:
                     self.commit_editor_to_container(name)
                     ed.is_synced_to_container = True
@@ -1317,7 +1317,7 @@ class Boss(QObject):
         ' Save the book. Saving is performed in the background '
         self.gui.update_window_title()
         c = current_container()
-        for name, ed in iteritems(editors):
+        for name, ed in editors.items():
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, c)
                 ed.is_modified = False
@@ -1367,7 +1367,7 @@ class Boss(QObject):
             path += '.' + ext.lower()
         tdir = self.mkdtemp(prefix='save-copy-')
         container = clone_container(c, tdir)
-        for name, ed in iteritems(editors):
+        for name, ed in editors.items():
             if ed.is_modified or not ed.is_synced_to_container:
                 self.commit_editor_to_container(name, container)
 
@@ -1628,7 +1628,7 @@ class Boss(QObject):
             self.commit_all_editors_to_container()
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
             container = current_container()
-            for name, (path, mt) in iteritems(name_map):
+            for name, (path, mt) in name_map.items():
                 with open(path, 'rb') as f:
                     container.add_file(name, f.read(), media_type=mt, modify_name_if_needed=True)
             self.apply_container_update_to_gui()
@@ -1848,7 +1848,7 @@ class Boss(QObject):
         if not self.ensure_book(_('No book is currently open. You must first open a book to edit.')):
             return
         c = current_container()
-        files = [name for name, mime in iteritems(c.mime_map) if c.exists(name) and syntax_from_mime(name, mime) is not None]
+        files = [name for name, mime in c.mime_map.items() if c.exists(name) and syntax_from_mime(name, mime) is not None]
         d = QuickOpen(files, parent=self.gui)
         if d.exec() == QDialog.DialogCode.Accepted and d.selected_result is not None:
             self.edit_file_requested(d.selected_result, None, c.mime_map[d.selected_result])
@@ -1888,7 +1888,7 @@ class Boss(QObject):
 
     def editor_data_changed(self, editor):
         self.gui.preview.start_refresh_timer()
-        for name, ed in iteritems(editors):
+        for name, ed in editors.items():
             if ed is editor:
                 self.gui.toc_view.start_refresh_timer(name)
                 break
@@ -2070,7 +2070,7 @@ class Boss(QObject):
                 order = [k for k in order[extra:] if k in mem]
                 mem = {k:mem[k] for k in order}
             mem[c.path_to_ebook] = {
-                'editors':{name:ed.current_editing_state for name, ed in iteritems(editors)},
+                'editors':{name:ed.current_editing_state for name, ed in editors.items()},
                 'currently_editing':self.currently_editing,
                 'tab_order':self.gui.central.tab_order,
             }

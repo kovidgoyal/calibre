@@ -266,7 +266,7 @@ class Images:
                 ans = self.pic_to_img(pic, alt, inline, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
                     yield ans
 
         # Now process the floats
@@ -277,7 +277,7 @@ class Images:
                 ans = self.pic_to_img(pic, alt, anchor, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
                     yield ans
 
     def pict_to_html(self, pict, page):
@@ -299,7 +299,7 @@ class Images:
                 style['margin-left'] = '0' if align == 'left' else 'auto'
                 style['margin-right'] = 'auto' if align == 'left' else '0'
             if style:
-                hr.set('style', '; '.join((f'{k}:{v}' for k, v in iteritems(style))))
+                hr.set('style', '; '.join((f'{k}:{v}' for k, v in style.items())))
             yield hr
 
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):

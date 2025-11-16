@@ -283,7 +283,7 @@ class Metadata:
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
         '''
-        cleaned = {ck(k):cv(v) for k, v in iteritems(identifiers) if k and v}
+        cleaned = {ck(k):cv(v) for k, v in identifiers.items() if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
     def set_identifier(self, typ, val):
@@ -428,7 +428,7 @@ class Metadata:
             return
 
         um = {}
-        for key, meta in iteritems(metadata):
+        for key, meta in metadata.items():
             m = meta.copy()
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:
@@ -454,7 +454,7 @@ class Metadata:
             m = dict(metadata)
             # Copying the elements should not be necessary. The objects referenced
             # in the dict should not change. Of course, they can be replaced.
-            # for k,v in iteritems(metadata):
+            # for k,v in metadata.items():
             #     m[k] = copy.copy(v)
             if '#value#' not in m:
                 if m['datatype'] == 'text' and m['is_multiple']:
@@ -623,7 +623,7 @@ class Metadata:
             if callable(getattr(other, 'get_identifiers', None)):
                 d = self.get_identifiers()
                 s = other.get_identifiers()
-                d.update([v for v in iteritems(s) if v[1] is not None])
+                d.update([v for v in s.items() if v[1] is not None])
                 self.set_identifiers(d)
             else:
                 # other structure not Metadata. Copy the top-level identifiers

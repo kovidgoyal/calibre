@@ -22,7 +22,7 @@ from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_d
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, canonicalize_lang, get_udc, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import cmp, itervalues, string_or_bytes
 
 
 class MetadataBackup(Thread):  # {{{
@@ -805,7 +805,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     q = canonicalize_lang(query)
                     if q is None:
                         lm = lang_map()
-                        rm = {v.lower():k for k,v in iteritems(lm)}
+                        rm = {v.lower():k for k,v in lm.items()}
                         q = rm.get(query, query)
                 else:
                     q = query
@@ -1081,7 +1081,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 item.extend((None, None, None))
 
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in iteritems(self.marked_ids_dict):
+        for id_,val in self.marked_ids_dict.items():
             try:
                 self._data[id_][marked_col] = val
             except Exception:

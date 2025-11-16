@@ -11,7 +11,6 @@ from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
-from polyglot.builtins import iteritems
 
 
 def from_headings(body, log, namespace, num_levels=3):
@@ -23,7 +22,7 @@ def from_headings(body, log, namespace, num_levels=3):
     level_item_map = {i:frozenset(
         x for x in all_heading_nodes if int(x.get('data-heading-level')) == i)
         for i in range(1, num_levels+1)}
-    item_level_map = {e:i for i, elems in iteritems(level_item_map) for e in elems}
+    item_level_map = {e:i for i, elems in level_item_map.items() for e in elems}
 
     idcount = count()
 

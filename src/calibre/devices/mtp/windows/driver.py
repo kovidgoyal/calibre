@@ -17,7 +17,7 @@ from calibre.constants import __appname__, isxp, numeric_version
 from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 null = object()
 
@@ -147,7 +147,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     self.currently_connected_pnp_id in self.detected_devices
                     else None)
 
-        for dev, data in iteritems(self.detected_devices):
+        for dev, data in self.detected_devices.items():
             if dev in self.blacklisted_devices or dev in self.ejected_devices:
                 # Ignore blacklisted and ejected devices
                 continue

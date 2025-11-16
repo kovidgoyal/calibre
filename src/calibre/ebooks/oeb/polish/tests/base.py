@@ -14,7 +14,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 
 def get_cache():
@@ -51,7 +50,7 @@ def build_book(src, dest, args=()):
 
 
 def add_resources(raw, rmap):
-    for placeholder, path in iteritems(rmap):
+    for placeholder, path in rmap.items():
         fname = os.path.basename(path)
         shutil.copy2(path, '.')
         raw = raw.replace(placeholder, fname)

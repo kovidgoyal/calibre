@@ -171,7 +171,7 @@ def get_metadata(stream, cover=True):
     # found in the XMP metadata
     for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
         if scheme not in mi.get_identifiers():
-            for k, v in iteritems(info):
+            for k, v in info.items():
                 if k != 'xmp_metadata':
                     val = check_func(v)
                     if val:

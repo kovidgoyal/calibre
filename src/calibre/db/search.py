@@ -174,7 +174,7 @@ class DateSearch:  # {{{
                     matches |= book_ids
             return matches
 
-        for k, relop in iteritems(self.operators):
+        for k, relop in self.operators.items():
             if query.startswith(k):
                 query = query[len(k):]
                 break
@@ -268,7 +268,7 @@ class NumericSearch:  # {{{
                 def relop(x, y):
                     return (x is not None)
         else:
-            for k, relop in iteritems(self.operators):
+            for k, relop in self.operators.items():
                 if query.startswith(k):
                     query = query[len(k):]
                     break
@@ -388,7 +388,7 @@ class KeyPairSearch:  # {{{
             return found if valq == 'true' else candidates - found
 
         for m, book_ids in field_iter():
-            for key, val in iteritems(m):
+            for key, val in m.items():
                 if (keyq and not _match(keyq, (key,), keyq_mkind,
                                         use_primary_find_in_search=use_primary_find)):
                     continue
@@ -737,7 +737,7 @@ class Parser(SearchQueryParser):  # {{{
                 q = canonicalize_lang(query)
                 if q is None:
                     lm = lang_map()
-                    rm = {v.lower():k for k,v in iteritems(lm)}
+                    rm = {v.lower():k for k,v in lm.items()}
                     q = rm.get(query, query)
 
             if matchkind == CONTAINS_MATCH and q.lower() in {'true', 'false'}:

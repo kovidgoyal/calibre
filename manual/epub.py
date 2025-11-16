@@ -15,7 +15,6 @@ from calibre.ebooks.oeb.polish.check.links import UnreferencedResource, check_li
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, get_container
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
 from calibre.utils.imghdr import identify
-from polyglot.builtins import iteritems
 
 
 class EPUBHelpBuilder(EpubBuilder):
@@ -34,7 +33,7 @@ class EPUBHelpBuilder(EpubBuilder):
 
     def fix_epub(self, container):
         ' Fix all the brokenness that sphinx\'s epub builder creates '
-        for name, mt in iteritems(container.mime_map):
+        for name, mt in container.mime_map.items():
             if mt in OEB_DOCS:
                 self.workaround_ade_quirks(container, name)
                 pretty_html_tree(container, container.parsed(name))
@@ -55,9 +54,9 @@ class EPUBHelpBuilder(EpubBuilder):
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}
         spine = container.opf_xpath('//opf:spine')[0]
-        rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
+        rmap = {v:k for k, v in container.manifest_id_map.items()}
         # Add unreferenced text files to the spine
-        for name, mt in iteritems(container.mime_map):
+        for name, mt in container.mime_map.items():
             if mt in OEB_DOCS and name not in spine_names:
                 spine_names.add(name)
                 container.insert_into_xml(spine, spine.makeelement(OPF('itemref'), idref=rmap[name]))

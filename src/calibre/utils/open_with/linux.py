@@ -116,7 +116,7 @@ def find_icons():
                     ans[name].append((-sz, idx, sz, path))
         for icons in itervalues(ans):
             icons.sort(key=list)
-        return {k:(-v[0][2], v[0][3]) for k, v in iteritems(ans)}
+        return {k:(-v[0][2], v[0][3]) for k, v in ans.items()}
 
     try:
         with open(cache_file, 'rb') as f:
@@ -168,7 +168,7 @@ def find_icons():
 
     for icons in itervalues(ans):
         icons.sort(key=list)
-    icon_data = {k:v[0][1] for k, v in iteritems(ans)}
+    icon_data = {k:v[0][1] for k, v in ans.items()}
     return icon_data
 
 
@@ -219,7 +219,7 @@ def find_programs(extensions):
                 bn = os.path.basename(f)
                 if f not in desktop_files:
                     desktop_files[bn] = f
-    for bn, path in iteritems(desktop_files):
+    for bn, path in desktop_files.items():
         try:
             data = parse_desktop_file(path)
         except Exception:

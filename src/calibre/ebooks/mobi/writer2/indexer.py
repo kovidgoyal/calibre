@@ -12,7 +12,7 @@ from struct import pack
 
 from calibre.ebooks.mobi.utils import CNCX as CNCX_
 from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 class CNCX(CNCX_):  # {{{
@@ -108,7 +108,7 @@ class IndexEntry:
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}
+    RTAG_MAP = {v:k for k, v in TAG_VALUES.items()}
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
@@ -235,7 +235,7 @@ class SecondaryIndexEntry(IndexEntry):
 
     @classmethod
     def entries(cls):
-        rmap = {v:k for k,v in iteritems(cls.INDEX_MAP)}
+        rmap = {v:k for k,v in cls.INDEX_MAP.items()}
         for tag in sorted(rmap, reverse=True):
             yield cls(rmap[tag])
 

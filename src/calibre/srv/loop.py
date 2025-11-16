@@ -585,7 +585,7 @@ class ServerLoop:
         now = monotonic()
         read_needed, write_needed, readable, remove, close_needed = [], [], [], [], []
         has_ssl = self.ssl_context is not None
-        for s, conn in iteritems(self.connection_map):
+        for s, conn in self.connection_map.items():
             if now - conn.last_activity > self.opts.timeout:
                 if conn.handle_timeout():
                     conn.last_activity = now

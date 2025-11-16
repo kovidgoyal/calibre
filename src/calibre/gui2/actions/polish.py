@@ -116,7 +116,7 @@ class Polish(QDialog):  # {{{
             ('upgrade_book', _('Up&grade book internals')),
         ])
         prefs = gprefs.get('polishing_settings', {})
-        for name, text in iteritems(self.all_actions):
+        for name, text in self.all_actions.items():
             count += 1
             x = QCheckBox(text, self)
             x.setChecked(prefs.get(name, False))

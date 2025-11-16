@@ -132,7 +132,7 @@ def find_cover_image2(container, strict=False):
 
     # First look for a guide item with type == 'cover'
     guide_type_map = container.guide_type_map
-    for ref_type, name in iteritems(guide_type_map):
+    for ref_type, name in guide_type_map.items():
         if ref_type.lower() == 'cover' and is_raster_image(mm.get(name, None)):
             return name
 
@@ -141,7 +141,7 @@ def find_cover_image2(container, strict=False):
 
     # Find the largest image from all possible guide cover items
     largest_cover = (None, 0)
-    for ref_type, name in iteritems(guide_type_map):
+    for ref_type, name in guide_type_map.items():
         if ref_type.lower() in COVER_TYPES and is_raster_image(mm.get(name, None)):
             path = container.name_path_map.get(name, None)
             if path:
@@ -185,7 +185,7 @@ def get_guides(container):
 
 
 def mark_as_cover_epub(container, name):
-    mmap = {v:k for k, v in iteritems(container.manifest_id_map)}
+    mmap = {v:k for k, v in container.manifest_id_map.items()}
     if name not in mmap:
         raise ValueError(f'Cannot mark {name} as cover as it is not in manifest')
     mid = mmap[name]
@@ -254,7 +254,7 @@ def find_cover_page(container):
     mm = container.mime_map
     if ver.major < 3:
         guide_type_map = container.guide_type_map
-        for ref_type, name in iteritems(guide_type_map):
+        for ref_type, name in guide_type_map.items():
             if ref_type.lower() == 'cover' and mm.get(name, '').lower() in OEB_DOCS:
                 return name
     else:
@@ -338,7 +338,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
 
     if existing_image:
         raster_cover = existing_image
-        manifest_id = {v:k for k, v in iteritems(container.manifest_id_map)}[existing_image]
+        manifest_id = {v:k for k, v in container.manifest_id_map.items()}[existing_image]
         raster_cover_item = container.opf_xpath(f'//opf:manifest/*[@id="{manifest_id}"]')[0]
     else:
         folder = recommended_folders[cname]

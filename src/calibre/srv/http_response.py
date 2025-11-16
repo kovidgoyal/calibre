@@ -426,7 +426,7 @@ class HTTPConnection(HTTPRequest):
         if self.close_after_response and self.response_protocol is HTTP11:
             buf.append('Connection: close')
         if extra_headers is not None:
-            for h, v in iteritems(extra_headers):
+            for h, v in extra_headers.items():
                 buf.append(f'{h}: {v}')
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]

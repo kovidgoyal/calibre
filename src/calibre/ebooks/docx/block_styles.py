@@ -140,7 +140,7 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
                 if val is not None:
                     vals[prop % edge] = val
 
-    for key, val in iteritems(vals):
+    for key, val in vals.items():
         setattr(dest, key, val)
 
 

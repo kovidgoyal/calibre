@@ -420,12 +420,12 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
-        s['expanded'] = {c for c, item in iteritems(self.categories) if item.isExpanded()}
+        s['expanded'] = {c for c, item in self.categories.items() if item.isExpanded()}
         s['selected'] = {str(i.data(0, NAME_ROLE) or '') for i in self.selectedItems()}
         return s
 
     def set_state(self, state):
-        for category, item in iteritems(self.categories):
+        for category, item in self.categories.items():
             item.setExpanded(category in state['expanded'])
         self.verticalScrollBar().setValue(state['pos'])
         for parent in self.categories.values():
@@ -643,7 +643,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 continue
             processed[name] = create_item(name)
 
-        for name, c in iteritems(self.categories):
+        for name, c in self.categories.items():
             c.setExpanded(True)
             if name != 'text':
                 c.sortChildren(1, Qt.SortOrder.AscendingOrder)
@@ -779,7 +779,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.open_file_with.emit(file_name, fmt, entry)
 
     def index_of_name(self, name):
-        for category, parent in iteritems(self.categories):
+        for category, parent in self.categories.items():
             for i in range(parent.childCount()):
                 item = parent.child(i)
                 if str(item.data(0, NAME_ROLE) or '') == name:
@@ -976,7 +976,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         for i, (name, remove) in enumerate(spine_removals):
             if remove:
                 removals.append(self.categories['text'].child(i))
-        for category, parent in iteritems(self.categories):
+        for category, parent in self.categories.items():
             if category != 'text':
                 for i in range(parent.childCount()):
                     child = parent.child(i)

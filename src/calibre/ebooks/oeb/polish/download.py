@@ -22,7 +22,6 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
 from polyglot.binary import from_base64_bytes
-from polyglot.builtins import iteritems
 from polyglot.urllib import unquote, urlparse
 
 
@@ -43,7 +42,7 @@ def iterhtmllinks(container, name):
 
 def get_external_resources(container):
     ans = defaultdict(list)
-    for name, media_type in iteritems(container.mime_map):
+    for name, media_type in container.mime_map.items():
         if container.has_name(name) and container.exists(name):
             if media_type in OEB_DOCS:
                 for el, attr, link in iterhtmllinks(container, name):
@@ -190,12 +189,12 @@ def replacer(url_map):
 def replace_resources(container, urls, replacements):
     url_maps = defaultdict(dict)
     changed = False
-    for url, names in iteritems(urls):
+    for url, names in urls.items():
         replacement = replacements.get(url)
         if replacement is not None:
             for name in names:
                 url_maps[name][url] = container.name_to_href(replacement, name)
-    for name, url_map in iteritems(url_maps):
+    for name, url_map in url_maps.items():
         r = replacer(url_map)
         container.replace_links(name, r)
         changed |= r.replaced

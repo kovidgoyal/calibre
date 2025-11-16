@@ -183,9 +183,9 @@ def ensure_prefix(root, prefixes, prefix, value=None):
     if prefixes is None:
         prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
-    prefixes = {k:v for k, v in iteritems(prefixes) if reserved_prefixes.get(k) != v}
+    prefixes = {k:v for k, v in prefixes.items() if reserved_prefixes.get(k) != v}
     if prefixes:
-        root.set('prefix', ' '.join(f'{k}: {v}' for k, v in iteritems(prefixes)))
+        root.set('prefix', ' '.join(f'{k}: {v}' for k, v in prefixes.items()))
     else:
         root.attrib.pop('prefix', None)
 
@@ -292,7 +292,7 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             remove_element(ident, refines)
             continue
     metadata = XPath('./opf:metadata')(root)[0]
-    for scheme, val in iteritems(new_identifiers):
+    for scheme, val in new_identifiers.items():
         ident = metadata.makeelement(DC('identifier'))
         ident.text = f'{scheme}:{val}'
         if package_identifier is None:
@@ -902,7 +902,7 @@ set_link_maps = dict_writer('link_maps', extra_remove='author_link_map')
 def deserialize_user_metadata(val):
     val = json.loads(val, object_hook=from_json)
     ans = {}
-    for name, fm in iteritems(val):
+    for name, fm in val.items():
         decode_is_multiple(fm)
         ans[name] = fm
     return ans
@@ -1028,7 +1028,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
     identifiers = read_identifiers(root, prefixes, refines)
     ids = {}
-    for key, vals in iteritems(identifiers):
+    for key, vals in identifiers.items():
         if key == 'calibre':
             ans.application_id = vals[0]
         elif key == 'uuid':

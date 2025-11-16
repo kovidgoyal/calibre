@@ -89,7 +89,7 @@ class LegacyTest(BaseTest):
                 # We ignore the key rec_index, since it is not stable for
                 # custom columns (it is created by iterating over a dict)
                 return {k.decode('utf-8') if isinstance(k, bytes) else k:to_unicode(v)
-                        for k, v in iteritems(x) if k != 'rec_index'}
+                        for k, v in x.items() if k != 'rec_index'}
             return x
 
         def get_props(db):
@@ -116,7 +116,7 @@ class LegacyTest(BaseTest):
         'Test the get_property interface for reading data'
         def get_values(db):
             ans = {}
-            for label, loc in iteritems(db.FIELD_MAP):
+            for label, loc in db.FIELD_MAP.items():
                 if isinstance(label, numbers.Integral):
                     label = '#'+db.custom_column_num_map[label]['label']
                 label = str(label)
@@ -292,8 +292,8 @@ class LegacyTest(BaseTest):
         old = db.get_data_as_dict(prefix='test-prefix')
         new = ndb.get_data_as_dict(prefix='test-prefix')
         for o, n in zip(old, new):
-            o = {str(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in iteritems(o)}
-            n = {k:set(v) if isinstance(v, list) else v for k, v in iteritems(n)}
+            o = {str(k) if isinstance(k, bytes) else k:set(v) if isinstance(v, list) else v for k, v in o.items()}
+            n = {k:set(v) if isinstance(v, list) else v for k, v in n.items()}
             self.assertEqual(o, n)
 
         ndb.search('title:Unknown')

@@ -122,7 +122,7 @@ def escape_funcs():
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         def escape(x):
             return escape_pat.sub(lambda m: escapem[m.group()], x.replace('\\\\', '\x01'))
-        unescapem = {v:k[1] for k, v in iteritems(escapem)}
+        unescapem = {v:k[1] for k, v in escapem.items()}
         unescape_pat = re.compile('|'.join(unescapem))
         def unescape(x):
             return unescape_pat.sub(lambda m: unescapem[m.group()], x)
@@ -722,7 +722,7 @@ class UserSnippets(Dialog):
     def change_builtin(self):
         d = QDialog(self)
         lw = QListWidget(d)
-        for (trigger, syntaxes), snip in iteritems(builtin_snippets):
+        for (trigger, syntaxes), snip in builtin_snippets.items():
             snip = copy.deepcopy(snip)
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)

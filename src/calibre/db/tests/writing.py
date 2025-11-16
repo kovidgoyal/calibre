@@ -530,13 +530,13 @@ class WritingTest(BaseTest):
         tmap = cache.get_id_map('tags')
         self.assertEqual(cache.remove_items('tags', tmap), {1, 2})
         tmap = cache.get_id_map('#tags')
-        t = {v:k for k, v in iteritems(tmap)}['My Tag Two']
+        t = {v:k for k, v in tmap.items()}['My Tag Two']
         self.assertEqual(cache.remove_items('#tags', (t,)), {1, 2})
 
         smap = cache.get_id_map('series')
         self.assertEqual(cache.remove_items('series', smap), {1, 2})
         smap = cache.get_id_map('#series')
-        s = {v:k for k, v in iteritems(smap)}['My Series Two']
+        s = {v:k for k, v in smap.items()}['My Series Two']
         self.assertEqual(cache.remove_items('#series', (s,)), {1})
 
         for c in (cache, self.init_cache()):

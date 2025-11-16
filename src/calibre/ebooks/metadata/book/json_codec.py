@@ -13,7 +13,7 @@ from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from polyglot.binary import as_base64_unicode, from_base64_bytes
-from polyglot.builtins import as_bytes, iteritems, itervalues
+from polyglot.builtins import as_bytes, itervalues
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
@@ -187,7 +187,7 @@ class JsonCodec:
     def raw_to_book(self, json_book, book_class, prefix):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
-            for key,val in iteritems(json_book):
+            for key,val in json_book.items():
                 meta = self.decode_metadata(key, val)
                 if key == 'user_metadata':
                     book.set_all_user_metadata(meta)

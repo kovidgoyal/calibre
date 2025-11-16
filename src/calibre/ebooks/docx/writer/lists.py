@@ -7,7 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 from operator import attrgetter
 
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 LIST_STYLES = frozenset(
     'disc circle square decimal decimal-leading-zero lower-roman upper-roman'
@@ -62,7 +62,7 @@ class NumberingDefinition:
         items_for_level = defaultdict(list)
         container_for_level = {}
         type_for_level = {}
-        for ilvl, items in iteritems(self.level_map):
+        for ilvl, items in self.level_map.items():
             for container, list_tag, block, list_type, tag_style in items:
                 items_for_level[ilvl].append(list_tag)
                 container_for_level[ilvl] = container
@@ -76,7 +76,7 @@ class NumberingDefinition:
         return hash(self.levels)
 
     def link_blocks(self):
-        for ilvl, items in iteritems(self.level_map):
+        for ilvl, items in self.level_map.items():
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 

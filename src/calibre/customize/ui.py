@@ -35,7 +35,7 @@ from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_dir, plugin_dir
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({
@@ -732,7 +732,7 @@ def patch_metadata_plugins(possibly_updated_plugins):
                     # Metadata source plugins don't use initialize() but that
                     # might change in the future, so be safe.
                     patches[i].initialize()
-    for i, pup in iteritems(patches):
+    for i, pup in patches.items():
         _initialized_plugins[i] = pup
 # }}}
 

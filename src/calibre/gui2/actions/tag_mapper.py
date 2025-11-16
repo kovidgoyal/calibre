@@ -6,7 +6,6 @@ from qt.core import QDialog
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class TagMapAction(InterfaceAction):
@@ -50,7 +49,7 @@ class TagMapAction(InterfaceAction):
             db = self.gui.current_db.new_api
             tag_map = db.all_field_for('tags', book_ids)
             changed_tag_map = {}
-            for book_id, tags in iteritems(tag_map):
+            for book_id, tags in tag_map.items():
                 tags = list(tags)
                 new_tags = map_tags(tags, rules)
                 if tags != new_tags:

@@ -35,7 +35,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import string_or_bytes
 from polyglot.queue import Empty
 
 
@@ -478,7 +478,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in iteritems(fmap):
+        for fmt, path in fmap.items():
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':

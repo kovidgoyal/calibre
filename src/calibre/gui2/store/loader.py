@@ -17,7 +17,7 @@ from calibre import prints
 from calibre.constants import DEBUG, numeric_version
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.urllib import urlencode
 
 
@@ -30,7 +30,7 @@ class VersionMismatch(ValueError):
 
 def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
-    data = {k:str(v) for k, v in iteritems(ver_map)}
+    data = {k:str(v) for k, v in ver_map.items()}
     data['ver'] = '1'
     url = f'{server}/stores?{urlencode(data)}'
     # We use a timeout here to ensure the non-daemonic update thread does not
@@ -60,7 +60,7 @@ class Stores(OrderedDict):
         self.version_map = {}
         self.cached_version_map = {}
         self.name_rmap = {}
-        for key, val in iteritems(self):
+        for key, val in self.items():
             prefix, name = val.__module__.rpartition('.')[0::2]
             if prefix == 'calibre.gui2.store.stores' and name.endswith('_plugin'):
                 module = sys.modules[val.__module__]
@@ -76,7 +76,7 @@ class Stores(OrderedDict):
         # Load plugins from on disk cache
         remove = set()
         pat = re.compile(r'^store_version\s*=\s*(\d+)', re.M)
-        for name, src in iteritems(self.cache_file):
+        for name, src in self.cache_file.items():
             try:
                 key = self.name_rmap[name]
             except KeyError:
@@ -125,7 +125,7 @@ class Stores(OrderedDict):
 
     def download_updates(self):
         ver_map = {name:max(ver, self.cached_version_map.get(name, -1))
-            for name, ver in iteritems(self.version_map)}
+            for name, ver in self.version_map.items()}
         try:
             updates = download_updates(ver_map)
         except Exception:
@@ -160,7 +160,7 @@ class Stores(OrderedDict):
 
         if replacements:
             with self.cache_file:
-                for name, src in iteritems(replacements):
+                for name, src in replacements.items():
                     self.cache_file[name] = src
 
     def replace_plugin(self, ver, name, obj, source):

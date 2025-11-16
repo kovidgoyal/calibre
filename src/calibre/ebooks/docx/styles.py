@@ -339,7 +339,7 @@ class Styles:
                     setattr(s, prop, inherit)
                 setattr(block_style, prop, next(iter(vals)))
 
-        for p, runs in iteritems(layers):
+        for p, runs in layers.items():
             has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
@@ -500,7 +500,7 @@ class Styles:
 
         ans = []
         for cls, css in sorted(itervalues(self.classes), key=lambda x:x[0]):
-            b = (f'\t{k}: {v};' for k, v in iteritems(css))
+            b = (f'\t{k}: {v};' for k, v in css.items())
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)

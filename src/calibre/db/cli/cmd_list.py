@@ -71,7 +71,7 @@ def implementation(
                 continue
             if field == 'isbn':
                 x = db.all_field_for('identifiers', book_ids, default_value={})
-                data[field] = {k: v.get('isbn') or '' for k, v in iteritems(x)}
+                data[field] = {k: v.get('isbn') or '' for k, v in x.items()}
                 continue
             if field == 'template':
                 if not template:
@@ -137,7 +137,7 @@ def stringify(data, metadata, for_machine):
 def as_machine_data(book_ids, data, metadata):
     for book_id in book_ids:
         ans = {'id': book_id}
-        for field, val_map in iteritems(data):
+        for field, val_map in data.items():
             val = val_map.get(book_id)
             if val is not None:
                 ans[field.replace('#', '*')] = val

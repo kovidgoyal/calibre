@@ -47,9 +47,9 @@ def dictionary_name_for_locale(loc):
     if loc == 'es':
         return lmap['es_es']
     q = loc + '_'
-    for k, v in iteritems(lmap):
+    for k, v in lmap.items():
         if k.startswith(q):
-            return lmap[k]
+            return v
 
 
 @lru_cache(maxsize=2)

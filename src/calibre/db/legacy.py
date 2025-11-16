@@ -348,7 +348,7 @@ class LibraryDatabase:
             paths, formats, metadata = [], [], []
             for mi, format_map in duplicates:
                 metadata.append(mi)
-                for fmt, path in iteritems(format_map):
+                for fmt, path in format_map.items():
                     formats.append(fmt)
                     paths.append(path)
             duplicates = (paths, formats, metadata)
@@ -746,7 +746,7 @@ class LibraryDatabase:
     def delete_item_from_multiple(self, item, label=None, num=None):
         field = self.custom_field_name(label, num)
         existing = self.new_api.get_id_map(field)
-        rmap = {icu_lower(v):k for k, v in iteritems(existing)}
+        rmap = {icu_lower(v):k for k, v in existing.items()}
         item_id = rmap.get(icu_lower(item), None)
         if item_id is None:
             return []

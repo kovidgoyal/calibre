@@ -43,7 +43,7 @@ from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes
 
 # Default settings {{{
 cprefs = JSONConfig('cover_generation')
@@ -296,7 +296,7 @@ def preserve_fields(obj, fields):
     try:
         yield
     finally:
-        for f, val in iteritems(mem):
+        for f, val in mem.items():
             if val is null:
                 delattr(obj, f)
             else:
@@ -338,10 +338,10 @@ def load_color_themes(prefs):
     t = default_color_themes.copy()
     t.update(prefs.color_themes)
     disabled = frozenset(prefs.disabled_color_themes)
-    ans = [theme_to_colors(v) for k, v in iteritems(t) if k not in disabled]
+    ans = [theme_to_colors(v) for k, v in t.items() if k not in disabled]
     if not ans:
         # Ignore disabled and return only the builtin color themes
-        ans = [theme_to_colors(v) for k, v in iteritems(default_color_themes)]
+        ans = [theme_to_colors(v) for k, v in default_color_themes.items()]
     return ans
 
 

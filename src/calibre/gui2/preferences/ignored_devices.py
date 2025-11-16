@@ -98,7 +98,7 @@ class ConfigWidget(ConfigWidgetBase):
             if e.checkState() == Qt.CheckState.Checked:
                 devs[dev].append(uid)
 
-        for dev, bl in iteritems(devs):
+        for dev, bl in devs.items():
             dev.set_user_blacklisted_devices(bl)
 
         for i in range(self.device_plugins.count()):

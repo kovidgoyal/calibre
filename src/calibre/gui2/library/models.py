@@ -1045,7 +1045,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return str(e)
             return f
 
-        for f, allow_half in iteritems(rating_fields):
+        for f, allow_half in rating_fields.items():
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         for f in bool_fields:
             tc[f] = bool_tooltip(f)

@@ -9,7 +9,6 @@ import re
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 FB2NS  = 'http://www.gribuser.ru/xml/fictionbook/2.0'
 FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
@@ -106,7 +105,7 @@ class FB2Input(InputFormatPlugin):
         notes = {a.get('href')[1:]: a for a in result.xpath('//a[@link_note and @href]') if a.get('href').startswith('#')}
         cites = {a.get('link_cite'): a for a in result.xpath('//a[@link_cite]') if not a.get('href', '')}
         all_ids = set(result.xpath('//*/@id'))
-        for cite, a in iteritems(cites):
+        for cite, a in cites.items():
             note = notes.get(cite, None)
             if note:
                 c = 1

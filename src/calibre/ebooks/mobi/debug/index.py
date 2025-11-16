@@ -106,13 +106,13 @@ class Index:
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)
-            for offset, val in iteritems(self.cncx):
+            for offset, val in self.cncx.items():
                 a(f'{offset:10}: {val}')
             ans.extend(['', ''])
 
         if self.table is not None:
             a('*'*10 + f' {len(self.table)} Index Entries ' + '*'*10)
-            for k, v in iteritems(self.table):
+            for k, v in self.table.items():
                 a(f'{k}: {v!r}')
 
         if self.records:

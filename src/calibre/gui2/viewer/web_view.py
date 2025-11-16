@@ -51,7 +51,7 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply, setup_profile, to_js
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 from polyglot.functools import lru_cache
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
@@ -674,7 +674,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.create_view(
             vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)
         performance_monitor('bridge ready')
-        for func, args in iteritems(self.pending_bridge_ready_actions):
+        for func, args in self.pending_bridge_ready_actions.items():
             getattr(self.bridge, func)(*args)
 
     def on_iframe_ready(self):

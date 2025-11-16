@@ -44,7 +44,7 @@ from calibre.utils.mdns import publish as publish_zeroconf
 from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot import queue
-from polyglot.builtins import as_bytes, iteritems, itervalues
+from polyglot.builtins import as_bytes, itervalues
 
 
 def synchronous(tlockname):
@@ -271,7 +271,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_CALIBRE_DEVICE_NAME': 2,
         'TOTAL_SPACE'            : 4,
     }
-    reverse_opcodes = {v: k for k, v in iteritems(opcodes)}
+    reverse_opcodes = {v: k for k, v in opcodes.items()}
 
     MESSAGE_PASSWORD_ERROR = 1
     MESSAGE_UPDATE_NEEDED  = 2
@@ -407,7 +407,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 try:
                     if isinstance(a, dict):
                         printable = {}
-                        for k,v in iteritems(a):
+                        for k,v in a.items():
                             if isinstance(v, (bytes, str)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
@@ -550,7 +550,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # codec to first convert it to a string dict
     def _json_encode(self, op, arg):
         res = {}
-        for k,v in iteritems(arg):
+        for k,v in arg.items():
             if isinstance(v, (Book, Metadata)):
                 res[k] = self.json_codec.encode_book_metadata(v)
                 series = v.get('series', None)
@@ -846,7 +846,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             prefix = os.path.join(cache_dir(),
                         'wireless_device_' + self.device_uuid + '_metadata_cache')
             with open(prefix + '.tmp', mode='wb') as fd:
-                for key,book in iteritems(self.device_book_cache):
+                for key,book in self.device_book_cache.items():
                     if (now_ - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
                         continue
@@ -1404,7 +1404,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         coldict = {}
         if colattrs and hasattr(booklists[0], 'get_collections'):
             collections = booklists[0].get_collections(colattrs)
-            for k,v in iteritems(collections):
+            for k,v in collections.items():
                 lpaths = []
                 for book in v:
                     lpaths.append(book.lpath)

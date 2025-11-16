@@ -15,7 +15,7 @@ from contextlib import suppress
 
 from calibre import force_unicode, guess_type, prints, relpath
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import as_unicode, iteritems
+from polyglot.builtins import as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 try:
@@ -50,7 +50,7 @@ def remove_bracketed_text(src, brackets=None):
     total = 0
     buf = []
     src = force_unicode(src)
-    rmap = {v: k for k, v in iteritems(brackets)}
+    rmap = {v: k for k, v in brackets.items()}
     for char in src:
         if char in brackets:
             counts[char] += 1

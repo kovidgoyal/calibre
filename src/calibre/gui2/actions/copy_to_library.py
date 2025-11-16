@@ -45,7 +45,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.config import prefs
 from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
@@ -299,7 +299,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.setWindowTitle(_('Duplicate books'))
         self.books = QListWidget(self)
         self.items = []
-        for book_id, (title, authors) in iteritems(duplicates):
+        for book_id, (title, authors) in duplicates.items():
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.ItemDataRole.UserRole, book_id)
             i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)

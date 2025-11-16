@@ -155,7 +155,7 @@ def functions(refresh=False):
         ans = _functions = {}
         for func in builtin_functions():
             ans[func.name] = Function(func.name, func=func)
-        for name, source in iteritems(user_functions):
+        for name, source in user_functions.items():
             try:
                 f = Function(name, source=source)
             except Exception:

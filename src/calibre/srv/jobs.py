@@ -12,7 +12,7 @@ from threading import Event, RLock, Thread
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.queue import Empty, Queue
 
 StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
@@ -238,7 +238,7 @@ class JobsManager:
         with self.lock:
             remove = []
             now = monotonic()
-            for job_id, job in iteritems(self.finished_jobs):
+            for job_id, job in self.finished_jobs.items():
                 if now - job.end_time > 3600:
                     remove.append(job_id)
             for job_id in remove:

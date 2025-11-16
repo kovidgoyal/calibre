@@ -860,7 +860,7 @@ class InsertSemantics(Dialog):  # {{{
             'bodymatter': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, ((f'{t(v)} ({type_map_help[k]})') if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
+        all_types = [(k, ((f'{t(v)} ({type_map_help[k]})') if k in type_map_help else t(v))) for k, v in self.known_type_map.items()]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
@@ -871,7 +871,7 @@ class InsertSemantics(Dialog):  # {{{
         self.tl = tl = QFormLayout()
         tl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.semantic_type = QComboBox(self)
-        for key, val in iteritems(self.all_types):
+        for key, val in self.all_types.items():
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
@@ -1160,7 +1160,7 @@ class AddCover(Dialog):
     @property
     def image_names(self):
         img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
-        for name, mt in iteritems(self.container.mime_map):
+        for name, mt in self.container.mime_map.items():
             if mt.lower() in img_types:
                 yield name
 

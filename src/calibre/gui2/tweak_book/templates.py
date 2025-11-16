@@ -6,7 +6,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre import prepare_string_for_xml
 from calibre.gui2.tweak_book import current_container, tprefs
-from polyglot.builtins import iteritems
 
 DEFAULT_TEMPLATES = {
     'html':
@@ -45,4 +44,4 @@ def template_for(syntax):
         'AUTHOR': ' & '.join(mi.authors),
     }
     return raw_template_for(syntax).format(
-        **{k:prepare_string_for_xml(v, True) for k, v in iteritems(data)})
+        **{k:prepare_string_for_xml(v, True) for k, v in data.items()})

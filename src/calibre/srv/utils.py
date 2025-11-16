@@ -54,7 +54,7 @@ class MultiDict(dict):  # {{{
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in iteritems(ld):
+        for key, values in ld.items():
             for val in values:
                 self[key] = val
 
@@ -101,7 +101,7 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in iteritems(self)) + '}'
+        return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in self.items()) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):

@@ -10,7 +10,6 @@ import re
 
 from calibre import guess_type
 from calibre.utils.date import isoformat, now
-from polyglot.builtins import iteritems
 
 
 def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
@@ -52,7 +51,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.clear('series')
     identifiers = mi.get_identifiers()
     set_isbn = False
-    for typ, val in iteritems(identifiers):
+    for typ, val in identifiers.items():
         has = False
         if typ.lower() == 'isbn':
             set_isbn = True

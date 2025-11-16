@@ -210,7 +210,7 @@ class CSSFlattener:
 
     def store_page_margins(self):
         self.opts._stored_page_margins = {}
-        for item, stylizer in iteritems(self.stylizers):
+        for item, stylizer in self.stylizers.items():
             margins = self.opts._stored_page_margins[item.href] = {}
             for prop, val in stylizer.page_rule.items():
                 p, w = prop.partition('-')[::2]
@@ -552,7 +552,7 @@ class CSSFlattener:
                 node.attrib['class'] = match
                 keep_classes.add(match)
 
-            for psel, cssdict in iteritems(pseudo_classes):
+            for psel, cssdict in pseudo_classes.items():
                 items = sorted(iteritems(cssdict))
                 css = ';\n'.join(f'{key}: {val}' for key, val in items)
                 pstyles = pseudo_styles[psel]
@@ -672,7 +672,7 @@ class CSSFlattener:
             gc_map[css] = href
 
         ans = {}
-        for css, items in iteritems(global_css):
+        for css, items in global_css.items():
             for item in items:
                 ans[item] = gc_map[css]
         return ans
@@ -688,7 +688,7 @@ class CSSFlattener:
             fsize = self.context.dest.fbase
             self.flatten_node(html, stylizer, names, styles, pseudo_styles, fsize, item.id, recurse=False)
             self.flatten_node(html.find(XHTML('body')), stylizer, names, styles, pseudo_styles, fsize, item.id)
-        items = sorted(((key, val) for (val, key) in iteritems(styles)), key=lambda x: numeric_sort_key(x[0]))
+        items = sorted(((key, val) for (val, key) in styles.items()), key=lambda x: numeric_sort_key(x[0]))
         # :hover must come after link and :active must come after :hover
         psels = sorted(pseudo_styles, key=lambda x:
                 {'hover':1, 'active':2}.get(x, 0))
@@ -696,7 +696,7 @@ class CSSFlattener:
             styles = pseudo_styles[psel]
             if not styles:
                 continue
-            x = sorted(((k+':'+psel, v) for v, k in iteritems(styles)))
+            x = sorted(((k+':'+psel, v) for v, k in styles.items()))
             items.extend(x)
 
         css = ''.join(f'.{key} {{\n{val};\n}}\n\n' for key, val in items)

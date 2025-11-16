@@ -23,7 +23,6 @@ from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.localization import _, localize_user_manual_link
-from polyglot.builtins import iteritems
 
 # Devices {{{
 
@@ -527,7 +526,7 @@ class KindlePage(QWizardPage, KindleUI):
         opts = smtp_prefs().parse()
         accs = []
         has_default = False
-        for x, ac in iteritems(opts.accounts):
+        for x, ac in opts.accounts.items():
             default = ac[2]
             if x.strip().endswith('@kindle.com'):
                 accs.append((x, default))
@@ -932,7 +931,7 @@ class Wizard(QWizard):
         self.resize(600, 520)
 
     def set_button_texts(self):
-        for but, text in iteritems(self.BUTTON_TEXTS):
+        for but, text in self.BUTTON_TEXTS.items():
             self.setButtonText(getattr(QWizard.WizardButton, but+'Button'), _(text))
 
     def retranslate(self):

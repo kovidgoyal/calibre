@@ -82,7 +82,7 @@ def import_from_libreoffice_source_tree(source_path):
     base = P('dictionaries', allow_user_override=False)
     want_locales = set(BUILTIN_LOCALES)
 
-    for (dic, aff), locales in iteritems(dictionaries):
+    for (dic, aff), locales in dictionaries.items():
         c = set(locales) & want_locales
         if c:
             locale = tuple(c)[0]

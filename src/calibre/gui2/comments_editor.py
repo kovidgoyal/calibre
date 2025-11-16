@@ -276,9 +276,9 @@ def cleanup_qt_markup(root):
         fw = style.get('font-weight')
         if fw in ('600', '700'):
             style['font-weight'] = 'bold'
-    for tag, style in iteritems(style_map):
+    for tag, style in style_map.items():
         if style:
-            tag.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+            tag.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
         else:
             tag.attrib.pop('style', None)
     for span in root.xpath('//span[not(@style)]'):

@@ -11,7 +11,7 @@ import os
 import struct
 import zlib
 
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 from .pylrfopt import tagListOptimizer
 
@@ -527,7 +527,7 @@ class LrfObject:
         # belongs somewhere, so here it is.
         #
         composites = {}
-        for name, value in iteritems(tagDict):
+        for name, value in tagDict.items():
             if name == 'rubyAlignAndAdjust':
                 continue
             if name in {

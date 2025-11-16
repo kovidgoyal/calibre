@@ -13,7 +13,6 @@ from calibre.gui2.tweak_book.editor.syntax.utils import NULL_FMT, format_for_pyg
 from calibre.gui2.tweak_book.editor.text import SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highlighter
 from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_format
-from polyglot.builtins import iteritems
 
 
 class QtHighlighter(QTextDocument):
@@ -84,7 +83,7 @@ class PygmentsHighlighter:
 
     def __init__(self, text, lexer):
         theme, cache = get_theme(tprefs['editor_theme']), {}
-        theme = {k:highlight_to_char_format(v) for k, v in iteritems(theme)}
+        theme = {k:highlight_to_char_format(v) for k, v in theme.items()}
         theme[None] = NULL_FMT
 
         def fmt(token):

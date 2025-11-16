@@ -47,7 +47,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
+from polyglot.builtins import error_message, itervalues, native_string_type
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -275,8 +275,8 @@ class MyBlockingBusy(QDialog):  # {{{
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
-            new_title_map = {bid:new_title(authors) for bid, authors in iteritems(authors_map)}
-            new_authors_map = {bid:string_to_authors(title) for bid, title in iteritems(title_map)}
+            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.items()}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.items()}
             self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
@@ -286,7 +286,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_title_case and not args.do_swap_ta:
             self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:change_title_casing(title) for bid, title in iteritems(title_map)})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.items()})
             self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
@@ -544,7 +544,7 @@ class MyBlockingBusy(QDialog):  # {{{
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
                 self.progress_update.emit(0)
-                for field, book_id_val_map in iteritems(self.sr_calls):
+                for field, book_id_val_map in self.sr_calls.items():
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
                 self.progress_finished_cur_step.emit()
@@ -943,7 +943,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [f'{t[0]}:{t[1]}' for t in iteritems(val)]
+                    val = [f'{t[0]}:{t[1]}' for t in val.items()]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -1133,7 +1133,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [f'{t[0]}:{t[1]}' for t in iteritems(dest_val)]
+                    dest_val = [f'{t[0]}:{t[1]}' for t in dest_val.items()]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):

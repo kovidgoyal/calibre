@@ -827,7 +827,7 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
     ' Get a mapping of drive letters to storage numbers for all drives on system (of the specified types) '
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
-    drives = (letter for letter, dt in iteritems(type_map) if dt in drive_types)
+    drives = (letter for letter, dt in type_map.items() if dt in drive_types)
     ans = defaultdict(list)
     for letter in drives:
         try:

@@ -14,7 +14,7 @@ from calibre.utils.config_base import prefs, tweaks
 from calibre.utils.icu import collation_order, sort_key
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
-from polyglot.builtins import iteritems, native_string_type
+from polyglot.builtins import native_string_type
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
@@ -299,7 +299,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
         # do the verification in the category loop much faster, at the cost of
         # temporarily duplicating the categories lists.
         taglist = {}
-        for c, items in iteritems(categories):
+        for c, items in categories.items():
             taglist[c] = {icu_lower(t.name): t for t in items}
 
         # Add the category values to the user categories

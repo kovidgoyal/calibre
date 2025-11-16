@@ -36,7 +36,6 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class CreateCustomColumn(QDialog):
@@ -106,7 +105,7 @@ class CreateCustomColumn(QDialog):
             'is_multiple':True
         },
     )))
-    column_types_map = {k['datatype']:idx for idx, k in iteritems(column_types)}
+    column_types_map = {k['datatype']:idx for idx, k in column_types.items()}
 
     def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
         QDialog.__init__(self, gui)

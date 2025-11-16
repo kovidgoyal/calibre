@@ -46,7 +46,7 @@ def font_family_data_from_sheet(sheet, families):
 
 def font_family_data(container):
     families = {}
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
             font_family_data_from_sheet(sheet, families)

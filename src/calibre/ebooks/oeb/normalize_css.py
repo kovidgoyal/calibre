@@ -140,7 +140,7 @@ def normalize_border(name, cssvalue):
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
     vals = style.copy()
     for edge in EDGES[1:]:
-        style.update({k.replace(EDGES[0], edge):v for k, v in iteritems(vals)})
+        style.update({k.replace(EDGES[0], edge):v for k, v in vals.items()})
     return style
 
 
@@ -250,11 +250,11 @@ condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': si
 def condense_rule(style):
     expanded = {'margin-':[], 'padding-':[], 'border-':[]}
     for prop in style.getProperties():
-        for x,t in iteritems(expanded):
+        for x,t in expanded.items():
             if prop.name and prop.name.startswith(x):
                 t.append(prop)
                 break
-    for prefix, vals in iteritems(expanded):
+    for prefix, vals in expanded.items():
         if len(vals) > 1 and {x.priority for x in vals} == {''}:
             condensers[prefix[:-1]](style, vals)
 
@@ -300,7 +300,7 @@ def test_normalization(return_tests=False):  # {{{
         def test_border_normalization(self):
             def border_edge_dict(expected, edge='right'):
                 ans = {f'border-{edge}-{x}': DEFAULTS[f'border-{edge}-{x}'] for x in ('style', 'width', 'color')}
-                for x, v in iteritems(expected):
+                for x, v in expected.items():
                     ans[f'border-{edge}-{x}'] = v
                 return ans
 
@@ -356,7 +356,7 @@ def test_normalization(return_tests=False):  # {{{
         def test_list_style_normalization(self):
             def ls_dict(expected):
                 ans = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
-                for k, v in iteritems(expected):
+                for k, v in expected.items():
                     ans[f'list-style-{k}'] = v
                 return ans
             for raw, expected in iteritems({
@@ -396,7 +396,7 @@ def test_normalization(return_tests=False):  # {{{
                 for prefix in ('margin', 'padding'):
                     css = {f'{prefix}-{x}': str(y)+'pt' if isinstance(y, numbers.Number) else y
                             for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
-                    css = '; '.join((f'{k}:{v}' for k, v in iteritems(css)))
+                    css = '; '.join((f'{k}:{v}' for k, v in css.items()))
                     style = parseStyle(css)
                     condense_rule(style)
                     val = getattr(style.getProperty(prefix), 'value', None)

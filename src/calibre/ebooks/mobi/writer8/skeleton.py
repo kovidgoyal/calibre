@@ -208,7 +208,7 @@ class Chunker:
 
     def remove_namespaces(self, root):
         lang = None
-        for attr, val in iteritems(root.attrib):
+        for attr, val in root.attrib.items():
             if attr.rpartition('}')[-1] == 'lang':
                 lang = val
 
@@ -242,11 +242,11 @@ class Chunker:
                 tn = tag.tag
                 if tn is not None:
                     tn = tn.rpartition('}')[-1]
-                attrib = {k.rpartition('}')[-1]:v for k, v in iteritems(tag.attrib)}
+                attrib = {k.rpartition('}')[-1]:v for k, v in tag.attrib.items()}
                 try:
                     elem = nroot.makeelement(tn, attrib=attrib)
                 except ValueError:
-                    attrib = {k:v for k, v in iteritems(attrib) if ':' not in k}
+                    attrib = {k:v for k, v in attrib.items() if ':' not in k}
                     elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text
             elem.tail = tag.tail

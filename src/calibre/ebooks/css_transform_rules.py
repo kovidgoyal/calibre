@@ -342,7 +342,7 @@ def export_rules(serialized_rules):
     lines = []
     for rule in serialized_rules:
         lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
-        lines.extend('{}: {}'.format(k, v.replace('\n', ' ')) for k, v in iteritems(rule) if k in allowed_keys)
+        lines.extend('{}: {}'.format(k, v.replace('\n', ' ')) for k, v in rule.items() if k in allowed_keys)
         lines.append('')
     return '\n'.join(lines).encode('utf-8')
 

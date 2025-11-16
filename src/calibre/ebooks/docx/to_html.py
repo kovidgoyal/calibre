@@ -127,7 +127,7 @@ class Convert:
 
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
-        for wp, page_properties in iteritems(self.page_map):
+        for wp, page_properties in self.page_map.items():
             self.current_page = page_properties
             if wp.tag.endswith('}p'):
                 p = self.convert_p(wp)
@@ -167,7 +167,7 @@ class Convert:
                 self.styles.apply_contextual_spacing(paras)
                 self.mark_block_runs(paras)
 
-        for p, wp in iteritems(self.object_map):
+        for p, wp in self.object_map.items():
             if len(p) > 0 and not p.text and len(p[0]) > 0 and not p[0].text and p[0][0].get('class', None) == 'tab':
                 # Paragraph uses tabs for indentation, convert to text-indent
                 parent = p[0]
@@ -198,7 +198,7 @@ class Convert:
         self.tables.apply_markup(self.object_map, self.page_map)
 
         numbered = []
-        for html_obj, obj in iteritems(self.object_map):
+        for html_obj, obj in self.object_map.items():
             raw = obj.get('calibre_num_id', None)
             if raw is not None:
                 lvl, num_id = raw.partition(':')[0::2]
@@ -218,7 +218,7 @@ class Convert:
 
         self.log.debug('Converting styles to CSS')
         self.styles.generate_classes()
-        for html_obj, obj in iteritems(self.object_map):
+        for html_obj, obj in self.object_map.items():
             style = self.styles.resolve(obj)
             if style is not None:
                 css = style.css
@@ -226,7 +226,7 @@ class Convert:
                     cls = self.styles.class_name(css)
                     if cls:
                         html_obj.set('class', cls)
-        for html_obj, css in iteritems(self.framed_map):
+        for html_obj, css in self.framed_map.items():
             cls = self.styles.class_name(css)
             if cls:
                 html_obj.set('class', cls)
@@ -420,7 +420,7 @@ class Convert:
         doc_anchors = frozenset(self.namespace.XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
         if doc_anchors:
             current_bm = set()
-            rmap = {v:k for k, v in iteritems(self.object_map)}
+            rmap = {v:k for k, v in self.object_map.items()}
             for p in self.namespace.descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
                 if p.tag.endswith('}p'):
                     if current_bm and p in rmap:
@@ -583,7 +583,7 @@ class Convert:
 
     def resolve_links(self):
         self.resolved_link_map = {}
-        for hyperlink, spans in iteritems(self.link_map):
+        for hyperlink, spans in self.link_map.items():
             relationships_by_id = self.link_source_map[hyperlink]
             span = spans[0]
             if len(spans) > 1:
@@ -608,7 +608,7 @@ class Convert:
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
-        rmap = {v:k for k, v in iteritems(self.object_map)}
+        rmap = {v:k for k, v in self.object_map.items()}
         for hyperlink, runs in self.fields.hyperlink_fields:
             spans = [rmap[r] for r in runs if r in rmap]
             if not spans:
@@ -773,7 +773,7 @@ class Convert:
 
         if not self.block_runs:
             return
-        rmap = {v:k for k, v in iteritems(self.object_map)}
+        rmap = {v:k for k, v in self.object_map.items()}
         for border_style, blocks in self.block_runs:
             paras = tuple(rmap[p] for p in blocks)
             for p in paras:

@@ -120,8 +120,8 @@ class ReadingTest(BaseTest):
 
                 },
         }
-        for book_id, test in iteritems(tests):
-            for field, expected_val in iteritems(test):
+        for book_id, test in tests.items():
+            for field, expected_val in test.items():
                 val = cache.field_for(field, book_id)
                 if isinstance(val, tuple) and 'authors' not in field and 'languages' not in field:
                     val, expected_val = set(val), set(expected_val)
@@ -267,7 +267,7 @@ class ReadingTest(BaseTest):
         old.conn.close()
         old = None
         cache = self.init_cache(self.library_path)
-        for book_id, cdata in iteritems(covers):
+        for book_id, cdata in covers.items():
             self.assertEqual(cdata, cache.cover(book_id), 'Reading of cover failed')
             f = cache.cover(book_id, as_file=True)
             try:
@@ -333,7 +333,7 @@ class ReadingTest(BaseTest):
         old = None
 
         cache = self.init_cache(self.cloned_library)
-        for query, ans in iteritems(oldvals):
+        for query, ans in oldvals.items():
             nr = cache.search(query, '')
             self.assertEqual(ans, nr,
                 f'Old result: {ans!r} != New result: {nr!r} for search: {query}')
@@ -432,11 +432,11 @@ class ReadingTest(BaseTest):
         lf = {i:set(old.formats(i, index_is_id=True).split(',')) if old.formats(
             i, index_is_id=True) else set() for i in ids}
         formats = {i:{f:old.format(i, f, index_is_id=True) for f in fmts} for
-                   i, fmts in iteritems(lf)}
+                   i, fmts in lf.items()}
         old.conn.close()
         old = None
         cache = self.init_cache(self.library_path)
-        for book_id, fmts in iteritems(lf):
+        for book_id, fmts in lf.items():
             self.assertEqual(fmts, set(cache.formats(book_id)),
                              'Set of formats is not the same')
             for fmt in fmts:
@@ -808,7 +808,7 @@ class ReadingTest(BaseTest):
         cache = self.init_cache(self.library_path)
         opts = {1: b'binary', 2: 'unicode'}
         cache.set_conversion_options(opts, 'PIPE')
-        for book_id, val in iteritems(opts):
+        for book_id, val in opts.items():
             got = cache.conversion_options(book_id, 'PIPE')
             if not isinstance(val, bytes):
                 val = val.encode('utf-8')

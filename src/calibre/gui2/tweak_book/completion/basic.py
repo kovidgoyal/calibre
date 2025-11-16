@@ -79,7 +79,7 @@ class Name(str):
 def complete_names(names_data, data_conn):
     if not names_cache:
         mime_map, spine_names = get_data(data_conn, 'names_data')
-        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in iteritems(mime_map))
+        names_cache[None] = all_names = frozenset(Name(name, mt, spine_names) for name, mt in mime_map.items())
         names_cache['text_link'] = frozenset(n for n in all_names if n.in_spine)
         names_cache['stylesheet'] = frozenset(n for n in all_names if n.mime_type in OEB_STYLES)
         names_cache['image'] = frozenset(n for n in all_names if n.mime_type.startswith('image/'))
@@ -95,7 +95,7 @@ def complete_names(names_data, data_conn):
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
     items = tuple(sorted(frozenset(itervalues(nmap)), key=numeric_sort_key))
     d = names_cache['descriptions'].get
-    descriptions = {href:d(name) for name, href in iteritems(nmap)}
+    descriptions = {href:d(name) for name, href in nmap.items()}
     return items, descriptions, {}
 
 

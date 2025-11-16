@@ -878,12 +878,12 @@ class Style:
     def pseudo_classes(self, filter_css):
         if filter_css:
             css = copy.deepcopy(self._pseudo_classes)
-            for psel, cssdict in iteritems(css):
+            for psel, cssdict in css.items():
                 for k in filter_css:
                     cssdict.pop(k, None)
         else:
             css = self._pseudo_classes
-        return {k:v for k, v in iteritems(css) if v}
+        return {k:v for k, v in css.items() if v}
 
     @property
     def is_hidden(self):

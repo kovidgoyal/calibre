@@ -59,8 +59,8 @@ SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'62626
 SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa: E501
 m = {f'base{n}':f'base{n:02}' for n in range(1, 4)}
 m.update({f'base{n:02}':f'base{n}' for n in range(1, 4)})
-SLL =  {m.get(k, k): v for k, v in iteritems(SLD)}
-SLLX = {m.get(k, k): v for k, v in iteritems(SLDX)}
+SLL =  {m.get(k, k): v for k, v in SLD.items()}
+SLLX = {m.get(k, k): v for k, v in SLDX.items()}
 SOLARIZED = \
     '''
     CursorLine   bg={base02}
@@ -259,7 +259,7 @@ def read_theme(raw):
     return ans
 
 
-THEMES = {k:read_theme(raw) for k, raw in iteritems(THEMES)}
+THEMES = {k:read_theme(raw) for k, raw in THEMES.items()}
 
 
 def u(x):
@@ -281,7 +281,7 @@ def to_highlight(data):
 
 def read_custom_theme(data):
     dt = THEMES[default_theme()].copy()
-    dt.update({k:to_highlight(v) for k, v in iteritems(data)})
+    dt.update({k:to_highlight(v) for k, v in data.items()})
     return dt
 
 

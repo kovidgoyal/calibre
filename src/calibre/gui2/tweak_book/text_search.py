@@ -13,7 +13,7 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.startup import connect_lambda
 from calibre.utils.icu import utf16_length
-from polyglot.builtins import error_message, iteritems
+from polyglot.builtins import error_message
 
 # UI {{{
 
@@ -74,7 +74,7 @@ class WhereBox(QComboBox):
     @where.setter
     def where(self, val):
         wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
-        self.setCurrentIndex({v:k for k, v in iteritems(wm)}[val])
+        self.setCurrentIndex({v:k for k, v in wm.items()}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -181,7 +181,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
                 return True
             if not files and editor.find_text(pat, wrap=True):
                 return True
-        for fname, syntax in iteritems(files):
+        for fname, syntax in files.items():
             ed = editors.get(fname, None)
             if ed is not None:
                 if ed.find_text(pat, complete=True):

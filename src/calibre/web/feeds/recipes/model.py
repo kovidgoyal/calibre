@@ -25,7 +25,6 @@ from calibre.web.feeds.recipes.collection import (
     update_custom_recipe,
     update_custom_recipes,
 )
-from polyglot.builtins import iteritems
 
 
 class NewsTreeItem:
@@ -210,7 +209,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
 
     def update_custom_recipes(self, script_urn_map):
         script_ids = []
-        for urn, title_script in iteritems(script_urn_map):
+        for urn, title_script in script_urn_map.items():
             id_ = int(urn[len('custom:'):])
             title, script = title_script
             script_ids.append((id_, title, script))

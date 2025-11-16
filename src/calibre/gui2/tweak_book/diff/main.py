@@ -101,11 +101,11 @@ def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     removals = list_of_names1 - common_names
     adds = set(list_of_names2 - common_names)
     adata, rdata = {a:get_data2(a) for a in adds}, {r:get_data1(r) for r in removals}
-    ahash = {a:hash(d) for a, d in iteritems(adata)}
-    rhash = {r:hash(d) for r, d in iteritems(rdata)}
+    ahash = {a:hash(d) for a, d in adata.items()}
+    rhash = {r:hash(d) for r, d in rdata.items()}
     renamed_names, removed_names, added_names = {}, set(), set()
-    for name, rh in iteritems(rhash):
-        for n, ah in iteritems(ahash):
+    for name, rh in rhash.items():
+        for n, ah in ahash.items():
             if ah == rh:
                 renamed_names[name] = n
                 adds.discard(n)

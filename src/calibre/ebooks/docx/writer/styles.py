@@ -158,7 +158,7 @@ class DOCXStyle:
             getattr(self, x) for x in self.ALL_PROPS))
 
     def makeelement(self, parent, name, **attrs):
-        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in iteritems(attrs)})
+        return parent.makeelement(self.w(name), **{self.w(k):v for k, v in attrs.items()})
 
     def __hash__(self):
         return self._hash
@@ -721,7 +721,7 @@ class StylesManager:
 
         counts = Counter()
         smap = {}
-        for (bs, rs), blocks in iteritems(used_pairs):
+        for (bs, rs), blocks in used_pairs.items():
             s = CombinedStyle(bs, rs, blocks, self.namespace)
             smap[(bs, rs)] = s
             counts[s] += sum(1 for b in blocks if not b.is_empty())

@@ -17,7 +17,7 @@ from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
 from polyglot import http_client
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))
@@ -191,7 +191,7 @@ class Route:
                 return tc(val)
             except Exception:
                 raise HTTPNotFound('Argument of incorrect type')
-        for name, tc in iteritems(self.type_checkers):
+        for name, tc in self.type_checkers.items():
             args_map[name] = check(tc, args_map[name])
         return (args_map[name] for name in self.names)
 
@@ -212,7 +212,7 @@ class Route:
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
-        args = {k:quoted(v) for k, v in iteritems(args)}
+        args = {k:quoted(v) for k, v in args.items()}
         route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 

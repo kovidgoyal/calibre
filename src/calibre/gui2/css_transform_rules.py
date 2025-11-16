@@ -24,7 +24,6 @@ from calibre.gui2.tag_mapper import SaveLoadMixin
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems
 
 
 class RuleEdit(QWidget):  # {{{
@@ -55,7 +54,7 @@ class RuleEdit(QWidget):  # {{{
                                'For instance use margin-top, not margin.'))
             elif clause == '{match_type}':
                 self.match_type = w = QComboBox(self)
-                for action, text in iteritems(MATCH_TYPE_MAP):
+                for action, text in MATCH_TYPE_MAP.items():
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{query}':
@@ -75,7 +74,7 @@ class RuleEdit(QWidget):  # {{{
         for clause in parts:
             if clause == '{action}':
                 self.action = w = QComboBox(self)
-                for action, text in iteritems(ACTION_MAP):
+                for action, text in ACTION_MAP.items():
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{action_data}':

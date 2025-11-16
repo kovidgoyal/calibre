@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre import guess_type
-from polyglot.builtins import iteritems
 
 
 class EntityDeclarationProcessor:  # {{{
@@ -20,7 +19,7 @@ class EntityDeclarationProcessor:  # {{{
             if len(tokens) > 1:
                 self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
         self.processed_html = html
-        for key, val in iteritems(self.declared_entities):
+        for key, val in self.declared_entities.items():
             self.processed_html = self.processed_html.replace(f'&{key};', val)
 # }}}
 

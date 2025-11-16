@@ -72,7 +72,7 @@ from calibre.utils.formatter_functions import compile_user_template_functions, f
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes
+from polyglot.builtins import cmp, itervalues, native_string_type, reraise, string_or_bytes
 
 # }}}
 
@@ -934,7 +934,7 @@ class DB:
             'last_modified':19, 'identifiers':20, 'languages':21,
         }
 
-        for k,v in iteritems(self.FIELD_MAP):
+        for k,v in self.FIELD_MAP.items():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(itervalues(self.FIELD_MAP))
@@ -1705,7 +1705,7 @@ class DB:
     def remove_formats(self, remove_map, metadata_map):
         self.ensure_trash_dir()
         removed_map = {}
-        for book_id, removals in iteritems(remove_map):
+        for book_id, removals in remove_map.items():
             paths = set()
             removed_map[book_id] = set()
             for fmt, fname, path in removals:
@@ -2375,7 +2375,7 @@ class DB:
         self.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
             [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in iteritems(val_map)])
+                    for book_id, val in val_map.items()])
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)
@@ -2642,7 +2642,7 @@ class DB:
             x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)
             return x
-        options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in iteritems(options)]
+        options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in options.items()]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
     def get_top_level_move_items(self, all_paths):

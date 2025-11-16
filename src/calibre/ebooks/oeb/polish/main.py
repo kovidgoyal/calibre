@@ -25,7 +25,6 @@ from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.utils.localization import ngettext
 from calibre.utils.logging import Log
-from polyglot.builtins import iteritems
 
 ALL_OPTS = {
     'embed': False,
@@ -155,7 +154,7 @@ def hfix(name, raw):
     return raw
 
 
-CLI_HELP = {x:hfix(x, re.sub(r'<.*?>', '', y)) for x, y in iteritems(HELP)}
+CLI_HELP = {x:hfix(x, re.sub(r'<.*?>', '', y)) for x, y in HELP.items()}
 # }}}
 
 
@@ -180,7 +179,7 @@ def download_resources(ebook, report) -> bool:
         if not failures:
             report(_('Successfully downloaded all resources'))
         else:
-            tb = [f'{url}\n\t{err}\n' for url, err in iteritems(failures)]
+            tb = [f'{url}\n\t{err}\n' for url, err in failures.items()]
             if replacements:
                 report(_('Failed to download some resources, see details below:'))
             else:
@@ -315,7 +314,7 @@ def polish_one(ebook, opts, report, customization=None):
 
 def polish(file_map, opts, log, report):
     st = time.time()
-    for inbook, outbook in iteritems(file_map):
+    for inbook, outbook in file_map.items():
         report(_('## Polishing: %s')%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
         polish_one(ebook, opts, report)
@@ -407,7 +406,7 @@ def main(args=None):
         inbook, outbook = args
 
     popts = ALL_OPTS.copy()
-    for k, v in iteritems(popts):
+    for k, v in popts.items():
         popts[k] = getattr(opts, k, None)
 
     O = namedtuple('Options', ' '.join(popts))

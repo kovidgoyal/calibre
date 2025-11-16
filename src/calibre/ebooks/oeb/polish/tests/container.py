@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.utils.filenames import nlinks_file
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 def get_container(*args, **kwargs):
@@ -41,7 +41,7 @@ class ContainerTests(BaseTest):
             c2 = clone_container(c1, tdir)
 
             for c in (c1, c2):
-                for name, path in iteritems(c.name_path_map):
+                for name, path in c.name_path_map.items():
                     self.assertEqual(2, nlinks_file(path), f'The file {name} is not linked')
 
             for name in c1.name_path_map:

@@ -61,7 +61,7 @@ class JobStatus:
 def expire_old_jobs():
     now = monotonic()
     with cache_lock:
-        remove = [job_id for job_id, job_status in iteritems(conversion_jobs) if now - job_status.last_check_at >= 360]
+        remove = [job_id for job_id, job_status in conversion_jobs.items() if now - job_status.last_check_at >= 360]
         for job_id in remove:
             job_status = conversion_jobs.pop(job_id)
             job_status.cleanup()
@@ -139,7 +139,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     recs.update(conversion_data['options'])
     recs['gui_preferred_input_format'] = conversion_data['input_fmt'].lower()
     save_specifics(db, book_id, recs)
-    recs = [(k, v, OptionRecommendation.HIGH) for k, v in iteritems(recs)]
+    recs = [(k, v, OptionRecommendation.HIGH) for k, v in recs.items()]
 
     job_id = ctx.start_job(
         f'Convert book {book_id} ({fmt})', 'calibre.srv.convert',

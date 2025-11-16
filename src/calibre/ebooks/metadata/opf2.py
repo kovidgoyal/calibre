@@ -1030,7 +1030,7 @@ class OPF:  # {{{
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
             found_scheme = False
-            for attr, val in iteritems(x.attrib):
+            for attr, val in x.attrib.items():
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
                     val = etree.tostring(x, with_tail=False, encoding='unicode',
@@ -1072,7 +1072,7 @@ class OPF:  # {{{
                     self.metadata):
             xid = x.get('id', None)
             is_package_identifier = uuid_id is not None and uuid_id == xid
-            typ = {val.lower() for attr, val in iteritems(x.attrib) if attr.endswith('scheme')}
+            typ = {val.lower() for attr, val in x.attrib.items() if attr.endswith('scheme')}
             if is_package_identifier:
                 typ = tuple(typ)
                 if typ and typ[0] in identifiers:
@@ -1081,7 +1081,7 @@ class OPF:  # {{{
             if typ and not (typ & {'calibre', 'uuid'}):
                 x.getparent().remove(x)
 
-        for typ, val in iteritems(identifiers):
+        for typ, val in identifiers.items():
             attrib = {'{{{}}}scheme'.format(self.NAMESPACES['opf']): typ.upper()}
             self.set_text(self.create_metadata_element(
                 'identifier', attrib=attrib), str(val))
@@ -1679,7 +1679,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         try:
             elem = metadata.makeelement(tag, attrib=attrib)
         except ValueError:
-            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in iteritems(attrib)})
+            elem = metadata.makeelement(tag, attrib={k:clean_xml_chars(v) for k, v in attrib.items()})
         elem.tail = '\n'+(' '*8)
         if text:
             try:

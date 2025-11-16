@@ -14,7 +14,7 @@ from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, Stream, String
 from calibre.utils.fonts.sfnt.subset import NoGlyphs, UnsupportedFont, pdf_subset
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import codepoint_to_chr, iteritems
+from polyglot.builtins import codepoint_to_chr
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -106,7 +106,7 @@ class CMap(Stream):
             maps.append(current_map)
         mapping = []
         for m in maps:
-            meat = '\n'.join(f'{k} {v}' for k, v in iteritems(m))
+            meat = '\n'.join(f'{k} {v}' for k, v in m.items())
             mapping.append(f'{len(m)} beginbfchar\n{meat}\nendbfchar')
         try:
             name = name.encode('ascii').decode('ascii')
@@ -198,11 +198,11 @@ class Font:
         widths = {g:self.metrics.pdf_scale(w) for g, w in zip(glyphs,
                                         self.metrics.glyph_widths(glyphs))}
         counter = Counter()
-        for g, w in iteritems(widths):
+        for g, w in widths.items():
             counter[w] += 1
         most_common = counter.most_common(1)[0][0]
         self.descendant_font['DW'] = most_common
-        widths = {g:w for g, w in iteritems(widths) if w != most_common}
+        widths = {g:w for g, w in widths.items() if w != most_common}
 
         groups = Array()
         for k, g in groupby(enumerate(widths), lambda i_x: i_x[0]-i_x[1]):

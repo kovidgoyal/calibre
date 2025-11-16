@@ -9,7 +9,6 @@ from operator import itemgetter
 from lxml import etree
 
 from calibre.utils.icu import partition_by_first_letter, sort_key
-from polyglot.builtins import iteritems
 
 
 def get_applicable_xe_fields(index, xe_fields, XPath, expand):
@@ -101,7 +100,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     if heading_text is not None:
         groups = partition_by_first_letter(xe_fields, key=itemgetter('text'))
         items = []
-        for key, fields in iteritems(groups):
+        for key, fields in groups.items():
             items.append(key), items.extend(fields)
         if styles:
             heading_style = styles[0]

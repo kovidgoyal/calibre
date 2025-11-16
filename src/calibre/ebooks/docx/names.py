@@ -9,7 +9,6 @@ import re
 from lxml.etree import XPath as X
 
 from calibre.utils.filenames import ascii_text
-from polyglot.builtins import iteritems
 
 # Names {{{
 TRANSITIONAL_NAMES = {
@@ -31,7 +30,7 @@ TRANSITIONAL_NAMES = {
 
 STRICT_NAMES = {
     k:v.replace('http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument')
-    for k, v in iteritems(TRANSITIONAL_NAMES)
+    for k, v in TRANSITIONAL_NAMES.items()
 }
 
 TRANSITIONAL_NAMESPACES = {
@@ -74,7 +73,7 @@ STRICT_NAMESPACES = {
         'http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument').replace(
         'http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml').replace(
         'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
-    for k, v in iteritems(TRANSITIONAL_NAMESPACES)
+    for k, v in TRANSITIONAL_NAMESPACES.items()
 }
 SVG_BLIP_URI = '{96DAC541-7B7A-43D3-8B79-37D633B846F1}'
 USE_LOCAL_DPI_URI = '{28A0092B-C50C-407E-A947-70E740481C1C}'
@@ -142,7 +141,7 @@ class DOCXNamespace:
         return self.XPath('|'.join(f'descendant::{a}' for a in args))(elem)
 
     def makeelement(self, root, tag, append=True, **attrs):
-        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in iteritems(attrs)})
+        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in attrs.items()})
         if append:
             root.append(ans)
         return ans

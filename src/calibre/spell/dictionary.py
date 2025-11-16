@@ -330,7 +330,7 @@ class Dictionaries:
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-            for langcode, words in iteritems(removals):
+            for langcode, words in removals.items():
                 self.remove_user_words(words, langcode)
             self.save_user_dictionaries()
         return changed

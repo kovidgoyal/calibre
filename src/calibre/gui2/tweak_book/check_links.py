@@ -26,7 +26,6 @@ from calibre.gui2.tweak_book import current_container, editors, set_current_cont
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 def get_data(name):
@@ -162,7 +161,7 @@ class CheckExternalLinks(Dialog):
             for name, href in {(l[0], l[1]) for l in err[0]}:
                 nmap[name].add(href)
 
-            for name, hrefs in iteritems(nmap):
+            for name, hrefs in nmap.items():
                 raw = oraw = get_data(name)
                 for href in hrefs:
                     raw = raw.replace(href, newurl)

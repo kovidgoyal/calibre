@@ -20,7 +20,7 @@ from collections import OrderedDict, namedtuple
 from operator import attrgetter
 
 from calibre.ebooks.mobi.utils import encode_tbs, encode_trailing_data
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 Entry = namedtuple('IndexEntry', 'index start length depth parent '
         'first_child last_child title action start_offset length_offset '
@@ -128,7 +128,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
 
     for strand in strands:
         strand_seqs = []
-        for depth, entries in iteritems(strand):
+        for depth, entries in strand.items():
             extra = {}
             if entries[-1].action == 'spans':
                 extra[0b1] = 0
@@ -204,7 +204,7 @@ def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
     except NegativeStrandIndex:
         rmap = calculate_all_tbs(indexing_data, tbs_type=5)
 
-    for i, tbs_bytes in iteritems(rmap):
+    for i, tbs_bytes in rmap.items():
         records[i] += encode_trailing_data(tbs_bytes)
 
     return True

@@ -229,7 +229,7 @@ class AddRemoveTest(BaseTest):
         # Delete a single book, with no formats and check cleaning
         self.assertIn('Unknown', set(itervalues(authors.id_map)))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in iteritems(authors.id_map)}['Unknown']
+        item_id = {v:k for k, v in authors.id_map.items()}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table

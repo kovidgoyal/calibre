@@ -486,7 +486,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         gui = get_gui()
     if gui is None:
         return
-    for unique_name, action in iteritems(registered_shortcuts):
+    for unique_name, action in registered_shortcuts.items():
         gui.keyboard.unregister_shortcut(unique_name)
         gui.removeAction(action)
     registered_shortcuts.clear()

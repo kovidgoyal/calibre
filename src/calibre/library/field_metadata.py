@@ -692,8 +692,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
-        'user_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'user'},
-        'search_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'search'},
+        'user_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'search'},
     }
 
 

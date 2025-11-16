@@ -34,7 +34,7 @@ from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory, better_mktemp
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes
 
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
@@ -2384,7 +2384,7 @@ class KOBOTOUCH(KOBO):
         from calibre.ebooks.oeb.base import OEB_STYLES
 
         is_dirty = False
-        for cssname, mt in iteritems(container.mime_map):
+        for cssname, mt in container.mime_map.items():
             if mt in OEB_STYLES:
                 newsheet = container.parsed(cssname)
                 oldrules = len(newsheet.cssRules)

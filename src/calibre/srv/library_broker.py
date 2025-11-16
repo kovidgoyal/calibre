@@ -11,7 +11,7 @@ from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase, create_backend, set_global_state
 from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 def gui_on_db_event(event_type, library_id, event_data):
@@ -163,7 +163,7 @@ class LibraryBroker:
             allowed_names = filter_func(
                 basename(l) for l in itervalues(self.lmap))
             return OrderedDict(((lid, self.library_map[lid])
-                                for lid, path in iteritems(self.lmap)
+                                for lid, path in self.lmap.items()
                                 if basename(path) in allowed_names))
 
     def path_for_library_id(self, library_id):
@@ -242,7 +242,7 @@ class GuiLibraryBroker(LibraryBroker):
     def get_library(self, original_library_path):
         library_path = canonicalize_path(original_library_path)
         with self:
-            for library_id, path in iteritems(self.lmap):
+            for library_id, path in self.lmap.items():
                 if samefile(library_path, path):
                     db = self.loaded_dbs.get(library_id)
                     if db is None:
@@ -264,7 +264,7 @@ class GuiLibraryBroker(LibraryBroker):
 
     def prepare_for_gui_library_change(self, newloc):
         # Must be called with lock held
-        for library_id, path in iteritems(self.lmap):
+        for library_id, path in self.lmap.items():
             db = self.loaded_dbs.get(library_id)
             if db is not None and samefile(newloc, path):
                 if library_id == self.gui_library_id:
@@ -278,7 +278,7 @@ class GuiLibraryBroker(LibraryBroker):
         # Must be called with lock held
         original_path = path_for_db(db)
         newloc = canonicalize_path(original_path)
-        for library_id, path in iteritems(self.lmap):
+        for library_id, path in self.lmap.items():
             if samefile(newloc, path):
                 self.loaded_dbs[library_id] = db
                 self.gui_library_id = library_id
@@ -322,7 +322,7 @@ class GuiLibraryBroker(LibraryBroker):
     def unload_library(self, library_path):
         with self:
             path = canonicalize_path(library_path)
-            for library_id, q in iteritems(self.lmap):
+            for library_id, q in self.lmap.items():
                 if samefile(path, q):
                     break
             else:
@@ -335,7 +335,7 @@ class GuiLibraryBroker(LibraryBroker):
     def remove_library(self, path):
         with self:
             path = canonicalize_path(path)
-            for library_id, q in iteritems(self.lmap):
+            for library_id, q in self.lmap.items():
                 if samefile(path, q):
                     break
             else:

@@ -176,7 +176,7 @@ class Field:
 
         id_map = self.table.id_map
         special_sort = hasattr(self, 'category_sort_value')
-        for item_id, item_book_ids in iteritems(self.table.col_book_map):
+        for item_id, item_book_ids in self.table.col_book_map.items():
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -384,7 +384,7 @@ class CompositeField(OneToOneField):
             for val in vals:
                 if val:
                     id_map[val].add(book_id)
-        for item_id, item_book_ids in iteritems(id_map):
+        for item_id, item_book_ids in id_map.items():
             ratings = tuple(r for r in (book_rating_map.get(book_id, 0) for
                                         book_id in item_book_ids) if r > 0)
             avg = sum(ratings)/len(ratings) if ratings else 0
@@ -522,7 +522,7 @@ class ManyToOneField(Field):
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
         empty = set()
-        for item_id, val in iteritems(self.table.id_map):
+        for item_id, val in self.table.id_map.items():
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
@@ -586,7 +586,7 @@ class ManyToManyField(Field):
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         cbm = self.table.col_book_map
         empty = set()
-        for item_id, val in iteritems(self.table.id_map):
+        for item_id, val in self.table.id_map.items():
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 yield val, book_ids
@@ -602,7 +602,7 @@ class ManyToManyField(Field):
     def book_value_map(self):
         try:
             return {book_id:tuple(self.table.id_map[item_id] for item_id in item_ids)
-                for book_id, item_ids in iteritems(self.table.book_col_map)}
+                for book_id, item_ids in self.table.book_col_map.items()}
         except KeyError:
             raise InvalidLinkTable(self.name)
 
@@ -636,7 +636,7 @@ class IdentifiersField(ManyToManyField):
     def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
         ans = []
 
-        for id_key, item_book_ids in iteritems(self.table.col_book_map):
+        for id_key, item_book_ids in self.table.col_book_map.items():
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -684,13 +684,13 @@ class FormatsField(ManyToManyField):
             for val in vals:
                 val_map[val].add(book_id)
 
-        for val, book_ids in iteritems(val_map):
+        for val, book_ids in val_map.items():
             yield val, book_ids
 
     def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
         ans = []
 
-        for fmt, item_book_ids in iteritems(self.table.col_book_map):
+        for fmt, item_book_ids in self.table.col_book_map.items():
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
             if item_book_ids:
@@ -731,7 +731,7 @@ class SeriesField(ManyToOneField):
             return ssk(ts(val, order=sso, lang=lang))
         sk_map = LazySeriesSortMap(self._default_sort_key, sk, self.table.id_map)
         bcmg = self.table.book_col_map.get
-        lang_map = {k:v[0] if v else None for k, v in iteritems(lang_map)}
+        lang_map = {k:v[0] if v else None for k, v in lang_map.items()}
 
         def key(book_id):
             lang = lang_map.get(book_id, None)
@@ -760,8 +760,8 @@ class SeriesField(ManyToOneField):
         sso = tweaks['title_series_sorting']
         ts = title_sort
         empty = set()
-        lang_map = {k:v[0] if v else None for k, v in iteritems(lang_map)}
-        for item_id, val in iteritems(self.table.id_map):
+        lang_map = {k:v[0] if v else None for k, v in lang_map.items()}
+        for item_id, val in self.table.id_map.items():
             book_ids = cbm.get(item_id, empty).intersection(candidates)
             if book_ids:
                 lang_counts = Counter()
@@ -778,7 +778,7 @@ class TagsField(ManyToManyField):
     def get_news_category(self, tag_class, book_ids=None):
         news_id = None
         ans = []
-        for item_id, val in iteritems(self.table.id_map):
+        for item_id, val in self.table.id_map.items():
             if val == _('News'):
                 news_id = item_id
                 break
@@ -790,7 +790,7 @@ class TagsField(ManyToManyField):
             news_books = news_books.intersection(book_ids)
         if not news_books:
             return ans
-        for item_id, item_book_ids in iteritems(self.table.col_book_map):
+        for item_id, item_book_ids in self.table.col_book_map.items():
             item_book_ids = item_book_ids.intersection(news_books)
             if item_book_ids:
                 name = self.category_formatter(self.table.id_map[item_id])

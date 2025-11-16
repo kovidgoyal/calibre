@@ -55,7 +55,7 @@ def create_skeleton(opts, namespaces=None):
 
     def w(x):
         return '{{{}}}{}'.format(namespaces['w'], x)
-    dn = {k:v for k, v in iteritems(namespaces) if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
+    dn = {k:v for k, v in namespaces.items() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     doc = E.document()
     body = E.body()
@@ -73,7 +73,7 @@ def create_skeleton(opts, namespaces=None):
         E.docGrid(**{w('linePitch'):'360'}),
     ))
 
-    dn = {k:v for k, v in iteritems(namespaces) if k in tuple('wra') + ('wp',)}
+    dn = {k:v for k, v in namespaces.items() if k in tuple('wra') + ('wp',)}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     styles = E.styles(
         E.docDefaults(
@@ -145,7 +145,7 @@ class DocumentRelationships:
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
         relationships = E.Relationships()
-        for (target, rtype, target_mode), rid in iteritems(self.rmap):
+        for (target, rtype, target_mode), rid in self.rmap.items():
             r = E.Relationship(Id=rid, Type=rtype, Target=target)
             if target_mode is not None:
                 r.set('TargetMode', target_mode)
@@ -270,9 +270,9 @@ class DOCX:
             zf.writestr('word/fontTable.xml', xml2str(self.font_table))
             zf.writestr('word/_rels/document.xml.rels', self.document_relationships.serialize())
             zf.writestr('word/_rels/fontTable.xml.rels', xml2str(self.embedded_fonts))
-            for fname, data_getter in iteritems(self.images):
+            for fname, data_getter in self.images.items():
                 zf.writestr(fname, data_getter())
-            for fname, data in iteritems(self.fonts):
+            for fname, data in self.fonts.items():
                 zf.writestr(fname, data)
 
 

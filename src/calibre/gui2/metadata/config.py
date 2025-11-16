@@ -46,7 +46,7 @@ class FieldsModel(FM):  # {{{
     def commit(self):
         ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in iteritems(self.overrides) if v ==
+        changed = {k for k, v in self.overrides.items() if v ==
             Qt.CheckState.Unchecked}
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 

@@ -869,7 +869,7 @@ class Metadata:
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
-        nsrmap = {value: key for key, value in iteritems(nsmap)}
+        nsrmap = {value: key for key, value in nsmap.items()}
         elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
@@ -883,7 +883,7 @@ class Metadata:
 
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
-        nsrmap = {value: key for key, value in iteritems(nsmap)}
+        nsrmap = {value: key for key, value in nsmap.items()}
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -1452,7 +1452,7 @@ class Guide:
         return self.refs.pop(type, None)
 
     def remove_by_href(self, href):
-        remove = [r for r, i in iteritems(self.refs) if i.href == href]
+        remove = [r for r, i in self.refs.items() if i.href == href]
         for r in remove:
             self.remove(r)
 

@@ -18,7 +18,7 @@ from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang, ngettext
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes
 
 
 def force_to_bool(val):
@@ -231,7 +231,7 @@ class ThumbnailCache:
     def _invalidate_sizes(self):
         if self.size_changed:
             size = self.thumbnail_size
-            remove = tuple(key for key, entry in iteritems(self.items) if size != entry.thumbnail_size)
+            remove = tuple(key for key, entry in self.items.items() if size != entry.thumbnail_size)
             for key in remove:
                 self._remove(key)
             self.size_changed = False

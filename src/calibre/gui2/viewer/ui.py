@@ -229,7 +229,7 @@ class EbookViewer(MainWindow):
 
     def shortcuts_changed(self, smap):
         rmap = defaultdict(list)
-        for k, v in iteritems(smap):
+        for k, v in smap.items():
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
         if hasattr(self, 'highlights_widget'):
@@ -675,7 +675,7 @@ class EbookViewer(MainWindow):
                     if other_amap:
                         merge_annotations(other_amap, lib_amap)
                 if lib_amap:
-                    for annot_type, annots in iteritems(lib_amap):
+                    for annot_type, annots in lib_amap.items():
                         merge_annotations(annots, amap)
         else:
             for annot_type, annots in iteritems(calibre_book_data['annotations_map']):

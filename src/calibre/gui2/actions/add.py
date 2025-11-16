@@ -25,7 +25,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 def get_filters():
@@ -191,7 +191,7 @@ class AddAction(InterfaceAction):
         fmt_map = {os.path.splitext(fpath)[1][1:].upper():fpath for fpath in paths}
 
         for id_ in ids:
-            for fmt, fpath in iteritems(fmt_map):
+            for fmt, fpath in fmt_map.items():
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)

@@ -448,7 +448,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
             'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
 
-        for k,v in iteritems(self.FIELD_MAP):
+        for k,v in self.FIELD_MAP.items():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
@@ -2374,7 +2374,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.set_identifiers(id, mi_idents, notify=False, commit=False)
         elif mi_idents:
             identifiers = self.get_identifiers(id, index_is_id=True)
-            for key, val in iteritems(mi_idents):
+            for key, val in mi_idents.items():
                 if val and val.strip():  # Don't delete an existing identifier
                     identifiers[icu_lower(key)] = val
             self.set_identifiers(id, identifiers, notify=False, commit=False)
@@ -3339,14 +3339,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         cleaned = {}
         if not identifiers:
             identifiers = {}
-        for typ, val in iteritems(identifiers):
+        for typ, val in identifiers.items():
             typ, val = self._clean_identifier(typ, val)
             if val:
                 cleaned[typ] = val
         self.conn.execute('DELETE FROM identifiers WHERE book=?', (id_,))
         self.conn.executemany(
             'INSERT INTO identifiers (book, type, val) VALUES (?, ?, ?)',
-            [(id_, k, v) for k, v in iteritems(cleaned)])
+            [(id_, k, v) for k, v in cleaned.items()])
         raw = ','.join([f'{k}:{v}' for k, v in
                 iteritems(cleaned)])
         self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
@@ -3688,7 +3688,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
             [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in iteritems(vals)])
+                    for book_id, val in vals.items()])
         self.commit()
 
     def get_custom_book_data(self, book_id, name, default=None):

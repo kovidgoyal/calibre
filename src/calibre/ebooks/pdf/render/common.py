@@ -14,7 +14,7 @@ from io import BytesIO
 from calibre.utils.logging import default_log
 from calibre_extensions.speedup import pdf_float
 from polyglot.binary import as_hex_bytes
-from polyglot.builtins import codepoint_to_chr, iteritems
+from polyglot.builtins import codepoint_to_chr
 
 EOL = b'\n'
 
@@ -162,7 +162,7 @@ class InlineDictionary(Dictionary):
 
     def pdf_serialize(self, stream):
         stream.write(b'<< ')
-        for k, v in iteritems(self):
+        for k, v in self.items():
             serialize(Name(k), stream)
             stream.write(b' ')
             serialize(v, stream)

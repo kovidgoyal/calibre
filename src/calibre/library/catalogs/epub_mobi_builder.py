@@ -36,7 +36,6 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems
 
 NBSP = '\u00a0'
 
@@ -2650,7 +2649,7 @@ class CatalogBuilder:
                         title_str=escape(title_str),
                         xmlns=XHTML_NS,
                         )
-            for k, v in iteritems(args):
+            for k, v in args.items():
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
             generated_html = P('catalog/template.xhtml',

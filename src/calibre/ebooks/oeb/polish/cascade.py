@@ -153,7 +153,7 @@ def resolve_pseudo_declarations(decls):
     groups = defaultdict(list)
     for d in decls:
         groups[d.pseudo_element].append(d)
-    return {k:resolve_declarations(v) for k, v in iteritems(groups)}
+    return {k:resolve_declarations(v) for k, v in groups.items()}
 
 
 def resolve_styles(container, name, select=None, sheet_callback=None):
@@ -218,8 +218,8 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
         for x in itervalues(l):
             x.sort(key=itemgetter(0), reverse=True)
 
-    style_map = {elem:resolve_declarations(x) for elem, x in iteritems(style_map)}
-    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in iteritems(pseudo_style_map)}
+    style_map = {elem:resolve_declarations(x) for elem, x in style_map.items()}
+    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.items()}
 
     return partial(resolve_property, style_map), partial(resolve_pseudo_property, style_map, pseudo_style_map), select
 
@@ -230,7 +230,7 @@ _defvals = None
 def defvals():
     global _defvals
     if _defvals is None:
-        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in iteritems(DEFAULTS)}
+        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in DEFAULTS.items()}
     return _defvals
 
 

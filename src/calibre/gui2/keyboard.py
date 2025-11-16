@@ -84,7 +84,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     correctly for each shortcut.
     '''
     seen, keys_map = {}, {}
-    for unique_name, shortcut in iteritems(shortcuts):
+    for unique_name, shortcut in shortcuts.items():
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
             candidates = shortcut['default_keys']
@@ -225,10 +225,10 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         groups = sorted(keyboard.groups, key=sort_key)
         shortcut_map = {k:v.copy() for k, v in
                 iteritems(self.keyboard.shortcuts)}
-        for un, s in iteritems(shortcut_map):
+        for un, s in shortcut_map.items():
             s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
-            s['group'] = [g for g, names in iteritems(self.keyboard.groups) if un in
+            s['group'] = [g for g, names in self.keyboard.groups.items() if un in
                     names][0]
 
         group_map = {group:sorted(names, key=lambda x:

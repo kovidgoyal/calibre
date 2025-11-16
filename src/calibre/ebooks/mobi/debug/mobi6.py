@@ -396,7 +396,7 @@ class IndexRecord:  # {{{
 
         self.indices = []
 
-        for ident, entry in iteritems(table):
+        for ident, entry in table.items():
             self.indices.append(IndexEntry(ident, entry, cncx))
 
     def get_parent(self, index):
@@ -466,7 +466,7 @@ class CNCX:  # {{{
 
     def __str__(self):
         ans = ['*'*20 + f' cncx ({len(self.records)} strings) '+ '*'*20]
-        for k, v in iteritems(self.records):
+        for k, v in self.records.items():
             ans.append(f'{k:10} : {v}')
         return '\n'.join(ans)
 
@@ -564,18 +564,18 @@ class TBSIndexing:  # {{{
 
     def __str__(self):
         ans = ['*'*20 + f' TBS Indexing ({len(self.record_indices)} records) '+ '*'*20]
-        for r, dat in iteritems(self.record_indices):
+        for r, dat in self.record_indices.items():
             ans += self.dump_record(r, dat)[-1]
         return '\n'.join(ans)
 
     def dump(self, bdir):
         types = defaultdict(list)
-        for r, dat in iteritems(self.record_indices):
+        for r, dat in self.record_indices.items():
             tbs_type, strings = self.dump_record(r, dat)
             if tbs_type == 0:
                 continue
             types[tbs_type] += strings
-        for typ, strings in iteritems(types):
+        for typ, strings in types.items():
             with open(os.path.join(bdir, f'tbs_type_{typ}.txt'), 'wb') as f:
                 f.write(as_bytes('\n'.join(strings)))
 
@@ -597,7 +597,7 @@ class TBSIndexing:  # {{{
             return as_bytes('0'*(4-len(ans)) + ans)
 
         def repr_extra(x):
-            return str({bin4(k):v for k, v in iteritems(extra)})
+            return str({bin4(k):v for k, v in extra.items()})
 
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)

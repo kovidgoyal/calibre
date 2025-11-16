@@ -141,7 +141,7 @@ def clean_word_doc(data, log):
 
 def ensure_namespace_prefixes(node, nsmap):
     namespace_uris = frozenset(itervalues(nsmap))
-    fnsmap = {k:v for k, v in iteritems(node.nsmap) if v not in namespace_uris}
+    fnsmap = {k:v for k, v in node.nsmap.items() if v not in namespace_uris}
     fnsmap.update(nsmap)
     if fnsmap != dict(node.nsmap):
         node = clone_element(node, nsmap=fnsmap, in_context=False)

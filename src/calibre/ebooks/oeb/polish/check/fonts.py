@@ -14,7 +14,6 @@ from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.fonts.utils import UnsupportedFont, get_all_font_names, is_font_embeddable
-from polyglot.builtins import iteritems
 
 
 class InvalidFont(BaseError):
@@ -57,7 +56,7 @@ class FontAliasing(BaseError):
 
     def __call__(self, container):
         changed = False
-        for name, mt in iteritems(container.mime_map):
+        for name, mt in container.mime_map.items():
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if fix_sheet(sheet, self.css_name, self.font_name):
@@ -84,7 +83,7 @@ class FontAliasing(BaseError):
 def check_fonts(container):
     font_map = {}
     errors = []
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if mt in OEB_FONTS:
             raw = container.raw_data(name)
             try:
@@ -101,7 +100,7 @@ def check_fonts(container):
                 errors.append(NotEmbeddable(name, fs_type))
 
     sheets = []
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
             try:
                 sheets.append((name, container.parsed(name), None))

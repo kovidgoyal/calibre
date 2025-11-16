@@ -69,7 +69,6 @@ from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.date import local_tz
 from calibre.utils.localization import canonicalize_lang, ngettext
-from polyglot.builtins import iteritems
 
 BASE_TITLE = _('Edit metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
@@ -626,7 +625,7 @@ class MetadataSingleDialogBase(QDialog):
         if self.metadata_before_fetch is None:
             return error_dialog(self, _('No downloaded metadata'), _(
                 'There is no downloaded metadata to undo'), show=True)
-        for field, val in iteritems(self.metadata_before_fetch):
+        for field, val in self.metadata_before_fetch.items():
             getattr(self, field).current_val = val
         self.metadata_before_fetch = None
 
@@ -793,7 +792,7 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         self(self.id_list[self.current_row])
-        for w, state in iteritems(self.comments_edit_state_at_apply):
+        for w, state in self.comments_edit_state_at_apply.items():
             if state == 'code':
                 w.tab = 'code'
 

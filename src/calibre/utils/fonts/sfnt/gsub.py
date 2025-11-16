@@ -11,7 +11,7 @@ from struct import unpack_from
 from calibre.utils.fonts.sfnt import FixedProperty, UnknownTable
 from calibre.utils.fonts.sfnt.common import ExtensionSubstitution, FeatureListTable, LookupTable, ScriptListTable, SimpleListTable, UnknownLookupSubTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 class SingleSubstitution(UnknownLookupSubTable):
@@ -67,7 +67,7 @@ class LigatureSubstitution(UnknownLookupSubTable):
     def all_substitutions(self, glyph_ids):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
         ans = set()
-        for start_glyph_id, index in iteritems(gid_index_map):
+        for start_glyph_id, index in gid_index_map.items():
             for glyph_id, components in self.coverage_to_lig_map[index]:
                 components = (start_glyph_id,) + components
                 if set(components).issubset(glyph_ids):
