@@ -157,7 +157,7 @@ def get_smtp_class(use_ssl=False, debuglevel=0):
     from polyglot import smtplib
     cls = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
     bases = (cls,)
-    return type(str('SMTP'), bases, {str('debuglevel'): debuglevel})
+    return type('SMTP', bases, {'debuglevel': debuglevel})
 
 
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,

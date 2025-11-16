@@ -117,9 +117,9 @@ class Worker:
     @property
     def env(self):
         env = os.environ.copy()
-        env[str('CALIBRE_WORKER')] = environ_item('1')
+        env['CALIBRE_WORKER'] = environ_item('1')
         td = as_hex_unicode(msgpack_dumps(base_dir()))
-        env[str('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
+        env['CALIBRE_WORKER_TEMP_DIR'] = environ_item(td)
         env.update(self._env)
         return env
 
@@ -180,7 +180,7 @@ class Worker:
         except OSError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser('~')
-        env[str('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
+        env['ORIGWD'] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']

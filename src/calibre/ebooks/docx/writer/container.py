@@ -243,7 +243,7 @@ class DOCX:
         namespaces = self.namespace.namespaces
         E = ElementMaker(namespace=namespaces['cp'], nsmap={x:namespaces[x] for x in 'cp dc dcterms xsi'.split()})
         cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
-        ts = utcnow().isoformat(str('T')).rpartition('.')[0] + 'Z'
+        ts = utcnow().isoformat('T').rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
             x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{{{}}}type'.format(namespaces['xsi']):'dcterms:W3CDTF'})
             x.text = ts

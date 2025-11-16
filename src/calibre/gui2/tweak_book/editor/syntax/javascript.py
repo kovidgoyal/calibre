@@ -31,39 +31,39 @@ class JavascriptLexer(RegexLexer):
     flags = re.UNICODE | re.MULTILINE
 
     tokens = {
-        str('commentsandwhitespace'): [
+        'commentsandwhitespace': [
             (r'\s+', Text),
             (r'<!--', Comment),
             (r'//.*?$', Comment.Single),
-            (r'/\*', Comment.Multiline, str('comment'))
+            (r'/\*', Comment.Multiline, 'comment')
         ],
-        str('comment'): [
+        'comment': [
             (r'[^*/]+', Comment.Multiline),
-            (r'\*/', Comment.Multiline, str('#pop')),
+            (r'\*/', Comment.Multiline, '#pop'),
             (r'[*/]', Comment.Multiline),
         ],
-        str('slashstartsregex'): [
-            include(str('commentsandwhitespace')),
+        'slashstartsregex': [
+            include('commentsandwhitespace'),
             (r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
-             r'([gim]+\b|\B)', String.Regex, str('#pop')),
-            (r'(?=/)', Text, (str('#pop'), str('badregex'))),
-            default(str('#pop'))
+             r'([gim]+\b|\B)', String.Regex, '#pop'),
+            (r'(?=/)', Text, ('#pop', 'badregex')),
+            default('#pop')
         ],
-        str('badregex'): [
-            (r'\n', Text, str('#pop'))
+        'badregex': [
+            (r'\n', Text, '#pop')
         ],
-        str('root'): [
+        'root': [
             (r'\A#! ?/.*?\n', Comment),  # shebang lines are recognized by node.js
-            (r'^(?=\s|/|<!--)', Text, str('slashstartsregex')),
-            include(str('commentsandwhitespace')),
+            (r'^(?=\s|/|<!--)', Text, 'slashstartsregex'),
+            include('commentsandwhitespace'),
             (r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
-             r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?', Operator, str('slashstartsregex')),
-            (r'[{(\[;,]', Punctuation, str('slashstartsregex')),
+             r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?', Operator, 'slashstartsregex'),
+            (r'[{(\[;,]', Punctuation, 'slashstartsregex'),
             (r'[})\].]', Punctuation),
             (r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
              r'throw|try|catch|finally|new|delete|typeof|instanceof|void|yield|'
-             r'this)\b', Keyword, str('slashstartsregex')),
-            (r'(var|let|with|function)\b', Keyword.Declaration, str('slashstartsregex')),
+             r'this)\b', Keyword, 'slashstartsregex'),
+            (r'(var|let|with|function)\b', Keyword.Declaration, 'slashstartsregex'),
             (r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
              r'extends|final|float|goto|implements|import|int|interface|long|native|'
              r'package|private|protected|public|short|static|super|synchronized|throws|'

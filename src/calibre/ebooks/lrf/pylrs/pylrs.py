@@ -674,7 +674,7 @@ class Info(Delegator):
         # NB: generates an encoding attribute, which lrs2lrf does not
         tree = ElementTree(element=info)
         f = io.BytesIO()
-        tree.write(f, encoding=str('utf-8'), xml_declaration=True)
+        tree.write(f, encoding='utf-8', xml_declaration=True)
         xmlInfo = f.getvalue().decode('utf-8')
         xmlInfo = re.sub(r'<CThumbnail.*?>\n', '', xmlInfo)
         xmlInfo = xmlInfo.replace('SumPage>', 'Page>')

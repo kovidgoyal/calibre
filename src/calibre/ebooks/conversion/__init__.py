@@ -22,4 +22,4 @@ class ConversionUserFeedBack(Exception):
 
 # Ensure exception uses fully qualified name as this is used to detect it in
 # the GUI.
-ConversionUserFeedBack.__name__ = str('calibre.ebooks.conversion.ConversionUserFeedBack')
+ConversionUserFeedBack.__name__ = 'calibre.ebooks.conversion.ConversionUserFeedBack'
