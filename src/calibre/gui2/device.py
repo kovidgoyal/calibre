@@ -57,7 +57,6 @@ from calibre.utils.img import scale_image
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.localization import ngettext
 from polyglot import queue
-from polyglot.builtins import string_or_unicode
 
 # }}}
 
@@ -542,7 +541,7 @@ class DeviceManager(Thread):  # {{{
         info = self.device.get_device_information(end_session=False)
         if len(info) < 5:
             info = tuple(list(info) + [{}])
-        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, string_or_unicode) else i
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, str) else i
                  for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()
