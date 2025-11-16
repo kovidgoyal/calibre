@@ -507,7 +507,7 @@ class FieldMetadata:
     iter_items = iteritems
 
     def custom_iteritems(self):
-        yield from iteritems(self._tb_custom_fields)
+        yield from self._tb_custom_fields.items()
 
     def items(self):
         return list(self.iter_items())
