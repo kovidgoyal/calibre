@@ -8,6 +8,7 @@ all calls.
 '''
 
 import os
+import reprlib
 import sqlite3 as sqlite
 import time
 import traceback
@@ -23,7 +24,6 @@ from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz, parse_date
 from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
-from polyglot import reprlib
 from polyglot.builtins import cmp
 from polyglot.queue import Queue
 

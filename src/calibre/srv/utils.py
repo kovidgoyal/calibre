@@ -6,6 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno
 import os
+import reprlib
 import socket
 from email.utils import formatdate
 from operator import itemgetter
@@ -17,7 +18,6 @@ from calibre.utils.localization import get_translator
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot import reprlib
 from polyglot.binary import as_hex_unicode as encode_name
 from polyglot.binary import from_hex_unicode as decode_name
 from polyglot.builtins import as_unicode, iteritems

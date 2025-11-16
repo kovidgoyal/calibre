@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+import reprlib
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre import as_unicode, force_unicode
@@ -12,7 +13,7 @@ from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import READ, WRITE, Connection
 from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict
-from polyglot import http_client, reprlib
+from polyglot import http_client
 from polyglot.builtins import error_message
 from polyglot.urllib import unquote
 

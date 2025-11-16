@@ -7,6 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import errno
 import hashlib
 import os
+import reprlib
 import struct
 import time
 import uuid
@@ -24,7 +25,7 @@ from calibre.srv.loop import WRITE
 from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_for_lang, http_date, socket_errors_socket_closed, sort_q_values
 from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
-from polyglot import http_client, reprlib
+from polyglot import http_client
 from polyglot.builtins import error_message, iteritems, reraise
 
 Range = namedtuple('Range', 'start stop size')

@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import inspect
 import numbers
+import reprlib
 import time
 from functools import partial
 from io import BytesIO
@@ -14,7 +15,6 @@ from operator import itemgetter
 from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from calibre.library.field_metadata import fm_as_dict
-from polyglot import reprlib
 from polyglot.builtins import iteritems
 
 # Utils {{{
