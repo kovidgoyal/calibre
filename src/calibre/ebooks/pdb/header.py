@@ -10,8 +10,6 @@ import re
 import struct
 import time
 
-from polyglot.builtins import long_type
-
 
 class PdbHeaderReader:
 
@@ -85,6 +83,6 @@ class PdbHeaderBuilder:
 
         offset = 78 + (8 * nrecords) + 2
         for id, record in enumerate(section_lengths):
-            out_stream.write(struct.pack('>LBBBB', long_type(offset), 0, 0, 0, 0))
+            out_stream.write(struct.pack('>LBBBB', int(offset), 0, 0, 0, 0))
             offset += record
         out_stream.write(b'\x00\x00')
