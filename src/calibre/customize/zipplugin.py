@@ -19,7 +19,6 @@ from importlib.util import decode_source
 
 from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
-from polyglot.builtins import reload
 
 
 def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
@@ -306,7 +305,7 @@ class CalibrePluginFinder:
             plugin_module = f'calibre_plugins.{plugin_name}'
             m = sys.modules.get(plugin_module, None)
             if m is not None:
-                reload(m)
+                importlib.reload(m)
             else:
                 m = importlib.import_module(plugin_module)
             plugin_classes = []
