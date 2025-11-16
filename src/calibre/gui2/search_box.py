@@ -17,7 +17,7 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import pgettext
-from polyglot.builtins import native_string_type, string_or_bytes
+from polyglot.builtins import native_string_type
 
 
 class AsYouType(str):
@@ -215,7 +215,7 @@ class SearchBox2(QComboBox):  # {{{
             self.parse_error_action.setToolTip(tooltip)
 
     def search_done(self, ok):
-        if isinstance(ok, string_or_bytes):
+        if isinstance(ok, (str, bytes)):
             self.setToolTip(ok)
             self.show_parse_error_action(True, tooltip=ok)
             ok = False

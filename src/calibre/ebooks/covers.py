@@ -43,7 +43,7 @@ from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import itervalues, string_or_bytes
+from polyglot.builtins import itervalues
 
 # Default settings {{{
 cprefs = JSONConfig('cover_generation')
@@ -289,7 +289,7 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, string_or_bytes):
+    if isinstance(fields, (str, bytes)):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}

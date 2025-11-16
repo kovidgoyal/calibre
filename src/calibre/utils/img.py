@@ -22,7 +22,6 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
 from calibre.utils.resources import get_image_path as I
 from calibre_extensions import imageops
-from polyglot.builtins import string_or_bytes
 
 
 # Utilities {{{
@@ -515,7 +514,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
-    if palette and isinstance(palette, string_or_bytes):
+    if palette and isinstance(palette, (str, bytes)):
         palette = palette.split()
     return imageops.quantize(img, int(max_colors), dither, tuple(QColor(x).rgb() for x in palette))
 

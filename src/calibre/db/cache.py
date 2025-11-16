@@ -52,7 +52,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import cmp, iteritems, itervalues
 
 
 class ExtraFile(NamedTuple):
@@ -1651,7 +1651,7 @@ class Cache:
             bimap, simap = {}, {}
             sfield = self.fields[name + '_index']
             for k, v in book_id_to_val_map.items():
-                if isinstance(v, string_or_bytes):
+                if isinstance(v, (str, bytes)):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
@@ -1882,7 +1882,7 @@ class Cache:
         # force_changes has no effect on cover manipulation
         try:
             cdata = mi.cover_data[1]
-            if cdata is None and isinstance(mi.cover, string_or_bytes) and mi.cover and os.access(mi.cover, os.R_OK):
+            if cdata is None and isinstance(mi.cover, (str, bytes)) and mi.cover and os.access(mi.cover, os.R_OK):
                 with open(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:

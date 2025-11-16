@@ -13,7 +13,6 @@ from io import BytesIO
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.filenames import make_long_path_useable
-from polyglot.builtins import string_or_bytes
 
 
 def as_unicode(x):
@@ -29,7 +28,7 @@ class StreamAsPath:
 
     def __enter__(self):
         self.temppath = None
-        if isinstance(self.stream, string_or_bytes):
+        if isinstance(self.stream, (str, bytes)):
             return as_unicode(self.stream)
         name = getattr(self.stream, 'name', None)
         if name and os.access(name, os.R_OK):

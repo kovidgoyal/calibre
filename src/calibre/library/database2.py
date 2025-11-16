@@ -55,7 +55,7 @@ from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
@@ -1121,7 +1121,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def find_identical_books(self, mi):
         fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, string_or_bytes) else pat, repl) for pat, repl in
+            isinstance(pat, (str, bytes)) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
                     (get_title_sort_pat(), ''),
@@ -1404,7 +1404,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             id_ = index if index_is_id else self.id(index)
             raise NoSuchFormat(f'Record {id_} has no {fmt} file')
         if windows_atomic_move is not None:
-            if not isinstance(dest, string_or_bytes):
+            if not isinstance(dest, (str, bytes)):
                 raise Exception('Error, you must pass the dest as a path when'
                         ' using windows_atomic_move')
             if dest:
@@ -1459,7 +1459,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
-            if not isinstance(dest, string_or_bytes):
+            if not isinstance(dest, (str, bytes)):
                 raise Exception('Error, you must pass the dest as a path when'
                         ' using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
@@ -2340,7 +2340,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
-        elif isinstance(mi.cover, string_or_bytes) and mi.cover:
+        elif isinstance(mi.cover, (str, bytes)) and mi.cover:
             if os.access(mi.cover, os.R_OK):
                 with open(mi.cover, 'rb') as f:
                     raw = f.read()
@@ -2647,7 +2647,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_pubdate(self, id, dt, notify=True, commit=True):
         if not dt:
             dt = UNDEFINED_DATE
-        if isinstance(dt, string_or_bytes):
+        if isinstance(dt, (str, bytes)):
             dt = parse_only_date(dt)
         self.conn.execute('UPDATE books SET pubdate=? WHERE id=?', (dt, id))
         self.data.set(id, self.FIELD_MAP['pubdate'], dt, row_is_id=True)

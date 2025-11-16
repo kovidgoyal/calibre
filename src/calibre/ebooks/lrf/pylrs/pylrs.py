@@ -66,7 +66,7 @@ DEFAULT_SOURCE_ENCODING = 'cp1252'      # default is us-windows character set
 DEFAULT_GENREADING      = 'fs'          # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__, replace_entities
-from polyglot.builtins import iteritems, native_string_type, string_or_bytes
+from polyglot.builtins import iteritems, native_string_type
 
 
 class LrsError(Exception):
@@ -105,7 +105,7 @@ def ElementWithReading(tag, text, reading=False):
 
     if text is None:
         readingText = ''
-    elif isinstance(text, string_or_bytes):
+    elif isinstance(text, (str, bytes)):
         readingText = text
     else:
         # assumed to be a sequence of (name, sortas)
@@ -161,7 +161,7 @@ class Delegator:
                 setattr(self, m, getattr(d, m))
 
             # for setting in d.getSettings():
-            #     if isinstance(setting, string_or_bytes):
+            #     if isinstance(setting, (str, bytes)):
             #         setting = (d, setting)
             #     delegates = \
             #             self.delegatedSettingsDict.setdefault(setting[1], [])
@@ -292,7 +292,7 @@ class LrsContainer:
         else:
             raise LrsError(f"can't append {content.__class__.__name__} to {self.__class__.__name__}")
 
-        if convertText and isinstance(content, string_or_bytes):
+        if convertText and isinstance(content, (str, bytes)):
             content = Text(content)
 
         content.setParent(self)
@@ -585,14 +585,14 @@ class Book(Delegator):
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
 
     def renderLrs(self, lrsFile, encoding='UTF-8'):
-        if isinstance(lrsFile, string_or_bytes):
+        if isinstance(lrsFile, (str, bytes)):
             lrsFile = codecs.open(lrsFile, 'wb', encoding=encoding)
         self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()
 
     def renderLrf(self, lrfFile):
         self.appendReferencedObjects(self)
-        if isinstance(lrfFile, string_or_bytes):
+        if isinstance(lrfFile, (str, bytes)):
             lrfFile = open(lrfFile, 'wb')
         lrfWriter = LrfWriter(self.sourceencoding)
 
@@ -1489,7 +1489,7 @@ class Paragraph(LrsContainer):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
                                      LrsSimpleChar1, bytes, str])
         if text is not None:
-            if isinstance(text, string_or_bytes):
+            if isinstance(text, (str, bytes)):
                 text = Text(text)
             self.append(text)
 
@@ -1808,7 +1808,7 @@ class Span(LrsSimpleChar1, LrsContainer):
     def __init__(self, text=None, **attrs):
         LrsContainer.__init__(self, [LrsSimpleChar1, Text, bytes, str])
         if text is not None:
-            if isinstance(text, string_or_bytes):
+            if isinstance(text, (str, bytes)):
                 text = Text(text)
             self.append(text)
 

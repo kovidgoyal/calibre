@@ -49,7 +49,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -1481,7 +1481,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     vals = accessor(row)
                     if vals is None:
                         vals = ''
-                    if isinstance(vals, string_or_bytes):
+                    if isinstance(vals, (str, bytes)):
                         vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)

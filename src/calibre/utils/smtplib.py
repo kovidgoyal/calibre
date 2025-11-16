@@ -53,8 +53,6 @@ from email.base64mime import body_encode as encode_base64
 from functools import partial
 from sys import stderr
 
-from polyglot.builtins import string_or_bytes
-
 __all__ = [
     'SMTP',
     'SMTPAuthenticationError',
@@ -735,7 +733,7 @@ class SMTP:
             self.rset()
             raise SMTPSenderRefused(code, resp, from_addr)
         senderrs = {}
-        if isinstance(to_addrs, string_or_bytes):
+        if isinstance(to_addrs, (str, bytes)):
             to_addrs = [to_addrs]
         for each in to_addrs:
             code, resp = self.rcpt(each, rcpt_options)

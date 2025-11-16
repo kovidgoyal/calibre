@@ -20,7 +20,7 @@ from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre_extensions import lzx, msdes
-from polyglot.builtins import itervalues, string_or_bytes
+from polyglot.builtins import itervalues
 from polyglot.urllib import unquote as urlunquote
 from polyglot.urllib import urldefrag
 
@@ -286,7 +286,7 @@ class UnBinary:
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
-                    if not attr or not isinstance(attr, string_or_bytes):
+                    if not attr or not isinstance(attr, (str, bytes)):
                         raise LitError(
                             f'Unknown attribute {oc} in tag {tag_name}')
                     if attr.startswith('%'):

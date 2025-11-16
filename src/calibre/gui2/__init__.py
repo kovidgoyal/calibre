@@ -91,7 +91,7 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
 from polyglot import queue
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 del pqc, geometry_for_restore_as_dict
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
@@ -1487,7 +1487,7 @@ SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 
 def open_url(qurl):
-    if isinstance(qurl, string_or_bytes):
+    if isinstance(qurl, (str, bytes)):
         qurl = QUrl(qurl)
     scheme = qurl.scheme().lower() or 'file'
     import fnmatch
@@ -1533,7 +1533,7 @@ def open_url(qurl):
 
 
 def safe_open_url(qurl):
-    if isinstance(qurl, string_or_bytes):
+    if isinstance(qurl, (str, bytes)):
         qurl = QUrl(qurl)
     if qurl.scheme() in ('', 'file'):
         path = qurl.toLocalFile()

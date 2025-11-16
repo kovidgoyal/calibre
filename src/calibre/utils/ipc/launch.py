@@ -14,7 +14,7 @@ from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.config import prefs
 from calibre.utils.serialize import msgpack_dumps
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import environ_item, native_string_type, string_or_bytes
+from polyglot.builtins import environ_item, native_string_type
 
 if iswindows:
     try:
@@ -184,7 +184,7 @@ class Worker:
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
+        cmd = [exe] if isinstance(exe, (str, bytes)) else exe
         args = {
                 'env': env,
                 'cwd': _cwd,

@@ -19,7 +19,7 @@ from importlib.util import decode_source
 
 from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
-from polyglot.builtins import reload, string_or_bytes
+from polyglot.builtins import reload
 
 
 def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
@@ -37,7 +37,7 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
                 be just the bytes of the resource or None if it wasn't found.
     '''
     names = name_or_list_of_names
-    if isinstance(names, string_or_bytes):
+    if isinstance(names, (str, bytes)):
         names = [names]
     ans = {}
     with zipfile.ZipFile(zfp) as zf:
@@ -74,7 +74,7 @@ def get_icons(zfp, name_or_list_of_names, plugin_name='', print_tracebacks_for_m
     '''
     from qt.core import QIcon, QPixmap
     ans = {}
-    namelist = [name_or_list_of_names] if isinstance(name_or_list_of_names, string_or_bytes) else name_or_list_of_names
+    namelist = [name_or_list_of_names] if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names
     failed = set()
     if plugin_name:
         for name in namelist:
@@ -89,7 +89,7 @@ def get_icons(zfp, name_or_list_of_names, plugin_name='', print_tracebacks_for_m
         from_zfp = get_resources(zfp, list(failed), print_tracebacks_for_missing_resources=print_tracebacks_for_missing_resources)
         if from_zfp is None:
             from_zfp = {}
-        elif isinstance(from_zfp, string_or_bytes):
+        elif isinstance(from_zfp, (str, bytes)):
             from_zfp = {namelist[0]: from_zfp}
 
         for name in failed:

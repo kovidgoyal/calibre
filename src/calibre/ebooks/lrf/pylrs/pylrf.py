@@ -11,8 +11,6 @@ import os
 import struct
 import zlib
 
-from polyglot.builtins import string_or_bytes
-
 from .pylrfopt import tagListOptimizer
 
 PYLRF_VERSION = '1.0'
@@ -400,7 +398,7 @@ class LrfTag:
         for f in self.format:
             if isinstance(f, dict):
                 p = f[p]
-            elif isinstance(f, string_or_bytes):
+            elif isinstance(f, (str, bytes)):
                 if isinstance(p, tuple):
                     writeString(lrf, struct.pack(f, *p))
                 else:

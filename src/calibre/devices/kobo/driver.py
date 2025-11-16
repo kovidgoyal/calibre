@@ -4321,7 +4321,7 @@ class KOBOTOUCH(KOBO):
                 debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
                 start_subclass_extra_options = OPT_DEBUGGING_TITLE + 1
 
-            settings.debugging_title = debugging_title if isinstance(debugging_title, string_or_bytes) else ''
+            settings.debugging_title = debugging_title if isinstance(debugging_title, (str, bytes)) else ''
             settings.update_device_metadata = settings.update_series
             settings.extra_customization = settings.extra_customization[start_subclass_extra_options:]
 

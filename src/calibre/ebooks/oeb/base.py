@@ -30,7 +30,7 @@ from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import unquote as urlunquote
 from polyglot.urllib import urldefrag, urljoin, urlparse, urlunparse
 
@@ -1051,7 +1051,7 @@ class Manifest:
                 mt = self.media_type.lower()
             except Exception:
                 mt = 'application/octet-stream'
-            if not isinstance(data, string_or_bytes):
+            if not isinstance(data, (str, bytes)):
                 pass  # already parsed
             elif mt in OEB_DOCS:
                 data = self._parse_xhtml(data)
@@ -1306,7 +1306,7 @@ class Spine:
         self.page_progression_direction = None
 
     def _linear(self, linear):
-        if isinstance(linear, string_or_bytes):
+        if isinstance(linear, (str, bytes)):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True

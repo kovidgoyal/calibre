@@ -25,7 +25,7 @@ from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_f
 from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client, reprlib
-from polyglot.builtins import error_message, iteritems, reraise, string_or_bytes
+from polyglot.builtins import error_message, iteritems, reraise
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex
@@ -315,7 +315,7 @@ def filesystem_file_output(output, outheaders, stat_result):
     etag = getattr(output, 'etag', None)
     if etag is None:
         oname = output.name or ''
-        if not isinstance(oname, string_or_bytes):
+        if not isinstance(oname, (str, bytes)):
             oname = str(oname)
         etag = hashlib.sha1((str(stat_result.st_mtime) + force_unicode(oname)).encode('utf-8')).hexdigest()
     else:
@@ -652,7 +652,7 @@ class HTTPConnection(HTTPRequest):
             output = filesystem_file_output(output, outheaders, stat_result)
             if 'Content-Type' not in outheaders:
                 output_name = output.name
-                if not isinstance(output_name, string_or_bytes):
+                if not isinstance(output_name, (str, bytes)):
                     output_name = str(output_name)
                 mt = guess_type(output_name)[0]
                 if mt:
@@ -661,7 +661,7 @@ class HTTPConnection(HTTPRequest):
                     outheaders['Content-Type'] = mt
                 else:
                     outheaders['Content-Type'] = 'application/octet-stream'
-        elif isinstance(output, string_or_bytes):
+        elif isinstance(output, (str, bytes)):
             output = dynamic_output(output, outheaders)
         elif hasattr(output, 'read'):
             output = ReadableOutput(output)

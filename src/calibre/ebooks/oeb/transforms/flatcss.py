@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, SVG_NS, XHTML, XH
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -361,7 +361,7 @@ class CSSFlattener:
                     cssdict[property] = f'{value/fsize:0.5f}em'
 
     def flatten_node(self, node, stylizer, names, styles, pseudo_styles, psize, item_id, recurse=True):
-        if not isinstance(node.tag, string_or_bytes) or namespace(node.tag) not in (XHTML_NS, SVG_NS):
+        if not isinstance(node.tag, (str, bytes)) or namespace(node.tag) not in (XHTML_NS, SVG_NS):
             return
         tag = barename(node.tag)
         style = stylizer.style(node)

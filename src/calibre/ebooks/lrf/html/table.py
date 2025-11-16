@@ -7,7 +7,7 @@ import sys
 
 from calibre.ebooks.lrf.fonts import get_font
 from calibre.ebooks.lrf.pylrs.pylrs import CR, CharButton, LrsTextTag, Paragraph, Plot, Span, Text, TextBlock
-from polyglot.builtins import native_string_type, string_or_bytes
+from polyglot.builtins import native_string_type
 
 
 def ceil(num):
@@ -39,7 +39,7 @@ def tokens(tb):
             yield 2, None
         elif isinstance(x, Text):
             yield x.text, cattrs(attrs, {})
-        elif isinstance(x, string_or_bytes):
+        elif isinstance(x, (str, bytes)):
             yield x, cattrs(attrs, {})
         elif isinstance(x, (CharButton, LrsTextTag)):
             if x.contents:

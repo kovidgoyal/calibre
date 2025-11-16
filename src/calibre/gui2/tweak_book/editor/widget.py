@@ -36,11 +36,10 @@ from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERT
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import primary_sort_key, utf16_length
-from polyglot.builtins import string_or_bytes
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
-    if isinstance(fill, string_or_bytes):
+    if isinstance(fill, (str, bytes)):
         fill = QColor(fill)
     sz = sz or math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio())
     if palette is None:

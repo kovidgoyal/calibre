@@ -24,7 +24,6 @@ from shutil import copyfileobj
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.cleantext import clean_xml_chars
-from polyglot.builtins import string_or_bytes
 
 BYTE      = '<B'  #: Unsigned char little endian encoded in 1 byte
 WORD      = '<H'  #: Unsigned short little endian encoded in 2 bytes
@@ -98,7 +97,7 @@ class fixed_stringfield:
         return obj.unpack(start=self._start, fmt='<'+length+'s')[0]
 
     def __set__(self, obj, val):
-        if not isinstance(val, string_or_bytes):
+        if not isinstance(val, (str, bytes)):
             val = str(val)
         if isinstance(val, str):
             val = val.encode('utf-8')

@@ -88,7 +88,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
 from calibre.utils.localization import ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import as_bytes, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import as_bytes, iteritems, itervalues
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []
@@ -1565,7 +1565,7 @@ class Boss(QObject):
 
     @in_thread_job
     def export_requested(self, name_or_names, path):
-        if isinstance(name_or_names, string_or_bytes):
+        if isinstance(name_or_names, (str, bytes)):
             return self.export_file(name_or_names, path)
         for name in name_or_names:
             dest = os.path.abspath(os.path.join(path, name))

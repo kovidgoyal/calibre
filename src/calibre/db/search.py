@@ -21,7 +21,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_contains, primary_no_punc_contains, sort_key
 from calibre.utils.localization import canonicalize_lang, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -210,7 +210,7 @@ class DateSearch:  # {{{
                     field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
-            if isinstance(v, string_or_bytes):
+            if isinstance(v, (str, bytes)):
                 v = parse_date(v)
             if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
@@ -773,7 +773,7 @@ class Parser(SearchQueryParser):  # {{{
             if location in text_fields:
                 for val, book_ids in self.field_iter(location, current_candidates):
                     if val is not None:
-                        if isinstance(val, string_or_bytes):
+                        if isinstance(val, (str, bytes)):
                             val = (val,)
                         if _match(q, val, matchkind, use_primary_find_in_search=upf, case_sensitive=case_sensitive):
                             matches |= book_ids

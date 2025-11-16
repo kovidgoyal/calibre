@@ -72,7 +72,7 @@ from calibre.utils.formatter_functions import compile_user_template_functions, f
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import cmp, itervalues, native_string_type, reraise, string_or_bytes
+from polyglot.builtins import cmp, itervalues, native_string_type, reraise
 
 # }}}
 
@@ -1727,7 +1727,7 @@ class DB:
     def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         if windows_atomic_move is not None:
-            if not isinstance(dest, string_or_bytes):
+            if not isinstance(dest, (str, bytes)):
                 raise Exception('Error, you must pass the dest as a path when'
                         ' using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
@@ -1837,7 +1837,7 @@ class DB:
         if path is None:
             return False
         if windows_atomic_move is not None:
-            if not isinstance(dest, string_or_bytes):
+            if not isinstance(dest, (str, bytes)):
                 raise Exception('Error, you must pass the dest as a path when'
                         ' using windows_atomic_move')
             if dest:
@@ -2637,7 +2637,7 @@ class DB:
 
     def set_conversion_options(self, options, fmt):
         def map_data(x):
-            if not isinstance(x, string_or_bytes):
+            if not isinstance(x, (str, bytes)):
                 x = native_string_type(x)
             x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)

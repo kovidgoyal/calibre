@@ -26,7 +26,7 @@ from calibre.ebooks.lit.reader import DirectoryEntry
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre_extensions import msdes
-from polyglot.builtins import native_string_type, string_or_bytes
+from polyglot.builtins import native_string_type
 from polyglot.urllib import unquote, urldefrag
 
 __all__ = ['LitWriter']
@@ -173,7 +173,7 @@ class ReBinary:
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, string_or_bytes):
+        if not isinstance(elem.tag, (str, bytes)):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)

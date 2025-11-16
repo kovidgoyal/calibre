@@ -21,7 +21,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import _
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 
 def ensure_val(x, *allowed):
@@ -107,7 +107,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, string_or_bytes):
+                    if isinstance(categories, (str, bytes)):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:

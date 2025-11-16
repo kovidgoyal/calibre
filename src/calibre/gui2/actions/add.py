@@ -25,7 +25,6 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import string_or_bytes
 
 
 def get_filters():
@@ -541,7 +540,7 @@ class AddAction(InterfaceAction):
             self._add_extra_files({cid}, add_as_data_files)
 
     def __add_filesystem_book(self, paths, allow_device=True):
-        if isinstance(paths, string_or_bytes):
+        if isinstance(paths, (str, bytes)):
             paths = [paths]
         books = [path for path in map(os.path.abspath, paths) if os.access(path,
             os.R_OK)]
@@ -696,7 +695,7 @@ class AddAction(InterfaceAction):
             self.gui.device_job_exception(job)
             return
         paths = job.result
-        ok_paths = [x for x in paths if isinstance(x, string_or_bytes)]
+        ok_paths = [x for x in paths if isinstance(x, (str, bytes))]
         failed_paths = [x for x in paths if isinstance(x, tuple)]
         if failed_paths:
             if not ok_paths:

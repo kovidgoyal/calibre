@@ -16,7 +16,7 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -588,7 +588,7 @@ class Metadata:
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self_tags = self.get(x, [])
-                        if isinstance(self_tags, string_or_bytes):
+                        if isinstance(self_tags, (str, bytes)):
                             self_tags = []
                         self.set_user_metadata(x, meta)  # get... did the deepcopy
                         other_tags = other.get(x, [])

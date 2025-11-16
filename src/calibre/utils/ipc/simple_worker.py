@@ -16,7 +16,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker, windows_creationflags_for_worker_process
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import environ_item, string_or_bytes
+from polyglot.builtins import environ_item
 
 if iswindows:
     from multiprocessing.connection import PipeConnection as Connection
@@ -153,7 +153,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
             args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
 
         exe = w.executable
-        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
+        cmd = [exe] if isinstance(exe, (str, bytes)) else exe
         p = subprocess.Popen(cmd + ['--pipe-worker', command], **args)
     finally:
         if iswindows and pass_fds:

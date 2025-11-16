@@ -18,14 +18,14 @@ from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
 from calibre.utils.localization import _
-from polyglot.builtins import as_bytes, string_or_bytes
+from polyglot.builtins import as_bytes
 from polyglot.urllib import urlencode
 
 # /mobile {{{
 
 
 def clean(x):
-    if isinstance(x, string_or_bytes):
+    if isinstance(x, (str, bytes)):
         x = clean_xml_chars(x)
     return x
 

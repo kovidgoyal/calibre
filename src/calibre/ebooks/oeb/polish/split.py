@@ -12,7 +12,6 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barena
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 from calibre.ebooks.oeb.polish.toc import node_from_loc
-from polyglot.builtins import string_or_bytes
 from polyglot.urllib import urlparse
 
 
@@ -396,9 +395,9 @@ def merge_html(container, names, master, insert_page_breaks=False):
 
         first_child = ''
         for first_child in children:
-            if not isinstance(first_child, string_or_bytes):
+            if not isinstance(first_child, (str, bytes)):
                 break
-        if isinstance(first_child, string_or_bytes):
+        if isinstance(first_child, (str, bytes)):
             # body contained only text, no tags
             first_child = body.makeelement(XHTML('p'))
             first_child.text, children[0] = children[0], first_child
@@ -434,7 +433,7 @@ def merge_html(container, names, master, insert_page_breaks=False):
                 a.set('href', '#' + amap[q])
 
         for child in children:
-            if isinstance(child, string_or_bytes):
+            if isinstance(child, (str, bytes)):
                 add_text(master_body, child)
             else:
                 master_body.append(copy.deepcopy(child))
