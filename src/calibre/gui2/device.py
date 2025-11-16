@@ -5,6 +5,7 @@ import io
 
 # Imports {{{
 import os
+import queue
 import re
 import sys
 import time
@@ -56,7 +57,6 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import scale_image
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.localization import ngettext
-from polyglot import queue
 
 # }}}
 

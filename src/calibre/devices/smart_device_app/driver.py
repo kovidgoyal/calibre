@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import posixpath
+import queue
 import random
 import select
 import socket
@@ -43,7 +44,6 @@ from calibre.utils.mdns import get_all_ips
 from calibre.utils.mdns import publish as publish_zeroconf
 from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot import queue
 from polyglot.builtins import as_bytes
 
 

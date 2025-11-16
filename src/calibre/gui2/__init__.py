@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import glob
 import os
+import queue
 import signal
 import sys
 import threading
@@ -90,7 +91,6 @@ from calibre.utils.localization import get_lang
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
-from polyglot import queue
 from polyglot.builtins import iteritems
 
 del pqc, geometry_for_restore_as_dict
