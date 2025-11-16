@@ -43,7 +43,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextBlock,
 )
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import itervalues, string_or_bytes
+from polyglot.builtins import itervalues
 from polyglot.urllib import unquote, urlparse
 
 '''
@@ -1129,7 +1129,7 @@ class HTMLConverter:
             ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth'])) / 2)
 
         for prop in ('topskip', 'footskip', 'sidemargin'):
-            if isinstance(ans[prop], string_or_bytes):
+            if isinstance(ans[prop], (str, bytes)):
                 ans[prop] = int(ans[prop])
             ans[prop] = max(ans[prop], 0)
 

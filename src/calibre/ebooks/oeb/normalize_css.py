@@ -13,7 +13,7 @@ from css_parser.css import PropertyValue
 from tinycss.fonts3 import parse_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
-from polyglot.builtins import iteritems, string_or_bytes
+from polyglot.builtins import iteritems
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -129,9 +129,9 @@ def normalize_font(cssvalue, font_family_as_list=False):
         ans = {k:DEFAULTS[k] for k in composition}
         ans.update(parse_font(val))
     if font_family_as_list:
-        if isinstance(ans['font-family'], string_or_bytes):
+        if isinstance(ans['font-family'], (str, bytes)):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
-    elif not isinstance(ans['font-family'], string_or_bytes):
+    elif not isinstance(ans['font-family'], (str, bytes)):
         ans['font-family'] = serialize_font_family(ans['font-family'])
     return ans
 

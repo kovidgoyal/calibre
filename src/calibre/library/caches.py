@@ -22,7 +22,7 @@ from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_d
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, canonicalize_lang, get_udc, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import cmp, itervalues, string_or_bytes
+from polyglot.builtins import cmp, itervalues
 
 
 class MetadataBackup(Thread):  # {{{
@@ -824,7 +824,7 @@ class ResultCache(SearchQueryParser):  # {{{
                         continue
 
                     if q == 'true' and matchkind == CONTAINS_MATCH:
-                        if isinstance(item[loc], string_or_bytes):
+                        if isinstance(item[loc], (str, bytes)):
                             if item[loc].strip() == '':
                                 continue
                         matches.add(item[0])
