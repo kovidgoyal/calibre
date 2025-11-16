@@ -9,12 +9,12 @@ import json
 import os
 import tempfile
 import time
+from queue import Queue
 from threading import Event, RLock, Thread
 
 from calibre.ptempfile import base_dir
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog
-from polyglot.queue import Queue
 
 
 class ThreadedJob(BaseJob):

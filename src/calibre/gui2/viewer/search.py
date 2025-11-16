@@ -4,6 +4,7 @@
 import json
 from collections import Counter, OrderedDict
 from html import escape
+from queue import Queue
 from threading import Thread
 
 import regex
@@ -36,7 +37,6 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.utils.icu import primary_collator_without_punctuation
 from calibre.utils.localization import _, ngettext
 from polyglot.functools import lru_cache
-from polyglot.queue import Queue
 
 
 class BusySpinner(QWidget):  # {{{

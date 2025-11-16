@@ -17,6 +17,7 @@ import textwrap
 import time
 from collections import OrderedDict, deque
 from io import BytesIO
+from queue import Empty, Queue
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -68,7 +69,6 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc.pool import Pool
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
-from polyglot.queue import Empty, Queue
 
 
 def get_gui():

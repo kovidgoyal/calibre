@@ -12,6 +12,7 @@ import weakref
 from collections import namedtuple
 from functools import wraps
 from io import BytesIO
+from queue import LifoQueue
 from textwrap import wrap
 from threading import Event, Thread
 
@@ -68,7 +69,6 @@ from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.img import convert_PIL_image_to_pixmap
-from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'

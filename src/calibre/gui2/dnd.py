@@ -9,6 +9,7 @@ import os
 import posixpath
 import re
 from contextlib import suppress
+from queue import Empty, Queue
 from threading import Thread
 
 from qt.core import QDialog, QDialogButtonBox, QImageReader, QLabel, QMimeData, QPixmap, QProgressBar, Qt, QTimer, QUrl, QVBoxLayout
@@ -19,7 +20,6 @@ from calibre.gui2 import error_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
-from polyglot.queue import Empty, Queue
 from polyglot.urllib import unquote, urlparse
 
 

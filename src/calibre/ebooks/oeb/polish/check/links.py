@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from collections import defaultdict
+from queue import Empty, Queue
 from threading import Thread
 
 from calibre import browser
@@ -16,7 +17,6 @@ from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, corrected_case_for_name, guess_type
 from polyglot.builtins import itervalues
-from polyglot.queue import Empty, Queue
 from polyglot.urllib import urlparse
 
 

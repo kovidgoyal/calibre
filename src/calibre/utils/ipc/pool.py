@@ -8,6 +8,7 @@ import os
 import sys
 from collections import namedtuple
 from multiprocessing.connection import Pipe
+from queue import Queue
 from threading import Thread
 
 from calibre import as_unicode, detect_ncpus, prints
@@ -17,7 +18,6 @@ from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
 from polyglot.builtins import iteritems, itervalues
-from polyglot.queue import Queue
 
 Job = namedtuple('Job', 'id module func args kwargs')
 Result = namedtuple('Result', 'value err traceback')

@@ -12,6 +12,7 @@ import ssl
 import subprocess
 import sys
 import time
+from queue import Empty, Queue
 from threading import Lock, Thread
 
 from calibre.constants import islinux, ismacos, iswindows
@@ -23,7 +24,6 @@ from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import error_message
-from polyglot.queue import Empty, Queue
 
 MAX_RETRIES = 10
 

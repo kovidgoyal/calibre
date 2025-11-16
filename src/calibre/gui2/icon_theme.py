@@ -17,6 +17,7 @@ from functools import lru_cache
 from io import BytesIO
 from itertools import count
 from multiprocessing.pool import ThreadPool
+from queue import Empty, Queue
 from threading import Event, Thread
 from xml.sax.saxutils import escape
 
@@ -75,7 +76,6 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 from polyglot import http_client
 from polyglot.builtins import as_bytes, reraise
-from polyglot.queue import Empty, Queue
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'

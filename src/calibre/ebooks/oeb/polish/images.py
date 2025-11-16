@@ -4,10 +4,10 @@
 
 import os
 from functools import partial
+from queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
-from polyglot.queue import Empty, Queue
 
 
 class Worker(Thread):

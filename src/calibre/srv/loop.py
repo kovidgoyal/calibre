@@ -13,6 +13,7 @@ import traceback
 from contextlib import suppress
 from functools import lru_cache, partial
 from io import BytesIO
+from queue import Empty, Full
 
 from calibre import as_unicode
 from calibre.constants import iswindows
@@ -38,7 +39,6 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.network import get_fallback_server_addr
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import iteritems
-from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'

@@ -10,6 +10,7 @@ Job management.
 '''
 
 import time
+from queue import Empty, Queue
 
 from qt.core import (
     QAbstractItemDelegate,
@@ -59,7 +60,6 @@ from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.utils.localization import ngettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.queue import Empty, Queue
 
 
 class AdaptSQP(SearchQueryParser):

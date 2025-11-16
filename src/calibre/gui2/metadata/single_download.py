@@ -12,6 +12,7 @@ import os
 import time
 from io import BytesIO
 from operator import attrgetter
+from queue import Empty, Queue
 from threading import Event, Thread
 
 from qt.core import (
@@ -69,7 +70,6 @@ from calibre.utils.img import image_to_data, save_image
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
-from polyglot.queue import Empty, Queue
 
 # }}}
 

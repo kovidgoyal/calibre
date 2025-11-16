@@ -13,6 +13,7 @@ import traceback
 import weakref
 from collections import OrderedDict
 from io import BytesIO
+from queue import Empty
 from threading import Thread
 
 from qt.core import QObject, Qt, pyqtSignal
@@ -35,7 +36,6 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import ngettext
-from polyglot.queue import Empty
 
 
 def validate_source(source, parent=None):  # {{{

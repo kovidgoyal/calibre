@@ -9,6 +9,7 @@ Based on ideas from comiclrf created by FangornUK.
 import os
 import time
 import traceback
+from queue import Empty
 
 from calibre import extract, prints, walk
 from calibre.constants import filesystem_encoding
@@ -17,7 +18,6 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
-from polyglot.queue import Empty
 
 # If the specified screen has either dimension larger than this value, no image
 # rescaling is done (we assume that it is a tablet output profile)

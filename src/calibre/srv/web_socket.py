@@ -7,6 +7,7 @@ import socket
 import weakref
 from collections import deque
 from hashlib import sha1
+from queue import Empty, Queue
 from struct import error as struct_error
 from struct import pack, unpack_from
 from threading import Lock
@@ -20,7 +21,6 @@ from calibre_extensions.speedup import utf8_decode
 from calibre_extensions.speedup import websocket_mask as fast_mask
 from polyglot import http_client
 from polyglot.binary import as_base64_unicode
-from polyglot.queue import Empty, Queue
 
 HANDSHAKE_STR = (
     'HTTP/1.1 101 Switching Protocols\r\n'

@@ -7,12 +7,12 @@ import time
 from collections import deque, namedtuple
 from functools import partial
 from itertools import count
+from queue import Empty, Queue
 from threading import Event, RLock, Thread
 
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.monotonic import monotonic
-from polyglot.queue import Empty, Queue
 
 StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
 DoneEvent = namedtuple('DoneEvent', 'job_id')

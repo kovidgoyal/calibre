@@ -15,6 +15,7 @@ import traceback
 import uuid
 from datetime import datetime, timezone
 from functools import partial
+from queue import Queue
 from sqlite3 import IntegrityError, OperationalError
 from threading import RLock, Thread
 
@@ -25,7 +26,6 @@ from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz, parse_date
 from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
 from polyglot.builtins import cmp
-from polyglot.queue import Queue
 
 global_lock = RLock()
 

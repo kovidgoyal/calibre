@@ -11,6 +11,7 @@ from collections import OrderedDict
 from itertools import islice
 from math import ceil
 from operator import itemgetter
+from queue import Queue
 from threading import Lock, Thread
 from unicodedata import normalize
 
@@ -21,7 +22,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_collator, primary_find, primary_sort_key
 from calibre.utils.icu import upper as icu_upper
 from polyglot.builtins import iteritems, itervalues
-from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
