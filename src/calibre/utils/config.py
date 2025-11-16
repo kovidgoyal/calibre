@@ -31,7 +31,6 @@ from calibre.utils.config_base import (
     tweaks,
 )
 from calibre.utils.localization import _
-from polyglot.builtins import native_string_type
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
@@ -173,11 +172,11 @@ class OptionParser(optparse.OptionParser):
 
     def options_iter(self):
         for opt in self.option_list:
-            if native_string_type(opt).strip():
+            if str(opt).strip():
                 yield opt
         for gr in self.option_groups:
             for opt in gr.option_list:
-                if native_string_type(opt).strip():
+                if str(opt).strip():
                     yield opt
 
     def option_by_dest(self, dest):
@@ -202,7 +201,7 @@ class OptionParser(optparse.OptionParser):
     def add_option_group(self, *args, **kwargs):
         if isinstance(args[0], (str, bytes)):
             args = list(args)
-            args[0] = native_string_type(args[0])
+            args[0] = str(args[0])
         return optparse.OptionParser.add_option_group(self, *args, **kwargs)
 
 

@@ -26,7 +26,6 @@ from calibre.ebooks.lit.reader import DirectoryEntry
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre_extensions import msdes
-from polyglot.builtins import native_string_type
 from polyglot.urllib import unquote, urldefrag
 
 __all__ = ['LitWriter']
@@ -570,7 +569,7 @@ class LitWriter:
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
-        meta.attrib['ms--guid'] = f'{{{native_string_type(uuid.uuid4()).upper()}}}'
+        meta.attrib['ms--guid'] = f'{{{str(uuid.uuid4()).upper()}}}'
         rebin = ReBinary(meta, None, self._oeb, self.opts, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta

@@ -12,7 +12,6 @@ from pygments.token import Comment, Keyword, Name, Number, Operator, Punctuation
 
 from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import create_highlighter
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import native_string_type
 
 JS_IDENT_START = ('(?:[$_' + uni.combine('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl') +
                   ']|\\\\u[a-fA-F0-9]{4})')
@@ -32,39 +31,39 @@ class JavascriptLexer(RegexLexer):
     flags = re.UNICODE | re.MULTILINE
 
     tokens = {
-        native_string_type('commentsandwhitespace'): [
+        str('commentsandwhitespace'): [
             (r'\s+', Text),
             (r'<!--', Comment),
             (r'//.*?$', Comment.Single),
-            (r'/\*', Comment.Multiline, native_string_type('comment'))
+            (r'/\*', Comment.Multiline, str('comment'))
         ],
-        native_string_type('comment'): [
+        str('comment'): [
             (r'[^*/]+', Comment.Multiline),
-            (r'\*/', Comment.Multiline, native_string_type('#pop')),
+            (r'\*/', Comment.Multiline, str('#pop')),
             (r'[*/]', Comment.Multiline),
         ],
-        native_string_type('slashstartsregex'): [
-            include(native_string_type('commentsandwhitespace')),
+        str('slashstartsregex'): [
+            include(str('commentsandwhitespace')),
             (r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
-             r'([gim]+\b|\B)', String.Regex, native_string_type('#pop')),
-            (r'(?=/)', Text, (native_string_type('#pop'), native_string_type('badregex'))),
-            default(native_string_type('#pop'))
+             r'([gim]+\b|\B)', String.Regex, str('#pop')),
+            (r'(?=/)', Text, (str('#pop'), str('badregex'))),
+            default(str('#pop'))
         ],
-        native_string_type('badregex'): [
-            (r'\n', Text, native_string_type('#pop'))
+        str('badregex'): [
+            (r'\n', Text, str('#pop'))
         ],
-        native_string_type('root'): [
+        str('root'): [
             (r'\A#! ?/.*?\n', Comment),  # shebang lines are recognized by node.js
-            (r'^(?=\s|/|<!--)', Text, native_string_type('slashstartsregex')),
-            include(native_string_type('commentsandwhitespace')),
+            (r'^(?=\s|/|<!--)', Text, str('slashstartsregex')),
+            include(str('commentsandwhitespace')),
             (r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
-             r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?', Operator, native_string_type('slashstartsregex')),
-            (r'[{(\[;,]', Punctuation, native_string_type('slashstartsregex')),
+             r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?', Operator, str('slashstartsregex')),
+            (r'[{(\[;,]', Punctuation, str('slashstartsregex')),
             (r'[})\].]', Punctuation),
             (r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
              r'throw|try|catch|finally|new|delete|typeof|instanceof|void|yield|'
-             r'this)\b', Keyword, native_string_type('slashstartsregex')),
-            (r'(var|let|with|function)\b', Keyword.Declaration, native_string_type('slashstartsregex')),
+             r'this)\b', Keyword, str('slashstartsregex')),
+            (r'(var|let|with|function)\b', Keyword.Declaration, str('slashstartsregex')),
             (r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
              r'extends|final|float|goto|implements|import|int|interface|long|native|'
              r'package|private|protected|public|short|static|super|synchronized|throws|'

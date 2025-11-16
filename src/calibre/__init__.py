@@ -11,7 +11,7 @@ import warnings
 from functools import lru_cache, partial
 from math import floor
 
-from polyglot.builtins import hasenv, native_string_type
+from polyglot.builtins import hasenv
 
 if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
@@ -537,7 +537,7 @@ def as_unicode(obj, enc=preferred_encoding):
             obj = str(obj)
         except Exception:
             try:
-                obj = native_string_type(obj)
+                obj = str(obj)
             except Exception:
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)

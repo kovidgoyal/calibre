@@ -72,7 +72,7 @@ from calibre.utils.formatter_functions import compile_user_template_functions, f
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import cmp, itervalues, native_string_type, reraise
+from polyglot.builtins import cmp, itervalues, reraise
 
 # }}}
 
@@ -2638,7 +2638,7 @@ class DB:
     def set_conversion_options(self, options, fmt):
         def map_data(x):
             if not isinstance(x, (str, bytes)):
-                x = native_string_type(x)
+                x = str(x)
             x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)
             return x
