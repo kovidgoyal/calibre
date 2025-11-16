@@ -332,11 +332,11 @@ class XMLConfig(dict):
             pass
 
     def raw_to_object(self, raw):
-        from polyglot.plistlib import loads
+        from plistlib import loads
         return loads(raw)
 
     def to_raw(self):
-        from polyglot.plistlib import dumps
+        from plistlib import dumps
         return dumps(self)
 
     def decouple(self, prefix):
