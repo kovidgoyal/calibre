@@ -736,7 +736,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def change_language(self, idx):
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()) or '')
-        from polyglot.builtins import builtins
+        import builtins
         builtins.__dict__['_'] = lambda x: x
         from calibre.ebooks.metadata.book.base import reset_field_metadata
         from calibre.gui2 import qt_app
