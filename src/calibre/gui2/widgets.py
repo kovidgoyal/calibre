@@ -51,7 +51,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndica
 from calibre.startup import connect_lambda
 from calibre.utils.config import XMLConfig, prefs
 from calibre.utils.localization import _, localize_user_manual_link
-from polyglot.builtins import native_string_type
 
 history = XMLConfig('history')
 
@@ -675,7 +674,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.completer = ItemsCompleter(self, complete_items)
         self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
-        self.completer.activated[native_string_type].connect(self.complete_text)
+        self.completer.activated[str].connect(self.complete_text)
 
         self.completer.setWidget(self)
 

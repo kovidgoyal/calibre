@@ -47,7 +47,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import error_message, itervalues, native_string_type
+from polyglot.builtins import error_message, itervalues
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -776,7 +776,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
         self.s_r_template.initialize('bulk_edit_template')
-        self.s_r_template.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.s_r_template.editTextChanged[str].connect(self.s_r_paint_results)
         self.s_r_edit_template_button.setIcon(QIcon.ic('edit_input.png'))
         self.s_r_edit_template_button.clicked.connect(self.s_r_edit_template_button_clicked)
         self.test_text.initialize('bulk_edit_test_test')
@@ -879,9 +879,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.replace_mode.currentIndexChanged.connect(self.s_r_paint_results)
         self.replace_func.currentIndexChanged.connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged.connect(self.s_r_identifier_type_changed)

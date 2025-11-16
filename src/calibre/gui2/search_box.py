@@ -17,7 +17,6 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import pgettext
-from polyglot.builtins import native_string_type
 
 
 class AsYouType(str):
@@ -142,7 +141,7 @@ class SearchBox2(QComboBox):  # {{{
 
         c = self.line_edit.completer()
         c.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
-        c.highlighted[native_string_type].connect(self.completer_used)
+        c.highlighted[str].connect(self.completer_used)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.ConnectionType.DirectConnection)
         # QueuedConnection as workaround for https://bugreports.qt-project.org/browse/QTBUG-40807
