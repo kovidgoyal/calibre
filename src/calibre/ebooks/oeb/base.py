@@ -30,7 +30,7 @@ from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from polyglot.urllib import unquote as urlunquote
 from polyglot.urllib import urldefrag, urljoin, urlparse, urlunparse
 
@@ -452,7 +452,7 @@ def serialize(data, media_type, pretty_print=False):
     return b'' if data is None else bytes(data)
 
 
-ASCII_CHARS   = frozenset(codepoint_to_chr(x) for x in range(128))
+ASCII_CHARS   = frozenset(chr(x) for x in range(128))
 UNIBYTE_CHARS = frozenset(x.encode('ascii') for x in ASCII_CHARS)
 USAFE         = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                  'abcdefghijklmnopqrstuvwxyz'

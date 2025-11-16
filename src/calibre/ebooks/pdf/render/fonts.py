@@ -14,7 +14,6 @@ from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, Stream, String
 from calibre.utils.fonts.sfnt.subset import NoGlyphs, UnsupportedFont, pdf_subset
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import codepoint_to_chr
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -121,7 +120,7 @@ class Font:
         self.metrics, self.compress = metrics, compress
         self.is_otf = self.metrics.is_otf
         self.subset_tag = str(
-            re.sub(r'.', lambda m: codepoint_to_chr(int(m.group())+ord('A')), oct(num).replace('o', '')
+            re.sub(r'.', lambda m: chr(int(m.group())+ord('A')), oct(num).replace('o', '')
         )).rjust(6, 'A')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
         try:

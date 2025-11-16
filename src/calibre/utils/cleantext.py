@@ -80,15 +80,15 @@ def unescape(text, rm=False, rchar=''):
             # character reference
             try:
                 if text[:3] == '&#x':
-                    return codepoint_to_chr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return codepoint_to_chr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = codepoint_to_chr(name2codepoint[text[1:-1]])
+                text = chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

@@ -23,7 +23,7 @@ from collections import defaultdict
 from functools import lru_cache, partial
 from locale import normalize as normalize_locale
 
-from polyglot.builtins import codepoint_to_chr, iteritems
+from polyglot.builtins import iteritems
 from setup import Command, __appname__, __version__, build_cache_dir, dump_json, edit_file, is_ci, require_git_master
 from setup.iso_codes import iso_data
 from setup.parallel_build import batched_parallel_jobs
@@ -128,7 +128,7 @@ class POT(Command):  # {{{
         ans = []
         for lineno, msg in msgs:
             ans.append(f'#: {path}:{lineno}')
-            slash = codepoint_to_chr(92)
+            slash = chr(92)
             msg = msg.replace(slash, slash*2).replace('"', r'\"').replace('\n',
                     r'\n').replace('\r', r'\r').replace('\t', r'\t')
             ans.append(f'msgid "{msg}"')

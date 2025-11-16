@@ -20,7 +20,7 @@ from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre_extensions import lzx, msdes
-from polyglot.builtins import codepoint_to_chr, itervalues, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes
 from polyglot.urllib import unquote as urlunquote
 from polyglot.urllib import urldefrag
 
@@ -109,7 +109,7 @@ def read_utf8_char(bytes, pos):
                 raise LitError(
                     f'Invalid UTF8 character: {bytes[pos:pos+i]!r}')
             c = (c << 6) | (b & 0x3F)
-    return codepoint_to_chr(c), pos+elsize
+    return chr(c), pos+elsize
 
 
 def consume_sized_utf8_string(bytes, zpad=False):
@@ -250,9 +250,9 @@ class UnBinary:
                     else:
                         dynamic_tag += 1
                         errors += 1
-                        tag_name = '?'+codepoint_to_chr(tag)+'?'
+                        tag_name = '?'+chr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
-                        print(f'WARNING: tag {codepoint_to_chr(tag)} unknown')
+                        print(f'WARNING: tag {chr(tag)} unknown')
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:

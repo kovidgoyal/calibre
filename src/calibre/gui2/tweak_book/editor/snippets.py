@@ -42,7 +42,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import codepoint_to_chr, iteritems
+from polyglot.builtins import iteritems
 
 
 def string_length(x):
@@ -118,7 +118,7 @@ escape = unescape = None
 def escape_funcs():
     global escape, unescape
     if escape is None:
-        escapem = {('\\' + x):codepoint_to_chr(i+1) for i, x in enumerate('\\${}')}
+        escapem = {('\\' + x):chr(i+1) for i, x in enumerate('\\${}')}
         escape_pat = re.compile('|'.join(map(re.escape, escapem)))
         def escape(x):
             return escape_pat.sub(lambda m: escapem[m.group()], x.replace('\\\\', '\x01'))
