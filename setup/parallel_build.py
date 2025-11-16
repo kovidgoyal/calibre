@@ -16,7 +16,7 @@ from functools import partial
 from multiprocessing.pool import ThreadPool as Pool
 from threading import Thread
 
-from polyglot.builtins import as_bytes, unicode_type
+from polyglot.builtins import as_bytes
 
 Job = namedtuple('Job', 'cmd human_text cwd')
 
@@ -32,7 +32,7 @@ def run_worker(job, decorate=True):
     try:
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     except Exception as err:
-        return False, human_text, unicode_type(err)
+        return False, human_text, str(err)
     stdout, stderr = p.communicate()
     if stdout:
         stdout = stdout.decode('utf-8')

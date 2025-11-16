@@ -25,8 +25,6 @@
 import xml.dom
 from xml.dom.minicompat import EmptyNodeList, defproperty
 
-from polyglot.builtins import unicode_type
-
 from . import grammar
 from .attrconverters import AttrConverters
 from .namespaces import nsdict
@@ -85,7 +83,7 @@ def _nssplit(qualifiedName):
 
 
 def _nsassign(namespace):
-    return nsdict.setdefault(namespace,'ns' + unicode_type(len(nsdict)))
+    return nsdict.setdefault(namespace,'ns' + str(len(nsdict)))
 
 
 # Exceptions
@@ -472,10 +470,10 @@ class Element(Node):
         f.write('<'+self.tagName)
         if level == 0:
             for namespace, prefix in self.namespaces.items():
-                f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
+                f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
         f.write('>')
 
     def write_close_tag(self, level, f):
@@ -486,10 +484,10 @@ class Element(Node):
         f.write('<'+self.tagName)
         if level == 0:
             for namespace, prefix in self.namespaces.items():
-                f.write(' xmlns:' + prefix + '="'+ _escape(unicode_type(namespace))+'"')
+                f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
         for qname in self.attributes.keys():
             prefix = self.get_nsprefix(qname[0])
-            f.write(' '+_escape(unicode_type(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
+            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(str(self.attributes[qname]).encode('utf-8')))
         if self.childNodes:
             f.write('>')
             for element in self.childNodes:

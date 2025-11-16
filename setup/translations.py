@@ -813,19 +813,18 @@ class ISO639(Command):  # {{{
         m3to2 = {}
         nm = {}
         codes2, codes3 = set(), set()
-        unicode_type = str
         for x in entries:
             two = x.get('alpha_2')
             if two:
-                two = unicode_type(two)
+                two = str(two)
             threeb = x.get('alpha_3')
             if threeb:
-                threeb = unicode_type(threeb)
+                threeb = str(threeb)
             if threeb is None:
                 continue
             name = x.get('inverted_name') or x.get('name')
             if name:
-                name = unicode_type(name)
+                name = str(name)
             if not name or name[0] in '!~=/\'"':
                 continue
 
@@ -869,18 +868,17 @@ class ISO3166(ISO639):  # {{{
         codes = set()
         three_map = {}
         name_map = {}
-        unicode_type = str
         for x in db['3166-1']:
             two = x.get('alpha_2')
             if two:
-                two = unicode_type(two)
+                two = str(two)
             codes.add(two)
             name_map[two] = x.get('common_name') or x.get('name')
             if name_map[two]:
-                name_map[two] = unicode_type(name_map[two])
+                name_map[two] = str(name_map[two])
             three = x.get('alpha_3')
             if three:
-                three_map[unicode_type(three)] = two
+                three_map[str(three)] = two
         x = {'names':name_map, 'codes':frozenset(codes), 'three_map':three_map}
         from calibre.utils.serialize import msgpack_dumps
         with open(dest, 'wb') as f:

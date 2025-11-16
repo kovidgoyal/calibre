@@ -25,8 +25,6 @@ from xml.dom import Node
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
 
-from polyglot.builtins import unicode_type
-
 from .namespaces import (
     ANIMNS,
     CHARTNS,
@@ -1344,7 +1342,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:
-            attrs = {'start': unicode_type(self.list_number_map[number_class])}
+            attrs = {'start': str(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
         self.opentag(str(tag_name), attrs)
