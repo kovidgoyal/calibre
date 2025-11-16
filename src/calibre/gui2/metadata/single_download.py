@@ -69,7 +69,6 @@ from calibre.utils.img import image_to_data, save_image
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import GUILog as Log
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import itervalues
 from polyglot.queue import Empty, Queue
 
 # }}}
@@ -766,7 +765,7 @@ class CoversModel(QAbstractListModel):  # {{{
             if pmap.isNull():
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
-            for rows in itervalues(self.plugin_map):
+            for rows in self.plugin_map.values():
                 for i in range(len(rows)):
                     if rows[i] >= last_row:
                         rows[i] += 1

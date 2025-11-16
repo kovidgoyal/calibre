@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 from calibre.utils.lock import singleinstance
 from calibre.utils.winreg.lib import HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, Key
 from calibre_extensions import winutil
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
@@ -278,7 +278,7 @@ def find_programs(extensions):
         except OSError as err:
             if err.winerror == winutil.ERROR_FILE_NOT_FOUND:
                 continue
-        for prog_id in itervalues(k):
+        for prog_id in k.values():
             if prog_id and prog_id not in seen_prog_ids:
                 seen_prog_ids.add(prog_id)
                 cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)

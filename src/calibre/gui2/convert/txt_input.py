@@ -8,7 +8,6 @@ from calibre.ebooks.conversion.config import OPTIONS
 from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.txt_input_ui import Ui_Form
-from polyglot.builtins import itervalues
 
 
 class PluginWidget(Widget, Ui_Form):
@@ -36,7 +35,7 @@ class PluginWidget(Widget, Ui_Form):
 
     def set_value_handler(self, g, val):
         if g is self.opt_markdown_extensions:
-            for i in itervalues(self.md_map):
+            for i in self.md_map.values():
                 i.setCheckState(Qt.CheckState.Unchecked)
             for x in val.split(','):
                 x = x.strip()

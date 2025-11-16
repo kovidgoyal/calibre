@@ -19,7 +19,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import _, get_lang, get_system_locale
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
@@ -272,13 +272,13 @@ class Dictionaries:
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
     def add_user_words(self, words, langcode):
-        for d in itervalues(self.dictionaries):
+        for d in self.dictionaries.values():
             if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
-        for d in itervalues(self.dictionaries):
+        for d in self.dictionaries.values():
             if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)

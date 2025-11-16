@@ -85,7 +85,7 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 # Cleanup Qt markup {{{
 
@@ -271,7 +271,7 @@ def cleanup_qt_markup(root):
                 s['margin-right'] = '0.5em'
             elif s == {'float': 'right'}:
                 s['margin-left'] = '0.5em'
-    for style in itervalues(style_map):
+    for style in style_map.values():
         filter_qt_styles(style)
         fw = style.get('font-weight')
         if fw in ('600', '700'):

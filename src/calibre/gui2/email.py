@@ -28,7 +28,6 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.smtp import compose_mail, extract_email_address, sendmail
 from calibre.utils.smtp import config as email_config
 from polyglot.binary import from_hex_unicode
-from polyglot.builtins import itervalues
 
 
 class Worker(Thread):
@@ -368,7 +367,7 @@ class EmailMixin:  # {{{
                 auto_convert_map[outfmt].append((to, subject, ok_ids))
 
         if auto_convert_map:
-            titles = {book_id for x in itervalues(auto_convert_map) for data in x for book_id in data[2]}
+            titles = {book_id for x in auto_convert_map.values() for data in x for book_id in data[2]}
             titles = {db.title(book_id, index_is_id=True) for book_id in titles}
             if self.auto_convert_question(
                 _('Auto convert the following books before sending via email?'), list(titles)):
@@ -379,7 +378,7 @@ class EmailMixin:  # {{{
 
         if bad_recipients:
             det_msg = []
-            titles = {book_id for x in itervalues(bad_recipients) for book_id in x[0]}
+            titles = {book_id for x in bad_recipients.values() for book_id in x[0]}
             titles = {book_id:db.title(book_id, index_is_id=True) for book_id in titles}
             for to, (ids, nooutput) in bad_recipients.items():
                 msg = _('This recipient has no valid formats defined') if nooutput else \

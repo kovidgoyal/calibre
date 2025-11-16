@@ -10,7 +10,6 @@ from threading import Lock, current_thread
 from qt.core import QImage, QPixmap
 
 from calibre.db.utils import ThumbnailCache as TC
-from polyglot.builtins import itervalues
 
 
 class ThumbnailCache(TC):
@@ -75,7 +74,7 @@ class CoverCache(dict):
     def clear(self):
         with self.lock:
             if current_thread() is not self.gui_thread:
-                pixmaps = (x for x in itervalues(self.items) if isinstance(x, QPixmap))
+                pixmaps = (x for x in self.items.values() if isinstance(x, QPixmap))
                 self.pixmap_staging.extend(pixmaps)
             self.items.clear()
 

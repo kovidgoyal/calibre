@@ -14,7 +14,7 @@ from calibre.constants import cache_dir, filesystem_encoding
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 
 def parse_localized_key(key):
@@ -114,7 +114,7 @@ def find_icons():
                         sz = int(sz.partition('x')[0])
                     idx = len(ans[name])
                     ans[name].append((-sz, idx, sz, path))
-        for icons in itervalues(ans):
+        for icons in ans.values():
             icons.sort(key=list)
         return {k:(-v[0][2], v[0][3]) for k, v in ans.items()}
 
@@ -166,7 +166,7 @@ def find_icons():
             import traceback
             traceback.print_exc()
 
-    for icons in itervalues(ans):
+    for icons in ans.values():
         icons.sort(key=list)
     icon_data = {k:v[0][1] for k, v in ans.items()}
     return icon_data

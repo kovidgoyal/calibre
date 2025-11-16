@@ -1594,7 +1594,7 @@ class DB:
         '''
 
         with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
-            for table in itervalues(self.tables):
+            for table in self.tables.values():
                 try:
                     table.read(self)
                 except Exception:

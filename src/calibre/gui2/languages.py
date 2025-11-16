@@ -24,7 +24,7 @@ class LanguagesEdit(EditWithComplete):
         self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
         self._lang_map = lang_map_for_ui()
-        self.names_with_commas = [x for x in itervalues(self._lang_map) if ',' in x]
+        self.names_with_commas = [x for x in self._lang_map.values() if ',' in x]
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
         self.comma_rmap = {v:k for k, v in self.comma_map.items()}
         self._rmap = {lower(v):k for k,v in self._lang_map.items()}

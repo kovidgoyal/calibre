@@ -12,7 +12,6 @@ from threading import Event, RLock, Thread
 from calibre import detect_ncpus, force_unicode
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues
 from polyglot.queue import Empty, Queue
 
 StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
@@ -145,12 +144,12 @@ class JobsManager:
     def shutdown(self, timeout=5.0):
         with self.lock:
             self.shutting_down = True
-            for job in itervalues(self.jobs):
+            for job in self.jobs.values():
                 job.abort_event.set()
             self.events.put(False)
 
     def wait_for_shutdown(self, wait_till):
-        for job in itervalues(self.jobs):
+        for job in self.jobs.values():
             delta = wait_till - monotonic()
             if delta > 0:
                 job.join(delta)
@@ -194,7 +193,7 @@ class JobsManager:
         with self.lock:
             mb = None
             now = monotonic()
-            for job in itervalues(self.jobs):
+            for job in self.jobs.values():
                 if not job.done and not job.abort_event.is_set():
                     delta = self.max_job_time - (now - job.start_time)
                     if delta <= 0:
@@ -209,7 +208,7 @@ class JobsManager:
     def abort_hanging_jobs(self):
         now = monotonic()
         found = False
-        for job in itervalues(self.jobs):
+        for job in self.jobs.values():
             if not job.done and not job.abort_event.is_set():
                 delta = self.max_job_time - (now - job.start_time)
                 if delta <= 0:

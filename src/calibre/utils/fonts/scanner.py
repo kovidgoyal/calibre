@@ -157,14 +157,14 @@ def path_significance(path, folders):
 
 def build_families(cached_fonts, folders, family_attr='font-family'):
     families = defaultdict(list)
-    for f in itervalues(cached_fonts):
+    for f in cached_fonts.values():
         if not f:
             continue
         lf = icu_lower(f.get(family_attr) or '')
         if lf:
             families[lf].append(f)
 
-    for fonts in itervalues(families):
+    for fonts in families.values():
         # Look for duplicate font files and choose the copy that is from a
         # more significant font directory (prefer user directories over
         # system directories).

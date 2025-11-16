@@ -210,7 +210,7 @@ def embed_all_fonts(container, stats, report):
         if None in (fs, fu, fr):
             continue
         fs = {icu_lower(x) for x in fs}
-        for font in itervalues(fu):
+        for font in fu.values():
             if icu_lower(font['font-family']) not in fs:
                 continue
             rule = matching_rule(font, fr)

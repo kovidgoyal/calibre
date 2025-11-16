@@ -11,7 +11,6 @@ from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase, create_backend, set_global_state
 from calibre.utils.filenames import samefile as _samefile
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues
 
 
 def gui_on_db_event(event_type, library_id, event_data):
@@ -145,7 +144,7 @@ class LibraryBroker:
 
     def close(self):
         with self:
-            for db in itervalues(self.loaded_dbs):
+            for db in self.loaded_dbs.values():
                 getattr(db, 'close', lambda: None)()
             self.lmap, self.loaded_dbs = OrderedDict(), {}
 
@@ -161,7 +160,7 @@ class LibraryBroker:
     def allowed_libraries(self, filter_func):
         with self:
             allowed_names = filter_func(
-                basename(l) for l in itervalues(self.lmap))
+                basename(l) for l in self.lmap.values())
             return OrderedDict(((lid, self.library_map[lid])
                                 for lid, path in self.lmap.items()
                                 if basename(path) in allowed_names))

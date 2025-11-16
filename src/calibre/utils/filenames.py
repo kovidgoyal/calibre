@@ -13,7 +13,6 @@ from math import ceil
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import filesystem_encoding, ismacos, iswindows, preferred_encoding
 from calibre.utils.localization import _, get_udc
-from polyglot.builtins import itervalues
 
 
 def ascii_text(orig):
@@ -468,7 +467,7 @@ class WindowsAtomicFolderMove:
                 self.handle_map.pop(x)
 
     def close_handles(self):
-        for h in itervalues(self.handle_map):
+        for h in self.handle_map.values():
             h.close()
         self.handle_map = {}
 

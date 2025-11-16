@@ -55,7 +55,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.startup import connect_lambda
 from calibre.utils.localization import get_lang, ngettext
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 class BasicSettings(QWidget):  # {{{
@@ -160,7 +160,7 @@ class BasicSettings(QWidget):  # {{{
                         prefs[name] = cv
 
     def restore_defaults(self):
-        for setting in itervalues(self.settings):
+        for setting in self.settings.values():
             setting.setter(setting.widget, self.default_value(setting.name))
 
     def initial_value(self, name):

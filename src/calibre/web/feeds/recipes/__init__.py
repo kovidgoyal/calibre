@@ -12,7 +12,7 @@ import time
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
 from calibre.web.feeds.news import AutomaticNewsRecipe, BasicNewsRecipe, CalibrePeriodical, CustomIndexRecipe
-from polyglot.builtins import codepoint_to_chr, itervalues
+from polyglot.builtins import codepoint_to_chr
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)
@@ -55,7 +55,7 @@ def compile_recipe(src):
     exec(src, namespace)
     ua = namespace.get('calibre_most_common_ua')
 
-    for x in itervalues(namespace):
+    for x in namespace.values():
         if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not
                 in basic_recipes):
             x.calibre_most_common_ua = ua

@@ -19,7 +19,7 @@ from importlib.util import decode_source
 
 from calibre import as_unicode
 from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
-from polyglot.builtins import itervalues, reload, string_or_bytes
+from polyglot.builtins import reload, string_or_bytes
 
 
 def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
@@ -310,7 +310,7 @@ class CalibrePluginFinder:
             else:
                 m = importlib.import_module(plugin_module)
             plugin_classes = []
-            for obj in itervalues(m.__dict__):
+            for obj in m.__dict__.values():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and \
                         obj.name != 'Trivial Plugin':
                     plugin_classes.append(obj)

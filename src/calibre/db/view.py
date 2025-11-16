@@ -14,7 +14,6 @@ from functools import partial
 from calibre.db.write import uniq
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import prefs, tweaks
-from polyglot.builtins import itervalues
 
 
 def sanitize_sort_field_name(field_metadata, field):
@@ -438,7 +437,7 @@ class View:
         self.cache.clear_caches(book_ids=changed_ids)
         # Always call the listener because the labels might have changed even
         # if the ids haven't.
-        for funcref in itervalues(self.marked_listeners):
+        for funcref in self.marked_listeners.values():
             func = funcref()
             if func is not None:
                 func(old_marked_ids, cmids)

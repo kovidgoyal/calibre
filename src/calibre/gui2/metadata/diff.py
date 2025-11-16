@@ -51,7 +51,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
@@ -885,6 +885,6 @@ if __name__ == '__main__':
         return list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()
-    for changed, mi in itervalues(d.accepted):
+    for changed, mi in d.accepted.values():
         if changed and mi is not None:
             print(mi)

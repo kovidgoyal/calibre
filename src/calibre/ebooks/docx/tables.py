@@ -9,7 +9,6 @@ from lxml.html.builder import TABLE, TD, TR
 from calibre.ebooks.docx.block_styles import ParagraphStyle, binary_property, border_props, border_to_css, inherit, read_border
 from calibre.ebooks.docx.block_styles import read_shd as rs
 from calibre.ebooks.docx.char_styles import RunStyle
-from polyglot.builtins import itervalues
 
 # Read from XML {{{
 read_shd = rs
@@ -616,7 +615,7 @@ class Table:
 
     def __iter__(self):
         yield from self.paragraphs
-        for t in itervalues(self.sub_tables):
+        for t in self.sub_tables.values():
             yield from t
 
     def apply_markup(self, rmap, page, parent=None):

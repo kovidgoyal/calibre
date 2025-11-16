@@ -22,7 +22,6 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import collation_order_for_partitioning
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, calibre_langcode_to_name
-from polyglot.builtins import itervalues
 from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
@@ -604,7 +603,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
                 count += 1
         item['avg_rating'] = float(total)/count if count else 0
 
-    for item_id, item in itervalues(tag_map):
+    for item_id, item in tag_map.values():
         id_len = len(item.pop('id_set', ()))
         if id_len:
             item['count'] = id_len

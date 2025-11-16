@@ -17,7 +17,6 @@ from calibre import prints
 from calibre.constants import DEBUG, numeric_version
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import itervalues
 from polyglot.urllib import urlencode
 
 
@@ -179,7 +178,7 @@ class Stores(OrderedDict):
         exec(src, namespace)
         ver = namespace['store_version']
         cls = None
-        for x in itervalues(namespace):
+        for x in namespace.values():
             if (isinstance(x, type) and issubclass(x, StorePlugin) and x is not
                 StorePlugin):
                 cls = x

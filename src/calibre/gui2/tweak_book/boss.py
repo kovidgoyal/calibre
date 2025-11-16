@@ -228,11 +228,11 @@ class Boss(QObject):
             dictionaries.initialize(force=True)  # Reread user dictionaries
         if p.toolbars_changed:
             self.gui.populate_toolbars()
-            for ed in itervalues(editors):
+            for ed in editors.values():
                 if hasattr(ed, 'populate_toolbars'):
                     ed.populate_toolbars()
         if orig_size != tprefs['toolbar_icon_size']:
-            for ed in itervalues(editors):
+            for ed in editors.values():
                 if hasattr(ed, 'bars'):
                     for bar in ed.bars:
                         bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
@@ -243,12 +243,12 @@ class Boss(QObject):
             self.refresh_file_list()
             self.gui.preview.start_refresh_timer()
         if ret == QDialog.DialogCode.Accepted or p.dictionaries_changed:
-            for ed in itervalues(editors):
+            for ed in editors.values():
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
         if orig_spell != tprefs['inline_spell_check']:
             from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
             refresh_spell_check_status()
-            for ed in itervalues(editors):
+            for ed in editors.values():
                 try:
                     ed.editor.highlighter.rehighlight()
                 except AttributeError:
@@ -1227,7 +1227,7 @@ class Boss(QObject):
 
     def word_ignored(self, word, locale):
         if tprefs['inline_spell_check']:
-            for ed in itervalues(editors):
+            for ed in editors.values():
                 try:
                     ed.editor.recheck_word(word, locale)
                 except AttributeError:

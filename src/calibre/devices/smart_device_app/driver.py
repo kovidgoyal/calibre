@@ -44,7 +44,7 @@ from calibre.utils.mdns import publish as publish_zeroconf
 from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot import queue
-from polyglot.builtins import as_bytes, itervalues
+from polyglot.builtins import as_bytes
 
 
 def synchronous(tlockname):
@@ -769,7 +769,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            for b in itervalues(self.device_book_cache):
+            for b in self.device_book_cache.values():
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue

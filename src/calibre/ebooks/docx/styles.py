@@ -432,11 +432,11 @@ class Styles:
         return ans
 
     def generate_classes(self):
-        for bs in itervalues(self.para_cache):
+        for bs in self.para_cache.values():
             css = bs.css
             if css:
                 self.register(css, 'block')
-        for bs in itervalues(self.run_cache):
+        for bs in self.run_cache.values():
             css = bs.css
             if css:
                 self.register(css, 'text')

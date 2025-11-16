@@ -52,7 +52,6 @@ from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import itervalues
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = f'{SERVER}plugins.json.bz2'
@@ -143,7 +142,7 @@ def read_available_plugins(raise_error=False):
             raise
         traceback.print_exc()
         return
-    for plugin in itervalues(raw):
+    for plugin in raw.values():
         try:
             if plugin['index_name'] not in BLACKLISTED_PLUGINS:
                 display_plugin = DisplayPlugin(plugin)

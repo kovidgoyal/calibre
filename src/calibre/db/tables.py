@@ -247,7 +247,7 @@ class ManyToOneTable(Table):
         for item_id, val in self.id_map.items():
             case_map[icu_lower(val)].add(item_id)
 
-        for v in itervalues(case_map):
+        for v in case_map.values():
             if len(v) > 1:
                 main_id = min(v)
                 v.discard(main_id)
@@ -428,7 +428,7 @@ class ManyToManyTable(ManyToOneTable):
         self.book_col_map = {k:tuple(v) for k, v in bcm.items()}
 
     def fix_link_table(self, db):
-        linked_item_ids = {item_id for item_ids in itervalues(self.book_col_map) for item_id in item_ids}
+        linked_item_ids = {item_id for item_ids in self.book_col_map.values() for item_id in item_ids}
         extra_item_ids = linked_item_ids - set(self.id_map)
         if extra_item_ids:
             for item_id in extra_item_ids:
@@ -540,7 +540,7 @@ class ManyToManyTable(ManyToOneTable):
         for item_id, val in self.id_map.items():
             case_map[icu_lower(val)].add(item_id)
 
-        for v in itervalues(case_map):
+        for v in case_map.values():
             if len(v) > 1:
                 done_books = set()
                 main_id = min(v)

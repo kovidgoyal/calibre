@@ -18,7 +18,7 @@ from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang, ngettext
-from polyglot.builtins import itervalues, string_or_bytes
+from polyglot.builtins import string_or_bytes
 
 
 def force_to_bool(val):
@@ -390,7 +390,7 @@ class ThumbnailCache:
                 pass
             if not hasattr(self, 'total_size'):
                 self._load_index()
-            for entry in itervalues(self.items):
+            for entry in self.items.values():
                 self._do_delete(entry.path)
             self.total_size = 0
             self.items = OrderedDict()

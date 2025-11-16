@@ -284,7 +284,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 self._currently_getting_sid = str(storage_id)
                 id_map = self.dev.get_filesystem(storage_id, partial(
                         self._filesystem_callback, {}))
-                for x in itervalues(id_map):
+                for x in id_map.values():
                     x['storage_id'] = storage_id
                 all_storage.append(storage)
                 items.append(itervalues(id_map))

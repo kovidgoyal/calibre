@@ -57,7 +57,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.localization import _
-from polyglot.builtins import as_bytes, as_unicode, iteritems, itervalues
+from polyglot.builtins import as_bytes, as_unicode, iteritems
 
 
 def is_float(x):
@@ -135,7 +135,7 @@ class EbookViewer(MainWindow):
             ans.visibilityChanged.connect(self.dock_visibility_changed)
             return ans
 
-        for dock_def in itervalues(self.dock_defs):
+        for dock_def in self.dock_defs.values():
             setattr(self, '{}_dock'.format(dock_def.name.partition('-')[0]), create_dock(
                 dock_def.title, dock_def.name, dock_def.initial_area, dock_def.allowed_areas))
 

@@ -17,7 +17,6 @@ from calibre.ebooks.oeb.polish.cascade import iterdeclaration, iterrules, resolv
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.icu import upper as icu_upper
-from polyglot.builtins import itervalues
 
 
 def normalize_font_properties(font):
@@ -299,8 +298,8 @@ class StatsCollector:
             self.font_spec_map[name] = set()
             self.get_font_usage(container, name, resolve_property, resolve_pseudo_property, font_face_rules, do_embed)
         self.font_stats = {k:{safe_chr(x) for x in v} for k, v in self.font_stats.items()}
-        for fum in itervalues(self.font_usage_map):
-            for v in itervalues(fum):
+        for fum in self.font_usage_map.values():
+            for v in fum.values():
                 v['text'] = {safe_chr(x) for x in v['text']}
 
 

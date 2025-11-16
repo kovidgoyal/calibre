@@ -280,7 +280,7 @@ class TBS:  # {{{
                 for x in ('starts', 'ends', 'completes'):
                     for idx in data[x]:
                         depth_map[idx.depth].append(idx)
-                for l in itervalues(depth_map):
+                for l in depth_map.values():
                     l.sort(key=lambda x:x.offset)
                 self.periodical_tbs(data, first, depth_map)
         elif not data:

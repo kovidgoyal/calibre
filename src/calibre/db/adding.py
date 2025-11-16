@@ -171,7 +171,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if allow_path(path, ext, compiled_rules):
                 books[icu_lower(key) if isinstance(key, str) else key.lower()][ext] = path
 
-        for formats in itervalues(books):
+        for formats in books.values():
             if formats_ok(formats):
                 yield list(itervalues(formats))
 

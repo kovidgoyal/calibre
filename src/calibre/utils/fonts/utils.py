@@ -10,7 +10,7 @@ from collections import defaultdict
 from io import BytesIO
 
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import as_bytes, iteritems, itervalues
+from polyglot.builtins import as_bytes, iteritems
 
 
 class UnsupportedFont(ValueError):
@@ -193,7 +193,7 @@ def decode_name_record(recs):
         return mac_names[0]
 
     # Use unicode names
-    for val in itervalues(unicode_names):
+    for val in unicode_names.values():
         return val
 
     return None

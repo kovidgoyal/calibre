@@ -40,7 +40,7 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 class Polish(QDialog):  # {{{
@@ -469,7 +469,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
         ans = self.get_supported_books(ans)
-        for fmts in itervalues(ans):
+        for fmts in ans.values():
             for x in fmts:
                 if x.startswith('ORIGINAL_'):
                     from calibre.gui2.dialogs.confirm_delete import confirm
@@ -498,7 +498,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                   ' formats. Convert to one of those formats before polishing.')
                          %_(' or ').join(sorted(SUPPORTED)), show=True)
         ans = OrderedDict(ans)
-        for fmts in itervalues(ans):
+        for fmts in ans.values():
             for x in SUPPORTED:
                 if ('ORIGINAL_'+x) in fmts:
                     fmts.discard(x)

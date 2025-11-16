@@ -34,7 +34,6 @@ from calibre.constants import ismacos
 from calibre.gui2 import config, gprefs, native_menubar_defaults
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.widgets2 import RightClickButton
-from polyglot.builtins import itervalues
 
 
 class RevealBar(QWidget):  # {{{
@@ -257,7 +256,7 @@ class ToolBar(QToolBar):  # {{{
     def check_iactions_for_drag(self, event, md, func):
         if self.added_actions:
             pos = event.position().toPoint()
-            for iac in itervalues(self.gui.iactions):
+            for iac in self.gui.iactions.values():
                 if iac.accepts_drops:
                     aa = iac.qaction
                     w = self.widgetForAction(aa)

@@ -15,7 +15,7 @@ from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, isoformat, par
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import strcmp
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 missing = object()
 
@@ -334,7 +334,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
         rid_map = {kmap(item):item_id for item_id, item in table.id_map.items()}
     val_map = {None:None}
     case_changes = {}
-    for val in itervalues(book_id_val_map):
+    for val in book_id_val_map.values():
         if val is not None:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
                     case_changes, val_map)
@@ -422,7 +422,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
     val_map = {}
     case_changes = {}
     book_id_val_map = {k:uniq(vals, kmap) for k, vals in book_id_val_map.items()}
-    for vals in itervalues(book_id_val_map):
+    for vals in book_id_val_map.values():
         for val in vals:
             get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
                       case_changes, val_map, is_authors=is_authors)

@@ -34,7 +34,7 @@ from operator import itemgetter
 from pprint import pformat, pprint
 
 from calibre import as_unicode, prints
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 try:
     import winreg
@@ -837,7 +837,7 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
             if debug:
                 prints(f'Failed to get storage number for drive: {letter} with error: {as_unicode(err)}')
             continue
-    for val in itervalues(ans):
+    for val in ans.values():
         val.sort(key=itemgetter(0))
     return dict(ans)
 
@@ -877,7 +877,7 @@ def get_storage_number_map_alt(debug=False):
             if debug:
                 prints(f'Failed to get storage number for drive: {name[0]} with error: {as_unicode(err)}')
             continue
-    for val in itervalues(ans):
+    for val in ans.values():
         val.sort(key=itemgetter(0))
     return dict(ans)
 

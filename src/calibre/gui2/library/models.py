@@ -49,7 +49,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -1599,7 +1599,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
 
         path = getattr(item, 'path', None)
-        for items in itervalues(self.marked_for_deletion):
+        for items in self.marked_for_deletion.values():
             for x in items:
                 if x is item or (path and path == getattr(x, 'path', None)):
                     return True

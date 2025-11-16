@@ -148,9 +148,9 @@ class ListsManager:
                 ilvl = len(container_tags) - 1
                 l.level_map[ilvl].append((container_tags[0], list_tag, block, list_type, tag_style))
 
-        [nd.finalize() for nd in itervalues(lists)]
+        [nd.finalize() for nd in lists.values()]
         definitions = {}
-        for defn in itervalues(lists):
+        for defn in lists.values():
             try:
                 defn = definitions[defn]
             except KeyError:

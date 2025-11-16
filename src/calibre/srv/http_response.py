@@ -25,7 +25,7 @@ from calibre.srv.utils import HTTP1, HTTP11, Cookie, MultiDict, get_translator_f
 from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client, reprlib
-from polyglot.builtins import error_message, iteritems, itervalues, reraise, string_or_bytes
+from polyglot.builtins import error_message, iteritems, reraise, string_or_bytes
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex
@@ -518,7 +518,7 @@ class HTTPConnection(HTTPRequest):
         buf = [HTTP11 + f' {data.status_code} ' + http_client.responses[data.status_code]]
         for header, value in sorted(iteritems(outheaders), key=itemgetter(0)):
             buf.append(f'{header}: {value}')
-        for morsel in itervalues(data.outcookie):
+        for morsel in data.outcookie.values():
             morsel['version'] = '1'
             x = morsel.output()
             if isinstance(x, bytes):

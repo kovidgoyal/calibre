@@ -19,7 +19,6 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import itervalues
 from polyglot.functools import lru_cache
 
 
@@ -76,7 +75,7 @@ def merge_identical_selectors(sheet):
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         selector_map[rule.selectorText].append(rule)
     remove = []
-    for rule_group in itervalues(selector_map):
+    for rule_group in selector_map.values():
         if len(rule_group) > 1:
             for i in range(1, len(rule_group)):
                 merge_declarations(rule_group[0].style, rule_group[i].style)

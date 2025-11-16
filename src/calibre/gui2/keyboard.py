@@ -50,7 +50,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -169,7 +169,7 @@ class Manager(QObject):  # {{{
         done unregistering.
         '''
         self.shortcuts.pop(unique_name, None)
-        for group in itervalues(self.groups):
+        for group in self.groups.values():
             try:
                 group.remove(unique_name)
             except ValueError:

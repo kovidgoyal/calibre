@@ -42,7 +42,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import codepoint_to_chr, iteritems, itervalues
+from polyglot.builtins import codepoint_to_chr, iteritems
 
 
 def string_length(x):
@@ -378,7 +378,7 @@ def expand_template(editor, trigger, template):
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
     c.setPosition(left), c.setPosition(right, QTextCursor.MoveMode.KeepAnchor), c.insertText(text)
-    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in itervalues(tab_stops)]
+    editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in tab_stops.values()]
 
     tl = Template(editor_tab_stops)
     if tl.has_tab_stops:

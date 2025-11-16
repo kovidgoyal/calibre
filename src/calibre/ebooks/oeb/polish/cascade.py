@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 _html_css_stylesheet = None
 
@@ -215,7 +215,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
             style_map[elem].append(StyleDeclaration(Specificity(1, 0, 0, 0, 0), normalize_style_declaration(style, name), None))
 
     for l in (style_map, pseudo_style_map):
-        for x in itervalues(l):
+        for x in l.values():
             x.sort(key=itemgetter(0), reverse=True)
 
     style_map = {elem:resolve_declarations(x) for elem, x in style_map.items()}

@@ -68,7 +68,6 @@ from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.img import convert_PIL_image_to_pixmap
-from polyglot.builtins import itervalues
 from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
@@ -389,7 +388,7 @@ class AlternateViews:
             view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def set_database(self, db, stage=0):
-        for view in itervalues(self.views):
+        for view in self.views.values():
             if view is not self.main_view:
                 view.set_database(db, stage=stage)
 
@@ -418,7 +417,7 @@ class AlternateViews:
         self.current_view.select_rows(rows)
 
     def set_context_menu(self, menu):
-        for view in itervalues(self.views):
+        for view in self.views.values():
             if view is not self.main_view:
                 view.set_context_menu(menu)
 

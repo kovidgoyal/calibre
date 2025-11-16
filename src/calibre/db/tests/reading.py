@@ -227,7 +227,7 @@ class ReadingTest(BaseTest):
         old_metadata = {i:old.get_metadata(
             i, index_is_id=True, get_cover=True, cover_as_data=True) for i in
                 range(1, 4)}
-        for mi in itervalues(old_metadata):
+        for mi in old_metadata.values():
             mi.format_metadata = dict(mi.format_metadata)
             if mi.formats:
                 mi.formats = tuple(mi.formats)

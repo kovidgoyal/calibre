@@ -20,7 +20,6 @@ from collections import OrderedDict, namedtuple
 from operator import attrgetter
 
 from calibre.ebooks.mobi.utils import encode_tbs, encode_trailing_data
-from polyglot.builtins import itervalues
 
 Entry = namedtuple('IndexEntry', 'index start length depth parent '
         'first_child last_child title action start_offset length_offset '
@@ -120,7 +119,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
     max_length_offset = 0
     first_entry = None
     for strand in strands:
-        for entries in itervalues(strand):
+        for entries in strand.values():
             for entry in entries:
                 if first_entry is None:
                     first_entry = entry

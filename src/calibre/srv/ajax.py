@@ -21,7 +21,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import _
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 
 def ensure_val(x, *allowed):
@@ -78,7 +78,7 @@ def book_to_json(ctx, rd, db, book_id,
     if not device_compatible:
         mi.format_metadata = {k.lower():dict(v) for k, v in
                 iteritems(mi.format_metadata)}
-        for v in itervalues(mi.format_metadata):
+        for v in mi.format_metadata.values():
             mtime = v.get('mtime', None)
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)

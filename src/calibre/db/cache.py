@@ -274,7 +274,7 @@ class Cache:
 
     @write_api
     def clear_composite_caches(self, book_ids=None):
-        for field in itervalues(self.composites):
+        for field in self.composites.values():
             field.clear_caches(book_ids=book_ids)
 
     @write_api
@@ -305,7 +305,7 @@ class Cache:
     def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
         if template_cache:
             self._initialize_template_cache()  # Clear the formatter template cache
-        for field in itervalues(self.fields):
+        for field in self.fields.values():
             if hasattr(field, 'clear_caches'):
                 field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
         if book_ids:
@@ -332,7 +332,7 @@ class Cache:
         with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
             self.backend.prefs.load_from_db()
             self._search_api.saved_searches.load_from_db()
-            for field in itervalues(self.fields):
+            for field in self.fields.values():
                 if hasattr(field, 'table'):
                     field.table.read(self.backend)  # Reread data from metadata.db
 
@@ -2251,7 +2251,7 @@ class Cache:
                 except Exception:
                     traceback.print_exc()
         self.backend.remove_books(path_map, permanent=permanent)
-        for field in itervalues(self.fields):
+        for field in self.fields.values():
             try:
                 table = field.table
             except AttributeError:
@@ -3337,7 +3337,7 @@ class Cache:
         amap = self._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user)
         merge_annotations(annots_list, amap)
         alist = []
-        for val in itervalues(amap):
+        for val in amap.values():
             for annot in val:
                 ts = (parse_iso8601(annot['timestamp']) - EPOCH).total_seconds()
                 alist.append((annot, ts))

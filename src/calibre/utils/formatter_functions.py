@@ -36,7 +36,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _ as xlated
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import itervalues
 
 UNKNOWN = _('Unknown')
 RELATIONAL = _('Relational')
@@ -137,7 +136,7 @@ class FormatterFunctions:
         self._register_functions()
 
     def _register_functions(self):
-        for compiled_funcs in itervalues(self._functions_from_library):
+        for compiled_funcs in self._functions_from_library.values():
             for cls in compiled_funcs:
                 f = self._functions.get(cls.name, None)
                 replace = False
@@ -169,7 +168,7 @@ class FormatterFunctions:
 
     def get_builtins_and_aliases(self):
         res = {}
-        for f in itervalues(self._builtins):
+        for f in self._builtins.values():
             res[f.name] = f
             for a in f.aliases:
                 res[a] = f

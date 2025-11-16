@@ -25,7 +25,7 @@ from calibre.utils.icu import collation_order_for_partitioning, contains, lower,
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.serialize import json_dumps, json_loads
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -591,7 +591,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def _run_rebuild(self, state_map={}):
         self.reset_notes_and_link_maps()
-        for node in itervalues(self.node_map):
+        for node in self.node_map.values():
             node.break_cycles()
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
