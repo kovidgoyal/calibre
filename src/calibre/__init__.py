@@ -11,7 +11,7 @@ import warnings
 from functools import lru_cache, partial
 from math import floor
 
-from polyglot.builtins import codepoint_to_chr, hasenv, native_string_type
+from polyglot.builtins import hasenv, native_string_type
 
 if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
@@ -126,7 +126,7 @@ def confirm_config_name(name):
 
 
 _filename_sanitize_unicode = frozenset(('\\', '|', '?', '*', '<',        # no2to3
-    '"', ':', '>', '+', '/') + tuple(map(codepoint_to_chr, range(32))))  # no2to3
+    '"', ':', '>', '+', '/') + tuple(map(chr, range(32))))  # no2to3
 
 
 def sanitize_file_name(name, substitute='_'):

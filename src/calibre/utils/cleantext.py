@@ -6,7 +6,6 @@ import re
 
 from calibre.constants import preferred_encoding
 from calibre_extensions.speedup import clean_xml_chars as _ncxc
-from polyglot.builtins import codepoint_to_chr
 from polyglot.html_entities import name2codepoint
 
 
@@ -22,7 +21,7 @@ def ascii_pat(for_binary=False):
     if ans is None:
         chars = set(range(32)) - {9, 10, 13}
         chars.add(127)
-        pat = '|'.join(map(codepoint_to_chr, chars))
+        pat = '|'.join(map(chr, chars))
         if for_binary:
             pat = pat.encode('ascii')
         ans = re.compile(pat)
@@ -43,7 +42,7 @@ def clean_ascii_chars(txt, charlist=None):
     if charlist is None:
         pat = ascii_pat(is_binary)
     else:
-        pat = '|'.join(map(codepoint_to_chr, charlist))
+        pat = '|'.join(map(chr, charlist))
         if is_binary:
             pat = pat.encode('utf-8')
     return pat.sub(empty, txt)
