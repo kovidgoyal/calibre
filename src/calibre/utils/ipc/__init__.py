@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import errno
 import os
+from functools import lru_cache
 
 from calibre.constants import filesystem_encoding, get_windows_username, islinux, iswindows
-from polyglot.functools import lru_cache
 
 VADDRESS = None
 
@@ -24,7 +24,7 @@ def eintr_retry_call(func, *args, **kwargs):
             raise
 
 
-@lru_cache()
+@lru_cache
 def socket_address(which):
     from calibre import force_unicode
     from calibre.utils.filenames import ascii_filename

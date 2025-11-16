@@ -6,7 +6,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 from collections import defaultdict
-from functools import partial
+from functools import lru_cache, partial
 from operator import itemgetter
 
 from css_parser.css import CSSRule, CSSStyleDeclaration
@@ -19,7 +19,6 @@ from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import ngettext
-from polyglot.functools import lru_cache
 
 
 class SelectorStatus:

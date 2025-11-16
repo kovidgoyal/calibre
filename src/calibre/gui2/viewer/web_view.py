@@ -4,6 +4,7 @@
 import os
 import shutil
 import sys
+from functools import lru_cache
 from itertools import count
 
 from qt.core import (
@@ -52,7 +53,6 @@ from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from calibre.utils.webengine import Bridge, create_script, from_js, insert_scripts, secure_webengine, send_reply, setup_profile, to_js
 from polyglot.builtins import as_bytes
-from polyglot.functools import lru_cache
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 

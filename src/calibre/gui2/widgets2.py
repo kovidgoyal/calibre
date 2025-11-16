@@ -3,6 +3,7 @@
 
 
 import weakref
+from functools import lru_cache
 
 from qt.core import (
     QApplication,
@@ -66,7 +67,6 @@ from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.localization import _
-from polyglot.functools import lru_cache
 
 
 class HistoryMixin:

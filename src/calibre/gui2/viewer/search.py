@@ -3,6 +3,7 @@
 
 import json
 from collections import Counter, OrderedDict
+from functools import cache, lru_cache
 from html import escape
 from queue import Queue
 from threading import Thread
@@ -36,7 +37,6 @@ from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.utils.icu import primary_collator_without_punctuation
 from calibre.utils.localization import _, ngettext
-from polyglot.functools import lru_cache
 
 
 class BusySpinner(QWidget):  # {{{
@@ -246,7 +246,7 @@ class SearchResult:
         return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))
 
 
-@lru_cache(maxsize=None)
+@cache
 def searchable_text_for_name(name):
     ans = []
     add_text = ans.append
@@ -364,7 +364,7 @@ class ToCOffsetMap:
             yield node
 
 
-@lru_cache(maxsize=None)
+@cache
 def toc_offset_map_for_name(name):
     anchor_map = searchable_text_for_name(name)[1]
     toc_data = get_toc_data()

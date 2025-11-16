@@ -6,6 +6,7 @@ import errno
 import json
 import os
 import tarfile
+from functools import lru_cache
 from io import BytesIO
 
 from calibre.constants import cache_dir
@@ -14,7 +15,6 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
-from polyglot.functools import lru_cache
 
 
 def locale_map():
@@ -24,7 +24,7 @@ def locale_map():
     return ans
 
 
-@lru_cache()
+@lru_cache
 def dictionary_name_for_locale(loc):
     loc = loc.lower().replace('-', '_')
     lmap = locale_map()
@@ -103,7 +103,7 @@ def is_cache_up_to_date(cache_path):
     return False
 
 
-@lru_cache()
+@lru_cache
 def get_cache_path(cd):
     cache_path = os.path.join(cd, 'hyphenation')
     try:
