@@ -101,7 +101,7 @@ def implementation(
 
 
 def stringify(data, metadata, for_machine):
-    for field, m in iteritems(metadata):
+    for field, m in metadata.items():
         if field == 'authors':
             data[field] = {
                 k: authors_to_string(v)
@@ -117,15 +117,21 @@ def stringify(data, metadata, for_machine):
             elif not for_machine:
                 ism = m['is_multiple']
                 if ism:
-                    data[field] = {
-                        k: ism['list_to_ui'].join(v)
-                        for k, v in iteritems(data[field])
-                    }
-                    if field == 'formats':
+                    if field == 'identifiers':
                         data[field] = {
-                            k: '[' + v + ']'
+                            k: ism['list_to_ui'].join(f'{key}:{val}' for key, val in v.items())
+                            for k, v in data[field].items()
+                        }
+                    else:
+                        data[field] = {
+                            k: ism['list_to_ui'].join(v)
                             for k, v in iteritems(data[field])
                         }
+                        if field == 'formats':
+                            data[field] = {
+                                k: '[' + v + ']'
+                                for k, v in iteritems(data[field])
+                            }
 
 
 def as_machine_data(book_ids, data, metadata):
