@@ -47,7 +47,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import error_message, itervalues
+from polyglot.builtins import error_message
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -467,7 +467,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + (i * args.series_increment)
-                    next_num = _get_next_series_num_for_list(sorted(itervalues(sval)), unwrap=False)
+                    next_num = _get_next_series_num_for_list(sorted(sval.values()), unwrap=False)
                     sval[bid] = next_num
                     return next_num
 

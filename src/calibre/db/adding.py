@@ -16,7 +16,6 @@ from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import itervalues
 
 
 def splitext(path):
@@ -163,7 +162,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if allow_path(path, ext, compiled_rules):
                 formats[ext] = path
         if formats_ok(formats):
-            yield list(itervalues(formats))
+            yield list(formats.values())
     else:
         books = defaultdict(dict)
         for path in listdir_impl(dirpath, sort_by_mtime=True):
@@ -173,7 +172,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
 
         for formats in books.values():
             if formats_ok(formats):
-                yield list(itervalues(formats))
+                yield list(formats.values())
 
 
 def create_format_map(formats):

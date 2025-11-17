@@ -15,7 +15,7 @@ from calibre.ebooks.docx.names import SVG_BLIP_URI, barename
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import image_to_data, resize_to_fit
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 class LinkedImageNotFound(ValueError):
@@ -178,7 +178,7 @@ class Images:
         return raw, base
 
     def unique_name(self, base):
-        exists = frozenset(itervalues(self.used))
+        exists = frozenset(self.used.values())
         c = 1
         name = base
         while name in exists:

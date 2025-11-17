@@ -21,7 +21,6 @@ from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre_extensions import lzx, msdes
-from polyglot.builtins import itervalues
 from polyglot.urllib import unquote as urlunquote
 
 __all__ = ['LitReader']
@@ -686,7 +685,7 @@ class LitFile:
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
-        mlist = list(itervalues(self.manifest))
+        mlist = list(self.manifest.values())
         # Remove any common path elements
         if len(mlist) > 1:
             shared = mlist[0].path

@@ -34,7 +34,6 @@ from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory, better_mktemp
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date
-from polyglot.builtins import itervalues
 
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
@@ -435,7 +434,7 @@ class KOBO(USBMS):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: x or -1):
+        for idx in sorted(bl_cache.values(), reverse=True, key=lambda x: x or -1):
             if idx is not None:
                 need_sync = True
                 del bl[idx]
@@ -2137,7 +2136,7 @@ class KOBOTOUCH(KOBO):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: x or -1):
+        for idx in sorted(bl_cache.values(), reverse=True, key=lambda x: x or -1):
             if idx is not None:
                 if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))) or not bl[idx].contentID:
                     need_sync = True

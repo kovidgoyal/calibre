@@ -89,7 +89,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
 from calibre.utils.localization import ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import as_bytes, itervalues
+from polyglot.builtins import as_bytes
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -859,7 +859,7 @@ class Boss(QObject):
                 self.gui.preview.current_name = newname
         self.apply_container_update_to_gui()
         if from_filelist:
-            self.gui.file_list.select_names(frozenset(itervalues(name_map)), current_name=name_map.get(from_filelist))
+            self.gui.file_list.select_names(frozenset(name_map.values()), current_name=name_map.get(from_filelist))
             self.gui.file_list.file_list.setFocus(Qt.FocusReason.PopupFocusReason)
 
     # }}}

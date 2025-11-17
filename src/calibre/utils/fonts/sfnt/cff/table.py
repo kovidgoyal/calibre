@@ -12,7 +12,6 @@ from calibre.utils.fonts.sfnt import UnknownTable
 from calibre.utils.fonts.sfnt.cff.constants import STANDARD_CHARSETS, cff_standard_strings
 from calibre.utils.fonts.sfnt.cff.dict_data import PrivateDict, TopDict
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
-from polyglot.builtins import itervalues
 
 # Useful links
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5176.CFF.pdf
@@ -195,7 +194,7 @@ class CFFTable(UnknownTable):
         # reconstruct character_map for the subset font
         charset_map = {code:self.cff.charset.safe_lookup(glyph_id) for code,
                 glyph_id in character_map.items()}
-        charset = set(itervalues(charset_map))
+        charset = set(charset_map.values())
         charset.discard(None)
         if not charset and character_map:
             raise NoGlyphs('This font has no glyphs for the specified characters')

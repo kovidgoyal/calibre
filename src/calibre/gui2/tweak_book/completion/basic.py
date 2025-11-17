@@ -20,7 +20,7 @@ from calibre.gui2.tweak_book.completion.utils import DataError, control, data
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -93,7 +93,7 @@ def complete_names(names_data, data_conn):
     quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
     nmap = {name:name_to_href(name, root, base, quote) for name in names}
-    items = tuple(sorted(frozenset(itervalues(nmap)), key=numeric_sort_key))
+    items = tuple(sorted(frozenset(nmap.values()), key=numeric_sort_key))
     d = names_cache['descriptions'].get
     descriptions = {href:d(name) for name, href in nmap.items()}
     return items, descriptions, {}

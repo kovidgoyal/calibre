@@ -72,7 +72,7 @@ from calibre.utils.formatter_functions import compile_user_template_functions, f
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import cmp, itervalues, reraise
+from polyglot.builtins import cmp, reraise
 
 # }}}
 
@@ -937,7 +937,7 @@ class DB:
         for k,v in self.FIELD_MAP.items():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
-        base = max(itervalues(self.FIELD_MAP))
+        base = max(self.FIELD_MAP.values())
 
         for label_ in sorted(self.custom_column_label_map):
             data = self.custom_column_label_map[label_]

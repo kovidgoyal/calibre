@@ -472,7 +472,7 @@ class ReadingTest(BaseTest):
         table = cache.fields['authors'].table
         table.set_sort_names({next(iter(table.id_map)): 'Fake Sort'}, cache.backend)
 
-        authors = tuple(itervalues(table.id_map))
+        authors = tuple(table.id_map.values())
         nval = cache.author_sort_from_authors(authors)
         self.assertIn('Fake Sort', nval)
 
@@ -489,7 +489,7 @@ class ReadingTest(BaseTest):
         cache.set_field('series', {3:'test series'})
         cache.set_field('series_index', {3:13})
         table = cache.fields['series'].table
-        series = tuple(itervalues(table.id_map))
+        series = tuple(table.id_map.values())
         nvals = {s:cache.get_next_series_num_for(s) for s in series}
         db = self.init_old()
         self.assertEqual({s:db.get_next_series_num_for(s) for s in series}, nvals)

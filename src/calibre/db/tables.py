@@ -232,7 +232,7 @@ class ManyToOneTable(Table):
             bcm[book] = item_id
 
     def fix_link_table(self, db):
-        linked_item_ids = set(itervalues(self.book_col_map))
+        linked_item_ids = set(self.book_col_map.values())
         extra_item_ids = linked_item_ids - set(self.id_map)
         if extra_item_ids:
             for item_id in extra_item_ids:

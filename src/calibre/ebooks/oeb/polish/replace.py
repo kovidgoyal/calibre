@@ -18,7 +18,6 @@ from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
-from polyglot.builtins import itervalues
 
 
 class LinkReplacer:
@@ -188,7 +187,7 @@ def rename_files(container, file_map):
     :param file_map: A mapping of old canonical name to new canonical name, for
         example: :code:`{'text/chapter1.html': 'chapter1.html'}`.
     '''
-    overlap = set(file_map).intersection(set(itervalues(file_map)))
+    overlap = set(file_map).intersection(set(file_map.values()))
     if overlap:
         raise ValueError('Circular rename detected. The files {} are both rename targets and destinations'.format(', '.join(overlap)))
     for name, dest in file_map.items():
@@ -197,7 +196,7 @@ def rename_files(container, file_map):
                 # A case change on an OS with a case insensitive file-system.
                 continue
             raise ValueError(f'Cannot rename {name} to {dest} as {dest} already exists')
-    if len(tuple(itervalues(file_map))) != len(set(itervalues(file_map))):
+    if len(tuple(file_map.values())) != len(set(file_map.values())):
         raise ValueError('Cannot rename, the set of destination files contains duplicates')
     link_map = {}
     for current_name, new_name in file_map.items():

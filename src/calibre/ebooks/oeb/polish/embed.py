@@ -13,7 +13,6 @@ from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import itervalues
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
@@ -77,7 +76,7 @@ def filter_by_stretch(fonts, val):
     else:
         candidates = expanded or condensed
     distance_map = {i:abs(stretch_map[i] - val) for i in candidates}
-    min_dist = min(itervalues(distance_map))
+    min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -125,7 +124,7 @@ def filter_by_weight(fonts, val):
             return [fonts[rmap[400]]]
         candidates = below or above
     distance_map = {i:abs(weight_map[i] - val) for i in candidates}
-    min_dist = min(itervalues(distance_map))
+    min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -197,7 +196,7 @@ def font_key(font):
 
 
 def embed_all_fonts(container, stats, report):
-    all_font_rules = tuple(itervalues(stats.all_font_rules))
+    all_font_rules = tuple(stats.all_font_rules.values())
     warned = set()
     rules, nrules = [], {}
     modified = set()

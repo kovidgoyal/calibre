@@ -227,14 +227,14 @@ class AddRemoveTest(BaseTest):
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning
-        self.assertIn('Unknown', set(itervalues(authors.id_map)))
+        self.assertIn('Unknown', set(authors.id_map.values()))
         olen = len(authors.id_map)
         item_id = {v:k for k, v in authors.id_map.items()}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(3, c.all_book_ids())
-            self.assertNotIn('Unknown', set(itervalues(table.id_map)))
+            self.assertNotIn('Unknown', set(table.id_map.values()))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.link_map)
             ae(len(table.id_map), olen-1)
@@ -252,7 +252,7 @@ class AddRemoveTest(BaseTest):
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
-            self.assertNotIn('Author Two', set(itervalues(table.id_map)))
+            self.assertNotIn('Author Two', set(table.id_map.values()))
             self.assertNotIn(6, set(itervalues(c.fields['rating'].table.id_map)))
             self.assertIn('A Series One', set(itervalues(c.fields['series'].table.id_map)))
             self.assertNotIn('My Series Two', set(itervalues(c.fields['#series'].table.id_map)))

@@ -31,7 +31,6 @@ from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import itervalues
 from polyglot.urllib import unquote as urlunquote
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
@@ -1461,7 +1460,7 @@ class Guide:
     __iter__ = iterkeys
 
     def values(self):
-        return sorted(itervalues(self.refs), key=lambda ref: ref.ORDER.get(ref.type, 10000))
+        return sorted(self.refs.values(), key=lambda ref: ref.ORDER.get(ref.type, 10000))
 
     def items(self):
         yield from self.refs.items()

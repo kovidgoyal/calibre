@@ -32,7 +32,6 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import itervalues
 
 NBSP = '\xa0'
 
@@ -426,7 +425,7 @@ class Convert:
                     if current_bm and p in rmap:
                         para = rmap[p]
                         if 'id' not in para.attrib:
-                            para.set('id', generate_anchor(next(iter(current_bm)), frozenset(itervalues(self.anchor_map))))
+                            para.set('id', generate_anchor(next(iter(current_bm)), frozenset(self.anchor_map.values())))
                         for name in current_bm:
                             self.anchor_map[name] = para.get('id')
                         current_bm = set()
@@ -482,7 +481,7 @@ class Convert:
                     # _GoBack is a special bookmark inserted by Word 2010 for
                     # the return to previous edit feature, we ignore it
                     old_anchor = current_anchor
-                    self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(itervalues(self.anchor_map)))
+                    self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.values()))
                     if old_anchor is not None:
                         # The previous anchor was not applied to any element
                         for a, t in tuple(self.anchor_map.items()):
@@ -493,7 +492,7 @@ class Convert:
             elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
                 old_anchor = current_anchor
                 anchor = str(uuid.uuid4())
-                self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(itervalues(self.anchor_map)))
+                self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(self.anchor_map.values()))
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
                     # The previous anchor was not applied to any element

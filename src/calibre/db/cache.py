@@ -261,7 +261,7 @@ class Cache:
         self.backend.dirty_books_with_dirtied_annotations()
         self.dirtied_cache = {x:i for i, x in enumerate(self.backend.dirtied_books())}
         if self.dirtied_cache:
-            self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
+            self.dirtied_sequence = max(self.dirtied_cache.values())+1
         self._initialize_dynamic_categories()
 
     @write_api
@@ -1604,12 +1604,12 @@ class Cache:
         new_dirtied = book_ids - already_dirtied
         already_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(already_dirtied)}
         if already_dirtied:
-            self.dirtied_sequence = max(itervalues(already_dirtied)) + 1
+            self.dirtied_sequence = max(already_dirtied.values()) + 1
         self.dirtied_cache.update(already_dirtied)
         if new_dirtied:
             self.backend.dirty_books(new_dirtied)
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
-            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
+            self.dirtied_sequence = max(new_dirtied.values()) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
@@ -1625,7 +1625,7 @@ class Cache:
         new_dirtied = book_ids - set(self.dirtied_cache)
         if new_dirtied:
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
-            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
+            self.dirtied_sequence = max(new_dirtied.values()) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api

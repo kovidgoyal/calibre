@@ -7,8 +7,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict
 from operator import attrgetter
 
-from polyglot.builtins import itervalues
-
 LIST_STYLES = frozenset(
     'disc circle square decimal decimal-leading-zero lower-roman upper-roman'
     ' lower-greek lower-alpha lower-latin upper-alpha upper-latin hiragana hebrew'
@@ -157,7 +155,7 @@ class ListsManager:
                 definitions[defn] = defn
                 defn.num_id = len(definitions) - 1
             defn.link_blocks()
-        self.definitions = sorted(itervalues(definitions), key=attrgetter('num_id'))
+        self.definitions = sorted(definitions.values(), key=attrgetter('num_id'))
 
     def serialize(self, parent):
         for defn in self.definitions:

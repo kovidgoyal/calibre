@@ -17,7 +17,6 @@ from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, corrected_case_for_name, guess_type
-from polyglot.builtins import itervalues
 
 
 class BadLink(BaseError):
@@ -386,7 +385,7 @@ def check_links(container):
             continue
         unreferenced.add(name)
 
-    manifest_names = set(itervalues(container.manifest_id_map))
+    manifest_names = set(container.manifest_id_map.values())
     for name in container.mime_map:
         if name not in manifest_names and not container.ok_to_be_unmanifested(name):
             a(Unmanifested(name, unreferenced=name in unreferenced))

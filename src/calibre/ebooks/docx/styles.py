@@ -10,7 +10,6 @@ from collections import Counter, OrderedDict
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
-from polyglot.builtins import itervalues
 
 
 class PageProperties:
@@ -499,7 +498,7 @@ class Styles:
             prefix = ef + '\n' + prefix
 
         ans = []
-        for cls, css in sorted(itervalues(self.classes), key=lambda x:x[0]):
+        for cls, css in sorted(self.classes.values(), key=lambda x:x[0]):
             b = (f'\t{k}: {v};' for k, v in css.items())
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))
