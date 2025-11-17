@@ -91,7 +91,6 @@ from calibre.utils.localization import get_lang
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
-from polyglot.builtins import iteritems
 
 del pqc, geometry_for_restore_as_dict
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
@@ -1686,7 +1685,7 @@ if is_running_from_develop:
 
 def event_type_name(ev_or_etype):
     etype = ev_or_etype.type() if isinstance(ev_or_etype, QEvent) else ev_or_etype
-    for name, num in iteritems(vars(QEvent)):
+    for name, num in vars(QEvent).items():
         if num == etype:
             return name
     return 'UnknownEventType'

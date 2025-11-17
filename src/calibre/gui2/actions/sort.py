@@ -26,7 +26,6 @@ from qt.core import (
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import iteritems
 
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
 
@@ -145,7 +144,7 @@ class SortByAction(InterfaceAction):
 
         # Add the columns to the menu
         fm = db.field_metadata
-        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
+        name_map = {v:k for k, v in fm.ui_sortable_field_keys().items()}
         all_names = sorted(name_map, key=primary_sort_key)
         hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
 
@@ -164,7 +163,7 @@ class SortByAction(InterfaceAction):
     def select_sortable_columns(self):
         db = self.gui.current_db
         fm = db.field_metadata
-        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
+        name_map = {v:k for k, v in fm.ui_sortable_field_keys().items()}
         hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
         all_names = sorted(name_map, key=primary_sort_key)
         items = QListWidget()

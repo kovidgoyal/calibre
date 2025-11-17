@@ -756,7 +756,7 @@ class WritingTest(BaseTest):
         ldata = {aid:str(aid) for aid in adata}
         self.assertEqual({1,2,3}, cache.set_link_for_authors(ldata))
         for c in (cache, self.init_cache()):
-            self.assertEqual(ldata, {aid:d['link'] for aid, d in iteritems(c.author_data())})
+            self.assertEqual(ldata, {aid:d['link'] for aid, d in c.author_data().items()})
         self.assertEqual({3}, cache.set_link_for_authors({aid:'xxx' if aid == max(adata) else str(aid) for aid in adata}),
                          'Setting the author link to the same value as before, incorrectly marked some books as dirty')
         sdata = {aid:f'{aid}, changed' for aid in adata}

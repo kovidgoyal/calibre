@@ -183,5 +183,5 @@ class HandleDataRequest(QObject):
 
 handle_data_request = HandleDataRequest()
 
-control_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'control'}
-data_funcs = {name:func for name, func in iteritems(globals()) if getattr(func, 'function_type', None) == 'data'}
+control_funcs = {name:func for name, func in globals().items() if getattr(func, 'function_type', None) == 'control'}
+data_funcs = {name:func for name, func in globals().items() if getattr(func, 'function_type', None) == 'data'}

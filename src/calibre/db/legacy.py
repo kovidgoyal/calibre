@@ -286,7 +286,7 @@ class LibraryDatabase:
             return not bool(self.new_api.fields['title'].table.book_col_map)
 
     def get_usage_count_by_id(self, field):
-        return [[k, v] for k, v in iteritems(self.new_api.get_usage_count_by_id(field))]
+        return [[k, v] for k, v in self.new_api.get_usage_count_by_id(field).items()]
 
     def field_id_map(self, field):
         return list(iteritems(self.new_api.get_id_map(field)))
@@ -662,7 +662,7 @@ class LibraryDatabase:
 
     def format_files(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
-        return [(v, k) for k, v in iteritems(self.new_api.format_files(book_id))]
+        return [(v, k) for k, v in self.new_api.format_files(book_id).items()]
 
     def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False, commit=False):
         return self.new_api.format_metadata(book_id, fmt, allow_cache=allow_cache, update_db=update_db)
@@ -970,7 +970,7 @@ for func, field in iteritems({'all_authors':'authors', 'all_titles':'title', 'al
 
 LibraryDatabase.all_tags = lambda self: list(self.all_tag_names())
 LibraryDatabase.get_all_identifier_types = lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types())
-LibraryDatabase.get_authors_with_ids = lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in iteritems(self.new_api.author_data())]
+LibraryDatabase.get_authors_with_ids = lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().items()]
 LibraryDatabase.get_author_id = lambda self, author: {icu_lower(v):k for k, v in iteritems(self.new_api.get_id_map('authors'))}.get(icu_lower(author), None)
 
 for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
@@ -978,7 +978,7 @@ for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
         fname = field[:-1] if field in {'publishers', 'ratings'} else field
 
         def func(self):
-            return [[tid, tag] for tid, tag in iteritems(self.new_api.get_id_map(fname))]
+            return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).items()]
         return func
     setattr(LibraryDatabase, f'get_{field}_with_ids', getter(field))
 

@@ -23,7 +23,6 @@ from calibre.utils.icu import capitalize, lower, swapcase, upper
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import iteritems
 from polyglot.io import PolyglotStringIO
 
 user_functions = JSONConfig('editor-search-replace-functions')
@@ -70,7 +69,7 @@ class Function:
         self.boss = get_boss()
         self.data = {}
         self.debug_buf = PolyglotStringIO()
-        self.functions = {name:func.mod for name, func in iteritems(functions()) if func.mod is not None}
+        self.functions = {name:func.mod for name, func in functions().items() if func.mod is not None}
 
     def __hash__(self):
         return hash(self.name)
@@ -141,7 +140,7 @@ class DebugOutput(Dialog):
 
 
 def builtin_functions():
-    for name, obj in iteritems(globals()):
+    for name, obj in globals().items():
         if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
 

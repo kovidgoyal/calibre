@@ -686,7 +686,7 @@ class ThemeEditor(Dialog):
             base = str(d.base.currentText())
             theme = {}
             for key, val in iteritems(THEMES[base]):
-                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in iteritems(val._asdict())}
+                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().items()}
             tprefs['custom_themes'][name] = theme
             tprefs['custom_themes'] = tprefs['custom_themes']
             t = self.theme

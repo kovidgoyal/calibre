@@ -17,7 +17,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 Job = namedtuple('Job', 'id module func args kwargs')
 Result = namedtuple('Result', 'value err traceback')
@@ -418,7 +418,7 @@ def test():
         p(i, 'def x(i):\n return 2*i', 'x', i)
         expected_results[i] = 2 * i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in iteritems(get_results(p))}
+    results = {k:v.value for k, v in get_results(p).items()}
     if results != expected_results:
         raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()
@@ -432,7 +432,7 @@ def test():
         p(i, 'def x(i, common_data=None):\n return common_data + i', 'x', i)
         expected_results[i] = 7 + i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in iteritems(get_results(p))}
+    results = {k:v.value for k, v in get_results(p).items()}
     if results != expected_results:
         raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()

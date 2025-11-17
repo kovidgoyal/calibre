@@ -475,4 +475,4 @@ class ParagraphStyle:
         return False
 
 
-read_funcs = {k[5:]:v for k, v in iteritems(globals()) if k.startswith('read_')}
+read_funcs = {k[5:]:v for k, v in globals().items() if k.startswith('read_')}

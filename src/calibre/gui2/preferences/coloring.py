@@ -56,7 +56,6 @@ from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map, ngettext
-from polyglot.builtins import iteritems
 
 all_columns_string = _('All columns')
 
@@ -226,7 +225,7 @@ class ConditionEditor(QWidget):  # {{{
         if not self.value_box.isEnabled():
             ans = ''
         if self.current_col == 'languages':
-            rmap = {lower(v):k for k, v in iteritems(lang_map())}
+            rmap = {lower(v):k for k, v in lang_map().items()}
             ans = rmap.get(lower(ans), ans)
         return ans
 

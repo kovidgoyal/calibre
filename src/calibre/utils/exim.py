@@ -23,7 +23,7 @@ from calibre.utils.config_base import StringConfig, create_global_prefs, prefs
 from calibre.utils.filenames import samefile
 from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import error_message, iteritems
+from polyglot.builtins import error_message
 
 # Export {{{
 
@@ -542,7 +542,7 @@ def run_exporter(export_dir=None, args=None, check_known_libraries=True):
             os.makedirs(export_dir)
         if os.listdir(export_dir):
             raise SystemExit(f'{export_dir} is not empty')
-        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in iteritems(all_known_libraries())}
+        all_libraries = {os.path.normcase(os.path.abspath(path)):lus for path, lus in all_known_libraries().items()}
         if 'all' in args[1:]:
             libraries = set(all_libraries)
         else:
@@ -563,7 +563,7 @@ def run_exporter(export_dir=None, args=None, check_known_libraries=True):
     if os.listdir(export_dir):
         raise SystemExit(f'{export_dir} is not empty')
     library_paths = {}
-    for lpath, lus in iteritems(all_known_libraries()):
+    for lpath, lus in all_known_libraries().items():
         if input_unicode(f'Export the library {lpath} [y/n]: ').strip().lower() == 'y':
             library_paths[lpath] = lus
     if library_paths:

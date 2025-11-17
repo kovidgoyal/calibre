@@ -2365,7 +2365,7 @@ class Cache:
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',
-                                {k:' & '.join(v) for k, v in iteritems(self._author_sort_strings_for_books(affected_books))})
+                                {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).items()})
                 self._update_path(affected_books, mark_as_dirtied=False)
             elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
                 for book_id in moved_books:

@@ -108,7 +108,7 @@ def cap_path(data):
 def register():
     base = os.path.dirname(sys.executable)
 
-    for program, data in iteritems(default_programs()):
+    for program, data in default_programs().items():
         data = data.copy()
         exe = os.path.join(base, program)
         capabilities_path = cap_path(data)
@@ -138,7 +138,7 @@ def register():
 
 
 def unregister():
-    for program, data in iteritems(default_programs()):
+    for program, data in default_programs().items():
         capabilities_path = cap_path(data).rpartition('\\')[0]
         ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
         ext_map = {ext:mt for ext, mt in ext_map.items() if mt}
