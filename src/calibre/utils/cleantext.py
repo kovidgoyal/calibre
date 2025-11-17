@@ -3,10 +3,10 @@
 
 
 import re
+from html.entities import name2codepoint
 
 from calibre.constants import preferred_encoding
 from calibre_extensions.speedup import clean_xml_chars as _ncxc
-from polyglot.html_entities import name2codepoint
 
 
 def native_clean_xml_chars(x):

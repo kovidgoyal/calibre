@@ -2166,7 +2166,7 @@ def entity_to_unicode_in_python(match, exceptions=(), encoding='cp1252', result_
         return check(html5_entities[ent])
     except KeyError:
         pass
-    from polyglot.html_entities import name2codepoint
+    from html.entities import name2codepoint
     try:
         return check(my_unichr(name2codepoint[ent]))
     except KeyError:
