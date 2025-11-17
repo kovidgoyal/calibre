@@ -1266,7 +1266,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def format_files(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
-        return [(v, k) for k, v in iteritems(self.format_filename_cache[id])]
+        return [(v, k) for k, v in self.format_filename_cache[id].items()]
 
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''

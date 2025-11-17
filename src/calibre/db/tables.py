@@ -14,7 +14,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz
 from calibre.utils.icu import lower as icu_lower
 from calibre_extensions.speedup import parse_date as _c_speedup
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 def identity(x):
@@ -669,7 +669,7 @@ class FormatsTable(ManyToManyTable):
         for book_id, fmts in formats_map.items():
             self.book_col_map[book_id] = [fmt for fmt in self.book_col_map.get(book_id, []) if fmt not in fmts]
             for m in (self.fname_map, self.size_map):
-                m[book_id] = {k:v for k, v in iteritems(m[book_id]) if k not in fmts}
+                m[book_id] = {k:v for k, v in m[book_id].items() if k not in fmts}
             for fmt in fmts:
                 try:
                     self.col_book_map[fmt].discard(book_id)

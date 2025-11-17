@@ -10,7 +10,7 @@ from textwrap import TextWrapper
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -105,14 +105,14 @@ def stringify(data, metadata, for_machine):
         if field == 'authors':
             data[field] = {
                 k: authors_to_string(v)
-                for k, v in iteritems(data[field])
+                for k, v in data[field].items()
             }
         else:
             dt = m['datatype']
             if dt == 'datetime':
                 data[field] = {
                     k: isoformat(v, as_utc=for_machine) if v else 'None'
-                    for k, v in iteritems(data[field])
+                    for k, v in data[field].items()
                 }
             elif not for_machine:
                 ism = m['is_multiple']
@@ -125,12 +125,12 @@ def stringify(data, metadata, for_machine):
                     else:
                         data[field] = {
                             k: ism['list_to_ui'].join(v)
-                            for k, v in iteritems(data[field])
+                            for k, v in data[field].items()
                         }
                         if field == 'formats':
                             data[field] = {
                                 k: '[' + v + ']'
-                                for k, v in iteritems(data[field])
+                                for k, v in data[field].items()
                             }
 
 

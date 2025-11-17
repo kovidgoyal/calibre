@@ -10,7 +10,7 @@ from collections import OrderedDict
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -703,6 +703,6 @@ def fm_from_dict(src):
     ans._search_term_map = src['search_term_map']
     ans.custom_label_to_key_map = src['custom_label_to_key_map']
     for q in ('custom_fields', 'user_categories', 'search_categories'):
-        for k, v in iteritems(src[q]):
+        for k, v in src[q].items():
             ans._tb_cats[k] = v
     return ans

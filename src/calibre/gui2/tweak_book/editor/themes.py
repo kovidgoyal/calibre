@@ -39,7 +39,6 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
-from polyglot.builtins import iteritems
 
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
@@ -639,7 +638,7 @@ class ThemeEditor(Dialog):
             data.pop(k)
         for k in missing:
             data[k] = dict(THEMES[default_theme()][k]._asdict())
-            for nk, nv in iteritems(data[k]):
+            for nk, nv in data[k].items():
                 if isinstance(nv, QBrush):
                     data[k][nk] = str(nv.color().name())
         if extra or missing:
@@ -685,7 +684,7 @@ class ThemeEditor(Dialog):
             name = '*' + d.theme_name
             base = str(d.base.currentText())
             theme = {}
-            for key, val in iteritems(THEMES[base]):
+            for key, val in THEMES[base].items():
                 theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().items()}
             tprefs['custom_themes'][name] = theme
             tprefs['custom_themes'] = tprefs['custom_themes']

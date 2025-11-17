@@ -14,7 +14,6 @@ from calibre.constants import cache_dir, filesystem_encoding
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems
 
 
 def parse_localized_key(key):
@@ -151,7 +150,7 @@ def find_icons():
                         import traceback
                         traceback.print_exc()
                     mtimes[d] = mtime
-                for name, data in iteritems(cache[d]):
+                for name, data in cache[d].items():
                     ans[name].append(data)
     for removed in set(mtimes) - seen_dirs:
         mtimes.pop(removed), cache.pop(removed)
