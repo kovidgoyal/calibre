@@ -20,10 +20,10 @@ application_locations = ('/Applications', '~/Applications', '~/Desktop')
 # Public UTI MAP {{{
 
 def generate_public_uti_map():
+    from urllib.request import urlopen
+
     from html5_parser import parse
     from lxml import etree
-
-    from polyglot.urllib import urlopen
     raw = urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = parse(raw)

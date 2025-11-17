@@ -12,6 +12,7 @@ import time
 from collections import namedtuple
 from http.cookiejar import CookieJar
 from urllib.error import HTTPError
+from urllib.request import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, build_opener
 
 from calibre.constants import ismacos
 from calibre.ptempfile import TemporaryDirectory
@@ -20,7 +21,6 @@ from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
 from polyglot.binary import as_base64_bytes
 from polyglot.builtins import itervalues
-from polyglot.urllib import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, build_opener
 
 REALM = 'calibre-test'
 is_ci = os.environ.get('CI', '').lower() == 'true'

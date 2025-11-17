@@ -228,7 +228,7 @@ def extract(path, dir):
 
 
 def get_proxies(debug=True):
-    from polyglot.urllib import getproxies
+    from urllib.request import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy or key == 'auto':

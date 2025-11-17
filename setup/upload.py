@@ -16,9 +16,8 @@ import sys
 import time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
+from urllib.request import Request, urlopen
 from zipfile import ZipFile
-
-from polyglot.urllib import Request, urlopen
 
 if __name__ == '__main__':
     d = os.path.dirname
