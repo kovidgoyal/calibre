@@ -8,7 +8,6 @@ from qt.core import QDialog, QLineEdit, Qt
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
-from polyglot.builtins import itervalues
 
 
 def ipaddr_sort_key(ipaddr):
@@ -20,7 +19,7 @@ def ipaddr_sort_key(ipaddr):
 
 def get_all_ip_addresses():
     ipaddrs = []
-    for iface in itervalues(get_all_ips()):
+    for iface in get_all_ips().values():
         for addrs in iface:
             if 'broadcast' in addrs and addrs['addr'] != '127.0.0.1':
                 ipaddrs.append(addrs['addr'])

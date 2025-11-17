@@ -17,7 +17,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
-from polyglot.builtins import itervalues
 
 Job = namedtuple('Job', 'id module func args kwargs')
 Result = namedtuple('Result', 'value err traceback')
@@ -454,7 +453,7 @@ def test():
         p(i, 'def x(i):\n return 1/0', 'x', i)
     p.wait_for_tasks(30)
     c = 0
-    for r in itervalues(get_results(p)):
+    for r in get_results(p).values():
         c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit(f'Unexpected result: {r}')

@@ -43,7 +43,6 @@ from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import itervalues
 
 # Default settings {{{
 cprefs = JSONConfig('cover_generation')
@@ -578,14 +577,14 @@ class Blocks(Style):
 
 def all_styles():
     return {
-        x.NAME for x in itervalues(globals()) if
+        x.NAME for x in globals().values() if
         isinstance(x, type) and issubclass(x, Style) and x is not Style
     }
 
 
 def load_styles(prefs, respect_disabled=True):
     disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
-    ans = tuple(x for x in itervalues(globals()) if
+    ans = tuple(x for x in globals().values() if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
     if not ans and disabled:
         # If all styles have been disabled, ignore the disabling and return all
