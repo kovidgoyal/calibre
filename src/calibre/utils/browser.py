@@ -3,13 +3,12 @@
 
 
 import copy
+import http.client
 import ssl
 from http.cookiejar import CookieJar
 
 from mechanize import Browser as B
 from mechanize import HTTPSHandler
-
-from polyglot import http_client
 
 
 class ModernHTTPSHandler(HTTPSHandler):
@@ -25,7 +24,7 @@ class ModernHTTPSHandler(HTTPSHandler):
 
         def conn_factory(hostport, **kw):
             kw['context'] = self.ssl_context
-            return http_client.HTTPSConnection(hostport, **kw)
+            return http.client.HTTPSConnection(hostport, **kw)
         return self.do_open(conn_factory, req)
 
 

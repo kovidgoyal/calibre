@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import atexit
 import gc
+import http.client
 import os
 import shutil
 import tempfile
@@ -19,7 +20,6 @@ from threading import Thread
 from calibre.srv.utils import ServerLog
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
-from polyglot import http_client
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -151,7 +151,7 @@ class TestServer(Thread):
             timeout = self.loop.opts.timeout
         if interface is None:
             interface = self.address[0]
-        ans = http_client.HTTPConnection(interface, self.address[1], timeout=timeout)
+        ans = http.client.HTTPConnection(interface, self.address[1], timeout=timeout)
         ans.connect()
         return ans
 

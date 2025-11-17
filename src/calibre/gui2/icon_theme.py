@@ -6,6 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import bz2
 import errno
+import http.client
 import importlib
 import json
 import math
@@ -74,7 +75,6 @@ from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_p
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
-from polyglot import http_client
 from polyglot.builtins import as_bytes, reraise
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -524,7 +524,7 @@ def download_cover(cover_url, etag=None, cached=b''):
         etag = response.getheader('ETag', None) or None
         return cached, etag
     except HTTPError as e:
-        if etag and e.code == http_client.NOT_MODIFIED:
+        if etag and e.code == http.client.NOT_MODIFIED:
             return cached, etag
         raise
 

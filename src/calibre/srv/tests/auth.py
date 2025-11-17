@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import http.client
 import os
 import shutil
 import subprocess
@@ -16,7 +17,6 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import HTTPForbidden
 from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
-from polyglot import http_client
 from polyglot.binary import as_base64_bytes
 from polyglot.builtins import itervalues
 from polyglot.urllib import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError, build_opener
@@ -92,18 +92,18 @@ class TestAuth(BaseTest):
             conn = server.connect()
             conn.request('GET', '/open')
             r = conn.getresponse()
-            self.ae(r.status, http_client.OK)
+            self.ae(r.status, http.client.OK)
             self.ae(r.read(), b'open')
 
             conn.request('GET', '/closed')
             r = conn.getresponse()
-            self.ae(r.status, http_client.UNAUTHORIZED)
+            self.ae(r.status, http.client.UNAUTHORIZED)
             self.ae(r.getheader('WWW-Authenticate'), f'Basic realm="{REALM}"')
             self.assertFalse(r.read())
             conn.request('GET', '/closed', headers={'Authorization': b'Basic ' + as_base64_bytes(b'testuser:testpw')})
             r = conn.getresponse()
             self.ae(r.read(), b'closed')
-            self.ae(r.status, http_client.OK)
+            self.ae(r.status, http.client.OK)
             self.ae(b'closed', urlopen(server, method='basic').read())
             self.ae(b'closed', urlopen(server, un='!@#$%^&*()-=_+', pw='!@#$%^&*()-=_+', method='basic').read())
 
@@ -114,14 +114,14 @@ class TestAuth(BaseTest):
 
             warnings = []
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
-            self.ae((http_client.OK, b'closed'), request())
-            self.ae((http_client.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae((http_client.BAD_REQUEST, b'The username or password was empty'), request('', ''))
+            self.ae((http.client.OK, b'closed'), request())
+            self.ae((http.client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request('', ''))
             self.ae(1, len(warnings))
-            self.ae((http_client.UNAUTHORIZED, b''), request('testuser', 'y'))
-            self.ae((http_client.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
-            self.ae((http_client.BAD_REQUEST, b'The username or password was empty'), request(''))
-            self.ae((http_client.UNAUTHORIZED, b''), request('asf', 'testpw'))
+            self.ae((http.client.UNAUTHORIZED, b''), request('testuser', 'y'))
+            self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
+            self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request(''))
+            self.ae((http.client.UNAUTHORIZED, b''), request('asf', 'testpw'))
     # }}}
 
     def test_library_restrictions(self):  # {{{
@@ -170,7 +170,7 @@ class TestAuth(BaseTest):
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
 
-            def test(conn, path, headers={}, status=http_client.OK, body=b'', request_body=b''):
+            def test(conn, path, headers={}, status=http.client.OK, body=b'', request_body=b''):
                 conn.request('GET', path, request_body, headers)
                 r = conn.getresponse()
                 self.ae(r.status, status)
@@ -178,9 +178,9 @@ class TestAuth(BaseTest):
                 return {normalize_header_name(k):v for k, v in r.getheaders()}
             conn = server.connect()
             test(conn, '/open', body=b'open')
-            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             nonce = auth['nonce']
-            auth = parse_http_dict(test(conn, '/closed', status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
+            auth = parse_http_dict(test(conn, '/closed', status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             self.assertNotEqual(nonce, auth['nonce'], 'nonce was re-used')
             self.ae(auth['realm'], REALM)
             self.ae(auth['algorithm'], 'MD5')
@@ -202,14 +202,14 @@ class TestAuth(BaseTest):
             # Check stale nonces
             orig, r.auth_controller.max_age_seconds = r.auth_controller.max_age_seconds, -1
             auth = parse_http_dict(test(conn, '/closed', headers={
-                'Authorization':digest(**args)},status=http_client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
+                'Authorization':digest(**args)},status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
             self.assertIn('stale', auth)
             r.auth_controller.max_age_seconds = orig
             ok_test(conn, digest(**args))
 
             def fail_test(conn, modify, **kw):
                 kw['body'] = kw.get('body', b'')
-                kw['status'] = kw.get('status', http_client.UNAUTHORIZED)
+                kw['status'] = kw.get('status', http.client.UNAUTHORIZED)
                 args['modify'] = modify
                 return test(conn, '/closed', headers={'Authorization':digest(**args)}, **kw)
 
@@ -261,13 +261,13 @@ class TestAuth(BaseTest):
 
             warnings = []
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
-            self.ae((http_client.OK, b'closed'), request())
-            self.ae((http_client.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae((http_client.UNAUTHORIZED, b''), request('x', 'y'))
-            self.ae(http_client.FORBIDDEN, request('x', 'y')[0])
-            self.ae(http_client.FORBIDDEN, request()[0])
+            self.ae((http.client.OK, b'closed'), request())
+            self.ae((http.client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae((http.client.UNAUTHORIZED, b''), request('x', 'y'))
+            self.ae(http.client.FORBIDDEN, request('x', 'y')[0])
+            self.ae(http.client.FORBIDDEN, request()[0])
             time.sleep(ban_for * 60 + 0.01)
-            self.ae((http_client.OK, b'closed'), request())
+            self.ae((http.client.OK, b'closed'), request())
     # }}}
 
     def test_android_auth_workaround(self):  # {{{
@@ -280,7 +280,7 @@ class TestAuth(BaseTest):
             # First check that unauth access fails
             conn.request('GET', '/android')
             r = conn.getresponse()
-            self.ae(r.status, http_client.UNAUTHORIZED)
+            self.ae(r.status, http.client.UNAUTHORIZED)
 
             auth_handler = HTTPDigestAuthHandler()
             url = f'http://localhost:{server.address[1]}/android'
@@ -288,20 +288,20 @@ class TestAuth(BaseTest):
             cj = CookieJar()
             cookie_handler = HTTPCookieProcessor(cj)
             r = build_opener(auth_handler, cookie_handler).open(url)
-            self.ae(r.getcode(), http_client.OK)
+            self.ae(r.getcode(), http.client.OK)
             cookies = tuple(cj)
             self.ae(len(cookies), 1)
             cookie = cookies[0]
             self.assertIn(':', cookie.value)
             self.ae(cookie.path, '/android')
             r = build_opener(cookie_handler).open(url)
-            self.ae(r.getcode(), http_client.OK)
+            self.ae(r.getcode(), http.client.OK)
             self.ae(r.read(), b'android')
             # Test that a replay attack against a different URL does not work
             try:
                 build_opener(cookie_handler).open(url+'2')
                 assert True, 'Replay attack succeeded'
             except HTTPError as e:
-                self.ae(e.code, http_client.UNAUTHORIZED)
+                self.ae(e.code, http.client.UNAUTHORIZED)
 
     # }}}

@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import http.client
 import inspect
 import json as jsonlib
 import numbers
@@ -16,7 +17,6 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
-from polyglot import http_client
 from polyglot.builtins import itervalues
 from polyglot.urllib import quote as urlquote
 
@@ -301,7 +301,7 @@ class Router:
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
-            raise HTTPSimpleResponse(http_client.METHOD_NOT_ALLOWED)
+            raise HTTPSimpleResponse(http.client.METHOD_NOT_ALLOWED)
 
         self.read_cookies(data)
 

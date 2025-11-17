@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import http.client
 import os
 import random
 import struct
@@ -16,7 +17,6 @@ from calibre.srv.errors import HTTPAuthRequired, HTTPForbidden, HTTPSimpleRespon
 from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import encode_path, parse_http_dict
 from calibre.utils.monotonic import monotonic
-from polyglot import http_client
 from polyglot.binary import as_hex_unicode, from_base64_unicode, from_hex_bytes
 
 MAX_AGE_SECONDS = 3600
@@ -141,18 +141,18 @@ class DigestAuth:  # {{{
         self.nonce_count = data.get('nc')
 
         if self.algorithm not in self.valid_algorithms:
-            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported digest algorithm')
+            raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Unsupported digest algorithm')
 
         if not (self.username and self.realm and self.nonce and self.uri and self.response):
-            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Digest algorithm required fields missing')
+            raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Digest algorithm required fields missing')
 
         if self.qop:
             if self.qop not in self.valid_qops:
-                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported digest qop')
+                raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Unsupported digest qop')
             if not (self.cnonce and self.nonce_count):
-                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
+                raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
         elif self.cnonce or self.nonce_count:
-            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop missing')
+            raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'qop missing')
 
     def H(self, val):
         return md5_hex(val)
@@ -206,7 +206,7 @@ class DigestAuth:  # {{{
         if path != data.path:
             if log is not None:
                 log.warn(f'Authorization URI mismatch: {data.path} != {path} from client: {data.remote_addr}')
-            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
+            raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
 # }}}
 
@@ -294,16 +294,16 @@ class AuthController:
                 try:
                     un, pw = base64_decode(rest.strip()).partition(':')[::2]
                 except ValueError:
-                    raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
+                    raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
                 if not un or not pw:
-                    raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The username or password was empty')
+                    raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The username or password was empty')
                 if self.check(un, pw):
                     data.username = un
                     return
                 log_msg = f'Failed login attempt from: {data.remote_addr}'
                 self.ban_list.failed(ban_key)
             else:
-                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported authentication method')
+                raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'Unsupported authentication method')
 
         if self.prefer_basic_auth:
             raise HTTPAuthRequired(f'Basic realm="{self.realm}"', log=log_msg)
