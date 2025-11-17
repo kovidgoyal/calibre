@@ -4,12 +4,12 @@
 
 import copy
 import ssl
+from http.cookiejar import CookieJar
 
 from mechanize import Browser as B
 from mechanize import HTTPSHandler
 
 from polyglot import http_client
-from polyglot.http_cookie import CookieJar
 
 
 class ModernHTTPSHandler(HTTPSHandler):

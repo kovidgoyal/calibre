@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import time
 from collections import namedtuple
+from http.cookiejar import CookieJar
 
 from calibre.constants import ismacos
 from calibre.ptempfile import TemporaryDirectory
@@ -18,7 +19,6 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from polyglot import http_client
 from polyglot.binary import as_base64_bytes
 from polyglot.builtins import itervalues
-from polyglot.http_cookie import CookieJar
 from polyglot.urllib import HTTPBasicAuthHandler, HTTPCookieProcessor, HTTPDigestAuthHandler, HTTPError, build_opener
 
 REALM = 'calibre-test'

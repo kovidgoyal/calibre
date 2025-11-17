@@ -9,6 +9,7 @@ import os
 import reprlib
 import socket
 from email.utils import formatdate
+from http.cookies import SimpleCookie
 from operator import itemgetter
 
 from calibre import prints
@@ -21,7 +22,6 @@ from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.binary import as_hex_unicode as encode_name
 from polyglot.binary import from_hex_unicode as decode_name
 from polyglot.builtins import as_unicode, iteritems
-from polyglot.http_cookie import SimpleCookie
 from polyglot.urllib import parse_qs
 from polyglot.urllib import quote as urlquote
 
