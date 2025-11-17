@@ -62,10 +62,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
+from urllib.parse import urlparse
 from urllib.request import urlopen
 
 from calibre.utils.smartypants import smartyPants
-from polyglot.urllib import urlparse
 
 
 def _normalize_newlines(string):

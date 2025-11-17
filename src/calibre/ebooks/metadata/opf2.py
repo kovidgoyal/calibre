@@ -18,6 +18,7 @@ import re
 import sys
 import uuid
 from contextlib import suppress
+from urllib.parse import urlparse
 
 from lxml import etree
 
@@ -37,7 +38,7 @@ from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems
-from polyglot.urllib import unquote, urlparse
+from polyglot.urllib import unquote
 
 pretty_print_opf = False
 

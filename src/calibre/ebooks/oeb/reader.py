@@ -13,6 +13,7 @@ import re
 import sys
 import uuid
 from collections import defaultdict
+from urllib.parse import urldefrag, urlparse
 
 from lxml import etree
 
@@ -53,7 +54,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import __, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.urllib import unquote, urldefrag, urlparse
+from polyglot.urllib import unquote
 
 __all__ = ['OEBReader']
 

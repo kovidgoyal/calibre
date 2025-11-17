@@ -281,7 +281,7 @@ class HTMLInput(InputFormatPlugin):
         return link, frag
 
     def resource_adder(self, link_, base=None):
-        from polyglot.urllib import quote
+        from urllib.parse import quote
         link, frag = self.link_to_local_path(link_, base=base)
         if link is None:
             return link_

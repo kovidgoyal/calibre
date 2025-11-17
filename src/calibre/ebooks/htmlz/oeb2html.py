@@ -9,6 +9,7 @@ Transform OEB content into a single (more or less) HTML file.
 import os
 import re
 from functools import partial
+from urllib.parse import urldefrag
 
 from css_parser import replaceUrls
 from lxml import html
@@ -18,7 +19,6 @@ from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, 
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_unicode
-from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 

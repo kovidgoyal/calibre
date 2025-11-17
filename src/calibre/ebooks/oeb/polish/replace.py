@@ -11,6 +11,7 @@ import posixpath
 import shutil
 from collections import Counter, defaultdict
 from functools import partial
+from urllib.parse import urlparse, urlunparse
 
 from calibre import sanitize_file_name
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -18,7 +19,6 @@ from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
 from polyglot.builtins import itervalues
-from polyglot.urllib import urlparse, urlunparse
 
 
 class LinkReplacer:

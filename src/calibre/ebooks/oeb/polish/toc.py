@@ -9,6 +9,7 @@ import re
 from collections import Counter, OrderedDict
 from functools import partial
 from operator import itemgetter
+from urllib.parse import urlparse
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -23,7 +24,6 @@ from calibre.translations.dynamic import translate
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import iteritems
-from polyglot.urllib import urlparse
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
 ns.prefix = 'calibre'

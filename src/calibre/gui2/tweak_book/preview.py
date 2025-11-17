@@ -8,6 +8,7 @@ from collections import defaultdict
 from functools import partial
 from queue import Empty, Queue
 from threading import Thread
+from urllib.parse import urlparse
 
 from qt.core import (
     QAction,
@@ -53,7 +54,6 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import Bridge, create_script, from_js, insert_scripts, secure_webengine, setup_profile, to_js
-from polyglot.urllib import urlparse
 
 shutdown = object()
 

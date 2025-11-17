@@ -6,8 +6,9 @@ OPF manifest trimming transform.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
+from urllib.parse import urldefrag
+
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, iterlinks, urlnormalize
-from polyglot.urllib import urldefrag
 
 
 class ManifestTrimmer:

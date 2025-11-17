@@ -10,6 +10,7 @@ import tempfile
 from collections import deque
 from itertools import chain
 from math import ceil, floor
+from urllib.parse import urlparse
 
 from calibre import __appname__, entity_regex, entity_to_unicode, fit_image, force_unicode, preferred_encoding
 from calibre.constants import filesystem_encoding
@@ -44,7 +45,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
 )
 from calibre.ptempfile import PersistentTemporaryFile
 from polyglot.builtins import itervalues
-from polyglot.urllib import unquote, urlparse
+from polyglot.urllib import unquote
 
 '''
 Code to convert HTML ebooks into LRF ebooks.

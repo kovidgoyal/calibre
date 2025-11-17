@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from collections import OrderedDict, namedtuple
 from functools import partial
+from urllib.parse import urlencode
 
 from html5_parser import parse
 from lxml import etree
@@ -31,7 +32,7 @@ from calibre.utils.search_query_parser import ParseException
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
 from polyglot.builtins import as_bytes, iteritems
-from polyglot.urllib import unquote_plus, urlencode
+from polyglot.urllib import unquote_plus
 
 
 def atom(ctx, rd, endpoint, output):

@@ -10,6 +10,7 @@ import re
 import textwrap
 import uuid
 from datetime import datetime
+from urllib.parse import urlparse
 
 from lxml import etree
 
@@ -20,7 +21,6 @@ from calibre.utils.img import save_cover_data_to
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
-from polyglot.urllib import urlparse
 
 
 class FB2MLizer:

@@ -8,13 +8,13 @@ __docformat__ = 'restructuredtext en'
 import re
 import uuid
 from collections import Counter, OrderedDict
+from urllib.parse import urlparse
 
 from lxml import etree
 
 from calibre.ebooks import ConversionError
 from calibre.ebooks.oeb.base import TOC, XHTML, XPNSMAP, barename, xml2text
 from polyglot.builtins import itervalues
-from polyglot.urllib import urlparse
 
 
 def XPath(x):

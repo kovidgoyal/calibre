@@ -10,6 +10,7 @@ import sys
 from collections import namedtuple
 from functools import lru_cache
 from itertools import count, repeat
+from urllib.parse import urlparse
 
 from html5_parser import parse
 from qt.core import QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
@@ -43,7 +44,6 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
 from polyglot.builtins import as_bytes
-from polyglot.urllib import urlparse
 
 # }}}
 

@@ -13,6 +13,7 @@ from functools import partial
 from io import BytesIO
 from multiprocessing.dummy import Pool
 from tempfile import NamedTemporaryFile
+from urllib.parse import urlparse
 
 from calibre import as_unicode, browser
 from calibre import sanitize_file_name as sanitize_file_name_base
@@ -22,7 +23,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
 from polyglot.binary import from_base64_bytes
-from polyglot.urllib import unquote, urlparse
+from polyglot.urllib import unquote
 
 
 def is_external(url):

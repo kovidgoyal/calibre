@@ -8,6 +8,7 @@ from copy import copy
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
+from urllib.parse import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
@@ -22,7 +23,6 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import collation_order_for_partitioning
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, calibre_langcode_to_name
-from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 

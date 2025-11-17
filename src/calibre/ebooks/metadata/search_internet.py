@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from polyglot.urllib import quote, quote_plus
+from urllib.parse import quote, quote_plus
 
 AUTHOR_SEARCHES = {
     'goodreads':

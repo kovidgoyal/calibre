@@ -7,12 +7,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import copy
 import os
 import re
+from urllib.parse import urlparse
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XHTML, XPNSMAP, XPath, barename
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 from calibre.ebooks.oeb.polish.toc import node_from_loc
-from polyglot.urllib import urlparse
 
 
 class AbortError(ValueError):

@@ -6,9 +6,10 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from urllib.parse import urlparse
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, String, UTF16String, current_log
-from polyglot.urllib import unquote, urlparse
+from polyglot.urllib import unquote
 
 
 class Destination(Array):

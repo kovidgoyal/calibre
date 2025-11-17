@@ -11,6 +11,7 @@ import io
 import os
 import re
 import struct
+from urllib.parse import urldefrag
 
 from lxml import etree
 
@@ -22,7 +23,6 @@ from calibre.ebooks.oeb.reader import OEBReader
 from calibre_extensions import lzx, msdes
 from polyglot.builtins import itervalues
 from polyglot.urllib import unquote as urlunquote
-from polyglot.urllib import urldefrag
 
 __all__ = ['LitReader']
 

@@ -11,13 +11,13 @@ import sys
 import time
 from collections import OrderedDict
 from threading import Thread
+from urllib.parse import urlencode
 from zlib import decompressobj
 
 from calibre import prints
 from calibre.constants import DEBUG, numeric_version
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
-from polyglot.urllib import urlencode
 
 
 class VersionMismatch(ValueError):

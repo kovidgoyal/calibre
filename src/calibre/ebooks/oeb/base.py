@@ -15,6 +15,7 @@ from collections import defaultdict
 from functools import lru_cache
 from itertools import count
 from operator import attrgetter
+from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from lxml import etree, html
 
@@ -32,7 +33,6 @@ from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import iteritems, itervalues
 from polyglot.urllib import unquote as urlunquote
-from polyglot.urllib import urldefrag, urljoin, urlparse, urlunparse
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'

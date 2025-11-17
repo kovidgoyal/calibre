@@ -16,6 +16,7 @@ import uuid
 from itertools import chain, count
 from operator import attrgetter
 from struct import pack
+from urllib.parse import urldefrag
 
 from lxml import etree
 
@@ -26,7 +27,7 @@ from calibre.ebooks.lit.reader import DirectoryEntry
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre_extensions import msdes
-from polyglot.urllib import unquote, urldefrag
+from polyglot.urllib import unquote
 
 __all__ = ['LitWriter']
 

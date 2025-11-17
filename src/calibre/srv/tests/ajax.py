@@ -10,12 +10,12 @@ import zlib
 from functools import partial
 from http.client import FORBIDDEN, NOT_FOUND, OK
 from io import BytesIO
+from urllib.parse import quote, urlencode
 
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.localization import _
 from polyglot.binary import as_base64_bytes
-from polyglot.urllib import quote, urlencode
 
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):

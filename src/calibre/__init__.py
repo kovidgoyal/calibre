@@ -289,7 +289,7 @@ def get_proxy_info(proxy_scheme, proxy_string):
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
     '''
-    from polyglot.urllib import urlparse
+    from urllib.parse import urlparse
     try:
         proxy_url = f'{proxy_scheme}://{proxy_string}'
         urlinfo = urlparse(proxy_url)

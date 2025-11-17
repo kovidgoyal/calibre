@@ -3,6 +3,7 @@
 
 
 from functools import partial
+from urllib.parse import urlencode
 
 from lxml.html import tostring
 from lxml.html.builder import E as E_
@@ -19,7 +20,6 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
-from polyglot.urllib import urlencode
 
 # /mobile {{{
 

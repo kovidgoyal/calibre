@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 from functools import partial, wraps
+from urllib.parse import urlparse
 
 from qt.core import (
     QApplication,
@@ -89,7 +90,6 @@ from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
 from calibre.utils.localization import ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import as_bytes, iteritems, itervalues
-from polyglot.urllib import urlparse
 
 _diff_dialogs = []
 last_used_transform_rules = []

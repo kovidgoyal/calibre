@@ -10,11 +10,11 @@ import re
 import unicodedata
 from collections import defaultdict
 from io import BytesIO
+from urllib.parse import urldefrag
 
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace, prefixname, urlnormalize
-from polyglot.urllib import urldefrag
 
 
 class Buf(BytesIO):

@@ -6,12 +6,12 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import posixpath
 import re
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from calibre.ebooks.oeb.base import urlquote
 from calibre.utils.filenames import ascii_text
 from calibre.utils.localization import __
-from polyglot.urllib import urlparse
 
 
 def start_text(tag, prefix_len=0, top_level=True):

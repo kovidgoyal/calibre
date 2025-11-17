@@ -7,10 +7,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import http.client
 import ssl
 from contextlib import closing
+from urllib.parse import urlsplit
 
 from calibre import get_proxies
 from calibre.utils.resources import get_path as P
-from polyglot.urllib import urlsplit
 
 
 class HTTPError(ValueError):

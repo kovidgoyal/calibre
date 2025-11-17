@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import socket
+from urllib.parse import parse_qs, quote_plus
 
 from mechanize import URLError
 
@@ -14,7 +15,6 @@ from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
-from polyglot.urllib import parse_qs, quote_plus
 
 URL = 'http://ww2.kdl.org/libcat/WhatsNext.asp?AuthorLastName={0}&AuthorFirstName=&SeriesName=&BookTitle={1}&CategoryID=0&cmdSearch=Search&Search=1&grouping='
 

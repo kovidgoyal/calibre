@@ -14,13 +14,13 @@ import errno as gerrno
 import os
 import re
 import sys
+from urllib.parse import urlparse, urlunparse
 
 from calibre import replace_entities, unicode_path
 from calibre.constants import iswindows
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.utils.filenames import case_ignoring_open_file
-from polyglot.urllib import urlparse, urlunparse
 
 
 class Link:

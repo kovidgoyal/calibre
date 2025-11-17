@@ -15,6 +15,7 @@ from collections import defaultdict
 from io import BytesIO
 from itertools import count
 from math import floor
+from urllib.parse import urlparse
 
 from css_parser import getUrls, replaceUrls
 
@@ -55,7 +56,6 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
-from polyglot.urllib import urlparse
 
 exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}

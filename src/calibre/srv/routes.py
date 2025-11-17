@@ -13,12 +13,12 @@ import sys
 import textwrap
 import time
 from operator import attrgetter
+from urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
 from polyglot.builtins import itervalues
-from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))
 

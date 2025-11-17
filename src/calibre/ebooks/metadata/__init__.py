@@ -12,11 +12,12 @@ import os
 import re
 import sys
 from contextlib import suppress
+from urllib.parse import quote, urlparse
 
 from calibre import force_unicode, guess_type, prints, relpath
 from calibre.utils.config_base import tweaks
 from polyglot.builtins import as_unicode
-from polyglot.urllib import quote, unquote, urlparse
+from polyglot.urllib import unquote
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])

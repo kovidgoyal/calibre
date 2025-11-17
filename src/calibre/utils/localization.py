@@ -585,7 +585,7 @@ def localize_user_manual_link(url):
     lc = lang_code_for_user_manual()
     if not lc:
         return url
-    from polyglot.urllib import urlparse, urlunparse
+    from urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', f'/generated/{lc}/', parts.path or '')
     path = f'/{lc}{path}'
@@ -610,7 +610,7 @@ def localize_website_link(url):
     langs = website_languages()
     if lc == 'en' or lc not in langs:
         return url
-    from polyglot.urllib import urlparse, urlunparse
+    from urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = f'/{lc}{parts.path}'
     parts = list(parts)
