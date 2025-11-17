@@ -18,7 +18,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE, now, utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.resources import get_image_path
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 def import_test(replacement_data, replacement_fmt=None):
@@ -253,9 +253,9 @@ class AddRemoveTest(BaseTest):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
             self.assertNotIn('Author Two', set(table.id_map.values()))
-            self.assertNotIn(6, set(itervalues(c.fields['rating'].table.id_map)))
-            self.assertIn('A Series One', set(itervalues(c.fields['series'].table.id_map)))
-            self.assertNotIn('My Series Two', set(itervalues(c.fields['#series'].table.id_map)))
+            self.assertNotIn(6, set(c.fields['rating'].table.id_map.values()))
+            self.assertIn('A Series One', set(c.fields['series'].table.id_map.values()))
+            self.assertNotIn('My Series Two', set(c.fields['#series'].table.id_map.values()))
             self.assertNotIn(item_id, c.fields['#series'].table.col_book_map)
             self.assertNotIn(1, c.fields['#series'].table.book_col_map)
 

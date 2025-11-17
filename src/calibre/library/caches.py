@@ -22,7 +22,7 @@ from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, now, parse_d
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, canonicalize_lang, get_udc, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import cmp, itervalues
+from polyglot.builtins import cmp
 
 
 class MetadataBackup(Thread):  # {{{
@@ -947,8 +947,7 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids_dict = dict(zip(iter(id_dict), map(str,
-                itervalues(id_dict))))
+            self.marked_ids_dict = dict(zip(iter(id_dict), map(str, id_dict.values())))
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']

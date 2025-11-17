@@ -52,7 +52,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import cmp, iteritems, itervalues
+from polyglot.builtins import cmp, iteritems
 
 
 class ExtraFile(NamedTuple):
@@ -2119,10 +2119,10 @@ class Cache:
         implementation of :meth:`has_book` in a worker process without access to the
         db. '''
         try:
-            return {icu_lower(title) for title in itervalues(self.fields['title'].table.book_col_map)}
+            return {icu_lower(title) for title in self.fields['title'].table.book_col_map.values()}
         except TypeError:
             # Some non-unicode titles in the db
-            return {icu_lower(as_unicode(title)) for title in itervalues(self.fields['title'].table.book_col_map)}
+            return {icu_lower(as_unicode(title)) for title in self.fields['title'].table.book_col_map.values()}
 
     @read_api
     def has_book(self, mi):
@@ -2134,7 +2134,7 @@ class Cache:
             if isbytestring(title):
                 title = title.decode(preferred_encoding, 'replace')
             q = icu_lower(title).strip()
-            for title in itervalues(self.fields['title'].table.book_col_map):
+            for title in self.fields['title'].table.book_col_map.values():
                 if q == icu_lower(title):
                     return True
         return False

@@ -45,7 +45,6 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import now
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import primary_sort_key, sort_key
-from polyglot.builtins import itervalues
 
 
 class Preview(QLabel):
@@ -336,7 +335,7 @@ class CoverSettingsWidget(QWidget):
                     li.setSelected(True)
                     break
             else:
-                next(itervalues(self.colors_map)).setSelected(True)
+                next(iter(self.colors_map.values())).setSelected(True)
 
         disabled = set(prefs['disabled_styles'])
         self.styles_list.clear()
@@ -354,7 +353,7 @@ class CoverSettingsWidget(QWidget):
                     li.setSelected(True)
                     break
             else:
-                next(itervalues(self.style_map)).setSelected(True)
+                next(iter(self.style_map.values())).setSelected(True)
 
     @property
     def current_colors(self):

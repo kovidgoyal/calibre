@@ -16,7 +16,7 @@ from calibre.db.tests.base import IMG, BaseTest
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 class WritingTest(BaseTest):
@@ -576,7 +576,7 @@ class WritingTest(BaseTest):
         for c in (cache, c2):
             self.assertEqual(c.field_for('tags', 1), ())
             self.assertEqual(c.field_for('tags', 2), ('b', 'a'))
-            self.assertNotIn('c', set(itervalues(c.get_id_map('tags'))))
+            self.assertNotIn('c', set(c.get_id_map('tags').values()))
             self.assertEqual(c.field_for('series', 1), None)
             self.assertEqual(c.field_for('series', 2), 'a')
             self.assertEqual(c.field_for('series_index', 1), 1.0)

@@ -17,7 +17,6 @@ from calibre.constants import __appname__, isxp, numeric_version
 from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import itervalues
 
 null = object()
 
@@ -287,7 +286,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 for x in id_map.values():
                     x['storage_id'] = storage_id
                 all_storage.append(storage)
-                items.append(itervalues(id_map))
+                items.append(id_map.values())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
             debug(f'Filesystem metadata loaded in {time.time()-st:g} seconds ({len(self._filesystem_cache)} objects)')
         return self._filesystem_cache

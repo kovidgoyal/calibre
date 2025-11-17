@@ -12,7 +12,6 @@ from struct import pack
 
 from calibre.ebooks.mobi.utils import CNCX as CNCX_
 from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
-from polyglot.builtins import itervalues
 
 
 class CNCX(CNCX_):  # {{{
@@ -222,8 +221,7 @@ class SecondaryIndexEntry(IndexEntry):
 
         # The values for this index entry
         # I don't know what the 5 means, it is not the number of entries
-        self.secondary = [5 if tag == min(
-            itervalues(self.INDEX_MAP)) else 0, 0, tag]
+        self.secondary = [5 if tag == min(self.INDEX_MAP.values()) else 0, 0, tag]
 
     @property
     def tag_nums(self):

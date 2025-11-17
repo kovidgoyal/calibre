@@ -11,7 +11,6 @@ from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
-from polyglot.builtins import itervalues
 
 
 class LanguagesEdit(EditWithComplete):
@@ -33,7 +32,7 @@ class LanguagesEdit(EditWithComplete):
         self.lineEdit().set_use_startswith_search(False)
 
     def init_langs(self, db):
-        self.update_items_cache(itervalues(self._lang_map))
+        self.update_items_cache(self._lang_map.values())
 
     def refresh_recently_used(self):
         recently_used = self.prefs.get('recently_used_languages') or ()

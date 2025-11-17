@@ -20,7 +20,6 @@ from calibre.srv.errors import HTTPForbidden
 from calibre.srv.routes import Router, endpoint
 from calibre.srv.tests.base import BaseTest, TestServer
 from polyglot.binary import as_base64_bytes
-from polyglot.builtins import itervalues
 
 REALM = 'calibre-test'
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -48,7 +47,7 @@ def android2(ctx, data):
 
 def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
-    return Router(itervalues(globals()), auth_controller=AuthController(
+    return Router(globals().values(), auth_controller=AuthController(
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
         ban_time_in_minutes=ban_for, ban_after=ban_after,
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))

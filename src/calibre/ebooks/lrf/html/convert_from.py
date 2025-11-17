@@ -44,7 +44,6 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextBlock,
 )
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import itervalues
 from polyglot.urllib import unquote
 
 '''
@@ -1782,7 +1781,7 @@ class HTMLConverter:
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
     def cleanup(self):
-        for _file in chain(itervalues(self.scaled_images), itervalues(self.rotated_images)):
+        for _file in chain(self.scaled_images.values(), self.rotated_images.values()):
             _file.__del__()
 
 

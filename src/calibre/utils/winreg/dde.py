@@ -8,8 +8,6 @@ import numbers
 from ctypes import POINTER, WINFUNCTYPE, byref, c_char_p, c_ulong, c_void_p, windll
 from ctypes.wintypes import BOOL, DWORD, LPCWSTR, UINT
 
-from polyglot.builtins import itervalues
-
 HCONV     = c_void_p  # = DECLARE_HANDLE(HCONV)
 HDDEDATA  = c_void_p  # = DECLARE_HANDLE(HDDEDATA)
 HSZ       = c_void_p  # = DECLARE_HANDLE(HSZ)
@@ -55,7 +53,7 @@ DML_ERRORS = {
 
     'UNFOUND_QUEUE_ID': (0x4011, 'An invalid transaction identifier was passed to a DDEML function. Once the application has returned from an XTYP_XACT_COMPLETE callback, the transaction identifier for that callback function is no longer valid.'),  # noqa: E501
 }
-DML_ERROR_TEXT = dict(itervalues(DML_ERRORS))
+DML_ERROR_TEXT = dict(DML_ERRORS.values())
 
 user32 = windll.user32
 

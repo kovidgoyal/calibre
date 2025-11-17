@@ -15,7 +15,6 @@ from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import itervalues
 
 
 class NoFonts(ValueError):
@@ -188,8 +187,7 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
         fonts.sort(key=font_priority)
 
     font_family_map = dict.copy(families)
-    font_families = tuple(sorted((f[0]['font-family'] for f in
-            itervalues(font_family_map)), key=sort_key))
+    font_families = tuple(sorted((f[0]['font-family'] for f in font_family_map.values()), key=sort_key))
     return font_family_map, font_families
 # }}}
 

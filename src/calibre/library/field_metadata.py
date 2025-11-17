@@ -10,7 +10,6 @@ from collections import OrderedDict
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
-from polyglot.builtins import itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -496,7 +495,7 @@ class FieldMetadata:
         yield from self._tb_cats
 
     def itervalues(self):
-        return itervalues(self._tb_cats)
+        yield from self._tb_cats.values()
 
     def values(self):
         return list(self._tb_cats.values())

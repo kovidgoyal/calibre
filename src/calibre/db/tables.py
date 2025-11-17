@@ -14,7 +14,6 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz
 from calibre.utils.icu import lower as icu_lower
 from calibre_extensions.speedup import parse_date as _c_speedup
-from polyglot.builtins import itervalues
 
 
 def identity(x):
@@ -680,7 +679,7 @@ class FormatsTable(ManyToManyTable):
 
         def zero_max(book_id):
             try:
-                return max(itervalues(self.size_map[book_id]))
+                return max(self.size_map[book_id].values())
             except ValueError:
                 return 0
 
@@ -710,7 +709,7 @@ class FormatsTable(ManyToManyTable):
         self.size_map[book_id][fmt] = size
         db.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                         (book_id, fmt, size, fname))
-        return max(itervalues(self.size_map[book_id]))
+        return max(self.size_map[book_id].values())
 
 
 class IdentifiersTable(ManyToManyTable):

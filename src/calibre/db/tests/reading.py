@@ -13,7 +13,7 @@ from time import time
 from calibre.db.tests.base import BaseTest
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 
 
 def p(x):
@@ -502,7 +502,7 @@ class ReadingTest(BaseTest):
         from calibre.ebooks.metadata.book.base import Metadata
         cache = self.init_cache()
         db = self.init_old()
-        for title in itervalues(cache.fields['title'].table.book_col_map):
+        for title in cache.fields['title'].table.book_col_map.values():
             for x in (db, cache):
                 self.assertTrue(x.has_book(Metadata(title)))
                 self.assertTrue(x.has_book(Metadata(title.upper())))

@@ -14,7 +14,6 @@ from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import itervalues
 
 # TrueType outlines {{{
 
@@ -162,7 +161,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
         gsub = sfnt[b'GSUB']
         try:
             gsub.decompile()
-            extra_glyphs = gsub.all_substitutions(itervalues(character_map))
+            extra_glyphs = gsub.all_substitutions(character_map.values())
         except UnsupportedFont as e:
             warn(f'Usupported GSUB table: {e}')
         except Exception:

@@ -18,7 +18,6 @@ from urllib.parse import quote as urlquote
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
-from polyglot.builtins import itervalues
 
 default_methods = frozenset(('HEAD', 'GET'))
 
@@ -255,7 +254,7 @@ class Router:
                 self.add(item)
 
     def __iter__(self):
-        return itervalues(self.routes)
+        yield from self.routes.values()
 
     def finalize(self):
         try:

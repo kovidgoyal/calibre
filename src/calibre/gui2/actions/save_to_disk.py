@@ -12,7 +12,6 @@ from functools import partial
 from calibre.gui2 import Dispatcher, choose_dir, error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.config import prefs
-from polyglot.builtins import itervalues
 
 
 class SaveToDiskAction(InterfaceAction):
@@ -127,7 +126,7 @@ class SaveToDiskAction(InterfaceAction):
     def save_library_format_by_ids(self, book_ids, fmt, single_dir=True):
         if isinstance(book_ids, numbers.Integral):
             book_ids = [book_ids]
-        rows = list(itervalues(self.gui.library_view.ids_to_rows(book_ids)))
+        rows = list(self.gui.library_view.ids_to_rows(book_ids).values())
         rows = [self.gui.library_view.model().index(r, 0) for r in rows]
         self.save_to_disk(True, single_dir=single_dir, single_format=fmt,
                 rows=rows, write_opf=False, save_cover=False)
