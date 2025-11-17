@@ -9,7 +9,6 @@ from tinycss.fonts3 import parse_font, parse_font_family, serialize_font, serial
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.normalize_css import normalize_font
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
-from polyglot.builtins import iteritems
 
 
 def unquote(x):
@@ -129,7 +128,7 @@ def change_font(container, old_name, new_name=None):
     new_name to None to remove the font family instead of changing it.
     '''
     changed = False
-    for name, mt in tuple(iteritems(container.mime_map)):
+    for name, mt in tuple(container.mime_map.items()):
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
             if change_font_in_sheet(container, sheet, old_name, new_name, name):

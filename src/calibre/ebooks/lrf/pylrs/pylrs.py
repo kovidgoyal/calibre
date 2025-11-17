@@ -66,7 +66,6 @@ DEFAULT_SOURCE_ENCODING = 'cp1252'      # default is us-windows character set
 DEFAULT_GENREADING      = 'fs'          # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__, replace_entities
-from polyglot.builtins import iteritems
 
 
 class LrsError(Exception):
@@ -1836,7 +1835,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         oldTextStyle = self.findCurrentTextStyle()
 
         # set the attributes we want changed
-        for name, value in tuple(iteritems(self.attrs)):
+        for name, value in tuple(self.attrs.items()):
             if name in oldTextStyle.attrs and oldTextStyle.attrs[name] == self.attrs[name]:
                 self.attrs.pop(name)
             else:

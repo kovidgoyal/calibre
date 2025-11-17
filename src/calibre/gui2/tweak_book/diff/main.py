@@ -45,7 +45,6 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.startup import connect_lambda
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems
 
 
 class BusyWidget(QWidget):  # {{{
@@ -452,7 +451,7 @@ class Diff(Dialog):
             return {'context': self.context, 'beautify': self.beautify, 'syntax': syntax_map.get(name, None)}
 
         if isinstance(changed_names, dict):
-            for name, other_name in sorted(iteritems(changed_names), key=lambda x: numeric_sort_key(x[0])):
+            for name, other_name in sorted(changed_names.items(), key=lambda x: numeric_sort_key(x[0])):
                 args = (name, other_name, cache.left(name), cache.right(other_name))
                 add(args, kwargs(name))
         else:
@@ -468,7 +467,7 @@ class Diff(Dialog):
             args = (name, _('[%s was removed]') % name, cache.left(name), None)
             add(args, kwargs(name))
 
-        for name, new_name in sorted(iteritems(renamed_names), key=lambda x: numeric_sort_key(x[0])):
+        for name, new_name in sorted(renamed_names.items(), key=lambda x: numeric_sort_key(x[0])):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 

@@ -55,7 +55,7 @@ def read_ncx(sections, index, codec):
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
-        for num, x in enumerate(iteritems(table)):
+        for num, x in enumerate(table.items()):
             text, tag_map = x
             entry = default_entry.copy()
             entry['name'] = text

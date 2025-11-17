@@ -535,7 +535,7 @@ class CSSFlattener:
             keep_classes = set()
 
             if cssdict:
-                items = sorted(iteritems(cssdict))
+                items = sorted(cssdict.items())
                 css = ';\n'.join(f'{key}: {val}' for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 classes_list = classes.split()
@@ -553,7 +553,7 @@ class CSSFlattener:
                 keep_classes.add(match)
 
             for psel, cssdict in pseudo_classes.items():
-                items = sorted(iteritems(cssdict))
+                items = sorted(cssdict.items())
                 css = ';\n'.join(f'{key}: {val}' for key, val in items)
                 pstyles = pseudo_styles[psel]
                 if css in pstyles:

@@ -27,7 +27,6 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, XHTML, XHTML_NS, urlnormalize, xpath
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 css_parser_log.setLevel(logging.WARN)
 
@@ -869,7 +868,7 @@ class Style:
             self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
-        items = sorted(iteritems(self._style))
+        items = sorted(self._style.items())
         return '; '.join(f'{key}: {val}' for key, val in items)
 
     def cssdict(self):

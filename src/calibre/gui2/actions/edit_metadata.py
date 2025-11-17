@@ -29,7 +29,6 @@ from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 DATA_FILES_ICON_NAME = 'unpack-book.png'
 
@@ -753,7 +752,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         '''
         if title is None:
             title = _('Applying changed metadata')
-        self.apply_id_map = list(iteritems(id_map))
+        self.apply_id_map = list(id_map.items())
         self.apply_current_idx = 0
         self.apply_failures = []
         self.applied_ids = set()

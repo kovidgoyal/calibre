@@ -20,7 +20,6 @@ from calibre.ebooks.oeb.polish.spell import count_all_chars, get_all_words
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.icu import numeric_sort_key, safe_chr
 from calibre.utils.imghdr import identify
-from polyglot.builtins import iteritems
 
 File = namedtuple('File', 'name dir basename size category word_count')
 
@@ -207,7 +206,7 @@ file_words_counts = None
 
 def words_data(container, book_locale, *args):
     count, words = get_all_words(container, book_locale, get_word_count=True, file_words_counts=file_words_counts)
-    return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(iteritems(words))))
+    return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.items())))
 
 
 Char = namedtuple('Char', 'id char codepoint usage count')
@@ -220,7 +219,7 @@ def chars_data(container, book_locale, *args):
     def sort_key(name):
         return nmap.get(name, len(nmap)), numeric_sort_key(name)
 
-    for i, (codepoint, usage) in enumerate(iteritems(cc.chars)):
+    for i, (codepoint, usage) in enumerate(cc.chars.items()):
         yield Char(i, safe_chr(codepoint), codepoint, sorted(usage, key=sort_key), cc.counter[codepoint])
 
 

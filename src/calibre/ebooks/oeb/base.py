@@ -31,7 +31,7 @@ from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 from polyglot.urllib import unquote as urlunquote
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
@@ -721,7 +721,7 @@ class Metadata:
                 term = CALIBRE(local)
             self.term = term
             self.value = value
-            for attr, value in tuple(iteritems(attrib)):
+            for attr, value in tuple(attrib.items()):
                 if isprefixname(value):
                     attrib[attr] = qname(value, nsmap)
                 nsattr = Metadata.OPF_ATTRS.get(attr, attr)

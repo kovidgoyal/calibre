@@ -40,7 +40,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class Polish(QDialog):  # {{{
@@ -269,7 +268,7 @@ class Polish(QDialog):  # {{{
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
         self.jobs = []
         if len(self.book_id_map) <= 5:
-            for i, (book_id, formats) in enumerate(iteritems(self.book_id_map)):
+            for i, (book_id, formats) in enumerate(self.book_id_map.items()):
                 self.do_book(i+1, book_id, formats)
         else:
             self.queue = [(i+1, id_) for i, id_ in enumerate(self.book_id_map)]

@@ -23,7 +23,6 @@ from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
 ns.prefix = 'calibre'
@@ -442,9 +441,9 @@ def from_xpaths(container, xpaths, prefer_title=False):
                 empty_levels.discard(lvl)
     # Remove empty levels from all level_maps
     if empty_levels:
-        for name, lmap in tuple(iteritems(maps)):
+        for name, lmap in tuple(maps.items()):
             lmap = {lvl:items for lvl, items in lmap.items() if lvl not in empty_levels}
-            lmap = sorted(iteritems(lmap), key=itemgetter(0))
+            lmap = sorted(lmap.items(), key=itemgetter(0))
             lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
             maps[name] = lmap
 

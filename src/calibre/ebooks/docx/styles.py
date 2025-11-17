@@ -10,7 +10,7 @@ from collections import Counter, OrderedDict
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 
 class PageProperties:
@@ -423,7 +423,7 @@ class Styles:
             ps.pageBreakBefore = True
 
     def register(self, css, prefix):
-        h = hash(frozenset(iteritems(css)))
+        h = hash(frozenset(css.items()))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -442,7 +442,7 @@ class Styles:
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(frozenset(iteritems(css)))
+        h = hash(frozenset(css.items()))
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):

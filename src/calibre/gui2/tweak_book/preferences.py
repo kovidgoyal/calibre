@@ -55,7 +55,6 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import ColorButton
 from calibre.startup import connect_lambda
 from calibre.utils.localization import get_lang, ngettext
-from polyglot.builtins import iteritems
 
 
 class BasicSettings(QWidget):  # {{{
@@ -98,7 +97,7 @@ class BasicSettings(QWidget):  # {{{
         prefs = prefs or tprefs
         widget = QComboBox(self)
         widget.currentIndexChanged.connect(self.emit_changed)
-        for key, human in sorted(iteritems(choices), key=lambda key_human: key_human[1] or key_human[0]):
+        for key, human in sorted(choices.items(), key=lambda key_human: key_human[1] or key_human[0]):
             widget.addItem(human or key, key)
 
         def getter(w):
@@ -293,7 +292,7 @@ class EditorSettings(BasicSettings):  # {{{
         s = self.settings['editor_theme']
         current_val = s.getter(s.widget)
         s.widget.clear()
-        for key, human in sorted(iteritems(choices), key=lambda key_human1: key_human1[1] or key_human1[0]):
+        for key, human in sorted(choices.items(), key=lambda key_human1: key_human1[1] or key_human1[0]):
             s.widget.addItem(human or key, key)
         s.setter(s.widget, current_val)
         if d.theme_name:
@@ -591,7 +590,7 @@ class ToolbarSettings(QWidget):
             ans.setToolTip(ac.toolTip())
             return ans
 
-        for key, ac in sorted(iteritems(all_items), key=lambda k_ac: str(k_ac[1].text())):
+        for key, ac in sorted(all_items.items(), key=lambda k_ac: str(k_ac[1].text())):
             if key not in applied:
                 to_item(key, ac, self.available)
         if name == 'global_book_toolbar' and 'donate' not in applied:

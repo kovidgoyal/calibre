@@ -388,7 +388,7 @@ class DescendantTextStyle:
         p = []
 
         def add(name, **props):
-            p.append((name, frozenset(iteritems(props))))
+            p.append((name, frozenset(props.items())))
 
         def vals(attr):
             return getattr(parent_style, attr), getattr(child_style, attr)

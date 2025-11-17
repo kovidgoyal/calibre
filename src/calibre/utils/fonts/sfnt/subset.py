@@ -14,7 +14,7 @@ from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 # TrueType outlines {{{
 
@@ -36,7 +36,7 @@ def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
             if gid not in resolved_glyphs:
                 unresolved_glyphs.add(gid)
 
-    return OrderedDict(sorted(iteritems(resolved_glyphs), key=itemgetter(0)))
+    return OrderedDict(sorted(resolved_glyphs.items(), key=itemgetter(0)))
 
 
 def subset_truetype(sfnt, character_map, extra_glyphs):
@@ -55,7 +55,7 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
                 'set, subsetting it is pointless')
 
     # Keep only character codes that have resolved glyphs
-    for code, glyph_id in tuple(iteritems(character_map)):
+    for code, glyph_id in tuple(character_map.items()):
         if glyph_id not in resolved_glyphs:
             del character_map[code]
 

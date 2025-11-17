@@ -32,7 +32,7 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import itervalues
 
 NBSP = '\xa0'
 
@@ -497,7 +497,7 @@ class Convert:
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
                     # The previous anchor was not applied to any element
-                    for a, t in tuple(iteritems(self.anchor_map)):
+                    for a, t in tuple(self.anchor_map.items()):
                         if t == old_anchor:
                             self.anchor_map[a] = current_anchor
         if current_anchor is not None:

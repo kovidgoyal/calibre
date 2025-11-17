@@ -85,7 +85,6 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems
 
 # Cleanup Qt markup {{{
 
@@ -121,7 +120,7 @@ def lift_styles(tag, style_map):
         if common_props is None:
             common_props = style.copy()
         else:
-            for k, v in tuple(iteritems(common_props)):
+            for k, v in tuple(common_props.items()):
                 if style.get(k) != v:
                     del common_props[k]
     if not has_text and common_props:

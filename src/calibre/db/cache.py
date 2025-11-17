@@ -3602,7 +3602,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
 
     format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
     extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
-    for i, (book_id, fmt_key_map) in enumerate(iteritems(format_data)):
+    for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
         if abort is not None and abort.is_set():
             return
         title = cache._field_for('title', book_id)

@@ -42,7 +42,6 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems
 
 
 def string_length(x):
@@ -203,7 +202,7 @@ def snippets(refresh=False):
             if snip['trigger'] and isinstance(snip['trigger'], str):
                 key = snip_key(snip['trigger'], *snip['syntaxes'])
                 _snippets[key] = {'template':snip['template'], 'description':snip['description']}
-        _snippets = sorted(iteritems(_snippets), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
+        _snippets = sorted(_snippets.items(), key=(lambda key_snip: string_length(key_snip[0].trigger)), reverse=True)
     return _snippets
 
 

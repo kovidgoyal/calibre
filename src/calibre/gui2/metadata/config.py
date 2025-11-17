@@ -12,7 +12,6 @@ from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems
 
 
 class FieldsModel(FM):  # {{{
@@ -106,7 +105,7 @@ class ConfigWidget(QWidget):
             widget.setChecked(bool(val))
         elif opt.type == 'choices':
             widget = QComboBox(self)
-            items = list(iteritems(opt.choices))
+            items = list(opt.choices.items())
             items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))

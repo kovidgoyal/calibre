@@ -89,7 +89,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
 from calibre.utils.localization import ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import as_bytes, iteritems, itervalues
+from polyglot.builtins import as_bytes, itervalues
 
 _diff_dialogs = []
 last_used_transform_rules = []
@@ -450,7 +450,7 @@ class Boss(QObject):
 
     def update_editors_from_container(self, container=None, names=None):
         c = container or current_container()
-        for name, ed in tuple(iteritems(editors)):
+        for name, ed in tuple(editors.items()):
             if c.has_name(name):
                 if names is None or name in names:
                     ed.replace_data(c.raw_data(name))

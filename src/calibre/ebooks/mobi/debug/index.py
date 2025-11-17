@@ -204,7 +204,7 @@ class NCXIndex(Index):
             NCXEntry = namedtuple('NCXEntry', 'index start length depth parent '
         'first_child last_child title pos_fid kind')
 
-            for num, x in enumerate(iteritems(self.table)):
+            for num, x in enumerate(self.table.items()):
                 text, tag_map = x
                 entry = e = default_entry.copy()
                 entry['name'] = text

@@ -197,7 +197,7 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
     exporter = Exporter(destdir)
     exporter.metadata['libraries'] = libraries = {}
     total = len(library_paths) + 1
-    for i, (lpath, count) in enumerate(iteritems(library_paths)):
+    for i, (lpath, count) in enumerate(library_paths.items()):
         if abort is not None and abort.is_set():
             return
         if progress1 is not None:
@@ -461,7 +461,7 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
     config_location = os.path.abspath(os.path.realpath(config_location))
     total = len(library_path_map) + 1
     library_usage_stats = Counter()
-    for i, (library_key, dest) in enumerate(iteritems(library_path_map)):
+    for i, (library_key, dest) in enumerate(library_path_map.items()):
         if abort is not None and abort.is_set():
             return
         if isinstance(dest, bytes):
