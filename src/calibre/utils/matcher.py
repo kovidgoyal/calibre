@@ -21,7 +21,6 @@ from calibre.constants import filesystem_encoding
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_collator, primary_find, primary_sort_key
 from calibre.utils.icu import upper as icu_upper
-from polyglot.builtins import iteritems
 
 DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
@@ -360,7 +359,7 @@ def main(basedir=None, query=None):
                 break
             if not query:
                 break
-        for path, positions in islice(iteritems(m(query)), 0, 10):
+        for path, positions in islice(m(query).items(), 0, 10):
             positions = list(positions)
             p = 0
             while positions:

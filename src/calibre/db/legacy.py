@@ -289,11 +289,11 @@ class LibraryDatabase:
         return [[k, v] for k, v in self.new_api.get_usage_count_by_id(field).items()]
 
     def field_id_map(self, field):
-        return list(iteritems(self.new_api.get_id_map(field)))
+        return list(self.new_api.get_id_map(field).items())
 
     def get_custom_items_with_ids(self, label=None, num=None):
         try:
-            return [[k, v] for k, v in iteritems(self.new_api.get_id_map(self.custom_field_name(label, num)))]
+            return [[k, v] for k, v in self.new_api.get_id_map(self.custom_field_name(label, num)).items()]
         except ValueError:
             return []
 

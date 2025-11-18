@@ -588,7 +588,7 @@ class NamesModel(QAbstractListModel):
         if not query:
             self.items = tuple((text, None) for text in self.names)
         else:
-            self.items = tuple(iteritems(self.matcher(query)))
+            self.items = tuple(self.matcher(query).items())
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
