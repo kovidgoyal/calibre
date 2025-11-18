@@ -66,7 +66,6 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key, primary_contains, primary_sort_key, sort_key
 from calibre.utils.matcher import DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char
-from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -380,7 +379,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.TextFormat.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max(ceil(x.size().width()) for x in prefixes)
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in zip(prefixes, iteritems(results)))
+                for prefix, (text, positions) in zip(prefixes, results.items()))
         else:
             self.results = ()
             self.current_result = -1

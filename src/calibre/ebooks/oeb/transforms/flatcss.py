@@ -23,7 +23,6 @@ from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES, SVG, SVG_NS, XHTML, XH
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.filenames import ascii_filename, ascii_text
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
@@ -273,8 +272,7 @@ class CSSFlattener:
             for k in ('font-weight', 'font-style', 'font-stretch'):
                 if font[k] != 'normal':
                     cfont[k] = font[k]
-            rule = '@font-face {{ {} }}'.format('; '.join(f'{k}:{v}' for k, v in
-                iteritems(cfont)))
+            rule = '@font-face {{ {} }}'.format('; '.join(f'{k}:{v}' for k, v in cfont.items()))
             rule = css_parser.parseString(rule)
             efi.append(rule)
 

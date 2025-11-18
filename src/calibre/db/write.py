@@ -15,7 +15,6 @@ from calibre.utils.date import UNDEFINED_DATE, is_date_undefined, isoformat, par
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import strcmp
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import iteritems
 
 missing = object()
 
@@ -305,8 +304,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
 
 def change_case(case_changes, dirtied, db, table, m, is_authors=False):
     if is_authors:
-        vals = ((val.replace(',', '|'), item_id) for item_id, val in
-                iteritems(case_changes))
+        vals = ((val.replace(',', '|'), item_id) for item_id, val in case_changes.items())
     else:
         vals = ((val, item_id) for item_id, val in case_changes.items())
     db.executemany(
@@ -375,8 +373,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
             'DELETE FROM {0} WHERE book=?; INSERT INTO {0}(book,{1}) VALUES(?, ?)'
         )
         db.executemany(sql.format(table.link_table, m['link_column']),
-            ((book_id, book_id, item_id) for book_id, item_id in
-                    iteritems(updated)))
+            ((book_id, book_id, item_id) for book_id, item_id in updated.items()))
 
     # Remove no longer used items
     remove = {item_id:item_val for item_id, item_val in table.id_map.items() if not table.col_book_map.get(item_id, False)}
@@ -565,8 +562,7 @@ class Writer:
                 self.accept_vals = bool
 
     def set_books(self, book_id_val_map, db, allow_case_change=True):
-        book_id_val_map = {k:self.adapter(v) for k, v in
-                           iteritems(book_id_val_map) if self.accept_vals(v)}
+        book_id_val_map = {k:self.adapter(v) for k, v in book_id_val_map.items() if self.accept_vals(v)}
         if not book_id_val_map:
             return set()
         dirtied = self.set_books_func(book_id_val_map, db, self.field,

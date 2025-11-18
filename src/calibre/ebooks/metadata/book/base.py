@@ -16,7 +16,6 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -797,8 +796,7 @@ class Metadata:
         if self.rights is not None:
             fmt('Rights', str(self.rights))
         if self.identifiers:
-            fmt('Identifiers', ', '.join([f'{k}:{v}' for k, v in
-                iteritems(self.identifiers)]))
+            fmt('Identifiers', ', '.join([f'{k}:{v}' for k, v in self.identifiers.items()]))
         if self.comments:
             fmt('Comments', self.comments)
 

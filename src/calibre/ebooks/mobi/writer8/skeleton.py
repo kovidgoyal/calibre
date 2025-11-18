@@ -15,7 +15,7 @@ from lxml import etree
 from calibre import my_unichr
 from calibre.ebooks.mobi.utils import PolyglotDict, to_base
 from calibre.ebooks.oeb.base import XHTML_NS, extract
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 
 CHUNK_SIZE = 8192
 
@@ -394,8 +394,7 @@ class Chunker:
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
             return ':off:'.join((pos, fid)).encode('utf-8')
 
-        placeholder_map = {as_bytes(k):to_placeholder(v) for k, v in
-                iteritems(self.placeholder_map)}
+        placeholder_map = {as_bytes(k):to_placeholder(v) for k, v in self.placeholder_map.items()}
 
         # Now update the links
         def sub(match):

@@ -11,7 +11,6 @@ from calibre import get_proxies
 from calibre.gui2 import config, gprefs, open_local_file
 from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
 from calibre.gui2.preferences.misc_ui import Ui_Form
-from polyglot.builtins import iteritems
 
 
 class WorkersSetting(Setting):
@@ -45,8 +44,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         proxies = get_proxies(debug=False)
         txt = _('No proxies used')
         if proxies:
-            lines = [f'<br><code>{t}: {p}</code>' for t, p in
-                    iteritems(proxies)]
+            lines = [f'<br><code>{t}: {p}</code>' for t, p in proxies.items()]
             txt = _('<b>Using proxies:</b>') + ''.join(lines)
         self.proxies.setText(txt)
 

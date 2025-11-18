@@ -11,7 +11,6 @@ from itertools import repeat
 from operator import itemgetter
 
 from calibre.utils.fonts.sfnt import UnknownTable
-from polyglot.builtins import iteritems
 
 
 def four_byte_type_code():
@@ -56,8 +55,7 @@ class LocaTable(UnknownTable):
         max_glyph_id = max(resolved_glyph_map or (0,))
         max_glyph_id = max(max_glyph_id, current_max_glyph_id)
         self.offset_map = list(repeat(0, max_glyph_id + 2))
-        glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in
-                    iteritems(resolved_glyph_map)]
+        glyphs = [(glyph_id, x[0], x[1]) for glyph_id, x in resolved_glyph_map.items()]
         glyphs.sort(key=itemgetter(1))
         for glyph_id, offset, sz in glyphs:
             self.offset_map[glyph_id] = offset

@@ -13,7 +13,6 @@ from tinycss.fonts3 import parse_font_family
 
 from calibre.ebooks.oeb.base import css_text, urlnormalize
 from calibre.utils.fonts.subset import subset
-from polyglot.builtins import iteritems
 
 font_properties = ('font-family', 'src', 'font-weight', 'font-stretch', 'font-style', 'text-transform')
 
@@ -207,8 +206,7 @@ class SubsetFonts:
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type != rule.STYLE_RULE:
                     continue
-                props = {k:v for k,v in
-                        iteritems(get_font_properties(rule)) if v}
+                props = {k:v for k,v in get_font_properties(rule).items() if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:

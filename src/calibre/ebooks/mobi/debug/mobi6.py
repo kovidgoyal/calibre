@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.reader.index import parse_index_record, parse_tagx_sect
 from calibre.ebooks.mobi.utils import decint, decode_hex_number, decode_tbs, read_font_record
 from calibre.utils.imghdr import what
 from calibre.utils.xml_parse import safe_html_fromstring
-from polyglot.builtins import as_bytes, iteritems, print_to_binary_file
+from polyglot.builtins import as_bytes, print_to_binary_file
 
 
 class TagX:  # {{{
@@ -301,8 +301,7 @@ class IndexEntry:  # {{{
             self.index = int(ident, 16)
         except ValueError:
             self.index = ident
-        self.tags = [Tag(tag_type, vals, cncx) for tag_type, vals in
-                iteritems(entry)]
+        self.tags = [Tag(tag_type, vals, cncx) for tag_type, vals in entry.items()]
 
     @property
     def label(self):

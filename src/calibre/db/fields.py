@@ -19,7 +19,6 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
-from polyglot.builtins import iteritems
 
 rendering_composite_name = '__rendering_composite__'
 
@@ -530,8 +529,7 @@ class ManyToOneField(Field):
     @property
     def book_value_map(self):
         try:
-            return {book_id:self.table.id_map[item_id] for book_id, item_id in
-                iteritems(self.table.book_col_map)}
+            return {book_id:self.table.id_map[item_id] for book_id, item_id in self.table.book_col_map.items()}
         except KeyError:
             raise InvalidLinkTable(self.name)
 

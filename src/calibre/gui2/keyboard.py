@@ -50,7 +50,6 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -222,8 +221,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
         self.keyboard = keyboard
         groups = sorted(keyboard.groups, key=sort_key)
-        shortcut_map = {k:v.copy() for k, v in
-                iteritems(self.keyboard.shortcuts)}
+        shortcut_map = {k:v.copy() for k, v in self.keyboard.shortcuts.items()}
         for un, s in shortcut_map.items():
             s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
@@ -231,8 +229,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                     names][0]
 
         group_map = {group:sorted(names, key=lambda x:
-                sort_key(shortcut_map[x]['name'])) for group, names in
-                iteritems(self.keyboard.groups)}
+                sort_key(shortcut_map[x]['name'])) for group, names in self.keyboard.groups.items()}
 
         self.data = [Node(group_map, shortcut_map, group) for group in groups]
 

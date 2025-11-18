@@ -21,7 +21,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_contains, primary_no_punc_contains, sort_key
 from calibre.utils.localization import canonicalize_lang, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -866,7 +865,7 @@ class LRUCache:  # {{{
         return self.get(key)
 
     def __iter__(self):
-        return iteritems(self.item_map)
+        yield from self.item_map.items()
 # }}}
 
 

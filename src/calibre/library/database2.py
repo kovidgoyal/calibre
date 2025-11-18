@@ -55,7 +55,6 @@ from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
-from polyglot.builtins import iteritems
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
@@ -3326,8 +3325,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.execute(
                 'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)', (id_, typ, val))
         if changed:
-            raw = ','.join([f'{k}:{v}' for k, v in
-                iteritems(identifiers)])
+            raw = ','.join([f'{k}:{v}' for k, v in identifiers.items()])
             self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)
             if commit:
@@ -3347,8 +3345,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.executemany(
             'INSERT INTO identifiers (book, type, val) VALUES (?, ?, ?)',
             [(id_, k, v) for k, v in cleaned.items()])
-        raw = ','.join([f'{k}:{v}' for k, v in
-                iteritems(cleaned)])
+        raw = ','.join([f'{k}:{v}' for k, v in cleaned.items()])
         self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
                     row_is_id=True)
         if commit:
