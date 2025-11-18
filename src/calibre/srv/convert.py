@@ -16,7 +16,6 @@ from calibre.srv.utils import get_library_data
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
 conversion_jobs = {}
@@ -233,7 +232,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         ans['defaults'].update(defaults)
         ans['help'] = plumber.get_all_help()
 
-    for group_name, option_names in iteritems(OPTIONS['pipe']):
+    for group_name, option_names in OPTIONS['pipe'].items():
         merge_group(group_name, option_names)
 
     group_name, option_names = options_for_input_fmt(input_fmt)

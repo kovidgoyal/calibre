@@ -11,7 +11,6 @@ from collections import OrderedDict, namedtuple
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record, parse_indx_header, parse_tagx_section
 from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
-from polyglot.builtins import iteritems
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
@@ -219,9 +218,9 @@ class NCXIndex(Index):
                             # offset
                             fieldvalue = tuple(tag_map[tag])
                         entry[fieldname] = fieldvalue
-                        for which, name in iteritems({3:'text', 5:'kind', 70:'description',
+                        for which, name in {3:'text', 5:'kind', 70:'description',
                                 71:'author', 72:'image_caption',
-                                73:'image_attribution'}):
+                                73:'image_attribution'}.items():
                             if tag == which:
                                 entry[name] = self.cncx.get(fieldvalue,
                                         default_entry[name])

@@ -34,7 +34,6 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.resources import set_data
-from polyglot.builtins import iteritems
 
 
 class IdLinksRuleEdit(Dialog):
@@ -95,7 +94,7 @@ class IdLinksEditor(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
         items = []
-        for k, lx in iteritems(msprefs['id_link_rules']):
+        for k, lx in msprefs['id_link_rules'].items():
             for n, t in lx:
                 items.append((k, n, t))
         items.sort(key=lambda x: sort_key(x[1]))

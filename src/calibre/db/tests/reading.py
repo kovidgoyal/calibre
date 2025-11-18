@@ -13,7 +13,6 @@ from time import time
 from calibre.db.tests.base import BaseTest
 from calibre.utils.date import utc_tz
 from calibre.utils.localization import calibre_langcode_to_name
-from polyglot.builtins import iteritems
 
 
 def p(x):
@@ -136,7 +135,7 @@ class ReadingTest(BaseTest):
 
         lmap = {x:cache.field_for('languages', x) for x in (1, 2, 3)}
         lq = sorted(lmap, key=lambda x: calibre_langcode_to_name((lmap[x] or ('',))[0]))
-        for field, order in iteritems({
+        for field, order in {
             'title'  : [2, 1, 3],
             'authors': [2, 1, 3],
             'series' : [3, 1, 2],
@@ -160,7 +159,7 @@ class ReadingTest(BaseTest):
             '#yesno':[2, 1, 3],
             '#comments':[3, 2, 1],
             'id': [1, 2, 3],
-        }):
+        }.items():
             x = list(reversed(order))
             ae(order, cache.multisort([(field, True)],
                 ids_to_sort=x),

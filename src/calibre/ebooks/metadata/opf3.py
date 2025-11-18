@@ -22,7 +22,6 @@ from calibre.utils.date import fix_only_date, is_date_undefined, isoformat, utcn
 from calibre.utils.date import parse_date as parse_date_
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import iteritems
 
 # Utils {{{
 _xpath_cache = {}
@@ -1066,7 +1065,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
         ans.series, ans.series_index = s, si
     ans.link_maps = read_link_maps(root, prefixes, refines) or ans.link_maps
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
-    for name, fm in iteritems(read_user_metadata(root, prefixes, refines) or {}):
+    for name, fm in (read_user_metadata(root, prefixes, refines) or {}).items():
         try:
             ans.set_user_metadata(name, fm)
         except Exception:

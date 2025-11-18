@@ -14,13 +14,12 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 
 def locale_map():
     ans = getattr(locale_map, 'ans', None)
     if ans is None:
-        ans = locale_map.ans = {k.lower(): v for k, v in iteritems(json.loads(P('hyphenation/locales.json', data=True)))}
+        ans = locale_map.ans = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
     return ans
 
 

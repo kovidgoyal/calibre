@@ -18,7 +18,6 @@ from calibre.constants import config_dir
 from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems
 
 NS_MAP = {
     'oor': 'http://openoffice.org/2001/registry',
@@ -127,7 +126,7 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
     root = safe_xml_fromstring(read_file_func('META-INF/manifest.xml'))
     xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
         '{{{}}}full-path'.format(NS_MAP['manifest']))
-    for (dic, aff), locales in iteritems(parse_xcu(read_file_func(xcu), origin='')):
+    for (dic, aff), locales in parse_xcu(read_file_func(xcu), origin='').items():
         dic, aff = dic.lstrip('/'), aff.lstrip('/')
         d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
         locales = uniq([x for x in map(fill_country_code, locales) if parse_lang_code(x).countrycode])

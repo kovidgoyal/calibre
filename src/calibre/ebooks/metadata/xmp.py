@@ -21,7 +21,6 @@ from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import isoformat, now, parse_date
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)
 
@@ -332,7 +331,7 @@ def metadata_from_xmp_packet(raw_bytes):
                     identifiers[scheme] = val
 
     # Check Dublin Core for recognizable identifier types
-    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
+    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.items():
         if scheme not in identifiers:
             val = check_func(first_simple('//dc:identifier', root))
             if val:
@@ -482,12 +481,12 @@ def metadata_to_xmp_packet(mi):
     dc = rdf.makeelement(expand('rdf:Description'), nsmap=nsmap('dc'))
     dc.set(expand('rdf:about'), '')
     rdf.append(dc)
-    for prop, tag in iteritems({'title':'dc:title', 'comments':'dc:description'}):
+    for prop, tag in {'title':'dc:title', 'comments':'dc:description'}.items():
         val = mi.get(prop) or ''
         create_alt_property(dc, tag, val)
-    for prop, (tag, ordered) in iteritems({
+    for prop, (tag, ordered) in {
         'authors':('dc:creator', True), 'tags':('dc:subject', False), 'publisher':('dc:publisher', False),
-    }):
+    }.items():
         val = mi.get(prop) or ()
         if isinstance(val, (str, bytes)):
             val = [val]

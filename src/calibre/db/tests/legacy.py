@@ -15,7 +15,6 @@ from operator import itemgetter
 from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from calibre.library.field_metadata import fm_as_dict
-from polyglot.builtins import iteritems
 
 # Utils {{{
 
@@ -195,7 +194,7 @@ class LegacyTest(BaseTest):
 
         self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
-        for meth, args in iteritems({
+        for meth, args in {
             'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
             'get_books_for_category': [('tags', newstag), ('#formats', 'FMT1')],
             'get_next_series_num_for': [('A Series One',)],
@@ -260,7 +259,7 @@ class LegacyTest(BaseTest):
             'book_on_device_string':[(1,), (2,), (3,)],
             'books_in_series_of':[(0,), (1,), (2,)],
             'books_with_same_title':[(Metadata(db.title(0)),), (Metadata(db.title(1)),), (Metadata('1234'),)],
-        }):
+        }.items():
             if meth[0] in {'!', '@'}:
                 fmt = {'!':dict, '@':frozenset}[meth[0]]
                 meth = meth[1:]
@@ -677,10 +676,10 @@ class LegacyTest(BaseTest):
 
         ndb = self.init_legacy(self.cloned_library)
         db = self.init_old(self.cloned_library)
-        a = {v:k for k, v in iteritems(ndb.new_api.get_id_map('authors'))}['Author One']
-        t = {v:k for k, v in iteritems(ndb.new_api.get_id_map('tags'))}['Tag One']
-        s = {v:k for k, v in iteritems(ndb.new_api.get_id_map('series'))}['A Series One']
-        p = {v:k for k, v in iteritems(ndb.new_api.get_id_map('publisher'))}['Publisher One']
+        a = {v:k for k, v in ndb.new_api.get_id_map('authors').items()}['Author One']
+        t = {v:k for k, v in ndb.new_api.get_id_map('tags').items()}['Tag One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('series').items()}['A Series One']
+        p = {v:k for k, v in ndb.new_api.get_id_map('publisher').items()}['Publisher One']
         run_funcs(self, db, ndb, (
             ('rename_author', a, 'Author Two'),
             ('rename_tag', t, 'News'),
@@ -718,11 +717,11 @@ class LegacyTest(BaseTest):
                 run_funcs(self, db, ndb, [(func, idx, label) for idx in range(3)])
 
         # Test renaming/deleting
-        t = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag One']
-        t2 = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#tags'))}['My Tag Two']
-        a = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#authors'))}['My Author Two']
-        a2 = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#authors'))}['Custom One']
-        s = {v:k for k, v in iteritems(ndb.new_api.get_id_map('#series'))}['My Series One']
+        t = {v:k for k, v in ndb.new_api.get_id_map('#tags').items()}['My Tag One']
+        t2 = {v:k for k, v in ndb.new_api.get_id_map('#tags').items()}['My Tag Two']
+        a = {v:k for k, v in ndb.new_api.get_id_map('#authors').items()}['My Author Two']
+        a2 = {v:k for k, v in ndb.new_api.get_id_map('#authors').items()}['Custom One']
+        s = {v:k for k, v in ndb.new_api.get_id_map('#series').items()}['My Series One']
         run_funcs(self, db, ndb, (
             ('delete_custom_item_using_id', t, 'tags'),
             ('delete_custom_item_using_id', a, 'authors'),

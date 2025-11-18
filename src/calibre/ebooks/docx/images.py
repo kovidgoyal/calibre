@@ -15,7 +15,6 @@ from calibre.ebooks.docx.names import SVG_BLIP_URI, barename
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import image_to_data, resize_to_fit
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems
 
 
 class LinkedImageNotFound(ValueError):
@@ -87,7 +86,7 @@ def get_image_properties(parent, XPath, get):
 
 def get_image_margins(elem):
     ans = {}
-    for w, css in iteritems({'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}):
+    for w, css in {'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}.items():
         val = elem.get(f'dist{w}', None)
         if val is not None:
             try:

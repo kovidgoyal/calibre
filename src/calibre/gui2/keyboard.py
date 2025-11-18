@@ -176,8 +176,7 @@ class Manager(QObject):  # {{{
                 pass
 
     def finalize(self):
-        custom_keys_map = {un:tuple(keys) for un, keys in iteritems(self.config.get(
-            'map', {}))}
+        custom_keys_map = {un:tuple(keys) for un, keys in self.config.get('map', {}).items()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
     def replace_action(self, unique_name, new_action):
@@ -309,7 +308,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         options_map = {}
         options_map.update(self.keyboard.config.get('options_map', {}))
         # keep mapped keys that are marked persistent.
-        for un, keys in iteritems(self.keyboard.config.get('map', {})):
+        for un, keys in self.keyboard.config.get('map', {}).items():
             if options_map.get(un, {}).get('persist_shortcut',False):
                 kmap[un] = keys
         for node in self.all_shortcuts:

@@ -25,7 +25,6 @@ from calibre.utils.icu import collation_order_for_partitioning, contains, lower,
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.serialize import json_dumps, json_loads
-from polyglot.builtins import iteritems
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -397,7 +396,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.value_icons = {}
         self.value_icon_cache = {}
         self.icon_config_dir = os.path.join(config_dir, 'tb_icons')
-        for k, v in iteritems(self.prefs['tags_browser_category_icons']):
+        for k, v in self.prefs['tags_browser_category_icons'].items():
             icon = QIcon(os.path.join(self.icon_config_dir, v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon

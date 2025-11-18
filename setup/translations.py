@@ -23,7 +23,6 @@ from collections import defaultdict
 from functools import lru_cache, partial
 from locale import normalize as normalize_locale
 
-from polyglot.builtins import iteritems
 from setup import Command, __appname__, __version__, build_cache_dir, dump_json, edit_file, is_ci, require_git_master
 from setup.iso_codes import iso_data
 from setup.parallel_build import batched_parallel_jobs
@@ -500,7 +499,7 @@ class Translations(POT):  # {{{
                     raw = None
                     po_data = data.decode('utf-8')
                     data = json.loads(msgfmt(po_data))
-                    translated_entries = {k:v for k, v in iteritems(data['entries']) if v and sum(map(len, v))}
+                    translated_entries = {k:v for k, v in data['entries'].items() if v and sum(map(len, v))}
                     data['entries'] = translated_entries
                     data['hash'] = h.hexdigest()
                     cdata = b'{}'

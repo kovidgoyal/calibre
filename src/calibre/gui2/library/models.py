@@ -49,7 +49,6 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -375,7 +374,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if db:
             style_map = {'bold': self.bold_font, 'bi': self.bi_font, 'italic': self.italic_font}
-            self.styled_columns = {k: style_map.get(v, None) for k, v in iteritems(db.new_api.pref('styled_columns', {}))}
+            self.styled_columns = {k: style_map.get(v, None) for k, v in db.new_api.pref('styled_columns', {}).items()}
         self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None

@@ -18,7 +18,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE, now, utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.resources import get_image_path
-from polyglot.builtins import iteritems
 
 
 def import_test(replacement_data, replacement_fmt=None):
@@ -245,7 +244,7 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         os.mkdir(os.path.join(authorpath, '.DS_Store'))
         open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
-        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
+        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')
@@ -276,7 +275,7 @@ class AddRemoveTest(BaseTest):
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
-        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
+        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')

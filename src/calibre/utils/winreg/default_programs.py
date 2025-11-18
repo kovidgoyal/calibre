@@ -16,7 +16,6 @@ from calibre.utils.localization import _
 from calibre.utils.lock import singleinstance
 from calibre.utils.winreg.lib import HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, Key
 from calibre_extensions import winutil
-from polyglot.builtins import iteritems
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
 
@@ -117,7 +116,7 @@ def register():
         prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
 
         with Key(capabilities_path) as key:
-            for k, v in iteritems({'ApplicationDescription':'description', 'ApplicationName':'name'}):
+            for k, v in {'ApplicationDescription':'description', 'ApplicationName':'name'}.items():
                 key.set(k, data[v])
             key.set('ApplicationIcon', f'{exe},0')
             key.set_default_value(r'shell\open\command', f'"{exe}" "%1"')

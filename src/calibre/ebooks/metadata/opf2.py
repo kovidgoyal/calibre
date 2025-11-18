@@ -37,7 +37,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems
 from polyglot.urllib import unquote
 
 pretty_print_opf = False
@@ -1208,7 +1207,7 @@ class OPF:  # {{{
     def page_progression_direction(self):
         spine = XPath('descendant::*[re:match(name(), "spine", "i")][1]')(self.root)
         if spine:
-            for k, v in iteritems(spine[0].attrib):
+            for k, v in spine[0].attrib.items():
                 if k == 'page-progression-direction' or k.endswith('}page-progression-direction'):
                     return v
 

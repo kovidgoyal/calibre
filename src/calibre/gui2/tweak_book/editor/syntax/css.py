@@ -11,7 +11,6 @@ from qt.core import QTextBlockUserData
 from calibre.gui2.tweak_book import verify_link
 from calibre.gui2.tweak_book.editor import CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
-from polyglot.builtins import iteritems
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')
@@ -295,10 +294,10 @@ def create_formats(highlighter):
         'pseudo_selector': theme['Special'],
         'tag': theme['Identifier'],
     }
-    for name, msg in iteritems({
+    for name, msg in {
         'unknown-normal': _('Invalid text'),
         'unterminated-string': _('Unterminated string'),
-    }):
+    }.items():
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     formats['link'] = syntax_text_char_format(theme['Link'])

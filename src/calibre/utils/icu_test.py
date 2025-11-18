@@ -9,7 +9,7 @@ import unittest
 from contextlib import contextmanager
 
 from calibre.utils import icu
-from polyglot.builtins import cmp, iteritems
+from polyglot.builtins import cmp
 
 
 @contextmanager
@@ -66,7 +66,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', maker=icu.make_two_arg_func) as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in iteritems({'pèché': 'peche', 'flüße':'Flusse', 'Štepánek':'ŠtepaneK'}):
+        for k, v in {'pèché': 'peche', 'flüße':'Flusse', 'Štepánek':'ŠtepaneK'}.items():
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -100,7 +100,7 @@ class TestICU(unittest.TestCase):
         self.ae((1, 1), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in iteritems({'pèché': 'peche', 'flüße':'Flusse', 'Štepánek':'ŠtepaneK'}):
+        for k, v in {'pèché': 'peche', 'flüße':'Flusse', 'Štepánek':'ŠtepaneK'}.items():
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), f'Failed to find {v} in {k}')
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))

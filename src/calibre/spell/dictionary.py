@@ -19,7 +19,6 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import _, get_lang, get_system_locale
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
@@ -113,7 +112,7 @@ def best_locale_for_language(langcode):
 
 
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in iteritems(dprefs['preferred_dictionaries'])}.get(locale, None)
+    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].items()}.get(locale, None)
 
 
 def remove_dictionary(dictionary):
@@ -121,7 +120,7 @@ def remove_dictionary(dictionary):
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
-    dprefs['preferred_dictionaries'] = {k:v for k, v in iteritems(dprefs['preferred_dictionaries']) if v != dictionary.id}
+    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].items() if v != dictionary.id}
 
 
 def rename_dictionary(dictionary, name):

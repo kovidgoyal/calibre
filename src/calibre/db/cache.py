@@ -52,7 +52,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import cmp, iteritems
+from polyglot.builtins import cmp
 
 
 class ExtraFile(NamedTuple):
@@ -936,7 +936,7 @@ class Cache:
         ''' Return a mapping of id to usage count for all values of the specified
         field, which must be a many-one or many-many field. '''
         try:
-            return {k:len(v) for k, v in iteritems(self.fields[field].table.col_book_map)}
+            return {k:len(v) for k, v in self.fields[field].table.col_book_map.items()}
         except AttributeError:
             raise ValueError(f'{field} is not a many-one or many-many field')
 
@@ -2477,7 +2477,7 @@ class Cache:
             insensitive).
 
         '''
-        tag_map = {icu_lower(v):k for k, v in iteritems(self._get_id_map('tags'))}
+        tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').items()}
         tag = icu_lower(tag.strip())
         mht = icu_lower(must_have_tag.strip()) if must_have_tag else None
         tag_id, mht_id = tag_map.get(tag, None), tag_map.get(mht, None)
@@ -2490,7 +2490,7 @@ class Cache:
                 tagged_books = tagged_books.intersection(self._books_for_field('tags', mht_id))
             if tagged_books:
                 if must_have_authors is not None:
-                    amap = {icu_lower(v):k for k, v in iteritems(self._get_id_map('authors'))}
+                    amap = {icu_lower(v):k for k, v in self._get_id_map('authors').items()}
                     books = None
                     for author in must_have_authors:
                         abooks = self._books_for_field('authors', amap.get(icu_lower(author), None))
@@ -3600,7 +3600,7 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
 
-    format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
+    format_data = {int(book_id):data for book_id, data in metadata['format_data'].items()}
     extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
     for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
         if abort is not None and abort.is_set():

@@ -57,7 +57,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.localization import _
-from polyglot.builtins import as_bytes, as_unicode, iteritems
+from polyglot.builtins import as_bytes, as_unicode
 
 
 def is_float(x):
@@ -678,7 +678,7 @@ class EbookViewer(MainWindow):
                     for annot_type, annots in lib_amap.items():
                         merge_annotations(annots, amap)
         else:
-            for annot_type, annots in iteritems(calibre_book_data['annotations_map']):
+            for annot_type, annots in calibre_book_data['annotations_map'].items():
                 merge_annotations(annots, amap)
 
     def update_window_title(self):

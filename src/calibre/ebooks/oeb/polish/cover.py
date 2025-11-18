@@ -9,7 +9,6 @@ import shutil
 from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XLINK, XPath, xml2text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders, replace_links
 from calibre.utils.imghdr import identify
-from polyglot.builtins import iteritems
 
 
 def set_azw3_cover(container, cover_path, report, options=None):
@@ -521,9 +520,9 @@ def set_epub_cover(container, cover_path, report, options=None, image_callback=N
     report(_('Cover updated') if updated else _('Cover inserted'))
 
     # Replace links to the old cover image/cover page
-    link_sub = {s:d for s, d in iteritems({
+    link_sub = {s:d for s, d in {
         cover_page:titlepage, wrapped_image:raster_cover,
-        cover_image:raster_cover, extra_cover_page:titlepage})
+        cover_image:raster_cover, extra_cover_page:titlepage}.items()
         if s is not None and s != d}
     if link_sub:
         replace_links(container, link_sub, frag_map=lambda x, y:None)

@@ -51,7 +51,6 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
@@ -279,7 +278,7 @@ class IdentifiersEdit(LineEdit):
     @property
     def as_dict(self):
         parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-        return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
+        return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.items() if k and v}
 
     @as_dict.setter
     def as_dict(self, val):

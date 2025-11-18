@@ -39,7 +39,6 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import iteritems
 
 ENTRY_ROLE = Qt.ItemDataRole.UserRole
 
@@ -491,7 +490,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         gui.removeAction(action)
     registered_shortcuts.clear()
 
-    for filetype, applications in iteritems(oprefs['entries']):
+    for filetype, applications in oprefs['entries'].items():
         for application in applications:
             text = entry_to_icon_text(application, only_text=True)
             t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()

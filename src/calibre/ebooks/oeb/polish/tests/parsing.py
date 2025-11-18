@@ -13,7 +13,6 @@ from calibre.ebooks.oeb.base import SVG_NS, XHTML_NS, XLINK_NS, XPath
 from calibre.ebooks.oeb.parse_utils import html5_parse
 from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
-from polyglot.builtins import iteritems
 
 
 def nonvoid_cdata_elements(test, parse_function):
@@ -190,7 +189,7 @@ class ParsingTests(BaseTest):
         for ds in (False, True):
             src = '\n<html>\n<p>\n<svg><image />\n<b></svg>&nbsp'
             root = parse(src, discard_namespaces=ds)
-            for tag, lnum in iteritems({'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}):
+            for tag, lnum in {'html':2, 'head':3, 'body':3, 'p':3, 'svg':4, 'image':4, 'b':5}.items():
                 elem = root.xpath(f'//*[local-name()="{tag}"]')[0]
                 self.assertEqual(lnum, elem.sourceline, f'Line number incorrect for {tag}, source: {src}:')
 

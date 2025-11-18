@@ -12,7 +12,6 @@ from css_parser.css import CSSRule, Property
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
-from polyglot.builtins import iteritems
 
 
 def compile_pat(pat):
@@ -44,7 +43,7 @@ class StyleDeclaration:
                 yield p, None
             else:
                 if p not in self.expanded_properties:
-                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in iteritems(n(p.name, p.propertyValue))]
+                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).items()]
                 for ep in self.expanded_properties[p]:
                     yield ep, p
 

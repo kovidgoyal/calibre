@@ -61,7 +61,6 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import ngettext, pgettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import iteritems
 
 FILE_COPY_MIME = 'application/calibre-edit-book-files'
 TOP_ICON_SIZE = 24
@@ -298,13 +297,13 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.font_name_cache = {}
         self.top_level_pixmap_cache = {
             name: QIcon.ic(icon).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
-            for name, icon in iteritems({
+            for name, icon in {
                 'text':'keyboard-prefs.png',
                 'styles':'lookfeel.png',
                 'fonts':'font.png',
                 'misc':'mimetypes/dir.png',
                 'images':'view-image.png',
-            })}
+            }.items()}
         self.itemActivated.connect(self.item_double_clicked)
 
     def possible_rename_requested(self, index, old, new):

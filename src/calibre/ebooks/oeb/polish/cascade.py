@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 _html_css_stylesheet = None
 
@@ -97,7 +96,7 @@ def iterdeclaration(decl):
         if n is None:
             yield p
         else:
-            for k, v in iteritems(n(p.name, p.propertyValue)):
+            for k, v in n(p.name, p.propertyValue).items():
                 yield Property(k, v, p.literalpriority)
 
 

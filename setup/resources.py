@@ -12,7 +12,7 @@ import os
 import shutil
 import zipfile
 
-from polyglot.builtins import iteritems, only_unicode_recursive
+from polyglot.builtins import only_unicode_recursive
 from setup import Command, basenames, download_securely, dump_json
 
 
@@ -210,7 +210,7 @@ class Resources(Command):  # {{{
         dump_json(function_dict, dest)
         self.info('\tCreating user-manual-translation-stats.json')
         d = {}
-        for lc, stats in iteritems(json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json')))):
+        for lc, stats in json.load(open(self.j(self.d(self.SRC), 'manual', 'locale', 'completed.json'))).items():
             total = sum(stats.values())
             d[lc] = stats['translated'] / float(total)
         dump_json(d, self.j(self.RESOURCES, 'user-manual-translation-stats.json'))

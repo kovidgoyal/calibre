@@ -5,7 +5,6 @@
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
-from polyglot.builtins import iteritems
 
 
 def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
@@ -87,7 +86,7 @@ def copy_one_book(
             if path:
                 format_map[fmt.upper()] = path
         identical_book_list = set()
-        new_authors = {k for k, v in iteritems(newdb.get_item_ids('authors', mi.authors)) if v is None}
+        new_authors = {k for k, v in newdb.get_item_ids('authors', mi.authors).items() if v is None}
         new_book_id = None
         return_data = {
                 'book_id': book_id, 'title': mi.title, 'authors': mi.authors, 'author': mi.format_field('authors')[1],

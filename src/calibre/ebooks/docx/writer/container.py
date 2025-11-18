@@ -18,7 +18,6 @@ from calibre.ebooks.pdf.render.common import PAPER_SIZES
 from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems
 
 
 def xml2str(root, pretty_print=False, with_tail=False):
@@ -120,12 +119,12 @@ class DocumentRelationships:
     def __init__(self, namespace):
         self.rmap = {}
         self.namespace = namespace
-        for typ, target in iteritems({
+        for typ, target in {
                 namespace.names['STYLES']: 'styles.xml',
                 namespace.names['NUMBERING']: 'numbering.xml',
                 namespace.names['WEB_SETTINGS']: 'webSettings.xml',
                 namespace.names['FONTS']: 'fontTable.xml',
-        }):
+        }.items():
             self.add_relationship(target, typ)
 
     def get_relationship_id(self, target, rtype, target_mode=None):
@@ -172,7 +171,7 @@ class DOCX:
     def contenttypes(self):
         E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None:self.namespace.namespaces['ct']})
         types = E.Types()
-        for partname, mt in iteritems({
+        for partname, mt in {
             '/word/footnotes.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml',
             '/word/document.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml',
             '/word/numbering.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml',
@@ -184,15 +183,15 @@ class DOCX:
             '/word/webSettings.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml',
             '/docProps/core.xml': 'application/vnd.openxmlformats-package.core-properties+xml',
             '/docProps/app.xml': 'application/vnd.openxmlformats-officedocument.extended-properties+xml',
-        }):
+        }.items():
             types.append(E.Override(PartName=partname, ContentType=mt))
         added = {'png', 'gif', 'jpeg', 'jpg', 'svg', 'xml'}
         for ext in added:
             types.append(E.Default(Extension=ext, ContentType=guess_type('a.'+ext)[0]))
-        for ext, mt in iteritems({
+        for ext, mt in {
             'rels': 'application/vnd.openxmlformats-package.relationships+xml',
             'odttf': 'application/vnd.openxmlformats-officedocument.obfuscatedFont',
-        }):
+        }.items():
             added.add(ext)
             types.append(E.Default(Extension=ext, ContentType=mt))
         for fname in self.images:

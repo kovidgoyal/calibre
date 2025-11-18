@@ -20,7 +20,6 @@ from calibre.gui2.tweak_book.completion.utils import DataError, control, data
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.matcher import Matcher
-from polyglot.builtins import iteritems
 
 Request = namedtuple('Request', 'id type data query')
 
@@ -86,7 +85,7 @@ def complete_names(names_data, data_conn):
         names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
         names_cache['css_resource'] = names_cache['image'] | names_cache['font']
         names_cache['descriptions'] = d = {}
-        for x, desc in iteritems({'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}):
+        for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.items():
             for n in names_cache[x]:
                 d[n] = desc
     names_type, base, root = names_data
