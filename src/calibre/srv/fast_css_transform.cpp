@@ -20,8 +20,6 @@
 #include <iostream>
 #include <string>
 #include <functional>
-#include <locale>
-#include <codecvt>
 #include <charconv>
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
@@ -519,9 +517,35 @@ class Token {
 
 std::ostream& operator<<(std::ostream& os, const Token& tok) {
     std::u32string rep;
-    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cv;
     tok.serialize(rep);
-    os << cv.to_bytes(rep);
+    std::string utf8; utf8.reserve(4 * rep.size());
+    for (char32_t cp : rep) {
+        if (cp <= 0x7F) {
+            utf8.push_back(static_cast<char>(cp));
+        } else if (cp <= 0x7FF) {
+            utf8.push_back(static_cast<char>(0xC0 | (cp >> 6)));
+            utf8.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        } else if (cp <= 0xFFFF) {
+            // Reject surrogate code points if present in u32 string
+            if (cp >= 0xD800 && cp <= 0xDFFF) {
+                // U+FFFD replacement character (UTF-8 EF BF BD)
+                utf8.append("\xEF\xBF\xBD", 3);
+            } else {
+                utf8.push_back(static_cast<char>(0xE0 | (cp >> 12)));
+                utf8.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+                utf8.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+            }
+        } else if (cp <= 0x10FFFF) {
+            utf8.push_back(static_cast<char>(0xF0 | (cp >> 18)));
+            utf8.push_back(static_cast<char>(0x80 | ((cp >> 12) & 0x3F)));
+            utf8.push_back(static_cast<char>(0x80 | ((cp >> 6) & 0x3F)));
+            utf8.push_back(static_cast<char>(0x80 | (cp & 0x3F)));
+        } else {
+            // invalid code point -> replacement char
+            utf8.append("\xEF\xBF\xBD", 3);
+        }
+    }
+    os << utf8;
     return os;
 }
 
