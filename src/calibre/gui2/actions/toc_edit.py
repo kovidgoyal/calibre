@@ -15,7 +15,6 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems
 
 SUPPORTED = {'EPUB', 'AZW3'}
 
@@ -119,7 +118,7 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         return self.get_supported_books(ans)
 
     def do_edit(self, book_id_map):
-        for book_id, fmts in iteritems(book_id_map):
+        for book_id, fmts in book_id_map.items():
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:

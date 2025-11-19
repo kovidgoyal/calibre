@@ -14,13 +14,12 @@ from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 from calibre.utils.icu import ord_string, safe_chr
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
 
 # TrueType outlines {{{
 
 
 def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
-    unresolved_glyphs = set(itervalues(character_map)) | extra_glyphs
+    unresolved_glyphs = set(character_map.values()) | extra_glyphs
     unresolved_glyphs.add(0)  # We always want the .notdef glyph
     resolved_glyphs = {}
 
@@ -36,7 +35,7 @@ def resolve_glyphs(loca, glyf, character_map, extra_glyphs):
             if gid not in resolved_glyphs:
                 unresolved_glyphs.add(gid)
 
-    return OrderedDict(sorted(iteritems(resolved_glyphs), key=itemgetter(0)))
+    return OrderedDict(sorted(resolved_glyphs.items(), key=itemgetter(0)))
 
 
 def subset_truetype(sfnt, character_map, extra_glyphs):
@@ -55,7 +54,7 @@ def subset_truetype(sfnt, character_map, extra_glyphs):
                 'set, subsetting it is pointless')
 
     # Keep only character codes that have resolved glyphs
-    for code, glyph_id in tuple(iteritems(character_map)):
+    for code, glyph_id in tuple(character_map.items()):
         if glyph_id not in resolved_glyphs:
             del character_map[code]
 
@@ -162,7 +161,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
         gsub = sfnt[b'GSUB']
         try:
             gsub.decompile()
-            extra_glyphs = gsub.all_substitutions(itervalues(character_map))
+            extra_glyphs = gsub.all_substitutions(character_map.values())
         except UnsupportedFont as e:
             warn(f'Usupported GSUB table: {e}')
         except Exception:
@@ -183,7 +182,7 @@ def subset(raw, individual_chars, ranges=(), warnings=None):
 
     if b'kern' in sfnt:
         try:
-            sfnt[b'kern'].restrict_to_glyphs(frozenset(itervalues(character_map)))
+            sfnt[b'kern'].restrict_to_glyphs(frozenset(character_map.values()))
         except UnsupportedFont as e:
             warn(f'kern table unsupported, ignoring: {e}')
         except Exception:
@@ -222,8 +221,8 @@ def print_stats(old_stats, new_stats):
     prints('========= Table comparison (original vs. subset) =========')
     prints('Table', ' ', f"{'Size':>10}", '  ', 'Percent', '   ', f"{'New Size':>10}", ' New Percent')
     prints('='*80)
-    old_total = sum(itervalues(old_stats))
-    new_total = sum(itervalues(new_stats))
+    old_total = sum(old_stats.values())
+    new_total = sum(new_stats.values())
     tables = sorted(old_stats, key=lambda x: old_stats[x],
             reverse=True)
     for table in tables:
@@ -361,7 +360,7 @@ def all():
                 print('Failed!')
                 failed.append((font['full_name'], font['path'], str(e)))
             else:
-                averages.append(sum(itervalues(new_stats))/sum(itervalues(old_stats)) * 100)
+                averages.append(sum(new_stats.values())/sum(old_stats.values()) * 100)
                 print('Reduced to:', f'{averages[-1]:.1f}', '%')
     if unsupported:
         print('\n\nUnsupported:')
@@ -370,7 +369,7 @@ def all():
             print()
     if warnings:
         print('\n\nWarnings:')
-    for name, w in iteritems(warnings):
+    for name, w in warnings.items():
         if w:
             print(name)
             print('', '\n\t'.join(w), sep='\t')

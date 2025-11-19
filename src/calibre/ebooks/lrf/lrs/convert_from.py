@@ -42,7 +42,6 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextStyle,
 )
 from calibre.utils.config import OptionParser
-from polyglot.builtins import string_or_bytes
 
 
 class LrsParser:
@@ -113,7 +112,7 @@ class LrsParser:
             if isinstance(contents[0], NavigableString):
                 contents[0] = contents[0].string.lstrip()
             for item in contents:
-                if isinstance(item, string_or_bytes):
+                if isinstance(item, (str, bytes)):
                     p.append(item)
                 elif isinstance(item, NavigableString):
                     p.append(item.string)

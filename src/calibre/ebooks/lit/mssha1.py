@@ -10,8 +10,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import copy
 import struct
 
-from polyglot.builtins import long_type
-
 # ======================================================================
 # Bit-Manipulation helpers
 #
@@ -55,10 +53,10 @@ def _bytelist2longBigEndian(blist):
     j = 0
     i = 0
     while i < imax:
-        b0 = long_type(blist[j]) << 24
-        b1 = long_type(blist[j+1]) << 16
-        b2 = long_type(blist[j+2]) << 8
-        b3 = long_type(blist[j+3])
+        b0 = int(blist[j]) << 24
+        b1 = int(blist[j+1]) << 16
+        b2 = int(blist[j+2]) << 8
+        b3 = int(blist[j+3])
         hl[i] = b0 | b1 | b2 | b3
         i = i+1
         j = j+4
@@ -198,7 +196,7 @@ class mssha1:
         '''
 
         inBuf = bytearray(inBuf)
-        leninBuf = long_type(len(inBuf))
+        leninBuf = len(inBuf)
 
         # Compute number of bytes mod 64.
         index = (self.count[1] >> 3) & 0x3F

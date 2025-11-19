@@ -15,7 +15,6 @@ from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import BookAttr, Font, PageTree, StyleObject, Text, TOCObject, get_object, ruby_tags
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
-from polyglot.builtins import itervalues
 
 
 class LRFDocument(LRFMetaFile):
@@ -81,7 +80,7 @@ class LRFDocument(LRFMetaFile):
         yield from self.page_trees
 
     def write_files(self):
-        for obj in chain(itervalues(self.image_map), itervalues(self.font_map)):
+        for obj in chain(self.image_map.values(), self.font_map.values()):
             with open(obj.file, 'wb') as f:
                 f.write(obj.stream)
 

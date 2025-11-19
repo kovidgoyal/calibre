@@ -16,7 +16,6 @@ from functools import partial
 from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows, preferred_encoding
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
@@ -98,7 +97,7 @@ def force_unicode_recursive(obj):
     if isinstance(obj, (list, tuple)):
         return type(obj)(map(force_unicode_recursive, obj))
     if isinstance(obj, dict):
-        return {force_unicode_recursive(k): force_unicode_recursive(v) for k, v in iteritems(obj)}
+        return {force_unicode_recursive(k): force_unicode_recursive(v) for k, v in obj.items()}
     return obj
 
 
@@ -619,7 +618,7 @@ def make_unicode(obj):
     if isinstance(obj, (list, tuple)):
         return list(map(make_unicode, obj))
     if isinstance(obj, dict):
-        return {make_unicode(k): make_unicode(v) for k, v in iteritems(obj)}
+        return {make_unicode(k): make_unicode(v) for k, v in obj.items()}
     return obj
 
 
@@ -627,7 +626,7 @@ def normalize_tweak(val):
     if isinstance(val, (list, tuple)):
         return tuple(map(normalize_tweak, val))
     if isinstance(val, dict):
-        return {k: normalize_tweak(v) for k, v in iteritems(val)}
+        return {k: normalize_tweak(v) for k, v in val.items()}
     return val
 
 
@@ -636,7 +635,7 @@ def write_custom_tweaks(tweaks_dict):
     tweaks_dict = make_unicode(tweaks_dict)
     changed_tweaks = {}
     default_tweaks = exec_tweaks(default_tweaks_raw())
-    for key, cval in iteritems(tweaks_dict):
+    for key, cval in tweaks_dict.items():
         if key in default_tweaks and normalize_tweak(cval) == normalize_tweak(default_tweaks[key]):
             continue
         changed_tweaks[key] = cval

@@ -21,7 +21,6 @@ from calibre.utils.localization import canonicalize_lang, reverse_lang_map_for_u
 from calibre.utils.serialize import MSGPACK_MIME, json_loads, msgpack_loads
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import from_base64_bytes
-from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
 
@@ -206,7 +205,7 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
         db.remove_formats({book_id: list(removed_formats)})
         dirtied.add(book_id)
 
-    for field, value in iteritems(changes):
+    for field, value in changes.items():
         if field == 'languages' and value:
             rmap = reverse_lang_map_for_ui()
             def to_lang_code(x):

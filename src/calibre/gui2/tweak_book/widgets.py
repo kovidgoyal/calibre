@@ -66,7 +66,6 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key, primary_contains, primary_sort_key, sort_key
 from calibre.utils.matcher import DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3, Matcher, get_char
-from polyglot.builtins import iteritems
 
 ROOT = QModelIndex()
 
@@ -380,7 +379,7 @@ class Results(QWidget):
             [(p.setTextFormat(Qt.TextFormat.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max(ceil(x.size().width()) for x in prefixes)
             self.results = tuple((prefix, self.make_text(text, positions), text)
-                for prefix, (text, positions) in zip(prefixes, iteritems(results)))
+                for prefix, (text, positions) in zip(prefixes, results.items()))
         else:
             self.results = ()
             self.current_result = -1
@@ -588,7 +587,7 @@ class NamesModel(QAbstractListModel):
         if not query:
             self.items = tuple((text, None) for text in self.names)
         else:
-            self.items = tuple(iteritems(self.matcher(query)))
+            self.items = tuple(self.matcher(query).items())
         self.endResetModel()
         self.filtered.emit(not bool(query))
 
@@ -860,7 +859,7 @@ class InsertSemantics(Dialog):  # {{{
             'bodymatter': _('First "real" page of content'),
         }
         t = _
-        all_types = [(k, ((f'{t(v)} ({type_map_help[k]})') if k in type_map_help else t(v))) for k, v in iteritems(self.known_type_map)]
+        all_types = [(k, ((f'{t(v)} ({type_map_help[k]})') if k in type_map_help else t(v))) for k, v in self.known_type_map.items()]
         all_types.sort(key=lambda x: sort_key(x[1]))
         self.all_types = OrderedDict(all_types)
 
@@ -871,7 +870,7 @@ class InsertSemantics(Dialog):  # {{{
         self.tl = tl = QFormLayout()
         tl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.semantic_type = QComboBox(self)
-        for key, val in iteritems(self.all_types):
+        for key, val in self.all_types.items():
             self.semantic_type.addItem(val, key)
         tl.addRow(_('Type of &semantics:'), self.semantic_type)
         self.target = t = QLineEdit(self)
@@ -1160,7 +1159,7 @@ class AddCover(Dialog):
     @property
     def image_names(self):
         img_types = {guess_type('a.'+x) for x in ('png', 'jpeg', 'gif')}
-        for name, mt in iteritems(self.container.mime_map):
+        for name, mt in self.container.mime_map.items():
             if mt.lower() in img_types:
                 yield name
 

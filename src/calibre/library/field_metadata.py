@@ -10,7 +10,6 @@ from collections import OrderedDict
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
-from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -496,7 +495,7 @@ class FieldMetadata:
         yield from self._tb_cats
 
     def itervalues(self):
-        return itervalues(self._tb_cats)
+        yield from self._tb_cats.values()
 
     def values(self):
         return list(self._tb_cats.values())
@@ -507,7 +506,7 @@ class FieldMetadata:
     iter_items = iteritems
 
     def custom_iteritems(self):
-        yield from iteritems(self._tb_custom_fields)
+        yield from self._tb_custom_fields.items()
 
     def items(self):
         return list(self.iter_items())
@@ -692,8 +691,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
-        'user_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'user'},
-        'search_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'search'},
+        'user_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'search'},
     }
 
 
@@ -703,6 +702,6 @@ def fm_from_dict(src):
     ans._search_term_map = src['search_term_map']
     ans.custom_label_to_key_map = src['custom_label_to_key_map']
     for q in ('custom_fields', 'user_categories', 'search_categories'):
-        for k, v in iteritems(src[q]):
+        for k, v in src[q].items():
             ans._tb_cats[k] = v
     return ans

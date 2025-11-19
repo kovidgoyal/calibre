@@ -13,6 +13,7 @@ import traceback
 from contextlib import suppress
 from functools import lru_cache, partial
 from io import BytesIO
+from queue import Empty, Full
 
 from calibre import as_unicode
 from calibre.constants import iswindows
@@ -37,8 +38,6 @@ from calibre.utils.mdns import get_external_ip
 from calibre.utils.monotonic import monotonic
 from calibre.utils.network import get_fallback_server_addr
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import iteritems
-from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = b'\0', b'\x01'
@@ -585,7 +584,7 @@ class ServerLoop:
         now = monotonic()
         read_needed, write_needed, readable, remove, close_needed = [], [], [], [], []
         has_ssl = self.ssl_context is not None
-        for s, conn in iteritems(self.connection_map):
+        for s, conn in self.connection_map.items():
             if now - conn.last_activity > self.opts.timeout:
                 if conn.handle_timeout():
                     conn.last_activity = now
@@ -630,7 +629,7 @@ class ServerLoop:
                 # e.args[0]
                 if getattr(e, 'errno', e.args[0]) in socket_errors_eintr:
                     return
-                for s, conn in tuple(iteritems(self.connection_map)):
+                for s, conn in tuple(self.connection_map.items()):
                     try:
                         select.select([s], [], [], 0)
                     except OSError as e:
@@ -765,7 +764,7 @@ class ServerLoop:
             if getattr(self, 'socket', None):
                 self.socket.close()
                 self.socket = None
-        for s, conn in tuple(iteritems(self.connection_map)):
+        for s, conn in tuple(self.connection_map.items()):
             self.close(s, conn)
         wait_till = monotonic() + self.opts.shutdown_timeout
         for pool in (self.plugin_pool, self.pool):

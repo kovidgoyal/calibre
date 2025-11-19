@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.check.parsing import (
 )
 from calibre.ebooks.oeb.polish.cover import is_raster_image
 from calibre.ebooks.oeb.polish.utils import guess_type
-from polyglot.builtins import as_unicode, iteritems
+from polyglot.builtins import as_unicode
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 
@@ -52,7 +52,7 @@ def run_checks(container):
 
     # Check parsing
     xml_items, html_items, raster_images, stylesheets = [], [], [], []
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         items = None
         decode = False
         if mt in XML_TYPES:
@@ -120,7 +120,7 @@ def fix_css(container):
     from calibre.ebooks.oeb.polish.check.css import create_job, pool
     jobs  = []
 
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:
             css = container.raw_data(name, decode=True)
             jobs.append(create_job(name, css, fix_data=CSSFix(css, None, '')))

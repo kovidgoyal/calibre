@@ -2,11 +2,13 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import http.client
 import os
 import socket
 import weakref
 from collections import deque
 from hashlib import sha1
+from queue import Empty, Queue
 from struct import error as struct_error
 from struct import pack, unpack_from
 from threading import Lock
@@ -18,9 +20,7 @@ from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre_extensions.speedup import utf8_decode
 from calibre_extensions.speedup import websocket_mask as fast_mask
-from polyglot import http_client
 from polyglot.binary import as_base64_unicode
-from polyglot.queue import Empty, Queue
 
 HANDSHAKE_STR = (
     'HTTP/1.1 101 Switching Protocols\r\n'
@@ -283,9 +283,9 @@ class WebSocketConnection(HTTPConnection):
         except Exception:
             ver_ok = False
         if not ver_ok:
-            return self.simple_response(http_client.BAD_REQUEST, f'Unsupported WebSocket protocol version: {ver}')
+            return self.simple_response(http.client.BAD_REQUEST, f'Unsupported WebSocket protocol version: {ver}')
         if self.method != 'GET':
-            return self.simple_response(http_client.BAD_REQUEST, f'Invalid WebSocket method: {self.method}')
+            return self.simple_response(http.client.BAD_REQUEST, f'Invalid WebSocket method: {self.method}')
 
         response = HANDSHAKE_STR % as_base64_unicode(sha1((key + GUID_STR).encode('utf-8')).digest())
         self.optimize_for_sending_packet()

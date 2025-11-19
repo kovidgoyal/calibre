@@ -11,7 +11,6 @@ from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
-from polyglot.builtins import iteritems
 
 tag_fieldname_map = {
         1:  ['pos',0],
@@ -55,7 +54,7 @@ def read_ncx(sections, index, codec):
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
-        for num, x in enumerate(iteritems(table)):
+        for num, x in enumerate(table.items()):
             text, tag_map = x
             entry = default_entry.copy()
             entry['name'] = text
@@ -69,9 +68,9 @@ def read_ncx(sections, index, codec):
                         # offset
                         fieldvalue = tuple(tag_map[tag])
                     entry[fieldname] = fieldvalue
-                    for which, name in iteritems({3:'text', 5:'kind', 70:'description',
+                    for which, name in {3:'text', 5:'kind', 70:'description',
                             71:'author', 72:'image_caption',
-                            73:'image_attribution'}):
+                            73:'image_attribution'}.items():
                         if tag == which:
                             entry[name] = cncx.get(fieldvalue,
                                     default_entry[name])

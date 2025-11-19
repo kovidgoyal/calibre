@@ -20,7 +20,6 @@ from collections import OrderedDict, namedtuple
 from struct import calcsize, pack, unpack
 
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import itervalues
 
 HEADER_SIG = 0x04034b50
 HEADER_BYTE_SIG = pack(b'<L', HEADER_SIG)
@@ -316,7 +315,7 @@ class LocalZipFile:
 
         with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
             ztemp = ZipFile(temp, 'w')
-            for offset, header in itervalues(self.file_info):
+            for offset, header in self.file_info.values():
                 if header.filename in names:
                     zi = ZipInfo(header.filename)
                     zi.compress_type = header.compression_method

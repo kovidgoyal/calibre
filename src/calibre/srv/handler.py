@@ -14,7 +14,6 @@ from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 from calibre.utils.search_query_parser import ParseException
-from polyglot.builtins import itervalues
 
 
 class Context:
@@ -205,7 +204,7 @@ class Handler:
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)
-            self.router.load_routes(itervalues(vars(module)))
+            self.router.load_routes(vars(module).values())
         self.router.finalize()
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch

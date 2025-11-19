@@ -13,7 +13,6 @@ from css_parser.css import PropertyValue
 from tinycss.fonts3 import parse_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
-from polyglot.builtins import iteritems, string_or_bytes
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -129,9 +128,9 @@ def normalize_font(cssvalue, font_family_as_list=False):
         ans = {k:DEFAULTS[k] for k in composition}
         ans.update(parse_font(val))
     if font_family_as_list:
-        if isinstance(ans['font-family'], string_or_bytes):
+        if isinstance(ans['font-family'], (str, bytes)):
             ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
-    elif not isinstance(ans['font-family'], string_or_bytes):
+    elif not isinstance(ans['font-family'], (str, bytes)):
         ans['font-family'] = serialize_font_family(ans['font-family'])
     return ans
 
@@ -140,7 +139,7 @@ def normalize_border(name, cssvalue):
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
     vals = style.copy()
     for edge in EDGES[1:]:
-        style.update({k.replace(EDGES[0], edge):v for k, v in iteritems(vals)})
+        style.update({k.replace(EDGES[0], edge):v for k, v in vals.items()})
     return style
 
 
@@ -250,11 +249,11 @@ condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': si
 def condense_rule(style):
     expanded = {'margin-':[], 'padding-':[], 'border-':[]}
     for prop in style.getProperties():
-        for x,t in iteritems(expanded):
+        for x,t in expanded.items():
             if prop.name and prop.name.startswith(x):
                 t.append(prop)
                 break
-    for prefix, vals in iteritems(expanded):
+    for prefix, vals in expanded.items():
         if len(vals) > 1 and {x.priority for x in vals} == {''}:
             condensers[prefix[:-1]](style, vals)
 
@@ -281,7 +280,7 @@ def test_normalization(return_tests=False):  # {{{
                 ans.update(expected)
                 return ans
 
-            for raw, expected in iteritems({
+            for raw, expected in {
                 'some_font': {'font-family':'some_font'}, 'inherit':{k:'inherit' for k in font_composition},
                 '1.2pt/1.4 A_Font': {'font-family':'A_Font', 'font-size':'1.2pt', 'line-height':'1.4'},
                 'bad font': {'font-family':'"bad font"'}, '10% serif': {'font-family':'serif', 'font-size':'10%'},
@@ -292,7 +291,7 @@ def test_normalization(return_tests=False):  # {{{
                 {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'larger',
                  'line-height':'normal', 'font-variant':'small-caps'},
                 '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
-            }):
+            }.items():
                 val = tuple(parseStyle(f'font: {raw}', validate=False))[0].propertyValue
                 style = normalizers['font']('font', val)
                 self.assertDictEqual(font_dict(expected), style, raw)
@@ -300,7 +299,7 @@ def test_normalization(return_tests=False):  # {{{
         def test_border_normalization(self):
             def border_edge_dict(expected, edge='right'):
                 ans = {f'border-{edge}-{x}': DEFAULTS[f'border-{edge}-{x}'] for x in ('style', 'width', 'color')}
-                for x, v in iteritems(expected):
+                for x, v in expected.items():
                     ans[f'border-{edge}-{x}'] = v
                 return ans
 
@@ -316,39 +315,39 @@ def test_normalization(return_tests=False):  # {{{
                     ans[f'border-{edge}-{val}'] = expected
                 return ans
 
-            for raw, expected in iteritems({
+            for raw, expected in {
                 'solid 1px red': {'color':'red', 'width':'1px', 'style':'solid'},
                 '1px': {'width': '1px'}, '#aaa': {'color': '#aaa'},
                 '2em groove': {'width':'2em', 'style':'groove'},
-            }):
+            }.items():
                 for edge in EDGES:
                     br = f'border-{edge}'
                     val = tuple(parseStyle(f'{br}: {raw}', validate=False))[0].propertyValue
                     self.assertDictEqual(border_edge_dict(expected, edge), normalizers[br](br, val))
 
-            for raw, expected in iteritems({
+            for raw, expected in {
                 'solid 1px red': {'color':'red', 'width':'1px', 'style':'solid'},
                 '1px': {'width': '1px'}, '#aaa': {'color': '#aaa'},
                 'thin groove': {'width':'thin', 'style':'groove'},
-            }):
+            }.items():
                 val = tuple(parseStyle('{}: {}'.format('border', raw), validate=False))[0].propertyValue
                 self.assertDictEqual(border_dict(expected), normalizers['border']('border', val))
 
-            for name, val in iteritems({
+            for name, val in {
                 'width': '10%', 'color': 'rgb(0, 1, 1)', 'style': 'double',
-            }):
+            }.items():
                 cval = tuple(parseStyle(f'border-{name}: {val}', validate=False))[0].propertyValue
                 self.assertDictEqual(border_val_dict(val, name), normalizers['border-'+name]('border-'+name, cval))
 
         def test_edge_normalization(self):
             def edge_dict(prefix, expected):
                 return {f'{prefix}-{edge}': x for edge, x in zip(EDGES, expected)}
-            for raw, expected in iteritems({
+            for raw, expected in {
                 '2px': ('2px', '2px', '2px', '2px'),
                 '1em 2em': ('1em', '2em', '1em', '2em'),
                 '1em 2em 3em': ('1em', '2em', '3em', '2em'),
                 '1 2 3 4': ('1', '2', '3', '4'),
-            }):
+            }.items():
                 for prefix in ('margin', 'padding'):
                     cval = tuple(parseStyle(f'{prefix}: {raw}', validate=False))[0].propertyValue
                     self.assertDictEqual(edge_dict(prefix, expected), normalizers[prefix](prefix, cval))
@@ -356,14 +355,14 @@ def test_normalization(return_tests=False):  # {{{
         def test_list_style_normalization(self):
             def ls_dict(expected):
                 ans = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
-                for k, v in iteritems(expected):
+                for k, v in expected.items():
                     ans[f'list-style-{k}'] = v
                 return ans
-            for raw, expected in iteritems({
+            for raw, expected in {
                 'url(http://www.example.com/images/list.png)': {'image': 'url(http://www.example.com/images/list.png)'},
                 'inside square': {'position':'inside', 'type':'square'},
                 'upper-roman url(img) outside': {'position':'outside', 'type':'upper-roman', 'image':'url(img)'},
-            }):
+            }.items():
                 cval = tuple(parseStyle(f'list-style: {raw}', validate=False))[0].propertyValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
 
@@ -383,7 +382,7 @@ def test_normalization(return_tests=False):  # {{{
             ae({'list-style', 'list-style-image', 'list-style-type', 'list-style-position'}, normalize_filter_css({'list-style'}))
 
         def test_edge_condensation(self):
-            for s, v in iteritems({
+            for s, v in {
                 (1, 1, 3): None,
                 (1, 2, 3, 4): '2pt 3pt 4pt 1pt',
                 (1, 2, 3, 2): '2pt 3pt 2pt 1pt',
@@ -392,11 +391,11 @@ def test_normalization(return_tests=False):  # {{{
                 (1, 1, 1, 1): '1pt',
                 ('2%', '2%', '2%', '2%'): '2%',
                 tuple('0 0 0 0'.split()): '0',
-            }):
+            }.items():
                 for prefix in ('margin', 'padding'):
                     css = {f'{prefix}-{x}': str(y)+'pt' if isinstance(y, numbers.Number) else y
                             for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
-                    css = '; '.join((f'{k}:{v}' for k, v in iteritems(css)))
+                    css = '; '.join((f'{k}:{v}' for k, v in css.items()))
                     style = parseStyle(css)
                     condense_rule(style)
                     val = getattr(style.getProperty(prefix), 'value', None)

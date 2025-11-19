@@ -7,8 +7,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import numbers
 from collections import OrderedDict
 
-from polyglot.builtins import iteritems
-
 
 class Inherit:
 
@@ -136,11 +134,11 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
-            for prop, val in iteritems(read_single_border(border, edge, XPath, get)):
+            for prop, val in read_single_border(border, edge, XPath, get).items():
                 if val is not None:
                     vals[prop % edge] = val
 
-    for key, val in iteritems(vals):
+    for key, val in vals.items():
         setattr(dest, key, val)
 
 
@@ -475,4 +473,4 @@ class ParagraphStyle:
         return False
 
 
-read_funcs = {k[5:]:v for k, v in iteritems(globals()) if k.startswith('read_')}
+read_funcs = {k[5:]:v for k, v in globals().items() if k.startswith('read_')}

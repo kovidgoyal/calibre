@@ -53,7 +53,6 @@ from calibre.gui2.pin_columns import PinTableView, TableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import iteritems
 
 
 def max_permitted_column_width(self, col):
@@ -228,7 +227,7 @@ class PreserveViewState:  # {{{
 
     @state.setter
     def state(self, state):
-        for k, v in iteritems(state):
+        for k, v in state.items():
             setattr(self, k, v)
         self.__exit__()
 
@@ -657,7 +656,7 @@ class BooksView(TableView):  # {{{
             m = ans.addMenu(_('Show column'))
             m.setIcon(QIcon.ic('plus.png'))
             hcols = [(hcol, str(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
-                     for hcol, hidx in iteritems(hidden_cols)]
+                     for hcol, hidx in hidden_cols.items()]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname.replace('&', '&&'), partial(handler, action='show', column=hcol))

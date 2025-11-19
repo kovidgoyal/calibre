@@ -43,7 +43,6 @@ from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
 from calibre.utils.resources import get_image_path as I
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 # Default settings {{{
 cprefs = JSONConfig('cover_generation')
@@ -289,14 +288,14 @@ def format_fields(mi, prefs):
 
 @contextmanager
 def preserve_fields(obj, fields):
-    if isinstance(fields, string_or_bytes):
+    if isinstance(fields, (str, bytes)):
         fields = fields.split()
     null = object()
     mem = {f:getattr(obj, f, null) for f in fields}
     try:
         yield
     finally:
-        for f, val in iteritems(mem):
+        for f, val in mem.items():
             if val is null:
                 delattr(obj, f)
             else:
@@ -338,10 +337,10 @@ def load_color_themes(prefs):
     t = default_color_themes.copy()
     t.update(prefs.color_themes)
     disabled = frozenset(prefs.disabled_color_themes)
-    ans = [theme_to_colors(v) for k, v in iteritems(t) if k not in disabled]
+    ans = [theme_to_colors(v) for k, v in t.items() if k not in disabled]
     if not ans:
         # Ignore disabled and return only the builtin color themes
-        ans = [theme_to_colors(v) for k, v in iteritems(default_color_themes)]
+        ans = [theme_to_colors(v) for k, v in default_color_themes.items()]
     return ans
 
 
@@ -578,14 +577,14 @@ class Blocks(Style):
 
 def all_styles():
     return {
-        x.NAME for x in itervalues(globals()) if
+        x.NAME for x in globals().values() if
         isinstance(x, type) and issubclass(x, Style) and x is not Style
     }
 
 
 def load_styles(prefs, respect_disabled=True):
     disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
-    ans = tuple(x for x in itervalues(globals()) if
+    ans = tuple(x for x in globals().values() if
             isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
     if not ans and disabled:
         # If all styles have been disabled, ignore the disabling and return all

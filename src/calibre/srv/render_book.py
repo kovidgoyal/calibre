@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
 from itertools import count
+from urllib.parse import urlparse
 
 from lxml.etree import Comment
 
@@ -33,7 +34,6 @@ from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
 from polyglot.builtins import as_bytes
-from polyglot.urllib import urlparse
 
 try:
     from calibre_extensions.speedup import get_num_of_significant_chars

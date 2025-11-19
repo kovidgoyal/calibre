@@ -26,7 +26,6 @@ from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
 from calibre.utils.resources import get_path as P
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems
 
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
@@ -130,7 +129,7 @@ def get_custom_recipe_collection(*args):
     from calibre.web.feeds.recipes import compile_recipe, custom_recipes
     bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
-    for id_, x in iteritems(custom_recipes):
+    for id_, x in custom_recipes.items():
         title, fname = x
         recipe = os.path.join(bdir, fname)
         try:
@@ -188,7 +187,7 @@ def add_custom_recipes(script_map):
         id_ = max(keys)+1
     bdir = os.path.dirname(custom_recipes.file_path)
     with custom_recipes:
-        for title, script in iteritems(script_map):
+        for title, script in script_map.items():
             fid = str(id_)
 
             fname = custom_recipe_filename(fid, title)

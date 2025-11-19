@@ -8,6 +8,7 @@ from copy import copy
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
+from urllib.parse import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag, category_display_order
@@ -22,8 +23,6 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import collation_order_for_partitioning
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import _, calibre_langcode_to_name
-from polyglot.builtins import iteritems, itervalues
-from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 
@@ -262,11 +261,11 @@ def icon_map():
             from calibre.gui2 import gprefs
             _icon_map = category_icon_map.copy()
             custom_icons = gprefs.get('tags_browser_category_icons', {})
-            for k, v in iteritems(custom_icons):
+            for k, v in custom_icons.items():
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + quote(v)
             _icon_map['file_type_icons'] = {
-                k:f'mimetypes/{v}.png' for k, v in iteritems(EXT_MAP)
+                k:f'mimetypes/{v}.png' for k, v in EXT_MAP.items()
             }
         return _icon_map
 
@@ -604,7 +603,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
                 count += 1
         item['avg_rating'] = float(total)/count if count else 0
 
-    for item_id, item in itervalues(tag_map):
+    for item_id, item in tag_map.values():
         id_len = len(item.pop('id_set', ()))
         if id_len:
             item['count'] = id_len

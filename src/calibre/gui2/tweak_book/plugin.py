@@ -14,7 +14,6 @@ from calibre.customize import PluginInstallationType
 from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
-from polyglot.builtins import itervalues
 
 
 class Tool:
@@ -117,7 +116,7 @@ def load_plugin_tools(plugin):
         import traceback
         traceback.print_exc()
     else:
-        for x in itervalues(vars(main)):
+        for x in vars(main).values():
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
                 ans = x()
                 ans.plugin = plugin

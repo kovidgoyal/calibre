@@ -9,6 +9,7 @@ Transform OEB content into a single (more or less) HTML file.
 import os
 import re
 from functools import partial
+from urllib.parse import urldefrag
 
 from css_parser import replaceUrls
 from lxml import html
@@ -17,8 +18,7 @@ from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_NS, XHTML, XHTML_NS, XLINK, barename, namespace, rewrite_links, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
-from polyglot.builtins import as_unicode, string_or_bytes
-from polyglot.urllib import urldefrag
+from polyglot.builtins import as_unicode
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 
@@ -104,7 +104,7 @@ class OEB2HTML:
             for el in root.iter():
                 attribs = el.attrib
                 try:
-                    if not isinstance(el.tag, string_or_bytes):
+                    if not isinstance(el.tag, (str, bytes)):
                         continue
                 except Exception:
                     continue
@@ -168,10 +168,10 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, string_or_bytes) \
+        if not isinstance(elem.tag, (str, bytes)) \
            or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -258,10 +258,10 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, string_or_bytes) \
+        if not isinstance(elem.tag, (str, bytes)) \
            or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -362,10 +362,10 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, string_or_bytes) \
+        if not isinstance(elem.tag, (str, bytes)) \
            or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']

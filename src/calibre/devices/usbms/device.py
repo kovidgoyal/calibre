@@ -25,7 +25,6 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.interface import FAKE_DEVICE_SERIAL, DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import iteritems, string_or_bytes
 
 if ismacos:
     osx_sanitize_name_pat = re.compile(r'[.-]')
@@ -444,7 +443,7 @@ class Device(DeviceConfig, DevicePlugin):
                 dev_node = f'/dev/{dev_node}'
                 if dev_node not in mount_map:
                     mount_map[dev_node] = val
-        drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
+        drives = {k: mount_map.get(v) for k, v in drives.items()}
         if is_debugging():
             print()
             from pprint import pprint
@@ -965,7 +964,7 @@ class Device(DeviceConfig, DevicePlugin):
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
-            if isinstance(candidates, string_or_bytes):
+            if isinstance(candidates, (str, bytes)):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']

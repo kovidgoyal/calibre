@@ -85,7 +85,6 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues
 
 # Cleanup Qt markup {{{
 
@@ -121,7 +120,7 @@ def lift_styles(tag, style_map):
         if common_props is None:
             common_props = style.copy()
         else:
-            for k, v in tuple(iteritems(common_props)):
+            for k, v in tuple(common_props.items()):
                 if style.get(k) != v:
                     del common_props[k]
     if not has_text and common_props:
@@ -271,14 +270,14 @@ def cleanup_qt_markup(root):
                 s['margin-right'] = '0.5em'
             elif s == {'float': 'right'}:
                 s['margin-left'] = '0.5em'
-    for style in itervalues(style_map):
+    for style in style_map.values():
         filter_qt_styles(style)
         fw = style.get('font-weight')
         if fw in ('600', '700'):
             style['font-weight'] = 'bold'
-    for tag, style in iteritems(style_map):
+    for tag, style in style_map.items():
         if style:
-            tag.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+            tag.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
         else:
             tag.attrib.pop('style', None)
     for span in root.xpath('//span[not(@style)]'):

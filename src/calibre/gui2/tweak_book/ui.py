@@ -60,7 +60,6 @@ from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.icu import ord_string, sort_key
 from calibre.utils.localization import localize_user_manual_link, localize_website_link, pgettext
 from calibre.utils.unicode_names import character_name_from_code
-from polyglot.builtins import iteritems, itervalues
 
 
 def open_donate():
@@ -114,7 +113,7 @@ class Central(QStackedWidget):  # {{{
     @property
     def tab_order(self):
         ans = []
-        rmap = {v:k for k, v in iteritems(editors)}
+        rmap = {v:k for k, v in editors.items()}
         for i in range(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
@@ -189,7 +188,7 @@ class Central(QStackedWidget):  # {{{
     def save_state(self):
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
-        for ed in itervalues(editors):
+        for ed in editors.values():
             ed.save_state()
         if self.current_editor is not None:
             self.current_editor.save_state()  # Ensure the current editor saves it state last

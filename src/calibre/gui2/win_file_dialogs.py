@@ -11,7 +11,6 @@ from threading import Thread
 from uuid import uuid4
 
 from calibre.utils.localization import _
-from polyglot.builtins import string_or_bytes
 
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialog.exe')
@@ -74,7 +73,7 @@ def serialize_file_types(file_types):
         buf.append(struct.pack(f'=H{len(x)}s', len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
-        if isinstance(extensions, string_or_bytes):
+        if isinstance(extensions, (str, bytes)):
             extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)

@@ -12,7 +12,6 @@ from qt.core import QBrush, QColor, QFont, QFontMetrics, QGraphicsItem, QGraphic
 
 from calibre.ebooks.hyphenate import hyphenate_word
 from calibre.ebooks.lrf.fonts import LIBERATION_FONT_MAP
-from polyglot.builtins import string_or_bytes
 
 
 def WEIGHT_MAP(wt):
@@ -241,7 +240,7 @@ class TextBlock:
         open_containers = collections.deque()
         self.in_para = False
         for i in tb.content:
-            if isinstance(i, string_or_bytes):
+            if isinstance(i, (str, bytes)):
                 self.process_text(i)
             elif i is None:
                 if len(open_containers) > 0:

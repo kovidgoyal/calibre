@@ -16,6 +16,7 @@ import uuid
 from itertools import chain, count
 from operator import attrgetter
 from struct import pack
+from urllib.parse import urldefrag
 
 from lxml import etree
 
@@ -26,8 +27,7 @@ from calibre.ebooks.lit.reader import DirectoryEntry
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, OEB_STYLES, OPF_MIME, XHTML_MIME, XML, XML_NS, prefixname, urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre_extensions import msdes
-from polyglot.builtins import codepoint_to_chr, native_string_type, string_or_bytes
-from polyglot.urllib import unquote, urldefrag
+from polyglot.urllib import unquote
 
 __all__ = ['LitWriter']
 
@@ -162,7 +162,7 @@ class ReBinary:
         for value in values:
             if isinstance(value, numbers.Integral):
                 try:
-                    value = codepoint_to_chr(value)
+                    value = chr(value)
                 except OverflowError:
                     self.logger.warn('Unicode overflow for integer:', value)
                     value = '?'
@@ -173,7 +173,7 @@ class ReBinary:
 
     def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
-        if not isinstance(elem.tag, string_or_bytes):
+        if not isinstance(elem.tag, (str, bytes)):
             # Don't emit any comments or raw entities
             return
         nsrmap = copy.copy(nsrmap)
@@ -215,9 +215,9 @@ class ReBinary:
                 path, frag = urldefrag(value)
                 if self.item:
                     path = self.item.abshref(path)
-                prefix = codepoint_to_chr(3)
+                prefix = chr(3)
                 if path in self.manifest.hrefs:
-                    prefix = codepoint_to_chr(2)
+                    prefix = chr(2)
                     value = self.manifest.hrefs[path].id
                     if frag:
                         value = '#'.join((value, frag))
@@ -280,9 +280,9 @@ class ReBinary:
             self.logger.warn(f'More than six anchors in file {self.item.href!r}. '
                 'Some links may not work properly.')
         data = io.BytesIO()
-        data.write(codepoint_to_chr(len(self.anchors)).encode('utf-8'))
+        data.write(chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
-            data.write(codepoint_to_chr(len(anchor)).encode('utf-8'))
+            data.write(chr(len(anchor)).encode('utf-8'))
             if isinstance(anchor, str):
                 anchor = anchor.encode('utf-8')
             data.write(anchor)
@@ -521,9 +521,9 @@ class LitWriter:
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [codepoint_to_chr(len(id)), str(id),
-                         codepoint_to_chr(len(href)), str(href),
-                         codepoint_to_chr(len(media_type)), str(media_type)]
+                entry = [chr(len(id)), str(id),
+                         chr(len(href)), str(href),
+                         chr(len(media_type)), str(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
                 data.write(b'\0')
@@ -570,7 +570,7 @@ class LitWriter:
         _, meta = self._oeb.to_opf1()[OPF_MIME]
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
-        meta.attrib['ms--guid'] = f'{{{native_string_type(uuid.uuid4()).upper()}}}'
+        meta.attrib['ms--guid'] = f'{{{str(uuid.uuid4()).upper()}}}'
         rebin = ReBinary(meta, None, self._oeb, self.opts, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta

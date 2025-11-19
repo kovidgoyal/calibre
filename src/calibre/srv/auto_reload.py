@@ -12,6 +12,7 @@ import ssl
 import subprocess
 import sys
 import time
+from queue import Empty, Queue
 from threading import Lock, Thread
 
 from calibre.constants import islinux, ismacos, iswindows
@@ -22,8 +23,7 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import error_message, itervalues, native_string_type
-from polyglot.queue import Empty, Queue
+from polyglot.builtins import error_message
 
 MAX_RETRIES = 10
 
@@ -352,14 +352,14 @@ class ReloadHandler(DummyHandler):
 
     def notify_reload(self):
         with self.conn_lock:
-            for connref in itervalues(self.connections):
+            for connref in self.connections.values():
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('reload')
 
     def ping(self):
         with self.conn_lock:
-            for connref in itervalues(self.connections):
+            for connref in self.connections.values():
                 conn = connref()
                 if conn is not None and conn.ready:
                     conn.send_websocket_message('ping')
@@ -390,7 +390,7 @@ class ReloadServer(Thread):
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
         self.address = self.loop.bound_address[:2]
-        os.environ['CALIBRE_AUTORELOAD_PORT'] = native_string_type(self.address[1])
+        os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
         return self
 
     def __exit__(self, *args):

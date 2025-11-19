@@ -50,7 +50,6 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import pgettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, itervalues
 
 ROOT = QModelIndex()
 
@@ -84,7 +83,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     correctly for each shortcut.
     '''
     seen, keys_map = {}, {}
-    for unique_name, shortcut in iteritems(shortcuts):
+    for unique_name, shortcut in shortcuts.items():
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
             candidates = shortcut['default_keys']
@@ -169,15 +168,14 @@ class Manager(QObject):  # {{{
         done unregistering.
         '''
         self.shortcuts.pop(unique_name, None)
-        for group in itervalues(self.groups):
+        for group in self.groups.values():
             try:
                 group.remove(unique_name)
             except ValueError:
                 pass
 
     def finalize(self):
-        custom_keys_map = {un:tuple(keys) for un, keys in iteritems(self.config.get(
-            'map', {}))}
+        custom_keys_map = {un:tuple(keys) for un, keys in self.config.get('map', {}).items()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
     def replace_action(self, unique_name, new_action):
@@ -223,17 +221,15 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
         self.keyboard = keyboard
         groups = sorted(keyboard.groups, key=sort_key)
-        shortcut_map = {k:v.copy() for k, v in
-                iteritems(self.keyboard.shortcuts)}
-        for un, s in iteritems(shortcut_map):
+        shortcut_map = {k:v.copy() for k, v in self.keyboard.shortcuts.items()}
+        for un, s in shortcut_map.items():
             s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
-            s['group'] = [g for g, names in iteritems(self.keyboard.groups) if un in
+            s['group'] = [g for g, names in self.keyboard.groups.items() if un in
                     names][0]
 
         group_map = {group:sorted(names, key=lambda x:
-                sort_key(shortcut_map[x]['name'])) for group, names in
-                iteritems(self.keyboard.groups)}
+                sort_key(shortcut_map[x]['name'])) for group, names in self.keyboard.groups.items()}
 
         self.data = [Node(group_map, shortcut_map, group) for group in groups]
 
@@ -309,7 +305,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         options_map = {}
         options_map.update(self.keyboard.config.get('options_map', {}))
         # keep mapped keys that are marked persistent.
-        for un, keys in iteritems(self.keyboard.config.get('map', {})):
+        for un, keys in self.keyboard.config.get('map', {}).items():
             if options_map.get(un, {}).get('persist_shortcut',False):
                 kmap[un] = keys
         for node in self.all_shortcuts:

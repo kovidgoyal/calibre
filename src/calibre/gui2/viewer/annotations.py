@@ -5,6 +5,7 @@
 import os
 from io import BytesIO
 from operator import itemgetter
+from queue import Queue
 from threading import Thread
 
 from calibre.db.annotations import annotations_as_copied_list, merge_annot_lists
@@ -15,7 +16,6 @@ from calibre.srv.render_book import EPUB_FILE_TYPE_MAGIC
 from calibre.utils.serialize import json_dumps, json_loads
 from calibre.utils.zipfile import safe_replace
 from polyglot.binary import as_base64_bytes
-from polyglot.queue import Queue
 
 annotations_dir = os.path.join(viewer_config_dir, 'annots')
 parse_annotations = json_loads

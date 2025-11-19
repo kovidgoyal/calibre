@@ -34,7 +34,6 @@ from operator import itemgetter
 from pprint import pformat, pprint
 
 from calibre import as_unicode, prints
-from polyglot.builtins import iteritems, itervalues
 
 try:
     import winreg
@@ -671,13 +670,13 @@ def get_volume_information(drive_letter):
         'max_component_length': max_component_length.value,
     }
 
-    for name, num in iteritems({'FILE_CASE_PRESERVED_NAMES':0x00000002, 'FILE_CASE_SENSITIVE_SEARCH':0x00000001, 'FILE_FILE_COMPRESSION':0x00000010,
+    for name, num in {'FILE_CASE_PRESERVED_NAMES':0x00000002, 'FILE_CASE_SENSITIVE_SEARCH':0x00000001, 'FILE_FILE_COMPRESSION':0x00000010,
               'FILE_NAMED_STREAMS':0x00040000, 'FILE_PERSISTENT_ACLS':0x00000008, 'FILE_READ_ONLY_VOLUME':0x00080000,
               'FILE_SEQUENTIAL_WRITE_ONCE':0x00100000, 'FILE_SUPPORTS_ENCRYPTION':0x00020000, 'FILE_SUPPORTS_EXTENDED_ATTRIBUTES':0x00800000,
               'FILE_SUPPORTS_HARD_LINKS':0x00400000, 'FILE_SUPPORTS_OBJECT_IDS':0x00010000, 'FILE_SUPPORTS_OPEN_BY_FILE_ID':0x01000000,
               'FILE_SUPPORTS_REPARSE_POINTS':0x00000080, 'FILE_SUPPORTS_SPARSE_FILES':0x00000040, 'FILE_SUPPORTS_TRANSACTIONS':0x00200000,
               'FILE_SUPPORTS_USN_JOURNAL':0x02000000, 'FILE_UNICODE_ON_DISK':0x00000004, 'FILE_VOLUME_IS_COMPRESSED':0x00008000,
-              'FILE_VOLUME_QUOTAS':0x00000020}):
+              'FILE_VOLUME_QUOTAS':0x00000020}.items():
         ans[name] = bool(num & flags)
     return ans
 
@@ -827,7 +826,7 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
     ' Get a mapping of drive letters to storage numbers for all drives on system (of the specified types) '
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
-    drives = (letter for letter, dt in iteritems(type_map) if dt in drive_types)
+    drives = (letter for letter, dt in type_map.items() if dt in drive_types)
     ans = defaultdict(list)
     for letter in drives:
         try:
@@ -837,7 +836,7 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
             if debug:
                 prints(f'Failed to get storage number for drive: {letter} with error: {as_unicode(err)}')
             continue
-    for val in itervalues(ans):
+    for val in ans.values():
         val.sort(key=itemgetter(0))
     return dict(ans)
 
@@ -877,7 +876,7 @@ def get_storage_number_map_alt(debug=False):
             if debug:
                 prints(f'Failed to get storage number for drive: {name[0]} with error: {as_unicode(err)}')
             continue
-    for val in itervalues(ans):
+    for val in ans.values():
         val.sort(key=itemgetter(0))
     return dict(ans)
 

@@ -69,7 +69,7 @@ from calibre.utils.icu import numeric_sort_key, primary_contains
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, ngettext
 from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.webengine import secure_webengine
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 
 # Utils {{{
 
@@ -1507,7 +1507,7 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(iteritems(timing), key=itemgetter(1)):
+            for x, t in sorted(timing.items(), key=itemgetter(1)):
                 print(f'Time for {x:6} data: {t:.3f} seconds')
         self.reports(data)
 

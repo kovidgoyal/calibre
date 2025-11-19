@@ -10,6 +10,7 @@ import sys
 from collections import namedtuple
 from functools import lru_cache
 from itertools import count, repeat
+from urllib.parse import urlparse
 
 from html5_parser import parse
 from qt.core import QApplication, QByteArray, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
@@ -42,8 +43,7 @@ from calibre.utils.podofo import add_image_page, dedup_type3_fonts, get_podofo, 
 from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.webengine import secure_webengine, send_reply, setup_profile
-from polyglot.builtins import as_bytes, iteritems
-from polyglot.urllib import urlparse
+from polyglot.builtins import as_bytes
 
 # }}}
 
@@ -653,7 +653,7 @@ def get_anchor_locations(name, pdf_doc, first_page_num, toc_uuid, log):
         toc_pagenum = 0
     if toc_pagenum > 1:
         pdf_doc.delete_pages(toc_pagenum, pdf_doc.page_count() - toc_pagenum + 1)
-    for anchor, loc in iteritems(anchors):
+    for anchor, loc in anchors.items():
         loc = list(loc)
         loc[0] += first_page_num - 1
         ans[anchor] = AnchorLocation(*loc)
@@ -752,7 +752,7 @@ def get_page_number_display_map(render_manager, opts, num_pages, log):
         except Exception:
             log.warn(f'Could not do page number mapping, got unexpected result: {result!r}')
         else:
-            default_map = {int(k): int(v) for k, v in iteritems(result)}
+            default_map = {int(k): int(v) for k, v in result.items()}
     return default_map
 
 
@@ -889,7 +889,7 @@ def merge_fonts(pdf_doc, log):
 
     for f in all_fonts:
         base_font_map.setdefault(f['BaseFont'], []).append(f)
-    for name, fonts in iteritems(base_font_map):
+    for name, fonts in base_font_map.items():
         if mergeable(fonts):
             font_data, references = merge_font_files(fonts, log)
             pdf_doc.merge_fonts(font_data, references)
@@ -935,7 +935,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         if text is not None:
             ans.text = text
         if style is not None:
-            style = '; '.join(f'{k}: {v}' for k, v in iteritems(style))
+            style = '; '.join(f'{k}: {v}' for k, v in style.items())
             ans.set('style', style)
         return ans
 

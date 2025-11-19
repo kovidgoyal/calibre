@@ -26,7 +26,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from polyglot.binary import as_hex_unicode, from_hex_unicode
-from polyglot.builtins import codepoint_to_chr
 
 '''
 This class manages access to the preference holding the saved search queries.
@@ -151,7 +150,7 @@ class Parser:
     WORD = 2
     QUOTED_WORD = 3
     EOF = 4
-    REPLACEMENTS = tuple(('\\' + x, codepoint_to_chr(i + 1)) for i, x in enumerate('\\"()'))
+    REPLACEMENTS = tuple(('\\' + x, chr(i + 1)) for i, x in enumerate('\\"()'))
 
     # the sep must be a printable character sequence that won't actually appear naturally
     docstring_sep = '□ༀ؆'  # Unicode white square, Tibetan Om, Arabic-Indic Cube Root

@@ -17,7 +17,6 @@ from calibre.customize.conversion import DummyReporter
 from calibre.ebooks.metadata import format_isbn
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
 from calibre.utils.localization import _
-from polyglot.builtins import string_or_bytes
 
 
 class BIBTEX(CatalogPlugin):
@@ -220,10 +219,10 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(f'year = "{item.year}"')
                     bibtex_entry.append('month = "{}"'.format(bibtexdict.utf8ToBibtex(strftime('%b', item))))
 
-                elif field.startswith('#') and isinstance(item, string_or_bytes):
+                elif field.startswith('#') and isinstance(item, (str, bytes)):
                     bibtex_entry.append(f'custom_{field[1:]} = "{bibtexdict.utf8ToBibtex(item)}"')
 
-                elif isinstance(item, string_or_bytes):
+                elif isinstance(item, (str, bytes)):
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
                     # 'author_sort', 'series', 'title_sort'] :
                     bibtex_entry.append(f'{field} = "{bibtexdict.utf8ToBibtex(item)}"')
@@ -357,7 +356,7 @@ class BIBTEX(CatalogPlugin):
             bibtexc.ascii_bibtex = True
 
         # Check citation choice and go to default in case of bad CLI
-        if isinstance(opts.impcit, string_or_bytes):
+        if isinstance(opts.impcit, (str, bytes)):
             if opts.impcit == 'False':
                 citation_bibtex= False
             elif opts.impcit == 'True':
@@ -369,7 +368,7 @@ class BIBTEX(CatalogPlugin):
             citation_bibtex= opts.impcit
 
         # Check add file entry and go to default in case of bad CLI
-        if isinstance(opts.addfiles, string_or_bytes):
+        if isinstance(opts.addfiles, (str, bytes)):
             if opts.addfiles == 'False':
                 addfiles_bibtex = False
             elif opts.addfiles == 'True':

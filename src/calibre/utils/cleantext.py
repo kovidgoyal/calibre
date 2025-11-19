@@ -3,11 +3,10 @@
 
 
 import re
+from html.entities import name2codepoint
 
 from calibre.constants import preferred_encoding
 from calibre_extensions.speedup import clean_xml_chars as _ncxc
-from polyglot.builtins import codepoint_to_chr
-from polyglot.html_entities import name2codepoint
 
 
 def native_clean_xml_chars(x):
@@ -22,7 +21,7 @@ def ascii_pat(for_binary=False):
     if ans is None:
         chars = set(range(32)) - {9, 10, 13}
         chars.add(127)
-        pat = '|'.join(map(codepoint_to_chr, chars))
+        pat = '|'.join(map(chr, chars))
         if for_binary:
             pat = pat.encode('ascii')
         ans = re.compile(pat)
@@ -43,7 +42,7 @@ def clean_ascii_chars(txt, charlist=None):
     if charlist is None:
         pat = ascii_pat(is_binary)
     else:
-        pat = '|'.join(map(codepoint_to_chr, charlist))
+        pat = '|'.join(map(chr, charlist))
         if is_binary:
             pat = pat.encode('utf-8')
     return pat.sub(empty, txt)
@@ -80,15 +79,15 @@ def unescape(text, rm=False, rchar=''):
             # character reference
             try:
                 if text[:3] == '&#x':
-                    return codepoint_to_chr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return codepoint_to_chr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = codepoint_to_chr(name2codepoint[text[1:-1]])
+                text = chr(name2codepoint[text[1:-1]])
             except KeyError:
                 pass
         if rm:

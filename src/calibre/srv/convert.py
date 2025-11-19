@@ -16,7 +16,6 @@ from calibre.srv.utils import get_library_data
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import iteritems
 
 receive_data_methods = {'GET', 'POST'}
 conversion_jobs = {}
@@ -61,7 +60,7 @@ class JobStatus:
 def expire_old_jobs():
     now = monotonic()
     with cache_lock:
-        remove = [job_id for job_id, job_status in iteritems(conversion_jobs) if now - job_status.last_check_at >= 360]
+        remove = [job_id for job_id, job_status in conversion_jobs.items() if now - job_status.last_check_at >= 360]
         for job_id in remove:
             job_status = conversion_jobs.pop(job_id)
             job_status.cleanup()
@@ -139,7 +138,7 @@ def queue_job(ctx, rd, library_id, db, fmt, book_id, conversion_data):
     recs.update(conversion_data['options'])
     recs['gui_preferred_input_format'] = conversion_data['input_fmt'].lower()
     save_specifics(db, book_id, recs)
-    recs = [(k, v, OptionRecommendation.HIGH) for k, v in iteritems(recs)]
+    recs = [(k, v, OptionRecommendation.HIGH) for k, v in recs.items()]
 
     job_id = ctx.start_job(
         f'Convert book {book_id} ({fmt})', 'calibre.srv.convert',
@@ -233,7 +232,7 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
         ans['defaults'].update(defaults)
         ans['help'] = plumber.get_all_help()
 
-    for group_name, option_names in iteritems(OPTIONS['pipe']):
+    for group_name, option_names in OPTIONS['pipe'].items():
         merge_group(group_name, option_names)
 
     group_name, option_names = options_for_input_fmt(input_fmt)

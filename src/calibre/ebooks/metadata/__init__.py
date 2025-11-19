@@ -12,11 +12,12 @@ import os
 import re
 import sys
 from contextlib import suppress
+from urllib.parse import quote, urlparse
 
 from calibre import force_unicode, guess_type, prints, relpath
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import as_unicode, iteritems
-from polyglot.urllib import quote, unquote, urlparse
+from polyglot.builtins import as_unicode
+from polyglot.urllib import unquote
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
@@ -50,7 +51,7 @@ def remove_bracketed_text(src, brackets=None):
     total = 0
     buf = []
     src = force_unicode(src)
-    rmap = {v: k for k, v in iteritems(brackets)}
+    rmap = {v: k for k, v in brackets.items()}
     for char in src:
         if char in brackets:
             counts[char] += 1

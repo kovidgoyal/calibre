@@ -75,7 +75,6 @@ from calibre.utils.date import (
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import sort_key, strcmp
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 def save_dialog(parent, title, msg, det_msg=''):
@@ -1748,7 +1747,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
                 v = check_isbn(k)
                 if v is not None:
                     val[k] = v
-        ids = sorted(iteritems(val), key=keygen)
+        ids = sorted(val.items(), key=keygen)
         txt = ', '.join([f'{k.lower()}:{vl}' for k, vl in ids])
         if self.allow_undo:
             self.selectAll(), self.insert(txt.strip())

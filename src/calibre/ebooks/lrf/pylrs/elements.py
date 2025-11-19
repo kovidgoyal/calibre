@@ -1,7 +1,5 @@
 ''' elements.py -- replacements and helpers for ElementTree '''
 
-from polyglot.builtins import string_or_bytes
-
 
 class ElementWriter:
 
@@ -24,7 +22,7 @@ class ElementWriter:
 
     def _writeAttribute(self, f, name, value):
         f.write(f' {name!s}="')
-        if not isinstance(value, string_or_bytes):
+        if not isinstance(value, (str, bytes)):
             value = str(value)
         value = self._encodeCdata(value)
         value = value.replace('"', '&quot;')

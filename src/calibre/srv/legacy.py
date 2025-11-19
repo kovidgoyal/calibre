@@ -3,6 +3,7 @@
 
 
 from functools import partial
+from urllib.parse import urlencode
 
 from lxml.html import tostring
 from lxml.html.builder import E as E_
@@ -18,21 +19,20 @@ from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
 from calibre.utils.localization import _
-from polyglot.builtins import as_bytes, iteritems, string_or_bytes
-from polyglot.urllib import urlencode
+from polyglot.builtins import as_bytes
 
 # /mobile {{{
 
 
 def clean(x):
-    if isinstance(x, string_or_bytes):
+    if isinstance(x, (str, bytes)):
         x = clean_xml_chars(x)
     return x
 
 
 def E(tag, *children, **attribs):
     children = list(map(clean, children))
-    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in iteritems(attribs)}
+    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.items()}
     return getattr(E_, tag)(*children, **attribs)
 
 
@@ -123,7 +123,7 @@ def build_navigation(start, num, total, url_base):  # {{{
 
 def build_choose_library(ctx, library_map):
     select = E.select(name='library_id')
-    for library_id, library_name in iteritems(library_map):
+    for library_id, library_name in library_map.items():
         select.append(E.option(library_name, value=library_id))
     return E.div(
         E.form(
@@ -244,7 +244,7 @@ def mobile(ctx, rd):
     order = 'ascending' if ascending else 'descending'
     q = {b'search':search.encode('utf-8'), b'order':order.encode('ascii'), b'sort':sort_by.encode('utf-8'), b'num':as_bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
-    lm = {k:v for k, v in iteritems(library_map) if k != library_id}
+    lm = {k:v for k, v in library_map.items() if k != library_id}
     return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 

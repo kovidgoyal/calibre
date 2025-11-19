@@ -5,7 +5,6 @@
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
-from polyglot.builtins import iteritems
 
 
 def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
@@ -16,7 +15,7 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
         if ib_fmts:
             seen_fmts |= {fmt.upper() for fmt in ib_fmts}
         at_least_one_format_added = False
-        for fmt, path in iteritems(format_map):
+        for fmt, path in format_map.items():
             if newdb.add_format(identical_book, fmt, path, replace=replace, run_hooks=False):
                 at_least_one_format_added = True
         if at_least_one_format_added and extra_file_map:
@@ -46,7 +45,7 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
     if new_authors:
         author_id_map = db.get_item_ids('authors', new_authors)
         sort_map = {}
-        for author, aid in iteritems(author_id_map):
+        for author, aid in author_id_map.items():
             if aid is not None:
                 adata = db.author_data((aid,)).get(aid)
                 if adata is not None:
@@ -87,7 +86,7 @@ def copy_one_book(
             if path:
                 format_map[fmt.upper()] = path
         identical_book_list = set()
-        new_authors = {k for k, v in iteritems(newdb.get_item_ids('authors', mi.authors)) if v is None}
+        new_authors = {k for k, v in newdb.get_item_ids('authors', mi.authors).items() if v is None}
         new_book_id = None
         return_data = {
                 'book_id': book_id, 'title': mi.title, 'authors': mi.authors, 'author': mi.format_field('authors')[1],

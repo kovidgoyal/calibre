@@ -12,7 +12,6 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG, XHTML, XPNSMAP, b
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems
 
 
 def isspace(x):
@@ -220,7 +219,7 @@ def pretty_xml(container, name, raw):
 
 def fix_all_html(container):
     ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if mt in OEB_DOCS:
             container.parsed(name)
             container.dirty(name)
@@ -229,7 +228,7 @@ def fix_all_html(container):
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
     xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         prettied = False
         if mt in OEB_DOCS:
             pretty_html_tree(container, container.parsed(name))

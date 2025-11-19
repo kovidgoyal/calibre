@@ -3,7 +3,9 @@
 
 import json
 from collections import Counter, OrderedDict
+from functools import cache, lru_cache
 from html import escape
+from queue import Queue
 from threading import Thread
 
 import regex
@@ -35,9 +37,6 @@ from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.utils.icu import primary_collator_without_punctuation
 from calibre.utils.localization import _, ngettext
-from polyglot.builtins import iteritems
-from polyglot.functools import lru_cache
-from polyglot.queue import Queue
 
 
 class BusySpinner(QWidget):  # {{{
@@ -247,7 +246,7 @@ class SearchResult:
         return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))
 
 
-@lru_cache(maxsize=None)
+@cache
 def searchable_text_for_name(name):
     ans = []
     add_text = ans.append
@@ -365,7 +364,7 @@ class ToCOffsetMap:
             yield node
 
 
-@lru_cache(maxsize=None)
+@cache
 def toc_offset_map_for_name(name):
     anchor_map = searchable_text_for_name(name)[1]
     toc_data = get_toc_data()
@@ -525,7 +524,7 @@ class SearchInput(QWidget):  # {{{
             sss = vprefs.get(f'saved-{self.panel_name}-settings') or {}
             sss[new_text] = {'case_sensitive': self.case_sensitive.isChecked(), 'mode': self.query_type.currentData()}
             history = frozenset(history)
-            sss = {k: v for k, v in iteritems(sss) if k in history}
+            sss = {k: v for k, v in sss.items() if k in history}
             vprefs[f'saved-{self.panel_name}-settings'] = sss
 
     def history_cleared(self):

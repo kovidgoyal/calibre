@@ -10,7 +10,7 @@ from struct import pack
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
-from polyglot.builtins import codepoint_to_chr, int_to_byte
+from polyglot.builtins import int_to_byte
 
 
 def is_dkey(x):
@@ -154,7 +154,7 @@ class MetadataUpdater:
 
     def dump_hex(self, src, length=16):
         ''' Diagnostic '''
-        FILTER=''.join([((len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x)) or '.' for x in range(256)])
+        FILTER=''.join([((len(repr(chr(x)))==3) and chr(x)) or '.' for x in range(256)])
         N=0
         result=''
         while src:

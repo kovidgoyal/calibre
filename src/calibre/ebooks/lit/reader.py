@@ -11,6 +11,7 @@ import io
 import os
 import re
 import struct
+from urllib.parse import urldefrag
 
 from lxml import etree
 
@@ -20,9 +21,7 @@ from calibre.ebooks.lit.maps import HTML_MAP, OPF_MAP
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre_extensions import lzx, msdes
-from polyglot.builtins import codepoint_to_chr, itervalues, string_or_bytes
 from polyglot.urllib import unquote as urlunquote
-from polyglot.urllib import urldefrag
 
 __all__ = ['LitReader']
 
@@ -109,7 +108,7 @@ def read_utf8_char(bytes, pos):
                 raise LitError(
                     f'Invalid UTF8 character: {bytes[pos:pos+i]!r}')
             c = (c << 6) | (b & 0x3F)
-    return codepoint_to_chr(c), pos+elsize
+    return chr(c), pos+elsize
 
 
 def consume_sized_utf8_string(bytes, zpad=False):
@@ -250,9 +249,9 @@ class UnBinary:
                     else:
                         dynamic_tag += 1
                         errors += 1
-                        tag_name = '?'+codepoint_to_chr(tag)+'?'
+                        tag_name = '?'+chr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
-                        print(f'WARNING: tag {codepoint_to_chr(tag)} unknown')
+                        print(f'WARNING: tag {chr(tag)} unknown')
                     buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
@@ -286,7 +285,7 @@ class UnBinary:
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
-                    if not attr or not isinstance(attr, string_or_bytes):
+                    if not attr or not isinstance(attr, (str, bytes)):
                         raise LitError(
                             f'Unknown attribute {oc} in tag {tag_name}')
                     if attr.startswith('%'):
@@ -686,7 +685,7 @@ class LitFile:
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
-        mlist = list(itervalues(self.manifest))
+        mlist = list(self.manifest.values())
         # Remove any common path elements
         if len(mlist) > 1:
             shared = mlist[0].path

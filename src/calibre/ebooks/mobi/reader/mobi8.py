@@ -10,6 +10,7 @@ import re
 import struct
 from collections import namedtuple
 from itertools import repeat
+from urllib.parse import urldefrag
 from uuid import uuid4
 
 from lxml import etree
@@ -25,7 +26,6 @@ from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.base import XHTML, XPath, xml2text
 from calibre.ebooks.oeb.parse_utils import parse_html
 from polyglot.builtins import as_unicode
-from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',
     'num type filename start end aid')

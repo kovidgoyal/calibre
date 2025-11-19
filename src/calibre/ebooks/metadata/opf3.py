@@ -22,7 +22,6 @@ from calibre.utils.date import fix_only_date, is_date_undefined, isoformat, utcn
 from calibre.utils.date import parse_date as parse_date_
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import iteritems
 
 # Utils {{{
 _xpath_cache = {}
@@ -183,9 +182,9 @@ def ensure_prefix(root, prefixes, prefix, value=None):
     if prefixes is None:
         prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
-    prefixes = {k:v for k, v in iteritems(prefixes) if reserved_prefixes.get(k) != v}
+    prefixes = {k:v for k, v in prefixes.items() if reserved_prefixes.get(k) != v}
     if prefixes:
-        root.set('prefix', ' '.join(f'{k}: {v}' for k, v in iteritems(prefixes)))
+        root.set('prefix', ' '.join(f'{k}: {v}' for k, v in prefixes.items()))
     else:
         root.attrib.pop('prefix', None)
 
@@ -292,7 +291,7 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             remove_element(ident, refines)
             continue
     metadata = XPath('./opf:metadata')(root)[0]
-    for scheme, val in iteritems(new_identifiers):
+    for scheme, val in new_identifiers.items():
         ident = metadata.makeelement(DC('identifier'))
         ident.text = f'{scheme}:{val}'
         if package_identifier is None:
@@ -902,7 +901,7 @@ set_link_maps = dict_writer('link_maps', extra_remove='author_link_map')
 def deserialize_user_metadata(val):
     val = json.loads(val, object_hook=from_json)
     ans = {}
-    for name, fm in iteritems(val):
+    for name, fm in val.items():
         decode_is_multiple(fm)
         ans[name] = fm
     return ans
@@ -1028,7 +1027,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
     identifiers = read_identifiers(root, prefixes, refines)
     ids = {}
-    for key, vals in iteritems(identifiers):
+    for key, vals in identifiers.items():
         if key == 'calibre':
             ans.application_id = vals[0]
         elif key == 'uuid':
@@ -1066,7 +1065,7 @@ def read_metadata(root, ver=None, return_extra_data=False):
         ans.series, ans.series_index = s, si
     ans.link_maps = read_link_maps(root, prefixes, refines) or ans.link_maps
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
-    for name, fm in iteritems(read_user_metadata(root, prefixes, refines) or {}):
+    for name, fm in (read_user_metadata(root, prefixes, refines) or {}).items():
         try:
             ans.set_user_metadata(name, fm)
         except Exception:

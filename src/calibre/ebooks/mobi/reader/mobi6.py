@@ -29,7 +29,6 @@ from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_html_fromstring
-from polyglot.builtins import iteritems
 
 
 class TopazError(ValueError):
@@ -934,7 +933,7 @@ class MobiReader:
 
 
 def test_mbp_regex():
-    for raw, m in iteritems({
+    for raw, m in {
         '<mbp:pagebreak></mbp:pagebreak>':'',
         '<mbp:pagebreak xxx></mbp:pagebreak>yyy':' xxxyyy',
         '<mbp:pagebreak> </mbp:pagebreak>':'',
@@ -945,7 +944,7 @@ def test_mbp_regex():
         '</mbp:pagebreak>':'',
         '</mbp:pagebreak sdf>':' sdf',
         '</mbp:pagebreak><mbp:pagebreak></mbp:pagebreak>xxx':'xxx',
-        }):
+        }.items():
         ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
         if ans != m:
             raise Exception(f'{ans!r} != {m!r} for {raw!r}')

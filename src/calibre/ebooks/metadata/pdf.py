@@ -13,7 +13,6 @@ from calibre.constants import iswindows
 from calibre.ebooks.metadata import MetaInformation, check_doi, check_isbn, string_to_authors
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import iteritems
 
 
 def get_tools():
@@ -169,9 +168,9 @@ def get_metadata(stream, cover=True):
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
-    for scheme, check_func in iteritems({'doi':check_doi, 'isbn':check_isbn}):
+    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.items():
         if scheme not in mi.get_identifiers():
-            for k, v in iteritems(info):
+            for k, v in info.items():
                 if k != 'xmp_metadata':
                     val = check_func(v)
                     if val:

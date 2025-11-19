@@ -15,7 +15,7 @@ from lxml import etree
 from calibre import my_unichr
 from calibre.ebooks.mobi.utils import PolyglotDict, to_base
 from calibre.ebooks.oeb.base import XHTML_NS, extract
-from polyglot.builtins import as_bytes, iteritems
+from polyglot.builtins import as_bytes
 
 CHUNK_SIZE = 8192
 
@@ -208,7 +208,7 @@ class Chunker:
 
     def remove_namespaces(self, root):
         lang = None
-        for attr, val in iteritems(root.attrib):
+        for attr, val in root.attrib.items():
             if attr.rpartition('}')[-1] == 'lang':
                 lang = val
 
@@ -242,11 +242,11 @@ class Chunker:
                 tn = tag.tag
                 if tn is not None:
                     tn = tn.rpartition('}')[-1]
-                attrib = {k.rpartition('}')[-1]:v for k, v in iteritems(tag.attrib)}
+                attrib = {k.rpartition('}')[-1]:v for k, v in tag.attrib.items()}
                 try:
                     elem = nroot.makeelement(tn, attrib=attrib)
                 except ValueError:
-                    attrib = {k:v for k, v in iteritems(attrib) if ':' not in k}
+                    attrib = {k:v for k, v in attrib.items() if ':' not in k}
                     elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text
             elem.tail = tag.tail
@@ -394,8 +394,7 @@ class Chunker:
             pos, fid = to_base(pos, min_num_digits=4), to_href(fid)
             return ':off:'.join((pos, fid)).encode('utf-8')
 
-        placeholder_map = {as_bytes(k):to_placeholder(v) for k, v in
-                iteritems(self.placeholder_map)}
+        placeholder_map = {as_bytes(k):to_placeholder(v) for k, v in self.placeholder_map.items()}
 
         # Now update the links
         def sub(match):

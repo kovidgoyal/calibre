@@ -10,7 +10,6 @@ from collections import Counter, OrderedDict
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
-from polyglot.builtins import iteritems, itervalues
 
 
 class PageProperties:
@@ -121,7 +120,7 @@ class Styles:
         self.default_paragraph_style = self.default_character_style = None
 
     def __iter__(self):
-        yield from itervalues(self.id_map)
+        yield from self.id_map.values()
 
     def __getitem__(self, key):
         return self.id_map[key]
@@ -339,7 +338,7 @@ class Styles:
                     setattr(s, prop, inherit)
                 setattr(block_style, prop, next(iter(vals)))
 
-        for p, runs in iteritems(layers):
+        for p, runs in layers.items():
             has_links = '1' in {r.get('is-link', None) for r in runs}
             char_styles = [self.resolve_run(r) for r in runs]
             block_style = self.resolve_paragraph(p)
@@ -423,7 +422,7 @@ class Styles:
             ps.pageBreakBefore = True
 
     def register(self, css, prefix):
-        h = hash(frozenset(iteritems(css)))
+        h = hash(frozenset(css.items()))
         ans, _ = self.classes.get(h, (None, None))
         if ans is None:
             self.counter[prefix] += 1
@@ -432,17 +431,17 @@ class Styles:
         return ans
 
     def generate_classes(self):
-        for bs in itervalues(self.para_cache):
+        for bs in self.para_cache.values():
             css = bs.css
             if css:
                 self.register(css, 'block')
-        for bs in itervalues(self.run_cache):
+        for bs in self.run_cache.values():
             css = bs.css
             if css:
                 self.register(css, 'text')
 
     def class_name(self, css):
-        h = hash(frozenset(iteritems(css)))
+        h = hash(frozenset(css.items()))
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):
@@ -499,8 +498,8 @@ class Styles:
             prefix = ef + '\n' + prefix
 
         ans = []
-        for cls, css in sorted(itervalues(self.classes), key=lambda x:x[0]):
-            b = (f'\t{k}: {v};' for k, v in iteritems(css))
+        for cls, css in sorted(self.classes.values(), key=lambda x:x[0]):
+            b = (f'\t{k}: {v};' for k, v in css.items())
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))
         return prefix + '\n' + '\n'.join(ans)

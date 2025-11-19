@@ -31,7 +31,6 @@ from calibre.customize.ui import preferences_plugins
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import ConfigProxy
-from polyglot.builtins import string_or_bytes
 
 
 class AbortCommit(Exception):
@@ -190,7 +189,7 @@ class Setting:
             else:
                 self.gui_obj.clear()
                 for x in choices:
-                    if isinstance(x, string_or_bytes):
+                    if isinstance(x, (str, bytes)):
                         x = (x, x)
                     self.gui_obj.addItem(x[0], (x[1]))
         self.set_gui_val(self.get_config_val(default=False))

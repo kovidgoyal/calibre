@@ -27,7 +27,6 @@ from calibre.ebooks.mobi.writer8.toc import TOCAdder
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG_MIME, XHTML, XPath, extract, urlnormalize
 from calibre.ebooks.oeb.normalize_css import condense_sheet
 from calibre.ebooks.oeb.parse_utils import barename
-from polyglot.builtins import iteritems
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 
@@ -131,7 +130,7 @@ class KF8Writer:
             if item.media_type in XML_DOCS:
                 root = self.data(item)
                 for tag in XPath('//h:img|//svg:image')(root):
-                    for attr, ref in iteritems(tag.attrib):
+                    for attr, ref in tag.attrib.items():
                         if attr.split('}')[-1].lower() in {'src', 'href'}:
                             tag.attrib[attr] = pointer(item, ref)
 
@@ -204,7 +203,7 @@ class KF8Writer:
                 extract(tag)
                 inlines[raw].append(repl)
 
-        for raw, elems in iteritems(inlines):
+        for raw, elems in inlines.items():
             idx = to_ref(len(self.flows))
             self.flows.append(raw)
             for link in elems:
@@ -317,7 +316,7 @@ class KF8Writer:
 
     def chunk_it_up(self):
         placeholder_map = {}
-        for placeholder, x in iteritems(self.link_map):
+        for placeholder, x in self.link_map.items():
             href, frag = x
             aid = self.id_map.get(x, None)
             if aid is None:

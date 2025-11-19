@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.logging import Log, Stream
-from polyglot.builtins import iteritems
 
 
 class VirtualContainer(ContainerBase):
@@ -155,7 +154,7 @@ class CascadeTest(BaseTest):
             files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
-                for k, v in iteritems(font):
+                for k, v in font.items():
                     if k == 'src':
                         files[v] = b'xxx'
                         v = f'url({v})'
@@ -185,7 +184,7 @@ class CascadeTest(BaseTest):
         def fkey(*args, **kw):
             f = font(*args, **kw)
             f['font-family'] = icu_lower(f['font-family'][0])
-            return frozenset((k, v) for k, v in iteritems(f) if k in font_keys)
+            return frozenset((k, v) for k, v in f.items() if k in font_keys)
 
         def fu(text, *args, **kw):
             key = fkey(*args, **kw)

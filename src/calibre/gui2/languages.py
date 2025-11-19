@@ -11,7 +11,6 @@ from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
-from polyglot.builtins import iteritems, itervalues
 
 
 class LanguagesEdit(EditWithComplete):
@@ -24,16 +23,16 @@ class LanguagesEdit(EditWithComplete):
         self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
         self._lang_map = lang_map_for_ui()
-        self.names_with_commas = [x for x in itervalues(self._lang_map) if ',' in x]
+        self.names_with_commas = [x for x in self._lang_map.values() if ',' in x]
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
-        self.comma_rmap = {v:k for k, v in iteritems(self.comma_map)}
-        self._rmap = {lower(v):k for k,v in iteritems(self._lang_map)}
+        self.comma_rmap = {v:k for k, v in self.comma_map.items()}
+        self._rmap = {lower(v):k for k,v in self._lang_map.items()}
         self.init_langs(db)
         self.item_selected.connect(self.update_recently_used)
         self.lineEdit().set_use_startswith_search(False)
 
     def init_langs(self, db):
-        self.update_items_cache(itervalues(self._lang_map))
+        self.update_items_cache(self._lang_map.values())
 
     def refresh_recently_used(self):
         recently_used = self.prefs.get('recently_used_languages') or ()
@@ -56,7 +55,7 @@ class LanguagesEdit(EditWithComplete):
     @property
     def vals(self):
         raw = str(self.lineEdit().text())
-        for k, v in iteritems(self.comma_map):
+        for k, v in self.comma_map.items():
             raw = raw.replace(k, v)
         parts = [x.strip() for x in raw.split(',')]
         return [self.comma_rmap.get(x, x) for x in parts]

@@ -52,7 +52,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import cmp
 
 
 class ExtraFile(NamedTuple):
@@ -118,7 +118,7 @@ def _add_newbook_tag(mi):
 
 def _add_default_custom_column_values(mi, fm):
     cols = fm.custom_field_metadata(include_composites=False)
-    for cc,col in iteritems(cols):
+    for cc,col in cols.items():
         dv = col['display'].get('default_value', None)
         try:
             if dv is not None:
@@ -261,7 +261,7 @@ class Cache:
         self.backend.dirty_books_with_dirtied_annotations()
         self.dirtied_cache = {x:i for i, x in enumerate(self.backend.dirtied_books())}
         if self.dirtied_cache:
-            self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
+            self.dirtied_sequence = max(self.dirtied_cache.values())+1
         self._initialize_dynamic_categories()
 
     @write_api
@@ -274,7 +274,7 @@ class Cache:
 
     @write_api
     def clear_composite_caches(self, book_ids=None):
-        for field in itervalues(self.composites):
+        for field in self.composites.values():
             field.clear_caches(book_ids=book_ids)
 
     @write_api
@@ -305,7 +305,7 @@ class Cache:
     def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
         if template_cache:
             self._initialize_template_cache()  # Clear the formatter template cache
-        for field in itervalues(self.fields):
+        for field in self.fields.values():
             if hasattr(field, 'clear_caches'):
                 field.clear_caches(book_ids=book_ids)  # Clear the composite cache and ondevice caches
         if book_ids:
@@ -332,7 +332,7 @@ class Cache:
         with self.backend.conn:  # Prevent other processes, such as calibredb from interrupting the reload by locking the db
             self.backend.prefs.load_from_db()
             self._search_api.saved_searches.load_from_db()
-            for field in itervalues(self.fields):
+            for field in self.fields.values():
                 if hasattr(field, 'table'):
                     field.table.read(self.backend)  # Reread data from metadata.db
 
@@ -439,7 +439,7 @@ class Cache:
             self.backend.read_tables()
             bools_are_tristate = self.backend.prefs['bools_are_tristate']
 
-            for field, table in iteritems(self.backend.tables):
+            for field, table in self.backend.tables.items():
                 self.fields[field] = create_field(field, table, bools_are_tristate,
                                                   self.backend.get_template_functions, self.database_instance)
                 if table.metadata['datatype'] == 'composite':
@@ -448,7 +448,7 @@ class Cache:
             self.fields['ondevice'] = create_field('ondevice', VirtualTable('ondevice'), bools_are_tristate,
                                                    self.backend.get_template_functions, self.database_instance)
 
-            for name, field in iteritems(self.fields):
+            for name, field in self.fields.items():
                 if name[0] == '#' and name.endswith('_index'):
                     field.series_field = self.fields[name[:-len('_index')]]
                     self.fields[name[:-len('_index')]].index_field = field
@@ -936,7 +936,7 @@ class Cache:
         ''' Return a mapping of id to usage count for all values of the specified
         field, which must be a many-one or many-many field. '''
         try:
-            return {k:len(v) for k, v in iteritems(self.fields[field].table.col_book_map)}
+            return {k:len(v) for k, v in self.fields[field].table.col_book_map.items()}
         except AttributeError:
             raise ValueError(f'{field} is not a many-one or many-many field')
 
@@ -1604,12 +1604,12 @@ class Cache:
         new_dirtied = book_ids - already_dirtied
         already_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(already_dirtied)}
         if already_dirtied:
-            self.dirtied_sequence = max(itervalues(already_dirtied)) + 1
+            self.dirtied_sequence = max(already_dirtied.values()) + 1
         self.dirtied_cache.update(already_dirtied)
         if new_dirtied:
             self.backend.dirty_books(new_dirtied)
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
-            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
+            self.dirtied_sequence = max(new_dirtied.values()) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
@@ -1625,7 +1625,7 @@ class Cache:
         new_dirtied = book_ids - set(self.dirtied_cache)
         if new_dirtied:
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
-            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
+            self.dirtied_sequence = max(new_dirtied.values()) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
@@ -1650,8 +1650,8 @@ class Cache:
         if is_series:
             bimap, simap = {}, {}
             sfield = self.fields[name + '_index']
-            for k, v in iteritems(book_id_to_val_map):
-                if isinstance(v, string_or_bytes):
+            for k, v in book_id_to_val_map.items():
+                if isinstance(v, (str, bytes)):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
@@ -1802,7 +1802,7 @@ class Cache:
         QPixmap, file object or bytestring. It can also be None, in which
         case any existing cover is removed. '''
 
-        for book_id, data in iteritems(book_id_data_map):
+        for book_id, data in book_id_data_map.items():
             try:
                 path = self._get_book_path(book_id)
             except (KeyError, AttributeError):
@@ -1813,7 +1813,7 @@ class Cache:
         for cc in self.cover_caches:
             cc.invalidate(book_id_data_map)
         return self._set_field('cover', {
-            book_id:(0 if data is None else 1) for book_id, data in iteritems(book_id_data_map)})
+            book_id:(0 if data is None else 1) for book_id, data in book_id_data_map.items()})
 
     @write_api
     def add_cover_cache(self, cover_cache):
@@ -1882,7 +1882,7 @@ class Cache:
         # force_changes has no effect on cover manipulation
         try:
             cdata = mi.cover_data[1]
-            if cdata is None and isinstance(mi.cover, string_or_bytes) and mi.cover and os.access(mi.cover, os.R_OK):
+            if cdata is None and isinstance(mi.cover, (str, bytes)) and mi.cover and os.access(mi.cover, os.R_OK):
                 with open(mi.cover, 'rb') as f:
                     cdata = f.read() or None
             if cdata is not None:
@@ -1923,7 +1923,7 @@ class Cache:
                     protected_set_field('identifiers', mi_idents)
                 elif mi_idents:
                     identifiers = self._field_for('identifiers', book_id, default_value={})
-                    for key, val in iteritems(mi_idents):
+                    for key, val in mi_idents.items():
                         if val and val.strip():  # Don't delete an existing identifier
                             identifiers[icu_lower(key)] = val
                     protected_set_field('identifiers', identifiers)
@@ -2038,17 +2038,17 @@ class Cache:
         :return: A map of book id to set of formats actually deleted from the filesystem for that book
         '''
         table = self.fields['formats'].table
-        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in iteritems(formats_map)}
+        formats_map = {book_id:frozenset((f or '').upper() for f in fmts) for book_id, fmts in formats_map.items()}
         removed_map = {}
 
-        for book_id, fmts in iteritems(formats_map):
+        for book_id, fmts in formats_map.items():
             for fmt in fmts:
                 self.format_metadata_cache[book_id].pop(fmt, None)
 
         if not db_only:
             removes = defaultdict(set)
             metadata_map = {}
-            for book_id, fmts in iteritems(formats_map):
+            for book_id, fmts in formats_map.items():
                 try:
                     path = self._get_book_path(book_id)
                 except Exception:
@@ -2068,7 +2068,7 @@ class Cache:
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
 
-        for book_id, fmts in iteritems(formats_map):
+        for book_id, fmts in formats_map.items():
             for fmt in fmts:
                 run_plugins_on_postdelete(self, book_id, fmt)
 
@@ -2107,7 +2107,7 @@ class Cache:
         string. '''
         table = self.fields['authors'].table
         result = []
-        rmap = {key_func(v):k for k, v in iteritems(table.id_map)}
+        rmap = {key_func(v):k for k, v in table.id_map.items()}
         for aut in authors:
             aid = rmap.get(key_func(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
@@ -2119,10 +2119,10 @@ class Cache:
         implementation of :meth:`has_book` in a worker process without access to the
         db. '''
         try:
-            return {icu_lower(title) for title in itervalues(self.fields['title'].table.book_col_map)}
+            return {icu_lower(title) for title in self.fields['title'].table.book_col_map.values()}
         except TypeError:
             # Some non-unicode titles in the db
-            return {icu_lower(as_unicode(title)) for title in itervalues(self.fields['title'].table.book_col_map)}
+            return {icu_lower(as_unicode(title)) for title in self.fields['title'].table.book_col_map.values()}
 
     @read_api
     def has_book(self, mi):
@@ -2134,7 +2134,7 @@ class Cache:
             if isbytestring(title):
                 title = title.decode(preferred_encoding, 'replace')
             q = icu_lower(title).strip()
-            for title in itervalues(self.fields['title'].table.book_col_map):
+            for title in self.fields['title'].table.book_col_map.values():
                 if q == icu_lower(title):
                     return True
         return False
@@ -2251,7 +2251,7 @@ class Cache:
                 except Exception:
                     traceback.print_exc()
         self.backend.remove_books(path_map, permanent=permanent)
-        for field in itervalues(self.fields):
+        for field in self.fields.values():
             try:
                 table = field.table
             except AttributeError:
@@ -2294,7 +2294,7 @@ class Cache:
                 restrict_to_book_ids = frozenset(restrict_to_book_ids)
             id_map = {}
             default_process_map = {}
-            for old_id, new_name in iteritems(item_id_to_new_name_map):
+            for old_id, new_name in item_id_to_new_name_map.items():
                 new_names = tuple(x.strip() for x in new_name.split(sv)) if sv else (new_name,)
                 # Get a list of books in the VL with the item
                 books_with_id = f.books_for(old_id)
@@ -2365,7 +2365,7 @@ class Cache:
         if affected_books:
             if field == 'authors':
                 self._set_field('author_sort',
-                                {k:' & '.join(v) for k, v in iteritems(self._author_sort_strings_for_books(affected_books))})
+                                {k:' & '.join(v) for k, v in self._author_sort_strings_for_books(affected_books).items()})
                 self._update_path(affected_books, mark_as_dirtied=False)
             elif change_index and hasattr(f, 'index_field') and tweaks['series_index_auto_increment'] != 'no_change':
                 for book_id in moved_books:
@@ -2477,7 +2477,7 @@ class Cache:
             insensitive).
 
         '''
-        tag_map = {icu_lower(v):k for k, v in iteritems(self._get_id_map('tags'))}
+        tag_map = {icu_lower(v):k for k, v in self._get_id_map('tags').items()}
         tag = icu_lower(tag.strip())
         mht = icu_lower(must_have_tag.strip()) if must_have_tag else None
         tag_id, mht_id = tag_map.get(tag, None), tag_map.get(mht, None)
@@ -2490,7 +2490,7 @@ class Cache:
                 tagged_books = tagged_books.intersection(self._books_for_field('tags', mht_id))
             if tagged_books:
                 if must_have_authors is not None:
-                    amap = {icu_lower(v):k for k, v in iteritems(self._get_id_map('authors'))}
+                    amap = {icu_lower(v):k for k, v in self._get_id_map('authors').items()}
                     books = None
                     for author in must_have_authors:
                         abooks = self._books_for_field('authors', amap.get(icu_lower(author), None))
@@ -2708,7 +2708,7 @@ class Cache:
         db. See db.utils for an implementation. '''
         at = self.fields['authors'].table
         author_map = defaultdict(set)
-        for aid, author in iteritems(at.id_map):
+        for aid, author in at.id_map.items():
             author_map[icu_lower(author)].add(aid)
         return (author_map, at.col_book_map.copy(), self.fields['title'].table.book_col_map.copy(), self.fields['languages'].book_value_map.copy())
 
@@ -3028,7 +3028,7 @@ class Cache:
         for book_id in book_ids:
             proxy_metadata = pmm.get(book_id) or self._get_proxy_metadata(book_id)
             user_cat_vals = ans[book_id] = {}
-            for ucat, categories in iteritems(user_cats):
+            for ucat, categories in user_cats.items():
                 user_cat_vals[ucat] = res = []
                 for name, cat, ign in categories:
                     try:
@@ -3317,7 +3317,7 @@ class Cache:
             a = adata['annotation']
             ts = (parse_iso8601(a['timestamp']) - EPOCH).total_seconds()
             umap[key].append((a, ts))
-        for (user_type, user, fmt), annots_list in iteritems(umap):
+        for (user_type, user, fmt), annots_list in umap.items():
             self._set_annotations_for_book(book_id, fmt, annots_list, user_type=user_type, user=user)
 
     @write_api
@@ -3337,7 +3337,7 @@ class Cache:
         amap = self._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user)
         merge_annotations(annots_list, amap)
         alist = []
-        for val in itervalues(amap):
+        for val in amap.values():
             for annot in val:
                 ts = (parse_iso8601(annot['timestamp']) - EPOCH).total_seconds()
                 alist.append((annot, ts))
@@ -3600,9 +3600,9 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
 
-    format_data = {int(book_id):data for book_id, data in iteritems(metadata['format_data'])}
+    format_data = {int(book_id):data for book_id, data in metadata['format_data'].items()}
     extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
-    for i, (book_id, fmt_key_map) in enumerate(iteritems(format_data)):
+    for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
         if abort is not None and abort.is_set():
             return
         title = cache._field_for('title', book_id)

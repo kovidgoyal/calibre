@@ -9,7 +9,6 @@ from qt.core import QApplication, QEvent, QInputDevice, QMouseEvent, QObject, QP
 
 from calibre.startup import connect_lambda
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues
 
 HOLD_THRESHOLD = 1.0  # seconds
 TAP_THRESHOLD  = 50   # manhattan pixels
@@ -96,14 +95,14 @@ class State(QObject):
         else:
             self.check_for_holds()
             if Flick in self.possible_gestures:
-                tp = next(itervalues(self.touch_points))
+                tp = next(iter(self.touch_points.values()))
                 self.flicking.emit(tp, False)
 
     def check_for_holds(self):
         if not {TapAndHold} & self.possible_gestures:
             return
         now = monotonic()
-        tp = next(itervalues(self.touch_points))
+        tp = next(iter(self.touch_points.values()))
         if now - tp.time_of_last_move < HOLD_THRESHOLD:
             return
         if self.hold_started:
@@ -121,20 +120,20 @@ class State(QObject):
 
     def finalize(self):
         if Tap in self.possible_gestures:
-            tp = next(itervalues(self.touch_points))
+            tp = next(iter(self.touch_points.values()))
             if tp.total_movement <= TAP_THRESHOLD:
                 self.tapped.emit(tp)
                 return
 
         if Flick in self.possible_gestures:
-            tp = next(itervalues(self.touch_points))
+            tp = next(iter(self.touch_points.values()))
             self.flicking.emit(tp, True)
 
         if not self.hold_started:
             return
 
         if TapAndHold in self.possible_gestures:
-            tp = next(itervalues(self.touch_points))
+            tp = next(iter(self.touch_points.values()))
             self.tap_hold_finished.emit(tp)
             return
 

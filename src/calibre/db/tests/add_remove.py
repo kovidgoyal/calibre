@@ -18,7 +18,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE, now, utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.resources import get_image_path
-from polyglot.builtins import iteritems, itervalues
 
 
 def import_test(replacement_data, replacement_fmt=None):
@@ -227,14 +226,14 @@ class AddRemoveTest(BaseTest):
         authors = cache.fields['authors'].table
 
         # Delete a single book, with no formats and check cleaning
-        self.assertIn('Unknown', set(itervalues(authors.id_map)))
+        self.assertIn('Unknown', set(authors.id_map.values()))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in iteritems(authors.id_map)}['Unknown']
+        item_id = {v:k for k, v in authors.id_map.items()}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(3, c.all_book_ids())
-            self.assertNotIn('Unknown', set(itervalues(table.id_map)))
+            self.assertNotIn('Unknown', set(table.id_map.values()))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.link_map)
             ae(len(table.id_map), olen-1)
@@ -245,17 +244,17 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         os.mkdir(os.path.join(authorpath, '.DS_Store'))
         open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
-        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
+        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
             self.assertNotIn(1, c.all_book_ids())
-            self.assertNotIn('Author Two', set(itervalues(table.id_map)))
-            self.assertNotIn(6, set(itervalues(c.fields['rating'].table.id_map)))
-            self.assertIn('A Series One', set(itervalues(c.fields['series'].table.id_map)))
-            self.assertNotIn('My Series Two', set(itervalues(c.fields['#series'].table.id_map)))
+            self.assertNotIn('Author Two', set(table.id_map.values()))
+            self.assertNotIn(6, set(c.fields['rating'].table.id_map.values()))
+            self.assertIn('A Series One', set(c.fields['series'].table.id_map.values()))
+            self.assertNotIn('My Series Two', set(c.fields['#series'].table.id_map.values()))
             self.assertNotIn(item_id, c.fields['#series'].table.col_book_map)
             self.assertNotIn(1, c.fields['#series'].table.book_col_map)
 
@@ -276,7 +275,7 @@ class AddRemoveTest(BaseTest):
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
-        item_id = {v:k for k, v in iteritems(cache.fields['#series'].table.id_map)}['My Series Two']
+        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')

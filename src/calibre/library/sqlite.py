@@ -8,12 +8,14 @@ all calls.
 '''
 
 import os
+import reprlib
 import sqlite3 as sqlite
 import time
 import traceback
 import uuid
 from datetime import datetime, timezone
 from functools import partial
+from queue import Queue
 from sqlite3 import IntegrityError, OperationalError
 from threading import RLock, Thread
 
@@ -23,9 +25,7 @@ from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz, parse_date
 from calibre.utils.icu import sort_key
 from calibre_extensions import speedup as _c_speedup
-from polyglot import reprlib
-from polyglot.builtins import cmp, native_string_type
-from polyglot.queue import Queue
+from polyglot.builtins import cmp
 
 global_lock = RLock()
 
@@ -77,7 +77,7 @@ def adapt_datetime(dt):
 
 
 sqlite.register_adapter(datetime, adapt_datetime)
-sqlite.register_converter(native_string_type('timestamp'), convert_timestamp)
+sqlite.register_converter('timestamp', convert_timestamp)
 
 
 def convert_bool(val):
@@ -85,8 +85,8 @@ def convert_bool(val):
 
 
 sqlite.register_adapter(bool, lambda x: 1 if x else 0)
-sqlite.register_converter(native_string_type('bool'), convert_bool)
-sqlite.register_converter(native_string_type('BOOL'), convert_bool)
+sqlite.register_converter('bool', convert_bool)
+sqlite.register_converter('BOOL', convert_bool)
 
 
 class DynamicFilter:
@@ -261,7 +261,7 @@ def do_connect(path, row_factory=None):
     conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row: list(row))
     conn.create_aggregate('concat', 1, Concatenate)
     conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
-    conn.create_collation(native_string_type('PYNOCASE'), partial(pynocase,
+    conn.create_collation('PYNOCASE', partial(pynocase,
         encoding=encoding))
     conn.create_function('title_sort', 1, title_sort)
     conn.create_function('author_to_author_sort', 1,
@@ -269,7 +269,7 @@ def do_connect(path, row_factory=None):
     conn.create_function('uuid4', 0, lambda: str(uuid.uuid4()))
     # Dummy functions for dynamically created filters
     conn.create_function('books_list_filter', 1, lambda x: 1)
-    conn.create_collation(native_string_type('icucollate'), icu_collator)
+    conn.create_collation('icucollate', icu_collator)
     plugins.load_sqlite3_extension(conn, 'sqlite_extension')
     return conn
 

@@ -7,7 +7,9 @@ class Recipe:
 
 
 def get_download_filename_from_response(response):
-    from polyglot.urllib import unquote, urlparse
+    from urllib.parse import urlparse
+
+    from polyglot.urllib import unquote
     filename = last_part_name = ''
     try:
         purl = urlparse(response.geturl())

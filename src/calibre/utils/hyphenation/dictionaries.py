@@ -6,6 +6,7 @@ import errno
 import json
 import os
 import tarfile
+from functools import lru_cache
 from io import BytesIO
 
 from calibre.constants import cache_dir
@@ -13,18 +14,16 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
-from polyglot.functools import lru_cache
 
 
 def locale_map():
     ans = getattr(locale_map, 'ans', None)
     if ans is None:
-        ans = locale_map.ans = {k.lower(): v for k, v in iteritems(json.loads(P('hyphenation/locales.json', data=True)))}
+        ans = locale_map.ans = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
     return ans
 
 
-@lru_cache()
+@lru_cache
 def dictionary_name_for_locale(loc):
     loc = loc.lower().replace('-', '_')
     lmap = locale_map()
@@ -47,9 +46,9 @@ def dictionary_name_for_locale(loc):
     if loc == 'es':
         return lmap['es_es']
     q = loc + '_'
-    for k, v in iteritems(lmap):
+    for k, v in lmap.items():
         if k.startswith(q):
-            return lmap[k]
+            return v
 
 
 @lru_cache(maxsize=2)
@@ -103,7 +102,7 @@ def is_cache_up_to_date(cache_path):
     return False
 
 
-@lru_cache()
+@lru_cache
 def get_cache_path(cd):
     cache_path = os.path.join(cd, 'hyphenation')
     try:

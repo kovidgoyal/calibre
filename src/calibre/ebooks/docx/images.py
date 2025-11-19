@@ -15,7 +15,6 @@ from calibre.ebooks.docx.names import SVG_BLIP_URI, barename
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.img import image_to_data, resize_to_fit
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues
 
 
 class LinkedImageNotFound(ValueError):
@@ -87,7 +86,7 @@ def get_image_properties(parent, XPath, get):
 
 def get_image_margins(elem):
     ans = {}
-    for w, css in iteritems({'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}):
+    for w, css in {'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}.items():
         val = elem.get(f'dist{w}', None)
         if val is not None:
             try:
@@ -178,7 +177,7 @@ class Images:
         return raw, base
 
     def unique_name(self, base):
-        exists = frozenset(itervalues(self.used))
+        exists = frozenset(self.used.values())
         c = 1
         name = base
         while name in exists:
@@ -266,7 +265,7 @@ class Images:
                 ans = self.pic_to_img(pic, alt, inline, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
                     yield ans
 
         # Now process the floats
@@ -277,7 +276,7 @@ class Images:
                 ans = self.pic_to_img(pic, alt, anchor, title)
                 if ans is not None:
                     if style:
-                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in iteritems(style)))
+                        ans.set('style', '; '.join(f'{k}: {v}' for k, v in style.items()))
                     yield ans
 
     def pict_to_html(self, pict, page):
@@ -299,7 +298,7 @@ class Images:
                 style['margin-left'] = '0' if align == 'left' else 'auto'
                 style['margin-right'] = 'auto' if align == 'left' else '0'
             if style:
-                hr.set('style', '; '.join((f'{k}:{v}' for k, v in iteritems(style))))
+                hr.set('style', '; '.join((f'{k}:{v}' for k, v in style.items())))
             yield hr
 
         for imagedata in XPath('descendant::v:imagedata[@r:id]')(pict):

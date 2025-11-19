@@ -10,7 +10,7 @@ import re
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
-from polyglot.builtins import codepoint_to_chr, int_to_byte, string_or_bytes
+from polyglot.builtins import int_to_byte
 
 title_pat    = re.compile(br'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(br'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -93,7 +93,7 @@ def decode(raw, codec):
 
     def uni(match):
         try:
-            return codepoint_to_chr(int(match.group(1)))
+            return chr(int(match.group(1)))
         except Exception:
             return '?'
 
@@ -159,7 +159,7 @@ def create_metadata(stream, options):
         md.append(rf'{{\title {title}}}')
     if options.authors:
         au = options.authors
-        if not isinstance(au, string_or_bytes):
+        if not isinstance(au, (str, bytes)):
             au = ', '.join(au)
         author = encode(au)
         md.append(rf'{{\author {author}}}')

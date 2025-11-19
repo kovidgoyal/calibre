@@ -14,7 +14,6 @@ from calibre import as_unicode
 from calibre.constants import config_dir
 from calibre.utils.config import from_json, to_json
 from calibre.utils.localization import _
-from polyglot.builtins import iteritems
 
 
 def as_json(data):
@@ -38,7 +37,7 @@ def parse_restriction(raw):
         lr = {}
     r['allowed_library_names'] = frozenset(x.lower() for x in r.get('allowed_library_names', ()))
     r['blocked_library_names'] = frozenset(x.lower() for x in r.get('blocked_library_names', ()))
-    r['library_restrictions'] = {k.lower(): v or '' for k, v in iteritems(lr)}
+    r['library_restrictions'] = {k.lower(): v or '' for k, v in lr.items()}
     return r
 
 
@@ -48,7 +47,7 @@ def serialize_restriction(r):
         v = r.get(x)
         if v:
             ans[x] = list(v)
-    ans['library_restrictions'] = {l.lower(): v or '' for l, v in iteritems(r.get('library_restrictions', {}))}
+    ans['library_restrictions'] = {l.lower(): v or '' for l, v in r.get('library_restrictions', {}).items()}
     return json.dumps(ans)
 
 

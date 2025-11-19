@@ -2,8 +2,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from polyglot.builtins import iteritems
-from polyglot.urllib import quote, quote_plus
+from urllib.parse import quote, quote_plus
 
 AUTHOR_SEARCHES = {
     'goodreads':
@@ -60,7 +59,7 @@ def specialised_quote(template, val):
 
 
 def url_for(template, data):
-    return template.format(**{k: specialised_quote(template, v) for k, v in iteritems(data)})
+    return template.format(**{k: specialised_quote(template, v) for k, v in data.items()})
 
 
 def url_for_author_search(key, **kw):

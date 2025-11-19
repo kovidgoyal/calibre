@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import http.client
 import inspect
 import json as jsonlib
 import numbers
@@ -12,13 +13,11 @@ import sys
 import textwrap
 import time
 from operator import attrgetter
+from urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
-from polyglot import http_client
-from polyglot.builtins import iteritems, itervalues
-from polyglot.urllib import quote as urlquote
 
 default_methods = frozenset(('HEAD', 'GET'))
 
@@ -191,7 +190,7 @@ class Route:
                 return tc(val)
             except Exception:
                 raise HTTPNotFound('Argument of incorrect type')
-        for name, tc in iteritems(self.type_checkers):
+        for name, tc in self.type_checkers.items():
             args_map[name] = check(tc, args_map[name])
         return (args_map[name] for name in self.names)
 
@@ -212,7 +211,7 @@ class Route:
             return urlquote(x, '')
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
-        args = {k:quoted(v) for k, v in iteritems(args)}
+        args = {k:quoted(v) for k, v in args.items()}
         route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
@@ -255,7 +254,7 @@ class Router:
                 self.add(item)
 
     def __iter__(self):
-        return itervalues(self.routes)
+        yield from self.routes.values()
 
     def finalize(self):
         try:
@@ -301,7 +300,7 @@ class Router:
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
-            raise HTTPSimpleResponse(http_client.METHOD_NOT_ALLOWED)
+            raise HTTPSimpleResponse(http.client.METHOD_NOT_ALLOWED)
 
         self.read_cookies(data)
 

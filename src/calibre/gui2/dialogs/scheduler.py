@@ -58,7 +58,6 @@ from calibre.utils.date import utcnow
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.network import internet_connected
 from calibre.web.feeds.recipes.model import RecipeModel
-from polyglot.builtins import iteritems
 
 
 @lru_cache(2)
@@ -350,7 +349,7 @@ class SchedulerDialog(QDialog):
         self.show_password = spw = QCheckBox(_('&Show password'), self.account)
         spw.stateChanged[int].connect(self.set_pw_echo_mode)
         g.addWidget(spw, 2, 0, 1, 2)
-        for b, c in iteritems(self.SCHEDULE_TYPES):
+        for b, c in self.SCHEDULE_TYPES.items():
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
             b.setToolTip(textwrap.dedent(c.HELP))

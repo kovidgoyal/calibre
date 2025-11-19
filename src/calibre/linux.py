@@ -18,7 +18,6 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 entry_points = {
         'console_scripts': [
@@ -85,7 +84,7 @@ class PreserveMIMEDefaults:  # {{{
                 self.initial_values[x] = None
 
     def __exit__(self, *args):
-        for path, val in iteritems(self.initial_values):
+        for path, val in self.initial_values.items():
             if val is None:
                 try:
                     os.remove(path)
@@ -487,13 +486,13 @@ _ebook_edit() {{
         w('\n_calibredb_cmds() {\n  local commands; commands=(\n')
         w('    {-h,--help}":Show help"\n')
         w('    "--version:Show version"\n')
-        for command, desc in iteritems(descs):
+        for command, desc in descs.items():
             w('    "{}:{}"\n'.format(
                 command, desc.replace(':', '\\:').replace('"', "'")))
         w('  )\n  _describe -t commands "calibredb command" commands \n}\n')
 
         subcommands = []
-        for command, parser in iteritems(parsers):
+        for command, parser in parsers.items():
             exts = []
             if command == 'catalog':
                 exts = [x.lower() for x in available_catalog_formats()]
@@ -550,7 +549,7 @@ _ebook_edit() {{
                 self.do_calibredb(f)
                 self.do_ebook_edit(f)
                 w('case $service in\n')
-                for c, txt in iteritems(self.commands):
+                for c, txt in self.commands.items():
                     w(f'{c})\n{txt}\n;;\n')
                 w('esac\n')
 # }}}
@@ -1271,7 +1270,7 @@ def write_appdata(key, entry, base, translators):
     description = E.description()
     for para in entry['description']:
         description.append(E.p(para))
-        for lang, t in iteritems(translators):
+        for lang, t in translators.items():
             tp = t.gettext(para)
             if tp != para:
                 description.append(E.p(tp, **{'{http://www.w3.org/XML/1998/namespace}lang': lang}))
@@ -1297,7 +1296,7 @@ def write_appdata(key, entry, base, translators):
         E.launchable(entry['desktop-id'], type='desktop-id'),
         type='desktop-application'
     )
-    for lang, t in iteritems(translators):
+    for lang, t in translators.items():
         tp = t.gettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp, **{'{http://www.w3.org/XML/1998/namespace}lang': lang}))

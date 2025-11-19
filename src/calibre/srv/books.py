@@ -24,7 +24,7 @@ from calibre.utils.filenames import rmtree
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import as_unicode, itervalues
+from polyglot.builtins import as_unicode
 
 cache_lock = RLock()
 queued_jobs = {}
@@ -284,7 +284,7 @@ def update_annotations(ctx, rd, library_id, book_id, fmt):
     except Exception:
         raise HTTPNotFound('Invalid data')
     alist = []
-    for val in itervalues(amap):
+    for val in amap.values():
         if val:
             alist.extend(val)
     db.merge_annotations_for_book(book_id, fmt, alist, user_type='web', user=user)

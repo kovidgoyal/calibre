@@ -14,7 +14,6 @@ from calibre.ebooks.mobi.utils import rescale_image
 from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import codepoint_to_chr
 
 '''
 Retrieve and modify in-place Mobipocket book metadata.
@@ -279,7 +278,7 @@ class MetadataUpdater:
 
     def hexdump(self, src, length=16):
         # Diagnostic
-        FILTER=''.join([((len(repr(codepoint_to_chr(x)))==3) and codepoint_to_chr(x)) or '.' for x in range(256)])
+        FILTER=''.join([((len(repr(chr(x)))==3) and chr(x)) or '.' for x in range(256)])
         N=0
         result=''
         while src:

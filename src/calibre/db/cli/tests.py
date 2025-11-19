@@ -11,14 +11,13 @@ import csv
 import unittest
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
-from polyglot.builtins import iteritems
 from polyglot.io import PolyglotBytesIO
 
 
 class Checker:
 
     def __init__(self, kw):
-        for k, v in iteritems(kw):
+        for k, v in kw.items():
             setattr(self, k, v)
 
 

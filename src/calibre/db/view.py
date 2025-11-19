@@ -14,7 +14,6 @@ from functools import partial
 from calibre.db.write import uniq
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import prefs, tweaks
-from polyglot.builtins import iteritems, itervalues
 
 
 def sanitize_sort_field_name(field_metadata, field):
@@ -95,7 +94,7 @@ def format_is_multiple(x, sep=',', repl=None):
 def format_identifiers(x):
     if not x:
         return None
-    return ','.join(f'{k}:{v}' for k, v in iteritems(x))
+    return ','.join(f'{k}:{v}' for k, v in x.items())
 
 
 class View:
@@ -112,7 +111,7 @@ class View:
         self.search_restriction_name = self.base_restriction_name = ''
         self._field_getters = {}
         self.column_count = len(cache.backend.FIELD_MAP)
-        for col, idx in iteritems(cache.backend.FIELD_MAP):
+        for col, idx in cache.backend.FIELD_MAP.items():
             label, fmt = col, lambda x:x
             func = {
                     'id': self._get_id,
@@ -429,7 +428,7 @@ class View:
                                for k in id_dict}
         else:
             # Ensure that all the items in the dict are text
-            self.marked_ids = {k: str(v) for k, v in iteritems(id_dict)}
+            self.marked_ids = {k: str(v) for k, v in id_dict.items()}
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)
@@ -438,7 +437,7 @@ class View:
         self.cache.clear_caches(book_ids=changed_ids)
         # Always call the listener because the labels might have changed even
         # if the ids haven't.
-        for funcref in itervalues(self.marked_listeners):
+        for funcref in self.marked_listeners.values():
             func = funcref()
             if func is not None:
                 func(old_marked_ids, cmids)

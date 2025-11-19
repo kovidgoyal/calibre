@@ -27,7 +27,6 @@ from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class ChooseResources(QWidget):
@@ -63,7 +62,7 @@ class ChooseResources(QWidget):
         self.items.clear()
         self.original_resources = resources
         dc = 0
-        for url, matches in iteritems(resources):
+        for url, matches in resources.items():
             text = url
             num = len(matches)
             if text.startswith('data:'):
@@ -193,7 +192,7 @@ class DownloadResources(Dialog):
         else:
             replacements, failures = ret
             if failures:
-                tb = [f'{url}\n\t{err}\n' for url, err in iteritems(failures)]
+                tb = [f'{url}\n\t{err}\n' for url, err in failures.items()]
                 if not replacements:
                     error_dialog(self, _('Download failed'), _(
                         'Failed to download external resources, click "Show details" for more information.'),

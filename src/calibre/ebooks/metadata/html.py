@@ -19,7 +19,6 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import is_date_undefined, parse_date
-from polyglot.builtins import iteritems
 
 
 def get_metadata(stream):
@@ -56,8 +55,8 @@ META_NAMES = {
     'comments': ('comments', 'dc.description'),
     'tags': ('tags', 'subject'),
 }
-rmap_comment = {v:k for k, v in iteritems(COMMENT_NAMES)}
-rmap_meta = {v:k for k, l in iteritems(META_NAMES) for v in l}
+rmap_comment = {v:k for k, v in COMMENT_NAMES.items()}
+rmap_meta = {v:k for k, l in META_NAMES.items() for v in l}
 
 
 # Extract an HTML attribute value, supports both single and double quotes and
@@ -231,7 +230,7 @@ def get_metadata_(src, encoding=None):
             mi.tags = tags
 
     # IDENTIFIERS
-    for k,v in iteritems(meta_tag_ids):
+    for k,v in meta_tag_ids.items():
         v = [x.strip() for x in v if x.strip()]
         if v:
             mi.set_identifier(k, v[0])

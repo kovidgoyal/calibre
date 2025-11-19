@@ -14,6 +14,7 @@ from collections import deque
 from itertools import count
 from math import ceil
 from multiprocessing import Pipe
+from queue import Empty, Queue
 from threading import Thread
 
 from calibre import detect_ncpus as cpu_count
@@ -25,8 +26,7 @@ from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre.utils.serialize import pickle_loads
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import environ_item, string_or_bytes
-from polyglot.queue import Empty, Queue
+from polyglot.builtins import environ_item
 
 server_counter = count()
 _name_counter = count()
@@ -125,7 +125,7 @@ class Server(Thread):
             redirect_output = not gui
 
         cw = self.do_launch(gui, redirect_output, rfile, job_name=job_name)
-        if isinstance(cw, string_or_bytes):
+        if isinstance(cw, (str, bytes)):
             raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
         if DEBUG:
             print(f'Worker Launch took: {time.monotonic() - start:.2f} seconds')

@@ -12,7 +12,6 @@ from struct import pack
 
 from calibre.ebooks.mobi.utils import CNCX as CNCX_
 from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
-from polyglot.builtins import iteritems, itervalues
 
 
 class CNCX(CNCX_):  # {{{
@@ -108,7 +107,7 @@ class IndexEntry:
             'author_offset': 71,
 
     }
-    RTAG_MAP = {v:k for k, v in iteritems(TAG_VALUES)}
+    RTAG_MAP = {v:k for k, v in TAG_VALUES.items()}
 
     def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
@@ -222,8 +221,7 @@ class SecondaryIndexEntry(IndexEntry):
 
         # The values for this index entry
         # I don't know what the 5 means, it is not the number of entries
-        self.secondary = [5 if tag == min(
-            itervalues(self.INDEX_MAP)) else 0, 0, tag]
+        self.secondary = [5 if tag == min(self.INDEX_MAP.values()) else 0, 0, tag]
 
     @property
     def tag_nums(self):
@@ -235,7 +233,7 @@ class SecondaryIndexEntry(IndexEntry):
 
     @classmethod
     def entries(cls):
-        rmap = {v:k for k,v in iteritems(cls.INDEX_MAP)}
+        rmap = {v:k for k,v in cls.INDEX_MAP.items()}
         for tag in sorted(rmap, reverse=True):
             yield cls(rmap[tag])
 
@@ -280,7 +278,7 @@ class TBS:  # {{{
                 for x in ('starts', 'ends', 'completes'):
                     for idx in data[x]:
                         depth_map[idx.depth].append(idx)
-                for l in itervalues(depth_map):
+                for l in depth_map.values():
                     l.sort(key=lambda x:x.offset)
                 self.periodical_tbs(data, first, depth_map)
         elif not data:

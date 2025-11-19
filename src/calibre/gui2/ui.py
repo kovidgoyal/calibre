@@ -17,6 +17,7 @@ import textwrap
 import time
 from collections import OrderedDict, deque
 from io import BytesIO
+from queue import Empty, Queue
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -68,8 +69,6 @@ from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc.pool import Pool
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import string_or_bytes
-from polyglot.queue import Empty, Queue
 
 
 def get_gui():
@@ -656,7 +655,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def handle_cli_args(self, args):
         from urllib.parse import parse_qs, unquote, urlparse
-        if isinstance(args, string_or_bytes):
+        if isinstance(args, (str, bytes)):
             args = [args]
         files, urls = [], []
         for p in args:

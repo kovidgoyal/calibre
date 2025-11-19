@@ -22,8 +22,7 @@ import os.path as op
 import shutil
 import stat
 from datetime import datetime
-
-from polyglot.urllib import quote
+from urllib.parse import quote
 
 FILES_DIR = 'files'
 INFO_DIR = 'info'

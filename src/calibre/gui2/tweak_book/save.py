@@ -8,6 +8,7 @@ import errno
 import os
 import shutil
 import stat
+from queue import Empty, LifoQueue
 from threading import Thread
 
 from qt.core import QHBoxLayout, QLabel, QObject, QSize, Qt, QWidget, pyqtSignal
@@ -17,7 +18,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
-from polyglot.queue import Empty, LifoQueue
 
 
 def save_dir_container(container, path):

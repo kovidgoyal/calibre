@@ -45,7 +45,6 @@ from calibre.startup import connect_lambda
 from calibre.utils.config import prefs
 from calibre.utils.icu import numeric_sort_key, sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
@@ -299,7 +298,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.setWindowTitle(_('Duplicate books'))
         self.books = QListWidget(self)
         self.items = []
-        for book_id, (title, authors) in iteritems(duplicates):
+        for book_id, (title, authors) in duplicates.items():
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.ItemDataRole.UserRole, book_id)
             i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
@@ -514,7 +513,7 @@ class CopyToLibraryAction(InterfaceAction):
 
         self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
-            books = '\n'.join(itervalues(self.worker.auto_merged_ids))
+            books = '\n'.join(self.worker.auto_merged_ids.values())
             info_dialog(self.gui, _('Auto merged'),
                     _('Some books were automatically merged into existing '
                         'records in the target library. Click "Show '

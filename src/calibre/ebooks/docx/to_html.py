@@ -32,7 +32,6 @@ from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import iteritems, itervalues
 
 NBSP = '\xa0'
 
@@ -127,7 +126,7 @@ class Convert:
 
         self.read_page_properties(doc)
         self.current_rels = relationships_by_id
-        for wp, page_properties in iteritems(self.page_map):
+        for wp, page_properties in self.page_map.items():
             self.current_page = page_properties
             if wp.tag.endswith('}p'):
                 p = self.convert_p(wp)
@@ -167,7 +166,7 @@ class Convert:
                 self.styles.apply_contextual_spacing(paras)
                 self.mark_block_runs(paras)
 
-        for p, wp in iteritems(self.object_map):
+        for p, wp in self.object_map.items():
             if len(p) > 0 and not p.text and len(p[0]) > 0 and not p[0].text and p[0][0].get('class', None) == 'tab':
                 # Paragraph uses tabs for indentation, convert to text-indent
                 parent = p[0]
@@ -198,7 +197,7 @@ class Convert:
         self.tables.apply_markup(self.object_map, self.page_map)
 
         numbered = []
-        for html_obj, obj in iteritems(self.object_map):
+        for html_obj, obj in self.object_map.items():
             raw = obj.get('calibre_num_id', None)
             if raw is not None:
                 lvl, num_id = raw.partition(':')[0::2]
@@ -218,7 +217,7 @@ class Convert:
 
         self.log.debug('Converting styles to CSS')
         self.styles.generate_classes()
-        for html_obj, obj in iteritems(self.object_map):
+        for html_obj, obj in self.object_map.items():
             style = self.styles.resolve(obj)
             if style is not None:
                 css = style.css
@@ -226,7 +225,7 @@ class Convert:
                     cls = self.styles.class_name(css)
                     if cls:
                         html_obj.set('class', cls)
-        for html_obj, css in iteritems(self.framed_map):
+        for html_obj, css in self.framed_map.items():
             cls = self.styles.class_name(css)
             if cls:
                 html_obj.set('class', cls)
@@ -420,13 +419,13 @@ class Convert:
         doc_anchors = frozenset(self.namespace.XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
         if doc_anchors:
             current_bm = set()
-            rmap = {v:k for k, v in iteritems(self.object_map)}
+            rmap = {v:k for k, v in self.object_map.items()}
             for p in self.namespace.descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
                 if p.tag.endswith('}p'):
                     if current_bm and p in rmap:
                         para = rmap[p]
                         if 'id' not in para.attrib:
-                            para.set('id', generate_anchor(next(iter(current_bm)), frozenset(itervalues(self.anchor_map))))
+                            para.set('id', generate_anchor(next(iter(current_bm)), frozenset(self.anchor_map.values())))
                         for name in current_bm:
                             self.anchor_map[name] = para.get('id')
                         current_bm = set()
@@ -482,7 +481,7 @@ class Convert:
                     # _GoBack is a special bookmark inserted by Word 2010 for
                     # the return to previous edit feature, we ignore it
                     old_anchor = current_anchor
-                    self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(itervalues(self.anchor_map)))
+                    self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.values()))
                     if old_anchor is not None:
                         # The previous anchor was not applied to any element
                         for a, t in tuple(self.anchor_map.items()):
@@ -493,11 +492,11 @@ class Convert:
             elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
                 old_anchor = current_anchor
                 anchor = str(uuid.uuid4())
-                self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(itervalues(self.anchor_map)))
+                self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(self.anchor_map.values()))
                 self.toc_anchor = current_anchor
                 if old_anchor is not None:
                     # The previous anchor was not applied to any element
-                    for a, t in tuple(iteritems(self.anchor_map)):
+                    for a, t in tuple(self.anchor_map.items()):
                         if t == old_anchor:
                             self.anchor_map[a] = current_anchor
         if current_anchor is not None:
@@ -583,7 +582,7 @@ class Convert:
 
     def resolve_links(self):
         self.resolved_link_map = {}
-        for hyperlink, spans in iteritems(self.link_map):
+        for hyperlink, spans in self.link_map.items():
             relationships_by_id = self.link_source_map[hyperlink]
             span = spans[0]
             if len(spans) > 1:
@@ -608,7 +607,7 @@ class Convert:
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
-        rmap = {v:k for k, v in iteritems(self.object_map)}
+        rmap = {v:k for k, v in self.object_map.items()}
         for hyperlink, runs in self.fields.hyperlink_fields:
             spans = [rmap[r] for r in runs if r in rmap]
             if not spans:
@@ -773,7 +772,7 @@ class Convert:
 
         if not self.block_runs:
             return
-        rmap = {v:k for k, v in iteritems(self.object_map)}
+        rmap = {v:k for k, v in self.object_map.items()}
         for border_style, blocks in self.block_runs:
             paras = tuple(rmap[p] for p in blocks)
             for p in paras:

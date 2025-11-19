@@ -49,7 +49,6 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -375,7 +374,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if db:
             style_map = {'bold': self.bold_font, 'bi': self.bi_font, 'italic': self.italic_font}
-            self.styled_columns = {k: style_map.get(v, None) for k, v in iteritems(db.new_api.pref('styled_columns', {}))}
+            self.styled_columns = {k: style_map.get(v, None) for k, v in db.new_api.pref('styled_columns', {}).items()}
         self.alignment_map = {}
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
@@ -1045,7 +1044,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return str(e)
             return f
 
-        for f, allow_half in iteritems(rating_fields):
+        for f, allow_half in rating_fields.items():
             tc[f] = stars_tooltip(self.dc[f], allow_half)
         for f in bool_fields:
             tc[f] = bool_tooltip(f)
@@ -1481,7 +1480,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
                     vals = accessor(row)
                     if vals is None:
                         vals = ''
-                    if isinstance(vals, string_or_bytes):
+                    if isinstance(vals, (str, bytes)):
                         vals = vals.split(',') if locvalue == 'collections' else [vals]
                     if _match(query, vals, m, use_primary_find_in_search=upf):
                         matches.add(index)
@@ -1599,7 +1598,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
 
         path = getattr(item, 'path', None)
-        for items in itervalues(self.marked_for_deletion):
+        for items in self.marked_for_deletion.values():
             for x in items:
                 if x is item or (path and path == getattr(x, 'path', None)):
                     return True

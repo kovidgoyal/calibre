@@ -40,7 +40,6 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -117,14 +116,14 @@ class RuleEdit(QWidget):
         l.addLayout(h)
         self.action = a = QComboBox(self)
         h.addWidget(a)
-        for action, text in iteritems(self.ACTION_MAP):
+        for action, text in self.ACTION_MAP.items():
             a.addItem(text, action)
         a.currentIndexChanged.connect(self.update_state)
         self.la1 = la = QLabel('\xa0' + self.SUBJECT + '\xa0')
         h.addWidget(la)
         self.match_type = q = QComboBox(self)
         h.addWidget(q)
-        for action, text in iteritems(self.MATCH_TYPE_MAP):
+        for action, text in self.MATCH_TYPE_MAP.items():
             q.addItem(text, action)
         q.currentIndexChanged.connect(self.update_state)
         self.la2 = la = QLabel(':\xa0')
@@ -497,13 +496,13 @@ class SaveLoadMixin:
     def build_load_menu(self):
         self.load_menu.clear()
         if len(self.PREFS_OBJECT):
-            for name, rules in iteritems(self.PREFS_OBJECT):
+            for name, rules in self.PREFS_OBJECT.items():
                 ac = self.load_menu.addAction(name)
                 ac.setObjectName(name)
                 connect_lambda(ac.triggered, self, lambda self: self.load_ruleset(self.sender().objectName()))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
-            for name, rules in iteritems(self.PREFS_OBJECT):
+            for name, rules in self.PREFS_OBJECT.items():
                 ac = m.addAction(name)
                 ac.setObjectName(name)
                 connect_lambda(ac.triggered, self, lambda self: self.delete_ruleset(self.sender().objectName()))

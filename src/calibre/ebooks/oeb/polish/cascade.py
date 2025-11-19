@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.base import OEB_STYLES, SVG, XHTML, css_text
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from calibre.ebooks.oeb.stylizer import INHERITED, media_ok
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
 
 _html_css_stylesheet = None
 
@@ -97,7 +96,7 @@ def iterdeclaration(decl):
         if n is None:
             yield p
         else:
-            for k, v in iteritems(n(p.name, p.propertyValue)):
+            for k, v in n(p.name, p.propertyValue).items():
                 yield Property(k, v, p.literalpriority)
 
 
@@ -153,7 +152,7 @@ def resolve_pseudo_declarations(decls):
     groups = defaultdict(list)
     for d in decls:
         groups[d.pseudo_element].append(d)
-    return {k:resolve_declarations(v) for k, v in iteritems(groups)}
+    return {k:resolve_declarations(v) for k, v in groups.items()}
 
 
 def resolve_styles(container, name, select=None, sheet_callback=None):
@@ -215,11 +214,11 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
             style_map[elem].append(StyleDeclaration(Specificity(1, 0, 0, 0, 0), normalize_style_declaration(style, name), None))
 
     for l in (style_map, pseudo_style_map):
-        for x in itervalues(l):
+        for x in l.values():
             x.sort(key=itemgetter(0), reverse=True)
 
-    style_map = {elem:resolve_declarations(x) for elem, x in iteritems(style_map)}
-    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in iteritems(pseudo_style_map)}
+    style_map = {elem:resolve_declarations(x) for elem, x in style_map.items()}
+    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.items()}
 
     return partial(resolve_property, style_map), partial(resolve_pseudo_property, style_map, pseudo_style_map), select
 
@@ -230,7 +229,7 @@ _defvals = None
 def defvals():
     global _defvals
     if _defvals is None:
-        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in iteritems(DEFAULTS)}
+        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in DEFAULTS.items()}
     return _defvals
 
 

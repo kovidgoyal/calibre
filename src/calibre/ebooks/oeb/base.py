@@ -15,6 +15,7 @@ from collections import defaultdict
 from functools import lru_cache
 from itertools import count
 from operator import attrgetter
+from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from lxml import etree, html
 
@@ -30,9 +31,7 @@ from calibre.utils.icu import title_case as icu_title
 from calibre.utils.localization import __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, string_or_bytes
 from polyglot.urllib import unquote as urlunquote
-from polyglot.urllib import urldefrag, urljoin, urlparse, urlunparse
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -452,7 +451,7 @@ def serialize(data, media_type, pretty_print=False):
     return b'' if data is None else bytes(data)
 
 
-ASCII_CHARS   = frozenset(codepoint_to_chr(x) for x in range(128))
+ASCII_CHARS   = frozenset(chr(x) for x in range(128))
 UNIBYTE_CHARS = frozenset(x.encode('ascii') for x in ASCII_CHARS)
 USAFE         = ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                  'abcdefghijklmnopqrstuvwxyz'
@@ -721,7 +720,7 @@ class Metadata:
                 term = CALIBRE(local)
             self.term = term
             self.value = value
-            for attr, value in tuple(iteritems(attrib)):
+            for attr, value in tuple(attrib.items()):
                 if isprefixname(value):
                     attrib[attr] = qname(value, nsmap)
                 nsattr = Metadata.OPF_ATTRS.get(attr, attr)
@@ -869,7 +868,7 @@ class Metadata:
 
     def to_opf1(self, parent=None):
         nsmap = self._opf1_nsmap
-        nsrmap = {value: key for key, value in iteritems(nsmap)}
+        nsrmap = {value: key for key, value in nsmap.items()}
         elem = element(parent, 'metadata', nsmap=nsmap)
         dcmeta = element(elem, 'dc-metadata', nsmap=OPF1_NSMAP)
         xmeta = element(elem, 'x-metadata')
@@ -883,7 +882,7 @@ class Metadata:
 
     def to_opf2(self, parent=None):
         nsmap = self._opf2_nsmap
-        nsrmap = {value: key for key, value in iteritems(nsmap)}
+        nsrmap = {value: key for key, value in nsmap.items()}
         elem = element(parent, OPF('metadata'), nsmap=nsmap)
         for term in self.items:
             for item in self.items[term]:
@@ -1051,7 +1050,7 @@ class Manifest:
                 mt = self.media_type.lower()
             except Exception:
                 mt = 'application/octet-stream'
-            if not isinstance(data, string_or_bytes):
+            if not isinstance(data, (str, bytes)):
                 pass  # already parsed
             elif mt in OEB_DOCS:
                 data = self._parse_xhtml(data)
@@ -1306,7 +1305,7 @@ class Spine:
         self.page_progression_direction = None
 
     def _linear(self, linear):
-        if isinstance(linear, string_or_bytes):
+        if isinstance(linear, (str, bytes)):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True
@@ -1452,7 +1451,7 @@ class Guide:
         return self.refs.pop(type, None)
 
     def remove_by_href(self, href):
-        remove = [r for r, i in iteritems(self.refs) if i.href == href]
+        remove = [r for r, i in self.refs.items() if i.href == href]
         for r in remove:
             self.remove(r)
 
@@ -1461,7 +1460,7 @@ class Guide:
     __iter__ = iterkeys
 
     def values(self):
-        return sorted(itervalues(self.refs), key=lambda ref: ref.ORDER.get(ref.type, 10000))
+        return sorted(self.refs.values(), key=lambda ref: ref.ORDER.get(ref.type, 10000))
 
     def items(self):
         yield from self.refs.items()

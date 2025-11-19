@@ -6,13 +6,12 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
+import builtins
 import locale
 import os
 import sys
 
 # Default translation is NOOP
-from polyglot.builtins import builtins
-
 builtins.__dict__['_'] = lambda s: s
 
 # For strings which belong in the translation tables, but which shouldn't be

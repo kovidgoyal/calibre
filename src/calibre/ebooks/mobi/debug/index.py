@@ -11,7 +11,6 @@ from collections import OrderedDict, namedtuple
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import CNCX, INDEX_HEADER_FIELDS, get_tag_section_start, parse_index_record, parse_indx_header, parse_tagx_section
 from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
-from polyglot.builtins import iteritems
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
@@ -106,13 +105,13 @@ class Index:
 
         if self.cncx:
             a('*'*10 + ' CNCX ' + '*'*10)
-            for offset, val in iteritems(self.cncx):
+            for offset, val in self.cncx.items():
                 a(f'{offset:10}: {val}')
             ans.extend(['', ''])
 
         if self.table is not None:
             a('*'*10 + f' {len(self.table)} Index Entries ' + '*'*10)
-            for k, v in iteritems(self.table):
+            for k, v in self.table.items():
                 a(f'{k}: {v!r}')
 
         if self.records:
@@ -204,7 +203,7 @@ class NCXIndex(Index):
             NCXEntry = namedtuple('NCXEntry', 'index start length depth parent '
         'first_child last_child title pos_fid kind')
 
-            for num, x in enumerate(iteritems(self.table)):
+            for num, x in enumerate(self.table.items()):
                 text, tag_map = x
                 entry = e = default_entry.copy()
                 entry['name'] = text
@@ -219,9 +218,9 @@ class NCXIndex(Index):
                             # offset
                             fieldvalue = tuple(tag_map[tag])
                         entry[fieldname] = fieldvalue
-                        for which, name in iteritems({3:'text', 5:'kind', 70:'description',
+                        for which, name in {3:'text', 5:'kind', 70:'description',
                                 71:'author', 72:'image_caption',
-                                73:'image_attribution'}):
+                                73:'image_attribution'}.items():
                             if tag == which:
                                 entry[name] = self.cncx.get(fieldvalue,
                                         default_entry[name])

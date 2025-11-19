@@ -10,6 +10,7 @@ import tempfile
 from collections import deque
 from itertools import chain
 from math import ceil, floor
+from urllib.parse import urlparse
 
 from calibre import __appname__, entity_regex, entity_to_unicode, fit_image, force_unicode, preferred_encoding
 from calibre.constants import filesystem_encoding
@@ -43,8 +44,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextBlock,
 )
 from calibre.ptempfile import PersistentTemporaryFile
-from polyglot.builtins import itervalues, string_or_bytes
-from polyglot.urllib import unquote, urlparse
+from polyglot.urllib import unquote
 
 '''
 Code to convert HTML ebooks into LRF ebooks.
@@ -1129,7 +1129,7 @@ class HTMLConverter:
             ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth'])) / 2)
 
         for prop in ('topskip', 'footskip', 'sidemargin'):
-            if isinstance(ans[prop], string_or_bytes):
+            if isinstance(ans[prop], (str, bytes)):
                 ans[prop] = int(ans[prop])
             ans[prop] = max(ans[prop], 0)
 
@@ -1781,7 +1781,7 @@ class HTMLConverter:
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
 
     def cleanup(self):
-        for _file in chain(itervalues(self.scaled_images), itervalues(self.rotated_images)):
+        for _file in chain(self.scaled_images.values(), self.rotated_images.values()):
             _file.__del__()
 
 

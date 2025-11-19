@@ -9,7 +9,6 @@ from qt.core import QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt
 from calibre.customize.ui import enable_plugin
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from polyglot.builtins import iteritems
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -66,7 +65,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.devices.blockSignals(True)
         self.devices.clear()
         for dev in self.gui.device_manager.devices:
-            for d, name in iteritems(dev.get_user_blacklisted_devices()):
+            for d, name in dev.get_user_blacklisted_devices().items():
                 item = QListWidgetItem(f'{name} [{d}]', self.devices)
                 item.setData(Qt.ItemDataRole.UserRole, (dev, d))
                 item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
@@ -98,7 +97,7 @@ class ConfigWidget(ConfigWidgetBase):
             if e.checkState() == Qt.CheckState.Checked:
                 devs[dev].append(uid)
 
-        for dev, bl in iteritems(devs):
+        for dev, bl in devs.items():
             dev.set_user_blacklisted_devices(bl)
 
         for i in range(self.device_plugins.count()):

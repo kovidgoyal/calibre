@@ -24,7 +24,6 @@ from calibre.utils.formatter_functions import (
     load_user_template_functions,
 )
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -598,7 +597,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         pref_value = []
-        for name, cls in iteritems(self.funcs):
+        for name, cls in self.funcs.items():
             if name not in self.builtins:
                 pref_value.append(cls.to_pref())
         for v in self.st_funcs.values():

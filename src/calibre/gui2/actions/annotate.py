@@ -12,7 +12,6 @@ from calibre.devices.usbms.device import Device
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.progress import ProgressDialog
-from polyglot.builtins import iteritems
 
 
 class Updater(QThread):  # {{{
@@ -152,7 +151,7 @@ class FetchAnnotationsAction(InterfaceAction):
         if errors:
             db = self.gui.library_view.model().db
             entries = []
-            for id_, tb in iteritems(errors):
+            for id_, tb in errors.items():
                 title = id_
                 if isinstance(id_, int):
                     title = db.title(id_, index_is_id=True)

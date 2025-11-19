@@ -15,7 +15,6 @@ from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc, find_existing_n
 from calibre.spell.break_iterator import index_of, split_into_words
 from calibre.spell.dictionary import parse_lang_code
 from calibre.utils.icu import ord_string
-from polyglot.builtins import iteritems
 
 _patterns = None
 
@@ -147,7 +146,7 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     ewords[None] = 0
     read_words_from_html(root, ewords, file_name, locale)
     words[None] += ewords.pop(None)
-    for k, locs in iteritems(ewords):
+    for k, locs in ewords.items():
         for loc in locs:
             loc.location_node, loc.node_item = node, (False, attr)
         words[k].extend(locs)
@@ -327,7 +326,7 @@ def get_all_words(container, book_locale, get_word_count=False, excluded_files=(
         file_words_counts[file_name] = file_word_count
         file_word_count = 0
     count = words.pop(None)
-    ans = {k:group_sort(v) for k, v in iteritems(words)}
+    ans = {k:group_sort(v) for k, v in words.items()}
     if get_word_count:
         return count, ans
     return ans
@@ -395,7 +394,7 @@ def replace_word(container, new_word, locations, locale, undo_cache=None):
 
 def undo_replace_word(container, undo_cache):
     changed = set()
-    for (file_name, node, is_attr, attr), text in iteritems(undo_cache):
+    for (file_name, node, is_attr, attr), text in undo_cache.items():
         node.set(attr, text) if is_attr else setattr(node, attr, text)
         container.replace(file_name, node.getroottree().getroot())
         changed.add(file_name)

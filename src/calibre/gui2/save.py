@@ -10,6 +10,7 @@ import shutil
 import time
 import traceback
 from collections import defaultdict, namedtuple
+from queue import Empty
 
 from qt.core import QObject, Qt, pyqtSignal
 
@@ -26,8 +27,6 @@ from calibre.library.save_to_disk import find_plugboard, get_path_components, pl
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
-from polyglot.builtins import iteritems, itervalues
-from polyglot.queue import Empty
 
 BookId = namedtuple('BookId', 'title authors')
 
@@ -35,11 +34,11 @@ BookId = namedtuple('BookId', 'title authors')
 def ensure_unique_components(data):  # {{{
     cmap = defaultdict(set)
     bid_map = {}
-    for book_id, (mi, components, fmts) in iteritems(data):
+    for book_id, (mi, components, fmts) in data.items():
         cmap[tuple(components)].add(book_id)
         bid_map[book_id] = components
 
-    for book_ids in itervalues(cmap):
+    for book_ids in cmap.values():
         if len(book_ids) > 1:
             for i, book_id in enumerate(sorted(book_ids)[1:]):
                 suffix = f' ({i + 1})'
@@ -155,7 +154,7 @@ class Saver(QObject):
         self.pd.max = len(self.collected_data)
         self.pd.value = 0
         if self.opts.update_metadata:
-            all_fmts = {fmt for data in itervalues(self.collected_data) for fmt in data[2]}
+            all_fmts = {fmt for data in self.collected_data.values() for fmt in data[2]}
             plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
             try:
@@ -358,7 +357,7 @@ class Saver(QObject):
             text = force_unicode(text)
             return '\xa0\xa0\xa0\xa0' + '\n\xa0\xa0\xa0\xa0'.join(text.splitlines())
 
-        for book_id, errors in iteritems(self.errors):
+        for book_id, errors in self.errors.items():
             types = {t for t, data in errors}
             title, authors = self.book_id_data(book_id).title, authors_to_string(self.book_id_data(book_id).authors[:1])
             if report:
@@ -386,7 +385,7 @@ class Saver(QObject):
     def report(self):
         if not self.errors:
             return
-        err_types = {e[0] for errors in itervalues(self.errors) for e in errors}
+        err_types = {e[0] for errors in self.errors.values() for e in errors}
         if err_types == {'metadata'}:
             msg = _('Failed to update metadata in some books, click "Show details" for more information')
             d = warning_dialog

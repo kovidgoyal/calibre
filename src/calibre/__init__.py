@@ -11,7 +11,7 @@ import warnings
 from functools import lru_cache, partial
 from math import floor
 
-from polyglot.builtins import codepoint_to_chr, hasenv, native_string_type
+from polyglot.builtins import hasenv
 
 if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
@@ -126,7 +126,7 @@ def confirm_config_name(name):
 
 
 _filename_sanitize_unicode = frozenset(('\\', '|', '?', '*', '<',        # no2to3
-    '"', ':', '>', '+', '/') + tuple(map(codepoint_to_chr, range(32))))  # no2to3
+    '"', ':', '>', '+', '/') + tuple(map(chr, range(32))))  # no2to3
 
 
 def sanitize_file_name(name, substitute='_'):
@@ -228,7 +228,7 @@ def extract(path, dir):
 
 
 def get_proxies(debug=True):
-    from polyglot.urllib import getproxies
+    from urllib.request import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy or key == 'auto':
@@ -289,7 +289,7 @@ def get_proxy_info(proxy_scheme, proxy_string):
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
     '''
-    from polyglot.urllib import urlparse
+    from urllib.parse import urlparse
     try:
         proxy_url = f'{proxy_scheme}://{proxy_string}'
         urlinfo = urlparse(proxy_url)
@@ -537,7 +537,7 @@ def as_unicode(obj, enc=preferred_encoding):
             obj = str(obj)
         except Exception:
             try:
-                obj = native_string_type(obj)
+                obj = str(obj)
             except Exception:
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)

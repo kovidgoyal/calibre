@@ -27,7 +27,6 @@ import zipfile
 from io import BytesIO
 from xml.sax.xmlreader import InputSource
 
-from polyglot.builtins import unicode_type
 from polyglot.io import PolyglotBytesIO, PolyglotStringIO
 
 from . import element, manifest, meta
@@ -397,7 +396,7 @@ class OpenDocument:
             if what_it_is == IS_FILENAME:
                 self._z.write(fileobj, arcname, zipfile.ZIP_STORED)
             else:
-                zi = zipfile.ZipInfo(unicode_type(arcname), self._now)
+                zi = zipfile.ZipInfo(str(arcname), self._now)
                 zi.compress_type = zipfile.ZIP_STORED
                 zi.external_attr = UNIXPERMS
                 self._z.writestr(zi, fileobj)

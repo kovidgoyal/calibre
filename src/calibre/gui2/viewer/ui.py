@@ -57,7 +57,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.localization import _
-from polyglot.builtins import as_bytes, as_unicode, iteritems, itervalues
+from polyglot.builtins import as_bytes, as_unicode
 
 
 def is_float(x):
@@ -135,7 +135,7 @@ class EbookViewer(MainWindow):
             ans.visibilityChanged.connect(self.dock_visibility_changed)
             return ans
 
-        for dock_def in itervalues(self.dock_defs):
+        for dock_def in self.dock_defs.values():
             setattr(self, '{}_dock'.format(dock_def.name.partition('-')[0]), create_dock(
                 dock_def.title, dock_def.name, dock_def.initial_area, dock_def.allowed_areas))
 
@@ -229,7 +229,7 @@ class EbookViewer(MainWindow):
 
     def shortcuts_changed(self, smap):
         rmap = defaultdict(list)
-        for k, v in iteritems(smap):
+        for k, v in smap.items():
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
         if hasattr(self, 'highlights_widget'):
@@ -675,10 +675,10 @@ class EbookViewer(MainWindow):
                     if other_amap:
                         merge_annotations(other_amap, lib_amap)
                 if lib_amap:
-                    for annot_type, annots in iteritems(lib_amap):
+                    for annot_type, annots in lib_amap.items():
                         merge_annotations(annots, amap)
         else:
-            for annot_type, annots in iteritems(calibre_book_data['annotations_map']):
+            for annot_type, annots in calibre_book_data['annotations_map'].items():
                 merge_annotations(annots, amap)
 
     def update_window_title(self):

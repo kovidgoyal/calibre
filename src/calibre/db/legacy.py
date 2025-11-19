@@ -23,7 +23,6 @@ from calibre.db.write import clean_identifier, get_series_values
 from calibre.utils.date import utcnow
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.search_query_parser import set_saved_searches
-from polyglot.builtins import iteritems
 
 
 def cleanup_tags(tags):
@@ -286,14 +285,14 @@ class LibraryDatabase:
             return not bool(self.new_api.fields['title'].table.book_col_map)
 
     def get_usage_count_by_id(self, field):
-        return [[k, v] for k, v in iteritems(self.new_api.get_usage_count_by_id(field))]
+        return [[k, v] for k, v in self.new_api.get_usage_count_by_id(field).items()]
 
     def field_id_map(self, field):
-        return list(iteritems(self.new_api.get_id_map(field)))
+        return list(self.new_api.get_id_map(field).items())
 
     def get_custom_items_with_ids(self, label=None, num=None):
         try:
-            return [[k, v] for k, v in iteritems(self.new_api.get_id_map(self.custom_field_name(label, num)))]
+            return [[k, v] for k, v in self.new_api.get_id_map(self.custom_field_name(label, num)).items()]
         except ValueError:
             return []
 
@@ -348,7 +347,7 @@ class LibraryDatabase:
             paths, formats, metadata = [], [], []
             for mi, format_map in duplicates:
                 metadata.append(mi)
-                for fmt, path in iteritems(format_map):
+                for fmt, path in format_map.items():
                     formats.append(fmt)
                     paths.append(path)
             duplicates = (paths, formats, metadata)
@@ -531,7 +530,7 @@ class LibraryDatabase:
         ans = set()
         if title:
             title = icu_lower(force_unicode(title))
-            for book_id, x in iteritems(self.new_api.get_id_map('title')):
+            for book_id, x in self.new_api.get_id_map('title').items():
                 if icu_lower(x) == title:
                     ans.add(book_id)
                     if not all_matches:
@@ -636,7 +635,7 @@ class LibraryDatabase:
 
     def delete_tags(self, tags):
         with self.new_api.write_lock:
-            tag_map = {icu_lower(v):k for k, v in iteritems(self.new_api._get_id_map('tags'))}
+            tag_map = {icu_lower(v):k for k, v in self.new_api._get_id_map('tags').items()}
             tag_ids = (tag_map.get(icu_lower(tag), None) for tag in tags)
             tag_ids = tuple(tid for tid in tag_ids if tid is not None)
             if tag_ids:
@@ -662,7 +661,7 @@ class LibraryDatabase:
 
     def format_files(self, index, index_is_id=False):
         book_id = index if index_is_id else self.id(index)
-        return [(v, k) for k, v in iteritems(self.new_api.format_files(book_id))]
+        return [(v, k) for k, v in self.new_api.format_files(book_id).items()]
 
     def format_metadata(self, book_id, fmt, allow_cache=True, update_db=False, commit=False):
         return self.new_api.format_metadata(book_id, fmt, allow_cache=allow_cache, update_db=update_db)
@@ -746,7 +745,7 @@ class LibraryDatabase:
     def delete_item_from_multiple(self, item, label=None, num=None):
         field = self.custom_field_name(label, num)
         existing = self.new_api.get_id_map(field)
-        rmap = {icu_lower(v):k for k, v in iteritems(existing)}
+        rmap = {icu_lower(v):k for k, v in existing.items()}
         item_id = rmap.get(icu_lower(item), None)
         if item_id is None:
             return []
@@ -961,7 +960,7 @@ for field in ('authors', 'tags', 'publisher', 'series'):
 LibraryDatabase.all_formats = lambda self: self.new_api.all_field_names('formats')
 LibraryDatabase.all_custom = lambda self, label=None, num=None:self.new_api.all_field_names(self.custom_field_name(label, num))
 
-for func, field in iteritems({'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}):
+for func, field in {'all_authors':'authors', 'all_titles':'title', 'all_tags2':'tags', 'all_series':'series', 'all_publishers':'publisher'}.items():
     def getter(field):
         def func(self):
             return self.field_id_map(field)
@@ -970,15 +969,15 @@ for func, field in iteritems({'all_authors':'authors', 'all_titles':'title', 'al
 
 LibraryDatabase.all_tags = lambda self: list(self.all_tag_names())
 LibraryDatabase.get_all_identifier_types = lambda self: list(self.new_api.fields['identifiers'].table.all_identifier_types())
-LibraryDatabase.get_authors_with_ids = lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in iteritems(self.new_api.author_data())]
-LibraryDatabase.get_author_id = lambda self, author: {icu_lower(v):k for k, v in iteritems(self.new_api.get_id_map('authors'))}.get(icu_lower(author), None)
+LibraryDatabase.get_authors_with_ids = lambda self: [[aid, adata['name'], adata['sort'], adata['link']] for aid, adata in self.new_api.author_data().items()]
+LibraryDatabase.get_author_id = lambda self, author: {icu_lower(v):k for k, v in self.new_api.get_id_map('authors').items()}.get(icu_lower(author), None)
 
 for field in ('tags', 'series', 'publishers', 'ratings', 'languages'):
     def getter(field):
         fname = field[:-1] if field in {'publishers', 'ratings'} else field
 
         def func(self):
-            return [[tid, tag] for tid, tag in iteritems(self.new_api.get_id_map(fname))]
+            return [[tid, tag] for tid, tag in self.new_api.get_id_map(fname).items()]
         return func
     setattr(LibraryDatabase, f'get_{field}_with_ids', getter(field))
 

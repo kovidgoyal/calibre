@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 from calibre.utils.filenames import nlinks_file
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems, itervalues
 
 
 def get_container(*args, **kwargs):
@@ -41,7 +40,7 @@ class ContainerTests(BaseTest):
             c2 = clone_container(c1, tdir)
 
             for c in (c1, c2):
-                for name, path in iteritems(c.name_path_map):
+                for name, path in c.name_path_map.items():
                     self.assertEqual(2, nlinks_file(path), f'The file {name} is not linked')
 
             for name in c1.name_path_map:
@@ -187,13 +186,13 @@ class ContainerTests(BaseTest):
         name = 'folder/added file.html'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(itervalues(c.manifest_id_map)))
+        self.assertIn(name, set(c.manifest_id_map.values()))
         self.assertIn(name, {x[0] for x in c.spine_names})
 
         name = 'added.css'
         c.add_file(name, b'xxx')
         self.assertEqual('xxx', c.raw_data(name))
-        self.assertIn(name, set(itervalues(c.manifest_id_map)))
+        self.assertIn(name, set(c.manifest_id_map.values()))
         self.assertNotIn(name, {x[0] for x in c.spine_names})
         self.assertEqual(c.make_name_unique(name), 'added-1.css')
         c.add_file('added-1.css', b'xxx')

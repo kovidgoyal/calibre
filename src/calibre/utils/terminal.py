@@ -10,7 +10,6 @@ import sys
 
 from calibre.constants import iswindows
 from calibre.prints import is_binary
-from polyglot.builtins import iteritems
 
 if iswindows:
     import ctypes.wintypes
@@ -55,7 +54,7 @@ RATTRIBUTES = dict(
             'concealed'
             )
         ))
-ATTRIBUTES = {v:fmt(k) for k, v in iteritems(RATTRIBUTES)}
+ATTRIBUTES = {v:fmt(k) for k, v in RATTRIBUTES.items()}
 del ATTRIBUTES['']
 
 RBACKGROUNDS = dict(
@@ -69,7 +68,7 @@ RBACKGROUNDS = dict(
             'white'
             ),
     ))
-BACKGROUNDS = {v:fmt(k) for k, v in iteritems(RBACKGROUNDS)}
+BACKGROUNDS = {v:fmt(k) for k, v in RBACKGROUNDS.items()}
 
 RCOLORS = dict(
         zip(range(31, 38), (
@@ -82,7 +81,7 @@ RCOLORS = dict(
             'white',
             ),
         ))
-COLORS = {v:fmt(k) for k, v in iteritems(RCOLORS)}
+COLORS = {v:fmt(k) for k, v in RCOLORS.items()}
 
 RESET = fmt(0)
 

@@ -43,7 +43,6 @@ from calibre.utils.fonts.scanner import NoFonts, font_scanner
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 def rule_for_font(font_file, added_name):
@@ -354,7 +353,7 @@ class ManageFonts(Dialog):
         fonts = self.get_selected_data()
         if not fonts:
             return
-        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.items() if embedded}, self)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
         changed = False

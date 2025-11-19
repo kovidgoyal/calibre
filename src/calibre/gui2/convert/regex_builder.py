@@ -16,7 +16,6 @@ from calibre.gui2.widgets2 import to_plain_text
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import native_string_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -40,7 +39,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         self.cancelled = False
         self.button_box.accepted.connect(self.accept)
-        self.regex.textChanged[native_string_type].connect(self.regex_valid)
+        self.regex.textChanged[str].connect(self.regex_valid)
         for src, slot in (('test', 'do'), ('previous', 'goto'), ('next',
             'goto')):
             getattr(self, src).clicked.connect(getattr(self, f'{slot}_{src}'))

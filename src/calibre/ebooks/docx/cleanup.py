@@ -6,8 +6,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from polyglot.builtins import itervalues
-
 NBSP = '\xa0'
 
 
@@ -154,7 +152,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                 current_run = [span]
 
     # Process dir attributes
-    class_map = dict(itervalues(styles.classes))
+    class_map = dict(styles.classes.values())
     parents = ('p', 'div') + tuple(f'h{i}' for i in range(1, 7))
     for parent in root.xpath('//*[({})]'.format(' or '.join(f'name()="{t}"' for t in parents))):
         # Ensure that children of rtl parents that are not rtl have an

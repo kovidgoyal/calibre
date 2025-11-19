@@ -13,7 +13,6 @@ from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.startup import connect_lambda
-from polyglot.builtins import iteritems
 
 
 class LookAndFeelWidget(Widget, Ui_Form):
@@ -59,7 +58,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             return ans
         if g is self.opt_filter_css:
             ans = set()
-            for key, item in iteritems(self.FILTER_CSS):
+            for key, item in self.FILTER_CSS.items():
                 w = getattr(self, f'filter_css_{key}')
                 if w.isChecked():
                     ans = ans.union(item)
@@ -86,7 +85,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
             if not val:
                 val = ''
             items = frozenset(x.strip().lower() for x in val.split(','))
-            for key, vals in iteritems(self.FILTER_CSS):
+            for key, vals in self.FILTER_CSS.items():
                 w = getattr(self, f'filter_css_{key}')
                 if not vals - items:
                     items = items - vals

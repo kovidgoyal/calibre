@@ -16,7 +16,6 @@ from calibre import force_unicode, replace_entities, strftime
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.date import dt_factory, local_tz, utcnow
 from calibre.utils.logging import default_log
-from polyglot.builtins import string_or_bytes
 
 
 class Article:
@@ -25,7 +24,7 @@ class Article:
         from lxml import html
         self.downloaded = False
         self.id = id
-        if not title or not isinstance(title, string_or_bytes):
+        if not title or not isinstance(title, (str, bytes)):
             title = _('Unknown')
         title = force_unicode(title, 'utf-8')
         self._title = clean_xml_chars(title).strip()

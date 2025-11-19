@@ -14,7 +14,6 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath, css_text
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.fonts.subset import subset
 from calibre.utils.fonts.utils import get_font_names
-from polyglot.builtins import iteritems
 
 
 def remove_font_face_rules(container, sheet, remove_names, base):
@@ -34,7 +33,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 
 def iter_subsettable_fonts(container):
-    for name, mt in iteritems(container.mime_map):
+    for name, mt in container.mime_map.items():
         if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}):
             yield name, mt
 
@@ -91,7 +90,7 @@ def subset_all_fonts(container, font_stats, report):
         changed = True
 
     if remove:
-        for name, mt in iteritems(container.mime_map):
+        for name, mt in container.mime_map.items():
             if mt in OEB_STYLES:
                 sheet = container.parsed(name)
                 if remove_font_face_rules(container, sheet, remove, name):

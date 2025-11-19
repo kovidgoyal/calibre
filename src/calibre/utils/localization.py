@@ -9,7 +9,6 @@ import re
 from gettext import GNUTranslations, NullTranslations
 
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
 
 _available_translations = None
 
@@ -494,7 +493,7 @@ def lang_map():
     translate = _
     global _lang_map
     if _lang_map is None:
-        _lang_map = {k:translate(v) for k, v in iteritems(iso639['by_3'])}
+        _lang_map = {k:translate(v) for k, v in iso639['by_3'].items()}
     return _lang_map
 
 
@@ -525,7 +524,7 @@ def langnames_to_langcodes(names):
     translate = _
     ans = {}
     names = set(names)
-    for k, v in iteritems(iso639['by_3']):
+    for k, v in iso639['by_3'].items():
         tv = translate(v)
         if tv in names:
             names.remove(tv)
@@ -585,7 +584,7 @@ def localize_user_manual_link(url):
     lc = lang_code_for_user_manual()
     if not lc:
         return url
-    from polyglot.urllib import urlparse, urlunparse
+    from urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', f'/generated/{lc}/', parts.path or '')
     path = f'/{lc}{path}'
@@ -610,7 +609,7 @@ def localize_website_link(url):
     langs = website_languages()
     if lc == 'en' or lc not in langs:
         return url
-    from polyglot.urllib import urlparse, urlunparse
+    from urllib.parse import urlparse, urlunparse
     parts = urlparse(url)
     path = f'/{lc}{parts.path}'
     parts = list(parts)

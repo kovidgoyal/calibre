@@ -8,7 +8,6 @@ import numbers
 import unittest
 
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key, decode_cfi, parser
-from polyglot.builtins import iteritems
 
 
 class Tests(unittest.TestCase):
@@ -59,7 +58,7 @@ class Tests(unittest.TestCase):
             if after is not None:
                 ta['after'] = after
             if params:
-                ta['params'] = {str(k):(v,) if isinstance(v, str) else v for k, v in iteritems(params)}
+                ta['params'] = {str(k):(v,) if isinstance(v, str) else v for k, v in params.items()}
             if ta:
                 step['text_assertion'] = ta
             return ans

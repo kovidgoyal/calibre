@@ -39,7 +39,6 @@ from calibre.gui2.widgets import HistoryLineEdit
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class TagBrowserMixin:  # {{{
@@ -458,7 +457,7 @@ class TagBrowserMixin:  # {{{
         if fm['datatype'] == 'series':
             series_index_field = field_name + '_index'
         changes = {}
-        for book_id, existing in iteritems(existing_values):
+        for book_id, existing in existing_values.items():
             if isinstance(existing, tuple):
                 existing = list(existing)
                 if remove:

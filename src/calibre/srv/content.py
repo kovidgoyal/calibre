@@ -13,6 +13,7 @@ from functools import partial
 from io import BytesIO
 from json import load as load_json_file
 from threading import Lock
+from urllib.parse import quote
 
 from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
@@ -37,7 +38,6 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import as_hex_unicode, from_base64_bytes
-from polyglot.urllib import quote
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']

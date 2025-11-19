@@ -51,7 +51,6 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
@@ -279,11 +278,11 @@ class IdentifiersEdit(LineEdit):
     @property
     def as_dict(self):
         parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-        return {k:v for k, v in iteritems({x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}) if k and v}
+        return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.items() if k and v}
 
     @as_dict.setter
     def as_dict(self, val):
-        val = (f'{k}:{v}' for k, v in iteritems(val))
+        val = (f'{k}:{v}' for k, v in val.items())
         self.setText(', '.join(val))
         self.setCursorPosition(0)
 
@@ -576,14 +575,14 @@ class CompareSingle(QWidget):
     def __call__(self, oldmi, newmi):
         self.current_mi = newmi
         self.initial_vals = {}
-        for field, widgets in iteritems(self.widgets):
+        for field, widgets in self.widgets.items():
             widgets.old.from_mi(oldmi)
             widgets.new.from_mi(newmi)
             self.initial_vals[field] = widgets.new.current_val
 
     def apply_changes(self):
         changed = False
-        for field, widgets in iteritems(self.widgets):
+        for field, widgets in self.widgets.items():
             val = widgets.new.current_val
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)
@@ -885,6 +884,6 @@ if __name__ == '__main__':
         return list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()
-    for changed, mi in itervalues(d.accepted):
+    for changed, mi in d.accepted.values():
         if changed and mi is not None:
             print(mi)

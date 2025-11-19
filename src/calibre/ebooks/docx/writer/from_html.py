@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.base import XPath, barename
 from calibre.ebooks.oeb.stylizer import Style as St
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz
 from calibre.utils.localization import lang_as_iso639_1
-from polyglot.builtins import string_or_bytes
 
 
 def lang_for_tag(tag):
@@ -546,7 +545,7 @@ class Convert:
                 self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
             for child in html_tag.iterchildren():
-                if isinstance(getattr(child, 'tag', None), string_or_bytes):
+                if isinstance(getattr(child, 'tag', None), (str, bytes)):
                     self.process_tag(child, stylizer, float_spec=float_spec)
                 else:  # Comment/PI/etc.
                     tail = getattr(child, 'tail', None)

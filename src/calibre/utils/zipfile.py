@@ -20,7 +20,7 @@ from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import as_bytes, string_or_bytes
+from polyglot.builtins import as_bytes
 
 try:
     from calibre_extensions.speedup import pread_all
@@ -782,7 +782,7 @@ class ZipFile:
         self.comment = b''
 
         # Check if we were passed a file-like object
-        if isinstance(file, string_or_bytes):
+        if isinstance(file, (str, bytes)):
             self._filePassed = 0
             self.filename = file
             modeDict = {'r': 'rb', 'w': 'wb', 'a': 'r+b'}

@@ -21,7 +21,6 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_contains, primary_no_punc_contains, sort_key
 from calibre.utils.localization import canonicalize_lang, lang_map
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -174,7 +173,7 @@ class DateSearch:  # {{{
                     matches |= book_ids
             return matches
 
-        for k, relop in iteritems(self.operators):
+        for k, relop in self.operators.items():
             if query.startswith(k):
                 query = query[len(k):]
                 break
@@ -210,7 +209,7 @@ class DateSearch:  # {{{
                     field_count = query.count('/') + 1
 
         for v, book_ids in field_iter():
-            if isinstance(v, string_or_bytes):
+            if isinstance(v, (str, bytes)):
                 v = parse_date(v)
             if v is not None and relop(dt_as_local(v), qd, field_count):
                 matches |= book_ids
@@ -268,7 +267,7 @@ class NumericSearch:  # {{{
                 def relop(x, y):
                     return (x is not None)
         else:
-            for k, relop in iteritems(self.operators):
+            for k, relop in self.operators.items():
                 if query.startswith(k):
                     query = query[len(k):]
                     break
@@ -388,7 +387,7 @@ class KeyPairSearch:  # {{{
             return found if valq == 'true' else candidates - found
 
         for m, book_ids in field_iter():
-            for key, val in iteritems(m):
+            for key, val in m.items():
                 if (keyq and not _match(keyq, (key,), keyq_mkind,
                                         use_primary_find_in_search=use_primary_find)):
                     continue
@@ -737,7 +736,7 @@ class Parser(SearchQueryParser):  # {{{
                 q = canonicalize_lang(query)
                 if q is None:
                     lm = lang_map()
-                    rm = {v.lower():k for k,v in iteritems(lm)}
+                    rm = {v.lower():k for k,v in lm.items()}
                     q = rm.get(query, query)
 
             if matchkind == CONTAINS_MATCH and q.lower() in {'true', 'false'}:
@@ -773,7 +772,7 @@ class Parser(SearchQueryParser):  # {{{
             if location in text_fields:
                 for val, book_ids in self.field_iter(location, current_candidates):
                     if val is not None:
-                        if isinstance(val, string_or_bytes):
+                        if isinstance(val, (str, bytes)):
                             val = (val,)
                         if _match(q, val, matchkind, use_primary_find_in_search=upf, case_sensitive=case_sensitive):
                             matches |= book_ids
@@ -866,7 +865,7 @@ class LRUCache:  # {{{
         return self.get(key)
 
     def __iter__(self):
-        return iteritems(self.item_map)
+        yield from self.item_map.items()
 # }}}
 
 

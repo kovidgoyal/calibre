@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.prints import debug_print
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
-from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes
+from polyglot.builtins import cmp
 
 
 def none_cmp(xx, yy):
@@ -33,7 +33,7 @@ def none_cmp(xx, yy):
         return 1
     if y is None:
         return -1
-    if isinstance(x, string_or_bytes) and isinstance(y, string_or_bytes):
+    if isinstance(x, (str, bytes)) and isinstance(y, (str, bytes)):
         x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
     try:
         c = cmp(x, y)
@@ -306,8 +306,8 @@ class CollectionsBookList(BookList):
         # Sort collections
         result = {}
 
-        for category, lpaths in iteritems(collections):
-            books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))
+        for category, lpaths in collections.items():
+            books = sorted(lpaths.values(), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         return result
 

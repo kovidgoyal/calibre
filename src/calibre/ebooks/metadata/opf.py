@@ -8,7 +8,6 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF, pretty_print
 from calibre.ebooks.metadata.opf3 import apply_metadata, read_metadata
 from calibre.ebooks.metadata.utils import create_manifest_item, normalize_languages, parse_opf, parse_opf_version
-from polyglot.builtins import iteritems
 
 
 class DummyFile:
@@ -65,7 +64,7 @@ def set_metadata_opf2(
     else:
         orig = opf.get_identifiers()
         orig.update(mi.get_identifiers())
-        opf.set_identifiers({k:v for k, v in iteritems(orig) if k and v})
+        opf.set_identifiers({k:v for k, v in orig.items() if k and v})
     if update_timestamp and mi.timestamp is not None:
         opf.timestamp = mi.timestamp
     raster_cover = opf.raster_cover

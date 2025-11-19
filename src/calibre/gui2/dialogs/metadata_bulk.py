@@ -47,7 +47,7 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
 from calibre.utils.localization import ngettext
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import error_message, iteritems, itervalues, native_string_type
+from polyglot.builtins import error_message
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -275,8 +275,8 @@ class MyBlockingBusy(QDialog):  # {{{
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
-            new_title_map = {bid:new_title(authors) for bid, authors in iteritems(authors_map)}
-            new_authors_map = {bid:string_to_authors(title) for bid, title in iteritems(title_map)}
+            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.items()}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.items()}
             self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
@@ -286,7 +286,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_title_case and not args.do_swap_ta:
             self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:change_title_casing(title) for bid, title in iteritems(title_map)})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.items()})
             self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
@@ -467,7 +467,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + (i * args.series_increment)
-                    next_num = _get_next_series_num_for_list(sorted(itervalues(sval)), unwrap=False)
+                    next_num = _get_next_series_num_for_list(sorted(sval.values()), unwrap=False)
                     sval[bid] = next_num
                     return next_num
 
@@ -544,7 +544,7 @@ class MyBlockingBusy(QDialog):  # {{{
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
                 self.progress_update.emit(0)
-                for field, book_id_val_map in iteritems(self.sr_calls):
+                for field, book_id_val_map in self.sr_calls.items():
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
                 self.progress_finished_cur_step.emit()
@@ -776,7 +776,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
         self.s_r_template.initialize('bulk_edit_template')
-        self.s_r_template.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.s_r_template.editTextChanged[str].connect(self.s_r_paint_results)
         self.s_r_edit_template_button.setIcon(QIcon.ic('edit_input.png'))
         self.s_r_edit_template_button.clicked.connect(self.s_r_edit_template_button_clicked)
         self.test_text.initialize('bulk_edit_test_test')
@@ -879,9 +879,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         self.replace_mode.currentIndexChanged.connect(self.s_r_paint_results)
         self.replace_func.currentIndexChanged.connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged.connect(self.s_r_identifier_type_changed)
@@ -943,7 +943,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [f'{t[0]}:{t[1]}' for t in iteritems(val)]
+                    val = [f'{t[0]}:{t[1]}' for t in val.items()]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -1133,7 +1133,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [f'{t[0]}:{t[1]}' for t in iteritems(dest_val)]
+                    dest_val = [f'{t[0]}:{t[1]}' for t in dest_val.items()]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):

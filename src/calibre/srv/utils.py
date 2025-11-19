@@ -6,9 +6,13 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno
 import os
+import reprlib
 import socket
 from email.utils import formatdate
+from http.cookies import SimpleCookie
 from operator import itemgetter
+from urllib.parse import parse_qs
+from urllib.parse import quote as urlquote
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -17,13 +21,9 @@ from calibre.utils.localization import get_translator
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot import reprlib
 from polyglot.binary import as_hex_unicode as encode_name
 from polyglot.binary import from_hex_unicode as decode_name
-from polyglot.builtins import as_unicode, iteritems
-from polyglot.http_cookie import SimpleCookie
-from polyglot.urllib import parse_qs
-from polyglot.urllib import quote as urlquote
+from polyglot.builtins import as_unicode
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -49,12 +49,12 @@ class MultiDict(dict):  # {{{
     def create_from_query_string(qs):
         ans = MultiDict()
         qs = as_unicode(qs)
-        for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
+        for k, v in parse_qs(qs, keep_blank_values=True).items():
             dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in iteritems(ld):
+        for key, values in ld.items():
             for val in values:
                 self[key] = val
 
@@ -101,7 +101,7 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in iteritems(self)) + '}'
+        return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in self.items()) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):

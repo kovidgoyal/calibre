@@ -29,7 +29,6 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems
 
 
 class SourcesModel(QAbstractTableModel):  # {{{
@@ -136,7 +135,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         return Qt.ItemFlag.ItemIsEditable | ans
 
     def commit(self):
-        for plugin, val in iteritems(self.enabled_overrides):
+        for plugin, val in self.enabled_overrides.items():
             if val == Qt.CheckState.Checked:
                 enable_plugin(plugin)
             elif val == Qt.CheckState.Unchecked:
@@ -144,7 +143,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
         if self.cover_overrides:
             cp = msprefs['cover_priorities']
-            for plugin, val in iteritems(self.cover_overrides):
+            for plugin, val in self.cover_overrides.items():
                 if val == 1:
                     cp.pop(plugin.name, None)
                 else:
@@ -254,7 +253,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit(self):
         ignored_fields = {x for x in msprefs['ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in iteritems(self.overrides) if v ==
+        changed = {k for k, v in self.overrides.items() if v ==
             Qt.CheckState.Unchecked}
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
@@ -270,7 +269,7 @@ class FieldsModel(QAbstractListModel):  # {{{
     def commit_user_defaults(self):
         default_ignored_fields = {x for x in msprefs['user_default_ignore_fields'] if x not in
             self.overrides}
-        changed = {k for k, v in iteritems(self.overrides) if v ==
+        changed = {k for k, v in self.overrides.items() if v ==
             Qt.CheckState.Unchecked}
         msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 

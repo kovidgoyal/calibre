@@ -40,7 +40,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, itervalues
 
 
 class Polish(QDialog):  # {{{
@@ -116,7 +115,7 @@ class Polish(QDialog):  # {{{
             ('upgrade_book', _('Up&grade book internals')),
         ])
         prefs = gprefs.get('polishing_settings', {})
-        for name, text in iteritems(self.all_actions):
+        for name, text in self.all_actions.items():
             count += 1
             x = QCheckBox(text, self)
             x.setChecked(prefs.get(name, False))
@@ -269,7 +268,7 @@ class Polish(QDialog):  # {{{
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
         self.jobs = []
         if len(self.book_id_map) <= 5:
-            for i, (book_id, formats) in enumerate(iteritems(self.book_id_map)):
+            for i, (book_id, formats) in enumerate(self.book_id_map.items()):
                 self.do_book(i+1, book_id, formats)
         else:
             self.queue = [(i+1, id_) for i, id_ in enumerate(self.book_id_map)]
@@ -469,7 +468,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         db = self.gui.library_view.model().db
         ans = (db.id(r) for r in rows)
         ans = self.get_supported_books(ans)
-        for fmts in itervalues(ans):
+        for fmts in ans.values():
             for x in fmts:
                 if x.startswith('ORIGINAL_'):
                     from calibre.gui2.dialogs.confirm_delete import confirm
@@ -498,7 +497,7 @@ class PolishAction(InterfaceActionWithLibraryDrop):
                   ' formats. Convert to one of those formats before polishing.')
                          %_(' or ').join(sorted(SUPPORTED)), show=True)
         ans = OrderedDict(ans)
-        for fmts in itervalues(ans):
+        for fmts in ans.values():
             for x in SUPPORTED:
                 if ('ORIGINAL_'+x) in fmts:
                     fmts.discard(x)

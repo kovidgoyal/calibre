@@ -27,7 +27,6 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import string_or_bytes
 
 DEBUG_README=b'''
 This debug folder contains snapshots of the e-book as it passes through the
@@ -1004,7 +1003,7 @@ OptionRecommendation(name='search_replace',
 
     def dump_input(self, ret, output_dir):
         out_dir = os.path.join(self.opts.debug_pipeline, 'input')
-        if isinstance(ret, string_or_bytes):
+        if isinstance(ret, (str, bytes)):
             shutil.copytree(output_dir, out_dir)
         else:
             if not os.path.exists(out_dir):
@@ -1119,7 +1118,7 @@ OptionRecommendation(name='search_replace',
 
         if self.opts.transform_html_rules:
             transform_html_rules = self.opts.transform_html_rules
-            if isinstance(transform_html_rules, string_or_bytes):
+            if isinstance(transform_html_rules, (str, bytes)):
                 transform_html_rules = json.loads(transform_html_rules)
             from calibre.ebooks.html_transform_rules import transform_conversion_book
             transform_conversion_book(self.oeb, self.opts, transform_html_rules)
@@ -1212,7 +1211,7 @@ OptionRecommendation(name='search_replace',
         transform_css_rules = ()
         if self.opts.transform_css_rules:
             transform_css_rules = self.opts.transform_css_rules
-            if isinstance(transform_css_rules, string_or_bytes):
+            if isinstance(transform_css_rules, (str, bytes)):
                 transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

@@ -6,7 +6,6 @@ import os
 from struct import error, unpack
 
 from calibre.utils.speedups import ReadOnlyFileBuffer
-from polyglot.builtins import string_or_bytes
 
 ''' Recognize image file formats and sizes based on their first few bytes.'''
 
@@ -16,7 +15,7 @@ HSIZE = 120
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
-        if isinstance(file, string_or_bytes):
+        if isinstance(file, (str, bytes)):
             with open(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:

@@ -24,7 +24,6 @@ from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.prints import debug_print
-from polyglot.builtins import long_type
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -330,7 +329,7 @@ class PRST1(USBMS):
         cursor.execute(query)
         row = cursor.fetchone()
 
-        return long_type(row[0])
+        return int(row[0])
 
     def get_database_min_id(self, source_id):
         sequence_min = 0

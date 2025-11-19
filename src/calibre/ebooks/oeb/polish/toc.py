@@ -9,6 +9,7 @@ import re
 from collections import Counter, OrderedDict
 from functools import partial
 from operator import itemgetter
+from urllib.parse import urlparse
 
 from lxml import etree
 from lxml.builder import ElementMaker
@@ -22,8 +23,6 @@ from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.translations.dynamic import translate
 from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
-from polyglot.builtins import iteritems
-from polyglot.urllib import urlparse
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')
 ns.prefix = 'calibre'
@@ -168,7 +167,7 @@ def parse_ncx(container, ncx_name):
     if navmaps:
         process_ncx_node(container, navmaps[0], toc_root, ncx_name)
     toc_root.lang = toc_root.uid = None
-    for attr, val in iteritems(root.attrib):
+    for attr, val in root.attrib.items():
         if attr.endswith('lang'):
             toc_root.lang = str(val)
             break
@@ -437,14 +436,14 @@ def from_xpaths(container, xpaths, prefer_title=False):
         name = container.abspath_to_name(spinepath)
         root = container.parsed(name)
         level_item_map = maps[name] = {i+1:frozenset(xp(root)) for i, xp in enumerate(xpaths)}
-        for lvl, elems in iteritems(level_item_map):
+        for lvl, elems in level_item_map.items():
             if elems:
                 empty_levels.discard(lvl)
     # Remove empty levels from all level_maps
     if empty_levels:
-        for name, lmap in tuple(iteritems(maps)):
-            lmap = {lvl:items for lvl, items in iteritems(lmap) if lvl not in empty_levels}
-            lmap = sorted(iteritems(lmap), key=itemgetter(0))
+        for name, lmap in tuple(maps.items()):
+            lmap = {lvl:items for lvl, items in lmap.items() if lvl not in empty_levels}
+            lmap = sorted(lmap.items(), key=itemgetter(0))
             lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
             maps[name] = lmap
 
@@ -462,9 +461,9 @@ def from_xpaths(container, xpaths, prefer_title=False):
 
         return process_node(tocroot)
 
-    for name, level_item_map in iteritems(maps):
+    for name, level_item_map in maps.items():
         root = container.parsed(name)
-        item_level_map = {e:i for i, elems in iteritems(level_item_map) for e in elems}
+        item_level_map = {e:i for i, elems in level_item_map.items() for e in elems}
         item_dirtied = False
         all_ids = set(root.xpath('//*/@id'))
 

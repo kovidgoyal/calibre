@@ -13,14 +13,13 @@ from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
 
 def matching_rule(font, rules):
     ff = font['font-family']
-    if not isinstance(ff, string_or_bytes):
+    if not isinstance(ff, (str, bytes)):
         ff = tuple(ff)[0]
     family = icu_lower(ff)
     wt = font['font-weight']
@@ -30,7 +29,7 @@ def matching_rule(font, rules):
     for rule in rules:
         if rule['font-style'] == style and rule['font-stretch'] == stretch and rule['font-weight'] == wt:
             ff = rule['font-family']
-            if not isinstance(ff, string_or_bytes):
+            if not isinstance(ff, (str, bytes)):
                 ff = tuple(ff)[0]
             if icu_lower(ff) == family:
                 return rule
@@ -77,7 +76,7 @@ def filter_by_stretch(fonts, val):
     else:
         candidates = expanded or condensed
     distance_map = {i:abs(stretch_map[i] - val) for i in candidates}
-    min_dist = min(itervalues(distance_map))
+    min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -125,7 +124,7 @@ def filter_by_weight(fonts, val):
             return [fonts[rmap[400]]]
         candidates = below or above
     distance_map = {i:abs(weight_map[i] - val) for i in candidates}
-    min_dist = min(itervalues(distance_map))
+    min_dist = min(distance_map.values())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -152,7 +151,7 @@ def do_embed(container, font, report):
     with container.open(name, 'wb') as out:
         out.write(data)
     href = container.name_to_href(name)
-    rule = {k:font.get(k, v) for k, v in iteritems(props)}
+    rule = {k:font.get(k, v) for k, v in props.items()}
     rule['src'] = f'url({href})'
     rule['name'] = name
     return rule
@@ -161,7 +160,7 @@ def do_embed(container, font, report):
 def embed_font(container, font, all_font_rules, report, warned):
     rule = matching_rule(font, all_font_rules)
     ff = font['font-family']
-    if not isinstance(ff, string_or_bytes):
+    if not isinstance(ff, (str, bytes)):
         ff = ff[0]
     if rule is None:
         from calibre.utils.fonts.scanner import NoFonts, font_scanner
@@ -186,7 +185,7 @@ def embed_font(container, font, all_font_rules, report, warned):
     else:
         name = rule['src']
         href = container.name_to_href(name)
-        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in iteritems(props)}
+        rule = {k:ff if k == 'font-family' else rule.get(k, v) for k, v in props.items()}
         rule['src'] = f'url({href})'
         rule['name'] = name
         return rule
@@ -197,7 +196,7 @@ def font_key(font):
 
 
 def embed_all_fonts(container, stats, report):
-    all_font_rules = tuple(itervalues(stats.all_font_rules))
+    all_font_rules = tuple(stats.all_font_rules.values())
     warned = set()
     rules, nrules = [], {}
     modified = set()
@@ -210,7 +209,7 @@ def embed_all_fonts(container, stats, report):
         if None in (fs, fu, fr):
             continue
         fs = {icu_lower(x) for x in fs}
-        for font in itervalues(fu):
+        for font in fu.values():
             if icu_lower(font['font-family']) not in fs:
                 continue
             rule = matching_rule(font, fr)
@@ -237,7 +236,7 @@ def embed_all_fonts(container, stats, report):
 
     # Write out CSS
     rules = [';\n\t'.join('{}: {}'.format(
-        k, f'"{v}"' if k == 'font-family' else v) for k, v in iteritems(rulel) if (k in props and props[k] != v and v != '400') or k == 'src')
+        k, f'"{v}"' if k == 'font-family' else v) for k, v in rulel.items() if (k in props and props[k] != v and v != '400') or k == 'src')
         for rulel in rules]
     css = '\n\n'.join([f'@font-face {{\n\t{r}\n}}' for r in rules])
     item = container.generate_item('fonts.css', id_prefix='font_embed')

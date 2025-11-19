@@ -17,7 +17,6 @@ from calibre.constants import __appname__, isxp, numeric_version
 from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import iteritems, itervalues
 
 null = object()
 
@@ -147,7 +146,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     self.currently_connected_pnp_id in self.detected_devices
                     else None)
 
-        for dev, data in iteritems(self.detected_devices):
+        for dev, data in self.detected_devices.items():
             if dev in self.blacklisted_devices or dev in self.ejected_devices:
                 # Ignore blacklisted and ejected devices
                 continue
@@ -284,10 +283,10 @@ class MTP_DEVICE(MTPDeviceBase):
                 self._currently_getting_sid = str(storage_id)
                 id_map = self.dev.get_filesystem(storage_id, partial(
                         self._filesystem_callback, {}))
-                for x in itervalues(id_map):
+                for x in id_map.values():
                     x['storage_id'] = storage_id
                 all_storage.append(storage)
-                items.append(itervalues(id_map))
+                items.append(id_map.values())
             self._filesystem_cache = FilesystemCache(all_storage, chain(*items))
             debug(f'Filesystem metadata loaded in {time.time()-st:g} seconds ({len(self._filesystem_cache)} objects)')
         return self._filesystem_cache

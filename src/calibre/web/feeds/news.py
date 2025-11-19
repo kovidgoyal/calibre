@@ -33,7 +33,6 @@ from calibre.web.feeds import Feed, feed_from_xml, feeds_from_index, templates
 from calibre.web.fetch.simple import AbortArticle, RecursiveFetcher
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.utils import prepare_masthead_image
-from polyglot.builtins import string_or_bytes
 
 
 def classes(classes):
@@ -1751,7 +1750,7 @@ class BasicNewsRecipe(Recipe):
         parsed_feeds = []
         br = self.browser
         for obj in feeds:
-            if isinstance(obj, string_or_bytes):
+            if isinstance(obj, (str, bytes)):
                 title, url = None, obj
             else:
                 title, url = obj
@@ -1812,7 +1811,7 @@ class BasicNewsRecipe(Recipe):
         '''
         if tag is None:
             return ''
-        if isinstance(tag, string_or_bytes):
+        if isinstance(tag, (str, bytes)):
             return tag
         if callable(getattr(tag, 'xpath', None)) and not hasattr(tag, 'contents'):  # a lxml tag
             from lxml.etree import tostring

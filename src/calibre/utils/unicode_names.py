@@ -5,7 +5,6 @@
 from collections import defaultdict
 
 from calibre.utils.icu import ord_string
-from polyglot.builtins import iteritems
 
 
 def character_name_from_code(code):
@@ -18,7 +17,7 @@ def html_entities():
     if ans is None:
         from calibre.ebooks.html_entities import html5_entities
         ans = defaultdict(set)
-        for name, char in iteritems(html5_entities):
+        for name, char in html5_entities.items():
             try:
                 ans[name.lower()].add(ord_string(char)[0])
             except TypeError:

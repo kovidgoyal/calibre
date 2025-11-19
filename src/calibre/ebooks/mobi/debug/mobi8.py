@@ -18,7 +18,7 @@ from calibre.ebooks.mobi.debug.index import GuideIndex, NCXIndex, SECTIndex, SKE
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.utils import RECORD_SIZE, decode_tbs, read_font_record
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues, print_to_binary_file
+from polyglot.builtins import print_to_binary_file
 
 
 class FDST:
@@ -263,7 +263,7 @@ class MOBIFile:
             desc = [f'Record #{i}']
             for s, strand in enumerate(strands):
                 desc.append(f'Strand {s}')
-                for entries in itervalues(strand):
+                for entries in strand.values():
                     for e in entries:
                         desc.append(
                         ' {}{} [{:<9}] parent: {} ({}) Geometry: ({}, {})'.format(
@@ -281,7 +281,7 @@ class MOBIFile:
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
-                extra = {bin(k):v for k, v in iteritems(extra)}
+                extra = {bin(k):v for k, v in extra.items()}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
                 desc.append(f'Sequence #{j}: {seq[0]!r} {seq[1]!r}')

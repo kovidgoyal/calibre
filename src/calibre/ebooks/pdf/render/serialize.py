@@ -15,7 +15,7 @@ from calibre.ebooks.pdf.render.common import EOL, Array, Dictionary, Name, Refer
 from calibre.ebooks.pdf.render.fonts import FontManager
 from calibre.ebooks.pdf.render.links import Links
 from calibre.utils.date import utcnow
-from polyglot.builtins import as_unicode, iteritems
+from polyglot.builtins import as_unicode
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
@@ -116,24 +116,24 @@ class Page(Stream):
         r = Dictionary()
         if self.opacities:
             extgs = Dictionary()
-            for opref, name in iteritems(self.opacities):
+            for opref, name in self.opacities.items():
                 extgs[name] = opref
             r['ExtGState'] = extgs
         if self.fonts:
             fonts = Dictionary()
-            for ref, name in iteritems(self.fonts):
+            for ref, name in self.fonts.items():
                 fonts[name] = ref
             r['Font'] = fonts
         if self.xobjects:
             xobjects = Dictionary()
-            for ref, name in iteritems(self.xobjects):
+            for ref, name in self.xobjects.items():
                 xobjects[name] = ref
             r['XObject'] = xobjects
         if self.patterns:
             r['ColorSpace'] = Dictionary({'PCSp':Array(
                 [Name('Pattern'), Name('DeviceRGB')])})
             patterns = Dictionary()
-            for ref, name in iteritems(self.patterns):
+            for ref, name in self.patterns.items():
                 patterns[name] = ref
             r['Pattern'] = patterns
         if r:

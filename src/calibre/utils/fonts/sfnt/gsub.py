@@ -11,7 +11,6 @@ from struct import unpack_from
 from calibre.utils.fonts.sfnt import FixedProperty, UnknownTable
 from calibre.utils.fonts.sfnt.common import ExtensionSubstitution, FeatureListTable, LookupTable, ScriptListTable, SimpleListTable, UnknownLookupSubTable
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import iteritems, itervalues
 
 
 class SingleSubstitution(UnknownLookupSubTable):
@@ -29,7 +28,7 @@ class SingleSubstitution(UnknownLookupSubTable):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
         if self.format == 1:
             return {gid + self.delta for gid in gid_index_map}
-        return {self.substitutes[i] for i in itervalues(gid_index_map)}
+        return {self.substitutes[i] for i in gid_index_map.values()}
 
 
 class MultipleSubstitution(UnknownLookupSubTable):
@@ -42,7 +41,7 @@ class MultipleSubstitution(UnknownLookupSubTable):
     def all_substitutions(self, glyph_ids):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
         ans = set()
-        for index in itervalues(gid_index_map):
+        for index in gid_index_map.values():
             glyphs = set(self.coverage_to_subs_map[index])
             ans |= glyphs
         return ans
@@ -67,7 +66,7 @@ class LigatureSubstitution(UnknownLookupSubTable):
     def all_substitutions(self, glyph_ids):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
         ans = set()
-        for start_glyph_id, index in iteritems(gid_index_map):
+        for start_glyph_id, index in gid_index_map.items():
             for glyph_id, components in self.coverage_to_lig_map[index]:
                 components = (start_glyph_id,) + components
                 if set(components).issubset(glyph_ids):
@@ -126,7 +125,7 @@ class ReverseChainSingleSubstitution(UnknownLookupSubTable):
 
     def all_substitutions(self, glyph_ids):
         gid_index_map = self.coverage.coverage_indices(glyph_ids)
-        return {self.substitutes[i] for i in itervalues(gid_index_map)}
+        return {self.substitutes[i] for i in gid_index_map.values()}
 
 
 subtable_map = {

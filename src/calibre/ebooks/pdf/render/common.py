@@ -14,7 +14,6 @@ from io import BytesIO
 from calibre.utils.logging import default_log
 from calibre_extensions.speedup import pdf_float
 from polyglot.binary import as_hex_bytes
-from polyglot.builtins import codepoint_to_chr, iteritems
 
 EOL = b'\n'
 
@@ -91,7 +90,7 @@ class Name(str):
         raw = bytearray(raw)
         sharp = ord(b'#')
         buf = (
-            codepoint_to_chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
+            chr(x).encode('ascii') if 33 < x < 126 and x != sharp else
             f'#{x:x}'.encode('ascii') for x in raw)
         stream.write(b'/'+b''.join(buf))
 
@@ -162,7 +161,7 @@ class InlineDictionary(Dictionary):
 
     def pdf_serialize(self, stream):
         stream.write(b'<< ')
-        for k, v in iteritems(self):
+        for k, v in self.items():
             serialize(Name(k), stream)
             stream.write(b' ')
             serialize(v, stream)

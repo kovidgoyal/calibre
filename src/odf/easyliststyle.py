@@ -21,8 +21,6 @@
 
 import re
 
-from polyglot.builtins import unicode_type
-
 from .style import ListLevelProperties
 from .text import ListLevelStyleBullet, ListLevelStyleNumber, ListStyle
 
@@ -95,8 +93,8 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
         else:
             lls = ListLevelStyleBullet(level=(i+1),bulletchar=bullet[0])
         llp = ListLevelProperties()
-        llp.setAttribute('spacebefore', unicode_type(cssLengthNum * (i+1)) + cssLengthUnits)
-        llp.setAttribute('minlabelwidth', unicode_type(cssLengthNum) + cssLengthUnits)
+        llp.setAttribute('spacebefore', str(cssLengthNum * (i+1)) + cssLengthUnits)
+        llp.setAttribute('minlabelwidth', str(cssLengthNum) + cssLengthUnits)
         lls.addElement(llp)
         listStyle.addElement(lls)
         i += 1

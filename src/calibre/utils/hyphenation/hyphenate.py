@@ -3,16 +3,16 @@
 
 
 import os
+from functools import lru_cache
 
 import regex
 
 from calibre.utils.hyphenation.dictionaries import dictionary_name_for_locale, path_to_dictionary
-from polyglot.functools import lru_cache
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE
 
 
-@lru_cache()
+@lru_cache
 def dictionary_for_locale(locale):
     name = dictionary_name_for_locale(locale)
     if name is not None:

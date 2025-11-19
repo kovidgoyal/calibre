@@ -7,7 +7,6 @@ from itertools import chain
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.utils.date import EPOCH
 from calibre.utils.iso8601 import parse_iso8601
-from polyglot.builtins import itervalues
 
 no_cfi_sort_key = cfi_sort_key('/99999999')
 
@@ -49,7 +48,7 @@ def merge_annots_with_identical_field(a, b, field='title'):
     title_groups = defaultdict(list)
     for x in chain(a, b):
         title_groups[x[field]].append(x)
-    for tg in itervalues(title_groups):
+    for tg in title_groups.values():
         tg.sort(key=safe_timestamp_sort_key, reverse=True)
     seen = set()
     changed = False

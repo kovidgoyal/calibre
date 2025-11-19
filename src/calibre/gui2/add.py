@@ -13,6 +13,7 @@ import traceback
 import weakref
 from collections import OrderedDict
 from io import BytesIO
+from queue import Empty
 from threading import Thread
 
 from qt.core import QObject, Qt, pyqtSignal
@@ -35,12 +36,10 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
 from calibre.utils.localization import ngettext
-from polyglot.builtins import iteritems, string_or_bytes
-from polyglot.queue import Empty
 
 
 def validate_source(source, parent=None):  # {{{
-    if isinstance(source, string_or_bytes):
+    if isinstance(source, (str, bytes)):
         if not os.path.exists(source):
             error_dialog(parent, _('Cannot add books'), _(
                 'The path %s does not exist') % source, show=True)
@@ -210,7 +209,7 @@ class Adder(QObject):
             return tdir
 
         try:
-            if isinstance(self.source, string_or_bytes):
+            if isinstance(self.source, (str, bytes)):
                 find_files(self.source)
                 self.ignore_opf = True
             else:
@@ -478,7 +477,7 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
-        for fmt, path in iteritems(fmap):
+        for fmt, path in fmap.items():
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':

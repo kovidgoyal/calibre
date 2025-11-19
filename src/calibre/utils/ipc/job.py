@@ -9,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 import io
 import time
 from itertools import count
+from queue import Empty, Queue
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.localization import _
 from polyglot.builtins import cmp
-from polyglot.queue import Empty, Queue
 
 job_counter = count()
 

@@ -21,7 +21,6 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import _
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def ensure_val(x, *allowed):
@@ -76,9 +75,8 @@ def book_to_json(ctx, rd, db, book_id,
     data['thumbnail'] = get(what='thumb')
 
     if not device_compatible:
-        mi.format_metadata = {k.lower():dict(v) for k, v in
-                iteritems(mi.format_metadata)}
-        for v in itervalues(mi.format_metadata):
+        mi.format_metadata = {k.lower():dict(v) for k, v in mi.format_metadata.items()}
+        for v in mi.format_metadata.values():
             mtime = v.get('mtime', None)
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
@@ -107,7 +105,7 @@ def book_to_json(ctx, rd, db, book_id,
                 if (fm and fm['is_category'] and not fm['is_csp'] and
                         key != 'formats' and fm['datatype'] != 'rating'):
                     categories = mi.get(key) or []
-                    if isinstance(categories, string_or_bytes):
+                    if isinstance(categories, (str, bytes)):
                         categories = [categories]
                     category_urls[key] = dbtags = {}
                     for category in categories:
@@ -281,7 +279,7 @@ def categories(ctx, rd, library_id):
             ans[url] = (display_name, icon)
 
         ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
-                for k, v in iteritems(ans)]
+                for k, v in ans.items()]
         ans.sort(key=lambda x: sort_key(x['name']))
         for name, url, icon in [
                 (_('All books'), 'allbooks', 'book.png'),

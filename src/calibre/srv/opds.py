@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib
 from collections import OrderedDict, namedtuple
 from functools import partial
+from urllib.parse import urlencode
 
 from html5_parser import parse
 from lxml import etree
@@ -30,8 +31,8 @@ from calibre.utils.localization import _, ngettext
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
-from polyglot.builtins import as_bytes, iteritems
-from polyglot.urllib import unquote_plus, urlencode
+from polyglot.builtins import as_bytes
+from polyglot.urllib import unquote_plus
 
 
 def atom(ctx, rd, endpoint, output):
@@ -296,7 +297,7 @@ class TopLevel(Feed):  # {{{
             categories]
         for x in subcatalogs:
             self.root.append(x)
-        for library_id, library_name in sorted(iteritems(request_context.library_map), key=lambda item: sort_key(item[1])):
+        for library_id, library_name in sorted(request_context.library_map.items(), key=lambda item: sort_key(item[1])):
             id_ = 'calibre-library:' + library_id
             self.root.append(E.entry(
                 TITLE(_('Library:') + ' ' + library_name),

@@ -14,7 +14,6 @@ from calibre.constants import cache_dir, filesystem_encoding
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def parse_localized_key(key):
@@ -114,9 +113,9 @@ def find_icons():
                         sz = int(sz.partition('x')[0])
                     idx = len(ans[name])
                     ans[name].append((-sz, idx, sz, path))
-        for icons in itervalues(ans):
+        for icons in ans.values():
             icons.sort(key=list)
-        return {k:(-v[0][2], v[0][3]) for k, v in iteritems(ans)}
+        return {k:(-v[0][2], v[0][3]) for k, v in ans.items()}
 
     try:
         with open(cache_file, 'rb') as f:
@@ -151,7 +150,7 @@ def find_icons():
                         import traceback
                         traceback.print_exc()
                     mtimes[d] = mtime
-                for name, data in iteritems(cache[d]):
+                for name, data in cache[d].items():
                     ans[name].append(data)
     for removed in set(mtimes) - seen_dirs:
         mtimes.pop(removed), cache.pop(removed)
@@ -166,9 +165,9 @@ def find_icons():
             import traceback
             traceback.print_exc()
 
-    for icons in itervalues(ans):
+    for icons in ans.values():
         icons.sort(key=list)
-    icon_data = {k:v[0][1] for k, v in iteritems(ans)}
+    icon_data = {k:v[0][1] for k, v in ans.items()}
     return icon_data
 
 
@@ -195,7 +194,7 @@ def process_desktop_file(data):
             data['Icon'] = icon
         else:
             data.pop('Icon')
-    if not isinstance(data.get('Icon'), string_or_bytes):
+    if not isinstance(data.get('Icon'), (str, bytes)):
         data.pop('Icon', None)
     for k in ('Name', 'GenericName', 'Comment'):
         val = data.get(k)
@@ -219,7 +218,7 @@ def find_programs(extensions):
                 bn = os.path.basename(f)
                 if f not in desktop_files:
                     desktop_files[bn] = f
-    for bn, path in iteritems(desktop_files):
+    for bn, path in desktop_files.items():
         try:
             data = parse_desktop_file(path)
         except Exception:

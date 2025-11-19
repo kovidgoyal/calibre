@@ -13,7 +13,6 @@ from plistlib import loads
 
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import iteritems, string_or_bytes
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
@@ -21,10 +20,10 @@ application_locations = ('/Applications', '~/Applications', '~/Desktop')
 # Public UTI MAP {{{
 
 def generate_public_uti_map():
+    from urllib.request import urlopen
+
     from html5_parser import parse
     from lxml import etree
-
-    from polyglot.urllib import urlopen
     raw = urlopen(
         'https://developer.apple.com/library/ios/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html').read()
     root = parse(raw)
@@ -208,7 +207,7 @@ PUBLIC_UTI_MAP = {
     'zip':          'com.pkware.zip-archive',
 }
 PUBLIC_UTI_RMAP = defaultdict(set)
-for ext, uti in iteritems(PUBLIC_UTI_MAP):
+for ext, uti in PUBLIC_UTI_MAP.items():
     PUBLIC_UTI_RMAP[uti].add(ext)
 PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 
@@ -241,7 +240,7 @@ def get_extensions_from_utis(utis, plist):
         for decl in plist.get(key, ()):
             if isinstance(decl, dict):
                 uti = decl.get('UTTypeIdentifier')
-                if isinstance(uti, string_or_bytes):
+                if isinstance(uti, (str, bytes)):
                     spec = decl.get('UTTypeTagSpecification')
                     if isinstance(spec, dict):
                         ext = spec.get('public.filename-extension')
@@ -291,10 +290,10 @@ def get_bundle_data(path):
             extensions |= get_extensions_from_utis(utis, plist)
         else:
             for ext in dtype.get('CFBundleTypeExtensions', ()):
-                if isinstance(ext, string_or_bytes):
+                if isinstance(ext, (str, bytes)):
                     extensions.add(ext.lower())
             for mt in dtype.get('CFBundleTypeMIMETypes', ()):
-                if isinstance(mt, string_or_bytes):
+                if isinstance(mt, (str, bytes)):
                     for ext in mimetypes.guess_all_extensions(mt, strict=False):
                         extensions.add(ext.lower())
     return ans

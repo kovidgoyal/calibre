@@ -14,7 +14,6 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.logging import default_log
-from polyglot.builtins import iterkeys
 
 
 def _clean(s):
@@ -112,7 +111,7 @@ def _get_cover(soup, rdr):
                 # Probably invalid width, height aattributes, ignore
                 continue
         if r:
-            l = sorted(iterkeys(r))
+            l = sorted(r.keys())
             ans = r[l[0]]
     # this link comes from the internal html, which is in a subdir
     if ans is not None:

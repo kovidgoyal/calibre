@@ -8,7 +8,6 @@ from calibre import prints
 from calibre.constants import iswindows, preferred_encoding
 from calibre.utils.config import OptionParser
 from calibre.utils.localization import _, ngettext
-from polyglot.builtins import iteritems
 
 
 def create_subcommand_parser(name, usage):
@@ -365,7 +364,7 @@ def manage_users_cli(path=None, args=()):
             prints(
                 _('{} has the following additional per-library restrictions:')
                 .format(username))
-            for k, v in iteritems(r['library_restrictions']):
+            for k, v in r['library_restrictions'].items():
                 prints(k + ':', v)
         else:
             prints(_('{} has no additional per-library restrictions').format(username))

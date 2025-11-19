@@ -6,11 +6,11 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath
+from urllib.parse import urldefrag, urlparse
 
 from lxml import etree
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
-from polyglot.urllib import urldefrag, urlparse
 
 
 class RenameFiles:  # {{{

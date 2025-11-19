@@ -20,7 +20,6 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.prints import debug_print
-from polyglot.builtins import itervalues, string_or_bytes
 
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
@@ -254,7 +253,7 @@ class USBMS(CLI, Device):
                     import traceback
                     traceback.print_exc()
             return changed
-        if isinstance(ebook_dirs, string_or_bytes):
+        if isinstance(ebook_dirs, (str, bytes)):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
@@ -292,7 +291,7 @@ class USBMS(CLI, Device):
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
         # Do the operation in reverse order so indices remain valid
-        for idx in sorted(itervalues(bl_cache), reverse=True, key=lambda x: -1 if x is None else x):
+        for idx in sorted(bl_cache.values(), reverse=True, key=lambda x: -1 if x is None else x):
             if idx is not None:
                 need_sync = True
                 del bl[idx]

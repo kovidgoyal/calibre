@@ -8,6 +8,7 @@ import os
 import sys
 from collections import namedtuple
 from multiprocessing.connection import Pipe
+from queue import Queue
 from threading import Thread
 
 from calibre import as_unicode, detect_ncpus, prints
@@ -16,8 +17,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps, pickle_loads
-from polyglot.builtins import iteritems, itervalues
-from polyglot.queue import Queue
 
 Job = namedtuple('Job', 'id module func args kwargs')
 Result = namedtuple('Result', 'value err traceback')
@@ -279,7 +278,7 @@ class Pool(Thread):
     def terminal_error(self):
         if self.shutting_down:
             return
-        for worker, job in iteritems(self.busy_workers):
+        for worker, job in self.busy_workers.items():
             self.results.put(WorkerResult(job.id, Result(None, None, None), True, worker))
             self.tracker.task_done()
         while self.pending_jobs:
@@ -418,7 +417,7 @@ def test():
         p(i, 'def x(i):\n return 2*i', 'x', i)
         expected_results[i] = 2 * i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in iteritems(get_results(p))}
+    results = {k:v.value for k, v in get_results(p).items()}
     if results != expected_results:
         raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()
@@ -432,7 +431,7 @@ def test():
         p(i, 'def x(i, common_data=None):\n return common_data + i', 'x', i)
         expected_results[i] = 7 + i
     p.wait_for_tasks(30)
-    results = {k:v.value for k, v in iteritems(get_results(p))}
+    results = {k:v.value for k, v in get_results(p).items()}
     if results != expected_results:
         raise SystemExit(f'{expected_results!r} != {results!r}')
     p.shutdown(), p.join()
@@ -454,7 +453,7 @@ def test():
         p(i, 'def x(i):\n return 1/0', 'x', i)
     p.wait_for_tasks(30)
     c = 0
-    for r in itervalues(get_results(p)):
+    for r in get_results(p).values():
         c += 1
         if not r.traceback or 'ZeroDivisionError' not in r.traceback:
             raise SystemExit(f'Unexpected result: {r}')

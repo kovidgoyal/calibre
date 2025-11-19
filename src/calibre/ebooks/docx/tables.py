@@ -9,7 +9,6 @@ from lxml.html.builder import TABLE, TD, TR
 from calibre.ebooks.docx.block_styles import ParagraphStyle, binary_property, border_props, border_to_css, inherit, read_border
 from calibre.ebooks.docx.block_styles import read_shd as rs
 from calibre.ebooks.docx.char_styles import RunStyle
-from polyglot.builtins import iteritems, itervalues
 
 # Read from XML {{{
 read_shd = rs
@@ -85,7 +84,7 @@ def read_spacing(parent, dest, XPath, get):
 def read_float(parent, dest, XPath, get):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
-        ans = {k.rpartition('}')[-1]: v for k, v in iteritems(x.attrib)}
+        ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.items()}
     setattr(dest, 'float', ans)
 
 
@@ -616,7 +615,7 @@ class Table:
 
     def __iter__(self):
         yield from self.paragraphs
-        for t in itervalues(self.sub_tables):
+        for t in self.sub_tables.values():
             yield from t
 
     def apply_markup(self, rmap, page, parent=None):
@@ -662,7 +661,7 @@ class Table:
         table_style = self.table_style.css
         if table_style:
             table.set('class', self.styles.register(table_style, 'table'))
-        for elem, style in iteritems(style_map):
+        for elem, style in style_map.items():
             css = style.css
             if css:
                 elem.set('class', self.styles.register(css, elem.tag))
@@ -683,7 +682,7 @@ class Tables:
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
-        rmap = {v:k for k, v in iteritems(object_map)}
+        rmap = {v:k for k, v in object_map.items()}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 

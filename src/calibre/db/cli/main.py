@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
+import http.client
 import json
 import os
 import sys
+from urllib.parse import urlencode, urlparse, urlunparse
 
 from calibre import browser, prints
 from calibre.constants import __appname__, __version__, iswindows
@@ -13,8 +15,6 @@ from calibre.utils.config import OptionParser, prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
-from polyglot import http_client
-from polyglot.urllib import urlencode, urlparse, urlunparse
 
 COMMANDS = (
     'list', 'add', 'remove', 'add_format', 'remove_format', 'show_metadata',
@@ -184,13 +184,13 @@ class DBCtx:
         return m.implementation(self.db.new_api, None, *args)
 
     def interpret_http_error(self, err):
-        if err.code == http_client.UNAUTHORIZED:
+        if err.code == http.client.UNAUTHORIZED:
             if self.has_credentials:
                 raise SystemExit('The username/password combination is incorrect')
             raise SystemExit('A username and password is required to access this server')
-        if err.code == http_client.FORBIDDEN:
+        if err.code == http.client.FORBIDDEN:
             raise SystemExit(err.reason)
-        if err.code == http_client.NOT_FOUND:
+        if err.code == http.client.NOT_FOUND:
             raise SystemExit(err.reason)
 
     def remote_run(self, name, m, *args):

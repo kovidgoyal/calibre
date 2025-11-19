@@ -11,7 +11,6 @@ from qt.core import QToolButton
 from calibre.gui2.actions import InterfaceAction
 from calibre.startup import connect_lambda
 from calibre.utils.icu import lower as icu_lower
-from polyglot.builtins import string_or_bytes
 
 
 class SimilarBooksAction(InterfaceAction):
@@ -83,7 +82,7 @@ class SimilarBooksAction(InterfaceAction):
         if not val:
             return
 
-        if isinstance(val, string_or_bytes):
+        if isinstance(val, (str, bytes)):
             val = [val]
         if typ == 'authors':
             import re

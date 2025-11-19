@@ -14,7 +14,7 @@ from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.utils.config import prefs
 from calibre.utils.serialize import msgpack_dumps
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import environ_item, native_string_type, string_or_bytes
+from polyglot.builtins import environ_item
 
 if iswindows:
     try:
@@ -117,9 +117,9 @@ class Worker:
     @property
     def env(self):
         env = os.environ.copy()
-        env[native_string_type('CALIBRE_WORKER')] = environ_item('1')
+        env['CALIBRE_WORKER'] = environ_item('1')
         td = as_hex_unicode(msgpack_dumps(base_dir()))
-        env[native_string_type('CALIBRE_WORKER_TEMP_DIR')] = environ_item(td)
+        env['CALIBRE_WORKER_TEMP_DIR'] = environ_item(td)
         env.update(self._env)
         return env
 
@@ -180,11 +180,11 @@ class Worker:
         except OSError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser('~')
-        env[native_string_type('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
+        env['ORIGWD'] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
+        cmd = [exe] if isinstance(exe, (str, bytes)) else exe
         args = {
                 'env': env,
                 'cwd': _cwd,
