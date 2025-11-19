@@ -152,7 +152,7 @@
         "headers": "calibre/utils/cpp_binding.h calibre/utils/stb_sprintf.h",
         "sources": "calibre/srv/fast_css_transform.cpp",
 		"inc_dirs": "perfect-hashing",
-		"needs_c++": "14"
+		"needs_c++": "17"
     },
     {
         "name": "fast_html_entities",

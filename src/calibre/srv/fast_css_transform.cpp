@@ -22,6 +22,7 @@
 #include <functional>
 #include <locale>
 #include <codecvt>
+#include <charconv>
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
 #include "../utils/cpp_binding.h"
@@ -172,6 +173,20 @@ parse_css_number(const T &src, size_t limit = 0) {
 }
 // }}}
 
+template <typename UInt>
+std::size_t format_hex_lower_to_buf(UInt value, char* out, std::size_t out_size) {
+    static_assert(std::is_unsigned<UInt>::value, "UInt must be unsigned");
+    if (out_size == 0) return 0;
+    // to_chars writes lowercase letters for base 16 per the standard.
+    auto res = std::to_chars(out, out + out_size, value, 16);
+    if (res.ec == std::errc()) {
+        // successful: return length
+        return static_cast<std::size_t>(res.ptr - out);
+    }
+    // failure (e.g., buffer too small)
+    return 0;
+}
+
 enum class PropertyType : unsigned int {
 	font_size, page_break, non_standard_writing_mode
 };
@@ -244,11 +259,13 @@ class Token {
             out.push_back('\\');
             if (is_whitespace(ch) || is_hex_digit(ch)) {
                 char buf[8];
-                int num = stbsp_snprintf(buf, sizeof(buf), "%x ", (unsigned int)ch);
-                if (num > 0) {
-                    out.resize(out.size() + num);
-                    for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
-                } else throw std::logic_error("Failed to convert character to hexadecimal escape");
+                size_t num;
+                if (( num = format_hex_lower_to_buf((unsigned int)ch, buf, sizeof(buf)-1)) == 0) {
+                    throw std::logic_error("Failed to convert character to hexadecimal escape");
+                }
+                buf[num++] = ' ';
+                out.resize(out.size() + num);
+                for (unsigned i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
             } else out.push_back(ch);
         }
 
