@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from calibre.web.feeds.news import BasicNewsRecipe
+
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
 
 class HackADayRecipe(AutomaticNewsRecipe):
     __author__     = 'rui-rebelo'
     title          = 'Hack a Day'
-    description    = 'Hackaday is a website and community focused on hardware hacking, technology projects, and DIY electronics. It features daily articles about innovative projects, news, tutorials, and the latest in hardware engineering news.' 
+    description    = (
+        'Hackaday is a website and community focused on hardware hacking, technology projects, and DIY electronics.'
+        ' It features daily articles about innovative projects, news, tutorials, and the latest in hardware engineering news.')
     oldest_article = 10
     max_articles_per_feed = 100
     auto_cleanup   = True
