@@ -49,7 +49,7 @@ from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.gui2 import error_dialog, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.gestures import GestureManager
-from calibre.gui2.library.annotations import ChapterGroup, Details, render_notes
+from calibre.gui2.library.annotations import ChapterGroup, Details, render_notes, render_timestamp
 from calibre.gui2.library.annotations import Export as ExportBase
 from calibre.gui2.viewer import get_boss, link_prefix_for_location_links
 from calibre.gui2.viewer.config import get_session_pref, vprefs
@@ -453,6 +453,8 @@ class Highlights(QTreeWidget):
                 if dec is None:
                     dec = self.default_decoration
                 item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
+                if ts := h.get('timestamp'):
+                    item.setData(0, Qt.ItemDataRole.ToolTipRole, render_timestamp(ts))
                 self.uuid_map[h['uuid']] = secnum, itemnum
                 self.num_of_items += 1
         self.apply_filters()
