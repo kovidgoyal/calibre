@@ -199,17 +199,6 @@ html_State_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (html_State *)type->tp_alloc(type, 0);
     if (self == NULL) return PyErr_NoMemory();
 
-    self->tag_being_defined = NULL;
-    self->tags = NULL;
-    self->is_bold = NULL;
-    self->is_italic = NULL;
-    self->current_lang = NULL;
-    self->parse = NULL;
-    self->css_formats = NULL;
-    self->sub_parser_state = NULL;
-    self->default_lang = NULL;
-    self->attribute_name = NULL;
-
     if (!PyArg_ParseTuple(args, "|OOOOOOOOOO",
             &(self->tag_being_defined),
             &(self->tags),
@@ -225,28 +214,21 @@ html_State_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_TYPE(self)->tp_free((PyObject*)self); return NULL;
     }
 
-    if (self->tag_being_defined == NULL) self->tag_being_defined = Py_None;
-    if (self->tags == NULL) { self->tags = PyList_New(0); if (self->tags == NULL) return PyErr_NoMemory(); }
-    if (self->is_bold == NULL) self->is_bold = Py_False;
-    if (self->is_italic == NULL) self->is_italic = Py_False;
-    if (self->current_lang == NULL) self->current_lang = Py_None;
-    if (self->parse == NULL) self->parse = zero;
-    if (self->css_formats == NULL) self->css_formats = Py_None;
-    if (self->sub_parser_state == NULL) self->sub_parser_state = Py_None;
-    if (self->default_lang == NULL) self->default_lang = Py_None;
-    if (self->attribute_name == NULL) self->attribute_name = Py_None;
-
-    Py_INCREF(self->tag_being_defined);
-    Py_INCREF(self->tags);
-    Py_INCREF(self->is_bold);
-    Py_INCREF(self->is_italic);
-    Py_INCREF(self->current_lang);
-    Py_INCREF(self->parse);
-    Py_INCREF(self->css_formats);
-    Py_INCREF(self->sub_parser_state);
-    Py_INCREF(self->default_lang);
-    Py_INCREF(self->attribute_name);
-
+#define A(attr, defval) self->attr = Py_NewRef(self->attr == NULL ? defval : self->attr);
+    A(tag_being_defined, Py_None);
+    A(is_bold, Py_False);
+    A(is_italic, Py_False);
+    A(current_lang, Py_None);
+    A(parse, zero);
+    A(css_formats, Py_None);
+    A(sub_parser_state, Py_None);
+    A(default_lang, Py_None);
+    A(attribute_name, Py_None);
+#undef A
+    if (self->tags == NULL) {
+        self->tags = PyList_New(0);
+        if (self->tags == NULL) { Py_TYPE(self)->tp_free((PyObject*)self); return NULL; }
+    } else self->tags = Py_NewRef(self->tags);
     return (PyObject *)self;
 }
 
@@ -255,25 +237,24 @@ html_State_copy(html_State *self, PyObject *args, PyObject *kwargs) {
     PyObject *ans = NULL, *tags = NULL, *tag_being_defined = NULL, *sub_parser_state = NULL;
     Py_ssize_t i = 0;
 
-    if (self->sub_parser_state == Py_None) {sub_parser_state = Py_None; Py_INCREF(sub_parser_state); }
+    if (self->sub_parser_state == Py_None) sub_parser_state = Py_NewRef(Py_None);
     else sub_parser_state = PyObject_CallMethod(self->sub_parser_state, "copy", NULL);
     if (sub_parser_state == NULL) goto end;
 
-    if (self->tag_being_defined == Py_None) { tag_being_defined = Py_None; Py_INCREF(Py_None); }
+    if (self->tag_being_defined == Py_None) tag_being_defined = Py_NewRef(Py_None);
     else tag_being_defined = html_Tag_copy((html_Tag*)self->tag_being_defined, NULL, NULL);
     if (tag_being_defined == NULL) goto end;
 
     tags = PyList_New(PyList_GET_SIZE(self->tags));
-    if (tags == NULL) { PyErr_NoMemory(); goto end; }
+    if (tags == NULL) goto end;
     for (i = 0; i < PyList_GET_SIZE(self->tags); i++) {
-        PyList_SET_ITEM(tags, i, PyList_GET_ITEM(self->tags, i));
-        Py_INCREF(PyList_GET_ITEM(self->tags, i));
+        PyList_SET_ITEM(tags, i, Py_NewRef(PyList_GET_ITEM(self->tags, i)));
     }
 
     ans = PyObject_CallFunctionObjArgs((PyObject *) &html_StateType,
             tag_being_defined, tags, self->is_bold, self->is_italic, self->current_lang, self->parse, self->css_formats, sub_parser_state, self->default_lang, self->attribute_name, NULL);
 end:
-    Py_XDECREF(tags); Py_XDECREF(tag_being_defined); Py_XDECREF(sub_parser_state);
+    Py_CLEAR(tags); Py_CLEAR(tag_being_defined); Py_CLEAR(sub_parser_state);
     return ans;
 }
 
