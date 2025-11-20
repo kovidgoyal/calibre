@@ -367,14 +367,17 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self._parent = weakref.ref(parent)
         self.shortcut_map = {}
 
-        def r(name, icon, text, checkable=False, shortcut=None):
-            ac = QAction(QIcon.ic(icon + '.png'), text, self)
+        def r(name, icon, text, checkable=False, shortcut=None, callback=None):
+            ac = QAction(QIcon.ic(icon + '.png'), text, self) if icon else QAction(text, self)
             ac.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
             if checkable:
                 ac.setCheckable(checkable)
             setattr(self, 'action_'+name, ac)
-            ac.triggered.connect(getattr(self, 'do_' + name))
+            callback = callback or getattr(self, 'do_' + name)
+            ac.triggered.connect(callback)
             if shortcut is not None:
+                if isinstance(shortcut, str):
+                    shortcut = QKeySequence(shortcut, QKeySequence.SequenceFormat.PortableText)
                 self.shortcut_map[shortcut] = ac
                 sc = shortcut if isinstance(shortcut, QKeySequence) else QKeySequence(shortcut)
                 ac.setShortcut(sc)
@@ -399,7 +402,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         r('remove_format', 'edit-clear', _('Remove formatting'))
         r('copy', 'edit-copy', _('Copy'), shortcut=QKeySequence.StandardKey.Copy)
         r('paste', 'edit-paste', _('Paste'), shortcut=QKeySequence.StandardKey.Paste)
-        r('paste_and_match_style', 'edit-paste', _('Paste and match style'), shortcut=QKeySequence('ctrl+shift+v', QKeySequence.SequenceFormat.PortableText))
+        r('paste_and_match_style', 'edit-paste', _('Paste and match style'), shortcut='ctrl+shift+v')
         r('cut', 'edit-cut', _('Cut'), shortcut=QKeySequence.StandardKey.Cut)
         r('indent', 'format-indent-more', _('Increase indentation'))
         r('outdent', 'format-indent-less', _('Decrease indentation'))
@@ -408,10 +411,15 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         r('color', 'format-text-color', _('Foreground color'))
         r('background', 'format-fill-color', _('Background color'))
         r('insert_link', 'insert-link', _('Insert link') if self.insert_images_separately else _('Insert link or image'),
-          shortcut=QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText))
-        r('insert_image', 'view-image', _('Insert image'), shortcut=QKeySequence('Ctrl+p', QKeySequence.SequenceFormat.PortableText))
+          shortcut='Ctrl+l')
+        r('insert_image', 'view-image', _('Insert image'), shortcut='Ctrl+p')
         r('insert_hr', 'format-text-hr', _('Insert separator'),)
         r('clear', 'trash', _('Clear'))
+        r('upper_case', '', _('Upper case'), shortcut='Ctrl+alt+u', callback=self.upper_case)
+        r('lower_case', '', _('Lower case'), shortcut='Ctrl+alt+l', callback=self.lower_case)
+        r('capitalize', '', _('Capitalize'), shortcut='Ctrl+alt+c', callback=self.capitalize)
+        r('swap_case', '', _('Swap case'), shortcut='Ctrl+alt+s', callback=self.swap_case)
+        r('title_case', '', _('Title case'), shortcut='Ctrl+alt+t', callback=self.title_case)
 
         self.action_block_style = QAction(QIcon.ic('format-text-heading.png'),
                 _('Style text block'), self)
@@ -1177,7 +1185,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         menu.addMenu(m)
 
         if st and st.strip():
-            self.create_change_case_menu(menu)
+            m = QMenu(_('Change case'), menu)
+            m.addAction(self.action_upper_case)
+            m.addAction(self.action_lower_case)
+            m.addAction(self.action_swap_case)
+            m.addAction(self.action_title_case)
+            m.addAction(self.action_capitalize)
         parent = self._parent()
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible
