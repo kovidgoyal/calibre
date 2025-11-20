@@ -1207,6 +1207,117 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec(ev.globalPos())
 
+    def modify_case_operation(self, func):
+        cursor: QTextCursor = self.textCursor()
+        if not cursor.hasSelection():
+            cursor.select(QTextCursor.SelectionType.Document)
+        start = cursor.selectionStart()
+        end = cursor.selectionEnd()
+        doc = self.document()
+
+        # Helper: collect blocks intersecting the selection
+        blocks = []
+
+        # Create a cursor at start to find the first block
+        sc = QTextCursor(doc)
+        sc.setPosition(start)
+        first_block = sc.block()
+
+        block = first_block
+        while block.isValid() and block.position() < end:
+            block_start = block.position()
+            block_len = block.length()  # includes block separator
+            block_end = block_start + block_len
+            seg_start = max(start, block_start)
+            seg_end = min(end, block_end)
+            if seg_start >= seg_end:
+                block = block.next()
+                continue
+
+            # record block-level formatting (block format and list format if any)
+            bf = QTextBlockFormat(block.blockFormat())
+            list_format = None
+            blist = block.textList()
+            if blist is not None:
+                list_format = QTextListFormat(blist.format())
+
+            # iterate fragments in the block and extract only the overlapped text pieces
+            fragments = []
+            fragment_text = ''
+            it = block.begin()
+            while not it.atEnd():
+                frag = it.fragment()
+                if frag.isValid():
+                    fpos = frag.position()
+                    flen = frag.length()
+                    fend = fpos + flen
+                    ov_start = max(seg_start, fpos)
+                    ov_end = min(seg_end, fend)
+                    if ov_start < ov_end:
+                        rel_start = ov_start - fpos
+                        rel_len = ov_end - ov_start
+                        text = frag.text()[rel_start:rel_start + rel_len]
+                        fmt = QTextCharFormat(frag.charFormat())
+                        fragments.append((len(fragment_text), len(text), fmt))
+                        fragment_text += text
+                it += 1
+
+            blocks.append({
+                'blockFormat': bf,
+                'listFormat': list_format,
+                'blockStart': block_start,
+                'fragments': fragments,
+                'fragment_text': fragment_text,
+            })
+
+            block = block.next()
+
+        if not blocks:
+            return
+
+        # Replace the selection preserving inline and block formats.
+        editcur = QTextCursor(doc)
+        editcur.setPosition(start)
+        editcur.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
+
+        editcur.beginEditBlock()
+        editcur.removeSelectedText()
+        # after removal the cursor is at `start`
+        editcur.setPosition(start)
+
+        # Insert blocks and fragments. Handle first block specially to avoid unwanted new block
+        for idx, blk in enumerate(blocks):
+            blk_fmt = blk['blockFormat']
+            list_fmt = blk['listFormat']
+
+            # Determine if original first block was partial (selection started mid-block).
+            if idx == 0:
+                # keep and reuse the current block — apply its block format/list
+                editcur.setBlockFormat(blk_fmt)
+            else:
+                # subsequent blocks -> always insert a new block with the original format
+                editcur.insertBlock(blk_fmt)
+            if list_fmt is not None:
+                editcur.createList(list_fmt)
+
+            fragment_text = func(blk['fragment_text'])
+            # insert the fragments for this block, preserving char formats
+            for start_pos, length, ch_fmt in blk['fragments']:
+                if start_pos >= len(fragment_text):
+                    break
+                # Convert selected fragment text
+                # (paragraph separators are not part of per-fragment text here)
+                editcur.insertText(fragment_text[start_pos:start_pos+length], ch_fmt)
+
+        editcur.endEditBlock()
+
+        # Reselect the replaced text so selection remains
+        new_end = editcur.position()
+        new_cursor = self.textCursor()
+        new_cursor.setPosition(start)
+        new_cursor.setPosition(new_end, QTextCursor.MoveMode.KeepAnchor)
+        self.setTextCursor(new_cursor)
+
 # }}}
 
 
