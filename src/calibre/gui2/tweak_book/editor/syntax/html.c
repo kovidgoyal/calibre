@@ -30,10 +30,7 @@ typedef struct {
 static void
 html_Tag_dealloc(html_Tag* self)
 {
-    Py_XDECREF(self->name); self->name = NULL;
-    Py_XDECREF(self->bold); self->bold = NULL;
-    Py_XDECREF(self->italic); self->italic = NULL;
-    Py_XDECREF(self->lang); self->lang = NULL;
+    Py_CLEAR(self->name); Py_CLEAR(self->bold); Py_CLEAR(self->italic); Py_CLEAR(self->lang);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -180,16 +177,16 @@ typedef struct {
 static void
 html_State_dealloc(html_State* self)
 {
-    Py_XDECREF(self->tag_being_defined); self->tag_being_defined = NULL;
-    Py_XDECREF(self->tags); self->tags = NULL;
-    Py_XDECREF(self->is_bold); self->is_bold = NULL;
-    Py_XDECREF(self->is_italic); self->is_italic = NULL;
-    Py_XDECREF(self->current_lang); self->current_lang = NULL;
-    Py_XDECREF(self->parse); self->parse = NULL;
-    Py_XDECREF(self->css_formats); self->css_formats = NULL;
-    Py_XDECREF(self->sub_parser_state); self->sub_parser_state = NULL;
-    Py_XDECREF(self->default_lang); self->default_lang = NULL;
-    Py_XDECREF(self->attribute_name);self->attribute_name = NULL;
+    Py_CLEAR(self->tag_being_defined);
+    Py_CLEAR(self->tags);
+    Py_CLEAR(self->is_bold);
+    Py_CLEAR(self->is_italic);
+    Py_CLEAR(self->current_lang);
+    Py_CLEAR(self->parse);
+    Py_CLEAR(self->css_formats);
+    Py_CLEAR(self->sub_parser_state);
+    Py_CLEAR(self->default_lang);
+    Py_CLEAR(self->attribute_name);
 
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
