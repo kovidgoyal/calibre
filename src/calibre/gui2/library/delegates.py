@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import sys
+from contextlib import suppress
 from datetime import datetime
 
 from qt.core import (
@@ -208,7 +209,19 @@ class StyledItemDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         e = self.create_editor(parent, option, index)
+        if (book_id := index.data(Qt.ItemDataRole.UserRole)) and isinstance(book_id, int):
+            setattr(e, 'underlying_book_id', book_id)
         return e
+
+    def setModelData(self, editor, model, index):
+        # Refresh the index using the underlying book_id in case the book list
+        # was changed while the editor was open, for example, by auto add
+        if book_id := getattr(editor, 'underlying_book_id', 0):
+            if (db := getattr(model, 'db', None)) and callable(getattr(db, 'row', None)):
+                with suppress(Exception):
+                    row = db.row(book_id)
+                    index = model.index(row, index.column(), index.parent())
+        super().setModelData(editor, model, index)
 
     def setEditorData(self, editor, index):
         # This method exists because of the ignore_kb_mods_on_edit flag. The

@@ -1179,6 +1179,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         elif role == Qt.ItemDataRole.FontRole and self.styled_columns:
             cname = self.column_map[index.column()]
             return self.styled_columns.get(cname)
+        elif role == Qt.ItemDataRole.UserRole:
+            return self.id(index)
         # elif role == Qt.ItemDataRole.ToolTipRole and index.isValid():
         #     if self.column_map[index.column()] in self.editable_cols:
         #         return (_("Double click to <b>edit</b> me<br><br>"))
