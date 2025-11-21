@@ -39,7 +39,7 @@
 
 - [2130880] Edit book: Fix a memory leak in the HTML syntax highlighter
 
-- calibredb list: Fix identifier values not being shown. Fixes #2131557
+- [2131557] calibredb list: Fix identifier values not being shown
 
 :: improved recipes
 - Guardian
