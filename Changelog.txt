@@ -23,6 +23,31 @@
 # - title by author
 # }}}
 
+{{{ 8.15.0 2025-11-21
+
+:: new features
+
+- [2131619] E-book viewer: Highlights panel: Show the date for highlights in the tooltip when hovering over a highlight
+
+- Comments editor: When changing case preserve as much text formatting as feasible
+
+- [2131158] Comments editor: Add shortcuts for case change operations. Select some text, right click and see the case change menu for the shortcuts
+
+:: bug fixes
+
+- [2131622] Editing book list: Be robust against the book list changing in the background when a book is auto added or similar while a cell is being edited
+
+- [2130880] Edit book: Fix a memory leak in the HTML syntax highlighter
+
+- calibredb list: Fix identifier values not being shown. Fixes #2131557
+
+:: improved recipes
+- Guardian
+
+:: new recipes
+- Hack a Day by Rui Rebelo
+}}}
+
 {{{ 8.14.0 2025-11-07
 
 :: new features
