@@ -936,8 +936,8 @@ calibre is not starting/crashing on macOS?
 
 One common cause of failures on macOS is the use of accessibility technologies
 that are incompatible with the graphics toolkit calibre uses.  Try turning off
-VoiceOver if you have it on. Also go to System Preferences->System->Universal
-Access and turn off the setting for enabling access for assistive devices in
+VoiceOver if you have it on. Also go to System Preferences->Accessibility
+and turn off the setting for enabling access for assistive devices in
 all the tabs. Another cause can be some third party apps that modify system
 behavior, such as Smart Scroll and Default Folder X.
 
