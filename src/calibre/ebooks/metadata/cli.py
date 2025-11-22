@@ -188,9 +188,10 @@ def one(line: str, lock) -> None:
             if not mi.is_null('series'):
                 m['series'] = mi.series
                 m['series_index'] = mi.series_index
-            for field in ('tags', 'rating'):
-                if not mi.is_null(field):
-                    m[field] = getattr(mi, field)
+            if not mi.is_null('tags'):
+                m['tags'] = mi.tags
+            if not mi.is_null('rating'):
+                m['rating'] = float(mi.rating)/2
             for field in ('pubdate', 'timestamp'):
                 if not mi.is_null(field):
                     m[field] = isoformat(getattr(mi, field))
