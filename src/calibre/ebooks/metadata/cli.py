@@ -172,29 +172,30 @@ def one(line: str, lock) -> None:
     rq = json.loads(line)
     ebookpath, coverpath = rq['path'], rq.get('cover', '')
     ans = {'path': ebookpath}
-    try:
-        from calibre.ebooks.metadata.epub import epub_metadata_settings
-        from calibre.utils.date import isoformat
-        with open(ebookpath, 'rb') as stream, epub_metadata_settings(allow_rendered_cover=True):
-            stream_type = os.path.splitext(ebookpath)[1].replace('.', '').lower()
-            mi = get_metadata(stream, stream_type, force_read_metadata=True)
+    if ebookpath:
+        try:
+            from calibre.ebooks.metadata.epub import epub_metadata_settings
+            from calibre.utils.date import isoformat
+            with open(ebookpath, 'rb') as stream, epub_metadata_settings(allow_rendered_cover=True):
+                stream_type = os.path.splitext(ebookpath)[1].replace('.', '').lower()
+                mi = get_metadata(stream, stream_type, force_read_metadata=True)
 
-        if mi.cover_data and mi.cover_data[1] and coverpath:
-            with open(coverpath, 'wb') as f:
-                f.write(mi.cover_data[1])
-                ans['cover'] = coverpath
-        ans['metadata'] = m = {'title': mi.title, 'authors': mi.authors}
-        if not mi.is_null('series'):
-            m['series'] = mi.series
-            m['series_index'] = mi.series_index
-        for field in ('tags', 'rating'):
-            if not mi.is_null(field):
-                m[field] = getattr(mi, field)
-        for field in ('pubdate', 'timestamp'):
-            if not mi.is_null(field):
-                m[field] = isoformat(getattr(mi, field))
-    except Exception as e:
-        ans['error'] = str(e)
+            if mi.cover_data and mi.cover_data[1] and coverpath:
+                with open(coverpath, 'wb') as f:
+                    f.write(mi.cover_data[1])
+                    ans['cover'] = coverpath
+            ans['metadata'] = m = {'title': mi.title, 'authors': mi.authors}
+            if not mi.is_null('series'):
+                m['series'] = mi.series
+                m['series_index'] = mi.series_index
+            for field in ('tags', 'rating'):
+                if not mi.is_null(field):
+                    m[field] = getattr(mi, field)
+            for field in ('pubdate', 'timestamp'):
+                if not mi.is_null(field):
+                    m[field] = isoformat(getattr(mi, field))
+        except Exception as e:
+            ans['error'] = str(e)
     with lock:
         print(json.dumps(ans), file=sys.__stdout__, flush=True)
 
