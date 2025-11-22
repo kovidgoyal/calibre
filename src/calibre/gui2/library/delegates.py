@@ -202,7 +202,7 @@ class StyledItemDelegate(QStyledItemDelegate):
     Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
     want keyboard modifiers taken into account, for example when using Shift-Tab
     as a backtab when editing cells. This prevents opening dialogs by mistake.
-    See giu2.library.views.closeEditor() for an example.
+    See gui2.library.views.closeEditor() for an example.
     '''
     is_editable_with_tab = True  # sub-classes set to False is needed
     ignore_kb_mods_on_edit = False
