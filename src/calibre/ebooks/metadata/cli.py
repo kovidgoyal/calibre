@@ -196,6 +196,8 @@ def one(line: str, lock) -> None:
                     m[field] = isoformat(getattr(mi, field))
         except Exception as e:
             ans['error'] = str(e)
+    else:
+        ans['filetypes'] = tuple(filetypes())
     with lock:
         print(json.dumps(ans), file=sys.__stdout__, flush=True)
 
