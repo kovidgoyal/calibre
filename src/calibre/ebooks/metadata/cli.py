@@ -167,6 +167,58 @@ def do_set_metadata(opts, mi, stream, stream_type):
         set_metadata(stream, mi, stream_type)
 
 
+def one(line: str, lock) -> None:
+    import json
+    rq = json.loads(line)
+    ebookpath, coverpath = rq['path'], rq.get('cover', '')
+    ans = {'path': ebookpath}
+    try:
+        from calibre.ebooks.metadata.epub import epub_metadata_settings
+        from calibre.utils.date import isoformat
+        with open(ebookpath, 'rb') as stream, epub_metadata_settings(allow_rendered_cover=True):
+            stream_type = os.path.splitext(ebookpath)[1].replace('.', '').lower()
+            mi = get_metadata(stream, stream_type, force_read_metadata=True)
+
+        if mi.cover_data and mi.cover_data[1] and coverpath:
+            with open(coverpath, 'wb') as f:
+                f.write(mi.cover_data[1])
+                ans['cover'] = coverpath
+        ans['metadata'] = m = {'title': mi.title, 'authors': mi.authors}
+        if not mi.is_null('series'):
+            m['series'] = mi.series
+            m['series_index'] = mi.series_index
+        for field in ('tags', 'rating'):
+            if not mi.is_null(field):
+                m[field] = getattr(mi, field)
+        for field in ('pubdate', 'timestamp'):
+            if not mi.is_null(field):
+                m[field] = isoformat(getattr(mi, field))
+    except Exception as e:
+        ans['error'] = str(e)
+    with lock:
+        print(json.dumps(ans), file=sys.__stdout__, flush=True)
+
+
+def simple_metadata_server():
+    import calibre.ebooks.metadata.docx as speedup
+    del speedup
+    import calibre.ebooks.metadata.epub as speedup
+    del speedup
+    import calibre.ebooks.metadata.mobi as speedup
+    del speedup
+    import calibre.ebooks.metadata.pdf as speedup
+    del speedup
+    import multiprocessing
+    lock = multiprocessing.Lock()
+    for line in sys.stdin:
+        line = line.strip()
+        if line and os.fork() == 0:
+            with open(os.devnull, 'w') as null:
+                sys.stdout = null
+                one(line, lock)
+                break
+
+
 def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(list(map(normalize, args)))
