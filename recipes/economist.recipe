@@ -239,12 +239,9 @@ class Economist(BasicNewsRecipe):
     }
 
     def get_browser(self, *args, **kwargs):
-        if self.from_web:
-            kwargs['user_agent'] = (
-                'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Liskov'
-            )
-        else:
-            kwargs['user_agent'] = 'okhttp/4.12.0'
+        kwargs['user_agent'] = (
+            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Liskov'
+        )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
