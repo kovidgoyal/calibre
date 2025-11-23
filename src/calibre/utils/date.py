@@ -212,13 +212,12 @@ def fromordinal(day, as_utc=True):
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     if not hasattr(date_time, 'tzinfo'):
-        return str(date_time.isoformat())
+        return date_time.isoformat()
     if date_time.tzinfo is None:
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    # str(sep) because isoformat barfs with unicode sep on python 2.x
-    return str(date_time.isoformat(str(sep)))
+    return date_time.isoformat(sep)
 
 
 def internal_iso_format_string():
