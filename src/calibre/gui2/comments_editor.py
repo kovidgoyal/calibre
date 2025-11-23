@@ -1191,6 +1191,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             m.addAction(self.action_swap_case)
             m.addAction(self.action_title_case)
             m.addAction(self.action_capitalize)
+            menu.addMenu(m)
         parent = self._parent()
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible
