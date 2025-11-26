@@ -303,12 +303,23 @@ def dropEvent(self, event):
 def paths_from_event(self, event):
     '''
     Accept a drop event and return a list of paths that can be read from
-    and represent files with extensions.
+    and represent files with extensions that are valid book formats.
     '''
+    from calibre.ebooks import BOOK_EXTENSIONS
     md = event.mimeData()
     if md.hasFormat('text/uri-list') and not md.hasFormat('application/calibre+from_library'):
         urls = map(path_from_qurl, md.urls())
-        return [u for u in urls if u and os.path.splitext(u)[1] and os.path.exists(u)]
+        valid_paths = []
+        for u in urls:
+            if u and os.path.exists(u):
+                ext = os.path.splitext(u)[1]
+                if ext:
+                    # Remove the leading dot and convert to lowercase
+                    ext = ext[1:].lower()
+                    # Only accept files with valid book extensions
+                    if ext in BOOK_EXTENSIONS:
+                        valid_paths.append(u)
+        return valid_paths
 
 
 def setup_dnd_interface(cls_or_self):
