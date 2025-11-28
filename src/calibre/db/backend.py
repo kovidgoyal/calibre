@@ -74,6 +74,9 @@ from calibre.utils.icu import sort_key
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import cmp, reraise
 
+if iswindows:
+    from calibre_extensions import winutil
+
 # }}}
 
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
@@ -450,7 +453,7 @@ def rmtree_with_retry(path, sleep_time=1):
     except OSError as e:
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
-        if iswindows:
+        if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
 
@@ -2237,10 +2240,10 @@ class DB:
                     except OSError:
                         mtime = 0
                     if mtime + expire_age_in_seconds <= now or expire_age_in_seconds <= 0:
-                        removals.append(x.path)
+                        removals.append(make_long_path_useable(x.path))
         for x in removals:
             try:
-                rmtree_with_retry(x)
+                rmtree_with_retry(x)  # during init we dont want to slow down because of windows mandatory file locking
             except OSError:
                 if not during_init:
                     raise
