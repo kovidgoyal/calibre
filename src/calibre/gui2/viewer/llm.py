@@ -107,13 +107,6 @@ def current_actions(include_disabled=False):
             yield x
 
 
-def get_language_instruction() -> str:
-    if vprefs['llm_localized_results'] != 'always':
-        return ''
-    lang = ui_language_as_english()
-    return f'If you can speak in {lang}, then respond in {lang}.'
-
-
 class LLMPanel(ConverseWidget):
     add_note_requested = pyqtSignal(str, str)
 
@@ -136,7 +129,7 @@ class LLMPanel(ConverseWidget):
         self.book_authors = authors_to_string(authors)
 
     def activate_action(self, action: Action) -> None:
-        self.start_api_call(action.prompt_text(self.latched_conversation_text), action.uses_selected_text)
+        self.start_api_call(self.prompt_text_for_action(action), uses_selected_text=action.uses_selected_text)
 
     def settings_dialog(self) -> QDialog:
         return LLMSettingsDialog(self)
@@ -164,7 +157,13 @@ class LLMPanel(ConverseWidget):
         yield Button('save.png', f'http://{self.save_note_hostname}/{msgnum}', _(
             'Save this specific response as the note'))
 
-    def create_initial_messages(self, action_prompt: str, selected_text: str) -> Iterator[ChatMessage]:
+    def get_language_instruction(self) -> str:
+        if vprefs['llm_localized_results'] != 'always':
+            return ''
+        return self.language_instruction()
+
+    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+        selected_text = self.latched_conversation_text if kwargs.get('uses_selected_text') else ''
         if self.book_title:
             context_header = f'I am currently reading the book: {self.book_title}'
             if self.book_authors:
@@ -174,7 +173,7 @@ class LLMPanel(ConverseWidget):
             else:
                 context_header += '. I have some questions about this book.'
             context_header += ' When you answer the questions use markdown formatting for the answers wherever possible.'
-            if language_instruction := get_language_instruction():
+            if language_instruction := self.get_language_instruction():
                 context_header += ' ' + language_instruction
             yield ChatMessage(context_header, type=ChatMessageType.system)
         yield ChatMessage(action_prompt)
@@ -190,6 +189,9 @@ class LLMPanel(ConverseWidget):
             msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
             msg += '<i>Summarize this book.</i>'
         return msg
+
+    def prompt_text_for_action(self, action) -> str:
+        return action.prompt_text(self.latched_conversation_text)
 
     def save_as_note(self):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
@@ -220,6 +222,15 @@ class LLMPanel(ConverseWidget):
                         break
                 return True
         return False
+
+    def start_new_conversation(self) -> None:
+        self.latched_conversation_text = ''
+        super().start_new_conversation()
+
+    def ready_to_start_api_call(self) -> str:
+        if self.latched_conversation_text:
+            return ''
+        return _('No text is selected for this conversation.')
 
 
 # Settings {{{

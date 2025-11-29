@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from html import escape
 from itertools import count
 from threading import Thread
+from typing import Any
 
 from qt.core import (
     QApplication,
@@ -32,6 +33,7 @@ from calibre.customize import AIProviderPlugin
 from calibre.gui2 import safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import ui_language_as_english
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode
@@ -65,10 +67,9 @@ def show_reasoning(reasoning: str, parent: QWidget | None = None):
 
 class ConversationHistory:
 
-    def __init__(self, conversation_text: str = ''):
+    def __init__(self):
         self.accumulator = StreamedResponseAccumulator()
         self.items: list[ChatMessage] = []
-        self.conversation_text: str = conversation_text
         self.model_used = ''
         self.api_call_active = False
         self.current_response_completed = True
@@ -92,7 +93,7 @@ class ConversationHistory:
         self.items.append(x)
 
     def copy(self, upto: int | None = None) -> 'ConversationHistory':
-        ans = ConversationHistory(self.conversation_text)
+        ans = ConversationHistory()
         ans.model_used = self.model_used
         if upto is None:
             ans.items = list(self.items)
@@ -216,6 +217,10 @@ class ConverseWidget(QWidget):
         self.show_initial_message()
         self.update_cost()
 
+    def language_instruction(self):
+        lang = ui_language_as_english()
+        return f'If you can speak in {lang}, then respond in {lang}.'
+
     def quick_actions_as_html(self, actions) -> str:
         actions = sorted(actions, key=lambda a: primary_sort_key(a.human_name))
         if not actions:
@@ -223,7 +228,7 @@ class ConverseWidget(QWidget):
         ans = []
         for action in actions:
             hn = action.human_name.replace(' ', '\xa0')
-            ans.append(f'''<a title="{action.prompt_text()}"
+            ans.append(f'''<a title="{self.prompt_text_for_action(action)}"
             href="http://{self.quick_action_hostname}/{as_hex_unicode(action.name)}"
             style="text-decoration: none">{hn}</a>''')
         links = '\xa0\xa0\xa0 '.join(ans)
@@ -252,11 +257,6 @@ class ConverseWidget(QWidget):
     def run_custom_prompt(self, prompt: str) -> None:
         if prompt := prompt.strip():
             self.start_api_call(prompt)
-
-    def start_new_conversation(self):
-        self.clear_current_conversation()
-        self.latched_conversation_text = ''
-        self.update_ui_state()
 
     @property
     def assistant_name(self) -> str:
@@ -303,20 +303,19 @@ class ConverseWidget(QWidget):
     def scroll_to_bottom(self) -> None:
         self.result_display.scroll_to_bottom()
 
-    def start_api_call(self, action_prompt: str, uses_selected_text: bool = False):
+    def start_api_call(self, action_prompt: str, **kwargs: Any) -> None:
         if not self.is_ready_for_use:
             self.show_error(f'''<b>{_('AI provider not configured.')}</b> <a href="http://{self.configure_ai_hostname}">{_(
                 'Configure AI provider')}</a>''', is_critical=False)
             return
-        if not self.latched_conversation_text:
-            self.show_error(f"<b>{_('Error')}:</b> {_('No text is selected for this conversation.')}", is_critical=True)
+        if err := self.ready_to_start_api_call():
+            self.show_error(f"<b>{_('Error')}:</b> {err}", is_critical=True)
             return
 
         if self.conversation_history:
             self.conversation_history.append(ChatMessage(action_prompt))
         else:
-            self.conversation_history.conversation_text = self.latched_conversation_text
-            for msg in self.create_initial_messages(action_prompt, self.latched_conversation_text if uses_selected_text else ''):
+            for msg in self.create_initial_messages(action_prompt, **kwargs):
                 self.conversation_history.append(msg)
         self.current_api_call_number = next(self.counter)
         self.conversation_history.new_api_call()
@@ -454,7 +453,7 @@ class ConverseWidget(QWidget):
     def handle_chat_link(self, qurl: QUrl) -> bool:
         raise NotImplementedError('implement in subclass')
 
-    def create_initial_messages(self, action_prompt: str, selected_text: str) -> Iterator[ChatMessage]:
+    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
         raise NotImplementedError('implement in sub class')
 
     def ready_message(self) -> str:
@@ -462,4 +461,14 @@ class ConverseWidget(QWidget):
 
     def choose_action_message(self) -> str:
         raise NotImplementedError('implement in sub class')
+
+    def prompt_text_for_action(self, action) -> str:
+        raise NotImplementedError('implement in sub class')
+
+    def start_new_conversation(self) -> None:
+        self.clear_current_conversation()
+        self.update_ui_state()
+
+    def ready_to_start_api_call(self) -> str:
+        return ''
     # }}}
