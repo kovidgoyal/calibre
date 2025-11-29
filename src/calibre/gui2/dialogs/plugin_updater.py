@@ -47,7 +47,7 @@ from calibre.customize.ui import (
     is_disabled,
     remove_plugin,
 )
-from calibre.gui2 import error_dialog, gprefs, info_dialog, open_url, question_dialog
+from calibre.gui2 import error_dialog, gprefs, info_dialog, open_url, question_dialog, safe_open_url
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
@@ -637,6 +637,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.description.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.description.setMinimumHeight(40)
         self.description.setWordWrap(True)
+        self.description.linkActivated.connect(self.description_link_activated)
         layout.addWidget(self.description)
 
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -711,11 +712,57 @@ class PluginUpdaterDialog(SizePersistedDialog):
             if self.gui is not None:
                 self.gui.recalc_update_label(len(update_plugins))
 
+    def description_link_activated(self, url: str) -> None:
+        if url.partition(':')[0] in ('http', 'https'):
+            safe_open_url(url)
+
+    def set_description(self, src: str) -> str:
+        import html
+        _URL_RE = re.compile(r'https?://[^\s<>"\'`]+', re.IGNORECASE)
+
+        def _trim_trailing_punctuation(url: str) -> (str, str):
+            trailing = ''
+            # Characters we generally don't want to include at the end of a URL
+            bad_trail_chars = set('.,:;!?\'"<>')
+            # We'll treat ')' specially — only include it in the URL if parentheses are balanced.
+            while url:
+                last = url[-1]
+                if last in bad_trail_chars:
+                    trailing = last + trailing
+                    url = url[:-1]
+                    continue
+                if last == ')':
+                    # if url has more ')' than '(' then this final ')' likely belongs to surrounding text
+                    if url.count('(') < url.count(')'):
+                        trailing = last + trailing
+                        url = url[:-1]
+                        continue
+                break
+            return url, trailing
+
+        found_links = False
+        def linkify(text: str) -> str:
+            nonlocal found_links
+            def _repl(m: re.Match) -> str:
+                nonlocal found_links
+                raw = m.group(0)
+                url, trailing = _trim_trailing_punctuation(raw)
+                escaped_href = html.escape(url, quote=True)
+                escaped_text = html.escape(url)
+                attrs = [f'href="{escaped_href}"']
+                a_tag = f'<a {" ".join(attrs)}>{escaped_text}</a>'
+                found_links = True
+                return a_tag + trailing
+            return _URL_RE.sub(_repl, text)
+        src = linkify(src)
+        self.description.setTextFormat(Qt.TextFormat.RichText if found_links else Qt.TextFormat.PlainText)
+        self.description.setText(src)
+
     def _plugin_current_changed(self, current, previous):
         if current.isValid():
             actual_idx = self.proxy_model.mapToSource(current)
             display_plugin = self.model.display_plugins[actual_idx.row()]
-            self.description.setText(display_plugin.description)
+            self.set_description(display_plugin.description)
             self.forum_link = display_plugin.forum_link
             self.zip_url = display_plugin.zip_url
             self.forum_action.setEnabled(bool(self.forum_link))
@@ -727,7 +774,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.toggle_enabled_action.setEnabled(display_plugin.is_installed())
             self.donate_enabled_action.setEnabled(bool(display_plugin.donation_link))
         else:
-            self.description.setText('')
+            self.set_description('')
             self.forum_link = None
             self.zip_url = None
             self.forum_action.setEnabled(False)
