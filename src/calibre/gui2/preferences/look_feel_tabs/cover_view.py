@@ -11,6 +11,7 @@ from qt.core import QKeySequence
 from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, set_help_tips
+from calibre.gui2.preferences.look_feel_tabs import BROWSER_NARROW_VIEW_POSITION, BROWSER_NARROW_VIEW_POSITION_TIPS
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
 
 
@@ -25,9 +26,7 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
         r('cover_browser_narrow_view_position', gprefs,
-                            choices=[(_('Automatic'), 'automatic'),  # Automatic must be first
-                                     (_('On top'), 'on_top'),
-                                     (_('On right'), 'on_right')])
+                            choices=BROWSER_NARROW_VIEW_POSITION)
         r('cover_browser_title_template', db.prefs)
         fm = db.field_metadata
         r('cover_browser_subtitle_field', db.prefs, choices=[(_('No subtitle'), 'none')] + sorted(
@@ -41,12 +40,7 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         self.fs_help_msg.setText(self.fs_help_msg.text()%(
             QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
 
-        set_help_tips(self.opt_cover_browser_narrow_view_position, _(
-            'This option controls the position of the cover browser when using the Narrow user '
-            'interface layout.  "Automatic" will place the cover browser on top or on the right '
-            'of the book list depending on the aspect ratio of the calibre window. "On top" '
-            'places it over the book list, and "On right" places it to the right of the book '
-            'list. This option has no effect when using the Wide user interface layout.'))
+        set_help_tips(self.opt_cover_browser_narrow_view_position, BROWSER_NARROW_VIEW_POSITION_TIPS)
 
     def edit_cb_title_template(self):
         rows = self.gui.library_view.selectionModel().selectedRows()

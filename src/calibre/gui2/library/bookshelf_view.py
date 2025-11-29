@@ -896,6 +896,48 @@ class BookshelfView(QAbstractScrollArea):  # {{{
         # Grouping configuration
         self._grouping_mode = gprefs.get('bookshelf_grouping_mode', 'none')
 
+        # Render options
+        self._enable_shadow = gprefs['bs_shadow']
+        self._enable_thumbnail = gprefs['bs_thumbnail']
+        self._enable_centered = gprefs['bs_centered']
+        self._fade_time = gprefs['bs_fade_time']
+        self._hover_shift = gprefs['bs_hover_shift']
+
+    def enableShadow(self, value):
+        '''Set the enable state for render a shadow for hovered book.'''
+        if value == self._enable_shadow:
+            return
+        self._enable_shadow = value
+        self.viewport().update()
+
+    def enableThumbnail(self, value):
+        '''Set the enable state for render thumbnail on book spine.'''
+        if value == self._enable_thumbnail:
+            return
+        self._enable_thumbnail = value
+        self.viewport().update()
+
+    def enableCentered(self, value):
+        '''Set the enable state for render the books centered on the rows.'''
+        if value == self._enable_centered:
+            return
+        self._enable_centered = value
+        self.viewport().update()
+
+    def enableHoverShift(self, value):
+        '''Set if the hovered book shift the others on the row.'''
+        if value == self._hover_shift:
+            return
+        self._hover_shift = value
+        self.viewport().update()
+
+    def setFadeTime(self, value):
+        '''Set the fade time for hovered cover.'''
+        value = max(0, value)
+        if value == self._fade_time:
+            return
+        self._fade_time = value
+
     def setModel(self, model):
         '''Set the model for this view.'''
         if self._model is not None:

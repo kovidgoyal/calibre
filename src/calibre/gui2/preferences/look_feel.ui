@@ -93,6 +93,15 @@
        <string>Cover &amp;browser</string>
       </attribute>
      </widget>
+     <widget class="BookshelfView" name="cover_view">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/bookshelf.png</normaloff>:/images/bookshelf.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Bookshelf &amp;browser</string>
+      </attribute>
+     </widget>
      <widget class="QuickviewTab" name="quickview_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
@@ -190,6 +199,11 @@
    <class>CoverView</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs/cover_view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BookshelfView</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/bookshelf_view.h</header>
   </customwidget>
   <customwidget>
    <class>QuickviewTab</class>

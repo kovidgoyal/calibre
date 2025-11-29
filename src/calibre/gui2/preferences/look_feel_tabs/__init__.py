@@ -34,6 +34,19 @@ from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter
 
+BROWSER_NARROW_VIEW_POSITION = [
+    (_('Automatic'), 'automatic'),  # Automatic must be first
+    (_('On top'), 'on_top'),
+    (_('On right'), 'on_right'),
+]
+BROWSER_NARROW_VIEW_POSITION_TIPS = _(
+    'This option controls the position of the cover and bookshelf browser when using the Narrow user '
+    'interface layout. "Automatic" will place the browsers on top or on the right '
+    'of the book list depending on the aspect ratio of the calibre window. "On top" '
+    'places it over the book list, and "On right" places it to the right of the book '
+    'list. This option has no effect when using the Wide user interface layout.'
+)
+
 
 class DefaultAuthorLink(QWidget):
 
