@@ -84,6 +84,10 @@ class LibraryViewMixin:  # {{{
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
+        # Set model for bookshelf view (it's a layout panel, not an alternate view)
+        if hasattr(self, 'bookshelf_view'):
+            self.bookshelf_view.setModel(self.library_view._model)
+            self.bookshelf_view.set_database(db, stage=0)
         prefs['library_path'] = self.library_path
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
@@ -523,9 +527,9 @@ class LayoutMixin:  # {{{
             for x in self.layout_buttons:
                 self.status_bar.removeWidget(x)
         if self.layout_container.is_wide:
-            self.button_order = 'sb', 'tb', 'cb', 'gv', 'qv', 'bd'
+            self.button_order = 'sb', 'tb', 'cb', 'bs', 'gv', 'qv', 'bd'
         else:
-            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'qv'
+            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'bs', 'qv'
         self.layout_buttons = []
         stylename = str(self.style().objectName())
         for x in self.button_order:
@@ -535,7 +539,7 @@ class LayoutMixin:  # {{{
                 button = self.search_bar_button
             else:
                 button = self.layout_container.button_for({
-                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view'
+                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view', 'bs': 'bookshelf'
                 }[x])
             self.layout_buttons.append(button)
             button.setVisible(gprefs['show_layout_buttons'])
@@ -564,6 +568,15 @@ class LayoutMixin:  # {{{
         self.grid_view = GridView(self)
         self.grid_view.setObjectName('grid_view')
         av.add_view('grid', self.grid_view)
+        from calibre.gui2.library.bookshelf_view import BookshelfView
+        self.bookshelf_view = BookshelfView(self)
+        self.bookshelf_view.setObjectName('bookshelf_view')
+        # Bookshelf is a layout panel (like Cover Browser), not an alternate view
+        # Set it in the layout container's bookshelf widget
+        self.layout_container.set_widget('bookshelf', self.bookshelf_view)
+        # Set the model for bookshelf view (will be updated when database is set)
+        if hasattr(self.library_view, '_model'):
+            self.bookshelf_view.setModel(self.library_view._model)
         self.tb_widget = TagBrowserWidget(self)
         self.memory_view = DeviceBooksView(self)
         self.stack.addWidget(self.memory_view)
@@ -708,6 +721,12 @@ class LayoutMixin:  # {{{
     def toggle_grid_view(self, show):
         self.library_view.alternate_views.show_view('grid' if show else None)
         self.sort_button.setVisible(show)
+        # Mutual exclusivity: when grid view is shown, hide bookshelf
+        if show:
+            bookshelf_button = self.layout_container.button_for('bookshelf')
+            if bookshelf_button and bookshelf_button.isChecked():
+                bookshelf_button.setChecked(False)
+                self.layout_container.set_visibility_of('bookshelf', False)
 
     def toggle_search_bar(self, show):
         self.search_bar.setVisible(show)

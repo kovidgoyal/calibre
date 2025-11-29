@@ -1,0 +1,6 @@
+#!/bin/sh
+export CALIBRE_DEVELOP_FROM="/Users/andychuong/Documents/GauntletAI/Week 7/calibre/src"
+/Applications/calibre.app/Contents/MacOS/calibre-debug -g
+
+
+
