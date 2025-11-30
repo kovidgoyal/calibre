@@ -25,7 +25,6 @@ from qt.core import (
     QPushButton,
     QSize,
     Qt,
-    QTabWidget,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -33,15 +32,13 @@ from qt.core import (
 )
 
 from calibre.ai import ChatMessage, ChatMessageType
-from calibre.ai.config import ConfigureAI
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.chat_widget import Button
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.llm import ConverseWidget, prompt_sep
+from calibre.gui2.llm import ConverseWidget, LLMSettingsDialogBase, prompt_sep
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
-from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ui_language_as_english
 from polyglot.binary import from_hex_unicode
@@ -105,6 +102,15 @@ def current_actions(include_disabled=False):
         x = Action(f'custom-{title}', title, c['prompt_template'], is_builtin=False, is_disabled=c['disabled'])
         if include_disabled or not x.is_disabled:
             yield x
+
+
+class LLMSettingsDialog(LLMSettingsDialogBase):
+
+    def __init__(self, parent=None):
+        super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
+
+    def custom_tabs(self) -> Iterator[str, str, QWidget]:
+        yield 'config.png', _('Actions and &highlights'), LLMSettingsWidget(self)
 
 
 class LLMPanel(ConverseWidget):
@@ -413,30 +419,6 @@ class LLMSettingsWidget(QWidget):
         return True
 
 
-class LLMSettingsDialog(Dialog):
-
-    def __init__(self, parent=None):
-        super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
-
-    def setup_ui(self):
-        l = QVBoxLayout(self)
-        self.tabs = tabs = QTabWidget(self)
-        self.ai_config = ai = ConfigureAI(parent=self)
-        tabs.addTab(ai, QIcon.ic('ai.png'), _('AI &Provider'))
-        self.llm_config = llm = LLMSettingsWidget(self)
-        tabs.addTab(llm, QIcon.ic('config.png'), _('Actions and &highlights'))
-        tabs.setCurrentWidget(llm if self.ai_config.is_ready_for_use else ai)
-        l.addWidget(tabs)
-        l.addWidget(self.bb)
-
-    def accept(self):
-        if not self.ai_config.commit():
-            self.tabs.setCurrentWidget(self.ai_config)
-            return
-        if not self.llm_config.commit():
-            self.tabs.setCurrentWidget(self.llm_config)
-            return
-        super().accept()
 # }}}
 
 

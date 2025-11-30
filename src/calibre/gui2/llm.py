@@ -19,6 +19,7 @@ from qt.core import (
     QPushButton,
     QSizePolicy,
     Qt,
+    QTabWidget,
     QTextBrowser,
     QUrl,
     QVBoxLayout,
@@ -27,11 +28,13 @@ from qt.core import (
 )
 
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse
+from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
+from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ui_language_as_english
 from calibre.utils.logging import ERROR, WARN
@@ -472,3 +475,32 @@ class ConverseWidget(QWidget):
     def ready_to_start_api_call(self) -> str:
         return ''
     # }}}
+
+
+class LLMSettingsDialogBase(Dialog):
+
+    def __init__(self, name, prefs, title='', parent=None):
+        super().__init__(title=title or _('AI Settings'), name=name, prefs=prefs, parent=parent)
+
+    def custom_tabs(self) -> Iterator[str, str, QWidget]:
+        if False:
+            yield 'icon', 'title', QWidget()
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        self.tabs = tabs = QTabWidget(self)
+        self.ai_config = ai = ConfigureAI(parent=self)
+        tabs.addTab(ai, QIcon.ic('ai.png'), _('AI &Provider'))
+        for (icon, title, widget) in self.custom_tabs():
+            tabs.addTab(widget, QIcon.ic(icon), title)
+        tabs.setCurrentIndex(1 if self.ai_config.is_ready_for_use else 0)
+        l.addWidget(tabs)
+        l.addWidget(self.bb)
+
+    def accept(self):
+        for i in range(self.tabs.count()):
+            w = self.tabs.widget(i)
+            if not w.commit():
+                self.tabs.setCurrentWidget(w)
+                return
+        super().accept()
