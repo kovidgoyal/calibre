@@ -1,22 +1,33 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+import textwrap
 from collections.abc import Iterator
 from html import escape
 from itertools import count
 from threading import Thread
-from typing import Any
+from typing import Any, NamedTuple
 
 from qt.core import (
+    QAbstractItemView,
     QApplication,
+    QCheckBox,
     QDateTime,
     QDialog,
     QDialogButtonBox,
+    QEvent,
+    QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QIcon,
     QLabel,
+    QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QLocale,
+    QPlainTextEdit,
     QPushButton,
+    QSize,
     QSizePolicy,
     Qt,
     QTabWidget,
@@ -32,8 +43,9 @@ from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
-from calibre.gui2 import safe_open_url
+from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ui_language_as_english
@@ -474,6 +486,229 @@ class ConverseWidget(QWidget):
 
     def ready_to_start_api_call(self) -> str:
         return ''
+    # }}}
+
+
+class ActionData(NamedTuple):
+    name: str
+    human_name: str
+    prompt_template: str
+    is_builtin: bool = True
+    is_disabled: bool = False
+
+    @property
+    def as_custom_action_dict(self) -> dict[str, Any]:
+        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
+
+    @classmethod
+    def unserialize(cls, p: dict[str, Any], default_actions: tuple['ActionData', ...], include_disabled=False) -> Iterator['ActionData']:
+        dd = p.get('disabled_default_actions', ())
+        for x in default_actions:
+            x = x._replace(is_disabled=x.name in dd)
+            if include_disabled or not x.is_disabled:
+                yield x
+        for title, c in p.get('custom_actions', {}).items():
+            x = cls(f'custom-{title}', title, c['prompt_template'], is_builtin=False, is_disabled=c['disabled'])
+            if include_disabled or not x.is_disabled:
+                yield x
+
+
+class ActionEditDialog(QDialog):
+
+    def __init__(self, help_text: str, action: ActionData | None=None, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(_('Edit Quick action') if action else _('Add Quick action'))
+        self.layout = QFormLayout(self)
+        self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        self.name_edit = QLineEdit(self)
+        self.prompt_edit = QPlainTextEdit(self)
+        self.prompt_edit.setMinimumHeight(100)
+        self.layout.addRow(_('Name:'), self.name_edit)
+        self.layout.addRow(_('Prompt:'), self.prompt_edit)
+        self.help_label = la = QLabel(help_text)
+        la.setWordWrap(True)
+        self.layout.addRow(la)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.layout.addWidget(self.button_box)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        if action is not None:
+            self.name_edit.setText(action.human_name)
+            self.prompt_edit.setPlainText(action.prompt_template)
+        self.name_edit.installEventFilter(self)
+        self.prompt_edit.installEventFilter(self)
+
+    def sizeHint(self) -> QSize:
+        ans = super().sizeHint()
+        ans.setWidth(max(500, ans.width()))
+        return ans
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.KeyPress:
+            if obj is self.name_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                self.prompt_edit.setFocus()
+                return True
+            if obj is self.prompt_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                    self.accept()
+                    return True
+        return super().eventFilter(obj, event)
+
+    def get_action(self) -> ActionData:
+        title = self.name_edit.text().strip()
+        return ActionData(f'custom-{title}', title, self.prompt_edit.toPlainText().strip(), is_builtin=False)
+
+    def accept(self) -> None:
+        ac = self.get_action()
+        if not ac.human_name:
+            return error_dialog(self, _('No name specified'), _('You must specify a name for the Quick action'), show=True)
+        if not ac.prompt_template:
+            return error_dialog(self, _('No prompt specified'), _('You must specify a prompt for the Quick action'), show=True)
+        super().accept()
+
+
+class LocalisedResults(QCheckBox):
+
+    def __init__(self, prefs):
+        self.prefs = prefs
+        super().__init__(_('Ask the AI to respond in the current language'))
+        self.setToolTip('<p>' + _(
+            'Ask the AI to respond in the current calibre user interface language. Note that how well'
+            ' this works depends on the individual model being used. Different models support'
+            ' different languages.'))
+
+    def load_settings(self):
+        self.setChecked(self.prefs['llm_localized_results'] == 'always')
+
+    def commit(self) -> bool:
+        self.prefs.set('llm_localized_results', 'always' if self.isChecked() else 'never')
+        return True
+
+
+class LLMActionsSettingsWidget(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMinimumWidth(550)
+        self.layout = QVBoxLayout(self)
+        api_model_layout = QFormLayout()
+        api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+
+        self.custom_widgets = []
+        for (title, w) in self.create_custom_widgets():
+            if title:
+                api_model_layout.addRow(title, w)
+            else:
+                api_model_layout.addRow(w)
+            self.custom_widgets.append(w)
+        self.layout.addLayout(api_model_layout)
+        self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
+        self.layout.addWidget(gb)
+        gb.l = l = QVBoxLayout(gb)
+        self.actions_list = QListWidget(self)
+        self.actions_list.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        l.addWidget(self.actions_list)
+        actions_button_layout = QHBoxLayout()
+        self.add_button = QPushButton(QIcon.ic('plus.png'), _('&Add'))
+        self.edit_button = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
+        self.remove_button = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
+        actions_button_layout.addWidget(self.add_button)
+        actions_button_layout.addWidget(self.edit_button)
+        actions_button_layout.addWidget(self.remove_button)
+        actions_button_layout.addStretch(100)
+        l.addLayout(actions_button_layout)
+        self.add_button.clicked.connect(self.add_action)
+        self.edit_button.clicked.connect(self.edit_action)
+        self.remove_button.clicked.connect(self.remove_action)
+        self.actions_list.itemDoubleClicked.connect(self.edit_action)
+        self.load_settings()
+        self.actions_list.setFocus()
+
+    def load_settings(self):
+        for w in self.custom_widgets:
+            w.load_settings()
+        self.load_actions_from_prefs()
+
+    def action_as_item(self, ac: ActionData) -> QListWidgetItem:
+        item = QListWidgetItem(ac.human_name, self.actions_list)
+        item.setData(Qt.ItemDataRole.UserRole, ac)
+        item.setCheckState(Qt.CheckState.Unchecked if ac.is_disabled else Qt.CheckState.Checked)
+        item.setToolTip(textwrap.fill(ac.prompt_template))
+
+    def load_actions_from_prefs(self):
+        self.actions_list.clear()
+        for ac in sorted(self.get_actions_from_prefs(), key=lambda ac: primary_sort_key(ac.human_name)):
+            self.action_as_item(ac)
+
+    def add_action(self):
+        dialog = ActionEditDialog(self.action_edit_help_text, parent=self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            action = dialog.get_action()
+            if action.human_name and action.prompt_template:
+                self.action_as_item(action)
+
+    def edit_action(self):
+        item = self.actions_list.currentItem()
+        if not item:
+            return
+        action = item.data(Qt.ItemDataRole.UserRole)
+        if action.is_builtin:
+            return error_dialog(self, _('Cannot edit'), _(
+                'Cannot edit builtin actions. Instead uncheck this action and create a new action with the same name.'), show=True)
+        dialog = ActionEditDialog(self.action_edit_help_text, action, parent=self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            new_action = dialog.get_action()
+            if new_action.human_name and new_action.prompt_template:
+                item.setText(new_action.human_name)
+                item.setData(Qt.ItemDataRole.UserRole, new_action)
+
+    def remove_action(self):
+        item = self.actions_list.currentItem()
+        if not item:
+            return
+        action = item.data(Qt.ItemDataRole.UserRole)
+        if action.is_builtin:
+            return error_dialog(self, _('Cannot remove'), _(
+                'Cannot remove builtin actions. Instead simply uncheck it to prevent it from showing up as a button.'), show=True)
+        if item and confirm(
+            _('Remove the {} action?').format(item.text()), 'confirm_remove_llm_action',
+            confirm_msg=_('&Show this confirmation again'), parent=self,
+        ):
+            self.actions_list.takeItem(self.actions_list.row(item))
+
+    def commit(self) -> bool:
+        for w in self.custom_widgets:
+            if not w.commit():
+                return False
+        disabled_defaults = []
+        custom_actions = {}
+        for i in range(self.actions_list.count()):
+            item = self.actions_list.item(i)
+            action:ActionData = item.data(Qt.ItemDataRole.UserRole)
+            action = action._replace(is_disabled=item.checkState() == Qt.CheckState.Unchecked)
+            if action.is_builtin:
+                if action.is_disabled:
+                    disabled_defaults.append(action.name)
+            else:
+                custom_actions[action.human_name] = action.as_custom_action_dict
+        s = {}
+        if disabled_defaults:
+            s['disabled_default_actions'] = disabled_defaults
+        if custom_actions:
+            s['custom_actions'] = custom_actions
+        self.set_actions_in_prefs(s)
+        return True
+
+    # Subclass API {{{
+    action_edit_help_text = ''
+    def get_actions_from_prefs(self) -> Iterator[ActionData]:
+        raise NotImplementedError('implement in sub class')
+
+    def set_actions_in_prefs(self, s: dict[str, Any]) -> None:
+        raise NotImplementedError('implement in sub class')
+
+    def create_custom_widgets(self) -> Iterator[str, QWidget]:
+        raise NotImplementedError('implement in sub class')
     # }}}
 
 

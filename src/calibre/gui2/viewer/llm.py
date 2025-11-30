@@ -2,58 +2,24 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net> and Amir Tehrani
 
 import string
-import textwrap
 from collections.abc import Iterator
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import Any
 
-from qt.core import (
-    QAbstractItemView,
-    QCheckBox,
-    QDialog,
-    QDialogButtonBox,
-    QEvent,
-    QFormLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QIcon,
-    QLabel,
-    QLineEdit,
-    QListWidget,
-    QListWidgetItem,
-    QPlainTextEdit,
-    QPushButton,
-    QSize,
-    Qt,
-    QUrl,
-    QVBoxLayout,
-    QWidget,
-    pyqtSignal,
-)
+from qt.core import QDialog, QUrl, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ai import ChatMessage, ChatMessageType
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import Application, error_dialog
 from calibre.gui2.chat_widget import Button
-from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.llm import ConverseWidget, LLMSettingsDialogBase, prompt_sep
+from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults, prompt_sep
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
-from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ui_language_as_english
 from polyglot.binary import from_hex_unicode
 
 
-class Action(NamedTuple):
-    name: str
-    human_name: str
-    prompt_template: str
-    is_builtin: bool = True
-    is_disabled: bool = False
-
-    @property
-    def as_custom_action_dict(self) -> dict[str, Any]:
-        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
+class Action(ActionData):
 
     @property
     def uses_selected_text(self) -> bool:
@@ -91,17 +57,9 @@ def default_actions() -> tuple[Action, ...]:
     )
 
 
-def current_actions(include_disabled=False):
+def current_actions(include_disabled=False) -> Iterator[Action]:
     p = vprefs.get('llm_quick_actions') or {}
-    dd = p.get('disabled_default_actions', ())
-    for x in default_actions():
-        x = x._replace(is_disabled=x.name in dd)
-        if include_disabled or not x.is_disabled:
-            yield x
-    for title, c in p.get('custom_actions', {}).items():
-        x = Action(f'custom-{title}', title, c['prompt_template'], is_builtin=False, is_disabled=c['disabled'])
-        if include_disabled or not x.is_disabled:
-            yield x
+    return Action.unserialize(p, default_actions(), include_disabled)
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
@@ -241,184 +199,35 @@ class LLMPanel(ConverseWidget):
 
 # Settings {{{
 
-class ActionEditDialog(QDialog):
-    def __init__(self, action: Action | None=None, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle(_('Edit Quick action') if action else _('Add Quick action'))
-        self.layout = QFormLayout(self)
-        self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        self.name_edit = QLineEdit(self)
-        self.prompt_edit = QPlainTextEdit(self)
-        self.prompt_edit.setMinimumHeight(100)
-        self.layout.addRow(_('Name:'), self.name_edit)
-        self.layout.addRow(_('Prompt:'), self.prompt_edit)
-        self.help_label = la = QLabel('<p>' + _(
-            'The prompt is a template. If you want the prompt to operate on the currently selected'
-            ' text, add <b>{0}</b> to the end of the prompt. Similarly, use <b>{1}</b>'
-            ' when you want the AI to respond in the current language (not all AIs work well with all languages).'
-        ).format('{selected}', 'Respond in {language}'))
-        la.setWordWrap(True)
-        self.layout.addRow(la)
-        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self.layout.addWidget(self.button_box)
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
-        if action is not None:
-            self.name_edit.setText(action.human_name)
-            self.prompt_edit.setPlainText(action.prompt_template)
-        self.name_edit.installEventFilter(self)
-        self.prompt_edit.installEventFilter(self)
+class HighlightWidget(HighlightColorCombo):
 
-    def sizeHint(self) -> QSize:
-        ans = super().sizeHint()
-        ans.setWidth(max(500, ans.width()))
-        return ans
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.KeyPress:
-            if obj is self.name_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                self.prompt_edit.setFocus()
-                return True
-            if obj is self.prompt_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-                    self.accept()
-                    return True
-        return super().eventFilter(obj, event)
-
-    def get_action(self) -> Action:
-        title = self.name_edit.text().strip()
-        return Action(f'custom-{title}', title, self.prompt_edit.toPlainText().strip(), is_builtin=False)
-
-    def accept(self) -> None:
-        ac = self.get_action()
-        if not ac.human_name:
-            return error_dialog(self, _('No name specified'), _('You must specify a name for the Quick action'), show=True)
-        if not ac.prompt_template:
-            return error_dialog(self, _('No prompt specified'), _('You must specify a prompt for the Quick action'), show=True)
-        try:
-            ac.prompt_text()
-        except Exception as e:
-            return error_dialog(self, _('Invalid prompt'), _('The prompt you specified is not valid. Error: {}').format(e), show=True)
-        super().accept()
-
-
-class LLMSettingsWidget(QWidget):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setMinimumWidth(550)
-        self.layout = QVBoxLayout(self)
-        api_model_layout = QFormLayout()
-        api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-
-        self.highlight_color_combo = HighlightColorCombo(self)
-
-        api_model_layout.addRow(_('&Highlight style:'), self.highlight_color_combo)
-        self.layout.addLayout(api_model_layout)
-        self.localized_results = lr = QCheckBox(_('Ask the AI to respond in the current language'))
-        lr.setToolTip('<p>' + _('Ask the AI to respond in the current calibre user interface language. Note that how well'
-                        ' this works depends on the individual model being used. Different models support'
-                        ' different languages.'))
-        api_model_layout.addRow(lr)
-        self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
-        self.layout.addWidget(gb)
-        gb.l = l = QVBoxLayout(gb)
-        self.actions_list = QListWidget(self)
-        self.actions_list.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
-        l.addWidget(self.actions_list)
-        actions_button_layout = QHBoxLayout()
-        self.add_button = QPushButton(QIcon.ic('plus.png'), _('&Add'))
-        self.edit_button = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
-        self.remove_button = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
-        actions_button_layout.addWidget(self.add_button)
-        actions_button_layout.addWidget(self.edit_button)
-        actions_button_layout.addWidget(self.remove_button)
-        actions_button_layout.addStretch(100)
-        l.addLayout(actions_button_layout)
-        self.add_button.clicked.connect(self.add_action)
-        self.edit_button.clicked.connect(self.edit_action)
-        self.remove_button.clicked.connect(self.remove_action)
-        self.actions_list.itemDoubleClicked.connect(self.edit_action)
-        self.load_settings()
-        self.actions_list.setFocus()
-
-    def load_settings(self):
+    def load_settings(self) -> None:
         if hsn := vprefs.get('llm_highlight_style'):
-            self.highlight_color_combo.highlight_style_name = hsn
-        self.localized_results.setChecked(vprefs['llm_localized_results'] == 'always')
-        self.load_actions_from_prefs()
-
-    def action_as_item(self, ac: Action) -> QListWidgetItem:
-        item = QListWidgetItem(ac.human_name, self.actions_list)
-        item.setData(Qt.ItemDataRole.UserRole, ac)
-        item.setCheckState(Qt.CheckState.Unchecked if ac.is_disabled else Qt.CheckState.Checked)
-        item.setToolTip(textwrap.fill(ac.prompt_template))
-
-    def load_actions_from_prefs(self):
-        self.actions_list.clear()
-        for ac in sorted(current_actions(include_disabled=True), key=lambda ac: primary_sort_key(ac.human_name)):
-            self.action_as_item(ac)
-
-    def add_action(self):
-        dialog = ActionEditDialog(parent=self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            action = dialog.get_action()
-            if action.human_name and action.prompt_template:
-                self.action_as_item(action)
-
-    def edit_action(self):
-        item = self.actions_list.currentItem()
-        if not item:
-            return
-        action = item.data(Qt.ItemDataRole.UserRole)
-        if action.is_builtin:
-            return error_dialog(self, _('Cannot edit'), _(
-                'Cannot edit builtin actions. Instead uncheck this action and create a new action with the same name.'), show=True)
-        dialog = ActionEditDialog(action, parent=self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            new_action = dialog.get_action()
-            if new_action.human_name and new_action.prompt_template:
-                item.setText(new_action.human_name)
-                item.setData(Qt.ItemDataRole.UserRole, new_action)
-
-    def remove_action(self):
-        item = self.actions_list.currentItem()
-        if not item:
-            return
-        action = item.data(Qt.ItemDataRole.UserRole)
-        if action.is_builtin:
-            return error_dialog(self, _('Cannot remove'), _(
-                'Cannot remove builtin actions. Instead simply uncheck it to prevent it from showing up as a button.'), show=True)
-        if item and confirm(
-            _('Remove the {} action?').format(item.text()), 'confirm_remove_llm_action',
-            confirm_msg=_('&Show this confirmation again'), parent=self,
-        ):
-            self.actions_list.takeItem(self.actions_list.row(item))
+            self.highlight_style_name = hsn
 
     def commit(self) -> bool:
-        selected_internal_name = self.highlight_color_combo.currentData()
+        selected_internal_name = self.currentData()
         vprefs.set('llm_highlight_style', selected_internal_name)
-        vprefs.set('llm_localized_results', 'always' if self.localized_results.isChecked() else 'never')
-        disabled_defaults = []
-        custom_actions = {}
-        for i in range(self.actions_list.count()):
-            item = self.actions_list.item(i)
-            action:Action = item.data(Qt.ItemDataRole.UserRole)
-            action = action._replace(is_disabled=item.checkState() == Qt.CheckState.Unchecked)
-            if action.is_builtin:
-                if action.is_disabled:
-                    disabled_defaults.append(action.name)
-            else:
-                custom_actions[action.human_name] = action.as_custom_action_dict
-        s = {}
-        if disabled_defaults:
-            s['disabled_default_actions'] = disabled_defaults
-        if custom_actions:
-            s['custom_actions'] = custom_actions
-        vprefs.set('llm_quick_actions', s)
         return True
 
 
+class LLMSettingsWidget(LLMActionsSettingsWidget):
+
+    action_edit_help_text = '<p>' + _(
+            'The prompt is a template. If you want the prompt to operate on the currently selected'
+            ' text, add <b>{0}</b> to the end of the prompt. Similarly, use <b>{1}</b>'
+            ' when you want the AI to respond in the current language (not all AIs work well with all languages).'
+        ).format('{selected}', 'Respond in {language}')
+
+    def get_actions_from_prefs(self) -> Iterator[ActionData]:
+        yield from current_actions(include_disabled=True)
+
+    def set_actions_in_prefs(self, s: dict[str, Any]) -> None:
+        vprefs.set('llm_quick_actions', s)
+
+    def create_custom_widgets(self) -> Iterator[str, QWidget]:
+        yield _('&Highlight style:'), HighlightWidget(self)
+        yield '', LocalisedResults(vprefs)
 # }}}
 
 
