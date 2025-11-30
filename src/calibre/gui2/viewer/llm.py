@@ -121,11 +121,6 @@ class LLMPanel(ConverseWidget):
         yield Button('save.png', f'http://{self.save_note_hostname}/{msgnum}', _(
             'Save this specific response as the note'))
 
-    def get_language_instruction(self) -> str:
-        if vprefs['llm_localized_results'] != 'always':
-            return ''
-        return self.language_instruction()
-
     def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
         selected_text = self.latched_conversation_text if kwargs.get('uses_selected_text') else ''
         if self.book_title:
@@ -214,10 +209,9 @@ class HighlightWidget(HighlightColorCombo):
 class LLMSettingsWidget(LLMActionsSettingsWidget):
 
     action_edit_help_text = '<p>' + _(
-            'The prompt is a template. If you want the prompt to operate on the currently selected'
-            ' text, add <b>{0}</b> to the end of the prompt. Similarly, use <b>{1}</b>'
-            ' when you want the AI to respond in the current language (not all AIs work well with all languages).'
-        ).format('{selected}', 'Respond in {language}')
+        'The prompt is a template. If you want the prompt to operate on the currently selected'
+        ' text, add <b>{0}</b> to the end of the prompt.'
+    ).format('{selected}')
 
     def get_actions_from_prefs(self) -> Iterator[ActionData]:
         yield from current_actions(include_disabled=True)
@@ -227,7 +221,7 @@ class LLMSettingsWidget(LLMActionsSettingsWidget):
 
     def create_custom_widgets(self) -> Iterator[str, QWidget]:
         yield _('&Highlight style:'), HighlightWidget(self)
-        yield '', LocalisedResults(vprefs)
+        yield '', LocalisedResults()
 # }}}
 
 

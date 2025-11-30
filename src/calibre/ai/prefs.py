@@ -19,6 +19,7 @@ def prefs() -> JSONConfig:
     ans = JSONConfig('ai', permissions=0o600)  # make readable only by user as it stores secrets
     ans.defaults['providers'] = {}
     ans.defaults['purpose_map'] = {}
+    ans.defaults['llm_localized_results'] = 'never'
     return ans
 
 

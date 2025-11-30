@@ -3,15 +3,14 @@
 
 from collections.abc import Iterator
 from functools import lru_cache
-from typing import Any, NamedTuple
+from typing import Any
 
 from qt.core import QDialog, QUrl, QVBoxLayout, QWidget
 
 from calibre.ai import ChatMessage, ChatMessageType
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import Application, gprefs
-from calibre.gui2.llm import ConverseWidget
-from calibre.gui2.viewer.config import vprefs
+from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults
 from polyglot.binary import from_hex_unicode
 
 
@@ -55,51 +54,62 @@ def get_allowed_fields() -> set[str]:
     return set()
 
 
-class Action(NamedTuple):
-    name: str
-    human_name: str
-    prompt_template: str
-    is_builtin: bool = True
-    is_disabled: bool = False
-
-    @property
-    def as_custom_action_dict(self) -> dict[str, Any]:
-        return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
+class Action(ActionData):
 
     def prompt_text(self, books: list[Metadata]) -> str:
         pt = self.prompt_template
         return pt.format(
-            books=format_books_for_query(books),
             books_word='book' if len(books) < 2 else 'books',
-            plural_word='is' if len(books) < 2 else 'are',
+            is_are='is' if len(books) < 2 else 'are',
+            title=books[0].title, authors=books[0].format_authors(), series=books[0].series or '',
         )
 
 
 @lru_cache(2)
 def default_actions() -> tuple[Action, ...]:
     return (
-        Action('summarize', _('Summarize'), '{books} Provide a concise summary of the previously described {books_word}.'),
-        Action('chapters', _('Chapters'), '{books} Provide a chapter by chapter summary of the previously described {books_word}.'),
+        Action('summarize', _('Summarize'), 'Provide a concise summary of the previously described {books_word}.'),
+        Action('chapters', _('Chapters'), 'Provide a chapter by chapter summary of the previously described {books_word}.'),
         Action('read_next', _('Read next'), 'Suggest some good books to read after the previously described {books_word}.'),
-        Action('universe', _('Universe'), 'Describe the fictional universe the previously described {books_word} {plural_word} set in.'
+        Action('universe', _('Universe'), 'Describe the fictional universe the previously described {books_word} {is_are} set in.'
                ' Outline major plots, themes and characters in the universe.'),
-        Action('series', _('Series'), 'Give the series the previously described {books_word} {plural_word} in.'
+        Action('series', _('Series'), 'Give the series the previously described {books_word} {is_are} in.'
                ' List all the books in the series, in both published and internal chronological order.'
                ' Also describe any prominent spin-off series.')
     )
 
 
-def current_actions(include_disabled=False):
-    p = gprefs.get('llm_converse_quick_actions') or {}
-    dd = p.get('disabled_default_actions', ())
-    for x in default_actions():
-        x = x._replace(is_disabled=x.name in dd)
-        if include_disabled or not x.is_disabled:
-            yield x
-    for title, c in p.get('custom_actions', {}).items():
-        x = Action(f'custom-{title}', title, c['prompt_template'], is_builtin=False, is_disabled=c['disabled'])
-        if include_disabled or not x.is_disabled:
-            yield x
+def current_actions(include_disabled=False) -> Iterator[Action]:
+    p = gprefs.get('llm_book_quick_actions') or {}
+    return Action.unserialize(p, default_actions(), include_disabled)
+
+
+class LLMSettingsWidget(LLMActionsSettingsWidget):
+
+    action_edit_help_text = '<p>' + _(
+        'The prompt is a template. The expression {0} will be replaced by "book"'
+        ' when there is only a single book being discussed and "books" otherwise.'
+        ' Similarly {1} becomes "is" or "are", as needed. {2}, {3}, {4} are replaced '
+        ' by the title, authors and series of the first book, respectively.'
+    ).format('{books_word}', '{is_are}', '{title}', '{authors}', '{series}')
+
+    def get_actions_from_prefs(self) -> Iterator[ActionData]:
+        yield from current_actions(include_disabled=True)
+
+    def set_actions_in_prefs(self, s: dict[str, Any]) -> None:
+        gprefs.set('llm_book_quick_actions', s)
+
+    def create_custom_widgets(self) -> Iterator[str, QWidget]:
+        yield '', LocalisedResults()
+
+
+class LLMSettingsDialog(LLMSettingsDialogBase):
+
+    def __init__(self, parent=None):
+        super().__init__(title=_('AI Settings'), name='llm-book-settings-dialog', prefs=gprefs, parent=parent)
+
+    def custom_tabs(self) -> Iterator[str, str, QWidget]:
+        yield 'config.png', _('&Actions'), LLMSettingsWidget(self)
 
 
 class LLMPanel(ConverseWidget):
@@ -108,6 +118,9 @@ class LLMPanel(ConverseWidget):
     def __init__(self, books: list[Metadata], parent: QWidget | None = None):
         self.books = books
         super().__init__(parent)
+
+    def settings_dialog(self) -> QDialog:
+        return LLMSettingsDialog(self)
 
     def handle_chat_link(self, qurl: QUrl) -> bool:
         match qurl.host():
@@ -134,11 +147,6 @@ class LLMPanel(ConverseWidget):
         msg += '<i>Discuss the literary influences in this book</i>'
         return msg
     ready_message = choose_action_message
-
-    def get_language_instruction(self) -> str:
-        if vprefs['llm_localized_results'] != 'always':
-            return ''
-        return self.language_instruction()
 
     def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
         context_header = format_books_for_query(self.books)

@@ -41,6 +41,7 @@ from qt.core import (
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse
 from calibre.ai.config import ConfigureAI
 from calibre.ai.prefs import plugin_for_purpose
+from calibre.ai.prefs import prefs as aiprefs
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
 from calibre.gui2 import error_dialog, safe_open_url
@@ -315,6 +316,11 @@ class ConverseWidget(QWidget):
         self.result_display.re_render()
         self.scroll_to_bottom()
 
+    def get_language_instruction(self) -> str:
+        if aiprefs['llm_localized_results'] != 'always':
+            return ''
+        return self.language_instruction()
+
     def scroll_to_bottom(self) -> None:
         self.result_display.scroll_to_bottom()
 
@@ -569,8 +575,7 @@ class ActionEditDialog(QDialog):
 
 class LocalisedResults(QCheckBox):
 
-    def __init__(self, prefs):
-        self.prefs = prefs
+    def __init__(self):
         super().__init__(_('Ask the AI to respond in the current language'))
         self.setToolTip('<p>' + _(
             'Ask the AI to respond in the current calibre user interface language. Note that how well'
@@ -578,10 +583,10 @@ class LocalisedResults(QCheckBox):
             ' different languages.'))
 
     def load_settings(self):
-        self.setChecked(self.prefs['llm_localized_results'] == 'always')
+        self.setChecked(aiprefs['llm_localized_results'] == 'always')
 
     def commit(self) -> bool:
-        self.prefs.set('llm_localized_results', 'always' if self.isChecked() else 'never')
+        aiprefs['llm_localized_results'] = 'always' if self.isChecked() else 'never'
         return True
 
 
