@@ -414,7 +414,6 @@ class LLMSettingsWidget(QWidget):
 
 
 class LLMSettingsDialog(Dialog):
-    actions_updated = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
@@ -437,7 +436,6 @@ class LLMSettingsDialog(Dialog):
         if not self.llm_config.commit():
             self.tabs.setCurrentWidget(self.llm_config)
             return
-        self.actions_updated.emit()
         super().accept()
 # }}}
 
