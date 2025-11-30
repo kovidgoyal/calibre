@@ -81,6 +81,11 @@ class BuildTest(unittest.TestCase):
         from chm.chm import CHMFile, chmlib
         del CHMFile, chmlib
 
+    def test_tzdata(self):
+        import tzdata
+        import tzlocal
+        del tzlocal, tzdata
+
     def test_chardet(self):
         from calibre_extensions.uchardet import detect
         raw = 'mūsi Füße'.encode()
