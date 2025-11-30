@@ -256,7 +256,7 @@ class ActionEditDialog(QDialog):
             'The prompt is a template. If you want the prompt to operate on the currently selected'
             ' text, add <b>{0}</b> to the end of the prompt. Similarly, use <b>{1}</b>'
             ' when you want the AI to respond in the current language (not all AIs work well with all languages).'
-        ).format('selected', 'Respond in {language}'))
+        ).format('{selected}', 'Respond in {language}'))
         la.setWordWrap(True)
         self.layout.addRow(la)
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
