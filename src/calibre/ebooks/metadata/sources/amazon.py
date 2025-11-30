@@ -843,7 +843,7 @@ class Worker(Thread):  # Get details {{{
                 if a:
                     raw = self.tostring(a[0], encoding='unicode', method='text', with_tail=False)
                     if self.domain == 'jp':
-                        m = re.search(r'(?P<index>[0-9.]+)\s*(?:巻|冊)\s*\(全\s*([0-9.]+)\s*(?:巻|冊)\):\s*(?P<series>.+)', raw.strip())
+                        m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中第\s*(?P<index>[0-9.]+)\s*(?:巻|冊)\s*:\s*(?P<series>.+)', raw.strip())
                     else:
                         m = re.search(r'(?:Book|Libro|Buch)\s+(?P<index>[0-9.]+)\s+(?:of|de|von)\s+([0-9.]+)\s*:\s*(?P<series>.+)', raw.strip())
                     if m is not None:
@@ -1090,7 +1090,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 13)
+    version = (1, 3, 14)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
