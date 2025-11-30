@@ -168,7 +168,10 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(f'author = "{bibtexdict.bibtex_author_format(item)}"')
 
                 elif field == 'languages' and item:
-                    bibtex_entry.append(f'language = "{bibtexdict.bibtex_author_format(item)}"')
+                    if isinstance(item, str):
+                        bibtex_entry.append(f'language = "{item}"')
+                    else:
+                        bibtex_entry.append(f'language = "{bibtexdict.bibtex_author_format(item)}"')
 
                 elif field == 'id':
                     bibtex_entry.append(f'calibreid = "{int(item)}"')
