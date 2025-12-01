@@ -583,10 +583,10 @@ class LocalisedResults(QCheckBox):
             ' different languages.'))
 
     def load_settings(self):
-        self.setChecked(aiprefs['llm_localized_results'] == 'always')
+        self.setChecked(aiprefs()['llm_localized_results'] == 'always')
 
     def commit(self) -> bool:
-        aiprefs['llm_localized_results'] = 'always' if self.isChecked() else 'never'
+        aiprefs()['llm_localized_results'] = 'always' if self.isChecked() else 'never'
         return True
 
 
