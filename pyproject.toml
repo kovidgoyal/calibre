@@ -47,7 +47,7 @@ dependencies = [
 	"Deprecated == 1.2.14",
 	"pykakasi == 2.3.0",
 	"zeroconf == 0.115.0",
-	"fonttools == 4.47.0",
+	"fonttools == 4.61.0",
 	"lxml_html_clean == 0.4.2",
 	"PyQt6_sip == 13.10.0",
 	"PyQt6 == 6.8.1",
