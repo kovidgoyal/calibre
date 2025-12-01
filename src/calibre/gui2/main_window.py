@@ -261,6 +261,8 @@ def clone_menu(menu):
         ans.setEnabled(ac.isEnabled())
         ans.setStatusTip(ac.statusTip())
         ans.setVisible(ac.isVisible())
+        ans.setCheckable(ac.isCheckable())
+        ans.setChecked(ac.isChecked())
         return ans
 
     def clone_one_menu(m):
