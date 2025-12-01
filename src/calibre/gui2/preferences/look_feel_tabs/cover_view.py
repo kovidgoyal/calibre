@@ -67,4 +67,4 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])
         gui.update_cover_flow_subtitle_font()
-        gui.cover_flow.template_inited = False
+        gui.db_images.template_inited = False
