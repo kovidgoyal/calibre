@@ -259,6 +259,7 @@ class LLMBookDialog(Dialog):
         self.llm.close_requested.connect(self.accept)
         l.addWidget(llm)
         self.bb.setVisible(False)
+        self.llm.result_display.input.text_input.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def sizeHint(self):
         return QSize(600, 750)
