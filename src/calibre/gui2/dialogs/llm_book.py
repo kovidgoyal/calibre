@@ -5,12 +5,15 @@ from collections.abc import Iterator
 from functools import lru_cache
 from typing import Any
 
-from qt.core import QDialog, QUrl, QVBoxLayout, QWidget
+from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, Qt, QUrl, QVBoxLayout, QWidget
 
 from calibre.ai import ChatMessage, ChatMessageType
+from calibre.db.cache import Cache
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults
+from calibre.gui2.ui import get_gui
+from calibre.utils.icu import primary_sort_key
 from polyglot.binary import from_hex_unicode
 
 
@@ -51,7 +54,9 @@ def format_books_for_query(books: list[Metadata]) -> str:
 
 
 def get_allowed_fields() -> set[str]:
-    return set()
+    db = get_current_db()
+    ans = set(db.pref('llm-book-allowed-custom-fields') or ())
+    return set(gprefs.get('llm-book-allowed-standard-fields') or ()) | ans
 
 
 class Action(ActionData):
@@ -103,6 +108,73 @@ class LLMSettingsWidget(LLMActionsSettingsWidget):
         yield '', LocalisedResults()
 
 
+def get_current_db() -> Cache:
+    if db := getattr(get_current_db, 'ans', None):
+        return db.new_api
+    return get_gui().current_db.new_api
+
+
+class MetadataSettings(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.l = l = QVBoxLayout(self)
+        la = QLabel(_('Select which metadata fields to send to the AI from the selected books. Note that title and authors are always sent.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.list_widget = lw = QListWidget(self)
+        lw.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        lw.itemClicked.connect(self.toggle_item)
+        l.addWidget(lw)
+        db = get_current_db()
+        fm = db.field_metadata
+        allowed = get_allowed_fields()
+        for field_name in sorted(fm.displayable_field_keys(), key=lambda n: primary_sort_key(fm[n]['label'])):
+            if field_name in ('title', 'authors', 'author_sort', 'sort', 'id', 'uuid'):
+                continue
+            fd = fm[field_name]
+            item = QListWidgetItem(fd['name'], lw)
+            item.setToolTip(field_name)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if field_name in allowed else Qt.CheckState.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, field_name)
+        bb = QDialogButtonBox(self)
+        bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.select_all)
+        bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.select_none)
+        l.addWidget(bb)
+
+    def __iter__(self):
+        lw = self.list_widget
+        return (lw.item(r) for r in range(lw.count()))
+
+    def select_all(self):
+        for item in self:
+            item.setCheckState(Qt.CheckState.Checked)
+
+    def select_none(self):
+        for item in self:
+            item.setCheckState(Qt.CheckState.Unchecked)
+
+    def toggle_item(self, item):
+        item.setCheckState(
+            Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
+
+    def commit(self) -> bool:
+        allowed_standard = set()
+        allowed_custom = set()
+        for item in self:
+            if item.checkState() == Qt.CheckState.Checked:
+                f = item.data(Qt.ItemDataRole.UserRole)
+                if f.startswith('#'):
+                    allowed_custom.add(f)
+                else:
+                    allowed_standard.add(f)
+        gprefs.set('llm-book-allowed-standard-fields', sorted(allowed_standard))
+        db = get_current_db()
+        db.set_pref('llm-book-allowed-custom-fields', sorted(allowed_custom))
+        return True
+
+
 class LLMSettingsDialog(LLMSettingsDialogBase):
 
     def __init__(self, parent=None):
@@ -110,6 +182,7 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
 
     def custom_tabs(self) -> Iterator[str, str, QWidget]:
         yield 'config.png', _('&Actions'), LLMSettingsWidget(self)
+        yield 'metadata.png', _('&Metadata'), MetadataSettings(self)
 
 
 class LLMPanel(ConverseWidget):
@@ -161,6 +234,8 @@ class LLMPanel(ConverseWidget):
 
 
 def develop():
+    from calibre.library import db
+    get_current_db.ans = db()
     app = Application([])
     d = QDialog()
     l = QVBoxLayout(d)
