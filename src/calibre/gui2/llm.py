@@ -188,8 +188,9 @@ class ConversationHistory:
 
 class ConverseWidget(QWidget):
     response_received = pyqtSignal(int, object)
+    close_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, add_close_button=False):
         super().__init__(parent)
         self.counter = count(start=1)
         self.hid = hid = uuid4().lower()
@@ -219,17 +220,23 @@ class ConverseWidget(QWidget):
         self.layout.addLayout(self.response_actions_layout)
 
         footer_layout = QHBoxLayout()
-        self.settings_button = QPushButton(QIcon.ic('config'), _('Se&ttings'))
+        self.settings_button = QPushButton(QIcon.ic('config.png'), _('Se&ttings'))
         self.settings_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.settings_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.settings_button.clicked.connect(self.show_settings)
         self.api_usage_label = QLabel('')
         footer_layout.addWidget(self.settings_button)
         footer_layout.addStretch()
         footer_layout.addWidget(self.api_usage_label)
+        if add_close_button:
+            self.close_button = b = QPushButton(QIcon.ic('close.png'), _('&Close'))
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            b.clicked.connect(self.close_requested)
+            footer_layout.addWidget(b)
         self.layout.addLayout(footer_layout)
 
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
-        self.settings_button.clicked.connect(self.show_settings)
         self.show_initial_message()
         self.update_cost()
 
