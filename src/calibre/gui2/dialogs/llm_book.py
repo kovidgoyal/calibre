@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from functools import lru_cache
 from typing import Any
 
-from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, Qt, QUrl, QVBoxLayout, QWidget
+from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget
 
 from calibre.ai import ChatMessage, ChatMessageType
 from calibre.db.cache import Cache
@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import Application, gprefs
 from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults
 from calibre.gui2.ui import get_gui
+from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from polyglot.binary import from_hex_unicode
 
@@ -233,17 +234,31 @@ class LLMPanel(ConverseWidget):
         return action.prompt_text(self.books)
 
 
+class LLMBookDialog(Dialog):
+
+    def __init__(self, books: list[Metadata], parent: QWidget | None = None):
+        self.books = books
+        super().__init__(
+            name='llm-book-dialog', title=_('Ask AI about {}').format(books[0].title) if len(books) < 2 else _(
+                'Ask AI about {} books').format(len(books)),
+            parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        self.llm = llm = LLMPanel(self.books, parent=self)
+        l.addWidget(llm)
+        l.addWidget(self.bb)
+
+    def sizeHint(self):
+        return QSize(600, 750)
+
+
 def develop():
     from calibre.library import db
     get_current_db.ans = db()
     app = Application([])
-    d = QDialog()
-    l = QVBoxLayout(d)
-    l.setContentsMargins(0, 0, 0, 0)
-
-    llm = LLMPanel([Metadata('The Trials of Empire', ['Richard Swan'])], parent=d)
-    l.addWidget(llm)
-    d.exec()
+    LLMBookDialog([Metadata('The Trials of Empire', ['Richard Swan'])]).exec()
     del app
 
 
