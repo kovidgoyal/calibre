@@ -100,15 +100,15 @@ def get_model_costs() -> dict[str, Pricing]:
     # https://ai.google.dev/gemini-api/docs/pricing
     return {
         'models/gemini-2.5-pro': Pricing(
-            input=Price(2.5/1e6, 200_000, 1.5/1e6),
+            input=Price(2.5/1e6, 200_000, 1.25/1e6),
             output=Price(15/1e6, 200_000, 10/1e6),
-            caching=Price(0.625/1e6, 200_000, 0.31/1e6),
+            caching=Price(0.25/1e6, 200_000, 0.125/1e6),
             caching_storage=Price(4.5/1e6),
         ),
         'models/gemini-2.5-flash': Pricing(
             input=Price(0.3/1e6),
             output=Price(2.5/1e6),
-            caching=Price(0.075/1e6),
+            caching=Price(0.03/1e6),
             caching_storage=Price(1/1e6),
             input_audio=Price(1/1e6),
         ),
@@ -116,7 +116,7 @@ def get_model_costs() -> dict[str, Pricing]:
             input=Price(0.1/1e6),
             input_audio=Price(0.3/1e6),
             output=Price(0.4/1e6),
-            caching=Price(0.025/1e6),
+            caching=Price(0.01/1e6),
             caching_storage=Price(1/1e6),
         ),
     }
