@@ -317,7 +317,7 @@ class ConverseWidget(QWidget):
         self.scroll_to_bottom()
 
     def get_language_instruction(self) -> str:
-        if aiprefs['llm_localized_results'] != 'always':
+        if aiprefs()['llm_localized_results'] != 'always':
             return ''
         return self.language_instruction()
 
