@@ -141,7 +141,7 @@ def get_tx():
     print('Downloading:', url)
     raw = download_with_retry(url)
     with tarfile.open(fileobj=io.BytesIO(raw), mode='r') as tf:
-        tf.extract('tx')
+        tf.extract('tx', filter='fully_trusted')
 
 
 def install_grype() -> str:
