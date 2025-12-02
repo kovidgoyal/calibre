@@ -240,6 +240,9 @@ class ConverseWidget(QWidget):
         self.show_initial_message()
         self.update_cost()
 
+    def setFocus(self, reason) -> None:
+        self.result_display.input.setFocus(reason)
+
     def language_instruction(self):
         lang = ui_language_as_english()
         return f'If you can speak in {lang}, then respond in {lang}.'

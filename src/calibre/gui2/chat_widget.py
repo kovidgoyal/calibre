@@ -122,6 +122,9 @@ class Input(QWidget):
         b.clicked.connect(self.send_requested)
         l.addWidget(b, alignment=Qt.AlignmentFlag.AlignCenter)
 
+    def setFocus(self, reason) -> None:
+        self.text_input.setFocus(reason)
+
     @property
     def value(self) -> str:
         return self.text_input.value
@@ -160,6 +163,9 @@ class ChatWidget(QWidget):
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.line_spacing = self.browser.fontMetrics().lineSpacing()
+
+    def setFocus(self, reason) -> None:
+        self.input.setFocus(reason)
 
     def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:
         style = f'style="background-color: {background_color}"' if background_color else ''
