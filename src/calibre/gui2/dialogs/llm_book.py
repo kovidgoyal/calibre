@@ -85,6 +85,13 @@ def default_actions() -> tuple[Action, ...]:
     )
 
 
+def read_next_action() -> Action:
+    for ac in default_actions():
+        if ac.name == 'read_next':
+            return ac
+    raise KeyError('No read next action could be found')
+
+
 def current_actions(include_disabled=False) -> Iterator[Action]:
     p = gprefs.get('llm_book_quick_actions') or {}
     return Action.unserialize(p, default_actions(), include_disabled)
