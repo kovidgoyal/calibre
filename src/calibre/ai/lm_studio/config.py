@@ -5,7 +5,7 @@
 from functools import partial
 from typing import Any
 
-from qt.core import QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QWidget
+from qt.core import QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, Qt, QWidget
 
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
@@ -44,19 +44,22 @@ class ConfigWidget(QWidget):
         temp.setToolTip(_('Controls randomness. 0 is deterministic, higher is more creative.'))
         l.addRow(_('T&emperature:'), temp)
 
-        h = QHBoxLayout()
-        self.model_edit = me = QLineEdit(self)
+        w = QWidget()
+        h = QHBoxLayout(w)
+        h.setContentsMargins(0, 0, 0, 0)
+        self.model_edit = me = QLineEdit(w)
         me.setPlaceholderText(_('Enter model ID or click Refresh'))
         me.setText(pref('text_model') or '')
 
-        self.refresh_btn = rb = QPushButton(_('Refresh Models'))
+        self.refresh_btn = rb = QPushButton(_('&Refresh models'))
         rb.clicked.connect(self.refresh_models)
 
         h.addWidget(me)
         h.addWidget(rb)
-        l.addRow(_('&Model:'), h)
+        l.addRow(_('&Model:'), w)
 
         self.model_status = ms = QLabel('')
+        ms.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         l.addRow('', ms)
 
     def refresh_models(self):
