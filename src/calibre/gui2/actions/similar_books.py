@@ -42,15 +42,8 @@ class SimilarBooksAction(InterfaceAction):
         self.qaction.setMenu(m)
 
     def ask_ai(self):
-        idx = self.gui.library_view.currentIndex()
-        if not idx.isValid():
-            return
-        db = idx.model().db
-        mi = db.new_api.get_metadata(db.id(idx.row()))
-        from calibre.gui2.dialogs.llm_book import LLMBookDialog, read_next_action
-        d = LLMBookDialog([mi], parent=self.gui)
-        d.llm.activate_action(read_next_action())
-        d.exec()
+        from calibre.gui2.dialogs.llm_book import read_next_action
+        self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action)
 
     def show_similar_books(self, typ, *args):
         idx = self.gui.library_view.currentIndex()
