@@ -167,8 +167,9 @@ def install_grype() -> str:
 
 IGNORED_DEPENDENCY_CVES = [
     # Python stdlib
-    'CVE-2025-8194',  # DoS in tarfile
-    'CVE-2025-6069',  # DoS in HTMLParser
+    'CVE-2025-8194',   # DoS in tarfile
+    'CVE-2025-6069',   # DoS in HTMLParser
+    'CVE-2025-13836',  # DoS in http client reading from malicious server
     # glib
     'CVE-2025-4056',  # Only affects Windows, on which we dont use glib
     # libtiff
