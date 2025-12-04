@@ -5,7 +5,7 @@
 from functools import partial
 from typing import Any
 
-from qt.core import QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, Qt, QWidget
+from qt.core import QComboBox, QCompleter, QDoubleSpinBox, QFormLayout, QHBoxLayout, QLabel, QLineEdit, QListView, QPushButton, QSpinBox, Qt, QWidget
 
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
@@ -33,7 +33,9 @@ class ConfigWidget(QWidget):
         a.setText(pref('api_url') or '')
 
         self.timeout_sb = t = QSpinBox(self)
-        t.setRange(15, 600), t.setSingleStep(1), t.setSuffix(_(' seconds'))
+        t.setRange(15, 600)
+        t.setSingleStep(1)
+        t.setSuffix(_(' seconds'))
         t.setValue(pref('timeout', 120))
         l.addRow(_('&Timeout:'), t)
 
@@ -44,40 +46,81 @@ class ConfigWidget(QWidget):
         temp.setToolTip(_('Controls randomness. 0 is deterministic, higher is more creative.'))
         l.addRow(_('T&emperature:'), temp)
 
+        # --- Model selector field (ComboBox dropdown) ---
         w = QWidget()
         h = QHBoxLayout(w)
         h.setContentsMargins(0, 0, 0, 0)
-        self.model_edit = me = QLineEdit(w)
-        me.setPlaceholderText(_('Enter model ID or click Refresh'))
-        me.setText(pref('text_model') or '')
+
+        self.model_combo = mc = QComboBox(w)
+        mc.setEditable(True)
+        mc.setInsertPolicy(QComboBox.NoInsert)
+        mc.setView(QListView(mc))
+        mc.setSizeAdjustPolicy(QComboBox.AdjustToContentsOnFirstShow)
+
+        completer = QCompleter(mc)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        mc.setCompleter(completer)
+
+        saved_model = pref('text_model') or ''
+        if saved_model:
+            mc.addItem(saved_model)
+            mc.setCurrentText(saved_model)
+        else:
+            mc.setCurrentText('')
 
         self.refresh_btn = rb = QPushButton(_('&Refresh models'))
         rb.clicked.connect(self.refresh_models)
 
-        h.addWidget(me)
+        h.addWidget(mc)
         h.addWidget(rb)
         l.addRow(_('&Model:'), w)
 
         self.model_status = ms = QLabel('')
+        ms.setWordWrap(True)
         ms.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         l.addRow('', ms)
+
+        # Store last loaded models for tooltip
+        self._last_models: list[str] = []
+
+        mc.activated.connect(self._on_model_selected)
 
     def refresh_models(self):
         with BusyCursor():
             try:
                 plugin = plugin_for_name(LMStudioAI.name)
                 backend = plugin.builtin_live_module
-                models = backend.get_available_models(self.api_url)
-                if models:
-                    # We pick the first one if the current model is empty, or just show success
-                    keys = list(models.keys())
-                    self.model_status.setText(_('Found {} models: {}').format(len(keys), ', '.join(keys)))
-                    if not self.model_edit.text() and keys:
-                        self.model_edit.setText(keys[0])
+                models_dict = backend.get_available_models(self.api_url)
+                keys = list(models_dict.keys()) if models_dict else []
+                self._last_models = keys
+
+                self.model_combo.blockSignals(True)
+                self.model_combo.clear()
+                for k in keys:
+                    self.model_combo.addItem(k)
+                # If the current combo is empty and models exist, select the first one
+                if not self.model_combo.currentText() and keys:
+                    self.model_combo.setCurrentText(keys[0])
+                # Restore previous selection if it exists in new list
+                current_text = (pref('text_model') or '').strip()
+                if current_text and current_text in keys:
+                    self.model_combo.setCurrentText(current_text)
+                self.model_combo.blockSignals(False)
+
+                if keys:
+                    display_count = 3
+                    sample = ', '.join(keys[:display_count])
+                    msg = _('Found {} models. e.g.: {}').format(len(keys), sample)
+                    if len(keys) > display_count:
+                        msg += _(' (and more)')
+                    self.model_status.setText(msg)
+                    self.model_status.setToolTip(', '.join(keys))  # Full list in tooltip
                 else:
                     self.model_status.setText(_('No models found. Ensure a model is loaded in LM Studio.'))
+                    self.model_status.setToolTip('')
             except Exception as e:
                 self.model_status.setText(_('Connection failed: {}').format(str(e)))
+                self.model_status.setToolTip('')
 
     @property
     def api_url(self) -> str:
@@ -85,7 +128,7 @@ class ConfigWidget(QWidget):
 
     @property
     def text_model(self) -> str:
-        return self.model_edit.text().strip()
+        return self.model_combo.currentText().strip()
 
     @property
     def settings(self) -> dict[str, Any]:
@@ -94,7 +137,8 @@ class ConfigWidget(QWidget):
             'timeout': self.timeout_sb.value(),
             'temperature': self.temp_sb.value(),
         }
-        if url := self.api_url:
+        url = self.api_url
+        if url:
             ans['api_url'] = url
         return ans
 
@@ -110,6 +154,10 @@ class ConfigWidget(QWidget):
 
     def save_settings(self):
         set_prefs_for_provider(LMStudioAI.name, self.settings)
+
+    def _on_model_selected(self, index: int):
+        model_id = self.model_combo.itemText(index)
+        self.model_status.setText(_('Selected model: {0}').format(model_id))
 
 
 if __name__ == '__main__':

@@ -241,7 +241,7 @@ class ConverseWidget(QWidget):
         self.update_cost()
 
     def setFocus(self, reason) -> None:
-        self.result_display.input.setFocus(reason)
+        self.result_display.setFocus(reason)
 
     def language_instruction(self):
         lang = ui_language_as_english()
