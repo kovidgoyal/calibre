@@ -36,17 +36,16 @@ class TheDailyMail(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'Home', u'http://www.dailymail.co.uk/home/index.rss'),
-        (u'News', u'http://www.dailymail.co.uk/news/index.rss'),
-        (u'Sport', u'http://www.dailymail.co.uk/sport/index.rss'),
-        (u'TV and Showbiz', u'http://www.dailymail.co.uk/tvshowbiz/index.rss'),
-        (u'Femail', u'http://www.dailymail.co.uk/femail/index.rss'),
-        (u'Health', u'http://www.dailymail.co.uk/health/index.rss'),
-        (u'Science and Technology', u'http://www.dailymail.co.uk/sciencetech/index.rss'),
-        (u'Money', u'http://www.dailymail.co.uk/money/index.rss'),
-        (u'Property', u'http://www.dailymail.co.uk/property/index.rss'),
-        (u'Motoring', u'http://www.dailymail.co.uk/motoring/index.rss'),
-        (u'Travel', u'http://www.dailymail.co.uk/travel/index.rss')
+        (u'Home', u'https://www.dailymail.co.uk/home/index.rss'),
+        (u'News', u'https://www.dailymail.co.uk/news/index.rss'),
+        (u'Sport', u'https://www.dailymail.co.uk/sport/index.rss'),
+        (u'TV and Showbiz', u'https://www.dailymail.co.uk/tvshowbiz/index.rss'),
+        (u'Health', u'https://www.dailymail.co.uk/health/index.rss'),
+        (u'Science and Technology', u'https://www.dailymail.co.uk/sciencetech/index.rss'),
+        (u'Money', u'https://www.dailymail.co.uk/money/index.rss'),
+        (u'Property', u'https://www.dailymail.co.uk/property/index.rss'),
+        (u'Motoring', u'https://www.dailymail.co.uk/motoring/index.rss'),
+        (u'Travel', u'https://www.dailymail.co.uk/travel/index.rss')
     ]
 
     def preprocess_html(self, soup):
