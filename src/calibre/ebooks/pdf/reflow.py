@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 import sys
+from html import escape
 from operator import attrgetter
 
 from lxml import etree
@@ -202,7 +203,7 @@ class Text(Element):
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text', encoding='unicode')
-        self.raw = text.text if text.text else ''
+        self.raw = escape(text.text) if text.text else ''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.set_av_char_width()
@@ -413,7 +414,7 @@ class Paragraph(Text):
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
                 encoding='unicode')
-        self.raw = text.text if text.text else ''
+        self.raw = escape(text.text) if text.text else ''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.set_av_char_width()
