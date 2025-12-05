@@ -25,7 +25,8 @@ class TheDailyMail(BasicNewsRecipe):
     compress_news_images = True
     compress_news_images_auto_size = 8
     no_stylesheets = True
-    delay = 1
+    delay = 2
+    browser_type = 'webengine'
 
     keep_only_tags = [
         dict(name='h1'),
