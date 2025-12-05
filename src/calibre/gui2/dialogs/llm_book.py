@@ -41,7 +41,7 @@ def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str
         for name, val in fields:
             ans += f' {name}: {val}'
     if comments:
-        ans += ' Some notes about this book: ' + comments
+        ans += ' Some notes about this book: ' + '\n'.join(comments)
     return ans
 
 
