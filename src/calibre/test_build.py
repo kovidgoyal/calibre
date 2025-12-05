@@ -82,9 +82,14 @@ class BuildTest(unittest.TestCase):
         del CHMFile, chmlib
 
     def test_tzdata(self):
-        import tzdata
-        import tzlocal
-        del tzlocal, tzdata
+        if iswindows:
+            # Windows uses tzdata module for zoneinfo
+            import tzdata
+            import tzlocal
+            del tzlocal, tzdata
+        else:
+            import tzlocal
+            del tzlocal
 
     def test_chardet(self):
         from calibre_extensions.uchardet import detect
