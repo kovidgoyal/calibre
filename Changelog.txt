@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 8.16.0 2025-12-04
+
+:: new features
+
+- [major] Allow asking AI questions about any book in your calibre library. Right click the "View" button and choose "Discuss selected book(s) with AI"
+
+- AI: Allow asking AI what book to read next by right clicking on a book and using the "Similar books" menu
+
+- AI: Add a new backend for "LM Studio" which allows running various AI models locally
+
+:: bug fixes
+
+- [2133435] Use a named local timezone for better display of historical dates in the local timezone
+
+- [2133846] PDF Input: Fix a regression in the new PDF input engine that caused HTML markup to not be always escaped
+
+- [2132253] Get books: Update amazon.it store plugin
+
+- Fix addition of format specific options when using calibredb catalog with command line flags
+
+- [2133134] calibredb catalog: Fix generation of language field in BiBTeX catalogs
+
+- [2132182] Fix incorrect series index when downloading metadata from amazon.co.jp
+
+- Fix a regression in the previous release that caused the case change menu to not be present in the comments editor.
+
+}}}
+
 {{{ 8.15.0 2025-11-21
 
 :: new features
