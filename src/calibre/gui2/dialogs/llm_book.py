@@ -143,7 +143,7 @@ class MetadataSettings(QWidget):
             fd = fm[field_name]
             item = QListWidgetItem(fd['name'], lw)
             item.setToolTip(field_name)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled)
             item.setCheckState(Qt.CheckState.Checked if field_name in allowed else Qt.CheckState.Unchecked)
             item.setData(Qt.ItemDataRole.UserRole, field_name)
         bb = QDialogButtonBox(self)
