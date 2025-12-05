@@ -147,6 +147,10 @@ def sanitize_comments_html(html):
     return html
 
 
+def comments_as_markdown(x: str | None) -> str:
+    return html2text(comments_to_html(x or ''), single_line_break=False)
+
+
 def find_tests():
     import unittest
 
