@@ -39,9 +39,9 @@ def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str
     if fields:
         ans += ' It has the following additional metadata.'
         for name, val in fields:
-            ans += f' {name}: {val}'
+            ans += f'\n{name}: {val}'
     if comments:
-        ans += ' Some notes about this book: ' + '\n'.join(comments)
+        ans += '\nSome notes about this book:\n' + '\n'.join(comments)
     return ans
 
 
@@ -257,6 +257,7 @@ class LLMBookDialog(Dialog):
         l.setContentsMargins(0, 0, 0, 0)
         self.llm = llm = LLMPanel(self.books, parent=self)
         self.llm.close_requested.connect(self.accept)
+        self.finished.connect(self.llm.cleanup_on_close)
         l.addWidget(llm)
         self.bb.setVisible(False)
         self.llm.result_display.input.setFocus(Qt.FocusReason.OtherFocusReason)
