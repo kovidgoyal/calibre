@@ -43,7 +43,7 @@ class SimilarBooksAction(InterfaceAction):
 
     def ask_ai(self):
         from calibre.gui2.dialogs.llm_book import read_next_action
-        self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action)
+        self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action())
 
     def show_similar_books(self, typ, *args):
         idx = self.gui.library_view.currentIndex()
