@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 8.16.0 2025-12-04
+{{{ 8.16.1 2025-12-04
 
 :: new features
 
@@ -48,6 +48,8 @@
 - [2132182] Fix incorrect series index when downloading metadata from amazon.co.jp
 
 - Fix a regression in the previous release that caused the case change menu to not be present in the comments editor.
+
+- [2133932] Fix a bug in 8.16.0 that prevented the Ask AI what to read next feature from working
 
 }}}
 
