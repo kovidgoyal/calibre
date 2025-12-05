@@ -63,7 +63,7 @@ class DownloadRequest(QObject):
 
     def metadata_received(self, r: dict) -> None:
         if r['response_type'] != 'basic':
-            print(f'WARNING: response type for {self.url} indicates headers are restrcited: {r["type"]}')
+            print(f'WARNING: response type for {self.url} indicates headers are restricted: {r["type"]}')
         self.result['worth_retry'] = r['status_code'] in (
             HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT)
         self.result['final_url'] = r['url']
