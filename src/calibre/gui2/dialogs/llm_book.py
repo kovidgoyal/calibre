@@ -37,7 +37,7 @@ def format_book_for_query(book: Metadata, is_first: bool, num_books: int) -> str
         m = book.metadata_for_field(field)
         if field == 'comments':
             comments.append(comments_as_markdown(book.get(field)))
-        elif m['datatype'] == 'comments':
+        elif m.get('datatype') == 'comments':
             ctype = m.get('display', {}).get('interpret_as') or 'html'
             match ctype:
                 case 'long-text' | 'short-text' | 'markdown':
