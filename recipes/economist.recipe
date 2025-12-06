@@ -309,7 +309,7 @@ class Economist(BasicNewsRecipe):
                     'economist.com/',
                     'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
                 )
-                .replace('SQ_', '')
+                .replace('SQ_', '').replace('_AS', '_AP')
             )
             self.log('Got cover:', self.cover_url)
 
