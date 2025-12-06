@@ -20,6 +20,7 @@ class Panel(Enum):
     GRID_VIEW = 'gv'
     COVER_BROWSER = 'cb'
     QUICKVIEW = 'qv'
+    BOOKSHELF = 'bs'
 
 
 class SaveLayoutDialog(QDialog):
@@ -268,6 +269,7 @@ class LayoutActions(InterfaceAction):
             GRID_VIEW: 'gv'
             COVER_BROWSER: 'cb'
             QUICKVIEW: 'qv'
+            BOOKSHELF: 'bs'
         :param show: If True, show the panel, otherwise hide the panel
         '''
         self._change_item(self._button_from_enum(name), show)
@@ -283,6 +285,7 @@ class LayoutActions(InterfaceAction):
             GRID_VIEW: 'gv'
             COVER_BROWSER: 'cb'
             QUICKVIEW: 'qv'
+            BOOKSHELF: 'bs'
         '''
         self._button_from_enum(name).isChecked()
 

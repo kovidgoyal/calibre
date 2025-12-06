@@ -632,6 +632,18 @@ class DB:
         defs['edit_metadata_ignore_display_order'] = False
         defs['fts_enabled'] = False
         defs['column_tooltip_templates'] = {}
+        defs['bookshelf_grouping_mode'] = 'none'
+        defs['bs_title_template'] = '{title}'
+        defs['bs_statue_template'] = '''program:
+list_contains($tags, ',',
+  'finished', '#4CAF50',
+  'reading', '#FFC107',
+'');'''
+        defs['bs_pages_template'] = '''program:
+if field_exists('#pages') then
+  return $#pages
+fi;'''
+        defs['bs_use_book_size'] = True
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \

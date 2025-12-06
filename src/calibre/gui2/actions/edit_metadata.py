@@ -470,6 +470,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     def refresh_books_after_metadata_edit(self, book_ids, previous=None):
         m = self.gui.library_view.model()
         m.refresh_ids(list(book_ids))
+        self.gui.bookshelf_view.invalidate_cache(book_ids)
         current = self.gui.library_view.currentIndex()
         self.gui.refresh_cover_browser()
         m.current_changed(current, previous or current)

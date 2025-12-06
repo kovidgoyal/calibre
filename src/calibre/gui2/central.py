@@ -182,8 +182,14 @@ class LayoutButton(QToolButton):
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
                 ev.accept()
                 return
-            tab_name = {'book_details':'book_details', 'cover_grid':'cover_grid', 'cover_browser':'cover_browser',
-                        'tag_browser':'tag_browser', 'quick_view':'quickview'}.get(self.name)
+            tab_name = {
+                'book_details':'book_details',
+                'cover_grid':'cover_grid',
+                'cover_browser':'cover_browser',
+                'bookshelf_browser':'bookshelf_browser',
+                'tag_browser':'tag_browser',
+                'quick_view':'quickview',
+            }.get(self.name)
             if tab_name:
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
@@ -319,6 +325,7 @@ class Visibility:
     book_details: bool = True
     book_list: bool = True
     cover_browser: bool = False
+    bookshelf_browser: bool = False
     quick_view: bool = False
 
     def serialize(self):
@@ -356,19 +363,23 @@ class CentralContainer(QWidget):
             self.tag_browser = Placeholder('tag browser', self)
             self.book_list = Placeholder('book list', self)
             self.cover_browser = Placeholder('cover browser', self)
+            self.bookshelf_browser = Placeholder('bookshelf browser', self)
             self.book_details = Placeholder('book details', self)
             self.quick_view = Placeholder('quick view', self)
         else:
             self.tag_browser = QWidget(self)
             self.book_list = QWidget(self)
             self.cover_browser = QWidget(self)
+            self.bookshelf_browser = QWidget(self)
             self.book_details = QWidget(self)
             self.quick_view = QWidget(self)
         self.cover_browser.setMinimumSize(MIN_SIZE)
+        self.bookshelf_browser.setMinimumSize(MIN_SIZE)
         self.ignore_button_toggles = False
         self.tag_browser_button = LayoutButton('tag_browser', 'tags.png', _('Tag browser'), self, 'Shift+Alt+T')
         self.book_details_button = LayoutButton('book_details', 'book.png', _('Book details'), self, 'Shift+Alt+D')
         self.cover_browser_button = LayoutButton('cover_browser', 'cover_flow.png', _('Cover browser'), self, 'Shift+Alt+B')
+        self.bookshelf_browser_button = LayoutButton('bookshelf_browser', 'bookshelf.png', _('Book Shelf'), self, 'Shift+Alt+S')
         self.quick_view_button = LayoutButton('quick_view', 'quickview.png', _('Quickview'), self)
         self.setMinimumSize(MIN_SIZE + QSize(200, 100))
 
@@ -413,6 +424,7 @@ class CentralContainer(QWidget):
         self.tag_browser_button.initialize_with_gui(gui)
         self.book_details_button.initialize_with_gui(gui)
         self.cover_browser_button.initialize_with_gui(gui)
+        self.bookshelf_browser_button.initialize_with_gui(gui)
         self.quick_view_button.initialize_with_gui(gui)
         self.set_widget('book_details', gui.book_details)
         self.set_widget('tag_browser', gui.tb_widget)
@@ -469,7 +481,16 @@ class CentralContainer(QWidget):
             b = self.sender()
             if b.name == 'quick_view':
                 return
-            self.set_visibility_of(b.name, b.isChecked())
+            orig = self.ignore_button_toggles
+            self.ignore_button_toggles = True
+            name = b.name
+            set_visible = b.isChecked()
+            if name == 'cover_browser' and set_visible:
+                self.set_visibility_of('bookshelf_browser', False)
+            if name == 'bookshelf_browser' and set_visible:
+                self.set_visibility_of('cover_browser', False)
+            self.set_visibility_of(name, set_visible)
+            self.ignore_button_toggles = orig
             self.relayout()
 
     def unserialize_settings(self, s):
@@ -520,6 +541,8 @@ class CentralContainer(QWidget):
 
     def set_visibility_of(self, which, visible):
         was_visible = getattr(self.is_visible, which)
+        if visible == was_visible:
+            return
         setattr(self.is_visible, which, visible)
         if not was_visible:
             if self.layout is Layout.wide:
@@ -553,6 +576,7 @@ class CentralContainer(QWidget):
             self.tag_browser_button.setChecked(self.is_visible.tag_browser)
             self.book_details_button.setChecked(self.is_visible.book_details)
             self.cover_browser_button.setChecked(self.is_visible.cover_browser)
+            self.bookshelf_browser_button.setChecked(self.is_visible.bookshelf_browser)
             self.quick_view_button.setChecked(self.is_visible.quick_view)
         finally:
             self.ignore_button_toggles = orig
@@ -565,6 +589,9 @@ class CentralContainer(QWidget):
 
     def toggle_cover_browser(self):
         self.toggle_panel('cover_browser')
+
+    def toggle_bookshelf_browser(self):
+        self.toggle_panel('bookshelf_browser')
 
     def toggle_quick_view(self):
         self.toggle_panel('quick_view')
@@ -598,6 +625,7 @@ class CentralContainer(QWidget):
         self.tag_browser.setVisible(self.is_visible.tag_browser)
         self.book_details.setVisible(self.is_visible.book_details)
         self.cover_browser.setVisible(self.is_visible.cover_browser and not self.separate_cover_browser)
+        self.bookshelf_browser.setVisible(self.is_visible.bookshelf_browser and not self.separate_cover_browser)
         self.book_list.setVisible(self.is_visible.book_list)
         self.quick_view.setVisible(self.is_visible.quick_view)
         if self.layout is Layout.wide:
@@ -628,7 +656,7 @@ class CentralContainer(QWidget):
         if handle is self.right_handle:
             return HandleState.both_visible if self.is_visible.book_details else HandleState.only_main_visible
         if handle is self.top_handle:
-            if self.is_visible.cover_browser and not self.separate_cover_browser:
+            if (self.is_visible.cover_browser or self.is_visible.bookshelf_browser) and not self.separate_cover_browser:
                 return HandleState.both_visible if self.is_visible.book_list else HandleState.only_side_visible
             return HandleState.only_main_visible
         if handle is self.bottom_handle:
@@ -675,14 +703,15 @@ class CentralContainer(QWidget):
             h.resize(int(central_width), int(height))
             available_height -= height
 
-        cb = max(self.cover_browser.minimumHeight(), int(self.wide_desires.cover_browser_height * self.height()))
-        if not self.is_visible.cover_browser or self.separate_cover_browser:
-            cb = 0
+        # Calculate height for cover_browser or bookshelf_browser (they're mutually exclusive)
+        cb_height = max(self.cover_browser.minimumHeight(), int(self.wide_desires.cover_browser_height * self.height()))
+        if not (self.is_visible.cover_browser or self.is_visible.bookshelf_browser) or self.separate_cover_browser:
+            cb_height = 0
         qv = bl = 0
-        if cb >= available_height:
-            cb = available_height
+        if cb_height >= available_height:
+            cb_height = available_height
         else:
-            available_height -= cb
+            available_height -= cb_height
             min_bl_height = 50
             if available_height <= min_bl_height:
                 bl = available_height
@@ -693,9 +722,12 @@ class CentralContainer(QWidget):
                 bl = available_height - qv
             else:
                 bl = available_height
+        # Position cover_browser or bookshelf_browser in the same location
         if self.is_visible.cover_browser and not self.separate_cover_browser:
-            self.cover_browser.setGeometry(int(central_x), 0, int(central_width), int(cb))
-        self.top_handle.move(central_x, cb)
+            self.cover_browser.setGeometry(int(central_x), 0, int(central_width), int(cb_height))
+        elif self.is_visible.bookshelf_browser and not self.separate_cover_browser:
+            self.bookshelf_browser.setGeometry(int(central_x), 0, int(central_width), int(cb_height))
+        self.top_handle.move(central_x, cb_height)
         if self.is_visible.book_list:
             self.book_list.setGeometry(int(central_x), int(self.top_handle.y() + self.top_handle.height()), int(central_width), int(bl))
         self.bottom_handle.move(central_x, self.book_list.y() + self.book_list.height())
@@ -744,7 +776,7 @@ class CentralContainer(QWidget):
             current = int(getattr(self.wide_desires, which) * self.width())
             if current < SHOW_THRESHOLD:
                 setattr(self.wide_desires, which, getattr(WideDesires, which))
-        elif which == 'cover_browser':
+        elif which in {'cover_browser', 'bookshelf_browser'}:
             self.wide_desires.cover_browser_height = max(int(self.height() * self.wide_desires.cover_browser_height),
                                                          self.cover_browser.minimumHeight()) / self.height()
         else:
@@ -759,7 +791,7 @@ class CentralContainer(QWidget):
         if handle is self.left_handle:
             return HandleState.both_visible if self.is_visible.tag_browser else HandleState.only_main_visible
         if handle is self.right_handle:
-            if self.is_visible.cover_browser and not self.separate_cover_browser:
+            if (self.is_visible.cover_browser or self.is_visible.bookshelf_browser) and not self.separate_cover_browser:
                 return HandleState.both_visible if self.is_visible.book_list else HandleState.only_side_visible
             return HandleState.only_main_visible
         if handle is self.top_handle:
@@ -804,11 +836,16 @@ class CentralContainer(QWidget):
         central_x = self.left_handle.x() + self.left_handle.width()
         central_width = self.width() - central_x
         central_height -= self.right_handle.height()
-        cb = min(max(0, central_height - 80), int(self.height() * self.narrow_desires.cover_browser_width)) if self.is_visible.cover_browser else 0
+        # Calculate height for cover_browser or bookshelf_browser (they're mutually exclusive)
+        cb = 0
+        if (self.is_visible.cover_browser or self.is_visible.bookshelf_browser):
+            cb = min(max(0, central_height - 80), int(self.height() * self.narrow_desires.cover_browser_width))
         if cb and cb < self.cover_browser.minimumHeight():
             cb = min(self.cover_browser.minimumHeight(), central_height)
         if self.is_visible.cover_browser:
             self.cover_browser.setGeometry(central_x, 0, central_width, cb)
+        elif self.is_visible.bookshelf_browser:
+            self.bookshelf_browser.setGeometry(central_x, 0, central_width, cb)
         self.right_handle.resize(central_width, self.right_handle.height())
         self.right_handle.move(central_x, cb)
         central_top = self.right_handle.y() + self.right_handle.height()
@@ -853,8 +890,10 @@ class CentralContainer(QWidget):
             h.resize(int(width), int(central_height))
             available_width -= width
         tb = int(self.narrow_desires.tag_browser_width * self.width()) if self.is_visible.tag_browser else 0
-        cb = max(self.cover_browser.minimumWidth(),
-                 int(self.narrow_desires.cover_browser_width * self.width())) if self.is_visible.cover_browser and not self.separate_cover_browser else 0
+        # Calculate width for cover_browser or bookshelf_browser (they're mutually exclusive)
+        cb = 0
+        if (self.is_visible.cover_browser or self.is_visible.bookshelf_browser) and not self.separate_cover_browser:
+            cb = max(self.cover_browser.minimumWidth(), int(self.narrow_desires.cover_browser_width * self.width()))
         min_central_width = self.min_central_width_narrow()
         if tb + cb > max(0, available_width - min_central_width):
             width_to_share = max(0, available_width - min_central_width)
@@ -871,6 +910,8 @@ class CentralContainer(QWidget):
         self.right_handle.move(tb + central_width + self.left_handle.width(), 0)
         if self.is_visible.cover_browser and not self.separate_cover_browser:
             self.cover_browser.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(cb), int(central_height))
+        elif self.is_visible.bookshelf_browser and not self.separate_cover_browser:
+            self.bookshelf_browser.setGeometry(int(self.right_handle.x() + self.right_handle.width()), 0, int(cb), int(central_height))
         self.top_handle.resize(int(central_width), int(normal_handle_width if self.is_visible.quick_view else 0))
         central_height -= self.top_handle.height()
         qv = 0
@@ -940,7 +981,7 @@ class CentralContainer(QWidget):
             current = self.narrow_desires.tag_browser_width * self.width()
             if current < SHOW_THRESHOLD:
                 self.narrow_desires.tag_browser_width = NarrowDesires.tag_browser_width
-        elif which == 'cover_browser':
+        elif which in {'cover_browser', 'bookshelf_browser'}:
             d = self.height() if self.narrow_cb_on_top else self.width()
             current = self.narrow_desires.cover_browser_width * d
             if current < SHOW_THRESHOLD:
@@ -973,6 +1014,7 @@ def develop():
             h.addWidget(self.central.tag_browser_button)
             h.addWidget(self.central.book_details_button)
             h.addWidget(self.central.cover_browser_button)
+            h.addWidget(self.central.bookshelf_browser_button)
             h.addWidget(self.central.quick_view_button)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
@@ -983,6 +1025,8 @@ def develop():
                 self.central.toggle_tag_browser()
             elif ev.key() == Qt.Key.Key_C:
                 self.central.toggle_cover_browser()
+            elif ev.key() == Qt.Key.Key_S:
+                self.central.toggle_bookshelf_browser()
             elif ev.key() == Qt.Key.Key_D:
                 self.central.toggle_book_details()
             elif ev.key() == Qt.Key.Key_L:

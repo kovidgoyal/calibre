@@ -35,6 +35,7 @@ from calibre.gui2.book_details import BookDetails
 from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.library.bookshelf_view import BookshelfView
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
@@ -84,6 +85,7 @@ class LibraryViewMixin:  # {{{
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
+        self.bookshelf_view.set_database(db)
         prefs['library_path'] = self.library_path
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
@@ -523,9 +525,9 @@ class LayoutMixin:  # {{{
             for x in self.layout_buttons:
                 self.status_bar.removeWidget(x)
         if self.layout_container.is_wide:
-            self.button_order = 'sb', 'tb', 'cb', 'gv', 'qv', 'bd'
+            self.button_order = 'sb', 'tb', 'cb', 'bs', 'gv', 'qv', 'bd'
         else:
-            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'qv'
+            self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'bs', 'qv'
         self.layout_buttons = []
         stylename = str(self.style().objectName())
         for x in self.button_order:
@@ -535,7 +537,11 @@ class LayoutMixin:  # {{{
                 button = self.search_bar_button
             else:
                 button = self.layout_container.button_for({
-                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view'
+                    'tb': 'tag_browser',
+                    'bd': 'book_details',
+                    'cb': 'cover_browser',
+                    'bs': 'bookshelf_browser',
+                    'qv': 'quick_view',
                 }[x])
             self.layout_buttons.append(button)
             button.setVisible(gprefs['show_layout_buttons'])
@@ -564,6 +570,13 @@ class LayoutMixin:  # {{{
         self.grid_view = GridView(self)
         self.grid_view.setObjectName('grid_view')
         av.add_view('grid', self.grid_view)
+        self.bookshelf_view = BookshelfView(self)
+        self.bookshelf_view.setObjectName('bookshelf_view')
+        # Bookshelf is a layout panel (like Cover Browser), not an alternate view
+        # Set it in the layout container's bookshelf widget
+        self.layout_container.set_widget('bookshelf_browser', self.bookshelf_view)
+        # Set the model for bookshelf view (will be updated when database is set)
+        self.bookshelf_view.setModel(self.library_view._model)
         self.tb_widget = TagBrowserWidget(self)
         self.memory_view = DeviceBooksView(self)
         self.stack.addWidget(self.memory_view)
@@ -716,6 +729,7 @@ class LayoutMixin:  # {{{
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
+        self.bookshelf_view.invalidate_cache(id_)
         self.refresh_cover_browser()
 
     def bd_open_cover_with(self, book_id, entry):
@@ -763,6 +777,7 @@ class LayoutMixin:  # {{{
     def bd_cover_removed(self, id_):
         self.library_view.model().db.remove_cover(id_, commit=True,
                 notify=False)
+        self.bookshelf_view.invalidate_cache(id_)
         self.refresh_cover_browser()
 
     def bd_copy_link(self, url):

@@ -490,6 +490,12 @@ def create_defs():
     defs['tag_browser_show_value_icons'] = True
     defs['template_editor_run_as_you_type'] = True
     defs['template_editor_show_all_selected_books'] = True
+    defs['bs_shadow'] = True
+    defs['bs_thumbnail'] = True
+    defs['bs_centered'] = False
+    defs['bs_fade_time'] = 200
+    defs['bs_hover_shift'] = True
+    defs['bs_hover_above'] = False
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
@@ -556,7 +562,7 @@ def _config():  # {{{
     c.add_opt('delete_news_from_library_on_upload', default=False,
               help=_('Delete news books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False,
-              help=_('Show the cover flow in a separate window instead of in the main calibre window'))
+              help=_('Show the cover flow and the bookshelf view in a separate window instead of in the main calibre window'))
     c.add_opt('disable_tray_notification', default=False,
               help=_('Disable notifications from the system tray icon'))
     c.add_opt('default_send_to_device_action', default=None,
