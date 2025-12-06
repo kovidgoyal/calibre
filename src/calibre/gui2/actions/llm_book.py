@@ -28,7 +28,7 @@ class LLMBookAction(InterfaceAction):
     def about_to_show_menu(self):
         from calibre.utils.icu import primary_sort_key
         m = self.ask_menu
-        m.clear
+        m.clear()
         from calibre.gui2.dialogs.llm_book import current_actions
         for ac in sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name)):
             a = m.addAction(ac.human_name)
