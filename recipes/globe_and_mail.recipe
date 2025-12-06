@@ -26,6 +26,7 @@ class GlobeMail(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     remove_attributes = ['style']
+    delay = 1
 
     keep_only_tags = [
         classes('article-title c-article-meta l-article l-article-title')
