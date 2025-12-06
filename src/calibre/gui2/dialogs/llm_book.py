@@ -5,7 +5,7 @@ from collections.abc import Iterator
 from functools import lru_cache
 from typing import Any
 
-from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem, QSize, Qt, QUrl, QVBoxLayout, QWidget
 
 from calibre.ai import ChatMessage, ChatMessageType
 from calibre.db.cache import Cache
@@ -205,12 +205,10 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
 
 class LLMPanel(ConverseWidget):
     NOTE_TITLE = _('AI Assistant Discussion')
-    close_requested = pyqtSignal()
 
     def __init__(self, books: list[Metadata], parent: QWidget | None = None):
         self.books = books
         super().__init__(parent, add_close_button=True)
-        self.close_requested.connect(self.close_requested)
 
     def settings_dialog(self) -> QDialog:
         return LLMSettingsDialog(self)
