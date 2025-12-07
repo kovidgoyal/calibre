@@ -71,7 +71,7 @@ class ConfigWidget(QWidget):
         self.refresh_btn = rb = QPushButton(_('&Refresh models'))
         rb.clicked.connect(self.refresh_models)
 
-        h.addWidget(mc)
+        h.addWidget(mc, stretch=10)
         h.addWidget(rb)
         l.addRow(_('&Model:'), w)
 
