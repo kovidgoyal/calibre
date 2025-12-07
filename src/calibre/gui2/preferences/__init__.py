@@ -122,6 +122,7 @@ class ConfigWidgetInterface:
                     t.lazy_initialize()
                     t.lazy_init_called = True
             r = r | bool(getattr(t, method)(*args))
+            r = r | bool(t.do_on_child_tabs(method, *args))
         return r
 
 

@@ -190,8 +190,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
-        self.grid_rules.genesis(self.gui)
-        self.grid_rules.changed_signal.connect(self.changed_signal)
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
 
         l = self.cg_background_box.layout()
@@ -214,11 +212,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     def lazy_initialize(self):
         self.show_current_cache_usage()
-
-        self.blockSignals(True)
-        self.grid_rules.lazy_initialize()
-        self.lazy_init_called = True
-        self.blockSignals(False)
         self.cg_bg_widget.lazy_initialize()
         self.update_aspect_ratio()
 
@@ -276,13 +269,11 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     def commit(self):
         with BusyCursor():
-            self.grid_rules.commit()
             self.cg_bg_widget.commit()
         return LazyConfigWidgetBase.commit(self)
 
     def restore_defaults(self):
         LazyConfigWidgetBase.restore_defaults(self)
-        self.grid_rules.restore_defaults()
         self.cg_bg_widget.restore_defaults()
         self.changed_signal.emit()
 
