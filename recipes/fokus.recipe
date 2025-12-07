@@ -37,6 +37,10 @@ class Fokus(BasicNewsRecipe):
         p.article-metadata { color: gray; font-size:small; }
     '''
 
+    remove_tags = [
+        dict(name='div', attrs={'class': 'Paywall'}),
+    ]
+
     keep_only_tags = [
         dict(name='h1', class_='Single__title'),                # Title of "Single" type articles.
         dict(name='h1', class_='Longread__title'),              # Title of "Longread" type articles.
