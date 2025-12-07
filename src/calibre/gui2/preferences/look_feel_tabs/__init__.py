@@ -232,26 +232,15 @@ class LazyEditRulesBase(LazyConfigWidgetBase):
 
     def genesis(self, gui):
         self.gui = gui
-        self.rules_editor.changed.connect(self.changed_signal)
 
     def lazy_initialize(self):
         if not self.rule_set_name:
             raise NotImplementedError('You must define the attribute "rule_set_name" in LazyEditRulesBase subclasses')
-        self.load_rule_set(self.rule_set_name)
 
-    def load_rule_set(self, name):
         db = self.gui.current_db
         mi = selected_rows_metadatas()
-        self.rules_editor.initialize(db.field_metadata, db.prefs, mi, name)
-
-    def commit(self):
-        self.rules_editor.commit(self.gui.current_db.prefs)
-        return LazyConfigWidgetBase.commit(self)
-
-    def restore_defaults(self):
-        LazyConfigWidgetBase.restore_defaults(self)
-        self.rules_editor.clear()
-        self.changed_signal.emit()
+        self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
+        self.register(self.rule_set_name, db.prefs, 'rules_editor')
 
 
 class ColumnColorRules(LazyEditRulesBase):
