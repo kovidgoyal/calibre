@@ -1882,7 +1882,7 @@ class PDFDocument:
               or foot_match1[i] > pages_to_scan \
               or foot_match2[i] > pages_to_scan:
                 foot_ind = i  # Remember the last matching line
-        if self.pages[foot_page].texts \
+        if foot_page < len(self.pages) and self.pages[foot_page].texts \
           and (foot_match[foot_ind] > pages_to_scan \
             or foot_match1[foot_ind] > pages_to_scan \
             or foot_match2[foot_ind] > pages_to_scan):
