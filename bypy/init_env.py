@@ -47,7 +47,7 @@ dlls = [
 ]
 
 if islinux:
-    dlls += ['XcbQpa', 'WaylandClient', 'WaylandEglClientHwIntegration', 'DBus']
+    dlls += ['XcbQpa', 'WaylandClient', 'DBus']
 elif ismacos:
     dlls += ['DBus']
 
