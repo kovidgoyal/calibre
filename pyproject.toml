@@ -21,6 +21,7 @@ dependencies = [
 	"Markdown == 3.10.0",
 	"html2text == 2025.4.15",
 	"soupsieve == 2.8",
+    "typing-extensions == 4.15.0",  # needed by beautifulsoup4
 	"beautifulsoup4 == 4.14.3",
 	"regex == 2025.11.3",
 	"chardet == 5.2.0",
