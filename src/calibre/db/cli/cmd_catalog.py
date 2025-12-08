@@ -87,8 +87,8 @@ see the different options, specify the name of the output file and then the
         help=_('Show detailed output information. Useful for debugging')
     )
     fmt = 'epub'
-    if args and '.' in args[-1]:
-        fmt = args[-1].rpartition('.')[-1].lower()
+    if args and '.' in args[0]:
+        fmt = args[0].rpartition('.')[-1].lower()
         if fmt not in available_catalog_formats():
             fmt = 'epub'
 
