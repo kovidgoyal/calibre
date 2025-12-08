@@ -60,12 +60,12 @@
     },
 
     {
-        "name": "easylzma 1753f61f673abdebc08fcf4a37eedd6da8a67ba1",
+        "name": "easylzma 3b53709da1f2c57b9695019266bca338d7cdb734",
         "os": "windows",
 		"type": "build",
         "windows": {
-            "hash": "sha256:7664240898fe09bce8b39cd428407dd24ac3b87200e6b40d4007c78f2c725254",
-            "urls": ["github:lloyd/easylzma"]
+            "hash": "sha256:d5731642358f987534a3d046835e9ad13cd07b32bc059bf7c50efa9722b019ad",
+            "urls": ["github:kovidgoyal/easylzma"]
         }
     },
 
