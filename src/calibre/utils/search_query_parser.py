@@ -157,11 +157,11 @@ class Parser:
 
     # Had to translate named constants to numeric values
     lex_scanner = re.Scanner([
-            (r'[()]',           lambda x,t: (Parser.OPCODE, t)),
-            (r'@.+?:[^")\s]+',  lambda x,t: (Parser.WORD, str(t))),
-            (r'[^"()\s]+',      lambda x,t: (Parser.WORD, str(t))),
-            (r'".*?((?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-            (r'\s+',            None)
+        (r'[()]',             lambda x,t: (Parser.OPCODE, t)),
+        (r'@.+?:[^")\s]+',    lambda x,t: (Parser.WORD, str(t))),
+        (r'[^"()\s]+',        lambda x,t: (Parser.WORD, str(t))),
+        (r'".*?(?:(?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
+        (r'\s+',              None)
     ], flags=re.DOTALL)
 
     def token(self, advance=False):

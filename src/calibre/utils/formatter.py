@@ -1693,7 +1693,7 @@ class _Interpreter:
 def args_scanner() -> re.Scanner:
     return re.Scanner([
         (r',', lambda x,t: ''),
-        (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
+        (r'.*?(?:(?<!\\),)', lambda x,t: t[:-1]),
         (r'.*?\)', lambda x,t: t[:-1]),
     ])
 
@@ -1701,25 +1701,25 @@ def args_scanner() -> re.Scanner:
 @lru_cache(maxsize=2)
 def cached_lex_scanner() -> re.Scanner:
     return re.Scanner([
-        (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
-        (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
-        (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
-        (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),
-        (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),
-        (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),
-        (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),
-        (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),
-        (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-        (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-        (r'\n[ \t]*#.*?(?:(?=\n)|$)',lambda x,t: _Parser.LEX_NEWLINE),
-        (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
+        (r'(?:==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
+        (r'(?:==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
+        (r'(?:if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(?:\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
+        (r'[(),=;:\+\-*/&]',           lambda x,t: (_Parser.LEX_OP, t)),
+        (r'-?[\d\.]+',                 lambda x,t: (_Parser.LEX_CONST, t)),
+        (r'\$\$?#?\w+',                lambda x,t: (_Parser.LEX_ID, t)),
+        (r'\$',                        lambda x,t: (_Parser.LEX_ID, t)),
+        (r'\w+',                       lambda x,t: (_Parser.LEX_ID, t)),
+        (r'".*?(?:(?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+        (r'\'.*?(?:(?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+        (r'\n[ \t]*#.*?(?:(?=\n)|$)',  lambda x,t: _Parser.LEX_NEWLINE),
+        (r'\s',                        lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
     ], flags=re.DOTALL)
 
 
