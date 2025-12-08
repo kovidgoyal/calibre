@@ -12,7 +12,7 @@ import re
 import string
 import traceback
 from collections import OrderedDict
-from functools import partial
+from functools import lru_cache, partial
 from math import modf
 from sys import exc_info
 
@@ -1689,6 +1689,40 @@ class _Interpreter:
                        prog.line_number)
 
 
+@lru_cache(maxsize=2)
+def args_scanner() -> re.Scanner:
+    return re.Scanner([
+        (r',', lambda x,t: ''),
+        (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
+        (r'.*?\)', lambda x,t: t[:-1]),
+    ])
+
+
+@lru_cache(maxsize=2)
+def cached_lex_scanner() -> re.Scanner:
+    return re.Scanner([
+        (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
+        (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
+        (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
+        (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
+        (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),
+        (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),
+        (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),
+        (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),
+        (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),
+        (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+        (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+        (r'\n[ \t]*#.*?(?:(?=\n)|$)',lambda x,t: _Parser.LEX_NEWLINE),
+        (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
+    ], flags=re.DOTALL)
+
+
 class TemplateFormatter(string.Formatter):
     '''
     Provides a format function that substitutes '' for any missing value
@@ -1755,35 +1789,15 @@ class TemplateFormatter(string.Formatter):
     compress_spaces = re.compile(r'\s+')
     backslash_comma_to_comma = re.compile(r'\\,')
 
-    arg_parser = re.Scanner([
-                (r',', lambda x,t: ''),
-                (r'.*?((?<!\\),)', lambda x,t: t[:-1]),
-                (r'.*?\)', lambda x,t: t[:-1]),
-        ])
+    @property
+    def arg_parser(self):
+        return args_scanner()
 
     # ################# Template language lexical analyzer ######################
 
-    lex_scanner = re.Scanner([
-            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
-            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
-            (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
-            (r'(\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
-            (r'[(),=;:\+\-*/&]',         lambda x,t: (_Parser.LEX_OP, t)),
-            (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),
-            (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),
-            (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),
-            (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),
-            (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-            (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-            (r'\n[ \t]*#.*?(?:(?=\n)|$)',lambda x,t: _Parser.LEX_NEWLINE),
-            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
-        ], flags=re.DOTALL)
+    @property
+    def lex_scanner(self):
+        return cached_lex_scanner()
 
     def _eval_program(self, val, prog, column_name, global_vars, break_reporter):
         if column_name is not None and self.template_cache is not None:
