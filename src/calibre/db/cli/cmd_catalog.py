@@ -87,6 +87,8 @@ see the different options, specify the name of the output file and then the
         help=_('Show detailed output information. Useful for debugging')
     )
     fmt = 'epub'
+    if args and args[0].startswith('-'):
+        raise SystemExit('Must specify the catalog output filename before any options')
     if args and '.' in args[0]:
         fmt = args[0].rpartition('.')[-1].lower()
         if fmt not in available_catalog_formats():
