@@ -16,12 +16,12 @@
     },
 
     {
-        "name": "cmake 3.31.8",
+        "name": "cmake 4.2.0",
         "os": "macos",
 		"type": "build",
         "unix": {
             "file_extension": "tar.gz",
-            "hash": "sha256:e3cde3ca83dc2d3212105326b8f1b565116be808394384007e7ef1c253af6caa",
+            "hash": "sha256:4104e94657d247c811cb29985405a360b78130b5d51e7f6daceb2447830bd579",
             "urls": ["https://github.com/Kitware/CMake/releases/download/v{version}/{filename}"]
         }
     },
@@ -98,9 +98,9 @@
     },
 
     {
-        "name": "unrar 7.1.10",
+        "name": "unrar 7.2.2",
         "unix": {
-            "hash": "sha256:72a9ccca146174f41876e8b21ab27e973f039c6d10b13aabcb320e7055b9bb98",
+            "hash": "sha256:41c00c8755cf5bf6b5d7f0d2d167ee889c2c5352e17e5c9470dbc354af1e71ab",
             "urls": ["https://www.rarlab.com/rar/unrarsrc-{version}.{file_extension}"]
         }
     },
@@ -114,11 +114,11 @@
     },
 
     {
-        "name": "libdeflate 1.21",
+        "name": "libdeflate 1.24",
         "comment": "Used optionally by libtiff instead of zlib, sadly the Ubuntu build image comes with this library installed so libtiff links against it on Linux",
         "os": "linux",
         "unix": {
-            "hash": "sha256:7f05b533dd1d95e48a9f7d633beab67d8c6f502c01a2a5f46b204c16d1e748ad",
+            "hash": "sha256:a0dda1c4b804742066db07b9510876edd09cc0ca06cdc32c5dfe1b2016a26463",
             "urls": ["https://github.com/ebiggers/libdeflate/releases/download/v{version}/{filename}"]
         }
     },
@@ -132,28 +132,28 @@
     },
 
     {
-        "name": "expat 2.5.0",
+        "name": "expat 2.7.3",
         "unix": {
             "file_extension": "tar.bz2",
-            "hash": "sha256:6f0e6e01f7b30025fa05c85fdad1e5d0ec7fd35d9f61b22f34998de11969ff67",
+            "hash": "sha256:59c31441fec9a66205307749eccfee551055f2d792f329f18d97099e919a3b2f",
             "urls": ["https://github.com/libexpat/libexpat/releases/download/R_{version_with_underscores}/{filename}"]
         }
     },
 
     {
-        "name": "sqlite 3.50.4",
+        "name": "sqlite 3.51.1",
 		"comment": "When updating this also update apsw in pyproject.toml",
         "unix": {
-            "hash": "sha256:a3db587a1b92ee5ddac2f66b3edb41b26f9c867275782d46c3a088977d6a5b18",
-            "urls": ["https://www.sqlite.org/2025/{name}-autoconf-3500400.{file_extension}"]
+            "hash": "sha256:4f2445cd70479724d32ad015ec7fd37fbb6f6130013bd4bfbc80c32beb42b7e0",
+            "urls": ["https://www.sqlite.org/2025/{name}-autoconf-3510100.{file_extension}"]
         }
     },
 
     {
-        "name": "libffi 3.4.4",
+        "name": "libffi 3.5.2",
         "os": "linux",
         "unix": {
-            "hash": "sha256:d66c56ad259a82cf2a9dfc408b32bf5da52371500b84745f7fb8b645712df676",
+            "hash": "sha256:f3a3082a23b37c293a4fcd1053147b371f2ff91fa7ea1b2a52e335676bac82dc",
             "urls": ["https://github.com/libffi/libffi/releases/download/v{version}/{filename}"]
         }
     },
@@ -167,36 +167,36 @@
     },
 
     {
-        "name": "openssl 3.1.8",
+        "name": "openssl 3.5.4",
         "unix": {
-            "hash": "sha256:d319da6aecde3aa6f426b44bbf997406d95275c5c59ab6f6ef53caaa079f456f",
+            "hash": "sha256:967311f84955316969bdb1d8d4b983718ef42338639c621ec4c34fddef355e99",
             "urls": ["https://www.openssl.org/source/{filename}"]
         }
     },
 
     {
-        "name": "ncurses 6.4",
+        "name": "ncurses 6.5",
         "os": "linux",
         "unix": {
-            "hash": "sha256:6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159",
+            "hash": "sha256:136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6",
             "urls": ["https://ftp.gnu.org/gnu/ncurses/{filename}"]
         }
     },
 
     {
-        "name": "readline 8.2",
+        "name": "readline 8.3",
         "os": "linux",
         "unix": {
-            "hash": "sha256:3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35",
+            "hash": "sha256:fe5383204467828cd495ee8d1d3c037a7eba1389c22bc6a041f627976f9061cc",
             "urls": ["https://ftp.gnu.org/gnu/readline/{filename}"]
         }
     },
 
     {
-        "name": "python 3.11.14",
+        "name": "python 3.14.1",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:8d3ed8ec5c88c1c95f5e558612a725450d2452813ddad5e58fdb1a53b1209b78",
+            "hash": "sha256:8dfa08b1959d9d15838a1c2dab77dc8d8ff4a553a1ed046dfacbc8095c6d42fc",
             "urls": ["https://www.python.org/ftp/python/{version}/Python-{version}.{file_extension}"]
         }
     },
@@ -211,33 +211,33 @@
     },
 
     {
-        "name": "icu 73-2",
+        "name": "icu 78.1",
         "unix": {
             "file_extension": "tgz",
-            "hash": "sha256:818a80712ed3caacd9b652305e01afc7fa167e6f2e94996da44b90c2ab604ce1",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version_with_underscores}-src.{file_extension}"]
+            "hash": "sha256:6217f58ca39b23127605cfc6c7e0d3475fe4b0d63157011383d716cb41617886",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version}-sources.{file_extension}"]
         },
         "windows": {
             "file_extension": "zip",
             "hash": "sha256:2c4300315141942178502f85f1167c0a6a65847c9b683e95c79535b373c1e369",
-            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version_with_underscores}-src.{file_extension}"]
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version}-sources.{file_extension}"]
         }
 
     },
 
     {
-        "name": "libstemmer 2.2.0",
+        "name": "libstemmer 3.0.1",
         "unix": {
-            "hash": "sha256:b941d9fe9cf36b4e2f8d3873cd4d8b8775bd94867a1df8d8c001bb8b688377c3",
+            "hash": "sha256:419db89961cf2e30e6417265a4f3c903632d47d6917e7f8c6ae0e4d998743aad",
             "urls": ["https://snowballstem.org/dist/libstemmer_c-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "libjpeg 3.0.0",
+        "name": "libjpeg 3.1.2",
         "unix": {
-            "hash": "sha256:c77c65fcce3d33417b2e90432e7a0eb05f59a7fff884022a9d931775d583bfaa",
-            "urls": ["https://downloads.sourceforge.net/project/libjpeg-turbo/{version}/libjpeg-turbo-{version}.{file_extension}"]
+            "hash": "sha256:8f0012234b464ce50890c490f18194f913a7b1f4e6a03d6644179fa0f867d0cf",
+            "urls": ["https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/{version}/libjpeg-turbo-{version}.tar.gz"]
         }
     },
 
@@ -269,9 +269,9 @@
     },
 
     {
-        "name": "libwebp 1.3.2",
+        "name": "libwebp 1.6.0",
         "unix": {
-            "hash": "sha256:2a499607df669e40258e53d0ade8035ba4ec0175244869d1025d460562aa09b4",
+            "hash": "sha256:e4ab7009bf0629fd11982d4c2aa83964cf244cffba7347ecd39019a9e38c4564",
             "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
         }
     },
@@ -285,11 +285,11 @@
     },
 
     {
-        "name": "freetype 2.13.2",
+        "name": "freetype 2.14.1",
         "os": "macos,windows",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:12991c4e55c506dd7f9b765933e62fd2be2e06d421505d7950a132e4f1bb484d",
+            "hash": "sha256:32427e8c471ac095853212a37aef816c60b42052d4d9e48230bab3bdf2936ccc",
             "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
     },
@@ -305,19 +305,19 @@
     },
 
     {
-        "name": "fontconfig 2.14.2",
+        "name": "fontconfig 2.17.1",
         "os": "macos",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:dba695b57bce15023d2ceedef82062c2b925e51f5d4cc4aef736cf13f60a468b",
-            "urls": ["https://www.fontconfig.org/release/{filename}"]
+            "hash": "sha256:9f5cae93f4fffc1fbc05ae99cdfc708cd60dfd6612ffc0512827025c026fa541",
+            "urls": ["https://gitlab.freedesktop.org/api/v4/projects/890/packages/generic/fontconfig/{version}/fontconfig-{version}.tar.xz"]
         }
     },
 
     {
-        "name": "iconv 1.17",
+        "name": "iconv 1.18",
         "unix": {
-            "hash": "sha256:8f74213b56238c85a50a5329f77e06198771e70dd9a739779f4c02f65d971313",
+            "hash": "sha256:3b08f5f4f9b4eb82f151a7040bfd6fe6c6fb922efe4b1659c66ea933276965e8",
             "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/lib{filename}"]
         },
         "windows": {
@@ -328,20 +328,20 @@
     },
 
     {
-        "name": "libxml2 2.15.0",
+        "name": "libxml2 2.15.1",
 		"comment": "When updating this, must rebuild at least: libxslt, lxml, html5-parser, podofo, qt-webengine",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:5abc766497c5b1d6d99231f662e30c99402a90d03b06c67b62d6c1179dedd561",
+            "hash": "sha256:c008bac08fd5c7b4a87f7b8a71f283fa581d80d80ff8d2efd3b26224c39bc54c",
             "urls": ["https://download.gnome.org/sources/libxml2/{version_except_last}/{filename}"]
         }
     },
 
     {
-        "name": "libxslt 1.1.43",
+        "name": "libxslt 1.1.45",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:5a3d6b383ca5afc235b171118e90f5ff6aa27e9fea3303065231a6d403f0183a",
+            "hash": "sha256:9acfe68419c4d06a45c550321b3212762d92f41465062ca4ea19e632ee5d216e",
             "urls": ["https://download.gnome.org/sources/libxslt/{version_except_last}/{filename}"]
         }
     },
@@ -356,44 +356,44 @@
     },
 
     {
-        "name": "optipng 0.7.7",
+        "name": "optipng 7.9.1",
         "unix": {
-            "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
+            "hash": "sha256:c2579be58c2c66dae9d63154edcb3d427fef64cb00ec0aff079c9d156ec46f29",
             "urls": ["https://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
         }
     },
 
     {
-        "name": "mozjpeg 4.1.4",
+        "name": "mozjpeg 4.1.5",
         "unix": {
-            "hash": "sha256:8a5018dc93c08a49fba3aff8d1a0be0a3e26460e315d1db45abb64402935e0db",
+            "hash": "sha256:9fcbb7171f6ac383f5b391175d6fb3acde5e64c4c4727274eade84ed0998fcc1",
             "urls": ["https://github.com/mozilla/mozjpeg/archive/v{version}.tar.gz"]
         }
     },
 
     {
-        "name": "libusb 1.0.26",
+        "name": "libusb 1.0.29",
         "os": "macos, linux",
         "unix": {
             "file_extension": "tar.bz2",
-            "hash": "sha256:12ce7a61fc9854d1d2a1ffe095f7b5fac19ddba095c259e6067a46500381b5a5",
+            "hash": "sha256:5977fc950f8d1395ccea9bd48c06b3f808fd3c2c961b44b0c2e6e29fc3a70a85",
             "urls": ["https://github.com/libusb/libusb/releases/download/v{version}/{filename}"]
         }
     },
 
     {
-        "name": "libmtp 1.1.21",
+        "name": "libmtp 1.1.22",
         "os": "macos, linux",
         "unix": {
-            "hash": "sha256:c4ffa5ab8c8f48c91b0047f2e253c101c418d5696a5ed65c839922a4280872a7",
+            "hash": "sha256:c3fcf411aea9cb9643590cbc9df99fa5fe30adcac695024442973d76fa5f87bc",
             "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
         }
     },
 
     {
-        "name": "openjpeg 2.5.0",
+        "name": "openjpeg 2.5.4",
         "unix": {
-            "hash": "sha256:0333806d6adecc6f7a91243b2b839ff4d2053823634d4f6ed7a59bc87409122a",
+            "hash": "sha256:a695fbe19c0165f295a8531b1e4e855cd94d0875d2f88ec4b61080677e27188a",
             "urls": ["https://github.com/uclouvain/openjpeg/archive/v{version}/{filename}"]
         }
     },
@@ -408,10 +408,10 @@
     },
 
     {
-        "name": "poppler 25.09.1",
+        "name": "poppler 25.11.0",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:0c1091d01d3dd1664a13816861e812d02b29201e96665454b81b52d261fad658",
+            "hash": "sha256:63f155142b77349e2bccaef148e754e7506ab1641e713b83af4f54a8f8b15369",
             "urls": ["https://poppler.freedesktop.org/{filename}"]
         }
     },
@@ -425,50 +425,50 @@
     },
 
     {
-        "name": "libgpg-error 1.47",
+        "name": "libgpg-error 1.56",
         "os": "linux",
         "unix": {
             "file_extension": "tar.bz2",
-            "hash": "sha256:9e3c670966b96ecc746c28c2c419541e3bcb787d1a73930f5e5f5e1bcbbb9bdb",
+            "hash": "sha256:82c3d2deb4ad96ad3925d6f9f124fe7205716055ab50e291116ef27975d169c0",
             "urls": ["https://gnupg.org/ftp/gcrypt/libgpg-error/{filename}"]
         }
     },
 
     {
-        "name": "libgcrypt 1.10.2",
+        "name": "libgcrypt 1.11.2",
         "os": "linux",
         "unix": {
             "file_extension": "tar.bz2",
-            "hash": "sha256:3b9c02a004b68c256add99701de00b383accccf37177e0d6c58289664cce0c03",
+            "hash": "sha256:6ba59dd192270e8c1d22ddb41a07d95dcdbc1f0fb02d03c4b54b235814330aac",
             "urls": ["https://gnupg.org/ftp/gcrypt/libgcrypt/{filename}"]
         }
     },
 
     {
-        "name": "glib 2.82.5",
+        "name": "glib 2.86.2",
         "os": "linux",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:05c2031f9bdf6b5aba7a06ca84f0b4aced28b19bf1b50c6ab25cc675277cbc3f",
+            "hash": "sha256:8a724e970855357ea8101e27727202392a0ffd5410a98336aed54ec59113e611",
             "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/{version_except_last}/{filename}"]
         }
     },
 
     {
-        "name": "dbus 1.15.8",
+        "name": "dbus 1.16.2",
         "os": "linux",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:84fc597e6ec82f05dc18a7d12c17046f95bad7be99fc03c15bc254c4701ed204",
+            "hash": "sha256:0ba2a1a4b16afe7bceb2c07e9ce99a8c2c3508e5dec290dbb643384bd6beb7e2",
             "urls": ["https://dbus.freedesktop.org/releases/dbus/{filename}"]
         }
     },
 
     {
-        "name": "dbusglib 0.112",
+        "name": "dbusglib 0.114",
         "os": "linux",
         "unix": {
-            "hash": "sha256:7d550dccdfcd286e33895501829ed971eeb65c614e73aadb4a08aeef719b143a",
+            "hash": "sha256:c09c5c085b2a0e391b8ee7d783a1d63fe444e96717cc1814d61b5e8fc2827a7c",
             "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/dbus-glib-{version}.{file_extension}"]
         }
     },
@@ -498,23 +498,23 @@
     },
 
     {
-        "name": "ninja 1.11.1",
+        "name": "ninja 1.13.2",
 		"type": "build",
 		"comment": "Needed for Qt",
         "os": "macos,windows",
         "unix": {
-            "hash": "sha256:31747ae633213f1eda3842686f83c2aa1412e0f5691d1c14dbbcc67fe7400cea",
+            "hash": "sha256:974d6b2f4eeefa25625d34da3cb36bdcebe7fbce40f4c16ac0835fd1c0cbae17",
             "urls": ["https://github.com/ninja-build/ninja/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "nodejs 20.19.4",
+        "name": "nodejs 22.21.1",
 		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
         "unix": {
-            "hash": "sha256:a87cf69f4df8deece34165ebf668e3279e12352c4f077a9cc87641f4c9d21a96",
+            "hash": "sha256:4b5ad1795fb6adfb1862df9a626bdca85185866fcd7d0313e87a347eec293fd8",
             "urls": ["https://github.com/nodejs/node/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
@@ -533,7 +533,7 @@
 
     {
         "name": "ffmpeg 7.1.2",
-		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#ffmpeg-as-the-default-backend",
+		"comment": "Needed for building Qt Multimedia. Only change the version when bumping Qt version. Get the needed ffmpeg version from: https://doc.qt.io/qt-6/qtmultimedia-index.html#the-ffmpeg-backend",
 		"unix": {
 			"file_extension": "tar.xz",
 			"hash": "sha256:089bc60fb59d6aecc5d994ff530fd0dcb3ee39aa55867849a2bbc4e555f9c304",
@@ -542,51 +542,51 @@
     },
 
     {
-        "name": "qt-base 6.8.2",
+        "name": "qt-base 6.10.1",
         "hashes": {
-            "unix": "sha256:012043ce6d411e6e8a91fdc4e05e6bedcfa10fcb1347d3c33908f7fdd10dfe05"
+            "unix": "sha256:5a6226f7e23db51fdc3223121eba53f3f5447cf0cc4d6cb82a3a2df7a65d265d"
         }
     },
 
     {
         "name": "qt-svg",
         "hashes": {
-            "unix": "sha256:aa2579f21ca66d19cbcf31d87e9067e07932635d36869c8239d4decd0a9dc1fa"
+            "unix": "sha256:c02f355a58f3bbcf404a628bf488b6aeb2d84a94c269afdb86f6e529343ab01f"
         }
     },
 
     {
         "name": "qt-shadertools",
         "hashes": {
-            "unix": "sha256:d1d5f90e8885fc70d63ac55a4ce4d9a2688562033a000bc4aff9320f5f551871"
+            "unix": "sha256:b67894a63352b53dad0d46f5300c62b8cd6783db575492d6b25d4fdc9af55bb6"
         }
     },
 
     {
         "name": "qt-declarative",
         "hashes": {
-            "unix": "sha256:144d876adc8bb55909735143e678d1e24eadcd0a380a0186792d88b731346d56"
+            "unix": "sha256:4fb4efb894e0b96288543505d69794d684bcfbe4940ce181d3e6817bda54843e"
         }
     },
 
     {
         "name": "qt-imageformats",
         "hashes": {
-            "unix": "sha256:d2a1bbb84707b8a0aec29227b170be00f04383fbf2361943596d09e7e443c8e1"
+            "unix": "sha256:498eabdf2381db96f808942b3e3c765f6360fe6c0e9961f0a45ff7a4c68d7a72"
         }
     },
 
     {
         "name": "qt-webchannel",
         "hashes": {
-            "unix": "sha256:869f1e53f44673a57670005b1239cd67b9a5f372c8cae799c1e4af3f1c68b7ac"
+            "unix": "sha256:7ba16925f230e60f58efce02c1ce214bcb6b0740e24f5dd40c06f40f37d93111"
         }
     },
 
     {
         "name": "qt-positioning",
         "hashes": {
-            "unix": "sha256:df30664f4e936466a7e1157ff26abc61efb5e94c9eb8750e1bcdffeec95db8e5"
+            "unix": "sha256:abb311ef1bd6e39f090d22480e265d13f8537d2e2f4c88f22d6519547f46be23"
         }
     },
 
@@ -594,51 +594,51 @@
         "name": "qt-wayland",
         "os": "linux",
         "hashes": {
-            "unix": "sha256:5e46157908295f2bf924462d8c0855b0508ba338ced9e810891fefa295dc9647"
+            "unix": "sha256:49bf6db800227a6b2c971f4c5d03dd1e81297e7ffb296ce4a96437304f27cb13"
         }
     },
 
     {
         "name": "qt-sensors",
         "hashes": {
-            "unix": "sha256:8a817c9b001ad0abdbf15064826ca6a8ee6b66fef8f04b4343ac9f7b2ddbf4ca"
+            "unix": "sha256:49ce9ce033234689706dfcacef4eac7e562cff127cacc889ffcb3b68d684b395"
         }
     },
 
     {
         "name": "qt-multimedia",
         "hashes": {
-            "unix": "sha256:34f561fdc07b158bcc4ad040b596fc6086c48908060e854b473b557e4feb1569"
+            "unix": "sha256:f7a4f9bc2840d4f0f9f7329f0dcb3d3500c54177b8e368091a3727c7320e67b8"
         }
     },
 
     {
         "name": "qt-speech",
         "hashes": {
-            "unix": "sha256:e09b52336bb90090f4582a382fa084f7573ebd207cc81f3066ef94cc1bf202c3"
+            "unix": "sha256:42caec540f6e10de8628819d10477ed2dc202134753ea68dfc1aa536108b7f4f"
         }
     },
 
     {
         "name": "qt-webengine",
         "hashes": {
-            "unix": "sha256:ff95987f16c197b31ad4d96972f8d9b00c740c5bed70c3e68ee42d673ee54802"
+            "unix": "sha256:77b5ea6186a0429a6b8e656faedd5cd3e8019d33856ee59637698ab578ead1e3"
         }
     },
 
     {
-        "name": "speech-dispatcher-client 0.11.5",
+        "name": "speech-dispatcher-client 0.12.1",
         "os": "linux",
         "unix": {
-            "hash": "sha256:1ce4759ffabbaf1aeb433a5ec0739be0676e9bdfbae9444a7b3be1b2af3ec12b",
+            "hash": "sha256:b14a5238d287d2dcce4dd42bbd66ca65fa228e7e683708267f7b34036f7ba4b4",
             "urls": ["https://github.com/brailcom/speechd/releases/download/{version}/speech-dispatcher-{version}.{file_extension}"]
         }
     },
 
     {
-        "name": "onnx 1.22.1",
+        "name": "onnx 1.23.2",
         "unix": {
-            "hash": "sha256:9eacbf624d6f7466da81d9beb4399cb8683808b15c1276b7cd56c6907bf59f77",
+            "hash": "sha256:99bcf964ce4e869d823c99b2294562a9050cbfa8e76ec81c8683cb3c7e19c2b4",
             "urls": ["https://github.com/microsoft/onnxruntime/archive/refs/tags/v{version}.{file_extension}"]
         }
     },

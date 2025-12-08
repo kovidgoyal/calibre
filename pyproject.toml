@@ -6,54 +6,54 @@ requires-python = ">=3.10"
 license = {text="GPL-3.0-only"}
 dynamic = ["version"]
 dependencies = [
-	"six == 1.16.0",
+	"six == 1.17.0",
 	"unrardll == 0.1.7",
-	"lxml == 6.0.1",
+	"lxml == 6.0.2",
 	"pychm == 0.8.6",
 	"html5-parser == 0.4.12",
 	"css-parser == 1.0.10",
-	"python-dateutil == 2.8.2",
-	"jeepney == 0.8.0",
-	"dnspython == 2.6.1",
-	"mechanize == 0.4.8",
-	"feedparser == 6.0.10",
+	"python-dateutil == 2.9.0",
+	"jeepney == 0.9.0",
+	"dnspython == 2.8.0",
+	"mechanize == 0.4.10",
+	"feedparser == 6.0.12",
 	"sgmllib3k == 1.0.0",
-	"Markdown == 3.4.4",
-	"html2text == 2020.1.16",
-	"soupsieve == 2.5",
-	"beautifulsoup4 == 4.12.2",
-	"regex == 2023.8.8",
+	"Markdown == 3.10.0",
+	"html2text == 2025.4.15",
+	"soupsieve == 2.8",
+	"beautifulsoup4 == 4.14.3",
+	"regex == 2025.11.3",
 	"chardet == 5.2.0",
-	"msgpack == 1.0.7",
-	"Pygments == 2.16.1",
-	"pycryptodome == 3.19.1",
-	"apsw == 3.50.4.0",
+	"msgpack == 1.1.2",
+	"Pygments == 2.19.2",
+	"pycryptodome == 3.23.0",
+	"apsw == 3.51.0.0",
 	"webencodings == 0.5.1",
 	"html5lib == 1.1",
-	"pillow == 10.3.0",
+	"pillow == 12.0.0",
 	"netifaces == 0.11.0",
-	"psutil == 5.9.5",
+	"psutil == 7.1.3",
 	"ifaddr == 0.2.0",
-	"texttable == 1.6.7",
+	"texttable == 1.7.0",
 	"multivolumefile == 0.2.3",
 	"Brotli == 1.2.0",
-	"pyzstd == 0.17.0",
-	"pyppmd == 1.2.0",
-	"pybcj == 1.0.1",
-	"inflate64 == 1.0.3",
+	"pyzstd == 0.18.0",
+	"pyppmd == 1.3.1",
+	"pybcj == 1.0.7",
+	"inflate64 == 1.0.4",
 	"py7zr == 1.0.0",
-	"jaconv == 0.4.0",
-	"wrapt == 1.16.0",
-	"Deprecated == 1.2.14",
+	"jaconv == 0.4.1",
+	"wrapt == 2.0.1",
+	"Deprecated == 1.3.1",
 	"pykakasi == 2.3.0",
-	"zeroconf == 0.115.0",
+	"zeroconf == 0.148.0",
 	"fonttools == 4.61.0",
-	"lxml_html_clean == 0.4.2",
-	"PyQt6_sip == 13.10.0",
-	"PyQt6 == 6.8.1",
-	"PyQt6_WebEngine == 6.8.0",
+	"lxml_html_clean == 0.4.3",
+	"PyQt6_sip == 13.10.2",
+	"PyQt6 == 6.10.0",
+	"PyQt6_WebEngine == 6.10.0",
 	"MacFSEvents == 0.8.4; sys_platform == 'darwin'",
-	"xxhash == 3.3.0",
+	"xxhash == 3.6.0",
     "tzdata == 2025.2",
     "tzlocal == 5.3.1",
 ]
@@ -70,19 +70,20 @@ Community-Forum = "https://www.mobileread.com/forums/forumdisplay.php?f=166"
 [build-system]
 requires = [
     "installer == 0.7.0",  # Needed for installing pure python packages at build time
-    "packaging == 23.1",   # Needed for build which is needed for setuptools
-	"pyproject_hooks == 1.0.0", # Needed for build which is needed for setuptools
-	"wheel == 0.41.2", # Needed for build which is needed for setuptools
-	"build == 1.0.3", # Needed for build which is needed for setuptools
-	"setuptools == 78.1.1",
+    "packaging == 25.0",   # Needed for build which is needed for setuptools
+	"pyproject_hooks == 1.2.0", # Needed for build which is needed for setuptools
+	"wheel == 0.45.1", # Needed for build which is needed for setuptools
+	"build == 1.3.0", # Needed for build which is needed for setuptools
+    "pybind11 == 3.0.1", # Needed for pillow
+	"setuptools == 80.9.0",
     "pkgconfig == 1.5.5",  # Needed by Brotli
 	# Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even
 	# though it is needed only for sdist not building wheels
-	"setuptools_scm == 8.0.3",
-	"poetry_core == 1.7.0",  # needed for building zeroconf
+	"setuptools_scm == 9.2.2",
+	"poetry_core == 2.2.1",  # needed for building zeroconf
 	"ply == 3.11",  # needed for sip
-	"sip == 6.10.0",
-	"PyQt_builder == 1.18.1",
+	"sip == 6.14.0",
+	"PyQt_builder == 1.19.1",
 ]
 
 [tool.ruff]
