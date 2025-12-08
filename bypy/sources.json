@@ -219,7 +219,7 @@
         },
         "windows": {
             "file_extension": "zip",
-            "hash": "sha256:2c4300315141942178502f85f1167c0a6a65847c9b683e95c79535b373c1e369",
+            "hash": "sha256:fe027bcd7e52ab3f3bbbb2d5e9ff9c674e94bbe671bb6a8f58719f27485864da",
             "urls": ["https://github.com/unicode-org/icu/releases/download/release-{version}/icu4c-{version}-sources.{file_extension}"]
         }
 

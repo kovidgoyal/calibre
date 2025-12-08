@@ -484,7 +484,7 @@ class Freeze:
     @flush
     def add_poppler(self):
         print('\nAdding poppler')
-        for x in ('libopenjp2.7.dylib', 'libpoppler.153.dylib', 'liblcms2.2.dylib',):
+        for x in ('libopenjp2.7.dylib', 'libpoppler.154.dylib', 'liblcms2.2.dylib',):
             self.install_dylib(join(PREFIX, 'lib', x))
         for x in ('pdftohtml', 'pdftoppm', 'pdfinfo', 'pdftotext'):
             self.install_dylib(
@@ -538,10 +538,10 @@ class Freeze:
 
         for x in (
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3', 'hunspell-1.7.0',
-            'icudata.73', 'icui18n.73', 'icuio.73', 'icuuc.73', 'hyphen.0', 'uchardet.0',
+            'icudata.78', 'icui18n.78', 'icuio.78', 'icuuc.78', 'hyphen.0', 'uchardet.0',
             'stemmer.0', 'xslt.1', 'exslt.0', 'xml2.16', 'z.1', 'unrar', 'lzma.5',
             'brotlicommon.1', 'brotlidec.1', 'brotlienc.1', 'zstd.1', 'jbig.2.1', 'tiff.6',
-            'crypto.3', 'ssl.3', 'iconv.2', 'espeak-ng.1', 'onnxruntime.1.22.1',  # 'ltdl.7'
+            'crypto.3', 'ssl.3', 'iconv.2', 'espeak-ng.1', 'onnxruntime.1.23.2',  # 'ltdl.7'
         ):
             x = 'lib%s.dylib' % x
             src = join(PREFIX, 'lib', x)
