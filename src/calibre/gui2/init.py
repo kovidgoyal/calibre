@@ -35,6 +35,7 @@ from calibre.gui2.book_details import BookDetails
 from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
+from calibre.gui2.library.bookshelf_view import BookshelfView
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
@@ -84,10 +85,6 @@ class LibraryViewMixin:  # {{{
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
-        # Set model for bookshelf view (it's a layout panel, not an alternate view)
-        if hasattr(self, 'bookshelf_view'):
-            self.bookshelf_view.setModel(self.library_view._model)
-            self.bookshelf_view.set_database(db, stage=0)
         prefs['library_path'] = self.library_path
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
@@ -246,19 +243,32 @@ class StatusBar(QStatusBar):  # {{{
 # }}}
 
 
-class GridViewButton(LayoutButton):  # {{{
+class AlternateViewsButtons(LayoutButton):  # {{{
 
-    def __init__(self, gui):
-        sc = 'Alt+Shift+G'
-        LayoutButton.__init__(self, 'cover_grid', 'grid.png', _('Cover grid'), gui, shortcut=sc)
+    buttons = set()
+    ignore_toggles = False
+
+    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: CentralContainer, shortcut=None, config_key=None):
+        LayoutButton.__init__(self, name, icon, label, gui, shortcut=shortcut)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
-        gui.addAction(self.action_toggle)
-        gui.keyboard.register_shortcut('grid view toggle' + self.label, str(self.action_toggle.text()),
-                                    default_keys=(sc,), action=self.action_toggle, group=_('Main window layout'))
+        self.gui = gui
+        self.gui.addAction(self.action_toggle)
+        self.ck = config_key or name
+        self.view_name = view_name
+        if shortcut:
+            self.gui.keyboard.register_shortcut(
+                f'{self.ck} toggle {self.label}',
+                str(self.action_toggle.text()),
+                default_keys=(shortcut,),
+                action=self.action_toggle,
+                group=_('Main window layout'),
+            )
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_shortcut)
         self.toggled.connect(self.update_state)
+        self.toggled.connect(self.toggle_view)
+        self.buttons.add(self)
 
     @property
     def is_visible(self):
@@ -271,11 +281,54 @@ class GridViewButton(LayoutButton):  # {{{
             self.set_state_to_show()
 
     def save_state(self):
-        gprefs['grid view visible'] = bool(self.isChecked())
+        gprefs[f'{self.ck} visible'] = bool(self.isChecked())
 
     def restore_state(self):
-        if gprefs.get('grid view visible', False):
+        if gprefs.get(f'{self.ck} visible', False):
             self.toggle()
+
+    def toggle_view(self, show):
+        if AlternateViewsButtons.ignore_toggles:
+            return
+        AlternateViewsButtons.ignore_toggles = True
+        for btn in self.buttons:
+            if btn == self:
+                continue
+            if btn.isChecked():
+                btn.update_state(False)
+        self.gui.library_view.alternate_views.show_view(self.view_name if show else None)
+        self.gui.sort_button.setVisible(show)
+        AlternateViewsButtons.ignore_toggles = False
+# }}}
+
+
+class GridViewButton(AlternateViewsButtons):  # {{{
+    def __init__(self, gui):
+        AlternateViewsButtons.__init__(
+            self,
+            'cover_grid',
+            'grid.png',
+            _('Cover grid'),
+            'grid',
+            gui,
+            shortcut='Alt+Shift+G',
+            config_key='grid view',
+        )
+# }}}
+
+
+class BookshelfViewButton(AlternateViewsButtons):  # {{{
+    def __init__(self, gui):
+        AlternateViewsButtons.__init__(
+            self,
+            'bookshelf_view',
+            'bookshelf.png',
+            _('Bookshelf view'),
+            'bookshelf',
+            gui,
+            shortcut='Alt+Shift+B',
+            config_key='bookshelf view',
+        )
 # }}}
 
 
@@ -535,11 +588,16 @@ class LayoutMixin:  # {{{
         for x in self.button_order:
             if x == 'gv':
                 button = self.grid_view_button
+            elif x == 'bs':
+                button = self.bookshelf_view_button
             elif x == 'sb':
                 button = self.search_bar_button
             else:
                 button = self.layout_container.button_for({
-                    'tb': 'tag_browser', 'bd': 'book_details', 'cb': 'cover_browser', 'qv': 'quick_view', 'bs': 'bookshelf'
+                    'tb': 'tag_browser',
+                    'bd': 'book_details',
+                    'cb': 'cover_browser',
+                    'qv': 'quick_view',
                 }[x])
             self.layout_buttons.append(button)
             button.setVisible(gprefs['show_layout_buttons'])
@@ -568,15 +626,9 @@ class LayoutMixin:  # {{{
         self.grid_view = GridView(self)
         self.grid_view.setObjectName('grid_view')
         av.add_view('grid', self.grid_view)
-        from calibre.gui2.library.bookshelf_view import BookshelfView
         self.bookshelf_view = BookshelfView(self)
         self.bookshelf_view.setObjectName('bookshelf_view')
-        # Bookshelf is a layout panel (like Cover Browser), not an alternate view
-        # Set it in the layout container's bookshelf widget
-        self.layout_container.set_widget('bookshelf', self.bookshelf_view)
-        # Set the model for bookshelf view (will be updated when database is set)
-        if hasattr(self.library_view, '_model'):
-            self.bookshelf_view.setModel(self.library_view._model)
+        av.add_view('bookshelf', self.bookshelf_view)
         self.tb_widget = TagBrowserWidget(self)
         self.memory_view = DeviceBooksView(self)
         self.stack.addWidget(self.memory_view)
@@ -599,8 +651,8 @@ class LayoutMixin:  # {{{
             self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
         self.status_bar = StatusBar(self)
         self.grid_view_button = GridViewButton(self)
+        self.bookshelf_view_button = BookshelfViewButton(self)
         self.search_bar_button = SearchBarButton(self)
-        self.grid_view_button.toggled.connect(self.toggle_grid_view)
         self.search_bar_button.toggled.connect(self.toggle_search_bar)
 
         self.layout_button = b = QToolButton(self)
@@ -718,16 +770,6 @@ class LayoutMixin:  # {{{
             tb.item_search.lineEdit().setText(field + ':=' + value)
             tb.do_find()
 
-    def toggle_grid_view(self, show):
-        self.library_view.alternate_views.show_view('grid' if show else None)
-        self.sort_button.setVisible(show)
-        # Mutual exclusivity: when grid view is shown, hide bookshelf
-        if show:
-            bookshelf_button = self.layout_container.button_for('bookshelf')
-            if bookshelf_button and bookshelf_button.isChecked():
-                bookshelf_button.setChecked(False)
-                self.layout_container.set_visibility_of('bookshelf', False)
-
     def toggle_search_bar(self, show):
         self.search_bar.setVisible(show)
         if show:
@@ -805,6 +847,7 @@ class LayoutMixin:  # {{{
             getattr(self, x+'_view').save_state()
         self.layout_container.write_settings()
         self.grid_view_button.save_state()
+        self.bookshelf_view_button.save_state()
         self.search_bar_button.save_state()
 
     def read_layout_settings(self):
@@ -813,6 +856,7 @@ class LayoutMixin:  # {{{
         self.book_details.change_layout(self.layout_container.is_wide)
         self.place_layout_buttons()
         self.grid_view_button.restore_state()
+        self.bookshelf_view_button.restore_state()
         self.search_bar_button.restore_state()
 
     def update_status_bar(self, *args):
