@@ -9,7 +9,7 @@ from itertools import count
 from bypy.constants import is64bit
 from bypy.utils import run
 
-WIX = os.path.expanduser('~/.dotnet/tools/wix.exe')
+WIX = os.path.join(os.environ['USERPROFILE'], r'.dotnet\tools\wix.exe')
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
 else:
