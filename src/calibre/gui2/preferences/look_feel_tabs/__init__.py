@@ -6,6 +6,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import json
+from threading import Thread
 
 from qt.core import (
     QAbstractListModel,
@@ -26,6 +27,8 @@ from qt.core import (
     QPixmap,
     QPushButton,
     QSizePolicy,
+    QSpacerItem,
+    QSpinBox,
     Qt,
     QToolButton,
     QVBoxLayout,
@@ -33,10 +36,11 @@ from qt.core import (
     pyqtSignal,
 )
 
+from calibre import human_readable
 from calibre.db.constants import NO_SEARCH_LINK
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.search_internet import qquote
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, question_dialog, resolve_custom_background
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, open_local_file, question_dialog, resolve_custom_background
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, get_move_count
@@ -434,6 +438,112 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
     def link_config(self, name):
         self.container.config_name = name
+
+
+class CoverCacheConfig(LazyConfigWidgetBase):
+
+    size_calculated = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.name_disk_cache_size = None
+        self.name_cache_size_multiple = None
+
+        l = QVBoxLayout(self)
+        self.setLayout(l)
+        group_box = QGroupBox(_('Caching of covers for improved performance'), self)
+        l.addWidget(group_box)
+
+        grid = QGridLayout(group_box)
+        group_box.setLayout(grid)
+
+        description = QLabel(group_box)
+        description.setWordWrap(True)
+        description.setText(
+            _("There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view."
+            " A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache"
+            " used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large,"
+            " unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache."))
+
+        self.lbl_cache_size_multiple = QLabel(_('Number of screenfulls of covers to cache in &memory (keep this small):'), group_box)
+        self.opt_cache_size_multiple = QSpinBox(group_box)
+        self.opt_cache_size_multiple.setMinimum(2)
+        self.opt_cache_size_multiple.setMaximum(100)
+        self.opt_cache_size_multiple.setSingleStep(1)
+        self.opt_cache_size_multiple.setToolTip(
+            _('The maximum number of screenfulls of thumbnails to keep in memory.'
+            ' Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting,'
+            ' a minimum of one hundred thumbnails are always kept in memory, to ensure flicker free rendering.'))
+        self.lbl_cache_size_multiple.setBuddy(self.opt_cache_size_multiple)
+
+        self.lbl_cache_size_disk = QLabel(_('Maximum amount of &disk space to use for caching thumbnails: '), group_box)
+        self.opt_cache_size_disk = QSpinBox(group_box)
+        self.opt_cache_size_disk.setSingleStep(100)
+        self.lbl_cache_size_disk.setBuddy(self.opt_cache_size_disk)
+
+        self.opt_cache_size_disk.setSpecialValueText(_('Disable'))
+        self.opt_cache_size_disk.setSuffix(_(' MB'))
+
+        self.lbl_current_disk_cache = QLabel(group_box)
+
+        btn_empty_cache = QPushButton(_('&Empty disk cache'), group_box)
+        btn_open_cache = QPushButton(_('&Open cache folder'), group_box)
+
+        spacer1 = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        spacer2 = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        grid.addWidget(description, 0, 0, 1, 5)
+        grid.addWidget(self.lbl_cache_size_multiple, 1, 0, 1, 2)
+        grid.addWidget(self.opt_cache_size_multiple, 1, 2)
+        grid.addWidget(self.lbl_cache_size_disk, 2, 0, 1, 2)
+        grid.addWidget(self.opt_cache_size_disk, 2, 2)
+        grid.addItem(spacer1, 2, 3)
+        grid.addWidget(self.lbl_current_disk_cache, 3, 2)
+        grid.addWidget(btn_empty_cache, 4, 0)
+        grid.addWidget(btn_open_cache, 4, 1)
+        grid.addItem(spacer2, 5, 1)
+
+        btn_empty_cache.clicked.connect(self.empty_cache)
+        btn_open_cache.clicked.connect(self.open_cache)
+        self.size_calculated.connect(self.update_cache_size, type=Qt.ConnectionType.QueuedConnection)
+
+    def genesis(self, gui):
+        self.gui = gui
+
+    def link(self, thumbnail_cache, name_disk_cache_size, name_cache_size_multiple=None):
+        self.thumbnail_cache = thumbnail_cache
+        self.name_disk_cache_size = name_disk_cache_size
+        self.name_cache_size_multiple = name_cache_size_multiple
+        self.opt_cache_size_disk.setMinimum(self.thumbnail_cache.min_disk_cache)
+        self.opt_cache_size_disk.setMaximum(self.thumbnail_cache.min_disk_cache * 100)
+
+        self.register(self.name_disk_cache_size, gprefs, 'opt_cache_size_disk')
+        if self.name_cache_size_multiple:
+            self.register(self.name_cache_size_multiple, gprefs, 'opt_cache_size_multiple')
+        else:
+            self.lbl_cache_size_multiple.setHidden(True)
+            self.opt_cache_size_multiple.setHidden(True)
+
+    def lazy_initialize(self):
+        self.show_current_cache_usage()
+
+    def update_cache_size(self, size):
+        self.lbl_current_disk_cache.setText(_('Current space used: %s') % human_readable(size))
+
+    def empty_cache(self):
+        self.thumbnail_cache.empty()
+        self.calc_cache_size()
+
+    def open_cache(self):
+        open_local_file(self.thumbnail_cache.location)
+
+    def show_current_cache_usage(self):
+        t = Thread(target=self.calc_cache_size)
+        t.daemon = True
+        t.start()
+
+    def calc_cache_size(self):
+        self.size_calculated.emit(self.thumbnail_cache.current_size)
 
 
 def export_layout(in_widget, model=None):

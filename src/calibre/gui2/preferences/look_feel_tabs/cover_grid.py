@@ -5,12 +5,9 @@ __copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from threading import Thread
+from qt.core import QTabWidget, pyqtSignal
 
-from qt.core import Qt, QTabWidget, pyqtSignal
-
-from calibre import human_readable
-from calibre.gui2 import gprefs, open_local_file
+from calibre.gui2 import gprefs
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_Form
@@ -22,7 +19,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
-    size_calculated = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -34,8 +30,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
-        r('cover_grid_cache_size_multiple', gprefs)
-        r('cover_grid_disk_cache_size', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)
         r('emblem_size', gprefs)
@@ -47,30 +41,19 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
-        self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
         self.cg_background_box.link_config('cover_grid_background')
+        self.config_cache.link(
+            self.gui.grid_view.thumbnail_cache,
+            'cover_grid_disk_cache_size',
+            'cover_grid_cache_size_multiple',
+        )
 
-        self.cover_grid_empty_cache.clicked.connect(self.empty_cache)
-        self.cover_grid_open_cache.clicked.connect(self.open_cg_cache)
         connect_lambda(self.cover_grid_smaller_cover.clicked, self, lambda self: self.resize_cover(True))
         connect_lambda(self.cover_grid_larger_cover.clicked, self, lambda self: self.resize_cover(False))
         self.cover_grid_reset_size.clicked.connect(self.cg_reset_size)
-        self.opt_cover_grid_disk_cache_size.setMinimum(self.gui.grid_view.thumbnail_cache.min_disk_cache)
-        self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
-        self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
-        self.opt_cover_grid_height.valueChanged.connect(self.update_aspect_ratio)
 
     def lazy_initialize(self):
-        self.show_current_cache_usage()
         self.update_aspect_ratio()
-
-    def show_current_cache_usage(self):
-        t = Thread(target=self.calc_cache_size)
-        t.daemon = True
-        t.start()
-
-    def calc_cache_size(self):
-        self.size_calculated.emit(self.gui.grid_view.thumbnail_cache.current_size)
 
     @property
     def current_cover_size(self):
@@ -100,17 +83,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     def cg_reset_size(self):
         self.opt_cover_grid_width.setValue(0)
         self.opt_cover_grid_height.setValue(0)
-
-    def open_cg_cache(self):
-        open_local_file(self.gui.grid_view.thumbnail_cache.location)
-
-    def update_cg_cache_size(self, size):
-        self.cover_grid_current_disk_cache.setText(
-            _('Current space used: %s') % human_readable(size))
-
-    def empty_cache(self):
-        self.gui.grid_view.thumbnail_cache.empty()
-        self.calc_cache_size()
 
     def refresh_gui(self, gui):
         gui.library_view.refresh_grid()

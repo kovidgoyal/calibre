@@ -41,6 +41,7 @@ from qt.core import (
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library.alternate_views import setup_dnd_interface
+from calibre.gui2.library.caches import ThumbnailCache
 from calibre.utils.localization import _
 
 try:
@@ -892,6 +893,14 @@ class BookshelfView(QAbstractScrollArea):  # {{{
         self._load_covers_timer = QTimer(self)
         self._load_covers_timer.setSingleShot(True)
         self._load_covers_timer.timeout.connect(self._load_visible_covers)
+
+        # Up the version number if anything changes in how images are stored in the cache.
+        self.thumbnail_cache = ThumbnailCache(
+            name='bookshelf-thumbnail-cache',
+            max_size=gprefs['bookshelf_view_cache_size'],
+            thumbnail_size=(self.SPINE_MAX_WIDTH, self.THUMBNAIL_HEIGHT),
+            version=1,
+        )
 
         # Grouping configuration
         self._grouping_mode = gprefs.get('bookshelf_grouping_mode', 'none')

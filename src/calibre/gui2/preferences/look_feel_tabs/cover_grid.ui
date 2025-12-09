@@ -275,140 +275,10 @@ A value of zero means calculate automatically.</string>
      <string>&amp;Emblems</string>
     </attribute>
    </widget>
-   <widget class="QWidget" name="tab_6">
+   <widget class="CoverCacheConfig" name="config_cache">
     <attribute name="title">
      <string>&amp;Performance</string>
     </attribute>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QGroupBox" name="groupBox_3">
-       <property name="title">
-        <string>Caching of covers for improved performance</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0" colspan="5">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view. A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large, unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache.</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QSpinBox" name="opt_cover_grid_disk_cache_size">
-          <property name="specialValueText">
-           <string>Disable</string>
-          </property>
-          <property name="suffix">
-           <string> MB</string>
-          </property>
-          <property name="minimum">
-           <number>100</number>
-          </property>
-          <property name="singleStep">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QPushButton" name="cover_grid_empty_cache">
-          <property name="text">
-           <string>&amp;Empty disk cache</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QPushButton" name="cover_grid_open_cache">
-          <property name="text">
-           <string>&amp;Open cache folder</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2" colspan="3">
-         <spacer name="horizontalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>310</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="5" column="1">
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="3">
-         <spacer name="horizontalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="0" colspan="2">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Number of screenfulls of covers to cache in &amp;memory (keep this small):</string>
-          </property>
-          <property name="buddy">
-           <cstring>opt_cover_grid_cache_size_multiple</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Maximum amount of &amp;disk space to use for caching thumbnails: </string>
-          </property>
-          <property name="buddy">
-           <cstring>opt_cover_grid_disk_cache_size</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
-          <property name="toolTip">
-           <string>The maximum number of screenfulls of thumbnails to keep in memory. Increasing this will make rendering faster, at the cost of more memory usage. Note that regardless of this setting, a minimum of one hundred thumbnails are always kept in memory, to ensure flicker free rendering.</string>
-          </property>
-          <property name="minimum">
-           <number>2</number>
-          </property>
-          <property name="maximum">
-           <number>100</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="cover_grid_current_disk_cache">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
    </widget>
   </widget>
  <customwidgets>
@@ -424,6 +294,11 @@ A value of zero means calculate automatically.</string>
   </customwidget>
   <customwidget>
    <class>BackgroundConfig</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CoverCacheConfig</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
