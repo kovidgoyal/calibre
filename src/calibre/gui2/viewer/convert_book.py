@@ -21,6 +21,9 @@ from calibre.utils.serialize import msgpack_dumps
 from calibre.utils.short_uuid import uuid4
 from polyglot.builtins import as_bytes, as_unicode
 
+if iswindows:
+    from calibre_extensions import winutil
+
 DAY = 24 * 3600
 VIEWER_VERSION = 1
 td_counter = count()
@@ -60,8 +63,9 @@ def robust_rmtree(x):
             except UnicodeDecodeError:
                 rmtree(as_bytes(x))
             return True
-        except OSError:
-            time.sleep(0.1)
+        except OSError as e:
+            if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
+                time.sleep(0.1)
     return False
 
 
@@ -71,8 +75,9 @@ def robust_rename(a, b):
         try:
             os.rename(a, b)
             return True
-        except OSError:
-            time.sleep(0.1)
+        except OSError as e:
+            if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
+                time.sleep(0.1)
     return False
 
 
