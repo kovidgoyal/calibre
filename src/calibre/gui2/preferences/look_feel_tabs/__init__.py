@@ -9,13 +9,23 @@ import json
 
 from qt.core import (
     QAbstractListModel,
+    QBrush,
+    QColor,
+    QColorDialog,
     QComboBox,
     QDialog,
     QFormLayout,
+    QGridLayout,
+    QGroupBox,
     QHBoxLayout,
     QIcon,
     QItemSelectionModel,
+    QLabel,
     QLineEdit,
+    QPainter,
+    QPixmap,
+    QPushButton,
+    QSizePolicy,
     Qt,
     QToolButton,
     QVBoxLayout,
@@ -26,7 +36,7 @@ from qt.core import (
 from calibre.db.constants import NO_SEARCH_LINK
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
 from calibre.ebooks.metadata.search_internet import qquote
-from calibre.gui2 import choose_files, choose_save_file, error_dialog
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, question_dialog, resolve_custom_background
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, get_move_count
@@ -257,6 +267,173 @@ class GridEmblemnRules(LazyEditRulesBase):
 
 class BookshelfColorRules(LazyEditRulesBase):
     rule_set_name = 'bookshelf_color_rules'
+
+
+class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
+
+    changed_signal = pyqtSignal()
+    restart_now = pyqtSignal()
+
+    class Container(LazyConfigWidgetBase):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.config_name = None
+            self.bcol_dark = None
+            self.bcol_light = None
+            self.btex_dark = None
+            self.btex_light = None
+
+            self.light_label = QLabel(self)
+            self.dark_label = QLabel(self)
+
+            self.light_label.linkActivated.connect(self.light_link_activated)
+            self.dark_label.linkActivated.connect(self.dark_link_activated)
+
+            self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+            self.setMinimumSize(200, 120)
+            self.setContentsMargins(0, 0, 0, 0)
+
+            l = QHBoxLayout(self)
+            self.setLayout(l)
+            l.addWidget(self.light_label)
+            l.addWidget(self.dark_label)
+
+            self.changed_signal.connect(self.update_content)
+
+        def genesis(self, gui):
+            self.gui = gui
+
+        def lazy_initialize(self):
+            self.load_from_gprefs()
+
+        def load_from_gprefs(self, use_defaults=False):
+            rs = resolve_custom_background
+            self.bcol_dark = QColor(*rs(self.config_name, for_dark=True, use_defaults=use_defaults))
+            self.bcol_light = QColor(*rs(self.config_name, for_dark=False, use_defaults=use_defaults))
+            self.btex_dark = rs(self.config_name, 'texture', for_dark=True, use_defaults=use_defaults)
+            self.btex_light = rs(self.config_name, 'texture', for_dark=False, use_defaults=use_defaults)
+            self.update_content()
+
+        def light_link_activated(self, url):
+            if 'texture' in url:
+                self.change_texture(light=True)
+            else:
+                self.change_color(light=True)
+            self.update_content()
+
+        def dark_link_activated(self, url):
+            if 'texture' in url:
+                self.change_texture(light=False)
+            else:
+                self.change_color(light=False)
+
+        def change_texture(self, light=False):
+            from calibre.gui2.preferences.texture_chooser import TextureChooser
+            btex = self.btex_light if light else self.btex_dark
+            d = TextureChooser(parent=self, initial=btex)
+            if d.exec() == QDialog.DialogCode.Accepted:
+                if light:
+                    self.btex_light = d.texture
+                else:
+                    self.btex_dark = d.texture
+                self.changed_signal.emit()
+
+        def change_color(self, light=False):
+            which = _('light') if light else _('dark')
+            col = QColorDialog.getColor(self.bcol_light if light else self.bcol_dark,
+                    self, _('Choose {} background color').format(which))
+
+            if col.isValid():
+                if light:
+                    self.bcol_light = col
+                else:
+                    self.bcol_dark = col
+                btex = self.btex_light if light else self.btex_dark
+                if btex:
+                    if question_dialog(
+                        self, _('Remove background image?'),
+                        _('There is currently a background image set, so the color'
+                          ' you have chosen will not be visible. Remove the background image?')):
+                        if light:
+                            self.btex_light = None
+                        else:
+                            self.btex_dark = None
+                self.changed_signal.emit()
+
+        def update_content(self):
+            self.update_text()
+            self.update_brush()
+            self.update()
+
+        def update_text(self):
+            text = (
+                '<p style="text-align: center; color: {}"><b>{}</b><br>'
+                '<a style="text-decoration: none" href="la://color.me">{}</a><br>'
+                '<a style="text-decoration: none" href="la://texture.me">{}</a></p>')
+            self.light_label.setText(text.format('black', _('Light'), _('Change color'), _('Change texture')))
+            self.dark_label.setText(text.format('white', _('Dark'), _('Change color'), _('Change texture')))
+
+        def update_brush(self):
+            self.light_brush = QBrush(self.bcol_light)
+            self.dark_brush = QBrush(self.bcol_dark)
+            def dotex(path, brush):
+                if path:
+                    from calibre.gui2.preferences.texture_chooser import texture_path
+                    path = texture_path(path)
+                    if path:
+                        p = QPixmap(path)
+                        try:
+                            dpr = self.devicePixelRatioF()
+                        except AttributeError:
+                            dpr = self.devicePixelRatio()
+                        p.setDevicePixelRatio(dpr)
+                        brush.setTexture(p)
+            dotex(self.btex_light, self.light_brush)
+            dotex(self.btex_dark, self.dark_brush)
+
+        def restore_defaults(self):
+            self.load_from_gprefs(use_defaults=True)
+            self.changed_signal.emit()
+
+        def commit(self):
+            s = gprefs[self.config_name].copy()
+            s['light'] = tuple(self.bcol_light.getRgb())[:3]
+            s['dark'] = tuple(self.bcol_dark.getRgb())[:3]
+            s['light_texture'] = self.btex_light
+            s['dark_texture'] = self.btex_dark
+            gprefs[self.config_name] = s
+
+        def paintEvent(self, ev):
+            painter = QPainter(self)
+            r = self.rect()
+            light = r.adjusted(0, 0, -r.width()//2, 0)
+            dark = r.adjusted(light.width(), 0, 0, 0)
+            painter.fillRect(light, self.light_brush)
+            painter.fillRect(dark, self.dark_brush)
+            painter.end()
+            super().paintEvent(ev)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def setupUi(self, form):
+        # Simulate a ui file, else LazyConfigWidgetBase don't found the child
+        grid = QGridLayout(self)
+        self.setLayout(grid)
+
+        self.container = BackgroundConfig.Container(self)
+        self.reset_appearance_button = QPushButton(_('Restore default &appearance'), self)
+        self.reset_appearance_button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.reset_appearance_button.clicked.connect(self.container.restore_defaults)
+
+        grid.addWidget(self.container, 0, 0, 2, 1)
+        grid.addWidget(self.reset_appearance_button, 0, 1)
+
+    def genesis(self, gui):
+        self.gui = gui
+
+    def link_config(self, name):
+        self.container.config_name = name
 
 
 def export_layout(in_widget, model=None):

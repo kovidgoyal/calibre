@@ -82,11 +82,10 @@
       </widget>
      </item>
      <item row="7" column="0" colspan="2">
-      <widget class="QGroupBox" name="cg_background_box">
+      <widget class="BackgroundConfig" name="cg_background_box">
        <property name="title">
         <string>Background for the Cover grid</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_5"/>
       </widget>
      </item>
      <item row="10" column="0" colspan="2">
@@ -420,6 +419,11 @@ A value of zero means calculate automatically.</string>
   </customwidget>
   <customwidget>
    <class>GridEmblemnRules</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BackgroundConfig</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>

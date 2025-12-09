@@ -497,6 +497,9 @@ def create_defs():
     defs['bookshelf_fade_time'] = 200
     defs['bookshelf_hover_shift'] = True
     defs['bookshelf_hover_above'] = False
+    defs['bookshelf_background'] = {
+        'light': (255, 255, 255), 'dark': (64, 64, 64), 'light_texture': None, 'dark_texture': None
+    }
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
@@ -1785,12 +1788,12 @@ def clip_border_radius(painter, rect):
         painter.restore()
 
 
-def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+def resolve_custom_background(name: str ,which='color', for_dark: bool | None = None, use_defaults: bool = False):
     if use_defaults:
-        s = gprefs.defaults['cover_grid_background']
+        s = gprefs.defaults[name]
     else:
-        s = gprefs['cover_grid_background']
-        if not s['migrated']:
+        s = gprefs[name]
+        if name == 'cover_grid_background' and not s.get('migrated'):
             s = s.copy()
             s['migrated'] = True
             legacy = gprefs.pop('cover_grid_color', None)
@@ -1799,10 +1802,18 @@ def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults
             legacy = gprefs.pop('cover_grid_texture', None)
             if legacy is not None:
                 s['light_texture'] = s['dark_texture'] = legacy
-            gprefs['cover_grid_background'] = s
+            gprefs[name] = s
     if for_dark is None:
         for_dark = QApplication.instance().is_dark_theme
     key = 'dark' if for_dark else 'light'
     if which == 'color':
         return s[key]
     return s[f'{key}_texture']
+
+
+def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+    return resolve_custom_background('cover_grid_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
+
+
+def resolve_bookshelf_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+    return resolve_custom_background('bookshelf_background', which=which, for_dark=for_dark, use_defaults=use_defaults)

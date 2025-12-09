@@ -146,6 +146,13 @@
       </property>
      </widget>
     </item>
+    <item row="25" column="0" colspan="3">
+     <widget class="BackgroundConfig" name="bs_background_box">
+      <property name="title">
+       <string>Background for the Bookshelf</string>
+      </property>
+     </widget>
+    </item>
     <item row="30" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
@@ -171,6 +178,11 @@
   <customwidget>
    <class>ConfigWidgetBase</class>
    <extends>QWidget</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BackgroundConfig</class>
+   <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>

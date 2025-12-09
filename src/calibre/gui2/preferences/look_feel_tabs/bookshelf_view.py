@@ -40,6 +40,8 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_pages_template', db.prefs)
         r('bookshelf_use_book_size', db.prefs)
 
+        self.bs_background_box.link_config('bookshelf_background')
+
         self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template))
         self.template_pages_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_pages_template))
 
