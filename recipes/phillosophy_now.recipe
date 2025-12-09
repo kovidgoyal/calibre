@@ -94,7 +94,7 @@ class PhilosophyNow(BasicNewsRecipe):
         return self.get_browser()
 
     def open_novisit(self, *args, **kwargs):
-        br = browser()
+        br = browser(verify_ssl_certificates=False)
         return br.open_novisit(*args, **kwargs)
 
     open = open_novisit
