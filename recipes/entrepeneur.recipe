@@ -23,10 +23,10 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = [
-        dict(attrs={'data-word-count': True}),
+        dict(name='article', id=lambda x: x and x.startswith('post-')),
     ]
     remove_tags = [
-        dict(attrs={'class': ['related-content']}),
+        dict(attrs={'class': ['related-content', 'icon']}),
     ]
     remove_attributes = ['style']
 
@@ -36,9 +36,9 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX + '/latest')
         articles = []
         for h3 in soup.findAll('h3'):
-            a = h3.parent
-            if a.name == 'a' and a.get('href'):
-                url = self.INDEX + a['href']
+            a = h3.find('a')
+            if a and a.get('href'):
+                url = a['href']
                 title = self.tag_to_string(h3)
                 desc = ''
                 if a.next_sibling and a.next_sibling.name == 'p':
