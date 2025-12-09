@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QTabWidget" name="cover_grid_tab">
+  <property name="currentIndex">
+   <number>0</number>
+  </property>
+  <widget class="QWidget" name="bookshelf_view_tab">
+   <attribute name="title">
+    <string>&amp;Layout</string>
+   </attribute>
+   <layout class="QGridLayout" name="bookshelf_grid">
+    <item row="0" column="0">
+     <widget class="QCheckBox" name="opt_bookshelf_shadow">
+      <property name="text">
+       <string>Show &amp;shadow for hovered cover</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" colspan="2">
+     <widget class="QCheckBox" name="opt_bookshelf_thumbnail">
+      <property name="text">
+       <string>Show a &amp;thumbnail of the cover on the books spines</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QCheckBox" name="opt_bookshelf_centered">
+      <property name="text">
+       <string>&amp;Center the books on the shelves</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QCheckBox" name="opt_bookshelf_variable_height">
+      <property name="text">
+       <string>Variable book &amp;height</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QLabel" name="label_title">
+      <property name="text">
+       <string>Template for spine &amp;title:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_title_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <widget class="QLineEdit" name="opt_bookshelf_title_template">
+      <property name="toolTip">
+       <string>&lt;p&gt;The template used to generate the text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="2">
+     <widget class="QPushButton" name="template_title_button">
+      <property name="text">
+       <string>Template &amp;editor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_pages">
+      <property name="text">
+       <string>Template for &amp;pages count (variable book width):</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_pages_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="1">
+     <widget class="QLineEdit" name="opt_bookshelf_pages_template">
+      <property name="toolTip">
+       <string>&lt;p&gt;The template used to generate the pages count, which will make the book spine width variable. This template uses the same syntax as save templates. Defaults use the pages count. If the template fail to found a value, the spine width will be randomly generate. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use. Use an empty template for fixed width.&lt;/p&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="2">
+     <widget class="QPushButton" name="template_pages_button">
+      <property name="text">
+       <string>Template &amp;editor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="1">
+     <widget class="QCheckBox" name="opt_bookshelf_use_book_size">
+      <property name="toolTip">
+       <string>&lt;p&gt;If the template for the pages count does not return value, try to determine the width from the book size. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+      </property>
+      <property name="text">
+       <string>&amp;Use book size if no pages count found</string>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="0">
+     <widget class="QLabel" name="label_fade_time">
+      <property name="text">
+       <string>&amp;Fade-in time for hovered cover animation:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_fade_time</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="1">
+     <widget class="QSpinBox" name="opt_bookshelf_fade_time">
+      <property name="suffix">
+       <string> milliseconds</string>
+      </property>
+      <property name="maximum">
+       <number>2000</number>
+      </property>
+      <property name="singleStep">
+       <number>100</number>
+      </property>
+      <property name="value">
+       <number>200</number>
+      </property>
+      <property name="specialValueText">
+       <string>Disable</string>
+      </property>
+     </widget>
+    </item>
+    <item row="21" column="0">
+     <widget class="QLabel" name="label_hover_interact">
+      <property name="text">
+       <string>Expand the hovered cover:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="21" column="1" colspan="2">
+     <widget class="QRadioButton" name="opt_bookshelf_hover_shift">
+      <property name="text">
+       <string>&amp;Shift the others books on the row</string>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="1" colspan="2">
+     <widget class="QRadioButton" name="opt_bookshelf_hover_above">
+      <property name="text">
+       <string>&amp;Above the others books on the row</string>
+      </property>
+     </widget>
+    </item>
+    <item row="30" column="0">
+     <spacer name="vertical_spacer_1">
+      <property name="orientation">
+       <enum>Qt::Orientation::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+</ui>

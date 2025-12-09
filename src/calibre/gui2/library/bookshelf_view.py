@@ -895,6 +895,10 @@ class BookshelfView(QAbstractScrollArea):  # {{{
 
         # Grouping configuration
         self._grouping_mode = gprefs.get('bookshelf_grouping_mode', 'none')
+        self.refresh_settings()
+
+    def refresh_settings(self):
+        pass
 
     def setModel(self, model):
         '''Set the model for this view.'''
