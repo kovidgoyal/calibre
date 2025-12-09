@@ -242,6 +242,12 @@ class LLMPanel(ConverseWidget):
     def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
         context_header = format_books_for_query(self.books)
         context_header += ' When you answer the questions use markdown formatting for the answers wherever possible.'
+        if len(self.books) > 1:
+            context_header += ' If any of the specified books are unknown to you, instead of answering the following'
+            ' questions, just say the books are unknown.'
+        else:
+            context_header += ' If the specified book is unknown to you instead of answering the following questions'
+            ' just say the book is unknown.'
         if language_instruction := self.get_language_instruction():
             context_header += ' ' + language_instruction
         yield ChatMessage(context_header, type=ChatMessageType.system)
