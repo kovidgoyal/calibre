@@ -438,7 +438,10 @@ def build_launchers(env, incdir, debug=False):
     base = d(a(__file__))
     sources = [j(base, x) for x in ['util.c', ]]
     objects = [j(env.obj_dir, b(x) + '.obj') for x in sources]
-    cflags = '/c /EHsc /W3 /Ox /nologo /D_UNICODE'.split()
+    # Launcher DLL must be built aginast limit API to allow delay loading,
+    # which means defining PY_LIMITED_API and linking against python3.lib
+    # rather than python3.xx.lib
+    cflags = '/c /EHsc /W3 /Ox /nologo /D_UNICODE /DPY_LIMITED_API=0x030A0000L'.split()
     cflags += ['/DPYDLL="python%s.dll"' % env.py_ver.replace('.', ''), '/I%s/include' % env.python_base]
     cflags += [f'/I{path_to_freeze_dir()}', f'/I{incdir}']
     for src, obj in zip(sources, objects):
@@ -452,7 +455,7 @@ def build_launchers(env, incdir, debug=False):
         [embed_resources(env, dll),
             '/LIBPATH:%s/libs' % env.python_base,
             'delayimp.lib', 'user32.lib', 'shell32.lib',
-            'python%s.lib' % env.py_ver.replace('.', ''),
+            'python%s.lib' % env.py_ver.split('.')[0],
             '/delayload:python%s.dll' % env.py_ver.replace('.', '')]
     printf('Linking calibre-launcher.dll')
     run(*cmd)
