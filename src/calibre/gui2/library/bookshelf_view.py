@@ -98,15 +98,15 @@ def get_reading_statue(book_id, db, mi=None) -> str:
     return 'unread'
 
 
-def size_to_page_count(size_bytes: int) -> int:
+def normalised_size(size_bytes: int) -> float:
     '''Estimate page count from file size.'''
     # Average ebook: ~1-2KB per page, so estimate pages from size
     if size_bytes and size_bytes > 0:
         # Estimate: ~1500 bytes per page (conservative)
         estimated_pages = max(50, size_bytes // 1500)
         # Cap at reasonable max
-        return min(estimated_pages, 2000)
-    return None
+        return min(estimated_pages, 2000) / 2000.
+    return 0.
 
 
 def pseudo_random(book_id: int, maximum) -> int:
@@ -589,7 +589,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._current_shelf_layouts: list[ShelfTuple] = []
 
         # Cover loading and caching
-        self._pages_widths: dict[int, int] = {}  # Cache for spine widths (pages -> width)
         self._height_modifiers: dict[int, int] = {}  # Cache for height modifiers (book_id -> height)
         self._hovered = HoveredCover()  # Currently hovered book
         self._hover_fade_timer = QTimer(self)  # Timer for fade-in animation
@@ -625,11 +624,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_pages_error_reported = False
         self.template_title = ''
         self.template_statue = ''
-        self.template_pages = ''
-        self.pages_use_book_size = False
+        self.size_template = '{size}'
         self.template_title_is_empty = True
         self.template_statue_is_empty = True
-        self.template_pages_is_empty = True
 
     # Templates rendering methods
 
@@ -650,11 +647,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_pages_error_reported = False
         self.rules_color = db_pref('bookshelf_color_rules') or []
         self.template_title = db_pref('bookshelf_title_template') or ''
-        self.template_pages = db_pref('bookshelf_pages_template') or ''
-        self.pages_use_book_size = bool(db_pref('bookshelf_use_book_size'))
+        self.size_template = (db_pref('bookshelf_spine_size_template') or '').strip()
         self.template_title_is_title = self.template_title == '{title}'
         self.template_title_is_empty = not self.template_title.strip()
-        self.template_pages_is_empty = not self.template_pages.strip()
         self.template_inited = True
 
     def render_template_title(self, book_id: int, mi=None) -> str:
@@ -670,25 +665,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if rslt:
             return rslt
         return _('Unknown')
-
-    def render_template_pages(self, book_id: int, mi: Metadata=None) -> int:
-        '''Return the pages count generate for this book.'''
-        self.init_template(self.dbref())
-        if self.template_pages_is_empty:
-            return None
-        if not mi:
-            mi = self.dbref().get_proxy_metadata(book_id)
-        rslt = mi.formatter.safe_format(self.template_pages, mi, TEMPLATE_ERROR, mi, column_name='pages', template_cache=self.template_cache)
-        if rslt.startswith(TEMPLATE_ERROR):
-            print(rslt)
-            return -1
-        if rslt:
-            with suppress(Exception):
-                rslt = int(rslt)
-                if rslt >= 0:
-                    return rslt
-            return -1
-        return None
 
     def render_color_indicator(self, book_id: int, mi: Metadata=None) -> QColor:
         '''Return the statue indicator color generate for this book.'''
@@ -1595,104 +1571,48 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 import traceback
                 traceback.print_exc()
 
-    def _get_spine_width(self, book_id: int, mi:Metadata=None) -> int:
+    def _get_spine_width(self, book_id: int) -> int:
         '''Get the spine width for a book from cache or by generation.'''
-        self.init_template(self.dbref())
-        if self.template_pages_is_empty and not self.pages_use_book_size:
-            return self.SPINE_WIDTH_DEFAULT
+        db = self.dbref()
+        self.init_template(db)
 
-        if not mi:
-            mi = self.dbref().get_proxy_metadata(book_id)
+        def frac(f: float):
+            return self.SPINE_WIDTH_MIN + int(max(0, min(f, 1)) * (self.SPINE_WIDTH_MAX - self.SPINE_WIDTH_MIN))
 
-        if not self.template_pages_is_empty:
-            pages = self.render_template_pages(book_id, mi)
-            if isinstance(pages, int) and pages >= 0:
-                return self._calculate_spine_width(pages)
+        def choice(choice: float) -> int:
+            choice = max(0, min(choice, 7))
+            if choice <= 1:
+                ans = self.SPINE_WIDTH_MIN + 3 * choice
+            elif choice <= 2:
+                ans = self.SPINE_WIDTH_MIN + 3 + 4 * (choice - 1)
+            elif choice <= 3:
+                ans = self.SPINE_WIDTH_MIN + 7 + 6 * (choice - 2)
+            elif choice <= 4:
+                ans = self.SPINE_WIDTH_MIN + 13 + 7 * (choice - 3)
+            elif choice <= 5:
+                ans = self.SPINE_WIDTH_MIN + 20 + 8 * (choice - 4)
+            elif choice <= 6:
+                ans = self.SPINE_WIDTH_MIN + 28 + 7 * (choice - 5)
+            elif choice <= 7:
+                ans = self.SPINE_WIDTH_MIN + 35 + 10 * (choice - 6)
+            return min(ans, self.SPINE_WIDTH_MAX)
 
-        if self.pages_use_book_size:
-            pages = size_to_page_count(mi.book_size)
-            if isinstance(pages, int) and pages >= 0:
-                return self._calculate_spine_width(pages)
-
-        if self.template_pages_is_empty:
-            return self.SPINE_WIDTH_DEFAULT
-        # Range: 50-350 pages (covers tiers 3-5 for visual variety)
-        return self._calculate_spine_width(50 + pseudo_random(book_id, 300))
-
-    def _calculate_spine_width(self, pages: int) -> int:
-        '''Calculate spine width from page count with 8-tier granular scaling.
-
-        Args:
-            pages: Number of pages in the book
-
-        Returns:
-            Spine width in pixels (between SPINE_WIDTH_MIN and SPINE_WIDTH_MAX)
-
-        Tier breakdown for clear visual differences (reduced scale):
-        Tier 1: 0-20 pages    → 15-18px  (very short articles)
-        Tier 2: 20-50 pages   → 18-22px  (short articles)
-        Tier 3: 50-100 pages  → 22-28px  (articles/short docs)
-        Tier 4: 100-200 pages → 28-35px  (short books)
-        Tier 5: 200-350 pages → 35-43px  (medium books)
-        Tier 6: 350-500 pages → 43-50px  (long books)
-        Tier 7: 500-750 pages → 50-56px  (very long books)
-        Tier 8: 750+ pages    → 56-60px  (epic books)
-        '''
-        # Ensure pages is a valid number
-        if not pages:
-            return self.SPINE_WIDTH_DEFAULT
-        try:
-            pages = float(pages)
-        except (TypeError, ValueError):
-            return self.SPINE_WIDTH_DEFAULT
-
-        # Ensure pages is within bounds
-        pages = max(0, min(1500, pages))
-
-        rslt = self._pages_widths.get(round(pages))
-        if rslt:
-            return rslt
-
-        if pages <= 0:
-            rslt = self.SPINE_WIDTH_MIN
-        elif pages < 20:
-            # Tier 1: Very short articles (0-20 pages) → 15-18px
-            # 10 pages = 16.5px, 20 pages = 18px
-            rslt = 15.0 + (pages / 20.0) * 3.0
-        elif pages < 50:
-            # Tier 2: Short articles (20-50 pages) → 18-22px
-            # 20 pages = 18px, 35 pages = 20px, 50 pages = 22px
-            rslt = 18.0 + ((pages - 20) / 30.0) * 4.0
-        elif pages < 100:
-            # Tier 3: Articles/short docs (50-100 pages) → 22-28px
-            # 50 pages = 22px, 75 pages = 25px, 100 pages = 28px
-            rslt = 22.0 + ((pages - 50) / 50.0) * 6.0
-        elif pages < 200:
-            # Tier 4: Short books (100-200 pages) → 28-35px
-            # 100 pages = 28px, 150 pages = 31.5px, 200 pages = 35px
-            rslt = 28.0 + ((pages - 100) / 100.0) * 7.0
-        elif pages < 350:
-            # Tier 5: Medium books (200-350 pages) → 35-43px
-            # 200 pages = 35px, 275 pages = 39px, 350 pages = 43px
-            rslt = 35.0 + ((pages - 200) / 150.0) * 8.0
-        elif pages < 500:
-            # Tier 6: Long books (350-500 pages) → 43-50px
-            # 350 pages = 43px, 425 pages = 46.5px, 500 pages = 50px
-            rslt = 43.0 + ((pages - 350) / 150.0) * 7.0
-        elif pages < 750:
-            # Tier 7: Very long books (500-750 pages) → 50-56px
-            # 500 pages = 50px, 625 pages = 53px, 750 pages = 56px
-            rslt = 50.0 + ((pages - 500) / 250.0) * 6.0
-        else:
-            # Tier 8: Epic books (750+ pages) → 56-60px
-            # 750 pages = 56px, 1000 pages = 58px, 1500+ pages = 60px
-            rslt = 56.0 + (pages - 750) / 187.5  # ~1px per 187 pages, max 4px
-
-        # Ensure result is within bounds
-        rslt = max(self.SPINE_WIDTH_MIN, min(self.SPINE_WIDTH_MAX, round(rslt)))
-
-        self._pages_widths[round(pages)] = rslt
-        return rslt
+        match self.size_template:
+            case '':
+                return self.SPINE_WIDTH_DEFAULT
+            case '{size}' | 'size':
+                return frac(normalised_size(db.field_for('size', book_id, 0)))
+            case '{random}' | 'random':
+                return choice(book_id & 7)
+            case _:
+                with suppress(Exception):
+                    if 0 <= (x := float(self.size_template)) <= 7:
+                        return choice(x)
+                with suppress(Exception):
+                    mi = db.get_proxy_metadata(book_id)
+                    rslt = mi.formatter.safe_format(self.template_pages, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
+                    return choice(float(rslt))
+        return self.SPINE_WIDTH_DEFAULT
 
     def _get_height_modifier(self, book_id: int) -> int:
         '''

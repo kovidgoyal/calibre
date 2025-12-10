@@ -635,11 +635,7 @@ class DB:
         defs['bookshelf_grouping_mode'] = 'none'
         defs['bookshelf_color_rules'] = []
         defs['bookshelf_title_template'] = '{title}'
-        defs['bookshelf_pages_template'] = '''program:
-if field_exists('#pages') then
-  return $#pages
-fi;'''
-        defs['bookshelf_use_book_size'] = True
+        defs['bookshelf_spine_size_template'] = '{size}'
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
