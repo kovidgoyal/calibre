@@ -123,7 +123,7 @@ def process_web_node(node):
         if node.get('fallback'):
             return process_web_node(node['fallback'])
     elif ntype == 'INFOBOX':
-        return process_info_box(node)
+        return ''
     elif ntype == 'UNORDERED_LIST':
         if node.get('items'):
             return process_web_list(node)
