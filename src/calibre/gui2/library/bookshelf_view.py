@@ -15,7 +15,7 @@ from io import BytesIO
 from queue import LifoQueue
 from threading import Thread
 from time import time
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from PIL import Image
 from qt.core import (
@@ -236,134 +236,90 @@ def generate_spine_thumbnail(image: Image, width: int, height: int) -> Image:
 
 def _group_sort_key(unknown: str, val: str) -> tuple[bool, str]:
     # Put the unknown/default value at the end
-    return (val == unknown, numeric_sort_key(val))
+    return val == unknown, numeric_sort_key(val)
 
 
-def _group_books_for_string(rows: Iterable[int], model: BooksModel, field: str, unknown: str) -> list[tuple[str, int]]:
+Groups = list[tuple[str, list[int]]]
+
+
+def _group_books(rows: list[int], model: BooksModel, field: str, unknown: str, getter: Callable[[Any], str], reverse: bool = False) -> Groups:
+    cache = model.db.new_api
+    idfunc = model.db.id
+    try:
+        field_obj = cache.fields[field]
+    except KeyError:
+        return [(unknown, rows)]
+    ans = defaultdict(list)
+    with cache.safe_read_lock:
+        for row in rows:
+            try:
+                book_id = idfunc(row)
+                val = getter(cache._fast_field_for(field_obj, book_id))
+            except Exception:
+                val = unknown
+            ans[val].append(row)
+    return sorted(ans.items(), reverse=reverse, key=lambda x: _group_sort_key(unknown, x[0]))
+
+
+def _group_books_for_string(rows: list[int], model: BooksModel, field: str, unknown: str) -> Groups:
     '''
     Group books for a string field. Returns list of (group_name, row_indices) tuples.
     '''
-    groups = defaultdict(list)
-    for row in rows:
-        try:
-            index = model.index(row, 0)
-            if not index.isValid():
-                groups[unknown].append(row)
-                continue
-
-            book_id = model.id(index)
-            mi = model.db.new_api.get_proxy_metadata(book_id)
-            value = mi.get(field)
-
-            if value:
-                groups[value].append(row)
-            else:
-                groups[unknown].append(row)
-        except (AttributeError, IndexError, KeyError, TypeError):
-            groups[unknown].append(row)
-
-    # Sort groups by name
-    sorted_groups = list(groups.items())
-    sorted_groups.sort(key=lambda x: _group_sort_key(unknown, x[0]))
-    return sorted_groups
+    return _group_books(rows, model, field, unknown, lambda x: x or unknown)
 
 
-def _group_books_for_list(rows: Iterable[int], model: BooksModel, field: str, unknown: str) -> list[tuple[str, int]]:
+def _group_books_for_list(rows: list[int], model: BooksModel, field: str, unknown: str) -> Groups:
     '''
     Group books for a list field, use only the first value. Returns list of (group_name, row_indices) tuples.
     '''
-    groups = defaultdict(list)
-    for row in rows:
-        try:
-            index = model.index(row, 0)
-            if not index.isValid():
-                groups[unknown].append(row)
-                continue
-
-            book_id = model.id(index)
-            mi = model.db.new_api.get_proxy_metadata(book_id)
-            values = mi.get(field) or []
-
-            if values:
-                # Use first value
-                value = values[0]
-                groups[value].append(row)
-            else:
-                groups[unknown].append(row)
-        except (AttributeError, IndexError, KeyError, TypeError):
-            groups[unknown].append(row)
-
-    # Sort groups by name
-    sorted_groups = list(groups.items())
-    sorted_groups.sort(key=lambda x: _group_sort_key(unknown, x[0]))
-    return sorted_groups
+    return _group_books(rows, model, field, unknown, lambda x: (x or (unknown,))[0])
 
 
-def _group_books_for_datetime(rows: Iterable[int], model: BooksModel, field: str, unknown: str, formatter: Callable[[datetime], str]) -> list[tuple[str, int]]:
+def _group_books_for_datetime(rows: list[int], model: BooksModel, field: str, unknown: str, formatter: Callable[[datetime], str]) -> Groups:
     '''
     Group books for a datetime field, formatter to convert to string. Returns list of (group_name, row_indices) tuples.
     '''
-    groups = defaultdict(list)
-    for row in rows:
-        try:
-            index = model.index(row, 0)
-            if not index.isValid():
-                groups[unknown].append(row)
-                continue
-
-            book_id = model.id(index)
-            mi = model.db.new_api.get_proxy_metadata(book_id)
-            date = mi.get(field)
-
-            if not is_date_undefined(date):
-                groups[formatter(date)].append(row)
-            else:
-                groups[unknown].append(row)
-        except (AttributeError, IndexError, KeyError, TypeError):
-            groups[unknown].append(row)
-
-    # Sort groups by name
-    sorted_groups = list(groups.items())
-    sorted_groups.sort(key=lambda x: _group_sort_key(unknown, x[0]))
-    return sorted_groups
+    def getter(x: datetime) -> str:
+        return unknown if is_date_undefined(x) else formatter(x)
+    return _group_books(rows, model, field, unknown, getter)
 
 
-def group_books_by_author(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_author(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by author. Returns list of (group_name, row_indices) tuples.
     '''
     return _group_books_for_list(rows, model, 'authors', _('No Author'))
 
 
-def group_books_by_publisher(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_publisher(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by publisher. Returns list of (group_name, row_indices) tuples.
     '''
     return _group_books_for_string(rows, model, 'publisher', _('No Publisher'))
 
 
-def group_books_by_language(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_language(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by language. Returns list of (group_name, row_indices) tuples.
     '''
     return _group_books_for_list(rows, model, 'languages', _('No Language'))
 
 
-def group_books_by_series(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_series(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by series name. Returns list of (group_name, row_indices) tuples.
     '''
     return _group_books_for_string(rows, model, 'series', _('No Series'))
 
 
-def group_books_by_genre(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_genre(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by first tag (genre). Returns list of (group_name, row_indices) tuples.
     '''
     return _group_books_for_list(rows, model, 'tags', _('No Genre'))
 
 
-def group_books_by_pubdate(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_pubdate(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by publication decade. Returns list of (group_name, row_indices) tuples.
     '''
@@ -374,7 +330,7 @@ def group_books_by_pubdate(rows: Iterable[int], model: BooksModel) -> list[tuple
     return _group_books_for_datetime(rows, model, 'pubdate', _('Unknown Date'), formatter)
 
 
-def group_books_by_timestamp(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_timestamp(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by month addition. Returns list of (group_name, row_indices) tuples.
     '''
@@ -384,44 +340,27 @@ def group_books_by_timestamp(rows: Iterable[int], model: BooksModel) -> list[tup
     return _group_books_for_datetime(rows, model, 'timestamp', _('Unknown Date'), formatter)
 
 
-def group_books_by_rating(rows: Iterable[int], model: BooksModel) -> list[tuple[str, int]]:
+def group_books_by_rating(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by rating (star rating). Returns list of (group_name, row_indices) tuples.
     '''
-    groups = defaultdict(list)
-    unknown = _('No Rating')
-
-    for row in rows:
-        try:
-            index = model.index(row, 0)
-            if not index.isValid():
-                groups[unknown].append(row)
-                continue
-
-            book_id = model.id(index)
-            mi = model.db.new_api.get_proxy_metadata(book_id)
-            rating = mi.get('rating')
-
-            if rating and rating > 0:
-                groups[rating_to_stars(rating)].append(row)
-            else:
-                groups[unknown].append(row)
-        except (AttributeError, IndexError, KeyError, TypeError):
-            groups[unknown].append(row)
-
-    # Sort groups by rating (descending)
-    def sort_key(group_name):
-        if group_name == unknown:
-            return (1, 0)  # Put unrated at end
-        stars = len(group_name)  # Count star characters
-        return (0, -stars)  # Negative for descending
-
-    sorted_groups = list(groups.items())
-    sorted_groups.sort(key=lambda x: sort_key(x[0]))
-    return sorted_groups
+    unknown = _('Unrated')
+    return _group_books(rows, model, 'rating', unknown, lambda x: rating_to_stars(x) if x else unknown, reverse=True)
 
 
-def group_books(rows: Iterable[int], model: BooksModel, grouping_mode: str):
+GROUPINGS = {
+    'author': group_books_by_author,
+    'series': group_books_by_series,
+    'genre': group_books_by_genre,
+    'publisher': group_books_by_publisher,
+    'pubdate': group_books_by_pubdate,
+    'timestamp': group_books_by_timestamp,
+    'rating': group_books_by_rating,
+    'language': group_books_by_language,
+}
+
+
+def group_books(rows: list[int], model: BooksModel, grouping_mode: str) -> Groups:
     '''
     Group books according to the specified grouping mode.
     Returns list of (group_name, row_indices) tuples.
@@ -436,19 +375,6 @@ def group_books(rows: Iterable[int], model: BooksModel, grouping_mode: str):
 
 # }}}
 
-
-GROUPINGS = {
-    'none': {'name': _('None'), 'func': None},
-    '1': None,  # separator
-    'author': {'name': _('Author'), 'func': group_books_by_author},
-    'series': {'name': _('Series'), 'func': group_books_by_series},
-    'genre': {'name': _('Genre'), 'func': group_books_by_genre},
-    'publisher': {'name': _('Publisher'), 'func': group_books_by_publisher},
-    'pubdate': {'name': _('Published'), 'func': group_books_by_pubdate},
-    'timestamp': {'name': _('Date'), 'func': group_books_by_timestamp},
-    'rating': {'name': _('Rating'), 'func': group_books_by_rating},
-    'language': {'name': _('Language'), 'func': group_books_by_language},
-}
 
 # recalculate DEFAULT_SPINE_COLOR from the DEFAULT_COVER
 DEFAULT_SPINE_COLOR = extract_dominant_color(DEFAULT_COVER.copy())
