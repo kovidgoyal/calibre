@@ -1266,6 +1266,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('Running database shutdown plugins. This could take a few seconds...'))
 
         self.grid_view.shutdown()
+        self.bookshelf_view.shutdown()
         db = None
         try:
             db = self.library_view.model().db

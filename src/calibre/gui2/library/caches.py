@@ -14,8 +14,8 @@ from calibre.db.utils import ThumbnailCache as TC
 
 class ThumbnailCache(TC):
 
-    def __init__(self, max_size=1024, thumbnail_size=(100, 100), version=0):
-        TC.__init__(self, name='gui-thumbnail-cache', min_disk_cache=100, max_size=max_size,
+    def __init__(self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0):
+        TC.__init__(self, name=name, min_disk_cache=100, max_size=max_size,
                     thumbnail_size=thumbnail_size, version=version)
 
     def set_database(self, db):

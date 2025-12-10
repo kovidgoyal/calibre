@@ -20,6 +20,7 @@ from qt.core import (
     QLineEdit,
     QListView,
     QListWidget,
+    QRadioButton,
     Qt,
     QTableWidget,
     QVBoxLayout,
@@ -156,6 +157,9 @@ class Setting:
         if isinstance(self.gui_obj, QCheckBox):
             self.datatype = 'bool'
             self.gui_obj.stateChanged.connect(self.changed)
+        elif isinstance(self.gui_obj, QRadioButton):
+            self.datatype = 'bool'
+            self.gui_obj.toggled.connect(self.changed)
         elif isinstance(self.gui_obj, QAbstractSpinBox):
             self.datatype = 'number'
             self.gui_obj.valueChanged.connect(self.changed)
