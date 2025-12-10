@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
+
 from collections import deque
 from typing import NamedTuple
 
@@ -44,6 +47,10 @@ class MomentumSettings(NamedTuple):
     timer_interval_ms: int = 16  # ~60 FPS update rate
     # Time to wait after ScrollEnd to see if system momentum arrives
     momentum_detection_delay_ms: int  = 50
+    # Whether to enable momentum in the specified axis, defers to Qt handling
+    # of wheelevents when false
+    enable_x: bool = True
+    enable_y: bool = True
     # How much to scale scroll amounts by
     x_multiplier: float = 1
     y_multiplier: float = 1
@@ -336,6 +343,9 @@ class MomentumScrollMixin:
 
     def wheelEvent(self, event: QWheelEvent):
         self._ensure_momentum_scroller()
+        if (not self._momentum_scroller.settings.enable_x and event.angleDelta().x() != 0) or (
+                not self._momentum_scroller.settings.enable_y and event.angleDelta().y() != 0):
+            return super().wheelEvent(event)
         self._momentum_scroller.handle_wheel_event(event)
         event.accept()
 
@@ -343,6 +353,10 @@ class MomentumScrollMixin:
         '''Stop any ongoing momentum scrolling.'''
         if self._momentum_scroller:
             self._momentum_scroller.stop()
+
+    def update_momentum_scroll_settings(self, **kw) -> None:
+        self._ensure_momentum_scroller()
+        self._momentum_scroller.settings = self._momentum_scroller.settings._replace(**kw)
 
 
 # Demo {{{

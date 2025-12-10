@@ -591,7 +591,7 @@ class HoveredCover:
 
 
 @setup_dnd_interface
-class BookshelfView(QAbstractScrollArea, MomentumScrollMixin):
+class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     '''
     Enhanced bookshelf view displaying books as spines on shelves.
 

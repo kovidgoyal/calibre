@@ -366,9 +366,13 @@ class BooksView(TableView):  # {{{
         self.alternate_views = AlternateViews(self)
 
         for wv in self, self.pin_view:
-            if not tweaks['horizontal_scrolling_per_column']:
+            if tweaks['horizontal_scrolling_per_column']:
+                wv.update_momentum_scroll_settings(enable_x=False)
+            else:
                 wv.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
-            if not tweaks['vertical_scrolling_per_row']:
+            if tweaks['vertical_scrolling_per_row']:
+                wv.update_momentum_scroll_settings(enable_x=False)
+            else:
                 wv.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
             wv.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)

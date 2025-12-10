@@ -774,7 +774,7 @@ CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid',
 # The View {{{
 
 @setup_dnd_interface
-class GridView(QListView, MomentumScrollMixin):
+class GridView(MomentumScrollMixin, QListView):
 
     update_item = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object)
