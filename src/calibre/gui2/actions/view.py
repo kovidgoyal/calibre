@@ -63,6 +63,7 @@ class ViewAction(InterfaceAction):
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
         self.llm_action = cm('llm-book', _('Discuss selected book(s) with AI'), triggered=self.ask_ai, icon='ai.png', shortcut=False)
+        self.llm_action.setVisible(not tweaks['hide_ai_features'])
         self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), icon='viewer.png', triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)

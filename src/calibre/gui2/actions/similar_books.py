@@ -10,6 +10,7 @@ from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.startup import connect_lambda
+from calibre.utils.config import tweaks
 from calibre.utils.icu import lower as icu_lower
 
 
@@ -39,6 +40,7 @@ class SimilarBooksAction(InterfaceAction):
         ac.setObjectName('ai')
         m.addAction(ac)
         ac.triggered.connect(self.ask_ai)
+        ac.setVisible(not tweaks['hide_ai_features'])
         self.qaction.setMenu(m)
 
     def ask_ai(self):
