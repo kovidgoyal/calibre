@@ -242,7 +242,10 @@ def _group_sort_key(unknown: str, val: str) -> tuple[bool, str]:
 Groups = list[tuple[str, list[int]]]
 
 
-def _group_books(rows: list[int], model: BooksModel, field: str, unknown: str, getter: Callable[[Any], str], reverse: bool = False) -> Groups:
+def _group_books(
+    rows: list[int], model: BooksModel, field: str, unknown: str, getter: Callable[[Any], str],
+    key=None, reverse: bool = False
+) -> Groups:
     cache = model.db.new_api
     idfunc = model.db.id
     try:
@@ -258,7 +261,7 @@ def _group_books(rows: list[int], model: BooksModel, field: str, unknown: str, g
             except Exception:
                 val = unknown
             ans[val].append(row)
-    return sorted(ans.items(), reverse=reverse, key=lambda x: _group_sort_key(unknown, x[0]))
+    return sorted(ans.items(), reverse=reverse, key=key or (lambda x: _group_sort_key(unknown, x[0])))
 
 
 def _group_books_for_string(rows: list[int], model: BooksModel, field: str, unknown: str) -> Groups:
@@ -316,7 +319,7 @@ def group_books_by_genre(rows: list[int], model: BooksModel) -> Groups:
     '''
     Group books by first tag (genre). Returns list of (group_name, row_indices) tuples.
     '''
-    return _group_books_for_list(rows, model, 'tags', _('No Genre'))
+    return _group_books_for_list(rows, model, 'tags', _('No Tags'))
 
 
 def group_books_by_pubdate(rows: list[int], model: BooksModel) -> Groups:
@@ -345,18 +348,23 @@ def group_books_by_rating(rows: list[int], model: BooksModel) -> Groups:
     Group books by rating (star rating). Returns list of (group_name, row_indices) tuples.
     '''
     unknown = _('Unrated')
-    return _group_books(rows, model, 'rating', unknown, lambda x: rating_to_stars(x) if x else unknown, reverse=True)
+    unknown_sort = rating_to_stars(10) + 'z'
+    def skey(name):
+        if name == unknown:
+            return unknown_sort
+        return name
+    return _group_books(rows, model, 'rating', unknown, lambda x: rating_to_stars(x) if x else unknown, key=skey, reverse=True)
 
 
 GROUPINGS = {
-    'author': group_books_by_author,
+    'authors': group_books_by_author,
     'series': group_books_by_series,
-    'genre': group_books_by_genre,
+    'tags': group_books_by_genre,
     'publisher': group_books_by_publisher,
     'pubdate': group_books_by_pubdate,
     'timestamp': group_books_by_timestamp,
     'rating': group_books_by_rating,
-    'language': group_books_by_language,
+    'languages': group_books_by_language,
 }
 
 
@@ -365,11 +373,8 @@ def group_books(rows: list[int], model: BooksModel, grouping_mode: str) -> Group
     Group books according to the specified grouping mode.
     Returns list of (group_name, row_indices) tuples.
     '''
-    mode = GROUPINGS.get(grouping_mode)
-    if mode:
-        func = mode.get('func')
-        if func:
-            return func(rows, model)
+    if func := GROUPINGS.get(grouping_mode):
+        return func(rows, model)
     # No grouping - return single group with all rows
     return [('', rows)]
 
@@ -1853,22 +1858,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Add grouping submenu
         grouping_menu = m.addMenu(_('Group by'))
+        fm = self.gui.current_db.new_api.field_metadata
 
-        for k, v in GROUPINGS.items():
-            if not v:
-                grouping_menu.addSeparator()
-                continue
-
-            action = grouping_menu.addAction(v['name'])
+        def add(field: str, name: str) -> None:
+            action = grouping_menu.addAction(name)
             action.setCheckable(True)
-            action.setChecked(self._grouping_mode == k)
-            action.triggered.connect(partial(self._set_grouping_mode, k))
-
+            action.setChecked(self._grouping_mode == field)
+            action.triggered.connect(partial(self._set_grouping_mode, field))
+        add('none', _('Ungrouped'))
+        grouping_menu.addSeparator()
+        for k in sorted(GROUPINGS, key=lambda k: numeric_sort_key(fm[k]['name'])):
+            add(k, fm[k]['name'])
         # Add standard context menu items if available
-        if self.context_menu:
+        if cm := self.context_menu:
             m.addSeparator()
-            # Clone actions to avoid issues with menu ownership
-            for action in self.context_menu.actions():
+            for action in cm.actions():
                 m.addAction(action)
 
         m.popup(ev.globalPos())
