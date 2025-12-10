@@ -486,6 +486,8 @@ class Lookup(QTabWidget):
         self.is_visible = is_visible
         if is_visible:
             last_idx = vprefs.get('llm_lookup_tab_index', 0)
+            if last_idx == self.llm_tab_index and tweaks['hide_ai_features']:
+                last_idx = 0
             if 0 <= last_idx < self.count():
                 self.setCurrentIndex(last_idx)
             if self.llm_panel:
