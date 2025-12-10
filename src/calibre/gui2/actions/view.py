@@ -62,7 +62,9 @@ class ViewAction(InterfaceAction):
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
-        self.llm_action = cm('llm-book', _('Discuss selected book(s) with AI'), triggered=self.ask_ai, icon='ai.png', shortcut=False)
+        self.llm_action = None
+        if not tweaks['disable_ai_features']:
+            self.llm_action = cm('llm-book', _('Discuss selected book(s) with AI'), triggered=self.ask_ai, icon='ai.png', shortcut=False)
         self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), icon='viewer.png', triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
@@ -82,6 +84,8 @@ class ViewAction(InterfaceAction):
         self.build_menus(self.gui.current_db)
 
     def about_to_show_menu(self):
+        if not self.llm_action:
+            return
         from qt.core import QKeySequence
         t = self.llm_action.text().split('\t')[0]
         sc = self.gui.iactions['Discuss book with AI'].menuless_qaction.shortcut()

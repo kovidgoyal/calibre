@@ -27,6 +27,7 @@ from calibre.customize import (
 )
 from calibre.customize import InterfaceActionBase as InterfaceAction
 from calibre.customize import StoreBase as Store
+from calibre.customize.builtins import ActionLLMBook
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -34,7 +35,7 @@ from calibre.customize.zipplugin import loader
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.sources.base import Source
-from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_dir, plugin_dir
+from calibre.utils.config import Config, ConfigProxy, OptionParser, make_config_dir, plugin_dir, tweaks
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({
@@ -140,9 +141,17 @@ default_disabled_plugins = {
 
 def is_disabled(plugin_or_name):
     name = getattr(plugin_or_name, 'name', plugin_or_name)
+    if tweaks['disable_ai_features'] and is_ia_plugin(plugin_or_name):
+        return True
     if name in config['enabled_plugins']:
         return False
     return name in config['disabled_plugins'] or name in default_disabled_plugins
+
+
+def is_ia_plugin(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugin = find_plugin(x)
+    return isinstance(plugin, AIProviderPlugin) or isinstance(plugin, ActionLLMBook)
 # }}}
 
 

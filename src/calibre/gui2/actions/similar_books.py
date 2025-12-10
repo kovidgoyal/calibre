@@ -10,6 +10,7 @@ from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.startup import connect_lambda
+from calibre.utils.config import tweaks
 from calibre.utils.icu import lower as icu_lower
 
 
@@ -35,13 +36,17 @@ class SimilarBooksAction(InterfaceAction):
             ac.setObjectName(target)
             m.addAction(ac)
             connect_lambda(ac.triggered, self, lambda self: self.show_similar_books(self.gui.sender().objectName()))
-        ac = self.create_action(spec=(_('Ask AI for what to read next'), 'ai.png', None, 'Ctrl+Shift+A'), attr='ai')
-        ac.setObjectName('ai')
-        m.addAction(ac)
-        ac.triggered.connect(self.ask_ai)
+        self.llm_action = None
+        if not tweaks['disable_ai_features']:
+            self.llm_action = self.create_action(spec=(_('Ask AI for what to read next'), 'ai.png', None, 'Ctrl+Shift+A'), attr='ai')
+            self.llm_action.setObjectName('ai')
+            m.addAction(self.llm_action)
+            self.llm_action.triggered.connect(self.ask_ai)
         self.qaction.setMenu(m)
 
     def ask_ai(self):
+        if not self.llm_action:
+            return
         from calibre.gui2.dialogs.llm_book import read_next_action
         self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action())
 

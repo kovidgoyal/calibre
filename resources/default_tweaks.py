@@ -601,3 +601,9 @@ calendar_start_day_of_week = 'Default'
 # with a base language of Chinese.
 # Example: east_asian_base_language = 'ja'
 east_asian_base_language = ''
+
+
+#: Disable AI features
+# Disable all builtins AI feature in calibre and don't show their menu entries.
+# Default: False
+disable_ai_features = False

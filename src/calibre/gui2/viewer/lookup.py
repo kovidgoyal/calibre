@@ -40,6 +40,7 @@ from calibre.ebooks.metadata.sources.search_engines import google_consent_cookie
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.config import tweaks
 from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import create_script, insert_scripts, secure_webengine, setup_profile
@@ -354,9 +355,10 @@ class Lookup(QTabWidget):
         self.dictionary_panel = self._create_dictionary_panel()
         self.addTab(self.dictionary_panel, QIcon.ic('dialog_question.png'), _('&Dictionary'))
 
-        self.llm_container = QWidget(self)
-        QVBoxLayout(self.llm_container).setContentsMargins(0, 0, 0, 0)
-        self.llm_tab_index = self.addTab(self.llm_container, QIcon.ic('ai.png'), _('Ask &AI'))
+        if not tweaks['disable_ai_features']:
+            self.llm_container = QWidget(self)
+            QVBoxLayout(self.llm_container).setContentsMargins(0, 0, 0, 0)
+            self.llm_tab_index = self.addTab(self.llm_container, QIcon.ic('ai.png'), _('Ask &AI'))
 
         self.currentChanged.connect(self._tab_changed)
         set_sync_override.instance = self
