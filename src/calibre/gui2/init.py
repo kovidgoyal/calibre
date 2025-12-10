@@ -249,7 +249,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
     ignore_toggles = False
 
     def __init__(self, name: str, icon: str, label: str, view_name: str, gui: CentralContainer, shortcut=None, config_key=None):
-        LayoutButton.__init__(self, name, icon, label, gui, shortcut=shortcut)
+        super().__init__(name, icon, label, gui, shortcut=shortcut)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         self.gui = gui
@@ -304,8 +304,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
 
 class GridViewButton(AlternateViewsButtons):  # {{{
     def __init__(self, gui):
-        AlternateViewsButtons.__init__(
-            self,
+        super().__init__(
             'cover_grid',
             'grid.png',
             _('Cover grid'),
@@ -319,8 +318,7 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
     def __init__(self, gui):
-        AlternateViewsButtons.__init__(
-            self,
+        super().__init__(
             'bookshelf_view',
             'bookshelf.png',
             _('Bookshelf view'),
