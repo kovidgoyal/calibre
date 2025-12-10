@@ -43,14 +43,12 @@ from qt.core import (
     QResizeEvent,
     Qt,
     QTimer,
-    QWheelEvent,
     pyqtSignal,
     qBlue,
     qGreen,
     qRed,
 )
 
-from calibre.constants import islinux
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
@@ -58,6 +56,7 @@ from calibre.gui2 import gprefs, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import setup_dnd_interface
 from calibre.gui2.library.caches import ThumbnailCache
 from calibre.gui2.library.models import BooksModel
+from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.utils import join_with_timeout
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import numeric_sort_key
@@ -592,7 +591,7 @@ class HoveredCover:
 
 
 @setup_dnd_interface
-class BookshelfView(QAbstractScrollArea):
+class BookshelfView(QAbstractScrollArea, MomentumScrollMixin):
     '''
     Enhanced bookshelf view displaying books as spines on shelves.
 
@@ -632,7 +631,7 @@ class BookshelfView(QAbstractScrollArea):
     DIVIDER_GRADIENT_LINE_2.setAlphaF(0.75)  # Visible in middle
 
     def __init__(self, parent):
-        QAbstractScrollArea.__init__(self, parent)
+        super().__init__(parent)
         from calibre.gui2.ui import get_gui
         self.gui = get_gui()
         self._model: BooksModel = None
@@ -2184,20 +2183,6 @@ class BookshelfView(QAbstractScrollArea):
         if self._current_row >= 0 and self._model:
             return self._model.index(self._current_row, 0)
         return QModelIndex()
-
-    def wheelEvent(self, ev: QWheelEvent):
-        '''Handle wheel events for scrolling.'''
-        number_of_pixels = ev.pixelDelta()
-        number_of_degrees = ev.angleDelta() / 8.0
-        b = self.verticalScrollBar()
-        if number_of_pixels.isNull() or islinux:
-            dy = number_of_degrees.y() / 15.0
-            dy = int((dy) * b.singleStep() / 2.0)
-        else:
-            dy = number_of_pixels.y()
-        if abs(dy) > 0:
-            b.setValue(b.value() - dy)
-        ev.accept()
 
     # setup_dnd_interface
     # handled in viewportEvent()

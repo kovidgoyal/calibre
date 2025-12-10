@@ -25,9 +25,10 @@ from calibre.gui2.library.delegates import (
     SeriesDelegate,
     TextDelegate,
 )
+from calibre.gui2.momentum_scroll import MomentumScrollMixin
 
 
-class TableView(QTableView):
+class TableView(QTableView, MomentumScrollMixin):
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior

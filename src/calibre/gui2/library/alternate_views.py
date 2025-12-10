@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools
-import math
 import operator
 import os
 import weakref
@@ -65,6 +64,7 @@ from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.gui2.library.models import themed_icon_name
+from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
@@ -774,7 +774,7 @@ CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid',
 # The View {{{
 
 @setup_dnd_interface
-class GridView(QListView):
+class GridView(QListView, MomentumScrollMixin):
 
     update_item = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object)
@@ -783,6 +783,7 @@ class GridView(QListView):
     def __init__(self, parent):
         QListView.__init__(self, parent)
         self.shift_click_start_data = None
+        self.accumulated_scroll_degrees = 0
         self.dbref = lambda: None
         self._ncols = None
         self.gesture_manager = GestureManager(self)
@@ -1393,22 +1394,6 @@ class GridView(QListView):
                                     ) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super().selectionCommand(index, event)
-
-    def wheelEvent(self, ev):
-        if ev.phase() not in (Qt.ScrollPhase.ScrollUpdate, Qt.ScrollPhase.NoScrollPhase, Qt.ScrollPhase.ScrollMomentum):
-            return
-        number_of_pixels = ev.pixelDelta()
-        number_of_degrees = ev.angleDelta() / 8.0
-        b = self.verticalScrollBar()
-        if number_of_pixels.isNull() or islinux:
-            # pixelDelta() is broken on linux with wheel mice
-            dy = number_of_degrees.y() / 15.0
-            # Scroll by approximately half a row
-            dy = math.ceil((dy) * b.singleStep() / 2.0)
-        else:
-            dy = number_of_pixels.y()
-        if abs(dy) > 0:
-            b.setValue(b.value() - dy)
 
     def paintEvent(self, ev):
         dpr = self.device_pixel_ratio
