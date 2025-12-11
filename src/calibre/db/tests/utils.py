@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 import shutil
+import tempfile
 
 from calibre import walk
 from calibre.db.tests.base import BaseTest
@@ -15,7 +16,7 @@ from calibre.db.utils import ThumbnailCache
 class UtilsTest(BaseTest):
 
     def setUp(self):
-        self.tdir = self.mkdtemp()
+        self.tdir = tempfile.mkdtemp(prefix='db_test_')
 
     def tearDown(self):
         shutil.rmtree(self.tdir)
