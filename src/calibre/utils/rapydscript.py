@@ -515,24 +515,45 @@ def compile_srv():
 # Translations {{{
 
 def create_pot(source_files):
-    c = compiler()
-    gettext_options = json.dumps({
+    global has_external_compiler
+    if has_external_compiler is None:
+        has_external_compiler = detect_external_compiler()
+    gettext_options = {
         'package_name': __appname__,
         'package_version': __version__,
         'bugs_address': 'https://bugs.launchpad.net/calibre'
-    })
-    c.eval(f'window.catalog = {{}}; window.gettext_options = {gettext_options}; 1')
-    for fname in source_files:
-        with open(fname, 'rb') as f:
-            code = f.read().decode('utf-8')
-        c.eval('RapydScript.gettext_parse(window.catalog, {}, {}); 1'.format(*map(json.dumps, (code, fname))))
+    }
+    if not has_external_compiler:
+        c = compiler()
+        c.eval(f'window.catalog = {{}}; window.gettext_options = {json.dumps(gettext_options)}; 1')
+        for fname in source_files:
+            with open(fname, 'rb') as f:
+                code = f.read().decode('utf-8')
+            c.eval('RapydScript.gettext_parse(window.catalog, {}, {}); 1'.format(*map(json.dumps, (code, fname))))
 
-    buf = c.eval('ans = []; RapydScript.gettext_output(window.catalog, window.gettext_options, ans.push.bind(ans)); ans;')
-    return ''.join(buf)
+        buf = c.eval('ans = []; RapydScript.gettext_output(window.catalog, window.gettext_options, ans.push.bind(ans)); ans;')
+        return ''.join(buf)
+    cp = subprocess.run([
+        has_external_compiler, 'gettext', '--package-name', gettext_options['package_name'],
+        '--package-version', gettext_options['package_version'], '--bugs-address', gettext_options['bugs_address'],
+    ] + list(source_files), capture_output=True)
+    if cp.returncode != 0:
+        sys.stderr.write(cp.stderr)
+        raise SystemExit(cp.returncode)
+    return cp.stdout.decode().strip()
 
 
 def msgfmt(po_data_as_string):
-    c = compiler()
-    return c.eval('RapydScript.msgfmt({}, {})'.format(
-        json.dumps(po_data_as_string), json.dumps({'use_fuzzy': False})))
+    global has_external_compiler
+    if has_external_compiler is None:
+        has_external_compiler = detect_external_compiler()
+    if not has_external_compiler:
+        c = compiler()
+        return c.eval('RapydScript.msgfmt({}, {})'.format(
+            json.dumps(po_data_as_string), json.dumps({'use_fuzzy': False})))
+    cp = subprocess.run([has_external_compiler, 'msgfmt'], input=po_data_as_string.encode(), capture_output=True)
+    if cp.returncode != 0:
+        sys.stderr.write(cp.stderr)
+        raise SystemExit(cp.returncode)
+    return cp.stdout.decode().strip()
 # }}}
