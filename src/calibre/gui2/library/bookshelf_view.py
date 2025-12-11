@@ -198,21 +198,6 @@ def extract_dominant_color(image: Image) -> QColor:
     return QColor(dominant_color[0], dominant_color[1], dominant_color[2])
 
 
-def get_cover_color(book_id, db) -> QColor:
-    '''
-    Get the dominant color from a book's cover. Returns a QColor.
-    '''
-    color = None
-    has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
-    if has_cover and cdata:
-        color = extract_dominant_color(cdata)
-
-    if color and color.isValid():
-        return color
-
-    return DEFAULT_SPINE_COLOR
-
-
 def generate_spine_thumbnail(image: Image, width: int, height: int) -> Image:
     '''
     Generate a thumbnail for display on the spine. Returns a PIL.Image.
