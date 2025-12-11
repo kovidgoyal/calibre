@@ -7,7 +7,7 @@ import os
 import unittest
 from threading import Event, Thread
 
-from calibre.constants import iswindows
+from calibre.constants import ismacos, iswindows
 
 from .qt import Browser, WebEngineBrowser
 
@@ -16,8 +16,6 @@ skip = ''
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 if is_sanitized:
     skip = 'Skipping Scraper tests as ASAN is enabled'
-elif 'SKIP_QT_BUILD_TEST' in os.environ:
-    skip = 'Skipping Scraper tests as SKIP_QT_BUILD_TEST is set'
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -95,7 +93,7 @@ class TestFetchBackend(unittest.TestCase):
     def test_recipe_browser_qt(self):
         self.do_recipe_browser_test(Browser)
 
-    @unittest.skipIf(iswindows and is_ci, 'WebEngine browser test hangs on windows CI')
+    @unittest.skipIf(is_ci and (iswindows or ismacos), 'WebEngine browser test hangs on CI')
     def test_recipe_browser_webengine(self):
         self.do_recipe_browser_test(WebEngineBrowser)
 

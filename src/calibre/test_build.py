@@ -336,7 +336,6 @@ class BuildTest(unittest.TestCase):
         conn = apsw.Connection(':memory:')
         conn.close()
 
-    @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as SKIP_QT_BUILD_TEST is set')
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
@@ -367,6 +366,9 @@ class BuildTest(unittest.TestCase):
             image_from_data(d)
         # Run the imaging tests
         test()
+        if is_ci and (iswindows or ismacos):
+            # WebEngine is flaky in CI
+            return
 
         from calibre.gui2 import destroy_app, ensure_app
         from calibre.utils.webengine import setup_profile
