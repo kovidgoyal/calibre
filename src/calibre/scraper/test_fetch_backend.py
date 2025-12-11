@@ -17,7 +17,7 @@ is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 if is_sanitized:
     skip = 'Skipping Scraper tests as ASAN is enabled'
 elif 'SKIP_QT_BUILD_TEST' in os.environ:
-    skip = 'Skipping Scraper tests as it causes crashes in macOS VM'
+    skip = 'Skipping Scraper tests as SKIP_QT_BUILD_TEST is set'
 
 
 class Handler(http.server.BaseHTTPRequestHandler):

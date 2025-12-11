@@ -336,7 +336,7 @@ class BuildTest(unittest.TestCase):
         conn = apsw.Connection(':memory:')
         conn.close()
 
-    @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
+    @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as SKIP_QT_BUILD_TEST is set')
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
