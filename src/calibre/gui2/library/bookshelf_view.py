@@ -2,10 +2,10 @@
 # License: GPLv3
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
-
 import hashlib
 import math
 import os
+import sys
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 from contextlib import suppress
@@ -426,7 +426,7 @@ class HoveredCover:
     def __init__(self):
         self.row = -1  # Currently hovered book row
         self.book_id = -1  # Currently hovered book id
-        self.pixmap: QPixmap = None  # Scaled cover for hover popup
+        self.pixmap: QPixmap = QPixmap()  # Scaled cover for hover popup
         self.progress = 0.0  # Animation progress (0.0 to 1.0)
         self.opacity = self.OPACITY_START  # Current opacity (0.3 to 1.0)
         self.shift = 0.0  # Current state of the shift animation (0.0 to 1.0)
@@ -448,7 +448,7 @@ class HoveredCover:
 
     def has_pixmap(self) -> bool:
         '''Test if contain a valid pixmap.'''
-        return bool(self.pixmap) and not self.pixmap.isNull()
+        return not self.pixmap.isNull()
 
     def is_row(self, row: int) -> bool:
         '''Test if the given row is the one of the hovered cover.'''
@@ -546,12 +546,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     DIVIDER_GRADIENT_LINE_1.setAlphaF(0.0)  # Transparent at top/bottom
     DIVIDER_GRADIENT_LINE_2.setAlphaF(0.75)  # Visible in middle
 
-    def __init__(self, parent):
-        super().__init__(parent)
-        from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
-        self._model: BooksModel = None
-        self.context_menu: QMenu = None
+    def __init__(self, gui):
+        super().__init__(gui)
+        self.gui = gui
+        self._model: BooksModel | None = None
+        self.context_menu: QMenu | None = None
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -706,23 +705,24 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.render_queue.put(None)
         self.thumbnail_cache.shutdown()
 
-    def setModel(self, model):
+    def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
-        if self._model:
-            # Disconnect old model signals if needed
-            pass
+        signals = {
+            'dataChanged': '_model_data_changed', 'rowsInserted': '_model_rows_changed',
+            'rowsRemoved': '_model_rows_changed', 'modelReset': '_model_reset',
+        }
+        if self._model is not None:
+            for s, tgt in signals.items():
+                getattr(self._model, s).disconnect(getattr(self, tgt))
         self._model = model
-        if model:
+        self._selection_model = None
+        if model is not None:
             # Create selection model for sync
             self._selection_model = QItemSelectionModel(model, self)
-            model.dataChanged.connect(self._model_data_changed)
-            model.rowsInserted.connect(self._model_rows_changed)
-            model.rowsRemoved.connect(self._model_rows_changed)
-            model.modelReset.connect(self._model_reset)
-        else:
-            self._selection_model = None
+            for s, tgt in signals.items():
+                getattr(self._model, s).connect(getattr(self, tgt))
 
-    def model(self) -> BooksModel:
+    def model(self) -> BooksModel | None:
         '''Return the model.'''
         return self._model
 
@@ -744,14 +744,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def dbref(self) -> Cache:
         '''Return the current database.'''
-        return self._model.db.new_api
+        if m := self.model():
+            return m.db.new_api
+        return self.gui.current_db.new_api
 
-    def book_id_from_row(self, row: int) -> int:
+    def book_id_from_row(self, row: int) -> int | None:
         '''Return the book id at this row.'''
-        index = self._model.index(row, 0)
-        if not index.isValid():
-            return None
-        return self._model.id(index)
+        if m := self.model():
+            index = m.index(row, 0)
+            if index.isValid():
+                return m.id(index)
+        return None
 
     def resizeEvent(self, ev: QResizeEvent):
         '''Handle resize events.'''
@@ -772,12 +775,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def _get_flattened_items(self) -> list[tuple[str, int]]:
         '''Get a list (row, group_name) tuples of the items.'''
         # Get all rows and group them, then flatten for inline rendering
-        row_count = self._model.rowCount(QModelIndex())
+        m = self.model()
+        if m is None:
+            return []
+        row_count = m.rowCount(QModelIndex())
         if row_count == 0:
             return []
 
         all_rows = list(range(row_count))
-        groups = group_books(all_rows, self._model, self._grouping_mode)
+        groups = group_books(all_rows, m, self._grouping_mode)
 
         # Flatten groups for inline rendering
         flattened_items = []
@@ -1484,8 +1490,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                    otherwise None.
         '''
         db = self.dbref()
-        if db is None:
-            return None
         tc = self.thumbnail_cache
         cdata, timestamp = tc[book_id]  # None, None if not cached.
         if timestamp is None:
@@ -1619,43 +1623,45 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Sort by a named field.'''
         if isinstance(order, Qt.SortOrder):
             order = order == Qt.SortOrder.AscendingOrder
-        self._model.sort_by_named_field(field, order, reset)
-        self.update_viewport()
+        if m := self.model():
+            m.sort_by_named_field(field, order, reset)
+            self.update_viewport()
 
     def reverse_sort(self):
         '''Reverse the current sort order.'''
-        m = self.model()
-        try:
-            sort_col, order = m.sorted_on
-        except (TypeError, AttributeError):
-            sort_col, order = 'date', True
-        self.sort_by_named_field(sort_col, not order)
+        if m := self.model():
+            try:
+                sort_col, order = m.sorted_on
+            except (TypeError, AttributeError):
+                sort_col, order = 'date', True
+            self.sort_by_named_field(sort_col, not order)
 
     def resort(self):
         '''Re-apply the current sort.'''
-        self._model.resort(reset=True)
-        self.update_viewport()
+        if m := self.model():
+            m.resort(reset=True)
+            self.update_viewport()
 
     def intelligent_sort(self, field: str, ascending: bool | Qt.SortOrder):
         '''Smart sort that toggles if already sorted on that field.'''
         if isinstance(ascending, Qt.SortOrder):
             ascending = ascending == Qt.SortOrder.AscendingOrder
-        m = self.model()
-        pname = 'previous_sort_order_' + self.__class__.__name__
-        previous = gprefs.get(pname, {})
-        try:
-            current_field = m.sorted_on[0]
-        except (TypeError, AttributeError):
-            current_field = None
+        if m := self.model():
+            pname = 'previous_sort_order_' + self.__class__.__name__
+            previous = gprefs.get(pname, {})
+            try:
+                current_field = m.sorted_on[0]
+            except (TypeError, AttributeError):
+                current_field = None
 
-        if field == current_field or field not in previous:
-            self.sort_by_named_field(field, ascending)
-            previous[field] = ascending
-            gprefs[pname] = previous
-        else:
-            previous[current_field] = m.sorted_on[1] if hasattr(m, 'sorted_on') else True
-            gprefs[pname] = previous
-            self.sort_by_named_field(field, previous.get(field, True))
+            if field == current_field or field not in previous:
+                self.sort_by_named_field(field, ascending)
+                previous[field] = ascending
+                gprefs[pname] = previous
+            else:
+                previous[current_field] = m.sorted_on[1] if hasattr(m, 'sorted_on') else True
+                gprefs[pname] = previous
+                self.sort_by_named_field(field, previous.get(field, True))
 
     def multisort(self, fields: Iterable[str], reset=True, only_if_different=False):
         '''Sort on multiple columns.'''
@@ -1675,9 +1681,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Set the current row.'''
         if not self._selection_model:
             return
-        if 0 <= row < self._model.rowCount(QModelIndex()):
+        if (m := self.model()) and 0 <= row < m.rowCount(QModelIndex()):
             self._current_row = row
-            index = self._model.index(row, 0)
+            index = m.index(row, 0)
             if index.isValid():
                 self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
             self.update_viewport()
@@ -1691,14 +1697,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             rows: List of row indices or book IDs
             using_ids: If True, rows contains book IDs; if False, rows contains row indices
         '''
-        if not self._selection_model:
+        m = self.model()
+        if not self._selection_model or not m:
             return
 
         # Convert book IDs to row indices if needed
         if using_ids:
             row_indices = []
             for book_id in rows:
-                row = self._model.db.data.id_to_index(book_id)
+                row = m.db.data.id_to_index(book_id)
                 if row >= 0:
                     row_indices.append(row)
             rows = row_indices
@@ -1709,13 +1716,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Update selection model
             selection = QItemSelection()
             for row in rows:
-                index = self._model.index(row, 0)
+                index = m.index(row, 0)
                 if index.isValid():
                     selection.select(index, index)
             self._selection_model.select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             # Set current index
             if self._current_row >= 0:
-                current_index = self._model.index(self._current_row, 0)
+                current_index = m.index(self._current_row, 0)
                 if current_index.isValid():
                     self._selection_model.setCurrentIndex(current_index, QItemSelectionModel.SelectionFlag.NoUpdate)
         else:
@@ -1739,8 +1746,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Clear caches when database changes
             self.color_cache.clear()
             self.template_inited = False
-            with suppress(AttributeError):
-                self.model().db.new_api.remove_cover_cache(self.thumbnail_cache)
+            if (m := self.model()) and m.db is not None:
+                m.db.new_api.remove_cover_cache(self.thumbnail_cache)
             newdb.new_api.add_cover_cache(self.thumbnail_cache)
             # This must be done here so the UUID in the cache is changed when libraries are switched.
             self.thumbnail_cache.set_database(newdb)
@@ -1750,7 +1757,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 # rendered, but this is better than a deadlock
                 join_with_timeout(self.render_queue)
             except RuntimeError:
-                print('Cover rendering thread is stuck!')
+                print('Cover rendering thread is stuck!', file=sys.stderr)
 
     def set_context_menu(self, menu: QMenu):
         '''Set the context menu.'''
@@ -1795,16 +1802,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def current_book_state(self) -> int:
         '''Get current book state for restoration.'''
-        if self._current_row >= 0 and self._model:
+        if self._current_row >= 0 and self.model():
             return self.book_id_from_row(self._current_row)
-        return None
+        return 0
 
     def restore_current_book_state(self, state: int):
         '''Restore current book state.'''
-        if not state:
+        m = self.model()
+        if not state or not m:
             return
         book_id = state
-        row = self._model.db.data.id_to_index(book_id)
+        row = m.db.data.id_to_index(book_id)
         self.set_current_row(row)
         self.select_rows([row])
 
@@ -1815,7 +1823,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def indices_for_merge(self, resolved=True):
         '''Get indices for merge operations.'''
-        return [self._model.index(row, 0) for row in self._selected_rows]
+        m = self.model()
+        if not m:
+            return []
+        return [m.index(row, 0) for row in self._selected_rows]
 
     # Mouse and keyboard events
 
@@ -1850,6 +1861,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Handle mouse press events on the viewport.'''
         # Get position in viewport coordinates
         pos = ev.pos()
+        m = self.model()
+        if not m:
+            return False
 
         # Find which book was clicked (pass viewport coordinates, method will handle scroll)
         row = self._book_at_position(pos.x(), pos.y())
@@ -1860,14 +1874,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 if row in self._selected_rows:
                     self._selected_rows.discard(row)
                     if self._selection_model:
-                        index = self._model.index(row, 0)
+                        index = m.index(row, 0)
                         if index.isValid():
                             self._selection_model.select(index, QItemSelectionModel.SelectionFlag.Deselect)
                 else:
                     self._selected_rows.add(row)
                     self._current_row = row
                     if self._selection_model:
-                        index = self._model.index(row, 0)
+                        index = m.index(row, 0)
                         if index.isValid():
                             self._selection_model.select(index, QItemSelectionModel.SelectionFlag.Select)
                             self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
@@ -1884,11 +1898,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 if self._selection_model:
                     selection = QItemSelection()
                     for r in self._selected_rows:
-                        idx = self._model.index(r, 0)
+                        idx = m.index(r, 0)
                         if idx.isValid():
                             selection.select(idx, idx)
                     self._selection_model.select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-                    current_index = self._model.index(self._current_row, 0)
+                    current_index = m.index(self._current_row, 0)
                     if current_index.isValid():
                         self._selection_model.setCurrentIndex(current_index, QItemSelectionModel.SelectionFlag.NoUpdate)
             else:
@@ -1897,7 +1911,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 self._current_row = row
                 # Update selection model
                 if self._selection_model:
-                    index = self._model.index(row, 0)
+                    index = m.index(row, 0)
                     if index.isValid():
                         self._selection_model.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                         self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
@@ -1935,12 +1949,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def _main_current_changed(self, current, previous):
         '''Handle current row change from main library view.'''
-        if self._syncing_from_main:
+        m = self.model()
+        if self._syncing_from_main or not m:
             return
 
         if current.isValid():
             row = current.row()
-            if 0 <= row < self._model.rowCount(QModelIndex()):
+            if 0 <= row < m.rowCount(QModelIndex()):
                 self._syncing_from_main = True
                 self.set_current_row(row)
                 self._syncing_from_main = False
@@ -1973,7 +1988,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
 
         library_view = self.gui.library_view
-        if self._current_row >= 0 and self._model:
+        if self._current_row >= 0 and self.model():
             # Get book ID from current row
             book_id = self.book_id_from_row(self._current_row)
             # Select in library view
@@ -2009,14 +2024,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Return the model index at the given position (required for drag/drop).
         pos is a QPoint in viewport coordinates.'''
         row = self._book_at_position(pos.x(), pos.y())
-        if row >= 0 and self._model:
-            return self._model.index(row, 0)
+        if row >= 0 and (m := self.model()):
+            return m.index(row, 0)
         return QModelIndex()
 
     def currentIndex(self) -> QModelIndex:
         '''Return the current model index (required for drag/drop).'''
-        if self._current_row >= 0 and self._model:
-            return self._model.index(self._current_row, 0)
+        if self._current_row >= 0 and (m := self.model()):
+            return m.index(self._current_row, 0)
         return QModelIndex()
 
     # setup_dnd_interface
