@@ -597,7 +597,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.color_cache: dict[int, QColor] = {}  # Cache for cover colors (book_id -> QColor)
 
         # Configuration
-        self._grouping_mode = 'none'
+        self._grouping_mode = ''
         self.refresh_settings()
 
         # Cover template caching
@@ -764,7 +764,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def _get_left_margin(self):
         '''Get left margin for the shelf layouts.'''
         # Remove left margin when books are grouped (replaced by divider)
-        return 2 if self._grouping_mode != 'none' else 12
+        return 2 if self._grouping_mode else 12
 
     def _get_available_width(self):
         '''Get the maximum available width for the shelf layouts.'''
@@ -864,7 +864,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Account for divider when group changes
             offset = 0
             divider = None
-            if self._grouping_mode != 'none' and group_name != last_group_name:
+            if self._grouping_mode and group_name != last_group_name:
                 divider = ShelfItemTuple(
                     divider=True, pos_x=shelf_width + offset, width=self.DIVIDER_WIDTH, group_name=group_name, is_star=self._grouping_mode=='rating',
                 )
@@ -1741,7 +1741,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def set_database(self, newdb, stage=0):
         '''Set the database.'''
-        self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', 'none')
+        self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
+        if self._grouping_mode == 'none':  # old stored value
+            self._grouping_mode = ''
         if stage == 0:
             # Clear caches when database changes
             self.color_cache.clear()
@@ -1777,7 +1779,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             action.setCheckable(True)
             action.setChecked(self._grouping_mode == field)
             action.triggered.connect(partial(self._set_grouping_mode, field))
-        add('none', _('Ungrouped'))
+        add('', _('Ungrouped'))
         grouping_menu.addSeparator()
         for k in sorted(GROUPINGS, key=lambda k: numeric_sort_key(fm[k]['name'])):
             add(k, fm[k]['name'])
