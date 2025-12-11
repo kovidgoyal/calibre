@@ -103,9 +103,9 @@ def normalised_size(size_bytes: int) -> float:
     # Average ebook: ~1-2KB per page, so estimate pages from size
     if size_bytes and size_bytes > 0:
         # Estimate: ~1500 bytes per page (conservative)
-        estimated_pages = max(50, size_bytes // 1500)
-        # Cap at reasonable max
-        return min(estimated_pages, 2000) / 2000.
+        estimated_pages = size_bytes // 1500
+        # Normalise the value
+        return min(estimated_pages / 2000, 1)
     return 0.
 
 
@@ -1565,42 +1565,28 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         db = self.dbref()
         self.init_template(db)
 
-        def frac(f: float):
+        def linear(f: float):
             return self.SPINE_WIDTH_MIN + int(max(0, min(f, 1)) * (self.SPINE_WIDTH_MAX - self.SPINE_WIDTH_MIN))
-
-        def choice(choice: float) -> int:
-            choice = max(0, min(choice, 7))
-            if choice <= 1:
-                ans = self.SPINE_WIDTH_MIN + 3 * choice
-            elif choice <= 2:
-                ans = self.SPINE_WIDTH_MIN + 3 + 4 * (choice - 1)
-            elif choice <= 3:
-                ans = self.SPINE_WIDTH_MIN + 7 + 6 * (choice - 2)
-            elif choice <= 4:
-                ans = self.SPINE_WIDTH_MIN + 13 + 7 * (choice - 3)
-            elif choice <= 5:
-                ans = self.SPINE_WIDTH_MIN + 20 + 8 * (choice - 4)
-            elif choice <= 6:
-                ans = self.SPINE_WIDTH_MIN + 28 + 7 * (choice - 5)
-            elif choice <= 7:
-                ans = self.SPINE_WIDTH_MIN + 35 + 10 * (choice - 6)
-            return min(ans, self.SPINE_WIDTH_MAX)
+        def log(f: float):
+            b = 100
+            return linear(math.log(1+max(0, min(f, 1))*b, b+1))
 
         match self.size_template:
             case '':
                 return self.SPINE_WIDTH_DEFAULT
             case '{size}' | 'size':
-                return frac(normalised_size(db.field_for('size', book_id, 0)))
+                return log(normalised_size(db.field_for('size', book_id, 0)))
             case '{random}' | 'random':
-                return choice(book_id & 7)
+                # range: 0.25-0.75
+                return linear((25+pseudo_random(book_id, 50))/100)
             case _:
                 with suppress(Exception):
-                    if 0 <= (x := float(self.size_template)) <= 7:
-                        return choice(x)
+                    if 0 <= (x := float(self.size_template)) <= 1:
+                        return linear(x)
                 with suppress(Exception):
                     mi = db.get_proxy_metadata(book_id)
                     rslt = mi.formatter.safe_format(self.template_pages, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
-                    return choice(float(rslt))
+                    return linear(float(rslt))
         return self.SPINE_WIDTH_DEFAULT
 
     def _get_height_modifier(self, book_id: int) -> int:

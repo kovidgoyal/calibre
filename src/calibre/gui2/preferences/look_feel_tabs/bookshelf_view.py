@@ -46,11 +46,11 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         )
         self.opt_bookshelf_spine_size_template.setToolTip(_('''
 <p>The template used to calculate a width for the displayed spine.
-The template must evaluate to a number between 0 and 7, which will be used to set the width of the books spine.
+The template must evaluate to a decimal number between 0.0 and 1.0, which will be used to set the width of the books spine.
 An empty template means a fixed spine size for all books.
 The special template {0} uses the book size to estimate a spine size.
 The special template {1} uses a random size.
-You can also use the numbers between 0 and 7 to pick a fixed size.
+You can also use a number between 0.0 and 1.0 to pick a fixed size.
 <p>
 Note that this setting is per-library, which means that you have to set it again for every
 different calibre library you use.</p>''').format('{size}', '{random}'))
@@ -89,26 +89,14 @@ different calibre library you use.</p>''').format('{size}', '{random}'))
             template = f'''\
 python:
 def evaluate(book, context):
+    import math
     val = book.get({key!r})
     try:
-        pages = max(0, int(float(val)))
+        pages = max(0, int(val))
     except Exception:
-        return '3.5'
-    if pages <= 20:
-        return str(pages/20)
-    if pages <= 50:
-        return str(1 + (pages-20)/30)
-    if pages <= 100:
-        return str(2 + (pages-50)/50)
-    if pages <= 200:
-        return str(3 + (pages-100)/100)
-    if pages <= 350:
-        return str(4 + (pages-200)/150)
-    if pages <= 500:
-        return str(4 + (pages-200)/150)
-    if pages <= 750:
-        return str(5 + (pages-500)/250)
-    return str(min(6 + (pages - 750) / 187.5, 7))
+        return '0.56'
+    base = 100
+    return str(math.log(1+max(0, min(pages/15), base), base+1)
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
 
