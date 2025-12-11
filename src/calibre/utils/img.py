@@ -8,7 +8,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from contextlib import suppress
 from io import BytesIO
 from threading import Thread
 
@@ -106,9 +105,8 @@ def gif_data_to_png_data(data, discard_animation=False):
 # Loading images {{{
 
 def set_image_allocation_limit(size_in_mb=1024):
-    with suppress(ImportError):  # for people running form source
-        from calibre_extensions.progress_indicator import set_image_allocation_limit as impl
-        impl(size_in_mb)
+    from calibre_extensions.progress_indicator import set_image_allocation_limit as impl
+    impl(size_in_mb)
 
 
 def null_image():
