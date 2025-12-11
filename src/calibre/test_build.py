@@ -366,9 +366,6 @@ class BuildTest(unittest.TestCase):
             image_from_data(d)
         # Run the imaging tests
         test()
-        if is_ci and (iswindows or ismacos):
-            # WebEngine is flaky in CI
-            return
 
         from calibre.gui2 import destroy_app, ensure_app
         from calibre.utils.webengine import setup_profile
@@ -394,6 +391,9 @@ class BuildTest(unittest.TestCase):
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
             self.assertTrue(QSslSocket.availableBackends(), 'Qt tls plugins missings')
+            if is_ci and (iswindows or ismacos):
+                # WebEngine is flaky in CI
+                return
             p = QWebEnginePage()
             setup_profile(p.profile())
 
