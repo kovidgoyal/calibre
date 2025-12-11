@@ -380,7 +380,9 @@ class BuildTest(unittest.TestCase):
                 available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
                 self.assertTrue(available_tts_engines)
 
-                QMediaDevices.audioOutputs()
+                if not islinux or is_ci:
+                    # On some Linux systems this hangs when using the headless backend
+                    QMediaDevices.audioOutputs()
 
             from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
             img = rasterize_svg(as_qimage=True)
