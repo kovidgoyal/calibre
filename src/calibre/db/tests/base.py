@@ -9,11 +9,11 @@ import gc
 import os
 import shutil
 import tempfile
-import time
 import unittest
 from functools import partial
 from io import BytesIO
 
+from calibre.constants import iswindows
 from calibre.utils.resources import get_image_path as I
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
@@ -41,10 +41,11 @@ class BaseTest(unittest.TestCase):
             try:
                 shutil.rmtree(x)
             except OSError:
-                # Try again in case something transient has a file lock on windows
-                gc.collect(), gc.collect()
-                time.sleep(2)
-                shutil.rmtree(x)
+                if iswindows:
+                    import atexit
+                    atexit.register(shutil.rmtree, x)
+                else:
+                    raise
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
