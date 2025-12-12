@@ -36,7 +36,7 @@ class ThumbnailCache(TC):
 T = TypeVar('T')
 
 
-class CoverCache(MutableMapping[int, T]):
+class RAMCache(MutableMapping[int, T]):
     '''
     This is a RAM cache to speed up rendering of covers by storing them as
     QPixmaps. It is possible that it is called from multiple threads, thus the
@@ -105,6 +105,8 @@ class CoverCache(MutableMapping[int, T]):
             if current_thread() is not self.gui_thread:
                 pixmaps = (x for x in self.items.values() if x is not None)
                 self.pixmap_staging.extend(pixmaps)
+            else:
+                self.pixmap_staging = []
             self.items.clear()
 
     def set_limit(self, limit):
@@ -176,7 +178,7 @@ class ThumbnailRenderer(QObject):
     def emit_rendered(self, book_id: int, thumb: QPixmap) -> None:
         self.rendered.emit(book_id, thumb)
 
-    def __init__(self, disk_cache: ThumbnailCache, ram_cache: CoverCache, thumbnailer: Thumbnailer, parent: QObject):
+    def __init__(self, disk_cache: ThumbnailCache, ram_cache: RAMCache, thumbnailer: Thumbnailer, parent: QObject):
         super().__init__(parent)
         self.dbref = lambda: None
         self.thumbnailer = thumbnailer
@@ -292,20 +294,24 @@ class ThumbnailRenderer(QObject):
         except RuntimeError:
             print('Cover rendering thread is stuck!', file=sys.stderr)
 
+    def invalidate(self, book_ids: Iterable[int]) -> None:
+        if not isinstance(book_ids, (tuple, set, frozenset, list, dict)):
+            book_ids = tuple(book_ids)
+        self.ram_cache.invalidate(book_ids)
+        self.disk_cache.invalidate(book_ids)
+
     def set_database(self, db):
         self.current_library_id = db.new_api.library_id
         self.ignore_render_requests.set()
         try:
             olddb = self.dbref()
             if olddb is not None:
-                olddb.remove_cover_cache(self.disk_cache)
-                olddb.remove_cover_cache(self.ram_cache)
+                olddb.remove_cover_cache(self)
             if db is None:
                 self.dbref = lambda: None
             else:
                 self.dbref = weakref.ref(db.new_api)
-                db.new_api.add_cover_cache(self.disk_cache)
-                db.new_api.add_cover_cache(self.ram_cache)
+                db.new_api.add_cover_cache(self)
         finally:
             self.ignore_render_requests.clear()
             self.join_with_timeout()
@@ -362,8 +368,11 @@ class ThumbnailRenderer(QObject):
     def set_disk_cache_max_size(self, size_in_mb: float) -> None:
         self.disk_cache.set_size(size_in_mb)
 
+    def set_ram_limit(self, num_entries: int) -> None:
+        self.ram_cache.set_limit(num_entries)
 
-class CombinedCoverCache(QObject):
+
+class CoverThumbnailCache(QObject):
 
     rendered = pyqtSignal(int, object)
 
@@ -374,7 +383,7 @@ class CombinedCoverCache(QObject):
         super().__init__(parent)
         self.renderer = ThumbnailRenderer(
             ThumbnailCache(max_size=max_size, thumbnail_size=thumbnail_size, name=name, version=version),
-            CoverCache(limit=ram_limit), thumbnailer or Thumbnailer(), self
+            RAMCache(limit=ram_limit), thumbnailer or Thumbnailer(), self
         )
         self.renderer.rendered.connect(self.rendered)
 
@@ -386,6 +395,9 @@ class CombinedCoverCache(QObject):
 
     def set_disk_cache_max_size(self, size_in_mb: float) -> None:
         self.renderer.set_disk_cache_max_size(size_in_mb)
+
+    def set_ram_limit(self, num_entries: int) -> None:
+        self.renderer.set_ram_limit(num_entries)
 
     def shutdown(self) -> None:
         self.renderer.shutdown()
@@ -413,7 +425,7 @@ class ThumbnailerForTest(Thumbnailer):
 
 class ThumbnailRendererForTest(ThumbnailRenderer):
     def __init__(self, tdir):
-        super().__init__(ThumbnailCache(thumbnail_size=(5, 5), location=tdir), CoverCache(), ThumbnailerForTest(), None)
+        super().__init__(ThumbnailCache(thumbnail_size=(5, 5), location=tdir), RAMCache(), ThumbnailerForTest(), None)
         self.signal_queue = Queue()
         self.rendered_items = []
 
@@ -482,6 +494,7 @@ def run_test(self, t: ThumbnailRendererForTest):
     self.assertIsNone(t.cached_or_none(1))
     ac(1, Qt.GlobalColor.red)
     self.assertIsNotNone(t.cached_or_none(1))
+    self.assertFalse(t.ram_cache.pixmap_staging)
     t.ram_cache.clear()
     self.assertIsNotNone(t.cached_or_none(1))
     for q in (2, 3):

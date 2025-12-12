@@ -62,7 +62,7 @@ from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
-from calibre.gui2.library.caches import CoverCache, ThumbnailCache
+from calibre.gui2.library.caches import RAMCache, ThumbnailCache
 from calibre.gui2.library.models import themed_icon_name
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.pin_columns import PinContainer
@@ -458,7 +458,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.animation.setEasingCurve(QEasingCurve.Type.OutInCirc)
         self.animation.setDuration(500)
         self.set_dimensions()
-        self.cover_cache = CoverCache()
+        self.cover_cache = RAMCache()
         self.render_queue = LifoQueue()
         self.animating = None
         self.highlight_color = QColor(Qt.GlobalColor.white)
@@ -1133,12 +1133,12 @@ class GridView(MomentumScrollMixin, QListView):
             thumb = thumb.convert('RGBA')
         # Return the thumbnail, which is either None or a PIL Image. If not None
         # the image will be converted to a QPixmap on the GUI thread. Putting
-        # None into the CoverCache ensures re-rendering won't try again.
+        # None into the RAMCache ensures re-rendering won't try again.
         return thumb
 
     def re_render(self, book_id, thumb):
         # This is called on the GUI thread when a cover thumbnail is not in the
-        # CoverCache. The parameter "thumb" is either None if there is no cover
+        # RAMCache. The parameter "thumb" is either None if there is no cover
         # or a PIL Image of the thumbnail.
         if thumb is not None:
             # Convert the image to a QPixmap
