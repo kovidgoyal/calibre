@@ -1562,7 +1562,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         def linear(f: float):
             return self.SPINE_WIDTH_MIN + int(max(0, min(f, 1)) * (self.SPINE_WIDTH_MAX - self.SPINE_WIDTH_MIN))
         def log(f: float):
-            b = 100
+            b = 10
             return linear(math.log(1+max(0, min(f, 1))*b, b+1))
 
         match self.size_template:
@@ -1579,7 +1579,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                         return linear(x)
                 with suppress(Exception):
                     mi = db.get_proxy_metadata(book_id)
-                    rslt = mi.formatter.safe_format(self.template_pages, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
+                    rslt = mi.formatter.safe_format(self.size_template, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
                     return linear(float(rslt))
         return self.SPINE_WIDTH_DEFAULT
 

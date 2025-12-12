@@ -94,9 +94,9 @@ def evaluate(book, context):
     try:
         pages = max(0, int(val))
     except Exception:
-        return '0.56'
-    base = 100
-    return str(math.log(1+max(0, min(pages/15), base), base+1)
+        return '0.40'
+    base = 10
+    return str(math.log(1+max(0, min(pages/150, base)), base+1))
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
 
