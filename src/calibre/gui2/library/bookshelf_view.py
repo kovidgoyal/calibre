@@ -603,9 +603,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Cover template caching
         self.template_inited = False
         self.template_cache = {}
-        self.template_title_error_reported = False
-        self.template_statue_error_reported = False
-        self.template_pages_error_reported = False
         self.template_title = ''
         self.template_statue = ''
         self.size_template = '{size}'
@@ -626,9 +623,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return prefs.get(key, prefs.defaults.get(key))
 
         self.template_cache = {}
-        self.template_title_error_reported = False
-        self.template_statue_error_reported = False
-        self.template_pages_error_reported = False
         self.rules_color = db_pref('bookshelf_color_rules') or []
         self.template_title = db_pref('bookshelf_title_template') or ''
         self.size_template = (db_pref('bookshelf_spine_size_template') or '').strip()
@@ -1568,7 +1562,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         def linear(f: float):
             return self.SPINE_WIDTH_MIN + int(max(0, min(f, 1)) * (self.SPINE_WIDTH_MAX - self.SPINE_WIDTH_MIN))
         def log(f: float):
-            b = 100
+            b = 10
             return linear(math.log(1+max(0, min(f, 1))*b, b+1))
 
         match self.size_template:
@@ -1585,7 +1579,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                         return linear(x)
                 with suppress(Exception):
                     mi = db.get_proxy_metadata(book_id)
-                    rslt = mi.formatter.safe_format(self.template_pages, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
+                    rslt = mi.formatter.safe_format(self.size_template, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
                     return linear(float(rslt))
         return self.SPINE_WIDTH_DEFAULT
 
