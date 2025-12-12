@@ -305,7 +305,7 @@ class MomentumScroller:
             h_bar.setValue(h_bar.value() - int(scroll_x * self.settings.x_multiplier))
 
         if scroll_y != 0 and v_bar:
-            v_bar.setValue(v_bar.value() - int(scroll_y * self.settings.x_multiplier))
+            v_bar.setValue(v_bar.value() - int(scroll_y * self.settings.y_multiplier))
 
     def _stop_momentum(self):
         '''Stop momentum and reset state.'''
