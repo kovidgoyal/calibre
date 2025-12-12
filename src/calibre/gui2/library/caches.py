@@ -97,9 +97,6 @@ class RAMCache(MutableMapping[int, T]):
         with self.lock:
             return len(self.items)
 
-    def __hash__(self) -> int:  # needed to be able to store this object in a set, used by db.Cache
-        return id(self)
-
     def clear(self) -> None:
         with self.lock:
             if current_thread() is not self.gui_thread:
