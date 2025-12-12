@@ -399,10 +399,12 @@ class ThumbnailCache:
         if size_in_mb <= self.min_disk_cache:
             size_in_mb = 0
         size_in_mb = max(0, size_in_mb)
+        new_size = int(size_in_mb * (1024**2))
         with self.lock:
-            self.max_size = int(size_in_mb * (1024**2))
-            if hasattr(self, 'total_size'):
-                self._apply_size()
+            if new_size != self.max_size:
+                self.max_size = new_size
+                if hasattr(self, 'total_size'):
+                    self._apply_size()
 
 
 number_separators = None

@@ -1794,6 +1794,7 @@ class DB:
         return True, data, stat.st_mtime
 
     def cover_timestamp(self, path: str) -> float | None:
+        path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         try:
             stat = os.stat(path)
         except OSError:
