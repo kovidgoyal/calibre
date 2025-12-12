@@ -39,12 +39,12 @@ class ScrollSample(NamedTuple):
 
 class MomentumSettings(NamedTuple):
     # Deceleration factor (0-1, higher = longer coast)
-    friction: float = 0.94
+    friction: float = 0.95
     min_velocity: float = 0.5  # Minimum velocity before stopping
     max_velocity: float = 100   # maximum velocity to prevent runaway scrolling
     boost_factor: float = 2  # how much of new swipe velocity to add
     velocity_scale: float = 0.8  # Scale factor for initial velocity
-    timer_interval_ms: int = 16  # ~60 FPS update rate
+    timer_interval_ms: int = int(1000/120)  # 120 FPS update rate
     # Time to wait after ScrollEnd to see if system momentum arrives
     momentum_detection_delay_ms: int  = 50
     # Whether to enable momentum in the specified axis, defers to Qt handling
