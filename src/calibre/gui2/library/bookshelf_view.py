@@ -603,9 +603,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Cover template caching
         self.template_inited = False
         self.template_cache = {}
-        self.template_title_error_reported = False
-        self.template_statue_error_reported = False
-        self.template_pages_error_reported = False
         self.template_title = ''
         self.template_statue = ''
         self.size_template = '{size}'
@@ -626,9 +623,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return prefs.get(key, prefs.defaults.get(key))
 
         self.template_cache = {}
-        self.template_title_error_reported = False
-        self.template_statue_error_reported = False
-        self.template_pages_error_reported = False
         self.rules_color = db_pref('bookshelf_color_rules') or []
         self.template_title = db_pref('bookshelf_title_template') or ''
         self.size_template = (db_pref('bookshelf_spine_size_template') or '').strip()
