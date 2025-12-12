@@ -1140,7 +1140,6 @@ class GridView(MomentumScrollMixin, QListView):
         # This is called on the GUI thread when a cover thumbnail is not in the
         # CoverCache. The parameter "thumb" is either None if there is no cover
         # or a PIL Image of the thumbnail.
-        self.delegate.cover_cache.clear_staging()
         if thumb is not None:
             # Convert the image to a QPixmap
             thumb = convert_PIL_image_to_pixmap(thumb, self.device_pixel_ratio)

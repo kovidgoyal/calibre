@@ -954,3 +954,7 @@ def evaluate(book, ctx):
         unload_user_template_functions('aaaaa')
         self.assertEqual(set(v.split(',')), {'Tag One', 'News', 'Tag Two', 'one argument'})
     # }}}
+
+    def test_cover_cache(self):
+        from calibre.gui2.library.caches import test_cover_cache
+        test_cover_cache(self)

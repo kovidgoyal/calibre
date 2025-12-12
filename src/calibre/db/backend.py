@@ -16,6 +16,7 @@ import sys
 import time
 import uuid
 from contextlib import closing, suppress
+from datetime import datetime
 from functools import partial
 
 import apsw
@@ -1724,7 +1725,7 @@ class DB:
                 self.move_book_files_to_trash(book_id, paths, metadata_map[book_id])
         return removed_map
 
-    def cover_last_modified(self, path):
+    def cover_last_modified(self, path) -> datetime | None:
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         try:
             return utcfromtimestamp(os.stat(path).st_mtime)
@@ -1791,6 +1792,13 @@ class DB:
             else:
                 data = f.read()
         return True, data, stat.st_mtime
+
+    def cover_timestamp(self, path: str) -> float | None:
+        try:
+            stat = os.stat(path)
+        except OSError:
+            return None
+        return stat.st_mtime
 
     def compress_covers(self, path_map, jpeg_quality, progress_callback):
         cpath_map = {}
