@@ -39,11 +39,11 @@ class ScrollSample(NamedTuple):
 
 class MomentumSettings(NamedTuple):
     # Deceleration factor (0-1, higher = longer coast)
-    friction: float = 0.95
+    friction: float = 0.96
     min_velocity: float = 0.5  # Minimum velocity before stopping
-    max_velocity: float = 100   # maximum velocity to prevent runaway scrolling
-    boost_factor: float = 2  # how much of new swipe velocity to add
-    velocity_scale: float = 0.8  # Scale factor for initial velocity
+    max_velocity: float = 100  # maximum velocity to prevent runaway scrolling
+    boost_factor: float = 1.2  # how much to speed up scrolling
+    velocity_scale: float = 0.9  # Scale factor for initial velocity
     timer_interval_ms: int = int(1000/120)  # 120 FPS update rate
     # Time to wait after ScrollEnd to see if system momentum arrives
     momentum_detection_delay_ms: int  = 50
@@ -107,22 +107,20 @@ class MomentumScroller:
         Returns True if the event was handled.
         '''
         dx, dy = self._get_delta(event)
+        dx *= self.settings.boost_factor
+        dy *= self.settings.boost_factor
         current_time = self.elapsed_timer.elapsed()
 
         match event.phase():
             case Qt.ScrollPhase.NoScrollPhase:
                 # Record sample
                 self.samples.append(ScrollSample(dx, dy, current_time))
-
-                # Calculate current velocity
-                self._accumulate_velocity_from_samples(current_time)
-
                 # Apply immediate scroll
                 self._do_scroll(dx, dy)
-
                 # Reset momentum timer - will start coasting after input stops
                 self.momentum_timer.stop()
                 self.momentum_timer.start(self.settings.timer_interval_ms)
+                self._last_scroll_end_time = current_time
 
             case Qt.ScrollPhase.ScrollBegin:
                 # User started a new scroll gesture
@@ -145,17 +143,13 @@ class MomentumScroller:
                 self._in_scroll_gesture = False
                 self._last_scroll_end_time = current_time
 
-                # Calculate new gesture velocity and combine with existing
-                self._accumulate_velocity_from_samples(current_time)
-
                 if not self.seen_momentum_event:
-                    if max(abs(self.velocity_x), abs(self.velocity_y)) > self.settings.min_velocity:
-                        if self.synthetic_momentum_already_used:
-                            self.start_momentum_timer()
-                        else:
-                            # Wait briefly to see if system momentum events arrive
-                            # If they do, we'll use those; if not, we synthesize
-                            self.momentum_detection_timer.start(self.settings.momentum_detection_delay_ms)
+                    if self.synthetic_momentum_already_used:
+                        self.start_momentum_timer()
+                    else:
+                        # Wait briefly to see if system momentum events arrive
+                        # If they do, we'll use those; if not, we synthesize
+                        self.momentum_detection_timer.start(self.settings.momentum_detection_delay_ms)
 
             case Qt.ScrollPhase.ScrollMomentum:
                 # System-provided momentum (macOS)
@@ -174,10 +168,10 @@ class MomentumScroller:
         if not self.seen_momentum_event:
             self.synthetic_momentum_already_used = True
             self.start_momentum_timer()
+            self._update_momentum()
 
     def start_momentum_timer(self):
-        if max(abs(self.velocity_x), abs(self.velocity_y)) > self.settings.min_velocity:
-            self.momentum_timer.start(self.settings.timer_interval_ms)
+        self.momentum_timer.start(self.settings.timer_interval_ms)
 
     def _get_delta(self, event: QWheelEvent) -> tuple[float, float]:
         '''Extract scroll delta from wheel event.'''
@@ -232,41 +226,38 @@ class MomentumScroller:
         m = self.settings.max_velocity
         return max(-m, min(velocity, m))
 
-    def _accumulate_velocity_from_samples(self, current_time:  int):
+    def _accumulate_velocity_from_samples(self) -> None:
         '''
         Calculate velocity from recent scroll samples and add to existing velocity.
 
         This creates the cumulative effect where repeated swipes increase speed.
         '''
-        self._trim_old_samples(current_time)
-
+        if not self.samples:
+            return
+        self._trim_old_samples(self._last_scroll_end_time)
         if not self.samples:
             return
 
         # Calculate new gesture velocity
         new_vx, new_vy = self._calculate_gesture_velocity()
+        self.samples.clear()
 
         # Check direction compatibility and accumulate
         # Same direction: add velocities
         # Opposite direction: new velocity takes over
         if same_sign(self.velocity_x, new_vx):
-            self.velocity_x = self._clamp_velocity(self.velocity_x + new_vx * self.settings.boost_factor)
+            self.velocity_x = self._clamp_velocity(self.velocity_x + new_vx)
         else:
             self.velocity_x = new_vx
 
         if same_sign(self.velocity_y, new_vy):
-            self.velocity_y = self._clamp_velocity(self.velocity_y + new_vy * self.settings.boost_factor)
+            self.velocity_y = self._clamp_velocity(self.velocity_y + new_vy)
         else:
             self.velocity_y = new_vy
 
     def _update_momentum(self):
         '''Called by timer to apply synthetic momentum scrolling.'''
-        # For discrete events, check if we're still receiving input
-        if self.samples:
-            time_since_last = self.elapsed_timer.elapsed() - self.samples[-1].timestamp
-            if time_since_last < self.settings.timer_interval_ms * 2:
-                # Still receiving wheel events, don't apply momentum yet
-                return
+        self._accumulate_velocity_from_samples()
 
         # Apply friction
         self.velocity_x *= self.settings.friction
