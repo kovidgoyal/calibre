@@ -114,9 +114,6 @@ class MomentumScroller:
                 # Record sample
                 self.samples.append(ScrollSample(dx, dy, current_time))
 
-                # Trim old samples
-                self._trim_old_samples(current_time)
-
                 # Calculate current velocity
                 self._accumulate_velocity_from_samples(current_time)
 
