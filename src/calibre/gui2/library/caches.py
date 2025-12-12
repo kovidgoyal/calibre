@@ -457,7 +457,9 @@ def run_test(self, t: ThumbnailRendererForTest):
     cimg.fill(Qt.GlobalColor.green)
     db.set_cover({2: cimg})
     cimg.fill(Qt.GlobalColor.blue)
+    self.assertIsNone(db.cover_timestamp(3))
     db.set_cover({3: cimg})
+    self.assertIsNotNone(db.cover_timestamp(3))
     ae = self.assertEqual
 
     def set_database(legacy):
