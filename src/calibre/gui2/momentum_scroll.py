@@ -38,8 +38,8 @@ class ScrollSample(NamedTuple):
 
 
 class MomentumSettings(NamedTuple):
-    # Deceleration factor (0-1, higher = longer coast)
-    friction: float = 0.96
+    # Deceleration factor (0-1, lower = longer coast)
+    friction: float = 0.04
     min_velocity: float = 0.5  # Minimum velocity before stopping
     max_velocity: float = 100  # maximum velocity to prevent runaway scrolling
     boost_factor: float = 1.2  # how much to speed up scrolling
@@ -260,8 +260,9 @@ class MomentumScroller:
         self._accumulate_velocity_from_samples()
 
         # Apply friction
-        self.velocity_x *= self.settings.friction
-        self.velocity_y *= self.settings.friction
+        f = 1 - max(0, min(self.settings.friction, 1))
+        self.velocity_x *= f
+        self.velocity_y *= f
 
         # Check if we should stop
         if max(abs(self.velocity_x), abs(self.velocity_y)) < self.settings.min_velocity:
@@ -390,8 +391,8 @@ if __name__ == '__main__':
             friction_row = QHBoxLayout()
             friction_row.addWidget(QLabel('Friction:'))
             self.friction_slider = QSlider(Qt.Orientation.Horizontal)
-            self.friction_slider.setRange(80, 99)
-            self.friction_slider.setValue(92)
+            self.friction_slider.setRange(0, 100)
+            self.friction_slider.setValue(int(MomentumSettings.friction * 100))
             self.friction_slider.valueChanged.connect(self._update_friction)
             friction_row.addWidget(self.friction_slider)
             self.friction_label = QLabel('0.92')
@@ -415,8 +416,8 @@ if __name__ == '__main__':
             layout.addWidget(tuning_box)
 
         def _update_friction(self, value):
-            friction = value / 100.0
-            self.friction_label.setText(f'{friction:.2f}')
+            friction = value / 100
+            self.friction_label.setText(f'{friction:value}%')
             if self.list_view._momentum_scroller:
                 self.list_view._momentum_scroller.settings = self.list_view._momentum_scroller.settings._replace(friction=friction)
 
