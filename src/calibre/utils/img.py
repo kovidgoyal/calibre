@@ -158,7 +158,10 @@ def image_and_format_from_data(data):
     buf.open(QIODevice.OpenModeFlag.ReadOnly)
     r = QImageReader(buf)
     fmt = bytes(r.format()).decode('utf-8')
-    return r.read(), fmt
+    ans = r.read()
+    buf.close()
+    del r
+    return ans, fmt
 # }}}
 
 
