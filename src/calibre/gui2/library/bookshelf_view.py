@@ -697,7 +697,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def shutdown(self):
         self.thumbnail_cache.shutdown()
         self.render_queue.put(None)
-        self.thumbnail_cache.shutdown()
 
     def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
