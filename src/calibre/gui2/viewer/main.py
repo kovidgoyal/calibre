@@ -7,7 +7,7 @@ import os
 import sys
 from contextlib import closing
 
-from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
+from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal, sip
 
 from calibre.constants import VIEWER_APP_UID, islinux, ismacos
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
@@ -172,6 +172,12 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
         main.set_full_screen(True)
 
     app.exec()
+    sip.delete(main)
+    sip.delete(app)
+    del main
+    del app
+    import gc
+    gc.collect(), gc.collect()
 
 
 def main(args=sys.argv):
