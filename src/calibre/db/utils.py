@@ -109,14 +109,14 @@ class ThumbnailCache:
     ' This is a persistent disk cache to speed up loading and resizing of covers '
 
     def __init__(self,
-                 max_size=1024,  # The maximum disk space in MB
-                 name='thumbnail-cache',  # The name of this cache (should be unique in location)
-                 thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
-                 location=None,   # The location for this cache, if None cache_dir() is used
-                 test_mode=False,  # Used for testing
-                 min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
-                 version=0  # Increase this if the cache content format might have changed.
-                 ):
+        max_size=1024,  # The maximum disk space in MB
+        name='thumbnail-cache',  # The name of this cache (should be unique in location)
+        thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
+        location=None,   # The location for this cache, if None cache_dir() is used
+        test_mode=False,  # Used for testing
+        min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
+        version=0  # Increase this if the cache content format might have changed.
+    ):
         self.version = version
         self.location = os.path.join(location or cache_dir(), name)
         if max_size <= min_disk_cache:
@@ -247,15 +247,6 @@ class ThumbnailCache:
             self._do_delete(entry.path)
             self.total_size -= entry.size
 
-    def _write_order(self):
-        if hasattr(self, 'items'):
-            try:
-                data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in self.items)
-                with open(os.path.join(self.location, 'order'), 'wb') as f:
-                    f.write(data.encode('utf-8'))
-            except OSError as err:
-                self.log('Failed to save thumbnail cache order:', as_unicode(err))
-
     def _read_order(self):
         order = {}
         try:
@@ -271,7 +262,14 @@ class ThumbnailCache:
 
     def shutdown(self):
         with self.lock:
-            self._write_order()
+            if (items := getattr(self, 'items', None)) is not None:
+                del self.items
+                try:
+                    data = '\n'.join(group_id + ' ' + str(book_id) for (group_id, book_id) in items)
+                    with open(os.path.join(self.location, 'order'), 'wb') as f:
+                        f.write(data.encode('utf-8'))
+                except OSError as err:
+                    self.log('Failed to save thumbnail cache order:', as_unicode(err))
 
     def set_group_id(self, group_id):
         with self.lock:
@@ -401,10 +399,12 @@ class ThumbnailCache:
         if size_in_mb <= self.min_disk_cache:
             size_in_mb = 0
         size_in_mb = max(0, size_in_mb)
+        new_size = int(size_in_mb * (1024**2))
         with self.lock:
-            self.max_size = int(size_in_mb * (1024**2))
-            if hasattr(self, 'total_size'):
-                self._apply_size()
+            if new_size != self.max_size:
+                self.max_size = new_size
+                if hasattr(self, 'total_size'):
+                    self._apply_size()
 
 
 number_separators = None

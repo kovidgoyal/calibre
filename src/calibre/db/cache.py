@@ -16,6 +16,7 @@ import weakref
 from collections import defaultdict
 from collections.abc import Iterable, Iterator, MutableSet, Set
 from contextlib import contextmanager
+from datetime import datetime
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue
@@ -1194,12 +1195,20 @@ class Cache:
         return self.backend.cover_or_cache(path, timestamp, as_what)
 
     @read_api
-    def cover_last_modified(self, book_id):
+    def cover_last_modified(self, book_id: int) -> datetime | None:
         try:
             path = self._get_book_path(book_id)
         except (AttributeError, KeyError):
             return
         return self.backend.cover_last_modified(path)
+
+    @read_api
+    def cover_timestamp(self, book_id: int) -> float | None:
+        try:
+            path = self._get_book_path(book_id)
+        except (AttributeError, KeyError):
+            return
+        return self.backend.cover_timestamp(path)
 
     @read_api
     def copy_cover_to(self, book_id, dest, use_hardlink=False, report_file_size=None):

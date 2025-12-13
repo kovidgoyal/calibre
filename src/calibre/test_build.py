@@ -336,7 +336,6 @@ class BuildTest(unittest.TestCase):
         conn = apsw.Connection(':memory:')
         conn.close()
 
-    @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
@@ -357,7 +356,7 @@ class BuildTest(unittest.TestCase):
         # hard-coded paths of the Qt installation should work. If they do not,
         # then it is a distro problem.
         fmts = {x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()}  # no2to3
-        testf = {'jpg', 'png', 'svg', 'ico', 'gif', 'webp'}
+        testf = {'jpg', 'png', 'svg', 'ico', 'gif', 'webp', 'ppm'}
         self.assertEqual(testf.intersection(fmts), testf, f"Qt doesn't seem to be able to load some of its image plugins. Available plugins: {fmts}")
         data = P('images/blank.png', allow_user_override=False, data=True)
         img = image_from_data(data)
@@ -381,7 +380,9 @@ class BuildTest(unittest.TestCase):
                 available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
                 self.assertTrue(available_tts_engines)
 
-                QMediaDevices.audioOutputs()
+                if not islinux or is_ci:
+                    # On some Linux systems this hangs when using the headless backend
+                    QMediaDevices.audioOutputs()
 
             from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
             img = rasterize_svg(as_qimage=True)
@@ -392,6 +393,9 @@ class BuildTest(unittest.TestCase):
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
             self.assertTrue(QSslSocket.availableBackends(), 'Qt tls plugins missings')
+            if is_ci and (iswindows or ismacos):
+                # WebEngine is flaky in CI
+                return
             p = QWebEnginePage()
             setup_profile(p.profile())
 

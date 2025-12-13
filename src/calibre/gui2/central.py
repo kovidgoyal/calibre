@@ -182,8 +182,14 @@ class LayoutButton(QToolButton):
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
                 ev.accept()
                 return
-            tab_name = {'book_details':'book_details', 'cover_grid':'cover_grid', 'cover_browser':'cover_browser',
-                        'tag_browser':'tag_browser', 'quick_view':'quickview'}.get(self.name)
+            tab_name = {
+                'book_details':'book_details',
+                'cover_grid':'cover_grid',
+                'bookshelf_view':'bookshelf_view',
+                'cover_browser':'cover_browser',
+                'tag_browser':'tag_browser',
+                'quick_view':'quickview',
+            }.get(self.name)
             if tab_name:
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
@@ -520,6 +526,8 @@ class CentralContainer(QWidget):
 
     def set_visibility_of(self, which, visible):
         was_visible = getattr(self.is_visible, which)
+        if visible == was_visible:
+            return
         setattr(self.is_visible, which, visible)
         if not was_visible:
             if self.layout is Layout.wide:

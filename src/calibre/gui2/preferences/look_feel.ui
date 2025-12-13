@@ -37,6 +37,15 @@
        <string>Cover &amp;grid</string>
       </attribute>
      </widget>
+     <widget class="BookshelfTab" name="bookshelf_tab">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/bookshelf.png</normaloff>:/images/bookshelf.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>&amp;Bookshelf view</string>
+      </attribute>
+     </widget>
      <widget class="BookDetailsTab" name="book_details_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
@@ -155,6 +164,11 @@
    <class>CoverGridTab</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs/cover_grid.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BookshelfTab</class>
+   <extends>ConfigWidgetBase</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs/bookshelf_view.h</header>
   </customwidget>
   <customwidget>
    <class>BookDetailsTab</class>
