@@ -663,7 +663,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._enable_thumbnail = gprefs['bookshelf_thumbnail']
         self._enable_centered = gprefs['bookshelf_centered']
         self._enable_variable_height = gprefs['bookshelf_variable_height']
-        self._hover_shift = gprefs['bookshelf_hover_shift']
+        self._hover_shift = gprefs['bookshelf_hover'] == 'shift'
         HoveredCover.FADE_TIME = gprefs['bookshelf_fade_time']
         self.thumbnail_cache.set_size(gprefs['bookshelf_view_cache_size'])
         self.set_color()
@@ -697,7 +697,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def shutdown(self):
         self.thumbnail_cache.shutdown()
         self.render_queue.put(None)
-        self.thumbnail_cache.shutdown()
 
     def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
