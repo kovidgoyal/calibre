@@ -16,8 +16,9 @@ class AdvancedUserRecipe1716097549(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://logonoid.com/images/vox-logo.png'
     remove_empty_feeds = True
-    auto_cleanup   = True
     ignore_duplicate_articles = {'title', 'url'}
+    scale_news_images = 600, 800
+    compress_news_images = True
 
     feeds          = [
         ('All Articles', 'https://www.vox.com/rss/index.xml'),
