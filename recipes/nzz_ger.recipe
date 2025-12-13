@@ -21,6 +21,8 @@ class Nzz(BasicNewsRecipe):
 
     scale_news_images = (600, 400)
     scale_news_images_to_device = True
+    compress_news_images = True
+    compress_news_images_max_size = 50
 
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Neue_Z%C3%BCrcher_Zeitung.svg/800px-Neue_Z%C3%BCrcher_Zeitung.svg.png'
 
@@ -43,8 +45,8 @@ class Nzz(BasicNewsRecipe):
 
     # Center and reduce the size of images and image captions.
     extra_css = '''
-        img { display: block; margin: auto; width: 50%; height: auto; }
         div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+        img { display: block; margin: auto; width: 75%; height: auto; }
     '''
 
     remove_attributes = ['style', 'font', 'class']
@@ -122,6 +124,12 @@ class Nzz(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
+        # Delete images whose parent <div> is of class '.rounded-full'.
+        for img_tag in soup.findAll('img'):
+            if img_tag.find_parent('div', class_='rounded-full'):
+                self.log.debug('Removing suspected commentary profile pic from inside <div class="rounded-full">.')
+                img_tag.decompose()
+
         # Fix lazy-loading images.
         for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split()[0]
