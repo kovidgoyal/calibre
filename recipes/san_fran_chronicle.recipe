@@ -6,20 +6,20 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 sfgate.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class SanFranciscoChronicle(BasicNewsRecipe):
     title = u'San Francisco Chronicle'
-    __author__ = u'Darko Miletic and Sujata Raman'
+    __author__ = u'Kovid Goyal'
     description = u'San Francisco news'
     language = 'en_US'
 
     oldest_article = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 20
     no_stylesheets = True
     use_embedded_content = False
-    auto_cleanup = True
+    delay = 1
 
     extra_css       = '''
                         h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
@@ -32,14 +32,37 @@ class SanFranciscoChronicle(BasicNewsRecipe):
                         .dtlcomment{font-style:italic;}
                         .georgia h3{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#000000;}
                      '''
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(**classes('package')),
+    ]
+    remove_tags = [
+        dict(id=['badge-logo', 'everlit-auto-audio-widget']),
+        dict(name='svg'),
+        dict(attrs={'data-eid': lambda x: x and (
+            'news_alert_bar' in x or 'card' in x or 'mostPopular' in x or 'dynamic_thumbnail_list' in x)}),
+        dict(href=lambda x: x and 'california-mini-crossword' in x),
+        dict(attrs={'data-block-type': 'embed'}),
+        dict(name='img', width='1'),
+    ]
 
     feeds = [
-        (u'Bay Area News', u'http://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
-        (u'City Insider', u'http://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
-        (u'Crime Scene', u'http://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
+        (u'Bay Area News', u'https://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
+        (u'City Insider', u'https://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
+        (u'Crime Scene', u'https://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
         (u'Education News',
-         u'http://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
-        (u'National News', u'http://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
-        (u'Weird News', u'http://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
-        (u'World News', u'http://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
+         u'https://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
+        (u'National News', u'https://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
+        (u'Weird News', u'https://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
+        (u'World News', u'https://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
     ]
+
+    def preprocess_html(self, soup):
+        for picture in soup.find_all('picture'):
+            img = picture.find('img')
+            if img:
+                for i, source in enumerate(picture.find_all('source')):
+                    if i == 0:
+                        img['src'] = source['srcset'].split()[0]
+                    source.extract()
+        return soup
