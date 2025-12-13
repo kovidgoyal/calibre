@@ -242,7 +242,7 @@ def main():
         # WebEngine is flaky in macOS CI so install rapydscript so bootstrap wont fail
         npm = 'npm.cmd' if iswindows else 'npm'
         run(npm, 'install', 'rapydscript-ng')
-        root = subprocess.check_output(['npm', 'root']).decode().strip()
+        root = subprocess.check_output([npm, 'root']).decode().strip()
         with open(os.environ['GITHUB_PATH'], 'a') as f:
             print(os.path.abspath(os.path.join(root, '.bin')), file=f)
 
