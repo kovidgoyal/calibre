@@ -107,7 +107,7 @@
     <item row="20" column="1" colspan="2">
      <widget class="QRadioButton" name="opt_bookshelf_hover_shift">
       <property name="text">
-       <string>&amp;Shift the others books on the row</string>
+       <string>&amp;Shift the other books on the row</string>
       </property>
      </widget>
     </item>
