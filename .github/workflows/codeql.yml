@@ -51,6 +51,11 @@ jobs:
               languages: ${{ matrix.language }}
               trap-caching: false
 
+        - name: Setup node.js for rapydscript
+          uses: actions/setup-node@v6
+          with:
+            node-version: "latest"
+
         - name: Install calibre dependencies
           if: matrix.language == 'c'
           run:

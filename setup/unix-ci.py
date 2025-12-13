@@ -237,17 +237,21 @@ def check_dependencies() -> None:
 
 def main():
     action = sys.argv[1]
-    if iswindows:
-        import runpy
-        m = runpy.run_path('setup/win-ci.py')
-        return m['main']()
+
     if action == 'install':
         # WebEngine is flaky in macOS CI so install rapydscript so bootstrap wont fail
-        run('npm', 'install', 'rapydscript-ng')
+        npm = 'npm.cmd' if iswindows else 'npm'
+        run(npm, 'install', 'rapydscript-ng')
         root = subprocess.check_output(['npm', 'root']).decode().strip()
         with open(os.environ['GITHUB_PATH'], 'a') as f:
             print(os.path.abspath(os.path.join(root, '.bin')), file=f)
 
+    if iswindows:
+        import runpy
+        m = runpy.run_path('setup/win-ci.py')
+        return m['main']()
+
+    if action == 'install':
         install_bundle()
         if not ismacos:
             install_linux_deps()
