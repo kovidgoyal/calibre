@@ -21,6 +21,8 @@ class Nzz(BasicNewsRecipe):
 
     scale_news_images = (600, 400)
     scale_news_images_to_device = True
+    compress_news_images = True
+    compress_news_images_max_size = 50
 
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Neue_Z%C3%BCrcher_Zeitung.svg/800px-Neue_Z%C3%BCrcher_Zeitung.svg.png'
 
@@ -29,11 +31,15 @@ class Nzz(BasicNewsRecipe):
     remove_tags = [
         dict(name='div', attrs={'class': 'progressbar__wrapper'}),               # Reading progress.
         dict(name='div', attrs={'class': 'headline__meta'}),                     # Article meta data.
+        dict(name='div', attrs={'class': 'items-start'}),                        # Article meta data.
         dict(name='span', attrs={'class': 'image-description__author-single'}),  # Photo accreditation.
         dict(name='span', attrs={'data-nzz-tid': 'image-description-author'}),   # Photo accreditation.
         dict(name='div', attrs={'class': 'disabled-overlay'}),                   # "Please enable Javascript".
         dict(name='section', attrs={'id': 'content-table'}),                     # Table of contents.
         dict(name='div', attrs={'componenttype': 'articlelist'}),                # Article list inside the article.
+        dict(name='svg'),                                                        # Checkmark images.
+        dict(name='div', attrs={'componenttype': 'advertisement'}),              # Ads.
+        dict(name='div', attrs={'componenttype': 'alias-teaser-embed'}),         # Embedded teasers.
     ]
 
     remove_tags_after = [
@@ -43,8 +49,8 @@ class Nzz(BasicNewsRecipe):
 
     # Center and reduce the size of images and image captions.
     extra_css = '''
-        img { display: block; margin: auto; width: 50%; height: auto; }
         div.calibre-nuked-tag-figure { font-size: small; text-align: center; }
+        img { display: block; margin: auto; width: 75%; height: auto; }
     '''
 
     remove_attributes = ['style', 'font', 'class']
@@ -122,6 +128,12 @@ class Nzz(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
+        # Delete images whose parent <div> is of class '.rounded-full'.
+        for img_tag in soup.findAll('img'):
+            if img_tag.find_parent('div', class_='rounded-full'):
+                self.log.debug('Removing suspected commentary profile pic from inside <div class="rounded-full">.')
+                img_tag.decompose()
+
         # Fix lazy-loading images.
         for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split()[0]
@@ -129,21 +141,6 @@ class Nzz(BasicNewsRecipe):
         # To prevent image captions from being displayed as headers in the output, convert them from <h2> to <p>.
         for caption in soup.findAll('h2', attrs={'data-nzz-tid': 'image-description-caption'}):
             caption.name = 'p'
-
-        # Remove the article metadata block.
-        # First, find the first <hr> tag.
-        hr_tag = soup.find('hr')
-        if hr_tag:
-            self.log.debug(f'Found <hr> tag: {hr_tag}')
-            # Then, if the next direct sibling after the `hr_tag` is a <div> of class "mx-auto", "items-start",
-            # "justify-between" and "text-left", remove that <div>, as it is the metadata block.
-            next_sibling = hr_tag.find_next_sibling()
-            if next_sibling and next_sibling.name == 'div':
-                self.log.debug(f'Found next sibling <div>: {next_sibling}')
-                next_sibling_classes = next_sibling.get('class', [])
-                if all(c in next_sibling_classes for c in ['items-start', 'justify-between', 'text-left']):
-                    self.log.debug('Removing the article metadata block.')
-                    next_sibling.decompose()
 
         # Remove the social media share box, which should delimit the end of the article.
         sharebox_div = soup.find('div', attrs={'componenttype': 'sharebox'})
