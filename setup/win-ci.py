@@ -91,7 +91,7 @@ def main():
     q = sys.argv[-1]
     setup_env()
     if q == 'bootstrap':
-        subprocess.check_call(['rapydscript', '--version'])
+        subprocess.check_call(['rapydscript.cmd', '--version'])
         build()
     elif q == 'test':
         test()
