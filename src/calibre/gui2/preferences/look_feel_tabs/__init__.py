@@ -510,12 +510,13 @@ class CoverCacheConfig(LazyConfigWidgetBase):
     def genesis(self, gui):
         self.gui = gui
 
-    def link(self, thumbnail_cache, name_disk_cache_size, name_cache_size_multiple=None):
-        self.thumbnail_cache = thumbnail_cache
+    def link(self, cover_cache, name_disk_cache_size, name_cache_size_multiple=None):
+        from calibre.gui2.library.caches import ThumbnailRenderer
+        self.cover_cache: ThumbnailRenderer = cover_cache.renderer
         self.name_disk_cache_size = name_disk_cache_size
         self.name_cache_size_multiple = name_cache_size_multiple
-        self.opt_cache_size_disk.setMinimum(self.thumbnail_cache.min_disk_cache)
-        self.opt_cache_size_disk.setMaximum(self.thumbnail_cache.min_disk_cache * 100)
+        self.opt_cache_size_disk.setMinimum(self.cover_cache.disk_cache.min_disk_cache)
+        self.opt_cache_size_disk.setMaximum(self.cover_cache.disk_cache.min_disk_cache * 100)
 
         self.register(self.name_disk_cache_size, gprefs, 'opt_cache_size_disk')
         if self.name_cache_size_multiple:
@@ -531,11 +532,11 @@ class CoverCacheConfig(LazyConfigWidgetBase):
         self.lbl_current_disk_cache.setText(_('Current space used: %s') % human_readable(size))
 
     def empty_cache(self):
-        self.thumbnail_cache.empty()
+        self.cover_cache.disk_cache.empty()
         self.calc_cache_size()
 
     def open_cache(self):
-        open_local_file(self.thumbnail_cache.location)
+        open_local_file(self.cover_cache.disk_cache.location)
 
     def show_current_cache_usage(self):
         t = Thread(target=self.calc_cache_size)
@@ -543,7 +544,7 @@ class CoverCacheConfig(LazyConfigWidgetBase):
         t.start()
 
     def calc_cache_size(self):
-        self.size_calculated.emit(self.thumbnail_cache.current_size)
+        self.size_calculated.emit(self.cover_cache.disk_cache.current_size)
 
 
 def export_layout(in_widget, model=None):

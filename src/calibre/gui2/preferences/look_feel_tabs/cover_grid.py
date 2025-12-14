@@ -43,7 +43,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         self.cg_background_box.link_config('cover_grid_background')
         self.config_cache.link(
-            self.gui.grid_view.thumbnail_cache,
+            self.gui.grid_view.delegate.cover_cache,
             'cover_grid_disk_cache_size',
             'cover_grid_cache_size_multiple',
         )
