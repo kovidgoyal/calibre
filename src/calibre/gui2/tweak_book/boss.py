@@ -1707,7 +1707,9 @@ class Boss(QObject):
             show_report(changed, self.current_metadata.title, report, self.gui, self.show_current_diff)
 
     def sync_editor_to_preview(self, name, sourceline_address):
-        editor = self.edit_file(name, 'html')
+        editor = editors.get(name)
+        if editor is None:
+            return
         self.ignore_preview_to_editor_sync = True
         try:
             editor.goto_sourceline(*sourceline_address)
