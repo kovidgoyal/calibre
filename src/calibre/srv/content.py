@@ -40,7 +40,7 @@ from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot.binary import as_hex_unicode, from_base64_bytes
 
 plugboard_content_server_value = 'content_server'
-plugboard_content_server_formats = ['epub', 'mobi', 'azw3', 'pdf', 'cbz']
+plugboard_content_server_formats = ['epub', 'mobi', 'azw3', 'pdf']
 update_metadata_in_fmts = frozenset(plugboard_content_server_formats)
 lock = Lock()
 
