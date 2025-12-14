@@ -2,31 +2,42 @@
 # License: GPLv3
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
+# TODO:
+# control RAM cache based on screenfulls
+# implement proper current and selection management with support for mouse and keyboard interaction
+# implement marks and ondevice indicators
+# improve rendering of spine (optional full cover over spine?)
+# improve rendering of shelf and background with options for dark/light
+# fix drag and drop
+# fix arrow keys home/end for navigation
+# fix double clicking
+# hover shift change to shift off shelf edge. fix hover transition to next book.
+# make layout O(1) at least when no grouping is done
+# wire up cache config widget for bookshelf view
+# Implement dominant_color in native code for performance
 import hashlib
 import math
 import os
-import sys
-from collections import defaultdict
+import struct
+from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable
 from contextlib import suppress
 from datetime import datetime
-from functools import partial
-from io import BytesIO
-from queue import LifoQueue
-from threading import Thread
+from functools import lru_cache, partial
 from time import time
 from typing import Any, NamedTuple
 
-from PIL import Image
 from qt.core import (
     QAbstractScrollArea,
     QApplication,
     QBrush,
+    QBuffer,
     QColor,
     QContextMenuEvent,
     QEvent,
     QFont,
     QFontMetrics,
+    QImage,
     QItemSelection,
     QItemSelectionModel,
     QLinearGradient,
@@ -54,19 +65,15 @@ from calibre.ebooks.metadata import rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import gprefs, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import setup_dnd_interface
-from calibre.gui2.library.caches import ThumbnailCache
+from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
-from calibre.utils import join_with_timeout
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.img import convert_PIL_image_to_pixmap
+from calibre.utils.img import resize_to_fit
 
-DEFAULT_SPINE_COLOR = QColor('#8B4513')  # Brown, will be recalculated later
-DEFAULT_COVER = Image.open(I('default_cover.png'))
 TEMPLATE_ERROR_COLOR = QColor('#9C27B0')
 TEMPLATE_ERROR = _('TEMPLATE ERROR')
-CACHE_FORMAT = 'PPM'
 
 
 # Utility functions {{{
@@ -126,94 +133,125 @@ def elapsed_time(ref_time: float) -> float:
 
 # Cover functions {{{
 
-def extract_dominant_color(image: Image) -> QColor:
-    '''
-    Extract the dominant color from an image.
-    '''
-    if not image:
-        return None
+class ImageWithDominantColor(QImage):
 
-    # Resize for performance and color accuracy
-    image.thumbnail((100, 100))
+    _dominant_color: QColor | None = None
+    DEFAULT_DOMINANT_COLOR = QColor('#8B4513')
 
-    # Convert to RGB if needed
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
+    @property
+    def dominant_color(self) -> QColor:
+        if self.isNull():
+            return QColor()
+        if self._dominant_color is not None:
+            return self._dominant_color
+        img = self
+        if img.width() > 100 or img.height() > 100:
+            img = self.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        if (img.format() not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32)):
+            img = img.convertToFormat(
+                QImage.Format.Format_ARGB32 if img.hasAlphaChannel() else QImage.Format.Format_RGB32)
+        color_counts = Counter()
+        width, height = img.width(), img.height()
+        stride = img.bytesPerLine()
+        ptr = img.constBits()
+        ptr.setsize(img.sizeInBytes())
+        view = memoryview(ptr)
+        for y in range(height):
+            row_start_idx = y * stride
+            row_end_idx = row_start_idx + (width * 4)
+            row_data = view[row_start_idx:row_end_idx]
+            for i in range(0, len(row_data), 4):
+                b, g, r = row_data[i:i+3]
+                # Quantize to 32 levels per channel
+                # Preserve color variety while grouping similar colors
+                c = ((r//8)*8, (g//8)*8, (b//8)*8)
+                color_counts[c] += 1
+        if not color_counts:
+            self._dominant_color = self.DEFAULT_DOMINANT_COLOR
+            return self._dominant_color
+        # Find most common color, prefer saturated colors
+        # Sort by frequency, then by saturation
+        def color_score(item):
+            (r, g, b), count = item
+            # Calculate saturation (how colorful vs gray)
+            max_val = max(r, g, b)
+            min_val = min(r, g, b)
+            if max_val == 0:
+                saturation = 0
+            else:
+                saturation = (max_val - min_val) / max_val
+            # Weight by frequency and saturation
+            return (count, saturation * 100)
 
-    # Extract dominant color using improved algorithm
-    # Use less aggressive quantization
-    # Quantize to 32 levels per channel
-    color_counts = defaultdict(int)
-    pixels = image.getdata()
+        # Get top colors by frequency
+        sorted_colors = sorted(color_counts.items(), key=color_score, reverse=True)
 
-    for pixel in pixels:
-        r, g, b = pixel
-        # Quantize to 32 levels per channel
-        # Preserve color variety while grouping similar colors
-        r_q = (r // 8) * 8
-        g_q = (g // 8) * 8
-        b_q = (b // 8) * 8
-        color_counts[(r_q, g_q, b_q)] += 1
+        # Avoid desaturated gray/brown colors
+        dominant_color = sorted_colors[0][0]
 
-    if not color_counts:
-        return None
-
-    # Find most common color, prefer saturated colors
-    # Sort by frequency, then by saturation
-    def color_score(item):
-        (r, g, b), count = item
-        # Calculate saturation (how colorful vs gray)
+        # Look for more vibrant alternative if needed
+        r, g, b = dominant_color
         max_val = max(r, g, b)
         min_val = min(r, g, b)
-        if max_val == 0:
-            saturation = 0
-        else:
-            saturation = (max_val - min_val) / max_val
-        # Weight by frequency and saturation
-        return (count, saturation * 100)
+        saturation = (max_val - min_val) / max_val if max_val > 0 else 0
 
-    # Get top colors by frequency
-    sorted_colors = sorted(color_counts.items(), key=color_score, reverse=True)
-
-    # Avoid desaturated gray/brown colors
-    dominant_color = sorted_colors[0][0]
-
-    # Look for more vibrant alternative if needed
-    r, g, b = dominant_color
-    max_val = max(r, g, b)
-    min_val = min(r, g, b)
-    saturation = (max_val - min_val) / max_val if max_val > 0 else 0
-
-    # Try to find more colorful alternatives
-    if saturation < 0.2 and len(sorted_colors) > 1:
-        for (r2, g2, b2), count in sorted_colors[1:5]:  # Check top 5 alternatives
-            max_val2 = max(r2, g2, b2)
-            min_val2 = min(r2, g2, b2)
-            sat2 = (max_val2 - min_val2) / max_val2 if max_val2 > 0 else 0
-            # Use if more saturated and reasonably frequent
-            if sat2 > 0.3 and count > len(pixels) * 0.05:  # At least 5% of pixels
-                dominant_color = (r2, g2, b2)
-                break
-
-    return QColor(dominant_color[0], dominant_color[1], dominant_color[2])
+        # Try to find more colorful alternatives
+        if saturation < 0.2 and len(sorted_colors) > 1:
+            num_pixels = self.width() * self.height()
+            for (r2, g2, b2), count in sorted_colors[1:5]:  # Check top 5 alternatives
+                max_val2 = max(r2, g2, b2)
+                min_val2 = min(r2, g2, b2)
+                sat2 = (max_val2 - min_val2) / max_val2 if max_val2 > 0 else 0
+                # Use if more saturated and reasonably frequent
+                if sat2 > 0.3 and count > num_pixels * 0.05:  # At least 5% of pixels
+                    dominant_color = (r2, g2, b2)
+                    break
+        self._dominant_color = QColor(*dominant_color)
+        return self._dominant_color
 
 
-def generate_spine_thumbnail(image: Image, width: int, height: int) -> Image:
-    '''
-    Generate a thumbnail for display on the spine. Returns a PIL.Image.
-    '''
-    if not image:
-        return None
+class PixmapWithDominantColor(QPixmap):
+    dominant_color: QColor = QColor()
 
-    # Scale the image
-    image.thumbnail((image.width, height))
-    # Crops the image
-    image = image.crop((0, 0, width, height))
-    # Convert to RGB to sanitize the data
-    if image.mode != 'RGB':
-        image = image.convert('RGB')
-    return image
+    @staticmethod
+    def fromImage(img: QImage) -> 'PixmapWithDominantColor':
+        ans = PixmapWithDominantColor(QPixmap.fromImage(img))
+        ans.dominant_color = ImageWithDominantColor(img).dominant_color
+        return ans
 
+
+@lru_cache(maxsize=2)
+def default_cover_pixmap() -> PixmapWithDominantColor:
+    i = QImage(I('default_cover_image.png'))
+    _, i = resize_to_fit(i, BookshelfView.HOVER_EXPANDED_WIDTH, BookshelfView.SPINE_HEIGHT)
+    return PixmapWithDominantColor.fromImage(ImageWithDominantColor(i))
+
+
+class ThumbnailerWithDominantColor(Thumbnailer):
+    thumbnail_class: type[QImage] = ImageWithDominantColor
+    pixmap_class: type[QPixmap] = PixmapWithDominantColor
+
+    def resize_to_fit(self, cover: QImage, width: int, height: int) -> ImageWithDominantColor:
+        ans = super().resize_to_fit(cover, width, height)
+        if not isinstance(ans, ImageWithDominantColor):
+            ans = ImageWithDominantColor(ans)
+        return ans
+
+    def serialize_img(self, x: ImageWithDominantColor, buf: QBuffer) -> bool:
+        buf.write(struct.pack('@fff', x.dominant_color.redF(), x.dominant_color.greenF(), x.dominant_color.blueF()))
+        return super().serialize_img(x, buf)
+
+    def unserialize_img(self, buf: memoryview) -> ImageWithDominantColor:
+        try:
+            r, g, b = struct.unpack_from('@fff', buf)
+        except Exception:
+            r = g = b = 0
+        dc = QColor()
+        dc.setRedF(r), dc.setGreenF(g), dc.setBlueF(b)
+        qimg = super().unserialize_img(buf[struct.calcsize('@fff'):])
+        ans = ImageWithDominantColor(qimg)
+        ans._dominant_color = dc
+        return ans
 # }}}
 
 
@@ -366,18 +404,6 @@ def group_books(rows: list[int], model: BooksModel, grouping_mode: str) -> Group
 # }}}
 
 
-# recalculate DEFAULT_SPINE_COLOR from the DEFAULT_COVER
-DEFAULT_SPINE_COLOR = extract_dominant_color(DEFAULT_COVER.copy())
-
-
-class CoverTuple(NamedTuple):
-    book_id: int
-    has_cover: bool
-    cache_valid: bool
-    cdata: Image
-    timestamp: int
-
-
 class ShelfTuple(NamedTuple):
     items: list['SpineTuple | DividerTuple']
     rows: set[int]
@@ -423,24 +449,25 @@ class HoveredCover:
     OPACITY_START = 0.3
     FADE_TIME = 200  # Duration of the animation, in milliseconds
 
+    row: int = -1
+    book_id: int = -1
+    progress: float = 0  # Animation progress (0.0 to 1.0)
+    opacity: float = OPACITY_START  # Current opacity (0.3 to 1.0)
+    shift: float = 0.0  # Current state of the shift animation (0.0 to 1.0)
+    width: int = -1  # Current width
+    height: int = -1  # Current height
+    width_max: int = -1  # Maximum width
+    height_end: int = -1  # Final height
+    height_modifier: int = -1  # Height modifier
+    base_x_pos: int = 0  # Base x position
+    base_y_pos: int = 0  # Base y position
+    spine_width: int = -1  # Spine width of this book
+    spine_height: int = -1  # Spine height of this book
+    dominant_color: QColor = QColor()  # Dominant color of this cover
+    start_time: float | None = None  # Start time of fade-in animation
+
     def __init__(self):
-        self.row = -1  # Currently hovered book row
-        self.book_id = -1  # Currently hovered book id
         self.pixmap: QPixmap = QPixmap()  # Scaled cover for hover popup
-        self.progress = 0.0  # Animation progress (0.0 to 1.0)
-        self.opacity = self.OPACITY_START  # Current opacity (0.3 to 1.0)
-        self.shift = 0.0  # Current state of the shift animation (0.0 to 1.0)
-        self.width = -1  # Current width
-        self.height = -1  # Current height
-        self.width_max = -1  # Maximum width
-        self.height_end = -1  # Final height
-        self.height_modifier = -1  # Height modifier
-        self.base_x_pos = 0  # Base x position
-        self.base_y_pos = 0  # Base y position
-        self.spine_width = -1  # Spine width of this book
-        self.spine_height = -1  # Spine height of this book
-        self.dominant_color = DEFAULT_SPINE_COLOR  # Dominant color of this cover
-        self.start_time = None  # Start time of fade-in animation
 
     def is_valid(self) -> bool:
         '''Test if the HoveredCover is valid.'''
@@ -515,7 +542,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     and grouping capabilities.
     '''
 
-    update_cover = pyqtSignal()
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
 
@@ -527,7 +553,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     SHELF_HEIGHT = 20  # Height of a shelf
     SHELF_GAP = 20  # Gap space between shelves
     SHELF_CONTENT_HEIGHT = SPINE_HEIGHT + SHELF_HEIGHT  # Height of a shelf and it content
-    THUMBNAIL_WIDTH = 10  # Thumbnail size for spine
     HOVER_EXPANDED_WIDTH = 110  # Max expanded width on hover
     DIVIDER_WIDTH = 30  # Width of divider element
     DIVIDER_LINE_WIDTH = 2  # Width of the gradient line in divider
@@ -584,17 +609,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._hover_buffer_row = -1
         self._hover_buffer_time = None
 
-        # Up the version number if anything changes in how images are stored in the cache.
-        self.thumbnail_cache = ThumbnailCache(
-            name='bookshelf-thumbnail-cache',
-            max_size=gprefs['bookshelf_view_cache_size'],
-            thumbnail_size=(self.THUMBNAIL_WIDTH, self.SPINE_HEIGHT),
-            version=1,
+        self.cover_cache = CoverThumbnailCache(
+            name='bookshelf-thumbnail-cache', ram_limit=800,
+            max_size=gprefs['bookshelf_disk_cache_size'], thumbnailer=ThumbnailerWithDominantColor(),
+            thumbnail_size=(self.SPINE_WIDTH_MAX, self.SPINE_HEIGHT), parent=self,
+            version=2,
         )
-        self.fetch_thread = None
-        self.render_queue = LifoQueue()
-        self.update_cover.connect(self.update_viewport)
-        self.color_cache: dict[int, QColor] = {}  # Cache for cover colors (book_id -> QColor)
+        self.cover_cache.rendered.connect(self.update_viewport, type=Qt.ConnectionType.QueuedConnection)
 
         # Configuration
         self._grouping_mode = ''
@@ -665,7 +686,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._enable_variable_height = gprefs['bookshelf_variable_height']
         self._hover_shift = gprefs['bookshelf_hover_shift']
         HoveredCover.FADE_TIME = gprefs['bookshelf_fade_time']
-        self.thumbnail_cache.set_size(gprefs['bookshelf_view_cache_size'])
+        self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
         self.set_color()
 
     def set_color(self):
@@ -695,9 +716,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return self.gui.bookshelf_view_button.is_visible
 
     def shutdown(self):
-        self.thumbnail_cache.shutdown()
-        self.render_queue.put(None)
-        self.thumbnail_cache.shutdown()
+        self.cover_cache.shutdown()
 
     def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
@@ -939,10 +958,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def shown(self):
         '''Called when this view becomes active.'''
-        if self.fetch_thread is None:
-            self.fetch_thread = Thread(target=self._fetch_thumbnails_cache)
-            self.fetch_thread.daemon = True
-            self.fetch_thread.start()
         self._update_current_shelf_layouts()
 
     def update_viewport(self):
@@ -957,7 +972,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
 
         painter = QPainter(self.viewport())
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
 
         # Get visible area
         scroll_y = self.verticalScrollBar().value()
@@ -1154,17 +1169,20 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def _draw_spine(self, painter: QPainter, spine: SpineTuple, scroll_y: int, offset_x: int):
         '''Draw a book spine.'''
+        thumbnail = self.cover_cache.thumbnail_as_pixmap(spine.book_id)
+        if thumbnail is None:  # not yet rendered
+            return
+        if thumbnail.isNull():
+            thumbnail = default_cover_pixmap()
         mi = self.dbref().get_proxy_metadata(spine.book_id)
 
         # Determine if selected
         is_selected = spine.row in self._selected_rows or spine.row == self._current_row
 
         # Get cover color
-        spine_color = self._get_spine_color(spine.book_id)
-        # Ensure we have a valid color
-        if not spine_color or not spine_color.isValid():
-            spine_color = DEFAULT_SPINE_COLOR
-
+        spine_color = thumbnail.dominant_color
+        if not spine_color.isValid():
+            spine_color = default_cover_pixmap().dominant_color
         if is_selected:
             spine_color = spine_color.lighter(120)
 
@@ -1182,7 +1200,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Draw cover thumbnail overlay
         if self._enable_thumbnail:
-            self._draw_thumbnail_overlay(painter, spine_rect, spine.book_id)
+            self._draw_thumbnail_overlay(painter, spine_rect, thumbnail)
 
         # Draw reading statue indicator at bottom
         has_indicator = self._draw_statue_indicator(painter, spine_rect, spine.book_id, mi)
@@ -1248,17 +1266,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided_text)
         painter.restore()
 
-    def _draw_thumbnail_overlay(self, painter: QPainter, rect: QRect, book_id: int):
+    def _draw_thumbnail_overlay(self, painter: QPainter, rect: QRect, thumbnail):
         '''Draw cover thumbnail overlay on spine.'''
-        thumbnail = self._get_spine_thumbnail(book_id)
-        if not thumbnail or thumbnail.isNull():
-            return
-
         # Draw with opacity
         painter.save()
         painter.setOpacity(0.3)  # 30% opacity
         rect = rect.translated(0, 0)
-        rect.setWidth(thumbnail.width())
         painter.drawPixmap(rect, thumbnail)
         painter.restore()
 
@@ -1288,7 +1301,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 painter.fillRect(shadow_layer, shadow_color)
 
         # Draw the dominant cover color as background to not fade-in from white
-        painter.fillRect(cover_rect, hovered.dominant_color)
+        if hovered.dominant_color is not None:
+            painter.fillRect(cover_rect, hovered.dominant_color)
         # Draw cover with smooth fade-in opacity transition
         painter.save()
         painter.setOpacity(hovered.opacity)
@@ -1329,24 +1343,28 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Load the cover and scale it for hover popup.'''
         try:
             book_id = self._hovered.book_id
-            has_cover, cdata, timestamp = self.dbref().cover_or_cache(book_id, 0, as_what='pil_image')
-
-            if not has_cover or not cdata:
-                cdata = DEFAULT_COVER.copy()
-
-            # Scale to hover size - resize to the spine height or a reasonable max width
             height_modifier = self._get_height_modifier(book_id)
-            cdata.thumbnail((self.HOVER_EXPANDED_WIDTH, self.SPINE_HEIGHT))
+            cover_img = self.dbref().cover(book_id, as_image=True)
+            if cover_img is None or cover_img.isNull():
+                cover_pixmap = default_cover_pixmap()
+                self._hovered.dominant_color = cover_pixmap.dominant_color
+            else:
+                _, cover_img = resize_to_fit(cover_img, self.HOVER_EXPANDED_WIDTH, self.SPINE_HEIGHT)
+                cover_pixmap = QPixmap.fromImage(cover_img)
+                thumb = self.cover_cache.thumbnail_as_pixmap(book_id)
+                if thumb is not None and not thumb.isNull():
+                    self._hovered.dominant_color = thumb.dominant_color
+                else:
+                    self._hovered.dominant_color = default_cover_pixmap().dominant_color
 
-            self._hovered.pixmap = pixmap = convert_PIL_image_to_pixmap(cdata)
-            self._hovered.dominant_color = extract_dominant_color(cdata) or DEFAULT_SPINE_COLOR
+            self._hovered.pixmap = cover_pixmap
             self._hovered.spine_width = spine_width = self._get_spine_width(book_id)
             self._hovered.spine_height = spine_height = self.SPINE_HEIGHT
             self._hovered.height_modifier = height_modifier
             self._hovered.width = spine_width  # ensure that the animation start at the spine width
             self._hovered.height = spine_height  # ensure that the animation start at the spine height
-            self._hovered.width_max = pixmap.width()
-            self._hovered.height_end = pixmap.height()
+            self._hovered.width_max = cover_pixmap.width()
+            self._hovered.height_end = cover_pixmap.height()
 
             if self._hovered.FADE_TIME <= 0:
                 # Fade-in animation is disable
@@ -1393,9 +1411,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Load hover cover if hovering over a book
         if self._hover_buffer_row >= 0:
-            self._hovered.row = self._hover_buffer_row
-            self._hovered.book_id = self.book_id_from_row(self._hover_buffer_row)
-            self._load_hover_cover()
+            new_book_id = self.book_id_from_row(self._hover_buffer_row)
+            if new_book_id != self._hovered.book_id:
+                self._hovered.row = self._hover_buffer_row
+                self._hovered.book_id = new_book_id
+                self._load_hover_cover()
 
         self._hover_buffer_time = None
         self._hover_buffer_timer.stop()
@@ -1442,117 +1462,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return self.TEXT_COLOR_DARK
         else:
             return self.TEXT_COLOR
-
-    def _get_spine_color(self, book_id: int) -> QColor:
-        '''Get the spine color for a book from cache or by extraction.'''
-        color = self.color_cache.get(book_id)
-        if color and color.isValid():
-            return color
-        self.color_cache.pop(book_id, None)
-
-        color = self._create_cover_color(book_id)
-
-        if not color or not color.isValid():
-            color = DEFAULT_SPINE_COLOR
-        self.color_cache[book_id] = color
-        return color
-
-    def _get_spine_thumbnail(self, book_id: int) -> QPixmap:
-        '''Get the spine thumbnail for a book from cache.'''
-        cover_tuple = self._get_cached_thumbnail(book_id)
-        if cover_tuple.cache_valid:
-            return convert_PIL_image_to_pixmap(cover_tuple.cdata)
-        if cover_tuple.cdata:
-            self.render_queue.put(book_id)
-        self.color_cache.pop(book_id, None)
-        return None
-
-    def _get_cached_thumbnail(self, book_id: int) -> CoverTuple:
-        '''
-        Fetches the cover from the cache if it exists, otherwise the cover.jpg stored in the library.
-
-        Return a CoverTuple containing the following cover and cache data:
-
-        book_id: The id of the book for which a cover is wanted.
-        has_cover: True if the book has an associated cover image file.
-        cdata: Cover data. Can be None (no cover data), or a rendered cover image.
-        cache_valid: True if the cache has correct data, False if a cover exists
-                     but isn't in the cache, None if the cache has data but the
-                     cover has been deleted.
-        timestamp: the cover file modtime if the cover came from the file system,
-                   the timestamp in the cache if a valid cover is in the cache,
-                   otherwise None.
-        '''
-        db = self.dbref()
-        tc = self.thumbnail_cache
-        cdata, timestamp = tc[book_id]  # None, None if not cached.
-        if timestamp is None:
-            # Cover not in cache. Try to read the cover from the library.
-            has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
-            if has_cover:
-                # There is a cover.jpg, already rendered as a pil_image
-                cache_valid = False
-            else:
-                # No cover.jpg
-                cache_valid = None
-        else:
-            # A cover is in the cache. Check whether it is up to date.
-            # Note that if tcdata is not None then it is already a PIL image.
-            has_cover, tcdata, timestamp = db.new_api.cover_or_cache(book_id, timestamp, as_what='pil_image')
-            if has_cover:
-                if tcdata is None:
-                    # The cached cover is up-to-date
-                    cache_valid = True
-                    cdata = Image.open(BytesIO(cdata))
-                else:
-                    # The cached cover is stale
-                    cache_valid = False
-                    cdata = tcdata
-        if has_cover and cdata is None:
-            has_cover = False
-            cache_valid = None
-        return CoverTuple(book_id=book_id, has_cover=has_cover, cache_valid=cache_valid, cdata=cdata, timestamp=timestamp)
-
-    def _fetch_thumbnails_cache(self):
-        q = self.render_queue
-        while True:
-            book_id = q.get()
-            if book_id is None:
-                return
-
-            cover_tuple = self._get_cached_thumbnail(book_id)
-            if cover_tuple.cdata:
-                self._create_thumbnail_cache(book_id, cover_tuple)
-
-            self.update_cover.emit()
-            q.task_done()
-
-    def _create_cover_color(self, book_id: int):
-        db = self.dbref()
-        if db is None:
-            return
-        has_cover, cdata, timestamp = db.new_api.cover_or_cache(book_id, 0, as_what='pil_image')
-        if has_cover and cdata:
-            color = extract_dominant_color(cdata)
-            if color and color.isValid():
-                return color
-        return None
-
-    def _create_thumbnail_cache(self, book_id: int, cover_tuple: CoverTuple):
-        '''Generate the thumbnail and cache it.'''
-        thumb = generate_spine_thumbnail(cover_tuple.cdata, self.THUMBNAIL_WIDTH, self.SPINE_HEIGHT)
-        if thumb:
-            tc = self.thumbnail_cache
-            try:
-                with BytesIO() as buf:
-                    thumb.save(buf, format=CACHE_FORMAT)
-                    # use getbuffer() instead of getvalue() to avoid a copy
-                    tc.insert(book_id, cover_tuple.timestamp, buf.getbuffer())
-            except Exception:
-                tc.invalidate((book_id,))
-                self.color_cache.pop(book_id, None)
-                import traceback
-                traceback.print_exc()
 
     def _get_spine_width(self, book_id: int) -> int:
         '''Get the spine width for a book from cache or by generation.'''
@@ -1721,25 +1630,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def set_database(self, newdb, stage=0):
         '''Set the database.'''
-        self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
-        if self._grouping_mode == 'none':  # old stored value
-            self._grouping_mode = ''
         if stage == 0:
+            self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
+            if self._grouping_mode == 'none':  # old stored value
+                self._grouping_mode = ''
+
             # Clear caches when database changes
-            self.color_cache.clear()
             self.template_inited = False
-            if (m := self.model()) and m.db is not None:
-                m.db.new_api.remove_cover_cache(self.thumbnail_cache)
-            newdb.new_api.add_cover_cache(self.thumbnail_cache)
-            # This must be done here so the UUID in the cache is changed when libraries are switched.
-            self.thumbnail_cache.set_database(newdb)
-            try:
-                # Use a timeout so that if, for some reason, the render thread
-                # gets stuck, we don't deadlock, future covers won't get
-                # rendered, but this is better than a deadlock
-                join_with_timeout(self.render_queue)
-            except RuntimeError:
-                print('Cover rendering thread is stuck!', file=sys.stderr)
+            self.cover_cache.set_database(newdb)
 
     def set_context_menu(self, menu: QMenu):
         '''Set the context menu.'''

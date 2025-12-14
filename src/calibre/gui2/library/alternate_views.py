@@ -502,7 +502,7 @@ class CoverDelegate(QStyledItemDelegate):
             self.cover_cache.set_thumbnail_size(w, h)
         else:
             self.cover_cache = CoverThumbnailCache(
-                max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), version=1
+                max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1
             )
 
     def calculate_spacing(self):

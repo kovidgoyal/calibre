@@ -41,8 +41,8 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         self.bs_background_box.link_config('bookshelf_background')
         self.config_cache.link(
-            self.gui.bookshelf_view.thumbnail_cache,
-            'bookshelf_view_cache_size',
+            self.gui.bookshelf_view.cover_cache,
+            'bookshelf_disk_cache_size',
         )
         self.opt_bookshelf_spine_size_template.setToolTip(_('''
 <p>The template used to calculate a width for the displayed spine.

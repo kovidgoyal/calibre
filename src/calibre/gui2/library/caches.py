@@ -16,7 +16,7 @@ from threading import Event, Lock, Thread, current_thread
 from time import monotonic
 from typing import TypeVar
 
-from qt.core import QBuffer, QByteArray, QColor, QImage, QImageWriter, QIODevice, QObject, QPixmap, Qt, pyqtSignal
+from qt.core import QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QObject, QPixmap, Qt, pyqtSignal
 
 from calibre.db.utils import ThumbnailCache as TC
 from calibre.utils import join_with_timeout
@@ -131,11 +131,15 @@ class Thumbnailer:
         cover: QImage = self.thumbnail_class()
         if not cover.loadFromData(cover_as_bytes):
             return cover, b''
-        _, cover = resize_to_fit(cover, width, height)
+        cover = self.resize_to_fit(cover, width, height)
         serialized = self.serialize(cover)
         if cover.format() != self.image_format_for_pixmap:
             cover.convertTo(self.image_format_for_pixmap)
         return cover, serialized
+
+    def resize_to_fit(self, cover: QImage, width: int, height: int) -> QImage:
+        _, cover = resize_to_fit(cover, width, height)
+        return cover
 
     def serialize_img(self, x: QImage, buf: QBuffer) -> bool:
         w = QImageWriter(buf, self.CACHE_FORMAT.encode())
@@ -150,18 +154,19 @@ class Thumbnailer:
         buf.open(QIODevice.OpenModeFlag.WriteOnly)
         if not self.serialize_img(x, buf):
             return b''
+        buf.close()
         return ba.data()
 
-    def unserialize_img(self, data: memoryview) -> QImage:
+    def unserialize_img(self, buf: memoryview) -> QImage:
         ans = self.thumbnail_class()
-        ans.loadFromData(data)
+        ans.loadFromData(buf)
         return ans
 
     def unserialize(self, thumbnail_as_bytes: bytes) -> QImage:
         return self.unserialize_img(memoryview(thumbnail_as_bytes))
 
     def as_pixmap(self, img: QImage) -> QPixmap:
-        return self.pixmap_class(img)
+        return self.pixmap_class.fromImage(img)
 
 
 class ThumbnailRenderer(QObject):
@@ -257,9 +262,8 @@ class ThumbnailRenderer(QObject):
                     if thumbnail_as_bytes:
                         thumbnail = self.unserialize_thumbnail(book_id, thumbnail_as_bytes)
                         if thumbnail.isNull():
-                            print(f'Could not load image from thumbnail data for book: {book_id}, regenerating thumbnail', file=sys.stderr)
                             tc.invalidate((book_id,))
-                            return self.fetch_cover_from_cache(book_id)
+                            return self.fetch_cover_from_cache(book_id, width, height)
                 else:
                     thumbnail, thumbnail_as_bytes = self.make_thumbnail(cover_as_bytes, width, height)
                     tc.insert(book_id, timestamp, thumbnail_as_bytes)
@@ -418,6 +422,8 @@ class ThumbnailerForTest(Thumbnailer):
     pixmap_class = QImage
     def __init__(self):
         self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
+    def as_pixmap(self, img):
+        return QImage(img)
 
 
 class ThumbnailRendererForTest(ThumbnailRenderer):
@@ -534,6 +540,16 @@ def run_test(self, t: ThumbnailRendererForTest):
     ae(0, len(t.ram_cache))
     self.assertIsNone(t.cached_or_none(1))
     ac(1, Qt.GlobalColor.red)
+
+    from calibre.gui2.library.bookshelf_view import ThumbnailerWithDominantColor
+    class T(ThumbnailerWithDominantColor):
+        def __init__(self):
+            self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
+    th = T()
+    data = ThumbnailerForTest().serialize(cimg)
+    i, data = th.make_thumbnail(data, *t.disk_cache.thumbnail_size)
+    q = th.unserialize(data)
+    ae(i.dominant_color.name(), q.dominant_color.name())
 
 
 def test_cover_cache(self):
