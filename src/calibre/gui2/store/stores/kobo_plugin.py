@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 15  # Needed for dynamic plugin loading
+store_version = 16  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -40,7 +40,7 @@ read_url.storage = []
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
-    url = 'https://www.kobobooks.com/search?query=' + quote_plus(query)
+    url = 'https://www.kobo.com/search?query=' + quote_plus(query)
     raw = read_url(url, timeout=timeout)
     if write_html_to is not None:
         with open(write_html_to, 'w') as f:
