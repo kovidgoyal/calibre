@@ -643,7 +643,7 @@ QColor dominant_color(const QImage &image) { // {{{
     QImage img(image);
     ENSURE32(img);
     QHash<QRgb, int> colorCounts;
-    const uchar* bits = img.bits();
+    const uchar* bits = img.constBits();
     const int bytesPerLine = img.bytesPerLine();
     const int height = img.height();
     const int width = img.width();
