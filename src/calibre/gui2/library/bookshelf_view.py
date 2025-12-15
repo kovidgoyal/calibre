@@ -211,7 +211,7 @@ class ImageWithDominantColor(QImage):
     def dominant_color(self) -> QColor:
         if self._dominant_color is not None:
             return self._dominant_color
-        ans = QColor() if self.isNull() else dominant_color(self)
+        ans = self.DEFAULT_DOMINANT_COLOR if self.isNull() else dominant_color(self)
         if not ans.isValid():
             ans = self.DEFAULT_DOMINANT_COLOR
         self._dominant_color = ans
