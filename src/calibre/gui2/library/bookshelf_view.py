@@ -137,11 +137,9 @@ def elapsed_time(ref_time: float) -> float:
 def py_dominant_color(self: QImage) -> QColor:
     if self.isNull():
         return QColor()
-    if self._dominant_color is not None:
-        return self._dominant_color
     img = self
     if img.width() > 100 or img.height() > 100:
-        img = self.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        img = img.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
     if (img.format() not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32)):
         img = img.convertToFormat(
             QImage.Format.Format_ARGB32 if img.hasAlphaChannel() else QImage.Format.Format_RGB32)
@@ -162,8 +160,7 @@ def py_dominant_color(self: QImage) -> QColor:
             c = ((r//8)*8, (g//8)*8, (b//8)*8)
             color_counts[c] += 1
     if not color_counts:
-        self._dominant_color = self.DEFAULT_DOMINANT_COLOR
-        return self._dominant_color
+        return QColor()
     # Find most common color, prefer saturated colors
     # Sort by frequency, then by saturation
     def color_score(item):
@@ -192,7 +189,7 @@ def py_dominant_color(self: QImage) -> QColor:
 
     # Try to find more colorful alternatives
     if saturation < 0.2 and len(sorted_colors) > 1:
-        num_pixels = self.width() * self.height()
+        num_pixels = img.width() * img.height()
         for (r2, g2, b2), count in sorted_colors[1:5]:  # Check top 5 alternatives
             max_val2 = max(r2, g2, b2)
             min_val2 = min(r2, g2, b2)
@@ -201,8 +198,7 @@ def py_dominant_color(self: QImage) -> QColor:
             if sat2 > 0.3 and count > num_pixels * 0.05:  # At least 5% of pixels
                 dominant_color = (r2, g2, b2)
                 break
-    self._dominant_color = QColor(*dominant_color)
-    return self._dominant_color
+    return QColor(*dominant_color)
 
 
 dominant_color = getattr(imageops, 'dominant_color', py_dominant_color)  # for people running from source
@@ -215,7 +211,13 @@ class ImageWithDominantColor(QImage):
 
     @property
     def dominant_color(self) -> QColor:
-        return dominant_color(self)
+        if self._dominant_color is not None:
+            return self._dominant_color
+        ans = dominant_color(self)
+        if not ans.isValid():
+            ans = self.DEFAULT_DOMINANT_COLOR
+        self._dominant_color = ans
+        return ans
 
 
 class PixmapWithDominantColor(QPixmap):
