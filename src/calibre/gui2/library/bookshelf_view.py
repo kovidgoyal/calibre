@@ -135,8 +135,6 @@ def elapsed_time(ref_time: float) -> float:
 # Cover functions {{{
 
 def py_dominant_color(self: QImage) -> QColor:
-    if self.isNull():
-        return QColor()
     img = self
     if img.width() > 100 or img.height() > 100:
         img = img.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -213,7 +211,7 @@ class ImageWithDominantColor(QImage):
     def dominant_color(self) -> QColor:
         if self._dominant_color is not None:
             return self._dominant_color
-        ans = dominant_color(self)
+        ans = QColor() if self.isNull() else dominant_color(self)
         if not ans.isValid():
             ans = self.DEFAULT_DOMINANT_COLOR
         self._dominant_color = ans
@@ -226,7 +224,9 @@ class PixmapWithDominantColor(QPixmap):
     @staticmethod
     def fromImage(img: QImage) -> 'PixmapWithDominantColor':
         ans = PixmapWithDominantColor(QPixmap.fromImage(img))
-        ans.dominant_color = ImageWithDominantColor(img).dominant_color
+        if not hasattr(img, 'dominant_color'):
+            img = ImageWithDominantColor(img)
+        ans.dominant_color = img.dominant_color
         return ans
 
 
