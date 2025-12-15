@@ -73,6 +73,14 @@ QImage oil_paint(const QImage &image, const float radius=-1, const bool high_qua
 			sipRes = new QImage(oil_paint(*a0, a1, a2));
         IMAGEOPS_SUFFIX
 %End
+
+QColor dominant_color(const QImage &image);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QColor(dominant_color(*a0));
+        IMAGEOPS_SUFFIX
+%End
+
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QList<QRgb> &palette);
 %MethodCode
         IMAGEOPS_PREFIX

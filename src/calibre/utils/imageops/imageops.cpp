@@ -8,7 +8,9 @@
 #include "imageops.h"
 #include <stdexcept>
 #include <QVector>
+#include <QHash>
 #include <cmath>
+#include <algorithm>
 #include <set>
 
 // Macros {{{
@@ -634,6 +636,59 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
         }
     }
 
+} // }}}
+
+QColor dominant_color(const QImage &image) { // {{{
+    if (image.isNull()) return QColor();
+    QImage img(image);
+    ENSURE32(img);
+    QHash<QRgb, int> colorCounts;
+    const uchar* bits = img.bits();
+    const int bytesPerLine = img.bytesPerLine();
+    const int height = img.height();
+    const int width = img.width();
+    for (int y = 0; y < height; ++y) {
+        const QRgb* line = reinterpret_cast<const QRgb*>(bits + y * bytesPerLine);
+        for (int x = 0; x < width; ++x) {
+            // Quantize to 32 levels per channel
+            // Preserve color variety while grouping similar colors
+            const auto c = qRgb((qRed(line[x])/8)*8, (qGreen(line[x])/8)*8, (qBlue(line[x])/8)*8);
+            colorCounts[c]++;
+        }
+    }
+    if (colorCounts.size() < 1) return QColor();
+    struct ColorCount {
+        QRgb color;
+        int count;
+        mutable int saturation;
+    };
+    QVector<ColorCount> sortedColors;
+    sortedColors.reserve(colorCounts.size());
+    for (auto it = colorCounts.constBegin(); it != colorCounts.constEnd(); ++it) {
+        sortedColors.append({it.key(), it.value(), -1});
+    }
+    int limit = std::min((qsizetype)5, sortedColors.size());
+    std::partial_sort(sortedColors.begin(), sortedColors.begin() + limit, sortedColors.end(),
+    [](const ColorCount &a, const ColorCount &b) {
+        if (a.count != b.count) return a.count > b.count;
+        if (a.saturation < 0) a.saturation = QColor(a.color).saturation();
+        if (b.saturation < 0) b.saturation = QColor(b.color).saturation();
+        return a.saturation > b.saturation;
+    });
+    auto ans = sortedColors[0].color;
+    float saturation = QColor(ans).saturationF();
+    // Look for more vibrant alternative if needed
+    if (saturation < 0.2 && sortedColors.size() > 1) {
+        const int min_num_pixels = (int)(0.05 * width * height);
+        for (qsizetype i = 1; i < limit; i++) {
+            float q = QColor(sortedColors[i].color).saturationF();
+            if (q > 0.3 && sortedColors[i].count > min_num_pixels) {
+                ans = sortedColors[i].color;
+                break;
+            }
+        }
+    }
+    return QColor(ans);
 } // }}}
 
 QImage normalize(const QImage &image) { // {{{

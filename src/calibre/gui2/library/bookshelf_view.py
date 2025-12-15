@@ -14,7 +14,7 @@
 # hover shift change to shift off shelf edge. fix hover transition to next book.
 # make layout O(1) at least when no grouping is done
 # wire up cache config widget for bookshelf view
-# Implement dominant_color in native code for performance
+# Remove py_dominant_color after beta release
 import hashlib
 import math
 import os
@@ -71,6 +71,7 @@ from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
+from calibre_extensions import imageops
 
 TEMPLATE_ERROR_COLOR = QColor('#9C27B0')
 TEMPLATE_ERROR = _('TEMPLATE ERROR')
@@ -133,6 +134,80 @@ def elapsed_time(ref_time: float) -> float:
 
 # Cover functions {{{
 
+def py_dominant_color(self: QImage) -> QColor:
+    if self.isNull():
+        return QColor()
+    if self._dominant_color is not None:
+        return self._dominant_color
+    img = self
+    if img.width() > 100 or img.height() > 100:
+        img = self.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+    if (img.format() not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32)):
+        img = img.convertToFormat(
+            QImage.Format.Format_ARGB32 if img.hasAlphaChannel() else QImage.Format.Format_RGB32)
+    color_counts = Counter()
+    width, height = img.width(), img.height()
+    stride = img.bytesPerLine()
+    ptr = img.constBits()
+    ptr.setsize(img.sizeInBytes())
+    view = memoryview(ptr)
+    for y in range(height):
+        row_start_idx = y * stride
+        row_end_idx = row_start_idx + (width * 4)
+        row_data = view[row_start_idx:row_end_idx]
+        for i in range(0, len(row_data), 4):
+            b, g, r = row_data[i:i+3]
+            # Quantize to 32 levels per channel
+            # Preserve color variety while grouping similar colors
+            c = ((r//8)*8, (g//8)*8, (b//8)*8)
+            color_counts[c] += 1
+    if not color_counts:
+        self._dominant_color = self.DEFAULT_DOMINANT_COLOR
+        return self._dominant_color
+    # Find most common color, prefer saturated colors
+    # Sort by frequency, then by saturation
+    def color_score(item):
+        (r, g, b), count = item
+        # Calculate saturation (how colorful vs gray)
+        max_val = max(r, g, b)
+        min_val = min(r, g, b)
+        if max_val == 0:
+            saturation = 0
+        else:
+            saturation = (max_val - min_val) / max_val
+        # Weight by frequency and saturation
+        return (count, saturation * 100)
+
+    # Get top colors by frequency
+    sorted_colors = sorted(color_counts.items(), key=color_score, reverse=True)
+
+    # Avoid desaturated gray/brown colors
+    dominant_color = sorted_colors[0][0]
+
+    # Look for more vibrant alternative if needed
+    r, g, b = dominant_color
+    max_val = max(r, g, b)
+    min_val = min(r, g, b)
+    saturation = (max_val - min_val) / max_val if max_val > 0 else 0
+
+    # Try to find more colorful alternatives
+    if saturation < 0.2 and len(sorted_colors) > 1:
+        num_pixels = self.width() * self.height()
+        for (r2, g2, b2), count in sorted_colors[1:5]:  # Check top 5 alternatives
+            max_val2 = max(r2, g2, b2)
+            min_val2 = min(r2, g2, b2)
+            sat2 = (max_val2 - min_val2) / max_val2 if max_val2 > 0 else 0
+            # Use if more saturated and reasonably frequent
+            if sat2 > 0.3 and count > num_pixels * 0.05:  # At least 5% of pixels
+                dominant_color = (r2, g2, b2)
+                break
+    self._dominant_color = QColor(*dominant_color)
+    return self._dominant_color
+
+
+dominant_color = getattr(imageops, 'dominant_color', py_dominant_color)  # for people running from source
+
+
 class ImageWithDominantColor(QImage):
 
     _dominant_color: QColor | None = None
@@ -140,74 +215,7 @@ class ImageWithDominantColor(QImage):
 
     @property
     def dominant_color(self) -> QColor:
-        if self.isNull():
-            return QColor()
-        if self._dominant_color is not None:
-            return self._dominant_color
-        img = self
-        if img.width() > 100 or img.height() > 100:
-            img = self.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        if (img.format() not in (QImage.Format.Format_RGB32, QImage.Format.Format_ARGB32)):
-            img = img.convertToFormat(
-                QImage.Format.Format_ARGB32 if img.hasAlphaChannel() else QImage.Format.Format_RGB32)
-        color_counts = Counter()
-        width, height = img.width(), img.height()
-        stride = img.bytesPerLine()
-        ptr = img.constBits()
-        ptr.setsize(img.sizeInBytes())
-        view = memoryview(ptr)
-        for y in range(height):
-            row_start_idx = y * stride
-            row_end_idx = row_start_idx + (width * 4)
-            row_data = view[row_start_idx:row_end_idx]
-            for i in range(0, len(row_data), 4):
-                b, g, r = row_data[i:i+3]
-                # Quantize to 32 levels per channel
-                # Preserve color variety while grouping similar colors
-                c = ((r//8)*8, (g//8)*8, (b//8)*8)
-                color_counts[c] += 1
-        if not color_counts:
-            self._dominant_color = self.DEFAULT_DOMINANT_COLOR
-            return self._dominant_color
-        # Find most common color, prefer saturated colors
-        # Sort by frequency, then by saturation
-        def color_score(item):
-            (r, g, b), count = item
-            # Calculate saturation (how colorful vs gray)
-            max_val = max(r, g, b)
-            min_val = min(r, g, b)
-            if max_val == 0:
-                saturation = 0
-            else:
-                saturation = (max_val - min_val) / max_val
-            # Weight by frequency and saturation
-            return (count, saturation * 100)
-
-        # Get top colors by frequency
-        sorted_colors = sorted(color_counts.items(), key=color_score, reverse=True)
-
-        # Avoid desaturated gray/brown colors
-        dominant_color = sorted_colors[0][0]
-
-        # Look for more vibrant alternative if needed
-        r, g, b = dominant_color
-        max_val = max(r, g, b)
-        min_val = min(r, g, b)
-        saturation = (max_val - min_val) / max_val if max_val > 0 else 0
-
-        # Try to find more colorful alternatives
-        if saturation < 0.2 and len(sorted_colors) > 1:
-            num_pixels = self.width() * self.height()
-            for (r2, g2, b2), count in sorted_colors[1:5]:  # Check top 5 alternatives
-                max_val2 = max(r2, g2, b2)
-                min_val2 = min(r2, g2, b2)
-                sat2 = (max_val2 - min_val2) / max_val2 if max_val2 > 0 else 0
-                # Use if more saturated and reasonably frequent
-                if sat2 > 0.3 and count > num_pixels * 0.05:  # At least 5% of pixels
-                    dominant_color = (r2, g2, b2)
-                    break
-        self._dominant_color = QColor(*dominant_color)
-        return self._dominant_color
+        return dominant_color(self)
 
 
 class PixmapWithDominantColor(QPixmap):
