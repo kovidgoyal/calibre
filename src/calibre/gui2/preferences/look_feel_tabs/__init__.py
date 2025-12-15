@@ -460,7 +460,7 @@ class CoverCacheConfig(LazyConfigWidgetBase):
         description = QLabel(group_box)
         description.setWordWrap(True)
         description.setText(
-            _("There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view."
+            _("There are two kinds of caches that calibre uses to improve performance when rendering covers."
             " A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache"
             " used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large,"
             " unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache."))

@@ -491,6 +491,7 @@ def create_defs():
     defs['template_editor_run_as_you_type'] = True
     defs['template_editor_show_all_selected_books'] = True
     defs['bookshelf_disk_cache_size'] = 1000
+    defs['bookshelf_cache_size_multiple'] = 5
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = True
     defs['bookshelf_centered'] = False

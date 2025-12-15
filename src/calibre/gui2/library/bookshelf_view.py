@@ -3,7 +3,6 @@
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
 # TODO:
-# control RAM cache based on screenfulls
 # implement proper current and selection management with support for mouse and keyboard interaction
 # implement marks and ondevice indicators
 # improve rendering of spine (optional full cover over spine?)
@@ -13,7 +12,6 @@
 # fix double clicking
 # hover shift change to shift off shelf edge. fix hover transition to next book.
 # make layout O(1) at least when no grouping is done
-# wire up cache config widget for bookshelf view
 # Remove py_dominant_color after beta release
 import hashlib
 import math
@@ -697,6 +695,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._hover_shift = gprefs['bookshelf_hover_shift']
         HoveredCover.FADE_TIME = gprefs['bookshelf_fade_time']
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
+        self._update_ram_cache_size()
         self.set_color()
 
     def set_color(self):
@@ -963,6 +962,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         max_scroll = max(0, total_height - viewport_height)
         self.verticalScrollBar().setRange(0, max_scroll)
         self.verticalScrollBar().setPageStep(viewport_height)
+        self._update_ram_cache_size()
+
+    def _update_ram_cache_size(self):
+        viewport_height = self.viewport().height()
+        shelves_per_screen = max(1, viewport_height / self.SHELF_CONTENT_HEIGHT)
+        books_per_shelf = self._get_available_width() / self.SPINE_WIDTH_MIN
+        lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * shelves_per_screen
+        self.cover_cache.set_ram_limit(max(0, int(lm)))
 
     # Paint and Drawing methods
 

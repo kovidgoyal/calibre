@@ -16,7 +16,7 @@ from threading import Event, Lock, Thread, current_thread
 from time import monotonic
 from typing import TypeVar
 
-from qt.core import QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QObject, QPixmap, Qt, pyqtSignal
+from qt.core import QBuffer, QByteArray, QColor, QImage, QImageWriter, QIODevice, QObject, QPixmap, Qt, pyqtSignal
 
 from calibre.db.utils import ThumbnailCache as TC
 from calibre.utils import join_with_timeout
@@ -108,7 +108,7 @@ class RAMCache(MutableMapping[int, T]):
 
     def set_limit(self, limit):
         with self.lock:
-            self.limit = limit
+            self.limit = max(0, int(limit))
             needs_staging = current_thread() is not self.gui_thread
             while len(self.items) > self.limit:
                 val = self.items.popitem(last=False)
