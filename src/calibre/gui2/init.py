@@ -324,7 +324,7 @@ class BookshelfViewButton(AlternateViewsButtons):  # {{{
             _('Bookshelf view'),
             'bookshelf',
             gui,
-            shortcut='Alt+Shift+B',
+            shortcut='Alt+Shift+H',
             config_key='bookshelf view',
         )
 # }}}
