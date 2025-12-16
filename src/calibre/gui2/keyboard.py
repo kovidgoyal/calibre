@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import partial
+from operator import itemgetter
 
 from qt.core import (
     QAbstractItemDelegate,
@@ -74,7 +75,7 @@ def keysequence_from_event(ev):  # {{{
 # }}}
 
 
-def finalize(shortcuts, custom_keys_map={}):  # {{{
+def finalize(shortcuts, custom_keys_map={}) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
     '''
     Resolve conflicts and assign keys to every action in shortcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
@@ -82,7 +83,10 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     of unique names to resolved keys. Also sets the set_to_default member
     correctly for each shortcut.
     '''
-    seen, keys_map = {}, {}
+    for unique_name, shortcut in shortcuts.items():
+        shortcut['set_to_default'] = unique_name in custom_keys_map
+    keys_map = defaultdict(list)
+    # First pass map key sequences to shortcuts
     for unique_name, shortcut in shortcuts.items():
         custom_keys = custom_keys_map.get(unique_name, None)
         if custom_keys is None:
@@ -91,29 +95,31 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
         else:
             candidates = custom_keys
             shortcut['set_to_default'] = False
-        keys = []
+        shortcut['resolved_keys'] = []
         for x in candidates:
             ks = QKeySequence(x, QKeySequence.SequenceFormat.PortableText)
             x = str(ks.toString(QKeySequence.SequenceFormat.PortableText))
-            if x in seen:
-                if DEBUG:
-                    prints('Key {!r} for shortcut {} is already used by'
-                            ' {}, ignoring'.format(x, shortcut['name'], seen[x]['name']))
-                keys_map[unique_name] = ()
-                continue
-            seen[x] = shortcut
-            keys.append(ks)
-        keys = tuple(keys)
-
-        keys_map[unique_name] = keys
+            keys_map[x].append(shortcut)
+    # Pick a shortcut for each key
+    for key, shortcuts_with_key in keys_map.items():
+        if len(shortcuts_with_key) > 1:
+            shortcuts_with_key.sort(key=itemgetter('set_to_default'))  # prefer user defined mappings
+            if DEBUG:
+                prints(
+                    'Key {!r} is assigned to multiple shortcuts: {}. Using shortcut: {}'.format(key, ', '.join(
+                        s['name'] for s in shortcuts_with_key), shortcuts_with_key[0]['name']))
+        shortcuts_with_key[0]['resolved_keys'].append(QKeySequence(key, QKeySequence.SequenceFormat.PortableText))
+    # Second pass, assign resolved keys to actions.
+    unique_name_to_keys = {}
+    for unique_name, shortcut in shortcuts.items():
         ac = shortcut['action']
+        rkeys = unique_name_to_keys[unique_name] = tuple(shortcut.pop('resolved_keys'))
         if ac is None or sip.isdeleted(ac):
             if ac is not None and DEBUG:
                 prints(f'Shortcut {unique_name!r} has a deleted action')
-            continue
-        ac.setShortcuts(list(keys))
-
-    return keys_map
+        else:
+            ac.setShortcuts(rkeys)
+    return unique_name_to_keys
 # }}}
 
 
