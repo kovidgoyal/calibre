@@ -38,7 +38,7 @@ class ConfigureAI(QWidget):
         else:
             self.none_label = la = QLabel(_('No AI providers found that have the capabilities: {}. Make sure you have not'
                                ' disabled some AI provider plugins').format(purpose))
-            s.addWidget()
+            s.addWidget(la)
         v.addWidget(self.gb)
 
     @property
