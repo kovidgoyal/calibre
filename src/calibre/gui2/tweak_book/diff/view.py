@@ -28,10 +28,12 @@ from qt.core import (
     QPen,
     QPixmap,
     QPlainTextEdit,
+    QProxyStyle,
     QRect,
     QScrollBar,
     QSplitter,
     QSplitterHandle,
+    QStyle,
     Qt,
     QTextCharFormat,
     QTextCursor,
@@ -922,6 +924,13 @@ class DiffSplit(QSplitter):  # {{{
 # }}}
 
 
+class NonTransientScrollStyle(QProxyStyle):
+    def styleHint(self, hint, option=None, widget=None, returnData=None):
+        if hint == QStyle.StyleHint.SH_ScrollBar_Transient:
+            return 0  # Return 0 (False) to disable transient behavior
+        return super().styleHint(hint, option, widget, returnData)
+
+
 class DiffView(QWidget):  # {{{
 
     SYNC_POSITION = 0.4
@@ -939,6 +948,10 @@ class DiffView(QWidget):  # {{{
         l.addWidget(self.view)
         self.add_diff = self.view.add_diff
         self.scrollbar = QScrollBar(self)
+        # when transient (such as on macOS) the scrollbar flickers in an out of visibility
+        # continuously, so disable transience.
+        self.scrollbar_style = NonTransientScrollStyle()
+        self.scrollbar.setStyle(self.scrollbar_style)
         l.addWidget(self.scrollbar)
         self.syncing = False
         self.bars = []
