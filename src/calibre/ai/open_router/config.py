@@ -269,6 +269,13 @@ class ChooseModel(Dialog):
     def model_id(self, val):
         self.models.setCurrentIndex(self.models.model().index_for_model_id(val))
 
+    @property
+    def model_name(self) -> str:
+        idx = self.models.currentIndex()
+        if idx.isValid():
+            return idx.data(Qt.ItemDataRole.DisplayRole)
+        return ''
+
     def setup_ui(self):
         l = QVBoxLayout(self)
         self.only_free = of = QCheckBox(_('Only &free'))
@@ -427,11 +434,11 @@ class ConfigWidget(QWidget):
         l.addRow(_('Model for &text tasks:'), tm)
 
     def select_model(self, model_id: str, for_text: bool) -> None:
-        model_choice_target = self.sender()
+        model_choice_target: Model = self.sender()
         caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
         d = ChooseModel(model_id, caps, self)
         if d.exec() == QDialog.DialogCode.Accepted:
-            model_choice_target.set(d.model_id, d.name)
+            model_choice_target.set(d.model_id, d.model_name)
 
     @property
     def api_key(self) -> str:
