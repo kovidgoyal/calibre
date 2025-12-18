@@ -578,6 +578,9 @@ class Preview(QWidget):
         ac.triggered.connect(self.refresh)
         self.bar.addAction(ac)
 
+        ac = actions['copy-from-preview']
+        ac.triggered.connect(self.copy_to_clipboard)
+
         actions['preview-dock'].toggled.connect(self.visibility_changed)
 
         self.current_name = None
@@ -601,6 +604,9 @@ class Preview(QWidget):
             ac = actions[f'find-{d}-preview']
             ac.triggered.connect(getattr(self, 'find_' + d))
             self.bar.addAction(ac)
+
+    def copy_to_clipboard(self):
+        self.view.triggerPageAction(QWebEnginePage.WebAction.Copy)
 
     def clear_clicked(self):
         self.view._page.findText('')

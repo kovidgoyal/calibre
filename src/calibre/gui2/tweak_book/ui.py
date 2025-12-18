@@ -505,6 +505,8 @@ class Main(MainWindow):
             'Split file in the preview panel'))
         self.action_find_next_preview = reg('arrow-down.png', _('Find next'), None, 'find-next-preview', (), _('Find next in preview'))
         self.action_find_prev_preview = reg('arrow-up.png', _('Find previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
+        self.action_copy_from_preview = reg('edit-copy.png', _('Copy from preview'), None, 'copy-from-preview', ('Ctrl+Alt+c',), _(
+            'Copy the current selection from the preview panel to the clipboard'))
 
         # Search actions
         group = _('Search')
