@@ -465,6 +465,14 @@ class ReadingTest(BaseTest):
 
     # }}}
 
+    def test_by_year(self):
+        ' Test grouping of books by date fields '
+        cache = self.init_cache()
+        self.assertEqual(cache.books_by_year(), {2011: {1, 2, 3}})
+        self.assertEqual(cache.books_by_year(restrict_to_books={1,2}), {2011: {1, 2}})
+        self.assertEqual(cache.books_by_month(), {(2011, 8): {1}, (2011, 9): {2, 3}})
+        self.assertEqual(cache.books_by_month(restrict_to_books={1,2}), {(2011, 8): {1}, (2011, 9): {2}})
+
     def test_author_sort_for_authors(self):  # {{{
         'Test getting the author sort for authors from the db'
         cache = self.init_cache()
