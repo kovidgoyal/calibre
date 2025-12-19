@@ -3632,8 +3632,8 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
                 path = cache._get_book_path(book_id)
                 cache.backend.add_extra_file(relpath, stream, path)
         cache.dump_metadata({book_id})
-        if importer.corrupted_files:
-            raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
+    if importer.corrupted_files:
+        raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     if progress is not None:
         progress(_('Completed'), total, total)
     return cache
