@@ -472,6 +472,7 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.books_by_year(restrict_to_books={1,2}), {2011: {1, 2}})
         self.assertEqual(cache.books_by_month(), {(2011, 8): {1}, (2011, 9): {2, 3}})
         self.assertEqual(cache.books_by_month(restrict_to_books={1,2}), {(2011, 8): {1}, (2011, 9): {2}})
+        self.assertEqual(cache.books_by_year(restrict_to_books=range(cache.backend.max_number_of_variables+200)), {2011: {1, 2, 3}})
 
     def test_author_sort_for_authors(self):  # {{{
         'Test getting the author sort for authors from the db'

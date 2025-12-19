@@ -555,6 +555,10 @@ class DB:
         self.initialize_notes()
 
     @property
+    def max_number_of_variables(self) -> int:
+        return self.conn.limit(apsw.SQLITE_LIMIT_VARIABLE_NUMBER)
+
+    @property
     def last_expired_trash_at(self) -> float:
         return float(self.prefs['last_expired_trash_at'])
 

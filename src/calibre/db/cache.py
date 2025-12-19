@@ -918,7 +918,7 @@ class Cache:
                 books_by_year[year].add(book_id)
         else:
             books = tuple(restrict_to_books)
-            BATCH_SIZE = 900
+            BATCH_SIZE = self.backend.max_number_of_variables
             for i in range(0, len(books), BATCH_SIZE):
                 batch = books[i:i + BATCH_SIZE]
                 placeholders = '?,' * len(batch)
@@ -943,7 +943,7 @@ class Cache:
                 ans[(year, month)].add(book_id)
         else:
             books = tuple(restrict_to_books)
-            BATCH_SIZE = 900
+            BATCH_SIZE = self.backend.max_number_of_variables
             for i in range(0, len(books), BATCH_SIZE):
                 batch = books[i:i + BATCH_SIZE]
                 placeholders = '?,' * len(batch)
