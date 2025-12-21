@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import operator
+import unicodedata
 import weakref
 from collections import OrderedDict, deque
 from datetime import timedelta
@@ -322,39 +323,60 @@ class NumericSearch:  # {{{
 # }}}
 
 
+nfc = partial(unicodedata.normalize, 'NFC')
+nfkc = partial(unicodedata.normalize, 'NFKC')
+nfkd = partial(unicodedata.normalize, 'NFKD')
+nfd = partial(unicodedata.normalize, 'NFD')
+
+
+def local_forms(x: str) -> set[str]:
+    x = icu_lower(x)
+    return {nfc(x), nfd(x), nfkc(x), nfkd(x)}
+
+
 class BooleanSearch:  # {{{
 
     def __init__(self):
-        self.local_no        = icu_lower(_('no'))
-        self.local_yes       = icu_lower(_('yes'))
-        self.local_unchecked = icu_lower(_('unchecked'))
-        self.local_checked   = icu_lower(_('checked'))
-        self.local_empty     = icu_lower(_('empty'))
-        self.local_blank     = icu_lower(_('blank'))
-        self.local_bool_values = {
-            self.local_no, self.local_unchecked, '_no', 'false', 'no', 'unchecked', '_unchecked',
-            self.local_yes, self.local_checked, 'checked', '_checked', '_yes', 'true', 'yes',
-            self.local_empty, self.local_blank, 'blank', '_blank', '_empty', 'empty'}
+        local_no = local_forms(_('no'))
+        local_yes       = local_forms(_('yes'))
+        local_unchecked = local_forms(_('unchecked'))
+        local_checked   = local_forms(_('checked'))
+        local_empty     = local_forms(_('empty'))
+        local_blank     = local_forms(_('blank'))
+
+        self.valid_bool_values = frozenset({
+            '_no', 'false', 'no', 'unchecked', '_unchecked',
+            'checked', '_checked', '_yes', 'true', 'yes',
+            'blank', '_blank', '_empty', 'empty',
+        } | local_no | local_yes | local_unchecked | local_checked | local_empty | local_blank)
+        self.no_and_unchecked = frozenset({
+            'unchecked', '_unchecked', 'no', '_no', 'false'} | local_no | local_unchecked)
+        self.no_and_unchecked_with_true = frozenset({
+            'unchecked', '_unchecked', 'no', '_no', 'true'} | local_no | local_unchecked)
+        self.yes_and_checked = frozenset({
+            'checked', '_checked', 'yes', '_yes', 'true'} | local_yes | local_checked)
+        self.empty_and_blank = frozenset({
+            'blank', '_blank', 'empty', '_empty', 'false'} | local_empty | local_blank)
 
     def __call__(self, query, field_iter, bools_are_tristate):
         matches = set()
-        if query not in self.local_bool_values:
+        if query not in self.valid_bool_values:
             raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for val, book_ids in field_iter():
             val = force_to_bool(val)
             if not bools_are_tristate:
                 if val is None or not val:  # item is None or set to false
-                    if query in {self.local_no, self.local_unchecked, 'unchecked', '_unchecked', 'no', '_no', 'false'}:
+                    if query in self.no_and_unchecked:
                         matches |= book_ids
-                elif query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
+                elif query in self.yes_and_checked:
                     matches |= book_ids
             elif val is None:
-                if query in {self.local_empty, self.local_blank, 'blank', '_blank', 'empty', '_empty', 'false'}:
+                if query in self.empty_and_blank:
                     matches |= book_ids
             elif not val:  # is not None and false
-                if query in {self.local_no, self.local_unchecked, 'unchecked', '_unchecked', 'no', '_no', 'true'}:
+                if query in self.no_and_unchecked_with_true:
                     matches |= book_ids
-            elif query in {self.local_yes, self.local_checked, 'checked', '_checked', 'yes', '_yes', 'true'}:
+            elif query in self.yes_and_checked:
                 matches |= book_ids
         return matches
 
