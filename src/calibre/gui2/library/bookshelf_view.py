@@ -733,13 +733,16 @@ class CaseItem:
             else:
                 right_shift += extra
         for i, item in enumerate(self.items):
-            if i < shelf_item.idx:
-                if left_shift:
-                    item = item._replace(start_x=item.start_x - left_shift)
-            elif i == shelf_item.idx:
+            if gprefs['bookshelf_hover'] == 'shift':
+                if i < shelf_item.idx:
+                    if left_shift:
+                        item = item._replace(start_x=item.start_x - left_shift)
+                elif i == shelf_item.idx:
+                    item = item._replace(start_x=item.start_x - left_shift, width=width)
+                elif right_shift:
+                    item = item._replace(start_x=item.start_x + right_shift)
+            elif gprefs['bookshelf_hover'] == 'above' and i == shelf_item.idx:
                 item = item._replace(start_x=item.start_x - left_shift, width=width)
-            elif right_shift:
-                item = item._replace(start_x=item.start_x + right_shift)
             ans.items.append(item)
             ans.width = item.start_x + item.width
         return ans
@@ -2013,6 +2016,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         ev.accept()
         if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
             handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, self.selection_between)
+            return
+        if gprefs['bookshelf_hover'] == 'none':
             return
         pos = ev.pos()
         case_item, _, shelf_item = self.item_at_position(pos.x(), pos.y())

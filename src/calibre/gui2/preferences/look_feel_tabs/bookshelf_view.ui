@@ -146,6 +146,16 @@
       </property>
      </widget>
     </item>
+    <item row="22" column="0">
+     <widget class="QLabel" name="label_hover_interact">
+      <property name="text">
+       <string>Expand the hovered cover:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_hover"/>
+    </item>
    </layout>
   </widget>
   <widget class="CoverCacheConfig" name="config_cache">
