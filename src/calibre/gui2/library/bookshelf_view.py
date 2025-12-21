@@ -53,6 +53,7 @@ from qt.core import (
     QPoint,
     QPointF,
     QRect,
+    QStyle,
     Qt,
     QTimer,
     pyqtSignal,
@@ -949,8 +950,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             case QEvent.Type.Resize:
                 super().event(ev)
                 s = self.viewport().size()
-                s.setWidth(s.width() - self.verticalScrollBar().size().width())
-                self.viewport().resize(s)
+                if self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) == 0:
+                    s.setWidth(s.width() - self.verticalScrollBar().size().width())
+                    self.viewport().resize(s)
                 if self.layout_constraints.width != (new_width := self._get_available_width()):
                     self.layout_constraints = self.layout_constraints._replace(width=new_width)
                     self.invalidate()
