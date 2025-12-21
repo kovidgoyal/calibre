@@ -226,6 +226,9 @@ class View:
     def index_to_id(self, idx):
         return self._map_filtered[idx]
 
+    def index_to_id_map(self) -> tuple[int, ...]:
+        return self._map_filtered
+
     def id_to_index(self, book_id):
         try:
             return self._real_map_filtered_id_to_row[book_id]

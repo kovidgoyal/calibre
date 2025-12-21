@@ -33,8 +33,6 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_centered', gprefs)
         r('bookshelf_variable_height', gprefs)
         r('bookshelf_fade_time', gprefs)
-        r('bookshelf_hover_shift', gprefs)
-        r('bookshelf_hover_above', gprefs)
 
         r('bookshelf_title_template', db.prefs)
         r('bookshelf_spine_size_template', db.prefs)
