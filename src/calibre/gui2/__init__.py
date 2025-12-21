@@ -497,6 +497,7 @@ def create_defs():
     defs['bookshelf_centered'] = False
     defs['bookshelf_variable_height'] = True
     defs['bookshelf_fade_time'] = 200
+    defs['bookshelf_hover'] = 'above'
     defs['bookshelf_background'] = {
         'light': (255, 255, 255), 'dark': (64, 64, 64), 'light_texture': None, 'dark_texture': None
     }
