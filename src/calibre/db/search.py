@@ -337,8 +337,8 @@ def local_forms(x: str) -> set[str]:
 class BooleanSearch:  # {{{
 
     def __init__(self):
-        local_no = local_forms(_('no'))
-        local_yes       = local_forms(_('yes'))
+        local_no = local_forms(_('No')) | local_forms(_('no'))
+        local_yes       = local_forms(_('Yes')) | local_forms(_('yes'))
         local_unchecked = local_forms(_('unchecked'))
         local_checked   = local_forms(_('checked'))
         local_empty     = local_forms(_('empty'))
