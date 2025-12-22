@@ -10,7 +10,6 @@
 # fix drag and drop
 # fix arrow keys home/end for navigation
 # fix double clicking
-# hover shift change to shift off shelf edge. fix hover transition to next book.
 # Remove py_dominant_color after beta release
 import bisect
 import hashlib
@@ -34,6 +33,7 @@ from qt.core import (
     QBuffer,
     QColor,
     QContextMenuEvent,
+    QEasingCurve,
     QEvent,
     QFont,
     QFontMetrics,
@@ -48,14 +48,19 @@ from qt.core import (
     QPainter,
     QPaintEvent,
     QPalette,
+    QParallelAnimationGroup,
     QPen,
     QPixmap,
     QPoint,
     QPointF,
+    QPropertyAnimation,
     QRect,
+    QSize,
     QStyle,
     Qt,
     QTimer,
+    QWidget,
+    pyqtProperty,
     pyqtSignal,
     qBlue,
     qGreen,
@@ -306,6 +311,7 @@ class ShelfItem(NamedTuple):
     start_x: int
     case_start_y: int
     width: int
+    idx: int
     reduce_height_by: int = 0
     book_id: int = 0
     group_name: str = ''
@@ -337,12 +343,12 @@ class CaseItem:
         if not is_shelf:
             self.items = []
 
-    def book_or_divider_at_xpos(self, x: int) -> ShelfItem | None:
+    def book_or_divider_at_xpos(self, x: int, lc: LayoutConstraints) -> ShelfItem | None:
         if self.items:
             idx = bisect.bisect_right(self.items, x, key=attrgetter('start_x'))
             if idx > 0:
                 candidate = self.items[idx-1]
-                if x < candidate.start_x + candidate.width:
+                if x < candidate.start_x + candidate.width + lc.horizontal_gap:
                     return candidate
         return None
 
@@ -357,7 +363,7 @@ class CaseItem:
             return True
         if (x := self._get_x_for_item(lc.divider_width, lc)) is None:
             return False
-        s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y)
+        s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y, idx=len(self.items))
         self.items.append(s)
         self.width = s.start_x + s.width
         return True
@@ -367,7 +373,7 @@ class CaseItem:
             return False
         s = ShelfItem(
             start_x=x, book_id=book_id, reduce_height_by=height_reduction_for_book_id(book_id),
-            width=width, group_name=group_name, case_start_y=self.start_y)
+            width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items))
         self.items.append(s)
         self.width = s.start_x + s.width
         return True
@@ -375,6 +381,33 @@ class CaseItem:
     @property
     def is_shelf(self) -> bool:
         return self.items is None
+
+    def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> 'CaseItem':
+        if (extra := width - shelf_item.width) <= 0:
+            return self
+        ans = CaseItem(y=self.start_y, height=self.height, idx=self.idx)
+        left_shift = right_shift = 0
+        shift_left = shelf_item.idx > 2
+        shift_right = shelf_item.idx < len(self.items) - 2
+        if shift_left:
+            if shift_right:
+                left_shift = extra // 2
+                right_shift = extra - left_shift
+            else:
+                left_shift = extra
+        else:
+            right_shift = extra
+        for i, item in enumerate(self.items):
+            if i < shelf_item.idx:
+                if shift_left:
+                    item = item._replace(start_x=item.start_x - left_shift)
+            elif i == shelf_item.idx:
+                item = item._replace(start_x=item.start_x - left_shift, width=width)
+            elif right_shift:
+                item = item._replace(start_x=item.start_x + right_shift)
+            ans.items.append(item)
+            ans.width = item.start_x + item.width
+        return ans
 
 
 def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, Iterable[int]]]:
@@ -612,95 +645,125 @@ class BookCase(QObject):
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
 
-class HoveredCover:
-    '''Simple class to store the data related to the current hovered cover.'''
+class HoveredCover(QWidget):
 
-    OPACITY_START = 0.3
-    FADE_TIME = 200  # Duration of the animation, in milliseconds
+    def __init__(self, pixmap: PixmapWithDominantColor, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.pixmap = pixmap
+        self.resize(pixmap.size())
+        if gprefs['bookshelf_shadow']:
+            pass
 
-    row: int = -1
-    book_id: int = -1
-    shelf_item: ShelfItem | None = None
-    progress: float = 0  # Animation progress (0.0 to 1.0)
-    opacity: float = OPACITY_START  # Current opacity (0.3 to 1.0)
-    shift: float = 0.0  # Current state of the shift animation (0.0 to 1.0)
-    width: int = -1  # Current width
-    height: int = -1  # Current height
-    width_max: int = -1  # Maximum width
-    height_end: int = -1  # Final height
-    height_modifier: int = -1  # Height modifier
-    base_x_pos: int = 0  # Base x position
-    base_y_pos: int = 0  # Base y position
-    spine_width: int = -1  # Spine width of this book
-    spine_height: int = -1  # Spine height of this book
-    dominant_color: QColor = QColor()  # Dominant color of this cover
-    start_time: float | None = None  # Start time of fade-in animation
+    def isNull(self) -> bool:
+        return self.pixmap.isNull()
 
-    def __init__(self):
-        self.pixmap: QPixmap = QPixmap()  # Scaled cover for hover popup
 
-    def is_valid(self) -> bool:
-        '''Test if the HoveredCover is valid.'''
-        return bool(self.row >= 0) and self.has_pixmap()
+class ExpandedCover(QObject):
 
-    def has_pixmap(self) -> bool:
-        '''Test if contain a valid pixmap.'''
-        return not self.pixmap.isNull()
+    updated = pyqtSignal()
 
-    def is_row(self, row: int) -> bool:
-        '''Test if the given row is the one of the hovered cover.'''
-        return self.is_valid() and row == self.row
+    def __init__(self, parent: 'BookshelfView'):
+        super().__init__(parent)
+        self._opacity = 0
+        self._size = QSize()
+        self.is_showing_cover = False
+        self.shelf_item: ShelfItem | None = None
+        self.case_item: CaseItem | None = None
+        self.modified_case_item: CaseItem | None = None
+        self.pixmap: HoveredCover = HoveredCover(PixmapWithDominantColor())
+        self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
+        a.setEasingCurve(QEasingCurve.Type.OutCubic)
+        a.setStartValue(0.3)
+        a.setEndValue(1)
+        self.size_animation = a = QPropertyAnimation(self, b'size')
+        a.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self.animation = a = QParallelAnimationGroup(self)
+        a.addAnimation(self.opacity_animation)
+        a.addAnimation(self.size_animation)
+        self.debounce_timer = t = QTimer(self)
+        t.setInterval(120)
+        t.timeout.connect(self.start)
+        t.setSingleShot(True)
 
-    def rect(self, lc: LayoutConstraints) -> QRect:
-        '''Return the current QRect of the hover popup.'''
-        offset_y = self.spine_height + lc.shelf_gap
-        rslt = QRect(self.base_x_pos, self.base_y_pos + offset_y, self.width, self.height)
-        if self.height_end < self.spine_height:
-            modifier = self.height_modifier - round(self.height_modifier * self.shift)
-            rslt.adjust(0, modifier, 0, 0)
-        else:
-            rslt.adjust(0, self.height_modifier, 0, 0)
-        return rslt
+    @property
+    def layout_constraints(self) -> LayoutConstraints:
+        return self.parent().layout_constraints
 
-    def spine_rect(self) -> QRect:
-        '''Return the book spine QRect.'''
-        rslt = QRect(self.base_x_pos, self.base_y_pos, self.spine_width, self.spine_height)
-        rslt.adjust(0, self.height_modifier, 0, 0)
-        return rslt
+    def shelf_item_hovered(self, case_item: CaseItem | None = None, shelf_item: ShelfItem | None = None) -> None:
+        self.pending_shelf_item, self.pending_case_item = shelf_item, case_item
+        self.debounce_timer.start()
 
-    def update(self):
-        '''Update hover cover fade-in animation and shift progress.'''
-        if not self.start_time:
+    def start(self) -> None:
+        if getattr(self.pending_shelf_item, 'book_id', -1) == getattr(self.shelf_item, 'book_id', -1):
+            self.pending_case_item = self.pending_shelf_item = None
             return
+        self.invalidate()
+        self.shelf_item, self.case_item = self.pending_shelf_item, self.pending_case_item
+        self.pending_case_item = self.pending_shelf_item = None
+        if self.shelf_item is not None:
+            self.opacity_animation.setDuration(gprefs['bookshelf_fade_time'])
+            self.size_animation.setDuration(self.opacity_animation.duration())
+            lc = self.layout_constraints
+            sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
+            self.modified_case_item = self.case_item
+            self.pixmap = self.parent().load_hover_cover(self.shelf_item)
+            self.size_animation.setStartValue(sz)
+            self.size_animation.setEndValue(self.pixmap.size())
+            self.animation.start()
+            self.is_showing_cover = True
+        self.updated.emit()
 
-        elapse = elapsed_time(self.start_time)
-        if elapse >= self.FADE_TIME:
-            self.progress = 1.0
-            self.opacity = 1.0
-            self.shift = 1.0
-            self.width = max(self.width_max, self.spine_width)
-            self.height = self.height_end
-            self.start_time = None
-        else:
-            self.progress = progress = elapse / self.FADE_TIME
-            # Cubic ease-out curve (similar to JSX mock)
-            # Ease-out cubic: 1 - (1 - t)^3
-            self.shift = cubic = 1.0 - (1.0 - progress) ** 3
-            # Interpolate opacity from 0.3 (start) to 1.0 (end)
-            self.opacity = self.OPACITY_START + (1.0 - self.OPACITY_START) * cubic
+    def invalidate(self) -> None:
+        self.shelf_item = self.case_item = self.modified_case_item = None
+        self.animation.stop()
+        self.debounce_timer.stop()
+        self.is_showing_cover = False
 
-            # Start the animation at the same width of the spine
-            if self.width_max > self.spine_width:
-                self.width = self.spine_width + math.ceil((self.width_max - self.spine_width) * cubic)
-            else:
-                # In the rare case when the spine is bigger than the cover
-                self.width = self.spine_width
+    @pyqtProperty(float)
+    def opacity(self) -> float:
+        return self._opacity
 
-            # Scale also the height to smooth the animation
-            if self.height_end < self.spine_height:
-                self.height = self.spine_height - math.ceil((self.spine_height - self.height_end) * cubic)
-            else:
-                self.height = self.spine_height
+    @opacity.setter
+    def opacity(self, val: float) -> None:
+        self._opacity = val
+
+    @pyqtProperty(QSize)
+    def size(self) -> QSize:
+        return self._size
+
+    @size.setter
+    def size(self, val: QSize) -> None:
+        self._size = val
+        self.shift_items()
+        self.updated.emit()
+
+    def shift_items(self) -> None:
+        self.modified_case_item = self.case_item.shift_for_expanded_cover(
+                self.shelf_item, self.layout_constraints, self.size.width())
+
+    @property
+    def expanded_cover_should_be_displayed(self) -> bool:
+        return self.shelf_item is not None and self.modified_case_item is not None and self.is_showing_cover and not self.pixmap.isNull()
+
+    def modify_shelf_layout(self, case_item: CaseItem) -> CaseItem:
+        if self.expanded_cover_should_be_displayed and case_item is self.case_item:
+            case_item = self.modified_case_item
+        return case_item
+
+    def is_expanded(self, book_id: int) -> bool:
+        return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
+
+    def draw(self, painter: QPainter, scroll_y: int, lc: LayoutConstraints) -> None:
+        shelf_item = self.modified_case_item.items[self.shelf_item.idx]
+        cover_rect = shelf_item.rect(lc)
+        cover_rect.translate(0, -scroll_y)
+        # Draw the dominant cover color as background to not fade-in from white
+        painter.fillRect(cover_rect, self.pixmap.pixmap.dominant_color)
+        # Draw cover with smooth fade-in opacity transition
+        painter.save()
+        painter.setOpacity(self.opacity)
+        painter.drawPixmap(cover_rect, self.pixmap.pixmap)
+        painter.restore()
 
 
 @setup_dnd_interface
@@ -765,16 +828,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._syncing_from_main = False  # Flag to prevent feedback loops
 
         # Cover loading and caching
-        self._height_modifiers: dict[int, int] = {}  # Cache for height modifiers (book_id -> height)
-        self._hovered = HoveredCover()  # Currently hovered book
-        self._hover_fade_timer = QTimer(self)  # Timer for fade-in animation
-        self._hover_fade_timer.setSingleShot(False)
-        self._hover_fade_timer.timeout.connect(self._update_hover_fade)
-        self._hover_buffer_timer = QTimer(self)  # Timer for buffer the hover animation
-        self._hover_buffer_timer.setSingleShot(False)
-        self._hover_buffer_timer.timeout.connect(self._delayed_hover_load)
-        self._hover_buffer_row = -1
-        self._hover_buffer_time = None
+        self.expanded_cover = ExpandedCover(self)
+        self.expanded_cover.updated.connect(self.update_viewport)
 
         self.layout_constraints = LayoutConstraints()
         self.layout_constraints = lc = self.layout_constraints._replace(width=self._get_available_width())
@@ -847,11 +902,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
-        self._enable_shadow = gprefs['bookshelf_shadow']
         self._enable_thumbnail = gprefs['bookshelf_thumbnail']
         self._enable_centered = gprefs['bookshelf_centered']
         self._enable_variable_height = gprefs['bookshelf_variable_height']
-        self._hovered.FADE_TIME = gprefs['bookshelf_fade_time']
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
         self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
         self._update_ram_cache_size()
@@ -890,6 +943,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def shutdown(self):
         self.cover_cache.shutdown()
         self.bookcase.shutdown()
+        self.expanded_cover.invalidate()
 
     def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
@@ -949,8 +1003,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         match ev.type():
             case QEvent.Type.Resize:
                 super().event(ev)
-                s = self.viewport().size()
                 if self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) == 0:
+                    s = self.viewport().size()
                     s.setWidth(s.width() - self.verticalScrollBar().size().width())
                     self.viewport().resize(s)
                 if self.layout_constraints.width != (new_width := self._get_available_width()):
@@ -976,6 +1030,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.bookcase.invalidate(
             self.layout_constraints, model=self.model() if set_of_books_changed else None,
             group_field_name=self._grouping_mode)
+        if set_of_books_changed:
+            self.expanded_cover.invalidate()
         self._update_scrollbar_ranges()
         self.update_viewport()
 
@@ -1024,13 +1080,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         viewport_rect = self.viewport().rect()
         visible_rect = viewport_rect.translated(0, scroll_y)
         hovered_item: ShelfItem | None = None
-        hovered_id = self._hovered.book_id if self._hovered.is_valid() else -1
         for shelf in self.bookcase.iter_shelves_from_ypos(scroll_y):
             if shelf.start_y > visible_rect.bottom():
                 break
             if shelf.is_shelf:
                 self._draw_shelf(painter, shelf, scroll_y, visible_rect.width())
                 continue
+            shelf = self.expanded_cover.modify_shelf_layout(shelf)
 
             # Draw books and inline dividers on it
             for item in shelf.items:
@@ -1038,20 +1094,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     self._draw_inline_divider(painter, item, scroll_y)
                     continue
 
-                if item.book_id == hovered_id:
-                    # This is the hovered book - it draw later
-                    # Position cover at spine position - left edge aligned with spine left edge
-                    # The cover replaces the spine, so left edge stays at original spine position
-                    self._hovered.base_x_pos = item.start_x
-                    self._hovered.base_y_pos = shelf.start_y
+                if self.expanded_cover.is_expanded(item.book_id):
                     hovered_item = item
                 else:
                     # Draw a book spine at this position
                     self._draw_spine(painter, item, scroll_y)
-
-        # Draw the hover cover of the hovered book
         if hovered_item is not None:
-            self._draw_hover_cover(painter, self._hovered, scroll_y, hovered_item)
+            self.expanded_cover.draw(painter, scroll_y, self.layout_constraints)
 
     def _draw_shelf(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int):
         '''Draw the shelf background at the given y position.'''
@@ -1353,96 +1402,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Cover integration methods
 
-    def _update_hover_fade(self):
-        '''Update hover cover fade-in animation and shift progress.'''
-        self._hovered.update()
-        self.update_viewport()
-        if not self._hovered.start_time:
-            self._hover_fade_timer.stop()
-
-    def _load_hover_cover(self):
-        '''Load the cover and scale it for hover popup.'''
-        try:
-            book_id = self._hovered.book_id
-            height_modifier = self._hovered.shelf_item.reduce_height_by
-            cover_img = self.dbref().cover(book_id, as_image=True)
-            if cover_img is None or cover_img.isNull():
-                cover_pixmap = self.default_cover_pixmap()
-                self._hovered.dominant_color = cover_pixmap.dominant_color
-            else:
-                _, cover_img = resize_to_fit(cover_img, self.layout_constraints.hover_expanded_width, self.layout_constraints.spine_height)
-                cover_pixmap = QPixmap.fromImage(cover_img)
-                thumb = self.cover_cache.thumbnail_as_pixmap(book_id)
-                if thumb is not None and not thumb.isNull():
-                    self._hovered.dominant_color = thumb.dominant_color
-                else:
-                    self._hovered.dominant_color = self.default_cover_pixmap().dominant_color
-
-            self._hovered.pixmap = cover_pixmap
-            self._hovered.spine_width = spine_width = self._hovered.shelf_item.width
-            self._hovered.spine_height = spine_height = self.layout_constraints.spine_height
-            self._hovered.height_modifier = height_modifier
-            self._hovered.width = spine_width  # ensure that the animation start at the spine width
-            self._hovered.height = spine_height  # ensure that the animation start at the spine height
-            self._hovered.width_max = cover_pixmap.width()
-            self._hovered.height_end = cover_pixmap.height()
-
-            if self._hovered.FADE_TIME <= 0:
-                # Fade-in animation is disable
-                self._hovered.progress = 1.0
-                self._hovered.opacity = 1.0
-                self._hovered.shift = 1.0
-                self._hovered.height = self._hovered.height_end
-                self._hovered.width = max(self._hovered.width_max, self._hovered.spine_width)
-            else:
-                # Start timer for smooth fade-in animation
-                self._hovered.start_time = time()
-                if not self._hover_fade_timer.isActive():
-                    self._hover_fade_timer.start(16)  # ~60fps updates
-
-            # Trigger immediate repaint to show the cover
-            self.update_viewport()
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            self._hovered = HoveredCover()
-
-    def _delayed_hover_load(self):
-        '''
-        Load the buffered row only after a short delay.
-
-        When the mouse move, several rows are request but many of them are probably not desired
-        since their are on the path of the cursor but are not the one on which the cusor end it path.
-        This can lead to load too many and useless cover, which impact the performance.
-        '''
-        if self._hover_buffer_time:
-            # Test if is too early to load a new hovered cover
-            # 20ms of delay, unoticable but avoid the loading of unrelevant covers
-            if elapsed_time(self._hover_buffer_time) < 20:
-                return
-
-        # Avoid concurrent load of the same cover
-        if self._hovered.row == self._hover_buffer_row:
-            self._hover_buffer_timer.stop()
-            return
-
-        # Delay passed, start load new hover cover
-        self._hover_fade_timer.stop()
-        self._hovered = HoveredCover()
-
-        # Load hover cover if hovering over a book
-        if self._hover_buffer_row >= 0:
-            new_book_id = self.book_id_from_row(self._hover_buffer_row)
-            if new_book_id != self._hovered.book_id and new_book_id is not None:
-                if si := self.bookcase.book_id_to_item_map.get(new_book_id):
-                    self._hovered.row = self._hover_buffer_row
-                    self._hovered.book_id = new_book_id
-                    self._hovered.shelf_item = si
-                    self._load_hover_cover()
-
-        self._hover_buffer_time = None
-        self._hover_buffer_timer.stop()
-        self.update_viewport()
+    def load_hover_cover(self, si: ShelfItem) -> HoveredCover:
+        lc = self.layout_constraints
+        cover_img = self.dbref().cover(si.book_id, as_image=True)
+        if cover_img is None or cover_img.isNull():
+            cover_pixmap = self.default_cover_pixmap()
+        else:
+            _, cover_img = resize_to_fit(cover_img, lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
+            cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
+        return HoveredCover(cover_pixmap, self)
 
     def _get_contrasting_text_color(self, background_color: QColor):
         '''
@@ -1712,13 +1680,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
         pos = ev.pos()
-        row = self._book_row_at_position(pos.x(), pos.y())
-        if row != self._hovered.row:
-            # Hover changed
-            self._hover_buffer_row = row
-            self._hover_buffer_time = time()
-            if not self._hover_buffer_timer.isActive():
-                self._hover_buffer_timer.start(10)
+        case_item, _, shelf_item = self.item_at_position(pos.x(), pos.y())
+        if shelf_item is not None and not shelf_item.is_divider:
+            self.expanded_cover.shelf_item_hovered(case_item, shelf_item)
+        else:
+            self.expanded_cover.shelf_item_hovered()
 
     def _handle_mouse_press(self, ev: QEvent) -> bool:
         '''Handle mouse press events on the viewport.'''
@@ -1806,11 +1772,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def _handle_mouse_leave(self, ev: QEvent):
         '''Handle mouse leave events on the viewport.'''
-        self.bookcase.ensure_worker()
         # Clear hover when mouse leaves viewport
-        self._hover_fade_timer.stop()
-        self._hover_buffer_timer.stop()
-        self._hovered = HoveredCover()
+        self.expanded_cover.invalidate()
         self.update_viewport()
 
     def _main_current_changed(self, current, previous):
@@ -1860,16 +1823,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Select in library view
             library_view.select_rows([book_id], using_ids=True)
 
-    def _book_id_at_position(self, x: int, y: int) -> int:
+    def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
         scroll_y = self.verticalScrollBar().value()
         content_y = y + scroll_y
-
-        if self._hovered.is_valid() and self._hovered.rect(self.layout_constraints).contains(x, content_y):
-            return self.bookcase.row_to_book_id[self._hovered.row]
-        x -= self.layout_constraints.side_margin
+        lc = self.layout_constraints
+        x -= lc.side_margin
         if (shelf := self.bookcase.shelf_with_ypos(content_y)) is not None:
-            if (item := shelf.book_or_divider_at_xpos(x)) is not None and not item.is_divider:
-                return item.book_id
+            modshelf = self.expanded_cover.modify_shelf_layout(shelf)
+            if (item := modshelf.book_or_divider_at_xpos(x, lc)) is not None:
+                return shelf, modshelf, item
+        return None, None, None
+
+    def _book_id_at_position(self, x: int, y: int) -> int:
+        _, _, shelf_item = self.item_at_position(x, y)
+        if shelf_item is not None and not shelf_item.is_divider:
+            return shelf_item.book_id
         return -1
 
     def _book_row_at_position(self, x: int, y: int) -> int:
