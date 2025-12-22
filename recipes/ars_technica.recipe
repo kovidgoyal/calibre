@@ -71,23 +71,24 @@ class ArsTechnica(BasicNewsRecipe):
     ]
     remove_attributes = ['lang', 'style']
 
-    # Feed are found here: [url]http://arstechnica.com/rss-feeds/[/url]
+    # Feed are found here: http://arstechnica.com/rss-feeds/
     feeds = [
-            ('Ars Technica', 'https://arstechnica.com/feed/'),
-            ('Features', 'https://arstechnica.com/features/feed/'),
-            ('Technology Lab', 'https://arstechnica.com/information-technology/feed/'),
-            ('Gear &amp; Gadgets', 'https://arstechnica.com/gadgets/feed/'),
-            ('Culture', 'https://arstechnica.com/cuture/feed/'),
-            ('Health', 'https://arstechnica.com/health/feed/'),
-            ('Policy', 'https://arstechnica.com/tech-policy/feed/'),
-            ('Security', 'https://arstechnica.com/security/feed/'),
-            ('Infinite Loop', 'https://arstechnica.com/tag/apple/feed/'),
-            ('Opposable Thumbs', 'https://arstechnica.com/gaming/feed/'),
-            ('Scientific Method', 'https://arstechnica.com/science/feed/'),
-            ('Cars Technica', 'https://arstechnica.com/cars/feed/'),
-            ('Staff', 'https://arstechnica.com/staff/feed/'),
-            ('AI', 'https://arstechnica.com/staff/ai/feed/'),
-            ('Space', 'https://arstechnica.com/space/feed/'),
+            ('Ars Technica', 'https://feeds.arstechnica.com/arstechnica/index'),
+            ('Features', 'https://feeds.arstechnica.com/arstechnica/features'),
+            ('Technology Lab', 'https://feeds.arstechnica.com/arstechnica/technology-lab'),
+            ('Gear & Gadgets', 'https://feeds.arstechnica.com/arstechnica/gadgets'),
+            ('Law & Disorder', 'https://feeds.arstechnica.com/arstechnica/tech-policy'),
+            # ('Health', 'https://arstechnica.com/health/feed/'),
+            # ('Policy', 'https://arstechnica.com/tech-policy/feed/'),
+            # ('Security', 'https://arstechnica.com/security/feed/'),
+            ('Infinite Loop', 'https://feeds.arstechnica.com/arstechnica/apple'),
+            ('Opposable Thumbs', 'https://feeds.arstechnica.com/arstechnica/gaming'),
+            ('Scientific Method', 'https://feeds.arstechnica.com/arstechnica/science'),
+            ('Cars Technica', 'https://feeds.arstechnica.com/arstechnica/cars'),
+            ('Staff', 'https://feeds.arstechnica.com/arstechnica/staff'),
+            # ('AI', 'https://arstechnica.com/staff/ai/feed/'),
+            # ('Space', 'https://arstechnica.com/space/feed/'),
+            ('Ars Cardboard', 'https://feeds.arstechnica.com/arstechnica/cardboard'),
     ]
 
     recursions = 1
