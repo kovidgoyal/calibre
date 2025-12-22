@@ -215,10 +215,6 @@ class DeVendor:
             if fullname == 'PyQt5':
                 return ModuleSpec(fullname, DeVendorLoader('qt'))
             return ModuleSpec(fullname, DeVendorLoader('qt.webengine' if 'QWebEngine' in fullname else 'qt.core'))
-        if fullname.startswith('Cryptodome'):
-            # this is needed for py7zr which uses pycryptodomex instead of
-            # pycryptodome for some reason
-            return ModuleSpec(fullname, DeVendorLoader(fullname.replace('dome', '', 1)))
 
 
 class ExtensionsPackageLoader:
