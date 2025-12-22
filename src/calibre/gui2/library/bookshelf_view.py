@@ -386,20 +386,24 @@ class CaseItem:
         if (extra := width - shelf_item.width) <= 0:
             return self
         ans = CaseItem(y=self.start_y, height=self.height, idx=self.idx)
-        left_shift = right_shift = 0
-        shift_left = shelf_item.idx > 2
-        shift_right = shelf_item.idx < len(self.items) - 2
-        if shift_left:
-            if shift_right:
-                left_shift = extra // 2
-                right_shift = extra - left_shift
+        space_at_right_edge = max(0, lc.width - self.width)
+        left_shift = 0
+        right_shift = min(space_at_right_edge, extra)
+        extra -= right_shift
+        if extra > 0:
+            shift_left = shelf_item.idx > 2
+            shift_right = shelf_item.idx < len(self.items) - 3
+            if shift_left:
+                if shift_right:
+                    left_shift += extra // 2
+                    right_shift += extra - left_shift
+                else:
+                    left_shift += extra
             else:
-                left_shift = extra
-        else:
-            right_shift = extra
+                right_shift += extra
         for i, item in enumerate(self.items):
             if i < shelf_item.idx:
-                if shift_left:
+                if left_shift:
                     item = item._replace(start_x=item.start_x - left_shift)
             elif i == shelf_item.idx:
                 item = item._replace(start_x=item.start_x - left_shift, width=width)
