@@ -892,11 +892,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.expanded_cover.updated.connect(self.update_viewport)
 
         self.layout_constraints = LayoutConstraints()
-        self.layout_constraints = lc = self.layout_constraints._replace(width=self._get_available_width())
+        self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
         self.cover_cache = CoverThumbnailCache(
             name='bookshelf-thumbnail-cache', ram_limit=800,
             max_size=gprefs['bookshelf_disk_cache_size'], thumbnailer=ThumbnailerWithDominantColor(),
-            thumbnail_size=(lc.max_spine_width, lc.spine_height), parent=self, version=2,
+            thumbnail_size=self.thumbnail_size(), parent=self, version=2,
         )
         self.cover_cache.rendered.connect(self.update_viewport, type=Qt.ConnectionType.QueuedConnection)
 
@@ -912,6 +912,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.size_template = '{size}'
         self.template_title_is_empty = True
         self.template_statue_is_empty = True
+
+    def thumbnail_size(self) -> tuple[int, int]:
+        lc = self.layout_constraints
+        dpr = self.devicePixelRatioF()
+        sz = QSizeF(lc.max_spine_width * dpr, lc.spine_height * dpr).toSize()
+        return sz.width(), sz.height()
 
     # Templates rendering methods
 
@@ -1365,7 +1371,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Draw with opacity
         painter.save()
         painter.setOpacity(0.3)  # 30% opacity
+        dpr = thumbnail.devicePixelRatioF()
+        thumbnail.setDevicePixelRatio(self.devicePixelRatioF())
         painter.drawPixmap(rect, thumbnail)
+        thumbnail.setDevicePixelRatio(dpr)
         painter.restore()
 
     # Cover integration methods
