@@ -770,10 +770,10 @@ class ExpandedCover(QObject):
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
-            pixmap = self.parent().load_hover_cover(self.shelf_item)
+            pixmap, final_sz = self.parent().load_hover_cover(self.shelf_item)
             self.cover_renderer.set_pixmap(pixmap)
             self.size_animation.setStartValue(sz)
-            self.size_animation.setEndValue(pixmap.size())
+            self.size_animation.setEndValue(final_sz)
             self.animation.start()
             self.is_showing_cover = True
         self.updated.emit()
@@ -1379,15 +1379,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Cover integration methods
 
-    def load_hover_cover(self, si: ShelfItem) -> PixmapWithDominantColor:
+    def load_hover_cover(self, si: ShelfItem) -> tuple[PixmapWithDominantColor, QSize]:
         lc = self.layout_constraints
         cover_img = self.dbref().cover(si.book_id, as_image=True)
         if cover_img is None or cover_img.isNull():
             cover_pixmap = self.default_cover_pixmap()
         else:
-            _, cover_img = resize_to_fit(cover_img, lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
+            dpr = self.devicePixelRatioF()
+            sz = (QSizeF(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by) * dpr).toSize()
+            _, cover_img = resize_to_fit(cover_img, sz.width(), sz.height())
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
-        return cover_pixmap
+        return cover_pixmap, QSize(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
 
     def _get_contrasting_text_color(self, background_color: QColor):
         '''
