@@ -318,6 +318,31 @@ def draw_pixmap_with_shadow(
     shadow_painter.drawPixmap(margin, margin, pixmap)
     shadow_painter.end()
     return QPixmap.fromImage(shadow_image), margin
+
+
+class CachedCoverRenderer:
+
+    def __init__(self, p: PixmapWithDominantColor) -> None:
+        self.pixmap = p
+        self.last_rendered_size = QSize()
+        self.last_rendered_opacity = -1
+        self.last_rendered_pixmap = QPixmap()
+        self.last_rendered_margin = 0
+    set_pixmap = __init__
+
+    def as_pixmap(self, size: QSize, opacity: float, parent: QWidget) -> tuple[QPixmap, int]:
+        if size == self.last_rendered_size and opacity == self.last_rendered_opacity:
+            return self.last_rendered_pixmap, self.last_rendered_margin
+        dpr = parent.devicePixelRatioF()
+        ss = (QSizeF(size) * dpr).toSize()
+        pmap = self.pixmap.scaled(ss, transformMode=Qt.TransformationMode.SmoothTransformation)
+        self.last_rendered_pixmap, self.last_rendered_margin = draw_pixmap_with_shadow(
+                pmap, has_shadow=gprefs['bookshelf_shadow'], fill_color=self.pixmap.dominant_color, opacity=opacity)
+        self.last_rendered_pixmap.setDevicePixelRatio(dpr)
+        self.last_rendered_margin = int(self.last_rendered_margin / dpr)
+        self.last_rendered_opacity = opacity
+        self.last_rendered_size = size
+        return self.last_rendered_pixmap, self.last_rendered_margin
 # }}}
 
 
@@ -697,31 +722,6 @@ class BookCase(QObject):
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
 
-class CoverRenderer:
-
-    def __init__(self, p: PixmapWithDominantColor) -> None:
-        self.pixmap = p
-        self.last_rendered_size = QSize()
-        self.last_rendered_opacity = -1
-        self.last_rendered_pixmap = QPixmap()
-        self.last_rendered_margin = 0
-    set_pixmap = __init__
-
-    def as_pixmap(self, size: QSize, opacity: float, parent: QWidget) -> tuple[QPixmap, int]:
-        if size == self.last_rendered_size and opacity == self.last_rendered_opacity:
-            return self.last_rendered_pixmap, self.last_rendered_margin
-        dpr = parent.devicePixelRatioF()
-        ss = (QSizeF(size) * dpr).toSize()
-        pmap = self.pixmap.scaled(ss, transformMode=Qt.TransformationMode.SmoothTransformation)
-        self.last_rendered_pixmap, self.last_rendered_margin = draw_pixmap_with_shadow(
-                pmap, has_shadow=gprefs['bookshelf_shadow'], fill_color=self.pixmap.dominant_color, opacity=opacity)
-        self.last_rendered_pixmap.setDevicePixelRatio(dpr)
-        self.last_rendered_margin = int(self.last_rendered_margin / dpr)
-        self.last_rendered_opacity = opacity
-        self.last_rendered_size = size
-        return self.last_rendered_pixmap, self.last_rendered_margin
-
-
 class ExpandedCover(QObject):
 
     updated = pyqtSignal()
@@ -734,7 +734,7 @@ class ExpandedCover(QObject):
         self.shelf_item: ShelfItem | None = None
         self.case_item: CaseItem | None = None
         self.modified_case_item: CaseItem | None = None
-        self.cover_renderer: CoverRenderer = CoverRenderer(PixmapWithDominantColor())
+        self.cover_renderer: CachedCoverRenderer = CachedCoverRenderer(PixmapWithDominantColor())
         self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
         a.setEasingCurve(QEasingCurve.Type.OutCubic)
         a.setStartValue(0.3)
