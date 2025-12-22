@@ -674,7 +674,7 @@ class ExpandedCover(QObject):
         self.shelf_item: ShelfItem | None = None
         self.case_item: CaseItem | None = None
         self.modified_case_item: CaseItem | None = None
-        self.pixmap: HoveredCover = HoveredCover(PixmapWithDominantColor())
+        self.cover_widget: HoveredCover = HoveredCover(PixmapWithDominantColor(), parent)
         self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
         a.setEasingCurve(QEasingCurve.Type.OutCubic)
         a.setStartValue(0.3)
@@ -710,9 +710,9 @@ class ExpandedCover(QObject):
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
-            self.pixmap = self.parent().load_hover_cover(self.shelf_item)
+            self.cover_widget.pixmap = pixmap = self.parent().load_hover_cover(self.shelf_item)
             self.size_animation.setStartValue(sz)
-            self.size_animation.setEndValue(self.pixmap.size())
+            self.size_animation.setEndValue(pixmap.size())
             self.animation.start()
             self.is_showing_cover = True
         self.updated.emit()
@@ -747,7 +747,7 @@ class ExpandedCover(QObject):
 
     @property
     def expanded_cover_should_be_displayed(self) -> bool:
-        return self.shelf_item is not None and self.modified_case_item is not None and self.is_showing_cover and not self.pixmap.isNull()
+        return self.shelf_item is not None and self.modified_case_item is not None and self.is_showing_cover
 
     def modify_shelf_layout(self, case_item: CaseItem) -> CaseItem:
         if self.expanded_cover_should_be_displayed and case_item is self.case_item:
@@ -762,11 +762,11 @@ class ExpandedCover(QObject):
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
         # Draw the dominant cover color as background to not fade-in from white
-        painter.fillRect(cover_rect, self.pixmap.pixmap.dominant_color)
+        painter.fillRect(cover_rect, self.cover_widget.pixmap.dominant_color)
         # Draw cover with smooth fade-in opacity transition
         painter.save()
         painter.setOpacity(self.opacity)
-        painter.drawPixmap(cover_rect, self.pixmap.pixmap)
+        painter.drawPixmap(cover_rect, self.cover_widget.pixmap)
         painter.restore()
 
 
@@ -1406,7 +1406,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Cover integration methods
 
-    def load_hover_cover(self, si: ShelfItem) -> HoveredCover:
+    def load_hover_cover(self, si: ShelfItem) -> PixmapWithDominantColor:
         lc = self.layout_constraints
         cover_img = self.dbref().cover(si.book_id, as_image=True)
         if cover_img is None or cover_img.isNull():
@@ -1414,7 +1414,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             _, cover_img = resize_to_fit(cover_img, lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
-        return HoveredCover(cover_pixmap, self)
+        return cover_pixmap
 
     def _get_contrasting_text_color(self, background_color: QColor):
         '''
