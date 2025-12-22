@@ -852,6 +852,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._enable_centered = gprefs['bookshelf_centered']
         self._enable_variable_height = gprefs['bookshelf_variable_height']
         self._hovered.FADE_TIME = gprefs['bookshelf_fade_time']
+        self._hover_shift = gprefs['bookshelf_hover'] == 'shift'
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
         self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
         self._update_ram_cache_size()
