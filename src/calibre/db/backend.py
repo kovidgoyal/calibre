@@ -638,7 +638,6 @@ class DB:
         defs['fts_enabled'] = False
         defs['column_tooltip_templates'] = {}
         defs['bookshelf_grouping_mode'] = 'none'
-        defs['bookshelf_color_rules'] = []
         defs['bookshelf_title_template'] = '{title}'
         defs['bookshelf_spine_size_template'] = '{size}'
 

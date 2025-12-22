@@ -410,14 +410,6 @@ pref_name_map = {
             'You can add emblems (small icons) that are displayed on the side of covers'
             ' in the Cover grid by creating "rules" that tell calibre what image to use.'),
     },
-    'bookshelf_color_rules': {
-        'kind': 'bookshelf_color',
-        'name': _('Bookshelf color indicator'),
-        'label': _('Set the color of the statue indicator:'),
-        'text': _(
-            'You can add a statue indicator (small colored dot) that are displayed on the book spine'
-            ' in the Bookshelf view by creating "rules" that tell calibre what color to use.'),
-    },
 }
 kind_icons = {'emblem', 'icon'}
 kind_emblems = {'emblem'}

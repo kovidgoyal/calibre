@@ -152,11 +152,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="BookshelfColorRules" name="bookshelf_color_rules">
-   <attribute name="title">
-    <string>&amp;Statue colors</string>
-   </attribute>
-  </widget>
   <widget class="CoverCacheConfig" name="config_cache">
    <attribute name="title">
     <string>&amp;Performance</string>
@@ -171,11 +166,6 @@
   </customwidget>
   <customwidget>
    <class>BackgroundConfig</class>
-   <extends>ConfigWidgetBase</extends>
-   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
-  </customwidget>
-  <customwidget>
-   <class>BookshelfColorRules</class>
    <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>

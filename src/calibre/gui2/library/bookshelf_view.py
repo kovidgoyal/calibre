@@ -51,11 +51,11 @@ from qt.core import (
     QParallelAnimationGroup,
     QPen,
     QPixmap,
-    QPoint,
     QPointF,
     QPropertyAnimation,
     QRect,
     QSize,
+    QSizeF,
     QStyle,
     Qt,
     QTimer,
@@ -70,7 +70,6 @@ from qt.core import (
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import gprefs, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
@@ -649,17 +648,39 @@ class BookCase(QObject):
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
 
-class HoveredCover(QWidget):
+class CoverRenderer(QObject):
 
-    def __init__(self, pixmap: PixmapWithDominantColor, parent: QWidget | None = None):
+    def __init__(self, pixmap: PixmapWithDominantColor, parent: QObject):
         super().__init__(parent)
-        self.pixmap = pixmap
-        self.resize(pixmap.size())
         if gprefs['bookshelf_shadow']:
             pass
+        self.set_pixmap(pixmap)
 
-    def isNull(self) -> bool:
-        return self.pixmap.isNull()
+    def set_pixmap(self, p: PixmapWithDominantColor) -> None:
+        self.pixmap = p
+        self.last_rendered_size = QSize()
+        self.last_rendered_opacity = -1
+        self.last_rendered_pixmap = QPixmap()
+
+    def as_pixmap(self, size: QSize, opacity: float, parent: QWidget) -> QPixmap:
+        if size == self.last_rendered_size and opacity == self.last_rendered_opacity:
+            return self.last_rendered_pixmap
+        ss = (QSizeF(size) * parent.devicePixelRatioF()).toSize()
+        pmap = self.pixmap.scaled(ss, transformMode=Qt.TransformationMode.SmoothTransformation)
+        pmap.setDevicePixelRatio(parent.devicePixelRatioF())
+        ans = QPixmap(pmap.size())
+        ans.setDevicePixelRatio(parent.devicePixelRatioF())
+        ans.fill(self.pixmap.dominant_color)
+        painter = QPainter(ans)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+        painter.setOpacity(opacity)
+        painter.drawPixmap(QPointF(0, 0), pmap)
+        painter.setOpacity(1)
+        painter.end()
+        self.last_rendered_pixmap = ans
+        self.last_rendered_opacity = opacity
+        self.last_rendered_size = size
+        return ans
 
 
 class ExpandedCover(QObject):
@@ -674,7 +695,7 @@ class ExpandedCover(QObject):
         self.shelf_item: ShelfItem | None = None
         self.case_item: CaseItem | None = None
         self.modified_case_item: CaseItem | None = None
-        self.cover_widget: HoveredCover = HoveredCover(PixmapWithDominantColor(), parent)
+        self.cover_renderer: CoverRenderer = CoverRenderer(PixmapWithDominantColor(), self)
         self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
         a.setEasingCurve(QEasingCurve.Type.OutCubic)
         a.setStartValue(0.3)
@@ -710,7 +731,8 @@ class ExpandedCover(QObject):
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
-            self.cover_widget.pixmap = pixmap = self.parent().load_hover_cover(self.shelf_item)
+            pixmap = self.parent().load_hover_cover(self.shelf_item)
+            self.cover_renderer.set_pixmap(pixmap)
             self.size_animation.setStartValue(sz)
             self.size_animation.setEndValue(pixmap.size())
             self.animation.start()
@@ -757,17 +779,12 @@ class ExpandedCover(QObject):
     def is_expanded(self, book_id: int) -> bool:
         return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
 
-    def draw(self, painter: QPainter, scroll_y: int, lc: LayoutConstraints) -> None:
+    def draw_expanded_cover(self, painter: QPainter, scroll_y: int, lc: LayoutConstraints) -> None:
         shelf_item = self.modified_case_item.items[self.shelf_item.idx]
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
-        # Draw the dominant cover color as background to not fade-in from white
-        painter.fillRect(cover_rect, self.cover_widget.pixmap.dominant_color)
-        # Draw cover with smooth fade-in opacity transition
-        painter.save()
-        painter.setOpacity(self.opacity)
-        painter.drawPixmap(cover_rect, self.cover_widget.pixmap)
-        painter.restore()
+        pmap = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
+        painter.drawPixmap(cover_rect, pmap)
 
 
 @setup_dnd_interface
@@ -871,7 +888,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return prefs.get(key, prefs.defaults.get(key))
 
         self.template_cache = {}
-        self.rules_color = db_pref('bookshelf_color_rules') or []
         self.template_title = db_pref('bookshelf_title_template') or ''
         self.template_title_is_title = self.template_title == '{title}'
         self.template_title_is_empty = not self.template_title.strip()
@@ -890,17 +906,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if rslt:
             return rslt
         return _('Unknown')
-
-    def render_color_indicator(self, book_id: int, mi: Metadata=None) -> QColor:
-        '''Return the statue indicator color generate for this book.'''
-        self.init_template(self.dbref())
-        if not mi:
-            mi = self.dbref().get_proxy_metadata(book_id)
-        for i, (kind, column, rule) in enumerate(self.rules_color):
-            rslt = QColor(mi.formatter.safe_format(rule, mi, TEMPLATE_ERROR, mi, column_name=f'color:{i}', template_cache=self.template_cache))
-            if rslt.isValid():
-                return rslt
-        return None
 
     # Miscellaneous methods
 
@@ -1104,7 +1109,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     # Draw a book spine at this position
                     self._draw_spine(painter, item, scroll_y)
         if hovered_item is not None:
-            self.expanded_cover.draw(painter, scroll_y, self.layout_constraints)
+            self.expanded_cover.draw_expanded_cover(painter, scroll_y, self.layout_constraints)
 
     def _draw_shelf(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int):
         '''Draw the shelf background at the given y position.'''
@@ -1162,23 +1167,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.setOpacity(1.0)
         painter.drawRect(spine_rect.adjusted(1, 1, -1, -1))
         painter.restore()
-
-    def _draw_statue_indicator(self, painter: QPainter, spine_rect: QRect, book_id: int, mi: Metadata=None) -> bool:
-        '''Draw reading statue indicator.'''
-        statue_color = self.render_color_indicator(book_id, mi)
-        if isinstance(statue_color, QColor) and statue_color.isValid():
-            painter.save()
-            painter.setOpacity(1.0)
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            dot_radius = 4
-            dot_x = spine_rect.x() + spine_rect.width() // 2
-            dot_y = spine_rect.y() + spine_rect.height() - dot_radius - 10
-            painter.setBrush(QBrush(statue_color))
-            painter.setPen(QPen(QColor(255, 255, 255, 120), 1.5))
-            painter.drawEllipse(QPoint(dot_x, dot_y), dot_radius, dot_radius)
-            painter.restore()
-            return True
-        return False
 
     def _get_sized_text(self, text: str, max_width: int, start: float, stop: float) -> tuple[str, QFont, QRect]:
         '''Return a text, a QFont and a QRect that fit into the max_width.'''
@@ -1277,12 +1265,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if self._enable_thumbnail:
             self._draw_thumbnail_overlay(painter, spine_rect, thumbnail)
 
-        # Draw reading statue indicator at bottom
-        has_indicator = self._draw_statue_indicator(painter, spine_rect, spine.book_id, mi)
-
         # Draw title (rotated vertically)
         title = self.render_template_title(spine.book_id, mi)
-        self._draw_spine_title(painter, spine_rect, spine_color, title, has_indicator)
+        self._draw_spine_title(painter, spine_rect, spine_color, title)
 
         # Draw selection highlight around the spine
         if is_selected:
@@ -1311,7 +1296,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.fillRect(rect, QBrush(vertical_gradient))
         painter.restore()
 
-    def _draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, title: str, has_indicator=False):
+    def _draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, title: str):
         '''Draw vertically the title on the spine.'''
         if not title:
             return
@@ -1329,13 +1314,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             rect.height(),
             rect.width(),
         )
-        # leave space for statue indicator and a margin with top of the spine
-        text_rect.adjust(
-            22 if has_indicator else 6,
-            0,
-            -4 if has_indicator else -6,
-            0,
-        )
+        # leave space for margin with top of the spine
+        text_rect.adjust(6, 0, -6, 0)
         elided_text, font, _rect = self._get_sized_text(title, text_rect.width(), 12, 8)
         painter.setFont(font)
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided_text)
@@ -1348,61 +1328,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.setOpacity(0.3)  # 30% opacity
         painter.drawPixmap(rect, thumbnail)
         painter.restore()
-
-    def _draw_hover_cover(self, painter: QPainter, hovered: HoveredCover, scroll_y: int, book: ShelfItem):
-        '''Draw the hover cover popup.
-
-        The cover replaces the spine when hovered, appearing at the same position
-        with full spine height (150px) and smooth fade-in animation.
-        '''
-        if not hovered.is_valid():
-            return
-
-        is_selected = hovered.row in self._selected_rows or hovered.row == self._current_row
-        cover_rect = hovered.rect(self.layout_constraints)
-        cover_rect.translate(0, -scroll_y)
-
-        if self._enable_shadow:
-            # Draw shadow with blur effect (like JSX mock: 6px 6px 18px rgba(0,0,0,0.45))
-            # Qt doesn't have native blur, so we'll use a darker shadow
-            rect = cover_rect.translated(6, 6)
-            shadow_blur = 3
-            # Draw multiple shadow layers for blur effect
-            for i in range(shadow_blur):
-                alpha = int(115 * (1 - i / shadow_blur))  # 0.45 opacity = ~115 alpha
-                shadow_color = QColor(0, 0, 0, alpha)
-                shadow_layer = rect.translated(i, i)
-                painter.fillRect(shadow_layer, shadow_color)
-
-        # Draw the dominant cover color as background to not fade-in from white
-        if hovered.dominant_color is not None:
-            painter.fillRect(cover_rect, hovered.dominant_color)
-        # Draw cover with smooth fade-in opacity transition
-        painter.save()
-        painter.setOpacity(hovered.opacity)
-        painter.drawPixmap(cover_rect, hovered.pixmap)
-        painter.restore()
-
-        # Add subtle gradient overlay (like JSX mock: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%))
-        painter.save()
-        overlay_gradient = QLinearGradient(
-            QPointF(cover_rect.left(), cover_rect.top()),
-            QPointF(cover_rect.width(), cover_rect.height()),
-        )
-        overlay_gradient.setColorAt(0, QColor(255, 255, 255, 31))  # 0.12 opacity = ~31 alpha
-        overlay_gradient.setColorAt(0.5, QColor(255, 255, 255, 0))
-        overlay_gradient.setColorAt(1, QColor(255, 255, 255, 0))
-        painter.fillRect(cover_rect, QBrush(overlay_gradient))
-        painter.restore()
-
-        # Draw reading statue indicator at same position that for the spine
-        spine_rect = hovered.spine_rect()
-        spine_rect.translate(0, -scroll_y)
-        self._draw_statue_indicator(painter, spine_rect, hovered.book_id)
-
-        if is_selected:
-            # Draw selection highlight around the hovered cover
-            self._draw_selection_highlight(painter, cover_rect)
 
     # Cover integration methods
 
