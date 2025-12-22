@@ -11,6 +11,8 @@
 # fix arrow keys home/end for navigation
 # fix double clicking
 # Remove py_dominant_color after beta release
+
+# Imports {{{
 import bisect
 import hashlib
 import math
@@ -23,7 +25,6 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
 from threading import Event, RLock, Thread
-from time import time
 from typing import NamedTuple
 
 from qt.core import (
@@ -51,9 +52,11 @@ from qt.core import (
     QParallelAnimationGroup,
     QPen,
     QPixmap,
+    QPoint,
     QPointF,
     QPropertyAnimation,
     QRect,
+    QRectF,
     QSize,
     QSizeF,
     QStyle,
@@ -79,6 +82,9 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
 from calibre.utils.localization import lang_map
 from calibre_extensions import imageops
+
+# }}}
+
 
 TEMPLATE_ERROR_COLOR = QColor('#9C27B0')
 TEMPLATE_ERROR = _('TEMPLATE ERROR')
@@ -129,11 +135,6 @@ def pseudo_random(book_id: int, maximum) -> int:
     val = str(book_id or 0).encode()
     hash_val = int(hashlib.md5(val).hexdigest()[:8], 16)
     return hash_val % maximum
-
-
-def elapsed_time(ref_time: float) -> float:
-    '''Get elapsed time, in milliseconds.'''
-    return (time() - ref_time) * 1000
 
 
 # }}}
@@ -269,6 +270,54 @@ class ThumbnailerWithDominantColor(Thumbnailer):
         ans = ImageWithDominantColor(qimg)
         ans._dominant_color = dc
         return ans
+
+
+def draw_pixmap_with_shadow(
+    pixmap: QPixmap, opacity: float = 1.0, has_shadow: bool = True,
+    shadow_color: QColor = QColor(0, 0, 0, 100), fill_color: QColor = QColor(Qt.GlobalColor.transparent),
+) -> tuple[QPixmap, int]:
+    ''' Draw a QPixmap with a nice drop shadow effect. '''
+    # Create a larger image to accommodate the shadow
+    shadow_blur = 10 if has_shadow else 0
+    margin = shadow_blur * 2
+    total_width, total_height = pixmap.width(), pixmap.height()
+    if margin > 0:
+        shadow_offset_x = shadow_offset_y = shadow_blur // 2
+        total_width += margin * 2 + abs(shadow_offset_x)
+        total_height += margin * 2 + abs(shadow_offset_y)
+
+    # Create shadow image
+    shadow_image = QImage(total_width, total_height, QImage.Format_ARGB32_Premultiplied)
+    shadow_image.fill(Qt.GlobalColor.transparent)
+
+    shadow_painter = QPainter(shadow_image)
+    shadow_painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+    shadow_painter.setPen(Qt.PenStyle.NoPen)
+
+    if margin:
+        # Draw the shadow shape (rounded rect or simple rect based on preference)
+        shadow_rect = QRectF(
+            margin + shadow_offset_x,
+            margin + shadow_offset_y,
+            pixmap.width(),
+            pixmap.height()
+        )
+
+        # Draw multiple layers with decreasing opacity for blur effect
+        for i in range(shadow_blur, 0, -1):
+            alpha = int(shadow_color.alpha() * (1 - i / shadow_blur) * 0.5)
+            blur_color = QColor(shadow_color.red(), shadow_color.green(),
+                            shadow_color.blue(), alpha)
+            shadow_painter.setBrush(blur_color)
+
+            blur_rect = shadow_rect.adjusted(-i, -i, i, i)
+            shadow_painter.drawRoundedRect(blur_rect, 3, 3)
+
+    shadow_painter.fillRect(QRect(margin, margin, pixmap.width(), pixmap.height()), fill_color)
+    shadow_painter.setOpacity(opacity)
+    shadow_painter.drawPixmap(margin, margin, pixmap)
+    shadow_painter.end()
+    return QPixmap.fromImage(shadow_image), margin
 # }}}
 
 
@@ -648,39 +697,29 @@ class BookCase(QObject):
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
 
-class CoverRenderer(QObject):
+class CoverRenderer:
 
-    def __init__(self, pixmap: PixmapWithDominantColor, parent: QObject):
-        super().__init__(parent)
-        if gprefs['bookshelf_shadow']:
-            pass
-        self.set_pixmap(pixmap)
-
-    def set_pixmap(self, p: PixmapWithDominantColor) -> None:
+    def __init__(self, p: PixmapWithDominantColor) -> None:
         self.pixmap = p
         self.last_rendered_size = QSize()
         self.last_rendered_opacity = -1
         self.last_rendered_pixmap = QPixmap()
+        self.last_rendered_margin = 0
+    set_pixmap = __init__
 
-    def as_pixmap(self, size: QSize, opacity: float, parent: QWidget) -> QPixmap:
+    def as_pixmap(self, size: QSize, opacity: float, parent: QWidget) -> tuple[QPixmap, int]:
         if size == self.last_rendered_size and opacity == self.last_rendered_opacity:
-            return self.last_rendered_pixmap
-        ss = (QSizeF(size) * parent.devicePixelRatioF()).toSize()
+            return self.last_rendered_pixmap, self.last_rendered_margin
+        dpr = parent.devicePixelRatioF()
+        ss = (QSizeF(size) * dpr).toSize()
         pmap = self.pixmap.scaled(ss, transformMode=Qt.TransformationMode.SmoothTransformation)
-        pmap.setDevicePixelRatio(parent.devicePixelRatioF())
-        ans = QPixmap(pmap.size())
-        ans.setDevicePixelRatio(parent.devicePixelRatioF())
-        ans.fill(self.pixmap.dominant_color)
-        painter = QPainter(ans)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
-        painter.setOpacity(opacity)
-        painter.drawPixmap(QPointF(0, 0), pmap)
-        painter.setOpacity(1)
-        painter.end()
-        self.last_rendered_pixmap = ans
+        self.last_rendered_pixmap, self.last_rendered_margin = draw_pixmap_with_shadow(
+                pmap, has_shadow=gprefs['bookshelf_shadow'], fill_color=self.pixmap.dominant_color, opacity=opacity)
+        self.last_rendered_pixmap.setDevicePixelRatio(dpr)
+        self.last_rendered_margin = int(self.last_rendered_margin / dpr)
         self.last_rendered_opacity = opacity
         self.last_rendered_size = size
-        return ans
+        return self.last_rendered_pixmap, self.last_rendered_margin
 
 
 class ExpandedCover(QObject):
@@ -695,7 +734,7 @@ class ExpandedCover(QObject):
         self.shelf_item: ShelfItem | None = None
         self.case_item: CaseItem | None = None
         self.modified_case_item: CaseItem | None = None
-        self.cover_renderer: CoverRenderer = CoverRenderer(PixmapWithDominantColor(), self)
+        self.cover_renderer: CoverRenderer = CoverRenderer(PixmapWithDominantColor())
         self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
         a.setEasingCurve(QEasingCurve.Type.OutCubic)
         a.setStartValue(0.3)
@@ -783,8 +822,8 @@ class ExpandedCover(QObject):
         shelf_item = self.modified_case_item.items[self.shelf_item.idx]
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
-        pmap = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
-        painter.drawPixmap(cover_rect, pmap)
+        pmap, margin = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
+        painter.drawPixmap(cover_rect.topLeft() - QPoint(margin, margin), pmap)
 
 
 @setup_dnd_interface
