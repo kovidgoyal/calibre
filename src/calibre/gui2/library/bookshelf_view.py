@@ -40,6 +40,7 @@ from qt.core import (
     QItemSelection,
     QItemSelectionModel,
     QKeyEvent,
+    QKeySequence,
     QLinearGradient,
     QLocale,
     QMenu,
@@ -1761,6 +1762,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return super().viewportEvent(ev)
 
     def keyPressEvent(self, ev: QKeyEvent) -> None:
+        if ev.matches(QKeySequence.StandardKey.SelectAll):
+            self.selectAll()
+            ev.accept()
+            return
         if (key := ev.key()) not in (
             Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageDown,
             Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End
