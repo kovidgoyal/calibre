@@ -21,7 +21,7 @@ import struct
 import weakref
 from collections import Counter
 from collections.abc import Iterable, Iterator
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from functools import lru_cache, partial
 from operator import attrgetter
 from threading import Event, RLock, Thread
@@ -45,6 +45,7 @@ from qt.core import (
     QLocale,
     QMenu,
     QModelIndex,
+    QMouseEvent,
     QObject,
     QPainter,
     QPaintEvent,
@@ -74,7 +75,7 @@ from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, resolve_bookshelf_color
-from calibre.gui2.library.alternate_views import setup_dnd_interface
+from calibre.gui2.library.alternate_views import handle_shift_click, handle_shift_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
@@ -581,6 +582,8 @@ class BookCase(QObject):
         super().__init__(parent)
         self.row_to_book_id: tuple[int, ...] = ()
         self._book_id_to_row_map: dict[int, int] = {}
+        self.book_id_visual_order_map: dict[int, int] = {}
+        self.book_ids_in_visual_order: list[int] = []
         self.lock = RLock()
         self.current_invalidate_event = Event()
         self.spine_width_cache: dict[int, int] = {}
@@ -643,6 +646,8 @@ class BookCase(QObject):
             self.items = []
             self.height = 0
             self.layout_constraints = layout_constraints
+            self.book_id_visual_order_map: dict[int, int] = {}
+            self.book_ids_in_visual_order = []
             self.book_id_to_item_map: dict[int, ShelfItem] = {}
             if model is not None and (db := model.db) is not None:
                 # implies set of books to display has changed
@@ -659,7 +664,7 @@ class BookCase(QObject):
                 self.worker = Thread(
                     target=partial(
                         self.do_layout_in_worker, self.current_invalidate_event, self.group_itr, self.layout_constraints,
-                        self.book_id_to_item_map
+                        self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order,
                     ),
                     name='BookCaseLayout', daemon=True
                 )
@@ -673,7 +678,8 @@ class BookCase(QObject):
 
     def do_layout_in_worker(
         self, invalidate: Event, group_iter: Iterator[tuple[str, Iterable[int]]], lc: LayoutConstraints,
-        book_id_to_item_map: dict[int, ShelfItem],
+        book_id_to_item_map: dict[int, ShelfItem], book_id_visual_order_map: dict[int, int],
+        book_ids_in_visual_order: list[int],
     ) -> None:
         if lc.width < lc.max_spine_width:
             return
@@ -711,6 +717,8 @@ class BookCase(QObject):
                     current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
                     current_case_item.add_book(book_id, spine_width, group_name, lc)
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
+                book_id_visual_order_map[book_id] = len(book_id_visual_order_map)
+                book_ids_in_visual_order.append(book_id)
         if current_case_item.items:
             commit_case_item(current_case_item)
         with self.lock:
@@ -720,6 +728,24 @@ class BookCase(QObject):
             self.worker = None
             if len(self.items) > 1:
                 self.shelf_added.emit(self.items[-2], self.items[-1])
+
+    def visual_row_cmp(self, a: int, b: int) -> int:
+        ' Compares if a or b (book_row numbers) is visually before the other in left-to-right top-to-bottom order'
+        try:
+            a = self.row_to_book_id[a]
+            b = self.row_to_book_id[b]
+        except IndexError:
+            return a - b
+        return self.book_id_visual_order_map[a] - self.book_id_visual_order_map[b]
+
+    def visual_selection_between(self, a: int, b: int) -> Iterator[int]:
+        ' Return all book_rows visually from a to b in left to right top-to-bottom order '
+        a = self.row_to_book_id[a]
+        b = self.row_to_book_id[b]
+        aidx = self.book_ids_in_visual_order.index(a)
+        bidx = self.book_ids_in_visual_order.index(b)
+        s, e = min(aidx, bidx), max(aidx, bidx)
+        yield from map(self.book_id_to_row_map.__getitem__, self.book_ids_in_visual_order[s:e+1])
 
 
 class ExpandedCover(QObject):
@@ -818,12 +844,27 @@ class ExpandedCover(QObject):
     def is_expanded(self, book_id: int) -> bool:
         return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
 
-    def draw_expanded_cover(self, painter: QPainter, scroll_y: int, lc: LayoutConstraints) -> None:
+    def draw_expanded_cover(
+        self, painter: QPainter, scroll_y: int, lc: LayoutConstraints, is_selected: bool, is_current: bool,
+        selection_highlight_color: QColor
+    ) -> None:
         shelf_item = self.modified_case_item.items[self.shelf_item.idx]
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
         pmap, margin = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
         painter.drawPixmap(cover_rect.topLeft() - QPoint(margin, margin), pmap)
+        if selection_highlight_color.isValid():
+            pen = QPen(selection_highlight_color)
+            pen.setWidth(2)
+            painter.setPen(pen)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.setOpacity(1.0)
+            painter.drawRect(cover_rect)
+
+
+class SavedState(NamedTuple):
+    current_book_id: int
+    selected_book_ids: set[int]
 
 
 @setup_dnd_interface
@@ -847,7 +888,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     SHELF_COLOR_END = QColor('#3d2e20')
     TEXT_COLOR = QColor('#eee')
     TEXT_COLOR_DARK = QColor('#222')  # Dark text for light backgrounds
-    SELECTION_HIGHLIGHT_COLOR = QColor('#ff0')
     DIVIDER_TEXT_COLOR = QColor('#b0b5c0')
     DIVIDER_LINE_COLOR = QColor('#4a4a6a')
     DIVIDER_GRADIENT_LINE_1 = DIVIDER_LINE_COLOR.toRgb()
@@ -878,14 +918,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # so we set the attributes manually
         self.drag_allowed = True
         self.drag_start_pos = None
-        self.bookcase = BookCase()
+        self.bookcase = BookCase(self)
         self.bookcase.shelf_added.connect(self.on_shelf_layout_done, type=Qt.ConnectionType.QueuedConnection)
 
         # Selection tracking
-        self._selected_rows: set[int] = set()
-        self._current_row = -1
-        self._selection_model: QItemSelectionModel = None
+        self._selection_model: QItemSelectionModel = QItemSelectionModel(None, self)
         self._syncing_from_main = False  # Flag to prevent feedback loops
+        self.selectionModel().selectionChanged.connect(self.update_viewport)
 
         # Cover loading and caching
         self.expanded_cover = ExpandedCover(self)
@@ -908,10 +947,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_inited = False
         self.template_cache = {}
         self.template_title = ''
-        self.template_statue = ''
-        self.size_template = '{size}'
         self.template_title_is_empty = True
-        self.template_statue_is_empty = True
 
     def thumbnail_size(self) -> tuple[int, int]:
         lc = self.layout_constraints
@@ -1009,10 +1045,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             for s, tgt in signals.items():
                 getattr(self._model, s).disconnect(getattr(self, tgt))
         self._model = model
-        self._selection_model = None
+        self.selectionModel().setModel(model)
         if model is not None:
             # Create selection model for sync
-            self._selection_model = QItemSelectionModel(model, self)
             for s, tgt in signals.items():
                 getattr(self._model, s).connect(getattr(self, tgt))
         self.invalidate(set_of_books_changed=True)
@@ -1134,6 +1169,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         viewport_rect = self.viewport().rect()
         visible_rect = viewport_rect.translated(0, scroll_y)
         hovered_item: ShelfItem | None = None
+        sm = self.selectionModel()
+        current_row = sm.currentIndex().row()
+
         for shelf in self.bookcase.iter_shelves_from_ypos(scroll_y):
             if shelf.start_y > visible_rect.bottom():
                 break
@@ -1152,9 +1190,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     hovered_item = item
                 else:
                     # Draw a book spine at this position
-                    self._draw_spine(painter, item, scroll_y)
+                    row = self.bookcase.book_id_to_row_map[item.book_id]
+                    self._draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
         if hovered_item is not None:
-            self.expanded_cover.draw_expanded_cover(painter, scroll_y, self.layout_constraints)
+            row = self.bookcase.book_id_to_row_map[hovered_item.book_id]
+            is_selected, is_current = sm.isRowSelected(row), row == current_row
+            self.expanded_cover.draw_expanded_cover(
+                painter, scroll_y, self.layout_constraints, is_selected, is_current,
+                self.selection_highlight_color(is_selected, is_current))
 
     def _draw_shelf(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int):
         '''Draw the shelf background at the given y position.'''
@@ -1204,13 +1247,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 line_pos,
             )
 
-    def _draw_selection_highlight(self, painter: QPainter, spine_rect: QRect):
+    def _draw_selection_highlight(self, painter: QPainter, spine_rect: QRect, color: QColor):
         '''Draw the selection highlight.'''
         painter.save()
-        painter.setPen(self.SELECTION_HIGHLIGHT_COLOR)
+        pen = QPen(color)
+        gap = min(4, self.layout_constraints.horizontal_gap // 2)
+        pen.setWidth(2 * gap)
+        painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.setOpacity(1.0)
-        painter.drawRect(spine_rect.adjusted(1, 1, -1, -1))
+        painter.drawRect(spine_rect.adjusted(gap, gap, -gap, -gap))
         painter.restore()
 
     def _get_sized_text(self, text: str, max_width: int, start: float, stop: float) -> tuple[str, QFont, QRect]:
@@ -1281,7 +1327,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         lc = self.layout_constraints
         return default_cover_pixmap(lc.hover_expanded_width, lc.spine_height)
 
-    def _draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int):
+    def _draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int, is_selected: bool, is_current: bool):
         '''Draw a book spine.'''
         thumbnail = self.cover_cache.thumbnail_as_pixmap(spine.book_id)
         if thumbnail is None:  # not yet rendered
@@ -1291,14 +1337,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             thumbnail = self.default_cover_pixmap()
         mi = self.dbref().get_proxy_metadata(spine.book_id)
 
-        # Determine if selected
-        is_selected = False
-
         # Get cover color
         spine_color = thumbnail.dominant_color
         if not spine_color.isValid():
             spine_color = self.default_cover_pixmap().dominant_color
-        if is_selected:
+        if is_selected or is_current:
             spine_color = spine_color.lighter(120)
 
         spine_rect = spine.rect(lc).translated(0, -scroll_y)
@@ -1315,8 +1358,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._draw_spine_title(painter, spine_rect, spine_color, title)
 
         # Draw selection highlight around the spine
+        color = self.selection_highlight_color(is_selected, is_current)
+        if color.isValid():
+            self._draw_selection_highlight(painter, spine_rect, color)
+
+    def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
+        if is_current:
+            return self.palette().color(QPalette.ColorRole.LinkVisited)
         if is_selected:
-            self._draw_selection_highlight(painter, spine_rect)
+            return self.palette().color(QPalette.ColorRole.Highlight)
+        return QColor()
 
     def _draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
         '''Draw spine background with gradient (darker edges, lighter center).'''
@@ -1493,57 +1544,29 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Selection methods (required for AlternateViews integration)
 
-    def set_current_row(self, row: int):
-        '''Set the current row.'''
-        if not self._selection_model:
+    def select_rows(self, rows: Iterable[int], using_ids: bool = False) -> None:
+        if not (m := self.model()):
             return
-        if (m := self.model()) and 0 <= row < m.rowCount(QModelIndex()):
-            self._current_row = row
-            index = m.index(row, 0)
-            if index.isValid():
-                self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
-            self.update_viewport()
-            # Scroll to make row visible
-            self._scroll_to_row(row)
-
-    def select_rows(self, rows: Iterable[int], using_ids=False):
-        '''Select the specified rows.
-
-        Args:
-            rows: List of row indices or book IDs
-            using_ids: If True, rows contains book IDs; if False, rows contains row indices
-        '''
-        m = self.model()
-        if not self._selection_model or not m:
-            return
-
-        # Convert book IDs to row indices if needed
         if using_ids:
             row_indices = []
             for book_id in rows:
-                row = m.db.data.id_to_index(book_id)
-                if row >= 0:
+                if (row := self.row_from_book_id(book_id)) is not None:
                     row_indices.append(row)
             rows = row_indices
 
-        self._selected_rows = set(rows)
-        if rows:
-            self._current_row = min(rows)
-            # Update selection model
-            selection = QItemSelection()
-            for row in rows:
-                index = m.index(row, 0)
-                if index.isValid():
-                    selection.select(index, index)
-            self._selection_model.select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-            # Set current index
-            if self._current_row >= 0:
-                current_index = m.index(self._current_row, 0)
-                if current_index.isValid():
-                    self._selection_model.setCurrentIndex(current_index, QItemSelectionModel.SelectionFlag.NoUpdate)
-        else:
-            self._current_row = -1
-        self.update_viewport()
+        sel = selection_for_rows(m, rows)
+        sm = self.selectionModel()
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
+
+    def selectAll(self):
+        m = self.model()
+        sm = self.selectionModel()
+        sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
+
+    def set_current_row(self, row):
+        sm = self.selectionModel()
+        sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def _scroll_to_row(self, row: int) -> None:
         '''Scroll to make the specified row visible.'''
@@ -1608,23 +1631,32 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def get_selected_ids(self) -> list[int]:
         '''Get selected book IDs.'''
-        return [self.book_id_from_row(r) for r in self._selected_rows]
+        return [self.book_id_from_row(index.row()) for index in self.selectionModel().selectedRows() if index.isValid()]
 
-    def current_book_state(self) -> int:
+    def current_book_state(self) -> SavedState:
         '''Get current book state for restoration.'''
-        if self._current_row >= 0 and self.model():
-            return self.book_id_from_row(self._current_row)
-        return 0
+        sm = self.selectionModel()
+        r = sm.currentIndex().row()
+        current_book_id = 0
+        if r > -1:
+            with suppress(Exception):
+                current_book_id = self.bookcase.row_to_book_id[r]
+        selected_rows = (index.row() for index in sm.selectedRows())
+        selected_book_ids = set()
+        with suppress(Exception):
+            selected_book_ids = {self.bookcase.row_to_book_id[r] for r in selected_rows}
+        return SavedState(current_book_id, selected_book_ids)
 
-    def restore_current_book_state(self, state: int):
+    def restore_current_book_state(self, state: SavedState) -> None:
         '''Restore current book state.'''
         m = self.model()
         if not state or not m:
             return
-        book_id = state
-        row = m.db.data.id_to_index(book_id)
-        self.set_current_row(row)
-        self.select_rows([row])
+        with suppress(Exception):
+            selected_rows = set(map(m.db.id_to_index, state.selected_book_ids))
+            self.select_rows(selected_rows)
+        with suppress(Exception):
+            self.set_current_row(m.db.id_to_index(state.current_book_id))
 
     def marked_changed(self, old_marked: set[int], current_marked: set[int]):
         '''Handle marked books changes.'''
@@ -1633,10 +1665,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def indices_for_merge(self, resolved=True):
         '''Get indices for merge operations.'''
-        m = self.model()
-        if not m:
-            return []
-        return [m.index(row, 0) for row in self._selected_rows]
+        return self.selectionModel().selectedRows()
 
     # Mouse and keyboard events
 
@@ -1645,6 +1674,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         match ev.type():
             case QEvent.Type.MouseButtonPress:
                 if self._handle_mouse_press(ev):
+                    return True
+            case QEvent.Type.MouseButtonRelease:
+                if self._handle_mouse_release(ev):
                     return True
             case QEvent.Type.MouseButtonDblClick:
                 if self._handle_mouse_double_click(ev):
@@ -1655,9 +1687,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 self._handle_mouse_leave(ev)
         return super().viewportEvent(ev)
 
-    def _handle_mouse_move(self, ev: QEvent):
+    def _handle_mouse_move(self, ev: QMouseEvent):
         '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
+        ev.accept()
+        if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
+            if m := self.model():
+                def selection_between(a: QModelIndex, b: QModelIndex) -> QItemSelection:
+                    return selection_for_rows(m, self.bookcase.visual_selection_between(a.row(), b.row()))
+                handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, selection_between)
+            return
         pos = ev.pos()
         case_item, _, shelf_item = self.item_at_position(pos.x(), pos.y())
         if shelf_item is not None and not shelf_item.is_divider:
@@ -1665,88 +1704,48 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             self.expanded_cover.shelf_item_hovered()
 
-    def _handle_mouse_press(self, ev: QEvent) -> bool:
-        '''Handle mouse press events on the viewport.'''
+    def currentIndex(self):
+        return self.selectionModel().currentIndex()
+
+    def _handle_mouse_press(self, ev: QMouseEvent) -> bool:
         self.bookcase.ensure_worker()
         # Get position in viewport coordinates
-        pos = ev.pos()
-        m = self.model()
-        if not m:
+        if ev.button() != Qt.MouseButton.LeftButton or not (index := self.indexAt(ev.pos())).isValid():
             return False
 
         # Find which book was clicked (pass viewport coordinates, method will handle scroll)
-        row = self._book_row_at_position(pos.x(), pos.y())
-        if row >= 0:
-            modifiers = QApplication.keyboardModifiers()
-            if modifiers & Qt.KeyboardModifier.ControlModifier:
-                # Toggle selection
-                if row in self._selected_rows:
-                    self._selected_rows.discard(row)
-                    if self._selection_model:
-                        index = m.index(row, 0)
-                        if index.isValid():
-                            self._selection_model.select(index, QItemSelectionModel.SelectionFlag.Deselect)
-                else:
-                    self._selected_rows.add(row)
-                    self._current_row = row
-                    if self._selection_model:
-                        index = m.index(row, 0)
-                        if index.isValid():
-                            self._selection_model.select(index, QItemSelectionModel.SelectionFlag.Select)
-                            self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
-            elif modifiers & Qt.KeyboardModifier.ShiftModifier:
-                # Range selection
-                if self._current_row >= 0:
-                    start = min(self._current_row, row)
-                    end = max(self._current_row, row)
-                    self._selected_rows = set(range(start, end + 1))
-                else:
-                    self._selected_rows = {row}
-                self._current_row = row
-                # Update selection model
-                if self._selection_model:
-                    selection = QItemSelection()
-                    for r in self._selected_rows:
-                        idx = m.index(r, 0)
-                        if idx.isValid():
-                            selection.select(idx, idx)
-                    self._selection_model.select(selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-                    current_index = m.index(self._current_row, 0)
-                    if current_index.isValid():
-                        self._selection_model.setCurrentIndex(current_index, QItemSelectionModel.SelectionFlag.NoUpdate)
-            else:
-                # Single selection
-                self._selected_rows = {row}
-                self._current_row = row
-                # Update selection model
-                if self._selection_model:
-                    index = m.index(row, 0)
-                    if index.isValid():
-                        self._selection_model.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-                        self._selection_model.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+        sm = self.selectionModel()
+        flags = QItemSelectionModel.SelectionFlag.Rows
+        modifiers = ev.modifiers()
+        if modifiers & Qt.KeyboardModifier.ControlModifier:
+            # Toggle selection
+            sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.Toggle)
+        elif modifiers & Qt.KeyboardModifier.ShiftModifier:
+            handle_shift_click(self, index, self.bookcase.visual_row_cmp, self.bookcase.visual_selection_between)
+        else:
+            # Single selection
+            sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        ev.accept()
+        return True
 
-            # Sync selection with main library view
-            self._sync_selection_to_main_view()
-
-            self.update_viewport()
-            ev.accept()
-            return True
-
-        # No book was clicked
+    def _handle_mouse_release(self, ev: QMouseEvent) -> bool:
+        self.bookcase.ensure_worker()
         return False
 
-    def _handle_mouse_double_click(self, ev: QEvent) -> bool:
+    def _handle_mouse_double_click(self, ev: QMouseEvent) -> bool:
         '''Handle mouse double-click events on the viewport.'''
         self.bookcase.ensure_worker()
         pos = ev.pos()
         row = self._book_row_at_position(pos.x(), pos.y())
         if row >= 0:
             # Set as current row first
-            self._current_row = row
+            self.set_current_row(row)
             # Open the book
             book_id = self.book_id_from_row(row)
-            self.gui.iactions['View'].view_triggered(book_id)
-            return True
+            if book_id > 0:
+                self.gui.iactions['View'].view_triggered(book_id)
+                ev.accept()
+                return True
         return False
 
     def _handle_mouse_leave(self, ev: QEvent):
@@ -1755,23 +1754,25 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.expanded_cover.invalidate()
         self.update_viewport()
 
+    @contextmanager
+    def syncing_from_main(self):
+        before, self._syncing_from_main = self._syncing_from_main, True
+        try:
+            yield
+        finally:
+            self._syncing_from_main = before
+
     def _main_current_changed(self, current, previous):
         '''Handle current row change from main library view.'''
         m = self.model()
         if self._syncing_from_main or not m:
             return
-
-        if current.isValid():
-            row = current.row()
-            if 0 <= row < m.rowCount(QModelIndex()):
-                self._syncing_from_main = True
-                self.set_current_row(row)
-                self._syncing_from_main = False
-        else:
-            self._syncing_from_main = True
-            self._current_row = -1
-            self.update_viewport()
-            self._syncing_from_main = False
+        with self.syncing_from_main():
+            if current.isValid():
+                row = current.row()
+                if 0 <= row < m.rowCount(QModelIndex()):
+                    self.set_current_row(row)
+        self.update_viewport()
 
     def _main_selection_changed(self, selected, deselected):
         '''Handle selection change from main library view.'''
@@ -1785,22 +1786,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Get selected rows from main view
         selected_indexes = library_view.selectionModel().selectedIndexes()
         rows = {idx.row() for idx in selected_indexes if idx.isValid()}
-
-        self._syncing_from_main = True
-        self.select_rows(list(rows), using_ids=False)
-        self._syncing_from_main = False
-
-    def _sync_selection_to_main_view(self):
-        '''Sync selection with the main library view.'''
-        if self._syncing_from_main or not self.gui:
-            return
-
-        library_view = self.gui.library_view
-        if self._current_row >= 0 and self.model():
-            # Get book ID from current row
-            book_id = self.book_id_from_row(self._current_row)
-            # Select in library view
-            library_view.select_rows([book_id], using_ids=True)
+        with self.syncing_from_main():
+            self.select_rows(rows)
 
     def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
         scroll_y = self.verticalScrollBar().value()
@@ -1829,18 +1816,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 return row
         return -1
 
-    def indexAt(self, pos) -> QModelIndex:
-        '''Return the model index at the given position (required for drag/drop).
-        pos is a QPoint in viewport coordinates.'''
-        row = self._book_row_at_position(pos.x(), pos.y())
-        if row >= 0 and (m := self.model()):
-            return m.index(row, 0)
-        return QModelIndex()
-
-    def currentIndex(self) -> QModelIndex:
-        '''Return the current model index (required for drag/drop).'''
-        if self._current_row >= 0 and (m := self.model()):
-            return m.index(self._current_row, 0)
+    def indexAt(self, pos: QPoint) -> QModelIndex:
+        if (m := self.model()):
+            row = self._book_row_at_position(pos.x(), pos.y())
+            if row >= 0 and (ans := m.index(row, 0)).isValid():
+                return ans
         return QModelIndex()
 
     # setup_dnd_interface

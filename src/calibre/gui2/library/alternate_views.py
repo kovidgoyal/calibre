@@ -5,15 +5,16 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools
-import operator
 import os
 import weakref
 from collections import namedtuple
+from collections.abc import Iterable
 from functools import wraps
 from textwrap import wrap
 from threading import Event
 
 from qt.core import (
+    QAbstractItemModel,
     QAbstractItemView,
     QApplication,
     QBuffer,
@@ -78,6 +79,88 @@ def auto_height(widget):
 
 class EncodeError(ValueError):
     pass
+
+
+def cmp(a: int, b: int) -> int:
+    return a - b
+
+
+def row_min(a, b, cmp) -> int:
+    return a if cmp(a, b) <= 0 else b
+
+
+def row_max(a, b, cmp) -> int:
+    return a if cmp(a, b) >= 0 else b
+
+
+def selection_for_rows(m: QAbstractItemModel, rows: Iterable[int]) -> QItemSelection:
+    # Create a range based selector for each set of contiguous rows
+    # as supplying selectors for each individual row causes very poor
+    # performance if a large number of rows has to be selected.
+    sel = QItemSelection()
+    for k, g in itertools.groupby(enumerate(sorted(rows)), lambda i_x: i_x[0]-i_x[1]):
+        smallest = largest = next(g)[1]
+        for x in g:
+            largest = x[1]
+        sel.merge(QItemSelection(m.index(smallest, 0), m.index(largest, 0)), QItemSelectionModel.SelectionFlag.Select)
+    return sel
+
+
+def handle_shift_drag(self: QAbstractItemView, index: QModelIndex, row_cmp=cmp, selection_between=QItemSelection) -> None:
+    if not index.isValid() or not getattr(self, 'shift_click_start_data', None):
+        return
+    m = self.model()
+    ci = m.index(self.shift_click_start_data[0], 0)
+    if not ci.isValid():
+        return
+    sm = self.selectionModel()
+    flags = QItemSelectionModel.SelectionFlag.Rows
+    sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+    if not sm.hasSelection():
+        sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect | flags)
+        return True
+    cr = ci.row()
+    tgt = index.row()
+    if cr == tgt:
+        sm.select(index, QItemSelectionModel.SelectionFlag.Select | flags)
+        return
+    if cr < tgt:
+        # mouse is moved after the start pos
+        top = row_min(self.shift_click_start_data[1], cr, row_cmp)
+        bottom = tgt
+    else:
+        top = tgt
+        bottom = row_max(self.shift_click_start_data[2], cr, row_cmp)
+    sm.select(selection_between(m.index(top, 0), m.index(bottom, 0)), QItemSelectionModel.SelectionFlag.ClearAndSelect | flags)
+
+
+def handle_shift_click(self: QAbstractItemView, index: QModelIndex, row_cmp=cmp, selection_between=QItemSelection) -> None:
+    self.shift_click_start_data = None
+    if not index.isValid():
+        return
+    sm = self.selectionModel()
+    ci = self.currentIndex()
+    flags = QItemSelectionModel.SelectionFlag.Rows
+    try:
+        if not ci.isValid():
+            return
+        sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
+        if not sm.hasSelection():
+            sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect | flags)
+            return
+        cr = ci.row()
+        tgt = index.row()
+        top = self.model().index(row_min(cr, tgt, row_cmp), 0)
+        bottom = self.model().index(row_max(cr, tgt, row_cmp), 0)
+        sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.Select | flags)
+    finally:
+        min_row = self.model().rowCount(QModelIndex())
+        max_row = -1
+        for idx in sm.selectedIndexes():
+            r = idx.row()
+            min_row = row_min(r, min_row, row_cmp)
+            max_row = row_max(r, max_row, row_cmp)
+        self.shift_click_start_data = index.row(), min_row, max_row
 
 
 def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
@@ -776,7 +859,6 @@ class GridView(MomentumScrollMixin, QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
-        self.shift_click_start_data = None
         self.accumulated_scroll_degrees = 0
         self.dbref = lambda: None
         self._ncols = None
@@ -953,16 +1035,9 @@ class GridView(MomentumScrollMixin, QListView):
             self.delegate.cover_cache.set_database(newdb)
 
     def select_rows(self, rows):
-        sel = QItemSelection()
+        sel = selection_for_rows(self.model(), rows)
         sm = self.selectionModel()
-        m = self.model()
-        # Create a range based selector for each set of contiguous rows
-        # as supplying selectors for each individual row causes very poor
-        # performance if a large number of rows has to be selected.
-        for k, g in itertools.groupby(enumerate(rows), lambda i_x: i_x[0]-i_x[1]):
-            group = list(map(operator.itemgetter(1), g))
-            sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), QItemSelectionModel.SelectionFlag.Select)
-        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
 
     def selectAll(self):
         # We re-implement this to ensure that only indexes from column 0 are
@@ -1003,31 +1078,7 @@ class GridView(MomentumScrollMixin, QListView):
         # handle shift drag to extend selections
         if not QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
             return super().mouseMoveEvent(ev)
-        index = self.indexAt(ev.pos())
-        if not index.isValid() or not self.shift_click_start_data:
-            return
-        m = self.model()
-        ci = m.index(self.shift_click_start_data[0], 0)
-        if not ci.isValid():
-            return
-        sm = self.selectionModel()
-        sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
-        if not sm.hasSelection():
-            sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-            return True
-        cr = ci.row()
-        tgt = index.row()
-        if cr == tgt:
-            sm.select(index, QItemSelectionModel.SelectionFlag.Select)
-            return
-        if cr < tgt:
-            # mouse is moved after the start pos
-            top = min(self.shift_click_start_data[1], cr)
-            bottom = tgt
-        else:
-            top = tgt
-            bottom = max(self.shift_click_start_data[2], cr)
-        sm.select(QItemSelection(m.index(top, 0), m.index(bottom, 0)), QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        handle_shift_drag(self, self.indexAt(ev.pos()))
 
     def handle_mouse_press_event(self, ev):
         # Shift-Click in QListView is broken. It selects extra items in
@@ -1037,34 +1088,7 @@ class GridView(MomentumScrollMixin, QListView):
         # middle item.
         if not QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
             return super().mousePressEvent(ev)
-        self.shift_click_start_data = None
-        index = self.indexAt(ev.pos())
-        if not index.isValid():
-            return
-        sm = self.selectionModel()
-        ci = self.currentIndex()
-        try:
-            if not ci.isValid():
-                return
-            sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
-            if not sm.hasSelection():
-                sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
-                return
-            cr = ci.row()
-            tgt = index.row()
-            top = self.model().index(min(cr, tgt), 0)
-            bottom = self.model().index(max(cr, tgt), 0)
-            sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.Select)
-        finally:
-            min_row = self.model().rowCount(QModelIndex())
-            max_row = -1
-            for idx in sm.selectedIndexes():
-                r = idx.row()
-                if r < min_row:
-                    min_row = r
-                elif r > max_row:
-                    max_row = r
-            self.shift_click_start_data = index.row(), min_row, max_row
+        handle_shift_click(self, self.indexAt(ev.pos()))
 
     def indices_for_merge(self, resolved=True):
         return self.selectionModel().selectedIndexes()
