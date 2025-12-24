@@ -6,7 +6,6 @@
 # improve rendering of shelf and background with options for dark/light
 # fix drag and drop
 # Remove py_dominant_color after beta release
-# Test selection management when grouped
 
 # Imports {{{
 import bisect
@@ -1813,7 +1812,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         target_index = m.index(self.bookcase.book_id_to_row_map[target_book_id], 0)
         sm = self.selectionModel()
         if has_shift:
-            handle_shift_click(self, target_index, self.bookcase.visual_row_cmp, self.bookcase.visual_selection_between)
+            handle_shift_click(self, target_index, self.bookcase.visual_row_cmp, self.selection_between)
         elif has_ctrl:
             sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Toggle)
         else:
@@ -1842,15 +1841,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.verticalScrollBar().setValue(si.case_start_y + y)
         self.update_viewport()
 
+    def selection_between(self, a: QModelIndex, b: QModelIndex) -> QItemSelection:
+        if m := self.model():
+            return selection_for_rows(m, self.bookcase.visual_selection_between(a.row(), b.row()))
+        return QItemSelection()
+
     def _handle_mouse_move(self, ev: QMouseEvent):
         '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
         ev.accept()
         if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
-            if m := self.model():
-                def selection_between(a: QModelIndex, b: QModelIndex) -> QItemSelection:
-                    return selection_for_rows(m, self.bookcase.visual_selection_between(a.row(), b.row()))
-                handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, selection_between)
+            handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, self.selection_between)
             return
         pos = ev.pos()
         case_item, _, shelf_item = self.item_at_position(pos.x(), pos.y())
@@ -1876,7 +1877,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Toggle selection
             sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.Toggle)
         elif modifiers & Qt.KeyboardModifier.ShiftModifier:
-            handle_shift_click(self, index, self.bookcase.visual_row_cmp, self.bookcase.visual_selection_between)
+            handle_shift_click(self, index, self.bookcase.visual_row_cmp, self.selection_between)
         else:
             # Single selection
             sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)

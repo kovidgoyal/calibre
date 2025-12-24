@@ -152,7 +152,7 @@ def handle_shift_click(self: QAbstractItemView, index: QModelIndex, row_cmp=cmp,
         tgt = index.row()
         top = self.model().index(row_min(cr, tgt, row_cmp), 0)
         bottom = self.model().index(row_max(cr, tgt, row_cmp), 0)
-        sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.Select | flags)
+        sm.select(selection_between(top, bottom), QItemSelectionModel.SelectionFlag.Select | flags)
     finally:
         min_row = self.model().rowCount(QModelIndex())
         max_row = -1
