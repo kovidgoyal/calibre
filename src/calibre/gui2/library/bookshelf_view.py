@@ -6,7 +6,6 @@
 # implement marks and ondevice indicators
 # improve rendering of shelf and background with options for dark/light
 # fix drag and drop
-# fix double clicking
 # Remove py_dominant_color after beta release
 # Test selection management when grouped
 
