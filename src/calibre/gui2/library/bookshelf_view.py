@@ -3,14 +3,12 @@
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
 # TODO:
-# implement proper current and selection management with support for mouse and keyboard interaction
 # implement marks and ondevice indicators
-# improve rendering of spine (optional full cover over spine?)
 # improve rendering of shelf and background with options for dark/light
 # fix drag and drop
-# fix arrow keys home/end for navigation
 # fix double clicking
 # Remove py_dominant_color after beta release
+# Test selection management when grouped
 
 # Imports {{{
 import bisect
@@ -28,6 +26,7 @@ from threading import Event, RLock, Thread
 from typing import NamedTuple
 
 from qt.core import (
+    QAbstractItemView,
     QAbstractScrollArea,
     QApplication,
     QBrush,
@@ -41,6 +40,7 @@ from qt.core import (
     QImage,
     QItemSelection,
     QItemSelectionModel,
+    QKeyEvent,
     QLinearGradient,
     QLocale,
     QMenu,
@@ -386,6 +386,7 @@ class ShelfItem(NamedTuple):
     case_start_y: int
     width: int
     idx: int
+    case_idx: int
     reduce_height_by: int = 0
     book_id: int = 0
     group_name: str = ''
@@ -426,6 +427,16 @@ class CaseItem:
                     return candidate
         return None
 
+    def closest_book_to(self, idx: int) -> ShelfItem | None:
+        q = self.items[idx]
+        if not q.is_divider:
+            return q
+        for delta in range(1, len(self.items)):
+            for i in (idx + delta, idx - delta):
+                if 0 <= i < len(self.items) and not (ans := self.items[i]).is_divider:
+                    return ans
+        return None
+
     def _get_x_for_item(self, width: int, lc: LayoutConstraints) -> int | None:
         x = (self.width + lc.horizontal_gap) if self.width else 0
         if x + width + lc.horizontal_gap > lc.width:
@@ -437,7 +448,8 @@ class CaseItem:
             return True
         if (x := self._get_x_for_item(lc.divider_width, lc)) is None:
             return False
-        s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y, idx=len(self.items))
+        s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y,
+                      idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
         self.width = s.start_x + s.width
         return True
@@ -447,7 +459,7 @@ class CaseItem:
             return False
         s = ShelfItem(
             start_x=x, book_id=book_id, reduce_height_by=height_reduction_for_book_id(book_id),
-            width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items))
+            width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
         self.width = s.start_x + s.width
         return True
@@ -746,6 +758,41 @@ class BookCase(QObject):
         bidx = self.book_ids_in_visual_order.index(b)
         s, e = min(aidx, bidx), max(aidx, bidx)
         yield from map(self.book_id_to_row_map.__getitem__, self.book_ids_in_visual_order[s:e+1])
+
+    def visual_neighboring_book(self, book_id: int, delta: int = 1, allow_wrap: bool = False) -> int:
+        idx = self.book_id_visual_order_map[book_id]
+        nidx = idx + delta
+        if allow_wrap:
+            nidx = (nidx + len(self.book_ids_in_visual_order)) % len(self.book_ids_in_visual_order)
+        if 0 <= nidx < len(self.book_ids_in_visual_order):
+            return self.book_ids_in_visual_order[nidx]
+        return 0
+
+    def shelf_of_book(self, book_id: int) -> CaseItem | None:
+        if si := self.book_id_to_item_map.get(book_id):
+            return self.items[si.case_idx]
+        return None
+
+    def end_book_on_shelf_of(self, book_id: int, first: bool = False) -> int:
+        if ci := self.shelf_of_book(book_id):
+            return ci.items[0 if first else -1].book_id
+        return 0
+
+    def book_in_column_of(self, book_id: int, delta: int = 1, allow_wrap: bool = False) -> int:
+        if not (si := self.book_id_to_item_map.get(book_id)):
+            return
+        if not (ci := self.shelf_of_book(book_id)):
+            return 0
+        shelf_idx = ci.idx // 2 + delta
+        num_shelves = len(self.items) // 2
+        if allow_wrap:
+            shelf_idx = (shelf_idx + num_shelves) % num_shelves
+        if shelf_idx < 0 or shelf_idx >= num_shelves:
+            return 0
+        target_shelf = self.items[shelf_idx * 2]
+        if not (target_si := target_shelf.book_or_divider_at_xpos(si.start_x, self.layout_constraints)):
+            return 0
+        return ans.book_id if (ans := target_shelf.closest_book_to(target_si.idx)) else 0
 
 
 class ExpandedCover(QObject):
@@ -1135,12 +1182,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if self.bookcase.layout_finished or r.intersects(QRect(r.left(), y, r.width(), height)):
                 self.update_viewport()
 
-    def _update_ram_cache_size(self):
+    @property
+    def shelves_per_screen(self) -> int:
         viewport_height = self.viewport().height()
         lc = self.layout_constraints
-        shelves_per_screen = max(1, viewport_height / (lc.step_height))
+        return max(1, viewport_height / (lc.step_height))
+
+    def _update_ram_cache_size(self):
+        lc = self.layout_constraints
         books_per_shelf = self._get_available_width() / lc.min_spine_width
-        lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * shelves_per_screen
+        lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * self.shelves_per_screen
         self.cover_cache.set_ram_limit(max(0, int(lm)))
 
     # Paint and Drawing methods
@@ -1562,14 +1613,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         sm = self.selectionModel()
         sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
-    def _scroll_to_row(self, row: int) -> None:
-        '''Scroll to make the specified row visible.'''
-        si = self.bookcase.book_id_to_item_map.get(self.book_id_from_row(row))
-        if si is not None:
-            scroll_y = si.case_start_y - self.viewport().rect().height() // 2
-            self.verticalScrollBar().setValue(scroll_y)
-            self.update_viewport()
-
     # Database methods
 
     def set_database(self, newdb, stage=0):
@@ -1681,6 +1724,83 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 self._handle_mouse_leave(ev)
         return super().viewportEvent(ev)
 
+    def keyPressEvent(self, ev: QKeyEvent) -> None:
+        if (key := ev.key()) not in (
+            Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageDown,
+            Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End
+        ):
+            return super().keyPressEvent(ev)
+        self.bookcase.ensure_worker()
+        if not self.bookcase.book_ids_in_visual_order or not (m := self.model()):
+            return
+        ev.accept()
+        target_book_id = 0
+        current_row = self.selectionModel().currentIndex().row()
+        try:
+            current_book_id = self.bookcase.row_to_book_id[current_row]
+        except Exception:
+            current_book_id = self.bookcase.book_ids_in_visual_order[0]
+        has_ctrl = bool(ev.modifiers() & Qt.KeyboardModifier.ControlModifier)
+        has_shift = bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        match key:
+            case Qt.Key.Key_Left:
+                target_book_id = self.bookcase.visual_neighboring_book(current_book_id, delta=-1)
+            case Qt.Key.Key_Right:
+                target_book_id = self.bookcase.visual_neighboring_book(current_book_id, delta=1)
+            case Qt.Key.Key_Up:
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-1)
+            case Qt.Key.Key_Down:
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=1)
+            case Qt.Key.Key_PageUp:
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-self.shelves_per_screen)
+            case Qt.Key.Key_PageDown:
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=self.shelves_per_screen)
+            case Qt.Key.Key_Home:
+                if has_ctrl:
+                    target_book_id = self.bookcase.book_ids_in_visual_order[0]
+                    has_ctrl = False
+                else:
+                    target_book_id = self.bookcase.end_book_on_shelf_of(current_book_id, first=True)
+            case Qt.Key.Key_End:
+                if has_ctrl:
+                    target_book_id = self.bookcase.book_ids_in_visual_order[-1]
+                    has_ctrl = False
+                else:
+                    target_book_id = self.bookcase.end_book_on_shelf_of(current_book_id, first=False)
+        if target_book_id <= 0:
+            return
+        target_index = m.index(self.bookcase.book_id_to_row_map[target_book_id], 0)
+        sm = self.selectionModel()
+        if has_shift:
+            handle_shift_click(self, target_index, self.bookcase.visual_row_cmp, self.bookcase.visual_selection_between)
+        elif has_ctrl:
+            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Toggle)
+        else:
+            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        self.scrollTo(target_index)
+        self.update_viewport()
+
+    def scrollTo(self, index: QModelIndex, hint: QAbstractItemView.ScrollHint = QAbstractItemView.ScrollHint.EnsureVisible) -> None:
+        si = self.bookcase.book_id_to_item_map.get(self.book_id_from_row(index.row()))
+        if si is None:
+            return
+        scroll_y = self.verticalScrollBar().value()
+        viewport_height = self.viewport().height()
+        top = si.case_start_y - scroll_y
+        match hint:
+            case QAbstractItemView.ScrollHint.PositionAtTop:
+                y = 0
+            case QAbstractItemView.ScrollHint.PositionAtBottom:
+                y = max(0, viewport_height - self.layout_constraints.step_height)
+            case QAbstractItemView.ScrollHint.PositionAtCenter:
+                y = max(0, (viewport_height - self.layout_constraints.step_height)//2)
+            case QAbstractItemView.ScrollHint.EnsureVisible:
+                if top >= 0 and top + self.layout_constraints.step_height <= viewport_height:
+                    return
+                y = 0
+        self.verticalScrollBar().setValue(si.case_start_y + y)
+        self.update_viewport()
+
     def _handle_mouse_move(self, ev: QMouseEvent):
         '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
@@ -1729,17 +1849,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def _handle_mouse_double_click(self, ev: QMouseEvent) -> bool:
         '''Handle mouse double-click events on the viewport.'''
         self.bookcase.ensure_worker()
-        pos = ev.pos()
-        row = self._book_row_at_position(pos.x(), pos.y())
-        if row >= 0:
+        index = self.indexAt(ev.pos())
+        if index.isValid() and (row := index.row()) >= 0:
             # Set as current row first
             self.set_current_row(row)
             # Open the book
-            book_id = self.book_id_from_row(row)
-            if book_id > 0:
-                self.gui.iactions['View'].view_triggered(book_id)
-                ev.accept()
-                return True
+            self.gui.iactions['View'].view_triggered(row)
+            ev.accept()
+            return True
         return False
 
     def _handle_mouse_leave(self, ev: QEvent):
