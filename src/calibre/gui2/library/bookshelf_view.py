@@ -1373,20 +1373,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw spine background with gradient (darker edges, lighter center).'''
         painter.save()
         painter.setOpacity(1.0)
-        gradient = QLinearGradient(
-            QPointF(rect.left(), rect.top()),
-            QPointF(rect.width(), rect.top()),
-        )
+        gradient = QLinearGradient(QPointF(rect.topLeft()), QPointF(rect.topRight()))
         gradient.setColorAt(0, spine_color.darker(115))
         gradient.setColorAt(0.5, spine_color)
         gradient.setColorAt(1, spine_color.darker(115))
         painter.fillRect(rect, QBrush(gradient))
 
         # Add subtle vertical gradient for depth
-        vertical_gradient = QLinearGradient(
-            QPointF(rect.left(), rect.top()),
-            QPointF(rect.left(), rect.height()),
-        )
+        vertical_gradient = QLinearGradient(QPointF(rect.topLeft()), QPointF(rect.bottomLeft()))
         vertical_gradient.setColorAt(0, QColor(255, 255, 255, 20))  # Slight highlight at top
         vertical_gradient.setColorAt(1, QColor(0, 0, 0, 30))  # Slight shadow at bottom
         painter.fillRect(rect, QBrush(vertical_gradient))
