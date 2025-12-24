@@ -904,6 +904,7 @@ class ExpandedCover(QObject):
         if selection_highlight_color.isValid():
             pen = QPen(selection_highlight_color)
             pen.setWidth(2)
+            pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
             painter.setPen(pen)
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.setOpacity(1.0)
@@ -1338,6 +1339,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         pen = QPen(color)
         gap = min(4, self.layout_constraints.horizontal_gap // 2)
         pen.setWidth(2 * gap)
+        pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
         painter.setPen(pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.setOpacity(1.0)
