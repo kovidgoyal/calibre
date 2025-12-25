@@ -1307,7 +1307,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.expanded_cover.updated.connect(self.update_viewport)
 
         self.layout_constraints = LayoutConstraints()
-        self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
+        self.layout_constraints = self.layout_constraints._replace(width=self.get_available_width())
         self.cover_cache = CoverThumbnailCache(
             name='bookshelf-thumbnail-cache', ram_limit=800,
             max_size=gprefs['bookshelf_disk_cache_size'], thumbnailer=ThumbnailerWithDominantColor(),
@@ -1369,7 +1369,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
-        self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
+        self.layout_constraints = self.layout_constraints._replace(width=self.get_available_width())
         self._update_ram_cache_size()
         self.bookcase.clear_spine_width_cache()
         self.invalidate()
@@ -1438,15 +1438,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Return the book id at this row.'''
         return self.bookcase.book_id_to_row_map.get(book_id)
 
+    @property
+    def has_transient_scrollbar(self) -> bool:
+        return self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
+
     def event(self, ev: QEvent) -> bool:
         match ev.type():
             case QEvent.Type.Resize:
                 super().event(ev)
-                if self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) == 0:
-                    s = self.viewport().size()
-                    s.setWidth(s.width() - self.verticalScrollBar().size().width())
-                    self.viewport().resize(s)
-                if self.layout_constraints.width != (new_width := self._get_available_width()):
+                if self.layout_constraints.width != (new_width := self.get_available_width()):
                     self.layout_constraints = self.layout_constraints._replace(width=new_width)
                     self.invalidate()
                 return True
@@ -1461,9 +1461,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.verticalScrollBar().setSingleStep(self.layout_constraints.step_height)
         self._update_ram_cache_size()
 
-    def _get_available_width(self):
-        '''Get the maximum available width for the shelf layouts.'''
-        return self.viewport().rect().width() - (2 * self.layout_constraints.side_margin)
+    def get_available_width(self):
+        sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
+        return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
     def invalidate(self, set_of_books_changed=True):
         self.bookcase.invalidate(
@@ -1493,7 +1493,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def _update_ram_cache_size(self):
         lc = self.layout_constraints
-        books_per_shelf = self._get_available_width() / lc.min_spine_width
+        books_per_shelf = self.get_available_width() / lc.min_spine_width
         lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * self.shelves_per_screen
         self.cover_cache.set_ram_limit(max(0, int(lm)))
 
