@@ -494,12 +494,8 @@ def create_defs():
     defs['bookshelf_cache_size_multiple'] = 5
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = True
-    defs['bookshelf_centered'] = False
     defs['bookshelf_variable_height'] = True
     defs['bookshelf_fade_time'] = 200
-    defs['bookshelf_background'] = {
-        'light': (255, 255, 255), 'dark': (64, 64, 64), 'light_texture': None, 'dark_texture': None
-    }
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so

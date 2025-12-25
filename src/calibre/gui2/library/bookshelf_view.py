@@ -5,14 +5,12 @@
 # TODO:
 # fix drag and drop
 # Move emblems to above and below instead of just above
-# Cleanup bookshelf preferences
 # Fix rendering of inline dividers for new background
 # Remove py_dominant_color after beta release
 
 # Imports {{{
 import bisect
 import math
-import os
 import random
 import struct
 import weakref
@@ -27,7 +25,6 @@ from typing import NamedTuple
 from qt.core import (
     QAbstractItemView,
     QAbstractScrollArea,
-    QApplication,
     QBrush,
     QBuffer,
     QColor,
@@ -67,15 +64,12 @@ from qt.core import (
     QWidget,
     pyqtProperty,
     pyqtSignal,
-    qBlue,
-    qGreen,
-    qRed,
 )
 
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, is_dark_theme, resolve_bookshelf_color
+from calibre.gui2 import gprefs, is_dark_theme
 from calibre.gui2.library.alternate_views import handle_shift_click, handle_shift_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
@@ -329,7 +323,6 @@ class RenderCase:
         painter.restore()
 
     def draw_cavity_shadows(self, painter: QPainter, cavity_rect: QRect) -> None:
-        print(111111111)
         side_shadow_width = 20
         # Left side shadow
         left_shadow_gradient = QLinearGradient(cavity_rect.left(), 0, cavity_rect.left() + side_shadow_width, 0)
@@ -717,7 +710,7 @@ class LayoutConstraints(NamedTuple):
 
 
 def height_reduction_for_book_id(book_id: int) -> int:
-    return book_id & 0b1111
+    return (book_id & 0b1111) if gprefs['bookshelf_variable_height'] else 0
 
 
 class ShelfItem(NamedTuple):
@@ -1294,7 +1287,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        QApplication.instance().palette_changed.connect(self.set_color)
 
         # Ensure viewport receives mouse events
         self.viewport().setMouseTracking(True)
@@ -1378,37 +1370,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
-        self._enable_thumbnail = gprefs['bookshelf_thumbnail']
-        self._enable_centered = gprefs['bookshelf_centered']
-        self._enable_variable_height = gprefs['bookshelf_variable_height']
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
         self.layout_constraints = self.layout_constraints._replace(width=self._get_available_width())
         self._update_ram_cache_size()
-        self.set_color()
         self.bookcase.clear_spine_width_cache()
         self.invalidate()
-
-    def set_color(self):
-        resolve_bookshelf_color()
-        r, g, b = resolve_bookshelf_color()
-        tex = resolve_bookshelf_color(which='texture')
-        pal = self.palette()
-        bgcol = QColor(r, g, b)
-        pal.setColor(QPalette.ColorRole.Base, bgcol)
-        self.setPalette(pal)
-        ss = f'background-color: {bgcol.name()}; border: 0px solid {bgcol.name()};'
-        if tex:
-            from calibre.gui2.preferences.texture_chooser import texture_path
-            path = texture_path(tex)
-            if path:
-                path = os.path.abspath(path).replace(os.sep, '/')
-                ss += f'background-image: url({path});'
-                ss += 'background-attachment: fixed;'
-                pm = QPixmap(path)
-                if not pm.isNull():
-                    val = pm.scaled(1, 1).toImage().pixel(0, 0)
-                    r, g, b = qRed(val), qGreen(val), qBlue(val)
-        self.setStyleSheet(f'QAbstractScrollArea {{ {ss} }}')
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1739,7 +1705,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self._draw_spine_background(painter, spine_rect, spine_color)
 
         # Draw cover thumbnail overlay
-        if self._enable_thumbnail:
+        if gprefs['bookshelf_thumbnail']:
             self._draw_thumbnail_overlay(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)

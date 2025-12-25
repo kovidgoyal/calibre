@@ -30,14 +30,12 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         r('bookshelf_shadow', gprefs)
         r('bookshelf_thumbnail', gprefs)
-        r('bookshelf_centered', gprefs)
         r('bookshelf_variable_height', gprefs)
         r('bookshelf_fade_time', gprefs)
 
         r('bookshelf_title_template', db.prefs)
         r('bookshelf_spine_size_template', db.prefs)
 
-        self.bs_background_box.link_config('bookshelf_background')
         self.config_cache.link(
             self.gui.bookshelf_view.cover_cache,
             'bookshelf_disk_cache_size', 'bookshelf_cache_size_multiple',
