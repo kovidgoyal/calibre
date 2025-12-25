@@ -62,6 +62,7 @@ from qt.core import (
     pyqtProperty,
     pyqtSignal,
 )
+from xxhash import xxh3_64_intdigest
 
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
@@ -706,8 +707,13 @@ class LayoutConstraints(NamedTuple):
         return self.spine_height + self.shelf_height
 
 
+def random_from_id(book_id: int, limit: int = 21) -> int:
+    ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
+    return xxh3_64_intdigest(b'', seed=book_id) % limit
+
+
 def height_reduction_for_book_id(book_id: int) -> int:
-    return (book_id & 0b1111) if gprefs['bookshelf_variable_height'] else 0
+    return random_from_id(book_id) if gprefs['bookshelf_variable_height'] else 0
 
 
 class ShelfItem(NamedTuple):
@@ -896,7 +902,7 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
             ans = log(normalised_size(db.field_for('size', book_id, 0)))
         case '{random}' | 'random':
             # range: 0.25-0.75
-            ans = linear((25+(book_id % 50))/100)
+            ans = linear((25+(random_from_id(book_id, limit=76)))/100)
         case _:
             with suppress(Exception):
                 if 0 <= (x := float(spine_size_template)) <= 1:
