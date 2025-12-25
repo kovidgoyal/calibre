@@ -13,7 +13,7 @@ import struct
 import weakref
 from collections import Counter
 from collections.abc import Iterable, Iterator
-from contextlib import contextmanager, suppress
+from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
 from threading import Event, RLock, Thread
@@ -1277,7 +1277,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Selection tracking
         self._selection_model: QItemSelectionModel = QItemSelectionModel(None, self)
-        self._syncing_from_main = False  # Flag to prevent feedback loops
         self.selectionModel().selectionChanged.connect(self.update_viewport)
 
         # Cover loading and caching
@@ -1906,7 +1905,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # Database methods
 
     def set_database(self, newdb, stage=0):
-        '''Set the database.'''
         if stage == 0:
             self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
             if self._grouping_mode == 'none':  # old stored value
@@ -1919,11 +1917,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.bookcase.clear_spine_width_cache()
 
     def set_context_menu(self, menu: QMenu):
-        '''Set the context menu.'''
         self.context_menu = menu
 
     def contextMenuEvent(self, ev: QContextMenuEvent):
-        '''Handle context menu events.'''
         # Create menu with grouping options
         m = QMenu(self)
 
@@ -1935,7 +1931,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             action = grouping_menu.addAction(name)
             action.setCheckable(True)
             action.setChecked(self._grouping_mode == field)
-            action.triggered.connect(partial(self._set_grouping_mode, field))
+            action.triggered.connect(partial(self.set_grouping_mode, field))
         add('', _('Ungrouped'))
         grouping_menu.addSeparator()
         for k in sorted(GROUPINGS, key=lambda k: numeric_sort_key(fm[k]['name'])):
@@ -1949,7 +1945,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m.popup(ev.globalPos())
         ev.accept()
 
-    def _set_grouping_mode(self, mode: str):
+    def set_grouping_mode(self, mode: str):
         '''Set the grouping mode and refresh display.'''
         if mode != self._grouping_mode:
             self._grouping_mode = mode
@@ -1957,7 +1953,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.invalidate()
 
     def get_selected_ids(self) -> list[int]:
-        '''Get selected book IDs.'''
         return [self.book_id_from_row(index.row()) for index in self.selectionModel().selectedRows() if index.isValid()]
 
     def current_book_state(self) -> SavedState:
@@ -1975,7 +1970,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return SavedState(current_book_id, selected_book_ids)
 
     def restore_current_book_state(self, state: SavedState) -> None:
-        '''Restore current book state.'''
         m = self.model()
         if not state or not m:
             return
@@ -1992,7 +1986,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def indices_for_merge(self, resolved=True):
         return self.selectionModel().selectedRows()
 
-    # Mouse and keyboard events
+    # Mouse and keyboard events {{{
 
     def keyPressEvent(self, ev: QKeyEvent) -> None:
         if ev.matches(QKeySequence.StandardKey.SelectAll):
@@ -2081,7 +2075,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return QItemSelection()
 
     def handle_mouse_move_event(self, ev: QMouseEvent):
-        '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
         ev.accept()
         if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
@@ -2099,11 +2092,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def handle_mouse_press_event(self, ev: QMouseEvent) -> None:
         self.bookcase.ensure_worker()
-        # Get position in viewport coordinates
         if ev.button() != Qt.MouseButton.LeftButton or not (index := self.indexAt(ev.pos())).isValid():
             return
-
-        # Find which book was clicked (pass viewport coordinates, method will handle scroll)
         sm = self.selectionModel()
         flags = QItemSelectionModel.SelectionFlag.Rows
         modifiers = ev.modifiers()
@@ -2139,14 +2129,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             ev.accept()
             return True
         return super().viewportEvent(ev)
-
-    @contextmanager
-    def syncing_from_main(self):
-        before, self._syncing_from_main = self._syncing_from_main, True
-        try:
-            yield
-        finally:
-            self._syncing_from_main = before
+    # }}}
 
     def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
         scroll_y = self.verticalScrollBar().value()
