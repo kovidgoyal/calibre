@@ -2055,9 +2055,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return -1
 
     def book_row_at_position(self, x: int, y: int) -> int:
-        '''
-        Find which book is at the given position. x, y are in viewport coordinates.
-        '''
+        ' Find which book is at the given position. x, y are in viewport coordinates '
         book_id = self.book_id_at_position(x, y)
         if book_id > 0:
             if (row := self.row_from_book_id(book_id)) is not None:
