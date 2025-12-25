@@ -1818,64 +1818,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             return self.TEXT_COLOR
 
-    # Sort interface methods (required for SortByAction integration)
-
-    def sort_by_named_field(self, field: str, order: bool | Qt.SortOrder, reset=True):
-        '''Sort by a named field.'''
-        if isinstance(order, Qt.SortOrder):
-            order = order == Qt.SortOrder.AscendingOrder
-        if m := self.model():
-            m.sort_by_named_field(field, order, reset)
-            self.update_viewport()
-
-    def reverse_sort(self):
-        '''Reverse the current sort order.'''
-        if m := self.model():
-            try:
-                sort_col, order = m.sorted_on
-            except (TypeError, AttributeError):
-                sort_col, order = 'date', True
-            self.sort_by_named_field(sort_col, not order)
-
-    def resort(self):
-        '''Re-apply the current sort.'''
-        if m := self.model():
-            m.resort(reset=True)
-            self.update_viewport()
-
-    def intelligent_sort(self, field: str, ascending: bool | Qt.SortOrder):
-        '''Smart sort that toggles if already sorted on that field.'''
-        if isinstance(ascending, Qt.SortOrder):
-            ascending = ascending == Qt.SortOrder.AscendingOrder
-        if m := self.model():
-            pname = 'previous_sort_order_' + self.__class__.__name__
-            previous = gprefs.get(pname, {})
-            try:
-                current_field = m.sorted_on[0]
-            except (TypeError, AttributeError):
-                current_field = None
-
-            if field == current_field or field not in previous:
-                self.sort_by_named_field(field, ascending)
-                previous[field] = ascending
-                gprefs[pname] = previous
-            else:
-                previous[current_field] = m.sorted_on[1] if hasattr(m, 'sorted_on') else True
-                gprefs[pname] = previous
-                self.sort_by_named_field(field, previous.get(field, True))
-
-    def multisort(self, fields: Iterable[str], reset=True, only_if_different=False):
-        '''Sort on multiple columns.'''
-        if not len(fields):
-            return
-
-        # Delegate to model's multisort capability
-        # This is a simplified version - full implementation would match BooksView
-        for field, ascending in reversed(fields):
-            if field in self.dbref().field_metadata.keys():
-                self.sort_by_named_field(field, ascending, reset=reset)
-                reset = False  # Only reset on first sort
-
     # Selection methods (required for AlternateViews integration)
 
     def select_rows(self, rows: Iterable[int], using_ids: bool = False) -> None:
@@ -1901,8 +1843,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def set_current_row(self, row):
         sm = self.selectionModel()
         sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
-
-    # Database methods
 
     def set_database(self, newdb, stage=0):
         if stage == 0:
