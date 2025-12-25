@@ -1366,8 +1366,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def setModel(self, model: BooksModel | None) -> None:
         '''Set the model for this view.'''
         signals = {
-            'dataChanged': '_model_data_changed', 'rowsInserted': '_model_rows_changed',
-            'rowsRemoved': '_model_rows_changed', 'modelReset': '_model_reset',
+            'dataChanged': 'model_data_changed', 'rowsInserted': 'model_rows_changed',
+            'rowsRemoved': 'model_rows_changed', 'modelReset': 'model_reset',
         }
         if self._model is not None:
             for s, tgt in signals.items():
@@ -1388,15 +1388,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Return the selection model (required for AlternateViews integration).'''
         return self._selection_model
 
-    def _model_data_changed(self, top_left, bottom_right, roles):
+    def model_data_changed(self, top_left, bottom_right, roles):
         '''Handle model data changes.'''
         self.update_viewport()
 
-    def _model_rows_changed(self, parent, first, last):
+    def model_rows_changed(self, parent, first, last):
         '''Handle model row changes.'''
         self.invalidate(set_of_books_changed=True)
 
-    def _model_reset(self):
+    def model_reset(self):
         '''Handle model reset.'''
         self.invalidate(set_of_books_changed=True)
 
@@ -2148,33 +2148,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         finally:
             self._syncing_from_main = before
 
-    def _main_current_changed(self, current, previous):
-        '''Handle current row change from main library view.'''
-        m = self.model()
-        if self._syncing_from_main or not m:
-            return
-        with self.syncing_from_main():
-            if current.isValid():
-                row = current.row()
-                if 0 <= row < m.rowCount(QModelIndex()):
-                    self.set_current_row(row)
-        self.update_viewport()
-
-    def _main_selection_changed(self, selected, deselected):
-        '''Handle selection change from main library view.'''
-        if self._syncing_from_main:
-            return
-
-        library_view = self.gui.library_view
-        if not library_view:
-            return
-
-        # Get selected rows from main view
-        selected_indexes = library_view.selectionModel().selectedIndexes()
-        rows = {idx.row() for idx in selected_indexes if idx.isValid()}
-        with self.syncing_from_main():
-            self.select_rows(rows)
-
     def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
         scroll_y = self.verticalScrollBar().value()
         content_y = y + scroll_y
@@ -2186,17 +2159,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 return shelf, modshelf, item
         return None, None, None
 
-    def _book_id_at_position(self, x: int, y: int) -> int:
+    def book_id_at_position(self, x: int, y: int) -> int:
         _, _, shelf_item = self.item_at_position(x, y)
         if shelf_item is not None and not shelf_item.is_divider:
             return shelf_item.book_id
         return -1
 
-    def _book_row_at_position(self, x: int, y: int) -> int:
+    def book_row_at_position(self, x: int, y: int) -> int:
         '''
         Find which book is at the given position. x, y are in viewport coordinates.
         '''
-        book_id = self._book_id_at_position(x, y)
+        book_id = self.book_id_at_position(x, y)
         if book_id > 0:
             if (row := self.row_from_book_id(book_id)) is not None:
                 return row
@@ -2204,7 +2177,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def indexAt(self, pos: QPoint) -> QModelIndex:
         if (m := self.model()):
-            row = self._book_row_at_position(pos.x(), pos.y())
+            row = self.book_row_at_position(pos.x(), pos.y())
             if row >= 0 and (ans := m.index(row, 0)).isValid():
                 return ans
         return QModelIndex()
