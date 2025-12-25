@@ -4,6 +4,9 @@
 
 # TODO:
 # fix drag and drop
+# Move emblems to above and below instead of just above
+# Cleanup bookshelf preferences
+# Fix rendering of inline dividers for new background
 # Remove py_dominant_color after beta release
 
 # Imports {{{
@@ -167,7 +170,6 @@ class WoodTheme(NamedTuple):
     side_panel_base: QColor
     side_panel_dark: QColor
     inner_shadow_color: QColor
-    inner_shadow_alpha: int
     cavity_color: QColor
 
     @classmethod
@@ -200,8 +202,7 @@ class WoodTheme(NamedTuple):
             back_panel_dark=QColor(130, 95, 60),
             side_panel_base=QColor(175, 135, 95),
             side_panel_dark=QColor(145, 105, 70),
-            inner_shadow_color=QColor(60, 40, 25),
-            inner_shadow_alpha=40,
+            inner_shadow_color=QColor(60, 40, 25, 20),
             cavity_color=QColor(90, 60, 40),
         )
 
@@ -235,8 +236,7 @@ class WoodTheme(NamedTuple):
             back_panel_dark=QColor(30, 20, 14),
             side_panel_base=QColor(55, 38, 28),
             side_panel_dark=QColor(38, 25, 18),
-            inner_shadow_color=QColor(0, 0, 0),
-            inner_shadow_alpha=60,
+            inner_shadow_color=QColor(0, 0, 0, 30),
             cavity_color=QColor(20, 14, 10),
         )
 
@@ -289,7 +289,7 @@ class RenderCase:
         self.draw_back_panel(painter, rect)
         # Add vertical grain for back panel (typical plywood back)
         self.draw_back_panel_grain(painter, rect)
-
+        self.draw_cavity_shadows(painter, rect)
         painter.end()
         self.last_rendered_background = QPixmap.fromImage(ans)
         return self.last_rendered_background
@@ -327,6 +327,21 @@ class RenderCase:
             painter.drawLine(int(x), y1, int(x + wave), y2)
 
         painter.restore()
+
+    def draw_cavity_shadows(self, painter: QPainter, cavity_rect: QRect) -> None:
+        print(111111111)
+        side_shadow_width = 20
+        # Left side shadow
+        left_shadow_gradient = QLinearGradient(cavity_rect.left(), 0, cavity_rect.left() + side_shadow_width, 0)
+        left_shadow_gradient.setColorAt(0.0, self.theme.inner_shadow_color)
+        left_shadow_gradient.setColorAt(1.0, color_with_alpha(self.theme.inner_shadow_color, 0))
+        painter.fillRect(cavity_rect.x(), cavity_rect.y(), side_shadow_width, cavity_rect.height(), left_shadow_gradient)
+        # Right side shadow
+        right_shadow_gradient = QLinearGradient(cavity_rect. right() - side_shadow_width, 0, cavity_rect.right(), 0)
+        right_shadow_gradient.setColorAt(0.0, color_with_alpha(self.theme.inner_shadow_color, 0))
+        right_shadow_gradient.setColorAt(1.0, self.theme.inner_shadow_color)
+        painter.fillRect(
+            cavity_rect.right() - side_shadow_width, cavity_rect.y(), side_shadow_width, cavity_rect.height(), right_shadow_gradient)
 
     def shelf_as_pixmap(self, width: int, height: int, instance: int) -> QPixmap:
         rect = QRect(0, 0, width, height)
