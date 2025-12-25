@@ -255,11 +255,14 @@ class RenderCase:
 
     def __init__(self):
         self.last_rendered_shelf_at = QRect(0, 0, 0, 0), False
-        self.cache: dict[int, QPixmap] = {}
+        self.last_rendered_background_at = QRect(0, 0, 0, 0), False
+        self.last_rendered_background = QPixmap()
+        self.shelf_cache: dict[int, QPixmap] = {}
+        self.back_panel_grain = tuple(self.generate_grain_lines(count=80, seed=42))
 
-    def generate_grain_lines(self, seed: int = 42) -> Iterator[tuple[float, float, float, float, float]]:
+    def generate_grain_lines(self, seed: int = 42, count: int = 60) -> Iterator[tuple[float, float, float, float, float]]:
         r = random.Random(seed)
-        for i in range(60):
+        for i in range(count):
             y_offset = r.uniform(-0.3, 0.3)
             thickness = r.uniform(0.5, 2.0)
             alpha = r.uniform(0, 1)
@@ -273,16 +276,68 @@ class RenderCase:
             setattr(self, attr, WoodTheme.dark_theme() if is_dark else WoodTheme.light_theme())
         self.theme = self.dark_theme if is_dark else self.light_theme
 
+    def background_as_pixmap(self, width: int, height: int) -> QPixmap:
+        rect = QRect(0, 0, width, height)
+        is_dark = is_dark_theme()
+        q = rect, is_dark
+        if self.last_rendered_shelf_at == q:
+            return self.last_rendered_background
+        self.ensure_theme(is_dark)
+        ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        painter = QPainter(ans)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.draw_back_panel(painter, rect)
+        # Add vertical grain for back panel (typical plywood back)
+        self.draw_back_panel_grain(painter, rect)
+
+        painter.end()
+        self.last_rendered_background = QPixmap.fromImage(ans)
+        return self.last_rendered_background
+
+    def draw_back_panel(self, painter: QPainter, interior_rect: QRect) -> None:
+        # Base gradient for back panel (slightly recessed look)
+        back_gradient = QLinearGradient(interior_rect.left(), 0, interior_rect.right(), 0)
+        back_gradient.setColorAt(0.0, self.theme.back_panel_dark)
+        back_gradient.setColorAt(0.15, self.theme.back_panel_base)
+        back_gradient.setColorAt(0.85, self.theme.back_panel_base)
+        back_gradient.setColorAt(1.0, self.theme.back_panel_dark)
+        painter.fillRect(interior_rect, back_gradient)
+
+    def draw_back_panel_grain(self, painter: QPainter, rect: QRect) -> None:
+        painter.save()
+        painter.setClipRect(rect)
+
+        r = random.Random(555)
+        min_alpha, max_alpha = self.theme.grain_alpha_range
+
+        # Vertical grain lines
+        for i in range(50):
+            x = rect.left() + r.randint(0, rect.width())
+            alpha = r.randint(min_alpha // 2, max_alpha // 2)
+
+            grain_color = color_with_alpha(self.theme.grain_color, alpha)
+            pen = QPen(grain_color)
+            pen.setWidthF(r.uniform(0.5, 1.5))
+            painter.setPen(pen)
+
+            # Slightly wavy vertical line
+            y1 = rect.top()
+            y2 = rect.bottom()
+            wave = r.uniform(-3, 3)
+            painter.drawLine(int(x), y1, int(x + wave), y2)
+
+        painter.restore()
+
     def shelf_as_pixmap(self, width: int, height: int, instance: int) -> QPixmap:
         rect = QRect(0, 0, width, height)
         is_dark = is_dark_theme()
         q = rect, is_dark
         if self.last_rendered_shelf_at != q:
-            self.cache.clear()
+            self.shelf_cache.clear()
         self.last_rendered_shelf_at = q
-        self.ensure_theme(is_dark)
-        if ans := self.cache.get(instance):
+        if ans := self.shelf_cache.get(instance):
             return ans
+        self.ensure_theme(is_dark)
         ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
         painter = QPainter(ans)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -294,7 +349,7 @@ class RenderCase:
         self.draw_front_bevel(painter, rect)
         self.draw_edges(painter, rect)
         painter.end()
-        self.cache[instance] = p = QPixmap.fromImage(ans)
+        self.shelf_cache[instance] = p = QPixmap.fromImage(ans)
         return p
 
     def draw_shelf_body(self, painter, rect):
@@ -1533,6 +1588,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 continue
             nshelf = self.expanded_cover.modify_shelf_layout(shelf)
             shelves.append((nshelf, shelf is not nshelf))
+        if not hasattr(self, 'case_renderer'):
+            self.case_renderer = RenderCase()
+        painter.drawPixmap(
+            QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()))
         n = self.shelves_per_screen
         for base in shelf_bases:
             self.draw_shelf_base(painter, base, scroll_y, visible_rect.width(), base.idx % n)
@@ -1557,8 +1616,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 self.selection_highlight_color(is_selected, is_current))
 
     def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
-        if not hasattr(self, 'case_renderer'):
-            self.case_renderer = RenderCase()
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
         shelf_rect = QRect(0, shelf.start_y, width, self.layout_constraints.shelf_height)
         shelf_rect.translate(0, -scroll_y)
