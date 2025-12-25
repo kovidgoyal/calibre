@@ -4,8 +4,6 @@
 
 # TODO:
 # fix drag and drop
-# Move emblems to above and below instead of just above
-# Fix rendering of inline dividers for new background
 # Remove py_dominant_color after beta release
 
 # Imports {{{
@@ -1511,37 +1509,47 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
         self.viewport().update()
 
-    def draw_emblems_above(self, painter: QPainter, item: ShelfItem, scroll_y: int) -> None:
+    def draw_emblems(self, painter: QPainter, item: ShelfItem, scroll_y: int) -> None:
         book_id = item.book_id
-        emblems = []
+        above, below = [], []
         if m := self.model():
             from calibre.gui2.ui import get_gui
             db = m.db
             marked = db.data.get_marked(book_id)
             if marked:
-                emblems.append(m.marked_icon if marked == 'true' else m.marked_text_icon_for(marked))
+                below.append(m.marked_icon if marked == 'true' else m.marked_text_icon_for(marked))
             db = db.new_api
             device_connected = get_gui().device_connected is not None
             on_device = device_connected and db.field_for('ondevice', book_id)
             if on_device:
                 if getattr(self, 'on_device_icon', None) is None:
                     self.on_device_icon = QIcon.ic('ok.png')
-                emblems.append(self.on_device_icon)
-        if not emblems:
-            return
-        gap = 2
-        max_width = (item.width - gap) // len(emblems)
-        max_height = self.layout_constraints.shelf_gap
-        sz = min(max_width, max_height)
-        width = sz
-        if len(emblems) > 1:
-            width += gap + sz
-        x = max(0, (item.width - width) // 2) + item.start_x + self.layout_constraints.side_margin
-        y = item.case_start_y + self.layout_constraints.shelf_gap - sz + item.reduce_height_by
-        for ic in emblems:
-            p = ic.pixmap(sz, sz)
-            painter.drawPixmap(QPoint(x, y), p)
-            x += sz + gap
+                which = above if below else below
+                which.append(self.on_device_icon)
+
+        def draw_horizontal(emblems: list[QIcon], above: bool = True) -> None:
+            if not emblems:
+                return
+            gap = 2
+            max_width = (item.width - gap) // len(emblems)
+            lc = self.layout_constraints
+            max_height = lc.shelf_gap if above else lc.shelf_height
+            sz = min(max_width, max_height)
+            width = sz
+            if len(emblems) > 1:
+                width += gap + sz
+            x = max(0, (item.width - width) // 2) + item.start_x + lc.side_margin
+            y = item.case_start_y - scroll_y
+            if above:
+                y += lc.shelf_gap + item.reduce_height_by - sz
+            else:
+                y += lc.spine_height
+            for ic in emblems:
+                p = ic.pixmap(sz, sz)
+                painter.drawPixmap(QPoint(x, y), p)
+                x += sz + gap
+        draw_horizontal(above)
+        draw_horizontal(below, False)
 
     def paintEvent(self, ev: QPaintEvent):
         '''Paint the bookshelf view.'''
@@ -1588,7 +1596,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     # Draw a book spine at this position
                     row = self.bookcase.book_id_to_row_map[item.book_id]
                     self._draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
-                self.draw_emblems_above(painter, item, scroll_y)
+                self.draw_emblems(painter, item, scroll_y)
         if hovered_item is not None:
             row = self.bookcase.book_id_to_row_map[hovered_item.book_id]
             is_selected, is_current = sm.isRowSelected(row), row == current_row
