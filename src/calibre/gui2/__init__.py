@@ -495,7 +495,7 @@ def create_defs():
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = True
     defs['bookshelf_variable_height'] = True
-    defs['bookshelf_fade_time'] = 200
+    defs['bookshelf_fade_time'] = 400
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so

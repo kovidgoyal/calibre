@@ -1119,7 +1119,7 @@ class ExpandedCover(QObject):
         self.modified_case_item: CaseItem | None = None
         self.cover_renderer: CachedCoverRenderer = CachedCoverRenderer(PixmapWithDominantColor())
         self.opacity_animation = a = QPropertyAnimation(self, b'opacity')
-        a.setEasingCurve(QEasingCurve.Type.OutCubic)
+        a.setEasingCurve(QEasingCurve.Type.InOutCubic)
         a.setStartValue(0.3)
         a.setEndValue(1)
         self.size_animation = a = QPropertyAnimation(self, b'size')
