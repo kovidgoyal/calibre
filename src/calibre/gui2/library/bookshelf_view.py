@@ -570,7 +570,7 @@ class PixmapWithDominantColor(QPixmap):
 
 @lru_cache(maxsize=2)
 def default_cover_pixmap(width: int, height: int) -> PixmapWithDominantColor:
-    i = QImage(I('default_cover_image.png'))
+    i = QImage(I('default_cover.png'))
     _, i = resize_to_fit(i, width, height)
     return PixmapWithDominantColor.fromImage(ImageWithDominantColor(i))
 
