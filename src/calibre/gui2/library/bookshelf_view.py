@@ -1583,7 +1583,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()))
         n = self.shelves_per_screen
         for base in shelf_bases:
-            self.draw_shelf_base(painter, base, scroll_y, visible_rect.width(), base.idx % n)
+            self.draw_shelf_base(painter, base, scroll_y, self.width(), base.idx % n)
         for shelf, has_expanded in shelves:
             # Draw books and inline dividers on it
             for item in shelf.items:
