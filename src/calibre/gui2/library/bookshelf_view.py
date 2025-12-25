@@ -1768,14 +1768,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def load_hover_cover(self, si: ShelfItem) -> tuple[PixmapWithDominantColor, QSize]:
         lc = self.layout_constraints
         cover_img = self.dbref().cover(si.book_id, as_image=True)
+        final_sz = QSize(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
         if cover_img is None or cover_img.isNull():
             cover_pixmap = self.default_cover_pixmap()
         else:
             dpr = self.devicePixelRatioF()
-            sz = (QSizeF(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by) * dpr).toSize()
+            sz = (QSizeF(final_sz) * dpr).toSize()
             _, cover_img = resize_to_fit(cover_img, sz.width(), sz.height())
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
-        return cover_pixmap, QSize(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
+            final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
+        return cover_pixmap, final_sz
 
     def get_contrasting_text_color(self, background_color: QColor) -> QColor:
         if not background_color or not background_color.isValid():
