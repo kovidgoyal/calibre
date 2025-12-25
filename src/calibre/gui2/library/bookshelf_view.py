@@ -1827,8 +1827,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Clear caches when database changes
             self.template_inited = False
             self.cover_cache.set_database(newdb)
-            self.invalidate(set_of_books_changed=True)
             self.bookcase.clear_spine_width_cache()
+            self.invalidate(set_of_books_changed=True)
 
     def set_context_menu(self, menu: QMenu):
         self.context_menu = menu
