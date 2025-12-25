@@ -3,7 +3,6 @@
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
 # TODO:
-# fix drag and drop
 # Remove py_dominant_color after beta release
 
 # Imports {{{
@@ -2018,24 +2017,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Mouse and keyboard events
 
-    def viewportEvent(self, ev: QEvent) -> bool:
-        '''Handle viewport events - this is where mouse events on QAbstractScrollArea go.'''
-        match ev.type():
-            case QEvent.Type.MouseButtonPress:
-                if self._handle_mouse_press(ev):
-                    return True
-            case QEvent.Type.MouseButtonRelease:
-                if self._handle_mouse_release(ev):
-                    return True
-            case QEvent.Type.MouseButtonDblClick:
-                if self._handle_mouse_double_click(ev):
-                    return True
-            case QEvent.Type.MouseMove:
-                self._handle_mouse_move(ev)
-            case QEvent.Type.Leave:
-                self._handle_mouse_leave(ev)
-        return super().viewportEvent(ev)
-
     def keyPressEvent(self, ev: QKeyEvent) -> None:
         if ev.matches(QKeySequence.StandardKey.SelectAll):
             self.selectAll()
@@ -2122,7 +2103,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return selection_for_rows(m, self.bookcase.visual_selection_between(a.row(), b.row()))
         return QItemSelection()
 
-    def _handle_mouse_move(self, ev: QMouseEvent):
+    def handle_mouse_move_event(self, ev: QMouseEvent):
         '''Handle mouse move events for hover detection.'''
         self.bookcase.ensure_worker()
         ev.accept()
@@ -2139,11 +2120,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def currentIndex(self):
         return self.selectionModel().currentIndex()
 
-    def _handle_mouse_press(self, ev: QMouseEvent) -> bool:
+    def handle_mouse_press_event(self, ev: QMouseEvent) -> None:
         self.bookcase.ensure_worker()
         # Get position in viewport coordinates
         if ev.button() != Qt.MouseButton.LeftButton or not (index := self.indexAt(ev.pos())).isValid():
-            return False
+            return
 
         # Find which book was clicked (pass viewport coordinates, method will handle scroll)
         sm = self.selectionModel()
@@ -2158,13 +2139,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Single selection
             sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)
         ev.accept()
-        return True
 
-    def _handle_mouse_release(self, ev: QMouseEvent) -> bool:
+    def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
         self.bookcase.ensure_worker()
-        return False
 
-    def _handle_mouse_double_click(self, ev: QMouseEvent) -> bool:
+    def mouseDoubleClickEvent(self, ev: QMouseEvent) -> bool:
         '''Handle mouse double-click events on the viewport.'''
         self.bookcase.ensure_worker()
         index = self.indexAt(ev.pos())
@@ -2174,14 +2153,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Open the book
             self.gui.iactions['View'].view_triggered(row)
             ev.accept()
-            return True
-        return False
 
-    def _handle_mouse_leave(self, ev: QEvent):
-        '''Handle mouse leave events on the viewport.'''
-        # Clear hover when mouse leaves viewport
-        self.expanded_cover.invalidate()
-        self.update_viewport()
+    def viewportEvent(self, ev: QEvent) -> None:
+        if ev.type() == QEvent.Type.Leave:
+            # Clear hover when mouse leaves viewport
+            self.expanded_cover.invalidate()
+            self.update_viewport()
+            ev.accept()
+            return True
+        return super().viewportEvent(ev)
 
     @contextmanager
     def syncing_from_main(self):
@@ -2251,14 +2231,3 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if row >= 0 and (ans := m.index(row, 0)).isValid():
                 return ans
         return QModelIndex()
-
-    # setup_dnd_interface
-    # handled in viewportEvent()
-    def handle_mouse_move_event(self, ev: QEvent):
-        pass
-
-    def handle_mouse_press_event(self, ev: QEvent):
-        pass
-
-    def handle_mouse_release_event(self, ev: QEvent):
-        pass
