@@ -72,6 +72,7 @@ from calibre.gui2.library.alternate_views import handle_shift_click, handle_shif
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
+from calibre.gui2.palette import dark_palette, light_palette
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
 from calibre.utils.localization import lang_map
@@ -875,7 +876,7 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
             ans = log(normalised_size(db.field_for('size', book_id, 0)))
         case '{random}' | 'random':
             # range: 0.25-0.75
-            ans = linear((25+(random_from_id(book_id, limit=76)))/100)
+            ans = linear((25+(random_from_id(book_id, limit=51)))/100)
         case _:
             with suppress(Exception):
                 if 0 <= (x := float(spine_size_template)) <= 1:
@@ -1241,8 +1242,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     DIVIDER_LINE_WIDTH = 2  # Width of the gradient line in divider
 
     # Colors
-    TEXT_COLOR = QColor('#eee')
-    TEXT_COLOR_DARK = QColor('#222')  # Dark text for light backgrounds
     DIVIDER_TEXT_COLOR = QColor('#b0b5c0')
     DIVIDER_LINE_COLOR = QColor('#4a4a6a')
     DIVIDER_GRADIENT_LINE_1 = DIVIDER_LINE_COLOR.toRgb()
@@ -1252,6 +1251,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def __init__(self, gui):
         super().__init__(gui)
+        self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
+        self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
         self.gui = gui
         self._model: BooksModel | None = None
         self.context_menu: QMenu | None = None
@@ -1735,7 +1736,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.rotate(-90)
 
         # Determine text color based on spine background brightness
-        text_color = self._get_contrasting_text_color(spine_color)
+        text_color = self.get_contrasting_text_color(spine_color)
         painter.setPen(text_color)
 
         text_rect = QRect(
@@ -1776,47 +1777,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
         return cover_pixmap, QSize(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
 
-    def _get_contrasting_text_color(self, background_color: QColor):
-        '''
-        Calculate text color based on background brightness for optimal contrast.
-
-        :param background_color: QColor of the spine background
-        :return: QColor for text
-        '''
+    def get_contrasting_text_color(self, background_color: QColor) -> QColor:
         if not background_color or not background_color.isValid():
-            return self.TEXT_COLOR
-
-        # Get RGB values
-        r = background_color.red()
-        g = background_color.green()
-        b = background_color.blue()
-
-        # Calculate relative luminance
-        def normalize(value):
-            val = value / 255.0
-            if val <= 0.03928:
-                return val / 12.92
-            else:
-                return ((val + 0.055) / 1.055) ** 2.4
-
-        r_norm = normalize(r)
-        g_norm = normalize(g)
-        b_norm = normalize(b)
-
-        luminance = 0.2126 * r_norm + 0.7152 * g_norm + 0.0722 * b_norm
-
-        # Yellow/gold colors need darker text at lower luminance
-        is_yellow_gold = (r > 180 and g > 150 and b < 150)
-
-        if is_yellow_gold:
-            if luminance > 0.35:
-                return self.TEXT_COLOR_DARK
-            else:
-                return self.TEXT_COLOR
-        elif luminance > 0.5:
-            return self.TEXT_COLOR_DARK
-        else:
-            return self.TEXT_COLOR
+            return self.text_color_for_light_background
+        is_yellow_gold = background_color.red() > 180 and background_color.yellow() > 150 and background_color.blue() < 150
+        threshold = 0.35 if is_yellow_gold else 0.5
+        return self.text_color_for_light_background if background_color.lightnessF() > threshold else self.text_color_for_dark_background
 
     # Selection methods (required for AlternateViews integration)
 
