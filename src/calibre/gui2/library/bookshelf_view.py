@@ -1148,8 +1148,9 @@ class ExpandedCover(QObject):
         self.shelf_item, self.case_item = self.pending_shelf_item, self.pending_case_item
         self.pending_case_item = self.pending_shelf_item = None
         if self.shelf_item is not None:
-            self.opacity_animation.setDuration(gprefs['bookshelf_fade_time'])
-            self.size_animation.setDuration(self.opacity_animation.duration())
+            if (duration := gprefs['bookshelf_fade_time']) > 0:
+                self.opacity_animation.setDuration(duration)
+                self.size_animation.setDuration(duration)
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
@@ -1157,8 +1158,13 @@ class ExpandedCover(QObject):
             self.cover_renderer.set_pixmap(pixmap)
             self.size_animation.setStartValue(sz)
             self.size_animation.setEndValue(final_sz)
-            self.animation.start()
             self.is_showing_cover = True
+            if duration > 0:
+                self.animation.start()
+            else:
+                self._opacity = 1
+                self._size = final_sz
+                self.shift_items()
         self.updated.emit()
 
     def invalidate(self) -> None:
