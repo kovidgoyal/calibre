@@ -86,31 +86,9 @@ TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 # Utility functions {{{
 
-def get_reading_statue(book_id, db, mi=None) -> str:
-    '''
-    Determine reading statue for a book based on
-    the last read position (if available)
-
-    Returns: 'unread', 'reading', or 'finished'
-    '''
-    if not mi:
-        mi = db.new_api.get_proxy_metadata(book_id)
-
-    formats = mi.get('formats') or []
-    if formats:
-        # Check if any format has a last read position
-        for fmt in formats:
-            positions = db.new_api.get_last_read_positions(book_id, fmt, '_')
-            if positions:
-                # Has reading progress
-                for pos in positions:
-                    pos_frac = pos.get('pos_frac', 0)
-                    if pos_frac >= 0.95:  # 95% or more = finished
-                        return 'finished'
-                    elif pos_frac > 0.01:  # More than 1% = reading
-                        return 'reading'
-
-    return 'unread'
+def random_from_id(book_id: int, limit: int = 21) -> int:
+    ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
+    return xxh3_64_intdigest(b'', seed=book_id) % limit
 
 
 def normalised_size(size_bytes: int) -> float:
@@ -705,11 +683,6 @@ class LayoutConstraints(NamedTuple):
     @property
     def step_height(self) -> int:
         return self.spine_height + self.shelf_height
-
-
-def random_from_id(book_id: int, limit: int = 21) -> int:
-    ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
-    return xxh3_64_intdigest(b'', seed=book_id) % limit
 
 
 def height_reduction_for_book_id(book_id: int) -> int:
