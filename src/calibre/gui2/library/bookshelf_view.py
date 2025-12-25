@@ -3,15 +3,14 @@
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
 # TODO:
-# improve rendering of shelf and background with options for dark/light
 # fix drag and drop
 # Remove py_dominant_color after beta release
 
 # Imports {{{
 import bisect
-import hashlib
 import math
 import os
+import random
 import struct
 import weakref
 from collections import Counter
@@ -73,7 +72,7 @@ from qt.core import (
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, resolve_bookshelf_color
+from calibre.gui2 import gprefs, is_dark_theme, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import handle_shift_click, handle_shift_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
@@ -129,18 +128,288 @@ def normalised_size(size_bytes: int) -> float:
         return min(estimated_pages / 2000, 1)
     return 0.
 
-
-def pseudo_random(book_id: int, maximum) -> int:
-    '''Use book_id to create a pseudo-random but consistent value per book.'''
-    val = str(book_id or 0).encode()
-    hash_val = int(hashlib.md5(val).hexdigest()[:8], 16)
-    return hash_val % maximum
-
-
 # }}}
 
 
 # Cover functions {{{
+
+class WoodTheme(NamedTuple):
+    background: QColor
+    # Main wood body gradient colors (top to bottom)
+    wood_top: QColor
+    wood_mid_light: QColor
+    wood_mid_dark: QColor
+    wood_bottom: QColor
+
+    # Wood grain color
+    grain_color: QColor
+    grain_alpha_range: tuple[int, int]
+
+    # Knot colors
+    knot_color: QColor
+
+    # Highlight and shadow
+    highlight_color: QColor
+    shadow_color: QColor
+
+    # Edge colors
+    edge_color: QColor
+    end_grain_dark: QColor
+    end_grain_light: QColor
+
+    # Bevel colors
+    bevel_light: QColor
+    bevel_dark: QColor
+
+    # Bookcase colors
+    back_panel_base: QColor
+    back_panel_dark: QColor
+    side_panel_base: QColor
+    side_panel_dark: QColor
+    inner_shadow_color: QColor
+    inner_shadow_alpha: int
+    cavity_color: QColor
+
+    @classmethod
+    def light_theme(cls) -> 'WoodTheme':
+        # Light oak/pine colors for light mode
+        return WoodTheme(
+            background=QColor(245, 245, 245),
+
+            wood_top=QColor(210, 170, 125),
+            wood_mid_light=QColor(190, 150, 105),
+            wood_mid_dark=QColor(170, 130, 90),
+            wood_bottom=QColor(150, 115, 75),
+
+            grain_color=QColor(120, 80, 50),
+            grain_alpha_range=(15, 40),
+
+            knot_color=QColor(100, 65, 40, 50),
+
+            highlight_color=QColor(255, 255, 255, 80),
+            shadow_color=QColor(0, 0, 0, 30),
+
+            edge_color=QColor(120, 85, 55),
+            end_grain_dark=QColor(130, 95, 65),
+            end_grain_light=QColor(170, 130, 95),
+
+            bevel_light=QColor(230, 195, 160, 100),
+            bevel_dark=QColor(100, 70, 45, 80),
+
+            back_panel_base=QColor(160, 120, 80),
+            back_panel_dark=QColor(130, 95, 60),
+            side_panel_base=QColor(175, 135, 95),
+            side_panel_dark=QColor(145, 105, 70),
+            inner_shadow_color=QColor(60, 40, 25),
+            inner_shadow_alpha=40,
+            cavity_color=QColor(90, 60, 40),
+        )
+
+    @classmethod
+    def dark_theme(cls) -> 'WoodTheme':
+        # Dark walnut/mahogany colors for dark mode
+        return WoodTheme(
+            background=QColor(30, 30, 35),
+
+            wood_top=QColor(85, 55, 40),
+            wood_mid_light=QColor(70, 45, 32),
+            wood_mid_dark=QColor(55, 35, 25),
+            wood_bottom=QColor(42, 28, 20),
+
+            grain_color=QColor(30, 18, 12),
+            grain_alpha_range=(20, 50),
+
+            knot_color=QColor(25, 15, 10, 60),
+
+            highlight_color=QColor(255, 220, 180, 35),
+            shadow_color=QColor(0, 0, 0, 50),
+
+            edge_color=QColor(35, 22, 15),
+            end_grain_dark=QColor(30, 20, 14),
+            end_grain_light=QColor(65, 42, 30),
+
+            bevel_light=QColor(120, 85, 60, 70),
+            bevel_dark=QColor(20, 12, 8, 90),
+
+            back_panel_base=QColor(45, 30, 22),
+            back_panel_dark=QColor(30, 20, 14),
+            side_panel_base=QColor(55, 38, 28),
+            side_panel_dark=QColor(38, 25, 18),
+            inner_shadow_color=QColor(0, 0, 0),
+            inner_shadow_alpha=60,
+            cavity_color=QColor(20, 14, 10),
+        )
+
+
+def color_with_alpha(c: QColor, a: int) -> QColor:
+    ans = QColor(c)
+    ans.setAlpha(a)
+    return ans
+
+
+class RenderCase:
+
+    dark_theme: WoodTheme
+    light_theme: WoodTheme
+    theme: WoodTheme
+
+    def __init__(self):
+        self.last_rendered_shelf_at = QRect(0, 0, 0, 0), False
+        self.cache: dict[int, QPixmap] = {}
+
+    def generate_grain_lines(self, seed: int = 42) -> Iterator[tuple[float, float, float, float, float]]:
+        r = random.Random(seed)
+        for i in range(60):
+            y_offset = r.uniform(-0.3, 0.3)
+            thickness = r.uniform(0.5, 2.0)
+            alpha = r.uniform(0, 1)
+            wave_amplitude = r.uniform(0, 2)
+            wave_frequency = r.uniform(0.01, 0.03)
+            yield y_offset, thickness, alpha, wave_amplitude, wave_frequency
+
+    def ensure_theme(self, is_dark: bool) -> None:
+        attr = 'dark_theme' if is_dark else 'light_theme'
+        if not hasattr(self, attr):
+            setattr(self, attr, WoodTheme.dark_theme() if is_dark else WoodTheme.light_theme())
+        self.theme = self.dark_theme if is_dark else self.light_theme
+
+    def shelf_as_pixmap(self, width: int, height: int, instance: int) -> QPixmap:
+        rect = QRect(0, 0, width, height)
+        is_dark = is_dark_theme()
+        q = rect, is_dark
+        if self.last_rendered_shelf_at != q:
+            self.cache.clear()
+        self.last_rendered_shelf_at = q
+        self.ensure_theme(is_dark)
+        if ans := self.cache.get(instance):
+            return ans
+        ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        painter = QPainter(ans)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.draw_shelf_body(painter, rect)
+        self.draw_wood_grain(painter, rect, tuple(self.generate_grain_lines(102 + instance)))
+        self.draw_knots(painter, rect, seed=123 + instance)
+        self.draw_top_highlight(painter, rect)
+        self.draw_bottom_edge(painter, rect)
+        self.draw_front_bevel(painter, rect)
+        self.draw_edges(painter, rect)
+        painter.end()
+        self.cache[instance] = p = QPixmap.fromImage(ans)
+        return p
+
+    def draw_shelf_body(self, painter, rect):
+        # Base wood gradient
+        wood_gradient = QLinearGradient(0, rect.top(), 0, rect.bottom())
+        wood_gradient.setColorAt(0.0, self.theme.wood_top)         # Lighter top
+        wood_gradient.setColorAt(0.3, self.theme.wood_mid_light)   # Mid tone
+        wood_gradient.setColorAt(0.7, self.theme.wood_mid_dark)    # Darker
+        wood_gradient.setColorAt(1.0, self.theme.wood_bottom)      # Darkest bottom
+
+        painter.fillRect(rect, wood_gradient)
+
+    def draw_wood_grain(self, painter, rect, grain_lines, alpha_multiplier: float = 1.0):
+        painter.save()
+        painter.setClipRect(rect)
+
+        spacing = rect.height() / len(grain_lines)
+        min_alpha, max_alpha = self.theme.grain_alpha_range
+        for i, (y_offset, thickness, alpha_factor, wave_amp, wave_freq) in enumerate(grain_lines):
+            alpha = int((min_alpha + alpha_factor * (max_alpha - min_alpha)) * alpha_multiplier)
+            # Vary the grain color
+            grain_color = QColor(self.theme.grain_color)
+            grain_color.setAlpha(alpha)
+            pen = QPen(grain_color)
+            pen.setWidthF(thickness)
+            painter. setPen(pen)
+
+            # Calculate y position with offset
+            base_y = rect. top() + i * spacing + y_offset * spacing
+
+            # Draw wavy grain line
+            points = []
+            for x in range(rect. left(), rect.right(), 5):
+                import math
+                wave = wave_amp * math. sin(x * wave_freq + i)
+                points.append((x, base_y + wave))
+
+            for j in range(len(points) - 1):
+                painter.drawLine(
+                    int(points[j][0]), int(points[j][1]),
+                    int(points[j + 1][0]), int(points[j + 1][1])
+                )
+        painter.restore()
+
+    def draw_knots(self, painter: QPainter, rect: QRect, count: int = 3, seed: int = 123):
+        painter.save()
+        painter.setClipRect(rect)
+        r = random.Random(seed)
+        for _ in range(count):
+            knot_x = r.randint(rect.left() + 20, rect.right() - 20)
+            knot_y = r.randint(rect.top() + 5, rect.bottom() - 5)
+            knot_size = r.randint(3, 6)
+
+            knot_gradient = QLinearGradient(knot_x - knot_size, knot_y, knot_x + knot_size, knot_y)
+            knot_color_transparent = color_with_alpha(self.theme.knot_color, 0)
+            knot_gradient.setColorAt(0.0, knot_color_transparent)
+            knot_gradient.setColorAt(0.5, self.theme.knot_color)
+            knot_gradient.setColorAt(1.0, knot_color_transparent)
+
+            painter.setBrush(QBrush(knot_gradient))
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.drawEllipse(knot_x - knot_size, knot_y - knot_size // 2, knot_size * 2, knot_size)
+        painter.restore()
+
+    def draw_top_highlight(self, painter, rect):
+        highlight_gradient = QLinearGradient(0, rect.top(), 0, rect.top() + 8)
+        highlight_gradient.setColorAt(0.0, self.theme.highlight_color)
+        highlight_gradient.setColorAt(0.5, color_with_alpha(self.theme.highlight_color, self.theme.highlight_color.alpha() // 3))
+        highlight_gradient.setColorAt(1.0, color_with_alpha(self.theme.highlight_color, 0))
+        highlight_rect = QRect(rect.x(), rect.y(), rect.width(), 8)
+        painter.fillRect(highlight_rect, highlight_gradient)
+
+    def draw_bottom_edge(self, painter, rect):
+        shadow_gradient = QLinearGradient(0, rect.bottom() - 6, 0, rect.bottom())
+        shadow_gradient.setColorAt(0.0, color_with_alpha(self.theme.shadow_color, 0))
+        shadow_gradient.setColorAt(0.7, self.theme.shadow_color)
+        shadow_gradient.setColorAt(1.0, color_with_alpha(self.theme.shadow_color, self.theme.shadow_color.alpha() * 2))
+        shadow_rect = QRect(rect.x(), rect.bottom() - 6, rect. width(), 6)
+        painter.fillRect(shadow_rect, shadow_gradient)
+
+    def draw_front_bevel(self, painter, rect):
+        # Top chamfer line
+        chamfer_pen = QPen(self.theme.bevel_light)
+        chamfer_pen.setWidth(1)
+        painter.setPen(chamfer_pen)
+        painter.drawLine(rect.left(), rect.top() + 2, rect.right(), rect.top() + 2)
+
+        # Bottom chamfer (darker)
+        chamfer_pen. setColor(self.theme.bevel_dark)
+        painter.setPen(chamfer_pen)
+        painter.drawLine(rect.left(), rect.bottom() - 2, rect. right(), rect.bottom() - 2)
+
+    def draw_edges(self, painter, rect):
+        # Darker edge outline
+        edge_pen = QPen(self.theme.edge_color)
+        edge_pen.setWidth(1)
+        painter.setPen(edge_pen)
+        painter.setBrush(Qt. BrushStyle. NoBrush)
+        painter.drawRect(rect)
+
+        # Left end grain (slightly different tone)
+        end_grain_width = 4
+        left_end = QRect(rect.x(), rect.y(), end_grain_width, rect.height())
+        end_gradient = QLinearGradient(left_end.left(), 0, left_end.right(), 0)
+        end_gradient.setColorAt(0.0, self.theme.end_grain_dark)
+        end_gradient.setColorAt(1.0, color_with_alpha(self.theme.end_grain_light, 0))
+        painter.fillRect(left_end, end_gradient)
+
+        # Right end grain
+        right_end = QRect(rect. right() - end_grain_width, rect.y(), end_grain_width, rect.height())
+        end_gradient = QLinearGradient(right_end.left(), 0, right_end.right(), 0)
+        end_gradient.setColorAt(0.0, color_with_alpha(self.theme.end_grain_light, 0))
+        end_gradient.setColorAt(1.0, self.theme.end_grain_dark)
+        painter.fillRect(right_end, end_gradient)
+
 
 def py_dominant_color(self: QImage) -> QColor:
     img = self
@@ -567,7 +836,7 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
             ans = log(normalised_size(db.field_for('size', book_id, 0)))
         case '{random}' | 'random':
             # range: 0.25-0.75
-            ans = linear((25+pseudo_random(book_id, 50))/100)
+            ans = linear((25+(book_id % 50))/100)
         case _:
             with suppress(Exception):
                 if 0 <= (x := float(spine_size_template)) <= 1:
@@ -933,8 +1202,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     DIVIDER_LINE_WIDTH = 2  # Width of the gradient line in divider
 
     # Colors
-    SHELF_COLOR_START = QColor('#4a3728')
-    SHELF_COLOR_END = QColor('#3d2e20')
     TEXT_COLOR = QColor('#eee')
     TEXT_COLOR_DARK = QColor('#222')  # Dark text for light backgrounds
     DIVIDER_TEXT_COLOR = QColor('#b0b5c0')
@@ -1256,22 +1523,25 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         hovered_item: ShelfItem | None = None
         sm = self.selectionModel()
         current_row = sm.currentIndex().row()
+        shelf_bases, shelves = [], []
 
         for shelf in self.bookcase.iter_shelves_from_ypos(scroll_y):
             if shelf.start_y > visible_rect.bottom():
                 break
             if shelf.is_shelf:
-                self._draw_shelf(painter, shelf, scroll_y, visible_rect.width())
+                shelf_bases.append(shelf)
                 continue
-            shelf = self.expanded_cover.modify_shelf_layout(shelf)
-
+            nshelf = self.expanded_cover.modify_shelf_layout(shelf)
+            shelves.append((nshelf, shelf is not nshelf))
+        for i, base in enumerate(shelf_bases):
+            self.draw_shelf_base(painter, base, scroll_y, visible_rect.width(), i)
+        for shelf, has_expanded in shelves:
             # Draw books and inline dividers on it
             for item in shelf.items:
                 if item.is_divider:
                     self._draw_inline_divider(painter, item, scroll_y)
                     continue
-
-                if self.expanded_cover.is_expanded(item.book_id):
+                if has_expanded and self.expanded_cover.is_expanded(item.book_id):
                     hovered_item = item
                 else:
                     # Draw a book spine at this position
@@ -1285,56 +1555,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 painter, scroll_y, self.layout_constraints, is_selected, is_current,
                 self.selection_highlight_color(is_selected, is_current))
 
-    def _draw_shelf(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int):
-        '''Draw the shelf background at the given y position.'''
-
-        # Shelf surface (where books sit)
+    def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
+        if not hasattr(self, 'case_renderer'):
+            self.case_renderer = RenderCase()
+        p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
         shelf_rect = QRect(0, shelf.start_y, width, self.layout_constraints.shelf_height)
         shelf_rect.translate(0, -scroll_y)
+        painter.drawPixmap(QPoint(0, shelf.start_y - scroll_y), p)
 
-        # Create gradient for shelf surface (horizontal gradient for wood grain effect)
-        gradient = QLinearGradient(
-            QPointF(shelf_rect.left(), shelf_rect.top()),
-            QPointF(shelf_rect.width(), shelf_rect.top()),
-        )
-        gradient.setColorAt(0, self.SHELF_COLOR_START)
-        gradient.setColorAt(0.5, self.SHELF_COLOR_END.lighter(105))
-        gradient.setColorAt(1, self.SHELF_COLOR_START)
-
-        # Draw shelf surface
-        painter.fillRect(shelf_rect, QBrush(gradient))
-
-        # Draw shelf front edge (3D effect - darker shadow)
-        edge_rect = QRect(
-            shelf_rect.left(),
-            shelf_rect.top(),
-            shelf_rect.width(),
-            3,
-        )
-        painter.fillRect(edge_rect, self.SHELF_COLOR_END.darker(130))
-
-        # Draw shelf back edge (lighter highlight for 3D depth)
-        back_edge_rect = QRect(
-            shelf_rect.left(),
-            shelf_rect.top() + self.layout_constraints.shelf_height - 2,
-            shelf_rect.width(),
-            2,
-        )
-        painter.fillRect(back_edge_rect, self.SHELF_COLOR_START.lighter(110))
-
-        # Draw subtle wood grain lines
-        painter.setPen(QPen(self.SHELF_COLOR_END.darker(110), 1))
-        for i in range(0, shelf_rect.width(), 20):
-            line_pos = shelf_rect.top() + self.layout_constraints.shelf_height // 2
-            painter.drawLine(
-                shelf_rect.left() + i,
-                line_pos,
-                shelf_rect.left() + i + 10,
-                line_pos,
-            )
-
-    def _draw_selection_highlight(self, painter: QPainter, spine_rect: QRect, color: QColor):
-        '''Draw the selection highlight.'''
+    def draw_selection_highlight(self, painter: QPainter, spine_rect: QRect, color: QColor):
         painter.save()
         pen = QPen(color)
         gap = min(4, self.layout_constraints.horizontal_gap // 2)
@@ -1447,7 +1676,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Draw selection highlight around the spine
         color = self.selection_highlight_color(is_selected, is_current)
         if color.isValid():
-            self._draw_selection_highlight(painter, spine_rect, color)
+            self.draw_selection_highlight(painter, spine_rect, color)
 
     def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
         if is_current:
