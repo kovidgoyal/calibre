@@ -1533,8 +1533,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 continue
             nshelf = self.expanded_cover.modify_shelf_layout(shelf)
             shelves.append((nshelf, shelf is not nshelf))
-        for i, base in enumerate(shelf_bases):
-            self.draw_shelf_base(painter, base, scroll_y, visible_rect.width(), i)
+        n = self.shelves_per_screen
+        for base in shelf_bases:
+            self.draw_shelf_base(painter, base, scroll_y, visible_rect.width(), base.idx % n)
         for shelf, has_expanded in shelves:
             # Draw books and inline dividers on it
             for item in shelf.items:
