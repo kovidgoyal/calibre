@@ -1566,14 +1566,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Draw books and inline dividers on it
             for item in shelf.items:
                 if item.is_divider:
-                    self._draw_inline_divider(painter, item, scroll_y)
+                    self.draw_inline_divider(painter, item, scroll_y)
                     continue
                 if has_expanded and self.expanded_cover.is_expanded(item.book_id):
                     hovered_item = item
                 else:
                     # Draw a book spine at this position
                     row = self.bookcase.book_id_to_row_map[item.book_id]
-                    self._draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
+                    self.draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
                 self.draw_emblems(painter, item, scroll_y)
         if hovered_item is not None:
             row = self.bookcase.book_id_to_row_map[hovered_item.book_id]
@@ -1600,9 +1600,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawRect(spine_rect.adjusted(gap, gap, -gap, -gap))
         painter.restore()
 
-    def _get_sized_text(self, text: str, max_width: int, start: float, stop: float) -> tuple[str, QFont, QRect]:
+    @lru_cache(maxsize=4096)
+    def get_sized_text(self, text: str, max_width: int, start: float, stop: float) -> tuple[str, QFont, QRect]:
         '''Return a text, a QFont and a QRect that fit into the max_width.'''
-        font = QFont()
+        font = QFont(self.font())
         for minus in range(round(start - stop) * 2):
             minus = minus / 2
             font.setPointSizeF(start - minus)
@@ -1616,7 +1617,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         rslt = fm.elidedText(text, Qt.TextElideMode.ElideRight, max_width)
         return rslt, font, size
 
-    def _draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
+    def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
         lc = self.layout_constraints
         rect = divider.rect(lc).translated(0, -scroll_y)
@@ -1633,7 +1634,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Bottom margin
         text_rect = divider_rect.adjusted(8, 0, 0, 0)
-        elided_text, font, sized_rect = self._get_sized_text(divider.group_name, text_rect.width(), 12, 8)
+        elided_text, font, sized_rect = self.get_sized_text(divider.group_name, text_rect.width(), 12, 8)
         font.setBold(True)
 
         # Calculate line dimensions
@@ -1668,7 +1669,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         lc = self.layout_constraints
         return default_cover_pixmap(lc.hover_expanded_width, lc.spine_height)
 
-    def _draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int, is_selected: bool, is_current: bool):
+    def draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int, is_selected: bool, is_current: bool):
         '''Draw a book spine.'''
         thumbnail = self.cover_cache.thumbnail_as_pixmap(spine.book_id)
         if thumbnail is None:  # not yet rendered
@@ -1688,15 +1689,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         spine_rect = spine.rect(lc).translated(0, -scroll_y)
 
         # Draw spine background with gradient (darker edges, lighter center)
-        self._draw_spine_background(painter, spine_rect, spine_color)
+        self.draw_spine_background(painter, spine_rect, spine_color)
 
         # Draw cover thumbnail overlay
         if gprefs['bookshelf_thumbnail']:
-            self._draw_thumbnail_overlay(painter, spine_rect, thumbnail)
+            self.draw_spine_cover(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)
         title = self.render_template_title(spine.book_id, mi)
-        self._draw_spine_title(painter, spine_rect, spine_color, title)
+        self.draw_spine_title(painter, spine_rect, spine_color, title)
 
         # Draw selection highlight around the spine
         color = self.selection_highlight_color(is_selected, is_current)
@@ -1710,7 +1711,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return self.palette().color(QPalette.ColorRole.Highlight)
         return QColor()
 
-    def _draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
+    def draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
         '''Draw spine background with gradient (darker edges, lighter center).'''
         painter.save()
         painter.setOpacity(1.0)
@@ -1727,7 +1728,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.fillRect(rect, QBrush(vertical_gradient))
         painter.restore()
 
-    def _draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, title: str):
+    def draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, title: str):
         '''Draw vertically the title on the spine.'''
         if not title:
             return
@@ -1747,13 +1748,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         )
         # leave space for margin with top of the spine
         text_rect.adjust(6, 0, -6, 0)
-        elided_text, font, _rect = self._get_sized_text(title, text_rect.width(), 12, 8)
+        elided_text, font, _rect = self.get_sized_text(title, text_rect.width(), 12, 8)
         painter.setFont(font)
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided_text)
         painter.restore()
 
-    def _draw_thumbnail_overlay(self, painter: QPainter, rect: QRect, thumbnail):
-        '''Draw cover thumbnail overlay on spine.'''
+    def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail):
         # Draw with opacity
         painter.save()
         painter.setOpacity(0.3)  # 30% opacity
