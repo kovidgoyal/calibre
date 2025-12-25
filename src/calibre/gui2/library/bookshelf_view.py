@@ -1986,12 +1986,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.set_current_row(m.db.id_to_index(state.current_book_id))
 
     def marked_changed(self, old_marked: set[int], current_marked: set[int]):
-        '''Handle marked books changes.'''
         # Refresh display if marked books changed
         self.update_viewport()
 
     def indices_for_merge(self, resolved=True):
-        '''Get indices for merge operations.'''
         return self.selectionModel().selectedRows()
 
     # Mouse and keyboard events
