@@ -11,7 +11,7 @@ import weakref
 from collections import OrderedDict
 from collections.abc import Iterable, Iterator, MutableMapping
 from functools import partial
-from queue import Empty, LifoQueue, Queue
+from queue import Empty, LifoQueue, Queue, ShutDown
 from threading import Event, Lock, Thread, current_thread
 from time import monotonic
 from typing import TypeVar
@@ -205,7 +205,7 @@ class ThumbnailRenderer(QObject):
 
     def shutdown(self) -> None:
         self.ignore_render_requests.set()
-        self.render_queue.put((None, None, None, None))
+        self.render_queue.shutdown(immediate=True)
         self.disk_cache.shutdown()
         self.render_thread = None
     __del__ = shutdown
@@ -214,10 +214,11 @@ class ThumbnailRenderer(QObject):
         q = self.render_queue
         ignore_render_requests = self.ignore_render_requests
         while True:
-            library_id, book_id, width, height = q.get()
             try:
-                if book_id is None:
-                    break
+                library_id, book_id, width, height = q.get()
+            except ShutDown:
+                break
+            try:
                 if ignore_render_requests.is_set() or library_id != self.current_library_id:
                     continue
                 try:

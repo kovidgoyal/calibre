@@ -16,7 +16,7 @@ from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
-from queue import LifoQueue
+from queue import LifoQueue, ShutDown
 from threading import Event, RLock, Thread
 from typing import NamedTuple
 
@@ -921,7 +921,7 @@ class BookCase(QObject):
         self._book_id_to_row_map: dict[int, int] = {}
         self.book_id_visual_order_map: dict[int, int] = {}
         self.book_ids_in_visual_order: list[int] = []
-        self.queue: LifoQueue[LayoutPayload | None] = LifoQueue()
+        self.queue: LifoQueue[LayoutPayload] = LifoQueue()
         self.lock = RLock()
         self.current_invalidate_event = Event()
         self.spine_width_cache: dict[int, int] = {}
@@ -935,7 +935,7 @@ class BookCase(QObject):
         self.num_of_groups_changed.disconnect()
         self.shelf_added.disconnect()
         if self.worker is not None:
-            self.queue.put(None)
+            self.queue.shutdown(immediate=True)
             w, self.worker = self.worker, None
             if w.is_alive():
                 w.join()
@@ -1019,8 +1019,9 @@ class BookCase(QObject):
 
     def layout_thread(self) -> None:
         while True:
-            x = self.queue.get()
-            if x is None:
+            try:
+                x = self.queue.get()
+            except ShutDown:
                 break
             self.do_layout_in_worker(*x)
 
