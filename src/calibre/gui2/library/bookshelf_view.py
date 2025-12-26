@@ -1510,7 +1510,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def shelves_per_screen(self) -> int:
         viewport_height = self.viewport().height()
         lc = self.layout_constraints
-        return max(1, viewport_height / (lc.step_height))
+        return max(1, math.ceil(viewport_height / lc.step_height))
 
     def update_ram_cache_size(self):
         lc = self.layout_constraints
