@@ -1838,7 +1838,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m = QMenu(self)
 
         # Add grouping submenu
-        grouping_menu = m.addMenu(_('Group by'))
+        grouping_menu = m.addMenu(QIcon.ic('bookshelf.png'), _('Group by'))
         fm = self.gui.current_db.new_api.field_metadata
 
         def add(field: str, name: str) -> None:
