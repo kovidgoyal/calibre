@@ -1300,7 +1300,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.cover_cache.rendered.connect(self.update_viewport, type=Qt.ConnectionType.QueuedConnection)
 
         # Configuration
-        self._grouping_mode = ''
+        self.grouping_mode = ''
         self.refresh_settings()
 
         # Cover template caching
@@ -1452,7 +1452,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def invalidate(self, set_of_books_changed=True):
         self.bookcase.invalidate(
             self.layout_constraints, model=self.model() if set_of_books_changed else None,
-            group_field_name=self._grouping_mode)
+            group_field_name=self.grouping_mode)
         if set_of_books_changed:
             self.expanded_cover.invalidate()
         self._update_scrollbar_ranges()
@@ -1820,9 +1820,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def set_database(self, newdb, stage=0):
         if stage == 0:
-            self._grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
-            if self._grouping_mode == 'none':  # old stored value
-                self._grouping_mode = ''
+            self.grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
+            if self.grouping_mode == 'none':  # old stored value
+                self.grouping_mode = ''
 
             # Clear caches when database changes
             self.template_inited = False
@@ -1844,7 +1844,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         def add(field: str, name: str) -> None:
             action = grouping_menu.addAction(name)
             action.setCheckable(True)
-            action.setChecked(self._grouping_mode == field)
+            action.setChecked(self.grouping_mode == field)
             action.triggered.connect(partial(self.set_grouping_mode, field))
         add('', _('Ungrouped'))
         grouping_menu.addSeparator()
@@ -1861,8 +1861,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def set_grouping_mode(self, mode: str):
         '''Set the grouping mode and refresh display.'''
-        if mode != self._grouping_mode:
-            self._grouping_mode = mode
+        if mode != self.grouping_mode:
+            self.grouping_mode = mode
             self.dbref().set_pref('bookshelf_grouping_mode', mode)
             self.invalidate()
 
