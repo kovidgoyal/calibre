@@ -16,6 +16,7 @@ from collections.abc import Iterable, Iterator
 from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
+from queue import LifoQueue
 from threading import Event, RLock, Thread
 from typing import NamedTuple
 
@@ -66,7 +67,6 @@ from xxhash import xxh3_64_intdigest
 
 from calibre import fit_image
 from calibre.db.cache import Cache
-from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, is_dark_theme
 from calibre.gui2.library.alternate_views import handle_shift_click, handle_shift_drag, selection_for_rows, setup_dnd_interface
@@ -813,13 +813,9 @@ class CaseItem:
         return ans
 
 
-def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, Iterable[int]]]:
+def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, Iterable[int]]]:
     formatter = lambda x: x  # noqa: E731
     sort_key = numeric_sort_key
-    ldb = dbref()
-    if ldb is None:
-        return
-    db = ldb.new_api
     get_books_in_group = lambda group: db.books_for_field(field_name, group)  # noqa: E731
     get_field_id_map = lambda: db.get_id_map(field_name)  # noqa: E731
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
@@ -899,31 +895,49 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
     return ans
 
 
+class LayoutPayload(NamedTuple):
+    invalidate_event: Event
+    layout_constraints: LayoutConstraints
+    group_field_name: str
+    row_to_book_id: tuple[int, ...]
+    book_id_to_item_map: dict[int, ShelfItem]
+    book_id_visual_order_map: dict[int, int]
+    book_ids_in_visual_order: list[int]
+
+
 class BookCase(QObject):
     items: list[CaseItem]
     layout_finished: bool = False
     height: int = 0
 
     shelf_added = pyqtSignal(object, object)
+    num_of_groups_changed = pyqtSignal()
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
+        self.worker: Thread | None = None
         self.row_to_book_id: tuple[int, ...] = ()
         self._book_id_to_row_map: dict[int, int] = {}
         self.book_id_visual_order_map: dict[int, int] = {}
         self.book_ids_in_visual_order: list[int] = []
+        self.queue: LifoQueue[LayoutPayload | None] = LifoQueue()
         self.lock = RLock()
         self.current_invalidate_event = Event()
         self.spine_width_cache: dict[int, int] = {}
         self.num_of_groups = 0
+        self.payload: LayoutPayload | None = None
         self.invalidate()
 
     def shutdown(self):
         self.current_invalidate_event.set()
         self.current_invalidate_event = Event()
+        self.num_of_groups_changed.disconnect()
+        self.shelf_added.disconnect()
         if self.worker is not None:
-            self.worker.join()
-            self.worker = None
+            self.queue.put(None)
+            w, self.worker = self.worker, None
+            if w.is_alive():
+                w.join()
 
     def clear_spine_width_cache(self):
         self.spine_width_cache = {}
@@ -969,7 +983,6 @@ class BookCase(QObject):
         with self.lock:
             self.current_invalidate_event.set()
             self.current_invalidate_event = Event()
-            self.worker = None
             self.group_field_name = group_field_name
             self.items = []
             self.height = 0
@@ -977,26 +990,25 @@ class BookCase(QObject):
             self.book_id_visual_order_map: dict[int, int] = {}
             self.book_ids_in_visual_order = []
             self.book_id_to_item_map: dict[int, ShelfItem] = {}
+            self.num_of_groups = 0
             if model is not None and (db := model.db) is not None:
                 # implies set of books to display has changed
                 self.row_to_book_id = db.data.index_to_id_map()
                 self._book_id_to_row_map = {}
                 self.dbref = weakref.ref(db)
-                self.group_itr = get_grouped_iterator(self.dbref, self.row_to_book_id, self.group_field_name)
-                _, self.num_of_groups = next(self.group_itr)
             self.layout_finished = not bool(self.row_to_book_id)
+            self.payload = LayoutPayload(
+                self.current_invalidate_event, self.layout_constraints, self.group_field_name, self.row_to_book_id,
+                self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order)
 
-    def ensure_worker(self) -> None:
+    def ensure_layouting_is_current(self) -> None:
         with self.lock:
-            if self.worker is None and not self.layout_finished and self.layout_constraints.width:
-                self.worker = Thread(
-                    target=partial(
-                        self.do_layout_in_worker, self.current_invalidate_event, self.group_itr, self.layout_constraints,
-                        self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order,
-                    ),
-                    name='BookCaseLayout', daemon=True
-                )
-                self.worker.start()
+            if self.layout_constraints.width and self.payload is not None:
+                if self.worker is None:
+                    self.worker = Thread(target=self.layout_thread, name='BookCaseLayout', daemon=True)
+                    self.worker.start()
+                p, self.payload = self.payload, None
+                self.queue.put(p)
 
     @property
     def book_id_to_row_map(self) -> dict[int, int]:
@@ -1004,8 +1016,15 @@ class BookCase(QObject):
             self._book_id_to_row_map = {bid: r for r, bid in enumerate(self.row_to_book_id)}
         return self._book_id_to_row_map
 
+    def layout_thread(self) -> None:
+        while True:
+            x = self.queue.get()
+            if x is None:
+                break
+            self.do_layout_in_worker(*x)
+
     def do_layout_in_worker(
-        self, invalidate: Event, group_iter: Iterator[tuple[str, Iterable[int]]], lc: LayoutConstraints,
+        self, invalidate: Event, lc: LayoutConstraints, group_field_name: str, row_to_book_id: tuple[int, ...],
         book_id_to_item_map: dict[int, ShelfItem], book_id_visual_order_map: dict[int, int],
         book_ids_in_visual_order: list[int],
     ) -> None:
@@ -1024,11 +1043,18 @@ class BookCase(QObject):
 
         current_case_item = CaseItem(height=lc.spine_height)
         mdb = self.dbref()
-        if mdb is None:
+        if mdb is None or invalidate.is_set():
             return
         db = mdb.new_api
         spine_size_template = db.pref('bookshelf_spine_size_template') or db.backend.prefs.defaults['bookshelf_spine_size_template']
         template_cache = {}
+        group_iter = get_grouped_iterator(db, row_to_book_id, group_field_name)
+        _, num_of_groups = next(group_iter)
+        with self.lock:
+            if invalidate.is_set():
+                return
+            self.num_of_groups = num_of_groups
+        self.num_of_groups_changed.emit()
         for group_name, book_ids_in_group in group_iter:
             if invalidate.is_set():
                 return
@@ -1053,7 +1079,6 @@ class BookCase(QObject):
             if invalidate.is_set():
                 return
             self.layout_finished = True
-            self.worker = None
             if len(self.items) > 1:
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
@@ -1285,6 +1310,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.drag_start_pos = None
         self.bookcase = BookCase(self)
         self.bookcase.shelf_added.connect(self.on_shelf_layout_done, type=Qt.ConnectionType.QueuedConnection)
+        self.bookcase.num_of_groups_changed.connect(self.update_scrollbar_ranges, type=Qt.ConnectionType.QueuedConnection)
 
         # Selection tracking
         self._selection_model: QItemSelectionModel = QItemSelectionModel(None, self)
@@ -1494,7 +1520,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def shown(self):
         '''Called when this view becomes active.'''
-        self.bookcase.ensure_worker()
+        self.bookcase.ensure_layouting_is_current()
 
     def update_viewport(self):
         '''Update viewport only if the bookshelf view is visible.'''
@@ -1548,7 +1574,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
-        self.bookcase.ensure_worker()
+        self.bookcase.ensure_layouting_is_current()
 
         painter = QPainter(self.viewport())
         painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
@@ -1926,7 +1952,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End
         ):
             return super().keyPressEvent(ev)
-        self.bookcase.ensure_worker()
         if not self.bookcase.book_ids_in_visual_order or not (m := self.model()):
             return
         ev.accept()
@@ -2003,7 +2028,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return QItemSelection()
 
     def handle_mouse_move_event(self, ev: QMouseEvent):
-        self.bookcase.ensure_worker()
         ev.accept()
         if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
             handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, self.selection_between)
@@ -2019,7 +2043,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return self.selectionModel().currentIndex()
 
     def handle_mouse_press_event(self, ev: QMouseEvent) -> None:
-        self.bookcase.ensure_worker()
         if ev.button() not in (Qt.MouseButton.LeftButton, Qt.MouseButton.RightButton) or not (index := self.indexAt(ev.pos())).isValid():
             return
         sm = self.selectionModel()
@@ -2038,11 +2061,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         ev.accept()
 
     def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
-        self.bookcase.ensure_worker()
+        pass
 
     def mouseDoubleClickEvent(self, ev: QMouseEvent) -> bool:
         '''Handle mouse double-click events on the viewport.'''
-        self.bookcase.ensure_worker()
         index = self.indexAt(ev.pos())
         if index.isValid() and (row := index.row()) >= 0:
             # Set as current row first
