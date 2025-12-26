@@ -656,16 +656,18 @@ class CachedCoverRenderer:
 
 
 # Layout {{{
-GROUPINGS = {
-    'authors',
-    'series',
-    'tags',
-    'publisher',
-    'pubdate',
-    'timestamp',
-    'rating',
-    'languages',
-}
+@lru_cache(maxsize=2)
+def all_groupings() -> dict[str, str]:
+    return {
+        'authors': '',
+        'series': _('No series'),
+        'tags': _('Untagged'),
+        'publisher': _('No publisher'),
+        'pubdate': '',
+        'timestamp': '',
+        'rating': _('Unrated'),
+        'languages': _('No language'),
+    }
 
 
 class LayoutConstraints(NamedTuple):
@@ -819,7 +821,7 @@ def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Ite
     get_books_in_group = lambda group: db.books_for_field(field_name, group)  # noqa: E731
     get_field_id_map = lambda: db.get_id_map(field_name)  # noqa: E731
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
-    all_book_ids = set(sort_map)
+    all_book_ids = frozenset(sort_map)
 
     match field_name:
         case '':
@@ -848,6 +850,7 @@ def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Ite
             formatter = lambda x: f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}'  # noqa: E731
 
     field_id_map = get_field_id_map()
+    ungrouped_name = all_groupings()[field_name]
     yield '', len(field_id_map)
     seen = set()
     for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):
@@ -855,6 +858,8 @@ def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Ite
         if books_in_group:
             seen |= books_in_group
             yield formatter(field_id_map[group]), sorted(books_in_group,  key=sort_map.__getitem__)
+    if ungrouped_name and (leftover := all_book_ids - seen):
+        yield ungrouped_name, sorted(leftover,  key=sort_map.__getitem__)
 
 
 def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_cache: dict[str, str], lc: LayoutConstraints, cache: dict[int, int]) -> int:
@@ -1848,7 +1853,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             action.triggered.connect(partial(self.set_grouping_mode, field))
         add('', _('Ungrouped'))
         grouping_menu.addSeparator()
-        for k in sorted(GROUPINGS, key=lambda k: numeric_sort_key(fm[k]['name'])):
+        for k in sorted(all_groupings(), key=lambda k: numeric_sort_key(fm[k]['name'])):
             add(k, fm[k]['name'])
         # Add standard context menu items if available
         if cm := self.context_menu:
