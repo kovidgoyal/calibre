@@ -76,6 +76,7 @@ from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
+from calibre.utils.iso8601 import UNDEFINED_DATE
 from calibre.utils.localization import lang_map
 from calibre_extensions import imageops
 
@@ -664,8 +665,8 @@ def all_groupings() -> dict[str, str]:
         'series': _('No series'),
         'tags': _('Untagged'),
         'publisher': _('No publisher'),
-        'pubdate': '',
-        'timestamp': '',
+        'pubdate': _('Unpublished'),
+        'timestamp': _('Unknown'),
         'rating': _('Unrated'),
         'languages': _('No language'),
     }
@@ -823,6 +824,7 @@ def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Ite
     get_field_id_map = lambda: db.get_id_map(field_name)  # noqa: E731
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
+    ungrouped_name = all_groupings().get(field_name, '')
 
     match field_name:
         case '':
@@ -841,17 +843,16 @@ def get_grouped_iterator(dbref: weakref.ref[LibraryDatabase], book_ids_iter: Ite
             get_books_in_group = year_map.__getitem__
             get_field_id_map = lambda: {x: x for x in year_map}  # noqa: E731
             sort_key = lambda x: -x  # noqa: E731
-            formatter = str
+            formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
         case 'timestamp':
             lsys = QLocale.system().monthName
             month_map = db.books_by_month(field=field_name, restrict_to_books=all_book_ids)
             get_books_in_group = month_map.__getitem__
             get_field_id_map = lambda: {x: x for x in month_map}  # noqa: E731
             sort_key = lambda x: (-x[0], -x[1])  # noqa: E731
-            formatter = lambda x: f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}'  # noqa: E731
+            formatter = lambda x: (f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name)  # noqa: E731
 
     field_id_map = get_field_id_map()
-    ungrouped_name = all_groupings()[field_name]
     yield '', len(field_id_map)
     seen = set()
     for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):
