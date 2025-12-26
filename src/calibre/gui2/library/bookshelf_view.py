@@ -54,6 +54,7 @@ from qt.core import (
     QPropertyAnimation,
     QRect,
     QRectF,
+    QResizeEvent,
     QSize,
     QSizeF,
     QStyle,
@@ -1003,7 +1004,7 @@ class BookCase(QObject):
 
     def ensure_layouting_is_current(self) -> None:
         with self.lock:
-            if self.layout_constraints.width and self.payload is not None:
+            if self.layout_constraints.width > 0 and self.payload is not None:
                 if self.worker is None:
                     self.worker = Thread(target=self.layout_thread, name='BookCaseLayout', daemon=True)
                     self.worker.start()
@@ -1296,6 +1297,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.context_menu: QMenu | None = None
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.resize_debounce_timer = t = QTimer(self)
+        t.timeout.connect(self.resize_debounced)
+        t.setSingleShot(True)
+        t.setInterval(200)
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -1456,15 +1461,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def has_transient_scrollbar(self) -> bool:
         return self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
 
-    def event(self, ev: QEvent) -> bool:
-        match ev.type():
-            case QEvent.Type.Resize:
-                super().event(ev)
-                if self.layout_constraints.width != (new_width := self.get_available_width()):
-                    self.layout_constraints = self.layout_constraints._replace(width=new_width)
-                    self.invalidate()
-                return True
-        return super().event(ev)
+    def resizeEvent(self, ev: QResizeEvent) -> None:
+        self.resize_debounce_timer.start()
+        return super().resizeEvent(ev)
+
+    def resize_debounced(self) -> None:
+        if self.layout_constraints.width != (new_width := self.get_available_width()) and new_width > 20:
+            self.layout_constraints = self.layout_constraints._replace(width=new_width)
+            self.invalidate()
 
     def update_scrollbar_ranges(self):
         '''Update scrollbar ranges based on the current shelf layouts.'''
