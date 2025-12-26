@@ -205,7 +205,7 @@ def clear_to_help():
 <p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
 
 <div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>
-''' + '</div>').format(fts_url=fts_url)
+''').format(fts_url=fts_url)
     container.innerHTML = html
     a = container.querySelector('a[href]')
     a.setAttribute('target', '_new')
