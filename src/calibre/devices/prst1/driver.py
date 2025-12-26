@@ -314,12 +314,12 @@ class PRST1(USBMS):
         except DatabaseError:
             import traceback
             tb = traceback.format_exc()
-            raise DeviceError((('The SONY database is corrupted. '
+            raise DeviceError(('The SONY database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.'))+' Underlying error:'
+                    ' any notes/highlights, etc.')+' Underlying error:'
                     '\n'+tb)
 
     def get_lastrowid(self, cursor):
@@ -372,12 +372,12 @@ class PRST1(USBMS):
         except DatabaseError:
             import traceback
             tb = traceback.format_exc()
-            raise DeviceError((('The SONY database is corrupted. '
+            raise DeviceError(('The SONY database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.'))+' Underlying error:'
+                    ' any notes/highlights, etc.')+' Underlying error:'
                     '\n'+tb)
 
         # Get the books themselves, but keep track of any that are less than the minimum.
@@ -543,12 +543,12 @@ class PRST1(USBMS):
         except DatabaseError:
             import traceback
             tb = traceback.format_exc()
-            raise DeviceError((('The SONY database is corrupted. '
+            raise DeviceError(('The SONY database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.'))+' Underlying error:'
+                    ' any notes/highlights, etc.')+' Underlying error:'
                     '\n'+tb)
 
         db_collections = {}

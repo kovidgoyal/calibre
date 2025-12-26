@@ -177,7 +177,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
     if thumbnail_offset is not None:
         exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
             thumbnail_offset))
-        thumbnail_uri_str = (f'kindle:embed:{to_base(thumbnail_offset, base=32, min_num_digits=4)}').encode('utf-8')
+        thumbnail_uri_str = (f'kindle:embed:{to_base(thumbnail_offset, base=32, min_num_digits=4)}').encode()
         exth.write(pack(b'>II', EXTH_CODES['kf8_thumbnail_uri'], len(thumbnail_uri_str) + 8))
         exth.write(thumbnail_uri_str)
         nrecs += 2

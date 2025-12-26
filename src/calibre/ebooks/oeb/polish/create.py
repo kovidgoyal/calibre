@@ -91,7 +91,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
       <rootfile full-path="{prepare_string_for_xml(opf_name, True)}" media-type="application/oebps-package+xml"/>
    </rootfiles>
 </container>
-    '''.encode('utf-8')
+    '''.encode()
     HTML = P('templates/new_book.html', data=True).decode('utf-8').replace(
         '_LANGUAGE_', prepare_string_for_xml(lang, True)
     ).replace(

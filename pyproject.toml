@@ -2,7 +2,7 @@
 name = "calibre"
 description = "The one stop solution to all your e-book needs"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = {text="GPL-3.0-only"}
 dynamic = ["version"]
 dependencies = [

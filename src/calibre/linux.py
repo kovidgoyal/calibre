@@ -708,7 +708,7 @@ def write_completion(self, bash_comp_dest, zsh):
         complete -o nospace  -F _ebook_device ebook-device''').encode('utf-8'))
     self.manifest.append(os.path.join(bash_comp_dest, 'ebook-device'))
     with open(os.path.join(bash_comp_dest, 'ebook-convert'), 'wb') as f:
-        f.write((f'complete -o nospace -C {complete} ebook-convert').encode('utf-8'))
+        f.write((f'complete -o nospace -C {complete} ebook-convert').encode())
     self.manifest.append(os.path.join(bash_comp_dest, 'ebook-convert'))
     zsh.write()
 # }}}

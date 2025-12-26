@@ -355,7 +355,7 @@ class Serializer:
                 if child.tail:
                     self.anchor_offset = None
                     self.serialize_text(child.tail)
-        buf.write((f'</{tag}>').encode('utf-8'))
+        buf.write((f'</{tag}>').encode())
 
     def serialize_text(self, text, quot=False):
         text = text.replace('&', '&amp;')
@@ -389,4 +389,4 @@ class Serializer:
                     self.start_offset = ioff
                 for hoff in hoffs:
                     buf.seek(hoff)
-                    buf.write(f'{ioff:010}'.encode('utf-8'))
+                    buf.write(f'{ioff:010}'.encode())
