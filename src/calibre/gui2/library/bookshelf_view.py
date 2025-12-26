@@ -1717,29 +1717,29 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int, is_selected: bool, is_current: bool):
         '''Draw a book spine.'''
+        lc = self.layout_constraints
+        spine_rect = spine.rect(lc).translated(0, -scroll_y)
+        mi = self.dbref().get_proxy_metadata(spine.book_id)
         thumbnail = self.cover_cache.thumbnail_as_pixmap(spine.book_id)
         if thumbnail is None:  # not yet rendered
-            return
-        lc = self.layout_constraints
-        if thumbnail.isNull():
-            thumbnail = self.default_cover_pixmap()
-        mi = self.dbref().get_proxy_metadata(spine.book_id)
+            self.case_renderer.ensure_theme(is_dark_theme())
+            spine_color = self.case_renderer.theme.background
+        else:
+            if thumbnail.isNull():
+                thumbnail = self.default_cover_pixmap()
+            spine_color = thumbnail.dominant_color
+            if not spine_color.isValid():
+                spine_color = self.default_cover_pixmap().dominant_color
 
-        # Get cover color
-        spine_color = thumbnail.dominant_color
-        if not spine_color.isValid():
-            spine_color = self.default_cover_pixmap().dominant_color
-        if is_selected or is_current:
-            spine_color = spine_color.lighter(120)
+            if is_selected or is_current:
+                spine_color = spine_color.lighter(120)
 
-        spine_rect = spine.rect(lc).translated(0, -scroll_y)
+            # Draw spine background with gradient (darker edges, lighter center)
+            self.draw_spine_background(painter, spine_rect, spine_color)
 
-        # Draw spine background with gradient (darker edges, lighter center)
-        self.draw_spine_background(painter, spine_rect, spine_color)
-
-        # Draw cover thumbnail overlay
-        if gprefs['bookshelf_thumbnail']:
-            self.draw_spine_cover(painter, spine_rect, thumbnail)
+            # Draw cover thumbnail overlay
+            if gprefs['bookshelf_thumbnail']:
+                self.draw_spine_cover(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)
         title = self.render_template_title(spine.book_id, mi)
