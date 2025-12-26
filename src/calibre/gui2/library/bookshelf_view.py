@@ -2006,11 +2006,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def handle_mouse_press_event(self, ev: QMouseEvent) -> None:
         self.bookcase.ensure_worker()
-        if ev.button() != Qt.MouseButton.LeftButton or not (index := self.indexAt(ev.pos())).isValid():
+        if ev.button() not in (Qt.MouseButton.LeftButton, Qt.MouseButton.RightButton) or not (index := self.indexAt(ev.pos())).isValid():
             return
         sm = self.selectionModel()
         flags = QItemSelectionModel.SelectionFlag.Rows
         modifiers = ev.modifiers()
+        if ev.button() == Qt.MouseButton.RightButton:
+            modifiers = Qt.KeyboardModifier.NoModifier  # no extended selection with right button
         if modifiers & Qt.KeyboardModifier.ControlModifier:
             # Toggle selection
             sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.Toggle)
