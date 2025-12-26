@@ -1377,10 +1377,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if self.template_title_is_title:
             return self.dbref().new_api.field_for('title', book_id)
         mi = self.dbref().get_proxy_metadata(book_id)
-        rslt = mi.formatter.safe_format(self.template_title, mi, TEMPLATE_ERROR, mi, column_name='title', template_cache=self.template_cache)
-        if rslt:
-            return rslt
-        return _('Unknown')
+        rslt = mi.formatter.safe_format(
+            self.template_title, mi, TEMPLATE_ERROR, mi, column_name='title', template_cache=self.template_cache)
+        return rslt or _('Unknown')
 
     # Miscellaneous methods
 
