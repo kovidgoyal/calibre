@@ -1369,15 +1369,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_title_is_empty = not self.template_title.strip()
         self.template_inited = True
 
-    def render_template_title(self, book_id: int, mi=None) -> str:
+    def render_template_title(self, book_id: int) -> str:
         '''Return the title generate for this book.'''
         self.init_template(self.dbref())
         if self.template_title_is_empty:
             return ''
-        if not mi:
-            mi = self.dbref().get_proxy_metadata(book_id)
         if self.template_title_is_title:
-            return mi.title
+            return self.dbref().new_api.field_for('title', book_id)
+        mi = self.dbref().get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(self.template_title, mi, TEMPLATE_ERROR, mi, column_name='title', template_cache=self.template_cache)
         if rslt:
             return rslt
@@ -1719,7 +1718,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw a book spine.'''
         lc = self.layout_constraints
         spine_rect = spine.rect(lc).translated(0, -scroll_y)
-        mi = self.dbref().get_proxy_metadata(spine.book_id)
         thumbnail = self.cover_cache.thumbnail_as_pixmap(spine.book_id)
         if thumbnail is None:  # not yet rendered
             self.case_renderer.ensure_theme(is_dark_theme())
@@ -1742,7 +1740,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 self.draw_spine_cover(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)
-        title = self.render_template_title(spine.book_id, mi)
+        title = self.render_template_title(spine.book_id)
         self.draw_spine_title(painter, spine_rect, spine_color, title)
 
         # Draw selection highlight around the spine
