@@ -322,7 +322,7 @@ def drag_data(self):
 
 
 def mouseMoveEvent(self, event):
-    if self.event_has_mods():
+    if self.event_has_mods() or not event.buttons() & Qt.MouseButton.LeftButton:
         self.drag_start_pos = None
     if not self.drag_allowed:
         if hasattr(self, 'handle_mouse_move_event'):
