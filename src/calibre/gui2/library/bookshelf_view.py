@@ -1268,10 +1268,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.gui = gui
         self._model: BooksModel | None = None
         self.context_menu: QMenu | None = None
-        # Since layouting is expensive and dependent on width and the scrollbar
-        # visibility in turn is dependent on layouting and affects width, we
-        # keep scrollbar always on
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.setMouseTracking(True)
@@ -1360,7 +1357,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Refresh the gui and render settings.'''
         self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
         self.layout_constraints = self.layout_constraints._replace(width=self.get_available_width())
-        self._update_ram_cache_size()
+        self.update_ram_cache_size()
         self.bookcase.clear_spine_width_cache()
         self.invalidate()
 
@@ -1442,16 +1439,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 return True
         return super().event(ev)
 
-    def _update_scrollbar_ranges(self):
+    def update_scrollbar_ranges(self):
         '''Update scrollbar ranges based on the current shelf layouts.'''
         total_height = self.bookcase.max_possible_height
         viewport_height = self.viewport().height()
         self.verticalScrollBar().setRange(0, max(0, total_height - viewport_height))
         self.verticalScrollBar().setPageStep(viewport_height)
         self.verticalScrollBar().setSingleStep(self.layout_constraints.step_height)
-        self._update_ram_cache_size()
+        self.update_ram_cache_size()
 
-    def get_available_width(self):
+    def get_available_width(self) -> int:
+        # We always layout assuming scrollbar takes up space unless it is a
+        # transient scrollbar. This means when all books fit in the viewport there
+        # will be some extra space on the right. This is an acceptable
+        # compromise since, layouting is expensive and we cannot know if the
+        # scrollbar is needed till we do layouting once.
         sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
         return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
@@ -1461,13 +1463,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             group_field_name=self.grouping_mode)
         if set_of_books_changed:
             self.expanded_cover.invalidate()
-        self._update_scrollbar_ranges()
+        self.update_scrollbar_ranges()
         self.update_viewport()
 
     def on_shelf_layout_done(self, books: CaseItem, shelf: CaseItem) -> None:
         if self.view_is_visible():
             if self.bookcase.layout_finished:
-                self._update_scrollbar_ranges()
+                self.update_scrollbar_ranges()
             y = books.start_y
             height = books.height + shelf.height
             r = self.viewport().rect()
@@ -1481,7 +1483,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         lc = self.layout_constraints
         return max(1, viewport_height / (lc.step_height))
 
-    def _update_ram_cache_size(self):
+    def update_ram_cache_size(self):
         lc = self.layout_constraints
         books_per_shelf = self.get_available_width() / lc.min_spine_width
         lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * self.shelves_per_screen
