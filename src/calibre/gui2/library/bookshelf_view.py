@@ -64,6 +64,7 @@ from qt.core import (
 )
 from xxhash import xxh3_64_intdigest
 
+from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.db.legacy import LibraryDatabase
 from calibre.ebooks.metadata import rating_to_stars
@@ -1678,7 +1679,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def default_cover_pixmap(self) -> PixmapWithDominantColor:
         lc = self.layout_constraints
-        return default_cover_pixmap(lc.hover_expanded_width, lc.spine_height)
+        sz = (QSizeF(lc.hover_expanded_width, lc.spine_height) * self.devicePixelRatioF()).toSize()
+        return default_cover_pixmap(sz.width(), sz.height())
 
     def draw_spine(self, painter: QPainter, spine: ShelfItem, scroll_y: int, is_selected: bool, is_current: bool):
         '''Draw a book spine.'''
@@ -1779,15 +1781,19 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def load_hover_cover(self, si: ShelfItem) -> tuple[PixmapWithDominantColor, QSize]:
         lc = self.layout_constraints
         cover_img = self.dbref().cover(si.book_id, as_image=True)
+        dpr = self.devicePixelRatioF()
         final_sz = QSize(lc.hover_expanded_width, lc.spine_height - si.reduce_height_by)
+        sz = (QSizeF(final_sz) * dpr).toSize()
         if cover_img is None or cover_img.isNull():
             cover_pixmap = self.default_cover_pixmap()
+            resize_needed, nw, nh = fit_image(cover_pixmap.width(), cover_pixmap.height(), sz.width(), sz.height())
+            if resize_needed:
+                cover_pixmap = PixmapWithDominantColor(
+                    cover_pixmap.scaled(int(nw), int(nh), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
         else:
-            dpr = self.devicePixelRatioF()
-            sz = (QSizeF(final_sz) * dpr).toSize()
             _, cover_img = resize_to_fit(cover_img, sz.width(), sz.height())
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
-            final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
+        final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
         return cover_pixmap, final_sz
 
     def get_contrasting_text_color(self, background_color: QColor) -> QColor:
