@@ -538,7 +538,7 @@ def create_pot(source_files):
         '--package-version', gettext_options['package_version'], '--bugs-address', gettext_options['bugs_address'],
     ] + list(source_files), capture_output=True)
     if cp.returncode != 0:
-        sys.stderr.write(cp.stderr)
+        sys.stderr.buffer.write(cp.stderr)
         raise SystemExit(cp.returncode)
     return cp.stdout.decode().strip()
 
