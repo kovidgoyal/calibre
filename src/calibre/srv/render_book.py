@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 from lxml.etree import Comment
 
-from calibre import detect_ncpus, prepare_string_for_xml
+from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.oeb.base import EPUB, OEB_DOCS, OEB_STYLES, OPF, SMIL, XHTML, XHTML_NS, XLINK, rewrite_links, urlunquote
 from calibre.ebooks.oeb.base import XPath as _XPath
@@ -23,6 +23,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import find_cover_image, find_cover_image_in_page, find_cover_page
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.library.page_count import calculate_number_of_workers, get_length
 from calibre.srv.metadata import encode_datetime
 from calibre.utils.date import EPOCH
 from calibre.utils.forked_map import forked_map, forked_map_is_supported
@@ -30,7 +31,6 @@ from calibre.utils.logging import default_log
 from calibre.utils.serialize import json_dumps, json_loads, msgpack_loads
 from calibre.utils.short_uuid import uuid4
 from calibre_extensions.fast_css_transform import transform_properties
-from calibre_extensions.speedup import get_num_of_significant_chars
 from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
@@ -130,15 +130,6 @@ def anchor_map(root):
         if eid and eid not in seen:
             ans.append(eid)
             seen.add(eid)
-    return ans
-
-
-def get_length(root):
-    ans = 0
-    for body in root.iterchildren(XHTML('body')):
-        ans += get_num_of_significant_chars(body)
-        for elem in body.iterdescendants():
-            ans += get_num_of_significant_chars(elem)
     return ans
 
 
@@ -560,16 +551,6 @@ def process_book_file(virtualize_resources, link_uid, container, present_names, 
             smil_map[__smil_file_names__].append(name)
             transform_smil(container, name, link_uid, virtualize_resources, virtualized_names, smil_map, present_names)
     return link_to_map, html_data, virtualized_names, smil_map
-
-
-def calculate_number_of_workers(names, in_process_container, max_workers):
-    num_workers = min(detect_ncpus(), len(names))
-    if max_workers:
-        num_workers = min(num_workers, max_workers)
-    if num_workers > 1:
-        if len(names) < 3 or sum(os.path.getsize(in_process_container.name_path_map[n]) for n in names) < 128 * 1024:
-            num_workers = 1
-    return num_workers
 
 
 def process_exploded_book(
