@@ -7,7 +7,6 @@ import sys
 from concurrent.futures import Executor, ThreadPoolExecutor
 from contextlib import closing, suppress
 from multiprocessing import Pipe
-from multiprocessing.connection import Connection
 from operator import itemgetter
 
 from calibre import detect_ncpus
@@ -21,6 +20,11 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.logging import DevNull
 from calibre_extensions.speedup import get_num_of_significant_chars
+
+if iswindows:
+    from multiprocessing.connection import PipeConnection as Connection
+else:
+    from multiprocessing.connection import Connection
 
 
 class SimpleContainer(ContainerBase):
@@ -150,9 +154,9 @@ class Server:
             w, self.worker = self.worker, None
             self.read_pipe.close()
             w.stdin.close()
-            w.wait(1)
-            w.kill()
-            w.wait(1)
+            if w.wait(1) is None:
+                w.kill()
+                w.wait()
 
     def count_pages(self, path: str) -> int | tuple[str, str]:
         self.ensure_worker()
@@ -185,19 +189,18 @@ def serve_requests(pipe: Connection) -> None:
 
 
 def worker_main(pipe_fd: int) -> None:
-    if iswindows:
-        from multiprocessing.connection import PipeConnection as Connection
-    else:
-        from multiprocessing.connection import Connection
-    with suppress(KeyboardInterrupt), Connection(pipe_fd) as pipe:
+    with suppress(KeyboardInterrupt), Connection(pipe_fd, False, True) as pipe:
         serve_requests(pipe)
 
 
 def develop():
+    import time
     paths = sys.argv[1:]
     with Server(max_jobs_per_worker=2) as s:
         for x in paths:
-            print(x, s.count_pages(x), flush=True)
+            st = time.monotonic()
+            res = s.count_pages(x)
+            print(x, f'{time.monotonic() - st:.2f}', res, flush=True)
 
 
 if __name__ == '__main__':
