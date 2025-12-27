@@ -193,6 +193,15 @@ def worker_main(pipe_fd: int) -> None:
         serve_requests(pipe)
 
 
+def test_page_count() -> None:
+    epubs = (P('quick_start/eng.epub'), P('quick_start/swe.epub'), P('quick_start/fra.epub'))
+    with Server(max_jobs_per_worker=2) as s:
+        for x in epubs:
+            res = s.count_pages(x)
+            if not isinstance(res, int):
+                raise AssertionError(f'Counting pages for {x} falied with result: {res}')
+
+
 def develop():
     import time
     paths = sys.argv[1:]
