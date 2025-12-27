@@ -175,6 +175,15 @@ def add_image_page(pdf_doc, image_data, page_size=None, page_num=1, preserve_asp
         image_data, *page_size, *page_size, page_num, preserve_aspect_ratio)
 
 
+def get_page_count(path: str) -> int:
+    podofo = get_podofo()
+    p = podofo.PDFDoc()
+    with open(path, 'rb') as f:
+        raw = f.read()
+    p.load(raw)
+    return p.page_count()
+
+
 def test_add_image_page(image='/t/t.jpg', dest='/t/t.pdf', **kw):
     image_data = open(image, 'rb').read()
     podofo = get_podofo()

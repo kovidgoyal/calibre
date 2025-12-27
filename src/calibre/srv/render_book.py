@@ -30,16 +30,12 @@ from calibre.utils.logging import default_log
 from calibre.utils.serialize import json_dumps, json_loads, msgpack_loads
 from calibre.utils.short_uuid import uuid4
 from calibre_extensions.fast_css_transform import transform_properties
+from calibre_extensions.speedup import get_num_of_significant_chars
 from polyglot.binary import as_base64_unicode as encode_component
 from polyglot.binary import from_base64_bytes
 from polyglot.binary import from_base64_unicode as decode_component
 from polyglot.builtins import as_bytes
 
-try:
-    from calibre_extensions.speedup import get_num_of_significant_chars
-except ImportError:  # running from source without updated binary
-    def get_num_of_significant_chars(elem):
-        return len(getattr(elem, 'text', '') or '') + len(getattr(elem, 'tail', '') or '')
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa: E501
