@@ -31,7 +31,7 @@
 
 - AI: Allow asking AI what book to read next by right clicking on a book and using the "Similar books" menu
 
-- AI: Add a new backend for "LM Studio" which allows running various AI models locally
+- AI: Add a new plugin for "LM Studio" which allows running various AI models locally
 
 :: bug fixes
 
