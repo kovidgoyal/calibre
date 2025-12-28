@@ -911,7 +911,7 @@ class DB:
     def initialize_tables(self):  # {{{
         tables = self.tables = {}
         for col in ('title', 'sort', 'author_sort', 'series_index', 'comments',
-                'timestamp', 'pubdate', 'uuid', 'path', 'cover',
+                'timestamp', 'pubdate', 'uuid', 'path', 'cover', 'pages',
                 'last_modified'):
             metadata = self.field_metadata[col].copy()
             if col == 'comments':
@@ -942,7 +942,7 @@ class DB:
             'rating':5, 'tags':6, 'comments':7, 'series':8, 'publisher':9,
             'series_index':10, 'sort':11, 'author_sort':12, 'formats':13,
             'path':14, 'pubdate':15, 'uuid':16, 'cover':17, 'au_map':18,
-            'last_modified':19, 'identifiers':20, 'languages':21,
+            'last_modified':19, 'identifiers':20, 'languages':21, 'pages':22,
         }
 
         for k,v in self.FIELD_MAP.items():

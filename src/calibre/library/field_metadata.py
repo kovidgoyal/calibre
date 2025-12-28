@@ -12,20 +12,20 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
 
 category_icon_map = {
-                    'authors'    : 'user_profile.png',
-                    'series'     : 'series.png',
-                    'formats'    : 'book.png',
-                    'publisher'  : 'publisher.png',
-                    'rating'     : 'rating.png',
-                    'news'       : 'news.png',
-                    'tags'       : 'tags.png',
-                    'custom:'    : 'column.png',
-                    'user:'      : 'tb_folder.png',
-                    'search'     : 'search.png',
-                    'identifiers': 'identifiers.png',
-                    'gst'        : 'catalog.png',
-                    'languages'  : 'languages.png',
-            }
+    'authors'    : 'user_profile.png',
+    'series'     : 'series.png',
+    'formats'    : 'book.png',
+    'publisher'  : 'publisher.png',
+    'rating'     : 'rating.png',
+    'news'       : 'news.png',
+    'tags'       : 'tags.png',
+    'custom:'    : 'column.png',
+    'user:'      : 'tb_folder.png',
+    'search'     : 'search.png',
+    'identifiers': 'identifiers.png',
+    'gst'        : 'catalog.png',
+    'languages'  : 'languages.png',
+}
 
 
 # Builtin metadata {{{
@@ -198,6 +198,16 @@ def _builtin_field_metadata():
                            'kind':'field',
                            'name': _('Id'),
                            'search_terms':['id'],
+                           'is_custom':False,
+                           'is_category':False,
+                           'is_csp': False}),
+            ('pages', {'table':'books_pages_link',
+                           'column':'pages',
+                           'datatype':'int',
+                           'is_multiple':{},
+                           'kind':'field',
+                           'name': _('Pages'),
+                           'search_terms':['pages'],
                            'is_custom':False,
                            'is_category':False,
                            'is_csp': False}),

@@ -239,7 +239,7 @@ class ReadingTest(BaseTest):
             i, get_cover=True, cover_as_data=True) for i in range(1, 4)}
         cache = None
         for mi2, mi1 in zip(list(new_metadata.values()), list(old_metadata.values())):
-            self.compare_metadata(mi1, mi2)
+            self.compare_metadata(mi1, mi2, exclude=('pages',))
     # }}}
 
     def test_serialize_metadata(self):  # {{{
@@ -253,9 +253,9 @@ class ReadingTest(BaseTest):
         for i in range(1, 4):
             mi = cache.get_metadata(i, get_cover=True, cover_as_data=True)
             rmi = msgpack_loads(msgpack_dumps(mi))
-            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id'.split())
+            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id pages'.split())
             rmi = json_loads(json_dumps(mi))
-            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id'.split())
+            self.compare_metadata(mi, rmi, exclude='format_metadata has_cover formats id pages'.split())
     # }}}
 
     def test_get_cover(self):  # {{{

@@ -3,6 +3,8 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
+from typing import NamedTuple
 
 COVER_FILE_NAME = 'cover.jpg'
 METADATA_FILE_NAME = 'metadata.opf'
@@ -26,3 +28,11 @@ class TrashEntry:
     cover_path: str
     mtime: float
     formats: Sequence[str] = ()
+
+
+class Pages(NamedTuple):
+    pages: int
+    algorithm: int
+    format: str
+    format_size: int
+    timestamp: datetime

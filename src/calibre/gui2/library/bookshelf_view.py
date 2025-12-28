@@ -17,7 +17,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
 from queue import LifoQueue, ShutDown
-from threading import Event, RLock, Thread
+from threading import Event, RLock, Thread, current_thread
 from typing import NamedTuple
 
 from qt.core import (
@@ -937,7 +937,7 @@ class BookCase(QObject):
         if self.worker is not None:
             self.queue.shutdown(immediate=True)
             w, self.worker = self.worker, None
-            if w.is_alive():
+            if current_thread().is_alive() and w.is_alive():
                 w.join()
 
     def clear_spine_width_cache(self):

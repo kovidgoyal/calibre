@@ -427,6 +427,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             '(SELECT identifiers_concat(type, val) FROM identifiers WHERE identifiers.book=books.id) identifiers',
             ('languages', 'languages', 'lang_code',
                 'sortconcat(link.id, languages.lang_code)'),
+            '(SELECT pages FROM books_pages_link WHERE books_pages_link.book=books.id) pages',
             ]
         lines = []
         for col in columns:
@@ -441,11 +442,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         custom_cols = sorted(custom_map.keys())
         lines.extend([custom_map[x] for x in custom_cols])
 
-        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
+        self.FIELD_MAP = {
+            'id':0, 'title':1, 'authors':2, 'timestamp':3,
             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-            'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
+            'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21,
+            'pages': 22,
+        }
 
         for k,v in self.FIELD_MAP.items():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)

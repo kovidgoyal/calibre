@@ -30,17 +30,18 @@ from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, 
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.annotations import merge_annotations
 from calibre.db.categories import get_categories
-from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME
+from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, NOTES_DIR_NAME, Pages
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.db.listeners import EventDispatcher, EventType
 from calibre.db.locking import DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock
 from calibre.db.notes.connect import copy_marked_up_text
+from calibre.db.page_count import MaintainPageCounts
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.utils import type_safe_sort_key_function
-from calibre.db.write import get_series_values, uniq
+from calibre.db.write import get_series_values, sqlite_datetime, uniq
 from calibre.ebooks import check_ebook_format
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -52,6 +53,7 @@ from calibre.utils.date import now as nowf
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
 from polyglot.builtins import cmp
 
@@ -153,6 +155,8 @@ class Cache:
         self.shutting_down = False
         self.is_doing_rebuild_or_vacuum = False
         self.backend = backend
+        self.maintain_page_counts = MaintainPageCounts(self)
+        self.maintain_page_counts.start()
         # We want templates to have access to LibraryDatabase if we have it,
         # otherwise this instance (Cache)
         self.database_instance = (weakref.ref(self) if library_database_instance is None else
@@ -375,6 +379,7 @@ class Cache:
         formats = self._field_for('formats', book_id)
         mi.format_metadata = {}
         mi.languages = list(self._field_for('languages', book_id))
+        mi.pages = self._field_for('pages', book_id, default_value=0)
         if not formats:
             good_formats = None
         else:
@@ -1731,6 +1736,48 @@ class Cache:
             self.event_dispatcher(EventType.metadata_changed, name, dirtied)
         return dirtied
 
+    # Page counts {{{
+    @api
+    def get_pages(self, book_id: int, queue_if_unavailable: bool = False) -> Pages | None:
+        ans: Pages | None = None
+        with self.safe_read_lock:
+            for pages, algorithm, format, format_size, timestamp in self.backend.execute(
+                    f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d}'):
+                ans = Pages(int(pages), int(algorithm), str(format), int(format_size), parse_iso8601(timestamp, assume_utc=True))
+                break
+        if queue_if_unavailable and ans is None:
+            self.queue_pages_scan(book_id)
+        return ans
+
+    @write_api
+    def queue_pages_scan(self, book_id: int = 0) -> None:
+        '''
+        Start a scan updating page counts for all books that need a scan.
+        If book_id is specified, then only that book is scanned and it is always scanned.
+        '''
+        if book_id <= 0:
+            if len(self.fields['pages'].table.book_col_map) < len(self.fields['uuid'].table.book_col_map):
+                self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book) SELECT id FROM books')
+        else:
+            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={int(book_id)}')
+        self.maintain_page_counts.queue_scan(book_id)
+
+    @write_api
+    def set_pages(
+        self, book_id: int, pages: int = 0, algorithm: int = 0, format: str = '', format_size: int = ''
+    ) -> None:
+        now = sqlite_datetime(utcnow())
+        self.backend.execute('''
+            INSERT INTO books_pages_link (book, pages, algorithm, format, format_size, timestamp, needs_scan) VALUES
+                             (?,?,?,?,?,?,0)
+            ON CONFLICT(book) DO UPDATE SET
+                pages = excluded.pages, algorithm = excluded.algorithm,
+                format = excluded.format, format_size = excluded.format_size,
+                timestamp = excluded.timestamp, needs_scan = excluded.needs_scan;
+        ''', (book_id, pages, algorithm, format, format_size, now))
+        self.fields['pages'].table.book_col_map[book_id] = pages
+    # }}}
+
     @write_api
     def update_path(self, book_ids, mark_as_dirtied=True):
         for book_id in book_ids:
@@ -2062,6 +2109,7 @@ class Cache:
                 needs_close = True
             try:
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
+                self.queue_pages_scan()
             finally:
                 if needs_close:
                     stream.close()
@@ -2070,6 +2118,7 @@ class Cache:
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
             self.fields['size'].table.update_sizes({book_id: max_size})
             self._update_last_modified((book_id,))
+            self._queue_pages_scan(book_id)
             self.event_dispatcher(EventType.format_added, book_id, fmt)
 
         if run_hooks:
@@ -2907,6 +2956,10 @@ class Cache:
                 return
             self.close_called = True
             self.shutting_down = True
+            m = None
+            if self.maintain_page_counts is not None:
+                m, self.maintain_page_counts = self.maintain_page_counts, None
+                m.shutdown()
             self.event_dispatcher.close()
             self._shutdown_fts()
             try:
@@ -2920,6 +2973,8 @@ class Cache:
                     except Exception:
                         traceback.print_exc()
         self._shutdown_fts(stage=2)
+        if m is not None:
+            m.wait_for_worker_shutdown()
         with self.write_lock:
             self.backend.close()
 

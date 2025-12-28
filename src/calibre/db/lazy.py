@@ -299,6 +299,7 @@ getters = {
     'author_sort':simple_getter('author_sort', _('Unknown')),
     'uuid':simple_getter('uuid', 'dummy'),
     'book_size':simple_getter('size', 0),
+    'pages':simple_getter('pages', 0),
     'ondevice_col':simple_getter('ondevice', ''),
     'languages':pp_getter('languages', list),
     'language':item_getter('languages', default_value=NULL_VALUES['language']),

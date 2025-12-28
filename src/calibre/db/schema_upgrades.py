@@ -817,3 +817,52 @@ CREATE TRIGGER fkc_annot_update
         alters.append("ALTER TABLE languages ADD COLUMN link TEXT NOT NULL DEFAULT '';")
         alters.append("ALTER TABLE ratings ADD COLUMN link TEXT NOT NULL DEFAULT '';")
         self.db.execute('\n'.join(alters))
+
+    def upgrade_version_26(self):
+        ' Drop unused columns from books and create pages table '
+        columns = {x[0] for x in self.db.execute('SELECT name FROM pragma_table_info("books")')}
+        statements = [
+            '''
+            CREATE TABLE books_pages_link (
+                book INTEGER PRIMARY KEY,
+                pages INTEGER DEFAULT 0 NOT NULL,
+                algorithm INTEGER DEFAULT 0 NOT NULL,
+                format TEXT DEFAULT '' NOT NULL COLLATE NOCASE,
+                format_size INTEGER DEFAULT 0 NOT NULL,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                needs_scan INTEGER NOT NULL DEFAULT 0 CHECK(needs_scan IN (0, 1)),
+                FOREIGN KEY (book) REFERENCES books(id) ON DELETE CASCADE
+            );
+            CREATE TRIGGER books_pages_link_create_trigger AFTER INSERT ON books FOR EACH ROW
+            BEGIN
+                INSERT INTO books_pages_link(book) VALUES(NEW.id);
+            END;
+            CREATE INDEX books_pages_link_pidx ON books_pages_link (needs_scan);
+            INSERT INTO books_pages_link(book,needs_scan) SELECT id,1 FROM books;
+
+            DROP VIEW meta;
+            CREATE VIEW meta AS
+                    SELECT id, title,
+                        (SELECT sortconcat(bal.id, name) FROM books_authors_link AS bal JOIN authors ON(author = authors.id) WHERE book = books.id) authors,
+                        (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+                        (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+                        timestamp,
+                        (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+                        (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+                        (SELECT text FROM comments WHERE book=books.id) comments,
+                        (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+                        series_index,
+                        sort,
+                        author_sort,
+                        (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+                        path,
+                        pubdate,
+                        uuid
+                    FROM books;
+
+            PRAGMA application_id = 0x63616c69;
+            ''',
+        ]
+        for x in {'flags', 'isbn', 'lccn'} & columns:
+            statements.append(f'ALTER TABLE books DROP COLUMN {x};')
+        self.db.execute('\n'.join(statements))

@@ -11,10 +11,7 @@ CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
                              pubdate   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                              series_index REAL NOT NULL DEFAULT 1.0,
                              author_sort TEXT COLLATE NOCASE,
-                             isbn TEXT DEFAULT '' COLLATE NOCASE,
-                             lccn TEXT DEFAULT '' COLLATE NOCASE,
                              path TEXT NOT NULL DEFAULT '',
-                             flags INTEGER NOT NULL DEFAULT 1,
                              uuid TEXT,
                              has_cover BOOL DEFAULT 0,
                              last_modified TIMESTAMP NOT NULL DEFAULT '2000-01-01 00:00:00+00:00');
@@ -49,6 +46,22 @@ CREATE TABLE books_series_link ( id INTEGER PRIMARY KEY,
                                           series INTEGER NOT NULL,
                                           UNIQUE(book)
                                         );
+CREATE TABLE books_pages_link (
+    book INTEGER PRIMARY KEY,
+    pages INTEGER DEFAULT 0 NOT NULL,
+    algorithm INTEGER DEFAULT 0 NOT NULL,
+    format TEXT DEFAULT '' NOT NULL COLLATE NOCASE,
+    format_size INTEGER DEFAULT 0 NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    needs_scan INTEGER NOT NULL DEFAULT 0 CHECK(needs_scan IN (0, 1)),
+    FOREIGN KEY (book) REFERENCES books(id) ON DELETE CASCADE
+);
+CREATE TRIGGER books_pages_link_create_trigger AFTER INSERT ON books FOR EACH ROW
+BEGIN
+    INSERT INTO books_pages_link(book) VALUES(NEW.id);
+END;
+CREATE INDEX books_pages_link_pidx ON books_pages_link (needs_scan);
+
 CREATE TABLE books_tags_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
                                           tag INTEGER NOT NULL,
@@ -163,19 +176,19 @@ CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
 CREATE VIRTUAL TABLE annotations_fts USING fts5(searchable_text, content = 'annotations', content_rowid = 'id', tokenize = 'unicode61 remove_diacritics 2');
 CREATE VIRTUAL TABLE annotations_fts_stemmed USING fts5(searchable_text, content = 'annotations', content_rowid = 'id', tokenize = 'porter unicode61 remove_diacritics 2');
 
-CREATE TRIGGER annotations_fts_insert_trg AFTER INSERT ON annotations 
+CREATE TRIGGER annotations_fts_insert_trg AFTER INSERT ON annotations
 BEGIN
     INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
     INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
 END;
 
-CREATE TRIGGER annotations_fts_delete_trg AFTER DELETE ON annotations 
+CREATE TRIGGER annotations_fts_delete_trg AFTER DELETE ON annotations
 BEGIN
     INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
     INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
 END;
 
-CREATE TRIGGER annotations_fts_update_trg AFTER UPDATE ON annotations 
+CREATE TRIGGER annotations_fts_update_trg AFTER UPDATE ON annotations
 BEGIN
     INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
     INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
@@ -198,11 +211,8 @@ CREATE VIEW meta AS
                sort,
                author_sort,
                (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
-               isbn,
                path,
-               lccn,
                pubdate,
-               flags,
                uuid
         FROM books;
 CREATE VIEW tag_browser_authors AS SELECT
@@ -638,4 +648,6 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=26;
+-- Set application id to "cali" as a big endian number
+PRAGMA application_id = 0x63616c69;
+pragma user_version=27;

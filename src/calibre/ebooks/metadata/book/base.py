@@ -32,19 +32,19 @@ def human_readable(size, precision=2):
 
 
 NULL_VALUES = {
-                'user_metadata': {},
-                'cover_data'   : (None, None),
-                'tags'         : [],
-                'identifiers'  : {},
-                'languages'    : [],
-                'device_collections': [],
-                'author_sort_map': {},
-                'authors'      : [_('Unknown')],
-                'author_sort'  : _('Unknown'),
-                'title'        : _('Unknown'),
-                'user_categories' : {},
-                'link_maps'    : {},
-                'language'     : 'und'
+    'user_metadata': {},
+    'cover_data'   : (None, None),
+    'tags'         : [],
+    'identifiers'  : {},
+    'languages'    : [],
+    'device_collections': [],
+    'author_sort_map': {},
+    'authors'      : [_('Unknown')],
+    'author_sort'  : _('Unknown'),
+    'title'        : _('Unknown'),
+    'user_categories' : {},
+    'link_maps'    : {},
+    'language'     : 'und',
 }
 
 field_metadata = FieldMetadata()
@@ -119,9 +119,8 @@ class Metadata:
         Also returns True if the field does not exist.
         '''
         try:
-            null_val = NULL_VALUES.get(field, None)
             val = getattr(self, field, None)
-            return not val or val == null_val
+            return not val or val == NULL_VALUES.get(field)
         except Exception:
             return True
 
