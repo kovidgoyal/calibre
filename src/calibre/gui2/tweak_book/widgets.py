@@ -28,7 +28,6 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QListView,
-    QMimeData,
     QModelIndex,
     QPainter,
     QPalette,
@@ -1279,8 +1278,12 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         return self.selected_text_from_cursor(self.textCursor())
 
     def createMimeDataFromSelection(self):
-        ans = QMimeData()
-        ans.setText(self.selected_text)
+        ans = super().createMimeDataFromSelection()
+        for format in ans.formats():
+            if format.startswith('text/'):
+                val = bytes(ans.data(format)).decode()
+                val = unicodedata.normalize('NFC', val.replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
+                ans.setData(format, val.encode())
         return ans
 
     def show_tooltip(self, ev):
