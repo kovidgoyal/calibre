@@ -18,40 +18,6 @@
     <string>&amp;Layout</string>
    </attribute>
    <layout class="QGridLayout" name="bookshelf_grid">
-    <item row="12" column="0">
-     <widget class="QLabel" name="label_pages">
-      <property name="text">
-       <string>Template for spine &amp;width:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_spine_size_template</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="2">
-     <widget class="QPushButton" name="template_title_button">
-      <property name="text">
-       <string>Template &amp;editor</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="2">
-     <widget class="QPushButton" name="template_pages_button">
-      <property name="text">
-       <string>Template &amp;editor</string>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="0">
-     <widget class="QLabel" name="label_title">
-      <property name="text">
-       <string>Template for spine &amp;title:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_title_template</cstring>
-      </property>
-     </widget>
-    </item>
     <item row="20" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_fade_time">
       <property name="specialValueText">
@@ -71,6 +37,13 @@
       </property>
      </widget>
     </item>
+    <item row="10" column="0">
+     <widget class="QCheckBox" name="opt_bookshelf_variable_height">
+      <property name="text">
+       <string>Variable book &amp;height</string>
+      </property>
+     </widget>
+    </item>
     <item row="11" column="1">
      <widget class="QLineEdit" name="opt_bookshelf_title_template">
       <property name="toolTip">
@@ -78,10 +51,27 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QCheckBox" name="opt_bookshelf_shadow">
+    <item row="12" column="2">
+     <widget class="QPushButton" name="template_pages_button">
       <property name="text">
-       <string>Show &amp;shadow for hovered cover</string>
+       <string>Template &amp;editor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="12" column="0">
+     <widget class="QLabel" name="label_pages">
+      <property name="text">
+       <string>Template for spine &amp;width:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_spine_size_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="1">
+     <widget class="QPushButton" name="use_pages_button">
+      <property name="text">
+       <string>Use a custom &amp;pages column</string>
       </property>
      </widget>
     </item>
@@ -92,14 +82,48 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
-     <widget class="QCheckBox" name="opt_bookshelf_variable_height">
+    <item row="20" column="0">
+     <widget class="QLabel" name="label_fade_time">
       <property name="text">
-       <string>Variable book &amp;height</string>
+       <string>&amp;Fade-in time for hovered cover animation:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_fade_time</cstring>
       </property>
      </widget>
     </item>
-    <item row="27" column="0">
+    <item row="0" column="1" colspan="2">
+     <widget class="QCheckBox" name="opt_bookshelf_thumbnail">
+      <property name="text">
+       <string>Show a cover &amp;thumbnail on the spines</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QCheckBox" name="opt_bookshelf_shadow">
+      <property name="text">
+       <string>Show &amp;shadow for hovered cover</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="0">
+     <widget class="QLabel" name="label_title">
+      <property name="text">
+       <string>Template for spine &amp;title:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_title_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="2">
+     <widget class="QPushButton" name="template_title_button">
+      <property name="text">
+       <string>Template &amp;editor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="28" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -112,27 +136,10 @@
       </property>
      </spacer>
     </item>
-    <item row="20" column="0">
-     <widget class="QLabel" name="label_fade_time">
+    <item row="27" column="0">
+     <widget class="QPushButton" name="recount_button">
       <property name="text">
-       <string>&amp;Fade-in time for hovered cover animation:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_fade_time</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="1">
-     <widget class="QPushButton" name="use_pages_button">
-      <property name="text">
-       <string>Use a &amp;pages column</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1" colspan="2">
-     <widget class="QCheckBox" name="opt_bookshelf_thumbnail">
-      <property name="text">
-       <string>Show a cover &amp;thumbnail on the spines</string>
+       <string>&amp;Recount pages</string>
       </property>
      </widget>
     </item>

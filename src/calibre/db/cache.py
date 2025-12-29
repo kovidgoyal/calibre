@@ -1739,6 +1739,7 @@ class Cache:
     # Page counts {{{
     @read_api
     def get_pages(self, book_id: int) -> Pages | None:
+        ' Return page count information for the specified book '
         for pages, algorithm, format, format_size, timestamp in self.backend.execute(
             f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d} LIMIT 1'
         ):
@@ -1746,6 +1747,7 @@ class Cache:
                          parse_iso8601(timestamp, assume_utc=True))
     @read_api
     def pages_needs_scan(self, books: Iterable[int]) -> set[int]:
+        ' Return the subset of books that are marked as needing a scan to update page count '
         books = tuple(books)
         ans = set()
         BATCH_SIZE = self.backend.max_number_of_variables
@@ -1757,6 +1759,14 @@ class Cache:
             ):
                 ans.add(book_id)
         return ans
+
+    @write_api
+    def mark_for_pages_recount(self, book_id: int = 0) -> None:
+        ' Mark all books for recount of pages '
+        if book_id:
+            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={int(book_id)}')
+        else:
+            self.backend.execute('UPDATE books_pages_link SET needs_scan=1')
 
     @write_api
     def queue_pages_scan(self, book_id: int = 0) -> None:
@@ -1775,6 +1785,7 @@ class Cache:
     def set_pages(
         self, book_id: int, pages: int = 0, algorithm: int = 0, format: str = '', format_size: int = ''
     ) -> None:
+        ' Set page count information for the specified book '
         now = sqlite_datetime(utcnow())
         self.backend.execute('''
             INSERT INTO books_pages_link (book, pages, algorithm, format, format_size, timestamp, needs_scan) VALUES

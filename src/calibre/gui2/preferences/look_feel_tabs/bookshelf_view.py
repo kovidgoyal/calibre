@@ -58,6 +58,18 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
         self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template))
         self.template_pages_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_spine_size_template))
         self.use_pages_button.clicked.connect(self.use_pages)
+        self.recount_button.clicked.connect(self.recount_pages)
+
+    def recount_pages(self) -> None:
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        if confirm(_('This will cause calibre to rescan all books in your library and update page counts, where changed.'
+                     ' The scanning happens in the background and can take up to an hour per thousand books'
+                     ' depending on the size of the books and the power of your computer. This is'
+                     ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'),
+                   'confirm-pages-recount', parent=self):
+            db = self.gui.current_db.new_api
+            db.mark_for_pages_recount()
+            db.queue_pages_scan()
 
     def edit_template_button(self, line_edit):
         rows = self.gui.library_view.selectionModel().selectedRows()
