@@ -58,11 +58,15 @@ class LibraryBaseTest(BaseTest):
         from calibre.utils.recycle_bin import nuke_recycle
         nuke_recycle()
         self.library_path = self.mkdtemp()
+        self.objects_to_close = []
         self.create_db(self.library_path)
 
     def tearDown(self):
         from calibre.utils.recycle_bin import restore_recyle
         restore_recyle()
+        for x in self.objects_to_close:
+            x.close()
+        self.objects_to_close = []
         gc.collect(), gc.collect()
         try:
             shutil.rmtree(self.library_path)
@@ -92,7 +96,7 @@ class LibraryBaseTest(BaseTest):
             db.add_format(1, 'EPUB', src, run_hooks=False)
         db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), run_hooks=False)
         db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), run_hooks=False)
-        db.backend.conn.close()
+        db.close()
         return dest
 
     def create_server(self, *args, **kwargs):

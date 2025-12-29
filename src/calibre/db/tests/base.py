@@ -30,12 +30,16 @@ class BaseTest(unittest.TestCase):
         from calibre.utils.recycle_bin import nuke_recycle
         nuke_recycle()
         self.paths_to_remove = []
+        self.objects_to_close = []
         self.library_path = self.mkdtemp()
         self.create_db(self.library_path)
 
     def tearDown(self):
         from calibre.utils.recycle_bin import restore_recyle
         restore_recyle()
+        for x in self.objects_to_close:
+            x.close()
+        self.objects_to_close = []
         gc.collect(), gc.collect()
         for x in self.paths_to_remove:
             try:
@@ -71,6 +75,7 @@ class BaseTest(unittest.TestCase):
         backend = DB(library_path or self.library_path)
         cache = Cache(backend)
         cache.init()
+        self.objects_to_close.append(cache)
         return cache
 
     def mkdtemp(self):
