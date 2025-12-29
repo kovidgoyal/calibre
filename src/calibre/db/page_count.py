@@ -108,7 +108,7 @@ class MaintainPageCounts(Thread):
             pages = db._get_pages(book_id)
         fmts = sorted({f.upper() for f in fmts or ()} & self.all_input_formats, key=self.sort_key)
         if not fmts:
-            return Pages(0, 0, '', 0, utcnow())
+            return Pages(-1, 0, '', 0, utcnow())
         prev_scan_result = None
         if pages is not None:
             idx = -1
@@ -144,8 +144,10 @@ class MaintainPageCounts(Thread):
                 else:
                     if isinstance(pages, int):
                         return Pages(pages, server.ALGORITHM, fmt, fmt_size, utcnow())
+                    if 'calibre.ebooks.DRMError:' in pages[1]:
+                        print(f'Failed to count pages in book: {book_id} {fmt} because it is DRM locked', file=sys.stderr)
                     else:
-                        print(f'Failed to count pages in book: {book_id} with error: {pages[0]}\n{pages[1]}', file=sys.stderr)
+                        print(f'Failed to count pages in book: {book_id} {fmt} with error:\n{pages[1]}', file=sys.stderr)
             return prev_scan_result or Pages(-2, 0, '', 0, utcnow())
         finally:
             for x in cleanups:

@@ -870,7 +870,7 @@ class BooksView(TableView):  # {{{
         state = {}
         state['hidden_columns'] = [cm[i] for i in range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
-        for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+        for f in ('last_modified', 'languages', 'formats', 'id', 'path', 'pages'):
             state[f+'_injected'] = True
         state['sort_history'] = \
             self.cleanup_sort_history(self.model().sort_history, ignore_column_map=self.is_library_view)
@@ -935,6 +935,8 @@ class BooksView(TableView):  # {{{
             cmap[c] = i
             if c != 'ondevice':
                 h.setSectionHidden(i, c in hidden)
+        if 'pages' not in hidden:
+            self.model().db.new_api.queue_pages_scan()
 
         positions = state.get('column_positions', {})
         pmap = {}
@@ -985,7 +987,7 @@ class BooksView(TableView):  # {{{
 
     def get_default_state(self):
         old_state = {
-                'hidden_columns': ['last_modified', 'languages', 'formats', 'id', 'path'],
+                'hidden_columns': ['last_modified', 'languages', 'formats', 'id', 'path', 'pages'],
                 'sort_history':[DEFAULT_SORT],
                 'column_positions': {},
                 'column_sizes': {},
@@ -994,7 +996,7 @@ class BooksView(TableView):  # {{{
                     'timestamp':'center',
                     'pubdate':'center'},
                 }
-        for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+        for f in ('last_modified', 'languages', 'formats', 'id', 'path', 'pages'):
             old_state[f+'_injected'] = True
         h = self.column_header
         cm = self.column_map
@@ -1027,7 +1029,7 @@ class BooksView(TableView):  # {{{
                         db.new_api.set_pref(name, ans)
                 else:
                     injected = False
-                    for f in ('last_modified', 'languages', 'formats', 'id', 'path'):
+                    for f in ('last_modified', 'languages', 'formats', 'id', 'path', 'pages'):
                         if not ans.get(f+'_injected', False):
                             injected = True
                             ans[f+'_injected'] = True

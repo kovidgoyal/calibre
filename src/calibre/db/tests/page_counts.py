@@ -29,21 +29,22 @@ def test_page_count_in_db(self: BaseTest) -> None:
     def status():
         return set(db.backend.execute('SELECT pages,needs_scan FROM books_pages_link'))
     self.ae(status(), {(0,1)})
+    self.ae(db.pages_needs_scan((1,2,19)), {1,2})
     counted = []
     db.maintain_page_counts.count_callback = counted.append
     db.maintain_page_counts.tick_event.clear()
     db.queue_pages_scan()
     db.maintain_page_counts.tick_event.wait()
     self.assertFalse(counted)
-    self.ae(status(), {(0,0)})
-    self.ae(db.field_for('pages', 1), 0)
+    self.ae(status(), {(-1,0)})
+    self.ae(db.field_for('pages', 1), -1)
     # test that adding a format queues
     def add_format(fmt, data):
         db.maintain_page_counts.tick_event.clear()
         db.add_format(1, fmt, io.BytesIO(data), replace=True)
         db.maintain_page_counts.tick_event.wait()
     add_format('txt', txt_data)
-    self.ae(status(), {(2,0),(0,0)})
+    self.ae(status(), {(2,0),(-1,0)})
     self.ae(1, len(counted))
     p = db.get_pages(1)
     self.ae(p, Pages(2, p.algorithm, 'TXT', len(txt_data), p.timestamp))
@@ -52,16 +53,16 @@ def test_page_count_in_db(self: BaseTest) -> None:
     self.ae(db.get_proxy_metadata(1).pages, 2)
     # test that re-adding the same format does not re-count
     add_format('txt', txt_data)
-    self.ae(status(), {(2,0),(0,0)})
+    self.ae(status(), {(2,0),(-1,0)})
     self.ae(1, len(counted))
     # test that re-adding a lower priority format does not re-count
     add_format('epub', txt_data)
-    self.ae(status(), {(2,0),(0,0)})
+    self.ae(status(), {(2,0),(-1,0)})
     self.ae(1, len(counted))
     # test that adding a higher priority format does recount
     add_format('pdf', sample_pdf_data())
     self.ae(2, len(counted))
     self.assertTrue(counted[-1].endswith('.pdf'))
-    self.ae(status(), {(1,0),(0,0)})
+    self.ae(status(), {(1,0),(-1,0)})
     p = db.get_pages(1)
     self.ae(p, Pages(1, p.algorithm, 'PDF', len(sample_pdf_data()), p.timestamp))

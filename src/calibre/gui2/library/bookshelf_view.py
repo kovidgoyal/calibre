@@ -883,14 +883,10 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
     ans = -1
     match spine_size_template:
         case '{pages}' | 'pages':
-            pages = db.field_for('pages', book_id)
-            if pages is None:
-                # Dont cache this result so that on next layout if the pages
-                # have been updated they will be used.
-                return linear(width_from_size(db.field_for('size', book_id, 0)))
-            if pages > 0:
+            pages = db.field_for('pages', book_id, 0)
+            if pages >= 0:
                 ans = linear(width_from_pages(pages))
-            else:  # error when counting
+            else:
                 ans = linear(width_from_size(db.field_for('size', book_id, 0)))
         case '{size}' | 'size':
             ans = linear(width_from_size(db.field_for('size', book_id, 0)))

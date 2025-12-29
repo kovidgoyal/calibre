@@ -1739,13 +1739,23 @@ class Cache:
     # Page counts {{{
     @read_api
     def get_pages(self, book_id: int) -> Pages | None:
-        ans: Pages | None = None
-        with self.safe_read_lock:
-            for pages, algorithm, format, format_size, timestamp in self.backend.execute(
-                f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d} LIMIT 1'
+        for pages, algorithm, format, format_size, timestamp in self.backend.execute(
+            f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d} LIMIT 1'
+        ):
+            return Pages(int(pages), int(algorithm), str(format), int(format_size),
+                         parse_iso8601(timestamp, assume_utc=True))
+    @read_api
+    def pages_needs_scan(self, books: Iterable[int]) -> set[int]:
+        books = tuple(books)
+        ans = set()
+        BATCH_SIZE = self.backend.max_number_of_variables
+        for i in range(0, len(books), BATCH_SIZE):
+            batch = books[i:i + BATCH_SIZE]
+            placeholders = '?,' * len(batch)
+            for (book_id,) in self.backend.execute(
+                f'SELECT book FROM books_pages_link WHERE needs_scan=1 AND book IN ({placeholders[:-1]})', batch
             ):
-                ans = Pages(int(pages), int(algorithm), str(format), int(format_size), parse_iso8601(timestamp, assume_utc=True))
-                break
+                ans.add(book_id)
         return ans
 
     @write_api
