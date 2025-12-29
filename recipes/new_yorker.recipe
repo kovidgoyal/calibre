@@ -21,7 +21,7 @@ class NewYorker(BasicNewsRecipe):
 
     if web_version:
         title = 'The New Yorker (All Articles)'
-        description = "All articles from newyorker.com including daily content, reviews, and magazine pieces"
+        description = 'All articles from newyorker.com including daily content, reviews, and magazine pieces'
     else:
         title = 'The New Yorker Magazine'
         description = "Articles of the week's New Yorker magazine"
@@ -92,7 +92,6 @@ class NewYorker(BasicNewsRecipe):
             'long': 'For example, 2024/07/08'
         }
     }
-
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
