@@ -67,6 +67,7 @@ class Stage2(Command):
             installer = self.j(self.d(self.SRC), installer)
             if not os.path.exists(installer) or os.path.getsize(installer) < 10000:
                 raise SystemExit(f'The installer {os.path.basename(installer)} does not exist')
+            os.chmod(installer, 0o644)
 
 
 class Stage3(Command):
