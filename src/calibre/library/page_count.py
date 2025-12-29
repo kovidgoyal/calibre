@@ -216,7 +216,7 @@ def test_page_count() -> None:
         for x in files:
             res = s.count_pages(x)
             if not isinstance(res, int):
-                raise AssertionError(f'Counting pages for {x} falied with result: {res}')
+                raise AssertionError(f'Counting pages for {x} failed with result: {res}')
 
 
 def develop():

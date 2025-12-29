@@ -1893,8 +1893,7 @@ class DB:
                         return True
                     except Exception:
                         pass
-                with open(path, 'rb') as f, open(make_long_path_useable(dest), 'wb') as d:
-                    shutil.copyfileobj(f, d)
+                shutil.copyfile(path, make_long_path_useable(dest))
         return True
 
     def windows_check_if_files_in_use(self, paths):

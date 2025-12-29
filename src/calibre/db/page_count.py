@@ -118,22 +118,28 @@ class MaintainPageCounts(Thread):
                     if idx == 0:
                         return pages
 
-        for fmt in fmts:
-            fmt_file = os.path.join(self.tdir, 'book.' + fmt.lower())
-            with open(fmt_file, 'wb') as dest:
+        cleanups = []
+        try:
+            for fmt in fmts:
+                fmt_file = os.path.join(self.tdir, 'book.' + fmt.lower())
                 try:
-                    db.copy_format_to(book_id, fmt, dest)
-                    fmt_size = dest.tell()
+                    db.copy_format_to(book_id, fmt, fmt_file)
+                    cleanups.append(fmt_file)
+                    fmt_size = os.path.getsize(fmt_file)
                 except Exception:
                     import traceback
                     traceback.print_exc()
                     continue
-            try:
-                self.count_callback(fmt_file)
-                pages = server.count_pages(fmt_file)
-            except Exception:
-                import traceback
-                traceback.print_exc()
-            else:
-                return Pages(pages, 1, fmt, fmt_size, utcnow())
-        return prev_scan_result or Pages(-2, 0, '', 0, utcnow())
+                try:
+                    self.count_callback(fmt_file)
+                    pages = server.count_pages(fmt_file)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                else:
+                    return Pages(pages, 1, fmt, fmt_size, utcnow())
+            return prev_scan_result or Pages(-2, 0, '', 0, utcnow())
+        finally:
+            for x in cleanups:
+                with suppress(OSError):
+                    os.remove(x)
