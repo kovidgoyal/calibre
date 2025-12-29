@@ -805,7 +805,7 @@ p { margin: 0; }
 <div class="bq">NEAR("people" "in Asia" "try")<br>NEAR("Kovid" "calibre", 30)</div>
 <p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
 
-<div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>
+<div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>\
 ''' + '</div>').format(fts_url=fts_url))
         hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         hp.document().setDocumentMargin(0)

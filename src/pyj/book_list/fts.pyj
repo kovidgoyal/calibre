@@ -204,7 +204,7 @@ def clear_to_help():
 <div class="bq">NEAR("people" "in Asia" "try")<br>NEAR("Kovid" "calibre", 30)</div>
 <p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
 
-<div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>
+<div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>\
 ''').format(fts_url=fts_url)
     container.innerHTML = html
     a = container.querySelector('a[href]')
