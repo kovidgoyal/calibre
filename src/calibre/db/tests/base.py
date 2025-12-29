@@ -85,11 +85,15 @@ class BaseTest(unittest.TestCase):
 
     def init_old(self, library_path=None):
         from calibre.library.database2 import LibraryDatabase2
-        return LibraryDatabase2(library_path or self.library_path)
+        ans = LibraryDatabase2(library_path or self.library_path)
+        self.objects_to_close.append(ans)
+        return ans
 
     def init_legacy(self, library_path=None):
         from calibre.db.legacy import LibraryDatabase
-        return LibraryDatabase(library_path or self.library_path)
+        ans = LibraryDatabase(library_path or self.library_path)
+        self.objects_to_close.append(ans)
+        return ans
 
     def clone_library(self, library_path):
         if not hasattr(self, 'clone_dir'):
