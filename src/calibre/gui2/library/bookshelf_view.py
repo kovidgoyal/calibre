@@ -884,7 +884,7 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
     match spine_size_template:
         case '{pages}' | 'pages':
             pages = db.field_for('pages', book_id, 0)
-            if pages >= 0:
+            if pages > 0:
                 ans = linear(width_from_pages(pages))
             else:
                 ans = linear(width_from_size(db.field_for('size', book_id, 0)))
