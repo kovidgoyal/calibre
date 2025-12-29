@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+import sys
 import weakref
 from collections.abc import Iterator
 from contextlib import suppress
@@ -76,9 +77,10 @@ class MaintainPageCounts(Thread):
                 self.count_book_and_commit(book_id, server)
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
+        ' Order results by book id to prioritise newer books '
         if db := self.dbref():
             with db.safe_read_lock:
-                for rec in db.backend.execute(f'SELECT book FROM books_pages_link WHERE needs_scan=1 LIMIT {size}'):
+                for rec in db.backend.execute(f'SELECT book FROM books_pages_link WHERE needs_scan=1 ORDER BY book DESC LIMIT {size}'):
                     yield rec[0]
 
     def count_book_and_commit(self, book_id: int, server: Server) ->  Pages | None:
@@ -113,7 +115,7 @@ class MaintainPageCounts(Thread):
                 sz = -1
                 with suppress(Exception):
                     sz = db.format_db_size(book_id, pages.format)
-                if sz == pages.format_size:
+                if sz == pages.format_size and pages.algorithm == server.ALGORITHM:
                     prev_scan_result = pages
                     if idx == 0:
                         return pages
@@ -137,7 +139,10 @@ class MaintainPageCounts(Thread):
                     import traceback
                     traceback.print_exc()
                 else:
-                    return Pages(pages, 1, fmt, fmt_size, utcnow())
+                    if isinstance(pages, int):
+                        return Pages(pages, server.ALGORITHM, fmt, fmt_size, utcnow())
+                    else:
+                        print(f'Failed to count pages in book: {book_id} with error: {pages[0]}\n{pages[1]}', file=sys.stderr)
             return prev_scan_result or Pages(-2, 0, '', 0, utcnow())
         finally:
             for x in cleanups:

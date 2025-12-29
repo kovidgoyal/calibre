@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.logging import DevNull
 from calibre_extensions.speedup import get_num_of_significant_chars
@@ -42,19 +43,19 @@ def count_pages_pdf(pathtoebook: str) -> int:
 def count_pages_cbz(pathtoebook: str) -> int:
     from calibre.ebooks.metadata.archive import fname_ok
     from calibre.utils.zipfile import ZipFile
-    with closing(ZipFile(pathtoebook, 'r')) as zf:
+    with closing(ZipFile(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok, zf.namelist()))
 
 
 def count_pages_cbr(pathtoebook: str) -> int:
     from calibre.ebooks.metadata.archive import RAR, fname_ok
-    with closing(RAR(pathtoebook, 'r')) as zf:
+    with closing(RAR(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok, zf.namelist()))
 
 
 def count_pages_cb7(pathtoebook: str) -> int:
     from calibre.ebooks.metadata.archive import SevenZip, fname_ok
-    with closing(SevenZip(pathtoebook, 'r')) as zf:
+    with closing(SevenZip(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok, zf.namelist()))
 
 
@@ -123,7 +124,7 @@ def count_pages_txt(pathtoebook: str) -> int:
     with open(pathtoebook, 'rb') as f:
         text = f.read().decode('utf-8', 'replace')
     e = etree.Element('r')
-    e.tail = text
+    e.tail = clean_xml_chars(text)
     return get_num_of_significant_chars(e) // CHARS_PER_PAGE
 
 
@@ -146,6 +147,8 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 
 class Server:
+
+    ALGORITHM = 1
 
     def __init__(self, max_jobs_per_worker: int = 2048):
         self.worker: subprocess.Popoen | None = None

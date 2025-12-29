@@ -861,6 +861,18 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
         yield ungrouped_name, sorted(leftover,  key=sort_map.__getitem__)
 
 
+def base_log(f: float, b: float = 10) -> float:
+    return math.log(1+max(0, min(f, 1))*b, b+1)
+
+
+def width_from_pages(pages: int, num_of_pages_for_max_width: int = 2000) -> float:
+    return base_log(pages/num_of_pages_for_max_width)
+
+
+def width_from_size(sz: int) -> float:
+    return base_log(normalised_size(sz))
+
+
 def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_cache: dict[str, str], lc: LayoutConstraints, cache: dict[int, int]) -> int:
     if (ans := cache.get(book_id)) is not None:
         return ans
@@ -868,19 +880,25 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
     def linear(f: float):
         return lc.min_spine_width + int(max(0, min(f, 1)) * (lc.max_spine_width - lc.min_spine_width))
 
-    def log(f: float):
-        b = 10
-        return linear(math.log(1+max(0, min(f, 1))*b, b+1))
-
     ans = -1
     match spine_size_template:
-        case '':
-            ans = lc.default_spine_width
+        case '{pages}' | 'pages':
+            pages = db.field_for('pages', book_id)
+            if pages is None:
+                # Dont cache this result so that on next layout if the pages
+                # have been updated they will be used.
+                return linear(width_from_size(db.field_for('size', book_id, 0)))
+            if pages > 0:
+                ans = linear(width_from_pages(pages))
+            else:  # error when counting
+                ans = linear(width_from_size(db.field_for('size', book_id, 0)))
         case '{size}' | 'size':
-            ans = log(normalised_size(db.field_for('size', book_id, 0)))
+            ans = linear(width_from_size(db.field_for('size', book_id, 0)))
         case '{random}' | 'random':
             # range: 0.25-0.75
             ans = linear((25+(random_from_id(book_id, limit=51)))/100)
+        case '':
+            ans = lc.default_spine_width
         case _:
             with suppress(Exception):
                 if 0 <= (x := float(spine_size_template)) <= 1:
@@ -890,7 +908,7 @@ def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_
                     mi = db.get_proxy_metadata(book_id)
                     rslt = mi.formatter.safe_format(spine_size_template, mi, TEMPLATE_ERROR, mi, template_cache=template_cache)
                     ans = linear(float(rslt))
-    if ans < 0:
+    if ans <= 0:
         ans = lc.default_spine_width
     cache[book_id] = ans
     return ans
@@ -1003,6 +1021,8 @@ class BookCase(QObject):
                 self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order)
 
     def ensure_layouting_is_current(self) -> None:
+        if db := self.dbref():
+            db.new_api.queue_pages_scan()
         with self.lock:
             if self.layout_constraints.width > 0 and self.payload is not None:
                 if self.worker is None:
@@ -1067,7 +1087,10 @@ class BookCase(QObject):
             for book_id in book_ids_in_group:
                 if invalidate.is_set():
                     return
-                spine_width = get_spine_width(book_id, db, spine_size_template, template_cache, lc, self.spine_width_cache)
+                try:
+                    spine_width = get_spine_width(book_id, db, spine_size_template, template_cache, lc, self.spine_width_cache)
+                except Exception:
+                    spine_width = lc.default_spine_width
                 if not current_case_item.add_book(book_id, spine_width, group_name, lc):
                     y = commit_case_item(current_case_item)
                     current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))

@@ -639,7 +639,7 @@ class DB:
         defs['column_tooltip_templates'] = {}
         defs['bookshelf_grouping_mode'] = 'none'
         defs['bookshelf_title_template'] = '{title}'
-        defs['bookshelf_spine_size_template'] = '{size}'
+        defs['bookshelf_spine_size_template'] = '{pages}'
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
