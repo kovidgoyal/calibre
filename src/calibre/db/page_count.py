@@ -10,6 +10,8 @@ from queue import Queue, ShutDown
 from threading import Event, Thread, current_thread
 from typing import TYPE_CHECKING
 
+import apsw
+
 from calibre.customize.ui import all_input_formats
 from calibre.db.constants import Pages
 from calibre.library.page_count import Server
@@ -56,15 +58,16 @@ class MaintainPageCounts(Thread):
         with Server() as server, TemporaryDirectory() as tdir:
             self.tdir = tdir
             while not self.shutdown_event.is_set():
-                try:
-                    book_id = g()
-                except ShutDown:
-                    break
-                if book_id:
-                    self.count_book_and_commit(book_id, server)
-                else:
-                    self.do_backlog(server)
-                self.tick_event.set()
+                with suppress(apsw.ConnectionClosedError):
+                    try:
+                        book_id = g()
+                    except ShutDown:
+                        break
+                    if book_id:
+                        self.count_book_and_commit(book_id, server)
+                    else:
+                        self.do_backlog(server)
+                    self.tick_event.set()
 
     def do_backlog(self, server: Server) -> None:
         while not self.shutdown_event.is_set():
