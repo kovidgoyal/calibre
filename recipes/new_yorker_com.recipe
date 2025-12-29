@@ -8,7 +8,7 @@ from collections import defaultdict
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe, classes, prefixed_classes
 
-web_version = False
+web_version = True
 
 
 def absurl(x):
@@ -17,7 +17,7 @@ def absurl(x):
     return x
 
 
-class NewYorker(BasicNewsRecipe):
+class NewYorkerCom(BasicNewsRecipe):
 
     if web_version:
         title = 'The New Yorker (All Articles)'
