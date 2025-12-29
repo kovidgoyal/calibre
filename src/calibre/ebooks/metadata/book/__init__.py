@@ -88,7 +88,7 @@ CALIBRE_METADATA_FIELDS = frozenset((
     # a dict of items to associated hyperlink
     'link_maps',
     # Calculated page count, null values are None or 0. -1 is no countable
-    # formats. -2 is error processing formats.
+    # formats. -2 is error processing formats, -3 is DRMed.
     'pages',
 ))
 

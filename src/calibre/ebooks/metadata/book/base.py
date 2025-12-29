@@ -749,6 +749,14 @@ class Metadata:
                 res = f'{res/2:.2g}'
             elif key == 'size':
                 res = human_readable(res)
+            elif key == 'pages':
+                match res:
+                    case -3:
+                        res = _('DRM')
+                    case -2:
+                        res = _('Error')
+                    case -1:
+                        res = _('None')
             return (name, str(res), orig_res, fmeta)
 
         if kv := self.get(key, None):

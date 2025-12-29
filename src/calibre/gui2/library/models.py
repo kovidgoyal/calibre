@@ -951,6 +951,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                             return _('None')
                         case -2:
                             return _('Error')
+                        case -3:
+                            return _('DRM')
                         case _:
                             return str(ans)
             elif field == 'ondevice' and decorator:

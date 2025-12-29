@@ -125,6 +125,7 @@ class MaintainPageCounts(Thread):
 
         cleanups = []
         try:
+            has_drmed = False
             for fmt in fmts:
                 fmt_file = os.path.join(self.tdir, 'book.' + fmt.lower())
                 try:
@@ -146,9 +147,10 @@ class MaintainPageCounts(Thread):
                         return Pages(pages, server.ALGORITHM, fmt, fmt_size, utcnow())
                     if 'calibre.ebooks.DRMError:' in pages[1]:
                         print(f'Failed to count pages in book: {book_id} {fmt} because it is DRM locked', file=sys.stderr)
+                        has_drmed = True
                     else:
                         print(f'Failed to count pages in book: {book_id} {fmt} with error:\n{pages[1]}', file=sys.stderr)
-            return prev_scan_result or Pages(-2, 0, '', 0, utcnow())
+            return prev_scan_result or Pages(-3 if has_drmed else -2, 0, '', 0, utcnow())
         finally:
             for x in cleanups:
                 with suppress(OSError):
