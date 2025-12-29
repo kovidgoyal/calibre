@@ -719,12 +719,14 @@ class WritingTest(BaseTest):
         cache = self.init_cache()
         cache.create_custom_column('tc', 'TC', 'composite', False, display={
             'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index}'})
+        cache.close()
         cache = self.init_cache()
 
         def test_invalidate():
             c = self.init_cache()
             for bid in cache.all_book_ids():
                 self.assertEqual(cache.field_for('#tc', bid), c.field_for('#tc', bid))
+            c.close()
 
         cache.set_field('title', {1:'xx', 3:'yy'})
         test_invalidate()
@@ -740,6 +742,7 @@ class WritingTest(BaseTest):
         test_invalidate()
         cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
         test_invalidate()
+        cache.close()
     # }}}
 
     def test_dump_and_restore(self):  # {{{
