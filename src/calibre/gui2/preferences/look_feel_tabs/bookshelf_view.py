@@ -88,14 +88,15 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             key = keys[names.index(item)]
             template = f'''\
 python:
+from calibre.gui2.library.bookshelf_view import width_from_pages
+
 def evaluate(book, context):
     val = book.get({key!r})
     try:
         pages = max(0, int(val))
     except Exception:
-        return '0.40'
-    from calibre.gui2.library.bookshelf_view import width_from_pages
-    return str(width_from_pages(pages), num_of_pages_for_max_width=1500)
+        return '0.4'
+    return str(width_from_pages(pages, num_of_pages_for_max_width=1500))
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
 
