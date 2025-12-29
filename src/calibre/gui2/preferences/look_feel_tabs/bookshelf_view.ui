@@ -132,7 +132,7 @@
     <item row="0" column="1" colspan="2">
      <widget class="QCheckBox" name="opt_bookshelf_thumbnail">
       <property name="text">
-       <string>Show a &amp;thumbnail of the cover on the books spines</string>
+       <string>Show a cover &amp;thumbnail on the spines</string>
       </property>
      </widget>
     </item>
