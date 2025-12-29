@@ -9,6 +9,8 @@ from contextlib import closing, suppress
 from multiprocessing import Pipe
 from operator import itemgetter
 
+from lxml import etree
+
 from calibre import detect_ncpus
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import XHTML
@@ -65,8 +67,11 @@ def get_length(root):
     return ans
 
 
+CHARS_PER_PAGE = 1000
+
+
 def get_page_count(root):
-    return get_length(root) // 1000
+    return get_length(root) // CHARS_PER_PAGE
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
@@ -114,6 +119,14 @@ def count_pages_oeb(pathtoebook: str, tdir: str, executor: Executor | None = Non
     return sum(executor.map(process, paths))
 
 
+def count_pages_txt(pathtoebook: str) -> int:
+    with open(pathtoebook, 'rb') as f:
+        text = f.read().decode('utf-8', 'replace')
+    e = etree.Element('r')
+    e.tail = text
+    return get_num_of_significant_chars(e) // CHARS_PER_PAGE
+
+
 def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
     ext = pathtoebook.rpartition('.')[-1].lower()
     match ext:
@@ -125,6 +138,8 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
             return count_pages_cbr(pathtoebook)
         case 'cb7':
             return count_pages_cb7(pathtoebook)
+        case 'txt' | 'text' | 'md' | 'textile' | 'markdown':
+            return count_pages_txt(pathtoebook)
         case _:
             with TemporaryDirectory() as tdir:
                 return count_pages_oeb(pathtoebook, tdir, executor=executor)

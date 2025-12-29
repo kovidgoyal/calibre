@@ -1742,7 +1742,8 @@ class Cache:
         ans: Pages | None = None
         with self.safe_read_lock:
             for pages, algorithm, format, format_size, timestamp in self.backend.execute(
-                    f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d}'):
+                f'SELECT pages,algorithm,format,format_size,timestamp FROM books_pages_link WHERE book={book_id:d} LIMIT 1'
+            ):
                 ans = Pages(int(pages), int(algorithm), str(format), int(format_size), parse_iso8601(timestamp, assume_utc=True))
                 break
         if queue_if_unavailable and ans is None:
@@ -1757,7 +1758,7 @@ class Cache:
         '''
         if book_id <= 0:
             if len(self.fields['pages'].table.book_col_map) < len(self.fields['uuid'].table.book_col_map):
-                self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book) SELECT id FROM books')
+                self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book,needs_scan) SELECT id,1 FROM books')
         else:
             self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={int(book_id)}')
         self.maintain_page_counts.queue_scan(book_id)
@@ -2109,7 +2110,6 @@ class Cache:
                 needs_close = True
             try:
                 size, fname = self._do_add_format(book_id, fmt, stream, name)
-                self.queue_pages_scan()
             finally:
                 if needs_close:
                     stream.close()
