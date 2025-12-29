@@ -211,7 +211,7 @@ def worker_main(pipe_fd: int) -> None:
 def test_page_count() -> None:
     files = (
         P('quick_start/eng.epub'), P('quick_start/swe.epub'), P('quick_start/fra.epub'),
-        P('resources/common-english-words.txt'))
+        P('common-english-words.txt'))
     with Server(max_jobs_per_worker=2) as s:
         for x in files:
             res = s.count_pages(x)
