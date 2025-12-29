@@ -45,7 +45,9 @@ class BaseTest(unittest.TestCase):
                     import atexit
                     atexit.register(shutil.rmtree, x)
                 else:
-                    raise
+                    import time
+                    time.sleep(1)
+                    shutil.rmtree(x)
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
