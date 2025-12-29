@@ -1737,8 +1737,8 @@ class Cache:
         return dirtied
 
     # Page counts {{{
-    @api
-    def get_pages(self, book_id: int, queue_if_unavailable: bool = False) -> Pages | None:
+    @read_api
+    def get_pages(self, book_id: int) -> Pages | None:
         ans: Pages | None = None
         with self.safe_read_lock:
             for pages, algorithm, format, format_size, timestamp in self.backend.execute(
@@ -1746,8 +1746,6 @@ class Cache:
             ):
                 ans = Pages(int(pages), int(algorithm), str(format), int(format_size), parse_iso8601(timestamp, assume_utc=True))
                 break
-        if queue_if_unavailable and ans is None:
-            self.queue_pages_scan(book_id)
         return ans
 
     @write_api

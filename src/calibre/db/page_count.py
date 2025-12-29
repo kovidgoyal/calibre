@@ -26,6 +26,8 @@ class MaintainPageCounts(Thread):
     def __init__(self, db_new_api: 'Cache'):
         super().__init__(name='MaintainPageCounts', daemon=True)
         self.shutdown_event = Event()
+        self.tick_event = Event()
+        self.count_callback = lambda fmt_file: None
         self.dbref: CacheRef = weakref.ref(db_new_api)
         self.queue: Queue[int] = Queue()
         self.tdir = ''
@@ -47,7 +49,7 @@ class MaintainPageCounts(Thread):
     def run(self):
         self.all_input_formats = {f.upper() for f in all_input_formats()}
         self.sort_order = {fmt.upper(): i for i, fmt in enumerate(prefs['input_format_order'])}
-        for i, fmt in enumerate(('PDF', 'CBZ', 'CBR', 'CB7', 'EPUB')):
+        for i, fmt in enumerate(('PDF', 'CBZ', 'CBR', 'CB7', 'TXT', 'TEXT', 'MD', 'TEXTTILE', 'MARKDOWN', 'EPUB')):
             self.sort_order[fmt] = -1000 + i
         g = self.queue.get
         with Server() as server, TemporaryDirectory() as tdir:
@@ -61,6 +63,7 @@ class MaintainPageCounts(Thread):
                     self.count_book_and_commit(book_id, server)
                 else:
                     self.do_backlog(server)
+                self.tick_event.set()
 
     def do_backlog(self, server: Server) -> None:
         while not self.shutdown_event.is_set():
@@ -72,7 +75,7 @@ class MaintainPageCounts(Thread):
                     break
                 self.count_book_and_commit(book_id, server)
 
-    def get_batch(self, db: 'Cache', size: int = 100) -> Iterator[int]:
+    def get_batch(self, size: int = 100) -> Iterator[int]:
         if db := self.dbref():
             with db.safe_read_lock:
                 for rec in db.backend.execute(f'SELECT book FROM books_pages_link WHERE needs_scan=1 LIMIT {size}'):
@@ -84,7 +87,9 @@ class MaintainPageCounts(Thread):
         try:
             pages = self.count_book(db, book_id, server)
         except Exception:
-            pages = None
+            import traceback
+            traceback.print_exc()
+            pages = Pages(-1, 0, '', 0, utcnow())
         if pages is not None and not self.shutdown_event.is_set():
             db.set_pages(book_id, pages.pages, pages.algorithm, pages.format, pages.format_size)
         return pages
@@ -92,7 +97,7 @@ class MaintainPageCounts(Thread):
     def sort_key(self, fmt: str) -> int:
         return self.sort_order.get(fmt, len(self.sort_order) + 100)
 
-    def count_book(self, db: 'Cache', book_id: int, server: Server) -> Pages | None:
+    def count_book(self, db: 'Cache', book_id: int, server: Server) -> Pages:
         with db.safe_read_lock:
             fmts = db._formats(book_id)
             pages = db._get_pages(book_id)
@@ -118,13 +123,17 @@ class MaintainPageCounts(Thread):
             with open(fmt_file, 'wb') as dest:
                 try:
                     db.copy_format_to(book_id, fmt, dest)
-                    fmt_size = fmt_file.tell()
+                    fmt_size = dest.tell()
                 except Exception:
+                    import traceback
+                    traceback.print_exc()
                     continue
             try:
-                pages = self.server.count_pages(fmt_file)
+                self.count_callback(fmt_file)
+                pages = server.count_pages(fmt_file)
             except Exception:
-                pass
+                import traceback
+                traceback.print_exc()
             else:
                 return Pages(pages, 1, fmt, fmt_size, utcnow())
         return prev_scan_result or Pages(-2, 0, '', 0, utcnow())

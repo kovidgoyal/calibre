@@ -967,7 +967,3 @@ def evaluate(book, ctx):
     def test_cover_cache(self):
         from calibre.gui2.library.caches import test_cover_cache
         test_cover_cache(self)
-
-    def test_page_count(self):
-        from calibre.library.page_count import test_page_count
-        test_page_count()
