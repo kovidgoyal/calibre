@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+import math
 import os
 import subprocess
 import sys
@@ -73,11 +74,50 @@ def get_length(root):
     return ans
 
 
-CHARS_PER_PAGE = 1000
+CHARS_PER_LINE = 70
+LINES_PER_PAGE = 36
+CHARS_PER_PAGE = CHARS_PER_LINE * LINES_PER_PAGE
 
 
 def get_page_count(root):
-    return get_length(root) // CHARS_PER_PAGE
+    '''Emulate lines rendering of the content to return the page count.'''
+    head_map = {
+        XHTML('h1'): (30, 2),
+        XHTML('h2'): (40, 2),
+        XHTML('h3'): (50, 2),
+        XHTML('h4'): (60, 2),
+        XHTML('h5'): (70, 2),
+        XHTML('h6'): (70, 1),
+    }
+    blocks = {
+        XHTML('body'),
+        XHTML('p'),
+        XHTML('div'),
+        XHTML('li'),
+        XHTML('th'),
+        XHTML('td'),
+        XHTML('pre'),
+        XHTML('section'),
+        XHTML('article'),
+    }
+    blocks.update(head_map.keys())
+
+    def count_char(root):
+        ans = get_num_of_significant_chars(root)
+        for elem in root.iterchildren():
+            if elem.tag in blocks:
+                continue
+            ans += count_char(elem)
+        return ans
+
+    def count_line(root):
+        char_num, line_margin = head_map.get(root.tag, (CHARS_PER_LINE, 0))
+        ans = math.ceil(count_char(root) / char_num)
+        if ans > 0:
+            ans += line_margin
+        return ans
+
+    return max(1, sum(count_line(elem) for elem in root.iterdescendants(*blocks)) // LINES_PER_PAGE)
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
@@ -156,7 +196,7 @@ class Server:
     ALGORITHM = 1
 
     def __init__(self, max_jobs_per_worker: int = 2048):
-        self.worker: subprocess.Popoen | None = None
+        self.worker: subprocess.Popen | None = None
         self.tasks_run_by_worker = 0
         self.max_jobs_per_worker = max_jobs_per_worker
 
