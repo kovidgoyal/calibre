@@ -804,7 +804,10 @@ def width_from_size(sz: int) -> float:
     return base_log(normalised_size(sz))
 
 
-def get_spine_width(book_id: int, db: Cache, spine_size_template: str, template_cache: dict[str, str], lc: LayoutConstraints, cache: dict[int, int]) -> int:
+def get_spine_width(
+    book_id: int, db: Cache, spine_size_template: str, template_cache: dict[str, str],
+    lc: LayoutConstraints, cache: dict[int, int]
+) -> int:
     if (ans := cache.get(book_id)) is not None:
         return ans
 
@@ -866,6 +869,8 @@ class BookCase(QObject):
         self._book_id_to_row_map: dict[int, int] = {}
         self.book_id_visual_order_map: dict[int, int] = {}
         self.book_ids_in_visual_order: list[int] = []
+        self.num_of_books_that_need_pages_counted = 0
+        self.using_page_counts = False
         self.queue: LifoQueue[LayoutPayload] = LifoQueue()
         self.lock = RLock()
         self.current_invalidate_event = Event()
@@ -932,6 +937,8 @@ class BookCase(QObject):
             self.group_field_name = group_field_name
             self.items = []
             self.height = 0
+            self.using_page_counts = False
+            self.num_of_books_that_need_pages_counted = 0
             self.layout_constraints = layout_constraints
             self.book_id_visual_order_map: dict[int, int] = {}
             self.book_ids_in_visual_order = []
@@ -1004,6 +1011,7 @@ class BookCase(QObject):
                 return
             self.num_of_groups = num_of_groups
         self.num_of_groups_changed.emit()
+        num_of_books_that_need_pages_counted = db.num_of_books_that_need_pages_counted()
         for group_name, book_ids_in_group in group_iter:
             if invalidate.is_set():
                 return
@@ -1015,7 +1023,8 @@ class BookCase(QObject):
                 if invalidate.is_set():
                     return
                 try:
-                    spine_width = get_spine_width(book_id, db, spine_size_template, template_cache, lc, self.spine_width_cache)
+                    spine_width = get_spine_width(
+                        book_id, db, spine_size_template, template_cache, lc, self.spine_width_cache)
                 except Exception:
                     spine_width = lc.default_spine_width
                 if not current_case_item.add_book(book_id, spine_width, group_name, lc):
@@ -1031,6 +1040,8 @@ class BookCase(QObject):
             if invalidate.is_set():
                 return
             self.layout_finished = True
+            self.num_of_books_that_need_pages_counted = num_of_books_that_need_pages_counted
+            self.using_page_counts = spine_size_template in ('{pages}', 'pages')
             if len(self.items) > 1:
                 self.shelf_added.emit(self.items[-2], self.items[-1])
 
@@ -1250,8 +1261,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.resize_debounce_timer = t = QTimer(self)
         t.timeout.connect(self.resize_debounced)
-        t.setSingleShot(True)
-        t.setInterval(200)
+        t.setSingleShot(True), t.setInterval(200)
+        self.pages_count_update_check_timer = t = QTimer(self)
+        t.timeout.connect(self.check_pages_count_update)
+        t.setSingleShot(True), t.setInterval(2000)
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -1349,6 +1362,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return False
 
     def shutdown(self):
+        self.resize_debounce_timer.stop()
+        self.pages_count_update_check_timer.stop()
         self.cover_cache.shutdown()
         self.bookcase.shutdown()
         self.expanded_cover.invalidate()
@@ -1446,10 +1461,25 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.update_scrollbar_ranges()
         self.update_viewport()
 
+    def check_for_pages_update(self):
+        # If there are a lot of books with pages yet to be counted, re-layout
+        # once all have been counted
+        if self.bookcase.num_of_books_that_need_pages_counted > 10 and self.bookcase.using_page_counts:
+            self.pages_count_update_check_timer.start()
+
+    def check_pages_count_update(self):
+        if (db := self.dbref()):
+            num_of_books_that_need_pages_counted = db.new_api.num_of_books_that_need_pages_counted()
+            if num_of_books_that_need_pages_counted:
+                self.pages_count_update_check_timer.start()
+            else:
+                self.invalidate()
+
     def on_shelf_layout_done(self, books: CaseItem, shelf: CaseItem) -> None:
         if self.view_is_visible():
             if self.bookcase.layout_finished:
                 self.update_scrollbar_ranges()
+                self.check_for_pages_update()
             y = books.start_y
             height = books.height + shelf.height
             r = self.viewport().rect()

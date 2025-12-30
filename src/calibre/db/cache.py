@@ -1760,6 +1760,12 @@ class Cache:
                 ans.add(book_id)
         return ans
 
+    @read_api
+    def num_of_books_that_need_pages_counted(self) -> int:
+        for (ans,) in self.backend.execute('SELECT COUNT(*) FROM books_pages_link WHERE needs_scan=1'):
+            return ans
+        return 0
+
     @write_api
     def mark_for_pages_recount(self, book_id: int = 0) -> None:
         ' Mark all books for recount of pages '

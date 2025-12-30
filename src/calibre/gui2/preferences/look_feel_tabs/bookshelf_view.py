@@ -70,6 +70,8 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             db = self.gui.current_db.new_api
             db.mark_for_pages_recount()
             db.queue_pages_scan()
+            self.gui.library_view.model().zero_page_cache.clear()
+            self.gui.bookshelf_view.invalidate()
 
     def edit_template_button(self, line_edit):
         rows = self.gui.library_view.selectionModel().selectedRows()
