@@ -44,7 +44,6 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 <p>The template used to calculate a width for the displayed spine.
 The template must evaluate to a decimal number between 0.0 and 1.0, which will be used to set the width of the books spine.
 An empty template means a fixed spine size for all books.
-An empty template means a fixed spine size for all books.
 <p>The special template {2} calculates the number of pages in the book and uses that. Note that
 the page size calculation happens in the background, so until the count is completed, the
 book size is used as a proxy.
