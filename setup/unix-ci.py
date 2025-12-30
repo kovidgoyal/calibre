@@ -84,6 +84,7 @@ def do_print_crash_reports() -> None:
         while time.monotonic() < end_time:
             time.sleep(1)
             items = glob.glob(os.path.join(os.path.expanduser('~/Library/Logs/DiagnosticReports'), 'python*.ips'))
+            print(os.listdir(os.path.expanduser('~/Library/Logs/DiagnosticReports')))
             if items:
                 break
         if items:
