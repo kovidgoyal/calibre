@@ -935,8 +935,16 @@ class BooksView(TableView):  # {{{
             cmap[c] = i
             if c != 'ondevice':
                 h.setSectionHidden(i, c in hidden)
-        if 'pages' not in hidden:
-            self.model().db.new_api.queue_pages_scan()
+        db = self.model().db
+        if hasattr(db, 'new_api'):
+            pages_shown_in_book_details = False
+            if dbf := db.new_api.pref('book_display_fields'):
+                for fname, shown in dbf:
+                    if fname == 'pages':
+                        pages_shown_in_book_details = shown
+                        break
+            if pages_shown_in_book_details or 'pages' not in hidden:
+                db.new_api.queue_pages_scan()
 
         positions = state.get('column_positions', {})
         pmap = {}
