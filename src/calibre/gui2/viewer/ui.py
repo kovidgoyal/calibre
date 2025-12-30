@@ -660,7 +660,7 @@ class EbookViewer(MainWindow):
             with open(path, 'rb') as f:
                 raw = f.read()
             merge_annotations(parse_annotations(raw), amap)
-        path = os.path.join(annotations_dir, self.current_book_data['annotations_path_key'])
+        path = os.path.join(annotations_dir(), self.current_book_data['annotations_path_key'])
         if os.path.exists(path):
             with open(path, 'rb') as f:
                 raw = f.read()
