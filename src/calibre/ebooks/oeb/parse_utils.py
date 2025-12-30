@@ -13,6 +13,7 @@ from calibre import force_unicode, xml_replace_entities
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
 from calibre.utils.xml_parse import safe_html_fromstring, safe_xml_fromstring
+from calibre_extensions.speedup import barename, namespace
 
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 XMLNS_NS     = 'http://www.w3.org/2000/xmlns/'
@@ -23,16 +24,6 @@ class NotHTML(Exception):
     def __init__(self, root_tag):
         Exception.__init__(self, 'Data is not HTML')
         self.root_tag = root_tag
-
-
-try:
-    from calibre_extensions.speedup import barename, namespace
-except ImportError:
-    def barename(name: str) -> str:
-        return name.rpartition('}')[-1]
-
-    def namespace(name: str) -> str:
-        return name.rpartition('}')[0][1:]
 
 
 def XHTML(name):
