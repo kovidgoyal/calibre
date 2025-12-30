@@ -16,7 +16,11 @@ class PageCountTest(BaseTest):
 
     def test_page_count(self):
         from calibre.library.page_count import test_page_count
-        test_page_count()
+        test_page_count(self)
+
+    def test_line_counting(self):
+        from calibre.library.page_count import test_line_counting
+        test_line_counting(self)
 
 
 def test_page_count_in_db(self: BaseTest) -> None:

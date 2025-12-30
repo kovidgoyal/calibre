@@ -796,7 +796,7 @@ def base_log(f: float, b: float = 10) -> float:
     return math.log(1+max(0, min(f, 1))*b, b+1)
 
 
-def width_from_pages(pages: int, num_of_pages_for_max_width: int = 2000) -> float:
+def width_from_pages(pages: int, num_of_pages_for_max_width: int = 1500) -> float:
     return base_log(pages/num_of_pages_for_max_width)
 
 

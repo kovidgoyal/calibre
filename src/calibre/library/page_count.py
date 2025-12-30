@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-import math
 import os
 import subprocess
 import sys
 from concurrent.futures import Executor, ThreadPoolExecutor
 from contextlib import closing, suppress
+from math import ceil
 from multiprocessing import Pipe
 from operator import itemgetter
 
@@ -18,12 +18,13 @@ from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
+from calibre.ebooks.oeb.polish.pretty import NON_NAMESPACED_BLOCK_TAGS
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.logging import DevNull
-from calibre_extensions.speedup import get_num_of_significant_chars
+from calibre_extensions.speedup import barename, get_num_of_significant_chars
 
 if iswindows:
     from multiprocessing.connection import PipeConnection as Connection
@@ -79,45 +80,51 @@ LINES_PER_PAGE = 36
 CHARS_PER_PAGE = CHARS_PER_LINE * LINES_PER_PAGE
 
 
-def get_page_count(root):
+head_map = {
+    'h1': (30, 2),
+    'h2': (40, 2),
+    'h3': (50, 2),
+    'h4': (60, 2),
+    'h5': (70, 2),
+    'h6': (70, 1),
+}
+default_head_map_value = CHARS_PER_LINE, 0
+blocks = frozenset(NON_NAMESPACED_BLOCK_TAGS) | frozenset(x.upper() for x in NON_NAMESPACED_BLOCK_TAGS)
+
+
+def count_char(root: etree.Element) -> int:
+    stack: list[etree.Element] = [root]
+    append, pop = stack.append, stack.pop
+    ans = 0
+    while stack:
+        node = pop()
+        ans += get_num_of_significant_chars(node)
+        for elem in node.iterchildren():
+            if not (isinstance(elem.tag, str) and barename(elem.tag) in blocks):
+                append(elem)
+    return ans
+
+
+def count_line(block_elem: etree.Element) -> int:
+    char_num, line_margin = head_map.get(barename(block_elem.tag), default_head_map_value)
+    ans = ceil(count_char(block_elem) / char_num)
+    if ans > 0:
+        ans += line_margin
+    return ans
+
+
+def get_line_count(document_root: etree.Element) -> int:
     '''Emulate lines rendering of the content to return the page count.'''
-    head_map = {
-        XHTML('h1'): (30, 2),
-        XHTML('h2'): (40, 2),
-        XHTML('h3'): (50, 2),
-        XHTML('h4'): (60, 2),
-        XHTML('h5'): (70, 2),
-        XHTML('h6'): (70, 1),
-    }
-    blocks = {
-        XHTML('body'),
-        XHTML('p'),
-        XHTML('div'),
-        XHTML('li'),
-        XHTML('th'),
-        XHTML('td'),
-        XHTML('pre'),
-        XHTML('section'),
-        XHTML('article'),
-    }
-    blocks.update(head_map.keys())
+    ans = 0
+    # Visits every non-block tag twice and every other tag once
+    for elem in document_root.iterdescendants('*'):
+        if barename(elem.tag) in blocks:
+            ans += count_line(elem)
+    return ans
 
-    def count_char(root):
-        ans = get_num_of_significant_chars(root)
-        for elem in root.iterchildren():
-            if elem.tag in blocks:
-                continue
-            ans += count_char(elem)
-        return ans
 
-    def count_line(root):
-        char_num, line_margin = head_map.get(root.tag, (CHARS_PER_LINE, 0))
-        ans = math.ceil(count_char(root) / char_num)
-        if ans > 0:
-            ans += line_margin
-        return ans
-
-    return max(1, sum(count_line(elem) for elem in root.iterdescendants(*blocks)) // LINES_PER_PAGE)
+def get_page_count(root: etree.Element) -> int:
+    return max(1, get_line_count(root) // LINES_PER_PAGE)
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
@@ -193,7 +200,7 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 class Server:
 
-    ALGORITHM = 1
+    ALGORITHM = 2
 
     def __init__(self, max_jobs_per_worker: int = 2048):
         self.worker: subprocess.Popen | None = None
@@ -256,7 +263,22 @@ def worker_main(pipe_fd: int) -> None:
         serve_requests(pipe)
 
 
-def test_page_count() -> None:
+def test_line_counting(self):
+    line = 'a ' * CHARS_PER_LINE
+    h1_line = 'h ' * head_map['h1'][0]
+    def t(doc: str, expected: int):
+        root = parse(doc)
+        self.assertEqual(expected, get_line_count(root), doc)
+    t(f'<p><!--{line}-->{line}<br>{line}', 2)
+    t(f'<body>{line}<script>{line}</script>', 1)
+    t(f'<body>{line}<span>{line}<p>', 2)
+    t(f'<body>{line}<body>{line}', 2)
+    t(f'<h1>{h1_line}<p>{line}', 4)
+    t('<p>', 0), t('<h1>', 0)
+
+
+def test_page_count(self) -> None:
+    test_line_counting(self)
     files = (
         P('quick_start/eng.epub'), P('quick_start/swe.epub'), P('quick_start/fra.epub'),
         P('common-english-words.txt'))
