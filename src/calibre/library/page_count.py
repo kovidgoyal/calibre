@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+import math
 import os
 import subprocess
 import sys
@@ -59,20 +60,60 @@ def count_pages_cb7(pathtoebook: str) -> int:
         return sum(1 for _ in filter(fname_ok, zf.namelist()))
 
 
-def get_length(root):
+def get_length(root: etree.Element):
     ans = 0
     for body in root.iterchildren(XHTML('body')):
-        ans += get_num_of_significant_chars(body)
-        for elem in body.iterdescendants():
-            ans += get_num_of_significant_chars(elem)
+        ans += get_length_element(body)
+    return ans
+
+
+def get_length_element(root: etree.Element):
+    ans = get_num_of_significant_chars(root)
+    for elem in root.iterdescendants():
+        ans += get_num_of_significant_chars(elem)
     return ans
 
 
 CHARS_PER_PAGE = 1000
+CHARS_PER_LINE = 70
+LINES_PER_PAGE = 38
 
 
-def get_page_count(root):
-    return get_length(root) // CHARS_PER_PAGE
+def get_page_count(root: etree.Element):
+    '''Emulate lines rendering of the content to return the page count.'''
+    head_map = {
+        XHTML('h1'): (30, 2),
+        XHTML('h2'): (40, 2),
+        XHTML('h3'): (50, 2),
+        XHTML('h4'): (60, 2),
+        XHTML('h5'): (70, 2),
+        XHTML('h6'): (70, 1),
+    }
+
+    lines = 0
+    for elem in root.iterdescendants(head_map):
+        char_count, line_margin = head_map[elem.tag]
+        lines += math.ceil(get_length_element(elem) / char_count) + line_margin
+
+    div = list(root.iterdescendants(XHTML('div')))
+    para = list(root.iterdescendants(XHTML('p')))
+    # if there are a significant number of <div> (like <div> but not <p>)
+    if len(div) > len(para):
+        para.extend(div)
+
+    for elem in root.iterdescendants(XHTML('li')):
+        if elem.iterdescendants(XHTML('p'), XHTML('div')):
+            continue
+        para.append(elem)
+
+    for elem in para:
+        lines += math.ceil(get_length_element(elem) / CHARS_PER_LINE)
+
+    for elem in root.iterdescendants(XHTML('pre')):
+        # font in <pre> is generally smaller than for <p>
+        lines += math.ceil((elem.text or '').count('\n') * 0.9)
+
+    return max(1, lines // LINES_PER_PAGE)
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
