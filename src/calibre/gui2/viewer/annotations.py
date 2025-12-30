@@ -3,6 +3,7 @@
 
 
 import os
+from functools import lru_cache
 from io import BytesIO
 from operator import itemgetter
 from queue import Queue
@@ -11,14 +12,18 @@ from threading import Thread
 from calibre.db.annotations import annotations_as_copied_list, merge_annot_lists
 from calibre.gui2.viewer.convert_book import update_book
 from calibre.gui2.viewer.integration import save_annotations_list_to_library
-from calibre.gui2.viewer.web_view import viewer_config_dir
 from calibre.srv.render_book import EPUB_FILE_TYPE_MAGIC
 from calibre.utils.serialize import json_dumps, json_loads
 from calibre.utils.zipfile import safe_replace
 from polyglot.binary import as_base64_bytes
 
-annotations_dir = os.path.join(viewer_config_dir, 'annots')
 parse_annotations = json_loads
+
+
+@lru_cache(maxsize=2)
+def annotations_dir():
+    from calibre.gui2.viewer.web_view import viewer_config_dir
+    return os.path.join(viewer_config_dir, 'annots')
 
 
 def annot_list_as_bytes(annots):
@@ -44,7 +49,7 @@ def save_annots_to_epub(path, serialized_annots):
 
 def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, calibre_data):
     annots = annot_list_as_bytes(annotations_list)
-    with open(os.path.join(annotations_dir, annotations_path_key), 'wb') as f:
+    with open(os.path.join(annotations_dir(), annotations_path_key), 'wb') as f:
         f.write(annots)
     if in_book_file and os.access(pathtoebook, os.W_OK):
         before_stat = os.stat(pathtoebook)
