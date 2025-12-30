@@ -244,7 +244,7 @@ def create_profile():
         ans = QWebEngineProfile('viewer-lookup', QApplication.instance())
         ans.setHttpUserAgent(random_user_agent(allow_ie=False))
         setup_profile(ans)
-        js = P('lookup.js', data=True, allow_user_override=False)
+        js = P('lookup.js', data=True, allow_user_override=True)
         insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation))
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
