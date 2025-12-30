@@ -762,12 +762,14 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     elif edit_metadata is not None:
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
         menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
+    menu.addSeparator()
+    book_id = get_gui().library_view.current_id
     if not reindex_fmt_added:
-        menu.addSeparator()
         menu.addAction(_(
-            'Re-index this book for full text searching'), partial(book_info.reindex_fmt, get_gui().library_view.current_id, '')).setIcon(
+            'Re-index this book for full text searching'), partial(book_info.reindex_fmt, book_id, '')).setIcon(
                 QIcon.ic('fts.png'))
-
+    menu.addAction(_('Re-count the pages in this book'), partial(book_info.recount_pages, book_id)).setIcon(
+            QIcon.ic('bookshelf.png'))
     if len(menu.actions()) > 0:
         menu.exec(ev.globalPos())
 # }}}
@@ -1224,6 +1226,11 @@ class BookInfo(HTMLDisplay):
             db.reindex_fts_book(book_id, fmt)
         else:
             db.reindex_fts_book(book_id)
+
+    def recount_pages(self, book_id):
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        db.queue_pages_scan(book_id)
 # }}}
 
 
