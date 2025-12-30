@@ -156,7 +156,7 @@ class Server:
     ALGORITHM = 1
 
     def __init__(self, max_jobs_per_worker: int = 2048):
-        self.worker: subprocess.Popoen | None = None
+        self.worker: subprocess.Popen | None = None
         self.tasks_run_by_worker = 0
         self.max_jobs_per_worker = max_jobs_per_worker
 
