@@ -40,23 +40,28 @@ def count_pages_pdf(pathtoebook: str) -> int:
     return get_page_count(pathtoebook)
 
 
-def count_pages_cbz(pathtoebook: str) -> int:
+def fname_ok_cb(fname):
     from calibre.ebooks.metadata.archive import fname_ok
+    from calibre.libunzip import comic_exts
+    return fname_ok(fname) and fname.rpartition('.')[-1].lower() in comic_exts
+
+
+def count_pages_cbz(pathtoebook: str) -> int:
     from calibre.utils.zipfile import ZipFile
     with closing(ZipFile(pathtoebook)) as zf:
-        return sum(1 for _ in filter(fname_ok, zf.namelist()))
+        return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def count_pages_cbr(pathtoebook: str) -> int:
-    from calibre.ebooks.metadata.archive import RAR, fname_ok
+    from calibre.ebooks.metadata.archive import RAR
     with closing(RAR(pathtoebook)) as zf:
-        return sum(1 for _ in filter(fname_ok, zf.namelist()))
+        return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def count_pages_cb7(pathtoebook: str) -> int:
-    from calibre.ebooks.metadata.archive import SevenZip, fname_ok
+    from calibre.ebooks.metadata.archive import SevenZip
     with closing(SevenZip(pathtoebook)) as zf:
-        return sum(1 for _ in filter(fname_ok, zf.namelist()))
+        return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def get_length(root):
