@@ -77,7 +77,26 @@ else:
         setenv('CALIBRE_ESPEAK_DATA_DIR', '$SW/share/espeak-ng-data')
 
 
-def run(*args, timeout=600):
+def do_print_crash_reports() -> None:
+    print('Printing available crash reports...')
+    if ismacos:
+        end_time = time.monotonic() + 90
+        while time.monotonic() < end_time:
+            time.sleep(1)
+            items = glob.glob(os.path.join(os.path.expanduser('~/Library/Logs/DiagnosticReports'), 'python*.ips'))
+            if items:
+                break
+        if items:
+            time.sleep(1)
+            print(os.path.basename(items[0]))
+            sdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            subprocess.check_call([sys.executable, os.path.join(sdir, '.github', 'workflows', 'macos_crash_report.py'), items[0]])
+    else:
+        run('sh -c "echo bt | coredumpctl debug"')
+    print(flush=True)
+
+
+def run(*args, timeout=600, print_crash_reports: bool = False):
     if len(args) == 1:
         args = shlex.split(args[0])
     print(' '.join(args), flush=True)
@@ -91,6 +110,8 @@ def run(*args, timeout=600):
         p.kill()
 
     if ret != 0:
+        if print_crash_reports:
+            do_print_crash_reports()
         raise SystemExit(ret)
 
 
@@ -126,7 +147,7 @@ def run_python(*args):
     if len(args) == 1:
         args = shlex.split(args[0])
     args = [python] + list(args)
-    return run(*args)
+    run(*args, print_crash_reports=True)
 
 
 def install_linux_deps():
