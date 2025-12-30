@@ -935,8 +935,7 @@ class BooksView(TableView):  # {{{
             cmap[c] = i
             if c != 'ondevice':
                 h.setSectionHidden(i, c in hidden)
-        db = self.model().db
-        if hasattr(db, 'new_api'):
+        if db := getattr(self.model().db, 'new_api', None):
             pages_shown_in_book_details = False
             if dbf := db.new_api.pref('book_display_fields'):
                 for fname, shown in dbf:
