@@ -73,11 +73,13 @@ def get_length(root):
     return ans
 
 
-CHARS_PER_PAGE = 1000
+CHARS_PER_LINE = 70
+LINES_PER_PAGE = 36
+CHARS_PER_PAGE = LINES_PER_PAGE * CHARS_PER_LINE
 
 
 def get_page_count(root):
-    return get_length(root) // CHARS_PER_PAGE
+    return max(1, get_length(root) // CHARS_PER_PAGE)
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
