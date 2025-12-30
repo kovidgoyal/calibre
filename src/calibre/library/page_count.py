@@ -225,11 +225,11 @@ def test_page_count() -> None:
 def develop():
     import time
     paths = sys.argv[1:]
-    with Server(max_jobs_per_worker=2) as s:
-        for x in paths:
-            st = time.monotonic()
-            res = s.count_pages(x)
-            print(x, f'{time.monotonic() - st:.2f}', res, flush=True)
+    executor = ThreadPoolExecutor()
+    for x in paths:
+        st = time.monotonic()
+        res = count_pages(x, executor)
+        print(x, f'{time.monotonic() - st:.2f}', res, flush=True)
 
 
 if __name__ == '__main__':
