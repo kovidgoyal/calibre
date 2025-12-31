@@ -1782,16 +1782,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided_text)
         painter.restore()
 
-    def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail):
-        if gprefs['bookshelf_thumbnail'] == 'none':
-            return
-        # Adjust size
-        if gprefs['bookshelf_thumbnail'] == 'crops':
-            thumbnail = thumbnail.copy(0, 0, rect.width(), thumbnail.height())
-        elif gprefs['bookshelf_thumbnail'] == 'edge':
-            width = round(max(10, rect.width() * 0.2))
-            thumbnail = thumbnail.copy(0, 0, width, thumbnail.height())
-            rect = QRect(rect.x(), rect.y(), width, rect.height())
+    def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail: PixmapWithDominantColor) -> None:
+        match gprefs['bookshelf_thumbnail']:
+            case 'none':
+                return
+            # Adjust size
+            case 'crops':
+                thumbnail = thumbnail.copy(0, 0, rect.width(), thumbnail.height())
+            case 'edge':
+                width = round(max(10, rect.width() * 0.2))
+                thumbnail = thumbnail.copy(0, 0, width, thumbnail.height())
+                rect = QRect(rect.x(), rect.y(), width, rect.height())
         # Draw with opacity
         painter.save()
         painter.setOpacity(0.3)  # 30% opacity

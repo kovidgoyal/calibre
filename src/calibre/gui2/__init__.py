@@ -493,14 +493,14 @@ def create_defs():
     defs['bookshelf_disk_cache_size'] = 1000
     defs['bookshelf_cache_size_multiple'] = 5
     defs['bookshelf_shadow'] = True
-    defs['bookshelf_thumbnail'] = 'full'
+    defs['bookshelf_thumbnail'] = 'crops'
     defs['bookshelf_variable_height'] = True
     defs['bookshelf_fade_time'] = 400
     defs['bookshelf_hover'] = 'shift'
 
     # Migrate beta bookshelf_thumbnail
-    if isinstance(gprefs.get('bookshelf_thumbnail', None), bool):
-        gprefs['bookshelf_thumbnail'] = 'full' if gprefs['bookshelf_thumbnail'] else 'none'
+    if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
+        gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
 
     def migrate_tweak(tweak_name, pref_name):
         # If the tweak has been changed then leave the tweak in the file so
