@@ -732,8 +732,8 @@ class CaseItem:
                     left_shift += extra
             else:
                 right_shift += extra
-        for i, item in enumerate(self.items):
-            if gprefs['bookshelf_hover'] == 'shift':
+        if gprefs['bookshelf_hover'] == 'shift':
+            for i, item in enumerate(self.items):
                 if i < shelf_item.idx:
                     if left_shift:
                         item = item._replace(start_x=item.start_x - left_shift)
@@ -741,10 +741,14 @@ class CaseItem:
                     item = item._replace(start_x=item.start_x - left_shift, width=width)
                 elif right_shift:
                     item = item._replace(start_x=item.start_x + right_shift)
-            elif gprefs['bookshelf_hover'] == 'above' and i == shelf_item.idx:
-                item = item._replace(start_x=item.start_x - left_shift, width=width)
-            ans.items.append(item)
-            ans.width = item.start_x + item.width
+                elif i == shelf_item.idx and gprefs['bookshelf_hover'] == 'above':
+                    item = item._replace(start_x=item.start_x - left_shift, width=width)
+                ans.items.append(item)
+                ans.width = item.start_x + item.width
+        else:
+            ans.items = self.items[:]
+            item = ans.items[shelf_item.idx]
+            ans.items[shelf_item.idx] = item._replace(start_x=item.start_x - left_shift, width=width)
         return ans
 
 
