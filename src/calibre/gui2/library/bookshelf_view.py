@@ -69,7 +69,7 @@ from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, is_dark_theme
-from calibre.gui2.library.alternate_views import handle_shift_click, handle_shift_drag, selection_for_rows, setup_dnd_interface
+from calibre.gui2.library.alternate_views import ClickStartData, handle_selection_click, handle_selection_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
@@ -1291,6 +1291,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Selection tracking
         self._selection_model: QItemSelectionModel = QItemSelectionModel(None, self)
         self.selectionModel().selectionChanged.connect(self.update_viewport)
+        self.click_start_data: ClickStartData | None = None
 
         # Cover loading and caching
         self.expanded_cover = ExpandedCover(self)
@@ -1980,7 +1981,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         target_index = m.index(self.bookcase.book_id_to_row_map[target_book_id], 0)
         sm = self.selectionModel()
         if has_shift:
-            handle_shift_click(self, target_index, self.bookcase.visual_row_cmp, self.selection_between)
+            handle_selection_click(self, target_index, self.bookcase.visual_row_cmp, self.selection_between)
         elif has_ctrl:
             sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Toggle)
         else:
@@ -2016,8 +2017,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def handle_mouse_move_event(self, ev: QMouseEvent):
         ev.accept()
-        if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and ev.buttons() & Qt.MouseButton.LeftButton:
-            handle_shift_drag(self, self.indexAt(ev.pos()), self.bookcase.visual_row_cmp, self.selection_between)
+        if ev.buttons() & Qt.MouseButton.LeftButton:
+            handle_selection_drag(self, self.indexAt(ev.pos()), self.click_start_data, self.bookcase.visual_row_cmp, self.selection_between)
             return
         if gprefs['bookshelf_hover'] == 'none':
             return
@@ -2042,19 +2043,19 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if modifiers & Qt.KeyboardModifier.ControlModifier:
             # Toggle selection
             sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.Toggle)
-        elif modifiers & Qt.KeyboardModifier.ShiftModifier:
-            handle_shift_click(self, index, self.bookcase.visual_row_cmp, self.selection_between)
         else:
-            # Single selection
-            sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            if not modifiers & Qt.KeyboardModifier.ShiftModifier:
+                sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            self.click_start_data = handle_selection_click(self, index, self.bookcase.visual_row_cmp, self.selection_between)
         ev.accept()
 
     def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
-        pass
+        self.click_start_data = None
 
     def mouseDoubleClickEvent(self, ev: QMouseEvent) -> bool:
         '''Handle mouse double-click events on the viewport.'''
         index = self.indexAt(ev.pos())
+        self.click_start_data = None
         if index.isValid() and (row := index.row()) >= 0:
             # Set as current row first
             self.set_current_row(row)
