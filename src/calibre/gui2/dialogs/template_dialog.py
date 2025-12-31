@@ -487,7 +487,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
-                 for_bookshelf=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
                  global_vars=None, all_functions=None, builtin_functions=None,
                  python_context_object=None, dialog_number=None, kwargs=None,
@@ -516,8 +515,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
-        self.for_bookshelf = for_bookshelf
-        self.required_txt = self.coloring or self.iconing or self.embleming or self.for_bookshelf
+        self.required_txt = self.coloring or self.iconing or self.embleming
         self.dialog_is_st_editor = dialog_is_st_editor
         self.global_vars = global_vars or {}
         self.python_context_object = python_context_object or PythonTemplateContext()
@@ -538,15 +536,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.color_layout.setVisible(False)
         self.icon_layout.setVisible(False)
 
-        if self.coloring or self.for_bookshelf:
+        if self.coloring:
             self.color_layout.setVisible(True)
             for n1, k1 in cols:
                 self.colored_field.addItem(n1 +
                        (' (' + k1 + ')' if k1 != color_row_key else ''), k1)
             self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
-            if self.for_bookshelf:
-                self.colored_field_label.setVisible(False)
-                self.colored_field.setVisible(False)
         elif self.iconing or self.embleming:
             self.icon_layout.setVisible(True)
             self.icon_select_layout.setContentsMargins(0, 0, 0, 0)
@@ -1221,8 +1216,6 @@ def evaluate(book, context):
                          str(self.icon_field.itemData(
                                 self.icon_field.currentIndex()) or ''),
                          txt)
-        elif self.for_bookshelf:
-            self.rule = ('bookshelf_color', color_row_key, txt)
         elif self.embleming:
             self.rule = ('icon', 'title', txt)
         else:

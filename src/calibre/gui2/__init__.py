@@ -1809,7 +1809,3 @@ def resolve_custom_background(name: str ,which='color', for_dark: bool | None = 
 
 def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
     return resolve_custom_background('cover_grid_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
-
-
-def resolve_bookshelf_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
-    return resolve_custom_background('bookshelf_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
