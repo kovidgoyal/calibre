@@ -29,9 +29,20 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r = self.register
 
         r('bookshelf_shadow', gprefs)
-        r('bookshelf_thumbnail', gprefs)
         r('bookshelf_variable_height', gprefs)
         r('bookshelf_fade_time', gprefs)
+
+        r('bookshelf_thumbnail', gprefs, choices=[
+            (_('Full re-sized'), 'full'),
+            (_('Full cropsed'), 'crops'),
+            (_('Edge'), 'edge'),
+            (_('Disable'), 'none'),
+        ])
+        self.opt_bookshelf_thumbnail.setToolTip(_('''\
+<p>The option "Full re-sized" display the full thumbnail and resize it to the spine dimensions.
+<p>The option "Full cropsed" show the thumbnail but don't resize the width to the book spine.
+<p>The option "Edge" display the thumbnail only on a part of spine and fill the rest with color.
+<p>The option "Disable" will render the spine based of the dominant color of the cover.'''))
 
         r('bookshelf_hover', gprefs, choices=[
             (_('Shift books on the shelf to make room'), 'shift'),

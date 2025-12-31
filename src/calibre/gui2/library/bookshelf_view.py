@@ -1722,8 +1722,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.draw_spine_background(painter, spine_rect, spine_color)
 
             # Draw cover thumbnail overlay
-            if gprefs['bookshelf_thumbnail']:
-                self.draw_spine_cover(painter, spine_rect, thumbnail)
+            self.draw_spine_cover(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)
         title = self.render_template_title(spine.book_id)
@@ -1784,6 +1783,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.restore()
 
     def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail):
+        if gprefs['bookshelf_thumbnail'] == 'none':
+            return
+        # Adjust size
+        if gprefs['bookshelf_thumbnail'] == 'crops':
+            thumbnail = thumbnail.copy(0, 0, rect.width(), thumbnail.height())
+        elif gprefs['bookshelf_thumbnail'] == 'edge':
+            width = round(max(10, rect.width() * 0.2))
+            thumbnail = thumbnail.copy(0, 0, width, thumbnail.height())
+            rect = QRect(rect.x(), rect.y(), width, rect.height())
         # Draw with opacity
         painter.save()
         painter.setOpacity(0.3)  # 30% opacity
