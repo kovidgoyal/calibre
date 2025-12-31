@@ -413,7 +413,7 @@ pref_name_map = {
 }
 kind_icons = {'emblem', 'icon'}
 kind_emblems = {'emblem'}
-kind_colors = {'color', 'bookshelf_color'}
+kind_colors = {'color'}
 
 
 def get_template_dialog(parent, rule, field=None, kind=None):
@@ -421,8 +421,6 @@ def get_template_dialog(parent, rule, field=None, kind=None):
         return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, color_field=field)
     if parent.pref_name == 'cover_grid_icon_rules':
         return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, doing_emblem=True)
-    if parent.pref_name == 'bookshelf_color_rules':
-        return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, for_bookshelf=True)
     return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, icon_field_key=field, icon_rule_kind=kind)
 
 
@@ -472,7 +470,7 @@ class RuleEditor(QDialog):  # {{{
 
         self.l4 = l4 = QLabel(_('to:'))
         l.addWidget(l4, 2, 5)
-        if self.rule_kind in kind_emblems or self.rule_kind == 'bookshelf_color':
+        if self.rule_kind in kind_emblems:
             self.column_box.setVisible(False), l4.setVisible(False)
 
         def create_filename_box():
@@ -962,7 +960,7 @@ class RulesModel(QAbstractListModel):  # {{{
                 <p>Advanced rule for column <b>%(col)s</b>:
                 <pre>%(rule)s</pre>
                 ''')%dict(col=col, rule=prepare_string_for_xml(rule))
-            elif self.rule_kind in {'emblem', 'bookshelf_color'}:
+            elif self.rule_kind in {'emblem'}:
                 return _('''
                 <p>Advanced rule:
                 <pre>%(rule)s</pre>
@@ -983,9 +981,6 @@ class RulesModel(QAbstractListModel):  # {{{
         if kind == 'emblem':
             return _('<p>Add the emblem <b>{0}</b> to the cover if the following conditions are met:</p>'
                     '\n<ul>{1}</ul>').format(rule.color, ''.join(conditions))
-        if kind == 'bookshelf_color':
-            return _('<p>Set the statue color to <b>{0}</b> {1} on the book spine if the following conditions are met:</p>'
-                    '\n<ul>{2}</ul>').format(rule.color, sample, ''.join(conditions))
         return _('''\
             <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> %(sample)s
             if the following conditions are met:</p>

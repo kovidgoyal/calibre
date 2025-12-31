@@ -1843,8 +1843,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def set_database(self, newdb, stage=0):
         if stage == 0:
             self.grouping_mode = newdb.new_api.pref('bookshelf_grouping_mode', '')
-            if self.grouping_mode == 'none':  # old stored value
-                self.grouping_mode = ''
 
             # Clear caches when database changes
             self.template_inited = False
