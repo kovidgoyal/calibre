@@ -149,12 +149,19 @@
     <item row="22" column="0">
      <widget class="QLabel" name="label_hover_interact">
       <property name="text">
-       <string>Expand the hovered cover:</string>
+       <string>&amp;Expand the hovered cover:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_hover</cstring>
       </property>
      </widget>
     </item>
     <item row="22" column="1">
-     <widget class="QComboBox" name="opt_bookshelf_hover"/>
+     <widget class="QComboBox" name="opt_bookshelf_hover">
+      <property name="toolTip">
+       <string>Control what happens when the mouse hovers over the spine of a book.</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

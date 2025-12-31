@@ -34,8 +34,8 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_fade_time', gprefs)
 
         r('bookshelf_hover', gprefs, choices=[
-            (_('Above the other books on the row'), 'above'),
-            (_('Shift the other books on the row'), 'shift'),
+            (_('Shift books on the shelf to make room'), 'shift'),
+            (_('Above other books on the shelf'), 'above'),
             (_('Disable'), 'none'),
         ])
 
