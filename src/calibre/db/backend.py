@@ -637,9 +637,13 @@ class DB:
         defs['edit_metadata_ignore_display_order'] = False
         defs['fts_enabled'] = False
         defs['column_tooltip_templates'] = {}
-        defs['bookshelf_grouping_mode'] = 'none'
+        defs['bookshelf_grouping_mode'] = ''
         defs['bookshelf_title_template'] = '{title}'
         defs['bookshelf_spine_size_template'] = '{pages}'
+
+        # Migrate the beta bookshelf_grouping_mode
+        if self.prefs.get('bookshelf_grouping_mode', '') == 'none':
+            self.prefs.set('bookshelf_grouping_mode', '')
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
