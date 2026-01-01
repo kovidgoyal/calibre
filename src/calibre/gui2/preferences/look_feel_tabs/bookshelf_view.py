@@ -39,7 +39,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
             (_('Disable'), 'none'),
         ])
         self.opt_bookshelf_thumbnail.setToolTip(_('''\
-<p><i>Full</i> - shows the full cover n the spine.
+<p><i>Full</i> - shows the full cover on the spine.
 <p><i>Cropped</i> - shows only as much of the cover as will fit on the spine.
 <p><i>Edge</i> - same as <i>Cropped</i> except only part of the spine is covered, the rest is a solid color.
 <p><i>Disable</i> - The spine will be only the dominant color from the cover.'''))
