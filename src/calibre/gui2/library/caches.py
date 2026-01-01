@@ -184,6 +184,7 @@ class ThumbnailRenderer(QObject):
         super().__init__(parent)
         self.dbref = lambda: None
         self.thumbnailer = thumbnailer
+        self.shutting_down = False
         self.disk_cache, self.ram_cache = disk_cache, ram_cache
         self.render_thread = None
         self.ignore_render_requests = Event()
@@ -204,6 +205,7 @@ class ThumbnailRenderer(QObject):
             self.render_thread.start()
 
     def shutdown(self) -> None:
+        self.shutting_down = True
         self.ignore_render_requests.set()
         self.render_queue.shutdown(immediate=True)
         self.disk_cache.shutdown()
@@ -342,7 +344,7 @@ class ThumbnailRenderer(QObject):
         ans = self.ram_cache[book_id]
         if ans is not None:
             return ans
-        if not (db := self.dbref()):
+        if not (db := self.dbref()) or self.shutting_down:
             return None
         thumbnail_as_bytes, cached_timestamp = self.disk_cache[book_id]
         if cached_timestamp is None:  # not in cache
