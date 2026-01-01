@@ -914,10 +914,12 @@ class Cache:
 
     @read_api
     def books_by_year(self, field: str = 'pubdate', restrict_to_books: Iterable[int] | None = None) -> dict[int, set[int]]:
-        if field not in ('pubdate', 'timestamp', 'last_modified'):
-            raise KeyError(f'books_by_year only supports timestamp fields present in the books table, not {field}')
         books_by_year = defaultdict(set)
-        query = f'SELECT CAST(substr({field}, 1, 4) AS INTEGER), id FROM books'
+        m = self.field_metadata[field]
+        value_column = m.get('column') or field
+        table = m.get('table') or 'books'
+        book_col = 'id' if table == 'books' else 'book'
+        query = f'SELECT CAST(substr({value_column}, 1, 4) AS INTEGER), {book_col} FROM {table}'
         if restrict_to_books is None:
             for year, book_id in self.backend.execute(query):
                 books_by_year[year].add(book_id)
@@ -927,20 +929,23 @@ class Cache:
             for i in range(0, len(books), BATCH_SIZE):
                 batch = books[i:i + BATCH_SIZE]
                 placeholders = '?,' * len(batch)
-                for year, book_id in self.backend.execute(query + f' WHERE id IN ({placeholders[:-1]})', batch):
+                for year, book_id in self.backend.execute(query + f' WHERE {book_col} IN ({placeholders[:-1]})', batch):
                     books_by_year[year].add(book_id)
         return dict(books_by_year)
 
     @read_api
     def books_by_month(self, field: str = 'pubdate', restrict_to_books: Iterable[int] | None = None) -> dict[tuple[int, int], set[int]]:
-        if field not in ('pubdate', 'timestamp', 'last_modified'):
-            raise KeyError(f'books_by_year only supports timestamp fields present in the books table, not {field}')
+        m = self.field_metadata[field]
+        value_column = m.get('column') or field
+        table = m.get('table') or 'books'
+        book_col = 'id' if table == 'books' else 'book'
+
         query = f'''
             SELECT
-                CAST(substr({field}, 1, 4) AS INTEGER),
-                CAST(substr({field}, 6, 2) AS INTEGER),
-                id
-            FROM books
+                CAST(substr({value_column}, 1, 4) AS INTEGER),
+                CAST(substr({value_column}, 6, 2) AS INTEGER),
+                {book_col}
+            FROM {table}
         '''
         ans = defaultdict(set)
         if restrict_to_books is None:
@@ -952,7 +957,8 @@ class Cache:
             for i in range(0, len(books), BATCH_SIZE):
                 batch = books[i:i + BATCH_SIZE]
                 placeholders = '?,' * len(batch)
-                for year, month, book_id in self.backend.execute(query + f' WHERE id IN ({placeholders[:-1]})', batch):
+                for year, month, book_id in self.backend.execute(
+                        query + f' WHERE {book_col} IN ({placeholders[:-1]})', batch):
                     ans[(year, month)].add(book_id)
         return dict(ans)
 

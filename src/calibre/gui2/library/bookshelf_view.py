@@ -1890,7 +1890,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         grouping_menu.addSeparator()
         cf = {}
         for field, m in fm.custom_field_metadata(include_composites=False).items():
-            if m['is_category']:
+            if m['is_category'] or m['datatype'] == 'datetime':
                 cf[field] = numeric_sort_key(m['name'])
         for k in all_groupings():
             cf[k] = numeric_sort_key(fm[k])

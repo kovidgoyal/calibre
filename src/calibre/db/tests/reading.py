@@ -473,6 +473,11 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.books_by_month(), {(2011, 8): {1}, (2011, 9): {2, 3}})
         self.assertEqual(cache.books_by_month(restrict_to_books={1,2}), {(2011, 8): {1}, (2011, 9): {2}})
         self.assertEqual(cache.books_by_year(restrict_to_books=range(cache.backend.max_number_of_variables+200)), {2011: {1, 2, 3}})
+        cache.set_field('#date', {3:datetime.datetime(2001, 11, 10).astimezone(utc_tz)})
+        self.assertEqual(cache.books_by_year('#date'), {2011: {1, 2}, 2001:{3}})
+        self.assertEqual(cache.books_by_year('#date', restrict_to_books={1}), {2011: {1}})
+        self.assertEqual(cache.books_by_month('#date'), {(2011, 9): {1, 2}, (2001, 11): {3}})
+        self.assertEqual(cache.books_by_month('#date', restrict_to_books={1,3}), {(2011, 9): {1}, (2001, 11): {3}})
 
     def test_author_sort_for_authors(self):  # {{{
         'Test getting the author sort for authors from the db'
