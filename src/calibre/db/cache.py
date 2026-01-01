@@ -1800,7 +1800,7 @@ class Cache:
                 pages = excluded.pages, algorithm = excluded.algorithm,
                 format = excluded.format, format_size = excluded.format_size,
                 timestamp = excluded.timestamp, needs_scan = excluded.needs_scan;
-        ''', (book_id, pages, algorithm, format, format_size, now))
+        ''', (book_id, int(pages), int(algorithm), format, int(format_size), now))
         self.fields['pages'].table.book_col_map[book_id] = pages
         self._clear_composite_caches((book_id,))
     # }}}
