@@ -648,6 +648,13 @@ class ShelfItem(NamedTuple):
             lc.spine_height - self.reduce_height_by - lc.shelf_gap
         )
 
+    def overlap_length(self, X: 'ShelfItem') -> int:
+        xs, xl = X.start_x, X.width
+        ys, yl = self.start_x, self.width
+        xe = xs + xl
+        ye = ys + yl
+        return max(0, min(xe, ye) - max(xs, ys))
+
 
 class CaseItem:
     start_y: int = 0
@@ -669,6 +676,19 @@ class CaseItem:
             if idx > 0:
                 candidate = self.items[idx-1]
                 if x < candidate.start_x + candidate.width + lc.horizontal_gap:
+                    return candidate
+        return None
+
+    def book_or_divider_at_region(self, region: ShelfItem, lc: LayoutConstraints) -> ShelfItem | None:
+        if self.items:
+            idx = bisect.bisect_right(self.items, region.start_x, key=attrgetter('start_x'))
+            if idx > 0:
+                candidate = self.items[idx-1]
+                if region.start_x < candidate.start_x + candidate.width + lc.horizontal_gap:
+                    if idx < len(self.items):
+                        nc = self.items[idx]
+                        a, b = region.overlap_length(candidate), region.overlap_length(nc)
+                        return candidate if a >= b else nc
                     return candidate
         return None
 
@@ -1104,7 +1124,7 @@ class BookCase(QObject):
         if shelf_idx < 0 or shelf_idx >= num_shelves:
             return 0
         target_shelf = self.items[shelf_idx * 2]
-        if not (target_si := target_shelf.book_or_divider_at_xpos(si.start_x, self.layout_constraints)):
+        if not (target_si := target_shelf.book_or_divider_at_region(si, self.layout_constraints)):
             return 0
         return ans.book_id if (ans := target_shelf.closest_book_to(target_si.idx)) else 0
 # }}}
