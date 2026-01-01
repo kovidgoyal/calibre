@@ -721,13 +721,16 @@ class WritingTest(BaseTest):
             'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index}'})
         cache.close()
         cache = self.init_cache()
+        all_book_ids = cache.all_book_ids()
+        current = {}
 
         def test_invalidate():
-            c = self.init_cache()
-            for bid in cache.all_book_ids():
-                self.assertEqual(cache.field_for('#tc', bid), c.field_for('#tc', bid))
-            c.close()
+            nonlocal current
+            nc = {bid:cache.field_for('#tc', bid) for bid in all_book_ids}
+            self.assertNotEqual(current, nc)
+            current = nc
 
+        current = {bid:cache.field_for('#tc', bid) for bid in all_book_ids}
         cache.set_field('title', {1:'xx', 3:'yy'})
         test_invalidate()
         cache.set_field('series_index', {1:9, 3:11})
