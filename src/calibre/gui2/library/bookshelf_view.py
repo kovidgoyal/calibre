@@ -759,6 +759,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
     ungrouped_name = all_groupings().get(field_name, _('Unknown'))
+    dt = fm.get(field_name, {}).get('datatype')
 
     match field_name:
         case '':
@@ -769,23 +770,25 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
             lm = lang_map()
             formatter = lambda x: lm.get(x, x)  # noqa: E731
             sort_key = lambda x: numeric_sort_key(formatter(x))  # noqa: E731
-        case 'pubdate':
-            year_map = db.books_by_year(field=field_name, restrict_to_books=all_book_ids)
-            get_books_in_group = year_map.__getitem__
-            get_field_id_map = lambda: {x: x for x in year_map}  # noqa: E731
-            sort_key = lambda x: -x  # noqa: E731
-            formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
-        case 'timestamp':
-            lsys = QLocale.system().monthName
-            month_map = db.books_by_month(field=field_name, restrict_to_books=all_book_ids)
-            get_books_in_group = month_map.__getitem__
-            get_field_id_map = lambda: {x: x for x in month_map}  # noqa: E731
-            sort_key = lambda x: (-x[0], -x[1])  # noqa: E731
-            formatter = lambda x: (f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name)  # noqa: E731
-        case field_name if fm.get(field_name, {}).get('datatype') == 'rating':
+        case field_name if dt == 'rating':
             formatter = rating_to_stars
             sort_key = lambda x: -x  # noqa: E731
             ungrouped_name = _('Unrated')
+        case field_name if dt == 'datetime':
+            df = fm[field_name].get('display', {}).get('date_format') or 'dd MMM yyyy'
+            if 'd' in df:
+                lsys = QLocale.system().monthName
+                month_map = db.books_by_month(field=field_name, restrict_to_books=all_book_ids)
+                get_books_in_group = month_map.__getitem__
+                get_field_id_map = lambda: {x: x for x in month_map}  # noqa: E731
+                sort_key = lambda x: (-x[0], -x[1])  # noqa: E731
+                formatter = lambda x: (f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name)  # noqa: E731
+            else:
+                year_map = db.books_by_year(field=field_name, restrict_to_books=all_book_ids)
+                get_books_in_group = year_map.__getitem__
+                get_field_id_map = lambda: {x: x for x in year_map}  # noqa: E731
+                sort_key = lambda x: -x  # noqa: E731
+                formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
 
     field_id_map = get_field_id_map()
     yield '', len(field_id_map)
