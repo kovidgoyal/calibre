@@ -635,6 +635,7 @@ class ShelfItem(NamedTuple):
     reduce_height_by: int = 0
     book_id: int = 0
     group_name: str = ''
+    is_hover_expanded: bool = False
 
     @property
     def is_divider(self) -> bool:
@@ -647,6 +648,9 @@ class ShelfItem(NamedTuple):
             self.width,
             lc.spine_height - self.reduce_height_by - lc.shelf_gap
         )
+
+    def contains(self, x: int, gap: int = 0) -> bool:
+        return self.start_x <= x < self.start_x + self.width + gap
 
     def overlap_length(self, X: 'ShelfItem') -> int:
         xs, xl = X.start_x, X.width
@@ -675,7 +679,13 @@ class CaseItem:
             idx = bisect.bisect_right(self.items, x, key=attrgetter('start_x'))
             if idx > 0:
                 candidate = self.items[idx-1]
-                if x < candidate.start_x + candidate.width + lc.horizontal_gap:
+                if candidate.contains(x, lc.horizontal_gap):
+                    if candidate.is_hover_expanded:
+                        return candidate
+                    if candidate.idx and (prev := self.items[candidate.idx-1]).is_hover_expanded and prev.contains(x):
+                        return prev
+                    if idx < len(self.items) and (n := self.items[idx]).is_hover_expanded and n.contains(x):
+                        return n
                     return candidate
         return None
 
@@ -684,7 +694,7 @@ class CaseItem:
             idx = bisect.bisect_right(self.items, region.start_x, key=attrgetter('start_x'))
             if idx > 0:
                 candidate = self.items[idx-1]
-                if region.start_x < candidate.start_x + candidate.width + lc.horizontal_gap:
+                if candidate.contains(region.start_x, lc.horizontal_gap):
                     if idx < len(self.items):
                         nc = self.items[idx]
                         a, b = region.overlap_length(candidate), region.overlap_length(nc)
@@ -758,7 +768,7 @@ class CaseItem:
                     if left_shift:
                         item = item._replace(start_x=item.start_x - left_shift)
                 elif i == shelf_item.idx:
-                    item = item._replace(start_x=item.start_x - left_shift, width=width)
+                    item = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
                 elif right_shift:
                     item = item._replace(start_x=item.start_x + right_shift)
                 ans.items.append(item)
@@ -766,7 +776,7 @@ class CaseItem:
         else:
             ans.items = self.items[:]
             item = ans.items[shelf_item.idx]
-            ans.items[shelf_item.idx] = item._replace(start_x=item.start_x - left_shift, width=width)
+            ans.items[shelf_item.idx] = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
         return ans
 
 
