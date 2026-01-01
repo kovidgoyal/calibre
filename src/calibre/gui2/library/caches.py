@@ -342,7 +342,7 @@ class ThumbnailRenderer(QObject):
         ans = self.ram_cache[book_id]
         if ans is not None:
             return ans
-        if not (db := self.dbref()):
+        if not (db := self.dbref()) or self.ignore_render_requests.is_set():
             return None
         thumbnail_as_bytes, cached_timestamp = self.disk_cache[book_id]
         if cached_timestamp is None:  # not in cache
