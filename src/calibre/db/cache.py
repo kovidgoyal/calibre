@@ -1789,7 +1789,7 @@ class Cache:
 
     @write_api
     def set_pages(
-        self, book_id: int, pages: int = 0, algorithm: int = 0, format: str = '', format_size: int = ''
+        self, book_id: int, pages: int = 0, algorithm: int = 0, format: str = '', format_size: int = 0,
     ) -> None:
         ' Set page count information for the specified book '
         now = sqlite_datetime(utcnow())
@@ -1802,6 +1802,7 @@ class Cache:
                 timestamp = excluded.timestamp, needs_scan = excluded.needs_scan;
         ''', (book_id, pages, algorithm, format, format_size, now))
         self.fields['pages'].table.book_col_map[book_id] = pages
+        self._clear_composite_caches((book_id,))
     # }}}
 
     @write_api

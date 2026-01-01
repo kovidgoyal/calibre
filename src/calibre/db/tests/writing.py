@@ -718,7 +718,7 @@ class WritingTest(BaseTest):
         ' Test that the composite field cache is properly invalidated on writes '
         cache = self.init_cache()
         cache.create_custom_column('tc', 'TC', 'composite', False, display={
-            'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index}'})
+            'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index} {pages}'})
         cache.close()
         cache = self.init_cache()
         all_book_ids = cache.all_book_ids()
@@ -744,6 +744,10 @@ class WritingTest(BaseTest):
         cache.remove_formats({1:{'FMT1'}})
         test_invalidate()
         cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
+        test_invalidate()
+        cache.set_pages(1, 13)
+        test_invalidate()
+        cache.set_field('pages', {1:11})
         test_invalidate()
         cache.close()
     # }}}
