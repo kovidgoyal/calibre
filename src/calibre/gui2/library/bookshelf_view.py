@@ -2031,21 +2031,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         si = self.bookcase.book_id_to_item_map.get(self.book_id_from_row(index.row()))
         if si is None:
             return
-        scroll_y = self.verticalScrollBar().value()
         viewport_height = self.viewport().height()
-        top = si.case_start_y - scroll_y
+        shelf_height = self.layout_constraints.step_height
         match hint:
             case QAbstractItemView.ScrollHint.PositionAtTop:
                 y = 0
             case QAbstractItemView.ScrollHint.PositionAtBottom:
-                y = max(0, viewport_height - self.layout_constraints.step_height)
+                y = max(0, viewport_height - shelf_height)
             case QAbstractItemView.ScrollHint.PositionAtCenter:
-                y = max(0, (viewport_height - self.layout_constraints.step_height)//2)
+                y = max(0, (viewport_height - shelf_height)//2)
             case QAbstractItemView.ScrollHint.EnsureVisible:
-                if top >= 0 and top + self.layout_constraints.step_height <= viewport_height:
+                top = si.case_start_y - self.verticalScrollBar().value()
+                if top >= 0 and top + shelf_height <= viewport_height:
                     return
-                y = 0
-        self.verticalScrollBar().setValue(si.case_start_y + y)
+                y = 0 if top < 0 else max(0, viewport_height - shelf_height)
+        self.verticalScrollBar().setValue(si.case_start_y - y)
         self.update_viewport()
 
     def selection_between(self, a: QModelIndex, b: QModelIndex) -> QItemSelection:
