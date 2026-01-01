@@ -752,21 +752,19 @@ class CaseItem:
 
 def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, Iterable[int]]]:
     formatter = lambda x: x  # noqa: E731
+    fm = db.field_metadata
     sort_key = numeric_sort_key
     get_books_in_group = lambda group: db.books_for_field(field_name, group)  # noqa: E731
     get_field_id_map = lambda: db.get_id_map(field_name)  # noqa: E731
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
-    ungrouped_name = all_groupings().get(field_name, '')
+    ungrouped_name = all_groupings().get(field_name, _('Unknown'))
 
     match field_name:
         case '':
             yield '', 0
             yield '', book_ids_iter
             return
-        case 'rating':
-            formatter = rating_to_stars
-            sort_key = lambda x: -x  # noqa: E731
         case 'languages':
             lm = lang_map()
             formatter = lambda x: lm.get(x, x)  # noqa: E731
@@ -784,6 +782,10 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
             get_field_id_map = lambda: {x: x for x in month_map}  # noqa: E731
             sort_key = lambda x: (-x[0], -x[1])  # noqa: E731
             formatter = lambda x: (f'{lsys(x[1], QLocale.FormatType.ShortFormat)} {x[0]}' if x[0] > UNDEFINED_DATE.year else ungrouped_name)  # noqa: E731
+        case field_name if fm.get(field_name, {}).get('datatype') == 'rating':
+            formatter = rating_to_stars
+            sort_key = lambda x: -x  # noqa: E731
+            ungrouped_name = _('Unrated')
 
     field_id_map = get_field_id_map()
     yield '', len(field_id_map)
@@ -1870,10 +1872,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def contextMenuEvent(self, ev: QContextMenuEvent):
         # Create menu with grouping options
-        m = QMenu(self)
+        menu = QMenu(self)
 
         # Add grouping submenu
-        grouping_menu = m.addMenu(QIcon.ic('bookshelf.png'), _('Group by'))
+        grouping_menu = menu.addMenu(QIcon.ic('bookshelf.png'), _('Group by'))
         fm = self.gui.current_db.new_api.field_metadata
 
         def add(field: str, name: str) -> None:
@@ -1883,15 +1885,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             action.triggered.connect(partial(self.set_grouping_mode, field))
         add('', _('Ungrouped'))
         grouping_menu.addSeparator()
-        for k in sorted(all_groupings(), key=lambda k: numeric_sort_key(fm[k]['name'])):
+        cf = {}
+        for field, m in fm.custom_field_metadata(include_composites=False).items():
+            if m['is_category']:
+                cf[field] = numeric_sort_key(m['name'])
+        for k in all_groupings():
+            cf[k] = numeric_sort_key(fm[k])
+        for k in sorted(cf, key=cf.get):
             add(k, fm[k]['name'])
         # Add standard context menu items if available
         if cm := self.context_menu:
-            m.addSeparator()
+            menu.addSeparator()
             for action in cm.actions():
-                m.addAction(action)
+                menu.addAction(action)
 
-        m.popup(ev.globalPos())
+        menu.popup(ev.globalPos())
         ev.accept()
 
     def set_grouping_mode(self, mode: str):
