@@ -81,7 +81,10 @@
     <item row="1" column="0">
      <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
       <property name="text">
-       <string>&amp;Write the texts up to down</string>
+       <string>Spine text &amp;downwards</string>
+      </property>
+      <property name="toolTip">
+       <string>Control whether the text shown on book spines goes upwards or downwards</string>
       </property>
      </widget>
     </item>
