@@ -1726,6 +1726,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         painter.save()
         rotate()
+        if gprefs['bookshelf_up_to_down']:
+            painter.rotate(180)
+            text_rect.adjust(max(0, line_rect.width() - 6), 0, 0, 0)
         painter.setFont(font)
         painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
         painter.restore()
@@ -1798,7 +1801,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
         painter.save()
         painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
-        painter.rotate(-90)
+        painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
 
         # Determine text color based on spine background brightness
         text_color = self.get_contrasting_text_color(spine_color)
