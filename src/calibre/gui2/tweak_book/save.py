@@ -33,7 +33,7 @@ def save_container(container, path):
         return save_dir_container(container, path)
     temp = PersistentTemporaryFile(
         prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
-    if hasattr(os, 'fchmod'):
+    if hasattr(os, 'fchown'):
         # Ensure file permissions and owner information is preserved
         fno = temp.fileno()
         st = None
