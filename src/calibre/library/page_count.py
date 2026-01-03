@@ -259,6 +259,8 @@ def serve_requests(pipe: Connection) -> None:
 
 
 def worker_main(pipe_fd: int) -> None:
+    from calibre.utils.formatter import set_template_error_reporter
+    set_template_error_reporter()
     with suppress(KeyboardInterrupt), Connection(pipe_fd, False, True) as pipe:
         serve_requests(pipe)
 

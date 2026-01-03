@@ -10,13 +10,12 @@ __docformat__ = 'restructuredtext en'
 import numbers
 import re
 import string
+import sys
 import traceback
 from collections import OrderedDict
 from functools import lru_cache, partial
 from math import modf
-from sys import exc_info
 
-from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.config import tweaks
@@ -24,6 +23,22 @@ from calibre.utils.formatter_functions import StoredObjectType, formatter_functi
 from calibre.utils.icu import strcmp
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
+
+
+def default_template_error_reporter(e: Exception, fmt, kwargs, book, column_name: str | None):
+    if DEBUG:
+        if tweaks.get('show_stack_traces_in_formatter', False):
+            traceback.print_exc()
+        if column_name:
+            print(f'Error evaluating column {column_name}:', e, file=sys.stderr)
+
+
+template_error_reporter = default_template_error_reporter
+
+
+def set_template_error_reporter(callback=lambda *a: None):
+    global template_error_reporter
+    template_error_reporter = callback
 
 
 class Node:
@@ -1851,7 +1866,7 @@ class TemplateFormatter(string.Formatter):
         except StopException:
             raise
         except Exception as e:
-            stack = traceback.extract_tb(exc_info()[2])
+            stack = traceback.extract_tb(sys.exc_info()[2])
             ss = stack[-1]
             if getattr(e, 'is_internal', False):
                 # Exception raised by FormatterFuncsCaller
@@ -2094,11 +2109,7 @@ class TemplateFormatter(string.Formatter):
             except StopException as e:
                 ans = error_message(e)
             except Exception as e:
-                if DEBUG:
-                    if tweaks.get('show_stack_traces_in_formatter', True):
-                        traceback.print_exc()
-                    if column_name:
-                        prints('Error evaluating column named:', column_name)
+                template_error_reporter(e, fmt, kwargs, book, column_name)
                 ans = error_value + ' ' + error_message(e)
             return ans
         finally:
