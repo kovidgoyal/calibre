@@ -1230,6 +1230,8 @@ class BookInfo(HTMLDisplay):
     def recount_pages(self, book_id):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db.new_api
+        for fmt in db.formats(book_id) or ():
+            db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
         db.queue_pages_scan(book_id)
 # }}}
 
