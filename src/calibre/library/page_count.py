@@ -89,7 +89,8 @@ head_map = {
     'h6': (70, 1),
 }
 default_head_map_value = CHARS_PER_LINE, 0
-blocks = frozenset(NON_NAMESPACED_BLOCK_TAGS) | frozenset(x.upper() for x in NON_NAMESPACED_BLOCK_TAGS)
+blocks = frozenset(NON_NAMESPACED_BLOCK_TAGS) - {'img', 'video'}
+blocks |= frozenset({x.upper() for x in blocks})
 
 
 def count_char(root: etree.Element) -> int:
@@ -100,7 +101,7 @@ def count_char(root: etree.Element) -> int:
         node = pop()
         ans += get_num_of_significant_chars(node)
         for elem in node.iterchildren():
-            if not (isinstance(elem.tag, str) and barename(elem.tag) in blocks):
+            if not isinstance(elem.tag, str) or barename(elem.tag) not in blocks:
                 append(elem)
     return ans
 
@@ -277,6 +278,10 @@ def test_line_counting(self):
     t(f'<body>{line}<body>{line}', 2)
     t(f'<h1>{h1_line}<p>{line}', 4)
     t('<p>', 0), t('<h1>', 0)
+    r = parse('<p><i>abc')
+    self.assertEqual(count_char(r[1][0]), 3)
+    r = parse('<p><img>')
+    self.assertEqual(count_char(r[1][0]), 1000)
 
 
 def test_page_count(self) -> None:
