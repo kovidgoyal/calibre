@@ -922,8 +922,10 @@ class BookCase(QObject):
     def shutdown(self):
         self.current_invalidate_event.set()
         self.current_invalidate_event = Event()
-        self.num_of_groups_changed.disconnect()
-        self.shelf_added.disconnect()
+        with suppress(TypeError):
+            self.num_of_groups_changed.disconnect()
+        with suppress(TypeError):
+            self.shelf_added.disconnect()
         if self.worker is not None:
             self.queue.shutdown(immediate=True)
             w, self.worker = self.worker, None
