@@ -197,6 +197,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             cc = self.field_metadata[key]
             original_key = key
+        print(1111111, key, cc)
 
         self.opt_columns.setSortingEnabled(False)
         item = QTableWidgetItem()
@@ -251,6 +252,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.setItem(row, self.TYPE_COLUMN, item)
 
         desc = cc['display'].get('description', '')
+        if key == 'pages':
+            desc = _('An estimate of the number of pages in the book. Useful only to compare one book against another.')
+        elif key == 'last_modified':
+            desc = _('The timestamp when any metadata associated with this book is modified.'
+                     ' For example if a tag has its case changed, all books with that tag will be modified.')
         item = QTableWidgetItem(desc)
         item.setToolTip(desc)
         item.setFlags(flags)
