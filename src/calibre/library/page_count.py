@@ -201,7 +201,7 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 class Server:
 
-    ALGORITHM = 2
+    ALGORITHM = 3
 
     def __init__(self, max_jobs_per_worker: int = 2048):
         self.worker: subprocess.Popen | None = None
