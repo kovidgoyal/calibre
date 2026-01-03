@@ -608,14 +608,14 @@ class LayoutConstraints(NamedTuple):
     min_spine_width: int = 15
     max_spine_width: int = 60
     default_spine_width: int = 40
-    spine_height: int = 150
+    spine_height: int = 180
     shelf_height: int = 20
     divider_width: int = 30
     horizontal_gap: int = 2
     shelf_gap: int = 20
     width: int = 0
     side_margin: int = 4
-    hover_expanded_width: int = 110
+    hover_expanded_width: int = 140
 
     @property
     def step_height(self) -> int:
