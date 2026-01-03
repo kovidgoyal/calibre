@@ -1057,7 +1057,7 @@ class Cache:
         raise KeyError(f'No book with id {book_id!r} found in the library')
 
     @read_api
-    def author_data(self, author_ids=None):
+    def author_data(self, author_ids=None) -> dict[int, dict[str, str]]:
         '''
         Return author data as a dictionary with keys: name, sort, link
 

@@ -796,6 +796,17 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
             yield '', 0
             yield '', book_ids_iter
             return
+        case 'authors':
+            def get_authors_field_id_map() -> dict[int, str]:
+                field_id_map = db.get_id_map('authors')
+                author_sort_map = db.author_data(field_id_map)
+                def gas(aid: int, au: str) -> str:
+                    try:
+                        return author_sort_map[aid]['sort']
+                    except Exception:
+                        return au
+                return {aid: gas(aid, au) for aid, au in field_id_map.items()}
+            get_field_id_map = get_authors_field_id_map
         case 'languages':
             lm = lang_map()
             formatter = lambda x: lm.get(x, x)  # noqa: E731
@@ -821,14 +832,6 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
                 formatter = lambda x: str(x) if x > UNDEFINED_DATE.year else ungrouped_name  # noqa: E731
 
     field_id_map = get_field_id_map()
-    if field_name == 'authors':
-        author_sort_map = db.author_data(field_id_map)
-        def gas(aid: int, au: str) -> str:
-            try:
-                return author_sort_map[aid]['sort']
-            except Exception:
-                return au
-        field_id_map = {aid: gas(aid, au) for aid, au in field_id_map.items()}
     yield '', len(field_id_map)
     seen = set()
     for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):
