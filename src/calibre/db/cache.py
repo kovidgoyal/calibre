@@ -2992,7 +2992,8 @@ class Cache:
         # result to the db, so holding a lock here will cause a deadlock
         if self.fts_queue_thread is not None:
             t, self.fts_queue_thread = self.fts_queue_thread, None
-            t.join()
+            if not sys.is_finalizing():
+                t.join()
         self.backend.join_fts()
 
     @api
