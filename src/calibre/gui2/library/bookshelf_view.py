@@ -1956,6 +1956,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             _, cover_img = resize_to_fit(cover_img, sz.width(), sz.height())
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
+            tb = self.cover_cache.thumbnail_as_pixmap(si.book_id)
+            if tb and tb.dominant_color.isValid():
+                # ensure that the hover color is the same than the thumbnail/spine
+                cover_pixmap.dominant_color = tb.dominant_color
         final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
         return cover_pixmap, final_sz
 
