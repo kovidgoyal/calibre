@@ -1781,16 +1781,26 @@ class Cache:
             self.backend.execute('UPDATE books_pages_link SET needs_scan=1')
 
     @write_api
-    def queue_pages_scan(self, book_id: int = 0) -> None:
+    def queue_pages_scan(self, book_id: int = 0, force: bool = False) -> None:
         '''
         Start a scan updating page counts for all books that need a scan.
         If book_id is specified, then only that book is scanned and it is always scanned.
+        When `force` is True, the existing pages value, if any, is discarded so that
+        the book is forcibly rescanned even if the existing value was up-to-date.
         '''
+        book_id = int(book_id)
         if book_id <= 0:
+            if force:
+                self.backend.execute('DELETE FROM books_pages_link')
+                self.fields['pages'].table.book_col_map.clear()
             if len(self.fields['pages'].table.book_col_map) < len(self.fields['uuid'].table.book_col_map):
                 self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book,needs_scan) SELECT id,1 FROM books')
+        elif force:
+            self.backend.execute(f'DELETE FROM books_pages_link WHERE book={book_id}')
+            self.fields['pages'].table.book_col_map.pop(book_id, None)
+            self.backend.execute(f'INSERT INTO books_pages_link(book,needs_scan) VALUES ({book_id},1)')
         else:
-            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={int(book_id)}')
+            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={book_id}')
         self.maintain_page_counts.queue_scan(book_id)
 
     @write_api

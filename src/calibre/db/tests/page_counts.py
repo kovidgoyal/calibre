@@ -70,3 +70,13 @@ def test_page_count_in_db(self: BaseTest) -> None:
     self.ae(status(), {(1,0),(-1,0)})
     p = db.get_pages(1)
     self.ae(p, Pages(1, p.algorithm, 'PDF', len(sample_pdf_data()), p.timestamp))
+    # test forced re-scan
+    db.maintain_page_counts.tick_event.clear()
+    db.queue_pages_scan(1, force=True)
+    db.maintain_page_counts.tick_event.wait()
+    self.ae(3, len(counted))
+    # test full force
+    db.maintain_page_counts.tick_event.clear()
+    db.queue_pages_scan(force=True)
+    db.maintain_page_counts.tick_event.wait()
+    self.ae(4, len(counted))
