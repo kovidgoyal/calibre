@@ -1311,7 +1311,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         super().__init__(gui)
         self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
         self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
+
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
+        self.min_font_size = 0.75 * self.base_font_size_pts
+        self.max_font_size = 1.3 * self.base_font_size_pts
+
         self.gui = gui
         self._model: BooksModel | None = None
         self.context_menu: QMenu | None = None
@@ -1375,10 +1379,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         default = LayoutConstraints()
         hr = lc.spine_height / default.spine_height
         lc = lc._replace(
-            min_spine_width=int(default.min_spine_width * hr),
-            max_spine_width=int(default.max_spine_width * hr),
-            default_spine_width=int(default.default_spine_width * hr),
-            hover_expanded_width=int(default.hover_expanded_width * hr)
+            min_spine_width=math.ceil(default.min_spine_width * hr),
+            max_spine_width=math.ceil(default.max_spine_width * hr),
+            default_spine_width=math.ceil(default.default_spine_width * hr),
+            hover_expanded_width=math.ceil(default.hover_expanded_width * hr)
         )
         self.layout_constraints = lc
 
@@ -1702,7 +1706,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.restore()
 
     @lru_cache(maxsize=128)
-    def get_sized_font(self, sz: float = 0, bold: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
+    def get_sized_font(self, sz: float = 9, bold: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
         font = QFont(self.font())
         font.setPointSizeF(sz)
         font.setBold(bold)
@@ -1712,30 +1716,33 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def get_text_metrics(
         self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False,
     ) -> tuple[str, str, QFont]:
-        min_font_size = 0.75 * self.base_font_size_pts
-        max_font_size = 1.3 * self.base_font_size_pts
-        height = sz.height() // (2 if second_line else 1)
+        height = sz.height()
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
         # First adjust font size so that lines fit vertically
-        if fm.lineSpacing() < height:
-            while font.pointSizeF() < max_font_size:
+        # Use height() rather than lineSpacing() as it allows for slightly
+        # larger font sizes
+        if fm.height() < height:
+            while font.pointSizeF() < self.max_font_size:
                 q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, bold)
-                if qm.lineSpacing() < height:
+                if qm.height() < height:
                     font, fm = q, qm
                 else:
                     break
-        elif fm.lineSpacing() > height:
-            while fi.pointSizeF() > min_font_size:
-                font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, bold)
+        else:
+            while fm.height() > height:
+                nsz = font.pointSizeF()
+                if nsz < self.min_font_size and second_line:
+                    return '', '', font
+                font, fm, fi = self.get_sized_font(font.pointSizeF() - 0.5, bold)
 
         # Now reduce the font size as much as needed to fit within width
         width = sz.width()
         text = first_line
         if second_line and fm.boundingRect(first_line).width() < fm.boundingRect(second_line).width():
             text = second_line
-        while fi.pointSizeF() > min_font_size and fm.boundingRect(text).width() > width:
+        while fi.pointSizeF() > self.min_font_size and fm.boundingRect(text).width() > width:
             font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, bold)
-        if fi.pointSizeF() <= min_font_size:
+        if fi.pointSizeF() <= self.min_font_size:
             first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
             if second_line:
                 second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
@@ -1807,13 +1814,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Draw cover thumbnail overlay
             self.draw_spine_cover(painter, spine_rect, thumbnail)
 
-        # Draw title (rotated vertically)
-        self.draw_spine_title(painter, spine_rect, spine_color, spine.book_id)
-
         # Draw selection highlight around the spine
         color = self.selection_highlight_color(is_selected, is_current)
         if color.isValid():
             self.draw_selection_highlight(painter, spine_rect, color)
+
+        # Draw title (rotated vertically)
+        self.draw_spine_title(painter, spine_rect, spine_color, spine.book_id)
 
     def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
         if is_current and is_selected:
@@ -1851,7 +1858,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             second_rect = first_rect.translated(first_rect.width(), 0)
         else:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
-        first_line, second_line, font  = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+        nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+        if not nfl and not nsl:
+            second_line = ''
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
+            nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+        first_line, second_line, = nfl, nsl
 
         painter.save()
         # Determine text color based on spine background brightness
