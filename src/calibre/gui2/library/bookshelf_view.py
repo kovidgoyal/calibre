@@ -1306,6 +1306,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     DIVIDER_GRADIENT_LINE_2 = DIVIDER_LINE_COLOR.toRgb()
     DIVIDER_GRADIENT_LINE_1.setAlphaF(0.0)  # Transparent at top/bottom
     DIVIDER_GRADIENT_LINE_2.setAlphaF(0.75)  # Visible in middle
+    TEXT_MARGIN = 6
 
     def __init__(self, gui):
         super().__init__(gui)
@@ -1770,7 +1771,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         divider_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
 
         # Bottom margin
-        text_rect = divider_rect.adjusted(8, 0, 0, 0)
+        text_rect = divider_rect.adjusted(self.TEXT_MARGIN, 0, 0, 0)
         elided_text, _, font = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
@@ -1867,7 +1868,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw vertically the title on the spine.'''
         first_line = self.render_template_title(book_id)
         second_line = self.render_author_template(book_id)
-        margin = 6
+        margin = self.TEXT_MARGIN
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
             second_rect = first_rect.translated(first_rect.width(), 0)
