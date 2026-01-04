@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>607</width>
-    <height>316</height>
+    <height>336</height>
    </rect>
   </property>
   <property name="currentIndex">
@@ -17,8 +17,125 @@
    <attribute name="title">
     <string>&amp;Layout</string>
    </attribute>
-   <layout class="QGridLayout" name="bookshelf_grid">
-    <item row="21" column="1">
+   <layout class="QFormLayout" name="formLayout_2">
+    <property name="fieldGrowthPolicy">
+     <enum>QFormLayout::ExpandingFieldsGrow</enum>
+    </property>
+    <item row="0" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_shadow">
+        <property name="text">
+         <string>Show &amp;shadow for hovered cover</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_variable_height">
+        <property name="text">
+         <string>Variable book &amp;height</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
+        <property name="toolTip">
+         <string>Control whether the text shown on book spines goes upwards or downwards</string>
+        </property>
+        <property name="text">
+         <string>Spine text &amp;downwards</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_bookshelf_thumbnail">
+      <property name="text">
+       <string>Cover &amp;thumbnail on the spines:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_thumbnail</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_thumbnail"/>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_title">
+      <property name="text">
+       <string>Template for spine &amp;title:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_title_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLineEdit" name="opt_bookshelf_title_template">
+        <property name="toolTip">
+         <string>&lt;p&gt;The template used to generate the text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="template_title_button">
+        <property name="text">
+         <string>Template &amp;editor</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_pages">
+      <property name="text">
+       <string>Template for spine &amp;width:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_spine_size_template</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
+        <property name="toolTip">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="template_pages_button">
+        <property name="text">
+         <string>Template &amp;editor</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="1">
+     <widget class="QPushButton" name="use_pages_button">
+      <property name="text">
+       <string>Use a custom &amp;pages column</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_fade_time">
+      <property name="text">
+       <string>Duration of hover &amp;animation</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_fade_time</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_fade_time">
       <property name="specialValueText">
        <string>Disable</string>
@@ -37,75 +154,24 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="2">
-     <widget class="QPushButton" name="template_title_button">
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_hover_interact">
       <property name="text">
-       <string>Template &amp;editor</string>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="1">
-     <widget class="QPushButton" name="use_pages_button">
-      <property name="text">
-       <string>Use a custom &amp;pages column</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="0">
-     <widget class="QLabel" name="label_bookshelf_thumbnail">
-      <property name="text">
-       <string>Cover &amp;thumbnail on the spines:</string>
+       <string>&amp;Expand the hovered cover:</string>
       </property>
       <property name="buddy">
-       <cstring>opt_bookshelf_thumbnail</cstring>
+       <cstring>opt_bookshelf_hover</cstring>
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
-     <widget class="QComboBox" name="opt_bookshelf_thumbnail"/>
-    </item>
-    <item row="0" column="1">
-     <widget class="QCheckBox" name="opt_bookshelf_variable_height">
-      <property name="text">
-       <string>Variable book &amp;height</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <widget class="QCheckBox" name="opt_bookshelf_shadow">
-      <property name="text">
-       <string>Show &amp;shadow for hovered cover</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
-      <property name="text">
-       <string>Spine text &amp;downwards</string>
-      </property>
+    <item row="7" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_hover">
       <property name="toolTip">
-       <string>Control whether the text shown on book spines goes upwards or downwards</string>
+       <string>Control what happens when the mouse hovers over the spine of a book.</string>
       </property>
      </widget>
     </item>
-    <item row="21" column="0">
-     <widget class="QLabel" name="label_fade_time">
-      <property name="text">
-       <string>&amp;Fade-in time for hovered cover animation:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_fade_time</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="2">
-     <widget class="QPushButton" name="template_pages_button">
-      <property name="text">
-       <string>Template &amp;editor</string>
-      </property>
-     </widget>
-    </item>
-    <item row="29" column="0">
+    <item row="9" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -118,41 +184,7 @@
       </property>
      </spacer>
     </item>
-    <item row="11" column="1">
-     <widget class="QLineEdit" name="opt_bookshelf_title_template">
-      <property name="toolTip">
-       <string>&lt;p&gt;The template used to generate the text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="0">
-     <widget class="QLabel" name="label_pages">
-      <property name="text">
-       <string>Template for spine &amp;width:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_spine_size_template</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="1">
-     <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
-      <property name="toolTip">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="11" column="0">
-     <widget class="QLabel" name="label_title">
-      <property name="text">
-       <string>Template for spine &amp;title:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_title_template</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="20" column="0">
+    <item row="8" column="0" colspan="2">
      <widget class="QPushButton" name="recount_button">
       <property name="toolTip">
        <string>Have calibre re-count the pages in all books in the current library.</string>
@@ -162,20 +194,32 @@
       </property>
      </widget>
     </item>
-    <item row="22" column="0">
-     <widget class="QLabel" name="label_hover_interact">
+    <item row="1" column="0">
+     <widget class="QLabel" name="label">
       <property name="text">
-       <string>&amp;Expand the hovered cover:</string>
+       <string>Shelf &amp;height:</string>
       </property>
       <property name="buddy">
-       <cstring>opt_bookshelf_hover</cstring>
+       <cstring>opt_bookshelf_height</cstring>
       </property>
      </widget>
     </item>
-    <item row="22" column="1">
-     <widget class="QComboBox" name="opt_bookshelf_hover">
+    <item row="1" column="1">
+     <widget class="QSpinBox" name="opt_bookshelf_height">
       <property name="toolTip">
-       <string>Control what happens when the mouse hovers over the spine of a book.</string>
+       <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
+      </property>
+      <property name="specialValueText">
+       <string>Automatic</string>
+      </property>
+      <property name="suffix">
+       <string> px</string>
+      </property>
+      <property name="minimum">
+       <number>119</number>
+      </property>
+      <property name="maximum">
+       <number>1200</number>
       </property>
      </widget>
     </item>

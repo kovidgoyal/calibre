@@ -608,7 +608,7 @@ class LayoutConstraints(NamedTuple):
     min_spine_width: int = 15
     max_spine_width: int = 60
     default_spine_width: int = 40
-    spine_height: int = 150
+    spine_height: int = 200
     shelf_height: int = 20
     divider_width: int = 30
     horizontal_gap: int = 2
@@ -1346,6 +1346,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.layout_constraints = LayoutConstraints()
         self.layout_constraints = self.layout_constraints._replace(width=self.get_available_width())
+        self.grouping_mode = ''
+        self.refresh_settings()
         self.cover_cache = CoverThumbnailCache(
             name='bookshelf-thumbnail-cache', ram_limit=800,
             max_size=gprefs['bookshelf_disk_cache_size'], thumbnailer=ThumbnailerWithDominantColor(),
@@ -1353,15 +1355,27 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         )
         self.cover_cache.rendered.connect(self.update_viewport, type=Qt.ConnectionType.QueuedConnection)
 
-        # Configuration
-        self.grouping_mode = ''
-        self.refresh_settings()
-
         # Cover template caching
         self.template_inited = False
         self.template_cache = {}
         self.template_title = ''
         self.template_title_is_empty = True
+
+    def calculate_shelf_geometry(self) -> None:
+        lc = self.layout_constraints
+        if (h := gprefs['bookshelf_height']) < 120 or h > 1200:
+            screen_height = self.screen().availableSize().height()
+            h = max(100 + lc.shelf_height, screen_height // 3)
+        lc = lc._replace(spine_height=h - lc.shelf_height, width=self.get_available_width())
+        # Keep aspect ratio of spines
+        default = LayoutConstraints()
+        hr = lc.spine_height / default.spine_height
+        lc = lc._replace(
+            min_spine_width=int(default.min_spine_width * hr),
+            max_spine_width=int(default.max_spine_width * hr),
+            default_spine_width=int(default.default_spine_width * hr)
+        )
+        self.layout_constraints = lc
 
     def thumbnail_size(self) -> tuple[int, int]:
         lc = self.layout_constraints
@@ -1404,9 +1418,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
-        self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
-        self.layout_constraints = self.layout_constraints._replace(width=self.get_available_width())
-        self.update_ram_cache_size()
+        self.calculate_shelf_geometry()
+        if hasattr(self, 'cover_cache'):
+            self.cover_cache.set_thumbnail_size(*self.thumbnail_size())
+            self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
+            self.update_ram_cache_size()
         self.bookcase.clear_spine_width_cache()
         self.invalidate()
 
@@ -1549,10 +1565,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return max(1, math.ceil(viewport_height / lc.step_height))
 
     def update_ram_cache_size(self):
-        lc = self.layout_constraints
-        books_per_shelf = self.get_available_width() / lc.min_spine_width
-        lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * self.shelves_per_screen
-        self.cover_cache.set_ram_limit(max(0, int(lm)))
+        if hasattr(self, 'cover_cache'):
+            lc = self.layout_constraints
+            books_per_shelf = self.get_available_width() / lc.min_spine_width
+            lm = gprefs['bookshelf_cache_size_multiple'] * books_per_shelf * self.shelves_per_screen
+            self.cover_cache.set_ram_limit(max(0, int(lm)))
 
     # Paint and Drawing methods
 

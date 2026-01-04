@@ -32,6 +32,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_variable_height', gprefs)
         r('bookshelf_fade_time', gprefs)
         r('bookshelf_up_to_down', gprefs)
+        r('bookshelf_height', gprefs)
 
         r('bookshelf_thumbnail', gprefs, choices=[
             (_('Full'), 'full'),
