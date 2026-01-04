@@ -1234,6 +1234,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
+        from time import monotonic
+        st = monotonic()
         timed_print('Shutdown starting...')
         self.shutting_down = True
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
@@ -1331,7 +1333,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup()
         wait_for_stop()
         self.shutdown_completed.emit()
-        timed_print('Shutdown complete, quitting...')
+        timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
         try:
             sys.stdout.flush()  # Make sure any buffered prints are written for debug mode
         except Exception:
