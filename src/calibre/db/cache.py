@@ -19,9 +19,9 @@ from contextlib import contextmanager
 from datetime import datetime
 from functools import partial, wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
-from queue import Queue
+from queue import Queue, ShutDown
 from threading import Lock
-from time import mktime, monotonic, sleep, time
+from time import mktime, monotonic, time
 from typing import NamedTuple
 
 from calibre import as_unicode, detect_ncpus, isbytestring
@@ -588,10 +588,14 @@ class Cache:
                 except Exception:
                     if self.backend.fts_enabled:
                         traceback.print_exc()
-                sleep(self.fts_indexing_sleep_time)
+                if stop_dispatch.wait(self.fts_indexing_sleep_time):
+                    break
 
-        while not getattr(dbref(), 'shutting_down', True):
-            x = queue.get()
+        while True:
+            try:
+                x = queue.get()
+            except ShutDown:
+                break
             if x is None:
                 break
             loop_while_more_available()
@@ -2980,15 +2984,15 @@ class Cache:
         if stage == 1:
             self.backend.shutdown_fts()
             if self.fts_queue_thread is not None:
-                self.fts_job_queue.put(None)
+                self.fts_job_queue.shutdown(True)
             if hasattr(self, 'fts_dispatch_stop_event'):
                 self.fts_dispatch_stop_event.set()
             return
         # the fts supervisor thread could be in the middle of committing a
         # result to the db, so holding a lock here will cause a deadlock
         if self.fts_queue_thread is not None:
-            self.fts_queue_thread.join()
-            self.fts_queue_thread = None
+            t, self.fts_queue_thread = self.fts_queue_thread, None
+            t.join()
         self.backend.join_fts()
 
     @api
