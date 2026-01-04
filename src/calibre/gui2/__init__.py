@@ -57,7 +57,7 @@ from qt.core import (
 )
 
 import calibre.gui2.pyqt6_compat as pqc
-from calibre import as_unicode, prints
+from calibre import as_unicode, prints, timed_print
 from calibre.constants import (
     DEBUG,
     __version__,
@@ -93,6 +93,7 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
 
 del pqc, geometry_for_restore_as_dict
+timed_print  # for plugin compat
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
 BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY = 100  # 100 ms is threshold for human visual response
 
