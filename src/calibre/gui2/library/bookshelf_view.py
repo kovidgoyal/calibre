@@ -1869,14 +1869,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         second_line = self.render_author_template(book_id)
         margin = 6
         if second_line:
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - margin)
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
             second_rect = first_rect.translated(first_rect.width(), 0)
         else:
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
         nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
             nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
         first_line, second_line, = nfl, nsl
 
