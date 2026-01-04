@@ -1456,7 +1456,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         mi = self.dbref().get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(
             self.template_author, mi, TEMPLATE_ERROR, mi, column_name='authors', template_cache=self.template_cache)
-        return rslt or _('Unknown')
+        return rslt or ''
 
     # Miscellaneous methods
 
