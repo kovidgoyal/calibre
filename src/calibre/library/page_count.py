@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
 from calibre.ebooks.oeb.polish.pretty import NON_NAMESPACED_BLOCK_TAGS
 from calibre.ebooks.oeb.polish.toc import get_toc
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory, override_base_dir
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.logging import DevNull
@@ -246,17 +246,18 @@ class Server:
 
 def serve_requests(pipe: Connection) -> None:
     executor = ThreadPoolExecutor()
-    for line in sys.stdin:
+    for i, line in enumerate(sys.stdin):
         path = bytes.fromhex(line.rstrip()).decode()
-        try:
-            result = count_pages(path, executor)
-        except Exception as e:
-            import traceback
-            result = str(e), traceback.format_exc()
-        try:
-            eintr_retry_call(pipe.send, result)
-        except EOFError:
-            break
+        with TemporaryDirectory(suffix=f'.pc{i}') as base_tdir, override_base_dir(base_tdir):
+            try:
+                result = count_pages(path, executor)
+            except Exception as e:
+                import traceback
+                result = str(e), traceback.format_exc()
+            try:
+                eintr_retry_call(pipe.send, result)
+            except EOFError:
+                break
 
 
 def worker_main(pipe_fd: int) -> None:

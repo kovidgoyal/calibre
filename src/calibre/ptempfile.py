@@ -6,6 +6,7 @@ being closed.
 '''
 import os
 import tempfile
+from contextlib import contextmanager
 
 from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
@@ -103,6 +104,16 @@ def fix_tempfile_module():
 def reset_base_dir():
     global _base_dir
     _base_dir = None
+
+
+@contextmanager
+def override_base_dir(newval: str) -> None:
+    global _base_dir
+    before, _base_dir = _base_dir, newval
+    try:
+        yield
+    finally:
+        _base_dir = before
 
 
 def force_unicode(x):
