@@ -29,5 +29,12 @@ class DOCXInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.docx.to_html import Convert
-        return Convert(stream, detect_cover=not options.docx_no_cover, log=log, notes_nopb=options.docx_no_pagebreaks_between_notes,
-                       nosupsub=options.docx_inline_subsup)()
+        c = Convert(
+            stream, detect_cover=not options.docx_no_cover, log=log,
+            notes_nopb=options.docx_no_pagebreaks_between_notes,
+            nosupsub=options.docx_inline_subsup
+        )
+        try:
+            return c()
+        finally:
+            c.docx.close()
