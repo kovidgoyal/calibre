@@ -615,7 +615,7 @@ class LayoutConstraints(NamedTuple):
     shelf_gap: int = 20
     width: int = 0
     side_margin: int = 4
-    hover_expanded_width: int = 110
+    hover_expanded_width: int = 160
 
     @property
     def step_height(self) -> int:
