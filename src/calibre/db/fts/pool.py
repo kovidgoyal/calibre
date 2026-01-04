@@ -207,7 +207,7 @@ class Pool:
             self.initialized.clear()
 
     def join(self):
-        with suppress(AttributeError):
+        with suppress(AttributeError, PythonFinalizationError):
             self.supervisor_thread.join()
         for w in self.workers:
             w.join()
