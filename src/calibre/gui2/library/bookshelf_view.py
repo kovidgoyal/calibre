@@ -68,7 +68,7 @@ from xxhash import xxh3_64_intdigest
 from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, is_dark_theme
+from calibre.gui2 import config, gprefs, is_dark_theme
 from calibre.gui2.library.alternate_views import ClickStartData, handle_selection_click, handle_selection_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
@@ -1196,7 +1196,8 @@ class ExpandedCover(QObject):
         self.shelf_item, self.case_item = self.pending_shelf_item, self.pending_case_item
         self.pending_case_item = self.pending_shelf_item = None
         if self.shelf_item is not None:
-            if (duration := gprefs['bookshelf_fade_time']) > 0:
+            duration = 0 if config['disable_animations'] else gprefs['bookshelf_fade_time']
+            if duration > 0:
                 self.opacity_animation.setDuration(duration)
                 self.size_animation.setDuration(duration)
             lc = self.layout_constraints
