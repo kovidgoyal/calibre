@@ -3,7 +3,7 @@
 # Copyright: Andy C <achuongdev@gmail.com>, un_pogaz <un.pogaz@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net>
 
 # TODO:
-# Remove py_dominant_color after beta release
+# Remove python contrast_ratio after beta release
 
 # Imports {{{
 import bisect

@@ -679,7 +679,7 @@ QColor dominant_color(const QImage &image) { // {{{
     float saturation = QColor(ans).saturationF();
     // Look for more vibrant alternative if needed
     if (saturation < 0.2 && sortedColors.size() > 1) {
-        const int min_num_pixels = (int)(0.05 * width * height);
+        const int min_num_pixels = (int)(0.1 * width * height);
         for (qsizetype i = 1; i < limit; i++) {
             float q = QColor(sortedColors[i].color).saturationF();
             if (q > 0.3 && sortedColors[i].count > min_num_pixels) {
