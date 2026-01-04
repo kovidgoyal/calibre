@@ -1365,9 +1365,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def calculate_shelf_geometry(self) -> None:
         lc = self.layout_constraints
-        if (h := gprefs['bookshelf_height']) < 120 or h > 1200:
-            screen_height = self.screen().availableSize().height()
-            h = max(100 + lc.shelf_height, screen_height // 3)
+        h = max(120, min(1200, gprefs['bookshelf_height']))
         lc = lc._replace(spine_height=h - lc.shelf_height, width=self.get_available_width())
         # Keep aspect ratio of spines
         default = LayoutConstraints()

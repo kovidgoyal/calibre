@@ -207,16 +207,13 @@
     <item row="1" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_height">
       <property name="toolTip">
-       <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
-      </property>
-      <property name="specialValueText">
-       <string>Automatic</string>
+       <string>Control the height of the book shelves, in pixels. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
       </property>
       <property name="suffix">
        <string> px</string>
       </property>
       <property name="minimum">
-       <number>119</number>
+       <number>120</number>
       </property>
       <property name="maximum">
        <number>1200</number>

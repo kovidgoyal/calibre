@@ -499,7 +499,7 @@ def create_defs():
     defs['bookshelf_fade_time'] = 400
     defs['bookshelf_hover'] = 'shift'
     defs['bookshelf_up_to_down'] = False
-    defs['bookshelf_height'] = 119
+    defs['bookshelf_height'] = 200
 
     # Migrate beta bookshelf_thumbnail
     if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
