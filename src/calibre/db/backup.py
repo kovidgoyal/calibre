@@ -55,7 +55,8 @@ class MetadataBackup(Thread):
     def run(self):
         while not self.stop_running.is_set():
             try:
-                self.wait(self.interval)
+                if self.wait(self.interval):
+                    break
                 self.do_one()
             except Abort:
                 break
