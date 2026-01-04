@@ -90,22 +90,23 @@ TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 # Utility functions {{{
 
-def linearise_srgb(c: float) -> float:
-    return (c / 12.92) if (c <= 0.03928) else  math.pow((c + 0.055) / 1.055, 2.4)
+try:
+    from calibre_extensions.progress_indicator import contrast_ratio
+except ImportError:  # for people running from source
+    def contrast_ratio(a: QColor, b: QColor) -> float:
+        ' Return the WCAG contrast ratio between two colors '
+        def linearise_srgb(c: float) -> float:
+            return (c / 12.92) if (c <= 0.03928) else  math.pow((c + 0.055) / 1.055, 2.4)
 
+        def luminance(c: QColor) -> float:
+            if c.spec() not in (QColor.Spec.Rgb, QColor.Spec.ExtendedRgb):
+                c = c.toExtendedRgb()
+            return 0.2126 * linearise_srgb(c.redF()) + 0.7152 * linearise_srgb(c.greenF()) + 0.0722 * linearise_srgb(c.blueF())
 
-def luminance(c: QColor) -> float:
-    if c.spec() not in (QColor.Spec.Rgb, QColor.Spec.ExtendedRgb):
-        c = c.toExtendedRgb()
-    return 0.2126 * linearise_srgb(c.redF()) + 0.7152 * linearise_srgb(c.greenF()) + 0.0722 * linearise_srgb(c.blueF())
-
-
-def contrast_ratio(a: QColor, b: QColor) -> float:
-    ' Return the WCAG contrast ratio between two colors '
-    l1, l2 = luminance(a), luminance(b)
-    if l1 < l2:
-        l1, l2 = l2, l1
-    return (l1 + 0.05) / (l2 + 0.05)
+        l1, l2 = luminance(a), luminance(b)
+        if l1 < l2:
+            l1, l2 = l2, l1
+        return (l1 + 0.05) / (l2 + 0.05)
 
 
 def random_from_id(book_id: int, limit: int = 21) -> int:

@@ -153,3 +153,27 @@ image_from_hbitmap(void* hbitmap) {
     return QImage();
 #endif
 }
+
+// Helper to convert sRGB channel to linear RGB
+static double
+channelToLinear(double c) {
+    return (c <= 0.03928) ? (c / 12.92) : std::pow((c + 0.055) / 1.055, 2.4);
+}
+
+// Compute relative luminance for a QColor
+static double
+luminance(const QColor& color) {
+    return 0.2126 * channelToLinear(color.redF()) +
+           0.7152 * channelToLinear(color.greenF()) +
+           0.0722 * channelToLinear(color.blueF());
+}
+
+// Calculate contrast ratio between two QColors using the WCAG algorithm
+double
+contrast_ratio(const QColor& c1, const QColor& c2) {
+    double l1 = luminance(c1);
+    double l2 = luminance(c2);
+    // Ensure l1 is the lighter color
+    if (l1 < l2) std::swap(l1, l2);
+    return (l1 + 0.05) / (l2 + 0.05);
+}

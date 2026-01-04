@@ -59,7 +59,7 @@ public:
     virtual QSize sizeHint() const;
 
     int heightForWidth(int w) const;
-    
+
     QSize displaySize() const;
 
 public slots:
@@ -75,7 +75,7 @@ public slots:
     void setSizeHint(QSize size);
 
 protected:
-    
+
     virtual void paintEvent(QPaintEvent * event);
 
 signals:
@@ -91,3 +91,4 @@ void set_image_allocation_limit(int megabytes);
 int get_image_allocation_limit();
 QImage image_from_hicon(void*);
 QImage image_from_hbitmap(void*);
+double contrast_ratio(const QColor & c1, const QColor & c2);

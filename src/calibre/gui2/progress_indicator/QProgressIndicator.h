@@ -168,3 +168,4 @@ void set_image_allocation_limit(int megabytes);
 int get_image_allocation_limit();
 QImage image_from_hicon(void* hicon);
 QImage image_from_hbitmap(void* hbitmap);
+double contrast_ratio(const QColor & c1, const QColor & c2);
