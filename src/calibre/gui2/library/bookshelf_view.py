@@ -29,7 +29,8 @@ from qt.core import (
     QEasingCurve,
     QEvent,
     QFont,
-    QFontMetrics,
+    QFontInfo,
+    QFontMetricsF,
     QIcon,
     QImage,
     QItemSelection,
@@ -1310,6 +1311,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         super().__init__(gui)
         self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
         self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
+        self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.gui = gui
         self._model: BooksModel | None = None
         self.context_menu: QMenu | None = None
@@ -1699,43 +1701,60 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.drawRect(spine_rect.adjusted(gap, gap, -gap, -gap))
         painter.restore()
 
-    @lru_cache(maxsize=4096)
-    def get_sized_text(self, text: str, max_width: int, start: float, stop: float) -> tuple[str, QFont, QRect]:
-        '''Return a text, a QFont and a QRect that fit into the max_width.'''
+    @lru_cache(maxsize=128)
+    def get_sized_font(self, sz: float = 0, bold: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
         font = QFont(self.font())
-        for minus in range(round(start - stop) * 2):
-            minus = minus / 2
-            font.setPointSizeF(start - minus)
-            fm = QFontMetrics(font)
-            size = fm.boundingRect(text)
-            offset = min(0, size.top() // 2)
-            size.adjust(offset, 0, 0, 0)
-            if size.width() <= max_width:
-                break
-        size.adjust(0, 0, offset - min(0, size.left()), 0)
-        rslt = fm.elidedText(text, Qt.TextElideMode.ElideRight, max_width)
-        return rslt, font, size
+        font.setPointSizeF(sz)
+        font.setBold(bold)
+        return font, QFontMetricsF(font), QFontInfo(font)
+
+    @lru_cache(maxsize=4096)
+    def get_text_metrics(
+        self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False,
+    ) -> tuple[str, str, QFont]:
+        min_font_size = 0.75 * self.base_font_size_pts
+        max_font_size = 1.3 * self.base_font_size_pts
+        height = sz.height() // (2 if second_line else 1)
+        font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
+        # First adjust font size so that lines fit vertically
+        if fm.lineSpacing() < height:
+            while font.pointSizeF() < max_font_size:
+                q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, bold)
+                if qm.lineSpacing() < height:
+                    font, fm = q, qm
+                else:
+                    break
+        elif fm.lineSpacing() > height:
+            while fi.pointSizeF() > min_font_size:
+                font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, bold)
+
+        # Now reduce the font size as much as needed to fit within width
+        width = sz.width()
+        text = first_line
+        if second_line and fm.boundingRect(first_line).width() < fm.boundingRect(second_line).width():
+            text = second_line
+        while fi.pointSizeF() > min_font_size and fm.boundingRect(text).width() > width:
+            font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, bold)
+        if fi.pointSizeF() <= min_font_size:
+            first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
+            if second_line:
+                second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
+        return first_line, second_line, font
 
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
         lc = self.layout_constraints
         rect = divider.rect(lc).translated(0, -scroll_y)
-        divider_rect = QRect(
-            -rect.height() // 2,
-            -rect.width() // 2,
-            rect.height(),
-            rect.width(),
-        )
-
-        def rotate():
-            painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
-            painter.rotate(-90)
+        divider_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
 
         # Bottom margin
         text_rect = divider_rect.adjusted(8, 0, 0, 0)
-        elided_text, font, sized_rect = self.get_sized_text(divider.group_name, text_rect.width(), 12, 8)
-        font.setBold(True)
-
+        elided_text, _, font = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
+        painter.save()
+        painter.setFont(font)
+        painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
+        painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
+        sized_rect = painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
         # Calculate line dimensions
         line_rect = text_rect.adjusted(sized_rect.width(), 0, 0, 0)
         overflow = (line_rect.height() - self.DIVIDER_LINE_WIDTH) // 2
@@ -1743,8 +1762,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Draw vertical gradient line if long enough
         if line_rect.width() > 8:
-            painter.save()
-            rotate()
             gradient = QLinearGradient(
                 QPointF(line_rect.left(), line_rect.left()),
                 QPointF(line_rect.left() + line_rect.width(), line_rect.left()),
@@ -1753,18 +1770,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             gradient.setColorAt(0.5, self.DIVIDER_GRADIENT_LINE_2)
             gradient.setColorAt(1, self.DIVIDER_GRADIENT_LINE_1)
 
+            painter.save()
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QBrush(gradient))
             painter.drawRect(line_rect)
             painter.restore()
 
-        painter.save()
-        rotate()
-        if gprefs['bookshelf_up_to_down']:
-            painter.rotate(180)
-            text_rect.adjust(max(0, line_rect.width() - 6), 0, 0, 0)
-        painter.setFont(font)
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
         painter.restore()
 
     def default_cover_pixmap(self) -> PixmapWithDominantColor:
@@ -1797,8 +1808,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.draw_spine_cover(painter, spine_rect, thumbnail)
 
         # Draw title (rotated vertically)
-        title = self.render_template_title(spine.book_id)
-        self.draw_spine_title(painter, spine_rect, spine_color, title)
+        self.draw_spine_title(painter, spine_rect, spine_color, spine.book_id)
 
         # Draw selection highlight around the spine
         color = self.selection_highlight_color(is_selected, is_current)
@@ -1831,29 +1841,35 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.fillRect(rect, QBrush(vertical_gradient))
         painter.restore()
 
-    def draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, title: str):
+    def draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, book_id: int) -> None:
         '''Draw vertically the title on the spine.'''
-        if not title:
-            return
-        painter.save()
-        painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
-        painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
+        first_line = self.render_template_title(book_id)
+        second_line = ''
+        margin = 6
+        if second_line:
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - margin)
+            second_rect = first_rect.translated(first_rect.width(), 0)
+        else:
+            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
+        first_line, second_line, font  = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
 
+        painter.save()
         # Determine text color based on spine background brightness
         text_color = self.get_contrasting_text_color(spine_color)
         painter.setPen(text_color)
-
-        text_rect = QRect(
-            -rect.height() // 2,
-            -rect.width() // 2,
-            rect.height(),
-            rect.width(),
-        )
-        # leave space for margin with top of the spine
-        text_rect.adjust(6, 0, -6, 0)
-        elided_text, font, _rect = self.get_sized_text(title, text_rect.width(), 12, 8)
         painter.setFont(font)
-        painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, elided_text)
+        rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
+
+        def draw_text(text: str, rect: QRect) -> None:
+            painter.save()
+            painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
+            painter.rotate(rotation)
+            text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
+            painter.drawText(text_rect, Qt.AlignmentFlag.AlignCenter, text)
+            painter.restore()
+        draw_text(first_line, first_rect)
+        if second_line:
+            draw_text(second_line, second_rect)
         painter.restore()
 
     def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail: PixmapWithDominantColor) -> None:
