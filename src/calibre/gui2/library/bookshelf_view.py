@@ -90,6 +90,24 @@ TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 # Utility functions {{{
 
+def linearise_srgb(c: float) -> float:
+    return (c / 12.92) if (c <= 0.03928) else  math.pow((c + 0.055) / 1.055, 2.4)
+
+
+def luminance(c: QColor) -> float:
+    if c.spec() not in (QColor.Spec.Rgb, QColor.Spec.ExtendedRgb):
+        c = c.toExtendedRgb()
+    return 0.2126 * linearise_srgb(c.redF()) + 0.7152 * linearise_srgb(c.greenF()) + 0.0722 * linearise_srgb(c.blueF())
+
+
+def contrast_ratio(a: QColor, b: QColor) -> float:
+    ' Return the WCAG contrast ratio between two colors '
+    l1, l2 = luminance(a), luminance(b)
+    if l1 < l2:
+        l1, l2 = l2, l1
+    return (l1 + 0.05) / (l2 + 0.05)
+
+
 def random_from_id(book_id: int, limit: int = 21) -> int:
     ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
     return xxh3_64_intdigest(b'', seed=book_id) % limit
@@ -1943,9 +1961,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def get_contrasting_text_color(self, background_color: QColor) -> QColor:
         if not background_color or not background_color.isValid():
             return self.text_color_for_light_background
-        is_yellow_gold = background_color.red() > 180 and background_color.yellow() > 150 and background_color.blue() < 150
-        threshold = 0.35 if is_yellow_gold else 0.5
-        return self.text_color_for_light_background if background_color.lightnessF() > threshold else self.text_color_for_dark_background
+        if contrast_ratio(background_color, self.text_color_for_dark_background) > contrast_ratio(background_color, self.text_color_for_light_background):
+            return self.text_color_for_dark_background
+        return self.text_color_for_light_background
 
     # Selection methods (required for AlternateViews integration)
 
