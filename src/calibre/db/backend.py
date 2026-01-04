@@ -639,6 +639,7 @@ class DB:
         defs['column_tooltip_templates'] = {}
         defs['bookshelf_grouping_mode'] = ''
         defs['bookshelf_title_template'] = '{title}'
+        defs['bookshelf_author_template'] = ''
         defs['bookshelf_spine_size_template'] = '{pages}'
 
         # Migrate the beta bookshelf_grouping_mode

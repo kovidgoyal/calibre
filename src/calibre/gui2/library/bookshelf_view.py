@@ -1407,8 +1407,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.template_cache = {}
         self.template_title = db_pref('bookshelf_title_template') or ''
+        self.template_author = db_pref('bookshelf_author_template') or ''
         self.template_title_is_title = self.template_title == '{title}'
         self.template_title_is_empty = not self.template_title.strip()
+        self.template_author_is_empty = not self.template_author.strip()
         self.template_inited = True
 
     def render_template_title(self, book_id: int) -> str:
@@ -1421,6 +1423,19 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         mi = self.dbref().get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(
             self.template_title, mi, TEMPLATE_ERROR, mi, column_name='title', template_cache=self.template_cache)
+        return rslt or _('Unknown')
+
+    def render_author_template(self, book_id: int) -> str:
+        '''Return the title generate for this book.'''
+        self.init_template(self.dbref())
+        if self.template_author_is_empty:
+            return ''
+        match self.template_author:
+            case '{author_sort}':
+                return self.dbref().new_api.field_for('author_sort', book_id)
+        mi = self.dbref().get_proxy_metadata(book_id)
+        rslt = mi.formatter.safe_format(
+            self.template_title, mi, TEMPLATE_ERROR, mi, column_name='authors', template_cache=self.template_cache)
         return rslt or _('Unknown')
 
     # Miscellaneous methods
@@ -1851,7 +1866,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, book_id: int) -> None:
         '''Draw vertically the title on the spine.'''
         first_line = self.render_template_title(book_id)
-        second_line = ''
+        second_line = self.render_author_template(book_id)
         margin = 6
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - margin)
@@ -1859,7 +1874,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
         nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
-        if not nfl and not nsl:
+        if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - margin)
             nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())

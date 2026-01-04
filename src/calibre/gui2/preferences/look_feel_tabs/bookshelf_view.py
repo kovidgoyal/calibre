@@ -53,6 +53,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         ])
 
         r('bookshelf_title_template', db.prefs)
+        r('bookshelf_author_template', db.prefs)
         r('bookshelf_spine_size_template', db.prefs)
 
         self.config_cache.link(
