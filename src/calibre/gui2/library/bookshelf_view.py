@@ -1803,8 +1803,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.draw_selection_highlight(painter, spine_rect, color)
 
     def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
-        if is_current:
+        if is_current and is_selected:
             return self.palette().color(QPalette.ColorRole.LinkVisited)
+        if is_current:
+            return self.palette().color(QPalette.ColorRole.Mid)
         if is_selected:
             return self.palette().color(QPalette.ColorRole.Highlight)
         return QColor()
