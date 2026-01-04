@@ -162,7 +162,6 @@ def for_assistant(self: ChatMessage) -> dict[str, Any]:
 
 def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]:
     # See https://platform.openai.com/docs/api-reference/responses/object
-    print(1111111111, d)
     if True:
         return
     content = ''

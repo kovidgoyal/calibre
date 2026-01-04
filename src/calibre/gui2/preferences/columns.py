@@ -197,7 +197,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             cc = self.field_metadata[key]
             original_key = key
-        print(1111111, key, cc)
 
         self.opt_columns.setSortingEnabled(False)
         item = QTableWidgetItem()
