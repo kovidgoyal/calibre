@@ -1373,7 +1373,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         lc = lc._replace(
             min_spine_width=int(default.min_spine_width * hr),
             max_spine_width=int(default.max_spine_width * hr),
-            default_spine_width=int(default.default_spine_width * hr)
+            default_spine_width=int(default.default_spine_width * hr),
+            hover_expanded_width=int(default.hover_expanded_width * hr)
         )
         self.layout_constraints = lc
 
