@@ -21,24 +21,12 @@ from queue import Empty, Queue
 import apsw
 from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
 
-from calibre import detect_ncpus, force_unicode, prints
+from calibre import detect_ncpus, force_unicode, prints, timed_print
 from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.gui2 import (
-    Dispatcher,
-    GetMetadata,
-    config,
-    error_dialog,
-    gprefs,
-    info_dialog,
-    max_available_height,
-    open_url,
-    question_dialog,
-    timed_print,
-    warning_dialog,
-)
+from calibre.gui2 import Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog, max_available_height, open_url, question_dialog, warning_dialog
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
 from calibre.gui2.cover_flow import CoverFlowMixin

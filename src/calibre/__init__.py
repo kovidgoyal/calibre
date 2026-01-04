@@ -26,6 +26,7 @@ from calibre.constants import (
     __version__,
     config_dir,
     filesystem_encoding,
+    is_debugging,
     isbsd,
     isfrozen,
     islinux,
@@ -590,3 +591,12 @@ def fsync(fileobj):
         except Exception:
             import traceback
             traceback.print_exc()
+
+
+def timed_print(*a, **kw):
+    if not is_debugging():
+        return
+    from time import monotonic
+    if not hasattr(timed_print, 'startup_time'):
+        timed_print.startup_time = monotonic()
+    print(f'[{monotonic() - timed_print.startup_time:.2f}]', *a, **kw)

@@ -2998,10 +2998,8 @@ class Cache:
                 return
             self.close_called = True
             self.shutting_down = True
-            m = None
-            if self.maintain_page_counts is not None:
-                m, self.maintain_page_counts = self.maintain_page_counts, None
-                m.shutdown()
+            m, self.maintain_page_counts = self.maintain_page_counts, None
+            m.shutdown()
             self.event_dispatcher.close()
             self._shutdown_fts()
             try:

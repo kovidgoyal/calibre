@@ -1738,15 +1738,6 @@ def make_view_use_window_background(view):
     return view
 
 
-def timed_print(*a, **kw):
-    if not DEBUG:
-        return
-    from time import monotonic
-    if not hasattr(timed_print, 'startup_time'):
-        timed_print.startup_time = monotonic()
-    print(f'[{monotonic() - timed_print.startup_time:.2f}]', *a, **kw)
-
-
 def local_path_for_resource(qurl: QUrl, base_qurl: 'QUrl | None' = None) -> str:
     if base_qurl and qurl.isRelative():
         qurl = base_qurl.resolved(qurl)
