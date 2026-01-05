@@ -74,8 +74,9 @@ You can also use a number between 0.0 and 1.0 to pick a fixed size.
 Note that this setting is per-library, which means that you have to set it again for every
 different calibre library you use.</p>''').format('{size}', '{random}', '{pages}'))
 
-        self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template))
-        self.template_pages_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_spine_size_template))
+        self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template, _('Edit template for title')))
+        self.template_author_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_author_template, _('Edit template for author')))
+        self.template_pages_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_spine_size_template, _('Edit template for book size')))
         self.use_pages_button.clicked.connect(self.use_pages)
         self.recount_button.clicked.connect(self.recount_pages)
 
@@ -92,7 +93,7 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             self.gui.library_view.model().zero_page_cache.clear()
             self.gui.bookshelf_view.invalidate()
 
-    def edit_template_button(self, line_edit):
+    def edit_template_button(self, line_edit, title):
         rows = self.gui.library_view.selectionModel().selectedRows()
         mi = None
         db = self.gui.current_db.new_api
@@ -102,7 +103,7 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             for bk in ids[0:min(10, len(ids))]:
                 mi.append(db.get_proxy_metadata(bk))
         t = TemplateDialog(self, line_edit.text(), mi=mi, fm=db.field_metadata)
-        t.setWindowTitle(_('Edit template for caption') if line_edit is self.opt_bookshelf_title_template else _('Edit template for book size'))
+        t.setWindowTitle(title)
         if t.exec():
             line_edit.setText(t.rule[1])
 
