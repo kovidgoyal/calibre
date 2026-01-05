@@ -870,12 +870,12 @@ def base_log(f: float, b: float = 10) -> float:
     return math.log(1+max(0, min(f, 1))*b, b+1)
 
 
-def width_from_pages(pages: int, num_of_pages_for_max_width: int = 1500) -> float:
-    return base_log(pages/num_of_pages_for_max_width)
+def width_from_pages(pages: int, num_of_pages_for_max_width: int = 1500, logarithmic_factor: float = 10) -> float:
+    return base_log(pages/num_of_pages_for_max_width, b=logarithmic_factor)
 
 
-def width_from_size(sz: int) -> float:
-    return base_log(normalised_size(sz))
+def width_from_size(sz: int, log_factor: float = 10) -> float:
+    return base_log(normalised_size(sz), b=log_factor)
 
 
 def get_spine_width(
