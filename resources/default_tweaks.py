@@ -602,10 +602,17 @@ calendar_start_day_of_week = 'Default'
 # Example: east_asian_base_language = 'ja'
 east_asian_base_language = ''
 
-
 #: Hide AI features
 # Hide AI features throughout the calibre user interface. Note that AI is
 # already opt-in and no AI related code is even loaded until the user configures some
 # AI backend. This tweak exists simply to hide a few menu entries and the like
 # that mention AI.
 hide_ai_features = False
+
+#: Control GPU usage in Qt WebEngine
+# Qt WebEngine is the library that is used to render content in the calibre
+# viewer and editor. It can optionally use the GPU for enhanced performance,
+# however, this can causes crashes/black screens on some older systems, so it
+# is disabled by default. In normal usage, the performance difference is not
+# noticeable anyway.
+qt_webengine_uses_gpu = False

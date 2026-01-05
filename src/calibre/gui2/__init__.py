@@ -1221,7 +1221,8 @@ class Application(QApplication):
             args.extend(self.palette_manager.args_to_qt)
         # We disable GPU acceleration as it causes crashes/black screen in some Windows systems and
         # isnt really needed for performance for our use cases.
-        args += ['--webEngineArgs', '--disable-gpu']
+        if not tweaks['qt_webengine_uses_gpu']:
+            args.extend(('--webEngineArgs', '--disable-gpu'))
         self.headless = headless
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
