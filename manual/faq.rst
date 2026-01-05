@@ -895,18 +895,6 @@ see which one is causing the issue. Basically, stop a program, run calibre,
 check for crashes. If they still happen, stop another program and repeat.
 
 
-The calibre E-book viewer and Edit book tools do not work on Windows?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-These two programs use hardware acceleration as they embed a version of the
-Chrome browser to render HTML. If they do not work it will be because of
-incompatibility with your system's GPU (graphics) drivers. Try updating these
-first, and reboot. If that does not fix it, you can set the
-``QTWEBENGINE_CHROMIUM_FLAGS`` environment variable to the value
-``--disable-gpu`` to turn off hardware acceleration. See
-`this page <https://doc.qt.io/qt-6/qtwebengine-debugging.html>`_ for details.
-
-
 Using the viewer or doing any conversions results in a permission denied error on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
