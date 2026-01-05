@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tarfile
 import time
+from urllib.request import Request, urlopen
 
 
 def printf(*args, **kw):
@@ -15,19 +16,21 @@ def printf(*args, **kw):
     sys.stdout.flush()
 
 
-def download_with_retry(url, count=5):
-    from urllib.request import urlopen
-    while count > 0:
-        count -= 1
+def download_with_retry(url: str | Request, count: int = 5) -> bytes:
+    for i in range(count):
         try:
-            printf('Downloading', url)
+            print('Downloading', getattr(url, 'full_url', url), flush=True)
             with urlopen(url) as f:
-                return f.read()
-        except Exception:
-            if count <= 0:
+                ans: bytes = f.read()
+            return ans
+        except Exception as err:
+            if getattr(err, 'code', -1) == 403:
                 raise
-            print('Download failed retrying...')
+            if i >= count - 1:
+                raise
+            print(f'Download failed with error {err} retrying...', file=sys.stderr)
             time.sleep(1)
+    return b''
 
 
 def sw():
