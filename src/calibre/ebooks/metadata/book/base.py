@@ -147,11 +147,12 @@ class Metadata:
             d = _data['user_metadata'][field]
             val = d['#value#']
             if val is None and d['datatype'] == 'composite':
+                from calibre.utils.formatter import TEMPLATE_ERROR
                 d['#value#'] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
                 val = d['#value#'] = self.formatter.safe_format(
                                             d['display']['composite_template'],
                                             self,
-                                            _('TEMPLATE ERROR'),
+                                            TEMPLATE_ERROR,
                                             self, column_name=field,
                                             template_cache=self.template_cache).strip()
             return val

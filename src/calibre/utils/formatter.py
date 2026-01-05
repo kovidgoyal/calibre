@@ -24,6 +24,8 @@ from calibre.utils.icu import strcmp
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
+TEMPLATE_ERROR = _('TEMPLATE ERROR')
+
 
 def default_template_error_reporter(e: Exception, fmt, kwargs, book, column_name: str | None):
     if DEBUG:

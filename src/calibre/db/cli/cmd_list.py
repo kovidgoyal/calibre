@@ -74,6 +74,7 @@ def implementation(
                 data[field] = {k: v.get('isbn') or '' for k, v in x.items()}
                 continue
             if field == 'template':
+                from calibre.utils.formatter import TEMPLATE_ERROR
                 if not template:
                     data['template'] = _('Template not allowed') if is_remote else _('No template specified')
                     continue
@@ -84,7 +85,7 @@ def implementation(
                     formatter = SafeFormat()
                 for book_id in book_ids:
                     mi = db.get_proxy_metadata(book_id)
-                    vals[book_id] = formatter.safe_format(template, {}, 'TEMPLATE ERROR', mi, global_vars=global_vars)
+                    vals[book_id] = formatter.safe_format(template, {}, TEMPLATE_ERROR, mi, global_vars=global_vars)
                 data['template'] = vals
                 continue
             field = field.replace('*', '#')

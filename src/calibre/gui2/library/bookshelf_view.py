@@ -73,6 +73,7 @@ from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
+from calibre.utils.formatter import TEMPLATE_ERROR
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
 from calibre.utils.iso8601 import UNDEFINED_DATE
@@ -84,7 +85,6 @@ from calibre_extensions.progress_indicator import contrast_ratio
 
 
 # Utility functions {{{
-TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 
 def random_from_id(book_id: int, limit: int = 21) -> int:
