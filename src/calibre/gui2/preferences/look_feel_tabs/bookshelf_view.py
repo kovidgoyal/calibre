@@ -158,8 +158,8 @@ def evaluate(book, context):
     try:
         pages = max(0, int(val))
     except Exception:
-        return '0.4'
-    return str(width_from_pages(pages, num_of_pages_for_max_width=1500, logarithmic_factor=10))
+        return '0.3'
+    return str(width_from_pages(pages, num_of_pages_for_max_width=1500, logarithmic_factor=2))
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
 

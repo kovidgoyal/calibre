@@ -627,7 +627,7 @@ def all_groupings() -> dict[str, str]:
 
 class LayoutConstraints(NamedTuple):
     min_spine_width: int = 15
-    max_spine_width: int = 60
+    max_spine_width: int = 80
     default_spine_width: int = 40
     hover_expanded_width: int = 160
 
@@ -866,15 +866,15 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
         yield ungrouped_name, sorted(leftover,  key=sort_map.__getitem__)
 
 
-def base_log(f: float, b: float = 10) -> float:
+def base_log(f: float, b: float = 1) -> float:
     return math.log(1+max(0, min(f, 1))*b, b+1)
 
 
-def width_from_pages(pages: int, num_of_pages_for_max_width: int = 1500, logarithmic_factor: float = 10) -> float:
+def width_from_pages(pages: int, num_of_pages_for_max_width: int = 1500, logarithmic_factor: float = 2) -> float:
     return base_log(pages/num_of_pages_for_max_width, b=logarithmic_factor)
 
 
-def width_from_size(sz: int, log_factor: float = 10) -> float:
+def width_from_size(sz: int, log_factor: float = 2) -> float:
     return base_log(normalised_size(sz), b=log_factor)
 
 
