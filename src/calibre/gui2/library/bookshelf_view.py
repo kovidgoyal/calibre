@@ -1371,7 +1371,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if (h := gprefs['bookshelf_height']) < 120 or h > 1200:
             screen_height = 0
             for screen in QApplication.instance().screens():
-                screen_height = max(screen_height, screen.availableSize().height())
+                if screen.availableSize().height() > screen.availableSize().width() * 1.5:
+                    screen_height = max(screen_height, screen.availableSize().width())
+                else:
+                    screen_height = max(screen_height, screen.availableSize().height())
             h = max(100 + lc.shelf_height, screen_height // 3)
         lc = lc._replace(spine_height=h - lc.shelf_height, width=self.get_available_width())
         # Keep aspect ratio of spines
