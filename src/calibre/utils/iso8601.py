@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from datetime import UTC as utc_tz
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -14,7 +15,6 @@ try:
 except Exception:
     tz_name = ''
     local_tz = datetime.now().astimezone().tzinfo
-utc_tz = timezone.utc
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 
