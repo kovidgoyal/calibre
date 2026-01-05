@@ -640,7 +640,17 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 
 QColor dominant_color(const QImage &image) { // {{{
     if (image.isNull()) return QColor();
-    QImage img(image);
+    QImage img;
+    if (image.width() < 100 || image.height() < 100)
+        img = QImage(image);
+    else {
+        float ratio;
+        if (image.width() > image.height())
+            ratio = 100.0 / image.width();
+        else
+            ratio = 100.0 / image.height();
+        img = image.scaled(image.size() * ratio, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    }
     ENSURE32(img);
     QHash<QRgb, int> colorCounts;
     const uchar* bits = img.constBits();
