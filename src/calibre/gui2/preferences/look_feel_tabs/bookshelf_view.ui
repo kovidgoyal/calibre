@@ -225,7 +225,7 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -245,6 +245,13 @@
       </property>
       <property name="text">
        <string>&amp;Recount pages</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0" colspan="2">
+     <widget class="QPushButton" name="show_log_button">
+      <property name="text">
+       <string>Show count &amp;failure log</string>
       </property>
      </widget>
     </item>

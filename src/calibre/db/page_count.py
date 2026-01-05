@@ -12,12 +12,14 @@ from typing import TYPE_CHECKING
 
 import apsw
 
+from calibre.constants import cache_dir
 from calibre.customize.ui import all_input_formats
 from calibre.db.constants import Pages
 from calibre.library.page_count import Server
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config import prefs
 from calibre.utils.date import utcnow
+from calibre.utils.filenames import make_long_path_useable
 
 if TYPE_CHECKING:
     from calibre.db.cache import Cache
@@ -35,6 +37,20 @@ class MaintainPageCounts(Thread):
         self.dbref: CacheRef = weakref.ref(db_new_api)
         self.queue: Queue[int] = Queue()
         self.tdir = ''
+        self.failure_log_path = os.path.join(cache_dir(), f'page-count-failures-{db_new_api.library_id}.txt')
+
+    def log_failure(self, book_id: int, ex: str, tb: str, fmt: str = '') -> None:
+        title = ''
+        if db := self.dbref():
+            with suppress(Exception):
+                title = db.field_for('title', book_id)
+        if title:
+            title = repr(title)
+        msg = f'[{utcnow().isoformat(" ")}] Failed to count pages for book {book_id} {fmt} {title}, with error: {ex}'
+        with suppress(Exception), open(make_long_path_useable(self.failure_log_path), 'a') as f:
+            print(msg, file=f)
+            print(tb, file=f)
+            print(file=f)
 
     def queue_scan(self, book_id: int = 0):
         self.queue.put(book_id)
@@ -92,9 +108,10 @@ class MaintainPageCounts(Thread):
             return
         try:
             pages = self.count_book(db, book_id, server)
-        except Exception:
+        except Exception as e:
             import traceback
             traceback.print_exc()
+            self.log_failure(book_id, str(e), traceback.format_exc())
             pages = Pages(COUNT_FAILED, 0, '', 0, utcnow())
         if pages is not None and not self.shutdown_event.is_set():
             db.set_pages(book_id, pages.pages, pages.algorithm, pages.format, pages.format_size)
@@ -119,7 +136,7 @@ class MaintainPageCounts(Thread):
                 sz = -1
                 with suppress(Exception):
                     sz = db.format_db_size(book_id, pages.format)
-                if sz == pages.format_size and pages.algorithm == server.ALGORITHM:
+                if sz == pages.format_size and pages.algorithm == server.ALGORITHM and pages.pages != COUNT_FAILED:
                     prev_scan_result = pages
                     if idx == 0:
                         return pages
@@ -133,16 +150,18 @@ class MaintainPageCounts(Thread):
                     db.copy_format_to(book_id, fmt, fmt_file)
                     cleanups.append(fmt_file)
                     fmt_size = os.path.getsize(fmt_file)
-                except Exception:
+                except Exception as e:
                     import traceback
                     traceback.print_exc()
+                    self.log_failure(book_id, str(e), traceback.format_exc())
                     continue
                 try:
                     self.count_callback(fmt_file)
                     pages = server.count_pages(fmt_file)
-                except Exception:
+                except Exception as e:
                     import traceback
                     traceback.print_exc()
+                    self.log_failure(book_id, str(e), traceback.format_exc(), fmt=fmt)
                 else:
                     if isinstance(pages, int):
                         return Pages(pages, server.ALGORITHM, fmt, fmt_size, utcnow())
@@ -150,6 +169,7 @@ class MaintainPageCounts(Thread):
                         print(f'Failed to count pages in book: {book_id} {fmt} because it is DRM locked', file=sys.stderr)
                         has_drmed = True
                     else:
+                        self.log_failure(book_id, pages[0], pages[1], fmt=fmt)
                         print(f'Failed to count pages in book: {book_id} {fmt} with error:\n{pages[1]}', file=sys.stderr)
             return prev_scan_result or Pages(DRMED_FORMATS if has_drmed else COUNT_FAILED, 0, '', 0, utcnow())
         finally:

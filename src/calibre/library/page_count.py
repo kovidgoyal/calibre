@@ -235,7 +235,11 @@ class Server:
         self.worker.stdin.write(encoded_path.encode())
         self.worker.stdin.flush()
         self.tasks_run_by_worker += 1
-        return eintr_retry_call(self.read_pipe.recv)
+        try:
+            return eintr_retry_call(self.read_pipe.recv)
+        except Exception:
+            self.shutdown_worker()
+            raise
 
     def __enter__(self) -> 'Server':
         return self

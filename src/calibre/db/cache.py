@@ -1807,6 +1807,10 @@ class Cache:
             self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={book_id}')
         self.maintain_page_counts.queue_scan(book_id)
 
+    @property
+    def page_count_failures_log_path(self) -> str:
+        return self.maintain_page_counts.failure_log_path
+
     @write_api
     def set_pages(
         self, book_id: int, pages: int = 0, algorithm: int = 0, format: str = '', format_size: int = 0,
