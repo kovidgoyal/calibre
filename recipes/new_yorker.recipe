@@ -48,7 +48,7 @@ class NewYorker(BasicNewsRecipe):
         classes(
             'social-icons'
         ),
-        prefixed_classes('ConsentBannerWrapper- ResponsiveCartoonCTA-'),
+        prefixed_classes('ConsentBannerWrapper- ResponsiveCartoonCTA- ContentHeaderContributorImage- ContributorBioAvatar-'),
         dict(childtypes='iframe'),
         dict(name='svg'),
     ]
