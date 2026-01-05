@@ -22,6 +22,7 @@ from calibre.utils.date import utcnow
 if TYPE_CHECKING:
     from calibre.db.cache import Cache
 CacheRef = weakref.ref['Cache']
+NO_COUNTABLE_FORMATS, COUNT_FAILED, DRMED_FORMATS = -1, -2, -3
 
 
 class MaintainPageCounts(Thread):
@@ -94,7 +95,7 @@ class MaintainPageCounts(Thread):
         except Exception:
             import traceback
             traceback.print_exc()
-            pages = Pages(-1, 0, '', 0, utcnow())
+            pages = Pages(COUNT_FAILED, 0, '', 0, utcnow())
         if pages is not None and not self.shutdown_event.is_set():
             db.set_pages(book_id, pages.pages, pages.algorithm, pages.format, pages.format_size)
         return pages
@@ -108,7 +109,7 @@ class MaintainPageCounts(Thread):
             pages = db._get_pages(book_id)
         fmts = sorted({f.upper() for f in fmts or ()} & self.all_input_formats, key=self.sort_key)
         if not fmts:
-            return Pages(-1, 0, '', 0, utcnow())
+            return Pages(NO_COUNTABLE_FORMATS, 0, '', 0, utcnow())
         prev_scan_result = None
         if pages is not None:
             idx = -1
@@ -150,7 +151,7 @@ class MaintainPageCounts(Thread):
                         has_drmed = True
                     else:
                         print(f'Failed to count pages in book: {book_id} {fmt} with error:\n{pages[1]}', file=sys.stderr)
-            return prev_scan_result or Pages(-3 if has_drmed else -2, 0, '', 0, utcnow())
+            return prev_scan_result or Pages(DRMED_FORMATS if has_drmed else COUNT_FAILED, 0, '', 0, utcnow())
         finally:
             for x in cleanups:
                 with suppress(OSError):
