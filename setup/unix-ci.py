@@ -23,7 +23,7 @@ def setenv(key, val):
     os.environ[key] = os.path.expandvars(val)
 
 
-def download_with_retry(url: str | Request, count: int = 5) -> bytes:
+def download_with_retry(url: 'str | Request', count: int = 5) -> bytes:
     for i in range(count):
         try:
             print('Downloading', getattr(url, 'full_url', url), flush=True)
