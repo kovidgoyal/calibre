@@ -66,7 +66,7 @@ from xxhash import xxh3_64_intdigest
 
 from calibre import fit_image
 from calibre.db.cache import Cache
-from calibre.ebooks.metadata import rating_to_stars
+from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, is_dark_theme
 from calibre.gui2.library.alternate_views import ClickStartData, handle_selection_click, handle_selection_drag, selection_for_rows, setup_dnd_interface
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
@@ -1352,9 +1352,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Cover template caching
         self.template_inited = False
         self.template_cache = {}
-        self.template_title = ''
-        self.template_author = ''
-        self.template_title_is_empty = True
+        self.first_line_renderer = partial(self.render_template, 'title', '{title}', False)
+        self.second_line_renderer = partial(self.render_template, 'authors', '', True)
 
         # Initialize drag and drop
         # so we set the attributes manually
@@ -1426,37 +1425,29 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return prefs.get(key, prefs.defaults.get(key))
 
         self.template_cache = {}
-        self.template_title = db_pref('bookshelf_title_template') or ''
-        self.template_author = db_pref('bookshelf_author_template') or ''
-        self.template_title_is_empty = not self.template_title.strip()
-        self.template_author_is_empty = not self.template_author.strip()
+        title = db_pref('bookshelf_title_template') or ''
+        self.first_line_renderer = partial(self.render_template, 'title', title, not title.strip())
+        authors = db_pref('bookshelf_author_template') or ''
+        self.second_line_renderer = partial(self.render_template, 'authors', authors, not authors.strip())
         self.template_inited = True
 
-    def render_template(self, book_id: int, column_name: str, template: str, template_is_empty: bool = False) -> str:
-        self.init_template(self.dbref())
-        if template_is_empty:
+    def render_template(self, column_name: str, template: str, template_is_empty: bool, book_id: int) -> str:
+        if template_is_empty or not (db := self.dbref()):
             return ''
+        self.init_template(db)
         match template:
-            case '{author_sort}':
-                return self.dbref().field_for('author_sort', book_id)
-            case '{author}' | '{authors}':
-                return ' & '.join(self.dbref().field_for('authors', book_id))
             case '{title}':
-                return self.dbref().field_for('title', book_id)
-        mi = self.dbref().get_proxy_metadata(book_id)
+                return db.field_for('title', book_id)
+            case '{author_sort}':
+                return db.field_for('author_sort', book_id)
+            case '{author}' | '{authors}':
+                return authors_to_string(db.field_for('authors', book_id))
+            case '{sort}' | '{title_sort}':
+                return db.field_for('sort', book_id)
+        mi = db.get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(
-            self.template_title, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=self.template_cache)
+            template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=self.template_cache)
         return rslt or ''
-
-    def render_template_title(self, book_id: int) -> str:
-        '''Return the title generate for this book.'''
-        return self.render_template(book_id, 'title', self.template_title, self.template_title_is_empty)
-
-    def render_author_template(self, book_id: int) -> str:
-        '''Return the title generate for this book.'''
-        return self.render_template(book_id, 'authors', self.template_author, self.template_author_is_empty)
-
-    # Miscellaneous methods
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
@@ -1884,8 +1875,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def draw_spine_title(self, painter: QPainter, rect: QRect, spine_color: QColor, book_id: int) -> None:
         '''Draw vertically the title on the spine.'''
-        first_line = self.render_template_title(book_id)
-        second_line = self.render_author_template(book_id)
+        first_line, second_line = self.first_line_renderer(book_id), self.second_line_renderer(book_id)
         margin = self.TEXT_MARGIN
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
