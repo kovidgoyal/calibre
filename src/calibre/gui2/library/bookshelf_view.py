@@ -1428,35 +1428,33 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_cache = {}
         self.template_title = db_pref('bookshelf_title_template') or ''
         self.template_author = db_pref('bookshelf_author_template') or ''
-        self.template_title_is_title = self.template_title == '{title}'
         self.template_title_is_empty = not self.template_title.strip()
         self.template_author_is_empty = not self.template_author.strip()
         self.template_inited = True
 
-    def render_template_title(self, book_id: int) -> str:
-        '''Return the title generate for this book.'''
+    def render_template(self, book_id: int, column_name: str, template: str, template_is_empty: bool = False) -> str:
         self.init_template(self.dbref())
-        if self.template_title_is_empty:
+        if template_is_empty:
             return ''
-        if self.template_title_is_title:
-            return self.dbref().new_api.field_for('title', book_id)
+        match template:
+            case '{author_sort}':
+                return self.dbref().field_for('author_sort', book_id)
+            case '{author}' | '{authors}':
+                return ' & '.join(self.dbref().field_for('authors', book_id))
+            case '{title}':
+                return self.dbref().field_for('title', book_id)
         mi = self.dbref().get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(
-            self.template_title, mi, TEMPLATE_ERROR, mi, column_name='title', template_cache=self.template_cache)
-        return rslt or _('Unknown')
+            self.template_title, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=self.template_cache)
+        return rslt or ''
+
+    def render_template_title(self, book_id: int) -> str:
+        '''Return the title generate for this book.'''
+        return self.render_template(book_id, 'title', self.template_title, self.template_title_is_empty)
 
     def render_author_template(self, book_id: int) -> str:
         '''Return the title generate for this book.'''
-        self.init_template(self.dbref())
-        if self.template_author_is_empty:
-            return ''
-        match self.template_author:
-            case '{author_sort}':
-                return self.dbref().new_api.field_for('author_sort', book_id)
-        mi = self.dbref().get_proxy_metadata(book_id)
-        rslt = mi.formatter.safe_format(
-            self.template_author, mi, TEMPLATE_ERROR, mi, column_name='authors', template_cache=self.template_cache)
-        return rslt or ''
+        return self.render_template(book_id, 'authors', self.template_author, self.template_author_is_empty)
 
     # Miscellaneous methods
 
