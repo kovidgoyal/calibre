@@ -612,7 +612,7 @@ hide_ai_features = False
 #: Control GPU usage in Qt WebEngine
 # Qt WebEngine is the library that is used to render content in the calibre
 # viewer and editor. It can optionally use the GPU for enhanced performance,
-# however, this can causes crashes/black screens on some older systems, so it
+# however, this can cause crashes/black screens on some older systems, so it
 # is disabled by default. In normal usage, the performance difference is not
 # noticeable anyway.
 qt_webengine_uses_gpu = False

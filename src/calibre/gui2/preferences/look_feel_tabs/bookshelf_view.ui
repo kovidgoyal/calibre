@@ -131,7 +131,7 @@
       <item>
        <widget class="QLineEdit" name="opt_bookshelf_author_template">
         <property name="toolTip">
-         <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For very narrow books, this will be skipped when there isnt space for a second line. For example, use the value {author_sort} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+         <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For very narrow books, this will be skipped when there is insufficient space for a second line. For example, use the value {author_sort} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
         </property>
        </widget>
       </item>
