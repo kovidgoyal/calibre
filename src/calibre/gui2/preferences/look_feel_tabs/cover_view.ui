@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
+ <class>cover_browser_tab</class>
  <widget class="QWidget" name="cover_browser_tab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>788</width>
+    <height>336</height>
+   </rect>
+  </property>
   <layout class="QGridLayout" name="gridLayout_cover_browser">
    <property name="leftMargin">
     <number>0</number>
@@ -15,10 +23,13 @@
    <property name="bottomMargin">
     <number>0</number>
    </property>
-   <item row="0" column="1" colspan="2">
-    <widget class="QCheckBox" name="opt_cb_fullscreen">
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_987">
      <property name="text">
-      <string>When showing in a separate window, show it &amp;fullscreen</string>
+      <string>Cover browser &amp;position in the narrow layout:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_browser_narrow_view_position</cstring>
      </property>
     </widget>
    </item>
@@ -32,13 +43,20 @@
    <item row="7" column="1" colspan="2">
     <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
    </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_61">
+   <item row="0" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_cb_fullscreen">
      <property name="text">
-      <string>&amp;Number of covers to show in browse mode (needs restart):</string>
+      <string>When showing in a separate window, show it &amp;fullscreen</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Max. font si&amp;ze:</string>
      </property>
      <property name="buddy">
-      <cstring>opt_cover_flow_queue_length</cstring>
+      <cstring>opt_cover_browser_max_font_size</cstring>
      </property>
     </widget>
    </item>
@@ -46,74 +64,6 @@
     <widget class="QPushButton" name="cover_browser_title_template_button">
      <property name="text">
       <string>Template &amp;editor</string>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0" colspan="2">
-    <spacer name="verticalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>690</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="8" column="1">
-    <widget class="QLineEdit" name="opt_cover_browser_title_template">
-     <property name="toolTip">
-      <string>&lt;p&gt;The template used to generate the text below the covers. This template uses
-the same syntax as save templates. Defaults to just the book title.
-Note that this setting is per-library, which means that you have to
-set it again for every different calibre library you use. Use an
-empty template for no text.&lt;/p&gt;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="opt_cover_browser_reflections">
-     <property name="text">
-      <string>Show &amp;reflections</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QCheckBox" name="opt_cb_preserve_aspect_ratio">
-     <property name="toolTip">
-      <string>Show covers in their original aspect ratio instead of resizing
-them to all have the same width and height</string>
-     </property>
-     <property name="text">
-      <string>Preserve &amp;aspect ratio of covers</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_987">
-     <property name="text">
-      <string>Cover browser &amp;position in the narrow layout:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_cover_browser_narrow_view_position</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <widget class="QComboBox" name="opt_cover_browser_narrow_view_position"/>
-   </item>
-   <item row="9" column="1" colspan="2">
-    <widget class="QComboBox" name="opt_cover_browser_subtitle_field"/>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_23">
-     <property name="text">
-      <string>&amp;Template for caption:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_cover_browser_title_template</cstring>
      </property>
     </widget>
    </item>
@@ -126,6 +76,22 @@ them to all have the same width and height</string>
       <cstring>opt_cover_browser_subtitle_field</cstring>
      </property>
     </widget>
+   </item>
+   <item row="13" column="0" colspan="2">
+    <spacer name="verticalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>690</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="9" column="1" colspan="2">
+    <widget class="QComboBox" name="opt_cover_browser_subtitle_field"/>
    </item>
    <item row="1" column="1" colspan="2">
     <widget class="QLabel" name="fs_help_msg">
@@ -140,13 +106,34 @@ them to all have the same width and height</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
-    <widget class="QLabel" name="label_26">
+   <item row="4" column="0">
+    <widget class="QCheckBox" name="opt_cover_browser_reflections">
      <property name="text">
-      <string>Show ne&amp;xt cover during auto scroll after:</string>
+      <string>Show &amp;reflections</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QComboBox" name="opt_cover_browser_narrow_view_position"/>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_23">
+     <property name="text">
+      <string>&amp;Template for caption:</string>
      </property>
      <property name="buddy">
-      <cstring>opt_books_autoscroll_time</cstring>
+      <cstring>opt_cover_browser_title_template</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_cb_preserve_aspect_ratio">
+     <property name="toolTip">
+      <string>Show covers in their original aspect ratio instead of resizing
+them to all have the same width and height</string>
+     </property>
+     <property name="text">
+      <string>Preserve &amp;aspect ratio of covers</string>
      </property>
     </widget>
    </item>
@@ -166,6 +153,26 @@ them to all have the same width and height</string>
      </property>
     </widget>
    </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_61">
+     <property name="text">
+      <string>&amp;Number of covers to show in browse mode (needs restart):</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_cover_flow_queue_length</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_26">
+     <property name="text">
+      <string>Show ne&amp;xt cover during auto scroll after:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_books_autoscroll_time</cstring>
+     </property>
+    </widget>
+   </item>
    <item row="5" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_cb_double_click_to_activate">
      <property name="text">
@@ -173,6 +180,38 @@ them to all have the same width and height</string>
      </property>
     </widget>
    </item>
+   <item row="8" column="1">
+    <widget class="QLineEdit" name="opt_cover_browser_title_template">
+     <property name="toolTip">
+      <string>&lt;p&gt;The template used to generate the text below the covers. This template uses
+the same syntax as save templates. Defaults to just the book title.
+Note that this setting is per-library, which means that you have to
+set it again for every different calibre library you use. Use an
+empty template for no text.&lt;/p&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QSpinBox" name="opt_cover_browser_max_font_size">
+     <property name="toolTip">
+      <string>&lt;p&gt;Normally, the book title and subtitle are displayed in a font size thatis scaled with the height of the cover browser window. If you want to limit the maximum size of this text, use this setting.</string>
+     </property>
+     <property name="specialValueText">
+      <string>None</string>
+     </property>
+     <property name="suffix">
+      <string> px</string>
+     </property>
+     <property name="minimum">
+      <number>11</number>
+     </property>
+     <property name="maximum">
+      <number>201</number>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <resources/>
+ <connections/>
 </ui>

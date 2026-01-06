@@ -224,6 +224,7 @@ class CoverFlow(pictureflow.PictureFlow):
             self.setShowReflections(False)
         if gprefs['cb_double_click_to_activate']:
             self.setActivateOnDoubleClick(True)
+        self.setMaxFontSize(gprefs['cover_browser_max_font_size'])
 
     def one_auto_scroll(self):
         if self.currentSlide() >= self.count() - 1:
