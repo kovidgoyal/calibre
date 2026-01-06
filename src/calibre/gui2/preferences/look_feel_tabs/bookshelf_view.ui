@@ -131,7 +131,7 @@
       <item>
        <widget class="QLineEdit" name="opt_bookshelf_author_template">
         <property name="toolTip">
-         <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For very narrow books, this will be skipped when there is insufficient space for a second line. For example, use the value {author_sort} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+         <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For example, use the value {author_sort} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
         </property>
        </widget>
       </item>
@@ -144,7 +144,7 @@
       </item>
      </layout>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QLabel" name="label_pages">
       <property name="text">
        <string>Template for spine &amp;width:</string>
@@ -154,7 +154,7 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
@@ -172,14 +172,14 @@
       </item>
      </layout>
     </item>
-    <item row="6" column="1">
+    <item row="7" column="1">
      <widget class="QPushButton" name="use_pages_button">
       <property name="text">
        <string>Use a custom &amp;pages column</string>
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="8" column="0">
      <widget class="QLabel" name="label_fade_time">
       <property name="text">
        <string>Duration of hover &amp;animation</string>
@@ -189,7 +189,7 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="8" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_fade_time">
       <property name="specialValueText">
        <string>Disable</string>
@@ -208,7 +208,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="label_hover_interact">
       <property name="text">
        <string>&amp;Expand the hovered cover:</string>
@@ -218,14 +218,14 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="QComboBox" name="opt_bookshelf_hover">
       <property name="toolTip">
        <string>Control what happens when the mouse hovers over the spine of a book.</string>
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="12" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -238,7 +238,7 @@
       </property>
      </spacer>
     </item>
-    <item row="9" column="0" colspan="2">
+    <item row="10" column="0" colspan="2">
      <widget class="QPushButton" name="recount_button">
       <property name="toolTip">
        <string>Have calibre re-count the pages in all books in the current library.</string>
@@ -248,10 +248,20 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0" colspan="2">
+    <item row="11" column="0" colspan="2">
      <widget class="QPushButton" name="show_log_button">
       <property name="text">
        <string>Show count &amp;failure log</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
+      <property name="toolTip">
+       <string>&lt;p&gt;When showing authors in spine, for very narrow books, artifically widen the book to make space for the author line. Without this, the authors wont be displayed for narrow books, with it, narrow books will appear artifically wider than they really are.</string>
+      </property>
+      <property name="text">
+       <string>Make &amp;space for author line</string>
       </property>
      </widget>
     </item>

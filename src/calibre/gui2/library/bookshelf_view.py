@@ -858,7 +858,7 @@ def get_spine_width(
     book_id: int, db: Cache, spine_size_template: str, template_cache: dict[str, str],
     lc: LayoutConstraints, cache: dict[int, int]
 ) -> int:
-    if (ans := cache.get(book_id)) is not None:
+    if (ans := cache.get(book_id)) is not None and lc.min_spine_width <= ans <= lc.max_spine_width:
         return ans
 
     def linear(f: float):
@@ -902,6 +902,7 @@ class LayoutPayload(NamedTuple):
     book_id_to_item_map: dict[int, ShelfItem]
     book_id_visual_order_map: dict[int, int]
     book_ids_in_visual_order: list[int]
+    min_line_height: int
 
 
 class BookCase(QObject):
@@ -981,7 +982,7 @@ class BookCase(QObject):
 
     def invalidate(
         self, layout_constraints: LayoutConstraints = LayoutConstraints(),
-        model: BooksModel | None = None, group_field_name: str = ''
+        model: BooksModel | None = None, group_field_name: str = '', min_line_height: int = 0,
     ) -> None:
         with self.lock:
             self.current_invalidate_event.set()
@@ -1004,7 +1005,8 @@ class BookCase(QObject):
             self.layout_finished = not bool(self.row_to_book_id)
             self.payload = LayoutPayload(
                 self.current_invalidate_event, self.layout_constraints, self.group_field_name, self.row_to_book_id,
-                self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order)
+                self.book_id_to_item_map, self.book_id_visual_order_map, self.book_ids_in_visual_order,
+                min_line_height)
 
     def ensure_layouting_is_current(self) -> None:
         if db := self.dbref():
@@ -1034,7 +1036,7 @@ class BookCase(QObject):
     def do_layout_in_worker(
         self, invalidate: Event, lc: LayoutConstraints, group_field_name: str, row_to_book_id: tuple[int, ...],
         book_id_to_item_map: dict[int, ShelfItem], book_id_visual_order_map: dict[int, int],
-        book_ids_in_visual_order: list[int],
+        book_ids_in_visual_order: list[int], min_line_height: int,
     ) -> None:
         if lc.width < lc.max_spine_width:
             return
@@ -1055,6 +1057,11 @@ class BookCase(QObject):
             return
         db = mdb.new_api
         spine_size_template = db.pref('bookshelf_spine_size_template') or db.backend.prefs.defaults['bookshelf_spine_size_template']
+        if gprefs['bookshelf_make_space_for_second_line']:
+            prefs = db.backend.prefs
+            author_template = prefs.get('bookshelf_author_template', prefs.defaults.get('bookshelf_author_template')) or ''
+            if author_template.strip():
+                min_line_height *= 2
         template_cache = {}
         group_iter = get_grouped_iterator(db, row_to_book_id, group_field_name)
         _, num_of_groups = next(group_iter)
@@ -1064,6 +1071,9 @@ class BookCase(QObject):
             self.num_of_groups = num_of_groups
         self.num_of_groups_changed.emit()
         num_of_books_that_need_pages_counted = db.num_of_books_that_need_pages_counted()
+        # Ensure there is enough width for the spine text
+        min_width = min(max(min_line_height, lc.min_spine_width), lc.max_spine_width-1)
+        lc = lc._replace(min_spine_width=min_width)
         for group_name, book_ids_in_group in group_iter:
             if invalidate.is_set():
                 return
@@ -1316,6 +1326,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.min_font_size = 0.75 * self.base_font_size_pts
         self.max_font_size = 1.3 * self.base_font_size_pts
+        _, fm, _ = self.get_sized_font(self.min_font_size)
+        self.min_line_height = math.ceil(fm.height())
 
         self.gui = gui
         self._model: BooksModel | None = None
@@ -1335,6 +1347,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Ensure viewport receives mouse events
         self.viewport().setMouseTracking(True)
         self.viewport().setAttribute(Qt.WidgetAttribute.WA_MouseTracking, True)
+
+        # Cover template caching
+        self.template_inited = False
+        self.template_cache = {}
+        self.template_title = ''
+        self.template_author = ''
+        self.template_title_is_empty = True
 
         # Initialize drag and drop
         # so we set the attributes manually
@@ -1363,12 +1382,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             thumbnail_size=self.thumbnail_size(), parent=self, version=2,
         )
         self.cover_cache.rendered.connect(self.update_viewport, type=Qt.ConnectionType.QueuedConnection)
-
-        # Cover template caching
-        self.template_inited = False
-        self.template_cache = {}
-        self.template_title = ''
-        self.template_title_is_empty = True
 
     def calculate_shelf_geometry(self) -> None:
         lc = self.layout_constraints
@@ -1453,8 +1466,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.cover_cache.set_thumbnail_size(*self.thumbnail_size())
             self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
             self.update_ram_cache_size()
-        self.bookcase.clear_spine_width_cache()
-        self.invalidate()
+        self.invalidate(clear_spine_width_cache=True)
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1484,7 +1496,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Create selection model for sync
             for s, tgt in signals.items():
                 getattr(self._model, s).connect(getattr(self, tgt))
-        self.invalidate(set_of_books_changed=True)
+        self.invalidate(set_of_books_changed=True, clear_spine_width_cache=True)
 
     def model(self) -> BooksModel | None:
         '''Return the model.'''
@@ -1553,10 +1565,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
         return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
-    def invalidate(self, set_of_books_changed=True):
+    def invalidate(self, set_of_books_changed: bool = False, clear_spine_width_cache: bool = False) -> None:
+        if clear_spine_width_cache:
+            self.bookcase.clear_spine_width_cache()
         self.bookcase.invalidate(
             self.layout_constraints, model=self.model() if set_of_books_changed else None,
-            group_field_name=self.grouping_mode)
+            group_field_name=self.grouping_mode, min_line_height=self.min_line_height)
         if set_of_books_changed:
             self.expanded_cover.invalidate()
         self.update_scrollbar_ranges()
@@ -1574,7 +1588,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if num_of_books_that_need_pages_counted:
                 self.pages_count_update_check_timer.start()
             else:
-                self.invalidate()
+                self.invalidate(clear_spine_width_cache=True)
 
     def on_shelf_layout_done(self, books: CaseItem, shelf: CaseItem) -> None:
         if self.view_is_visible():
@@ -1991,8 +2005,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Clear caches when database changes
             self.template_inited = False
             self.cover_cache.set_database(newdb)
-            self.bookcase.clear_spine_width_cache()
-            self.invalidate(set_of_books_changed=True)
+            self.invalidate(set_of_books_changed=True, clear_spine_width_cache=True)
 
     def set_context_menu(self, menu: QMenu):
         self.context_menu = menu
