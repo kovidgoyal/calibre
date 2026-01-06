@@ -1877,6 +1877,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
             second_rect = first_rect.translated(first_rect.width(), 0)
+            if gprefs['bookshelf_up_to_down']:
+                first_rect, second_rect = second_rect, first_rect
         else:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
         nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
