@@ -1997,12 +1997,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def set_context_menu(self, menu: QMenu):
         self.context_menu = menu
 
-    def contextMenuEvent(self, ev: QContextMenuEvent):
-        # Create menu with grouping options
-        menu = QMenu(self)
-
-        # Add grouping submenu
-        grouping_menu = menu.addMenu(QIcon.ic('bookshelf.png'), _('Group by'))
+    def populate_group_by_menu(self, grouping_menu: QMenu) -> None:
+        grouping_menu.clear()
         fm = self.gui.current_db.new_api.field_metadata
 
         def add(field: str, name: str) -> None:
@@ -2020,14 +2016,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             cf[k] = numeric_sort_key(fm[k])
         for k in sorted(cf, key=cf.get):
             add(k, fm[k]['name'])
-        # Add standard context menu items if available
-        if cm := self.context_menu:
-            menu.addSeparator()
-            for action in cm.actions():
-                menu.addAction(action)
 
-        menu.popup(ev.globalPos())
-        ev.accept()
+    def contextMenuEvent(self, ev: QContextMenuEvent):
+        if self.context_menu:
+            self.context_menu.popup(ev.globalPos())
+            ev.accept()
 
     def set_grouping_mode(self, mode: str):
         '''Set the grouping mode and refresh display.'''

@@ -239,6 +239,19 @@ class SearchBar(QFrame):  # {{{
         sb.setVisible(False)
         l.addWidget(sb)
 
+        parent.group_by_button = self.group_by_button = gb = QToolButton(self)
+        gb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        gb.setToolTip(_('Change how the displayed books are grouped'))
+        gb.setCursor(Qt.CursorShape.PointingHandCursor)
+        gb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        gb.setAutoRaise(True)
+        gb.setText(_('Group by'))
+        gb.setIcon(QIcon.ic('bookshelf.png'))
+        gb.setMenu(QMenu(gb))
+        gb.menu().aboutToShow.connect(self.populate_group_by_menu)
+        gb.setVisible(False)
+        l.addWidget(gb)
+
         x = parent.search = SearchBox2(self, as_url=search_as_url)
         x.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         x.setObjectName('search')
@@ -291,6 +304,10 @@ class SearchBar(QFrame):  # {{{
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
         get_gui().iactions['Sort By'].update_menu(self.sort_button.menu())
+
+    def populate_group_by_menu(self):
+        from calibre.gui2.ui import get_gui
+        get_gui().bookshelf_view.populate_group_by_menu(self.group_by_button.menu())
 
     def do_fts(self):
         from calibre.gui2.ui import get_gui

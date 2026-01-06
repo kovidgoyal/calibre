@@ -247,6 +247,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
 
     buttons = set()
     ignore_toggles = False
+    needs_group_by = False
 
     def __init__(self, name: str, icon: str, label: str, view_name: str, gui: CentralContainer, shortcut=None, config_key=None):
         super().__init__(name, icon, label, gui, shortcut=shortcut)
@@ -298,6 +299,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
                 btn.update_state(False)
         self.gui.library_view.alternate_views.show_view(self.view_name if show else None)
         self.gui.sort_button.setVisible(show)
+        self.gui.group_by_button.setVisible(self.needs_group_by and show)
         AlternateViewsButtons.ignore_toggles = False
 # }}}
 
@@ -317,6 +319,7 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 
 
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
+    needs_group_by = True
     def __init__(self, gui):
         super().__init__(
             'bookshelf_view',
