@@ -1166,7 +1166,7 @@ class BookCase(QObject):
 # }}}
 
 
-class ExpandedCover(QObject):
+class ExpandedCover(QObject):  # {{{
 
     updated = pyqtSignal()
 
@@ -1286,6 +1286,7 @@ class ExpandedCover(QObject):
             painter.setBrush(Qt.BrushStyle.NoBrush)
             painter.setOpacity(1.0)
             painter.drawRect(cover_rect)
+# }}}
 
 
 class SavedState(NamedTuple):
