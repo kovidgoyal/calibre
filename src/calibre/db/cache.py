@@ -1756,9 +1756,11 @@ class Cache:
             return Pages(int(pages), int(algorithm), str(format), int(format_size),
                          parse_iso8601(timestamp, assume_utc=True))
     @read_api
-    def pages_needs_scan(self, books: Iterable[int]) -> set[int]:
-        ' Return the subset of books that are marked as needing a scan to update page count '
+    def pages_needs_scan(self, books: Iterable[int] = ()) -> set[int]:
+        ' Return the subset of books (or all books if empty) that are marked as needing a scan to update page count '
         books = tuple(books)
+        if not books:
+            return {r[0] for r in self.backend.execute('SELECT book FROM books_pages_link WHERE needs_scan=1')}
         ans = set()
         BATCH_SIZE = self.backend.max_number_of_variables
         for i in range(0, len(books), BATCH_SIZE):
