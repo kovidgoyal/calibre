@@ -371,7 +371,7 @@ class BooksView(TableView):  # {{{
             else:
                 wv.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
             if tweaks['vertical_scrolling_per_row']:
-                wv.update_momentum_scroll_settings(enable_x=False)
+                wv.update_momentum_scroll_settings(enable_y=False)
             else:
                 wv.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
