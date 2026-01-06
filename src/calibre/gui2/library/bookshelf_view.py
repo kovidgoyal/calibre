@@ -1903,13 +1903,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
             painter.rotate(rotation)
             text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
-            painter.drawText(text_rect, alignment, text)
+            painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
             painter.restore()
         if second_line:
-            draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom)
-            draw_text(second_line, second_rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+            draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignBottom)
+            draw_text(second_line, second_rect, Qt.AlignmentFlag.AlignTop)
         else:
-            draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignCenter)
+            draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignVCenter)
+        painter.restore()
 
     def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail: PixmapWithDominantColor) -> None:
         match gprefs['bookshelf_thumbnail']:
