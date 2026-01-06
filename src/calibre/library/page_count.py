@@ -178,7 +178,7 @@ def count_pages_txt(pathtoebook: str) -> int:
         text = f.read().decode('utf-8', 'replace')
     e = etree.Element('r')
     e.tail = clean_xml_chars(text)
-    return get_num_of_significant_chars(e) // CHARS_PER_PAGE
+    return ceil(get_num_of_significant_chars(e) / CHARS_PER_PAGE)
 
 
 def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
