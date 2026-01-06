@@ -1115,11 +1115,13 @@ class BookCase(QObject):
         s, e = min(aidx, bidx), max(aidx, bidx)
         yield from map(self.book_id_to_row_map.__getitem__, self.book_ids_in_visual_order[s:e+1])
 
-    def visual_neighboring_book(self, book_id: int, delta: int = 1, allow_wrap: bool = False) -> int:
+    def visual_neighboring_book(self, book_id: int, delta: int = 1, allow_wrap: bool = False, in_bound: bool = False) -> int:
         idx = self.book_id_visual_order_map[book_id]
         nidx = idx + delta
         if allow_wrap:
             nidx = (nidx + len(self.book_ids_in_visual_order)) % len(self.book_ids_in_visual_order)
+        if in_bound:
+            nidx = max(0, min(len(self.book_ids_in_visual_order)-1), nidx)
         if 0 <= nidx < len(self.book_ids_in_visual_order):
             return self.book_ids_in_visual_order[nidx]
         return 0
@@ -1134,7 +1136,7 @@ class BookCase(QObject):
             return ci.items[0 if first else -1].book_id
         return 0
 
-    def book_in_column_of(self, book_id: int, delta: int = 1, allow_wrap: bool = False) -> int:
+    def book_in_column_of(self, book_id: int, delta: int = 1, allow_wrap: bool = False, in_bound: bool = False) -> int:
         if not (si := self.book_id_to_item_map.get(book_id)):
             return
         if not (ci := self.shelf_of_book(book_id)):
@@ -1143,6 +1145,8 @@ class BookCase(QObject):
         num_shelves = len(self.items) // 2
         if allow_wrap:
             shelf_idx = (shelf_idx + num_shelves) % num_shelves
+        if in_bound:
+            shelf_idx = max(0, min(len(self.num_shelves)-1), shelf_idx)
         if shelf_idx < 0 or shelf_idx >= num_shelves:
             return 0
         target_shelf = self.items[shelf_idx * 2]
@@ -2097,9 +2101,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             case Qt.Key.Key_Down:
                 target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=1)
             case Qt.Key.Key_PageUp:
-                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-self.shelves_per_screen)
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-self.shelves_per_screen, in_bound=True)
             case Qt.Key.Key_PageDown:
-                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=self.shelves_per_screen)
+                target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=self.shelves_per_screen, in_bound=True)
             case Qt.Key.Key_Home:
                 if has_ctrl:
                     target_book_id = self.bookcase.book_ids_in_visual_order[0]
