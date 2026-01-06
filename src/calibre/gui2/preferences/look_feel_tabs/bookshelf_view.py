@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from contextlib import suppress
 from functools import partial
 
-from qt.core import QDialog, QDialogButtonBox, QInputDialog, QLabel, QTabWidget, QTextBrowser, QVBoxLayout, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -39,6 +39,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
+    recount_updated = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -102,6 +103,16 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
         self.recount_button.clicked.connect(self.recount_pages)
         self.show_log_button.clicked.connect(self.show_log)
 
+        self._recount_button_txt = self.recount_button.text()
+        self.recount_updated.connect(self.update_recount_txt, type=Qt.ConnectionType.QueuedConnection)
+        self.recount_timer = t = QTimer(self)
+        t.setInterval(1000)  # 1 second
+        t.timeout.connect(self.count_scan_needed)
+        self.count_scan_needed()
+
+    def lazy_initialize(self):
+        self.recount_timer.start()
+
     def show_log(self) -> None:
         db = self.gui.current_db.new_api
         path = db.page_count_failures_log_path
@@ -122,6 +133,16 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             db.queue_pages_scan()
             self.gui.library_view.model().zero_page_cache.clear()
             self.gui.bookshelf_view.invalidate()
+            self.count_scan_needed()
+
+    def count_scan_needed(self) -> None:
+        self.recount_updated.emit(self.gui.current_db.new_api.num_of_books_that_need_pages_counted())
+
+    def update_recount_txt(self, count) -> None:
+        msg = self._recount_button_txt
+        if count > 0:
+            msg += ' ({})'.format(_('pending recount: {}').format(count))
+        self.recount_button.setText(msg)
 
     def edit_template_button(self, line_edit, title):
         rows = self.gui.library_view.selectionModel().selectedRows()
