@@ -2227,6 +2227,8 @@ class Cache:
                 run_plugins_on_postdelete(self, book_id, fmt)
 
         self._update_last_modified(tuple(formats_map))
+        for book_id in formats_map:
+            self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.formats_removed, formats_map)
         return removed_map
 
