@@ -113,6 +113,18 @@ class ClickStartData(NamedTuple):
     max_row: int
 
 
+def double_click_action(index: QModelIndex) -> None:
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    tval = tweaks['doubleclick_on_library_view']
+    if tval == 'open_viewer':
+        gui.iactions['View'].view_triggered(index)
+    elif tval in {'edit_metadata', 'edit_cell'}:
+        gui.iactions['Edit Metadata'].edit_metadata(False, False)
+    elif tval in {'show_book_details', 'show_locked_book_details'}:
+        gui.iactions['Show Book Details'].show_book_info(locked=tval == 'show_locked_book_details')
+
+
 def handle_selection_drag(
     self: QAbstractItemView, index: QModelIndex, start_data: ClickStartData | None,
     row_cmp=cmp, selection_between=QItemSelection
@@ -181,8 +193,11 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.AltModifier or
             mods & Qt.KeyboardModifier.ShiftModifier or mods & Qt.KeyboardModifier.MetaModifier
         ):
-            return
-        if self.state() != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
+            return False
+        s = QAbstractItemView.State.NoState
+        if callable(getattr(self, 'state', None)):
+            s = self.state()
+        if s != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
             ev.ignore()
             tweak = tweaks['enter_key_behavior']
@@ -206,6 +221,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
                 gui.iactions['View'].view_triggered(self.currentIndex())
             gui.enter_key_pressed_in_book_list.emit(self)
             return True
+    return False
 
 
 def image_to_data(image):  # {{{
@@ -950,13 +966,7 @@ class GridView(MomentumScrollMixin, QListView):
 
     def double_clicked(self, index):
         self.start_view_animation(index)
-        tval = tweaks['doubleclick_on_library_view']
-        if tval == 'open_viewer':
-            self.gui.iactions['View'].view_triggered(index)
-        elif tval in {'edit_metadata', 'edit_cell'}:
-            self.gui.iactions['Edit Metadata'].edit_metadata(False, False)
-        elif tval == 'show_book_details':
-            self.gui.iactions['Show Book Details'].show_book_info()
+        double_click_action(index)
 
     def animation_value_changed(self, value):
         if self.delegate.animating is not None:

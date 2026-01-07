@@ -68,7 +68,15 @@ from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, is_dark_theme
-from calibre.gui2.library.alternate_views import ClickStartData, handle_selection_click, handle_selection_drag, selection_for_rows, setup_dnd_interface
+from calibre.gui2.library.alternate_views import (
+    ClickStartData,
+    double_click_action,
+    handle_enter_press,
+    handle_selection_click,
+    handle_selection_drag,
+    selection_for_rows,
+    setup_dnd_interface,
+)
 from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
@@ -2070,6 +2078,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # Mouse and keyboard events {{{
 
     def keyPressEvent(self, ev: QKeyEvent) -> None:
+        if handle_enter_press(self, ev, has_edit_cell=False):
+            return
         if ev.matches(QKeySequence.StandardKey.SelectAll):
             self.selectAll()
             ev.accept()
@@ -2198,9 +2208,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if index.isValid() and (row := index.row()) >= 0:
             # Set as current row first
             self.set_current_row(row)
-            # Open the book
-            self.gui.iactions['View'].view_triggered(row)
             ev.accept()
+            double_click_action(index)
 
     def viewportEvent(self, ev: QEvent) -> None:
         if ev.type() == QEvent.Type.Leave:
