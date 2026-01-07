@@ -468,6 +468,7 @@ class Cache:
         if self.backend.prefs['update_all_last_mod_dates_on_start']:
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
+        self._queue_pages_scan()
 
     # FTS API {{{
     def initialize_fts(self):
