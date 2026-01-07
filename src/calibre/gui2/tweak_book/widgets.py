@@ -1284,6 +1284,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
                 val = bytes(ans.data(format)).decode()
                 val = unicodedata.normalize('NFC', val.replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
                 ans.setData(format, val.encode())
+        ans.setText(self.selected_text)  # to workaround Qt converting nbsp to plain text and other infelicities
         return ans
 
     def show_tooltip(self, ev):
