@@ -194,7 +194,7 @@ empty template for no text.&lt;/p&gt;</string>
    <item row="11" column="1">
     <widget class="QSpinBox" name="opt_cover_browser_max_font_size">
      <property name="toolTip">
-      <string>&lt;p&gt;Normally, the book title and subtitle are displayed in a font size thatis scaled with the height of the cover browser window. If you want to limit the maximum size of this text, use this setting.</string>
+      <string>&lt;p&gt;Normally, the book title and subtitle are displayed in a font size that is scaled with the height of the cover browser window. If you want to limit the maximum size of this text, use this setting.</string>
      </property>
      <property name="specialValueText">
       <string>None</string>
