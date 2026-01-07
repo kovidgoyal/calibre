@@ -123,14 +123,16 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
 
     def recount_pages(self) -> None:
         from calibre.gui2.dialogs.confirm_delete import confirm
-        if confirm(_('This will cause calibre to rescan all books in your library and update page counts, where changed.'
-                     ' The scanning happens in the background and can take up to an hour per thousand books'
-                     ' depending on the size of the books and the power of your computer. This is'
-                     ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'),
-                   'confirm-pages-recount', parent=self):
+        ok, force = confirm(_(
+            'This will cause calibre to rescan all books in your library and update page counts, where changed.'
+            ' The scanning happens in the background and can take up to an hour per thousand books'
+            ' depending on the size of the books and the power of your computer. This is'
+            ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'),
+            'confirm-pages-recount', parent=self, extra_button=_('Re-count &unchanged as well'))
+        if ok:
             db = self.gui.current_db.new_api
             db.mark_for_pages_recount()
-            db.queue_pages_scan()
+            db.queue_pages_scan(force=force)
             self.gui.library_view.model().zero_page_cache.clear()
             self.gui.bookshelf_view.invalidate()
             self.count_scan_needed()
