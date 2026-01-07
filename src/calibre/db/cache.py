@@ -468,6 +468,10 @@ class Cache:
         if self.backend.prefs['update_all_last_mod_dates_on_start']:
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
+        if tweaks['page_count_open_library_auto_scan']:
+            if tweaks['page_count_auto_scan_outdated_algorithm']:
+                self._mark_for_pages_recount(outdated_algorithm=True)
+            self._queue_pages_scan()
 
     # FTS API {{{
     def initialize_fts(self):
@@ -1779,10 +1783,22 @@ class Cache:
         return 0
 
     @write_api
-    def mark_for_pages_recount(self, book_id: int = 0) -> None:
-        ' Mark all books for recount of pages '
+    def mark_for_pages_recount(self, book_id: int = 0, outdated_algorithm: bool = False, rescan_error: bool = False) -> None:
+        '''
+        Mark all books for recount of pages.
+        If book_id is given, mark only this book.
+        If outdated_algorithm is True, mark books for wich a outdated algorithm was used .
+        If rescan_error is True, mark books that was return a error during their previous scan.
+        '''
+        from calibre.library.page_count import Server
         if book_id:
             self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={int(book_id)}')
+        elif outdated_algorithm and rescan_error:
+            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE algorithm<{Server.ALGORITHM} OR pages<0')
+        elif outdated_algorithm:
+            self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE algorithm<{Server.ALGORITHM} AND algorithm>0')
+        elif rescan_error:
+            self.backend.execute('UPDATE books_pages_link SET needs_scan=1 WHERE pages<0')
         else:
             self.backend.execute('UPDATE books_pages_link SET needs_scan=1')
 

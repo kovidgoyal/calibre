@@ -616,3 +616,25 @@ hide_ai_features = False
 # is disabled by default. In normal usage, the performance difference is not
 # noticeable anyway.
 qt_webengine_uses_gpu = False
+
+#: Scan pages count when opening library
+# By default, calibre will start to scan the pending books to recount pages
+# only if the field pages is visible in the book view or the book details panel,
+# or if the bookshelf view is enable. This lead that if a library is closed
+# while there are still books pending for recount, when the library is reopen
+# the queue will remain frozen and using the field pages in templates risk to return invalid value.
+#
+# This can be particularly noticeable for library create before the pages field was added,
+# or for large library on wich the very long pending queue cannot be completed in a single session.
+#
+# The tweak page_count_open_library_auto_scan allow to force the start of the scanning job
+# when you open a library to ensure that every books in the pending queue will be scanned.
+# Default: False
+#
+# The tweak page_count_auto_scan_outdated_algorithm allow to control if calibre
+# also check if the stored value was created by a outated algorithm,
+# and append the books at the recount pending queue to get a up to date value.
+# This tweak depend of page_count_open_library_auto_scan.
+# Default: True
+page_count_open_library_auto_scan = False
+page_count_auto_scan_outdated_algorithm = True
