@@ -54,7 +54,8 @@ Settings = namedtuple('Settings',
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
     'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality '
-    'tag_map_rules author_map_rules publisher_map_rules series_map_rules'
+    'tag_map_rules author_map_rules publisher_map_rules series_map_rules '
+    'do_reindex_fmt do_recount_pages '
 )
 
 null = object()
@@ -100,7 +101,8 @@ class MyBlockingBusy(QDialog):  # {{{
             is not None, args.do_series, bool(args.series) and
             args.do_autonumber, args.comments is not null,
             args.do_remove_conv, args.clear_languages, args.remove_all,
-            bool(do_sr), args.do_compress_cover
+            bool(do_sr), args.do_compress_cover,
+            args.do_reindex_fmt, args.do_recount_pages,
         ]
         self.selected_options = sum(options)
         if args.tag_map_rules:
@@ -532,6 +534,20 @@ class MyBlockingBusy(QDialog):  # {{{
                 self.progress_update.emit(1)
 
             self.db.new_api.compress_covers(self.ids, args.compress_cover_quality, pc)
+            self.progress_finished_cur_step.emit()
+
+        if args.do_reindex_fmt:
+            self.progress_next_step_range.emit(len(self.ids))
+            for book_id in self.ids:
+                self.db.new_api.reindex_fts_book(book_id)
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
+        if args.do_recount_pages:
+            self.progress_next_step_range.emit(len(self.ids))
+            for book_id in self.ids:
+                self.db.new_api.queue_pages_scan(book_id)
+                self.progress_update.emit(1)
             self.progress_finished_cur_step.emit()
 
         if self.do_sr:
@@ -1395,6 +1411,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         elif self.cover_clone.isChecked():
             cover_action = 'clone'
 
+        do_reindex_fmt = self.reindex_fmt.isChecked()
+        do_recount_pages = self.recount_pages.isChecked()
+
         args = Settings(
             remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
             do_autonumber, do_swap_ta, do_remove_conv, do_auto_author, series,
@@ -1405,6 +1424,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()],
             do_compress_cover, compress_cover_quality, self.tag_map_rules, self.author_map_rules,
             self.publisher_map_rules, self.series_map_rules,
+            do_reindex_fmt, do_recount_pages,
         )
         if DEBUG:
             print('Running bulk metadata operation with settings:')
