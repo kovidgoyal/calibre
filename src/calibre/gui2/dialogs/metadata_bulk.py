@@ -541,6 +541,7 @@ class MyBlockingBusy(QDialog):  # {{{
                 if isinstance(ans, bool) and not ans:
                     break
                 self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
                 self.progress_update.emit(0)
@@ -548,7 +549,6 @@ class MyBlockingBusy(QDialog):  # {{{
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
                     self.progress_update.emit(1)
                 self.progress_finished_cur_step.emit()
-            self.progress_finished_cur_step.emit()
 
 # }}}
 
