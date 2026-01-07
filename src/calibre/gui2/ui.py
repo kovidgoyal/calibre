@@ -896,6 +896,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
                     db.reindex_fts_book(book_id, fmt)
                     db.update_last_modified((book_id,))
+                    db.queue_pages_scan(book_id)
                     m.refresh_ids((book_id,))
                     db.event_dispatcher(db.EventType.book_edited, book_id, fmt)
             except Exception:

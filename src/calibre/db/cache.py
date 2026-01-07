@@ -3074,6 +3074,7 @@ class Cache:
         self.format_metadata_cache.pop(book_id, None)
         max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
         self.fields['size'].table.update_sizes({book_id: max_size})
+        self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.format_added, book_id, fmt)
         self.backend.remove_trash_formats_dir_if_empty(book_id)
 
@@ -3103,6 +3104,7 @@ class Cache:
             self._set_field('cover', {book_id:1})
         if annotations:
             self._restore_annotations(book_id, annotations)
+        self._queue_pages_scan(book_id)
 
     @write_api
     def delete_trash_entry(self, book_id, category):
@@ -3129,6 +3131,7 @@ class Cache:
         self.fields['path'].table.set_path(book_id, path, self.backend)
         if annotations:
             self._restore_annotations(book_id, annotations)
+        self._queue_pages_scan(book_id)
 
     @read_api
     def virtual_libraries_for_books(self, book_ids, virtual_fields=None):
