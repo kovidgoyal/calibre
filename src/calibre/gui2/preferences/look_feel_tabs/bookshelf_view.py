@@ -5,12 +5,14 @@ __copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
+import os
 from contextlib import suppress
 from functools import partial
 
-from qt.core import QDialog, QDialogButtonBox, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import gprefs
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.bookshelf_view_ui import Ui_bookshelf_tab as Ui_Form
@@ -21,6 +23,7 @@ class LogViewer(QDialog):
 
     def __init__(self, path: str, text: str, parent=None):
         super().__init__(parent)
+        self.log_path = path
         self.setWindowTitle(_('Log of page count failures'))
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('The log is stored at: {}').format(path))
@@ -32,7 +35,17 @@ class LogViewer(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
+        self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+        b.clicked.connect(self.clear_log)
+        b.setIcon(QIcon.ic('trash.png'))
         self.resize(600, 500)
+
+    def clear_log(self):
+        if not confirm('<p>'+_('The log for page count failures will be <b>permanently deleted</b>! Are you sure?'), 'clear_log_count', self):
+            return
+        with suppress(FileNotFoundError):
+            os.remove(make_long_path_useable(self.log_path))
+        self.text.setPlainText('')
 
 
 class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
