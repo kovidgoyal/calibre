@@ -74,7 +74,7 @@
     <item row="2" column="0">
      <widget class="QLabel" name="label_title">
       <property name="text">
-       <string>Template for spine &amp;title:</string>
+       <string>Template for spine &amp;first line:</string>
       </property>
       <property name="buddy">
        <cstring>opt_bookshelf_title_template</cstring>
@@ -105,7 +105,7 @@
     <item row="3" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>Template for spine a&amp;uthor:</string>
+       <string>Template for spine &amp;second line:</string>
       </property>
       <property name="buddy">
        <cstring>opt_bookshelf_author_template</cstring>
