@@ -465,6 +465,8 @@ class Cache:
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
+            if self.backend.prefs.get('full_page_scan_requested'):
+                self._queue_pages_scan(by_user=False)
         if self.backend.prefs['update_all_last_mod_dates_on_start']:
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
@@ -1787,7 +1789,7 @@ class Cache:
             self.backend.execute('UPDATE books_pages_link SET needs_scan=1')
 
     @write_api
-    def queue_pages_scan(self, book_id: int = 0, force: bool = False) -> None:
+    def queue_pages_scan(self, book_id: int = 0, force: bool = False, by_user: bool = True) -> None:
         '''
         Start a scan updating page counts for all books that need a scan.
         If book_id is specified, then only that book is scanned and it is always scanned.
@@ -1801,6 +1803,8 @@ class Cache:
                 self.fields['pages'].table.book_col_map.clear()
             if len(self.fields['pages'].table.book_col_map) < len(self.fields['uuid'].table.book_col_map):
                 self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book,needs_scan) SELECT id,1 FROM books')
+            if by_user:
+                self._set_pref('full_page_scan_requested', True)
         elif force:
             self.backend.execute(f'DELETE FROM books_pages_link WHERE book={book_id}')
             self.fields['pages'].table.book_col_map.pop(book_id, None)
