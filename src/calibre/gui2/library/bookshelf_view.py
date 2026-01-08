@@ -1017,8 +1017,6 @@ class BookCase(QObject):
                 min_line_height)
 
     def ensure_layouting_is_current(self) -> None:
-        if db := self.dbref():
-            db.new_api.queue_pages_scan()
         with self.lock:
             if self.layout_constraints.width > 0 and self.payload is not None:
                 if self.worker is None:
@@ -1617,6 +1615,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def shown(self):
         '''Called when this view becomes active.'''
+        if db := self.dbref():
+            db.queue_pages_scan()
         self.bookcase.ensure_layouting_is_current()
 
     def update_viewport(self):
