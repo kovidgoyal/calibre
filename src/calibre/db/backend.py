@@ -49,6 +49,7 @@ from calibre.db.tables import (
     SizeTable,
     UUIDTable,
 )
+from calibre.db.utils import atomic_write
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
@@ -2284,8 +2285,7 @@ class DB:
         for path in format_abspaths:
             ext = path.rpartition('.')[-1].lower()
             fmap[path] = os.path.join(dest, ext)
-        with open(os.path.join(dest, 'metadata.json'), 'wb') as f:
-            f.write(json.dumps(metadata).encode('utf-8'))
+        atomic_write(os.path.join(dest, 'metadata.json'), json.dumps(metadata).encode('utf-8'))
         copy_files(fmap, delete_source=True)
 
     def get_metadata_for_trash_book(self, book_id, read_annotations=True):
