@@ -176,9 +176,9 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
     def use_pages(self):
         fm = self.gui.current_db.new_api.field_metadata
         keys = tuple(k for k in fm.all_field_keys() if fm[k].get('name'))
-        names = [fm[k]['name'] for k in keys]
+        names = ['{} ({})'.format(fm[k]['name'], k) for k in keys]
         try:
-            idx = keys.index('#pages')
+            idx = keys.index('{} ({})'.format(_('Pages'), '#pages'))
         except ValueError:
             idx = 0
         item, ok = QInputDialog.getItem(self, _('Choose a column for pages'), _(
