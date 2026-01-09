@@ -6,7 +6,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import hashlib
 import http.client
-import os
 import string
 import time
 import zlib
@@ -14,12 +13,10 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
-from calibre.srv.tests.base import BaseTest, TestServer
+from calibre.srv.tests.base import BaseTest, TestServer, is_ci
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_path as P
-
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 class TestHTTP(BaseTest):

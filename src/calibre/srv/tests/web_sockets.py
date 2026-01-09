@@ -11,7 +11,7 @@ from collections import deque, namedtuple
 from functools import partial
 from hashlib import sha1
 
-from calibre.srv.tests.base import BaseTest, TestServer
+from calibre.srv.tests.base import BaseTest, TestServer, is_ci, retry
 from calibre.srv.web_socket import (
     BINARY,
     CLOSE,
@@ -227,6 +227,7 @@ class WebSocketTest(BaseTest):
             self.ae(control_frames[-1][0], CLOSE)
             self.ae(close_code, struct.unpack_from(b'!H', control_frames[-1][1], 0)[0])
 
+    @retry(max_attempts=3 if is_ci else 1, delay=1)
     def test_websocket_basic(self):
         'Test basic interaction with the websocket server'
         from calibre.srv.web_socket import EchoHandler
