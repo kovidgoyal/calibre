@@ -39,7 +39,17 @@ class SimpleContainer(ContainerBase):
 
 def count_pages_pdf(pathtoebook: str) -> int:
     from calibre.utils.podofo import get_page_count
-    return get_page_count(pathtoebook)
+    try:
+        return get_page_count(pathtoebook)
+    except Exception:
+        from calibre.ebooks.metadata.pdf import get_tools
+        from calibre.ebooks.pdf.pdftohtml import creationflags
+        pdfinfo = get_tools()[0]
+        with open(pathtoebook, 'rb') as f:
+            for line in subprocess.check_output([pdfinfo, '-'], stdin=f, creationflags=creationflags).decode().splitlines():
+                field, rest = line.partition(':')[::2]
+                if field == 'Pages':
+                    return int(rest.strip())
 
 
 def fname_ok_cb(fname):
