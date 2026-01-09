@@ -183,7 +183,7 @@ class WindowsFileCopier:
 
     def rename_all(self) -> None:
         for src_path, dest_path in self.copy_map.items():
-            winutil.move_file(make_long_path_useable(src_path), make_long_path_useable(dest_path))
+            os.replace(make_long_path_useable(src_path), make_long_path_useable(dest_path))
 
 
 def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFileCopier:

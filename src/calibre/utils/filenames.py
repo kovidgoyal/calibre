@@ -493,17 +493,6 @@ def nlinks_file(path):
     return os.stat(path).st_nlink
 
 
-if iswindows:
-    from calibre_extensions.winutil import move_file
-
-    def rename_file(a, b):
-        if isinstance(a, bytes):
-            a = os.fsdecode(a)
-        if isinstance(b, bytes):
-            b = os.fsdecode(b)
-        move_file(a, b)
-
-
 def retry_on_fail(func, *args, count=10, sleep_time=0.2):
     for i in range(count):
         try:
@@ -522,9 +511,10 @@ def atomic_rename(oldpath, newpath):
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
     or may not exist. If it exists, it is replaced. '''
     if iswindows:
-        retry_on_fail(rename_file, oldpath, newpath)
+        oldpath, newpath = make_long_path_useable(oldpath), make_long_path_useable(newpath)
+        retry_on_fail(os.replace, oldpath, newpath)
     else:
-        os.rename(oldpath, newpath)
+        os.replace(oldpath, newpath)
 
 
 def remove_dir_if_empty(path, ignore_metadata_caches=False):
