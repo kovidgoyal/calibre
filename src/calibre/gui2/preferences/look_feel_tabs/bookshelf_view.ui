@@ -156,16 +156,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="use_pages_button">
+       <widget class="QPushButton" name="template_pages_button">
         <property name="text">
-         <string>Use a custom &amp;pages column</string>
+         <string>Template &amp;editor</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="template_pages_button">
+       <widget class="QPushButton" name="use_pages_button">
         <property name="text">
-         <string>Template &amp;editor</string>
+         <string>Use a custom &amp;pages column</string>
         </property>
        </widget>
       </item>
