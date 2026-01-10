@@ -142,7 +142,17 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
             '<div><style>@page {\n  margin: 13px;\n}\ndiv {\n  widows: 12;\n  color: red;\n}</style>Some</div>':
             f'<div><style>/* {CSS_COMMENT_COOKIE}: @page {{\n  margin: 13px;\n}} */\n'
             f'div {{\n  -{CSS_COMMENT_COOKIE}-widows: 12;\n  color: red;\n}}</style>'
-            '<span class="koboSpan" id="kobo.1.1">Some</span></div>'
+            '<span class="koboSpan" id="kobo.1.1">Some</span></div>',
+
+            # tate-chu-yoko Japanese text
+            '<p>normal<span style="text-combine">tate':
+            '<p><span class="koboSpan" id="kobo.1.2">normal</span><span class="koboSpan" id="kobo.1.1">'
+            '<span style="text-combine">tate</span></span></p>',
+
+            '<p>normal<span class="x tcy">tate':
+            '<p><span class="koboSpan" id="kobo.1.2">normal</span><span class="koboSpan" id="kobo.1.1">'
+            '<span class="x tcy">tate</span></span></p>',
+
         }.items():
             if isinstance(expected, str):
                 expected = expected, expected
