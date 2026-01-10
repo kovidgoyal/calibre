@@ -976,19 +976,16 @@ def read_raster_cover(root, prefixes, refines):
         if href:
             return href
 
-    for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
-        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
-            if item.get('id') == item_id:
-                href = get_href(item)
-                if href:
-                    return href
+    id_map = {item.get('id', ''):item for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root)}
 
+    for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
+        if (item := id_map.get(item_id)) and (href := get_href(item)):
+            return href
+
+    cover_image_types = ('image/jpeg', 'image/webp', 'image/png')
     for item_id in XPath('./opf:spine/opf:itemref/@idref')(root):
-        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
-            if item.get('id') == item_id:
-                if item.get('media-type') in ('image/jpeg', 'image/webp'):
-                    if href := get_href(item):
-                        return href
+        if (item := id_map.get(item_id)) and item.get('media-type') in cover_image_types and (href := get_href(item)):
+            return href
         break
 
 
