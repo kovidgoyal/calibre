@@ -178,26 +178,17 @@ def install_grype(exe: str = '/tmp/grype') -> str:
 
 
 IGNORED_DEPENDENCY_CVES = [
-    # Python stdlib
-    'CVE-2025-8194',   # DoS in tarfile
-    'CVE-2025-6069',   # DoS in HTMLParser
-    'CVE-2025-13836',  # DoS in http client reading from malicious server
-    # glib
-    'CVE-2025-4056',  # Only affects Windows, on which we dont use glib
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
     'CVE-2017-1000376',  # false match in the database
     # espeak
     'CVE-2023-4990',  # false match because we currently build with a specific commit pending release of espeak 1.53
-    # Qt
-    'CVE-2025-5683',  # we dont use the ICNS image format
     # ffmpeg cannot be updated till Qt starts using FFMPEG 8 and these CVEs are
     # anyway for file types we dont use or support
     'CVE-2025-59733', 'CVE-2025-59731', 'CVE-2025-59732',  # OpenEXR image files, not supported by calibre
     'CVE-2025-59730', 'CVE-2025-59734',  # SANM decoding unused by calibre
     'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
-    'CVE-2025-11579',  # Go rardecode package probably from grype's own dependencies calibre does not use Go code
 ]
 
 
