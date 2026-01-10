@@ -251,7 +251,18 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
             if child.tail:
                 a((child.tail, node, child, node_lang))
             if child_name not in SKIPPED_TAGS:
-                a((child, None, child_name, lang_for_elem(child, node_lang)))
+                is_tcy = False
+                if child_name == 'span':
+                    style = child.get('style') or ''
+                    if 'text-combine' in style:
+                        is_tcy = True
+                    elif 'tcy' in (child.get('class') or '').split():
+                        is_tcy = True
+
+                if is_tcy:
+                    wrap_child(child)
+                else:
+                    a((child, None, child_name, lang_for_elem(child, node_lang)))
         if node.text:
             wrap_text_in_spans(node.text, node, None, node_lang)
 
