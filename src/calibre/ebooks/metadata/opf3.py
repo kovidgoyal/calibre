@@ -979,12 +979,12 @@ def read_raster_cover(root, prefixes, refines):
     id_map = {item.get('id', ''):item for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root)}
 
     for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
-        if (item := id_map.get(item_id)) and (href := get_href(item)):
+        if (item := id_map.get(item_id)) is not None and (href := get_href(item)):
             return href
 
-    cover_image_types = ('image/jpeg', 'image/webp', 'image/png')
+    images = ('image/jpeg', 'image/webp', 'image/png')
     for item_id in XPath('./opf:spine/opf:itemref/@idref')(root):
-        if (item := id_map.get(item_id)) and item.get('media-type') in cover_image_types and (href := get_href(item)):
+        if (item := id_map.get(item_id)) is not None and item.get('media-type') in images and (href := get_href(item)):
             return href
         break
 
