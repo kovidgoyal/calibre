@@ -31,7 +31,7 @@ from qt.core import (
     QWidget,
 )
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
@@ -738,7 +738,13 @@ class CreateCustomColumn(QDialog):
             if self.standard_colheads[t] == col_heading:
                 bad_head = True
         if bad_head:
-            return self.simple_error('', _('The heading %s is already used')%col_heading)
+            if not question_dialog(self, _('Are you sure?'),
+                _('The heading {} is already used.'
+                ' Creating a second colnum with the same heading can be confusing,'
+                ' are you sure?').format(col_heading),
+                skip_dialog_name='create_custom_column_shared_heading',
+                default_yes=False, override_icon='dialog_warning.png'):
+                return
 
         display_dict = {}
 
