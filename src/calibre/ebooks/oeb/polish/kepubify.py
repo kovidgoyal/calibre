@@ -222,7 +222,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
             parent.insert(at, s)
             at += 1
 
-    def wrap_child(child: etree.Element) -> etree.Element:
+    def wrap_child(child: etree.Element, keep_text=False) -> etree.Element:
         nonlocal increment_next_para, paranum, segnum
         increment_next_para = False
         paranum += 1
@@ -233,7 +233,9 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
         node[idx] = w
         w.append(child)
         w.tail = child.tail
-        child.tail = child.text = None
+        child.tail = None
+        if not keep_text:
+            child.text = None
         return w
 
     while stack:
@@ -260,7 +262,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
                         is_tcy = True
 
                 if is_tcy:
-                    wrap_child(child)
+                    wrap_child(child, keep_text=True)
                 else:
                     a((child, None, child_name, lang_for_elem(child, node_lang)))
         if node.text:
