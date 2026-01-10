@@ -31,7 +31,7 @@ class NewYorker(BasicNewsRecipe):
     timefmt = ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
-        img { display:block; margin:0 auto; }
+        img { display:block; margin:0 auto; max-width: 100%; }
         .rubric__name, .byline, time, .caption { font-size:small; }
         .byline, .rubric__name { font-size:smaller; font-weight: bold;}
         h3 { margin-bottom: 6px; }
