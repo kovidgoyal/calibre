@@ -983,6 +983,14 @@ def read_raster_cover(root, prefixes, refines):
                 if href:
                     return href
 
+    for item_id in XPath('./opf:spine/opf:itemref/@idref')(root):
+        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
+            if item.get('id') == item_id:
+                if item.get('media-type') in ('image/jpeg', 'image/webp'):
+                    if href := get_href(item):
+                        return href
+        break
+
 
 def set_unique_property(property_name, root, prefixes, href):
     changed = False
