@@ -55,8 +55,8 @@ class Container(dict):
                 # Some Kobo epubs have multiple rootfile entries, but only one
                 # exists.  Ignore the ones that don't exist.
                 continue
-
-            self[mt] = fp
+            if mt not in self:
+                self[mt] = fp
 
 
 class OCF:
