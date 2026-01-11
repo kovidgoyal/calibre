@@ -1727,7 +1727,8 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:books - prefs['manage_device_metadata']=", prefs['manage_device_metadata'])
         debugging_title = self.debugging_title
         debug_print(f"KoboTouch:books - set_debugging_title to '{debugging_title}'")
-        bl.set_debugging_title(debugging_title)
+        with suppress(AttributeError):
+            bl.set_debugging_title(debugging_title)
         debug_print(f'KoboTouch:books - length bl={len(bl)}')
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
         debug_print(f'KoboTouch:books - length bl after sync={len(bl)}')
@@ -2625,7 +2626,8 @@ class KOBOTOUCH(KOBO):
         update_purchased_kepubs  = self.update_purchased_kepubs
         debugging_title          = self.get_debugging_title()
         debug_print(f"KoboTouch:update_device_database_collections - set_debugging_title to '{debugging_title}'")
-        booklists.set_debugging_title(debugging_title)
+        with suppress(AttributeError):
+            booklists.set_debugging_title(debugging_title)
         booklists.set_device_managed_collections(self.ignore_collections_names)
 
         have_bookshelf_attributes = len(collections_attributes) > 0 or self.use_collections_template
