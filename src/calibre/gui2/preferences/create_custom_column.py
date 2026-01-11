@@ -739,8 +739,8 @@ class CreateCustomColumn(QDialog):
                 bad_head = True
         if bad_head:
             if not question_dialog(self, _('Are you sure?'),
-                _('The heading {} is already used.'
-                ' Creating a second colnum with the same heading can be confusing,'
+                _('The heading {} is already used by another column.'
+                ' Creating a second column with the same heading can be confusing,'
                 ' are you sure?').format(col_heading),
                 skip_dialog_name='create_custom_column_shared_heading',
                 default_yes=False, override_icon='dialog_warning.png'):
