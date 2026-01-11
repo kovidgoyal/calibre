@@ -1712,7 +1712,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     # Draw a book spine at this position
                     row = self.bookcase.book_id_to_row_map[item.book_id]
                     self.draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
-                self.draw_emblems(painter, item, scroll_y)
+                if gprefs['bookshelf_hover'] != 'above' or not hovered_item or hovered_item == item \
+                    or (item.start_x + (item.width / 2) > hovered_item.start_x + hovered_item.width):
+                    self.draw_emblems(painter, item, scroll_y)
         if hovered_item is not None:
             row = self.bookcase.book_id_to_row_map[hovered_item.book_id]
             is_selected, is_current = sm.isRowSelected(row), row == current_row
