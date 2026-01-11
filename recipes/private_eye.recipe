@@ -10,20 +10,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class PrivateEyeRecipe(BasicNewsRecipe):
     ##
-    # Last Edited:  2025-04-02
+    # Last Edited:  2026-01-11 by Sophist-UK
     #
-    # Remark:   Version 3.2 2025-04-02
+    # Remark:   Version 3.3 2026-01-11 by Sophist-UK
     #               Fix recipe after web-site changes
-    #           Version 3.1 2023-07-14
+    #                   Get next publication date from home page
+    #                   Get articles URL list from sub-menu on News page
+    #               Add classified ads from https://www.eyeads.co.uk/
+    #           Version 3.2 2025-04-02 by Sophist-UK
+    #               Fix recipe after web-site changes
+    #           Version 3.1 2023-07-14 by Sophist-UK
     #               Show crossword on right so clues are continuous down left
     #               Link to crossword image removed
     #               Improve many image layouts
-    #           Version 3.0 2023-07-01
-    #               Rewrite (by Sophist-UK) to fit latest web pages, correctly identify pages to include
-    #               and improve formatting.
-    #               Edited to add:  inclusion of About page,
-    #                               identifying series number and publication date and setting metadata.
-    #
+    #           Version 3.0 2023-07-01 by Sophist-UK
+    #               Rewrite (by Sophist-UK) to fit latest web pages,
+    #                   correctly identify pages to include
+    #                   and improve formatting.
+    #               Added:  inclusion of About page,
+    #                       identifying series number and publication date and setting metadata.
 
     title = u'Private Eye (Online Edition)'
     description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
@@ -36,12 +41,16 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     __author__ = u'Martyn Pritchard & Sophist-UK'
-    __copyright__ = '2020-2025, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
+    __copyright__ = '© 2020-2026, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
 
-    base_url        = 'https://www.private-eye.co.uk/'
-    current_issue   = 'https://www.private-eye.co.uk/'
-    about_page      = 'https://www.private-eye.co.uk/about'
-    masthead_url    = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
+    base_url            = 'https://www.private-eye.co.uk/'
+    current_issue       = 'https://www.private-eye.co.uk/news'
+    about_page          = 'https://www.private-eye.co.uk/about'
+    number_crunching    = 'https://www.private-eye.co.uk/number-crunching'
+    masthead_url        = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
+    classified_ads      = 'https://www.eyeads.co.uk'
+    next_issue_date     = 'Next issue on sale:'
+
     author = 'Private Eye'
     series = title = 'Private Eye Online'
     conversion_options = {
@@ -54,10 +63,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     }
 
     index_attrs_to_include = [
-        {'class': 'footer-block'},
-        {'id': 'top-stories'},
-        {'id': 'home-content'},
-        {'id': 'home-color-content'},
+        {'id': 'sub-nav-box'},
+        {'class': 'sub-nav-bar'},
     ]
 
     titles_to_skip = [
@@ -67,15 +74,40 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ]
 
     url_to_section_name = {
-        'hp-sauce': 'HP Sauce',
-        'in-the-back': 'In the Back',
-        'street-of-shame': 'Street of Shame',
-        'cartoons': 'Strips and Cartoons',
-        'lookalikes': 'Lookalike',
-        'number-crunching': 'Number Crunching',
-        'mediaballs': 'Dumb Britain',
-        'crossword': 'Eye Crossword',
+        "news": "News",
+        "street-of-shame": "Street of Shame",
+        "hp-sauce": "HP Sauce",
+        "cartoons": "Strips and Cartoons",
+        "pms-whatsapp": "PM's Whatsapp",
+        "mediaballs": "Commentatorballs",
+        "lookalikes": "Lookalike",
+        "crossword": "Eye Crossword",
+        "in-the-back": "In the Back",
+        "media-news": "Media News",
+        "columnists": "Columnists",
+        "rotten-boroughs": "Rotten Boroughs",
+        "number-crunching": "Number Crunching",
+        "www.eyeads.co.uk": "Private Eye Classified Ads",
     }
+
+    re_extract_date = re.compile(r'\d.*\d')
+    articles = []
+    urls = []
+
+    def add_article(self, title, url):
+        if url in self.urls:
+            return
+        known_url = url.rsplit('/',1)[-1]
+        if known_url and known_url in self.url_to_section_name:
+            title = self.url_to_section_name[known_url]
+        if not title:
+            return
+        self.articles.append({
+            'title':    title,
+            'url':      url,
+        })
+        self.urls.append(url)
+        self.log("Adding:", title, '(', url, ')')
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.current_issue)
@@ -95,31 +127,57 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 return src
         return None
 
+    def get_next_issue_date(self, soup):
+        sidebar = soup.find("div", id="sections-sidebar")
+        if sidebar == None:
+            return None
+        for s in sidebar.stripped_strings:
+            match = self.re_extract_date.match(s)
+            if match:
+                return match.group(0)
+        return None
+
     def parse_index(self):
+        self.log('')
+        self.log('Title:', self.title)
+        self.log('Description:', self.description)
+        self.log('Authors:', self.__author__)
+        self.log('Copyright:', self.__copyright__)
+        self.log('')
+        self.log('Support:', u'If this recipe stops working email sophist-uk@sodalis.co.uk to let them know.')
+        self.log('')
+
         soup = self.index_to_soup(self.current_issue)
 
-        # Get publication date - Next issue on sale date - 12 days
-        issue_box = soup.find('div', attrs={'id': 'issue-box'})
-        next_issue_text = issue_box.find(text=re.compile(r'NEXT\s+ISSUE')).parent.contents[-1].strip()
-        self.log('next_issue_text:', next_issue_text)
         try:
-            day, month, year = next_issue_text.split(' ')
+            # Get publication date - Next issue on sale date - 13 days
+            next_issue_date = self.get_next_issue_date(soup)
+            self.log('next_issue_date:', next_issue_date)
+
+            day, month, year = next_issue_date.split(' ')
             # remove day suffixes e.g. 2nd
             day = ''.join(c for c in day if c.isdigit())
-            pub_date = datetime.strptime(' '.join((day, month, year)), '%d %B %Y') - timedelta(12)
+            pub_date = datetime.strptime(' '.join((day, month, year)), '%d %B %Y') - timedelta(13)
             self.log('pub-date:', pub_date)
+
             self.conversion_options.update({'pubdate': datetime.strftime(pub_date, '%d %B %Y').lstrip('0')})
             title = self.title + ' ' + datetime.strftime(pub_date, '%Y-%m-%d')
             self.conversion_options.update({'title': title})
             self.conversion_options.update({'title_sort': title})
         except (TypeError, ValueError):
             # Bad date
-            self.log('Cannot parse next issue date from:', next_issue_text)
+            self.log('Cannot parse next issue date from:', next_issue_date)
 
         # Get pages from the various contents panels.
         # Duplicates will be eliminated automatically.
         articles = []
         urls = []
+
+        # Since we are now using the first online page to generate the list of pages to include
+        # we need to include this one:
+
+        self.add_article('News', self.current_issue)
+
         for section_attrs in self.index_attrs_to_include:
             section = soup.find('div', attrs=section_attrs)
 
@@ -129,36 +187,27 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             for a in section.findAll('a', href=True):
                 url = a.get('href')
                 title = a.getText().rstrip(' »\n')
-                if not title:
-                    continue
                 if title in self.titles_to_skip:
                     continue
-                known_url = url.rsplit('/',1)[-1]
-                if known_url and known_url in self.url_to_section_name:
-                    title = self.url_to_section_name[known_url]
                 if not url.startswith('http'):
                     url = self.base_url + url
-                if url in urls:
-                    continue
-                self.log('title:', title, ', url:', url)
-                urls.append(url)
-                articles.append({
-                    'title': title,
-                    'url': url,
-                })
+                self.add_article(title, url)
 
-        if not articles:
+        if not self.articles:
             raise ValueError('Private-Eye Online index of pages not found')
 
+        # Add the pages with no menu
+        self.add_article('Number crunching', self.number_crunching)
+
         # Add the About page as a final article
-        articles.append({
-            'title': 'About Private Eye',
-            'url': self.about_page,
-        })
+        self.add_article('About Private Eye', self.about_page)
 
-        self.log('parse_index:', articles)
+        # Add classified adverts - as a fun historical record
+        self.add_article('Classified Ads', self.classified_ads)
 
-        return [('Private Eye', articles)]
+        self.log('parse_index:', self.articles)
+
+        return [('Private Eye', self.articles)]
 
     def preprocess_html(self, soup):
         # Remove <a> tag link to crossword image
@@ -181,39 +230,80 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'id': 'page'},
         {'name': 'div', 'id': 'page-wide'},
         {'name': 'div', 'id': 'content'},
-        {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
     ]
     remove_tags_after = remove_tags_before.copy()
-    remove_tags_after.append(
+    remove_tags_after.extend([
         {'name': 'div', 'id': 'about-covers'},
-    )
+        {'name': 'script', 'id': 'about-covers'},
+        {'name': 'a', 'attrs': {'href': 'https://shop.private-eye.co.uk'}},
+#        {'name': 'img', 'attrs': {'src': re.compile(r'/grfx/logos/')}},
+    ])
     # Remove non-sibling content
     remove_tags = [
-        {'name': 'div', 'attrs': {'id': 'top-bar'}},
+        # Top
         {'name': 'div', 'attrs': {'id': 'header-wide'}},
-        {'name': 'div', 'attrs': {'id': 'footer-wide'}},
-        {'name': 'div', 'attrs': {'id': 'follow-buttons'}},
-        {'name': 'div', 'attrs': {'id': 'sidebar'}},
-        {'name': 'div', 'attrs': {'id': 'sections-sidebar'}},
+        {'name': 'div', 'attrs': {'id': 'top-bar-sticky'}},
+        {'name': 'div', 'attrs': {'id': 'nav-box-mobile'}},
         {'name': 'div', 'attrs': {'id': 'nav-box-sections-mobile'}},
-        {'name': 'div', 'attrs': {'id': 'nav-box-pages-mobile'}},
+        {'name': 'div', 'attrs': {'id': 'sub-nav-box'}},
+        {'name': 'div', 'attrs': {'class': 'sub-nav-bar'}},
+        # Content
+        {'name': 'div', 'attrs': {'id': 'why-subscribe'}},
+        {'name': 'div', 'attrs': {'id': 'issue-box'}},
+        {'name': 'div', 'attrs': {'id': 'sections-sidebar'}},
+        # Spacers
+        {'name': 'div', 'attrs': {'class': 'gap'}},
+#        {'name': 'div', 'attrs': {'class': 'gap-small'}},
+        {'name': 'div', 'attrs': {'class': 'gap-bigger'}},
+        {'name': 'div', 'attrs': {'class': 'gap-biggest'}},
+        # Bottom
+        {'name': 'div', 'attrs': {'id': 'home-content'}},
+        {'name': 'div', 'attrs': {'id': 'home-shop-content-wide'}},
+        {'name': 'div', 'attrs': {'id': 'page-94-strip-wide'}},
+        {'name': 'div', 'attrs': {'id': 'footer-wide'}},
         {'name': 'div', 'attrs': {'id': 'about-covers'}},
+#        {'name': 'div', 'attrs': {'id': 'follow-buttons'}},
+#        {'name': 'div', 'attrs': {'id': 'sidebar'}},
+        {'name': 'a', '  attrs': {'href': 'https://www.private-eye.co.uk/shop'}},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
-        {'name': 'iframe'},
+        {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk/'}},
         {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/lightbox/')}},
         {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/news_ticker/')}},
         {'name': 'link', 'attrs': {'href': re.compile(r'/javastyle/media-queries-')}},
+        {'name': 'img', 'attrs': {'src': re.compile(r'/grfx/logos/gnitty.gif')}},
+        {'name': 'img', 'attrs': {'src': re.compile(r'/grfx/stuff/subscribe_here_gnitty.gif')}},
+        {'name': 'iframe'},
+        {'name': 'script'},
+        {'name': 'style'},
+        # Classified site
+        {'name': 'a', 'attrs': {'class': 'skip-link'}},
+        {'name': 'header', 'attrs': {'id': 'masthead'}},
+        {'name': 'div', 'attrs': {'class': 'placeAdIntro'}},
+        {'name': 'img', 'attrs': {'class': 'cat-image'}},
+        {'name': 'img', 'attrs': {'class': 'catArrow'}},
+        {'name': 'div', 'attrs': {'class': 'ad-contact'}},
+        {'name': 'div', 'attrs': {'id': re.compile(r'cookie-law-')}},
+        {'name': 'div', 'attrs': {'class': re.compile(r'cli-modal')}},
+        {'name': 'footer', 'attrs': {'class': 'site-footer'}},
     ]
 
-    # Convert headers to h1, strapline to h4
     preprocess_regexps = [
+        # Convert headers to h1, strapline to h4
         (
             re.compile(
-                r'<span class="headline(?:-new)?">(.*?)</span>\s*(?:<br>\s*)*(?:<span class="text">(.*?)</span>)?',
+                r'<span class="headline(?:-new)?">(.*?)</span>\s*(?:<br/?>\s*)*((?:<span class="text">(.*?)</span>)|(?:<font .*?>(.*?)</font>))?',
                 re.DOTALL | re.IGNORECASE
             ),
             lambda match: '<h1>' + match[1] + '</h1>' +
                          (('<h4>' + match[2] + '</h4>') if match[2] else '')
+        ),
+        # Remove broken links for this issue
+        (
+            re.compile(
+                r'<a href="/issue-.*?".*?>(.*?)</a>',
+                re.DOTALL | re.IGNORECASE
+            ),
+            lambda match: match[1]
         ),
     ]
 
@@ -224,6 +314,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # However some is new css to tweak output when part of an ebook.
     extra_css = ' \n '.join([
         '#content img {float: right; width: 45%; minimum-width:350px;}',
+        '#content img.office {float: right; width: 45%; maximum-width:390px; margin-left: 15px;}',
         '#content img.cartoon-left {float: left; margin-right: 15px; margin-bottom: 15px;}',
         '#content img.cartoon-right {float: none; margin-bottom: 15px;}',
         '#content img.strip {float: none; width: 100%;}',
