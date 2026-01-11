@@ -168,6 +168,10 @@ def create_location_overlay(current_position_data, book, overlay, container):
             create_button(_('Go'), action=goto_pos)
         )
     ))
+    container.appendChild(
+        E.div(style='margin: 1rem', _(
+            'Note that using a position is not very robust, it is best to use either the location or reference.')))
+
 
     if calibre_book_url:
         if current_cfi:
