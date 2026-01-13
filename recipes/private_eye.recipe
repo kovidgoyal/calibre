@@ -74,20 +74,20 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ]
 
     url_to_section_name = {
-        "news": "News",
-        "street-of-shame": "Street of Shame",
-        "hp-sauce": "HP Sauce",
-        "cartoons": "Strips and Cartoons",
-        "pms-whatsapp": "PM's Whatsapp",
-        "mediaballs": "Commentatorballs",
-        "lookalikes": "Lookalike",
-        "crossword": "Eye Crossword",
-        "in-the-back": "In the Back",
-        "media-news": "Media News",
-        "columnists": "Columnists",
-        "rotten-boroughs": "Rotten Boroughs",
-        "number-crunching": "Number Crunching",
-        "www.eyeads.co.uk": "Private Eye Classified Ads",
+        'news': 'News',
+        'street-of-shame': 'Street of Shame',
+        'hp-sauce': 'HP Sauce',
+        'cartoons': 'Strips and Cartoons',
+        'pms-whatsapp': "PM's Whatsapp",
+        'mediaballs': 'Commentatorballs',
+        'lookalikes': 'Lookalike',
+        'crossword': 'Eye Crossword',
+        'in-the-back': 'In the Back',
+        'media-news': 'Media News',
+        'columnists': 'Columnists',
+        'rotten-boroughs': 'Rotten Boroughs',
+        'number-crunching': 'Number Crunching',
+        'www.eyeads.co.uk': 'Private Eye Classified Ads',
     }
 
     re_extract_date = re.compile(r'\d.*\d')
@@ -107,7 +107,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             'url':      url,
         })
         self.urls.append(url)
-        self.log("Adding:", title, '(', url, ')')
+        self.log('Adding:', title, '(', url, ')')
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.current_issue)
@@ -128,8 +128,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         return None
 
     def get_next_issue_date(self, soup):
-        sidebar = soup.find("div", id="sections-sidebar")
-        if sidebar == None:
+        sidebar = soup.find('div', id='sections-sidebar')
+        if sidebar is None:
             return None
         for s in sidebar.stripped_strings:
             match = self.re_extract_date.match(s)
@@ -170,8 +170,6 @@ class PrivateEyeRecipe(BasicNewsRecipe):
 
         # Get pages from the various contents panels.
         # Duplicates will be eliminated automatically.
-        articles = []
-        urls = []
 
         # Since we are now using the first online page to generate the list of pages to include
         # we need to include this one:
