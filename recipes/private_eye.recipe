@@ -12,7 +12,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     ##
     # Last Edited:  2026-01-11 by Sophist-UK
     #
-    # Remark:   Version 3.3 2026-01-11 by Sophist-UK
+    # Remark:   Version 3.4 2026-01-13 by Sophist-UK
+    #               Tweak #block-sections spacing
+    #           Version 3.3 2026-01-11 by Sophist-UK
     #               Fix recipe after web-site changes
     #                   Get next publication date from home page
     #                   Get articles URL list from sub-menu on News page
@@ -320,6 +322,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         '#content img.gnitty-right {float: none; width: 160px;}',
         '#content #story > div[align=right] > img:first-child {float: none; width: 15px;}',
         '#content #story > img:first-child {float: none; height: 100px; width: none; minimum-width: none;}',
+        '#content #block-sections div.divider {height: 1px; background-color: #eee; margin: 10px 0px; clear: both;}',
         '#content #block-sections img {float: none; width: none;}',
         '#content #block-sections img.lookalike {float: none; width: 100%;}',
         '#content #block-sections img.photo-right {float: right; width: 25%; min-width:120px; margin-left: 15px;}',
@@ -329,7 +332,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         '#content #article-caption-box {float: right; background: #222222; display: block; width: 40%; min-width: 250px; font-size: 90%; margin-left: 15px;}',
         '#content #article-caption-box img {float: none; width: 100%; max-width: none;}',
         '#caption-box {color: #ffffff; text-align: center; padding: 5px 20px 15px 20px;}',
-        '#whatsapp {border-left: 5px #8aba60 solid; border-right: 5px #8aba60 solid; border-bottom: 5px #8aba60 solid; padding: 0 20px 20px 20px;}',
+        '#whatsapp {border-left: 5px #d46f6a solid; border-right: 5px #d46f6a solid; border-bottom: 5px #d46f6a solid; padding: 0 20px 20px 20px;}',
         '#whatsapp::after {clear:both;}',
         '#whatsapp .whatsapp-left, .whatsapp-right {margin: 0 0 20px 0; padding: 15px; border-radius: 10px;}',
         '#whatsapp .whatsapp-left, .whatsapp-right {font-family: Helvetica, Arial, "sans-serif"; font-weight: 300; font-size: 18px; line-height: 24px;}',
@@ -337,4 +340,5 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         '#whatsapp .whatsapp-right {text-align: right; margin-left: 30%; background-color: #dce5ae;}',
         '#whatsapp .whatsapp-left img, #whatsapp .whatsapp-right img {width: 35px; margin: 0 10px; vertical-align: middle;}',
         '#whatsapp .whatsapp-left img.emoji, #whatsapp .whatsapp-right img.emoji {max-width: 35px; margin: 0 5px; vertical-align: middle;}',
+        '.container .row .catTitle {color: fff; background-color: #12174a;}',
     ])
