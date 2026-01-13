@@ -37,7 +37,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
 
         fm = db.field_metadata
-        choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
+        choices = sorted((('{} ({})'.format(fm[k]['name'], k), k) for k in fm.displayable_field_keys() if fm[k]['name']),
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
