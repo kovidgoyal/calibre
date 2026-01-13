@@ -294,8 +294,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 r'<span class="headline(?:-new)?">(.*?)</span>\s*(?:<br/?>\s*)*((?:<span class="text">(.*?)</span>)|(?:<font .*?>(.*?)</font>))?',
                 re.DOTALL | re.IGNORECASE
             ),
-            lambda match: '<h1 class="headline">' + match[1] + '</h1>' +
-                         (('<h4 class="strapline">' + match[2] + '</h4>') if match[2] else '')
+            lambda match: '<h1 class="myheadline">' + match[1] + '</h1>' +
+                         (('<h4 class="mystrapline">' + match[2] + '</h4>') if match[2] else '')
         ),
         # Remove broken links for this issue
         (
@@ -313,9 +313,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # ebook without duplicating it as extra css.
     # However some is new css to tweak output when part of an ebook.
     extra_css = ' \n '.join([
-        '.article {    font-family: Merriweather, Georgia, serif; font-size: 1em}',
-        'h1.headline {font-family: "Source Sans Pro", Arial, Helvetica, sans-serif; font-size: 3em}',
-        'h4.strapline {font-family: "Source Sans Pro", Arial, Helvetica, sans-serif; font-size: 1em}',
+        '.article  {font-family: Merriweather, Georgia, serif; font-size: 1em}',
+        '.myheadline {font-family: "Source Sans Pro", Arial, Helvetica, sans-serif; font-size: 2em;}',
+        '.mystrapline {font-family: "Source Sans Pro", Arial, Helvetica, sans-serif; font-size: 1.2em;}',
         '#content img {float: right; width: 45%; minimum-width:350px;}',
         '#content img.office {float: right; width: 45%; maximum-width:390px; margin-left: 15px;}',
         '#content img.cartoon-left {float: left; margin-right: 15px; margin-bottom: 15px;}',
