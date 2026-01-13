@@ -77,6 +77,7 @@ def count_pages_cb7(pathtoebook: str) -> int:
 
 
 def get_length(root):
+    ' Used for position/length display in the viewer '
     ans = 0
     for body in root.iterchildren(XHTML('body')):
         ans += get_num_of_significant_chars(body)
