@@ -1276,8 +1276,7 @@ class ExpandedCover(QObject):  # {{{
         return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
 
     def draw_expanded_cover(
-        self, painter: QPainter, scroll_y: int, lc: LayoutConstraints, is_selected: bool, is_current: bool,
-        selection_highlight_color: QColor
+        self, painter: QPainter, scroll_y: int, lc: LayoutConstraints, selection_highlight_color: QColor
     ) -> None:
         shelf_item = self.modified_case_item.items[self.shelf_item.idx]
         cover_rect = shelf_item.rect(lc)
@@ -1712,15 +1711,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     # Draw a book spine at this position
                     row = self.bookcase.book_id_to_row_map[item.book_id]
                     self.draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
-                if gprefs['bookshelf_hover'] != 'above' or not hovered_item or hovered_item == item \
+                if gprefs['bookshelf_hover'] != 'above' or not hovered_item \
                     or (item.start_x + (item.width / 2) > hovered_item.start_x + hovered_item.width):
                     self.draw_emblems(painter, item, scroll_y)
         if hovered_item is not None:
             row = self.bookcase.book_id_to_row_map[hovered_item.book_id]
             is_selected, is_current = sm.isRowSelected(row), row == current_row
             self.expanded_cover.draw_expanded_cover(
-                painter, scroll_y, self.layout_constraints, is_selected, is_current,
-                self.selection_highlight_color(is_selected, is_current))
+                painter, scroll_y, self.layout_constraints, self.selection_highlight_color(is_selected, is_current),
+            )
+            self.draw_emblems(painter, hovered_item, scroll_y)
 
     def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
