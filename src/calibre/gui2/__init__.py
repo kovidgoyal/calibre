@@ -502,6 +502,7 @@ def create_defs():
     defs['bookshelf_up_to_down'] = False
     defs['bookshelf_height'] = 119
     defs['bookshelf_make_space_for_second_line'] = False
+    defs['bookshelf_emblem_position'] = 'auto'
 
     # Migrate beta bookshelf_thumbnail
     if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):

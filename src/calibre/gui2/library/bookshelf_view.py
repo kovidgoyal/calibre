@@ -1323,6 +1323,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     DIVIDER_GRADIENT_LINE_1.setAlphaF(0.0)  # Transparent at top/bottom
     DIVIDER_GRADIENT_LINE_2.setAlphaF(0.75)  # Visible in middle
     TEXT_MARGIN = 6
+    EMBLEM_SIZE = 24
+    EMBLEM_MARGIN = 2
 
     def __init__(self, gui):
         super().__init__(gui)
@@ -1453,6 +1455,20 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         rslt = mi.formatter.safe_format(
             template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=self.template_cache)
         return rslt or ''
+
+    def render_emblem(self, book_id: int) -> str:
+        if not (db := self.dbref()):
+            return ''
+        p = db.new_api.backend.prefs
+        if not (rules := p.get('bookshelf_icon_rules', p.defaults.get('bookshelf_icon_rules'))):
+            return ''
+        mi = db.get_proxy_metadata(book_id)
+        for (x,y,t) in rules:
+            rslt = mi.formatter.safe_format(
+                t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
+            if rslt:
+                return rslt
+        return ''
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
@@ -1627,6 +1643,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def draw_emblems(self, painter: QPainter, item: ShelfItem, scroll_y: int) -> None:
         book_id = item.book_id
         above, below = [], []
+        top, bottom = [], []
         if m := self.model():
             from calibre.gui2.ui import get_gui
             db = m.db
@@ -1641,30 +1658,57 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     self.on_device_icon = QIcon.ic('ok.png')
                 which = above if below else below
                 which.append(self.on_device_icon)
+            custom = self.render_emblem(book_id)
+            if custom:
+                match gprefs['bookshelf_emblem_position']:
+                    case 'above':
+                        which = above
+                    case 'below':
+                        which = below
+                    case 'top':
+                        which = top
+                    case 'bottom':
+                        which = bottom
+                    case _:
+                        which = above if below and not above else below
+                which.append(QIcon.ic(custom))
 
-        def draw_horizontal(emblems: list[QIcon], above: bool = True) -> None:
+        def draw_horizontal(emblems: list[QIcon], position: str) -> None:
             if not emblems:
                 return
-            gap = 2
+            gap = self.EMBLEM_MARGIN
             max_width = (item.width - gap) // len(emblems)
             lc = self.layout_constraints
-            max_height = lc.shelf_gap if above else lc.shelf_height
+            match position:
+                case 'above':
+                    max_height = lc.shelf_gap
+                case 'below':
+                    max_height = lc.shelf_height
+                case 'top' | 'bottom':
+                    max_height = self.EMBLEM_SIZE
             sz = min(max_width, max_height)
             width = sz
             if len(emblems) > 1:
                 width += gap + sz
             x = max(0, (item.width - width) // 2) + item.start_x + lc.side_margin
             y = item.case_start_y - scroll_y
-            if above:
-                y += lc.shelf_gap + item.reduce_height_by - sz
-            else:
-                y += lc.spine_height
+            match position:
+                case 'above':
+                    y += lc.shelf_gap + item.reduce_height_by - sz
+                case 'below':
+                    y += lc.spine_height
+                case 'top':
+                    y += lc.shelf_gap + item.reduce_height_by + self.EMBLEM_MARGIN
+                case 'bottom':
+                    y += lc.spine_height - sz - self.EMBLEM_MARGIN
             for ic in emblems:
                 p = ic.pixmap(sz, sz)
                 painter.drawPixmap(QPoint(x, y), p)
                 x += sz + gap
-        draw_horizontal(above)
-        draw_horizontal(below, False)
+        draw_horizontal(above, 'above')
+        draw_horizontal(below, 'below')
+        draw_horizontal(top, 'top')
+        draw_horizontal(bottom, 'bottom')
 
     def paintEvent(self, ev: QPaintEvent):
         '''Paint the bookshelf view.'''
@@ -1887,6 +1931,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw vertically the title on the spine.'''
         first_line, second_line = self.first_line_renderer(book_id), self.second_line_renderer(book_id)
         margin = self.TEXT_MARGIN
+        second_rect = None
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
             second_rect = first_rect.translated(first_rect.width(), 0)
@@ -1894,10 +1939,23 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 first_rect, second_rect = second_rect, first_rect
         else:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
+
+        emblem_size = -margin + (self.EMBLEM_MARGIN * 2)
+        emblem_size += min(rect.width() - self.EMBLEM_MARGIN, self.EMBLEM_SIZE)
+        match gprefs['bookshelf_emblem_position']:
+            case 'top':
+                first_rect.adjust(0, emblem_size, 0, 0)
+                if second_rect:
+                    second_rect.adjust(0, emblem_size, 0, 0)
+            case 'bottom':
+                first_rect.adjust(0, 0, 0, -emblem_size)
+                if second_rect:
+                    second_rect.adjust(0, 0, 0, -emblem_size)
+
         nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
+            first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
             nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
         first_line, second_line, = nfl, nsl
 
