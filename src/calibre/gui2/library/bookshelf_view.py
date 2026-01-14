@@ -1315,13 +1315,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     layout_constraints: LayoutConstraints
     DIVIDER_LINE_WIDTH = 2  # Width of the gradient line in divider
 
-    # Colors
-    DIVIDER_TEXT_COLOR = QColor('#b0b5c0')
-    DIVIDER_LINE_COLOR = QColor('#4a4a6a')
-    DIVIDER_GRADIENT_LINE_1 = DIVIDER_LINE_COLOR.toRgb()
-    DIVIDER_GRADIENT_LINE_2 = DIVIDER_LINE_COLOR.toRgb()
-    DIVIDER_GRADIENT_LINE_1.setAlphaF(0.0)  # Transparent at top/bottom
-    DIVIDER_GRADIENT_LINE_2.setAlphaF(0.75)  # Visible in middle
     TEXT_MARGIN = 6
     EMBLEM_SIZE = 24
     EMBLEM_MARGIN = 2
@@ -1828,6 +1821,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
         return first_line, second_line, font
 
+    def divider_color(self) -> QColor:
+        if is_dark_theme():
+            return QColor('#b4b4b6')
+        else:
+            return QColor('#4a4a6a')
+
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
         lc = self.layout_constraints
@@ -1849,13 +1848,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Draw vertical gradient line if long enough
         if line_rect.width() > 8:
+            color1 = self.divider_color().toRgb()
+            color2 = color1.toRgb()
+            color1.setAlphaF(0.0)  # Transparent at top/bottom
+            color2.setAlphaF(0.75)  # Visible in middle
             gradient = QLinearGradient(
                 QPointF(line_rect.left(), line_rect.left()),
                 QPointF(line_rect.left() + line_rect.width(), line_rect.left()),
             )
-            gradient.setColorAt(0, self.DIVIDER_GRADIENT_LINE_1)
-            gradient.setColorAt(0.5, self.DIVIDER_GRADIENT_LINE_2)
-            gradient.setColorAt(1, self.DIVIDER_GRADIENT_LINE_1)
+            gradient.setColorAt(0, color1)
+            gradient.setColorAt(0.5, color2)
+            gradient.setColorAt(1, color1)
 
             painter.save()
             painter.setPen(Qt.PenStyle.NoPen)
