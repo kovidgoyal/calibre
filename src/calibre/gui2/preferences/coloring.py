@@ -415,8 +415,8 @@ pref_name_map = {
         'name': _('Bookshelf emblem'),
         'label': _('Add the emblem:'),
         'text': _(
-            'You can add emblem (small icon) that are displayed on the side of spines'
-            ' in the bookshelf by creating "rules" that tell calibre what image to use.'),
+            'You can add an emblem (small icon) that is displayed on or above the book spine'
+            ' in the bookshelf view by creating "rules" that tell calibre what image to use.'),
     },
 }
 kind_icons = {'emblem', 'icon', 'bookshelf_emblem'}
@@ -1185,9 +1185,10 @@ class EditRules(QWidget):  # {{{
             self.choices.setVisible(True)
             self.choices_label.setText(_('&Position of the emblem:'))
             self.choices.setToolTip(_(
-                '<p>"Automatic" will place the icon where the space is available above or below the spine, with below first.'
-                '<p>"Above" and "Below" will allway place the icon at the selected position of the spine.'
-                '<p>"Top" and "Bottom" will place the icon on the spine, reducing the space allowed to the text.'))
+                '<p>Display an icon of your choosing on the book spine in Bookshelf view.'
+                ' <p>"Automatic" will place the icon either above or below the spine.'
+                '< p>"Above" and "Below" will place the icon at the selected position.'
+                ' <p>"Top" and "Bottom" will place the icon on the spine, reducing the space available for text.'))
             choice_map = (
                 (_('Automatic'), 'auto'),
                 (_('Above of the spine'), 'above'),

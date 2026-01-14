@@ -1932,7 +1932,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw vertically the title on the spine.'''
         first_line, second_line = self.first_line_renderer(book_id), self.second_line_renderer(book_id)
         margin = self.TEXT_MARGIN
-        second_rect = None
         if second_line:
             first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
             second_rect = first_rect.translated(first_rect.width(), 0)
@@ -1946,11 +1945,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         match gprefs['bookshelf_emblem_position']:
             case 'top':
                 first_rect.adjust(0, emblem_size, 0, 0)
-                if second_rect:
+                if second_line:
                     second_rect.adjust(0, emblem_size, 0, 0)
             case 'bottom':
                 first_rect.adjust(0, 0, 0, -emblem_size)
-                if second_rect:
+                if second_line:
                     second_rect.adjust(0, 0, 0, -emblem_size)
 
         nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
