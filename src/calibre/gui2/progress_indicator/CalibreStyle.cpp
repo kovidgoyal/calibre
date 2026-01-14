@@ -301,6 +301,12 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
     return QProxyStyle::drawComplexControl(control, option, painter, widget);
 }
 
+QSize CalibreStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &contentsSize, const QWidget *widget) const {
+    QSize ans = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
+    if (type == CT_SpinBox) ans += QSize(0, 3);  // fusion style reduces spinbox height by 3 for some reason, undo that
+    return ans;
+}
+
 void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const {
     const QStyleOptionViewItem *vopt = NULL;
     switch (element) {
