@@ -1076,6 +1076,20 @@ class Cache:
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
 
     @read_api
+    def author_sorts(self, author_ids=None) -> dict[int, str]:
+        '''
+        Return author sorts for specified authors.
+
+        If no authors with the specified ids are found an empty dictionary is
+        returned. If author_ids is None, data for all authors is returned.
+        '''
+        af = self.fields['authors']
+        m = af.table.asort_map
+        if author_ids is None:
+            return m.copy()
+        return {aid:m[aid] for aid in author_ids if aid in m}
+
+    @read_api
     def format_hash(self, book_id, fmt):
         ''' Return the hash of the specified format for the specified book. The
         kind of hash is backend dependent, but is usually SHA-256. '''

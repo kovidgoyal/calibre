@@ -805,15 +805,15 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
             return
         case 'authors':
             field_id_map = db.get_id_map('authors')
-            author_sort_map = db.author_data(field_id_map)
+            author_sort_map = db.author_sorts()
             def gas(aid: int, au: str) -> str:
                 try:
-                    return author_sort_map[aid]['sort']
-                except Exception:
+                    return author_sort_map[aid]
+                except KeyError:
                     return au
-            sort_field_map = {au: gas(aid, au) for aid, au in field_id_map.items()}
-            sort_key = lambda x: sort_field_map[x]  # noqa: E731
+            sort_key = {au: gas(aid, au) for aid, au in field_id_map.items()}.__getitem__
             get_field_id_map = lambda: field_id_map  # noqa: E731
+            del gas
         case 'languages':
             lm = lang_map()
             formatter = lambda x: lm.get(x, x)  # noqa: E731

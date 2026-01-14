@@ -789,6 +789,8 @@ class WritingTest(BaseTest):
                          'Setting the author link to the same value as before, incorrectly marked some books as dirty')
         sdata = {aid:f'{aid}, changed' for aid in adata}
         self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
+        self.assertEqual(sdata, cache.author_sorts())
+        self.assertEqual(sdata, cache.author_sorts(sdata))
         for bid in (1, 2, 3):
             self.assertIn(', changed', cache.field_for('author_sort', bid))
         sdata = {aid:f'{aid*2 if aid == max(adata) else aid}, changed' for aid in adata}
