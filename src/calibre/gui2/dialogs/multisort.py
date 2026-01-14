@@ -23,8 +23,8 @@ class ChooseMultiSort(Dialog):
             self.hidden_fields.add('ondevice')
         fm = self.db.field_metadata
         self.key_map = fm.ui_sortable_field_keys().copy()
-        self.name_map = {v:k for k, v in self.key_map.items()}
-        self.all_names = sorted(self.name_map, key=primary_sort_key)
+        name_map = [(v,k) for k, v in self.key_map.items()]
+        self.name_map = sorted(name_map, key=lambda x: primary_sort_key(x[0]))
         self.sort_order_map = dict.fromkeys(self.key_map, True)
         super().__init__(_('Sort by multiple columns'), 'multisort-chooser', parent=parent)
 
@@ -48,13 +48,13 @@ class ChooseMultiSort(Dialog):
         vl.addWidget(cl)
         vl.addWidget(la)
         vl.addWidget(self.bb)
-        for name in self.all_names:
+        for name, field in self.name_map:
             i = QListWidgetItem(cl)
             i.setText(name)
-            i.setData(Qt.ItemDataRole.UserRole, self.name_map[name])
+            i.setData(Qt.ItemDataRole.UserRole, field)
             cl.addItem(i)
             i.setCheckState(Qt.CheckState.Unchecked)
-            if self.name_map[name] in self.hidden_fields:
+            if field in self.hidden_fields:
                 i.setHidden(True)
         cl.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         cl.currentRowChanged.connect(self.current_changed)
