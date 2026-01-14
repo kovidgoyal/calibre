@@ -804,16 +804,16 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
             yield '', book_ids_iter
             return
         case 'authors':
-            def get_authors_field_id_map() -> dict[int, str]:
-                field_id_map = db.get_id_map('authors')
-                author_sort_map = db.author_data(field_id_map)
-                def gas(aid: int, au: str) -> str:
-                    try:
-                        return author_sort_map[aid]['sort']
-                    except Exception:
-                        return au
-                return {aid: gas(aid, au) for aid, au in field_id_map.items()}
-            get_field_id_map = get_authors_field_id_map
+            field_id_map = db.get_id_map('authors')
+            author_sort_map = db.author_data(field_id_map)
+            def gas(aid: int, au: str) -> str:
+                try:
+                    return author_sort_map[aid]['sort']
+                except Exception:
+                    return au
+            sort_field_map = {au: gas(aid, au) for aid, au in field_id_map.items()}
+            sort_key = lambda x: sort_field_map[x]  # noqa: E731
+            get_field_id_map = lambda: field_id_map  # noqa: E731
         case 'languages':
             lm = lang_map()
             formatter = lambda x: lm.get(x, x)  # noqa: E731
