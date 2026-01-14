@@ -1822,10 +1822,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return first_line, second_line, font
 
     def divider_color(self) -> QColor:
-        if is_dark_theme():
-            return QColor('#b4b4b6')
-        else:
-            return QColor('#4a4a6a')
+        return QColor('#b4b4b6' if is_dark_theme() else '#4a4a6a')
 
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
