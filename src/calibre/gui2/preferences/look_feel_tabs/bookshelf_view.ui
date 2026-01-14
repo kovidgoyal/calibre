@@ -283,7 +283,7 @@
          <string>&lt;p&gt;When showing authors in spine, for very narrow books, artifically widen the book to make space for the author line. Without this, the authors wont be displayed for narrow books, with it, narrow books will appear artifically wider than they really are.</string>
         </property>
         <property name="text">
-         <string>Make &amp;space for author line</string>
+         <string>Make &amp;space for second line</string>
         </property>
        </widget>
       </item>
