@@ -410,16 +410,24 @@ pref_name_map = {
             'You can add emblems (small icons) that are displayed on the side of covers'
             ' in the Cover grid by creating "rules" that tell calibre what image to use.'),
     },
+    'bookshelf_icon_rules': {
+        'kind': 'bookshelf_emblem',
+        'name': _('Bookshelf emblem'),
+        'label': _('Add the emblem:'),
+        'text': _(
+            'You can add emblem (small icon) that are displayed on the side of spines'
+            ' in the bookshelf by creating "rules" that tell calibre what image to use.'),
+    },
 }
-kind_icons = {'emblem', 'icon'}
-kind_emblems = {'emblem'}
+kind_icons = {'emblem', 'icon', 'bookshelf_emblem'}
+kind_emblems = {'emblem', 'bookshelf_emblem'}
 kind_colors = {'color'}
 
 
 def get_template_dialog(parent, rule, field=None, kind=None):
     if parent.pref_name == 'column_color_rules':
         return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, color_field=field)
-    if parent.pref_name == 'cover_grid_icon_rules':
+    if parent.pref_name in {'cover_grid_icon_rules', 'bookshelf_icon_rules'}:
         return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, doing_emblem=True)
     return TemplateDialog(parent, rule, mi=parent.mi, fm=parent.fm, icon_field_key=field, icon_rule_kind=kind)
 
@@ -960,7 +968,7 @@ class RulesModel(QAbstractListModel):  # {{{
                 <p>Advanced rule for column <b>%(col)s</b>:
                 <pre>%(rule)s</pre>
                 ''')%dict(col=col, rule=prepare_string_for_xml(rule))
-            elif self.rule_kind in {'emblem'}:
+            elif self.rule_kind in kind_emblems:
                 return _('''
                 <p>Advanced rule:
                 <pre>%(rule)s</pre>
@@ -980,6 +988,9 @@ class RulesModel(QAbstractListModel):  # {{{
 
         if kind == 'emblem':
             return _('<p>Add the emblem <b>{0}</b> to the cover if the following conditions are met:</p>'
+                    '\n<ul>{1}</ul>').format(rule.color, ''.join(conditions))
+        if kind == 'bookshelf_emblem':
+            return _('<p>Add the emblem <b>{0}</b> to spine if the following conditions are met:</p>'
                     '\n<ul>{1}</ul>').format(rule.color, ''.join(conditions))
         return _('''\
             <p>Set the <b>%(kind)s</b> of <b>%(col)s</b> to <b>%(color)s</b> %(sample)s
@@ -1055,6 +1066,16 @@ class EditRules(QWidget):  # {{{
         l.addWidget(c, l.rowCount(), 0, 1, 2)
         c.setVisible(False)
         c.stateChanged.connect(self.changed)
+
+        self.choices_label = cl = QLabel(self)
+        l.addWidget(cl, l.rowCount(), 0, 1, 1)
+        cl.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        cl.setVisible(False)
+        self.choices = c = QComboBox(self)
+        l.addWidget(c, l.rowCount() - 1, 1, 1, 1)
+        c.setVisible(False)
+        c.currentIndexChanged.connect(self.changed)
+        cl.setBuddy(c)
 
         self.l1 = l1 = QLabel('')
         l1.setWordWrap(True)
@@ -1148,6 +1169,7 @@ class EditRules(QWidget):  # {{{
         text = pref_name_map[pref_name]['text']
         text += ' ' + _('Click the "Add rule" button below to get started.'
                     '<p>You can <b>change an existing rule</b> by double clicking it.')
+        self.l1.setText('<p>'+ text)
         if pref_name == 'cover_grid_icon_rules':
             self.enabled.setVisible(True)
             self.enabled.setChecked(gprefs['show_emblems'])
@@ -1158,7 +1180,25 @@ class EditRules(QWidget):  # {{{
                 ' next to the covers shown in the Cover grid, controlled by the'
                 ' metadata of the book.'))
             self.enabled_toggled()
-        self.l1.setText('<p>'+ text)
+        if pref_name == 'bookshelf_icon_rules':
+            self.choices_label.setVisible(True)
+            self.choices.setVisible(True)
+            self.choices_label.setText(_('&Position of the emblem:'))
+            self.choices.setToolTip(_(
+                '<p>"Automatic" will place the icon where the space is available above or below the spine, with below first.'
+                '<p>"Above" and "Below" will allway place the icon at the selected position of the spine.'
+                '<p>"Top" and "Bottom" will place the icon on the spine, reducing the space allowed to the text.'))
+            choice_map = (
+                (_('Automatic'), 'auto'),
+                (_('Above of the spine'), 'above'),
+                (_('Below of the spine'), 'below'),
+                (_('Top of the spine'), 'top'),
+                (_('Bottom of the spine'), 'bottom'),
+            )
+            for idx, (text, data) in enumerate(choice_map):
+                self.choices.addItem(text, data)
+                if data == gprefs['bookshelf_emblem_position']:
+                    self.choices.setCurrentIndex(idx)
 
     def enabled_toggled(self):
         enabled = self.enabled.isChecked()
@@ -1308,6 +1348,9 @@ class EditRules(QWidget):  # {{{
         self.model.commit(prefs)
         if self.pref_name == 'cover_grid_icon_rules':
             gprefs['show_emblems'] = self.enabled.isChecked()
+        if self.pref_name == 'bookshelf_icon_rules':
+            idx = max(0, self.choices.currentIndex())
+            gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)
 
     def export_rules(self):
         path = choose_save_file(self, 'export-coloring-rules', _('Choose file to export to'),

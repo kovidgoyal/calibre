@@ -301,6 +301,11 @@
     </item>
    </layout>
   </widget>
+  <widget class="BookshelfEmblemRules" name="emblem_rules">
+   <attribute name="title">
+    <string>&amp;Emblems</string>
+   </attribute>
+  </widget>
   <widget class="CoverCacheConfig" name="config_cache">
    <attribute name="title">
     <string>&amp;Performance</string>
@@ -311,6 +316,11 @@
   <customwidget>
    <class>ConfigWidgetBase</class>
    <extends>QWidget</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BookshelfEmblemRules</class>
+   <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>

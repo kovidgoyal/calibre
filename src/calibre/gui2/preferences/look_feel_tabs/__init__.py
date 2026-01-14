@@ -269,6 +269,10 @@ class GridEmblemnRules(LazyEditRulesBase):
     rule_set_name = 'cover_grid_icon_rules'
 
 
+class BookshelfEmblemRules(LazyEditRulesBase):
+    rule_set_name = 'bookshelf_icon_rules'
+
+
 class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
     changed_signal = pyqtSignal()

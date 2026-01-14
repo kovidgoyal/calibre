@@ -642,6 +642,7 @@ class DB:
         defs['bookshelf_title_template'] = '{title}'
         defs['bookshelf_author_template'] = ''
         defs['bookshelf_spine_size_template'] = '{pages}'
+        defs['bookshelf_icon_rules'] = []
 
         # Migrate the beta bookshelf_grouping_mode
         if self.prefs.get('bookshelf_grouping_mode', '') == 'none':
