@@ -3,6 +3,7 @@
 
 import os
 import sys
+import time
 import weakref
 from collections.abc import Iterator
 from contextlib import suppress
@@ -87,6 +88,7 @@ class MaintainPageCounts(Thread):
                     self.tick_event.set()
 
     def do_backlog(self, server: Server) -> None:
+        s = self.queue.qsize
         while not self.shutdown_event.is_set():
             batch = tuple(self.get_batch())
             if not batch:
@@ -94,7 +96,12 @@ class MaintainPageCounts(Thread):
             for book_id in batch:
                 if self.shutdown_event.is_set():
                     break
+                if s() > 0:
+                    with suppress(ShutDown):
+                        self.queue_scan()
+                    return
                 self.count_book_and_commit(book_id, server)
+                time.sleep(0.01)
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
         ' Order results by book id to prioritise newer books '
