@@ -1456,6 +1456,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
+        self.template_inited = False
         self.calculate_shelf_geometry()
         if hasattr(self, 'cover_cache'):
             self.cover_cache.set_thumbnail_size(*self.thumbnail_size())

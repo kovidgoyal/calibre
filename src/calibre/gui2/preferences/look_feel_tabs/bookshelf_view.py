@@ -202,4 +202,3 @@ def evaluate(book, context):
 
     def refresh_gui(self, gui):
         gui.bookshelf_view.refresh_settings()
-        gui.bookshelf_view.template_inited = False
