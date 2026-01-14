@@ -1162,7 +1162,7 @@ class BookCase(QObject):
         if allow_wrap:
             shelf_idx = (shelf_idx + num_shelves) % num_shelves
         if in_bound:
-            shelf_idx = max(0, min(len(self.num_shelves)-1), shelf_idx)
+            shelf_idx = max(0, min(shelf_idx, num_shelves-1))
         if shelf_idx < 0 or shelf_idx >= num_shelves:
             return 0
         target_shelf = self.items[shelf_idx * 2]
