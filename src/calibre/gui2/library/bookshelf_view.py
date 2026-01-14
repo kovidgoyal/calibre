@@ -2088,7 +2088,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
         if (key := ev.key()) not in (
             Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageDown,
-            Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End
+            Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_Space,
         ):
             return super().keyPressEvent(ev)
         if not self.bookcase.book_ids_in_visual_order or not (m := self.model()):
@@ -2102,15 +2102,24 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             current_book_id = self.bookcase.book_ids_in_visual_order[0]
         has_ctrl = bool(ev.modifiers() & Qt.KeyboardModifier.ControlModifier)
         has_shift = bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        ctrl_action = QItemSelectionModel.SelectionFlag.Toggle
+        no_mods_action = QItemSelectionModel.SelectionFlag.ClearAndSelect
         match key:
+            case Qt.Key.Key_Space:
+                target_book_id = current_book_id
+                no_mods_action = QItemSelectionModel.SelectionFlag.Select
             case Qt.Key.Key_Left:
                 target_book_id = self.bookcase.visual_neighboring_book(current_book_id, delta=-1)
+                ctrl_action = QItemSelectionModel.SelectionFlag.NoUpdate
             case Qt.Key.Key_Right:
                 target_book_id = self.bookcase.visual_neighboring_book(current_book_id, delta=1)
+                ctrl_action = QItemSelectionModel.SelectionFlag.NoUpdate
             case Qt.Key.Key_Up:
                 target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-1)
+                ctrl_action = QItemSelectionModel.SelectionFlag.NoUpdate
             case Qt.Key.Key_Down:
                 target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=1)
+                ctrl_action = QItemSelectionModel.SelectionFlag.NoUpdate
             case Qt.Key.Key_PageUp:
                 target_book_id = self.bookcase.book_in_column_of(current_book_id, delta=-self.shelves_per_screen, in_bound=True)
             case Qt.Key.Key_PageDown:
@@ -2134,9 +2143,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if has_shift:
             handle_selection_click(self, target_index, self.bookcase.visual_row_cmp, self.selection_between)
         elif has_ctrl:
-            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.Toggle)
+            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | ctrl_action)
         else:
-            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            sm.setCurrentIndex(target_index, QItemSelectionModel.SelectionFlag.Rows | no_mods_action)
         self.scrollTo(target_index)
         self.update_viewport()
 
