@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from qt.core import (
+    QAction,
     QActionGroup,
     QApplication,
     QCoreApplication,
@@ -240,8 +241,14 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(sb)
 
         parent.group_by_button = self.group_by_button = gb = QToolButton(self)
+        self.group_by_menu_action = ac = QAction()
+        parent.addAction(ac)
+        ac.triggered.connect(self.show_group_by_menu)
         gb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         gb.setToolTip(_('Change how the displayed books are grouped'))
+        parent.keyboard.register_shortcut(
+            'show group by menu', _('Show the Group by menu for grouping books in the Bookshelf view'),
+            action=ac, group=_('Main window layout'), default_keys=())
         gb.setCursor(Qt.CursorShape.PointingHandCursor)
         gb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         gb.setAutoRaise(True)
@@ -308,6 +315,10 @@ class SearchBar(QFrame):  # {{{
     def populate_group_by_menu(self):
         from calibre.gui2.ui import get_gui
         get_gui().bookshelf_view.populate_group_by_menu(self.group_by_button.menu())
+
+    def show_group_by_menu(self):
+        if self.group_by_button.isVisible():
+            self.group_by_button.click()
 
     def do_fts(self):
         from calibre.gui2.ui import get_gui
