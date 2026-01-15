@@ -179,7 +179,7 @@ def format_time_left(seconds):
 def format_pos(progress_frac, length):
     if length < 1:
         return ''
-    pages = Math.ceil(length / 1000)
+    pages = Math.ceil(length / v'__CHARS_PER_PAGE__')
     pos = progress_frac * pages
     return f'{pos:.1f} / {pages}'
 

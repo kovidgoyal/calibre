@@ -14,7 +14,6 @@ from lxml import etree
 
 from calibre import detect_ncpus
 from calibre.constants import iswindows
-from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
@@ -76,14 +75,9 @@ def count_pages_cb7(pathtoebook: str) -> int:
         return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
-def get_length(root):
+def get_length(root: etree.Element) -> int:
     ' Used for position/length display in the viewer '
-    ans = 0
-    for body in root.iterchildren(XHTML('body')):
-        ans += get_num_of_significant_chars(body)
-        for elem in body.iterdescendants():
-            ans += get_num_of_significant_chars(elem)
-    return ans
+    return max(CHARS_PER_PAGE, get_line_count(root) * CHARS_PER_LINE)
 
 
 CHARS_PER_LINE = 70
@@ -136,7 +130,7 @@ def get_line_count(document_root: etree.Element) -> int:
 
 
 def get_page_count(root: etree.Element) -> int:
-    return max(1, get_line_count(root) // LINES_PER_PAGE)
+    return max(1, ceil(get_line_count(root) / LINES_PER_PAGE))
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
