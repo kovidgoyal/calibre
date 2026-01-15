@@ -1353,8 +1353,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_inited = False
         self.emblem_rules = []
         self.template_cache = {}
-        self.first_line_renderer = partial(self.render_template, 'title', '{title}', False)
-        self.second_line_renderer = partial(self.render_template, 'authors', '', True)
+        self.template_is_empty = {}
+        self.first_line_renderer = self.build_template_renderer('title', '{title}')
+        self.second_line_renderer = self.build_template_renderer('authors', '')
 
         # Initialize drag and drop
         # so we set the attributes manually
@@ -1426,16 +1427,22 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.template_cache = {}
         title = db_pref('bookshelf_title_template') or ''
-        self.first_line_renderer = partial(self.render_template, 'title', title, not title.strip())
+        self.first_line_renderer = self.build_template_renderer('title', title)
         authors = db_pref('bookshelf_author_template') or ''
-        self.second_line_renderer = partial(self.render_template, 'authors', authors, not authors.strip())
+        self.second_line_renderer = self.build_template_renderer('authors', authors)
         self.template_inited = True
         self.emblem_rules = db_pref('bookshelf_icon_rules') or []
 
-    def render_template(self, column_name: str, template: str, template_is_empty: bool, book_id: int) -> str:
-        if template_is_empty or not (db := self.dbref()):
+    def build_template_renderer(self, column_name: str, template: str) -> partial[str]:
+        self.template_is_empty[column_name] = not template.strip()
+        return partial(self.render_template, column_name, template)
+
+    def render_template(self, column_name: str, template: str, book_id: int) -> str:
+        if not (db := self.dbref()):
             return ''
         self.init_template(db)
+        if self.template_is_empty[column_name]:
+            return ''
         match template:
             case '{title}':
                 return db.field_for('title', book_id)
