@@ -1455,14 +1455,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return ''
         mi = db.get_proxy_metadata(book_id)
         for (x,y,t) in self.emblem_rules:
-            try:
-                rslt = mi.formatter.safe_format(
-                    t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
-                if rslt:
-                    return rslt
-            except Exception:
-                import traceback
-                traceback.print_exc()
+            rslt = mi.formatter.safe_format(
+                t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
+            if rslt:
+                return rslt
         return ''
 
     def refresh_settings(self):
@@ -1761,6 +1757,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 painter, scroll_y, self.layout_constraints, self.selection_highlight_color(is_selected, is_current),
             )
             self.draw_emblems(painter, hovered_item, scroll_y)
+        painter.end()
 
     def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
