@@ -2,11 +2,11 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ast
-import gzip
 import os
 import re
 import sys
 import types
+from compression import gzip
 from contextlib import suppress
 from datetime import timedelta
 from enum import Enum, auto

@@ -10,7 +10,7 @@ import stat
 import struct
 import sys
 import time
-import zlib
+from compression import zlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing, suppress
 from threading import Lock

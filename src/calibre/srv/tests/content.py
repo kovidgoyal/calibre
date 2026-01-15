@@ -8,7 +8,7 @@ import http.client
 import json
 import os
 import time
-import zlib
+from compression import zlib
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata

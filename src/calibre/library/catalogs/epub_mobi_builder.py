@@ -8,7 +8,7 @@ import re
 import shutil
 import time
 import unicodedata
-import zlib
+from compression import zlib
 from copy import deepcopy
 from xml.sax.saxutils import escape
 

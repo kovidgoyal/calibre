@@ -17,7 +17,7 @@ import os
 import struct
 import sys
 import xml.dom.minidom as dom
-import zlib
+from compression import zlib
 from functools import wraps
 from shutil import copyfileobj
 

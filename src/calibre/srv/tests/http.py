@@ -8,7 +8,7 @@ import hashlib
 import http.client
 import string
 import time
-import zlib
+from compression import zlib
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 

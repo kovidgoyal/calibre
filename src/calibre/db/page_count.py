@@ -31,7 +31,7 @@ YIELD_TIME = 0.001
 
 class MaintainPageCounts(Thread):
 
-    def __init__(self, db_new_api: 'Cache'):
+    def __init__(self, db_new_api: Cache):
         super().__init__(name='MaintainPageCounts', daemon=True)
         self.shutdown_event = Event()
         self.tick_event = Event()
@@ -123,7 +123,7 @@ class MaintainPageCounts(Thread):
     def sort_key(self, fmt: str) -> int:
         return self.sort_order.get(fmt, len(self.sort_order) + 100)
 
-    def count_book(self, db: 'Cache', book_id: int, server: Server) -> Pages:
+    def count_book(self, db: Cache, book_id: int, server: Server) -> Pages:
         with db.safe_read_lock:
             fmts = db._formats(book_id)
             pages = db._get_pages(book_id)

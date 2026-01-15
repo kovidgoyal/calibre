@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import struct
-import zlib
+from compression import zlib
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator

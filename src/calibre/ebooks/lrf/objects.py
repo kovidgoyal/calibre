@@ -5,7 +5,7 @@ import collections
 import io
 import re
 import struct
-import zlib
+from compression import zlib
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.html_entities import entity_to_unicode_in_python

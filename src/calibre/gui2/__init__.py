@@ -1744,7 +1744,7 @@ def make_view_use_window_background(view):
     return view
 
 
-def local_path_for_resource(qurl: QUrl, base_qurl: 'QUrl | None' = None) -> str:
+def local_path_for_resource(qurl: QUrl, base_qurl: QUrl | None = None) -> str:
     if base_qurl and qurl.isRelative():
         qurl = base_qurl.resolved(qurl)
 

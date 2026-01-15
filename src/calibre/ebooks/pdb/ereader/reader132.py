@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 import struct
-import zlib
+from compression import zlib
 
 from calibre import CurrentDir
 from calibre.ebooks import DRMError

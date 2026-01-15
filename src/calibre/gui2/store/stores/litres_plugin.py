@@ -123,7 +123,10 @@ def format_price_in_RUR(price):
 def ungzipResponse(r, b):
     headers = r.info()
     if headers.get('Content-Encoding', '')=='gzip':
-        import gzip
+        try:
+            from compression import gzip
+        except ImportError:
+            import gzip
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()
         gz.close()

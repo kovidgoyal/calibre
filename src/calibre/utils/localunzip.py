@@ -15,8 +15,8 @@ Tries to only use the local headers to extract data from the damaged zip file.
 import os
 import shutil
 import sys
-import zlib
 from collections import OrderedDict, namedtuple
+from compression import zlib
 from struct import calcsize, pack, unpack
 
 from calibre.ptempfile import SpooledTemporaryFile

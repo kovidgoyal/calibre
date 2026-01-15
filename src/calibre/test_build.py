@@ -99,12 +99,12 @@ class BuildTest(unittest.TestCase):
         detector.close()
         self.assertEqual(detector.result['encoding'], 'utf-8')
 
-    def test_lzma(self):
-        import lzma
-        lzma.open
-
-    def test_zstd(self):
+    def test_compression(self):
         from compression.zstd import compress, decompress
+        data = os.urandom(4096)
+        cdata = compress(data)
+        self.assertEqual(data, decompress(cdata))
+        from compression.lzma import compress, decompress
         data = os.urandom(4096)
         cdata = compress(data)
         self.assertEqual(data, decompress(cdata))

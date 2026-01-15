@@ -129,8 +129,8 @@ def filter_not_installed_plugins(display_plugin):
 
 
 def read_available_plugins(raise_error=False):
-    import bz2
     import json
+    from compression import bz2
     display_plugins = []
     try:
         raw = get_https_resource_securely(INDEX_URL)

@@ -6,7 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 import os
-import zlib
+from compression import zlib
 from functools import partial
 from http.client import FORBIDDEN, NOT_FOUND, OK
 from io import BytesIO

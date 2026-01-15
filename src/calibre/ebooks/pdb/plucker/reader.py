@@ -4,8 +4,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import struct
-import zlib
 from collections import OrderedDict
+from compression import zlib
 
 from calibre import CurrentDir
 from calibre.ebooks.compression.palmdoc import decompress_doc
