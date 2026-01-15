@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 CacheRef = weakref.ref['Cache']
 NO_COUNTABLE_FORMATS, COUNT_FAILED, DRMED_FORMATS = -1, -2, -3
 # yield so that main thread is not starved by GIL
-YIELD_TIME = 0.001
+YIELD_TIME = 0.01
 
 
 class MaintainPageCounts(Thread):
