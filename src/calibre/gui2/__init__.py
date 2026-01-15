@@ -496,6 +496,7 @@ def create_defs():
     defs['bookshelf_cache_size_multiple'] = 5
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = 'crops'
+    defs['bookshelf_thumbnail_opacity'] = 30
     defs['bookshelf_variable_height'] = True
     defs['bookshelf_fade_time'] = 400
     defs['bookshelf_hover'] = 'shift'

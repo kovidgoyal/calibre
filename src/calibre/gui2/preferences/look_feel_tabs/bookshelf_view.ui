@@ -72,6 +72,35 @@
      <widget class="QComboBox" name="opt_bookshelf_thumbnail"/>
     </item>
     <item row="2" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Thumbnail &amp;opacity:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_thumbnail_opacity</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QSpinBox" name="opt_bookshelf_thumbnail_opacity">
+      <property name="suffix">
+       <string> %</string>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+      <property name="singleStep">
+       <number>10</number>
+      </property>
+      <property name="value">
+       <number>20</number>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
      <widget class="QLabel" name="label_title">
       <property name="text">
        <string>Template for spine &amp;first line:</string>
@@ -81,7 +110,7 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
        <widget class="QLineEdit" name="opt_bookshelf_title_template">
@@ -102,7 +131,7 @@
       </item>
      </layout>
     </item>
-    <item row="3" column="0">
+    <item row="4" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Template for spine &amp;second line:</string>
@@ -112,7 +141,7 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
+    <item row="4" column="1">
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
        <widget class="QLineEdit" name="opt_bookshelf_author_template">
@@ -128,6 +157,30 @@
        <widget class="QPushButton" name="template_author_button">
         <property name="text">
          <string>Template &amp;editor</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
+        <property name="toolTip">
+         <string>&lt;p&gt;When showing authors in spine, for very narrow books, artifically widen the book to make space for the author line. Without this, the authors wont be displayed for narrow books, with it, narrow books will appear artifically wider than they really are.</string>
+        </property>
+        <property name="text">
+         <string>Make &amp;space for second line</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
+        <property name="toolTip">
+         <string>Control whether the text shown on book spines goes upwards or downwards</string>
+        </property>
+        <property name="text">
+         <string>Spine text &amp;downwards</string>
         </property>
        </widget>
       </item>
@@ -274,30 +327,6 @@
        </size>
       </property>
      </spacer>
-    </item>
-    <item row="5" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
-        <property name="toolTip">
-         <string>&lt;p&gt;When showing authors in spine, for very narrow books, artifically widen the book to make space for the author line. Without this, the authors wont be displayed for narrow books, with it, narrow books will appear artifically wider than they really are.</string>
-        </property>
-        <property name="text">
-         <string>Make &amp;space for second line</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
-        <property name="toolTip">
-         <string>Control whether the text shown on book spines goes upwards or downwards</string>
-        </property>
-        <property name="text">
-         <string>Spine text &amp;downwards</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
