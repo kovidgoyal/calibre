@@ -1458,10 +1458,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return ''
         mi = db.get_proxy_metadata(book_id)
         for (x,y,t) in rules:
-            rslt = mi.formatter.safe_format(
-                t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
-            if rslt:
-                return rslt
+            try:
+                rslt = mi.formatter.safe_format(
+                    t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
+                if rslt:
+                    return rslt
+            except Exception:
+                import traceback
+                traceback.print_exc()
         return ''
 
     def refresh_settings(self):
