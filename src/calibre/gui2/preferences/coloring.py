@@ -1187,12 +1187,12 @@ class EditRules(QWidget):  # {{{
             self.choices.setToolTip(_(
                 '<p>Display an icon of your choosing on the book spine in Bookshelf view.'
                 ' <p>"Automatic" will place the icon either above or below the spine.'
-                '< p>"Above" and "Below" will place the icon at the selected position.'
+                ' <p>"Above" and "Below" will place the icon at the selected position.'
                 ' <p>"Top" and "Bottom" will place the icon on the spine, reducing the space available for text.'))
             choice_map = (
                 (_('Automatic'), 'auto'),
-                (_('Above of the spine'), 'above'),
-                (_('Below of the spine'), 'below'),
+                (_('Above the spine'), 'above'),
+                (_('Below the spine'), 'below'),
                 (_('Top of the spine'), 'top'),
                 (_('Bottom of the spine'), 'bottom'),
             )
