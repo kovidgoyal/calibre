@@ -1152,11 +1152,14 @@ class Cache:
         return field.format_size(book_id, fmt)
 
     @read_api
-    def pref(self, name, default=None, namespace=None):
+    def pref(self, name, default=None, namespace=None, get_default_from_defaults=False):
         ' Return the value for the specified preference or the value specified as ``default`` if the preference is not set. '
+        p = self.backend.prefs
+        if get_default_from_defaults:
+            default = p.defaults.get(name, default)
         if namespace is not None:
-            return self.backend.prefs.get_namespaced(namespace, name, default)
-        return self.backend.prefs.get(name, default)
+            return p.get_namespaced(namespace, name, default)
+        return p.get(name, default)
 
     @write_api
     def set_pref(self, name, val, namespace=None):

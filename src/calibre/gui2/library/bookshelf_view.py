@@ -1062,10 +1062,9 @@ class BookCase(QObject):
         if mdb is None or invalidate.is_set():
             return
         db = mdb.new_api
-        spine_size_template = db.pref('bookshelf_spine_size_template') or db.backend.prefs.defaults['bookshelf_spine_size_template']
+        spine_size_template = db.pref('bookshelf_spine_size_template', get_default_from_defaults=True)
         if gprefs['bookshelf_make_space_for_second_line']:
-            prefs = db.backend.prefs
-            author_template = prefs.get('bookshelf_author_template', prefs.defaults.get('bookshelf_author_template')) or ''
+            author_template = db.pref('bookshelf_author_template', get_default_from_defaults=True)
             if author_template.strip():
                 min_line_height *= 2
         template_cache = {}
@@ -1352,6 +1351,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Cover template caching
         self.template_inited = False
+        self.emblem_rules = []
         self.template_cache = {}
         self.first_line_renderer = partial(self.render_template, 'title', '{title}', False)
         self.second_line_renderer = partial(self.render_template, 'authors', '', True)
@@ -1422,8 +1422,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
 
         def db_pref(key):
-            prefs = db.new_api.backend.prefs
-            return prefs.get(key, prefs.defaults.get(key))
+            return db.new_api.pref(key, get_default_from_defaults=True)
 
         self.template_cache = {}
         title = db_pref('bookshelf_title_template') or ''
@@ -1431,6 +1430,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         authors = db_pref('bookshelf_author_template') or ''
         self.second_line_renderer = partial(self.render_template, 'authors', authors, not authors.strip())
         self.template_inited = True
+        self.emblem_rules = db_pref('bookshelf_icon_rules') or []
 
     def render_template(self, column_name: str, template: str, template_is_empty: bool, book_id: int) -> str:
         if template_is_empty or not (db := self.dbref()):
@@ -1451,13 +1451,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return rslt or ''
 
     def render_emblem(self, book_id: int) -> str:
-        if not (db := self.dbref()):
-            return ''
-        p = db.new_api.backend.prefs
-        if not (rules := p.get('bookshelf_icon_rules', p.defaults.get('bookshelf_icon_rules'))):
+        if not self.emblem_rules or not (db := self.dbref()):
             return ''
         mi = db.get_proxy_metadata(book_id)
-        for (x,y,t) in rules:
+        for (x,y,t) in self.emblem_rules:
             try:
                 rslt = mi.formatter.safe_format(
                     t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
