@@ -1217,6 +1217,7 @@ class ExpandedCover(QObject):  # {{{
         if self.shelf_item is not None:
             duration = 0 if config['disable_animations'] else gprefs['bookshelf_fade_time']
             if duration > 0:
+                self.opacity_animation.setStartValue(gprefs['bookshelf_thumbnail_opacity'] / 100)
                 self.opacity_animation.setDuration(duration)
                 self.size_animation.setDuration(duration)
             lc = self.layout_constraints
@@ -1993,7 +1994,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 rect = QRect(rect.x(), rect.y(), width, rect.height())
         # Draw with opacity
         painter.save()
-        painter.setOpacity(0.3)  # 30% opacity
+        painter.setOpacity(gprefs['bookshelf_thumbnail_opacity'] / 100)
         dpr = thumbnail.devicePixelRatioF()
         thumbnail.setDevicePixelRatio(self.devicePixelRatioF())
         painter.drawPixmap(rect, thumbnail)
