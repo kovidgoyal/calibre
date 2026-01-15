@@ -83,20 +83,20 @@
     </item>
     <item row="2" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_thumbnail_opacity">
+      <property name="toolTip">
+       <string>&lt;p&gt;How much to blend the cover into the spine. Higher values decrease blending.</string>
+      </property>
       <property name="suffix">
        <string> %</string>
       </property>
       <property name="minimum">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="maximum">
        <number>100</number>
       </property>
-      <property name="singleStep">
-       <number>10</number>
-      </property>
       <property name="value">
-       <number>20</number>
+       <number>30</number>
       </property>
      </widget>
     </item>
