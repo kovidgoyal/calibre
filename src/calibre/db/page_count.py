@@ -25,6 +25,8 @@ if TYPE_CHECKING:
     from calibre.db.cache import Cache
 CacheRef = weakref.ref['Cache']
 NO_COUNTABLE_FORMATS, COUNT_FAILED, DRMED_FORMATS = -1, -2, -3
+# yield so that main thread is not starved by GIL
+YIELD_TIME = 0.001
 
 
 class MaintainPageCounts(Thread):
@@ -95,6 +97,7 @@ class MaintainPageCounts(Thread):
                 if self.shutdown_event.is_set():
                     break
                 self.count_book_and_commit(book_id, server)
+                self.shutdown_event.wait(YIELD_TIME)
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
         ' Order results by book id to prioritise newer books '
