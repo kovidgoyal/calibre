@@ -151,7 +151,7 @@ class WoodTheme(NamedTuple):
     cavity_color: QColor
 
     @classmethod
-    def light_theme(cls) -> WoodTheme:
+    def light_theme(cls) -> 'WoodTheme':
         # Light oak/pine colors for light mode
         return WoodTheme(
             background=QColor(245, 245, 245),
@@ -185,7 +185,7 @@ class WoodTheme(NamedTuple):
         )
 
     @classmethod
-    def dark_theme(cls) -> WoodTheme:
+    def dark_theme(cls) -> 'WoodTheme':
         # Dark walnut/mahogany colors for dark mode
         return WoodTheme(
             background=QColor(30, 30, 35),
@@ -478,7 +478,7 @@ class PixmapWithDominantColor(QPixmap):
     dominant_color: QColor = QColor()
 
     @staticmethod
-    def fromImage(img: QImage) -> PixmapWithDominantColor:
+    def fromImage(img: QImage) -> 'PixmapWithDominantColor':
         ans = PixmapWithDominantColor(QPixmap.fromImage(img))
         if not hasattr(img, 'dominant_color'):
             img = ImageWithDominantColor(img)
@@ -659,7 +659,7 @@ class ShelfItem(NamedTuple):
     def contains(self, x: int, gap: int = 0) -> bool:
         return self.start_x <= x < self.start_x + self.width + gap
 
-    def overlap_length(self, X: ShelfItem) -> int:
+    def overlap_length(self, X: 'ShelfItem') -> int:
         xs, xl = X.start_x, X.width
         ys, yl = self.start_x, self.width
         xe = xs + xl
@@ -750,7 +750,7 @@ class CaseItem:
     def is_shelf(self) -> bool:
         return self.items is None
 
-    def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> CaseItem:
+    def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> 'CaseItem':
         if (extra := width - shelf_item.width) <= 0:
             return self
         ans = CaseItem(y=self.start_y, height=self.height, idx=self.idx)
@@ -1176,7 +1176,7 @@ class ExpandedCover(QObject):  # {{{
 
     updated = pyqtSignal()
 
-    def __init__(self, parent: BookshelfView):
+    def __init__(self, parent: 'BookshelfView'):
         super().__init__(parent)
         self._opacity = 0
         self._size = QSize()
