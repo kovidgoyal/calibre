@@ -125,7 +125,7 @@ class TTSManager(QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._tts: 'TTSBackend' | None = None  # noqa: UP037
+        self._tts: TTSBackend | None = None
         self.state = QTextToSpeech.State.Ready
         self.speaking_simple_text = False
         self.tracker = Tracker()

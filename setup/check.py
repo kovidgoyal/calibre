@@ -164,4 +164,4 @@ class UpgradeSourceCode(Command):
             if '/metadata/sources/' in q or '/store/stores/' in q:
                 continue
             files.append(q)
-        subprocess.call(['pyupgrade', '--py310-plus'] + files)
+        subprocess.call(['pyupgrade', '--py314-plus'] + files)
