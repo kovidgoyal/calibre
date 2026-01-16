@@ -151,7 +151,7 @@ class WoodTheme(NamedTuple):
     cavity_color: QColor
 
     @classmethod
-    def light_theme(cls) -> WoodTheme:
+    def light_theme(cls) -> 'WoodTheme':
         # Light oak/pine colors for light mode
         return WoodTheme(
             background=QColor(245, 245, 245),
@@ -185,7 +185,7 @@ class WoodTheme(NamedTuple):
         )
 
     @classmethod
-    def dark_theme(cls) -> WoodTheme:
+    def dark_theme(cls) -> 'WoodTheme':
         # Dark walnut/mahogany colors for dark mode
         return WoodTheme(
             background=QColor(30, 30, 35),
@@ -262,13 +262,12 @@ class RenderCase:
             return self.last_rendered_background
         self.ensure_theme(is_dark)
         ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
-        painter = QPainter(ans)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.draw_back_panel(painter, rect)
-        # Add vertical grain for back panel (typical plywood back)
-        self.draw_back_panel_grain(painter, rect)
-        self.draw_cavity_shadows(painter, rect)
-        painter.end()
+        with QPainter(ans) as painter:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            self.draw_back_panel(painter, rect)
+            # Add vertical grain for back panel (typical plywood back)
+            self.draw_back_panel_grain(painter, rect)
+            self.draw_cavity_shadows(painter, rect)
         self.last_rendered_background = QPixmap.fromImage(ans)
         return self.last_rendered_background
 
@@ -331,16 +330,15 @@ class RenderCase:
             return ans
         self.ensure_theme(is_dark)
         ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
-        painter = QPainter(ans)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.draw_shelf_body(painter, rect)
-        self.draw_wood_grain(painter, rect, tuple(self.generate_grain_lines(102 + instance)))
-        self.draw_knots(painter, rect, seed=123 + instance)
-        self.draw_top_highlight(painter, rect)
-        self.draw_bottom_edge(painter, rect)
-        self.draw_front_bevel(painter, rect)
-        self.draw_edges(painter, rect)
-        painter.end()
+        with QPainter(ans) as painter:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            self.draw_shelf_body(painter, rect)
+            self.draw_wood_grain(painter, rect, tuple(self.generate_grain_lines(102 + instance)))
+            self.draw_knots(painter, rect, seed=123 + instance)
+            self.draw_top_highlight(painter, rect)
+            self.draw_bottom_edge(painter, rect)
+            self.draw_front_bevel(painter, rect)
+            self.draw_edges(painter, rect)
         self.shelf_cache[instance] = p = QPixmap.fromImage(ans)
         return p
 
@@ -478,7 +476,7 @@ class PixmapWithDominantColor(QPixmap):
     dominant_color: QColor = QColor()
 
     @staticmethod
-    def fromImage(img: QImage) -> PixmapWithDominantColor:
+    def fromImage(img: QImage) -> 'PixmapWithDominantColor':
         ans = PixmapWithDominantColor(QPixmap.fromImage(img))
         if not hasattr(img, 'dominant_color'):
             img = ImageWithDominantColor(img)
@@ -538,33 +536,32 @@ def draw_pixmap_with_shadow(
     shadow_image = QImage(total_width, total_height, QImage.Format_ARGB32_Premultiplied)
     shadow_image.fill(Qt.GlobalColor.transparent)
 
-    shadow_painter = QPainter(shadow_image)
-    shadow_painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
-    shadow_painter.setPen(Qt.PenStyle.NoPen)
+    with QPainter(shadow_image) as shadow_painter:
+        shadow_painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+        shadow_painter.setPen(Qt.PenStyle.NoPen)
 
-    if margin:
-        # Draw the shadow shape (rounded rect or simple rect based on preference)
-        shadow_rect = QRectF(
-            margin + shadow_offset_x,
-            margin + shadow_offset_y,
-            pixmap.width(),
-            pixmap.height()
-        )
+        if margin:
+            # Draw the shadow shape (rounded rect or simple rect based on preference)
+            shadow_rect = QRectF(
+                margin + shadow_offset_x,
+                margin + shadow_offset_y,
+                pixmap.width(),
+                pixmap.height()
+            )
 
-        # Draw multiple layers with decreasing opacity for blur effect
-        for i in range(shadow_blur, 0, -1):
-            alpha = int(shadow_color.alpha() * (1 - i / shadow_blur) * 0.5)
-            blur_color = QColor(shadow_color.red(), shadow_color.green(),
-                            shadow_color.blue(), alpha)
-            shadow_painter.setBrush(blur_color)
+            # Draw multiple layers with decreasing opacity for blur effect
+            for i in range(shadow_blur, 0, -1):
+                alpha = int(shadow_color.alpha() * (1 - i / shadow_blur) * 0.5)
+                blur_color = QColor(shadow_color.red(), shadow_color.green(),
+                                shadow_color.blue(), alpha)
+                shadow_painter.setBrush(blur_color)
 
-            blur_rect = shadow_rect.adjusted(-i, -i, i, i)
-            shadow_painter.drawRoundedRect(blur_rect, 3, 3)
+                blur_rect = shadow_rect.adjusted(-i, -i, i, i)
+                shadow_painter.drawRoundedRect(blur_rect, 3, 3)
 
-    shadow_painter.fillRect(QRect(margin, margin, pixmap.width(), pixmap.height()), fill_color)
-    shadow_painter.setOpacity(opacity)
-    shadow_painter.drawPixmap(margin, margin, pixmap)
-    shadow_painter.end()
+        shadow_painter.fillRect(QRect(margin, margin, pixmap.width(), pixmap.height()), fill_color)
+        shadow_painter.setOpacity(opacity)
+        shadow_painter.drawPixmap(margin, margin, pixmap)
     return QPixmap.fromImage(shadow_image), margin
 
 
@@ -659,7 +656,7 @@ class ShelfItem(NamedTuple):
     def contains(self, x: int, gap: int = 0) -> bool:
         return self.start_x <= x < self.start_x + self.width + gap
 
-    def overlap_length(self, X: ShelfItem) -> int:
+    def overlap_length(self, X: 'ShelfItem') -> int:
         xs, xl = X.start_x, X.width
         ys, yl = self.start_x, self.width
         xe = xs + xl
@@ -750,7 +747,7 @@ class CaseItem:
     def is_shelf(self) -> bool:
         return self.items is None
 
-    def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> CaseItem:
+    def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> 'CaseItem':
         if (extra := width - shelf_item.width) <= 0:
             return self
         ans = CaseItem(y=self.start_y, height=self.height, idx=self.idx)
@@ -1175,7 +1172,7 @@ class ExpandedCover(QObject):  # {{{
 
     updated = pyqtSignal()
 
-    def __init__(self, parent: BookshelfView):
+    def __init__(self, parent: 'BookshelfView'):
         super().__init__(parent)
         self._opacity = 0
         self._size = QSize()
@@ -1715,9 +1712,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return
         self.bookcase.ensure_layouting_is_current()
 
-        painter = QPainter(self.viewport())
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
+        with QPainter(self.viewport()) as painter:
+            self.do_paint(painter)
 
+    def do_paint(self, painter: QPainter):
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         # Get visible area
         scroll_y = self.verticalScrollBar().value()
         viewport_rect = self.viewport().rect()
@@ -1764,7 +1763,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 painter, scroll_y, self.layout_constraints, self.selection_highlight_color(is_selected, is_current),
             )
             self.draw_emblems(painter, hovered_item, scroll_y)
-        painter.end()
 
     def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
