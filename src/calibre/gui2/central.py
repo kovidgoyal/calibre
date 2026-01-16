@@ -120,7 +120,7 @@ class LayoutButton(QToolButton):
 
     on_action_trigger = pyqtSignal(bool)
 
-    def __init__(self, name: str, icon: str, label: str, central: 'CentralContainer', shortcut=None):
+    def __init__(self, name: str, icon: str, label: str, central: CentralContainer, shortcut=None):
         super().__init__(central)
         self.central = central
         self.label = label

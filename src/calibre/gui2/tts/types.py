@@ -55,7 +55,7 @@ class Quality(Enum):
     ExtraLow: int = auto()
 
     @classmethod
-    def from_piper_quality(self, x: str) -> 'Quality':
+    def from_piper_quality(self, x: str) -> Quality:
         return {'x_low': Quality.ExtraLow, 'low': Quality.Low, 'medium': Quality.Medium, 'high': Quality.High}[x]
 
     @property
@@ -132,7 +132,7 @@ class EngineSpecificSettings(NamedTuple):
     preferred_voices: dict[str, str] | None = None
 
     @classmethod
-    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object] | None = None) -> 'EngineSpecificSettings':
+    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object] | None = None) -> EngineSpecificSettings:
         prefs = prefs or {}
         adev = prefs.get('audio_device_id')
         audio_device_id = None
@@ -161,7 +161,7 @@ class EngineSpecificSettings(NamedTuple):
             audio_device_id=audio_device_id, rate=rate, pitch=pitch, volume=volume, engine_name=engine_name)
 
     @classmethod
-    def create_from_config(cls, engine_name: str, config_name: str = CONFIG_NAME) -> 'EngineSpecificSettings':
+    def create_from_config(cls, engine_name: str, config_name: str = CONFIG_NAME) -> EngineSpecificSettings:
         prefs = load_config(config_name)
         val = prefs.get('engines', {}).get(engine_name, {})
         return cls.create_from_prefs(engine_name, val)

@@ -109,7 +109,7 @@ class ConversationHistory:
     def append(self, x: ChatMessage) -> None:
         self.items.append(x)
 
-    def copy(self, upto: int | None = None) -> 'ConversationHistory':
+    def copy(self, upto: int | None = None) -> ConversationHistory:
         ans = ConversationHistory()
         ans.model_used = self.model_used
         if upto is None:
@@ -118,7 +118,7 @@ class ConversationHistory:
             ans.items = self.items[:upto]
         return ans
 
-    def only(self, message_index: int) -> 'ConversationHistory':
+    def only(self, message_index: int) -> ConversationHistory:
         ans = self.copy(message_index + 1)
         ans.items = [ans.items[-1]]
         return ans
@@ -527,7 +527,7 @@ class ActionData(NamedTuple):
         return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
 
     @classmethod
-    def unserialize(cls, p: dict[str, Any], default_actions: tuple['ActionData', ...], include_disabled=False) -> Iterator['ActionData']:
+    def unserialize(cls, p: dict[str, Any], default_actions: tuple[ActionData, ...], include_disabled=False) -> Iterator[ActionData]:
         dd = p.get('disabled_default_actions', ())
         for x in default_actions:
             x = x._replace(is_disabled=x.name in dd)

@@ -16,7 +16,7 @@ def printf(*args, **kw):
     sys.stdout.flush()
 
 
-def download_with_retry(url: 'str | Request', count: int = 5) -> bytes:
+def download_with_retry(url: str | Request, count: int = 5) -> bytes:
     for i in range(count):
         try:
             print('Downloading', getattr(url, 'full_url', url), flush=True)

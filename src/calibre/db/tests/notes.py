@@ -12,7 +12,7 @@ from calibre.db.tests.base import BaseTest
 from calibre.utils.resources import get_image_path
 
 
-def test_notes_restore(self: 'NotesTest'):
+def test_notes_restore(self: NotesTest):
     cache, notes = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))
     doc = 'simple notes for an author'
@@ -23,7 +23,7 @@ def test_notes_restore(self: 'NotesTest'):
     cache.set_notes_for('authors', authors[1], doc2, resource_hashes=(h2,))
 
 
-def test_notes_api(self: 'NotesTest'):
+def test_notes_api(self: NotesTest):
     cache, notes = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))
     self.ae(cache.notes_for('authors', authors[0]), '')
@@ -83,7 +83,7 @@ def test_notes_api(self: 'NotesTest'):
     self.ae(len(os.listdir(notes.retired_dir)), 1)
 
 
-def test_cache_api(self: 'NotesTest'):
+def test_cache_api(self: NotesTest):
     cache, notes = self.create_notes_db()
     authors = cache.field_for('authors', 1)
     author_id = cache.get_item_id('authors', authors[0])
@@ -170,7 +170,7 @@ def test_cache_api(self: 'NotesTest'):
         self.ae(sorted(res, key=itemgetter('name')), sorted(res2, key=itemgetter('name')))
 
 
-def test_fts(self: 'NotesTest'):
+def test_fts(self: NotesTest):
     cache, _ = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))
     cache.set_notes_for('authors', authors[0], 'Wunderbar wunderkind common')

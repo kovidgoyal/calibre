@@ -246,7 +246,7 @@ class Server:
             self.shutdown_worker()
             raise
 
-    def __enter__(self) -> 'Server':
+    def __enter__(self) -> Server:
         return self
 
     def __exit__(self, *a) -> None:

@@ -65,7 +65,7 @@ class Model(NamedTuple):
     publisher: str
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> 'Model':
+    def from_dict(cls, x: dict[str, object]) -> Model:
         mid = x['id']
         caps = AICapabilities.none
         if 'embedding' in x['capabilities'] or 'embeddings' in x['supported_output_modalities']:

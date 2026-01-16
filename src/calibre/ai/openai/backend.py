@@ -57,7 +57,7 @@ class Model(NamedTuple):
     version: float
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> 'Model':
+    def from_dict(cls, x: dict[str, object]) -> Model:
         id_parts = tuple(x['id'].split('-'))
         try:
             version = float(id_parts[1])

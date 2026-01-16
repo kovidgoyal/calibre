@@ -174,7 +174,7 @@ class SharedMemory:
         except OSError:
             pass
 
-    def __enter__(self) -> 'SharedMemory':
+    def __enter__(self) -> SharedMemory:
         return self
 
     def __exit__(self, *a: object) -> None:

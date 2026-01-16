@@ -5,10 +5,11 @@ import json
 import posixpath
 import sys
 from collections import namedtuple
+from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum
 from functools import cached_property
-from typing import IO, List, Mapping, Optional
+from typing import IO
 
 Frame = namedtuple('Frame', 'image_name image_base image_offset symbol symbol_offset')
 Register = namedtuple('Register', 'name value')
@@ -269,7 +270,7 @@ class UserModeCrashReport(CrashReportBase):
             return int(self._parse_field('Triggered by Thread'))
 
     @cached_property
-    def frames(self) -> List[Frame]:
+    def frames(self) -> list[Frame]:
         result = []
         if self._is_json:
             thread_index = self.faulting_thread
@@ -304,7 +305,7 @@ class UserModeCrashReport(CrashReportBase):
         return result
 
     @cached_property
-    def registers(self) -> List[Register]:
+    def registers(self) -> list[Register]:
         result = []
         if self._is_json:
             thread_index = self._data['faultingThread']
@@ -318,9 +319,8 @@ class UserModeCrashReport(CrashReportBase):
                 if name == 'x':
                     for j, reg_x in enumerate(value):
                         result.append(Register(name=f'x{j}', value=reg_x['value']))
-                else:
-                    if isinstance(value, dict):
-                        result.append(Register(name=name, value=value['value']))
+                elif isinstance(value, dict):
+                    result.append(Register(name=name, value=value['value']))
         else:
             in_frames = False
             for line in self._data.split('\n'):
@@ -353,14 +353,14 @@ class UserModeCrashReport(CrashReportBase):
             return self._parse_field('Exception Type')
 
     @cached_property
-    def exception_subtype(self) -> Optional[str]:
+    def exception_subtype(self) -> str | None:
         if self._is_json:
             return self._data['exception'].get('subtype')
         else:
             return self._parse_field('Exception Subtype')
 
     @cached_property
-    def application_specific_information(self) -> Optional[str]:
+    def application_specific_information(self) -> str | None:
         result = ''
         if self._is_json:
             asi = self._data.get('asi')

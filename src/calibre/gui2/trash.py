@@ -102,7 +102,7 @@ class TrashList(QListWidget):
 
     restore_item = pyqtSignal(object, object)
 
-    def __init__(self, entries: list[TrashEntry], parent: 'TrashView', is_books: bool):
+    def __init__(self, entries: list[TrashEntry], parent: TrashView, is_books: bool):
         super().__init__(parent)
         self.is_books = is_books
         self.db = parent.db

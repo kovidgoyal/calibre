@@ -44,7 +44,7 @@ class Model(NamedTuple):
     can_think: bool
 
     @classmethod
-    def from_dict(cls, x: dict[str, Any], details: dict[str, Any]) -> 'Model':
+    def from_dict(cls, x: dict[str, Any], details: dict[str, Any]) -> Model:
         d = x.get('details', {})
         return Model(
             name=x['name'], id=x['model'], family=d.get('family', ''), families=d.get('families', ()),

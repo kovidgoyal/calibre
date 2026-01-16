@@ -25,7 +25,7 @@ def pref(key: str, defval: Any = None) -> Any:
 
 
 @lru_cache(2)
-def get_available_models() -> dict[str, 'Model']:
+def get_available_models() -> dict[str, Model]:
     cache_loc = os.path.join(cache_dir(), 'ai', f'{OpenRouterAI.name}-models-v1.json')
     data = get_cached_resource(cache_loc, MODELS_URL)
     return parse_models_list(json.loads(data))
@@ -49,7 +49,7 @@ class Pricing(NamedTuple):
     input_cache_write: float  = 0  # cost per cached input token write
 
     @classmethod
-    def from_dict(cls, x: dict[str, str]) -> 'Pricing':
+    def from_dict(cls, x: dict[str, str]) -> Pricing:
         return Pricing(
             input_token=float(x['prompt']), output_token=float(x['completion']), request=float(x.get('request', 0)),
             image=float(x.get('image', 0)), web_search=float(x.get('web_search', 0)),
@@ -95,7 +95,7 @@ class Model(NamedTuple):
         return re.sub(r' \(free\)$', '', self.name.partition(':')[-1].strip()).strip()
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> 'Model':
+    def from_dict(cls, x: dict[str, object]) -> Model:
         arch = x['architecture']
         capabilities = AICapabilities.none
         if 'text' in arch['input_modalities']:

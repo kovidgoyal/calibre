@@ -142,7 +142,7 @@ class TTSManager(QObject):
             self.state_event.emit(event)
 
     @property
-    def tts(self) -> 'TTSBackend':
+    def tts(self) -> TTSBackend:
         if self._tts is None:
             with BusyCursor():
                 from calibre.gui2.tts.types import create_tts_backend

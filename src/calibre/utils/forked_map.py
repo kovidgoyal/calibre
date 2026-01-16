@@ -64,7 +64,7 @@ class Worker:
         self.pipe = open(pipe_fd, 'rb')
         self.unpickler = pickle.Unpickler(self.pipe)
 
-    def __enter__(self) -> 'Worker':
+    def __enter__(self) -> Worker:
         return self
 
     def __exit__(self, exc_type, exc_value, tb) -> None:

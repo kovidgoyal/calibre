@@ -31,7 +31,7 @@ class Model(NamedTuple):
     owner: str
 
     @classmethod
-    def from_dict(cls, x: dict[str, Any]) -> 'Model':
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         return Model(id=x['id'], owner=x.get('owned_by', 'local'))
 
 
