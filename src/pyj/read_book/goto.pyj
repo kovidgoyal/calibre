@@ -65,19 +65,43 @@ def create_goto_panel(current_position_data, book, container, onclick):
 def create_page_list_overlay(book, overlay, container):
     list_container = E.div()
     pl = overlay.view.current_pagelist_items
+
+    def goto(x):
+        overlay.view.goto_pagelist_item(x)
+        overlay.hide()
+
+    def goto_matching_page(text):
+        for x in page_list:
+            if x.pagenum is text:
+                goto(x)
+                return
+        q = text.toLowerCase()
+        for x in page_list:
+            if x.pagenum.toLowerCase() is q:
+                goto(x)
+                return
+        error_dialog(_('No such page'), _('No page {!r} exists').format(text))
+
     if pl and pl.length > 0:
         if pl.length is 1:
             text = _('Currently on page: {}').format(pl[0].pagenum)
         else:
             text = _('Currently on pages: {}').format(pl[0].pagenum + ' - ' + pl[1].pagenum)
         container.appendChild(E.div(style='margin: 1em', text))
+    search_input = E.div(
+        E.div(
+            E.input(type='text', placeholder=_('Enter a page number'), onkeydown=def(ev):
+                    if ev.key is 'Enter':
+                        text = ev.target.value
+                        if text:
+                            goto_matching_page(text)
+            ),
+        ), style='margin: 1em',
+    )
+    container.appendChild(search_input)
     container.appendChild(list_container)
     page_list = book.manifest.page_list or v'[]'
     items = v'[]'
-
-    def goto(x):
-        overlay.view.goto_pagelist_item(x)
-        overlay.hide()
 
     for x in page_list:
         items.push(create_item(x.pagenum, action=goto.bind(None, x),
