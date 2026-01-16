@@ -1228,7 +1228,7 @@ class OPF:  # {{{
                     return item.get('href', None)
         # "Open" Manga Format files have the cover as the first item in the spine
         for spine_item in self.iterspine():
-            if (man_item := id_map.get(spine_item.get('idref', '')) is not None) and (mt := man_item.get('media-type')):
+            if (man_item := id_map.get(spine_item.get('idref', ''))) is not None and (mt := man_item.get('media-type')):
                 if mt.lower() in {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}:
                     return man_item.get('href', None)
             break
