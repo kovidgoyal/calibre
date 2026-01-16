@@ -105,7 +105,7 @@ class Model(NamedTuple):
                 capabilities |= AICapabilities.text_to_image
 
         return Model(
-            name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.timezone.utc),
+            name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC),
             description=x['description'], context_length=x['context_length'], slug=x['canonical_slug'],
             parameters=tuple(x['supported_parameters']), pricing=Pricing.from_dict(x['pricing']),
             is_moderated=x['top_provider']['is_moderated'], tokenizer=arch['tokenizer'],

@@ -63,7 +63,7 @@ class Model(NamedTuple):
             version = float(id_parts[1])
         except Exception:
             version = 0
-        return Model(id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.timezone.utc), id_parts=id_parts, version=version)
+        return Model(id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC), id_parts=id_parts, version=version)
 
     @property
     def is_preview(self) -> bool:

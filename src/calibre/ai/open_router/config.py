@@ -234,7 +234,7 @@ class SortLoc(QComboBox):
             case 'oldest':
                 return lambda x: x.created
             case 'newest':
-                now = datetime.datetime.now(datetime.timezone.utc)
+                now = datetime.datetime.now(datetime.UTC)
                 return lambda x: now - x.created
             case 'cheapest':
                 return lambda x: x.pricing.output_token
