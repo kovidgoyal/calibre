@@ -1706,7 +1706,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(top, 'top')
         draw_horizontal(bottom, 'bottom')
 
-    def paintEvent(self, ev: QPaintEvent):
+    def paintEvent(self, ev: QPaintEvent) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
@@ -1715,7 +1715,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         with QPainter(self.viewport()) as painter:
             self.do_paint(painter)
 
-    def do_paint(self, painter: QPainter):
+    def do_paint(self, painter: QPainter) -> None:
         painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         # Get visible area
         scroll_y = self.verticalScrollBar().value()
@@ -1764,13 +1764,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             )
             self.draw_emblems(painter, hovered_item, scroll_y)
 
-    def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int):
+    def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int) -> None:
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
         shelf_rect = QRect(0, shelf.start_y, width, self.layout_constraints.shelf_height)
         shelf_rect.translate(0, -scroll_y)
         painter.drawPixmap(QPoint(0, shelf.start_y - scroll_y), p)
 
-    def draw_selection_highlight(self, painter: QPainter, spine_rect: QRect, color: QColor):
+    def draw_selection_highlight(self, painter: QPainter, spine_rect: QRect, color: QColor) -> None:
         painter.save()
         pen = QPen(color)
         gap = min(4, self.layout_constraints.horizontal_gap // 2)
