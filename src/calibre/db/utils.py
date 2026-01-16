@@ -13,7 +13,7 @@ import tempfile
 from collections import OrderedDict, namedtuple
 from contextlib import suppress
 from locale import localeconv
-from threading import Lock
+from threading import RLock
 
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
@@ -136,7 +136,7 @@ class ThumbnailCache:
         self.group_id = 'group'
         self.thumbnail_size = thumbnail_size
         self.size_changed = False
-        self.lock = Lock()
+        self.lock = RLock()
         self.min_disk_cache = min_disk_cache
         if test_mode:
             self.log = self.fail_on_error
