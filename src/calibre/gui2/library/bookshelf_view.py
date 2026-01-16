@@ -1059,9 +1059,9 @@ class BookCase(QObject):
         if mdb is None or invalidate.is_set():
             return
         db = mdb.new_api
-        spine_size_template = db.pref('bookshelf_spine_size_template', get_default_from_defaults=True)
+        spine_size_template = db.pref('bookshelf_spine_size_template', get_default_from_defaults=True) or ''
         if gprefs['bookshelf_make_space_for_second_line']:
-            author_template = db.pref('bookshelf_author_template', get_default_from_defaults=True)
+            author_template = db.pref('bookshelf_author_template', get_default_from_defaults=True) or ''
             if author_template.strip():
                 min_line_height *= 2
         template_cache = {}
