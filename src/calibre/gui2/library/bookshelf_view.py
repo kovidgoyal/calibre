@@ -1455,7 +1455,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return rslt or ''
 
     def render_emblem(self, book_id: int) -> str:
-        if not self.emblem_rules or not (db := self.dbref()):
+        if not (db := self.dbref()):
+            return ''
+        self.init_template(db)
+        if not self.emblem_rules:
             return ''
         mi = db.get_proxy_metadata(book_id)
         for (x,y,t) in self.emblem_rules:
