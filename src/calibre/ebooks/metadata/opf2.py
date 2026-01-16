@@ -1218,21 +1218,21 @@ class OPF:  # {{{
 
     @property
     def epub3_raster_cover(self):
+        id_map = {}
         for item in self.itermanifest():
             props = set((item.get('properties') or '').lower().split())
+            id_map[item.get('id', '')] = item
             if 'cover-image' in props:
                 mt = item.get('media-type', '')
                 if mt and 'xml' not in mt and 'html' not in mt:
                     return item.get('href', None)
-        # OMF files have the cover as the first item in the spine
-        first_ref = self.first_spine_item()
-        if first_ref:
-            for item in self.itermanifest():
-                if item.get('href') == first_ref:
-                    mt = item.get('media-type', '')
-                    if mt and mt.lower() in {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}:
-                        return first_ref
-                    break
+        # "Open" Manga Format files have the cover as the first item in the spine
+        for spine_item in self.iterspine():
+            idref = spine_item.get('idref', '')
+            if (man_item := id_map.get(idref)) and (mt := man_item.get('media-type')):
+                if mt.lower() in {'image/jpeg', 'image/jpg', 'image/png', 'image/webp'}:
+                    return man_item.get('href', None)
+            break
 
     @property
     def raster_cover(self):
