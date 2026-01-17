@@ -281,7 +281,48 @@
       </item>
      </layout>
     </item>
-    <item row="9" column="0" colspan="2">
+    <item row="9" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Groups divider &amp;style:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_divider_style</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_divider_style">
+      <property name="toolTip">
+       <string>Control the style to use for the groups divider</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_divider_text_right">
+        <property name="toolTip">
+         <string>Control whether the text of the groups divider aligned on the right or left</string>
+        </property>
+        <property name="text">
+         <string>Groups divider text &amp;aligned to the right</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_start_with_divider">
+        <property name="toolTip">
+         <string>When groupins the books and that a group extends on more than one shelf, place a group divider at the beginning of the additional shelves</string>
+        </property>
+        <property name="text">
+         <string>&amp;Start shelves with a group divider</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="11" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_7">
       <item>
        <widget class="QPushButton" name="recount_button">
@@ -315,7 +356,7 @@
       </item>
      </layout>
     </item>
-    <item row="10" column="0">
+    <item row="12" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>

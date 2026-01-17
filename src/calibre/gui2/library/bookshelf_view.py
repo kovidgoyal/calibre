@@ -42,6 +42,7 @@ from qt.core import (
     QMouseEvent,
     QObject,
     QPainter,
+    QPainterPath,
     QPaintEvent,
     QPalette,
     QParallelAnimationGroup,
@@ -150,6 +151,10 @@ class WoodTheme(NamedTuple):
     inner_shadow_color: QColor
     cavity_color: QColor
 
+    # Divider colors
+    divider_color: QColor
+    divider_line_color: QColor
+
     @classmethod
     def light_theme(cls) -> WoodTheme:
         # Light oak/pine colors for light mode
@@ -182,6 +187,9 @@ class WoodTheme(NamedTuple):
             side_panel_dark=QColor(145, 105, 70),
             inner_shadow_color=QColor(60, 40, 25, 20),
             cavity_color=QColor(90, 60, 40),
+
+            divider_color=QColor(250, 250, 250),
+            divider_line_color=QColor(74, 74, 106),
         )
 
     @classmethod
@@ -216,6 +224,9 @@ class WoodTheme(NamedTuple):
             side_panel_dark=QColor(38, 25, 18),
             inner_shadow_color=QColor(0, 0, 0, 30),
             cavity_color=QColor(20, 14, 10),
+
+            divider_color=QColor(100, 100, 100),
+            divider_line_color=QColor(180, 180, 182),
         )
 
 
@@ -234,7 +245,9 @@ class RenderCase:
     def __init__(self):
         self.last_rendered_shelf_at = QRect(0, 0, 0, 0), False
         self.last_rendered_background_at = QRect(0, 0, 0, 0), False
+        self.last_rendered_divider_at = QRect(0, 0, 0, 0), False, 0
         self.last_rendered_background = QPixmap()
+        self.last_rendered_divider = QPixmap()
         self.shelf_cache: dict[int, QPixmap] = {}
         self.back_panel_grain = tuple(self.generate_grain_lines(count=80, seed=42))
 
@@ -454,6 +467,26 @@ class RenderCase:
         end_gradient.setColorAt(0.0, color_with_alpha(self.theme.end_grain_light, 0))
         end_gradient.setColorAt(1.0, self.theme.end_grain_dark)
         painter.fillRect(right_end, end_gradient)
+
+    def divider_as_pixmap(self, width: int, height: int, corner_radius: int = 0, offset: int = 0) -> QPixmap:
+        rect = QRect(0, 0, width, height + offset)
+        is_dark = is_dark_theme()
+        q = rect, is_dark, corner_radius
+        if self.last_rendered_divider_at == q:
+            return self.last_rendered_divider
+        self.last_rendered_divider_at = q
+        self.ensure_theme(is_dark)
+        ans = QImage(width, height + offset, QImage.Format_ARGB32_Premultiplied)
+        ans.fill(Qt.GlobalColor.transparent)
+        with QPainter(ans) as painter:
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            path = QPainterPath()
+            path.addRoundedRect(
+                QRectF(0, 0, width, height + offset + corner_radius), corner_radius, corner_radius,
+            )
+            painter.fillPath(path, self.theme.divider_color)
+        self.last_rendered_divider = p = QPixmap.fromImage(ans)
+        return p
 
 
 class ImageWithDominantColor(QImage):
@@ -1059,6 +1092,7 @@ class BookCase(QObject):
         if mdb is None or invalidate.is_set():
             return
         db = mdb.new_api
+        start_with_divider = gprefs['bookshelf_start_with_divider']
         spine_size_template = db.pref('bookshelf_spine_size_template', get_default_from_defaults=True) or ''
         if gprefs['bookshelf_make_space_for_second_line']:
             author_template = db.pref('bookshelf_author_template', get_default_from_defaults=True) or ''
@@ -1099,6 +1133,8 @@ class BookCase(QObject):
                     current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
                     if case_end_divider:
                         current_case_item.add_group_divider(case_end_divider, lc)
+                    elif start_with_divider:
+                        current_case_item.add_group_divider(group_name, lc)
                     current_case_item.add_book(book_id, spine_width, group_name, lc)
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
                 book_id_visual_order_map[book_id] = len(book_id_visual_order_map)
@@ -1833,23 +1869,43 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
         return first_line, second_line, font
 
-    def divider_color(self) -> QColor:
-        return QColor('#b4b4b6' if is_dark_theme() else '#4a4a6a')
-
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
         lc = self.layout_constraints
         rect = divider.rect(lc).translated(0, -scroll_y)
         divider_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
+        text_right = gprefs['bookshelf_divider_text_right']
+
+        def draw_rounded_divider(corner_radius: int, offset: int):
+            p = self.case_renderer.divider_as_pixmap(rect.width(), rect.height(), corner_radius, offset)
+            painter.drawPixmap(rect.adjusted(0, -offset, 0, 0), p)
+
+        match gprefs['bookshelf_divider_style']:
+            case 'block':
+                painter.fillRect(rect, self.case_renderer.theme.divider_color)
+            case 'round_top':
+                radius = rect.width() // 2
+                offset = radius // 4
+                draw_rounded_divider(radius, offset)
+            case 'rounded_corner':
+                radius = rect.width() // 4
+                offset = radius // 3
+                draw_rounded_divider(radius, offset)
 
         # Bottom margin
-        text_rect = divider_rect.adjusted(self.TEXT_MARGIN, 0, 0, 0)
+        text_rect = divider_rect.adjusted(
+            0 if text_right else self.TEXT_MARGIN,
+            0,
+            -self.TEXT_MARGIN if text_right else 0,
+            0,
+        )
         elided_text, _, font = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
         painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
         painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
-        sized_rect = painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
+        alignment = Qt.AlignmentFlag.AlignRight if text_right else Qt.AlignmentFlag.AlignLeft
+        sized_rect = painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignVCenter, elided_text)
         # Calculate line dimensions
         line_rect = text_rect.adjusted(sized_rect.width(), 0, 0, 0)
         overflow = (line_rect.height() - self.DIVIDER_LINE_WIDTH) // 2
@@ -1857,7 +1913,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Draw vertical gradient line if long enough
         if line_rect.width() > 8:
-            color1 = self.divider_color().toRgb()
+            if text_right:
+                line_rect.translate(-sized_rect.width(), 0)
+            color1 = self.case_renderer.theme.divider_line_color.toRgb()
             color2 = color1.toRgb()
             color1.setAlphaF(0.0)  # Transparent at top/bottom
             color2.setAlphaF(0.75)  # Visible in middle
