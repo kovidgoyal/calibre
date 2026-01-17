@@ -551,6 +551,7 @@ def main(args=sys.argv):
             run_main(app, opts, args, gui_debug, si, retry_communicate=False)
     if after_quit_actions['restart_after_quit']:
         restart_after_quit()
+    del app
 
 
 def run_main(app, opts, args, gui_debug, si, retry_communicate=False):
