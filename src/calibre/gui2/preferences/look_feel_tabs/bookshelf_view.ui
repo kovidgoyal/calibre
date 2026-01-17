@@ -227,7 +227,7 @@
     <item row="7" column="0">
      <widget class="QLabel" name="label_fade_time">
       <property name="text">
-       <string>Duration of hover &amp;animation</string>
+       <string>Duration of hover &amp;animation:</string>
       </property>
       <property name="buddy">
        <cstring>opt_bookshelf_fade_time</cstring>
