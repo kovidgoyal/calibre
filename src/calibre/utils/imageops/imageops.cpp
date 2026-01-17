@@ -639,6 +639,7 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 } // }}}
 
 QColor dominant_color(const QImage &image) { // {{{
+    ScopedGILRelease PyGILRelease;
     if (image.isNull()) return QColor();
     QImage img;
     // Resize the image to a thumbnail for improved performance
