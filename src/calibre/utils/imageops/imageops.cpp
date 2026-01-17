@@ -639,7 +639,6 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 } // }}}
 
 QColor dominant_color(const QImage &image) { // {{{
-    ScopedGILRelease PyGILRelease;
     if (image.isNull()) return QColor();
     QImage img;
     // Resize the image to a thumbnail for improved performance
@@ -1004,4 +1003,8 @@ QImage texture_image(const QImage &image, const QImage &texturei) {  // {{{
         y += th;
     }
     return canvas;
+} // }}}
+
+bool load_from_data_without_gil(QImage &image, const char *data, size_t len) {  // {{{
+    return image.loadFromData((const uchar*)data, len, NULL);
 } // }}}
