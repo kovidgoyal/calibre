@@ -79,6 +79,15 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_height', gprefs)
         r('bookshelf_make_space_for_second_line', gprefs)
 
+        r('bookshelf_divider_text_right', gprefs)
+        r('bookshelf_start_with_divider', gprefs)
+        r('bookshelf_divider_style', gprefs, choices=[
+            (_('Simple text'), 'text'),
+            (_('Block'), 'block'),
+            (_('Rounded corners'), 'rounded_corner'),
+            (_('Round top'), 'round_top'),
+        ])
+
         r('bookshelf_thumbnail_opacity', gprefs)
         r('bookshelf_thumbnail', gprefs, choices=[
             (_('Full'), 'full'),
