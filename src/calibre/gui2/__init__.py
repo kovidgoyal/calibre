@@ -49,7 +49,6 @@ from qt.core import (
     Qt,
     QThread,
     QTimer,
-    QTranslator,
     QUrl,
     QWidget,
     pyqtSignal,
@@ -87,7 +86,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.img import set_image_allocation_limit
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import get_lang, install_qt_translator
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
@@ -1093,22 +1092,6 @@ class ResizableDialog(QDialog):
         self.resize(nw, nh)
 
 
-class Translator(QTranslator):
-    '''
-    Translator to load translations for strings in Qt from the calibre
-    translations. Does not support advanced features of Qt like disambiguation
-    and plural forms.
-    '''
-
-    def translate(self, *args, **kwargs):
-        try:
-            src = str(args[1])
-        except Exception:
-            return ''
-        t = _
-        return t(src)
-
-
 gui_thread = None
 qt_app = None
 
@@ -1293,7 +1276,6 @@ class Application(QApplication):
             QLocale.setDefault(dl)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
-        self._translator = None
         self.load_translations()
         qt_app = self
 
@@ -1425,10 +1407,7 @@ class Application(QApplication):
         return ans
 
     def load_translations(self):
-        if self._translator is not None:
-            self.removeTranslator(self._translator)
-        self._translator = Translator(self)
-        self.installTranslator(self._translator)
+        install_qt_translator()
 
     def event(self, e):
         etype = e.type()
