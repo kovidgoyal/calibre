@@ -294,7 +294,7 @@
     <item row="9" column="1">
      <widget class="QComboBox" name="opt_bookshelf_divider_style">
       <property name="toolTip">
-       <string>Control the style to use for the groups divider</string>
+       <string>Control the style to use for the group divider</string>
       </property>
      </widget>
     </item>
@@ -303,7 +303,7 @@
       <item>
        <widget class="QCheckBox" name="opt_bookshelf_divider_text_right">
         <property name="toolTip">
-         <string>Control whether the text of the groups divider aligned on the right or left</string>
+         <string>Control whether the text of the group divider is aligned to the right or left</string>
         </property>
         <property name="text">
          <string>Groups divider text &amp;aligned to the right</string>
@@ -313,10 +313,10 @@
       <item>
        <widget class="QCheckBox" name="opt_bookshelf_start_with_divider">
         <property name="toolTip">
-         <string>When groupins the books and that a group extends on more than one shelf, place a group divider at the beginning of the additional shelves</string>
+         <string>When grouping books and a group extends to more than one shelf, place a group divider at the beginning of the additional shelves</string>
         </property>
         <property name="text">
-         <string>&amp;Start shelves with a group divider</string>
+         <string>&amp;Start shelves with group divider</string>
         </property>
        </widget>
       </item>

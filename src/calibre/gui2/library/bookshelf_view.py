@@ -1889,7 +1889,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         match gprefs['bookshelf_divider_style']:
             case 'block':
                 painter.fillRect(rect, self.case_renderer.theme.divider_color)
-            case 'round_top':
+            case 'gravestone':
                 radius = rect.width() // 2
                 offset = radius // 4
                 draw_rounded_divider(radius, offset)

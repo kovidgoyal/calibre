@@ -85,7 +85,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
             (_('Simple text'), 'text'),
             (_('Block'), 'block'),
             (_('Rounded corners'), 'rounded_corner'),
-            (_('Round top'), 'round_top'),
+            (_('Gravestone'), 'gravestone'),
         ])
 
         r('bookshelf_thumbnail_opacity', gprefs)
