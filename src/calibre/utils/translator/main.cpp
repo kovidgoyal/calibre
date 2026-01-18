@@ -21,6 +21,7 @@ typedef struct {
 } Translator;
 
 extern PyTypeObject Translator_Type;
+static Translator *qt_translator = NULL;
 
 static PyObject *
 new_translator(PyTypeObject *type, PyObject *args, PyObject *kwds) {
@@ -203,6 +204,32 @@ npgettext(PyObject *s, PyObject *args) {
     return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 1: 2));
 }
 
+static std::string_view
+qt_translate(const char *context, const char *text) {
+    if (qt_translator == NULL || !has_data(qt_translator)) return std::string_view(NULL, 0);
+    const char *key = text;
+    std::string buffer;  // must be thread safe so cannot use self->buffer
+    if (context && context[0]) {
+        buffer.append(context).push_back('\0'); buffer.append(text);
+        key = buffer.c_str();
+    }
+    std::string_view msgid(key);
+    auto ans = qt_translator->parser.gettext(msgid);
+    if (ans.data() != NULL) return ans;
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(qt_translator->fallbacks); i++) {
+        Translator *f = (Translator*)PyList_GET_ITEM(qt_translator->fallbacks, i);
+        ans = f->parser.gettext(msgid);
+        if (ans.data() != NULL) return ans;
+    }
+    return std::string_view(NULL, 0);
+}
+
+static PyObject*
+set_as_qt_translator(PyObject *self, PyObject*) {
+    Py_CLEAR(qt_translator);
+    qt_translator = (Translator*)Py_NewRef(self);
+    return PyLong_FromVoidPtr((void*)qt_translate);
+}
 
 static PyMethodDef translator_methods[] = {
     {"plural", plural, METH_O, "plural(n: int) -> int:\n\n"
@@ -231,6 +258,9 @@ static PyMethodDef translator_methods[] = {
     },
     {"npgettext", npgettext, METH_VARARGS, "gettext(context: str, singular: str, plural: str, n: int) -> str:\n\n"
         "Translate the provided message"
+    },
+    {"set_as_qt_translator", set_as_qt_translator, METH_NOARGS, "set_as_qt_translator() -> int:\n\n"
+        "Set this translator to use as the translator for Qt and return a pointer to the qt_translate() function."
     },
 
     {NULL}  /* Sentinel */
@@ -264,10 +294,14 @@ static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL}
 
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
+static void
+module_free(void *module) { Py_CLEAR(qt_translator); }
+
 CALIBRE_MODINIT_FUNC PyInit_translator(void) {
     module_def.m_name     = "translator";
     module_def.m_doc      = "Support for GNU gettext translations without holding the GIL so that it can be used in Qt as well";
     module_def.m_methods  = methods;
     module_def.m_slots    = slots;
+    module_def.m_free     = module_free;
 	return PyModuleDef_Init(&module_def);
 }
