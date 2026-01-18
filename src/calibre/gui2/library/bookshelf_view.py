@@ -1110,10 +1110,11 @@ class BookCase(QObject):
         # Ensure there is enough width for the spine text
         min_width = min(max(min_line_height, lc.min_spine_width), lc.max_spine_width-1)
         lc = lc._replace(min_spine_width=min_width)
+        add_group_dividers = gprefs['bookshelf_divider_style'] != 'hidden'
         for group_name, book_ids_in_group in group_iter:
             if invalidate.is_set():
                 return
-            if not current_case_item.add_group_divider(group_name, lc):
+            if add_group_dividers and not current_case_item.add_group_divider(group_name, lc):
                 y = commit_case_item(current_case_item)
                 current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
                 current_case_item.add_group_divider(group_name, lc)
@@ -1131,10 +1132,11 @@ class BookCase(QObject):
                         case_end_divider = current_case_item.items.pop(-1).group_name
                     y = commit_case_item(current_case_item)
                     current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
-                    if case_end_divider:
-                        current_case_item.add_group_divider(case_end_divider, lc)
-                    elif start_with_divider:
-                        current_case_item.add_group_divider(group_name, lc)
+                    if add_group_dividers:
+                        if case_end_divider:
+                            current_case_item.add_group_divider(case_end_divider, lc)
+                        elif start_with_divider:
+                            current_case_item.add_group_divider(group_name, lc)
                     current_case_item.add_book(book_id, spine_width, group_name, lc)
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
                 book_id_visual_order_map[book_id] = len(book_id_visual_order_map)
