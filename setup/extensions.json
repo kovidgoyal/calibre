@@ -186,7 +186,7 @@
         "sources": "calibre/utils/translator/mo_parser.cpp calibre/utils/translator/plural_expression_parser.cpp calibre/utils/translator/main.cpp",
         "headers": "calibre/utils/translator/mo_translator.h calibre/utils/translator/plural_expression_parser.h",
         "inc_dirs": "calibre/utils/translator",
-		"needs_c++": "17"
+		"needs_c++": "20"
     },
     {
         "name": "imageops",
