@@ -506,6 +506,7 @@ def create_defs():
     defs['bookshelf_divider_text_right'] = False
     defs['bookshelf_start_with_divider'] = False
     defs['bookshelf_divider_style'] = 'text'
+    defs['bookshelf_theme_override'] = 'none'
 
     # Migrate beta bookshelf_thumbnail
     if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
