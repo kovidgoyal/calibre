@@ -1323,8 +1323,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def __init__(self, gui):
         super().__init__(gui)
-        self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
-        self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
+        self.text_color_for_dark_background = QColor()
+        self.text_color_for_light_background = QColor()
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.min_font_size = 0.75 * self.base_font_size_pts
@@ -1346,6 +1346,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        QApplication.instance().palette_changed.connect(self.palette_changed)
+        self.palette_changed()
 
         # Ensure viewport receives mouse events
         self.viewport().setMouseTracking(True)
@@ -1482,6 +1484,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
             self.update_ram_cache_size()
         self.invalidate(clear_spine_width_cache=True)
+
+    def palette_changed(self):
+        self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
+        self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1847,6 +1853,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         elided_text, _, font = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
+        painter.setPen(self.palette().color(QPalette.ColorRole.WindowText))
         painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
         painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
         sized_rect = painter.drawText(text_rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, elided_text)
