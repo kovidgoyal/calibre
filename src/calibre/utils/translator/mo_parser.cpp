@@ -1,6 +1,7 @@
 #include <cstring>
 #include <algorithm>
 #include <optional>
+#include <string_view>
 #include <utility>
 #include "mo_parser.h"
 
@@ -106,17 +107,26 @@ std::string MOParser::parseStrings() {
             std::string err = parseMetadata(msgstr);
             if (err.size()) return err;
         } else {
-            translations_[msgid] = msgstr;
-            // check if this msg has plural forms
-            auto sep = msgid.find((char)0);
-            if (sep != std::string_view::npos) {
-                auto vsep = msgstr.find((char)0);
-                if (vsep != std::string_view::npos) msgstr = msgstr.substr(0, vsep);
-                translations_[msgid.substr(0, sep)] = msgstr;
+            MOKey key = {.msgid=msgid};
+            size_t sep; bool complex = false;
+            if ((sep = msgid.find((char)4)) != std::string_view::npos) {
+                key.context = key.msgid.substr(0, sep);
+                key.msgid = key.msgid.substr(sep + 1);
+                complex = true;
+            }
+            if ((sep = msgid.find('\0')) != std::string_view::npos) {
+                key.msgid_plural = key.msgid.substr(sep + 1);
+                key.msgid = key.msgid.substr(0, sep);
+                complex = true;
+            }
+            catalog[key] = msgstr;
+            if (complex) {
+                MOKey only_msgid = {.msgid=key.msgid};
+                if ((sep = msgstr.find('\0')) != std::string_view::npos) msgstr = msgstr.substr(0, sep);
+                catalog.try_emplace(only_msgid, msgstr);
             }
         }
     }
-
     return "";
 }
 
@@ -157,7 +167,7 @@ MOParser::parsePluralForms(std::string_view plural_forms_line) {
     size_t nplurals_pos = plural_forms_line.find("nplurals=");
     if (nplurals_pos != std::string::npos) {
         nplurals_pos += 9; // strlen("nplurals=")
-        num_plurals_ = std::atoi(plural_forms_line.data() + nplurals_pos);
+        num_plurals_ = std::max(0, std::atoi(plural_forms_line.data() + nplurals_pos));
     }
 
     // Extract plural expression
@@ -214,32 +224,47 @@ MOParser::parseMetadata(std::string_view header) {
 
 std::string_view
 MOParser::gettext(std::string_view msgid) const {
-    auto it = translations_.find(msgid);
-    if (it != translations_.end() && ! it->second.empty()) {
-        // Return first translation (before any null byte)
-        size_t null_pos = it->second.find('\0');
-        return (null_pos != std::string::npos) ? it->second.substr(0, null_pos) : it->second;
-    }
+    MOKey k = {.msgid=msgid};
+    auto it = catalog.find(k);
+    if (it != catalog.end() && ! it->second.empty()) return it->second;
     return std::string_view(NULL, 0);
 }
 
 std::string_view
-MOParser::ngettext(std::string_view key, unsigned long n) const {
-    auto it = translations_.find(key);
-    if (it != translations_.end() && !it->second.empty()) {
-        // Determine which plural form to use
-        unsigned long plural_index = plural(n);
-        // Ensure index is within bounds
-        if (plural_index >= static_cast<unsigned long>(num_plurals_)) plural_index = num_plurals_ - 1;
-        // Split translation by null bytes
-        std::string_view x = it->second;
-        size_t pos;
-        while ((pos = x.find('\0')) != std::string::npos) {
-            if (plural_index < 1) return x.substr(0, pos);
-            x = x.substr(pos + 1);
-            plural_index--;
-        }
-        return x;
+MOParser::gettext(std::string_view context, std::string_view msgid) const {
+    MOKey k = {.context=context, .msgid=msgid};
+    auto it = catalog.find(k);
+    if (it != catalog.end() && ! it->second.empty()) return it->second;
+    return gettext(msgid);
+}
+
+static std::string_view
+ngettext(std::string_view x, unsigned long plural_index, unsigned long num_plurals) {
+    // Ensure index is within bounds
+    if (plural_index >= num_plurals) plural_index = num_plurals - 1;
+    // Split translation by null bytes
+    size_t pos;
+    while ((pos = x.find('\0')) != std::string::npos) {
+        if (plural_index < 1) return x.substr(0, pos);
+        x = x.substr(pos + 1);
+        plural_index--;
     }
+    return x;
+}
+
+std::string_view
+MOParser::gettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
+    MOKey k = {.msgid=msgid, .msgid_plural=msgid_plural};
+    auto it = catalog.find(k);
+    if (it != catalog.end() && ! it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
+    if (n <= 1) return gettext(msgid);
     return std::string_view(NULL, 0);
+}
+
+std::string_view
+MOParser::gettext(std::string_view context, std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
+    MOKey k = {.context=context, .msgid=msgid, .msgid_plural=msgid_plural};
+    auto it = catalog.find(k);
+    if (it != catalog.end() && ! it->second.empty()) return ngettext(it->second, plural(n), num_plurals_);
+    return gettext(msgid, msgid_plural, n);
 }

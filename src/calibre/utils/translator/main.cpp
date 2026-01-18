@@ -17,7 +17,6 @@ typedef struct {
 
     PyObject *fallbacks;
     MOParser parser;
-    std::string buffer;
 } Translator;
 
 extern PyTypeObject Translator_Type;
@@ -29,7 +28,6 @@ new_translator(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     if (!PyArg_ParseTuple(args, "|z#", &mo_data, &sz)) return NULL;
     Translator *self = (Translator *)(&Translator_Type)->tp_alloc(&Translator_Type, 0);
     if (self != NULL) {
-        new (&self->buffer) std::string();
         new (&self->parser) MOParser();
         if (mo_data != NULL) {
             std::string err;
@@ -51,7 +49,6 @@ static void
 dealloc_translator(Translator* self) {
     Py_CLEAR(self->fallbacks);
     self->parser.~MOParser();
-    self->buffer.std::string::~string();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -159,13 +156,11 @@ ngettext(PyObject *s, PyObject *args) {
     const char *singular, *plural; unsigned long n; Py_ssize_t sl, pl;
     if (!PyArg_ParseTuple(args, "s#s#k", &singular, &sl, &plural, &pl, &n)) return NULL;
     if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 0: 1));
-    self->buffer.clear(); self->buffer.reserve(sl + pl + 2);
-    self->buffer.append(singular).push_back(0); self->buffer.append(plural);
-    auto ans = self->parser.ngettext(self->buffer, n);
+    auto ans = self->parser.gettext(std::string_view(singular, sl), std::string_view(plural, pl), n);
     if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
         Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
-        ans = f->parser.ngettext(self->buffer, n);
+        ans = f->parser.gettext(std::string_view(singular, sl), std::string_view(plural, pl), n);
         if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     }
     return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 0: 1));
@@ -177,13 +172,11 @@ pgettext(PyObject *s, PyObject *args) {
     if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, 1));
     const char *context, *message; Py_ssize_t cl, ml;
     if (!PyArg_ParseTuple(args, "s#s#", &context, &cl, &message, &ml)) return NULL;
-    self->buffer.clear(); self->buffer.reserve(cl + ml + 2);
-    self->buffer.append(context).push_back(4); self->buffer.append(message);
-    auto ans = self->parser.gettext(self->buffer);
+    auto ans = self->parser.gettext(std::string_view(context, cl), std::string_view(message, ml));
     if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
         Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
-        ans = f->parser.gettext(self->buffer);
+        ans = f->parser.gettext(std::string_view(context, cl), std::string_view(message, ml));
         if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     }
     return Py_NewRef(PyTuple_GET_ITEM(args, 1));
@@ -195,13 +188,11 @@ npgettext(PyObject *s, PyObject *args) {
     const char *context, *singular, *plural; unsigned long n; Py_ssize_t cl, sl, pl;
     if (!PyArg_ParseTuple(args, "s#s#s#k", &context, &cl, &singular, &sl, &plural, &pl, &n)) return NULL;
     if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 1: 2));
-    self->buffer.clear(); self->buffer.reserve(cl + sl + pl + 3);
-    self->buffer.append(context).push_back(4); self->buffer.append(singular).push_back(0); self->buffer.append(plural);
-    auto ans = self->parser.ngettext(self->buffer, n);
+    auto ans = self->parser.gettext(std::string_view(context, cl), std::string_view(singular, sl), std::string_view(plural, pl), n);
     if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
         Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
-        ans = f->parser.ngettext(self->buffer, n);
+        ans = f->parser.gettext(std::string_view(context, cl), std::string_view(singular, sl), std::string_view(plural, pl), n);
         if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
     }
     return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 1: 2));

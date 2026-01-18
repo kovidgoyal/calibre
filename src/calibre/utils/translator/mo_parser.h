@@ -12,6 +12,19 @@
 #include <unordered_map>
 #include "plural_expression_parser.h"
 
+typedef struct MOKey {
+    std::string_view context, msgid, msgid_plural ;
+    bool operator==(const MOKey& other) const = default;
+} MOKey;
+
+// Custom hasher as a separate struct
+struct MoKeyHash {
+    std::hash<std::string_view> h;
+    size_t operator()(const MOKey& key) const {
+        return h(key.msgid) ^ (h(key.msgid_plural) << 1) ^ (h(key.context) << 2);
+    }
+};
+
 class MOParser {
 public:
     MOParser();
@@ -20,23 +33,22 @@ public:
     // Load a . mo file
     std::string load(const char *data, size_t sz);
 
-    // Get translation for a simple string
     std::string_view gettext(std::string_view msgid) const;
-
-    // Get translation for plural forms
-    std::string_view ngettext(std::string_view key, unsigned long n) const;
+    std::string_view gettext(std::string_view context, std::string_view msgid) const;
+    std::string_view gettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const;
+    std::string_view gettext(std::string_view context, std::string_view msgid, std::string_view msgid_plural, unsigned long n) const;
 
     // Check if file is loaded
     bool isLoaded() const { return loaded_; }
 
     // Get the number of strings in the catalog
-    size_t size() const { return translations_.size(); }
+    size_t size() const { return catalog.size(); }
 
     // Get plural expression string (for debugging)
     std::string getPluralExpression() const { return plural_expr_; }
 
     // Get number of plural forms
-    int getNumPlurals() const { return num_plurals_; }
+    unsigned getNumPlurals() const { return num_plurals_; }
 
     // Get plural message index
     unsigned long plural(int n) const { return plural_parser_.evaluate(n); }
@@ -74,10 +86,10 @@ private:
 
     // Map from msgid to translation(s)
     // For plural forms, translations are separated by null bytes
-    std::unordered_map<std::string_view, std::string_view> translations_;
+    std::unordered_map<MOKey, std::string_view, MoKeyHash> catalog;
 
     // Plural forms support
-    int num_plurals_;
+    unsigned num_plurals_;
     std::string plural_expr_;
     PluralExpressionParser plural_parser_;
 };
