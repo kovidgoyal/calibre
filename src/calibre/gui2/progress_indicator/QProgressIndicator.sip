@@ -92,3 +92,8 @@ int get_image_allocation_limit();
 QImage image_from_hicon(void*);
 QImage image_from_hbitmap(void*);
 double contrast_ratio(const QColor & c1, const QColor & c2);
+void install_qt_translator(PyObject *v);
+%MethodCode
+    if (PyLong_Check(a0)) install_translator(PyLong_AsVoidPtr(a0));
+    else install_translator(NULL);
+%End

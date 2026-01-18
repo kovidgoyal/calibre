@@ -9,6 +9,8 @@
 #include <QDialogButtonBox>
 #include <QPainterPath>
 #include <QImageReader>
+#include <QCoreApplication>
+#include <QTranslator>
 #include <algorithm>
 #include <qdrawutil.h>
 
@@ -176,4 +178,29 @@ contrast_ratio(const QColor& c1, const QColor& c2) {
     // Ensure l1 is the lighter color
     if (l1 < l2) std::swap(l1, l2);
     return (l1 + 0.05) / (l2 + 0.05);
+}
+
+typedef std::string_view(qt_translate)(const char* context, const char* text);
+static qt_translate *qt_translate_func = NULL;
+
+class Translator : public QTranslator {
+    QString translate(const char *context, const char *text, const char *disambiguation = nullptr, int n = -1) const override {
+        (void)context; (void)disambiguation; (void)n;
+        if (qt_translate_func == NULL) return QString();
+        auto ans = qt_translate_func(NULL, text);
+        if (ans.data() == NULL) return QString();
+        return QString::fromUtf8(ans.data(), ans.size());
+    }
+};
+static Translator translator;
+
+void
+install_translator(void *v) {
+    qt_translate_func = reinterpret_cast<qt_translate*>(v);
+    static bool installed = false;
+    if (!installed) {
+        installed = true;
+        auto app = QCoreApplication::instance();
+        if (app) app->installTranslator(&translator);
+    }
 }
