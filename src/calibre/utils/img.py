@@ -120,7 +120,7 @@ def image_from_data(data):
         return data
     set_image_allocation_limit()
     i = QImage()
-    if not i.loadFromData(data):
+    if not imageops.load_from_data_without_gil(i, data):
         q = what(None, data)
         if q == 'jxr':
             return load_jxr_data(data)
