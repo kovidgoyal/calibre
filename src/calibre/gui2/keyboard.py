@@ -165,7 +165,7 @@ class Manager(QObject):  # {{{
                 'default_keys':tuple(default_keys),
                 'persist_shortcut':persist_shortcut}
         self.shortcuts[unique_name] = shortcut
-        group = group if group else pgettext('keyboard shortcuts', _('Miscellaneous'))
+        group = group if group else pgettext('keyboard shortcuts', 'Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
     def unregister_shortcut(self, unique_name):
