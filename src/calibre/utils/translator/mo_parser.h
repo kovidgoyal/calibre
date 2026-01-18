@@ -18,10 +18,16 @@ typedef struct MOKey {
 } MOKey;
 
 // Custom hasher as a separate struct
+static inline void
+hash_combine(std::size_t& seed, std::size_t hash) { seed ^= hash + 0x9e3779b9 + (seed << 6) + (seed >> 2); }
+
 struct MoKeyHash {
     std::hash<std::string_view> h;
     size_t operator()(const MOKey& key) const {
-        return h(key.msgid) ^ (h(key.msgid_plural) << 1) ^ (h(key.context) << 2);
+        size_t ans = h(key.msgid);
+        hash_combine(ans, h(key.msgid_plural));
+        hash_combine(ans, h(key.context));
+        return ans;
     }
 };
 
