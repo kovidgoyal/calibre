@@ -88,8 +88,8 @@ public:
 
 private:
     std::unique_ptr<ASTNode> condition_;
-    std:: unique_ptr<ASTNode> true_expr_;
-    std:: unique_ptr<ASTNode> false_expr_;
+    std::unique_ptr<ASTNode> true_expr_;
+    std::unique_ptr<ASTNode> false_expr_;
 };
 
 // PluralExpressionParser implementation
@@ -192,7 +192,7 @@ bool PluralExpressionParser::parse(const std::string& expression) {
     tokens_ = tokenize(expression);
     current_ = 0;
     has_error_ = false;
-    error_message_. clear();
+    error_message_.clear();
     root_ = nullptr;
 
     root_ = parseExpression();

@@ -1,5 +1,7 @@
 #include <cstring>
 #include <algorithm>
+#include <optional>
+#include <utility>
 #include "mo_parser.h"
 
 // Magic numbers for .mo files
@@ -109,10 +111,35 @@ std::string MOParser::parseStrings() {
     return "";
 }
 
-static bool
-starts_with(std::string_view sv, std::string_view prefix) {
-    return sv.size() >= prefix.size() &&
-           sv.substr(0, prefix.size()) == prefix;
+static std::string_view
+trim(std::string_view str) {
+    const char* whitespace = " \t\n\r\f\v";
+
+    auto start = str.find_first_not_of(whitespace);
+    if (start == std::string_view:: npos) {
+        return std::string_view(); // All whitespace
+    }
+
+    auto end = str.find_last_not_of(whitespace);
+    return str.substr(start, end - start + 1);
+}
+
+static std::string
+to_ascii_lower(std::string_view sv) {
+    std::string result;
+    result.resize(sv.size());
+    std::transform(sv.begin(), sv.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+static std::optional<std::pair<std::string_view, std::string_view>>
+parse_key_value(std::string_view input) {
+    auto pos = input.find(':');
+    if (pos == std::string_view::npos) return std::nullopt;
+    std::string_view key = trim(input.substr(0, pos));
+    std::string_view value = trim(input.substr(pos + 1));
+    return std::make_pair(key, value);
 }
 
 std::string
@@ -126,26 +153,14 @@ MOParser::parsePluralForms(std::string_view plural_forms_line) {
 
     // Extract plural expression
     size_t plural_pos = plural_forms_line.find("plural=");
-    if (plural_pos != std:: string::npos) {
+    if (plural_pos != std::string::npos) {
         plural_pos += 7; // strlen("plural=")
         size_t semicolon = plural_forms_line.find(';', plural_pos);
-        if (semicolon != std::string::npos) {
-            plural_expr_ = plural_forms_line.substr(plural_pos, semicolon - plural_pos);
-
-            // Trim whitespace
-            size_t first = plural_expr_.find_first_not_of(" \t\r\n");
-            size_t last = plural_expr_.find_last_not_of(" \t\r\n");
-            if (first != std::string::npos && last != std::string::npos) {
-                plural_expr_ = plural_expr_.substr(first, last - first + 1);
-            }
-
-            // Parse the expression
-            if (! plural_parser_.parse(plural_expr_)) {
-                return std::string("failed to parse plural forms expresion: " + plural_expr_);
-                // Fall back to default
-                plural_expr_ = "n != 1";
-                plural_parser_.parse(plural_expr_);
-            }
+        if (semicolon == std::string::npos) semicolon = plural_forms_line.size();
+        plural_expr_ = trim(plural_forms_line.substr(plural_pos, semicolon - plural_pos));
+        // Parse the expression
+        if (!plural_parser_.parse(plural_expr_)) {
+            return std::string("failed to parse plural forms expresion: " + plural_expr_);
         }
     } else {
         // No plural expression, use default
@@ -154,14 +169,6 @@ MOParser::parsePluralForms(std::string_view plural_forms_line) {
     return "";
 }
 
-static std::string
-to_ascii_lower(std::string_view sv) {
-    std::string result;
-    result.resize(sv.size());
-    std::transform(sv.begin(), sv.end(), result.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
-    return result;
-}
 std::string
 MOParser::parseMetadata(std::string_view header) {
     size_t pos = 0, start = 0;
@@ -170,17 +177,22 @@ MOParser::parseMetadata(std::string_view header) {
         if (header[pos] == '\n') {
             std::string_view line = header.substr(start, pos-start);
             start = pos + 1;
-            if (starts_with(line, "Plural-Forms:")) {
-                std::string err = parsePluralForms(line);
-                if (err.size()) return err;
-                found_plural_forms = true;
-            } else if (starts_with(line, "Content-Type:")) {
-                size_t ctpos = line.find("charset=");
-                if (ctpos != std::string::npos) {
-                    std::string charset = to_ascii_lower(line.substr(
-                                ctpos + sizeof("charset"), line.size() - ctpos - sizeof("charset")));
-                    if (charset != "utf8" && charset != "utf-8") {
-                        return "unsupported charset in .mo file: " + std::string(charset);
+            if (auto result = parse_key_value(line)) {
+                auto [key, value] = *result;
+                auto lkey = to_ascii_lower(key);
+                info[lkey] = value;
+                if (lkey == "plural-forms") {
+                    std::string err = parsePluralForms(value);
+                    if (err.size()) return err;
+                    found_plural_forms = true;
+                } else if (lkey == "content-type") {
+                    size_t ctpos = value.find("charset=");
+                    if (ctpos != std::string::npos) {
+                        std::string charset = to_ascii_lower(value.substr(
+                                    ctpos + sizeof("charset"), value.size() - ctpos - sizeof("charset")));
+                        if (charset != "utf8" && charset != "utf-8") {
+                            return "unsupported charset in .mo file: " + std::string(charset);
+                        }
                     }
                 }
             }
@@ -191,17 +203,19 @@ MOParser::parseMetadata(std::string_view header) {
     return "";
 }
 
-std::string_view MOParser::gettext(std::string_view msgid) const {
+std::string_view
+MOParser::gettext(std::string_view msgid) const {
     auto it = translations_.find(msgid);
     if (it != translations_.end() && ! it->second.empty()) {
         // Return first translation (before any null byte)
         size_t null_pos = it->second.find('\0');
         return (null_pos != std::string::npos) ? it->second.substr(0, null_pos) : it->second;
     }
-    return msgid; // Return original if no translation found
+    return std::string_view(NULL, 0);
 }
 
-std::string_view MOParser::ngettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
+std::string_view
+MOParser::ngettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
     // Create composite key for plural forms (msgid\0msgid_plural)
     std::string key = std::string(msgid) + '\0' + std::string(msgid_plural);
 
@@ -224,7 +238,5 @@ std::string_view MOParser::ngettext(std::string_view msgid, std::string_view msg
             plural_index--;
         }
     }
-
-    // Fallback to English-style pluralization
-    return n <= 1 ? msgid : msgid_plural;
+    return std::string_view(NULL, 0);
 }

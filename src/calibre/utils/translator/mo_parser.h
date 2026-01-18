@@ -41,6 +41,7 @@ public:
     // Get plural message index
     unsigned long plural(int n) const { return plural_parser_.evaluate(n); }
 
+    std::unordered_map<std::string, std::string_view> info;
 private:
     struct MOHeader {
         uint32_t magic;

@@ -54,10 +54,49 @@ plural(PyObject *self_, PyObject *pn) {
     return PyLong_FromUnsignedLong(self->parser.plural(n));
 }
 
+static PyObject*
+add_fallback(PyObject *self_, PyObject *pn) {
+    Translator *self = (Translator*)self_;
+    if (self->fallback) return add_fallback(self->fallback, pn);
+    if (Py_TYPE(pn) != &Translator_Type) { PyErr_SetString(PyExc_TypeError, "other must be a translator instance"); return NULL; }
+    self->fallback = Py_NewRef(pn);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+info(PyObject *self_, PyObject *pn) {
+    Translator *self = (Translator*)self_;
+    PyObject *ans = PyDict_New();
+    if (ans) {
+        for (const auto& [key, value] : self->parser.info) {
+            PyObject *val = PyUnicode_FromStringAndSize(value.data(), value.size());
+            if (!val) { Py_CLEAR(ans); return NULL; }
+            bool ok = PyDict_SetItemString(ans, key.c_str(), val) == 0;
+            Py_DECREF(val);
+            if (!ok) { Py_CLEAR(ans); return NULL; }
+        }
+    }
+    return ans;
+}
+
+
+static PyObject*
+charset(PyObject *self_, PyObject *pn) { return PyUnicode_FromString("UTF-8"); }
+
 static PyMethodDef translator_methods[] = {
     {"plural", plural, METH_O, "plural(n: int) -> int:\n\n"
-    		"Get the message catalog index based on the plural form specification."
+        "Get the message catalog index based on the plural form specification."
     },
+    {"add_fallback", add_fallback, METH_O, "add_fallback(other: Translator) -> None:\n\n"
+        "Add a fallback translator."
+    },
+    {"info", info, METH_NOARGS, "info() -> dict[str, str]:\n\n"
+        "Return information about the mo file as a dict"
+    },
+    {"charset", charset, METH_NOARGS, "charset() -> str:\n\n"
+        "Return the character set for this catalog"
+    },
+
     {NULL}  /* Sentinel */
 };
 

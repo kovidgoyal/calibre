@@ -19,13 +19,23 @@ class TestTranslator(unittest.TestCase):
                 if mpath is not None:
                     data = zf.read(mpath + '/messages.mo')
                     test_translator(self, lang, data)
+                    for q in ('iso639.mo', 'iso3166.mo'):
+                        try:
+                            data = zf.read(mpath + '/' + q)
+                        except KeyError:
+                            continue
+                        test_translator(self, lang, data, q)
 
 
-def test_translator(self: TestTranslator, lang: str, data: bytes) -> None:
+def test_translator(self: TestTranslator, lang: str, data: bytes, q: str = 'messages.mo') -> None:
     n = Translator(data)
     o = gettext.GNUTranslations(io.BytesIO(data))
+    which = f'{lang} - {q}'
+    self.assertEqual(o.info(), n.info(), f'info() not equal for language: {which}')
+    self.assertEqual(o.charset(), n.charset(), f'charset() not equal for language: {which}')
+    pf = o.info().get('plural-forms')
     for i in range(1, 100):
-        self.assertEqual(o.plural(i), n.plural(i), f'plural() not equal for language: {lang}')
+        self.assertEqual(o.plural(i), n.plural(i), f'plural({i}) not equal for language: {which} and plural-form: {pf}')
 
 
 def find_tests():
