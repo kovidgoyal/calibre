@@ -171,7 +171,8 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
             self.count_scan_needed()
 
     def count_scan_needed(self) -> None:
-        self.recount_updated.emit(self.gui.current_db.new_api.num_of_books_that_need_pages_counted())
+        if db := self.gui.current_db:
+            self.recount_updated.emit(db.new_api.num_of_books_that_need_pages_counted())
 
     def update_recount_txt(self, count) -> None:
         msg = self._recount_button_txt
