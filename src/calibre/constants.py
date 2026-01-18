@@ -261,6 +261,7 @@ class ExtensionsImporter:
             'piper',
             'html_as_json',
             'fast_css_transform',
+            'translator',
             'fast_html_entities',
             'unicode_names',
             'html_syntax_highlighter',

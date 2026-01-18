@@ -176,10 +176,17 @@
     },
     {
         "name": "progress_indicator",
-        "sources": "calibre/gui2/progress_indicator/QProgressIndicator.cpp calibre/gui2/progress_indicator/CalibreStyle.cpp",
+        "sources": "calibre/gui2/progress_indicator/QProgressIndicator.cpp calibre/gui2/progress_indicator/CalibreStyle.cpp calibre/gui2/progress_indicator/MoTranslator.cpp calibre/gui2/progress_indicator/PluralExpressionParser.cpp",
         "headers": "calibre/gui2/progress_indicator/QProgressIndicator.h",
         "sip_files": "calibre/gui2/progress_indicator/QProgressIndicator.sip",
         "inc_dirs": "calibre/gui2/progress_indicator"
+    },
+    {
+        "name": "translator",
+        "sources": "calibre/utils/translator/mo_parser.cpp calibre/utils/translator/plural_expression_parser.cpp calibre/utils/translator/main.cpp",
+        "headers": "calibre/utils/translator/mo_translator.h calibre/utils/translator/plural_expression_parser.h",
+        "inc_dirs": "calibre/utils/translator",
+		"needs_c++": "17"
     },
     {
         "name": "imageops",

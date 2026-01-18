@@ -322,6 +322,8 @@ def find_tests(which_tests=None, exclude_tests=None):
             from calibre.utils.windows.wintest import find_tests
             a(find_tests())
         a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
+        from calibre.utils.translator.test_translator import find_tests
+        a(find_tests())
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
         a(find_tests())
