@@ -13,7 +13,17 @@ from qt.core import QAbstractItemModel, QAbstractItemView, QBrush, QDialog, QIco
 
 from calibre.constants import iswindows
 from calibre.customize import PluginInstallationType
-from calibre.customize.ui import NameConflict, add_plugin, disable_plugin, enable_plugin, initialized_plugins, is_disabled, plugin_customization, remove_plugin
+from calibre.customize.ui import (
+    NameConflict,
+    add_plugin,
+    can_be_disabled,
+    disable_plugin,
+    enable_plugin,
+    initialized_plugins,
+    is_disabled,
+    plugin_customization,
+    remove_plugin,
+)
 from calibre.gui2 import choose_files, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -349,7 +359,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
-                if not plugin.can_be_disabled:
+                if not can_be_disabled(plugin):
                     info_dialog(self, _('Plugin cannot be disabled'),
                                  _('Disabling the plugin %s is not allowed')%plugin.name, show=True, show_copy_button=False)
                     return

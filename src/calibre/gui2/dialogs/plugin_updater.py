@@ -40,6 +40,7 @@ from calibre.customize.ui import (
     BLACKLISTED_PLUGINS,
     NameConflict,
     add_plugin,
+    can_be_disabled,
     disable_plugin,
     enable_plugin,
     has_external_plugins,
@@ -953,7 +954,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
     def _toggle_enabled_clicked(self):
         display_plugin = self._selected_display_plugin()
         plugin = display_plugin.plugin
-        if not plugin.can_be_disabled:
+        if not can_be_disabled(plugin):
             return error_dialog(self, _('Plugin cannot be disabled'),
                          _('The plugin: %s cannot be disabled')%plugin.name, show=True)
         if is_disabled(plugin):
