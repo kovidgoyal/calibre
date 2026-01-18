@@ -32,7 +32,10 @@ new_translator(PyTypeObject *type, PyObject *args, PyObject *kwds) {
         new (&self->buffer) std::string();
         new (&self->parser) MOParser();
         if (mo_data != NULL) {
-            std::string err = self->parser.load(mo_data, sz);
+            std::string err;
+            Py_BEGIN_ALLOW_THREADS;
+            err = self->parser.load(mo_data, sz);
+            Py_END_ALLOW_THREADS;
             if (err.size()) {
                 Py_CLEAR(self);
                 PyErr_SetString(PyExc_ValueError, err.c_str()); return NULL;
