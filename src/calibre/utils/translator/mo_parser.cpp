@@ -102,10 +102,19 @@ std::string MOParser::parseStrings() {
         std::string_view msgstr(data + trans_desc.offset, trans_desc.length);
 
         // First entry (empty msgid) contains metadata
-        if (msgid.empty() && i == 0) {
+        if (i == 0 && msgid.empty()) {
             std::string err = parseMetadata(msgstr);
             if (err.size()) return err;
-        } else translations_[msgid] = msgstr;
+        } else {
+            translations_[msgid] = msgstr;
+            // check if this msg has plural forms
+            auto sep = msgid.find((char)0);
+            if (sep != std::string_view::npos) {
+                auto vsep = msgstr.find((char)0);
+                if (vsep != std::string_view::npos) msgstr = msgstr.substr(0, vsep);
+                translations_[msgid.substr(0, sep)] = msgstr;
+            }
+        }
     }
 
     return "";
@@ -215,28 +224,22 @@ MOParser::gettext(std::string_view msgid) const {
 }
 
 std::string_view
-MOParser::ngettext(std::string_view msgid, std::string_view msgid_plural, unsigned long n) const {
-    // Create composite key for plural forms (msgid\0msgid_plural)
-    std::string key = std::string(msgid) + '\0' + std::string(msgid_plural);
-
+MOParser::ngettext(std::string_view key, unsigned long n) const {
     auto it = translations_.find(key);
     if (it != translations_.end() && !it->second.empty()) {
         // Determine which plural form to use
         unsigned long plural_index = plural(n);
-
         // Ensure index is within bounds
         if (plural_index >= static_cast<unsigned long>(num_plurals_)) plural_index = num_plurals_ - 1;
-
         // Split translation by null bytes
-        size_t start = 0;
+        std::string_view x = it->second;
         size_t pos;
-
-        while ((pos = it->second.find('\0', start)) != std::string::npos) {
-            std::string_view q = it->second.substr(start, pos - start);
-            if (plural_index < 1) return q;
-            start = pos + 1;
+        while ((pos = x.find('\0')) != std::string::npos) {
+            if (plural_index < 1) return x.substr(0, pos);
+            x = x.substr(pos + 1);
             plural_index--;
         }
+        return x;
     }
     return std::string_view(NULL, 0);
 }

@@ -24,7 +24,7 @@ public:
     std::string_view gettext(std::string_view msgid) const;
 
     // Get translation for plural forms
-    std::string_view ngettext(std::string_view msgid, const std::string_view msgid_plural, unsigned long n) const;
+    std::string_view ngettext(std::string_view key, unsigned long n) const;
 
     // Check if file is loaded
     bool isLoaded() const { return loaded_; }

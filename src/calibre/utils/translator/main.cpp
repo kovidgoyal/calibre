@@ -15,8 +15,9 @@
 typedef struct {
     PyObject_HEAD
 
-    PyObject *fallback;
+    PyObject *fallbacks;
     MOParser parser;
+    std::string buffer;
 } Translator;
 
 extern PyTypeObject Translator_Type;
@@ -27,6 +28,7 @@ new_translator(PyTypeObject *type, PyObject *args, PyObject *kwds) {
     if (!PyArg_ParseTuple(args, "|z#", &mo_data, &sz)) return NULL;
     Translator *self = (Translator *)(&Translator_Type)->tp_alloc(&Translator_Type, 0);
     if (self != NULL) {
+        new (&self->buffer) std::string();
         new (&self->parser) MOParser();
         if (mo_data != NULL) {
             std::string err = self->parser.load(mo_data, sz);
@@ -35,14 +37,17 @@ new_translator(PyTypeObject *type, PyObject *args, PyObject *kwds) {
                 PyErr_SetString(PyExc_ValueError, err.c_str()); return NULL;
             }
         }
+        self->fallbacks = PyList_New(0);
+        if (!self->fallbacks) { Py_CLEAR(self); return NULL; }
     }
     return (PyObject*) self;
 }
 
 static void
 dealloc_translator(Translator* self) {
-    Py_CLEAR(self->fallback);
+    Py_CLEAR(self->fallbacks);
     self->parser.~MOParser();
+    self->buffer.std::string::~string();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -57,9 +62,8 @@ plural(PyObject *self_, PyObject *pn) {
 static PyObject*
 add_fallback(PyObject *self_, PyObject *pn) {
     Translator *self = (Translator*)self_;
-    if (self->fallback) return add_fallback(self->fallback, pn);
     if (Py_TYPE(pn) != &Translator_Type) { PyErr_SetString(PyExc_TypeError, "other must be a translator instance"); return NULL; }
-    self->fallback = Py_NewRef(pn);
+    if (PyList_Append(self->fallbacks, pn) != 0) return NULL;
     Py_RETURN_NONE;
 }
 
@@ -81,7 +85,124 @@ info(PyObject *self_, PyObject *pn) {
 
 
 static PyObject*
-charset(PyObject *self_, PyObject *pn) { return PyUnicode_FromString("UTF-8"); }
+charset(PyObject *s, PyObject *pn) {
+    Translator *self = (Translator*)s;
+    return self->parser.isLoaded() ? PyUnicode_FromString("UTF-8") : Py_NewRef(Py_None);
+}
+
+static PyObject*
+install(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *names = NULL, *builtins_module = NULL, *builtins_dict = NULL;
+    static const char *kwlist[] = {"names", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|O", kwlist, &names)) return NULL;
+    if (names != NULL && names != Py_None && !PySequence_Check(names)) {
+        PyErr_SetString(PyExc_TypeError, "names must be a sequence"); return NULL; }
+
+    builtins_module = PyImport_ImportModule("builtins");
+    if (builtins_module == NULL) return NULL;
+    builtins_dict = PyObject_GetAttrString(builtins_module, "__dict__");
+    if (builtins_dict == NULL) { Py_DECREF(builtins_module); return NULL; }
+
+#define S(name, method_name) { \
+    PyObject *method = PyObject_GetAttrString(self, method_name); \
+    if (method == NULL) { Py_DECREF(builtins_dict); Py_DECREF(builtins_module); return NULL; } \
+    int ret = PyDict_SetItemString(builtins_dict, name, method); Py_DECREF(method); \
+    if (ret != 0) { Py_DECREF(builtins_dict); Py_DECREF(builtins_module); return NULL; } }
+
+    if (names != NULL && names != Py_None) {
+#define N(name) { \
+        PyObject *u = PyUnicode_FromString(name); \
+        if (!u) { Py_DECREF(builtins_dict); Py_DECREF(builtins_module); return NULL; }  \
+        int ok = PySequence_Contains(names, u); \
+        Py_DECREF(u); \
+        if (ok == -1) { Py_DECREF(builtins_dict); Py_DECREF(builtins_module); return NULL; }  \
+        if (ok == 1) { S(name, name); } }
+
+        N("ngettext"); N("pgettext"); N("npgettext");
+#undef N
+    }
+    S("_", "gettext");
+#undef S
+    Py_DECREF(builtins_dict); Py_DECREF(builtins_module);
+    Py_RETURN_NONE;
+}
+
+static bool
+has_data(Translator *self) { return self->parser.isLoaded() || PyList_GET_SIZE(self->fallbacks) != 0; }
+
+static PyObject*
+gettext(PyObject *s, PyObject *msg) {
+    Translator *self = (Translator*)s;
+    if (!has_data(self)) return Py_NewRef(msg);
+    if (!PyUnicode_Check(msg)) { PyErr_SetString(PyExc_TypeError, "message must be a string"); return NULL; }
+    Py_ssize_t sz;
+    const char *x = PyUnicode_AsUTF8AndSize(msg, &sz);
+    std::string_view msgid(x, sz);
+    auto ans = self->parser.gettext(msgid);
+    if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
+        Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
+        ans = f->parser.gettext(msgid);
+        if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    }
+    return Py_NewRef(msg);
+}
+
+static PyObject*
+ngettext(PyObject *s, PyObject *args) {
+    Translator *self = (Translator*)s;
+    const char *singular, *plural; unsigned long n; Py_ssize_t sl, pl;
+    if (!PyArg_ParseTuple(args, "s#s#k", &singular, &sl, &plural, &pl, &n)) return NULL;
+    if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 0: 1));
+    self->buffer.clear(); self->buffer.reserve(sl + pl + 2);
+    self->buffer.append(singular).push_back(0); self->buffer.append(plural);
+    auto ans = self->parser.ngettext(self->buffer, n);
+    if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
+        Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
+        ans = f->parser.ngettext(self->buffer, n);
+        if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    }
+    return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 0: 1));
+}
+
+static PyObject*
+pgettext(PyObject *s, PyObject *args) {
+    Translator *self = (Translator*)s;
+    if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, 1));
+    const char *context, *message; Py_ssize_t cl, ml;
+    if (!PyArg_ParseTuple(args, "s#s#", &context, &cl, &message, &ml)) return NULL;
+    self->buffer.clear(); self->buffer.reserve(cl + ml + 2);
+    self->buffer.append(context).push_back(4); self->buffer.append(message);
+    auto ans = self->parser.gettext(self->buffer);
+    if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
+        Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
+        ans = f->parser.gettext(self->buffer);
+        if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    }
+    return Py_NewRef(PyTuple_GET_ITEM(args, 1));
+}
+
+static PyObject*
+npgettext(PyObject *s, PyObject *args) {
+    Translator *self = (Translator*)s;
+    const char *context, *singular, *plural; unsigned long n; Py_ssize_t cl, sl, pl;
+    if (!PyArg_ParseTuple(args, "s#s#s#k", &context, &cl, &singular, &sl, &plural, &pl, &n)) return NULL;
+    if (!has_data(self)) return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 1: 2));
+    self->buffer.clear(); self->buffer.reserve(cl + sl + pl + 3);
+    self->buffer.append(context).push_back(4); self->buffer.append(singular).push_back(0); self->buffer.append(plural);
+    auto ans = self->parser.ngettext(self->buffer, n);
+    if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(self->fallbacks); i++) {
+        Translator *f = (Translator*)PyList_GET_ITEM(self->fallbacks, i);
+        ans = f->parser.ngettext(self->buffer, n);
+        if (ans.data() != NULL) return PyUnicode_FromStringAndSize(ans.data(), ans.size());
+    }
+    return Py_NewRef(PyTuple_GET_ITEM(args, n == 1 ? 1: 2));
+}
+
 
 static PyMethodDef translator_methods[] = {
     {"plural", plural, METH_O, "plural(n: int) -> int:\n\n"
@@ -90,11 +211,26 @@ static PyMethodDef translator_methods[] = {
     {"add_fallback", add_fallback, METH_O, "add_fallback(other: Translator) -> None:\n\n"
         "Add a fallback translator."
     },
+    {"install", (PyCFunction)install, METH_VARARGS | METH_KEYWORDS, "install(names=None) -> None:\n\n"
+        "install translation functions into global namespace"
+    },
     {"info", info, METH_NOARGS, "info() -> dict[str, str]:\n\n"
         "Return information about the mo file as a dict"
     },
     {"charset", charset, METH_NOARGS, "charset() -> str:\n\n"
         "Return the character set for this catalog"
+    },
+    {"gettext", gettext, METH_O, "gettext(message: str) -> str:\n\n"
+        "Translate the provided message"
+    },
+    {"ngettext", ngettext, METH_VARARGS, "gettext(singular: str, plural: str, n: int) -> str:\n\n"
+        "Translate the provided message"
+    },
+    {"pgettext", pgettext, METH_VARARGS, "pgettext(context: str, message: str) -> str:\n\n"
+        "Translate the provided message"
+    },
+    {"npgettext", npgettext, METH_VARARGS, "gettext(context: str, singular: str, plural: str, n: int) -> str:\n\n"
+        "Translate the provided message"
     },
 
     {NULL}  /* Sentinel */
