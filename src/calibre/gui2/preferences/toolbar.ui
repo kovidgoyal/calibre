@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;The toolbar in calibre is different depending on whether a device is connected or not. Choose &lt;b&gt;which toolbar&lt;/b&gt; you would like to customize:</string>
+      <string>&lt;p&gt;The toolbar (strip with buttons at the top) in calibre is different depending on whether a device is connected or not. Choose &lt;b&gt;which toolbar&lt;/b&gt; you would like to customize:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -27,7 +27,10 @@
    <item>
     <widget class="QComboBox" name="what">
      <property name="toolTip">
-      <string>Choose the toolbar to customize</string>
+      <string>&lt;p&gt;Choose which toolbar or menu you wish to customize. 
+&lt;p&gt;The main toolbar appears at the top of the calibre window. It has a different set of buttons based on whether a device is currently connected or not.
+&lt;p&gt;The optoinal second toolbar appears at the bottom of the calibre window
+&lt;p&gt;The menubar appears at the very top of the calibre window or in macOS at the top of the screen. It contains menus with actions, not buttons.</string>
      </property>
      <property name="sizeAdjustPolicy">
       <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
