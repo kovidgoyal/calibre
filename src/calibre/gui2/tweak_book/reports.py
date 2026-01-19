@@ -205,6 +205,11 @@ class FilesView(QTableView):
             self.delete_selected()
             ev.accept()
             return
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            if (index := self.currentIndex()).isValid():
+                ev.accept()
+                self._double_clicked(index)
+                return
         return QTableView.keyPressEvent(self, ev)
 
     @property
