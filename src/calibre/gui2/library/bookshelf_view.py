@@ -5,7 +5,6 @@
 # Imports {{{
 import bisect
 import math
-import os
 import random
 import struct
 import weakref
@@ -63,9 +62,6 @@ from qt.core import (
     QWidget,
     pyqtProperty,
     pyqtSignal,
-    qBlue,
-    qGreen,
-    qRed,
 )
 from xxhash import xxh3_64_intdigest
 
@@ -255,7 +251,7 @@ class RenderCase:
 
     def __init__(self):
         self.last_rendered_shelf_at = QRect(0, 0, 0, 0), False
-        self.last_rendered_background_at = QRect(0, 0, 0, 0), False
+        self.last_rendered_background_at = QRect(0, 0, 0, 0), False, False, {}
         self.last_rendered_divider_at = QRect(0, 0, 0, 0), False, 0
         self.last_rendered_background = QPixmap()
         self.last_rendered_divider = QPixmap()
@@ -281,19 +277,34 @@ class RenderCase:
     def background_as_pixmap(self, width: int, height: int) -> QPixmap:
         rect = QRect(0, 0, width, height)
         is_dark = is_dark_theme()
-        q = rect, is_dark
-        if self.last_rendered_shelf_at == q:
+        q = rect, is_dark, gprefs['bookshelf_use_custom_background'], gprefs['bookshelf_custom_background']
+        if self.last_rendered_background_at == q:
             return self.last_rendered_background
+        self.last_rendered_background_at = q
         self.ensure_theme(is_dark)
         ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
         with QPainter(ans) as painter:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            self.draw_back_panel(painter, rect)
-            # Add vertical grain for back panel (typical plywood back)
-            self.draw_back_panel_grain(painter, rect)
+            if gprefs['bookshelf_use_custom_background']:
+                self.draw_custom_background(painter, rect)
+            else:
+                self.draw_back_panel(painter, rect)
+                # Add vertical grain for back panel (typical plywood back)
+                self.draw_back_panel_grain(painter, rect)
             self.draw_cavity_shadows(painter, rect)
         self.last_rendered_background = QPixmap.fromImage(ans)
         return self.last_rendered_background
+
+    def draw_custom_background(self, painter: QPainter, interior_rect: QRect) -> None:
+        r, g, b = resolve_bookshelf_color(for_dark=is_dark_theme())
+        if tex := resolve_bookshelf_color(for_dark=is_dark_theme(), which='texture'):
+            from calibre.gui2.preferences.texture_chooser import texture_path
+            if path := texture_path(tex):
+                texture = QPixmap()
+                if texture.load(path):
+                    painter.fillRect(interior_rect, QBrush(texture))
+                    return
+        painter.fillRect(interior_rect, QBrush(QColor(r, g, b)))
 
     def draw_back_panel(self, painter: QPainter, interior_rect: QRect) -> None:
         # Base gradient for back panel (slightly recessed look)
@@ -1539,7 +1550,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
         self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
         self.setPalette(dark_palette() if is_dark_theme() else light_palette())
-        self.set_custom_background()
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1772,30 +1782,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(top, 'top')
         draw_horizontal(bottom, 'bottom')
 
-    def set_custom_background(self):
-        if not gprefs['bookshelf_use_custom_background']:
-            self.setStyleSheet('')
-            return
-        r, g, b = resolve_bookshelf_color(for_dark=is_dark_theme())
-        tex = resolve_bookshelf_color(for_dark=is_dark_theme(), which='texture')
-        pal = self.palette()
-        bgcol = QColor(r, g, b)
-        pal.setColor(QPalette.ColorRole.Base, bgcol)
-        self.setPalette(pal)
-        ss = f'background-color: {bgcol.name()}; border: 0px solid {bgcol.name()};'
-        if tex:
-            from calibre.gui2.preferences.texture_chooser import texture_path
-            path = texture_path(tex)
-            if path:
-                path = os.path.abspath(path).replace(os.sep, '/')
-                ss += f'background-image: url({path});'
-                ss += 'background-attachment: fixed;'
-                pm = QPixmap(path)
-                if not pm.isNull():
-                    val = pm.scaled(1, 1).toImage().pixel(0, 0)
-                    r, g, b = qRed(val), qGreen(val), qBlue(val)
-        self.setStyleSheet(f'QAbstractScrollArea {{ {ss} }}')
-
     def paintEvent(self, ev: QPaintEvent) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
@@ -1826,10 +1812,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             shelves.append((nshelf, shelf is not nshelf))
         if not hasattr(self, 'case_renderer'):
             self.case_renderer = RenderCase()
-        if not gprefs['bookshelf_use_custom_background']:
-            painter.drawPixmap(
-                QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()),
-            )
+        painter.drawPixmap(
+            QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()),
+        )
         n = self.shelves_per_screen
         for base in shelf_bases:
             self.draw_shelf_base(painter, base, scroll_y, self.width(), base.idx % n)
