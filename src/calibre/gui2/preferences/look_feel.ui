@@ -93,7 +93,7 @@
        </attribute>
       </widget>
      </widget>
-     <widget class="CoverView" name="cover_view">
+     <widget class="CoverView" name="cover_browser_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
