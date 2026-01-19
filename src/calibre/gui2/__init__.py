@@ -49,6 +49,8 @@ from qt.core import (
     Qt,
     QThread,
     QTimer,
+    QToolBar,
+    QToolButton,
     QUrl,
     QWidget,
     pyqtSignal,
@@ -301,6 +303,17 @@ QIcon.ic = icon_resource_manager
 QIcon.icon_as_png = icon_resource_manager.icon_as_png
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
 QIcon.cached_icon = icon_resource_manager.cached_icon
+qtb_init = QToolBar.__init__
+
+
+def configure_toolbar_extension_button(self, parent=None):
+    qtb_init(self, parent)
+    if teb := self.findChild(QToolButton, name='qt_toolbar_ext_button'):
+        teb.setToolTip(_('Show more buttons'))
+
+
+QToolBar.__init__ = configure_toolbar_extension_button
+
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
