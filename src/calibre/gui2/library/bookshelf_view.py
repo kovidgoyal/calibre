@@ -58,6 +58,7 @@ from qt.core import (
     QSizeF,
     QStyle,
     Qt,
+    QTextLayout,
     QTimer,
     QWidget,
     pyqtProperty,
@@ -1869,10 +1870,28 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     @lru_cache(maxsize=4096)
     def get_text_metrics(
-        self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False,
-    ) -> tuple[str, str, QFont]:
-        height = sz.height()
+        self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False, allow_wrap: bool = False,
+    ) -> tuple[str, str, QFont, bool]:
+        width, height = sz.width(), sz.height()
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
+        if allow_wrap and not second_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
+            # rather than reducing font size if there is available space, wrap to two lines
+            while 2 * fm.height() > height:
+                font, fm, fi = self.get_sized_font(font.pointSizeF() - 0.5, bold)
+            layout = QTextLayout(first_line, font)
+            layout.beginLayout()
+            fl = layout.createLine()
+            fl.setLineWidth(width)
+            sl = layout.createLine()
+            sl.setLineWidth(width)
+            has_third_line = sl.isValid() and layout.createLine().isValid()
+            layout.endLayout()
+            if sl.isValid():
+                second_line = first_line[sl.textStart():]
+                if has_third_line:
+                    second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
+                return first_line[:fl.textLength()], second_line, font, True
+
         # First adjust font size so that lines fit vertically
         # Use height() rather than lineSpacing() as it allows for slightly
         # larger font sizes
@@ -1887,11 +1906,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             while fm.height() > height:
                 nsz = font.pointSizeF()
                 if nsz < self.min_font_size and second_line:
-                    return '', '', font
-                font, fm, fi = self.get_sized_font(font.pointSizeF() - 0.5, bold)
+                    return '', '', font, False
+                font, fm, fi = self.get_sized_font(nsz - 0.5, bold)
 
         # Now reduce the font size as much as needed to fit within width
-        width = sz.width()
         text = first_line
         if second_line and fm.boundingRect(first_line).width() < fm.boundingRect(second_line).width():
             text = second_line
@@ -1901,7 +1919,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
             if second_line:
                 second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
-        return first_line, second_line, font
+        return first_line, second_line, font, False
 
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
@@ -1933,7 +1951,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             -self.TEXT_MARGIN if text_right else 0,
             0,
         )
-        elided_text, _, font = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
+        elided_text, _, font, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
         painter.setPen(self.palette().color(QPalette.ColorRole.WindowText))
@@ -2037,31 +2055,39 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Draw vertically the title on the spine.'''
         first_line, second_line = self.first_line_renderer(book_id), self.second_line_renderer(book_id)
         margin = self.TEXT_MARGIN
-        if second_line:
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
-            second_rect = first_rect.translated(first_rect.width(), 0)
-            if gprefs['bookshelf_up_to_down']:
-                first_rect, second_rect = second_rect, first_rect
-        else:
-            first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
 
-        emblem_size = -margin + (self.EMBLEM_MARGIN * 2)
-        emblem_size += min(rect.width() - self.EMBLEM_MARGIN, self.EMBLEM_SIZE)
-        match gprefs['bookshelf_emblem_position']:
-            case 'top':
-                first_rect.adjust(0, emblem_size, 0, 0)
-                if second_line:
-                    second_rect.adjust(0, emblem_size, 0, 0)
-            case 'bottom':
-                first_rect.adjust(0, 0, 0, -emblem_size)
-                if second_line:
-                    second_rect.adjust(0, 0, 0, -emblem_size)
+        def calculate_rects(has_two_lines: bool) -> tuple[QRect, QRect]:
+            if has_two_lines:
+                first_rect = QRect(rect.left(), rect.top() + margin, rect.width() // 2, rect.height() - 2*margin)
+                second_rect = first_rect.translated(first_rect.width(), 0)
+                if gprefs['bookshelf_up_to_down']:
+                    first_rect, second_rect = second_rect, first_rect
+            else:
+                first_rect = QRect(rect.left(), rect.top() + margin, rect.width(), rect.height() - 2*margin)
+                second_rect = QRect()
+            emblem_size = -margin + (self.EMBLEM_MARGIN * 2)
+            emblem_size += min(rect.width() - self.EMBLEM_MARGIN, self.EMBLEM_SIZE)
+            match gprefs['bookshelf_emblem_position']:
+                case 'top':
+                    first_rect.adjust(0, emblem_size, 0, 0)
+                    if has_two_lines:
+                        second_rect.adjust(0, emblem_size, 0, 0)
+                case 'bottom':
+                    first_rect.adjust(0, 0, 0, -emblem_size)
+                    if has_two_lines:
+                        second_rect.adjust(0, 0, 0, -emblem_size)
+            return first_rect, second_rect
 
-        nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+        first_rect, second_rect = calculate_rects(bool(second_line))
+
+        nfl, nsl, font, was_wrapped = self.get_text_metrics(
+            first_line, second_line, first_rect.transposed().size(), allow_wrap=True)
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
-            nfl, nsl, font = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+            nfl, nsl, font, _ = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+        elif was_wrapped:
+            first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl
 
         painter.save()
