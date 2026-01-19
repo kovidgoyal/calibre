@@ -9,14 +9,26 @@ import os
 from contextlib import suppress
 from functools import partial
 
-from qt.core import QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
+from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortCommit, LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.bookshelf_view_ui import Ui_bookshelf_tab as Ui_Form
+from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
+
+color_label_map = {
+    'text_color_for_dark_background': _('Color for text on &light spine background'),
+    'text_color_for_light_background': _('Color for text on &dark spine background'),
+    'divider_background_color': _('Color for divider &background'),
+    'divider_line_color': _('Color for the &line on the divider'),
+    'divider_text_color': _('Color for text on &divider'),
+    'current_selected_color': _('Color for &the current seleted book highlight'),
+    'current_color': _('Color for the &current book highlight'),
+    'selected_color': _('Color for the &seleted books highlight'),
+}
 
 
 class LogViewer(QDialog):
@@ -65,6 +77,12 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
                 'The template used for spine size must return a number between 0 and 1. The template'
                 ' {0} is unlikely to do so. Are you sure?').format(tp), 'confirm-pages-template', parent=self):
                 raise AbortCommit('abort')
+        newval = {}
+        for t,v in self.color_buttons.items():
+            newval[t] = d = {}
+            for k,b in v.items():
+                d[k] = b.color
+        gprefs['bookshelf_custom_colors'] = newval
         return super().commit(*args)
 
     def genesis(self, gui):
@@ -156,6 +174,24 @@ different calibre library you use.</p>''').format('{size}', '{random}', '{pages}
         t.timeout.connect(self.count_scan_needed)
         self.count_scan_needed()
 
+        r('bookshelf_use_custom_colors', gprefs)
+        self.restore_defaults_colors_button.clicked.connect(self.restore_defaults_colors)
+        self.color_buttons = {}
+        layout_map = {
+            'light': self.custom_colors_light_layout,
+            'dark': self.custom_colors_dark_layout,
+        }
+        for theme, layout in layout_map.items():
+            self.color_buttons[theme] = theme_map = {}
+            for r, (k, v) in enumerate(color_label_map.items()):
+                theme_map[k] = b = ColorButton(parent=self)
+                l = QLabel(v, self)
+                l.setBuddy(b)
+                layout.insertRow(r, b, l)
+                b.color_changed.connect(self.changed_signal)
+        QApplication.instance().palette_changed.connect(self.populate_custom_color_theme)
+        self.populate_custom_color_theme()
+
     def lazy_initialize(self):
         self.recount_timer.start()
 
@@ -232,6 +268,26 @@ def evaluate(book, context):
     return str(width_from_pages(pages, num_of_pages_for_max_width=1500, logarithmic_factor=2))
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
+
+    def populate_custom_color_theme(self):
+        from calibre.gui2.library.bookshelf_view import ColorTheme
+        default = {
+            'light': ColorTheme.light_theme()._asdict(),
+            'dark': ColorTheme.dark_theme()._asdict(),
+        }
+        configs = gprefs['bookshelf_custom_colors']
+        for theme in default:
+            for k in color_label_map:
+                b = self.color_buttons[theme][k]
+                b.blockSignals(True)
+                b.special_default_color = default[theme][k].name()
+                b.color = configs[theme].get(k)
+                b.blockSignals(False)
+
+    def restore_defaults_colors(self):
+        for v in self.color_buttons.values():
+            for b in v.values():
+                b.color = None
 
     def refresh_gui(self, gui):
         gui.bookshelf_view.refresh_settings()

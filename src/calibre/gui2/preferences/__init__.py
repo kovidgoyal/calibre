@@ -16,6 +16,7 @@ from qt.core import (
     QDialog,
     QDialogButtonBox,
     QEvent,
+    QGroupBox,
     QIcon,
     QLineEdit,
     QListView,
@@ -157,6 +158,9 @@ class Setting:
         if isinstance(self.gui_obj, QCheckBox):
             self.datatype = 'bool'
             self.gui_obj.stateChanged.connect(self.changed)
+        elif isinstance(self.gui_obj, QGroupBox) and self.gui_obj.isCheckable():
+            self.datatype = 'bool'
+            self.gui_obj.clicked.connect(self.changed)
         elif isinstance(self.gui_obj, QRadioButton):
             self.datatype = 'bool'
             self.gui_obj.toggled.connect(self.changed)

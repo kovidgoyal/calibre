@@ -533,6 +533,71 @@
     <item row="2" column="0" colspan="2">
      <widget class="BackgroundConfig" name="background_box" native="true"/>
     </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QGroupBox" name="opt_bookshelf_use_custom_colors">
+      <property name="title">
+       <string>Use customs &amp;colors</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTabWidget" name="bookshelf_tab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <widget class="QWidget" name="widget_1">
+          <attribute name="title">
+           <string>&amp;Light mode colors</string>
+          </attribute>
+          <layout class="QFormLayout" name="custom_colors_light_layout"/>
+         </widget>
+         <widget class="QWidget" name="widget_2">
+          <attribute name="title">
+           <string>&amp;Dark mode colors</string>
+          </attribute>
+          <layout class="QFormLayout" name="custom_colors_dark_layout"/>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QPushButton" name="restore_defaults_colors_button">
+           <property name="text">
+            <string>Restore &amp;defaults</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/images/polish.png</normaloff>:/images/polish.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="BookshelfEmblemRules" name="emblem_rules">
