@@ -16,6 +16,7 @@ from qt.core import (
     QFont,
     QHBoxLayout,
     QIcon,
+    QKeySequence,
     QLabel,
     QMenu,
     Qt,
@@ -590,6 +591,17 @@ class SearchInput(QWidget):  # {{{
         le = self.search_box.lineEdit()
         le.end(False)
         le.selectAll()
+
+    def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
+        from calibre.gui2.viewer.shortcuts import index_to_key_sequence
+        def as_text(prefix, action):
+            ans = prefix
+            if idx := key_map.get(action):
+                x = _(' or ').join(index_to_key_sequence(x).toString(QKeySequence.SequenceFormat.NativeText) for x in idx)
+                ans += f' [{x}]'
+            return ans
+        self.next_button.setToolTip(as_text(_('Find next match'), 'next_match'))
+        self.prev_button.setToolTip(as_text(_('Find previous match'), 'previous_match'))
 # }}}
 
 
@@ -758,6 +770,7 @@ class Results(QTreeWidget):  # {{{
         item = self.currentItem()
         if item is not None:
             self.scrollToItem(item)
+
 # }}}
 
 
@@ -934,4 +947,8 @@ class SearchPanel(QWidget):  # {{{
             ev.accept()
             return
         return QWidget.keyPressEvent(self, ev)
+
+    def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
+        self.search_input.set_tooltips(key_map)
+
 # }}}

@@ -239,6 +239,7 @@ class EbookViewer(MainWindow):
         self.actions_toolbar.set_tooltips(rmap)
         if hasattr(self, 'highlights_widget'):
             self.highlights_widget.set_tooltips(rmap)
+        self.search_widget.set_tooltips(rmap)
 
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
