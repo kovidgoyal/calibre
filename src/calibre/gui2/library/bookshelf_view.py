@@ -89,7 +89,7 @@ from calibre.utils.img import resize_to_fit
 from calibre.utils.iso8601 import UNDEFINED_DATE
 from calibre.utils.localization import lang_map
 from calibre_extensions.imageops import dominant_color
-from calibre_extensions.progress_indicator import contrast_ratio
+from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 
 # }}}
 
@@ -1883,14 +1883,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             fl = layout.createLine()
             fl.setLineWidth(width)
             sl = layout.createLine()
-            sl.setLineWidth(width)
-            has_third_line = sl.isValid() and layout.createLine().isValid()
+            if sl.isValid():
+                sl.setLineWidth(width)
+                has_third_line = layout.createLine().isValid()
+            else:
+                has_third_line = False
             layout.endLayout()
             if sl.isValid():
-                second_line = first_line[sl.textStart():]
+                second_line = utf16_slice(first_line, sl.textStart())
                 if has_third_line:
                     second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
-                return first_line[:fl.textLength()], second_line, font, True
+                return utf16_slice(first_line, 0, fl.textLength()), second_line, font, True
 
         # First adjust font size so that lines fit vertically
         # Use height() rather than lineSpacing() as it allows for slightly

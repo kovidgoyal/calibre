@@ -204,3 +204,10 @@ install_translator(void *v) {
         if (app) app->installTranslator(&translator);
     }
 }
+
+QString
+utf16_slice(const QString &src, qsizetype pos, qsizetype n) {
+    if (n < 0) n = src.size() - pos;
+    if (pos < 0 || n < 0 || pos + n > src.size()) return QString();
+    return src.sliced(pos, n);
+}
