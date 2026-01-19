@@ -6,6 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from collections import defaultdict
+from collections.abc import Iterator
 from queue import Empty, Queue
 from threading import Thread
 from urllib.parse import urlparse
@@ -305,6 +306,23 @@ def check_link_destinations(container):
     return errors
 
 
+def find_referenced_names_in_smil(container, name: str) -> Iterator[str]:
+    root = container.parsed(name)
+    for src in root.xpath('//*[local-name()="audio" and @src]/@src'):
+        yield container.href_to_name(src, name)
+
+
+def locate_spine_media_overlays(container) -> Iterator[str]:
+    mmap = {item.get('id', ''): item for item in container.manifest_items}
+    for item, name, is_linear in container.spine_iter:
+        if (m := mmap.get(item.get('idref', ''), None)) is not None:
+            if (mo_id := m.get('media-overlay')) and (mo := mmap.get(mo_id)) is not None and (href := mo.get('href')):
+                if (name := container.href_to_name(href, container.opf_name)) and container.has_name(name):
+                    match mo.get('media-type'):
+                        case 'application/smil+xml':
+                            yield from find_referenced_names_in_smil(container, name)
+
+
 def check_links(container):
     links_map = defaultdict(set)
     xml_types = {guess_type('a.opf'), guess_type('a.ncx')}
@@ -366,7 +384,9 @@ def check_links(container):
         num = len(spine_styles)
         spine_styles |= {tname for name in spine_styles for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
     seen = set(OEB_DOCS) | set(OEB_STYLES)
-    spine_resources = {tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
+    spine_resources = {
+        tname for name in spine_docs | spine_styles for tname in links_map[name] if container.mime_map[tname] not in seen}
+    media_overlays = frozenset(locate_spine_media_overlays(container))
     unreferenced = set()
 
     cover_name = container.guide_type_map.get('cover', None)
@@ -377,7 +397,8 @@ def check_links(container):
             a(UnreferencedResource(name))
         elif mt in OEB_DOCS and name not in spine_docs and name not in nav_items:
             a(UnreferencedDoc(name))
-        elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
+        elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}
+              ) and name not in spine_resources and name != cover_name and name not in media_overlays:
             if mt.partition('/')[0] == 'image' and name == get_raster_cover_name(container):
                 continue
             a(UnreferencedResource(name))
