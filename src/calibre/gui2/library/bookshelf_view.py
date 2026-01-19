@@ -1876,24 +1876,26 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
-            while 2 * fm.height() > height:
-                font, fm, fi = self.get_sized_font(font.pointSizeF() - 0.5, bold)
-            layout = QTextLayout(first_line, font)
-            layout.beginLayout()
-            fl = layout.createLine()
-            fl.setLineWidth(width)
-            sl = layout.createLine()
-            if sl.isValid():
-                sl.setLineWidth(width)
-                has_third_line = layout.createLine().isValid()
-            else:
+            font2, fm2, fi2 = font, fm, fi
+            while 2 * fm2.height() > height:
+                font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5, bold)
+            if fm2.boundingRect(first_line).width() >= width:  # two line font size is larger than one line font size
+                font, fm, fi = font2, fm2, fi2
                 has_third_line = False
-            layout.endLayout()
-            if sl.isValid():
-                second_line = utf16_slice(first_line, sl.textStart())
-                if has_third_line:
-                    second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
-                return utf16_slice(first_line, 0, fl.textLength()), second_line, font, True
+                layout = QTextLayout(first_line, font)
+                layout.beginLayout()
+                fl = layout.createLine()
+                fl.setLineWidth(width)
+                sl = layout.createLine()
+                if sl.isValid():
+                    sl.setLineWidth(width)
+                    has_third_line = layout.createLine().isValid()
+                layout.endLayout()
+                if sl.isValid():
+                    second_line = utf16_slice(first_line, sl.textStart())
+                    if has_third_line:
+                        second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
+                    return utf16_slice(first_line, 0, fl.textLength()), second_line, font, True
 
         # First adjust font size so that lines fit vertically
         # Use height() rather than lineSpacing() as it allows for slightly
