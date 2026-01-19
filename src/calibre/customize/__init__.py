@@ -661,7 +661,6 @@ class InterfaceActionBase(Plugin):  # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
     type = _('User interface action')
-    can_be_disabled = False
 
     actual_plugin = None
 
@@ -696,7 +695,6 @@ class PreferencesPlugin(Plugin):  # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
     type = _('Preferences')
-    can_be_disabled = False
 
     #: Import path to module that contains a class named ConfigWidget
     #: which implements the ConfigWidgetInterface. Used by

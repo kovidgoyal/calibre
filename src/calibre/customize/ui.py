@@ -16,6 +16,7 @@ from calibre.customize import (
     CatalogPlugin,
     EditBookToolPlugin,
     FileTypePlugin,
+    InterfaceActionBase,
     InvalidPlugin,
     LibraryClosedPlugin,
     MetadataReaderPlugin,
@@ -105,7 +106,7 @@ def disable_plugin(plugin_or_name):
     plugin = find_plugin(x)
     if plugin is None:
         raise ValueError(f'No plugin named: {x} found')
-    if not plugin.can_be_disabled:
+    if not can_be_disabled(plugin):
         raise ValueError(f'Plugin {x} cannot be disabled')
     disable_plugin_by_name(x)
 
@@ -119,6 +120,26 @@ def enable_plugin(plugin_or_name):
     ep = config['enabled_plugins']
     ep.add(x)
     config['enabled_plugins'] = ep
+
+
+def is_internal_plugin(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugin = find_plugin(x)
+    return (plugin.installation_type is PluginInstallationType.BUILTIN
+            and isinstance(plugin, (
+                                    InterfaceActionBase,
+                                    PreferencesPlugin,
+                                    InputFormatPlugin,
+                                    OutputFormatPlugin,
+                                    InputProfile,
+                                    OutputProfile,
+                                )))
+
+
+def can_be_disabled(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugin = find_plugin(x)
+    return not is_internal_plugin(x) and plugin.can_be_disabled
 
 
 def restore_plugin_state_to_default(plugin_or_name):
