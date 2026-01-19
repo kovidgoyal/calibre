@@ -506,6 +506,11 @@ def create_defs():
     defs['bookshelf_divider_text_right'] = False
     defs['bookshelf_start_with_divider'] = False
     defs['bookshelf_divider_style'] = 'text'
+    defs['bookshelf_theme_override'] = 'none'
+    defs['bookshelf_use_custom_background'] = False
+    defs['bookshelf_custom_background'] = {
+        'light': (255, 255, 255), 'dark': (64, 64, 64), 'light_texture': None, 'dark_texture': None
+    }
 
     # Migrate beta bookshelf_thumbnail
     if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
@@ -1795,3 +1800,7 @@ def resolve_custom_background(name: str ,which='color', for_dark: bool | None = 
 
 def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
     return resolve_custom_background('cover_grid_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
+
+
+def resolve_bookshelf_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+    return resolve_custom_background('bookshelf_custom_background', which=which, for_dark=for_dark, use_defaults=use_defaults)

@@ -112,6 +112,15 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_author_template', db.prefs)
         r('bookshelf_spine_size_template', db.prefs)
 
+        r('bookshelf_theme_override', gprefs, choices=[
+            (_('Global setting'), 'none'),
+            (_('Light'), 'light'),
+            (_('Dark'), 'dark'),
+        ])
+
+        r('bookshelf_use_custom_background', gprefs)
+        self.background_box.link_config('bookshelf_custom_background')
+
         self.config_cache.link(
             self.gui.bookshelf_view.cover_cache,
             'bookshelf_disk_cache_size', 'bookshelf_cache_size_multiple',

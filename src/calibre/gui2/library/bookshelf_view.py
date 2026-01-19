@@ -5,6 +5,7 @@
 # Imports {{{
 import bisect
 import math
+import os
 import random
 import struct
 import weakref
@@ -62,13 +63,16 @@ from qt.core import (
     QWidget,
     pyqtProperty,
     pyqtSignal,
+    qBlue,
+    qGreen,
+    qRed,
 )
 from xxhash import xxh3_64_intdigest
 
 from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
-from calibre.gui2 import config, gprefs, is_dark_theme
+from calibre.gui2 import config, gprefs, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import (
     ClickStartData,
     double_click_action,
@@ -228,6 +232,13 @@ class WoodTheme(NamedTuple):
             divider_color=QColor(100, 100, 100),
             divider_line_color=QColor(180, 180, 182),
         )
+
+
+def is_dark_theme():
+    from calibre.gui2 import is_dark_theme
+    if gprefs['bookshelf_theme_override'] == 'none':
+        return is_dark_theme()
+    return gprefs['bookshelf_theme_override'] == 'dark'
 
 
 def color_with_alpha(c: QColor, a: int) -> QColor:
@@ -1517,6 +1528,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Refresh the gui and render settings.'''
         self.template_inited = False
         self.calculate_shelf_geometry()
+        self.palette_changed()
         if hasattr(self, 'cover_cache'):
             self.cover_cache.set_thumbnail_size(*self.thumbnail_size())
             self.cover_cache.set_disk_cache_max_size(gprefs['bookshelf_disk_cache_size'])
@@ -1526,6 +1538,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def palette_changed(self):
         self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
         self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
+        self.setPalette(dark_palette() if is_dark_theme() else light_palette())
+        self.set_custom_background()
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1758,6 +1772,30 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(top, 'top')
         draw_horizontal(bottom, 'bottom')
 
+    def set_custom_background(self):
+        if not gprefs['bookshelf_use_custom_background']:
+            self.setStyleSheet('')
+            return
+        r, g, b = resolve_bookshelf_color(for_dark=is_dark_theme())
+        tex = resolve_bookshelf_color(for_dark=is_dark_theme(), which='texture')
+        pal = self.palette()
+        bgcol = QColor(r, g, b)
+        pal.setColor(QPalette.ColorRole.Base, bgcol)
+        self.setPalette(pal)
+        ss = f'background-color: {bgcol.name()}; border: 0px solid {bgcol.name()};'
+        if tex:
+            from calibre.gui2.preferences.texture_chooser import texture_path
+            path = texture_path(tex)
+            if path:
+                path = os.path.abspath(path).replace(os.sep, '/')
+                ss += f'background-image: url({path});'
+                ss += 'background-attachment: fixed;'
+                pm = QPixmap(path)
+                if not pm.isNull():
+                    val = pm.scaled(1, 1).toImage().pixel(0, 0)
+                    r, g, b = qRed(val), qGreen(val), qBlue(val)
+        self.setStyleSheet(f'QAbstractScrollArea {{ {ss} }}')
+
     def paintEvent(self, ev: QPaintEvent) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
@@ -1788,8 +1826,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             shelves.append((nshelf, shelf is not nshelf))
         if not hasattr(self, 'case_renderer'):
             self.case_renderer = RenderCase()
-        painter.drawPixmap(
-            QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()))
+        if not gprefs['bookshelf_use_custom_background']:
+            painter.drawPixmap(
+                QPoint(0, 0), self.case_renderer.background_as_pixmap(viewport_rect.width(), viewport_rect.height()),
+            )
         n = self.shelves_per_screen
         for base in shelf_bases:
             self.draw_shelf_base(painter, base, scroll_y, self.width(), base.idx % n)
