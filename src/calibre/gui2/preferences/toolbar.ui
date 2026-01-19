@@ -27,9 +27,9 @@
    <item>
     <widget class="QComboBox" name="what">
      <property name="toolTip">
-      <string>&lt;p&gt;Choose which toolbar or menu you wish to customize. 
+      <string>&lt;p&gt;Choose which toolbar or menu you wish to customize.
 &lt;p&gt;The main toolbar appears at the top of the calibre window. It has a different set of buttons based on whether a device is currently connected or not.
-&lt;p&gt;The optoinal second toolbar appears at the bottom of the calibre window
+&lt;p&gt;The optional second toolbar appears at the bottom of the calibre window
 &lt;p&gt;The menubar appears at the very top of the calibre window or in macOS at the top of the screen. It contains menus with actions, not buttons.</string>
      </property>
      <property name="sizeAdjustPolicy">
