@@ -113,7 +113,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_spine_size_template', db.prefs)
 
         r('bookshelf_theme_override', gprefs, choices=[
-            (_('Global setting'), 'none'),
+            (_('Inherit global setting'), 'none'),
             (_('Light'), 'light'),
             (_('Dark'), 'dark'),
         ])
