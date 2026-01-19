@@ -239,7 +239,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._plugin_model = PluginModel(self.user_installed_plugins.isChecked())
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
-                'QTreeView::item { padding-bottom: 10px;}')
+                'QTreeView::item { padding-bottom: 5px; padding-top: 5px; }')
         self.plugin_view.doubleClicked.connect(self.double_clicked)
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
