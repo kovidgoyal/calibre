@@ -229,11 +229,13 @@ def parse_identifier(ident, val, refines):
     scheme = None
     lval = val.lower()
 
-    def finalize(scheme, val):
+    def finalize(scheme, val, scheme_from_val=False):
         if not scheme or not val:
             return None, None
         scheme = scheme.lower()
         if scheme in ('http', 'https'):
+            if scheme_from_val:
+                return 'url', scheme + ':' + val
             return None, None
         if scheme.startswith('isbn'):
             scheme = 'isbn'
@@ -261,7 +263,7 @@ def parse_identifier(ident, val, refines):
         val = val[4:]
 
     prefix, rest = val.partition(':')[::2]
-    return finalize(prefix, rest)
+    return finalize(prefix, rest, scheme_from_val=True)
 
 
 def read_identifiers(root, prefixes, refines):
