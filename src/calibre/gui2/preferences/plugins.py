@@ -363,12 +363,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     info_dialog(self, _('Plugin cannot be disabled'),
                                  _('Disabling the plugin %s is not allowed')%plugin.name, show=True, show_copy_button=False)
                     return
+                msg = _('Plugin <b>{0}</b> successfully removed. You will have'
+                        ' to restart calibre for it to be completely removed.').format(plugin.name)
                 if is_disabled(plugin):
                     enable_plugin(plugin)
+                    msg = _('Plugin <b>{0}</b> successfully enabled. You will have'
+                            ' to restart calibre for it to be fully active.').format(plugin.name)
                 else:
                     disable_plugin(plugin)
+                    msg = _('Plugin <b>{0}</b> successfully disabled. You will have'
+                            ' to restart calibre for it to be fully inactive.').format(plugin.name)
                 self._plugin_model.refresh_plugin(plugin)
                 self.changed_signal.emit()
+                info_dialog(self, _('Success'), msg, show=True, show_copy_button=False)
             if op == 'customize':
                 if not plugin.is_customizable():
                     info_dialog(self, _('Plugin not customizable'),
