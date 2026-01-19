@@ -526,7 +526,7 @@
        <string>Use a custom background, either color or image</string>
       </property>
       <property name="text">
-       <string>Use a custom background</string>
+       <string>Use a custom &amp;background</string>
       </property>
      </widget>
     </item>
