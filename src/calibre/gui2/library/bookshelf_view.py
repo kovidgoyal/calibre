@@ -1874,7 +1874,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     ) -> tuple[str, str, QFont, bool]:
         width, height = sz.width(), sz.height()
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
-        if allow_wrap and not second_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
+        if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             while 2 * fm.height() > height:
                 font, fm, fi = self.get_sized_font(font.pointSizeF() - 0.5, bold)
