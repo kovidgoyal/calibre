@@ -616,3 +616,11 @@ hide_ai_features = False
 # is disabled by default. In normal usage, the performance difference is not
 # noticeable anyway.
 qt_webengine_uses_gpu = False
+
+#: Bookshelf font dimensions
+# In the Bookshelf view, the minimum and maximum font sizes for the texts
+# on the spine and in the groups divider are based on a factor of the base font size.
+# Changing this value could have a impact on the minimal spine width
+# and the occurrence frequency of elided and truncated texts on the books spines.
+minimum_font_size_factor = 0.75
+maximum_font_size_factor = 1.3

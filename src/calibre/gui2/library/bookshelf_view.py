@@ -82,6 +82,7 @@ from calibre.gui2.library.caches import CoverThumbnailCache, Thumbnailer
 from calibre.gui2.library.models import BooksModel
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
+from calibre.utils.config_base import tweaks
 from calibre.utils.formatter import TEMPLATE_ERROR
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
@@ -1387,8 +1388,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.text_color_for_light_background = QColor()
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
-        self.min_font_size = 0.75 * self.base_font_size_pts
-        self.max_font_size = 1.3 * self.base_font_size_pts
+        self.min_font_size = float(tweaks['minimum_font_size_factor']) * self.base_font_size_pts
+        self.max_font_size = float(tweaks['maximum_font_size_factor']) * self.base_font_size_pts
         _, fm, _ = self.get_sized_font(self.min_font_size)
         self.min_line_height = math.ceil(fm.height())
 
