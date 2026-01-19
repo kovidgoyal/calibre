@@ -80,6 +80,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_make_space_for_second_line', gprefs)
         r('bookshelf_min_font_multiplier', gprefs)
         r('bookshelf_max_font_multiplier', gprefs)
+        r('bookshelf_bold_font', gprefs)
 
         r('bookshelf_divider_text_right', gprefs)
         r('bookshelf_start_with_divider', gprefs)

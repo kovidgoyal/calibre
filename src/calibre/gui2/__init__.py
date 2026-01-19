@@ -526,6 +526,7 @@ def create_defs():
     }
     defs['bookshelf_min_font_multiplier'] = 0.75
     defs['bookshelf_max_font_multiplier'] = 1.3
+    defs['bookshelf_bold_font'] = False
 
     # Migrate beta bookshelf_thumbnail
     if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):

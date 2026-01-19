@@ -459,6 +459,16 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="opt_bookshelf_bold_font">
+           <property name="toolTip">
+            <string>&lt;p&gt;Use a bold font to draw text on the book spine</string>
+           </property>
+           <property name="text">
+            <string>Use &amp;bold font</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

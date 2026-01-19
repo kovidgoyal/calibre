@@ -1538,7 +1538,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.template_inited = False
         self.min_font_size = max(0.1, min(gprefs['bookshelf_min_font_multiplier'], 1)) * self.base_font_size_pts
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
-        _, fm, _ = self.get_sized_font(self.min_font_size)
+        _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
         self.min_line_height = math.ceil(fm.height())
         self.calculate_shelf_geometry()
         self.palette_changed()
@@ -2086,11 +2086,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         first_rect, second_rect = calculate_rects(bool(second_line))
 
         nfl, nsl, font, was_wrapped = self.get_text_metrics(
-            first_line, second_line, first_rect.transposed().size(), allow_wrap=True)
+            first_line, second_line, first_rect.transposed().size(), allow_wrap=True, bold=gprefs['bookshelf_bold_font'])
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
-            nfl, nsl, font, _ = self.get_text_metrics(first_line, second_line, first_rect.transposed().size())
+            nfl, nsl, font, _ = self.get_text_metrics(
+                first_line, second_line, first_rect.transposed().size(), bold=gprefs['bookshelf_bold_font'])
         elif was_wrapped:
             first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl
