@@ -47,6 +47,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
+from calibre.utils.img import image_from_data
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
@@ -881,11 +882,8 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if not data:
             return self.default_image
-        img = QImage()
-        img.loadFromData(data)
-        if img.isNull():
-            img = self.default_image
-        return img
+        img = image_from_data(data)
+        return self.default_image if img.isNull() else img
 
     def build_data_convertors(self):
         rating_fields = {}
@@ -1787,9 +1785,9 @@ class DeviceBooksModel(BooksModel):  # {{{
                 img.load(cdata.image_path)
             elif cdata:
                 if isinstance(cdata, (tuple, list)):
-                    img.loadFromData(cdata[-1])
+                    img = image_from_data(cdata[-1])
                 else:
-                    img.loadFromData(cdata)
+                    img = image_from_data(cdata)
         if img.isNull():
             img = self.default_image
         return img
