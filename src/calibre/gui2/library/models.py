@@ -47,10 +47,10 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
-from calibre.utils.img import image_from_data
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from calibre_extensions.imageops import load_from_data_without_gil
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -882,7 +882,8 @@ class BooksModel(QAbstractTableModel):  # {{{
 
         if not data:
             return self.default_image
-        img = image_from_data(data)
+        img = QImage()
+        load_from_data_without_gil(img, data)
         return self.default_image if img.isNull() else img
 
     def build_data_convertors(self):
@@ -1785,9 +1786,9 @@ class DeviceBooksModel(BooksModel):  # {{{
                 img.load(cdata.image_path)
             elif cdata:
                 if isinstance(cdata, (tuple, list)):
-                    img = image_from_data(cdata[-1])
+                    load_from_data_without_gil(img, cdata[-1])
                 else:
-                    img = image_from_data(cdata)
+                    load_from_data_without_gil(img, cdata)
         if img.isNull():
             img = self.default_image
         return img

@@ -32,8 +32,10 @@ class CMYKImage(BaseError):
     level = WARN
 
     def __call__(self, container):
+        from qt.core import QImage
+
         from calibre.gui2 import pixmap_to_data
-        from calibre.utils.img import image_from_data
+        from calibre_extensions.imageops import load_from_data_without_gil
         ext = container.mime_map[self.name].split('/')[-1].upper()
         if ext == 'JPG':
             ext = 'JPEG'
@@ -41,7 +43,8 @@ class CMYKImage(BaseError):
             return False
         with container.open(self.name, 'r+b') as f:
             raw = f.read()
-            i = image_from_data(raw)
+            i = QImage()
+            load_from_data_without_gil(i, raw)
             if i.isNull():
                 return False
             raw = pixmap_to_data(i, format=ext, quality=95)
