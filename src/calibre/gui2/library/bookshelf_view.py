@@ -1387,10 +1387,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.text_color_for_light_background = QColor()
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
-        self.min_font_size = 0.75 * self.base_font_size_pts
-        self.max_font_size = 1.3 * self.base_font_size_pts
-        _, fm, _ = self.get_sized_font(self.min_font_size)
-        self.min_line_height = math.ceil(fm.height())
+        self.min_line_height = self.base_font_size_pts * 1.2
 
         self.gui = gui
         self._model: BooksModel | None = None
@@ -1538,6 +1535,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
         self.template_inited = False
+        self.min_font_size = max(0.1, min(gprefs['bookshelf_min_font_multiplier'], 1)) * self.base_font_size_pts
+        self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
+        _, fm, _ = self.get_sized_font(self.min_font_size)
+        self.min_line_height = math.ceil(fm.height())
         self.calculate_shelf_geometry()
         self.palette_changed()
         if hasattr(self, 'cover_cache'):

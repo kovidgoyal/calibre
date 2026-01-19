@@ -21,6 +21,46 @@
     <property name="fieldGrowthPolicy">
      <enum>QFormLayout::ExpandingFieldsGrow</enum>
     </property>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Shelf &amp;height:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_height</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QSpinBox" name="opt_bookshelf_height">
+        <property name="toolTip">
+         <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
+        </property>
+        <property name="specialValueText">
+         <string>Automatic</string>
+        </property>
+        <property name="suffix">
+         <string> px</string>
+        </property>
+        <property name="minimum">
+         <number>119</number>
+        </property>
+        <property name="maximum">
+         <number>1200</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_variable_height">
+        <property name="text">
+         <string>Variable book &amp;height</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
     <item row="3" column="0">
      <widget class="QLabel" name="label_fade_time">
       <property name="text">
@@ -175,6 +215,16 @@
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_bookshelf_thumbnail">
+         <property name="text">
+          <string>Show &amp;cover:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_thumbnail</cstring>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_10">
          <item>
@@ -215,7 +265,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_title">
          <property name="text">
           <string>Template for &amp;first line:</string>
@@ -225,7 +275,7 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="1" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="opt_bookshelf_title_template">
@@ -252,7 +302,7 @@
          </item>
         </layout>
        </item>
-       <item row="3" column="0">
+       <item row="2" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>Template for &amp;second line:</string>
@@ -262,7 +312,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="2" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QLineEdit" name="opt_bookshelf_author_template">
@@ -289,7 +339,7 @@
          </item>
         </layout>
        </item>
-       <item row="4" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_pages">
          <property name="text">
           <string>Template for &amp;width:</string>
@@ -299,7 +349,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="3" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
@@ -327,7 +377,66 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="0" colspan="2">
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>&amp;Minimum:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_min_font_multiplier</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_bookshelf_min_font_multiplier">
+           <property name="toolTip">
+            <string>The minimum font size for text on the spine. It is a fraction of the base font size.</string>
+           </property>
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Ma&amp;ximum:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_max_font_multiplier</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_bookshelf_max_font_multiplier">
+           <property name="toolTip">
+            <string>The maximum font size for text on the spine. It is a multiple of the base font size.</string>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="6" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
@@ -364,58 +473,18 @@
          </item>
         </layout>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_bookshelf_thumbnail">
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Show &amp;cover:</string>
+          <string>&amp;Font size:</string>
          </property>
          <property name="buddy">
-          <cstring>opt_bookshelf_thumbnail</cstring>
+          <cstring>opt_bookshelf_min_font_multiplier</cstring>
          </property>
         </widget>
        </item>
       </layout>
      </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Shelf &amp;height:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_height</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <item>
-       <widget class="QSpinBox" name="opt_bookshelf_height">
-        <property name="toolTip">
-         <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
-        </property>
-        <property name="specialValueText">
-         <string>Automatic</string>
-        </property>
-        <property name="suffix">
-         <string> px</string>
-        </property>
-        <property name="minimum">
-         <number>119</number>
-        </property>
-        <property name="maximum">
-         <number>1200</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_variable_height">
-        <property name="text">
-         <string>Variable book &amp;height</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
