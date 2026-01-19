@@ -534,6 +534,13 @@ def kepubify_container(container: Container, opts: Options, max_workers: int = 0
     remove_kobo_files(container)
     metadata_lang = container.mi.language
     cover_image_name = find_cover_image(container) or find_cover_image3(container)
+    if not cover_image_name:
+        for meta in container.opf_xpath('//opf:meta[@property="omf:version"]'):
+            for name, is_linear in container.spine_names:
+                if container.mime_map.get(name, '').startswith('image/'):
+                    cover_image_name = name
+                break
+            break
     mi = container.mi
     if not cover_image_name:
         from calibre.ebooks.covers import generate_cover
