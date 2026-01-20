@@ -2184,6 +2184,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
                 # Create path for outlined text
                 path = QPainterPath()
+                path.setFillRule(Qt.FillRule.WindingFill)
                 path.addText(x, y, font, text)
                 # Draw text with outline
                 painter.strokePath(path, QPen(outline_color, self.outline_width,
