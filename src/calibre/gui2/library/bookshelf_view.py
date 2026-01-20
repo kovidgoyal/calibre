@@ -2279,6 +2279,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.select_rows(selected_rows)
         if (row := id_to_index(state.current_book_id)) > -1:
             self.set_current_row(row)
+        elif not self.currentIndex().isValid():
+            self.set_current_row(0)
         self.auto_scroll = orig_auto_scroll
         if not self.bookcase.layout_finished and self.auto_scroll:
             self.scroll_to_current_after_layout = True
