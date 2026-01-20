@@ -1582,7 +1582,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
         _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
         self.outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
-        self.min_line_height = math.ceil(fm.height() + self.outline_width)
+        self.min_line_height = math.ceil(fm.height() + self.outline_width * 3)
         self.calculate_shelf_geometry()
         self.palette_changed()
         if hasattr(self, 'cover_cache'):
