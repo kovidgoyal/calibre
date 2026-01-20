@@ -2277,7 +2277,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if m['is_category'] or m['datatype'] == 'datetime':
                 cf[field] = numeric_sort_key(m['name'])
         for k in all_groupings():
-            cf[k] = numeric_sort_key(fm[k])
+            cf[k] = numeric_sort_key(fm[k]['name'])
         for k in sorted(cf, key=cf.get):
             add(k, fm[k]['name'])
 
