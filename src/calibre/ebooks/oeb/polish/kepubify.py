@@ -528,12 +528,21 @@ def uniqify_name(container: Container, fname: str) -> str:
     return q
 
 
+def find_cover_image_omf(container):
+    ' "Open" Media format files '
+    images = ('image/jpeg', 'image/webp', 'image/png')
+    for name, is_linear in container.spine_names:
+        if container.mime_map.get(name, '') in images:
+            return name
+        break
+
+
 def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
     remove_dummy_cover_image(container)
     remove_kobo_files(container)
     metadata_lang = container.mi.language
-    cover_image_name = find_cover_image(container) or find_cover_image3(container)
+    cover_image_name = find_cover_image(container) or find_cover_image3(container) or find_cover_image_omf(container)
     mi = container.mi
     if not cover_image_name:
         from calibre.ebooks.covers import generate_cover
