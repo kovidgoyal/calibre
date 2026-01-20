@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from contextlib import suppress
-from functools import partial
+from functools import lru_cache, partial
 
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
@@ -18,17 +18,6 @@ from calibre.gui2.preferences import AbortCommit, LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.bookshelf_view_ui import Ui_bookshelf_tab as Ui_Form
 from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
-
-color_label_map = {
-    'text_color_for_dark_background': _('Text on &dark spine background'),
-    'text_color_for_light_background': _('Text on &light spine background'),
-    'divider_background_color': _('Divider &background'),
-    'divider_line_color': _('The &line on the divider'),
-    'divider_text_color': _('Text on &divider'),
-    'current_color': _('The &current book highlight'),
-    'selected_color': _('The &selected books highlight'),
-    'current_selected_color': _('&The current selected book highlight'),
-}
 
 
 class LogViewer(QDialog):
@@ -182,7 +171,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
         }
         for theme, layout in layout_map.items():
             self.color_buttons[theme] = theme_map = {}
-            for r, (k, v) in enumerate(color_label_map.items()):
+            for r, (k, v) in enumerate(self.color_label_map().items()):
                 theme_map[k] = b = ColorButton(parent=self)
                 l = QLabel(v, self)
                 l.setBuddy(b)
@@ -268,6 +257,19 @@ def evaluate(book, context):
 '''
             self.opt_bookshelf_spine_size_template.setText(template)
 
+    @lru_cache(maxsize=2)
+    def color_label_map(self) -> dict[str, str]:
+        return {
+            'text_color_for_dark_background': _('Text on &dark spine background'),
+            'text_color_for_light_background': _('Text on &light spine background'),
+            'divider_background_color': _('Divider &background'),
+            'divider_line_color': _('The &line on the divider'),
+            'divider_text_color': _('Text on &divider'),
+            'current_color': _('The &current book highlight'),
+            'selected_color': _('The &selected books highlight'),
+            'current_selected_color': _('&The current selected book highlight'),
+        }
+
     def populate_custom_color_theme(self):
         from calibre.gui2.library.bookshelf_view import ColorTheme
         default = {
@@ -276,7 +278,7 @@ def evaluate(book, context):
         }
         configs = gprefs['bookshelf_custom_colors']
         for theme in default:
-            for k in color_label_map:
+            for k in self.color_label_map():
                 b = self.color_buttons[theme][k]
                 b.blockSignals(True)
                 b.special_default_color = default[theme][k].name()
