@@ -20,14 +20,14 @@ from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
 
 color_label_map = {
-    'text_color_for_dark_background': _('Color for text on &light spine background'),
-    'text_color_for_light_background': _('Color for text on &dark spine background'),
-    'divider_background_color': _('Color for divider &background'),
-    'divider_line_color': _('Color for the &line on the divider'),
-    'divider_text_color': _('Color for text on &divider'),
-    'current_selected_color': _('Color for &the current seleted book highlight'),
-    'current_color': _('Color for the &current book highlight'),
-    'selected_color': _('Color for the &seleted books highlight'),
+    'text_color_for_dark_background': _('Text on &dark spine background'),
+    'text_color_for_light_background': _('Text on &light spine background'),
+    'divider_background_color': _('Divider &background'),
+    'divider_line_color': _('The &line on the divider'),
+    'divider_text_color': _('Text on &divider'),
+    'current_color': _('The &current book highlight'),
+    'selected_color': _('The &selected books highlight'),
+    'current_selected_color': _('&The current selected book highlight'),
 }
 
 
@@ -156,9 +156,8 @@ book size is used as a proxy.
 <p>The special template {0} uses the book size to estimate a spine size.
 The special template {1} uses a random size.
 You can also use a number between 0.0 and 1.0 to pick a fixed size.
-<p>
-Note that this setting is per-library, which means that you have to set it again for every
-different calibre library you use.</p>''').format('{size}', '{random}', '{pages}'))
+<p>Note that this setting is per-library, which means that you have to set it again for every
+different calibre library you use.''').format('{size}', '{random}', '{pages}'))
 
         self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template, _('Edit template for title')))
         self.template_author_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_author_template, _('Edit template for author')))

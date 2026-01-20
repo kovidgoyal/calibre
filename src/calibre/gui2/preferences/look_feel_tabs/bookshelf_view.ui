@@ -555,13 +555,13 @@
          </property>
          <widget class="QWidget" name="widget_1">
           <attribute name="title">
-           <string>&amp;Light mode colors</string>
+           <string>&amp;Light mode</string>
           </attribute>
           <layout class="QFormLayout" name="custom_colors_light_layout"/>
          </widget>
          <widget class="QWidget" name="widget_2">
           <attribute name="title">
-           <string>&amp;Dark mode colors</string>
+           <string>&amp;Dark mode</string>
           </attribute>
           <layout class="QFormLayout" name="custom_colors_dark_layout"/>
          </widget>

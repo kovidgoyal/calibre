@@ -1594,8 +1594,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.theme = ColorTheme.dark_theme() if is_dark_theme() else ColorTheme.light_theme()
         if gprefs['bookshelf_use_custom_colors']:
             values = {}
-            for k,v in gprefs['bookshelf_custom_colors']['dark' if is_dark_theme() else 'light'].items():
-                if v and (c := QColor(v)).isValid():
+            valid = frozenset(self.theme._fields)
+            for k, v in gprefs['bookshelf_custom_colors']['dark' if is_dark_theme() else 'light'].items():
+                if k in valid and v and (c := QColor(v)).isValid():
                     values[k] = c
             self.theme = self.theme._replace(**values)
 
