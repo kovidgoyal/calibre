@@ -72,7 +72,7 @@ class TXTOutput(OutputFormatPlugin):
         OptionRecommendation(name='use_alt_text_for_images',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Replace images with the text from the alt attribute, if any.'
-                   ' Ignored is the option to keep image references is specified.')),
+                   ' Ignored if the option to keep image references is specified.')),
 
         OptionRecommendation(name='keep_color',
             recommended_value=False, level=OptionRecommendation.LOW,

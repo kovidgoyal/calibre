@@ -263,11 +263,11 @@ def evaluate(book, context):
             'text_color_for_dark_background': _('Text on &dark spine background'),
             'text_color_for_light_background': _('Text on &light spine background'),
             'divider_background_color': _('Divider &background'),
-            'divider_line_color': _('The &line on the divider'),
-            'divider_text_color': _('Text on &divider'),
+            'divider_line_color': _('&Line on the divider'),
+            'divider_text_color': _('Text on the &divider'),
             'current_color': _('The &current book highlight'),
             'selected_color': _('The &selected books highlight'),
-            'current_selected_color': _('&The current selected book highlight'),
+            'current_selected_color': _('&The current and selected book highlight'),
         }
 
     def populate_custom_color_theme(self):
