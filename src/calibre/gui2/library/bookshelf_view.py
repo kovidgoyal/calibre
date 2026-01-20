@@ -152,10 +152,6 @@ class WoodTheme(NamedTuple):
     inner_shadow_color: QColor
     cavity_color: QColor
 
-    # Divider colors
-    divider_color: QColor
-    divider_line_color: QColor
-
     @classmethod
     def light_theme(cls) -> WoodTheme:
         # Light oak/pine colors for light mode
@@ -188,9 +184,6 @@ class WoodTheme(NamedTuple):
             side_panel_dark=QColor(145, 105, 70),
             inner_shadow_color=QColor(60, 40, 25, 20),
             cavity_color=QColor(90, 60, 40),
-
-            divider_color=QColor(250, 250, 250),
-            divider_line_color=QColor(74, 74, 106),
         )
 
     @classmethod
@@ -225,17 +218,60 @@ class WoodTheme(NamedTuple):
             side_panel_dark=QColor(38, 25, 18),
             inner_shadow_color=QColor(0, 0, 0, 30),
             cavity_color=QColor(20, 14, 10),
+        )
 
-            divider_color=QColor(100, 100, 100),
+
+class ColorTheme(NamedTuple):
+    text_color_for_dark_background: QColor
+    text_color_for_light_background: QColor
+
+    # Divider colors
+    divider_text_color: QColor
+    divider_line_color: QColor
+    divider_background_color: QColor
+
+    # Selection highlight colors
+    current_selected_color: QColor
+    current_color: QColor
+    selected_color: QColor
+
+    @classmethod
+    def _from_palette(cls, palette: QPalette) -> dict[str, QColor]:
+        return ColorTheme(
+            text_color_for_dark_background=dark_palette().color(QPalette.ColorRole.WindowText),
+            text_color_for_light_background=light_palette().color(QPalette.ColorRole.WindowText),
+            divider_text_color=palette.color(QPalette.ColorRole.WindowText),
+            current_selected_color=palette.color(QPalette.ColorRole.LinkVisited),
+            current_color=palette.color(QPalette.ColorRole.Mid),
+            selected_color=palette.color(QPalette.ColorRole.Highlight),
+            divider_background_color=QColor(),
+            divider_line_color=QColor(),
+        )
+
+    @classmethod
+    def light_theme(cls) -> ColorTheme:
+        rslt = ColorTheme._from_palette(light_palette())
+        return rslt._replace(
+            divider_background_color=QColor(250, 250, 250),
+            divider_line_color=QColor(74, 74, 106),
+        )
+
+    @classmethod
+    def dark_theme(cls) -> ColorTheme:
+        rslt = ColorTheme._from_palette(dark_palette())
+        return rslt._replace(
+            divider_background_color=QColor(100, 100, 100),
             divider_line_color=QColor(180, 180, 182),
         )
 
 
-def is_dark_theme():
+def is_dark_theme(value=None):
     from calibre.gui2 import is_dark_theme
-    if gprefs['bookshelf_theme_override'] == 'none':
+    if value is None:
+        value = gprefs['bookshelf_theme_override']
+    if value == 'none':
         return is_dark_theme()
-    return gprefs['bookshelf_theme_override'] == 'dark'
+    return value == 'dark'
 
 
 def color_with_alpha(c: QColor, a: int) -> QColor:
@@ -253,7 +289,7 @@ class RenderCase:
     def __init__(self):
         self.last_rendered_shelf_at = QRect(0, 0, 0, 0), False
         self.last_rendered_background_at = QRect(0, 0, 0, 0), False, False, {}
-        self.last_rendered_divider_at = QRect(0, 0, 0, 0), False, 0
+        self.last_rendered_divider_at = QRect(0, 0, 0, 0), False, 0, QColor()
         self.last_rendered_background = QPixmap()
         self.last_rendered_divider = QPixmap()
         self.shelf_cache: dict[int, QPixmap] = {}
@@ -491,14 +527,13 @@ class RenderCase:
         end_gradient.setColorAt(1.0, self.theme.end_grain_dark)
         painter.fillRect(right_end, end_gradient)
 
-    def divider_as_pixmap(self, width: int, height: int, corner_radius: int = 0, offset: int = 0) -> QPixmap:
+    def divider_as_pixmap(self, width: int, height: int, divider_color: QColor, corner_radius: int = 0, offset: int = 0) -> QPixmap:
         rect = QRect(0, 0, width, height + offset)
         is_dark = is_dark_theme()
-        q = rect, is_dark, corner_radius
+        q = rect, is_dark, corner_radius, divider_color
         if self.last_rendered_divider_at == q:
             return self.last_rendered_divider
         self.last_rendered_divider_at = q
-        self.ensure_theme(is_dark)
         ans = QImage(width, height + offset, QImage.Format_ARGB32_Premultiplied)
         ans.fill(Qt.GlobalColor.transparent)
         with QPainter(ans) as painter:
@@ -507,7 +542,7 @@ class RenderCase:
             path.addRoundedRect(
                 QRectF(0, 0, width, height + offset + corner_radius), corner_radius, corner_radius,
             )
-            painter.fillPath(path, self.theme.divider_color)
+            painter.fillPath(path, divider_color)
         self.last_rendered_divider = p = QPixmap.fromImage(ans)
         return p
 
@@ -1390,6 +1425,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.text_color_for_light_background = QColor()
         self.auto_scroll = True
         self.scroll_to_current_after_layout: bool = False
+        self.theme: ColorTheme = None
+        self.palette_changed()
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.min_line_height = self.base_font_size_pts * 1.2
@@ -1409,7 +1446,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         QApplication.instance().palette_changed.connect(self.palette_changed)
-        self.palette_changed()
 
         # Ensure viewport receives mouse events
         self.viewport().setMouseTracking(True)
@@ -1554,9 +1590,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.invalidate(clear_spine_width_cache=True)
 
     def palette_changed(self):
-        self.text_color_for_dark_background = dark_palette().color(QPalette.ColorRole.WindowText)
-        self.text_color_for_light_background = light_palette().color(QPalette.ColorRole.WindowText)
         self.setPalette(dark_palette() if is_dark_theme() else light_palette())
+        self.theme = ColorTheme.dark_theme() if is_dark_theme() else ColorTheme.light_theme()
+        if gprefs['bookshelf_use_custom_colors']:
+            values = {}
+            for k,v in gprefs['bookshelf_custom_colors']['dark' if is_dark_theme() else 'light'].items():
+                if v and (c := QColor(v)).isValid():
+                    values[k] = c
+            self.theme = self.theme._replace(**values)
 
     def view_is_visible(self) -> bool:
         '''Return if the bookshelf view is visible.'''
@@ -1946,12 +1987,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         text_right = gprefs['bookshelf_divider_text_right']
 
         def draw_rounded_divider(corner_radius: int, offset: int):
-            p = self.case_renderer.divider_as_pixmap(rect.width(), rect.height(), corner_radius, offset)
+            p = self.case_renderer.divider_as_pixmap(rect.width(), rect.height(), self.theme.divider_background_color, corner_radius, offset)
             painter.drawPixmap(rect.adjusted(0, -offset, 0, 0), p)
 
         match gprefs['bookshelf_divider_style']:
             case 'block':
-                painter.fillRect(rect, self.case_renderer.theme.divider_color)
+                painter.fillRect(rect, self.theme.divider_background_color)
             case 'gravestone':
                 radius = rect.width() // 2
                 offset = radius // 4
@@ -1971,7 +2012,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         elided_text, _, font, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
-        painter.setPen(self.palette().color(QPalette.ColorRole.WindowText))
+        painter.setPen(self.theme.divider_text_color)
         painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
         painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
         alignment = Qt.AlignmentFlag.AlignRight if text_right else Qt.AlignmentFlag.AlignLeft
@@ -1985,7 +2026,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if line_rect.width() > 8:
             if text_right:
                 line_rect.translate(-sized_rect.width(), 0)
-            color1 = self.case_renderer.theme.divider_line_color.toRgb()
+            color1 = self.theme.divider_line_color.toRgb()
             color2 = color1.toRgb()
             color1.setAlphaF(0.0)  # Transparent at top/bottom
             color2.setAlphaF(0.75)  # Visible in middle
@@ -2044,11 +2085,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
         if is_current and is_selected:
-            return self.palette().color(QPalette.ColorRole.LinkVisited)
+            return self.theme.current_selected_color
         if is_current:
-            return self.palette().color(QPalette.ColorRole.Mid)
+            return self.theme.current_color
         if is_selected:
-            return self.palette().color(QPalette.ColorRole.Highlight)
+            return self.theme.selected_color
         return QColor()
 
     def draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
@@ -2175,10 +2216,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def get_contrasting_text_color(self, background_color: QColor) -> QColor:
         if not background_color or not background_color.isValid():
-            return self.text_color_for_light_background
-        if contrast_ratio(background_color, self.text_color_for_dark_background) > contrast_ratio(background_color, self.text_color_for_light_background):
-            return self.text_color_for_dark_background
-        return self.text_color_for_light_background
+            return self.theme.text_color_for_light_background
+        if (contrast_ratio(background_color, self.theme.text_color_for_dark_background)
+            > contrast_ratio(background_color, self.theme.text_color_for_light_background)):
+            return self.theme.text_color_for_dark_background
+        return self.theme.text_color_for_light_background
 
     # Selection methods (required for AlternateViews integration)
 
