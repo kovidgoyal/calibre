@@ -1925,15 +1925,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     @lru_cache(maxsize=4096)
     def get_text_metrics(
         self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False, allow_wrap: bool = False,
-        outline_width: float = 0,
-    ) -> tuple[str, str, QFont, QFontMetricsF, bool]:
+    ) -> tuple[str, str, QFont, bool]:
         width, height = sz.width(), sz.height()
-        extra_height = math.ceil(2 * outline_width)
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
-            while 2 * (fm2.height() + extra_height) > height:
+            while 2 * fm2.height() > height:
                 font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5, bold)
             if fm2.boundingRect(first_line).width() >= width:  # two line font size is larger than one line font size
                 font, fm, fi = font2, fm2, fi2
@@ -1951,23 +1949,23 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     second_line = utf16_slice(first_line, sl.textStart())
                     if has_third_line:
                         second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
-                    return utf16_slice(first_line, 0, fl.textLength()), second_line, font, fm, True
+                    return utf16_slice(first_line, 0, fl.textLength()), second_line, font, True
 
         # First adjust font size so that lines fit vertically
         # Use height() rather than lineSpacing() as it allows for slightly
         # larger font sizes
-        if fm.height() + extra_height < height:
+        if fm.height() < height:
             while font.pointSizeF() < self.max_font_size:
                 q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, bold)
-                if qm.height() + extra_height < height:
+                if qm.height() < height:
                     font, fm = q, qm
                 else:
                     break
         else:
-            while fm.height() + extra_height > height:
+            while fm.height() > height:
                 nsz = font.pointSizeF()
                 if nsz < self.min_font_size and second_line:
-                    return '', '', font, fm, False
+                    return '', '', font, False
                 font, fm, fi = self.get_sized_font(nsz - 0.5, bold)
 
         # Now reduce the font size as much as needed to fit within width
@@ -1980,7 +1978,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
             if second_line:
                 second_line = fm.elidedText(second_line, Qt.TextElideMode.ElideRight, width)
-        return first_line, second_line, font, fm, False
+        return first_line, second_line, font, False
 
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
         '''Draw an inline group divider with it group name write vertically and a gradient line.'''
@@ -2012,7 +2010,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             -self.TEXT_MARGIN if text_right else 0,
             0,
         )
-        elided_text, _, font, _, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
+        elided_text, _, font, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
         painter.save()
         painter.setFont(font)
         painter.setPen(self.theme.divider_text_color)
@@ -2140,24 +2138,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return first_rect, second_rect
 
         first_rect, second_rect = calculate_rects(bool(second_line))
-        outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
 
-        nfl, nsl, font, fm, was_wrapped = self.get_text_metrics(
-            first_line, second_line, first_rect.transposed().size(), allow_wrap=True,
-            bold=gprefs['bookshelf_bold_font'], outline_width=outline_width)
+        nfl, nsl, font, was_wrapped = self.get_text_metrics(
+            first_line, second_line, first_rect.transposed().size(), allow_wrap=True, bold=gprefs['bookshelf_bold_font'])
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
-            nfl, nsl, font, fm, _ = self.get_text_metrics(
-                first_line, second_line, first_rect.transposed().size(), bold=gprefs['bookshelf_bold_font'],
-                outline_width=outline_width)
+            nfl, nsl, font, _ = self.get_text_metrics(
+                first_line, second_line, first_rect.transposed().size(), bold=gprefs['bookshelf_bold_font'])
         elif was_wrapped:
             first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl
 
         painter.save()
         # Determine text color based on spine background brightness
-        text_color, outline_color = self.get_contrasting_text_color(spine_color)
+        text_color = self.get_contrasting_text_color(spine_color)
         painter.setPen(text_color)
         painter.setFont(font)
         rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
@@ -2167,29 +2162,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
             painter.rotate(rotation)
             text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
-            if outline_width > 0:
-                # Calculate text dimensions
-                text_width = fm.horizontalAdvance(text)
-                ascent, descent = fm.ascent(), fm.descent()
-                # Calculate horizontal position for centering
-                x = text_rect.left() + (text_rect.width() - text_width) / 2
-                # Calculate vertical position based on alignment
-                if alignment & Qt.AlignmentFlag.AlignTop:
-                    y = text_rect.top() + ascent
-                elif alignment & Qt.AlignmentFlag.AlignBottom:
-                    y = text_rect.bottom() - descent
-                else:  # Default to center
-                    y = text_rect.top() + text_rect.height() / 2 + (ascent - descent) / 2
-
-                # Create path for outlined text
-                path = QPainterPath()
-                path.addText(x, y, font, text)
-                # Draw text with outline
-                painter.strokePath(path, QPen(outline_color, outline_width,
-                           Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
-                painter.fillPath(path, text_color)
-            else:
-                painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
+            painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
             painter.restore()
         if second_line:
             draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignBottom)
@@ -2242,13 +2215,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
         return cover_pixmap, final_sz
 
-    def get_contrasting_text_color(self, background_color: QColor) -> tuple[QColor, QColor]:
+    def get_contrasting_text_color(self, background_color: QColor) -> QColor:
         if not background_color or not background_color.isValid():
-            return self.theme.text_color_for_light_background, self.theme.text_color_for_dark_background
+            return self.theme.text_color_for_light_background
         if (contrast_ratio(background_color, self.theme.text_color_for_dark_background)
             > contrast_ratio(background_color, self.theme.text_color_for_light_background)):
-            return self.theme.text_color_for_dark_background, self.theme.text_color_for_light_background
-        return self.theme.text_color_for_light_background, self.theme.text_color_for_dark_background
+            return self.theme.text_color_for_dark_background
+        return self.theme.text_color_for_light_background
 
     # Selection methods (required for AlternateViews integration)
 
