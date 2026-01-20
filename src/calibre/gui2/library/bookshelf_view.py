@@ -2268,16 +2268,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m = self.model()
         if not state or not m:
             return
-        id_to_index = m.db.data.id_to_index
-        selected_rows = set()
-        for book_id in state.selected_book_ids:
-            with suppress(Exception):
-                selected_rows.add(id_to_index(book_id))
+        id_to_index = m.db.data.safe_id_to_index
+        selected_rows = set(map(id_to_index, state.selected_book_ids))
+        selected_rows.discard(-1)
         orig_auto_scroll, self.auto_scroll = self.auto_scroll, self.bookcase.layout_finished
         if selected_rows:
             self.select_rows(selected_rows)
-        with suppress(Exception):
-            self.set_current_row(id_to_index(state.current_book_id))
+        if (row := id_to_index(state.current_book_id)) > -1:
+            self.set_current_row(row)
         self.auto_scroll = orig_auto_scroll
         if not self.bookcase.layout_finished and self.auto_scroll:
             self.scroll_to_current_after_layout = True
