@@ -1931,7 +1931,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     ) -> tuple[str, str, QFont, QFontMetricsF, bool]:
         width, height = sz.width(), sz.height()
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
-        extra_height = outline_width  # half stroke width above and half stroke width below
+        extra_height = outline_width * 2  # stroke width above and below
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
@@ -2187,7 +2187,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 path.setFillRule(Qt.FillRule.WindingFill)
                 path.addText(x, y, font, text)
                 # Draw text with outline
-                painter.strokePath(path, QPen(outline_color, self.outline_width,
+                # Path stroke are draw with the given width,
+                # but we want the width as outline in addition around to the text, so double it.
+                painter.strokePath(path, QPen(outline_color, self.outline_width * 2,
                            Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
                 painter.fillPath(path, text_color)
             else:
