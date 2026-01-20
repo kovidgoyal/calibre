@@ -280,6 +280,11 @@ def color_with_alpha(c: QColor, a: int) -> QColor:
     return ans
 
 
+@lru_cache(maxsize=2)
+def inverse_color(rgba: tuple[int, int, int, int]) -> QColor:
+    return QColor(*(255 - x for x in rgba[:3]))
+
+
 class RenderCase:
 
     dark_theme: WoodTheme
@@ -1580,7 +1585,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.min_font_size = max(0.1, min(gprefs['bookshelf_min_font_multiplier'], 1)) * self.base_font_size_pts
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
         _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
-        self.min_line_height = math.ceil(fm.height())
+        self.min_line_height = math.ceil(fm.height() + gprefs['bookshelf_outline_width'] * 2)
         self.calculate_shelf_geometry()
         self.palette_changed()
         if hasattr(self, 'cover_cache'):
@@ -2153,7 +2158,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.save()
         # Determine text color based on spine background brightness
         text_color = self.get_contrasting_text_color(spine_color)
-        painter.setPen(text_color)
+        outline_width = gprefs['bookshelf_outline_width']
+        painter.setPen(Qt.GlobalColor.transparent if bool(outline_width) else text_color)
         painter.setFont(font)
         rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
 
@@ -2162,7 +2168,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
             painter.rotate(rotation)
             text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
-            painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
+            size_rect = painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
+            if outline_width > 0:
+                outline = QPainterPath()
+                outline.setFillRule(Qt.FillRule.WindingFill)
+                outline.addText(
+                    QPointF(size_rect.left(), (size_rect.bottom() / 2) + outline_width / 2), font, text,
+                )
+                painter.strokePath(outline, QPen(inverse_color(text_color.getRgb()), outline_width * 2))
+                painter.fillPath(outline, text_color)
             painter.restore()
         if second_line:
             draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignBottom)
