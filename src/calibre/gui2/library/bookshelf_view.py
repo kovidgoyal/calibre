@@ -1387,6 +1387,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.text_color_for_dark_background = QColor()
         self.text_color_for_light_background = QColor()
         self.auto_scroll = True
+        self.scroll_to_current_after_layout: bool = False
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.min_line_height = self.base_font_size_pts * 1.2
@@ -1652,7 +1653,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
         return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
-    def invalidate(self, set_of_books_changed: bool = False, clear_spine_width_cache: bool = False) -> None:
+    def invalidate(
+        self, set_of_books_changed: bool = False, clear_spine_width_cache: bool = False,
+    ) -> None:
         if clear_spine_width_cache:
             self.bookcase.clear_spine_width_cache()
         self.bookcase.invalidate(
@@ -1682,6 +1685,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if self.bookcase.layout_finished:
                 self.update_scrollbar_ranges()
                 self.check_for_pages_update()
+                if self.scroll_to_current_after_layout:
+                    self.scroll_to_current_after_layout = False
+                    if (idx := self.currentIndex()).isValid():
+                        self.scrollTo(idx)
             y = books.start_y
             height = books.height + shelf.height
             r = self.viewport().rect()
@@ -2261,11 +2268,19 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m = self.model()
         if not state or not m:
             return
-        with suppress(Exception):
-            selected_rows = set(map(m.db.id_to_index, state.selected_book_ids))
+        id_to_index = m.db.data.id_to_index
+        selected_rows = set()
+        for book_id in state.selected_book_ids:
+            with suppress(Exception):
+                selected_rows.add(id_to_index(book_id))
+        orig_auto_scroll, self.auto_scroll = self.auto_scroll, self.bookcase.layout_finished
+        if selected_rows:
             self.select_rows(selected_rows)
         with suppress(Exception):
-            self.set_current_row(m.db.id_to_index(state.current_book_id))
+            self.set_current_row(id_to_index(state.current_book_id))
+        self.auto_scroll = orig_auto_scroll
+        if not self.bookcase.layout_finished and self.auto_scroll:
+            self.scroll_to_current_after_layout = True
 
     def marked_changed(self, old_marked: set[int], current_marked: set[int]):
         # Refresh display if marked books changed
