@@ -197,6 +197,9 @@ class MarkdownMLizer(OEB2HTML):
                     self.remove_space_after_newline = remove_space
                 txt += '(' + attribs['src'] + ')'
                 text.append(txt)
+            elif self.opts.use_alt_text_for_images:
+                if alt := attribs.get('alt'):
+                    text.append(f'![{self.remove_newlines(alt)}]()')
         elif tag in ('ol', 'ul'):
             tags.append(tag)
             # Add the list to our lists of lists so we can track

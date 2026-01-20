@@ -69,6 +69,11 @@ class TXTOutput(OutputFormatPlugin):
             help=_('Do not remove image references within the document. This is only '
             'useful when paired with a TXT output formatting option that '
             'is not none because links are always removed with plain text output.')),
+        OptionRecommendation(name='use_alt_text_for_images',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Replace images with the text from the alt attribute, if any.'
+                   ' Ignored is the option to keep image references is specified.')),
+
         OptionRecommendation(name='keep_color',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove font color from output. This is only useful when '

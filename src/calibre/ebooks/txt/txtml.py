@@ -236,6 +236,8 @@ class TXTMLizer:
         except Exception:
             pass
 
+        if self.opts.use_alt_text_for_images and tag == 'img' and (alt := elem.get('alt')):
+            text.append(_('[Image: {}]').format(alt))
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             text.append(elem.text)
