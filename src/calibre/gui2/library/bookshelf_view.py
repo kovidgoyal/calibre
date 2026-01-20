@@ -1386,6 +1386,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         super().__init__(gui)
         self.text_color_for_dark_background = QColor()
         self.text_color_for_light_background = QColor()
+        self.auto_scroll = True
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
         self.min_line_height = self.base_font_size_pts * 1.2
@@ -1429,7 +1430,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Selection tracking
         self._selection_model: QItemSelectionModel = QItemSelectionModel(None, self)
-        self.selectionModel().selectionChanged.connect(self.update_viewport)
+        self._selection_model.selectionChanged.connect(self.update_viewport)
+        self._selection_model.currentChanged.connect(self.on_current_changed)
         self.click_start_data: ClickStartData | None = None
 
         # Cover loading and caching
@@ -2365,6 +2367,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.verticalScrollBar().setValue(si.case_start_y - y)
         self.update_viewport()
 
+    def on_current_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
+        if self.auto_scroll and self.view_is_visible() and current.isValid():
+            self.scrollTo(current)
+
     def selection_between(self, a: QModelIndex, b: QModelIndex) -> QItemSelection:
         if m := self.model():
             return selection_for_rows(m, self.bookcase.visual_selection_between(a.row(), b.row()))
@@ -2390,6 +2396,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def handle_mouse_press_event(self, ev: QMouseEvent) -> None:
         if ev.button() not in (Qt.MouseButton.LeftButton, Qt.MouseButton.RightButton) or not (index := self.indexAt(ev.pos())).isValid():
             return
+        orig_auto_scroll, self.auto_scroll = self.auto_scroll, False  # prevent scrolling while user is interacting
         sm = self.selectionModel()
         flags = QItemSelectionModel.SelectionFlag.Rows
         modifiers = ev.modifiers()
@@ -2403,6 +2410,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 sm.setCurrentIndex(index, flags | QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.click_start_data = handle_selection_click(self, index, self.bookcase.visual_row_cmp, self.selection_between)
         ev.accept()
+        self.auto_scroll = orig_auto_scroll
 
     def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
         self.click_start_data = None
