@@ -701,7 +701,7 @@ class SearchRestrictionMixin:
         self.search.clear(emit_search=True)
         self.tags_view.recount()
         self.set_number_of_books_shown()
-        self.current_view().setFocus(Qt.FocusReason.OtherFocusReason)
+        self.focus_current_view()
         self.set_window_title()
         v = self.current_view()
         if not v.currentIndex().isValid():

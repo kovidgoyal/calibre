@@ -442,7 +442,7 @@ class SearchBoxMixin:  # {{{
         self.focus_to_library()
 
     def focus_to_library(self):
-        self.current_view().setFocus(Qt.FocusReason.OtherFocusReason)
+        self.focus_current_view()
 
     # }}}
 
