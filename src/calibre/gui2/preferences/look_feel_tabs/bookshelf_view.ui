@@ -377,7 +377,7 @@
          </item>
         </layout>
        </item>
-       <item row="4" column="1">
+       <item row="5" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout_9">
          <item>
           <widget class="QLabel" name="label_7">
@@ -436,7 +436,7 @@
          </item>
         </layout>
        </item>
-       <item row="6" column="0" colspan="2">
+       <item row="7" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
@@ -483,13 +483,42 @@
          </item>
         </layout>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>&amp;Font size:</string>
          </property>
          <property name="buddy">
           <cstring>opt_bookshelf_min_font_multiplier</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Text &amp;outline:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QDoubleSpinBox" name="opt_bookshelf_outline_width">
+         <property name="toolTip">
+          <string>&lt;p&gt;Set the thickness, in pixels, of the outline (border) around text on the spine. A value of zero means no outline. An outline helps the text standout against the spine, especially when the spine has a colorful cover.</string>
+         </property>
+         <property name="specialValueText">
+          <string>none</string>
+         </property>
+         <property name="suffix">
+          <string> px</string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <double>5.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
