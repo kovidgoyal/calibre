@@ -2176,7 +2176,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 # Calculate vertical position based on alignment
                 if alignment & Qt.AlignmentFlag.AlignTop:
                     y = text_rect.top() + ascent
-                elif alignment & Qt. AlignmentFlag.AlignBottom:
+                elif alignment & Qt.AlignmentFlag.AlignBottom:
                     y = text_rect.bottom() - descent
                 else:  # Default to center
                     y = text_rect.top() + text_rect.height() / 2 + (ascent - descent) / 2
@@ -2184,12 +2184,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 # Create path for outlined text
                 path = QPainterPath()
                 path.addText(x, y, font, text)
-
-                # Draw outline
-                pen = QPen(outline_color, outline_width,
-                           Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin)
-                painter.strokePath(path, pen)
-                # Draw fill
+                # Draw text with outline
+                painter.strokePath(path, QPen(outline_color, outline_width,
+                           Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
                 painter.fillPath(path, text_color)
             else:
                 painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
