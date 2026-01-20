@@ -1429,6 +1429,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.palette_changed()
 
         self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
+        self.outline_width = 0
         self.min_line_height = self.base_font_size_pts * 1.2
 
         self.gui = gui
@@ -1580,7 +1581,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.min_font_size = max(0.1, min(gprefs['bookshelf_min_font_multiplier'], 1)) * self.base_font_size_pts
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
         _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
-        self.min_line_height = math.ceil(fm.height())
+        self.outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
+        self.min_line_height = math.ceil(fm.height() + self.outline_width)
         self.calculate_shelf_geometry()
         self.palette_changed()
         if hasattr(self, 'cover_cache'):
@@ -1928,12 +1930,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         outline_width: float = 0,
     ) -> tuple[str, str, QFont, QFontMetricsF, bool]:
         width, height = sz.width(), sz.height()
-        extra_height = math.ceil(2 * outline_width)
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
+        extra_height = outline_width  # half stroke width above and half stroke width below
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
-            while 2 * (fm2.height() + extra_height) > height:
+            while math.ceil(2 * (fm2.height() + extra_height)) > height:
                 font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5, bold)
             if fm2.boundingRect(first_line).width() >= width:  # two line font size is larger than one line font size
                 font, fm, fi = font2, fm2, fi2
@@ -1956,15 +1958,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # First adjust font size so that lines fit vertically
         # Use height() rather than lineSpacing() as it allows for slightly
         # larger font sizes
-        if fm.height() + extra_height < height:
+        if math.ceil(fm.height() + extra_height) < height:
             while font.pointSizeF() < self.max_font_size:
                 q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, bold)
-                if qm.height() + extra_height < height:
+                if math.ceil(qm.height() + extra_height) < height:
                     font, fm = q, qm
                 else:
                     break
         else:
-            while fm.height() + extra_height > height:
+            while math.ceil(fm.height() + extra_height) > height:
                 nsz = font.pointSizeF()
                 if nsz < self.min_font_size and second_line:
                     return '', '', font, fm, False
@@ -2140,17 +2142,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             return first_rect, second_rect
 
         first_rect, second_rect = calculate_rects(bool(second_line))
-        outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
 
         nfl, nsl, font, fm, was_wrapped = self.get_text_metrics(
             first_line, second_line, first_rect.transposed().size(), allow_wrap=True,
-            bold=gprefs['bookshelf_bold_font'], outline_width=outline_width)
+            bold=gprefs['bookshelf_bold_font'], outline_width=self.outline_width)
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
             nfl, nsl, font, fm, _ = self.get_text_metrics(
                 first_line, second_line, first_rect.transposed().size(), bold=gprefs['bookshelf_bold_font'],
-                outline_width=outline_width)
+                outline_width=self.outline_width)
         elif was_wrapped:
             first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl
@@ -2167,7 +2168,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
             painter.rotate(rotation)
             text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
-            if outline_width > 0:
+            if self.outline_width > 0:
                 # Calculate text dimensions
                 text_width = fm.horizontalAdvance(text)
                 ascent, descent = fm.ascent(), fm.descent()
@@ -2185,7 +2186,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 path = QPainterPath()
                 path.addText(x, y, font, text)
                 # Draw text with outline
-                painter.strokePath(path, QPen(outline_color, outline_width,
+                painter.strokePath(path, QPen(outline_color, self.outline_width,
                            Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
                 painter.fillPath(path, text_color)
             else:
