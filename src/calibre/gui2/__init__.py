@@ -294,7 +294,7 @@ class IconResourceManager:
         if current == new and current not in (self.default_dark_theme_name, self.default_light_theme_name):
             # force reload of user icons by first changing theme to default and
             # then to user
-            QIcon.setThemeName(self.default_dark_theme_name if QApplication.instance().is_dark_theme else self.default_light_theme_name)
+            QIcon.setThemeName(self.default_dark_theme_name if is_dark else self.default_light_theme_name)
         QIcon.setThemeName(new)
 
 
