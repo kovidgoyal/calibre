@@ -1174,6 +1174,8 @@ class BookCase(QObject):
             self.using_page_counts = spine_size_template in ('{pages}', 'pages')
             if len(self.items) > 1:
                 self.shelf_added.emit(self.items[-2], self.items[-1])
+            else:
+                self.shelf_added.emit(None, None)
 
     def visual_row_cmp(self, a: int, b: int) -> int:
         ' Compares if a or b (book_row numbers) is visually before the other in left-to-right top-to-bottom order'
@@ -1680,7 +1682,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             else:
                 self.invalidate(clear_spine_width_cache=True)
 
-    def on_shelf_layout_done(self, books: CaseItem, shelf: CaseItem) -> None:
+    def on_shelf_layout_done(self, books: CaseItem | None, shelf: CaseItem | None) -> None:
         if self.view_is_visible():
             if self.bookcase.layout_finished:
                 self.update_scrollbar_ranges()
@@ -1689,12 +1691,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                     self.scroll_to_current_after_layout = False
                     if (idx := self.currentIndex()).isValid():
                         self.scrollTo(idx)
-            y = books.start_y
-            height = books.height + shelf.height
-            r = self.viewport().rect()
-            r.moveTop(self.verticalScrollBar().value())
-            if self.bookcase.layout_finished or r.intersects(QRect(r.left(), y, r.width(), height)):
-                self.update_viewport()
+            if books is not None and shelf is not None:
+                y = books.start_y
+                height = books.height + shelf.height
+                r = self.viewport().rect()
+                r.moveTop(self.verticalScrollBar().value())
+                if self.bookcase.layout_finished or r.intersects(QRect(r.left(), y, r.width(), height)):
+                    self.update_viewport()
 
     @property
     def shelves_per_screen(self) -> int:
