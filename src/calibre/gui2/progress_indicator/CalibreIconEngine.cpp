@@ -473,6 +473,10 @@ class CalibreIconEngine : public QIconEngine {
         ensure_state();
         return pixmap_engine.isNull();
     }
+    void virtual_hook(int id, void *data) override {
+        ensure_state();
+        pixmap_engine.virtual_hook(id, data);
+    }
     QString iconName() override { return name; }
 };
 
