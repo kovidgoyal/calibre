@@ -14,7 +14,7 @@ import threading
 import zipfile
 from collections import OrderedDict
 from collections.abc import Iterable
-from functools import partial
+from functools import lru_cache, partial
 from importlib.machinery import ModuleSpec
 from importlib.util import decode_source
 
@@ -55,6 +55,27 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
     return ans
 
 
+@lru_cache(maxsize=512)
+def get_icons_cached(
+    zfp: str, namelist: tuple[str, ...], plugin_name: str = '', folder_in_zip_file: str = '',
+):
+    from qt.core import QIcon
+    ans = {}
+    tracebacks = {}
+    with zipfile.ZipFile(zfp) as zf:
+        for name in namelist:
+            arcname = posixpath.join(folder_in_zip_file, name)
+            theme_name = posixpath.join(plugin_name, name)
+            try:
+                data = zf.read(arcname)
+            except KeyError:
+                import traceback
+                data = b''
+                tracebacks[name] = traceback.format_exc()
+            ans[name] = QIcon.ic(theme_name, fallback=data)
+    return ans, tracebacks
+
+
 def get_icons(
     zfp: str, name_or_list_of_names: str | Iterable[str],
     plugin_name: str = '', folder_in_zip_file: str = '',
@@ -79,24 +100,15 @@ def get_icons(
                 If a single path is passed in the return value will
                 be a QIcon.
     '''
-    from qt.core import QIcon
-    namelist = (name_or_list_of_names,) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names
-    ans = {}
-    with zipfile.ZipFile(zfp) as zf:
-        for name in namelist:
-            arcname = posixpath.join(folder_in_zip_file, name)
-            theme_name = posixpath.join(plugin_name, name)
-            try:
-                data = zf.read(arcname)
-            except KeyError:
-                data = b''
-                if print_tracebacks_for_missing_resources:
-                    print('Failed to load resource:', repr(name), 'from the plugin zip file:', zfp, file=sys.stderr)
-                    import traceback
-                    traceback.print_exc()
-            ans[name] = QIcon.ic(theme_name, fallback=data)
+    namelist = tuple(
+        (name_or_list_of_names,) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names)
+    ans, tracebacks = get_icons_cached(zfp, namelist, plugin_name, folder_in_zip_file)
+    if print_tracebacks_for_missing_resources:
+        for name, tb in tracebacks.items():
+            print('Failed to load resource:', repr(name), 'from the plugin zip file:', zfp, file=sys.stderr)
+            print(tb, file=sys.stderr)
     if len(namelist) == 1:
-        return ans[name]
+        return ans[namelist[0]]
     return ans
 
 
