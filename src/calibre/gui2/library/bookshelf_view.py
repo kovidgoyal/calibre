@@ -48,6 +48,7 @@ from qt.core import (
     QParallelAnimationGroup,
     QPen,
     QPixmap,
+    QPixmapCache,
     QPoint,
     QPointF,
     QPropertyAnimation,
@@ -111,6 +112,57 @@ def normalised_size(size_bytes: int) -> float:
         # Normalise the value
         return min(estimated_pages / 2000, 1)
     return 0.
+
+
+def render_spine_text_as_pixmap(
+    text: str, font: QFont, fm: QFontMetricsF, size: QSize, vertical_alignment: Qt.AlignmentFlag, rotation: int,
+    outline_width: float, device_pixel_ratio: float, text_color: QColor, outline_color: QColor,
+) -> QPixmap:
+    ss = (QSizeF(size) * device_pixel_ratio).toSize()
+    key = f'{font.key()}{ss.width()}{ss.height()}{int(vertical_alignment)}{rotation}{outline_width}{text_color.rgb()}{outline_color.rgb()}{text}'
+    if pmap := QPixmapCache.find(key):
+        return pmap
+    ans = QImage(ss.height(), ss.width(), QImage.Format_ARGB32_Premultiplied)
+    ans.fill(Qt.GlobalColor.transparent)
+    ans.setDevicePixelRatio(device_pixel_ratio)
+    with QPainter(ans) as painter:
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
+        painter.setFont(font)
+        sz = ans.deviceIndependentSize().transposed()
+        painter.translate(0, sz.width())
+        painter.rotate(rotation)
+        flags = vertical_alignment | Qt.AlignmentFlag.AlignHCenter | Qt.TextFlag.TextSingleLine
+        if outline_width > 0:
+            # Calculate text dimensions
+            br = painter.boundingRect(QRectF(0, 0, sz.width(), sz.height()), flags, text)
+            text_width = br.width()
+            ascent, descent = fm.ascent(), fm.descent()
+            # Calculate horizontal position for centering
+            x = (sz.width() - text_width) / 2
+            # Calculate vertical position based on alignment
+            if vertical_alignment & Qt.AlignmentFlag.AlignTop:
+                y = ascent
+            elif vertical_alignment & Qt.AlignmentFlag.AlignBottom:
+                y = sz.height() - descent
+            else:  # Default to center
+                y = sz.height() / 2 + (ascent - descent) / 2
+
+            # Create path for outlined text
+            path = QPainterPath()
+            path.setFillRule(Qt.FillRule.WindingFill)
+            path.addText(x, y, font, text)
+            # Draw text with outline
+            # Path stroke are draw with the given width,
+            # but we want the width as outline in addition around to the text, so double it.
+            painter.strokePath(path, QPen(outline_color, outline_width * 2,
+                        Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
+            painter.fillPath(path, text_color)
+        else:
+            painter.setPen(text_color)
+            painter.drawText(QRectF(QPointF(0, 0), sz), flags, text)
+    pmap = QPixmap.fromImage(ans)
+    QPixmapCache.insert(key, pmap)
+    return pmap
 # }}}
 
 
@@ -1764,6 +1816,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Called when this view becomes active.'''
         if db := self.dbref():
             db.queue_pages_scan()
+        QPixmapCache.setCacheLimit(max(QPixmapCache.cacheLimit(), 20 * 1024))
         self.bookcase.ensure_layouting_is_current()
 
     def update_viewport(self):
@@ -2166,37 +2219,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
 
         def draw_text(text: str, rect: QRect, alignment: Qt.AlignmentFlag) -> None:
-            painter.save()
-            painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
-            painter.rotate(rotation)
-            text_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
-            if self.outline_width > 0:
-                # Calculate text dimensions
-                text_width = fm.horizontalAdvance(text)
-                ascent, descent = fm.ascent(), fm.descent()
-                # Calculate horizontal position for centering
-                x = text_rect.left() + (text_rect.width() - text_width) / 2
-                # Calculate vertical position based on alignment
-                if alignment & Qt.AlignmentFlag.AlignTop:
-                    y = text_rect.top() + ascent
-                elif alignment & Qt.AlignmentFlag.AlignBottom:
-                    y = text_rect.bottom() - descent
-                else:  # Default to center
-                    y = text_rect.top() + text_rect.height() / 2 + (ascent - descent) / 2
-
-                # Create path for outlined text
-                path = QPainterPath()
-                path.setFillRule(Qt.FillRule.WindingFill)
-                path.addText(x, y, font, text)
-                # Draw text with outline
-                # Path stroke are draw with the given width,
-                # but we want the width as outline in addition around to the text, so double it.
-                painter.strokePath(path, QPen(outline_color, self.outline_width * 2,
-                           Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
-                painter.fillPath(path, text_color)
-            else:
-                painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignHCenter, text)
-            painter.restore()
+            pixmap = render_spine_text_as_pixmap(
+                text, font, fm, rect.transposed().size(), alignment, rotation,
+                self.outline_width, self.devicePixelRatioF(), text_color, outline_color)
+            painter.drawPixmap(rect.topLeft(), pixmap)
         if second_line:
             draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignBottom)
             draw_text(second_line, second_rect, Qt.AlignmentFlag.AlignTop)
