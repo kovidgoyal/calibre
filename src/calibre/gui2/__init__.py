@@ -41,6 +41,7 @@ from qt.core import (
     QObject,
     QPainterPath,
     QPalette,
+    QPixmap,
     QRectF,
     QResource,
     QSettings,
@@ -251,7 +252,7 @@ class IconResourceManager:
             icon = self.icon_cache[name] = self(name)
         return icon
 
-    def __call__(self, name):
+    def __call__(self, name: str, fallback: bytes = b'') -> QIcon:
         if isinstance(name, QIcon):
             return name
         if not name:
@@ -269,6 +270,11 @@ class IconResourceManager:
                 q = QIcon(f':/icons/calibre-default-{self.color_palette}/images/{name}')
                 if q.is_ok():
                     ans = q
+            if fallback and not ans.is_ok():
+                p = QPixmap()
+                p.loadFromData(fallback)
+                if not p.isNull():
+                    ans = QIcon(p)
         return ans
 
     def icon_as_png(self, name, as_bytearray=False, compression_level=0):
