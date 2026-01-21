@@ -73,7 +73,7 @@ class FontSelectionDialog(QDialog):
 
         preview_layout.addWidget(preview_container)
 
-        main_layout.addWidget(preview_group, stretch=1)
+        main_layout.addWidget(preview_group)
 
         # OK/Cancel buttons
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
