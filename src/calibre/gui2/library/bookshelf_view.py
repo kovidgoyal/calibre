@@ -1582,7 +1582,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
         _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
         self.outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
-        self.min_line_height = math.ceil(fm.height() + self.outline_width)
+        self.min_line_height = math.ceil(fm.height() + self.outline_width * 3)
         self.calculate_shelf_geometry()
         self.palette_changed()
         if hasattr(self, 'cover_cache'):
@@ -1931,7 +1931,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     ) -> tuple[str, str, QFont, QFontMetricsF, bool]:
         width, height = sz.width(), sz.height()
         font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
-        extra_height = outline_width  # half stroke width above and half stroke width below
+        extra_height = outline_width * 2  # stroke width above and below
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
@@ -2184,9 +2184,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
                 # Create path for outlined text
                 path = QPainterPath()
+                path.setFillRule(Qt.FillRule.WindingFill)
                 path.addText(x, y, font, text)
                 # Draw text with outline
-                painter.strokePath(path, QPen(outline_color, self.outline_width,
+                # Path stroke are draw with the given width,
+                # but we want the width as outline in addition around to the text, so double it.
+                painter.strokePath(path, QPen(outline_color, self.outline_width * 2,
                            Qt.PenStyle.SolidLine, Qt.PenCapStyle.RoundCap, Qt.PenJoinStyle.RoundJoin))
                 painter.fillPath(path, text_color)
             else:
