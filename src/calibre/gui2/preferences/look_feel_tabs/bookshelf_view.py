@@ -56,7 +56,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     recount_updated = pyqtSignal(object)
 
     def __init__(self, parent=None):
-        self.current_font_choice = {}
+        self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         super().__init__(parent)
 
     def restore_defaults(self):
@@ -74,7 +74,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         super().initialize()
-        s = gprefs['bookshelf_font'] or {}
+        s = gprefs['bookshelf_font'] or gprefs.defaults['bookshelf_font']
         self.current_font_choice = s.copy()
         self.update_font_display()
         self.populate_custom_color_theme()
