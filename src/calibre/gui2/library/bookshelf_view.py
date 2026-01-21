@@ -224,6 +224,8 @@ class WoodTheme(NamedTuple):
 class ColorTheme(NamedTuple):
     text_color_for_dark_background: QColor
     text_color_for_light_background: QColor
+    outline_color_for_dark_background: QColor
+    outline_color_for_light_background: QColor
 
     # Divider colors
     divider_text_color: QColor
@@ -240,6 +242,8 @@ class ColorTheme(NamedTuple):
         return ColorTheme(
             text_color_for_dark_background=dark_palette().color(QPalette.ColorRole.WindowText),
             text_color_for_light_background=light_palette().color(QPalette.ColorRole.WindowText),
+            outline_color_for_dark_background=QColor(0, 0, 0),
+            outline_color_for_light_background=QColor(255, 255, 255),
             divider_text_color=palette.color(QPalette.ColorRole.WindowText),
             current_selected_color=palette.color(QPalette.ColorRole.LinkVisited),
             current_color=palette.color(QPalette.ColorRole.Mid),
@@ -1421,8 +1425,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def __init__(self, gui):
         super().__init__(gui)
-        self.text_color_for_dark_background = QColor()
-        self.text_color_for_light_background = QColor()
         self.auto_scroll = True
         self.scroll_to_current_after_layout: bool = False
         self.theme: ColorTheme = None
@@ -2245,11 +2247,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def get_contrasting_text_color(self, background_color: QColor) -> tuple[QColor, QColor]:
         if not background_color or not background_color.isValid():
-            return self.theme.text_color_for_light_background, self.theme.text_color_for_dark_background
+            return self.theme.text_color_for_light_background, self.theme.outline_color_for_light_background
         if (contrast_ratio(background_color, self.theme.text_color_for_dark_background)
             > contrast_ratio(background_color, self.theme.text_color_for_light_background)):
-            return self.theme.text_color_for_dark_background, self.theme.text_color_for_light_background
-        return self.theme.text_color_for_light_background, self.theme.text_color_for_dark_background
+            return self.theme.text_color_for_dark_background, self.theme.outline_color_for_dark_background
+        return self.theme.text_color_for_light_background, self.theme.outline_color_for_light_background
 
     # Selection methods (required for AlternateViews integration)
 
