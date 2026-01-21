@@ -522,8 +522,8 @@ def create_defs():
     }
     defs['bookshelf_min_font_multiplier'] = 0.75
     defs['bookshelf_max_font_multiplier'] = 1.3
-    defs['bookshelf_outline_width'] = 0.5
-    defs['bookshelf_bold_font'] = False
+    defs['bookshelf_outline_width'] = 0
+    defs['bookshelf_bold_font'] = True
     defs['bookshelf_use_custom_colors'] = False
     defs['bookshelf_custom_colors'] = {
         'light': {}, 'dark': {},
