@@ -261,8 +261,10 @@ def evaluate(book, context):
     @lru_cache(maxsize=2)
     def color_label_map(self) -> dict[str, str]:
         return {
-            'text_color_for_dark_background': _('Text on &dark spine background'),
             'text_color_for_light_background': _('Text on &light spine background'),
+            'text_color_for_dark_background': _('Text on &dark spine background'),
+            'outline_color_for_light_background': _('&Outline on light spine background'),
+            'outline_color_for_dark_background': _('Outli&ne on dark spine background'),
             'divider_background_color': _('Divider &background'),
             'divider_line_color': _('&Line on the divider'),
             'divider_text_color': _('Text on the &divider'),
