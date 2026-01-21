@@ -2002,7 +2002,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
             while math.ceil(2 * (fm2.height() + extra_height)) > height:
-                font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5)
+                font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5, for_divider=for_divider)
             if fm2.boundingRect(first_line).width() >= width:  # two line font size is larger than one line font size
                 font, fm, fi = font2, fm2, fi2
                 has_third_line = False
@@ -2026,7 +2026,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # larger font sizes
         if math.ceil(fm.height() + extra_height) < height:
             while font.pointSizeF() < self.max_font_size:
-                q, qm, qi = self.get_sized_font(font.pointSizeF() + 1)
+                q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, for_divider=for_divider)
                 if math.ceil(qm.height() + extra_height) < height:
                     font, fm = q, qm
                 else:
@@ -2036,14 +2036,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 nsz = font.pointSizeF()
                 if nsz < self.min_font_size and second_line:
                     return '', '', font, fm, False
-                font, fm, fi = self.get_sized_font(nsz - 0.5)
+                font, fm, fi = self.get_sized_font(nsz - 0.5, for_divider=for_divider)
 
         # Now reduce the font size as much as needed to fit within width
         text = first_line
         if second_line and fm.boundingRect(first_line).width() < fm.boundingRect(second_line).width():
             text = second_line
         while fi.pointSizeF() > self.min_font_size and fm.boundingRect(text).width() > width:
-            font, fm, fi = self.get_sized_font(font.pointSizeF() - 1)
+            font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, for_divider=for_divider)
         if fi.pointSizeF() <= self.min_font_size:
             first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
             if second_line:
