@@ -1,4 +1,4 @@
-from qt.core import QDialog, QDialogButtonBox, QFontDatabase, QFontInfo, QHBoxLayout, QLabel, QListWidget, QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QFontDatabase, QFontInfo, QHBoxLayout, QLabel, QListWidget, Qt, QVBoxLayout, QWidget, pyqtSignal
 
 
 class FontSelectionDialog(QDialog):
@@ -18,10 +18,11 @@ class FontSelectionDialog(QDialog):
         self.max_size = max_size
 
         self.setWindowTitle(_('Select font'))
-        self.setMinimumSize(600, 500)
 
         self._setup_ui()
         self._populate_families()
+        self.families_list.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.resize(self.sizeHint())
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -50,17 +51,12 @@ class FontSelectionDialog(QDialog):
         lists_layout.addLayout(families_layout, 2)
         lists_layout.addLayout(styles_layout, 1)
 
-        main_layout.addLayout(lists_layout, stretch=2)
+        main_layout.addLayout(lists_layout, stretch=20)
 
         # Preview area
         preview_group = QWidget()
         preview_layout = QVBoxLayout(preview_group)
         preview_layout.setContentsMargins(0, 10, 0, 10)
-
-        # Scrollable preview area
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setMinimumHeight(200)
 
         preview_container = QWidget()
         self.preview_layout = QVBoxLayout(preview_container)
@@ -75,8 +71,7 @@ class FontSelectionDialog(QDialog):
         self.preview_layout.addWidget(self.preview_medium)
         self.preview_layout.addWidget(self.preview_large)
 
-        scroll_area.setWidget(preview_container)
-        preview_layout.addWidget(scroll_area)
+        preview_layout.addWidget(preview_container)
 
         main_layout.addWidget(preview_group, stretch=1)
 
