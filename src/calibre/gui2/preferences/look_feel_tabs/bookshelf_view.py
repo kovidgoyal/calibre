@@ -9,7 +9,7 @@ import os
 from contextlib import suppress
 from functools import lru_cache, partial
 
-from qt.core import QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QFontInfo, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -204,8 +204,13 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
     def change_font(self):
         from calibre.gui2.preferences.look_feel_tabs.font_selection_dialog import FontSelectionDialog
         s = self.current_font_choice
+        medium = QFontInfo(self.font()).pointSizeF()
+        mins = gprefs['bookshelf_min_font_multiplier'] * medium
+        maxs = gprefs['bookshelf_max_font_multiplier'] * medium
 
-        d = FontSelectionDialog(family=s.get('family') or '', style=s.get('style') or '', parent=self)
+        d = FontSelectionDialog(
+            family=s.get('family') or '', style=s.get('style') or '', parent=self,
+            min_size=mins, medium_size=medium, max_size=maxs)
         if d.exec() == QDialog.DialogCode.Accepted:
             family, style = d.selected_font()
             self.current_font_choice = {'family': family, 'style': style}
