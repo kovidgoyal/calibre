@@ -172,3 +172,5 @@ QImage image_from_hbitmap(void* hbitmap);
 double contrast_ratio(const QColor & c1, const QColor & c2);
 void install_translator(void *v);
 QString utf16_slice(const QString &src, qsizetype pos, qsizetype n=-1);
+void set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme);
+QIcon icon_from_name(QString name, const QByteArray fallback_data);

@@ -19,7 +19,9 @@
 
 using namespace Qt::StringLiterals;
 static std::atomic<unsigned> current_theme_key(1);
-static bool using_dark_colors = false;
+static struct {
+    bool using_dark_colors, has_dark_user_theme, has_light_user_theme, has_any_user_theme;
+} theme;
 
 // Copied with a few modifications Qt QPixmapIconEngine private code {{{
 struct QPixmapIconEngineEntry
@@ -307,7 +309,7 @@ QPixmap QPixmapIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIc
 
     const auto actualSize = adjustSize(size * scale, pm.size());
     const auto calculatedDpr = pixmapDevicePixelRatio(scale, size, actualSize);
-    QString key = "qt_"_L1
+    QString key = "cl_"_L1
                   % HexString<quint64>(pm.cacheKey())
                   % HexString<quint8>(pe->mode)
                   % HexString<quint64>(QGuiApplication::palette().cacheKey())
@@ -416,9 +418,15 @@ class CalibreIconEngine : public QIconEngine {
 
     void ensure_state() {
         if (used_theme_key == current_theme_key) return;
-        if (try_with_key(using_dark_colors ? "calibre-user-dark"_L1 : "calibre-user-light"_L1)) return;
-        if (try_with_key("calibre-user-any"_L1)) return;
-        if (try_with_key(using_dark_colors ? "calibre-default-dark"_L1 : "calibre-default-light"_L1)) return;
+        if (theme.using_dark_colors) {
+            if (theme.has_dark_user_theme && try_with_key("calibre-user-dark"_L1)) return;
+            if (theme.has_any_user_theme && try_with_key("calibre-user-any"_L1)) return;
+            if (try_with_key("calibre-default-dark"_L1)) return;
+        } else {
+            if (theme.has_light_user_theme && try_with_key("calibre-user-light"_L1)) return;
+            if (theme.has_any_user_theme && try_with_key("calibre-user-any"_L1)) return;
+            if (try_with_key("calibre-default-light"_L1)) return;
+        }
         if (fallback_data.size()) {
             QPixmap pm;
             if (pm.loadFromData(fallback_data)) {
@@ -464,12 +472,14 @@ class CalibreIconEngine : public QIconEngine {
         return pixmap_engine.isNull();
     }
     QString iconName() override { return name; }
-
 };
 
 void
-set_icon_theme(bool is_dark) {
-    using_dark_colors = is_dark;
+set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme) {
+    theme.using_dark_colors = is_dark;
+    theme.has_dark_user_theme = has_dark_user_theme;
+    theme.has_light_user_theme = has_light_user_theme;
+    theme.has_any_user_theme = has_any_user_theme;
     current_theme_key.fetch_add(1);
 }
 
