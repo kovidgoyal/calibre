@@ -41,7 +41,6 @@ from qt.core import (
     QObject,
     QPainterPath,
     QPalette,
-    QPixmap,
     QRectF,
     QResource,
     QSettings,
@@ -93,6 +92,7 @@ from calibre.utils.localization import get_lang, install_qt_translator
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
+from calibre_extensions.progress_indicator import icon_from_name, set_icon_theme
 
 del pqc, geometry_for_restore_as_dict
 timed_print  # for plugin compat
@@ -140,6 +140,7 @@ class IconResourceManager:
         any_light = (self.user_any_theme_name + '-light') if self.user_any_theme_name else ''
         self.dark_theme_name = self.user_dark_theme_name or any_dark or self.default_dark_theme_name
         self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
+        # self.dump_available_icon_resource_names()
 
     @lru_cache(maxsize=4)
     def user_icon_theme_metadata(self, which):
@@ -174,14 +175,20 @@ class IconResourceManager:
     def user_theme_name(self):
         return self.active_user_theme_metadata.get('name', 'default')
 
+    def dump_available_icon_resource_names(self):
+        from qt.core import QDirIterator
+        it = QDirIterator(':', QDirIterator.IteratorFlag.Subdirectories)
+        while it.hasNext():
+            val = it.next()
+            if val.startswith(':/icons/calibre-'):
+                print(val)
+
     def initialize(self):
         if self.initialized:
             return
         self.icon_cache = {}
         self.initialized = True
         QResource.registerResource(P('icons.rcc', allow_user_override=False))
-        QIcon.setFallbackSearchPaths([])
-        QIcon.setThemeSearchPaths([':/icons'])
         self.override_icon_path = None
         q = os.path.join(user_dir, 'images')
         items = []
@@ -263,18 +270,8 @@ class IconResourceManager:
             qi = QIcon(self.overriden_icon_path(name))
             if qi.is_ok():
                 return qi
-        icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
-        ans = QIcon.fromTheme(icon_name)
-        if not ans.is_ok():
-            if 'user-any' in QIcon.themeName():
-                q = QIcon(f':/icons/calibre-default-{self.color_palette}/images/{name}')
-                if q.is_ok():
-                    ans = q
-            if fallback and not ans.is_ok():
-                p = QPixmap()
-                p.loadFromData(fallback)
-                if not p.isNull():
-                    ans = QIcon(p)
+        icon_name = name.replace('\\', '__').replace('/', '__')
+        ans = icon_from_name(icon_name, fallback)
         return ans
 
     def icon_as_png(self, name, as_bytearray=False, compression_level=0):
@@ -293,15 +290,8 @@ class IconResourceManager:
 
     def set_theme(self):
         self.icon_cache = {}
-        current = QIcon.themeName()
         is_dark = QApplication.instance().is_dark_theme
-        self.color_palette = 'dark' if is_dark else 'light'
-        new = self.dark_theme_name if is_dark else self.light_theme_name
-        if current == new and current not in (self.default_dark_theme_name, self.default_light_theme_name):
-            # force reload of user icons by first changing theme to default and
-            # then to user
-            QIcon.setThemeName(self.default_dark_theme_name if is_dark else self.default_light_theme_name)
-        QIcon.setThemeName(new)
+        set_icon_theme(is_dark, bool(self.user_dark_theme_name), bool(self.user_light_theme_name), bool(self.user_any_theme_name))
 
 
 icon_resource_manager = IconResourceManager()

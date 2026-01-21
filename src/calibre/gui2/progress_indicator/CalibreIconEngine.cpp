@@ -408,11 +408,11 @@ class CalibreIconEngine : public QIconEngine {
     QPixmapIconEngine pixmap_engine;
 
     bool try_with_key(const QString &key) {
-        QString path = ":/icons/"_L1 % key % "/"_L1 % name;
+        QString path = ":/icons/"_L1 % key % "/images/"_L1 % name;
         QPixmap pm(path);
         if (pm.isNull()) return false;
         pixmap_engine.clear();
-        pixmap_engine.addPixmap(pm, QIcon::Normal, QIcon::On);
+        pixmap_engine.addPixmap(pm, QIcon::Normal, QIcon::Off);
         return true;
     }
 
@@ -428,6 +428,7 @@ class CalibreIconEngine : public QIconEngine {
             if (theme.has_any_user_theme && try_with_key("calibre-user-any"_L1)) return;
             if (try_with_key("calibre-default-light"_L1)) return;
         }
+        if (try_with_key("calibre-default"_L1)) return;
         if (fallback_data.size()) {
             QPixmap pm;
             if (pm.loadFromData(fallback_data)) {
@@ -439,8 +440,8 @@ class CalibreIconEngine : public QIconEngine {
 
     public:
     CalibreIconEngine(QString name, QByteArray fallback_data) :
-        name(name), fallback_data(fallback_data), used_theme_key(0) {
-    }
+        name(name), fallback_data(fallback_data), used_theme_key(0), pixmap_engine()
+    {}
     CalibreIconEngine(const CalibreIconEngine &other) :
         QIconEngine(other), name(other.name), fallback_data(other.fallback_data),
         used_theme_key(other.used_theme_key.load()), pixmap_engine(other.pixmap_engine)
@@ -477,11 +478,13 @@ class CalibreIconEngine : public QIconEngine {
 
 void
 set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme) {
-    theme.using_dark_colors = is_dark;
-    theme.has_dark_user_theme = has_dark_user_theme;
-    theme.has_light_user_theme = has_light_user_theme;
-    theme.has_any_user_theme = has_any_user_theme;
-    current_theme_key.fetch_add(1);
+    if (is_dark != theme.using_dark_colors || has_dark_user_theme != theme.has_dark_user_theme || has_light_user_theme != theme.has_light_user_theme || has_any_user_theme != theme.has_any_user_theme) {
+        theme.using_dark_colors = is_dark;
+        theme.has_dark_user_theme = has_dark_user_theme;
+        theme.has_light_user_theme = has_light_user_theme;
+        theme.has_any_user_theme = has_any_user_theme;
+        current_theme_key.fetch_add(1);
+    }
 }
 
 QIcon
