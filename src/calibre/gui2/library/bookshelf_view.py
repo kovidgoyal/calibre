@@ -2211,11 +2211,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl
 
-        painter.save()
         # Determine text color based on spine background brightness
         text_color, outline_color = self.get_contrasting_text_color(spine_color)
-        painter.setPen(text_color)
-        painter.setFont(font)
         rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
 
         def draw_text(text: str, rect: QRect, alignment: Qt.AlignmentFlag) -> None:
@@ -2228,7 +2225,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             draw_text(second_line, second_rect, Qt.AlignmentFlag.AlignTop)
         else:
             draw_text(first_line, first_rect, Qt.AlignmentFlag.AlignVCenter)
-        painter.restore()
 
     def draw_spine_cover(self, painter: QPainter, rect: QRect, thumbnail: PixmapWithDominantColor) -> None:
         match gprefs['bookshelf_thumbnail']:
