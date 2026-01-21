@@ -176,7 +176,7 @@
     },
     {
         "name": "progress_indicator",
-        "sources": "calibre/gui2/progress_indicator/QProgressIndicator.cpp calibre/gui2/progress_indicator/CalibreStyle.cpp",
+        "sources": "calibre/gui2/progress_indicator/QProgressIndicator.cpp calibre/gui2/progress_indicator/CalibreStyle.cpp calibre/gui2/progress_indicator/CalibreIconEngine.cpp",
         "headers": "calibre/gui2/progress_indicator/QProgressIndicator.h",
         "sip_files": "calibre/gui2/progress_indicator/QProgressIndicator.sip",
         "inc_dirs": "calibre/gui2/progress_indicator"
