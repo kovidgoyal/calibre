@@ -418,6 +418,7 @@ class CalibreIconEngine : public QIconEngine {
 
     void ensure_state() {
         if (used_theme_key == current_theme_key) return;
+        used_theme_key.store(current_theme_key.load());
         if (theme.using_dark_colors) {
             if (theme.has_dark_user_theme && try_with_key("calibre-user-dark"_L1)) return;
             if (theme.has_any_user_theme && try_with_key("calibre-user-any"_L1)) return;
