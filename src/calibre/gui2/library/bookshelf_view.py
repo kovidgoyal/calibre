@@ -27,6 +27,7 @@ from qt.core import (
     QEasingCurve,
     QEvent,
     QFont,
+    QFontDatabase,
     QFontInfo,
     QFontMetricsF,
     QIcon,
@@ -1482,7 +1483,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.theme: ColorTheme = None
         self.palette_changed()
 
-        self.base_font_size_pts = QFontInfo(self.font()).pointSizeF()
+        self.spine_font = self.default_spine_font = QFont(self.font())
+        self.spine_font.setBold(True)
+        self.divider_font = QFont(self.spine_font)
+        self.base_font_size_pts = QFontInfo(self.spine_font).pointSizeF()
         self.outline_width = 0
         self.min_line_height = self.base_font_size_pts * 1.2
 
@@ -1632,9 +1636,17 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def refresh_settings(self):
         '''Refresh the gui and render settings.'''
         self.template_inited = False
+        s = gprefs['bookshelf_font']
+        if s and s.get('family'):
+            self.spine_font = QFontDatabase.font(s['family'], s['style'], int(self.base_font_size_pts))
+            self.spine_font.setPointSizeF(self.base_font_size_pts)
+        else:
+            self.spine_font = self.default_spine_font
+        self.get_sized_font.cache_clear()
+        self.get_text_metrics.cache_clear()
         self.min_font_size = max(0.1, min(gprefs['bookshelf_min_font_multiplier'], 1)) * self.base_font_size_pts
         self.max_font_size = max(1, min(gprefs['bookshelf_max_font_multiplier'], 3)) * self.base_font_size_pts
-        _, fm, _ = self.get_sized_font(self.min_font_size, bold=gprefs['bookshelf_bold_font'])
+        _, fm, _ = self.get_sized_font(self.min_font_size)
         self.outline_width = float(max(0, min(gprefs['bookshelf_outline_width'], 5)))
         self.min_line_height = math.ceil(fm.height() + self.outline_width * 2)
         self.calculate_shelf_geometry()
@@ -1973,25 +1985,24 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.restore()
 
     @lru_cache(maxsize=128)
-    def get_sized_font(self, sz: float = 9, bold: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
-        font = QFont(self.font())
+    def get_sized_font(self, sz: float = 9, for_divider: bool = False) -> tuple[QFont, QFontMetricsF, QFontInfo]:
+        font = QFont(self.divider_font if for_divider else self.spine_font)
         font.setPointSizeF(sz)
-        font.setBold(bold)
         return font, QFontMetricsF(font), QFontInfo(font)
 
     @lru_cache(maxsize=4096)
     def get_text_metrics(
-        self, first_line: str, second_line: str = '', sz: QSize = QSize(), bold: bool = False, allow_wrap: bool = False,
-        outline_width: float = 0,
+        self, first_line: str, second_line: str = '', sz: QSize = QSize(), allow_wrap: bool = False,
+        outline_width: float = 0, for_divider: bool = False,
     ) -> tuple[str, str, QFont, QFontMetricsF, bool]:
         width, height = sz.width(), sz.height()
-        font, fm, fi = self.get_sized_font(self.base_font_size_pts, bold)
+        font, fm, fi = self.get_sized_font(self.base_font_size_pts, for_divider=for_divider)
         extra_height = outline_width * 2  # stroke width above and below
         if allow_wrap and not second_line and first_line and fm.boundingRect(first_line).width() > width and height >= 2 * self.min_line_height:
             # rather than reducing font size if there is available space, wrap to two lines
             font2, fm2, fi2 = font, fm, fi
             while math.ceil(2 * (fm2.height() + extra_height)) > height:
-                font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5, bold)
+                font2, fm2, fi2 = self.get_sized_font(font2.pointSizeF() - 0.5)
             if fm2.boundingRect(first_line).width() >= width:  # two line font size is larger than one line font size
                 font, fm, fi = font2, fm2, fi2
                 has_third_line = False
@@ -2015,7 +2026,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # larger font sizes
         if math.ceil(fm.height() + extra_height) < height:
             while font.pointSizeF() < self.max_font_size:
-                q, qm, qi = self.get_sized_font(font.pointSizeF() + 1, bold)
+                q, qm, qi = self.get_sized_font(font.pointSizeF() + 1)
                 if math.ceil(qm.height() + extra_height) < height:
                     font, fm = q, qm
                 else:
@@ -2025,14 +2036,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 nsz = font.pointSizeF()
                 if nsz < self.min_font_size and second_line:
                     return '', '', font, fm, False
-                font, fm, fi = self.get_sized_font(nsz - 0.5, bold)
+                font, fm, fi = self.get_sized_font(nsz - 0.5)
 
         # Now reduce the font size as much as needed to fit within width
         text = first_line
         if second_line and fm.boundingRect(first_line).width() < fm.boundingRect(second_line).width():
             text = second_line
         while fi.pointSizeF() > self.min_font_size and fm.boundingRect(text).width() > width:
-            font, fm, fi = self.get_sized_font(font.pointSizeF() - 1, bold)
+            font, fm, fi = self.get_sized_font(font.pointSizeF() - 1)
         if fi.pointSizeF() <= self.min_font_size:
             first_line = fm.elidedText(first_line, Qt.TextElideMode.ElideRight, width)
             if second_line:
@@ -2069,7 +2080,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             -self.TEXT_MARGIN if text_right else 0,
             0,
         )
-        elided_text, _, font, _, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), bold=True)
+        elided_text, _, font, _, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), for_divider=True)
         painter.save()
         painter.setFont(font)
         painter.setPen(self.theme.divider_text_color)
@@ -2200,13 +2211,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         nfl, nsl, font, fm, was_wrapped = self.get_text_metrics(
             first_line, second_line, first_rect.transposed().size(), allow_wrap=True,
-            bold=gprefs['bookshelf_bold_font'], outline_width=self.outline_width)
+            outline_width=self.outline_width)
         if not nfl and not nsl:  # two lines dont fit
             second_line = ''
             first_rect = QRect(rect.left(), first_rect.top(), rect.width(), first_rect.height())
             nfl, nsl, font, fm, _ = self.get_text_metrics(
-                first_line, second_line, first_rect.transposed().size(), bold=gprefs['bookshelf_bold_font'],
-                outline_width=self.outline_width)
+                first_line, second_line, first_rect.transposed().size(), outline_width=self.outline_width)
         elif was_wrapped:
             first_rect, second_rect = calculate_rects(True)
         first_line, second_line, = nfl, nsl

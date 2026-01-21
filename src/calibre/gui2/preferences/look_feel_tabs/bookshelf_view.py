@@ -9,7 +9,7 @@ import os
 from contextlib import suppress
 from functools import lru_cache, partial
 
-from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
+from qt.core import QDialog, QDialogButtonBox, QIcon, QInputDialog, QLabel, Qt, QTabWidget, QTextBrowser, QTimer, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -56,7 +56,28 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     recount_updated = pyqtSignal(object)
 
     def __init__(self, parent=None):
+        self.current_font_choice = {}
         super().__init__(parent)
+
+    def restore_defaults(self):
+        super().restore_defaults()
+        self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
+        self.update_font_display()
+        self.populate_custom_color_theme(use_defaults=True)
+
+    def update_font_display(self):
+        text = ''
+        s = self.current_font_choice
+        if s.get('family'):
+            text = s['family'] + ' - ' + (s.get('style') or '')
+        self.bookshelf_font_display.setText(text)
+
+    def initialize(self):
+        super().initialize()
+        s = gprefs['bookshelf_font'] or {}
+        self.current_font_choice = s.copy()
+        self.update_font_display()
+        self.populate_custom_color_theme()
 
     def commit(self, *args):
         import re
@@ -72,6 +93,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
             for k,b in v.items():
                 d[k] = b.color
         gprefs['bookshelf_custom_colors'] = newval
+        gprefs['bookshelf_font'] = self.current_font_choice.copy()
         return super().commit(*args)
 
     def genesis(self, gui):
@@ -87,7 +109,6 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('bookshelf_make_space_for_second_line', gprefs)
         r('bookshelf_min_font_multiplier', gprefs)
         r('bookshelf_max_font_multiplier', gprefs)
-        r('bookshelf_bold_font', gprefs)
         r('bookshelf_outline_width', gprefs)
 
         r('bookshelf_divider_text_right', gprefs)
@@ -178,8 +199,18 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
                 l.setBuddy(b)
                 layout.insertRow(r, b, l)
                 b.color_changed.connect(self.changed_signal)
-        QApplication.instance().palette_changed.connect(self.populate_custom_color_theme)
-        self.populate_custom_color_theme()
+        self.change_font_button.clicked.connect(self.change_font)
+
+    def change_font(self):
+        from calibre.gui2.preferences.look_feel_tabs.font_selection_dialog import FontSelectionDialog
+        s = self.current_font_choice
+
+        d = FontSelectionDialog(family=s.get('family') or '', style=s.get('style') or '', parent=self)
+        if d.exec() == QDialog.DialogCode.Accepted:
+            family, style = d.selected_font()
+            self.current_font_choice = {'family': family, 'style': style}
+            self.update_font_display()
+            self.changed_signal.emit()
 
     def lazy_initialize(self):
         self.recount_timer.start()
@@ -273,13 +304,13 @@ def evaluate(book, context):
             'current_selected_color': _('&The current and selected book highlight'),
         }
 
-    def populate_custom_color_theme(self):
+    def populate_custom_color_theme(self, use_defaults=False):
         from calibre.gui2.library.bookshelf_view import ColorTheme
         default = {
             'light': ColorTheme.light_theme()._asdict(),
             'dark': ColorTheme.dark_theme()._asdict(),
         }
-        configs = gprefs['bookshelf_custom_colors']
+        configs = (gprefs.defaults if use_defaults else gprefs)['bookshelf_custom_colors']
         for theme in default:
             for k in self.color_label_map():
                 b = self.color_buttons[theme][k]
