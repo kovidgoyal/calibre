@@ -399,4 +399,9 @@ class MainWindowMixin:  # {{{
         smw.setText(_('<h2>Shutting down</h2><div>') + message)
         # Force processing the events needed to show the message
         QCoreApplication.processEvents()
+
+    def show_sort_button_for_alternate_view(self, show: bool = True) -> None:
+        if self.bars_manager.search_tool_bar.has_sort_by_button:
+            show = False
+        self.sort_button.setVisible(show)
 # }}}

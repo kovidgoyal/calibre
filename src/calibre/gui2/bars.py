@@ -650,6 +650,7 @@ class SearchToolBar(QHBoxLayout):
         QHBoxLayout.__init__(self)
         self.search_tool_bar_widgets = []
         self.gui = gui
+        self.has_sort_by_button = False
         self.donate_button = None
 
     def init_bar(self, actions):
@@ -661,6 +662,7 @@ class SearchToolBar(QHBoxLayout):
 
         self.search_tool_bar_widgets = []
         self.search_tool_bar_actions = []
+        self.has_sort_by_button = False
         for what in gprefs['action-layout-searchbar']:
             if what is None:
                 frame = QFrame()
@@ -672,6 +674,8 @@ class SearchToolBar(QHBoxLayout):
                 self.search_tool_bar_widgets.append(frame)
                 self.search_tool_bar_actions.append(None)
             elif what in self.gui.iactions:
+                if what == 'Sort By':
+                    self.has_sort_by_button = True
                 act = self.gui.iactions[what]
                 qact = act.qaction
                 tb = RightClickButton()

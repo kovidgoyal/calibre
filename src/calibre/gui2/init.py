@@ -298,7 +298,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
             if btn.isChecked():
                 btn.update_state(False)
         self.gui.library_view.alternate_views.show_view(self.view_name if show else None)
-        self.gui.sort_button.setVisible(show)
+        self.gui.show_sort_button_for_alternate_view(show)
         self.gui.group_by_button.setVisible(self.needs_group_by and show)
         AlternateViewsButtons.ignore_toggles = False
 # }}}
