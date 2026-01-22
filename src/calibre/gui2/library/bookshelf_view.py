@@ -74,10 +74,12 @@ from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.gui2 import config, gprefs, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import (
     ClickStartData,
+    cached_emblem,
     double_click_action,
     handle_enter_press,
     handle_selection_click,
     handle_selection_drag,
+    render_emblem,
     selection_for_rows,
     setup_dnd_interface,
 )
@@ -1517,7 +1519,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Cover template caching
         self.template_inited = False
         self.emblem_rules = []
-        self.template_cache = {}
         self.template_is_empty = {}
         self.first_line_renderer = self.build_template_renderer('title', '{title}')
         self.second_line_renderer = self.build_template_renderer('authors', '')
@@ -1591,7 +1592,6 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         def db_pref(key):
             return db.new_api.pref(key, get_default_from_defaults=True)
 
-        self.template_cache = {}
         title = db_pref('bookshelf_title_template') or ''
         self.first_line_renderer = self.build_template_renderer('title', title)
         authors = db_pref('bookshelf_author_template') or ''
@@ -1609,6 +1609,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.init_template(db)
         if self.template_is_empty[column_name]:
             return ''
+        if not (m := self.model()):
+            return ''
         match template:
             case '{title}':
                 return db.field_for('title', book_id)
@@ -1620,21 +1622,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 return db.field_for('sort', book_id)
         mi = db.get_proxy_metadata(book_id)
         rslt = mi.formatter.safe_format(
-            template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=self.template_cache)
+            template, mi, TEMPLATE_ERROR, mi, column_name=column_name, template_cache=m.bookshelf_template_cache)
         return rslt or ''
 
     def render_emblem(self, book_id: int) -> str:
-        if not (db := self.dbref()):
-            return ''
+        if not (m := self.model()):
+            return
+        db = m.db.new_api
         self.init_template(db)
         if not self.emblem_rules:
             return ''
-        mi = db.get_proxy_metadata(book_id)
-        for (x,y,t) in self.emblem_rules:
-            rslt = mi.formatter.safe_format(
-                t, mi, TEMPLATE_ERROR, mi, column_name='bookshelf_emblem', template_cache=self.template_cache)
-            if rslt:
-                return rslt
+        mi = None
+        for i, (kind, column, rule) in enumerate(self.emblem_rules):
+            icon_name, mi = render_emblem(book_id, rule, i, m.bookshelf_emblem_cache, mi, db, m.formatter, m.bookshelf_template_cache, column_name='bookshelf')
+            if icon_name:
+                return icon_name
         return ''
 
     def refresh_settings(self):
@@ -1855,10 +1857,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             device_connected = get_gui().device_connected is not None
             on_device = device_connected and db.field_for('ondevice', book_id)
             if on_device:
-                if getattr(self, 'on_device_icon', None) is None:
-                    self.on_device_icon = QIcon.cached_icon('ok.png')
                 which = above if below else below
-                which.append(self.on_device_icon)
+                which.append(cached_emblem(0, m.bookshelf_bitmap_cache, ':ondevice'))
             custom = self.render_emblem(book_id)
             if custom:
                 match gprefs['bookshelf_emblem_position']:
@@ -1872,7 +1872,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                         which = bottom
                     case _:
                         which = above if below and not above else below
-                which.append(QIcon.cached_icon(custom))
+                if icon := cached_emblem(0, m.bookshelf_bitmap_cache, custom):
+                    which.append(icon)
 
         def draw_horizontal(emblems: list[QIcon], position: str) -> None:
             if not emblems:
