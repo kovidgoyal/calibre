@@ -260,14 +260,14 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.buffer_size = buffer
         self.metadata_backup = None
         icon_height = (parent.fontMetrics() if hasattr(parent, 'fontMetrics') else QFontMetrics(QApplication.font())).lineSpacing()
-        self.bool_yes_icon = QIcon.ic('ok.png').pixmap(icon_height)
-        self.bool_no_icon = QIcon.ic('list_remove.png').pixmap(icon_height)
-        self.bool_blank_icon = QIcon.ic('blank.png').pixmap(icon_height)
+        self.bool_yes_icon = QIcon.cached_icon('ok.png').pixmap(icon_height)
+        self.bool_no_icon = QIcon.cached_icon('list_remove.png').pixmap(icon_height)
+        self.bool_blank_icon = QIcon.cached_icon('blank.png').pixmap(icon_height)
         # Qt auto-scales marked icon correctly, so we don't need to do it (and
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
-        self.marked_icon = QIcon.ic('marked.png')
-        self.bool_blank_icon_as_icon = QIcon(self.bool_blank_icon)
+        self.marked_icon = QIcon.cached_icon('marked.png')
+        self.bool_blank_icon_as_icon = QIcon.cached_icon('blank.png')
         self.row_decoration = None
         self.device_connected = False
         self.ids_to_highlight = []
@@ -1585,7 +1585,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.search_engine = OnDeviceSearch(self)
         self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
-        self.sync_icon = QIcon.ic('sync.png')
+        self.sync_icon = QIcon.cached_icon('sync.png')
 
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))

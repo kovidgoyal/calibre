@@ -664,7 +664,7 @@ class CoverDelegate(QStyledItemDelegate):
         if raw_icon is not None:
             ans = raw_icon.pixmap(sz, sz)
         elif name == ':ondevice':
-            ans = QIcon.ic('ok.png').pixmap(sz, sz)
+            ans = QIcon.cached_icon('ok.png').pixmap(sz, sz)
         elif name:
             pmap = None
             d = themed_icon_name(os.path.join(config_dir, 'cc_icons'), name)

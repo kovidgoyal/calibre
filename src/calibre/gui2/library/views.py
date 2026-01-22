@@ -693,7 +693,7 @@ class BooksView(TableView):  # {{{
             book_id_col = db.field_metadata['id']['rec_index']
             book_id = db.data[row][book_id_col]
             m = menu.addAction(_('Toggle mark for book'), lambda: db.data.toggle_marked_ids({book_id,}))
-            ic = QIcon.ic('marked.png')
+            ic = QIcon.cached_icon('marked.png')
             m.setIcon(ic)
             from calibre.gui2.actions.mark_books import mark_books_with_text
             m = menu.addAction(_('Mark book with text label'), partial(mark_books_with_text, {book_id,}))
