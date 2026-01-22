@@ -1852,7 +1852,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             on_device = device_connected and db.field_for('ondevice', book_id)
             if on_device:
                 if getattr(self, 'on_device_icon', None) is None:
-                    self.on_device_icon = QIcon.ic('ok.png')
+                    self.on_device_icon = QIcon.cached_icon('ok.png')
                 which = above if below else below
                 which.append(self.on_device_icon)
             custom = self.render_emblem(book_id)
@@ -1868,7 +1868,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                         which = bottom
                     case _:
                         which = above if below and not above else below
-                which.append(QIcon.ic(custom))
+                which.append(QIcon.cached_icon(custom))
 
         def draw_horizontal(emblems: list[QIcon], position: str) -> None:
             if not emblems:
