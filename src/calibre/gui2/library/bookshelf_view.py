@@ -116,11 +116,11 @@ def normalised_size(size_bytes: int) -> float:
 
 
 def render_spine_text_as_pixmap(
-    text: str, font: QFont, fm: QFontMetricsF, size: QSize, vertical_alignment: Qt.AlignmentFlag, rotation: int,
+    text: str, font: QFont, fm: QFontMetricsF, size: QSize, vertical_alignment: Qt.AlignmentFlag, downwards: bool,
     outline_width: float, device_pixel_ratio: float, text_color: QColor, outline_color: QColor,
 ) -> QPixmap:
     ss = (QSizeF(size) * device_pixel_ratio).toSize()
-    key = f'{font.key()}{ss.width()}{ss.height()}{int(vertical_alignment)}{rotation}{outline_width}{text_color.rgb()}{outline_color.rgb()}{text}'
+    key = f'{font.key()}{ss.width()}{ss.height()}{int(vertical_alignment)}{int(downwards)}{outline_width}{text_color.rgb()}{outline_color.rgb()}{text}'
     if pmap := QPixmapCache.find(key):
         return pmap
     ans = QImage(ss.height(), ss.width(), QImage.Format_ARGB32_Premultiplied)
@@ -130,8 +130,12 @@ def render_spine_text_as_pixmap(
         painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
         painter.setFont(font)
         sz = ans.deviceIndependentSize().transposed()
-        painter.translate(0, sz.width())
-        painter.rotate(rotation)
+        if downwards:
+            painter.translate(sz.height(), 0)
+            painter.rotate(90)
+        else:
+            painter.translate(0, sz.width())
+            painter.rotate(-90)
         flags = vertical_alignment | Qt.AlignmentFlag.AlignHCenter | Qt.TextFlag.TextSingleLine
         if outline_width > 0:
             # Calculate text dimensions
@@ -2223,11 +2227,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         # Determine text color based on spine background brightness
         text_color, outline_color = self.get_contrasting_text_color(spine_color)
-        rotation = 90 if gprefs['bookshelf_up_to_down'] else -90
 
         def draw_text(text: str, rect: QRect, alignment: Qt.AlignmentFlag) -> None:
             pixmap = render_spine_text_as_pixmap(
-                text, font, fm, rect.transposed().size(), alignment, rotation,
+                text, font, fm, rect.transposed().size(), alignment, gprefs['bookshelf_up_to_down'],
                 self.outline_width, self.devicePixelRatioF(), text_color, outline_color)
             painter.drawPixmap(rect.topLeft(), pixmap)
         if second_line:
