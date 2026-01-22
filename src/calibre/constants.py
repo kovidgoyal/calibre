@@ -12,7 +12,7 @@ from functools import lru_cache
 from polyglot.builtins import environ_item, hasenv
 
 __appname__   = 'calibre'
-numeric_version = (8, 99, 9)
+numeric_version = (8, 99, 10)
 __version__   = '.'.join(map(str, numeric_version))
 git_version   = None
 __author__    = 'Kovid Goyal <kovid@kovidgoyal.net>'
