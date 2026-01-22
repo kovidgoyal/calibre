@@ -3,7 +3,6 @@
 import json
 import re
 
-from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -13,11 +12,6 @@ def re_html(y):
         soup = BeautifulSoup(y.rstrip())
         return soup.text
     return ''
-
-
-def get_id(url):
-    rq = browser().open(url)
-    return re.search(r'\?p=(\S+)>', str(rq.info())).group(1)
 
 
 class TLS(BasicNewsRecipe):
@@ -31,7 +25,6 @@ class TLS(BasicNewsRecipe):
     )
     encoding = 'utf-8'
     language = 'en_GB'
-    masthead_url = 'https://www.the-tls.co.uk/wp-content/uploads/sites/7/2019/11/Smaller-Logo.jpg'
     remove_empty_feeds = True
 
     extra_css = '''
@@ -58,7 +51,9 @@ class TLS(BasicNewsRecipe):
         if d and isinstance(d, str):
             issue = 'https://www.the-tls.com/issues/' + d + '/'
 
-        url = 'https://www.the-tls.com/wp-json/tls/v2/contents-page/' + get_id(issue)
+        soup = self.index_to_soup(issue)
+        issue_id = soup.find('link', rel='shortlink')['href'].partition('=')[-1]
+        url = 'https://www.the-tls.com/wp-json/tls/v2/contents-page/' + issue_id
         raw = self.index_to_soup(url, raw=True)
         data = json.loads(raw)
         self.cover_url = data['featuredimage']['full_image'].split('?')[0] + '?w=600'
