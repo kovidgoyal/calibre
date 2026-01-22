@@ -1872,7 +1872,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                         which = bottom
                     case _:
                         which = above if below and not above else below
-                if icon := cached_emblem(0, m.bookshelf_bitmap_cache, custom):
+                if (icon := cached_emblem(0, m.bookshelf_bitmap_cache, custom)) is not None:
                     which.append(icon)
 
         def draw_horizontal(emblems: list[QIcon], position: str) -> None:
