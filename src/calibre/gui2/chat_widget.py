@@ -5,8 +5,26 @@ from html import escape
 from math import ceil
 from typing import NamedTuple
 
-from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, QSize, QSizePolicy, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import (
+    QFont,
+    QFontInfo,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QPalette,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTextBrowser,
+    QTextEdit,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
+from calibre.utils.config_base import tweaks
 from calibre.utils.logging import INFO, WARN
 from calibre.utils.resources import get_image_path
 
@@ -21,6 +39,10 @@ class Browser(QTextBrowser):
         self.setContentsMargins(0, 0, 0, 0)
         self.document().setDocumentMargin(0)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        if tweaks['change_ai_chat_font_size_by']:
+            font = QFont(self.font())
+            font.setPixelSize(QFontInfo(font).pixelSize() + tweaks['change_ai_chat_font_size_by'])
+            self.setFont(font)
 
     def sizeHint(self) -> QSize:
         return QSize(600, 500)
