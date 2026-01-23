@@ -43,7 +43,7 @@ from calibre.ebooks.metadata.search_internet import qquote
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, open_local_file, question_dialog, resolve_custom_background
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import LazyConfigWidgetBase, get_move_count
+from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, get_move_count
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter
@@ -235,42 +235,89 @@ class DisplayedFields(QAbstractListModel):
             return idx
 
 
-class LazyEditRulesBase(LazyConfigWidgetBase):
+class RulesSetting(Setting):
 
-    rule_set_name = None
+    def __init__(self, name, config_obj, widget, gui_name=None, **kw):
+        self.name, self.gui_name = name, gui_name
+        if gui_name is None:
+            self.gui_name = 'opt_'+name
+        self.widget = widget
+        self.edit_rules: EditRulesWidget = getattr(widget, self.gui_name)
+        self.edit_rules.changed_signal.connect(self.widget.changed_signal)
+        self.edit_rules.rule_set_name = name
+
+    def initialize(self):
+        pass  # we initialize on showEvent, lazily
+
+    def restore_defaults(self):
+        self.edit_rules.restore_defaults()
+
+    def commit(self):
+        self.edit_rules.commit()
+
+
+class EditRulesWidget(QWidget):
+
+    rule_set_name = ''
+    changed_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.rules_editor = EditRules(parent)
-        self.setLayout(self.rules_editor.layout())
+        self.rules_editor = EditRules(self)
+        self.rules_editor.changed.connect(self.changed_signal)
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(self.rules_editor)
+        self.initialized = False
+
+    def initialize(self):
+        if self.initialized:
+            return
+        self.initialized = True
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
+        mi = selected_rows_metadatas()
+        self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
+
+    def restore_defaults(self):
+        self.initialize()
+        self.rules_editor.restore_defaults()
+
+    def commit(self):
+        self.initialize()
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
+        self.rules_editor.commit(db.prefs)
+
+    def showEvent(self, ev):
+        self.initialize()
+        super().showEvent(ev)
+
+
+class ColumnColorRules(LazyConfigWidgetBase):
+
+    def setupUi(self, self_):
+        self.opt_column_color_rules = r = EditRulesWidget(self)
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(r)
 
     def genesis(self, gui):
         self.gui = gui
-
-    def lazy_initialize(self):
-        if not self.rule_set_name:
-            raise NotImplementedError('You must define the attribute "rule_set_name" in LazyEditRulesBase subclasses')
-
-        db = self.gui.current_db
-        mi = selected_rows_metadatas()
-        self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
-        self.register(self.rule_set_name, db.prefs, 'rules_editor')
+        self.register('column_color_rules', {}, setting=RulesSetting)
 
 
-class ColumnColorRules(LazyEditRulesBase):
-    rule_set_name = 'column_color_rules'
+class ColumnIconRules(LazyConfigWidgetBase):
 
+    def setupUi(self, self_):
+        self.opt_column_icon_rules = r = EditRulesWidget(self)
+        l = QVBoxLayout(self)
+        l.setContentsMargins(0, 0, 0, 0)
+        l.addWidget(r)
 
-class ColumnIconRules(LazyEditRulesBase):
-    rule_set_name = 'column_icon_rules'
-
-
-class GridEmblemnRules(LazyEditRulesBase):
-    rule_set_name = 'cover_grid_icon_rules'
-
-
-class BookshelfEmblemRules(LazyEditRulesBase):
-    rule_set_name = 'bookshelf_icon_rules'
+    def genesis(self, gui):
+        self.gui = gui
+        self.register('column_icon_rules', {}, setting=RulesSetting)
 
 
 class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):

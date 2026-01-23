@@ -111,7 +111,7 @@
        <string>&amp;Quickview</string>
       </attribute>
      </widget>
-     <widget class="ColumnColorRules" name="edit_rules">
+     <widget class="ColumnColorRules" name="column_color_rules_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/format-fill-color.png</normaloff>:/images/format-fill-color.png</iconset>
@@ -120,7 +120,7 @@
        <string>Column &amp;coloring</string>
       </attribute>
      </widget>
-     <widget class="ColumnIconRules" name="icon_rules">
+     <widget class="ColumnIconRules" name="column_icon_rules_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/icon_choose.png</normaloff>:/images/icon_choose.png</iconset>

@@ -1074,7 +1074,6 @@ class EditRules(QWidget):  # {{{
         self.choices = c = QComboBox(self)
         l.addWidget(c, l.rowCount() - 1, 1, 1, 1)
         c.setVisible(False)
-        c.currentIndexChanged.connect(self.changed)
         cl.setBuddy(c)
 
         self.l1 = l1 = QLabel('')
@@ -1160,6 +1159,15 @@ class EditRules(QWidget):  # {{{
         os.makedirs(path, exist_ok=True)
         open_local_file(path)
 
+    def restore_defaults(self):
+        match self.pref_name:
+            case 'cover_grid_icon_rules':
+                self.enabled.setChecked(gprefs.defaults['show_emblems'])
+            case 'bookshelf_icon_rules':
+                idx = self.choices.findData(gprefs.defaults['bookshelf_emblem_position'])
+                self.choices.setCurrentIndex(max(0, idx))
+        self.model.clear()
+
     def initialize(self, fm, prefs, mi, pref_name):
         self.pref_name = pref_name
         self.model = RulesModel(prefs, fm, self.pref_name)
@@ -1170,36 +1178,38 @@ class EditRules(QWidget):  # {{{
         text += ' ' + _('Click the "Add rule" button below to get started.'
                     '<p>You can <b>change an existing rule</b> by double clicking it.')
         self.l1.setText('<p>'+ text)
-        if pref_name == 'cover_grid_icon_rules':
-            self.enabled.setVisible(True)
-            self.enabled.setChecked(gprefs['show_emblems'])
-            self.enabled.setText(_('Show &emblems next to the covers'))
-            self.enabled.stateChanged.connect(self.enabled_toggled)
-            self.enabled.setToolTip(_(
-                'If checked, you can tell calibre to display icons of your choosing'
-                ' next to the covers shown in the Cover grid, controlled by the'
-                ' metadata of the book.'))
-            self.enabled_toggled()
-        if pref_name == 'bookshelf_icon_rules':
-            self.choices_label.setVisible(True)
-            self.choices.setVisible(True)
-            self.choices_label.setText(_('&Position of the emblem:'))
-            self.choices.setToolTip(_(
-                '<p>Display an icon of your choosing on the book spine in Bookshelf view.'
-                ' <p>"Automatic" will place the icon either above or below the spine.'
-                ' <p>"Above" and "Below" will place the icon at the selected position.'
-                ' <p>"Top" and "Bottom" will place the icon on the spine, reducing the space available for text.'))
-            choice_map = (
-                (_('Automatic'), 'auto'),
-                (_('Above the spine'), 'above'),
-                (_('Below the spine'), 'below'),
-                (_('Top of the spine'), 'top'),
-                (_('Bottom of the spine'), 'bottom'),
-            )
-            for idx, (text, data) in enumerate(choice_map):
-                self.choices.addItem(text, data)
-                if data == gprefs['bookshelf_emblem_position']:
-                    self.choices.setCurrentIndex(idx)
+        match pref_name:
+            case 'cover_grid_icon_rules':
+                self.enabled.setVisible(True)
+                self.enabled.setChecked(gprefs['show_emblems'])
+                self.enabled.setText(_('Show &emblems next to the covers'))
+                self.enabled.stateChanged.connect(self.enabled_toggled)
+                self.enabled.setToolTip(_(
+                    'If checked, you can tell calibre to display icons of your choosing'
+                    ' next to the covers shown in the Cover grid, controlled by the'
+                    ' metadata of the book.'))
+                self.enabled_toggled()
+            case 'bookshelf_icon_rules':
+                self.choices_label.setVisible(True)
+                self.choices.setVisible(True)
+                self.choices_label.setText(_('&Position of the emblem:'))
+                self.choices.setToolTip(_(
+                    '<p>Display an icon of your choosing on the book spine in Bookshelf view.'
+                    ' <p>"Automatic" will place the icon either above or below the spine.'
+                    ' <p>"Above" and "Below" will place the icon at the selected position.'
+                    ' <p>"Top" and "Bottom" will place the icon on the spine, reducing the space available for text.'))
+                choice_map = (
+                    (_('Automatic'), 'auto'),
+                    (_('Above the spine'), 'above'),
+                    (_('Below the spine'), 'below'),
+                    (_('Top of the spine'), 'top'),
+                    (_('Bottom of the spine'), 'bottom'),
+                )
+                for idx, (text, data) in enumerate(choice_map):
+                    self.choices.addItem(text, data)
+                    if data == gprefs['bookshelf_emblem_position']:
+                        self.choices.setCurrentIndex(idx)
+                self.choices.currentIndexChanged.connect(self.changed)
 
     def enabled_toggled(self):
         enabled = self.enabled.isChecked()
@@ -1347,11 +1357,12 @@ class EditRules(QWidget):  # {{{
 
     def commit(self, prefs):
         self.model.commit(prefs)
-        if self.pref_name == 'cover_grid_icon_rules':
-            gprefs['show_emblems'] = self.enabled.isChecked()
-        if self.pref_name == 'bookshelf_icon_rules':
-            idx = max(0, self.choices.currentIndex())
-            gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)
+        match self.pref_name:
+            case 'cover_grid_icon_rules':
+                gprefs['show_emblems'] = self.enabled.isChecked()
+            case 'bookshelf_icon_rules':
+                idx = max(0, self.choices.currentIndex())
+                gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)
 
     def export_rules(self):
         path = choose_save_file(self, 'export-coloring-rules', _('Choose file to export to'),

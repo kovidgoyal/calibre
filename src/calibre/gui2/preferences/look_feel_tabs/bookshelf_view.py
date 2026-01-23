@@ -15,6 +15,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import AbortCommit, LazyConfigWidgetBase
+from calibre.gui2.preferences.look_feel_tabs import RulesSetting
 from calibre.gui2.preferences.look_feel_tabs.bookshelf_view_ui import Ui_bookshelf_tab as Ui_Form
 from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
@@ -101,6 +102,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         db = self.gui.current_db
         r = self.register
 
+        r('bookshelf_icon_rules', {}, setting=RulesSetting)
         r('bookshelf_shadow', gprefs)
         r('bookshelf_variable_height', gprefs)
         r('bookshelf_fade_time', gprefs)

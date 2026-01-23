@@ -653,7 +653,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="BookshelfEmblemRules" name="emblem_rules">
+  <widget class="EditRulesWidget" name="opt_bookshelf_icon_rules">
    <attribute name="title">
     <string>&amp;Emblems</string>
    </attribute>
@@ -671,8 +671,8 @@
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>
-   <class>BookshelfEmblemRules</class>
-   <extends>ConfigWidgetBase</extends>
+   <class>EditRulesWidget</class>
+   <extends>QWidget</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>
