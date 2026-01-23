@@ -214,10 +214,10 @@ class Setting:
         oldval = self.get_config_val()
         changed = val != oldval
         if changed:
-            from calibre.gui2.preferences.coloring import EditRules
-            if isinstance(self.gui_obj, EditRules):
-                self.gui_obj.commit(self.config_obj)
             self.set_config_val(self.get_gui_val())
+        from calibre.gui2.preferences.coloring import EditRules
+        if isinstance(self.gui_obj, EditRules):
+            self.gui_obj.commit(self.config_obj)
         return changed and self.restart_required
 
     def restore_defaults(self):
