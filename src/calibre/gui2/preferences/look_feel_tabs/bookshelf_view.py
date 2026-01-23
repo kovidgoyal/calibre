@@ -21,7 +21,7 @@ from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
 
 
-class LogViewer(QDialog):
+class LogViewer(QDialog):  # {{{
 
     def __init__(self, path: str, text: str, parent=None):
         super().__init__(parent)
@@ -48,6 +48,7 @@ class LogViewer(QDialog):
         with suppress(FileNotFoundError):
             os.remove(make_long_path_useable(self.log_path))
         self.text.setPlainText('')
+# }}}
 
 
 class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
