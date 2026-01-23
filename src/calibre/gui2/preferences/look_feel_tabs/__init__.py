@@ -254,7 +254,17 @@ class LazyEditRulesBase(LazyConfigWidgetBase):
         db = self.gui.current_db
         mi = selected_rows_metadatas()
         self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
-        self.register(self.rule_set_name, db.prefs, 'rules_editor')
+        self.rules_editor.changed.connect(self.changed_signal)
+
+    def commit(self, *args):
+        db = self.gui.current_db
+        self.rules_editor.commit(db.prefs)
+        return super().commit(*args)
+
+    def restore_defaults(self):
+        db = self.gui.current_db
+        self.rules_editor.restore_defaults(db.prefs)
+        return super().restore_defaults()
 
 
 class ColumnColorRules(LazyEditRulesBase):

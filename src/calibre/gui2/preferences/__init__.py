@@ -154,7 +154,6 @@ class Setting:
         self.gui_obj = getattr(widget, self.gui_name)
         self.widget = widget
 
-        from calibre.gui2.preferences.coloring import EditRules
         if isinstance(self.gui_obj, QCheckBox):
             self.datatype = 'bool'
             self.gui_obj.stateChanged.connect(self.changed)
@@ -176,9 +175,6 @@ class Setting:
             self.datatype = 'choice'
             self.gui_obj.editTextChanged.connect(self.changed)
             self.gui_obj.currentIndexChanged.connect(self.changed)
-        elif isinstance(self.gui_obj, EditRules):
-            self.datatype = 'list'
-            self.gui_obj.changed.connect(self.changed)
         else:
             raise ValueError(f'Unknown data type {self.gui_obj.__class__}')
 
@@ -214,9 +210,6 @@ class Setting:
         oldval = self.get_config_val()
         changed = val != oldval
         if changed:
-            from calibre.gui2.preferences.coloring import EditRules
-            if isinstance(self.gui_obj, EditRules):
-                self.gui_obj.commit(self.config_obj)
             self.set_config_val(self.get_gui_val())
         return changed and self.restart_required
 
@@ -249,10 +242,6 @@ class Setting:
                 if idx == -1:
                     idx = 0
                 self.gui_obj.setCurrentIndex(idx)
-        elif self.datatype == 'list':
-            from calibre.gui2.preferences.coloring import EditRules
-            if isinstance(self.gui_obj, EditRules):
-                self.gui_obj.model.import_rules(val)
 
     def get_gui_val(self):
         if self.datatype == 'bool':
@@ -270,10 +259,6 @@ class Setting:
                 idx = self.gui_obj.currentIndex()
                 idx = max(idx, 0)
                 val = str(self.gui_obj.itemData(idx) or '')
-        elif self.datatype == 'list':
-            from calibre.gui2.preferences.coloring import EditRules
-            if isinstance(self.gui_obj, EditRules):
-                val = self.gui_obj.model.rules_as_list()
         return val
 
 

@@ -1353,6 +1353,17 @@ class EditRules(QWidget):  # {{{
             idx = max(0, self.choices.currentIndex())
             gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)
 
+    def restore_defaults(self, prefs):
+        self.model.clear()
+        self.model.import_rules(prefs.defaults[self.pref_name])
+        if self.pref_name == 'cover_grid_icon_rules':
+            self.enabled.setChecked(gprefs.defaults['show_emblems'])
+        if self.pref_name == 'bookshelf_icon_rules':
+            idx = self.choices.findData(gprefs.defaults['bookshelf_emblem_position'],
+                role=Qt.ItemDataRole.UserRole, flags=Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive)
+            self.choices.setCurrentIndex(max(0, idx))
+        self.changed.emit()
+
     def export_rules(self):
         path = choose_save_file(self, 'export-coloring-rules', _('Choose file to export to'),
                                 filters=[(_('Rules'), ['rules'])], all_files=False, initial_filename=self.pref_name + '.rules')
