@@ -294,30 +294,27 @@ class EditRulesWidget(QWidget):
         super().showEvent(ev)
 
 
-class ColumnColorRules(LazyConfigWidgetBase):
+class EditRulesConfigWidgetBase(LazyConfigWidgetBase):
+
+    rule_set_name = ''
 
     def setupUi(self, self_):
-        self.opt_column_color_rules = r = EditRulesWidget(self)
+        self.rules_editor = r = EditRulesWidget(self)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         l.addWidget(r)
 
     def genesis(self, gui):
         self.gui = gui
-        self.register('column_color_rules', {}, setting=RulesSetting)
+        self.register(self.rule_set_name, {}, gui_name='rules_editor', setting=RulesSetting)
 
 
-class ColumnIconRules(LazyConfigWidgetBase):
+class ColumnColorRules(EditRulesConfigWidgetBase):
+    rule_set_name = 'column_color_rules'
 
-    def setupUi(self, self_):
-        self.opt_column_icon_rules = r = EditRulesWidget(self)
-        l = QVBoxLayout(self)
-        l.setContentsMargins(0, 0, 0, 0)
-        l.addWidget(r)
 
-    def genesis(self, gui):
-        self.gui = gui
-        self.register('column_icon_rules', {}, setting=RulesSetting)
+class ColumnIconRules(EditRulesConfigWidgetBase):
+    rule_set_name = 'column_icon_rules'
 
 
 class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
