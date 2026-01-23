@@ -72,7 +72,7 @@ requires = [
     "installer == 0.7.0",  # Needed for installing pure python packages at build time
     "packaging == 25.0",   # Needed for build which is needed for setuptools
 	"pyproject_hooks == 1.2.0", # Needed for build which is needed for setuptools
-	"wheel == 0.45.1", # Needed for build which is needed for setuptools
+	"wheel == 0.46.2", # Needed for build which is needed for setuptools
 	"build == 1.3.0", # Needed for build which is needed for setuptools
     "pybind11 == 3.0.1", # Needed for pillow
 	"setuptools == 80.9.0",

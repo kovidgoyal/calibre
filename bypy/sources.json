@@ -509,12 +509,12 @@
     },
 
     {
-        "name": "nodejs 22.21.1",
+        "name": "nodejs 22.22.0",
 		"type": "build",
 		"comment": "Needed for building Qt WebEngine",
         "os": "macos,linux",
         "unix": {
-            "hash": "sha256:4b5ad1795fb6adfb1862df9a626bdca85185866fcd7d0313e87a347eec293fd8",
+            "hash": "sha256:b7f40aadbf71df0d78a2239f593e4f14bf2f129fd9c5643f024c68ec1b48a854",
             "urls": ["https://github.com/nodejs/node/archive/refs/tags/v{version}.{file_extension}"]
         }
     },
