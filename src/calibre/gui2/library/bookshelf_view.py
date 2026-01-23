@@ -824,6 +824,7 @@ class CaseItem:
     height: int = 0
     idx: int = 0
     items: list[ShelfItem] | None = None
+    expanded_item: ShelfItem | None = None
 
     def __init__(self, y: int = 0, height: int = 0, is_shelf: bool = False, idx: int = 0):
         self.start_y = y
@@ -926,7 +927,7 @@ class CaseItem:
                     if left_shift:
                         item = item._replace(start_x=item.start_x - left_shift)
                 elif i == shelf_item.idx:
-                    item = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
+                    item = ans.expanded_item = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
                 elif right_shift:
                     item = item._replace(start_x=item.start_x + right_shift)
                 ans.items.append(item)
@@ -934,7 +935,7 @@ class CaseItem:
         else:
             ans.items = self.items[:]
             item = ans.items[shelf_item.idx]
-            ans.items[shelf_item.idx] = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
+            ans.items[shelf_item.idx] = ans.expanded_item = item._replace(start_x=item.start_x - left_shift, width=width, is_hover_expanded=True)
         return ans
 
 
@@ -1950,17 +1951,18 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.draw_shelf_base(painter, base, scroll_y, self.width(), base.idx % n)
         for shelf, has_expanded in shelves:
             # Draw books and inline dividers on it
+            if has_expanded:
+                hovered_item = shelf.expanded_item
             for item in shelf.items:
                 if item.is_divider:
                     self.draw_inline_divider(painter, item, scroll_y)
                     continue
-                if has_expanded and self.expanded_cover.is_expanded(item.book_id):
-                    hovered_item = item
-                else:
+                if not has_expanded or not self.expanded_cover.is_expanded(item.book_id):
                     # Draw a book spine at this position
                     row = self.bookcase.book_id_to_row_map[item.book_id]
                     self.draw_spine(painter, item, scroll_y, sm.isRowSelected(row), row == current_row)
-                if gprefs['bookshelf_hover'] != 'above' or not hovered_item \
+                if not has_expanded or gprefs['bookshelf_hover'] != 'above' \
+                    or (item.start_x + (item.width / 2) < hovered_item.start_x) \
                     or (item.start_x + (item.width / 2) > hovered_item.start_x + hovered_item.width):
                     self.draw_emblems(painter, item, scroll_y)
         if hovered_item is not None:
