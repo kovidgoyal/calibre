@@ -640,7 +640,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/images/polish.png</normaloff>:/images/polish.png</iconset>
+             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
            </property>
           </widget>
          </item>
