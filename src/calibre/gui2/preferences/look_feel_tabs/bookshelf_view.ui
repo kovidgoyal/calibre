@@ -540,18 +540,18 @@
          <item>
           <widget class="QPushButton" name="change_font_button">
            <property name="text">
-            <string>Change &amp;font</string>
+            <string>&amp;Change</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="restore_default_font_button">
            <property name="text">
-            <string>Restore &amp;default font</string>
+            <string>Restore &amp;default</string>
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>:/images/polish.png</normaloff>:/images/polish.png</iconset>
+             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
            </property>
           </widget>
          </item>
