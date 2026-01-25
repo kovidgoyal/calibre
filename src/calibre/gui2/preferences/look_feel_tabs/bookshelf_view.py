@@ -203,6 +203,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
                 layout.insertRow(r, b, l)
                 b.color_changed.connect(self.changed_signal)
         self.change_font_button.clicked.connect(self.change_font)
+        self.restore_default_font_button.clicked.connect(self.restore_font)
 
     def change_font(self):
         from calibre.gui2.preferences.look_feel_tabs.font_selection_dialog import FontSelectionDialog
@@ -219,6 +220,11 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
             self.current_font_choice = {'family': family, 'style': style}
             self.update_font_display()
             self.changed_signal.emit()
+
+    def restore_font(self):
+        self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
+        self.update_font_display()
+        self.changed_signal.emit()
 
     def lazy_initialize(self):
         self.recount_timer.start()

@@ -544,6 +544,17 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="restore_default_font_button">
+           <property name="text">
+            <string>Restore &amp;default font</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/images/polish.png</normaloff>:/images/polish.png</iconset>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
