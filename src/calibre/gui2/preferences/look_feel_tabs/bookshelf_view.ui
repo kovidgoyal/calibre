@@ -503,7 +503,7 @@
          <item>
           <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
            <property name="toolTip">
-            <string>&lt;p&gt;When showing a second line in the spine, for very narrow books, artifically widen the book to make space for the second line. Without this, the second line wont be displayed for narrow books, with it, narrow books will appear artifically wider than they really are.</string>
+            <string>&lt;p&gt;When showing a second line in the spine, for very narrow books, artificially widen the book to make space for the second line. Without this, the second line won&apos;t be displayed for narrow books, with it, narrow books will appear artificially wider than they really are.</string>
            </property>
            <property name="text">
             <string>Make &amp;space for second line</string>
