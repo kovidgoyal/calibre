@@ -416,7 +416,8 @@ pref_name_map = {
         'label': _('Add the emblem:'),
         'text': _(
             'You can add an emblem (small icon) that is displayed on or above the book spine'
-            ' in the bookshelf view by creating "rules" that tell calibre what image to use.'),
+            ' in the bookshelf view by creating "rules" that tell calibre what image to use.'
+            ' Only the first emblem in the list that match the conditions will be displayed.'),
     },
 }
 kind_icons = {'emblem', 'icon', 'bookshelf_emblem'}
