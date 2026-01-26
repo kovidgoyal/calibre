@@ -102,7 +102,7 @@ def get_icons(
     '''
     namelist = tuple(
         (name_or_list_of_names,) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names)
-    ans, tracebacks = get_icons_cached(zfp, namelist, plugin_name, folder_in_zip_file)
+    ans, tracebacks = get_icons_cached(zfp, namelist, plugin_name or '', folder_in_zip_file or '')
     if print_tracebacks_for_missing_resources:
         for name, tb in tracebacks.items():
             print('Failed to load resource:', repr(name), 'from the plugin zip file:', zfp, file=sys.stderr)
