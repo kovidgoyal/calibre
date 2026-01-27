@@ -3323,7 +3323,7 @@ class Cache:
                 'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
                 (book_id, fmt, user, device, cfi, epoch or time(), pos_frac))
 
-    @read_api
+    @write_api  # doesn't need write access but sqlite does require only a single thread to access the db during backup
     def export_library(self, library_key, exporter, progress=None, abort=None):
         from polyglot.binary import as_hex_unicode
         key_prefix = as_hex_unicode(library_key)
