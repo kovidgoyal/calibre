@@ -237,7 +237,7 @@ def check_dependencies() -> None:
     print('Testing against the SBOM', flush=True)
     import runpy
     orig = sys.argv, sys.stdout
-    sys.argv = ['bypy', 'sbom', 'calibre', '1.0.0']
+    sys.argv = ['bypy', 'sbom', 'kovidgoyal/calibre', '1.0.0']
     buf = io.StringIO()
     sys.stdout = buf
     runpy.run_path('bypy-src')
