@@ -437,6 +437,7 @@ def run_rapydscript_tests():
 
 def set_data(src, **kw):
     from calibre.db.constants import NO_SEARCH_LINK
+    from calibre.ebooks.oeb.polish.main import SUPPORTED
     from calibre.library.page_count import CHARS_PER_PAGE
     for k, v in {
         '__SPECIAL_TITLE__': SPECIAL_TITLE_FOR_WEBENGINE_COMMS,
@@ -449,6 +450,7 @@ def set_data(src, **kw):
         '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations),
         '__NO_SEARCH_LINK__': NO_SEARCH_LINK,
         '__CHARS_PER_PAGE__': str(CHARS_PER_PAGE),
+        '__EDITABLE_FORMATS__': json.dumps(tuple(SUPPORTED)),
     }.items():
         src = src.replace(k, v, 1)
     for k, v in kw.items():

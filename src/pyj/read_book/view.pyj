@@ -567,7 +567,7 @@ class View:
         elif data.name is 'metadata':
             self.overlay.show_metadata()
         elif data.name is 'edit_book':
-            ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
+            self.edit_book()
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
         elif data.name is 'select_all':
@@ -596,6 +596,9 @@ class View:
             self.iframe_wrapper.send_message('change_number_of_columns', delta=0)
         else:
             self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
+
+    def edit_book(self):
+        ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
 
     def on_selection_change(self, data):
         self.currently_showing.selection = {

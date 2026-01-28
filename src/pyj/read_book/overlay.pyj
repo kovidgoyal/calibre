@@ -281,6 +281,10 @@ class MainOverlay:  # {{{
                 ac(_('Open book'), _('Open a book'), self.overlay.open_book, 'book'),
                 reload_action
             )
+            editable_formats = v'''__EDITABLE_FORMATS__'''
+            fmt = self.overlay.view?.book?.manifest.book_format or ''
+            if fmt.toUpperCase() in editable_formats:
+                reload_actions.appendChild(ac(_('Edit book'), _('Edit this book'), self.overlay.view.edit_book, 'edit'))
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
 
