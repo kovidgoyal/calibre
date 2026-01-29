@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 8.x.0 2026-xx-xx
+# {{{ 9.x.0 2026-xx-xx
 #
 # :: new features
 #
