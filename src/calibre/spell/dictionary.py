@@ -19,6 +19,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
 from calibre.utils.localization import _, get_lang, get_system_locale
 from calibre.utils.resources import get_path as P
+from calibre.utils.shared_file import share_open
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
@@ -78,7 +79,7 @@ def custom_dictionaries(reread=False):
     if _custom is None or reread:
         dics = []
         for lc in glob.glob(os.path.join(config_dir, 'dictionaries', '*/locales')):
-            with open(lc, 'rb') as cdf:
+            with share_open(lc, 'rb') as cdf:
                 locales = list(filter(None, cdf.read().decode('utf-8').splitlines()))
             try:
                 name, locale, locales = locales[0], locales[1], locales[1:]
