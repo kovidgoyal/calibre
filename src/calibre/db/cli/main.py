@@ -59,10 +59,10 @@ def get_parser(usage):
             ' on the server. For details on how to setup access via a Content server, see'
             ' {0}.'
         ).format(localize_user_manual_link(
-            'https://manual.calibre-ebook.com/generated/en/calibredb.html',
+            'https://manual.calibre-ebook.com/generated/en/calibredb.html'),
             'http://hostname:port/#library_id',
             'http://localhost:8080/#mylibrary',
-        ))
+        )
     )
     go.add_option(
         '-h', '--help', help=_('show this help message and exit'), action='help'
