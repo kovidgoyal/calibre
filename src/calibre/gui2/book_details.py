@@ -41,7 +41,7 @@ from qt.core import (
 )
 
 from calibre import fit_image, sanitize_file_name
-from calibre.constants import DEBUG, config_dir, iswindows
+from calibre.constants import DEBUG, config_dir, ismacos, iswindows
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, NO_SEARCH_LINK, RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
@@ -990,6 +990,8 @@ class CoverView(QWidget):  # {{{
             pmap = cb.pixmap()
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
+            if ismacos:  # Without this there is a crash when Qt tries to save this pixmap as JPEG data
+                pmap = pmap.copy()
         if not pmap.isNull():
             self.update_cover(pmap)
 

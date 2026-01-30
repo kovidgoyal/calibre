@@ -321,6 +321,8 @@ class ImageDropMixin:  # {{{
         pmap = cb.pixmap()
         if pmap.isNull() and cb.supportsSelection():
             pmap = cb.pixmap(QClipboard.Mode.Selection)
+        if ismacos:  # Without this there is a crash when Qt tries to save this pixmap as JPEG data
+            pmap = pmap.copy()
         if not pmap.isNull():
             self.set_pixmap(pmap)
             self.cover_changed.emit(
