@@ -654,7 +654,7 @@ class CreateCustomColumn(QDialog):
             else:
                 l, dl = _('&Format for numbers:'), (
                     '<p>' + _('Default: Not formatted. For format language details see'
-                    ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the Python documentation</a>'))
+                    ' <a href="{}">the Python documentation</a>').format('https://docs.python.org/library/string.html#format-string-syntax'))
                 if col_type == 'int':
                     self.format_box.setToolTip('<p>' + _(
                         'Examples: The format <code>{0:0>4d}</code> '
