@@ -322,8 +322,8 @@ class ConverseWidget(QWidget):
             if not has_content:
                 content_for_display = '<i>' + content_for_display + '</i>'
             self.result_display.add_block(
-                content_for_display, Header(_('{assistant} {activity}…').format(
-                    assistant=assistant, activity=activity)), is_response=True)
+                content_for_display, Header(_('{assistant} {activity}').format(
+                    assistant=assistant, activity=activity) + '…'), is_response=True)
         self.result_display.re_render()
         self.scroll_to_bottom()
 

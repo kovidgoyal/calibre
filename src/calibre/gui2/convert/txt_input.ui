@@ -105,9 +105,9 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="markdown_label">
         <property name="text">
-         <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;https://daringfireball.net/projects/markdown&quot;&gt;Markdown&lt;/a&gt;.</string>
+        <string>&lt;p&gt;Markdown is a simple markup language for text files, that allows for advanced formatting. To learn more visit &lt;a href=&quot;{}&quot;&gt;Markdown&lt;/a&gt;.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
