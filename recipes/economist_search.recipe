@@ -209,7 +209,7 @@ class econ_search(BasicNewsRecipe):
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 1
-    # browser_type = 'webengine'
+    browser_type = 'webengine'
 
     recipe_specific_options = {
         'q': {
