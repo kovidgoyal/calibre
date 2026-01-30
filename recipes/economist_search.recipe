@@ -209,7 +209,7 @@ class econ_search(BasicNewsRecipe):
     # economist.com has started throttling after about 60% of the total has
     # downloaded with connection reset by peer (104) errors.
     delay = 1
-    browser_type = 'webengine'
+    # browser_type = 'webengine'
 
     recipe_specific_options = {
         'q': {
@@ -234,9 +234,6 @@ class econ_search(BasicNewsRecipe):
     }
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Liskov'
-        )
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 

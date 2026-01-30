@@ -221,7 +221,7 @@ class EconomistNews(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title'}
 
-    browser_type = 'webengine'
+    # browser_type = 'webengine'
 
     needs_subscription = False
 

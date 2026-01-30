@@ -33,7 +33,7 @@ class Espresso(BasicNewsRecipe):
     remove_attributes = ['height', 'width', 'style']
     use_embedded_content = False
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
-    browser_type = 'webengine'
+    # browser_type = 'webengine'
 
     extra_css = '''
         h1 { text-align:center; }
@@ -77,7 +77,4 @@ class Espresso(BasicNewsRecipe):
         return soup
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.103 Mobile Safari/537.36 Liskov'
-        )
         return BasicNewsRecipe.get_browser(self, *args, **kwargs)
