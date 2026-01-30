@@ -234,6 +234,8 @@ class econ_search(BasicNewsRecipe):
     }
 
     def get_browser(self, *args, **kwargs):
+        from calibre.utils.random_ua import common_english_word_ua
+        kwargs['user_agent'] = common_english_word_ua()
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
