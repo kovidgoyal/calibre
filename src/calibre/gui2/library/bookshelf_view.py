@@ -1259,7 +1259,9 @@ class BookCase(QObject):
                             current_case_item.add_group_divider(case_end_divider, lc)
                         elif start_with_divider:
                             current_case_item.add_group_divider(group_name, lc)
-                    current_case_item.add_book(book_id, spine_width, group_name, lc)
+                    if not current_case_item.add_book(book_id, spine_width, group_name, lc):
+                        raise ValueError(
+                            f'Failed to add a single book to a new shelf: {book_id=} {spine_width=} {lc.width=} {lc.max_spine_width=}')
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
                 book_id_visual_order_map[book_id] = len(book_id_visual_order_map)
                 book_ids_in_visual_order.append(book_id)
