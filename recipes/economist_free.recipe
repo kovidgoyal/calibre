@@ -219,7 +219,7 @@ class Economist(BasicNewsRecipe):
     resolve_internal_links = True
 
     delay = 1
-    browser_type = 'webengine'
+    # browser_type = 'webengine'
     from_web = True
     recipe_specific_options = {
         'date': {
