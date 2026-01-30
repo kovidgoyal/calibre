@@ -476,10 +476,10 @@ class CreateCustomColumn(QDialog):
             'If checked, this column will be displayed as HTML in '
             'Book details and the Content server. This can be used to '
             'construct links with the template language. For example, '
-            'the template {0}'
+            'the template {0} '
             'will create a field displaying the title in bold large '
             'characters, along with the series, for example <br>"<big><b>'
-            'An Oblique Approach</b></big> [Belisarius [1]]". The template {1}'
+            'An Oblique Approach</b></big> [Belisarius [1]]". The template {1} '
             'will generate a link to the book on the Beam e-books site.').format(
                 '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
                 '{series:| [|}{series_index:| [|]]}</pre>',
