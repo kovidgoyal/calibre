@@ -13,8 +13,8 @@ from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 def column_template_placeholder_text():
     return _(
             'Notes:\n'
-            '• The template global variable "{0}" contains the column lookup name.\n'
-            '• The global variable "{1}" contains the original tooltip text').format('column_lookup_name',
+            '* The template global variable "{0}" contains the column lookup name.\n'
+            '* The global variable "{1}" contains the original tooltip text').format('column_lookup_name',
                                                                                      'original_text')
 
 
