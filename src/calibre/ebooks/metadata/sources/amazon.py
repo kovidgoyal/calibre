@@ -328,7 +328,8 @@ class Worker(Thread):  # Get details {{{
             '''
         self.pubdate_xpath = '''
             descendant::*[starts-with(text(), "Publication Date:") or \
-                    starts-with(text(), "Audible.com Release Date:")]
+                starts-with(text(), "Audible.com Release Date:") or \
+                starts-with(text(), "発売日:")]
         '''
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare', 'Herausgeber',
                                 'Editore', 'Editeur', 'Éditeur', 'Editor', 'Editora', '出版社'}
@@ -508,7 +509,13 @@ class Worker(Thread):  # Get details {{{
                     'Failed to parse new-style book details section')
         elif feature_and_detail_bullets:
             self.parse_detail_bullets(root, mi, feature_and_detail_bullets[0], ul_selector='ul')
-
+        elif root.xpath('//*[@data-rpi-attribute-name="book_details-publication_date"]'):
+            # New Amazon "rich_product_information" carousel (RPI)
+            node = root.xpath('//*[@data-rpi-attribute-name="book_details-publication_date"]')[0]
+            label = node.xpath('.//*[contains(@class,"rpi-attribute-label")]//span')
+            value = node.xpath('.//*[contains(@class,"rpi-attribute-value")]//span')
+            if label and value:
+                self.parse_detail_cells(mi, label[0], value[0])
         else:
             pd = root.xpath(self.pd_xpath)
             if pd:
@@ -1041,7 +1048,7 @@ class Worker(Thread):  # Get details {{{
             ans = check_isbn(val)
             if ans:
                 self.isbn = mi.isbn = ans
-        elif name in {'Publication date'}:
+        elif name in {'Publication date', '発売日'}:
             from calibre.utils.date import parse_only_date
             date = self.delocalize_datestr(val)
             mi.pubdate = parse_only_date(date, assume_utc=True)
@@ -1100,7 +1107,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 15)
+    version = (1, 3, 16)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
