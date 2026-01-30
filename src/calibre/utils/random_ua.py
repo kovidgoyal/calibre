@@ -73,8 +73,7 @@ def accept_header_for_ua(ua):
 
 def common_english_word_ua():
     words = common_english_words()
-    w1 = random.choice(words)
-    w2 = w1
+    w1 = w2 = random.choice(words)
     while w2 == w1:
         w2 = random.choice(words)
     return f'{w1}/{w2}'
