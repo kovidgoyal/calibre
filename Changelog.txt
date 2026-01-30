@@ -23,6 +23,54 @@
 # - title by author
 # }}}
 
+{{{ 9.0.0 2026-01-30
+
+:: new features
+
+- [major] A new Bookshelf view with your books arranged on shelves showing their spines.
+
+  Click the Layout button in the bottom right corner of the calibre window to switch to
+  Bookshelf view.
+
+- [major] Viewer: Add an "Edit book" button to the viewer controls to edit the current book when the current book is in an editable format such as EPUB, AZW3 or KEPUB. It opens the editor at the approximate location that is currently being viewed.
+
+- Linux: Add momentum based scrolling for the book list when using high resolution scroll devices like touchpads
+
+- [2137504] TXT Output: Add an option to replace images by their alt attribute text
+
+- EPUB: Support reading cover images from so called "Open Manga Format" non-conformant EPUB files produced by some Japanese publishers.
+
+- [2138862] Add a tweak to change the font size of the AI chat widget
+
+- E-book viewer: Allow typing in a page number to go to instead of forcing the user to scroll through existing page numbers
+
+- Kobo driver: Support for updated firmware
+
+:: bug fixes
+
+- KEPUB Output: Add some CSS to fix rendering of tate-chu-yoko text on Kobo devices
+
+- [2138770] Only show the Sort button on the search bar if the Sort By action has not been added to the search bar by the user
+
+- [2137122] EPUB3 metadata: Handle identifiers that use HTTP URLs without the url: prefix
+
+- Edit book: Check book: Fix spurious unreferenced warnings for SMIL media overlay audio files
+
+- [2138179] Edit book: Reports: Have pressing enter do the same action as double clicking the current entry
+
+- E-book viewer: Improve export of SVG images
+
+- Disable GPU acceleration for Qt WebEngine by default to prevent crashes on some older systems. Can be re-enabled via Preferences->Tweaks
+
+- Speedup calibre shutdown time by a couple of seconds
+
+:: improved recipes
+- Times Literary Supplement
+- Private Eye
+- New Yorker
+
+}}}
+
 {{{ 8.16.2 2025-12-04
 
 :: new features
