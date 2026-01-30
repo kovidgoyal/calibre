@@ -16,6 +16,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.library.comments import comments_as_markdown
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import ngettext
 from polyglot.binary import from_hex_unicode
 
 
@@ -89,7 +90,7 @@ def default_actions() -> tuple[Action, ...]:
         Action('read_next', _('Read next'), 'Suggest some good books to read after the previously described {books_word}.'),
         Action('universe', _('Universe'), 'Describe the fictional universe the previously described {books_word} {is_are} set in.'
                ' Outline major plots, themes and characters in the universe.'),
-        Action('series', _('Series'), 'Give the series the previously described {books_word} {is_are} in.'
+        Action('series', ngettext('Series', 'Series', 1), 'Give the series the previously described {books_word} {is_are} in.'
                ' List all the books in the series, in both published and internal chronological order.'
                ' Also describe any prominent spin-off series.')
     )
