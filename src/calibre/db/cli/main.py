@@ -52,14 +52,16 @@ def get_parser(usage):
         help=_(
             'Path to the calibre library. Default is to use the path stored in the settings.'
             ' You can also connect to a calibre Content server to perform actions on'
-            ' remote libraries. To do so use a URL of the form: http://hostname:port/#library_id'
-            ' for example, http://localhost:8080/#mylibrary. library_id is the library id'
+            ' remote libraries. To do so use a URL of the form: {1}'
+            ' for example, {2}. library_id is the library id'
             ' of the library you want to connect to on the Content server. You can use'
             ' the special library_id value of - to get a list of library ids available'
             ' on the server. For details on how to setup access via a Content server, see'
-            ' {}.'
+            ' {0}.'
         ).format(localize_user_manual_link(
-            'https://manual.calibre-ebook.com/generated/en/calibredb.html'
+            'https://manual.calibre-ebook.com/generated/en/calibredb.html',
+            'http://hostname:port/#library_id',
+            'http://localhost:8080/#mylibrary',
         ))
     )
     go.add_option(

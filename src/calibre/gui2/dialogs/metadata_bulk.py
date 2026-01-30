@@ -858,10 +858,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'The destination box specifies the field where the result after '
                  'matching and replacement is to be assigned. You can replace '
                  'the text in the field, or prepend or append the matched text. '
-                 'See <a href="https://docs.python.org/library/re.html">'
+                 'See <a href="{}">'
                  "this reference</a> for more information on Python's regular "
                  "expressions, and in particular the 'sub' function."
-                 )
+                 ).format('https://docs.python.org/library/re.html')
 
         self.search_mode.addItems(self.s_r_match_modes)
         self.search_mode.setCurrentIndex(dynamic.get('s_r_search_mode', 0))
