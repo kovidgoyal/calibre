@@ -296,7 +296,7 @@ class Restore(Thread):
         with suppress(FileNotFoundError):
             os.remove(os.path.join(notes_dest, NOTES_DB_NAME))
         db = Restorer(self.library_path)
-        with closing(db):
+        with closing(db), db.new_api.write_lock:
             with db.new_api:
                 for i, book in enumerate(self.books):
                     try:
