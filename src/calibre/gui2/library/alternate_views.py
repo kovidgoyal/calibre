@@ -747,9 +747,8 @@ class CoverDelegate(QStyledItemDelegate):
                 cover = QPixmap(cover)
                 cover.setDevicePixelRatio(painter.device().devicePixelRatioF())
                 sz = cover.deviceIndependentSize()
-                cw, ch = sz.width(), sz.height()
-                dx = max(0, int((rect.width() - cw)/2.0))
-                dy = max(0, int((rect.height() - ch)/2.0))
+                dx = max(0, int((rect.width() - sz.width())/2.0))
+                dy = max(0, int((rect.height() - sz.height())/2.0))
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
