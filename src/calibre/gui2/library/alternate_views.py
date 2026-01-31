@@ -746,7 +746,7 @@ class CoverDelegate(QStyledItemDelegate):
                     cover = cover.scaled(cover.size() * self._animated_size)
                 cover = QPixmap(cover)
                 cover.setDevicePixelRatio(painter.device().devicePixelRatioF())
-                sz = cover.deviceIndependentSize().toSize()
+                sz = cover.deviceIndependentSize()
                 cw, ch = sz.width(), sz.height()
                 dx = max(0, int((rect.width() - cw)/2.0))
                 dy = max(0, int((rect.height() - ch)/2.0))
