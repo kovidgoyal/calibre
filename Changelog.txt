@@ -23,6 +23,31 @@
 # - title by author
 # }}}
 
+{{{ 9.1.0 2026-01-31
+
+:: new features
+
+- This is a pure bugfix release fixing various regressions in calibre 9.0
+
+:: bug fixes
+
+- [2139397] macOS: Fix crash when pasting cover image
+
+- [2139455] Fix restore database not working
+
+- [2139399] Windows: Fix the Read Aloud feature in the E-book viewer not working when using the Piper engine
+
+- [2139454] Fix using icon themes in "For dark and light" mode not working
+
+- Fix covers in the Cover grid slightly stretched on high DPI screens
+
+- [2139414] Amazon metadata download: Fix publication date not being retrieved form amazon.co.jp
+
+:: improved recipes
+- Economist
+
+}}}
+
 {{{ 9.0.0 2026-01-30
 
 :: new features
