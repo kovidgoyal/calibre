@@ -286,7 +286,8 @@
             </sizepolicy>
            </property>
            <property name="toolTip">
-            <string>&lt;p&gt;The template used to generate the main text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+            <string>&lt;p&gt;The template used to generate the main text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.
+&lt;p&gt;For example, if you want the first line to be the book title in upper case, you can use the template: &lt;code&gt;{title:uppercase()}&lt;/code&gt;</string>
            </property>
            <property name="clearButtonEnabled">
             <bool>true</bool>
@@ -503,7 +504,7 @@
          <item>
           <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
            <property name="toolTip">
-            <string>&lt;p&gt;When showing a second line in the spine, for very narrow books, artificially widen the book to make space for the second line. Without this, the second line won&apos;t be displayed for narrow books, with it, narrow books will appear artificially wider than they really are.</string>
+            <string>&lt;p&gt;When showing a second line in the spine, for very narrow books, artificially widen the book to make space for the second line. Without this, the second line will not be displayed for narrow books, with it, narrow books will appear artificially wider than they really are.</string>
            </property>
            <property name="text">
             <string>Make &amp;space for second line</string>
