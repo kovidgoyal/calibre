@@ -124,7 +124,14 @@ def image_from_data(data):
         q = what(None, data)
         if q == 'jxr':
             return load_jxr_data(data)
-        raise NotImage(f'Not a valid image (detected type: {q})')
+        ba = QByteArray(data)
+        buf = QBuffer(ba)
+        buf.open(QIODevice.OpenModeFlag.ReadOnly)
+        r = QImageReader(buf)
+        i = r.read()
+        buf.close()
+        if i.isNull():
+            raise NotImage(f'Not a valid image (detected type: {q}). Error: {r.errorString()}')
     return i
 
 
