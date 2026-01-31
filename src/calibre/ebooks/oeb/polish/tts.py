@@ -87,7 +87,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             self.lang = child_lang or lang_for_elem(elem, parent_lang)
             self.parent_lang = parent_lang
             self.parent_voice = parent_voice
-            q = elem.get(data_name, '')
+            q = elem.get(data_name, '') or ''
             self.voice = parent_voice
             if q.startswith('{'):  # }
                 with suppress(Exception):
