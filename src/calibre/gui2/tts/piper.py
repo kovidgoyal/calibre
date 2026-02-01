@@ -285,6 +285,8 @@ class Piper(TTSBackend):
             if gp is not None:
                 gp.cancel()
             self._audio_sink.stateChanged.disconnect()
+            with suppress(TypeError):
+                self._utterances_being_spoken.readyRead.disconnect()
             # this dance is needed otherwise stop() is very slow on Linux
             self._audio_sink.suspend()
             self._audio_sink.reset()
@@ -294,8 +296,6 @@ class Piper(TTSBackend):
             self._utterances_being_synthesized.clear()
             self._utterances_being_spoken.clear()
             self._set_state(QTextToSpeech.State.Ready)
-            with suppress(TypeError):
-                self._utterances_being_spoken.readyRead.disconnect()
             debug('Audio sink has been shutdown')
 
     def reload_after_configure(self) -> None:
