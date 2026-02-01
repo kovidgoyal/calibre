@@ -799,7 +799,7 @@ by authors/date/rating etc.
 The :guilabel:`Bookshelf view` is activated by clicking the :guilabel:`Layout` button in the bottom
 right corner of the main calibre window. You can customize everything about the
 view from the background, to the text on the spines the fonts, et cetera via
-:guilabel:`Preferences->Interface->Look & feel->Cover grid`.
+:guilabel:`Preferences->Interface->Look & feel->Bookshelf`.
 
 
 Cover browser
