@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools
+import math
 import os
 import weakref
 from collections import namedtuple
@@ -1139,6 +1140,22 @@ class GridView(MomentumScrollMixin, QListView):
                                 self._ncols = j.row() - i.row() + 1
                                 return self._ncols
         return self._ncols
+
+    def default_wheel_event_handler(self, ev):
+        if ev.phase() not in (Qt.ScrollPhase.ScrollUpdate, Qt.ScrollPhase.NoScrollPhase, Qt.ScrollPhase.ScrollMomentum):
+            return
+        number_of_pixels = ev.pixelDelta()
+        number_of_degrees = ev.angleDelta() / 8.0
+        b = self.verticalScrollBar()
+        if number_of_pixels.isNull() or islinux:
+            # pixelDelta() is broken on linux with wheel mice
+            dy = number_of_degrees.y() / 15.0
+            # Scroll by approximately half a row
+            dy = math.ceil((dy) * b.singleStep() / 2.0)
+        else:
+            dy = number_of_pixels.y()
+        if abs(dy) > 0:
+            b.setValue(b.value() - dy)
 
     def keyPressEvent(self, ev):
         if handle_enter_press(self, ev, self.start_view_animation, False):
