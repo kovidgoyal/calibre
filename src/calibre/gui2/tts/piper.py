@@ -582,9 +582,8 @@ def develop():
                 debug('Quitting on completion')
                 app.quit()
 
-    def input_ready():
+    def handle_input(q: bytes):
         nonlocal play_started
-        q = sys.stdin.buffer.read()
         if q in (b'\x03', b'\x1b'):
             app.exit(1)
         elif q == b' ':
@@ -610,12 +609,25 @@ def develop():
 
     p.state_changed.connect(state_changed)
     p.saying.connect(saying)
-    if not iswindows:
+    if iswindows:
+        from threading import Thread
+        current_input = b''
+        class Dispatcher(QObject):
+            dispatch = pyqtSignal(object)
+        o = Dispatcher(app)
+        o.dispatch.connect(handle_input)
+        def poll_input():
+            nonlocal current_input
+            import msvcrt
+            while True:
+                o.dispatch.emit(msvcrt.getch())
+        Thread(target=poll_input, daemon=True).start()
+    else:
         import tty
         attr = tty.setraw(sys.stdin.fileno())
         os.set_blocking(sys.stdin.fileno(), False)
-    sn = QSocketNotifier(sys.stdin.fileno(), QSocketNotifier.Type.Read, p)
-    sn.activated.connect(input_ready)
+        sn = QSocketNotifier(sys.stdin.fileno(), QSocketNotifier.Type.Read, p)
+        sn.activated.connect(lambda: handle_input(sys.stdin.buffer.read()))
     try:
         p.say(text)
         app.exec()
