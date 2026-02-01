@@ -787,6 +787,21 @@ the background of the :guilabel:`Cover grid` via
 calibre display any specified field under the covers, such as title or authors
 or rating or a custom column of your own devising.
 
+
+Bookshelf view
+--------------------
+
+.. image:: images/bookshelf.png
+    :align: center
+
+You can have calibre display you book collection in shelves, optionally grouped
+by authors/date/rating etc.
+The :guilabel:`Bookshelf view` is activated by clicking the :guilabel:`Layout` button in the bottom
+right corner of the main calibre window. You can customize everything about the
+view from the background, to the text on the spines the fonts, et cetera via
+:guilabel:`Preferences->Interface->Look & feel->Cover grid`.
+
+
 Cover browser
 ---------------
 
