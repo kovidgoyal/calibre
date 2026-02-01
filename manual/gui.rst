@@ -956,6 +956,8 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Toggle Tag browser
     * - :kbd:`Alt+Shift+G`
       - Toggle Cover grid
+    * - :kbd:`Alt+Shift+H`
+      - Toggle Bookshelf
     * - :kbd:`Alt+A`
       - Show books by the same author as the current book
     * - :kbd:`Alt+T`
