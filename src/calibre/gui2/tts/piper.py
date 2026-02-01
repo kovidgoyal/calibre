@@ -31,6 +31,7 @@ def debug(*a, **kw):
         if not hasattr(debug, 'first'):
             debug.first = monotonic()
         kw['end'] = kw.get('end', '\r\n')
+        kw['flush'] = True
         print(f'[{monotonic() - debug.first:.2f}]', *a, **kw)
 
 
