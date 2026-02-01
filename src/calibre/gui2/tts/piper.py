@@ -294,6 +294,9 @@ class Piper(TTSBackend):
             self._utterances_being_synthesized.clear()
             self._utterances_being_spoken.clear()
             self._set_state(QTextToSpeech.State.Ready)
+            with suppress(TypeError):
+                self._utterances_being_spoken.readyRead.disconnect()
+            debug('Audio sink has been shutdown')
 
     def reload_after_configure(self) -> None:
         self.shutdown()
