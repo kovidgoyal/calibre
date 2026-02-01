@@ -55,7 +55,7 @@ class ImportOPML(QDialog):
         self.l = l = QFormLayout(self)
         self.setLayout(l)
         self.setWindowTitle(_('Import OPML file'))
-        self.setWindowIcon(QIcon.ic('opml.png'))
+        self.setWindowIcon(QIcon.ic('mimetypes/opml.png'))
 
         self.h = h = QHBoxLayout()
         self.path = p = QLineEdit(self)
