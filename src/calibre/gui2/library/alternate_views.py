@@ -468,9 +468,12 @@ def setup_dnd_interface(cls_or_self):
         self = cls_or_self
         self.drag_allowed = True
         self.drag_start_pos = None
-        self.setDragEnabled(True)
-        self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
+        if isinstance(self, QAbstractItemView):
+            self.setDragEnabled(True)
+            self.setDragDropOverwriteMode(False)
+            self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
+        else:
+            self.setAcceptDrops(True)
 # }}}
 
 

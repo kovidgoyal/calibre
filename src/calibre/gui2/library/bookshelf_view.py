@@ -1527,9 +1527,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.second_line_renderer = self.build_template_renderer('authors', '')
 
         # Initialize drag and drop
-        # so we set the attributes manually
-        self.drag_allowed = True
-        self.drag_start_pos = None
+        setup_dnd_interface(self)
+
         self.bookcase = BookCase(self)
         self.bookcase.shelf_added.connect(self.on_shelf_layout_done, type=Qt.ConnectionType.QueuedConnection)
         self.bookcase.num_of_groups_changed.connect(self.update_scrollbar_ranges, type=Qt.ConnectionType.QueuedConnection)
