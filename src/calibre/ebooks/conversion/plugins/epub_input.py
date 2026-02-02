@@ -68,15 +68,17 @@ class EPUBInput(InputFormatPlugin):
 
         try:
             root = etree.parse(encfile)
+            base = os.path.dirname(encfile)
+            container_base = os.path.dirname(base)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                 algorithm = em.get('Algorithm', '')
                 if algorithm not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                     return False
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
-                path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
+                path = os.path.abspath(os.path.join(base, '..', *uri.split('/')))
                 tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
-                if (tkey and is_existing_subpath(path, os.getcwd())):
+                if (tkey and is_existing_subpath(path, container_base)):
                     self._encrypted_font_uris.append(uri)
                     decrypt_font(tkey, path, algorithm)
             return True
