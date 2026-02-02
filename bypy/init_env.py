@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
+import ast
 import json
 import os
 import re
@@ -125,7 +126,8 @@ def initialize_constants():
     calibre_constants['EDITOR_APP_UID'] = get_str_assign('EDITOR_APP_UID')
     epsrc = re.compile(r'entry_points = (\{.*?\})',
                        re.DOTALL).search(read_cal_file('linux.py')).group(1)
-    entry_points = eval(epsrc, {'__appname__': calibre_constants['appname']})
+    epsrc = epsrc.replace('__appname__+', repr(calibre_constants['appname']))
+    entry_points = ast.literal_eval(epsrc)
 
     def e2b(ep):
         return re.search(r'\s*(.*?)\s*=', ep).group(1).strip()
