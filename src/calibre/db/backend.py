@@ -1481,17 +1481,10 @@ class DB:
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
                 allow_user_override=False).decode('utf-8')
-        cur = self.conn.cursor()
-        cur.execute('BEGIN EXCLUSIVE TRANSACTION')
-        try:
-            cur.execute(metadata_sqlite)
-        except Exception:
-            cur.execute('ROLLBACK')
-            raise
-        else:
-            cur.execute('COMMIT')
-        if self.user_version == 0:
-            self.user_version = 1
+        with self.conn:
+            self.conn.cursor().execute(metadata_sqlite)
+            if self.user_version == 0:
+                self.user_version = 1
     # }}}
 
     def __enter__(self):
