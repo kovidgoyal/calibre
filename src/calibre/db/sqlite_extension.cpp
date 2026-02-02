@@ -10,7 +10,6 @@
 #include <Python.h>
 #include <stdlib.h>
 #include <string>
-#include <locale>
 #include <vector>
 #include <unordered_map>
 #include <mutex>
@@ -129,7 +128,7 @@ public:
     }
 
     const char* stem(const char *token, size_t token_sz, int *sz) {
-        const char *ans = NULL;
+        const char *ans = NULL; *sz = 0;
         if (handle) {
             ans = reinterpret_cast<const char*>(sb_stemmer_stem(handle, reinterpret_cast<const sb_symbol*>(token), (int)token_sz));
             if (ans) *sz = sb_stemmer_length(handle);
