@@ -631,6 +631,20 @@ def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile)
                 filecopyfunc(src, df)
 
 
+def is_existing_subpath(child: str, parent: str) -> bool:
+    ' Check if child is under parent. If either child or parent dont exist, returns False. '
+    try:
+        parent = os.path.realpath(parent, strict=True)  # resolve symlinks
+        child = os.path.realpath(child, strict=True)
+    except OSError:
+        return False
+    parent = os.path.abspath(parent)
+    child = os.path.abspath(child)
+    if not parent.endswith(os.sep):
+        parent += os.sep
+    return child.startswith(parent)
+
+
 rmtree = shutil.rmtree
 
 
