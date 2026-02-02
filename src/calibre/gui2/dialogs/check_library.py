@@ -64,6 +64,13 @@ class DBCheck(QDialog):  # {{{
         la.setWordWrap(True)
         l.addWidget(la)
 
+        self.annots = a = QCheckBox(_('Also rebuild the annotations search index'))
+        l.addWidget(a)
+        la = QLabel('<p style="margin-left: 20px; font-style: italic">' + _(
+            'This can be a slow operation, depending on the number of annotations you have.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
         self.fts = f = QCheckBox(_('Also compact the Full text search database'))
         l.addWidget(f)
         la = QLabel('<p style="margin-left: 20px; font-style: italic">' + _(
@@ -106,12 +113,13 @@ class DBCheck(QDialog):  # {{{
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.vacuum_started = True
         db = self.db()
-        t = self.thread = Thread(target=self.vacuum, args=(db, self.fts.isChecked(), self.notes.isChecked()), daemon=True, name='VacuumDB')
+        t = self.thread = Thread(target=self.vacuum, args=(
+            db, self.fts.isChecked(), self.notes.isChecked(), self.annots.isChecked()), daemon=True, name='VacuumDB')
         t.start()
 
-    def vacuum(self, db, include_fts_db, include_notes_db):
+    def vacuum(self, db, include_fts_db, include_notes_db, rebuild_annotations_fts):
         try:
-            db.vacuum(include_fts_db, include_notes_db)
+            db.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
         except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())

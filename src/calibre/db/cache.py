@@ -2999,10 +2999,10 @@ class Cache:
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
     @write_api
-    def vacuum(self, include_fts_db=False, include_notes_db=True):
+    def vacuum(self, include_fts_db=False, include_notes_db=True, rebuild_annotations_fts=False):
         self.is_doing_rebuild_or_vacuum = True
         try:
-            self.backend.vacuum(include_fts_db, include_notes_db)
+            self.backend.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
         finally:
             self.is_doing_rebuild_or_vacuum = False
 

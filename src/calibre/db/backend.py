@@ -1462,8 +1462,11 @@ class DB:
                 finally:
                     self.reopen()
 
-    def vacuum(self, include_fts_db, include_notes_db):
+    def vacuum(self, include_fts_db, include_notes_db, rebuild_annotations_fts):
         self.execute('VACUUM')
+        if rebuild_annotations_fts:
+            self.execute('INSERT INTO annotations_fts(annotations_fts) VALUES("rebuild");')
+            self.execute('INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed) VALUES("rebuild");')
         if self.fts_enabled and include_fts_db:
             self.fts.vacuum()
         if include_notes_db:
