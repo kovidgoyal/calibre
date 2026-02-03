@@ -42,7 +42,7 @@ raw_options = (
     None,
 
     _('Time (in seconds) to wait for a response from the server when making queries'),
-    'ajax_timeout', 60.0,
+    'ajax_timeout', 300.0,
     None,
 
     _('Total time in seconds to wait for clean shutdown'),
