@@ -50,6 +50,7 @@ from utils import (
     default_context_menu_should_be_allowed, html_escape, parse_url_params,
     safe_set_inner_html, username_key
 )
+from viewer.constants import CHARS_PER_PAGE
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -1121,7 +1122,8 @@ class View:
             self.show_name(chapter_name, initial_position={'type':'frac', 'frac':chapter_frac, 'replace_history':True})
 
     def goto_book_position(self, bpos):
-        val = max(0, min(1000 * float(bpos) / self.current_position_data.book_length, 1))
+        pages = Math.ceil(self.current_position_data.book_length / CHARS_PER_PAGE)
+        val = max(0, min(float(bpos) / pages, 1))
         return self.goto_frac(val)
 
     def goto_pagelist_item(self, item):
