@@ -128,13 +128,30 @@ class Sendmail:
                 # Microsoft changed the SMTP server
                 relay = 'smtp-mail.outlook.com'
 
+            oauth_token = None
+            password = from_hex_unicode(opts.relay_password) if opts.relay_password else None
+
+            if getattr(opts, 'auth_method', 'password') == 'oauth2':
+                from calibre.utils.oauth2 import get_token_manager, OAuth2Error
+                token_mgr = get_token_manager(opts.oauth_provider, opts.oauth_tokens)
+                try:
+                    token_data = token_mgr.get_valid_token()
+                    oauth_token = token_data['access_token']
+                    # Save if refreshed
+                    if token_data != opts.oauth_tokens:
+                        email_config().set('oauth_tokens', token_data)
+                except OAuth2Error as e:
+                    log.error(f'OAuth token refresh failed: {e}')
+                    raise Exception(f'OAuth authentication failed: {e}. Please re-authorize in Preferences->Sharing->Sharing email')
+
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
                         relay=relay,
                         username=opts.relay_username,
-                        password=from_hex_unicode(opts.relay_password), port=opts.relay_port,
+                        password=password, port=opts.relay_port,
                         encryption=opts.encryption,
-                        debug_output=safe_debug)
+                        debug_output=safe_debug,
+                        oauth_token=oauth_token)
         finally:
             self.last_send_time = time.time()
 

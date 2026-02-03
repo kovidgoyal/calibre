@@ -123,7 +123,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
     from email.message import Message
 
-    from polyglot import smtplib
+    from calibre.utils import smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work
     kwargs = dict(timeout=timeout, local_hostname=sanitize_hostname(localhost or safe_localhost()))
@@ -154,7 +154,7 @@ def get_smtp_class(use_ssl=False, debuglevel=0):
     # in the constructor, because of https://bugs.python.org/issue36094
     # which means the constructor calls connect(),
     # but there is no way to set debuglevel before connect() is called
-    from polyglot import smtplib
+    from calibre.utils import smtplib
     cls = smtplib.SMTP_SSL if use_ssl else smtplib.SMTP
     bases = (cls,)
     return type('SMTP', bases, {'debuglevel': debuglevel})
@@ -162,7 +162,7 @@ def get_smtp_class(use_ssl=False, debuglevel=0):
 
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
-             port=-1, debug_output=None, verify_server_cert=False, cafile=None):
+             port=-1, debug_output=None, verify_server_cert=False, cafile=None, oauth_token=None):
     from email.message import Message
     if relay is None:
         for x in to:
@@ -183,7 +183,9 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
             context = ssl.create_default_context(cafile=cafile)
         s.starttls(context=context)
         s.ehlo()
-    if username is not None and password is not None:
+    if oauth_token is not None:
+        s.login(username, oauth_token, preferred_auths=['XOAUTH2'])
+    elif username is not None and password is not None:
         s.login(username, password)
     ret = None
     try:
@@ -352,6 +354,9 @@ def config(defaults=None):
     c.add_opt('relay_username')
     c.add_opt('relay_password')
     c.add_opt('encryption', default='TLS', choices=['TLS', 'SSL'])
+    c.add_opt('auth_method', default='password', choices=['password', 'oauth2'])
+    c.add_opt('oauth_provider', default=None)
+    c.add_opt('oauth_tokens', default=None)
     return c
 
 
