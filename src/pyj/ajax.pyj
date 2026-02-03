@@ -5,7 +5,7 @@ from __python__ import hash_literals
 from gettext import gettext as _
 
 
-default_timeout = 60
+default_timeout = 300
 
 
 def set_default_timeout(val):
