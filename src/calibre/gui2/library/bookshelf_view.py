@@ -1189,7 +1189,11 @@ class BookCase(QObject):
                 x = self.queue.get()
             except ShutDown:
                 break
-            self.do_layout_in_worker(*x)
+            try:
+                self.do_layout_in_worker(*x)
+            except Exception:
+                import traceback
+                traceback.print_exc()
 
     def do_layout_in_worker(
         self, invalidate: Event, lc: LayoutConstraints, group_field_name: str, row_to_book_id: tuple[int, ...],
