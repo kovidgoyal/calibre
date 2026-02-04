@@ -586,7 +586,7 @@ class DB:
             # Only apply default prefs to a new database
             for i, key in enumerate(default_prefs):
                 # be sure that prefs not to be copied are listed below
-                if restore_all_prefs or key not in frozenset(['news_to_be_synced']):
+                if restore_all_prefs or key != 'news_to_be_synced':
                     self.prefs[key] = default_prefs[key]
                     progress_callback(_('restored preference ') + key, i+1)
             if 'field_metadata' in default_prefs:
@@ -1270,7 +1270,7 @@ class DB:
             dt = 'INT'
         elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
             dt = 'TEXT'
-        elif datatype in ('float',):
+        elif datatype == 'float':
             dt = 'REAL'
         elif datatype == 'datetime':
             dt = 'timestamp'
