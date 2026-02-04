@@ -192,12 +192,12 @@ class CHMReader(CHMFile):
             if os.path.commonprefix((lpath, base)) != base:
                 self.log.warn(f'{path!r} outside container, skipping')
                 continue
-            self._ensure_dir(lpath)
             try:
                 data = self.GetFile(path)
             except Exception:
                 self.log.exception(f'Failed to extract {path} from CHM, ignoring')
                 continue
+            self._ensure_dir(lpath)
             with open(make_long_path_useable(lpath), 'wb') as f:
                 f.write(data)
             try:
@@ -354,8 +354,7 @@ class CHMReader(CHMFile):
 
     def _ensure_dir(self, path):
         dir = os.path.dirname(path)
-        if not os.path.isdir(dir):
-            os.makedirs(dir)
+        os.makedirs(make_long_path_useable(dir), exist_ok=True)
 
     def extract_content(self, output_dir=os.getcwd(), debug_dump=False):
         self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)
