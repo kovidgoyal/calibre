@@ -15,6 +15,7 @@ from calibre.constants import filesystem_encoding, iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.toc import TOC
+from calibre.utils.filenames import make_long_path_useable
 from polyglot.builtins import as_unicode
 
 
@@ -181,37 +182,35 @@ class CHMReader(CHMFile):
 
     def ExtractFiles(self, output_dir=os.getcwd(), debug_dump=False):
         html_files = set()
+        base = output_dir = os.path.abspath(output_dir)
+        if not base.endswith(os.sep):
+            base += os.sep
         for path in self.Contents():
-            fpath = path
-            lpath = os.path.join(output_dir, fpath)
+            fpath = path.partition(';')[0]  # fix file names with ";<junk>" at the end, see _reformat()
+            fpath = fpath.replace('/', os.sep)
+            lpath = os.path.abspath(os.path.join(output_dir, fpath))
+            if os.path.commonprefix((lpath, base)) != base:
+                self.log.warn(f'{path!r} outside container, skipping')
+                continue
             self._ensure_dir(lpath)
             try:
                 data = self.GetFile(path)
             except Exception:
                 self.log.exception(f'Failed to extract {path} from CHM, ignoring')
                 continue
-            if lpath.find(';') != -1:
-                # fix file names with ";<junk>" at the end, see _reformat()
-                lpath = lpath.split(';')[0]
+            with open(make_long_path_useable(lpath), 'wb') as f:
+                f.write(data)
             try:
-                with open(lpath, 'wb') as f:
-                    f.write(data)
-                try:
-                    if 'html' in guess_mimetype(path)[0]:
-                        html_files.add(lpath)
-                except Exception:
-                    pass
+                if 'html' in guess_mimetype(os.path.basename(lpath))[0]:
+                    html_files.add(lpath)
             except Exception:
-                if iswindows and len(lpath) > 250:
-                    self.log.warn(f'{path!r} filename too long, skipping')
-                    continue
-                raise
+                pass
 
         if debug_dump:
             import shutil
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
-            with open(lpath, 'r+b') as f:
+            with open(make_long_path_useable(lpath), 'r+b') as f:
                 data = f.read()
                 data = self._reformat(data, lpath)
                 if isinstance(data, str):
