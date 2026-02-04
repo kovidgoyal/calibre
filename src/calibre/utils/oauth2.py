@@ -24,6 +24,32 @@ class OAuth2Error(Exception):
     pass
 
 
+class OAuth2ReauthenticationRequired(OAuth2Error):
+    ''' Raised when refresh token is invalid and user must re-authenticate. '''
+
+    def __init__(self, provider_name=None, original_error=None):
+        self.provider_name = provider_name
+        self.original_error = original_error
+        pname = {'gmail': 'Google', 'outlook': 'Microsoft'}.get(provider_name, provider_name or 'your email provider')
+        super().__init__(
+            f'Your {pname} authorization has expired or been revoked. '
+            'Please re-authorize in Preferences > Sharing > Sharing email.'
+        )
+
+
+# Error codes that indicate re-authentication is required
+REAUTH_REQUIRED_ERRORS = frozenset({
+    'invalid_grant', 'invalid_token', 'token_expired',
+    'Token has been expired or revoked', 'Token has been revoked',
+    'AADSTS700082', 'AADSTS50173', 'AADSTS50078', 'AADSTS53003',
+})
+
+
+def _is_reauth_error(error_code, error_desc):
+    text = (error_code + ' ' + error_desc).lower()
+    return any(e.lower() in text for e in REAUTH_REQUIRED_ERRORS)
+
+
 def generate_pkce_pair():
     code_verifier = base64.urlsafe_b64encode(os.urandom(32)).decode('utf-8').rstrip('=')
     code_challenge = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode('utf-8')).digest()).decode('utf-8').rstrip('=')
@@ -133,15 +159,36 @@ class OAuth2Provider:
             response = br.open_novisit(self.token_url, data=urlencode(data).encode('utf-8'), timeout=30)
             result = json.loads(response.read())
             if 'error' in result:
-                raise OAuth2Error(f'Token refresh failed: {result.get("error_description", result["error"])}')
+                err, desc = result.get('error', ''), result.get('error_description', '')
+                if _is_reauth_error(err, desc):
+                    raise OAuth2ReauthenticationRequired(self.name, desc or err)
+                raise OAuth2Error(f'Token refresh failed: {desc or err}')
             result['expires_at'] = int(time.time()) + result.get('expires_in', 3600)
             if 'refresh_token' not in result:
                 result['refresh_token'] = refresh_token
             return result
-        except OAuth2Error:
+        except (OAuth2Error, OAuth2ReauthenticationRequired):
             raise
         except Exception as e:
-            raise OAuth2Error(f'Token refresh failed: {e}')
+            err_msg = str(e)
+            if hasattr(e, 'read'):
+                try:
+                    body = e.read()
+                    if isinstance(body, bytes):
+                        body = body.decode('utf-8', 'replace')
+                    try:
+                        d = json.loads(body)
+                        err, desc = d.get('error', ''), d.get('error_description', '')
+                        if _is_reauth_error(err, desc):
+                            raise OAuth2ReauthenticationRequired(self.name, desc or err)
+                        err_msg = desc or err or body
+                    except json.JSONDecodeError:
+                        if _is_reauth_error('', body):
+                            raise OAuth2ReauthenticationRequired(self.name, body)
+                        err_msg = body
+                except Exception:
+                    pass
+            raise OAuth2Error(f'Token refresh failed: {err_msg}')
 
 
 class GmailOAuth2Provider(OAuth2Provider):
@@ -302,12 +349,12 @@ class OAuth2TokenManager:
         self.tokens = tokens or {}
 
     def get_valid_token(self):
+        pname = getattr(self.provider, 'name', None)
         if not self.tokens:
-            raise OAuth2Error('No tokens available. Please authorize first.')
-        expires_at = self.tokens.get('expires_at', 0)
-        if time.time() >= (expires_at - 300):  # 5 min buffer
+            raise OAuth2ReauthenticationRequired(pname)
+        if time.time() >= self.tokens.get('expires_at', 0) - 300:
             if 'refresh_token' not in self.tokens:
-                raise OAuth2Error('No refresh token available. Please re-authorize.')
+                raise OAuth2ReauthenticationRequired(pname)
             self.tokens = self.provider.refresh_access_token(self.tokens['refresh_token'])
         return self.tokens
 
@@ -330,3 +377,17 @@ def refresh_token_if_needed(provider_name, tokens):
     token_mgr = get_token_manager(provider_name, tokens)
     new_tokens = token_mgr.get_valid_token()
     return new_tokens, new_tokens != tokens
+
+
+def check_tokens_valid(provider_name, tokens):
+    ''' Returns (is_valid, was_refreshed, error_message) '''
+    if not tokens or 'access_token' not in tokens:
+        return False, False, 'No OAuth tokens configured'
+    mgr = get_token_manager(provider_name, tokens)
+    if mgr.is_valid():
+        return True, False, None
+    try:
+        new_tokens = mgr.get_valid_token()
+        return True, new_tokens != tokens, None
+    except OAuth2Error as e:
+        return False, False, str(e)
