@@ -240,7 +240,7 @@ class Economist(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         from calibre.utils.random_ua import common_english_word_ua
-        kwargs['user_agent'] = common_english_word_ua()
+        self.last_used_ua = kwargs['user_agent'] = kwargs.get('user_agent', common_english_word_ua())
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
@@ -285,65 +285,74 @@ class Economist(BasicNewsRecipe):
             self.timefmt = ' [' + edition_date + ']'
         else:
             url = 'https://www.economist.com/weeklyedition'
-        soup = self.index_to_soup(url)
-        ans = self.economist_parse_index(soup)
+        ans = self.economist_parse_index(url)
         return self.economist_return_index(ans)
 
-    def economist_parse_index(self, soup):
+    def economist_parse_index(self, url):
+        soup = self.index_to_soup(url)
         script_tag = soup.find('script', id='__NEXT_DATA__')
-        if script_tag is not None:
-            data = json.loads(script_tag.string)
-            # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
-            self.description = safe_dict(
-                data, 'props', 'pageProps', 'content', 'headline'
+        if script_tag is None:
+            self.log('Failed to get index with UA:', self.last_used_ua)
+            from calibre.utils.random_ua import random_common_chrome_user_agent
+            user_agent = random_common_chrome_user_agent()
+            self.log('Retrying with UA:', user_agent)
+            time.sleep(1)
+            self.browser = self.get_browser(user_agent=user_agent)
+            soup = self.index_to_soup(url)
+            script_tag = soup.find('script', id='__NEXT_DATA__')
+        if script_tag is None:
+            return []
+        data = json.loads(script_tag.string)
+        # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+        self.description = safe_dict(
+            data, 'props', 'pageProps', 'content', 'headline'
+        )
+        self.timefmt = (
+            ' ['
+            + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate')
+            + ']'
+        )
+        self.cover_url = (
+            safe_dict(data, 'props', 'pageProps', 'content', 'cover', 'url')
+            .replace(
+                'economist.com/',
+                'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
             )
-            self.timefmt = (
-                ' ['
-                + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate')
-                + ']'
-            )
-            self.cover_url = (
-                safe_dict(data, 'props', 'pageProps', 'content', 'cover', 'url')
-                .replace(
-                    'economist.com/',
-                    'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
-                )
-                .replace('SQ_', '').replace('_AS', '_AP')
-            )
-            self.log('Got cover:', self.cover_url)
+            .replace('SQ_', '').replace('_AS', '_AP')
+        )
+        self.log('Got cover:', self.cover_url)
 
-            feeds = []
+        feeds = []
 
-            for part in safe_dict(
-                data, 'props', 'pageProps', 'content', 'headerSections'
-            ) + safe_dict(data, 'props', 'pageProps', 'content', 'sections'):
-                section = safe_dict(part, 'name') or ''
-                if not section:
+        for part in safe_dict(
+            data, 'props', 'pageProps', 'content', 'headerSections'
+        ) + safe_dict(data, 'props', 'pageProps', 'content', 'sections'):
+            section = safe_dict(part, 'name') or ''
+            if not section:
+                continue
+            self.log(section)
+
+            articles = []
+
+            for ar in part['articles']:
+                title = safe_dict(ar, 'headline') or ''
+                url = process_url(safe_dict(ar, 'url') or '')
+                if not title or not url:
                     continue
-                self.log(section)
-
-                articles = []
-
-                for ar in part['articles']:
-                    title = safe_dict(ar, 'headline') or ''
-                    url = process_url(safe_dict(ar, 'url') or '')
-                    if not title or not url:
-                        continue
-                    desc = safe_dict(ar, 'rubric') or ''
-                    sub = safe_dict(ar, 'flyTitle') or ''
-                    if sub and section != sub:
-                        desc = sub + ' :: ' + desc
-                    self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                    articles.append({'title': title, 'url': url, 'description': desc})
-                feeds.append((section, articles))
-            d = self.recipe_specific_options.get('de')
-            if d and isinstance(d, str):
-                if d.lower().strip() == 'yes':
-                    self.from_web = True
-                else:
-                    self.from_web = False
-            return feeds
-        return []
+                desc = safe_dict(ar, 'rubric') or ''
+                sub = safe_dict(ar, 'flyTitle') or ''
+                if sub and section != sub:
+                    desc = sub + ' :: ' + desc
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            feeds.append((section, articles))
+        d = self.recipe_specific_options.get('de')
+        if d and isinstance(d, str):
+            if d.lower().strip() == 'yes':
+                self.from_web = True
+            else:
+                self.from_web = False
+        return feeds
 
     def preprocess_html(self, soup):
         width = '600'
