@@ -12,12 +12,6 @@ Files: resources/rapydscript/*
 Copyright: Various
 License: BSD
 
-Files: src/templite/*
-Copyright: Copyright (c) 2009 joonis new media, Thimo Kraemer
-License: GPL-2+
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-2 on Debian systems.
-
 Files: src/calibre/devices/bambook/*
 Copyright: 2010, Li Fanxi
 License: GPL-3

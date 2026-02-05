@@ -56,6 +56,7 @@ dependencies = [
 	"xxhash == 3.6.0",
     "tzdata == 2025.2",
     "tzlocal == 5.3.1",
+	"pystache == 0.6.8",
 ]
 
 [project.urls]
@@ -97,7 +98,6 @@ exclude = [
     "setup/linux-installer.py",
     "src/css_selectors/*",
     "src/polyglot/*",
-    "src/templite/*",
     "src/tinycss/*",
 ]
 preview = true
@@ -145,7 +145,7 @@ unfixable = ['PIE794', 'ISC001']
 detect-same-package = true
 extra-standard-library = ["aes", "elementmaker", "encodings"]
 known-first-party = ["calibre_extensions", "calibre_plugins", "polyglot"]
-known-third-party = ["odf", "qt", "templite", "tinycss", "css_selectors"]
+known-third-party = ["odf", "qt", "tinycss", "css_selectors"]
 relative-imports-order = "closest-to-furthest"
 split-on-trailing-comma = false
 section-order = ['__python__', "future", "standard-library", "third-party", "first-party", "local-folder"]
@@ -263,7 +263,6 @@ skip = [
     "./setup/linux-installer.py",
     "./src/css_selectors/*",
     "./src/polyglot/*",
-    "./src/templite/*",
     "./src/tinycss/*",
     "./src/unicode_names/*",
 ]
@@ -279,7 +278,6 @@ exclude = [
     "src/calibre/gui2/store/stores/",
     "src/css_selectors/",
     "src/polyglot/",
-    "src/templite/",
     "src/tinycss/",
 ]
 
