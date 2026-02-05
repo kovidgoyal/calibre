@@ -41,7 +41,7 @@
 
 - Fix covers in the Cover grid slightly stretched on high DPI screens
 
-- [2139414] Amazon metadata download: Fix publication date not being retrieved form amazon.co.jp
+- [2139414] Amazon metadata download: Fix publication date not being retrieved from amazon.co.jp
 
 :: improved recipes
 - Economist
