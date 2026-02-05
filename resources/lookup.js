@@ -25,33 +25,6 @@
             var q = new URLSearchParams(location.search.slice(1)).get('q') || ''
 
             if (is_dictionary_result) {
-                // Only add styles once to prevent duplication
-                if (!document.getElementById(style_id)) {
-                var style = document.createElement('style');
-                    style.id = style_id;
-                    style.textContent = `
-                        * {
-                            column-gap: 0!important;
-                            -webkit-column-gap: 0!important;
-                        }
-                        #center_col {
-                            position: absolute !important;
-                            top: 1px !important; /* Using your preferred 1px value */
-                            left: 0 !important;
-                            z-index: 100;
-                        }
-                        #cnt {
-                            position: relative;
-                            min-height: 100vh;
-                        }
-                        /* Clear the space where search form was */
-                        #searchform, #appbar, #before-appbar {
-                            display: none !important;
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-
                 var maxW = 'calc(100vw - 25px)';
                 cc.style.maxWidth   = maxW;
                 cc.style.marginLeft = '0';
