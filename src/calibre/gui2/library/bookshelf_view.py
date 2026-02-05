@@ -14,6 +14,7 @@ from functools import lru_cache, partial
 from operator import attrgetter
 from queue import LifoQueue, ShutDown
 from threading import Event, RLock, Thread, current_thread
+from time import monotonic
 from typing import NamedTuple
 
 from qt.core import (
@@ -1491,6 +1492,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def __init__(self, gui):
         super().__init__(gui)
+        self.first_painted_at = 0
         self.auto_scroll = True
         self.scroll_to_current_after_layout: bool = False
         self.theme: ColorTheme = None
@@ -1927,6 +1929,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
+        if not self.first_painted_at:
+            self.first_painted_at = monotonic()
         self.bookcase.ensure_layouting_is_current()
 
         with QPainter(self.viewport()) as painter:
@@ -1959,6 +1963,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         n = self.shelves_per_screen
         for base in shelf_bases:
             self.draw_shelf_base(painter, base, scroll_y, self.width(), base.idx % n)
+        if self.resize_debounce_timer.isActive() and monotonic() - self.first_painted_at < 2:
+            return
         for shelf, has_expanded in shelves:
             # Draw books and inline dividers on it
             if has_expanded:
