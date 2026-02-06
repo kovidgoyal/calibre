@@ -42,24 +42,26 @@ Add books
 .. |adbi| image:: images/add_books.png
     :class: float-right-img
 
-|adbi| The :guilabel:`Add books` action has seven variations accessed by doing a right-click on the button.
+|adbi| The :guilabel:`Add books` action has many variations accessed by doing a right-click on the button.
 
 
-    1. **Add books from a single folder**: Opens a file chooser dialog and allows you to specify which books in a folder should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
+    #. **Add books from a single folder**: Opens a file chooser dialog and allows you to specify which books in a folder should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
+    #. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
-    3. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple e-books that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+    #. **Add multiple books from archive (ZIP/RAR/7z)**: Allows you to add multiple e-books that are stored inside the selected achive files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
-    4. **Add empty book (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
+    #. **Add empty book (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
-    5. **Add from ISBN**: Allows you to add one or more books by entering their ISBNs.
+    #. **Add from ISBN**: Allows you to add one or more books by entering their ISBNs.
 
-    6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
+    #. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
 
-    7. **Add data files to selected book records**: Allows you to add any number of extra files that will be stored in a :file:`data` sub-directory in the book directory. See :ref:`data_files` for details.
+    #. **Add files to selected book records from clipboard**: Allows you to add or update the files associated with an existing book in your library from the current contents of the clipboard
 
-    8. **Add an empty file to selected book records**: Allows you to add an empty file of the specified format to the selected book records.
+    #. **Add data files to selected book records**: Allows you to add any number of extra files that will be stored in a :file:`data` sub-directory in the book directory. See :ref:`data_files` for details.
+
+    #. **Add an empty file to selected book records**: Allows you to add an empty file of the specified format to the selected book records.
 
 The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition, it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
