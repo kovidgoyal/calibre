@@ -680,7 +680,7 @@ class Parser(SearchQueryParser):  # {{{
 
         if location == 'template':
             if not self.allow_templates:
-                raise TemplatesNotAllowed(_('Templates are not not allowed in search expressions'))
+                raise TemplatesNotAllowed(_('Templates are not allowed in search expressions'))
             try:
                 template, sep, query = regex.split(r'#@#:([tdnb]):', query, flags=regex.IGNORECASE)
                 if sep:
