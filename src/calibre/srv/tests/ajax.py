@@ -57,7 +57,6 @@ class ContentTest(LibraryBaseTest):
 
     def test_ajax_categories(self):  # {{{
         'Test /ajax/categories and /ajax/search'
-        from calibre.db.search import ParseException
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
             db.set_pref('virtual_libraries', {'1':'title:"=Title One"'})

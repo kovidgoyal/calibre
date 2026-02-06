@@ -113,7 +113,7 @@ def book_to_json(ctx, rd, db, book_id,
                             if tag.original_name == category:
                                 dbtags[category] = ctx.url_for(
                                     books_in,
-                                    encoded_category=encode_name(tag.category if tag.category else key),
+                                    encoded_category=encode_name(tag.category or key),
                                     encoded_item=encode_name(tag.original_name if tag.id is None else str(tag.id)),
                                     library_id=db.server_library_id
                                 )
@@ -433,7 +433,7 @@ def category(ctx, rd, encoded_name, library_id):
             x['is_category'] = True
 
         sort_keygen = {
-                'name': lambda x: sort_key(x.sort if x.sort else x.original_name),
+                'name': lambda x: sort_key(x.sort or x.original_name),
                 'popularity': lambda x: x.count,
                 'rating': lambda x: x.avg_rating
         }
@@ -444,7 +444,7 @@ def category(ctx, rd, encoded_name, library_id):
             'name':item_names.get(x, x.original_name),
             'average_rating': x.avg_rating,
             'count': x.count,
-            'url': ctx.url_for(books_in, encoded_category=encode_name(x.category if x.category else toplevel),
+            'url': ctx.url_for(books_in, encoded_category=encode_name(x.category or toplevel),
                                encoded_item=encode_name(x.original_name if x.id is None else str(x.id)),
                                library_id=db.server_library_id
                                ),
