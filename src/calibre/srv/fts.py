@@ -33,7 +33,7 @@ def fts_search(ctx, rd):
         ans['query_id'] = qid
     book_ids = None
     if rd.query.get('restriction'):
-        book_ids = db.search('', restriction=rd.query.get('restriction'))
+        book_ids = db.search('', restriction=rd.query.get('restriction'), allow_templates=False)
 
     def add_metadata(result):
         result.pop('id', None)

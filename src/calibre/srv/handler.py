@@ -86,7 +86,7 @@ class Context:
         restriction = self.restriction_for(request_data, db)
         if restriction:
             try:
-                return book_id in db.search('', restriction=restriction)
+                return book_id in db.search('', restriction=restriction, allow_templates=False)
             except ParseException:
                 return False
         return db.has_id(book_id)
@@ -95,12 +95,12 @@ class Context:
         restriction = self.restriction_for(request_data, db)
         allowed_book_ids = None
         if restriction:
-            allowed_book_ids = db.search('', restriction=restriction)
+            allowed_book_ids = db.search('', restriction=restriction, allow_templates=False)
         return db.newly_added_book_ids(count=count, book_ids=allowed_book_ids)
 
     def get_allowed_book_ids_from_restriction(self, request_data, db):
         restriction = self.restriction_for(request_data, db)
-        return frozenset(db.search('', restriction=restriction)) if restriction else None
+        return frozenset(db.search('', restriction=restriction, allow_templates=False)) if restriction else None
 
     def allowed_book_ids(self, request_data, db):
         try:
