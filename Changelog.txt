@@ -23,6 +23,40 @@
 # - title by author
 # }}}
 
+{{{ 9.2.0 2026-02-06
+
+:: new features
+
+- ZIP Output: Change the template engine used for HTML templating from templite to Mustache, for greater safety and performance. Note that this is a breaking change if you use custom templates with ZIP output (CVE-2026-25731)
+
+- [2139555] Check library: Add an option to rebuild the annotations search index
+
+:: bug fixes
+
+- CHM Input: Ignore internal files that have paths that end up outside the container. Prevents path traversal attacks with malicious CHM files (CVE-2026-25635)
+
+- EPUB Input: Ensure font obfuscation processing happens only on files from the EPUB, preventing path traversal attacks from malicious EPUB files (CVE-2026-25636)
+
+- [2139521] Windows: Workaround for bug in Qt 6.10 causing Read Aloud in the E-book viewer to crash when stopped and restarted
+
+- [2139529] Fix drag and drop of books into bookshelf view not working
+
+- [2139403] Bookshelf: Fix bookshelf view blank on some macOS systems
+
+- [2139576] E-book viewer: Fix a regression in calibre 9.0 that broke the Go to page function
+
+- [2140541] E-book viewer: Fix google dictionary lookup results not legible
+
+- E-book viewer: Fix PageUp/PageDown keys needing to be pressed repeatedly at internal HTML file boundaries in flow mode
+
+- Bookshelf: Avoid rendering during initial show while the view is still being resized
+
+- Fix a regression in calibre 9.0 that caused mouse wheel to scroll a full row at a time in the Cover grid
+
+- News download: Fix a regression in 8.11 that broke automatic cleanup of downloaded HTML
+
+}}}
+
 {{{ 9.1.0 2026-01-31
 
 :: new features
