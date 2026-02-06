@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 9.2.0 2026-02-06
+{{{ 9.2.1 2026-02-06
 
 :: new features
 
@@ -54,6 +54,8 @@
 - Fix a regression in calibre 9.0 that caused mouse wheel to scroll a full row at a time in the Cover grid
 
 - News download: Fix a regression in 8.11 that broke automatic cleanup of downloaded HTML
+
+- [2140769] Version 9.2.1 prevents the Content server from using template based searches since this is insecure when the content server is used with un-authenticated users
 
 }}}
 
