@@ -20,6 +20,8 @@ class PluginWidget(Widget, Ui_Form):
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['input']['txt'])
         self.markdown_label.setText(self.markdown_label.text().format('https://daringfireball.net/projects/markdown'))
+        self.markdown_extensions_label.setText(
+                self.markdown_extensions_label.text().format('https://python-markdown.github.io/extensions/'))
         self.db, self.book_id = db, book_id
         for x in get_option('paragraph_type').option.choices:
             self.opt_paragraph_type.addItem(x)

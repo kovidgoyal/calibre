@@ -128,9 +128,9 @@
        <widget class="QListWidget" name="opt_markdown_extensions"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="markdown_extensions_label">
         <property name="text">
-         <string>More information on &lt;a href=&quot;https://python-markdown.github.io/extensions/&quot;&gt;Markdown extensions&lt;/a&gt;</string>
+        <string>More information on &lt;a href=&quot;{}&quot;&gt;Markdown extensions&lt;/a&gt;</string>
         </property>
         <property name="openExternalLinks">
          <bool>true</bool>
