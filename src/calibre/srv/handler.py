@@ -177,7 +177,7 @@ class Context:
             cache = self.library_broker.search_caches[db.server_library_id]
             old = cache.pop(key, None)
             if old is None or old[0] < db.clear_search_cache_count:
-                matches = db.search(query, book_ids=restrict_to_ids)
+                matches = db.search(query, book_ids=restrict_to_ids, allow_templates=False)
                 cache[key] = old = (db.clear_search_cache_count, matches)
                 if len(cache) > self.SEARCH_CACHE_SIZE:
                     cache.popitem(last=False)

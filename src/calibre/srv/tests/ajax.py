@@ -57,6 +57,7 @@ class ContentTest(LibraryBaseTest):
 
     def test_ajax_categories(self):  # {{{
         'Test /ajax/categories and /ajax/search'
+        from calibre.db.search import ParseException
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
             db.set_pref('virtual_libraries', {'1':'title:"=Title One"'})
@@ -83,6 +84,8 @@ class ContentTest(LibraryBaseTest):
             self.ae(set(data['book_ids']), {1, 2})
             r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"', 'vl':'1'}))
             self.ae(set(data['book_ids']), {2})
+            r, data = request('/search?' + urlencode({'query': 'template:"{tags}#@#:t:=Tag One"'}))
+            self.ae(r.status, 400)
     # }}}
 
     def test_srv_restrictions(self):  # {{{

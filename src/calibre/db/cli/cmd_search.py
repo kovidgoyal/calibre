@@ -10,8 +10,9 @@ version = 0  # change this if you change signature of implementation()
 
 def implementation(db, notify_changes, query):
     from calibre.utils.search_query_parser import ParseException
+    is_remote = notify_changes is not None
     try:
-        return db.search(query)
+        return db.search(query, allow_templates=not is_remote)
     except ParseException as err:
         e = ValueError(_('Failed to parse search query: ({0}) with error: {1}').format(query, err))
         e.suppress_traceback = True

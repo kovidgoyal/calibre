@@ -10,6 +10,7 @@ version = 0  # change this if you change signature of implementation()
 def implementation(db, notify_changes, query, adata):
     rto = adata['restrict_to']
     restrict_to = None
+    is_remote = notify_changes is not None
     if not db.is_fts_enabled():
         err = Exception(_('Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it'))
         err.suppress_traceback = True
@@ -21,7 +22,7 @@ def implementation(db, notify_changes, query, adata):
         raise err
     if rto:
         if isinstance(rto, str):
-            restrict_to = db.search(rto)
+            restrict_to = db.search(rto, allow_templates=not is_remote)
         else:
             restrict_to = set(rto)
 

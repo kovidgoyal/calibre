@@ -29,6 +29,10 @@ REGEXP_MATCH   = 2
 ACCENT_MATCH   = 3
 
 
+class TemplatesNotAllowed(ParseException):
+    pass
+
+
 # Utils {{{
 
 def _matchkind(query, case_sensitive=False):
@@ -494,7 +498,8 @@ class Parser(SearchQueryParser):  # {{{
 
     def __init__(self, dbcache, all_book_ids, gst, date_search, num_search,
                  bool_search, keypair_search, limit_search_columns, limit_search_columns_to,
-                 locations, virtual_fields, lookup_saved_search, parse_cache):
+                 locations, virtual_fields, lookup_saved_search, parse_cache, allow_templates=True):
+        self.allow_templates = allow_templates
         self.dbcache, self.all_book_ids = dbcache, all_book_ids
         self.all_search_locations = frozenset(locations)
         self.grouped_search_terms = gst
@@ -674,6 +679,8 @@ class Parser(SearchQueryParser):  # {{{
         case_sensitive = prefs['case_sensitive']
 
         if location == 'template':
+            if not self.allow_templates:
+                raise TemplatesNotAllowed(_('Templates are not not allowed in search expressions'))
             try:
                 template, sep, query = regex.split(r'#@#:([tdnb]):', query, flags=regex.IGNORECASE)
                 if sep:
@@ -951,23 +958,23 @@ class Search:
         for query in remove:
             self.cache.pop(query)
 
-    def create_parser(self, dbcache, virtual_fields=None):
+    def create_parser(self, dbcache, virtual_fields=None, allow_templates=True):
         return Parser(
             dbcache, set(), dbcache._pref('grouped_search_terms'),
             self.date_search, self.num_search, self.bool_search,
             self.keypair_search,
             prefs['limit_search_columns'],
             prefs['limit_search_columns_to'], self.all_search_locations,
-            virtual_fields, self.saved_searches.lookup, self.parse_cache)
+            virtual_fields, self.saved_searches.lookup, self.parse_cache, allow_templates=allow_templates)
 
-    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None):
+    def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None, allow_templates=True):
         '''
         Return the set of ids of all records that match the specified
         query and restriction
         '''
         # We construct a new parser instance per search as the parse is not
         # thread safe.
-        sqp = self.create_parser(dbcache, virtual_fields)
+        sqp = self.create_parser(dbcache, virtual_fields, allow_templates)
         try:
             return self._do_search(sqp, query, search_restriction, dbcache, book_ids=book_ids)
         finally:

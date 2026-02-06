@@ -14,7 +14,7 @@ from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library.field_metadata import category_icon_map
 from calibre.srv.content import get as get_content
 from calibre.srv.content import icon as get_icon
-from calibre.srv.errors import BookNotFound, HTTPNotFound
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import custom_fields_to_display, decode_name, encode_name, get_db, http_date
 from calibre.utils.config import prefs, tweaks
@@ -528,6 +528,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 # Search {{{
 
 def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
+    from calibre.db.search import TemplatesNotAllowed
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
     skeys = db.field_metadata.sortable_field_keys()
@@ -535,7 +536,10 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
         if sfield not in skeys:
             raise HTTPNotFound(f'{sort} is not a valid sort field')
 
-    ids, parse_error = ctx.search(rd, db, query, vl=vl, report_restriction_errors=True)
+    try:
+        ids, parse_error = ctx.search(rd, db, query, vl=vl, report_restriction_errors=True)
+    except TemplatesNotAllowed:
+        raise HTTPBadRequest(_('templates are not allowed in search expressions'))
     ids = db.multisort(fields=multisort, ids_to_sort=ids)
     total_num = len(ids)
     ids = ids[offset:offset+num]

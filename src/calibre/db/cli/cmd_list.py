@@ -59,7 +59,7 @@ def implementation(
         if not set(fields).issubset(afields):
             return 'Unknown fields: {}'.format(', '.join(set(fields) - afields))
         if search_text:
-            book_ids = db.multisort(sort_spec, ids_to_sort=db.search(search_text))
+            book_ids = db.multisort(sort_spec, ids_to_sort=db.search(search_text, allow_templates=not is_remote))
         else:
             book_ids = db.multisort(sort_spec)
         if limit > -1:
