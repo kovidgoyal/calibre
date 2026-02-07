@@ -179,6 +179,8 @@ class SendEmail(QWidget, Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.oauth_button = None
+        self.oauth_status_label = None
 
     def initialize(self, preferred_to_address):
         self.preferred_to_address = preferred_to_address
@@ -209,6 +211,7 @@ class SendEmail(QWidget, Ui_Form):
              QLineEdit.EchoMode.Password if
              state == 0 else QLineEdit.EchoMode.Normal))
         self.test_email_button.clicked.connect(self.test_email)
+        self.setup_oauth_ui()
 
     def changed(self, *args):
         self.changed_signal.emit()
@@ -232,13 +235,26 @@ class SendEmail(QWidget, Ui_Form):
         sys.stdout = sys.stderr = buf
         tb = None
         try:
+            oauth_token = None
+            password = from_hex_unicode(opts.relay_password) if opts.relay_password else None
+
+            if getattr(opts, 'auth_method', 'password') == 'oauth2':
+                from calibre.utils.oauth2 import get_token_manager, OAuth2Error
+                token_mgr = get_token_manager(opts.oauth_provider, opts.oauth_tokens)
+                try:
+                    token_data = token_mgr.get_valid_token()
+                    oauth_token = token_data['access_token']
+                except OAuth2Error as e:
+                    raise Exception(f'OAuth token refresh failed: {e}')
+
             msg = create_mail(opts.from_, to, 'Test mail from calibre',
                     'Test mail from calibre')
             sendmail(msg, from_=opts.from_, to=[to],
                 verbose=3, timeout=30, relay=opts.relay_host,
                 username=opts.relay_username, debug_output=debug_out,
-                password=from_hex_unicode(opts.relay_password),
-                encryption=opts.encryption, port=opts.relay_port)
+                password=password,
+                encryption=opts.encryption, port=opts.relay_port,
+                oauth_token=oauth_token)
         except Exception:
             import traceback
             tb = traceback.format_exc()
@@ -298,6 +314,92 @@ class SendEmail(QWidget, Ui_Form):
         self.relay_port.setValue(service['port'])
         self.relay_tls.setChecked(True)
 
+    def setup_oauth_ui(self):
+        from calibre.utils.oauth2 import get_available_providers
+        if not get_available_providers():
+            return
+        self.oauth_button = QPushButton(_('Setup OAuth 2.0...'))
+        self.oauth_button.clicked.connect(self.oauth_button_clicked)
+        self.oauth_status_label = QLabel()
+        self.oauth_status_label.setWordWrap(True)
+        self.update_oauth_status()
+        self.verticalLayout_9.addWidget(self.oauth_button)
+        self.verticalLayout_9.addWidget(self.oauth_status_label)
+
+    def oauth_button_clicked(self):
+        opts = smtp_prefs().parse()
+        if getattr(opts, 'auth_method', 'password') == 'oauth2' and opts.oauth_provider:
+            self.clear_oauth()
+        else:
+            self.setup_oauth()
+
+    def update_oauth_status(self, *args):
+        if not self.oauth_status_label:
+            return
+        opts = smtp_prefs().parse()
+        if getattr(opts, 'auth_method', 'password') == 'oauth2' and opts.oauth_provider:
+            provider_name = {'gmail': 'Gmail', 'outlook': 'Outlook'}.get(opts.oauth_provider, opts.oauth_provider)
+            self.oauth_status_label.setText(_('Authorized for {}').format(provider_name))
+            self.oauth_status_label.setStyleSheet('color: green; font-weight: bold;')
+            self.oauth_button.setText(_('Clear Authorization'))
+        else:
+            self.oauth_status_label.setText('')
+            self.oauth_status_label.setStyleSheet('')
+            self.oauth_button.setText(_('Setup OAuth 2.0...'))
+
+    def clear_oauth(self):
+        if not question_dialog(self, _('Clear OAuth Authorization?'),
+                _('Remove stored OAuth tokens and switch to password authentication?')):
+            return
+        conf = smtp_prefs()
+        conf.set('auth_method', 'password')
+        conf.set('oauth_provider', None)
+        conf.set('oauth_tokens', None)
+        self.update_oauth_status()
+        self.changed()
+
+    def detect_oauth_provider(self, email):
+        from calibre.utils.oauth2 import get_available_providers, is_provider_available
+        email_lower = email.lower()
+        if '@gmail.com' in email_lower or '@googlemail.com' in email_lower:
+            if is_provider_available('gmail'):
+                return 'gmail'
+        elif any(d in email_lower for d in ('@outlook.com', '@hotmail.com', '@live.com', '@msn.com')):
+            if is_provider_available('outlook'):
+                return 'outlook'
+        available = get_available_providers()
+        return available[0][0] if available else None
+
+    def setup_oauth(self):
+        from calibre.gui2.dialogs.oauth_setup import OAuth2SetupDialog
+        email = str(self.email_from.text()).strip()
+        if not email:
+            error_dialog(self, _('Email Required'),
+                _('Please enter your email address first.')).exec()
+            return
+        d = OAuth2SetupDialog(self, provider=self.detect_oauth_provider(email), email=email)
+        if d.exec() != QDialog.DialogCode.Accepted:
+            return
+        provider = d.get_selected_provider()
+        conf = smtp_prefs()
+        conf.set('auth_method', 'oauth2')
+        conf.set('oauth_provider', provider)
+        conf.set('oauth_tokens', d.get_tokens())
+        if provider == 'gmail':
+            conf.set('relay_host', 'smtp.gmail.com')
+            self.relay_host.setText('smtp.gmail.com')
+        elif provider == 'outlook':
+            conf.set('relay_host', 'smtp-mail.outlook.com')
+            self.relay_host.setText('smtp-mail.outlook.com')
+        conf.set('relay_port', 587)
+        conf.set('encryption', 'TLS')
+        conf.set('relay_username', email)
+        self.relay_port.setValue(587)
+        self.relay_tls.setChecked(True)
+        self.relay_username.setText(email)
+        self.update_oauth_status()
+        self.changed()
+
     def set_email_settings(self, to_set):
         from_ = str(self.email_from.text()).strip()
         if to_set and not from_:
@@ -309,18 +411,23 @@ class SendEmail(QWidget, Ui_Form):
         host = str(self.relay_host.text()).strip()
         enc_method = ('TLS' if self.relay_tls.isChecked() else 'SSL'
                 if self.relay_ssl.isChecked() else 'NONE')
+
+        opts = smtp_prefs().parse()
+        auth_method = getattr(opts, 'auth_method', 'password')
+
         if host:
-            # Validate input
-            if ((username and not password) or (not username and password)):
-                error_dialog(self, _('Bad configuration'),
-                            _('You must either set both the username <b>and</b> password for '
-                            'the mail server or no username and no password at all.')).exec()
-                return False
-            if not (username and password) and not question_dialog(
-                    self, _('Are you sure?'),
-                    _('No username and password set for mailserver. Most '
-                      ' mailservers need a username and password. Are you sure?')):
-                return False
+            # Validate input - skip password validation for OAuth
+            if auth_method != 'oauth2':
+                if ((username and not password) or (not username and password)):
+                    error_dialog(self, _('Bad configuration'),
+                                _('You must either set both the username <b>and</b> password for '
+                                'the mail server or no username and no password at all.')).exec()
+                    return False
+                if not (username and password) and not question_dialog(
+                        self, _('Are you sure?'),
+                        _('No username and password set for mailserver. Most '
+                          ' mailservers need a username and password. Are you sure?')):
+                    return False
         conf = smtp_prefs()
         conf.set('from_', from_)
         conf.set('relay_host', host if host else None)

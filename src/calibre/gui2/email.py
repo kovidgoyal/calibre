@@ -128,13 +128,33 @@ class Sendmail:
                 # Microsoft changed the SMTP server
                 relay = 'smtp-mail.outlook.com'
 
+            oauth_token = None
+            password = from_hex_unicode(opts.relay_password) if opts.relay_password else None
+
+            if getattr(opts, 'auth_method', 'password') == 'oauth2':
+                from calibre.utils.oauth2 import OAuth2Error, OAuth2ReauthenticationRequired, get_token_manager
+                mgr = get_token_manager(opts.oauth_provider, opts.oauth_tokens)
+                try:
+                    token_data = mgr.get_valid_token()
+                    oauth_token = token_data['access_token']
+                    if token_data != opts.oauth_tokens:
+                        email_config().set('oauth_tokens', token_data)
+                except OAuth2ReauthenticationRequired as e:
+                    log.error(f'OAuth re-auth required: {e}')
+                    email_config().set('oauth_tokens', None)
+                    raise Exception(str(e))
+                except OAuth2Error as e:
+                    log.error(f'OAuth failed: {e}')
+                    raise Exception(f'OAuth authentication failed: {e}')
+
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
                         relay=relay,
                         username=opts.relay_username,
-                        password=from_hex_unicode(opts.relay_password), port=opts.relay_port,
+                        password=password, port=opts.relay_port,
                         encryption=opts.encryption,
-                        debug_output=safe_debug)
+                        debug_output=safe_debug,
+                        oauth_token=oauth_token)
         finally:
             self.last_send_time = time.time()
 
