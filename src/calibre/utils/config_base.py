@@ -639,7 +639,7 @@ def parse_python_tweaks(text: str) -> dict[str, object]:
             # Get the value (must be a literal)
             try:
                 value = ast.literal_eval(node.value)
-            except (ValueError, TypeError):
+            except Exception:
                 # Skip non-literal values
                 continue
             # Extract target variable names
