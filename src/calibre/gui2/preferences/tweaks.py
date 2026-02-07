@@ -38,7 +38,7 @@ from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.utils.config_base import default_tweaks_raw, exec_tweaks, normalize_tweak, read_custom_tweaks, write_custom_tweaks
+from calibre.utils.config_base import default_tweaks_raw, normalize_tweak, parse_python_tweaks, read_custom_tweaks, write_custom_tweaks
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
@@ -179,7 +179,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             import traceback
             traceback.print_exc()
             custom_tweaks = {}
-        default_tweaks = exec_tweaks(default_tweaks_raw())
+        default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
         defaults = default_tweaks_raw().decode('utf-8')
         lines = defaults.splitlines()
         pos = 0
@@ -490,9 +490,8 @@ class ConfigWidget(ConfigWidgetBase):
         raw = self.tweaks.plugin_tweaks_string
         d = PluginTweaks(raw, self)
         if d.exec() == QDialog.DialogCode.Accepted:
-            g, l = {}, {}
             try:
-                exec(str(d.edit.toPlainText()), g, l)
+                l = parse_python_tweaks(str(d.edit.toPlainText()))
             except Exception:
                 import traceback
                 return error_dialog(self, _('Failed'),
@@ -534,9 +533,8 @@ class ConfigWidget(ConfigWidgetBase):
     def apply_tweak(self):
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
-            l, g = {}, {}
             try:
-                exec(str(self.edit_tweak.toPlainText()), g, l)
+                l = parse_python_tweaks(str(self.edit_tweak.toPlainText()))
             except Exception:
                 import traceback
                 error_dialog(self.gui, _('Failed'),
@@ -549,10 +547,8 @@ class ConfigWidget(ConfigWidgetBase):
 
     def commit(self):
         raw = self.tweaks.to_string()
-        if not isinstance(raw, bytes):
-            raw = raw.encode('utf-8')
         try:
-            custom_tweaks = exec_tweaks(raw)
+            custom_tweaks = parse_python_tweaks(raw)
         except Exception:
             import traceback
             error_dialog(self, _('Invalid tweaks'),

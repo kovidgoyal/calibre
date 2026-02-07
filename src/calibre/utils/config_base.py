@@ -630,11 +630,30 @@ def normalize_tweak(val):
     return val
 
 
+def parse_python_tweaks(text: str) -> dict[str, object]:
+    import ast
+    ans = {}
+    tree = ast.parse(text, filename='<string>')
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            # Get the value (must be a literal)
+            try:
+                value = ast.literal_eval(node.value)
+            except (ValueError, TypeError):
+                # Skip non-literal values
+                continue
+            # Extract target variable names
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    ans[target.id] = value
+    return ans
+
+
 def write_custom_tweaks(tweaks_dict):
     make_config_dir()
     tweaks_dict = make_unicode(tweaks_dict)
     changed_tweaks = {}
-    default_tweaks = exec_tweaks(default_tweaks_raw())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
     for key, cval in tweaks_dict.items():
         if key in default_tweaks and normalize_tweak(cval) == normalize_tweak(default_tweaks[key]):
             continue
@@ -642,21 +661,6 @@ def write_custom_tweaks(tweaks_dict):
     raw = json_dumps(changed_tweaks)
     with open(tweaks_file(), 'wb') as f:
         f.write(raw)
-
-
-def exec_tweaks(path):
-    if isinstance(path, bytes):
-        raw = path
-        fname = '<string>'
-    else:
-        with open(path, 'rb') as f:
-            raw = f.read()
-            fname = f.name
-    code = compile(raw, fname, 'exec')
-    l = {}
-    g = {'__file__': fname}
-    exec(code, g, l)
-    return l
 
 
 def read_custom_tweaks():
@@ -677,7 +681,8 @@ def read_custom_tweaks():
             return ans
     old_tweaks_file = tf.rpartition('.')[0] + '.py'
     if os.path.exists(old_tweaks_file):
-        ans = exec_tweaks(old_tweaks_file)
+        with open(old_tweaks_file) as f:
+            ans = make_unicode(parse_python_tweaks(old_tweaks_file))
         ans = make_unicode(ans)
         write_custom_tweaks(ans)
     return ans
@@ -688,7 +693,7 @@ def default_tweaks_raw():
 
 
 def read_tweaks():
-    default_tweaks = exec_tweaks(default_tweaks_raw())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
     try:
         custom_tweaks = read_custom_tweaks()
     except Exception:
@@ -713,7 +718,7 @@ migrate_tweaks_to_prefs()
 
 
 def reset_tweaks_to_default():
-    default_tweaks = exec_tweaks(default_tweaks_raw())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
     tweaks.clear()
     tweaks.update(default_tweaks)
 
@@ -729,3 +734,14 @@ class Tweak:
 
     def __exit__(self, *args):
         tweaks[self.name] = self.origval
+
+
+def find_tests():
+    import unittest
+    class TestTweakParsing(unittest.TestCase):
+        def test_tweak_parsing(self):
+            for raw in (default_tweaks_raw().decode(),):
+                expected, g = {}, {}
+                exec(raw, g, expected)
+                self.assertEqual(expected, parse_python_tweaks(raw))
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestTweakParsing)
