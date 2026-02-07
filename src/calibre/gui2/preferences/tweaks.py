@@ -179,8 +179,8 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             import traceback
             traceback.print_exc()
             custom_tweaks = {}
-        default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
-        defaults = default_tweaks_raw().decode('utf-8')
+        default_tweaks = parse_python_tweaks(default_tweaks_raw())
+        defaults = default_tweaks_raw()
         lines = defaults.splitlines()
         pos = 0
         self.tweaks = []

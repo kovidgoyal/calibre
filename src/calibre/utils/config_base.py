@@ -11,7 +11,7 @@ import traceback
 from collections import defaultdict
 from contextlib import suppress
 from copy import deepcopy
-from functools import partial
+from functools import lru_cache, partial
 
 from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows, preferred_encoding
 from calibre.utils.localization import _
@@ -653,7 +653,7 @@ def write_custom_tweaks(tweaks_dict):
     make_config_dir()
     tweaks_dict = make_unicode(tweaks_dict)
     changed_tweaks = {}
-    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw())
     for key, cval in tweaks_dict.items():
         if key in default_tweaks and normalize_tweak(cval) == normalize_tweak(default_tweaks[key]):
             continue
@@ -688,12 +688,13 @@ def read_custom_tweaks():
     return ans
 
 
+@lru_cache
 def default_tweaks_raw():
-    return P('default_tweaks.py', data=True, allow_user_override=False)
+    return P('default_tweaks.py', data=True, allow_user_override=False).decode()
 
 
 def read_tweaks():
-    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw())
     try:
         custom_tweaks = read_custom_tweaks()
     except Exception:
@@ -718,7 +719,7 @@ migrate_tweaks_to_prefs()
 
 
 def reset_tweaks_to_default():
-    default_tweaks = parse_python_tweaks(default_tweaks_raw().decode())
+    default_tweaks = parse_python_tweaks(default_tweaks_raw())
     tweaks.clear()
     tweaks.update(default_tweaks)
 
@@ -740,7 +741,7 @@ def find_tests():
     import unittest
     class TestTweakParsing(unittest.TestCase):
         def test_tweak_parsing(self):
-            for raw in (default_tweaks_raw().decode(),):
+            for raw in (default_tweaks_raw(),):
                 expected, g = {}, {}
                 exec(raw, g, expected)
                 self.assertEqual(expected, parse_python_tweaks(raw))
