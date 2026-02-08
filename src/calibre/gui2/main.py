@@ -450,26 +450,32 @@ class FailedToCommunicate(Exception):
     pass
 
 
-def send_message(msg, retry_communicate=False):
+def send_message(msg):
+    fail_err = None
     try:
         send_message_in_process(msg)
+        return True
     except Exception:
-        time.sleep(2)
-        try:
-            send_message_in_process(msg)
-        except Exception as err:
-            # can happen because the Qt local server pipe is shutdown before
-            # the single instance mutex is released
-            if retry_communicate:
-                raise FailedToCommunicate('retrying')
-            print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
-            print(err, file=sys.stderr, flush=True)
-            if Application.instance():
-                error_dialog(None, _('Contacting calibre failed'), _(
-                    'Failed to contact running instance of calibre, try restarting calibre'),
-                    det_msg=str(err) + '\n\n' + repr(msg), show=True)
-            return False
-    return True
+        # can happen if Qt LocalServer has not yet started, typically happens on Windows
+        st = time.monotonic()
+        while time.monotonic() - st < 6:
+            try:
+                send_message_in_process(msg)
+                return True
+            except Exception as err:
+                fail_err = err
+                time.sleep(0.05)
+                with SingleInstance(singleinstance_name) as si:
+                    if si:
+                        raise SystemExit(_('Other instance of calibre shutdown'))
+
+    print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
+    print(fail_err, file=sys.stderr, flush=True)
+    if Application.instance():
+        error_dialog(None, _('Contacting calibre failed'), _(
+            'Failed to contact running instance of calibre, try restarting calibre'),
+            det_msg=str(fail_err or '') + '\n\n' + repr(msg), show=True)
+    return False
 
 
 def shutdown_other():
@@ -483,7 +489,7 @@ def shutdown_other():
         raise SystemExit(_('Failed to shutdown running calibre instance'))
 
 
-def communicate(opts, args, retry_communicate=False):
+def communicate(opts, args):
     if opts.shutdown_running_calibre:
         shutdown_other()
     else:
@@ -493,7 +499,7 @@ def communicate(opts, args, retry_communicate=False):
             library_id = os.path.basename(opts.with_library).replace(' ', '_').encode('utf-8').hex()
             args.insert(1, 'calibre://switch-library/_hex_-' + library_id)
         import json
-        if not send_message(b'launched:'+as_bytes(json.dumps(args)), retry_communicate=retry_communicate):
+        if not send_message(b'launched:'+as_bytes(json.dumps(args))):
             raise SystemExit(_('Failed to contact running instance of calibre'))
     raise SystemExit(0)
 
@@ -543,16 +549,10 @@ def main(args=sys.argv):
         app, opts, args = init_qt(args)
     except AbortInit:
         return 1
-    try:
-        with SingleInstance(singleinstance_name) as si:
-            if si and opts.shutdown_running_calibre:
-                return 0
-            run_main(app, opts, args, gui_debug, si, retry_communicate=True)
-    except FailedToCommunicate:
-        with SingleInstance(singleinstance_name) as si:
-            if si and opts.shutdown_running_calibre:
-                return 0
-            run_main(app, opts, args, gui_debug, si, retry_communicate=False)
+    with SingleInstance(singleinstance_name) as si:
+        if si and opts.shutdown_running_calibre:
+            return 0
+        run_main(app, opts, args, gui_debug, si)
     if after_quit_actions['restart_after_quit']:
         restart_after_quit()
     sip.delete(app)
@@ -561,10 +561,10 @@ def main(args=sys.argv):
     gc.collect(), gc.collect()
 
 
-def run_main(app, opts, args, gui_debug, si, retry_communicate=False):
+def run_main(app, opts, args, gui_debug, si):
     if si:
         return run_gui(opts, args, app, gui_debug=gui_debug)
-    communicate(opts, args, retry_communicate)
+    communicate(opts, args)
     return 0
 
 
