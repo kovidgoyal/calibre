@@ -115,7 +115,7 @@ def parse_details_page(url, log, timeout, browser, domain):
                 log.error('URL not found: %r' % url)
                 raise UrlNotFound(url)
             attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
+            attr = attr or [None]
             if isinstance(attr[0], socket.timeout):
                 msg = 'Details page timed out. Try again later.'
                 log.error(msg)
@@ -824,16 +824,22 @@ class Worker(Thread):  # Get details {{{
                     idxinfo, series_name = texts
                     idxinfo = idxinfo.strip()
 
-                    # Try Japanese pattern like: "全5巻中第1巻", "全3巻中第2巻"
+                    # Try Japanese pattern like: "全5巻中第1巻", "全3冊中第2冊"
                     m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中第\s*([0-9.]+)\s*(?:巻|冊)', idxinfo)
                     if m is not None:
                         ans = (series_name, float(m.group(1)))
                         return ans
 
-                    # Fallback: original behaviour (first number), used for EN/etc
-                    m = re.search(r'[0-9.]+', idxinfo)
+                    # Newer JP pattern: "全24冊中4番目の本" (no 第 / no 冊 after index)
+                    m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中\s*([0-9.]+)\s*番目', idxinfo)
                     if m is not None:
-                        ans = (series_name, float(m.group()))
+                        ans = (series_name, float(m.group(1)))
+                        return ans
+
+                    # Safer fallback: if there are multiple numbers, the LAST one is usually the index
+                    nums = re.findall(r'[0-9.]+', idxinfo)
+                    if nums:
+                        ans = (series_name, float(nums[-1]))
                         return ans
 
         # This is found on the paperback/hardback pages for books on amazon.com
@@ -1107,7 +1113,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 16)
+    version = (1, 3, 17)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1532,7 +1538,7 @@ class Amazon(Source):
                 log.error('Query malformed: %r' % query)
                 raise SearchFailed()
             attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
+            attr = attr or [None]
             if isinstance(attr[0], socket.timeout):
                 msg = _('Amazon timed out. Try again later.')
                 log.error(msg)
