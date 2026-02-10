@@ -1445,11 +1445,9 @@ class BooksModel(QAbstractTableModel):  # {{{
                 books_to_refresh |= self.db.set(row, column, val,
                                                 allow_case_change=True)
                 if column == 'title':
-                    lang = self.db.languages(row)
-                    if lang is not None:
-                        lang = lang.split(',')[0]
-                    self.db.set(row, 'sort', title_sort(val, lang=lang),
-                                                    allow_case_change=True)
+                    if (lang := self.db.languages(row)) is not None:
+                        lang = lang.partition(',')[0]
+                    self.db.set(row, 'sort', title_sort(val, lang=lang), allow_case_change=True)
             self.refresh_ids(list(books_to_refresh), row)
         self.dataChanged.emit(index, index)
         return True
