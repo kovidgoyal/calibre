@@ -37,7 +37,7 @@ from calibre import fit_image, human_readable, isbytestring, prepare_string_for_
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
-from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, is_dark_theme, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
@@ -400,7 +400,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return 100000
             return self.db.field_metadata[name]['rec_index']
 
-        self.column_map.sort(key=lambda x: col_idx(x))
+        self.column_map.sort(key=col_idx)
         for col in self.column_map:
             if col in self.orig_headers:
                 self.headers[col] = self.orig_headers[col]
@@ -740,8 +740,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         for id in rows:
             mi = self.db.get_metadata(id, index_is_id=True)
             _full_metadata.append(mi)
-            au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
-            tags = mi.tags if mi.tags else []
+            au = authors_to_string(mi.authors or [_('Unknown')])
+            tags = mi.tags or []
             if mi.series is not None:
                 tags.append(mi.series)
             info = {
@@ -1308,7 +1308,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         s_index = None
         if typ in ('text', 'comments'):
             val = str(value or '').strip()
-            val = val if val else None
+            val = val or None
         elif typ == 'enumeration':
             val = str(value or '').strip()
             if not val:
@@ -1444,6 +1444,12 @@ class BooksModel(QAbstractTableModel):  # {{{
                     val = authors_to_string(string_to_authors(val))
                 books_to_refresh |= self.db.set(row, column, val,
                                                 allow_case_change=True)
+                if column == 'title':
+                    lang = self.db.languages(row)
+                    if lang is not None:
+                        lang = lang.split(',')[0]
+                    self.db.set(row, 'sort', title_sort(val, lang=lang),
+                                                    allow_case_change=True)
             self.refresh_ids(list(books_to_refresh), row)
         self.dataChanged.emit(index, index)
         return True
@@ -1815,7 +1821,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         if ext:
             fmt = ext[1:].lower()
         mi.formats = [fmt]
-        mi.path = (item.path if item.path else None)
+        mi.path = (item.path or None)
         dt = dt_factory(item.datetime, assume_utc=True)
         mi.timestamp = dt
         mi.device_collections = list(item.device_collections)
