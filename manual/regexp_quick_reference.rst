@@ -64,7 +64,7 @@ Shorthand character classes
 | ``\W``              | Any “non-word” character                                                                                                                     |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
-| ``\s``              | Space, non-breaking space, tab, return line                                                                                                  |
+| ``\s``              | Space, non-breaking space, tab, carriage return                                                                                                  |
 |                     |                                                                                                                                              |
 +---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
 | ``\S``              | Any “non-whitespace” character                                                                                                               |
@@ -96,7 +96,7 @@ The quantifiers
 | ``{min,max}``  | Number of occurrences between the minimum and maximum values included     |
 |                |                                                                           |
 +----------------+---------------------------------------------------------------------------+
-| ``{min,}``     | Number of occurrences between the minimum value included and the infinite |
+| ``{min,}``     | Number of occurrences between the minimum value included and infinity |
 |                |                                                                           |
 +----------------+---------------------------------------------------------------------------+
 | ``{,max}``     | Number of occurrences between 0 and the maximum value included            |
@@ -241,7 +241,7 @@ Example of negative lookahead:
 
 ``(?![^<>{}]*[>}])``
 
-Placed at the end of the pattern prevents to select within a tag or a style embedded in the file.
+Placed at the end of the pattern prevents selecting within a tag or a style embedded in the file.
 
 Whenever possible, it is always better to "anchor" the lookarounds, to reduce
 the number of steps necessary to obtain the result.

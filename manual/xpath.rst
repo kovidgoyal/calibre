@@ -43,7 +43,7 @@ calibre represents all content as XHTML. In XHTML tags have a *namespace*, and
 ``h:`` is the namespace prefix for HTML tags.
 
 Now suppose you want to select both ``<h1>`` and ``<h2>`` tags. To do that,
-we need a XPath construct called *predicate*. A :dfn:`predicate` is simply
+we need an XPath construct called *predicate*. A :dfn:`predicate` is simply
 a test that is used to select tags. Tests can be arbitrarily powerful and as
 this tutorial progresses, you will see more powerful examples. A predicate
 is created by enclosing the test expression in square brackets::

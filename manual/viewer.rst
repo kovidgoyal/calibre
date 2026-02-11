@@ -274,13 +274,13 @@ be customised in the viewer :guilabel:`Preferences`. The default shortcuts are l
     * - Keyboard shortcut
       - Action
     * - :kbd:`Home, Ctrl+ArrowUp, Ctrl+ArrowLeft`
-      - Scroll to the start of the current file in a multi file book
+      - Scroll to the start of the current file in a multi-file book
     * - :kbd:`Ctrl+Home`
       - Scroll to the beginning of the book
     * - :kbd:`Ctrl+End`
       - Scroll to the end of the book
     * - :kbd:`End, Ctrl+ArrowDown, Ctrl+ArrowRight`
-      - Scroll to the end of the current file in a multi file book
+      - Scroll to the end of the current file in a multi-file book
     * - :kbd:`ArrowUp`
       - Scroll backwards, smoothly in flow mode and by screen fulls in paged mode
     * - :kbd:`ArrowDown`

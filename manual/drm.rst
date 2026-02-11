@@ -58,7 +58,7 @@ DRM and freedom
 Although digital content can be used to make information as well as creative
 works easily available to everyone and empower humanity, this is not in the
 interests of some publishers who want to steer people away from this
-possibility of freedom simply to maintain their relevance in world developing
+possibility of freedom simply to maintain their relevance in a world developing
 so fast that they can't keep up.
 
 
@@ -70,7 +70,7 @@ calibre were to support opening or viewing DRM files it could be trivially
 modified to be used as a tool for DRM removal which is illegal under today's
 laws. Open source software and DRM are a clash of principles. While DRM is all
 about controlling the user, open source software is about empowering the user.
-The two simply can not coexist.
+The two simply cannot coexist.
 
 
 What is calibre's view on content providers?

@@ -52,7 +52,7 @@ The normal edit metadata dialog also has :guilabel:`Next` and :guilabel:`Previou
 Search and replace
 ^^^^^^^^^^^^^^^^^^^^
 
-The :guilabel:`Edit metadata for many books` dialog allows you to perform arbitrarily powerful search and replace operations on the selected books. By default it uses a simple text search and replace, but it also support *regular expressions*. For more on regular expressions, see :ref:`regexptutorial`.
+The :guilabel:`Edit metadata for many books` dialog allows you to perform arbitrarily powerful search and replace operations on the selected books. By default it uses a simple text search and replace, but it also supports *regular expressions*. For more on regular expressions, see :ref:`regexptutorial`.
 
 As noted above, there are two search and replace modes: character match and regular expression. Character match will look in the `Search field` you choose for the characters you type in the `search for` box and replace those characters with what you type in the `replace with` box. Each occurrence of the search characters in the field will be replaced. For example, assume the field being searched contains `a bad cat`. If you search for `a` to be replaced with `HELLO`, then the result will be `HELLO bHELLOd cHELLOt`.
 
@@ -72,7 +72,7 @@ Regular expression mode has some differences from character mode, beyond (of cou
 
 The third and most important is that the replace string can make reference to parts of the search string by using backreferences. A backreference is ``\\n`` where n is an integer that refers to the n'th parenthesized group in the search expression. For example, given the same example as above, `a bad cat`, a search expression `a (...) (...)`, and a replace expression `a \\2 \\1`, the result will be `a cat bad`. Please see the :ref:`regexptutorial` for more information on backreferences.
 
-One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(^.*$)`, the replace expression should be `\\1`, and the desired case change function should be selected.
+One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but let's further assume you want to use regular expression mode. The search expression should be `(^.*$)`, the replace expression should be `\\1`, and the desired case change function should be selected.
 
 Finally, in regular expression mode you can copy values from one field to another. Simply make the source and destination field different. The copy can replace the destination field, prepend to the field (add to the front), or append to the field (add at the end). The 'use comma' checkbox tells calibre to (or not to) add a comma between the text and the destination field in prepend and append modes. If the destination is multiple (e.g., tags), then you cannot uncheck this box.
 
@@ -89,7 +89,7 @@ If you want to download the metadata for multiple books at once, right-click the
 Adding extra data files to a book
 --------------------------------------
 
-calibre can store any number of extra data files associated to a book. These
+calibre can store any number of extra data files associated with a book. These
 can be alternate covers, supplementary material, etc. They cannot be viewed
 directly or used as conversion sources. Nor are they indexed by the Full text
 search engine in calibre. To view/add/delete them select the book and right

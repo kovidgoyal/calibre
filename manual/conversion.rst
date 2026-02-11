@@ -103,7 +103,7 @@ Fonts
 
 One of the nicest features of the e-reading experience is the ability to easily adjust font sizes to
 suit individual needs and lighting conditions. calibre has sophisticated algorithms to ensure that
-all the books it outputs have a consistent font sizes, no matter what font sizes are specified
+all the books it outputs have consistent font sizes, no matter what font sizes are specified
 in the input document.
 
 The base font size of a document is the most common font size in that document,
@@ -208,7 +208,7 @@ Then, in your source document, mark the paragraphs that need spacing with `class
 If your input document is not in HTML, use the Debug option, described in the Introduction to get HTML
 (use the :file:`input` sub-folder).
 
-Another useful options is :guilabel:`Linearize tables`.  Some badly designed
+Another useful option is :guilabel:`Linearize tables`.  Some badly designed
 documents use tables to control the layout of text on the page.  When converted
 these documents often have text that runs off the page and other artifacts.
 This option will extract the content from the tables and present it in a linear
@@ -386,7 +386,7 @@ Search & replace
 ---------------------
 
 These options are useful primarily for conversion of PDF documents or OCR conversions, though they can
-also be used to fix many document specific problems. As an example, some conversions can leaves behind page
+also be used to fix many document specific problems. As an example, some conversions can leave behind page
 headers and footers in the text. These options use regular expressions to try and detect headers, footers,
 or other arbitrary text and remove or replace them. Remember that they operate on the intermediate XHTML produced
 by the conversion pipeline. There is a wizard to help you customize the regular expressions for
@@ -413,7 +413,7 @@ Chapters and page breaks
 
 calibre has two sets of options for :guilabel:`chapter detection` and :guilabel:`inserting page breaks`. This can sometimes be
 slightly confusing, as by default, calibre will insert page breaks before detected chapters as well as the locations detected by
-the page breaks option. The reason for this is that there are often location where page breaks should be inserted that are not
+the page breaks option. The reason for this is that there are often locations where page breaks should be inserted that are not
 chapter boundaries. Also, detected chapters can be optionally inserted into the auto generated Table of Contents.
 
 calibre uses *XPath*, a powerful language to allow the user to specify chapter boundaries/page breaks. XPath can seem a little daunting
@@ -510,7 +510,7 @@ They are XPath expressions that match tags in the intermediate XHTML produced by
 how to construct XPath expressions. Next to each option is a button that launches a wizard to help with the creation
 of basic XPath expressions. The following simple example illustrates how to use these options.
 
-Suppose you have an input document that results in XHTML that look like this:
+Suppose you have an input document that results in XHTML that looks like this:
 
 .. code-block:: html
 
@@ -784,7 +784,7 @@ The .cbc file will then contain::
     two.cbz
     three.cbz
 
-calibre will automatically convert this .cbc file into a e-book with a Table of Contents pointing to each entry in comics.txt.
+calibre will automatically convert this .cbc file into an e-book with a Table of Contents pointing to each entry in comics.txt.
 
 
 EPUB advanced formatting demo
@@ -816,7 +816,7 @@ Example:
   * If you mark Chapters with style :guilabel:`Heading 2`, you have to set the 'Detect chapters at' box to ``//h:h2``
   * For a nested TOC with Sections marked with :guilabel:`Heading 2` and the Chapters marked with :guilabel:`Heading 3` you need to enter ``//h:h2|//h:h3``. On the Convert - TOC page set the :guilabel:`Level 1 TOC` box to ``//h:h2`` and the :guilabel:`Level 2 TOC` box to ``//h:h3``.
 
-Well-known document properties (Title, Keywords, Description, Creator) are recognized and calibre will use the first image (not to small, and with good aspect-ratio) as the cover image.
+Well-known document properties (Title, Keywords, Description, Creator) are recognized and calibre will use the first image (not too small, and with good aspect-ratio) as the cover image.
 
 There is also an advanced property conversion mode, which is activated by setting the custom property ``opf.metadata`` ('Yes or No' type) to Yes in your ODT document (File->Properties->Custom Properties).
 If this property is detected by calibre, the following custom properties are recognized (``opf.authors`` overrides document creator)::

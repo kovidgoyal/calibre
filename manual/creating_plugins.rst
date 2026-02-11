@@ -43,7 +43,7 @@ You can download the Hello World plugin from
 :download_file:`helloworld_plugin.zip`.
 
 Every time you use calibre to convert a book, the plugin's :meth:`run` method will be called and the
-converted book will have its publisher set to "Hello World". This is a trivial plugin, lets move on to
+converted book will have its publisher set to "Hello World". This is a trivial plugin, let's move on to
 a more complex example that actually adds a component to the user interface.
 
 A User Interface plugin
@@ -69,7 +69,7 @@ The first thing to note is that this ZIP file has a lot more files in it, explai
             from calibre_plugins.some_name.some_module import some_object
 
         The prefix ``calibre_plugins`` must always be present. ``some_name`` comes from the filename of the empty text file.
-        ``some_module`` refers to  :file:`some_module.py` file inside the ZIP file. Note that this importing is just as
+        ``some_module`` refers to :file:`some_module.py` file inside the ZIP file. Note that this importing is just as
         powerful as regular Python imports. You can create packages and subpackages of .py modules inside the ZIP file,
         just like you would normally (by defining __init__.py in each sub-folder), and everything should "just work".
 
