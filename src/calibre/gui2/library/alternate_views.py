@@ -1120,8 +1120,15 @@ class GridView(MomentumScrollMixin, QListView):
             return super().mousePressEvent(ev)
         self.shift_click_start_data = handle_selection_click(self, self.indexAt(ev.pos()))
 
-    def indices_for_merge(self, resolved=True):
-        return self.selectionModel().selectedIndexes()
+    def rows_for_merge(self, resolved=True):
+        ans = []
+        seen = set()
+        for idx in self.selectionModel().selectedIndexes():
+            row = idx.row()
+            if row not in seen:
+                seen.add(row)
+                ans.append(row)
+        return ans
 
     def number_of_columns(self):
         # Number of columns currently visible in the grid

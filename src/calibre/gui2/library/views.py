@@ -1285,10 +1285,17 @@ class BooksView(TableView):  # {{{
             return True
         return False
 
-    def indices_for_merge(self, resolved=False):
+    def rows_for_merge(self, resolved=False):
         if not resolved:
-            return self.alternate_views.current_view.indices_for_merge(resolved=True)
-        return self.selectionModel().selectedRows()
+            return self.alternate_views.current_view.rows_for_merge(resolved=True)
+        ans = []
+        seen = set()
+        for idx in self.selectionModel().selectedRows():
+            row = idx.row()
+            if row not in seen:
+                seen.add(row)
+                ans.append(row)
+        return ans
 
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling

@@ -2424,8 +2424,15 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # Refresh display if marked books changed
         self.update_viewport()
 
-    def indices_for_merge(self, resolved=True):
-        return self.selectionModel().selectedRows()
+    def rows_for_merge(self, resolved=True):
+        ans = []
+        seen = set()
+        for idx in self.selectionModel().selectedRows():
+            row = idx.row()
+            if row not in seen:
+                seen.add(row)
+                ans.append(row)
+        return ans
 
     # Mouse and keyboard events {{{
 
