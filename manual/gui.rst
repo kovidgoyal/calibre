@@ -47,9 +47,9 @@ Add books
 
     #. **Add books from a single folder**: Opens a file chooser dialog and allows you to specify which books in a folder should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
 
-    #. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
+    #. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the settings for the Save to disk action).
 
-    #. **Add multiple books from archive (ZIP/RAR/7z)**: Allows you to add multiple e-books that are stored inside the selected achive files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+    #. **Add multiple books from archive (ZIP/RAR/7z)**: Allows you to add multiple e-books that are stored inside the selected archive files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
     #. **Add empty book (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
@@ -740,7 +740,7 @@ To choose icons for values in categories, right-click on a value then choose `Ma
 * `Use the existing icon for this value and its children`. This option is offered if the value already has an icon that is not inherited by the value's children. Selecting it will make the icon apply to the value and its children.
 * `Use the default icon for this value`. This option is offered if the item has an icon. It removes the icon from the value and any children inheriting the icon. The default icon is what is specified below.
 * `Reset all value icons to the default icon`. This option removes all item value icons for the category. It does not remove a template if one exists. There is no undo.
-* `Use/edit a template to choose the default value icon`. This option permits you to provide a calibre template that returns the name of an icon file to be used as a default icon. The template can use two variables:
+* `Use/edit a template to choose the default value icon`. This option permits you to provide a calibre template that returns the name of an icon file to be used as a default icon. The template can use the following variables:
 
   * ``category``: the lookup name of the category, for example ``authors``, ``series``, ``#mycolumn``.
   * ``value``: the value of the item within the category.
@@ -798,11 +798,11 @@ Bookshelf view
 .. image:: images/bookshelf.png
     :align: center
 
-You can have calibre display you book collection in shelves, optionally grouped
+You can have calibre display your book collection in shelves, optionally grouped
 by authors/date/rating etc.
 The :guilabel:`Bookshelf view` is activated by clicking the :guilabel:`Layout` button in the bottom
 right corner of the main calibre window. You can customize everything about the
-view from the background, to the text on the spines the fonts, et cetera via
+view from the background, to the text on the spines, the fonts, et cetera via
 :guilabel:`Preferences->Interface->Look & feel->Bookshelf`.
 
 
@@ -813,7 +813,7 @@ Cover browser
     :align: center
 
 In addition to the :guilabel:`Cover grid` described above, you can also have calibre display
-covers in the single row. This is activated via the :guilabel:`Layout` button in the lower right
+covers in a single row. This is activated via the :guilabel:`Layout` button in the lower right
 corner of the main window. In :guilabel:`Preferences->Interface->Look & feel->Cover
 browser` you can change the number of covers displayed, and even have the
 :guilabel:`Cover browser` display itself in a separate popup window.
@@ -846,7 +846,7 @@ it to the toolbar via :guilabel:`Preferences->Toolbars & menus`.
 Quickview
 ----------
 
-Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc.) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens either a second window or a panel in the book list showing the list of books matching the value of interest. For example, assume you want to see a list of all the books with the one or more of the authors of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key or click the :guilabel:`Quickview` icon in the :guilabel:`Layout` section of the calibre window. A window or panel will open with all the authors for that book on the left, and all the books by the selected author on the right.
+Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc.) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens either a second window or a panel in the book list showing the list of books matching the value of interest. For example, assume you want to see a list of all the books with one or more of the authors of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key or click the :guilabel:`Quickview` icon in the :guilabel:`Layout` section of the calibre window. A window or panel will open with all the authors for that book on the left, and all the books by the selected author on the right.
 
 Some example Quickview usages: quickly seeing what other books:
 	- have some tag(s) applied to the currently selected book,
@@ -862,13 +862,13 @@ There are two choices for where the Quickview information appears:
 
 You can move the window from docked to undocked as desired using the "Dock/Undock" button.
 
-The Quickview panel can be left open permanently, in which case it follows movements on the book list. For example, if you click in the calibre library view on a category column (tags, series, publisher, authors, etc.) for a book, the Quickview window contents will change to show you in the left-hand side panel the values in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side panel all the books in your library that use that value. Click on an different value in the left-hand panel to see the books with that different value.
+The Quickview panel can be left open permanently, in which case it follows movements on the book list. For example, if you click in the calibre library view on a category column (tags, series, publisher, authors, etc.) for a book, the Quickview window contents will change to show you in the left-hand side panel the values in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side panel all the books in your library that use that value. Click on a different value in the left-hand panel to see the books with that different value.
 
 Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window (the left-hand panel) to show the items in the newly-selected book.
 
 :kbd:`Shift-` or :kbd:`Ctrl-` double-click on a book in the Quickview window to open the edit metadata dialog on that book in the calibre window. The edited book will be Quickview'ed when you close the edit metadata dialog.
 
-You can see if a column can be Quickview'ed by hovering your mouse over the column heading and looking at the tooltip for that heading. You can also know by right-clicking on the column heading to see of the "Quickview" option is shown in the menu, in which case choosing that Quickview option is equivalent to pressing 'Q' in the current cell.
+You can see if a column can be Quickview'ed by hovering your mouse over the column heading and looking at the tooltip for that heading. You can also know by right-clicking on the column heading to see if the "Quickview" option is shown in the menu, in which case choosing that Quickview option is equivalent to pressing 'Q' in the current cell.
 
 Options (in :guilabel:`Preferences->Look & feel->Quickview`):
 

@@ -94,7 +94,7 @@ steps:
      network configurations possible, it is not possible to give you a
      roadmap for doing so.
 
-  #. If you have setup a username and password, first try it without that
+  #. If you have set up a username and password, first try it without that
      to see if it is causing issues. Some e-ink devices have browsers that
      do not handle authentication. You can sometimes workaround this by
      including the username and password in the URL, for example:
@@ -143,7 +143,7 @@ is as follows.
     For maximum security, you should also enable HTTPS on the Content server.
     You can either do so directly in the server by providing the path to
     the HTTPS certificate to use in the advanced configuration options for
-    the server, or you can setup a reverse proxy as described below, to use
+    the server, or you can set up a reverse proxy as described below, to use
     an existing HTTPS setup.
 
 
@@ -152,7 +152,7 @@ The server interface
 
 The server interface is a simplified version of the main calibre interface,
 optimised for use with touch screens. The home screen shows you books
-you are currently reading as well as allowing to choose a calibre library you
+you are currently reading as well as allowing you to choose a calibre library you
 want to browse. The server in calibre gives you access to all your libraries,
 not just a single one, as before.
 
@@ -216,7 +216,7 @@ Enabling offline support
 Browser makers have been trying to force people to use SSL by disabling
 advanced features in their browsers for plain HTTP connections. One such
 casualty is ApplicationCache, which was what was used in calibre for offline
-support. As a result now-a-days sadly, offline mode works only as long as you
+support. As a result nowadays sadly, offline mode works only as long as you
 keep the browser tab open. In addition, in Firefox on Android, you will need to
 type ``about:config`` and create a preference called ``browser.tabs.useCache``
 and set it to ``true``.
@@ -236,7 +236,7 @@ by running::
 
     calibre-server --userdb /srv/calibre/users.sqlite --manage-users
 
-Just follow the prompts to create user accounts, set their permission, etc.
+Just follow the prompts to create user accounts, set their permissions, etc.
 Once you are done, you can run the server as::
 
     calibre-server --userdb /srv/calibre/users.sqlite --enable-auth
@@ -250,7 +250,7 @@ Integrating the calibre Content server into other servers
 Here, we will show you how to integrate the calibre Content server into another
 server. The most common reason for this is to make use of SSL or to serve the
 calibre library as part of a larger site. The basic technique is to run the
-calibre server and setup a reverse proxy to it from the main server.
+calibre server and set up a reverse proxy to it from the main server.
 
 A reverse proxy is when your normal server accepts incoming requests and passes
 them onto the calibre server. It then reads the response from the calibre
@@ -346,7 +346,7 @@ That's all, you will now be able to access the calibre Content server under the 
 
 .. note::
 
-    If you have setup SSL for your main server, you should tell the calibre
+    If you have set up SSL for your main server, you should tell the calibre
     server to use basic authentication instead of digest authentication, as it
     is faster. To do so, pass the ``--auth-mode=basic`` option to
     ``calibre-server``.

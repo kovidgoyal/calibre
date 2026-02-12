@@ -61,7 +61,7 @@ In the MOBI format, the situation is a little confused. This is because the MOBI
 
 Now it might well seem to you that the MOBI book has two identical ToCs. Remember that one is semantically a content ToC and the other is a metadata ToC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot.
 
-When converting to MOBI, calibre detects the *metadata ToC* in the input document and generates an end-of-file ToC in the output MOBI file. You can turn this off by an option in the MOBI Output settings. You can also tell calibre whether to put it at the start or the end of the book via an option in the MOBI Output settings. Remember this ToC is semantically a *metadata ToC*, in any format other than MOBI it *cannot not be part of the text*. The fact that it is part of the text in MOBI is an accident caused by the limitations of MOBI. If you want a ToC at a particular location in your document text, create one by hand. So we strongly recommend that you leave the default as it is, i.e. with the metadata ToC at the end of the book. Also note that if you disable the generation of the end-of-file ToC the resulting MOBI file may not function correctly on a Kindle, since the Kindle's use the metadata ToC for many things, including the Page Flip feature.
+When converting to MOBI, calibre detects the *metadata ToC* in the input document and generates an end-of-file ToC in the output MOBI file. You can turn this off by an option in the MOBI Output settings. You can also tell calibre whether to put it at the start or the end of the book via an option in the MOBI Output settings. Remember this ToC is semantically a *metadata ToC*, in any format other than MOBI it *cannot be part of the text*. The fact that it is part of the text in MOBI is an accident caused by the limitations of MOBI. If you want a ToC at a particular location in your document text, create one by hand. So we strongly recommend that you leave the default as it is, i.e. with the metadata ToC at the end of the book. Also note that if you disable the generation of the end-of-file ToC the resulting MOBI file may not function correctly on a Kindle, since the Kindle's use the metadata ToC for many things, including the Page Flip feature.
 
 If you have a hand edited ToC in the input document, you can use the ToC detection options in calibre to automatically generate the metadata ToC from it. See the conversion section of the User Manual for more details on how to use these options.
 
@@ -116,7 +116,7 @@ output a valid EPUB. calibre tries hard to ensure that EPUBs it produces actuall
 work as intended on a wide variety of devices, a goal that is incompatible with
 producing valid EPUBs, and one that is far more important to the vast majority
 of its users. If you need a tool that always produces valid EPUBs, calibre is not
-for you. This means, that if you want to send a calibre produced EPUB to an
+for you. This means that if you want to send a calibre produced EPUB to an
 online store that uses an EPUB validity checker, you have to make sure that the
 EPUB is valid yourself, calibre will not do it for you -- in other words you
 must feed calibre valid XHTML + CSS as the input documents.
@@ -247,7 +247,7 @@ You will see a list of books in Safari, tap on any book and you will be given
 the option to either download it, or read it in the browser itself. If you
 choose to download it, Safari will ask you if you want to open it with iBooks.
 
-Many reading apps support browsing the calibre library directly via its `OPDS <httpd://opds.io/>`__ support.
+Many reading apps support browsing the calibre library directly via its `OPDS <https://opds.io/>`__ support.
 In such apps you can go to the online catalog screen and add the IP address of
 the calibre server to browse and download books from your calibre library
 within the app.
@@ -280,8 +280,8 @@ utility, etc.
 .. note:: With newer Android devices, you might have to jump through a few hoops
     to get the connection working, as Google really does not want you to be
     independent of its cloud. First, unlock the screen before plugging in the
-    USB cable. When you plugin in the USB cable you will get a popup
-    notification. Make sure it says some thing like "Transferring Media files"
+    USB cable. When you plug in the USB cable you will get a popup
+    notification. Make sure it says something like "Transferring Media files"
     or "MTP (Media Transfer mode)". If it does not, tap the notification, and
     change the mode to Media Transfer (MTP).  You may need to restart calibre
     at this point in order for your device to be recognized.  Finally, you
@@ -317,7 +317,7 @@ You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
 Android device.
 
-Many reading apps support browsing the calibre library directly via its `OPDS <httpd://opds.io/>`__ support.
+Many reading apps support browsing the calibre library directly via its `OPDS <https://opds.io/>`__ support.
 In such apps you can go to the online catalog screen and add the IP address of
 the calibre server to browse and download books from your calibre library
 within the app.
@@ -457,7 +457,7 @@ customer support and complain loudly about this bug. Maybe Amazon will listen.
 
 .. note::
 
-   If the workaround is not working for you make sure you Kindle firmware
+   If the workaround is not working for you make sure your Kindle firmware
    is at least version 5.12.5, released in April 2020.
 
 Covers for books sent to my Kindle ColorSoft and newer do not show up in the book list?
@@ -692,7 +692,7 @@ where calibre stores the metadata like title/author/rating/tags etc. for *every*
 book in your calibre library. The list of books that calibre displays is created by
 reading the contents of this metadata.db file.
 
-There can be two reasons why calibre is showing a empty list of books:
+There can be two reasons why calibre is showing an empty list of books:
 
   * Your calibre library folder changed its location. This can happen if it was
     on an external disk and the drive letter for that disk changed. Or if you
@@ -826,7 +826,7 @@ There can be several causes for this:
        * Start calibre
        * From now on you should be able to start calibre normally.
 
-    * If you get an error about a Python function terminating unexpectedly after upgrading calibre, first uninstall calibre, then delete the folders (if they exists)
+    * If you get an error about a Python function terminating unexpectedly after upgrading calibre, first uninstall calibre, then delete the folders (if they exist)
       :file:`C:\\Program Files\\Calibre` and :file:`C:\\Program Files\\Calibre2`. Now re-install and you should be fine.
     * If you get an error in the :guilabel:`Welcome wizard` on an initial run of calibre, try choosing a folder like :file:`C:\\library` as the calibre library (calibre sometimes
       has trouble with library locations if the path contains non-English characters, or only numbers, etc.)
@@ -900,8 +900,8 @@ Using the viewer or doing any conversions results in a permission denied error o
 
 Something on your computer is preventing calibre from accessing its own
 temporary files. Most likely the permissions on your :file:`Temp` folder are incorrect.
-Go to the folder file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows
-Explorer and then right click on the file:`Temp` folder, select :guilabel:`Properties` and go to
+Go to the folder :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows
+Explorer and then right click on the :file:`Temp` folder, select :guilabel:`Properties` and go to
 the :guilabel:`Security` tab. Make sure that your user account has full control for this
 folder.
 
