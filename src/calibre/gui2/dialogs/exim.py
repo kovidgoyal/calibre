@@ -247,6 +247,9 @@ class EximDialog(Dialog):
         self.ig = w = QWidget()
         s.addWidget(w)
         w.l = l = QVBoxLayout(w)
+        w.wla = la = QLabel(_('<b style="color: red">WARNING</b>: do not import calibre data you get from an untrusted source, as that is a security risk.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
         w.la = la = QLabel(_('Specify the folder containing the previously exported calibre data that you'
                              ' wish to import.'))
         la.setWordWrap(True)
