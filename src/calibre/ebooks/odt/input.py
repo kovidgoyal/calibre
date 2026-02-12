@@ -28,10 +28,16 @@ class Extract(ODF2XHTML):
     def extract_pictures(self, zf):
         if not os.path.exists('Pictures'):
             os.makedirs('Pictures')
+        base = os.path.abspath(os.getcwd())
+        if not base.endswith(os.sep):
+            base += os.sep
         for name in zf.namelist():
             if name.startswith('Pictures') and name not in {'Pictures', 'Pictures/'}:
+                dest = os.path.abspath(os.path.join(base, name))
+                if os.path.commonprefix([base, dest]) != dest:
+                    continue
                 data = zf.read(name)
-                with open(name, 'wb') as f:
+                with open(dest, 'wb') as f:
                     f.write(data)
 
     def apply_list_starts(self, root, log):
