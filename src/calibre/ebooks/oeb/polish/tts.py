@@ -78,6 +78,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
     id_counter = 1
     ans = []
     clones_map = defaultdict(list)
+    root_ns, root_sep, _ = root.tag.partition('}')
 
     class Parent:
 
@@ -155,7 +156,10 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
         def make_wrapper(self, text: str | None, elem: Element | None = None) -> Element:
             if elem is None:
                 elem = self.elem
-            ns, sep, _ = elem.tag.partition('}')
+            try:
+                ns, sep, _ = elem.tag.partition('}')
+            except AttributeError:
+                ns, sep = root_ns, root_sep
             ans = elem.makeelement(ns + sep + 'span')
             ans.text = text
             self.make_into_wrapper(ans)
