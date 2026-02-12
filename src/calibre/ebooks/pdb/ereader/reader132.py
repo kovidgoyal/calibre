@@ -90,6 +90,15 @@ class Reader132(FormatReader):
         img = data[62:]
         return name, img
 
+    def image_dest(self, name, cwd):
+        base = os.path.abspath(cwd)
+        if not base.endswith(os.sep):
+            base += os.sep
+        ans = os.path.abspath(os.path.join(base, name))
+        if os.path.commonprefix([ans, base]) != base:
+            ans = ''
+        return ans
+
     def get_text_page(self, number):
         '''
         Only palmdoc and zlib compressed are supported. The text is
@@ -156,13 +165,14 @@ class Reader132(FormatReader):
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         images = []
-        with CurrentDir(os.path.join(output_dir, 'images/')):
+        with CurrentDir(os.path.join(output_dir, 'images/')) as cwd:
             for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
-                images.append(name)
-                with open(name, 'wb') as imgf:
-                    self.log.debug(f'Writing image {name} to images/')
-                    imgf.write(img)
+                if dest := self.image_dest(name, cwd):
+                    images.append(name)
+                    with open(dest, 'wb') as imgf:
+                        self.log.debug(f'Writing image {name} to images/')
+                        imgf.write(img)
 
         opf_path = self.create_opf(output_dir, images, toc)
 
@@ -209,8 +219,9 @@ class Reader132(FormatReader):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        with CurrentDir(output_dir):
+        with CurrentDir(output_dir) as cwd:
             for i in range(self.header_record.num_image_pages):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
-                with open(name, 'wb') as imgf:
-                    imgf.write(img)
+                if dest := self.image_dest(name, cwd):
+                    with open(dest, 'wb') as imgf:
+                        imgf.write(img)
