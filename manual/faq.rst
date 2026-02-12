@@ -731,7 +731,8 @@ using a file-syncing tool it is **essential** that you make sure that both
 calibre and the file syncing tool do not try to access the calibre library at the
 same time. In other words, **do not** run the file syncing tool and calibre at
 the same time. calibre libraries should never be shared between users and you
-should never open a calibre library you get from an untrusted source.
+should never open a calibre library you get from an untrusted source, as that
+is a security risk.
 
 Even with these tools there is danger of data corruption/loss, so only do this
 if you are willing to live with that risk. In particular, be aware that
