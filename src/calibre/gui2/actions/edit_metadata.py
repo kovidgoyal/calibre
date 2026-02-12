@@ -809,7 +809,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 old_tags = db.tags(book_id, index_is_id=True)
                 if old_tags:
                     tags = [x.strip() for x in old_tags.split(',')] + (
-                            mi.tags if mi.tags else [])
+                            mi.tags or [])
                     mi.tags = list(set(tags))
             if self._am_merge_comments:
                 old_comments = db.new_api.field_for('comments', book_id)
