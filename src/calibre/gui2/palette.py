@@ -6,7 +6,7 @@ import sys
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 
-from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt
+from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
 from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
 
@@ -367,6 +367,10 @@ QTabBar::tab:only-one {
     def set_palette(self, pal):
         with self.changing_palette():
             QApplication.instance().setPalette(pal)
+            # Setting the tooltip palette is needed on Windows with Qt 6.10
+            # when using the calibre style otherwise the tooltip colors are not
+            # changed to reflect the new palette
+            QToolTip.setPalette(pal)
 
     def on_qt_palette_change(self):
         if self.ignore_palette_changes:
