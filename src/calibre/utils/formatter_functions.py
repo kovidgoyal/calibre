@@ -1617,7 +1617,7 @@ contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
             elif format_string.startswith('from_number'):
                 val = datetime.fromtimestamp(float(val))
                 f = format_string[12:]
-                s = format_date(val, f if f else 'iso')
+                s = format_date(val, f or 'iso')
             else:
                 s = format_date(parse_date(val), format_string)
             return s
@@ -1660,7 +1660,7 @@ format_date_field('#date_read', 'MMM dd, yyyy')
             elif format_string.startswith('from_number'):
                 val = datetime.fromtimestamp(float(val))
                 f = format_string[12:]
-                s = format_date(val, f if f else 'iso')
+                s = format_date(val, f or 'iso')
             else:
                 s = format_date(val, format_string)
             return s
@@ -1802,7 +1802,7 @@ not marked. This function works only in the GUI.
 
     def evaluate(self, formatter, kwargs, mi, locals):
         c = self.get_database(mi, formatter=formatter).data.get_marked(mi.id)
-        return c if c else ''
+        return c or ''
 
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
@@ -2314,7 +2314,7 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
                             'date_arithmetic', calc_spec))
                 d += self.calc_ops[mo[2]](int(mo[1]))
                 calc_spec = calc_spec[len(mo[0]):]
-            return format_date(d, fmt if fmt else 'iso')
+            return format_date(d, fmt or 'iso')
         except ValueError as e:
             raise e
         except Exception as e:
