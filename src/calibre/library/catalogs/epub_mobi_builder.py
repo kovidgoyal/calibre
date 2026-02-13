@@ -942,7 +942,7 @@ class CatalogBuilder:
             if record['publisher']:
                 this_title['publisher'] = record['publisher']
 
-            this_title['rating'] = record['rating'] if record['rating'] else 0
+            this_title['rating'] = record['rating'] or 0
 
             if is_date_undefined(record['pubdate']):
                 this_title['date'] = None

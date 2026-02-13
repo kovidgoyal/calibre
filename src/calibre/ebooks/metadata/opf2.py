@@ -420,7 +420,7 @@ class Guide(ResourceCollection):  # {{{
 class MetadataField:
 
     def __init__(self, name, is_dc=True, formatter=None, none_is=None,
-            renderer=lambda x: str(x)):
+            renderer=str):
         self.name      = name
         self.is_dc     = is_dc
         self.formatter = formatter
@@ -1536,7 +1536,7 @@ class OPFCreator(Metadata):
         metadata = M.metadata()
         a = metadata.append
         role = {}
-        a(DC_ELEM('title', self.title if self.title else _('Unknown'),
+        a(DC_ELEM('title', self.title or _('Unknown'),
             opf_attrs=role))
         for i, author in enumerate(self.authors):
             fa = {'role':'aut'}

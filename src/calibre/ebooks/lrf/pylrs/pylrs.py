@@ -1695,7 +1695,7 @@ class Plot(LrsSimpleChar1, LrsContainer):
         return elem
 
     def toLrfContainer(self, lrfWriter, parent):
-        adj = self.adjustment if self.adjustment else 'bottom'
+        adj = self.adjustment or 'bottom'
         params = (int(self.xsize), int(self.ysize), int(self.obj.objId),
                   Plot.ADJUSTMENT_VALUES[adj])
         parent.appendLrfTag(LrfTag('Plot', params))

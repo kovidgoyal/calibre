@@ -166,7 +166,7 @@ def sony_metadata(oeb):
                 atitle = btitle + ' ' + str(d)
                 d += 1
 
-            auth = article.author if article.author else ''
+            auth = article.author or ''
             desc = section.description
             if not desc:
                 desc = ''

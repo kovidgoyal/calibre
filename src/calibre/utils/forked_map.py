@@ -10,10 +10,7 @@ import traceback
 from collections.abc import Callable, Iterator
 from contextlib import ExitStack
 from itertools import chain, islice
-from typing import Any, BinaryIO, NamedTuple, TypeVar
-
-T = TypeVar('T')
-R = TypeVar('R')
+from typing import Any, BinaryIO, NamedTuple
 
 try:
     from itertools import batched
@@ -111,7 +108,7 @@ def run_jobs(*jobs: Job) -> Worker:
         os._exit(os.EX_OK)
 
 
-def forked_map(fn: Callable[[T], R], iterable: T, *iterables: T, timeout: int | float | None = None, num_workers: int = 0) -> Iterator[R]:
+def forked_map[T, R](fn: Callable[[T], R], iterable: T, *iterables: T, timeout: int | float | None = None, num_workers: int = 0) -> Iterator[R]:
     '''
     Should be used only in worker processes that have no threads and that do not use/import any non fork safe libraries such as macOS
     system libraries.

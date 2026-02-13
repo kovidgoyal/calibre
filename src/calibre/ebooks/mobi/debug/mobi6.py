@@ -516,8 +516,7 @@ class FontRecord:  # {{{
         if self.font['err']:
             raise ValueError('Failed to read font record: {} Headers: {}'.format(
                 self.font['err'], self.font['headers']))
-        self.payload = (self.font['font_data'] if self.font['font_data'] else
-                self.font['raw_data'])
+        self.payload = (self.font['font_data'] or self.font['raw_data'])
         self.name = '{}.{}'.format(name, self.font['ext'])
 
     def dump(self, folder):

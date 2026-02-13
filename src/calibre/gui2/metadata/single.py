@@ -560,7 +560,7 @@ class MetadataSingleDialogBase(QDialog):
             self.publisher.set_value(mi.publisher)
         if not mi.is_null('tags'):
             old_tags = self.tags.current_val
-            tags = mi.tags if mi.tags else []
+            tags = mi.tags or []
             if old_tags and merge_tags:
                 ltags, lotags = {t.lower() for t in tags}, {t.lower() for t in
                         old_tags}

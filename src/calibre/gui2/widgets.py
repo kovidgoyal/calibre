@@ -179,7 +179,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             self.pubdate.setText(_('No match'))
 
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
-        self.comments.setText(mi.comments if mi.comments else _('No match'))
+        self.comments.setText(mi.comments or _('No match'))
 
     def pattern(self):
         pat = str(self.re.lineEdit().text())

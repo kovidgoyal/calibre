@@ -63,8 +63,8 @@ class Template:
 class EmbeddedContent(Template):
 
     def _generate(self, article, style=None, extra_css=None):
-        content = article.content if article.content else ''
-        summary = article.summary if article.summary else ''
+        content = article.content or ''
+        summary = article.summary or ''
         text = content if len(content) > len(summary) else summary
         head = HEAD(TITLE(article.title))
         if style:
@@ -162,7 +162,7 @@ class FeedTemplate(Template):
         body.append(div)
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
-                alt=feed.image_alt if feed.image_alt else '',
+                alt=feed.image_alt or '',
                 src=feed.image_url
                 ),
                 attrs('calibre_feed_image')))
@@ -347,7 +347,7 @@ class TouchscreenFeedTemplate(Template):
 
         if getattr(feed, 'image', None):
             div.append(DIV(IMG(
-                alt=feed.image_alt if feed.image_alt else '',
+                alt=feed.image_alt or '',
                 src=feed.image_url
                 ),
                 attrs('calibre_feed_image')))

@@ -184,8 +184,7 @@ class MOBIFile:
                 if font['err']:
                     raise ValueError('Failed to read font record: {} Headers: {}'.format(
                         font['err'], font['headers']))
-                payload = (font['font_data'] if font['font_data'] else
-                        font['raw_data'])
+                payload = (font['font_data'] or font['raw_data'])
                 prefix, ext = 'fonts', font['ext']
             elif sig == b'CONT':
                 if payload == b'CONTBOUNDARY':

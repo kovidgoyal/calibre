@@ -204,7 +204,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             progress_callback(None, len(default_prefs))
             for i, key in enumerate(default_prefs):
                 # be sure that prefs not to be copied are listed below
-                if not restore_all_prefs and key in frozenset(['news_to_be_synced']):
+                if not restore_all_prefs and key == 'news_to_be_synced':
                     continue
                 dbprefs[key] = default_prefs[key]
                 progress_callback(_('restored preference ') + key, i+1)
@@ -3465,7 +3465,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return None
         series_index = self.get_next_series_num_for(mi.series) \
                     if mi.series_index is None else mi.series_index
-        aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
+        aus = mi.author_sort or self.author_sort_from_authors(mi.authors)
         title = mi.title
         if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
@@ -3513,7 +3513,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             series_index = self.get_next_series_num_for(mi.series) \
                             if mi.series_index is None else mi.series_index
-            aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
+            aus = mi.author_sort or self.author_sort_from_authors(mi.authors)
             title = mi.title
             if isinstance(aus, bytes):
                 aus = aus.decode(preferred_encoding, 'replace')
@@ -3556,7 +3556,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
+        aus = mi.author_sort or self.author_sort_from_authors(mi.authors)
         if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
         title = mi.title if isinstance(mi.title, str) else \

@@ -1629,7 +1629,7 @@ class BasicNewsRecipe(Recipe):
                         desc = None
                     else:
                         desc = self.description_limiter(desc)
-                    tt = a.toc_thumbnail if a.toc_thumbnail else None
+                    tt = a.toc_thumbnail or None
                     entries.append(f'{adir}index.html')
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
@@ -1639,7 +1639,7 @@ class BasicNewsRecipe(Recipe):
                     for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):
                         aumap[curl].add(arelpath)
                     article_toc_entry = parent.add_item(arelpath, None,
-                            a.title if a.title else _('Untitled article'),
+                            a.title or _('Untitled article'),
                             play_order=po, author=auth,
                             description=desc, toc_thumbnail=tt)
                     for entry in a.internal_toc_entries:
@@ -1760,7 +1760,7 @@ class BasicNewsRecipe(Recipe):
                 url = url.decode('utf-8')
             if url.startswith('feed://'):
                 url = 'http'+url[4:]
-            self.report_progress(0, _('Fetching feed')+f' {title if title else url}...')
+            self.report_progress(0, _('Fetching feed')+f' {title or url}...')
             try:
                 purl = urlparse(url, allow_fragments=False)
                 if purl.username or purl.password:
@@ -1780,7 +1780,7 @@ class BasicNewsRecipe(Recipe):
                 ))
             except Exception as err:
                 feed = Feed()
-                msg = f'Failed feed: {title if title else url}'
+                msg = f'Failed feed: {title or url}'
                 feed.populate_from_preparsed_feed(msg, [])
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)

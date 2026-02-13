@@ -658,7 +658,7 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None)
         ext = path_to_edit.rpartition('.')[-1].lower()
         if ext in ('html', 'htm', 'xhtml', 'xhtm'):
             syntax = 'html'
-        elif ext in ('css',):
+        elif ext == 'css':
             syntax = 'css'
     t = Editor(syntax)
     t.data = raw

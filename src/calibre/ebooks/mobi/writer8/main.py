@@ -116,7 +116,7 @@ class KF8Writer:
             ref = urlnormalize(item.abshref(oref))
             idx = self.resources.item_map.get(ref, None)
             if idx is not None:
-                is_image = self.resources.records[idx-1][:4] not in {b'FONT'}
+                is_image = self.resources.records[idx-1][:4] != b'FONT'
                 idx = to_ref(idx)
                 if is_image:
                     self.used_images.add(ref)

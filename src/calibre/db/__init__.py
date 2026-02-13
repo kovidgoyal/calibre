@@ -110,7 +110,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         x['id'] = db_id
         x['formats'] = []
         isbn = self.isbn(db_id, index_is_id=True)
-        x['isbn'] = isbn if isbn else ''
+        x['isbn'] = isbn or ''
         if not x['authors']:
             x['authors'] = _('Unknown')
         x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]

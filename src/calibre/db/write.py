@@ -31,7 +31,7 @@ def single_text(x):
     if not isinstance(x, str):
         x = x.decode(preferred_encoding, 'replace')
     x = x.strip()
-    return x if x else None
+    return x or None
 
 
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')

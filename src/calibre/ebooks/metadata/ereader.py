@@ -56,7 +56,7 @@ def get_metadata(stream, extract_cover=True):
                 mi.cover_data = get_cover(pheader, hr)
 
     if not mi.title:
-        mi.title = pheader.title if pheader.title else _('Unknown')
+        mi.title = pheader.title or _('Unknown')
 
     return mi
 

@@ -555,12 +555,13 @@ class MyBlockingBusy(QDialog):  # {{{
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
-    s_r_functions = {'': lambda x: x,
-        _('Lower Case'): lambda x: icu_lower(x),
-        _('Upper Case'): lambda x: icu_upper(x),
-        _('Title Case'): lambda x: titlecase(x),
-        _('Capitalize'): lambda x: capitalize(x),
-                    }
+    s_r_functions = {
+        '': lambda x: x,
+        _('Lower Case'): icu_lower,
+        _('Upper Case'): icu_upper,
+        _('Title Case'): titlecase,
+        _('Capitalize'): capitalize,
+    }
 
     s_r_match_modes = [_('Character match'),
                             _('Regular expression'),
@@ -784,7 +785,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.writable_fields = ['']
         fm = self.db.field_metadata
         for f in fm:
-            if (f in ['author_sort'] or
+            if (f == 'author_sort' or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments', 'rating'] and
                      fm[f].get('search_terms', None) and
                      f not in ['formats', 'ondevice', 'series_sort', 'in_tag_browser']) or

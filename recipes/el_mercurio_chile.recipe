@@ -52,7 +52,7 @@ class ElMercurio(BasicNewsRecipe):
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
             self.report_progress(0, _('Fetching feed') + ' %s...' %
-                                 (feedtitle if feedtitle else feedurl))
+                                 (feedtitle or feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
             arts = soup.find('div', attrs={'id': 'caja_listado_noticia_todas'})

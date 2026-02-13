@@ -350,10 +350,10 @@ class PluginWidget(QWidget, Ui_Form):
         for opt in self.OPTION_FIELDS:
             c_name, c_def, c_type = opt
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
-            if c_type in ['check_box']:
+            if c_type == 'check_box':
                 getattr(self, c_name).setChecked(eval(str(opt_value)))
                 getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
-            elif c_type in ['combo_box']:
+            elif c_type == 'combo_box':
                 if opt_value is None:
                     index = 0
                     if c_name == 'genre_source_field':
@@ -368,13 +368,13 @@ class PluginWidget(QWidget, Ui_Form):
                 getattr(self, c_name).setCurrentIndex(index)
                 if c_name != 'preset_field':
                     getattr(self, c_name).currentIndexChanged.connect(partial(self.settings_changed, c_name))
-            elif c_type in ['line_edit']:
-                getattr(self, c_name).setText(opt_value if opt_value else '')
+            elif c_type == 'line_edit':
+                getattr(self, c_name).setText(opt_value or '')
                 getattr(self, c_name).editingFinished.connect(partial(self.settings_changed, c_name))
-            elif c_type in ['radio_button'] and opt_value is not None:
+            elif c_type == 'radio_button' and opt_value is not None:
                 getattr(self, c_name).setChecked(opt_value)
                 getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
-            elif c_type in ['spin_box']:
+            elif c_type == 'spin_box':
                 getattr(self, c_name).setValue(float(opt_value))
                 getattr(self, c_name).valueChanged.connect(partial(self.settings_changed, c_name))
             if c_type == 'table_widget':
@@ -480,13 +480,13 @@ class PluginWidget(QWidget, Ui_Form):
 
             if c_type in ['check_box', 'radio_button']:
                 opt_value = getattr(self, c_name).isChecked()
-            elif c_type in ['combo_box']:
+            elif c_type == 'combo_box':
                 opt_value = str(getattr(self, c_name).currentText()).strip()
-            elif c_type in ['line_edit']:
+            elif c_type == 'line_edit':
                 opt_value = str(getattr(self, c_name).text()).strip()
-            elif c_type in ['spin_box']:
+            elif c_type == 'spin_box':
                 opt_value = str(getattr(self, c_name).value())
-            elif c_type in ['table_widget']:
+            elif c_type == 'table_widget':
                 if c_name == 'prefix_rules_tw':
                     opt_value = self.prefix_rules_table.get_data()
                     prefix_rules_processed = True
@@ -652,11 +652,11 @@ class PluginWidget(QWidget, Ui_Form):
                 opt_value = options[c_name]
             else:
                 continue
-            if c_type in ['check_box']:
+            if c_type == 'check_box':
                 getattr(self, c_name).setChecked(eval(str(opt_value)))
                 if c_name == 'generate_genres':
                     self.genre_source_field.setEnabled(eval(str(opt_value)))
-            elif c_type in ['combo_box']:
+            elif c_type == 'combo_box':
                 if opt_value is None:
                     index = 0
                     if c_name == 'genre_source_field':
@@ -669,11 +669,11 @@ class PluginWidget(QWidget, Ui_Form):
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
                 getattr(self, c_name).setCurrentIndex(index)
-            elif c_type in ['line_edit']:
-                getattr(self, c_name).setText(opt_value if opt_value else '')
-            elif c_type in ['radio_button'] and opt_value is not None:
+            elif c_type == 'line_edit':
+                getattr(self, c_name).setText(opt_value or '')
+            elif c_type == 'radio_button' and opt_value is not None:
                 getattr(self, c_name).setChecked(opt_value)
-            elif c_type in ['spin_box']:
+            elif c_type == 'spin_box':
                 getattr(self, c_name).setValue(float(opt_value))
             if c_type == 'table_widget':
                 if c_name == 'exclusion_rules_tw':
@@ -765,15 +765,15 @@ class PluginWidget(QWidget, Ui_Form):
 
             if c_type in ['check_box', 'radio_button']:
                 opt_value = getattr(self, c_name).isChecked()
-            elif c_type in ['combo_box']:
+            elif c_type == 'combo_box':
                 if c_name == 'preset_field':
                     continue
                 opt_value = str(getattr(self, c_name).currentText()).strip()
-            elif c_type in ['line_edit']:
+            elif c_type == 'line_edit':
                 opt_value = str(getattr(self, c_name).text()).strip()
-            elif c_type in ['spin_box']:
+            elif c_type == 'spin_box':
                 opt_value = str(getattr(self, c_name).value())
-            elif c_type in ['table_widget']:
+            elif c_type == 'table_widget':
                 if c_name == 'prefix_rules_tw':
                     opt_value = self.prefix_rules_table.get_data()
                     prefix_rules_processed = True
@@ -1024,7 +1024,7 @@ class GenericRulesTable(QTableWidget):
             self.select_and_scroll_to_row(first_sel_row - 1)
 
     def enabled_state_changed(self, row, col):
-        if col in [self.COLUMNS['ENABLED']['ordinal']]:
+        if col == self.COLUMNS['ENABLED']['ordinal']:
             self.select_and_scroll_to_row(row)
             self.settings_changed('enabled_state_changed')
             if self.DEBUG:
@@ -1165,11 +1165,11 @@ class GenericRulesTable(QTableWidget):
             values = self.db.all_custom(self.db.field_metadata.key_to_label(
                                         self.eligible_custom_fields[str(source_field)]['field']))
             values = sorted(values, key=sort_key)
-        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['bool']:
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'bool':
             values = [_('True'),_('False'),_('unspecified')]
-        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['composite']:
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'composite':
             values = [_('any value'),_('unspecified')]
-        elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['datetime']:
+        elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'datetime':
             values = [_('any date'),_('unspecified')]
 
         values_combo = ComboBox(self, values, pattern)

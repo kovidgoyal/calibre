@@ -232,7 +232,7 @@ class Setting:
         elif self.datatype == 'number':
             self.gui_obj.setValue(val)
         elif self.datatype == 'string':
-            self.gui_obj.setText(val if val else '')
+            self.gui_obj.setText(val or '')
         elif self.datatype == 'choice':
             if isinstance(self.gui_obj, EditWithComplete):
                 self.gui_obj.setText(val)

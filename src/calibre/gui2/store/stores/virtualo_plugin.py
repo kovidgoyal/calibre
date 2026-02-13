@@ -54,7 +54,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             detail_url = aff_root + as_base64(detail_item)
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else aff_url)))
+            open_url(QUrl(url_slash_cleaner(detail_url or aff_url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)

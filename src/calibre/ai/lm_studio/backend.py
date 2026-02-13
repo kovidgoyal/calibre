@@ -39,7 +39,7 @@ def api_url(path: str = '', use_api_url: str | None = None) -> str:
     base = (pref('api_url') if use_api_url is None else use_api_url) or LMStudioAI.DEFAULT_URL
     purl = urlparse(base)
     # LM Studio typically mounts endpoints under /v1
-    base_path = purl.path if purl.path else '/v1'
+    base_path = purl.path or '/v1'
     if not base_path.endswith('/v1'):
         base_path = posixpath.join(base_path, 'v1')
 

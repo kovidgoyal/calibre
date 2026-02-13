@@ -70,7 +70,7 @@ class EMF:
         self.func_map.get(rtype, self.handle_unknown)(rtype, size, record)
 
     def to_png(self):
-        bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
+        bmps = list(sorted(self.bitmaps, key=len))
         bmp = bmps[-1]
         return to_png(bmp)
 

@@ -260,7 +260,7 @@ class HTMLInput(InputFormatPlugin):
             link_ = link_.lstrip('/')
             base = self.root_dir_for_absolute_links
         try:
-            l = Link(link_, base if base else os.getcwd())
+            l = Link(link_, base or os.getcwd())
         except Exception:
             self.log.exception(f'Failed to process link: {link_!r}')
             return None, None

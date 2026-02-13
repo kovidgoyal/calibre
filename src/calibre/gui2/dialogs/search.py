@@ -402,8 +402,11 @@ class SearchDialog(QDialog):
         else:
             self.copy_current_template_search_button.setEnabled(False)
         self.copy_current_template_search_button.clicked.connect(self.retrieve_template_search)
-        self.edit_template_button.clicked.connect(lambda: self.template_program_box.open_editor())
+        self.edit_template_button.clicked.connect(self.open_template_program_box_editor)
         self.resize(self.sizeHint())
+
+    def open_template_program_box_editor(self):
+        self.template_program_box.open_editor()
 
     def retrieve_template_search(self):
         template, sep, query = re.split(r'#@#:([tdnb]):', self.current_search_text, flags=re.IGNORECASE)

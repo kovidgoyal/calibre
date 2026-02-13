@@ -237,7 +237,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
         if dialog.exec_() != QDialog.DialogCode.Accepted:
             return
         txt = dialog.text()
-        txt = txt if txt else 'true'
+        txt = txt or 'true'
         db = self.gui.current_db
         mids = db.data.marked_ids.copy()
         for book_id in book_ids:

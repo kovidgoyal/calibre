@@ -633,7 +633,10 @@ class TagsView(QTreeView):  # {{{
             if has_focus and gprefs['tag_browser_allow_keyboard_focus']:
                 # Reset the focus to the TB. Use the singleshot in case
                 # some of searching is done using queued signals.
-                QTimer.singleShot(0, lambda: self.setFocus())
+                QTimer.singleShot(0, self.set_focus)
+
+    def set_focus(self):
+        self.setFocus()
 
     def conditional_clear(self, search_string):
         if search_string != self.search_string:

@@ -267,7 +267,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 if name in getattr(recs, 'disabled_options', []):
                     self.search_replace.setDisabled(True)
             elif name.startswith('sr'):
-                legacy[name] = val if val else ''
+                legacy[name] = val or ''
             else:
                 rest[name] = val
 

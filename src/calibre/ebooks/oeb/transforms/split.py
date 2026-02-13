@@ -200,7 +200,7 @@ class Split:
             return url
         if href in self.map:
             anchor_map = self.map[href]
-            nhref = anchor_map[frag if frag else None]
+            nhref = anchor_map[frag or None]
             nhref = self.current_item.relhref(nhref)
             if frag:
                 nhref = '#'.join((unquote(nhref), frag))
@@ -478,7 +478,7 @@ class FlowSplitter:
             for ref in self.oeb.guide.values():
                 href, frag = urldefrag(ref.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     ref.href = nhref
@@ -487,7 +487,7 @@ class FlowSplitter:
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     toc.href = nhref
@@ -501,7 +501,7 @@ class FlowSplitter:
             for page in self.oeb.pages:
                 href, frag = urldefrag(page.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     page.href = nhref

@@ -90,15 +90,15 @@ class MetadataWidget(Widget, Ui_Form):
 
         mi = self.db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title), self.title.home(False)
-        self.publisher.show_initial_value(mi.publisher if mi.publisher else '')
+        self.publisher.show_initial_value(mi.publisher or '')
         self.publisher.home(False)
-        self.author_sort.setText(mi.author_sort if mi.author_sort else '')
+        self.author_sort.setText(mi.author_sort or '')
         self.author_sort.home(False)
-        self.tags.setText(', '.join(mi.tags if mi.tags else []))
+        self.tags.setText(', '.join(mi.tags or []))
         self.tags.update_items_cache(self.db.new_api.all_field_names('tags'))
         self.tags.home(False)
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
-        self.series.show_initial_value(mi.series if mi.series else '')
+        self.series.show_initial_value(mi.series or '')
         self.series.home(False)
         if mi.series_index is not None:
             try:

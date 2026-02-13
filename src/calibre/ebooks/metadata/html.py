@@ -315,7 +315,7 @@ class MetadataHtmlTest(unittest.TestCase):
         <!-- TAGS="tag d" -->
 '''
 
-        if test in {'comment_multi'}:
+        if test == 'comment_multi':
             raw += b'''\
         <!-- TITLE="Another Comment Tag &amp;amp; Title &#9400;" -->
         <!-- AUTHOR="John Quincy Adams" -->

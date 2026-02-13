@@ -625,9 +625,9 @@ class SearchRestrictionMixin:
             self.search_restriction.addItem(name)
             txt = self._trim_restriction_name(last)
             if compare_fix_amps(name, current_restriction):
-                a = current_menu.addAction(self.checked, txt if txt else self.no_restriction)
+                a = current_menu.addAction(self.checked, txt or self.no_restriction)
             else:
-                a = current_menu.addAction(txt if txt else self.no_restriction)
+                a = current_menu.addAction(txt or self.no_restriction)
             a.triggered.connect(partial(self.search_restriction_triggered, action=a, index=dex))
             dex += 1
             return a

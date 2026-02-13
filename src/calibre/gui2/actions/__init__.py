@@ -234,12 +234,12 @@ class InterfaceAction(QObject):
             ma.triggered.connect(action.trigger)
         for a in ((action, ma) if attr == 'qaction' else (action,)):
             a.setAutoRepeat(self.auto_repeat)
-            text = tooltip if tooltip else text
+            text = tooltip or text
             a.setToolTip(text)
             a.setStatusTip(text)
             a.setWhatsThis(text)
         shortcut_action = action
-        desc = tooltip if tooltip else None
+        desc = tooltip or None
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:

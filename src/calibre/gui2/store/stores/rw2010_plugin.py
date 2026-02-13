@@ -36,7 +36,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
         url = 'http://www.rw2010.pl/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item or url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)

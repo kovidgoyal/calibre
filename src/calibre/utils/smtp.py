@@ -281,7 +281,7 @@ def compose_mail(from_, to, text, subject=None, attachment=None,
         if attachment_name is None:
             attachment_name = os.path.basename(getattr(attachment,
                 'name', attachment))
-    subject = subject if subject else 'no subject'
+    subject = subject or 'no subject'
     return create_mail(from_, to, subject, text=text,
             attachment_data=attachment_data, attachment_type=attachment_type,
             attachment_name=attachment_name)

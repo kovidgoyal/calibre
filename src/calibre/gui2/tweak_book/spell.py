@@ -149,7 +149,7 @@ class AddDictionary(QDialog):  # {{{
         def k(dictionary):
             return sort_key(calibre_langcode_to_name(dictionary['primary_locale'].langcode))
 
-        for data in sorted(catalog_online_dictionaries(), key=lambda x:k(x)):
+        for data in sorted(catalog_online_dictionaries(), key=k):
             if languages.get(data['primary_locale'].langcode, {}).get(data['primary_locale'].countrycode, None):
                 continue
             local = calibre_langcode_to_name(data['primary_locale'].langcode)

@@ -208,7 +208,7 @@ class PRST1(USBMS):
                     time_offsets[offset] = time_offsets[offset] + 1
 
                 try:
-                    device_offset = max(time_offsets, key=lambda a: time_offsets.get(a))
+                    device_offset = max(time_offsets, key=time_offsets.get)
                     debug_print(f'Device Offset: {device_offset} ms')
                     self.device_offset = device_offset
                 except ValueError:

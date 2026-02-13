@@ -56,7 +56,7 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
             request_info.block(True)
             return
         qurl = request_info.requestUrl()
-        if qurl.scheme() not in (FAKE_PROTOCOL,):
+        if qurl.scheme() != FAKE_PROTOCOL:
             default_log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
             request_info.block(True)
             return

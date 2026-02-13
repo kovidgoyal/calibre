@@ -46,8 +46,7 @@ class DeviceConfig:
     @classmethod
     def _default_save_template(cls):
         from calibre.library.save_to_disk import config
-        return cls.SAVE_TEMPLATE if cls.SAVE_TEMPLATE else \
-            config().parse().send_template
+        return cls.SAVE_TEMPLATE or config().parse().send_template
 
     @classmethod
     def _config_base_name(cls):

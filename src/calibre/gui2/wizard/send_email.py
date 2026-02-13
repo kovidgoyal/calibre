@@ -323,9 +323,9 @@ class SendEmail(QWidget, Ui_Form):
                 return False
         conf = smtp_prefs()
         conf.set('from_', from_)
-        conf.set('relay_host', host if host else None)
+        conf.set('relay_host', host or None)
         conf.set('relay_port', self.relay_port.value())
-        conf.set('relay_username', username if username else None)
+        conf.set('relay_username', username or None)
         conf.set('relay_password', as_hex_unicode(password))
         conf.set('encryption', enc_method)
         return True

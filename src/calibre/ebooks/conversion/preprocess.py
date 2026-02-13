@@ -429,9 +429,9 @@ def book_designer_rules():
         lambda match : '<span style="page-break-after:always"> </span>'),
         # Create header tags
         (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
+        lambda match : '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) or 'center', match.group(3))),
         (re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) if match.group(2) else 'center', match.group(3))),
+        lambda match : '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) or 'center', match.group(3))),
         (re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : f'<h2 class="title">{match.group(1)}</h2>'),
         (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),

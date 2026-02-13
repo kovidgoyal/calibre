@@ -1245,7 +1245,7 @@ class SavedSearches(QWidget):
             def err():
                 error_dialog(self, _('Invalid data'), _(
                     'The file %s does not contain valid saved searches') % path, show=True)
-            if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] not in (1,):
+            if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] != 1:
                 return err()
             searches = []
             for item in obj['searches']:

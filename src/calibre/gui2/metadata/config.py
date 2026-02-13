@@ -99,7 +99,7 @@ class ConfigWidget(QWidget):
             widget.setValue(val)
         elif opt.type == 'string':
             widget = QLineEdit(self)
-            widget.setText(val if val else '')
+            widget.setText(val or '')
         elif opt.type == 'bool':
             widget = QCheckBox(opt.label, self)
             widget.setChecked(bool(val))

@@ -69,7 +69,7 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
     num_select.tail = ' books matching '
     form.append(num_select)
 
-    searchf = E.input(name='search', id='s', value=search if search else '')
+    searchf = E.input(name='search', id='s', value=search or '')
     searchf.tail = _(' sorted by ')
     form.append(searchf)
 

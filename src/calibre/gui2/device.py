@@ -1118,8 +1118,7 @@ class DeviceMixin:  # {{{
             func = {UserFeedback.ERROR:error_dialog,
                     UserFeedback.WARNING:warning_dialog,
                     UserFeedback.INFO:info_dialog}[ex.level]
-            return func(self, _('Failed'), ex.msg, det_msg=ex.details if
-                    ex.details else '', show=True)
+            return func(self, _('Failed'), ex.msg, det_msg=ex.details or '', show=True)
 
         try:
             if 'Could not read 32 bytes on the control bus.' in \
