@@ -857,6 +857,13 @@ class ReadingTest(BaseTest):
         v = formatter.safe_format('program: book_count("series:true", 0)', {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(v, '2')
 
+        # test python templates
+        v = formatter.safe_format('python:\ndef evaluate(book, ctx): return "x"', {}, 'TEMPLATE ERROR', mi)
+        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '') == '1':
+            self.assertEqual(v, 'x')
+        else:
+            self.assertTrue(v.startswith('TEMPLATE ERROR'))
+
         # test counting books when none match the search
         v = formatter.safe_format('program: book_count("series:afafaf", 0)', {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(v, '0')

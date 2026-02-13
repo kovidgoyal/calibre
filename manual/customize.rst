@@ -39,6 +39,7 @@ Environment variables
     * ``CALIBRE_TEMP_DIR`` - sets the temporary folder used by calibre
     * ``CALIBRE_CACHE_DIRECTORY`` - sets the folder calibre uses to cache persistent data between sessions
     * ``CALIBRE_OVERRIDE_DATABASE_PATH`` - allows you to specify the full path to metadata.db. Using this variable you can have metadata.db be in a location other than the library folder. Useful if your library folder is on a networked drive that does not support file locking.
+    * ``CALIBRE_ALLOW_PYTHON_TEMPLATES`` - if set to a value other than ``1`` disables the use of Python based templates in calibre.
     * ``CALIBRE_DEVELOP_FROM`` - used to run from a calibre development environment. See :ref:`develop`.
     * ``CALIBRE_OVERRIDE_LANG`` - used to force the language used by the interface (ISO 639 language code)
     * ``CALIBRE_TEST_TRANSLATION`` - used to test a translation .po file (should be the path to the .po file)

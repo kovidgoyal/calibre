@@ -8,6 +8,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import numbers
+import os
 import re
 import string
 import sys
@@ -1876,6 +1877,10 @@ class TemplateFormatter(string.Formatter):
         return rslt
 
     def compile_python_template(self, template):
+        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
+            raise ValueError(_('Python templates disallowed by the {} environment variable'
+                               ).format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
+
         def replace_func(mo):
             return mo.group().replace('\t', '    ')
 
