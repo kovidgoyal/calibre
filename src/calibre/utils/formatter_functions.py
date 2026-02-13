@@ -3723,6 +3723,46 @@ This function can be used only in the GUI.
         return ''
 
 
+class BuiltinWidthFromPages(BuiltinFormatterFunction):
+    name = 'width_from_pages'
+    arg_count = -1
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``width_from_pages(value [, num_of_pages_for_max_width, logarithmic_factor, default_width])`` -- return
+the width of the book spine as a fraction between ``'0'`` and ``'1'`` given a number of pages.
+This is used to calculate the width of the spine in the Bookshelf view, from a page count. The optional
+arguments control how the width is calculated.
+
+[LIST]
+[*] ``num_of_pages_for_max_width`` -- controls the widest books, any book with at least the specified number of pages is given width 1. Defaults to ``1500``.
+[*] ``logarithmic_factor`` --  controls how quickly width varies as pages range from 0 to the maximum. Defaults to ``2``.
+[*] ``default_width`` -- is the width for books with an invalid number of pages.
+[/LIST]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+        from calibre.gui2.library.bookshelf_view import width_from_pages
+        num_of_pages_for_max_width = 1500
+        logarithmic_factor = 2
+        default_width = '0.3'
+        match len(args):
+            case 1:
+                if args[0]:
+                    num_of_pages_for_max_width = int(args[0])
+            case 2:
+                num_of_pages_for_max_width, logarithmic_factor = int(args[0]), float(args[1])
+            case 3:
+                num_of_pages_for_max_width, logarithmic_factor, default_width = int(args[0]), float(args[1]), args[2]
+        try:
+            pages = int(val)
+        except Exception:
+            return default_width
+        if pages < 0:
+            return default_width
+        return str(width_from_pages(pages, num_of_pages_for_max_width, logarithmic_factor))
+
+
 class BuiltinShowDialog(BuiltinFormatterFunction):
     name = 'show_dialog'
     arg_count = 1
@@ -3834,7 +3874,7 @@ _formatter_builtins = [
     BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(),
     BuiltinSelectedBooks(), BuiltinSelectedColumn(), BuiltinSeriesSort(),
     BuiltinSetGlobals(), BuiltinShorten(), BuiltinShowDialog(), BuiltinSortBookIds(),
-    BuiltinStrcat(), BuiltinStrcatMax(),
+    BuiltinStrcat(), BuiltinStrcatMax(), BuiltinWidthFromPages(),
     BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(), BuiltinSwitchIf(),

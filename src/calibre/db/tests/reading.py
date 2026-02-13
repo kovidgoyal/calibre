@@ -644,7 +644,7 @@ class ReadingTest(BaseTest):
                     except Exception:
                         pass
                     return x
-                if field not in {'#series_index'}:
+                if field != '#series_index':
                     v = pmi.get_standard_metadata(field)
                     self.assertTrue(v is None or isinstance(v, dict))
                     self.assertEqual(f(mi.get_standard_metadata(field, False)), f(v),
@@ -834,10 +834,24 @@ class ReadingTest(BaseTest):
 
         db = self.init_cache(self.library_path)
         db.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
+        db.create_custom_column('pages', 'Pages', 'int', False)
 
         # need an empty metadata object to pass to the formatter
         db = self.init_legacy(self.library_path)
+        db.new_api.set_field('#pages', {1: '11', 2: '22', 3: '33'})
         mi = db.get_metadata(1)
+
+        # test width_from_pages
+        v = formatter.safe_format('{#pages:width_from_pages(2,2,0.5)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, '1.0')
+        v = formatter.safe_format('{#pages:width_from_pages()}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500,2)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500,2,11)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
 
         # test counting books matching the search
         v = formatter.safe_format('program: book_count("series:true", 0)', {}, 'TEMPLATE ERROR', mi)

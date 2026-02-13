@@ -84,7 +84,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
     def commit(self, *args):
         import re
         tp = self.opt_bookshelf_spine_size_template.text()
-        if tp not in ('{pages}', '{random}', '{size}') and re.match(r'\{[^}]+\}', tp) is not None:
+        if tp not in ('{pages}', '{random}', '{size}') and re.match(r'\{[^}]+\}', tp) is not None and 'width_from_pages(' not in tp:
             if not confirm(_(
                 'The template used for spine size must return a number between 0 and 1. The template'
                 ' {0} is unlikely to do so. Are you sure?').format(tp), 'confirm-pages-template', parent=self):
@@ -289,18 +289,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
                              names, idx)
         if item and ok and item in names:
             key = keys[names.index(item)]
-            template = f'''\
-python:
-from calibre.gui2.library.bookshelf_view import width_from_pages
-
-def evaluate(book, context):
-    val = book.get({key!r})
-    try:
-        pages = max(0, int(val))
-    except Exception:
-        return '0.3'
-    return str(width_from_pages(pages, num_of_pages_for_max_width=1500, logarithmic_factor=2))
-'''
+            template = f'{{{key}:width_from_pages()}}'
             self.opt_bookshelf_spine_size_template.setText(template)
 
     @lru_cache(maxsize=2)
