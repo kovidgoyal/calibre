@@ -751,22 +751,16 @@ class _Parser:
                              lambda ln, args: RawFieldNode(ln, *args)),
         'test':             (lambda args: len(args) == 3,
                              lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
-        'first_non_empty':  (lambda args: len(args) >= 1,
-                             lambda ln, args: FirstNonEmptyNode(ln, args)),
-        'switch':           (lambda args: len(args) >= 3 and (len(args) %2) == 0,
-                             lambda ln, args: SwitchNode(ln, args)),
-        'switch_if':        (lambda args: len(args) > 0 and (len(args) %2) == 1,
-                             lambda ln, args: SwitchIfNode(ln, args)),
+        'first_non_empty':  (lambda args: len(args) >= 1, FirstNonEmptyNode),
+        'switch':           (lambda args: len(args) >= 3 and (len(args) %2) == 0, SwitchNode),
+        'switch_if':        (lambda args: len(args) > 0 and (len(args) %2) == 1, SwitchIfNode),
         'assign':           (lambda args: len(args) == 2 and len(args[0]) == 1 and args[0][0].node_type == Node.NODE_RVALUE,
                              lambda ln, args: AssignNode(ln, args[0][0].name, args[1])),
-        'contains':         (lambda args: len(args) == 4,
-                             lambda ln, args: ContainsNode(ln, args)),
+        'contains':         (lambda args: len(args) == 4, ContainsNode),
         'character':        (lambda args: len(args) == 1,
                              lambda ln, args: CharacterNode(ln, args[0])),
-        'print':            (lambda _: True,
-                             lambda ln, args: PrintNode(ln, args)),
-        'strcat':           (lambda _: True,
-                             lambda ln, args: StrcatNode(ln, args)),
+        'print':            (lambda _: True, PrintNode),
+        'strcat':           (lambda _: True, StrcatNode),
         'list_count_field': (lambda args: len(args) == 1,
                              lambda ln, args: ListCountFieldNode(ln, args[0])),
         'f_string':         (lambda args: len(args) == 1,
@@ -1055,8 +1049,7 @@ class _Interpreter:
 
     def call_break_reporter(self, txt, val, line_number):
         self.real_break_reporter(txt, val, self.locals,
-                                 self.override_line_number if self.override_line_number
-                                     else line_number)
+                                 self.override_line_number or line_number)
 
     def expression_list(self, prog):
         val = ''
@@ -1230,8 +1223,7 @@ class _Interpreter:
         if (self.break_reporter):
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number if self.override_line_number
-                                         else prog.line_number)
+            self.override_line_number = (self.override_line_number or prog.line_number)
         else:
             saved_line_number = None
         try:
@@ -1275,8 +1267,7 @@ class _Interpreter:
         if (self.break_reporter):
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number if self.override_line_number
-                                         else line_number)
+            self.override_line_number = (self.override_line_number or line_number)
         else:
             saved_line_number = None
         try:
