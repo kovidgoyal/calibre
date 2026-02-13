@@ -14,9 +14,10 @@ import mechanize
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 
 '''
+0.0.4: Migrating to new Todoist unified API v1
 0.0.3: Parameters in recipe_specific_options
 0.0.2: Calibre footer with the source URL. QR points to the article URL.
 0.0.1: First working version
@@ -140,15 +141,22 @@ class Todoist2ebook(BasicNewsRecipe):
         articles = []
         section_dict = {}  # dictionary with the domains and its articles.
 
-        url = f'https://api.todoist.com/rest/v2/tasks?project_id={self.todoist_project_id}'
+        url = f'https://api.todoist.com/api/v1/tasks?project_id={self.todoist_project_id}'
         headers = {'Authorization': f'Bearer {self.todoist_api_key}'}
         request = mechanize.Request(url, headers=headers)
 
         response = self.browser.open(request)
         if response.code != 200:
-            raise Exception('No se pudieron recuperar las tareas de Todoist')
+            raise Exception('Could not retrieve Todoist tasks')
         data = response.read().decode('utf-8')
         tasks = json.loads(data)
+        if isinstance(tasks, dict) and 'results' in tasks:
+            tasks = tasks['results']
+        else:
+            self.abort_recipe_processing(
+                'Unexpected response format from Todoist API. '
+                'Expected {"results": [...]}, got keys: %s' % str(tasks.keys() if isinstance(tasks, dict) else type(tasks))
+            )
         articles_todoist = []
 
         url_regex = re.compile(r'\[([^\]]+)\]\(\s*(https?://[^\s\)]+)\s*\)')
@@ -238,7 +246,7 @@ class Todoist2ebook(BasicNewsRecipe):
             return
 
         for task_id in self.to_archive:
-            url = f'https://api.todoist.com/rest/v2/tasks/{task_id}/close'
+            url = f'https://api.todoist.com/api/v1/tasks/{task_id}/close'
             req = mechanize.Request(
                 url,
                 headers={
