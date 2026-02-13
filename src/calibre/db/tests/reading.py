@@ -859,7 +859,7 @@ class ReadingTest(BaseTest):
 
         # test python templates
         v = formatter.safe_format('python:\ndef evaluate(book, ctx): return "x"', {}, 'TEMPLATE ERROR', mi)
-        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '') == '1':
+        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') == '1':
             self.assertEqual(v, 'x')
         else:
             self.assertTrue(v.startswith('TEMPLATE ERROR'))
