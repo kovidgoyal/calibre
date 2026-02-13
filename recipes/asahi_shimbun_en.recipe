@@ -161,7 +161,7 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
             ('Opinion - Editorial', self.get_section('opinion/editorial')),
             ('Opinion - Vox Populi', self.get_section('opinion/vox')),
             ('Opinion - Views', self.get_section('opinion/views')),
-            ('Special', self.get_special_section('special')),
+            # ('Special', self.get_special_section('special')),
         ]
 
         return feeds
