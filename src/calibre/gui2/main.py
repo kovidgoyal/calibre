@@ -411,6 +411,7 @@ def run_gui_(opts, args, app, gui_debug=None):
         actions = tuple(Main.get_menubar_actions())
     runner = GuiRunner(opts, args, actions, app, gui_debug=gui_debug)
     ret = app.exec()
+    timed_print('Application event loop quit')
     if getattr(runner.main, 'run_wizard_b4_shutdown', False):
         from calibre.gui2.wizard import wizard
         wizard().exec()
