@@ -102,6 +102,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
         if updated_ids:
             notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))
     db.dump_metadata()
+    db.close()
     return added_ids, updated_ids, duplicates
 
 
