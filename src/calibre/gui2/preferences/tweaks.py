@@ -15,8 +15,7 @@ from qt.core import (
     QDialog,
     QDialogButtonBox,
     QFont,
-    QGridLayout,
-    QGroupBox,
+    QHBoxLayout,
     QIcon,
     QItemSelectionModel,
     QLabel,
@@ -37,7 +36,7 @@ from calibre import isbytestring, prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
-from calibre.gui2.widgets import PythonHighlighter
+from calibre.gui2.widgets import PythonHighlighter, stylesheet_for_lineedit
 from calibre.utils.config_base import default_tweaks_raw, normalize_tweak, parse_python_tweaks, read_custom_tweaks, write_custom_tweaks
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
@@ -154,7 +153,10 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         except Exception:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
-            return tweak.name
+            prefix = ''
+            if tweak.is_customized:
+                prefix = '✏️ '
+            return f'{prefix}{tweak.name}'
         if role == Qt.ItemDataRole.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
@@ -403,50 +405,44 @@ class ConfigWidget(ConfigWidgetBase):
         l2.addWidget(b)
         s.addWidget(lv)
 
-        self.lv1 = lv = QWidget(self)
-        s.addWidget(lv)
-        lv.g = g = QGridLayout(lv)
-        g.setContentsMargins(0, 0, 0, 0)
-
+        self.lv1 = lv1 = QWidget(s)
+        vl = QVBoxLayout(lv1)
+        s.addWidget(lv1)
+        sl = QHBoxLayout()
+        vl.addLayout(sl)
         self.search = sb = SearchBox2(self)
         sb.sizePolicy().setHorizontalStretch(10)
         sb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         sb.setMinimumContentsLength(10)
-        g.setColumnStretch(0, 100)
-        g.addWidget(self.search, 0, 0, 1, 1)
+        sl.addWidget(self.search, 100)
         self.next_button = b = QPushButton(self)
         b.setIcon(QIcon.ic('arrow-down.png'))
         b.setText(_('&Next'))
-        g.addWidget(self.next_button, 0, 1, 1, 1)
+        sl.addWidget(b)
         self.previous_button = b = QPushButton(self)
         b.setIcon(QIcon.ic('arrow-up.png'))
         b.setText(_('&Previous'))
-        g.addWidget(self.previous_button, 0, 2, 1, 1)
+        sl.addWidget(b)
 
-        self.hb = hb = QGroupBox(self)
-        hb.setTitle(_('Help'))
-        hb.l = l2 = QVBoxLayout(hb)
         self.help = h = QPlainTextEdit(self)
-        l2.addWidget(h)
+        vl.addWidget(h)
         h.setReadOnly(True)
-        g.addWidget(hb, 1, 0, 1, 3)
-
-        self.eb = eb = QGroupBox(self)
-        g.addWidget(eb, 2, 0, 1, 3)
-        eb.setTitle(_('Edit tweak'))
-        eb.g = ebg = QGridLayout(eb)
+        hl = QHBoxLayout()
+        vl.addLayout(hl)
+        self.edit_label = la = QLabel(_('&Edit this tweak'))
+        hl.addWidget(la)
+        hl.addStretch(10)
         self.edit_tweak = et = QPlainTextEdit(self)
+        vl.addWidget(et)
+        la.setBuddy(et)
         et.setMinimumWidth(400)
         et.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
-        ebg.addWidget(et, 0, 0, 1, 2)
+        self.ignore_tweak_changed = False
+        et.textChanged.connect(self.validate_and_apply_current_tweak)
         self.restore_default_button = b = QPushButton(self)
         b.setToolTip(_('Restore this tweak to its default value'))
         b.setText(_('&Reset this tweak'))
-        ebg.addWidget(b, 1, 0, 1, 1)
-        self.apply_button = ab = QPushButton(self)
-        ab.setToolTip(_('Apply any changes you made to this tweak'))
-        ab.setText(_('&Apply changes to this tweak'))
-        ebg.addWidget(ab, 1, 1, 1, 1)
+        hl.addWidget(b)
 
     def genesis(self, gui):
         self.gui = gui
@@ -454,7 +450,6 @@ class ConfigWidget(ConfigWidgetBase):
         self.view = self.tweaks_view
         self.highlighter = PythonHighlighter(self.edit_tweak.document())
         self.restore_default_button.clicked.connect(self.restore_to_default)
-        self.apply_button.clicked.connect(self.apply_tweak)
         self.plugin_tweaks_button.clicked.connect(self.plugin_tweaks)
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 100)
@@ -501,13 +496,19 @@ class ConfigWidget(ConfigWidgetBase):
             self.tweaks.set_plugin_tweaks(l)
             self.changed()
 
+    def set_edit_text(self, text, ignore_tweak_changed=True):
+        orig = self.ignore_tweak_changed
+        self.ignore_tweak_changed = ignore_tweak_changed
+        self.edit_tweak.setPlainText(text)
+        self.ignore_tweak_changed = orig
+
     def current_changed(self, *a):
         current = self.tweaks_view.currentIndex()
         if current.isValid():
             self.tweaks_view.scrollTo(current)
             tweak = self.tweaks.data(current, Qt.ItemDataRole.UserRole)
-            self.help.setPlainText(tweak.doc)
-            self.edit_tweak.setPlainText(tweak.edit_text)
+            self.help.setPlainText(_('Help for this tweak') + '\n\n' + tweak.doc)
+            self.set_edit_text(tweak.edit_text)
 
     def changed(self, *args):
         self.changed_signal.emit()
@@ -522,28 +523,32 @@ class ConfigWidget(ConfigWidgetBase):
         if idx.isValid():
             self.tweaks.restore_to_default(idx)
             tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
-            self.edit_tweak.setPlainText(tweak.edit_text)
+            self.set_edit_text(tweak.edit_text)
             self.changed()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
         self.tweaks.restore_to_defaults()
-        self.changed()
-
-    def apply_tweak(self):
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
-            try:
-                l = parse_python_tweaks(str(self.edit_tweak.toPlainText()))
-            except Exception:
-                import traceback
-                error_dialog(self.gui, _('Failed'),
-                        _('There was a syntax error in your tweak. Click '
-                            'the "Show details" button for details.'),
-                        det_msg=traceback.format_exc(), show=True)
-                return
-            self.tweaks.update_tweak(idx, l)
-            self.changed()
+            tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
+            self.set_edit_text(tweak.edit_text)
+        self.changed()
+
+    def validate_and_apply_current_tweak(self):
+        if not (idx := self.tweaks_view.currentIndex()).isValid():
+            self.edit_tweak.setStyleSheet('')
+            return
+        ok = True
+        try:
+            l = parse_python_tweaks(self.edit_tweak.toPlainText())
+        except Exception:
+            ok = False
+        if ok:
+            if not self.ignore_tweak_changed:
+                self.tweaks.update_tweak(idx, l)
+                self.changed()
+        self.edit_tweak.setStyleSheet(stylesheet_for_lineedit(ok, 'QPlainTextEdit'))
 
     def commit(self):
         raw = self.tweaks.to_string()
