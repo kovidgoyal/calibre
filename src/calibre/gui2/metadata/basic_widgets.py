@@ -477,9 +477,9 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
             'For example Charles Dickens should be sorted as Dickens, '
-            'Charles.\nIf the box is colored green, then text matches '
-            "the individual author's sort strings. If it is colored "
-            'red, then the authors and this text do not match.')
+            'Charles.\nIf the box has a tick mark, then text matches '
+            "the individual author's sort strings. If it has a cross mark, "
+            'then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
     FIELD_NAME = 'author_sort'
     data_changed = pyqtSignal()
