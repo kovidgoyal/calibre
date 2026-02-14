@@ -204,8 +204,23 @@ class MTP_DEVICE(BASE):
         if self.is_mtp_device_connected:
             self.eject()
 
+    def find_calibre_file_path(self, storage, key) -> list[str]:
+        paths = self.calibre_file_paths[key]
+        if isinstance(paths, str):
+            paths = (paths,)
+        if len(paths) == 1:
+            return paths[0].split('/')
+        # Find the first path whose parent directory exists
+        for candidate in paths:
+            path = candidate.split('/')
+            if len(path) == 1:
+                return path
+            if storage.find_path(path[:-1]) is not None:
+                return path
+        return paths[0].split('/')
+
     def put_calibre_file(self, storage, key, stream, size):
-        path = self.calibre_file_paths[key].split('/')
+        path = self.find_calibre_file_path(storage, key)
         parent = self.ensure_parent(storage, path)
         self.put_file(parent, path[-1], stream, size)
 
@@ -215,7 +230,7 @@ class MTP_DEVICE(BASE):
 
         from calibre.utils.config import from_json, to_json
         from calibre.utils.date import isoformat, now
-        f = storage.find_path(self.calibre_file_paths['driveinfo'].split('/'))
+        f = storage.find_path(self.find_calibre_file_path(storage, 'driveinfo'))
         dinfo = {}
         if f is not None:
             try:
@@ -291,7 +306,7 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Reading e-book metadata'))
         # Read the cache if it exists
         storage = self.filesystem_cache.storage(sid)
-        cache = storage.find_path(self.calibre_file_paths['metadata'].split('/'))
+        cache = storage.find_path(self.find_calibre_file_path(storage, 'metadata'))
         if cache is not None:
             json_codec = JSONCodec()
             try:
