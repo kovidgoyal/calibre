@@ -167,6 +167,13 @@ class DBCtx:
             self._db = None
             self.is_remote = False
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        if not self.is_remote and self._db is not None:
+            self._db.close()
+
     @property
     def db(self):
         if self._db is None:
@@ -252,7 +259,8 @@ def main(args=sys.argv):
     del args[i]
     parser = option_parser_for(cmd, args[1:])()
     opts, args = parser.parse_args(args)
-    return run_cmd(cmd, opts, args[1:], DBCtx(opts, parser))
+    with DBCtx(opts, parser) as dbctx:
+        return run_cmd(cmd, opts, args[1:], dbctx)
 
 
 if __name__ == '__main__':
