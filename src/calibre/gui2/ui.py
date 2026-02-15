@@ -1085,7 +1085,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
-                return
+                return  # ))))
 
             if 'calibre.utils.oauth2.OAuth2ReauthenticationRequired' in job.details:
                 if not minz:
@@ -1097,7 +1097,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         provider = 'gmail'
                     elif 'Microsoft' in job.details:
                         provider = 'outlook'
-                    d = OAuthReauthMessage(self, title=title, provider=provider)
+                    d = OAuthReauthMessage(parent=self, title=title, provider=provider)
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
