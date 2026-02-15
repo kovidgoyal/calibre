@@ -1087,6 +1087,22 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     self._modeless_dialogs.append(d)
                 return
 
+            if 'calibre.utils.oauth2.OAuth2ReauthenticationRequired' in job.details:
+                if not minz:
+                    from calibre.gui2.dialogs.oauth_reauth import OAuthReauthMessage
+                    title = provider = None
+                    if job.description and job.description.startswith(_('Email ')):
+                        title = job.description[len(_('Email ')):].partition(' ' + _('to') + ' ')[0]
+                    if 'Google' in job.details:
+                        provider = 'gmail'
+                    elif 'Microsoft' in job.details:
+                        provider = 'outlook'
+                    d = OAuthReauthMessage(self, title=title, provider=provider)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
             if 'calibre.ebooks.oeb.transforms.split.SplitError' in job.details:
                 title = job.description.split(':')[-1].partition('(')[-1][:-1]
                 msg = _('<p><b>Failed to convert: %s')%title

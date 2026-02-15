@@ -316,14 +316,16 @@ class SMTP:
             self.debug('connect:', msg)
         return code, msg
 
-    def send(self, str):
-        '''Send `str' to the server.'''
+    def send(self, s):
+        '''Send `s' to the server.'''
         if self.debuglevel > 0:
-            raw = repr(str)
+            raw = repr(s)
             self.debug('send:', raw)
         if hasattr(self, 'sock') and self.sock:
             try:
-                self.sock.sendall(str)
+                if isinstance(s, str):
+                    s = s.encode('utf-8')
+                self.sock.sendall(s)
             except OSError:
                 self.close()
                 raise SMTPServerDisconnected('Server not connected')
@@ -353,7 +355,7 @@ class SMTP:
         '''
         resp = []
         if self.file is None:
-            self.file = self.sock.makefile('rb')
+            self.file = self.sock.makefile('r', encoding='utf-8', errors='replace')
         while True:
             try:
                 line = self.file.readline(_MAXLINE + 1)
@@ -541,7 +543,7 @@ class SMTP:
                 if not (200 <= code <= 299):
                     raise SMTPHeloError(code, resp)
 
-    def login(self, user, password):
+    def login(self, user, password, preferred_auths=None):
         '''Log in on an SMTP server that requires authentication.
 
         The arguments are:
@@ -576,6 +578,7 @@ class SMTP:
         AUTH_PLAIN = 'PLAIN'
         AUTH_CRAM_MD5 = 'CRAM-MD5'
         AUTH_LOGIN = 'LOGIN'
+        AUTH_XOAUTH2 = 'XOAUTH2'
 
         self.ehlo_or_helo_if_needed()
 
@@ -588,7 +591,8 @@ class SMTP:
         # List of authentication methods we support: from preferred to
         # less preferred methods. Except for the purpose of testing the weaker
         # ones, we prefer stronger methods like CRAM-MD5:
-        preferred_auths = [AUTH_CRAM_MD5, AUTH_PLAIN, AUTH_LOGIN]
+        if preferred_auths is None:
+            preferred_auths = [AUTH_CRAM_MD5, AUTH_PLAIN, AUTH_LOGIN, AUTH_XOAUTH2]
 
         # Determine the authentication method we'll use
         authmethod = None
@@ -612,6 +616,12 @@ class SMTP:
             if code != 334:
                 raise SMTPAuthenticationError(code, resp)
             code, resp = self.docmd(encode_base64(password, eol=''))
+        elif authmethod == AUTH_XOAUTH2:
+            # For XOAUTH2, password is the access token
+            # Generate XOAUTH2 string: base64(user={email}\x01auth=Bearer {token}\x01\x01)
+            from calibre.utils.oauth2 import generate_xoauth2_string
+            auth_string = generate_xoauth2_string(user, password)
+            code, resp = self.docmd('AUTH', f'{AUTH_XOAUTH2} {auth_string}')
         elif authmethod is None:
             raise SMTPException('No suitable authentication method found.')
         if code not in (235, 503):
@@ -749,6 +759,23 @@ class SMTP:
             raise SMTPDataError(code, resp)
         # if we got here then somebody got our mail
         return senderrs
+
+    def send_message(self, msg, from_addr=None, to_addrs=None,
+                     mail_options=[], rcpt_options=[]):
+        '''Converts message to a string and passes it to sendmail.'''
+        if from_addr is None:
+            from_addr = msg['From']
+        if to_addrs is None:
+            raise ValueError('to_addrs must be specified')
+
+        from email.generator import Generator
+        from io import StringIO
+        f = StringIO()
+        g = Generator(f)
+        g.flatten(msg, linesep='\r\n')
+        flatmsg = f.getvalue()
+
+        return self.sendmail(from_addr, to_addrs, flatmsg, mail_options, rcpt_options)
 
     def close(self):
         '''Close the connection to the SMTP server.'''
