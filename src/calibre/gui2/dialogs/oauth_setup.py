@@ -3,8 +3,19 @@
 
 
 from qt.core import (
-    QApplication, QComboBox, QDialog, QEvent, QFormLayout, QGroupBox,
-    QHBoxLayout, QLabel, QProgressDialog, QPushButton, Qt, QTextBrowser, QVBoxLayout,
+    QApplication,
+    QComboBox,
+    QDialog,
+    QEvent,
+    QFormLayout,
+    QGroupBox,
+    QHBoxLayout,
+    QLabel,
+    QProgressDialog,
+    QPushButton,
+    Qt,
+    QTextBrowser,
+    QVBoxLayout,
 )
 
 from calibre.gui2 import error_dialog, info_dialog
@@ -84,7 +95,7 @@ class OAuth2SetupDialog(QDialog):
         instructions.setMaximumHeight(120)
         instructions.setHtml(_('<ol>'
             '<li>Click "Authorize" below</li>'
-            '<li>Your web browser will open to the provider\'s login page</li>'
+            "<li>Your web browser will open to the provider's login page</li>"
             '<li>Sign in and grant calibre permission to send email</li>'
             '<li>The browser will redirect back automatically</li>'
             '</ol>'
@@ -137,7 +148,8 @@ class OAuth2SetupDialog(QDialog):
 
         def run_flow():
             try:
-                from calibre.utils.oauth2 import OAuth2Error, start_oauth_flow as do_oauth_flow
+                from calibre.utils.oauth2 import OAuth2Error
+                from calibre.utils.oauth2 import start_oauth_flow as do_oauth_flow
                 self.tokens = do_oauth_flow(provider)
                 QApplication.instance().postEvent(self, FlowCompleteEvent(True, None))
             except OAuth2Error as e:

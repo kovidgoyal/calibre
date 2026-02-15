@@ -239,7 +239,7 @@ class SendEmail(QWidget, Ui_Form):
             password = from_hex_unicode(opts.relay_password) if opts.relay_password else None
 
             if getattr(opts, 'auth_method', 'password') == 'oauth2':
-                from calibre.utils.oauth2 import get_token_manager, OAuth2Error
+                from calibre.utils.oauth2 import OAuth2Error, get_token_manager
                 token_mgr = get_token_manager(opts.oauth_provider, opts.oauth_tokens)
                 try:
                     token_data = token_mgr.get_valid_token()
