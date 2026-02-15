@@ -1,40 +1,44 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+from functools import partial
 
 from qt.core import (
-    QApplication,
     QComboBox,
     QDialog,
-    QEvent,
+    QDialogButtonBox,
     QFormLayout,
     QGroupBox,
-    QHBoxLayout,
+    QIcon,
     QLabel,
-    QProgressDialog,
-    QPushButton,
+    QStackedLayout,
     Qt,
     QTextBrowser,
     QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+    sip,
 )
 
-from calibre.gui2 import error_dialog, info_dialog
+from calibre.gui2 import error_dialog
 
 
 class OAuth2SetupDialog(QDialog):
 
     GMAIL_DOMAINS = ('@gmail.com', '@googlemail.com')
     OUTLOOK_DOMAINS = ('@outlook.com', '@hotmail.com', '@live.com', '@msn.com')
+    flow_finished = pyqtSignal(object, str)  # tokens, error_msg
 
     def __init__(self, parent, provider='gmail', email=''):
         super().__init__(parent)
-        self.setWindowTitle(_('Setup OAuth 2.0 Authentication'))
+        self.setWindowTitle(_('Setup authentication'))
         self.resize(550, 400)
         self.tokens = None
         self.email_address = email
         from calibre.utils.oauth2 import get_available_providers
         self.available_providers = get_available_providers()
         self.provider, self.provider_detected = self._detect_provider(email, provider)
+        self.flow_finished.connect(self.on_flow_finish, type=Qt.ConnectionType.QueuedConnection)
         self.setup_ui()
 
     def _detect_provider(self, email, fallback='gmail'):
@@ -56,17 +60,23 @@ class OAuth2SetupDialog(QDialog):
     def setup_ui(self):
         layout = QVBoxLayout(self)
 
-        header = QLabel(_('<h3>Setup OAuth 2.0 Authentication</h3>'
+        header = QLabel(_('<h3>Setup OAuth 2.0 authentication</h3>'
             '<p>OAuth 2.0 is the recommended authentication method for Gmail and Outlook. '
-            'It is more secure than using passwords and does not require app-specific passwords.</p>'))
+            'It is more secure than using passwords.'))
         header.setWordWrap(True)
         layout.addWidget(header)
+        self.stack = s = QStackedLayout()
+        layout.addLayout(s)
+        self.info_widget = w = QWidget(self)
+        s.addWidget(w)
+        w.l = l = QVBoxLayout(w)
 
-        provider_group = QGroupBox(_('Email Provider'))
+        provider_group = QGroupBox(_('Email provider'))
+        l.addWidget(provider_group)
         provider_layout = QFormLayout(provider_group)
         self.provider_combo = QComboBox()
         for provider_id, provider_display in self.available_providers:
-            self.provider_combo.addItem(_(provider_display), provider_id)
+            self.provider_combo.addItem(provider_display, provider_id)
         idx = self.provider_combo.findData(self.provider)
         if idx >= 0:
             self.provider_combo.setCurrentIndex(idx)
@@ -86,7 +96,7 @@ class OAuth2SetupDialog(QDialog):
             self.provider_label = QLabel(f'<b>{provider_name}</b>')
             provider_layout.addRow(_('Provider:'), self.provider_label)
             self.provider_combo.hide()
-        layout.addWidget(provider_group)
+        l.addWidget(provider_group)
 
         instructions_group = QGroupBox(_('Instructions'))
         instructions_layout = QVBoxLayout(instructions_group)
@@ -94,98 +104,71 @@ class OAuth2SetupDialog(QDialog):
         instructions.setOpenExternalLinks(False)
         instructions.setMaximumHeight(120)
         instructions.setHtml(_('<ol>'
-            '<li>Click "Authorize" below</li>'
-            "<li>Your web browser will open to the provider's login page</li>"
-            '<li>Sign in and grant calibre permission to send email</li>'
-            '<li>The browser will redirect back automatically</li>'
+            '<li>Click "Authorize" below.</li>'
+            "<li>Your web browser will open to the provider's login page.</li>"
+            '<li>Sign in and grant calibre permission to send email.</li>'
+            '<li>The browser will redirect back automatically.</li>'
             '</ol>'
             '<p><b>Note:</b> Calibre never sees your password.</p>'))
         instructions_layout.addWidget(instructions)
-        layout.addWidget(instructions_group)
+        l.addWidget(instructions_group)
 
         self.status_label = QLabel()
         self.status_label.setWordWrap(True)
-        layout.addWidget(self.status_label)
+        s.addWidget(self.status_label)
 
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        self.authorize_button = QPushButton(_('Authorize'))
-        self.authorize_button.setDefault(True)
-        self.authorize_button.clicked.connect(self.start_oauth_flow)
-        button_layout.addWidget(self.authorize_button)
-        self.cancel_button = QPushButton(_('Cancel'))
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-        layout.addLayout(button_layout)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, self)
+        bb.rejected.connect(self.reject)
+        self.authorize_button = b = bb.addButton(_('Authorize'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setIcon(QIcon.ic('drm-unlocked.png'))
+        b.clicked.connect(self.start_oauth_flow)
+        b.setDefault(True)
+        layout.addStretch(10)
+        layout.addWidget(bb)
+        s.setCurrentIndex(0)
 
     def get_selected_provider(self):
         return self.provider if self.provider_detected else self.provider_combo.currentData()
 
-    def start_oauth_flow(self):
-        provider = self.get_selected_provider()
-        self.authorize_button.setEnabled(False)
-        self.cancel_button.setEnabled(False)
-        self.status_label.setText(_('Starting authorization...'))
+    def run_flow(self, provider):
+        tokens, err = None, ''
+        try:
+            from calibre.utils.oauth2 import start_oauth_flow
+            tokens = start_oauth_flow(provider)
+        except Exception as e:
+            err = str(e)
+        if not sip.isdeleted(self):
+            self.flow_finished.emit(tokens, err)
 
-        progress = QProgressDialog(
-            _('Waiting for authorization in browser...\n\nThis dialog will close automatically when done.'),
-            _('Cancel'), 0, 0, self)
-        progress.setWindowTitle(_('OAuth Authorization'))
-        progress.setWindowModality(Qt.WindowModality.WindowModal)
-        progress.setMinimumDuration(0)
-        progress.setValue(0)
+    def start_oauth_flow(self):
+        self.stack.setCurrentIndex(1)
+        self.authorize_button.setEnabled(False)
+        self.status_label.setText('<p>' +
+            _('Waiting for authorization in browser...') + '<br><br>' + _(
+                'This window will close automatically if authorization succeeds.'))
+        provider = self.get_selected_provider()
 
         from threading import Thread
+        Thread(target=partial(self.run_flow, provider), daemon=True).start()
 
-        class FlowCompleteEvent(QEvent):
-            EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
-            def __init__(self, success, error_msg):
-                super().__init__(self.EVENT_TYPE)
-                self.success = success
-                self.error_msg = error_msg
-
-        self.FlowCompleteEvent = FlowCompleteEvent
-
-        def run_flow():
-            try:
-                from calibre.utils.oauth2 import OAuth2Error
-                from calibre.utils.oauth2 import start_oauth_flow as do_oauth_flow
-                self.tokens = do_oauth_flow(provider)
-                QApplication.instance().postEvent(self, FlowCompleteEvent(True, None))
-            except OAuth2Error as e:
-                QApplication.instance().postEvent(self, FlowCompleteEvent(False, str(e)))
-            except Exception as e:
-                QApplication.instance().postEvent(self, FlowCompleteEvent(False, str(e)))
-
-        def handle_flow_complete(event):
-            progress.close()
-            if event.success:
-                self.status_label.setText(_('<b style="color: green;">Authorization successful!</b>'))
-                info_dialog(self, _('Success'), _('OAuth 2.0 authorization was successful!'), show=True)
-                self.accept()
-            else:
-                self.status_label.setText(_('<b style="color: red;">Authorization failed</b>'))
-                self.authorize_button.setEnabled(True)
-                self.cancel_button.setEnabled(True)
-                error_dialog(self, _('Authorization Failed'),
-                    _('OAuth 2.0 authorization failed:\n\n{error}').format(error=event.error_msg or _('Unknown error')), show=True)
-
-        self.handle_flow_complete = handle_flow_complete
-
-        def cancel_flow():
-            progress.close()
-            self.status_label.setText(_('Authorization cancelled'))
+    def on_flow_finish(self, tokens, error_msg):
+        self.tokens = tokens
+        if error_msg:
+            error_dialog(self, _('Authorization Failed'),
+                _('OAuth 2.0 authorization failed. Click "Show details" for details.'), det_msg=error_msg, show=True)
+            self.stack.setCurrentIndex(0)
             self.authorize_button.setEnabled(True)
-            self.cancel_button.setEnabled(True)
+            self.activateWindow()
+            self.raise_()
+        else:
+            self.accept()
+            if parent := self.parent():
+                parent.activateWindow()
+                parent.raise_()
 
-        progress.canceled.connect(cancel_flow)
-        Thread(target=run_flow, daemon=True).start()
-
-    def event(self, e):
-        if hasattr(self, 'FlowCompleteEvent') and isinstance(e, self.FlowCompleteEvent):
-            self.handle_flow_complete(e)
-            return True
-        return super().event(e)
+    def reject(self):
+        self.flow_finished.disconnect()
+        super().reject()
 
     def get_tokens(self):
         return self.tokens

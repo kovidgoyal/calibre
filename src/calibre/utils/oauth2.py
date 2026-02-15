@@ -10,7 +10,6 @@ import base64
 import hashlib
 import json
 import os
-import socket
 import threading
 import time
 import webbrowser
@@ -60,17 +59,6 @@ def generate_xoauth2_string(email, access_token):
     # Format: user={email}\x01auth=Bearer {token}\x01\x01
     auth_string = f'user={email}\x01auth=Bearer {access_token}\x01\x01'
     return base64.b64encode(auth_string.encode('utf-8')).decode('utf-8')
-
-
-def find_available_port(start_port=8080, max_attempts=10):
-    for port in range(start_port, start_port + max_attempts):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('localhost', port))
-                return port
-        except OSError:
-            continue
-    return None
 
 
 class OAuth2Provider:
@@ -304,16 +292,12 @@ class OAuth2BrowserFlow:
         self.start_port = start_port
 
     def start_authorization_flow(self, timeout=300):
-        port = find_available_port(start_port=self.start_port)
-        if port is None:
-            raise OAuth2Error(f'No available port for OAuth callback (tried {self.start_port}-{self.start_port + 9})')
-
-        self.provider.redirect_uri = f'http://localhost:{port}/oauth2callback'
+        server = HTTPServer(('localhost', 0), OAuth2CallbackHandler)
+        self.provider.redirect_uri = f'http://localhost:{server.server_port}/oauth2callback'
         code_verifier, code_challenge = generate_pkce_pair()
         state = base64.urlsafe_b64encode(os.urandom(32)).decode('utf-8').rstrip('=')
         auth_url = self.provider.get_authorization_url(state, code_challenge)
 
-        server = HTTPServer(('localhost', port), OAuth2CallbackHandler)
         server.oauth_error = None
         server.authorization_code = None
         server.state = None
