@@ -181,8 +181,8 @@ class OAuth2Provider:
 
 class GmailOAuth2Provider(OAuth2Provider):
     name = 'gmail'
-    client_id = os.environ.get('CALIBRE_GMAIL_CLIENT_ID', '410090137009-6f4jgjvsvcmtr1kqbtcro2j76rb7pio4.apps.googleusercontent.com')
-    client_secret = os.environ.get('CALIBRE_GMAIL_CLIENT_SECRET', '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')
+    client_id = os.environ.get('CALIBRE_GMAIL_CLIENT_ID', '')
+    client_secret = os.environ.get('CALIBRE_GMAIL_CLIENT_SECRET', '')
     auth_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     token_url = 'https://oauth2.googleapis.com/token'
     scopes = ['https://mail.google.com/']
