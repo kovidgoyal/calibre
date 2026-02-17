@@ -66,11 +66,10 @@ class ft(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/financial-times/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/financial-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'financial-times' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     # needs_subscription = 'optional'
     #
