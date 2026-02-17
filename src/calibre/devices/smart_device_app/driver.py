@@ -14,13 +14,12 @@ import random
 import select
 import socket
 import sys
-import threading
 import time
 import traceback
 from collections import defaultdict
 from errno import EAGAIN, EINTR
 from functools import wraps
-from threading import Thread
+from threading import RLock, Thread
 
 from calibre import prints
 from calibre.constants import DEBUG, cache_dir, numeric_version
@@ -62,8 +61,7 @@ def synchronous(tlockname):
 class ConnectionListener(Thread):
 
     def __init__(self, driver):
-        Thread.__init__(self)
-        self.daemon = True
+        super().__init__(name='SmartDeviceConnectionListener', daemon=True)
         self.driver = driver
         self.keep_running = True
         self.all_ip_addresses = {}
@@ -384,7 +382,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     }
 
     def __init__(self, path):
-        self.sync_lock = threading.RLock()
+        self.sync_lock = RLock()
         self.noop_counter = 0
         self.noop_time = time.monotonic()
         self.debug_start_time = time.time()

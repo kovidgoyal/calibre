@@ -1242,6 +1242,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         st = monotonic()
         timed_print('Shutdown starting...')
         self.shutting_down = True
+        if (dm := self.device_manager).is_running('smartdevice'):
+            dm.stop_plugin('smartdevice')
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
             self.library_view.connect_to_book_display_timer.stop()
         self.shutdown_started.emit()
