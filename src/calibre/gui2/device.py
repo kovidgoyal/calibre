@@ -198,7 +198,7 @@ class DeviceManager(Thread):  # {{{
         self.allow_connect_slot = allow_connect_slot
         self.jobs           = queue.Queue(0)
         self.job_steps      = queue.Queue(0)
-        self.keep_going     = True
+        self.shutdown_event = Event()
         self.job_manager    = job_manager
         self.reported_errors = set()
         self.shown_open_popups = set()
@@ -440,7 +440,7 @@ class DeviceManager(Thread):  # {{{
                 self.dynamic_plugins[n] = d
         self.devices_initialized.set()
 
-        while self.keep_going:
+        while not self.shutdown_event.is_set():
             kls = model_metadata = None
             while True:
                 try:
@@ -495,7 +495,7 @@ class DeviceManager(Thread):  # {{{
                 else:
                     break
             if do_sleep:
-                time.sleep(self.sleep_time)
+                self.shutdown_event.wait(self.sleep_time)
 
         # We are exiting. Call the shutdown method for each plugin
         for p in self.devices:

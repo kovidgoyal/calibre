@@ -1247,6 +1247,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
             self.library_view.connect_to_book_display_timer.stop()
         self.shutdown_started.emit()
+        self.device_manager.shutdown_event.set()
         self.show_shutdown_message()
         timed_print('Shutdown message shown...')
         self.server_change_notification_timer.stop()
@@ -1288,7 +1289,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.listener.close()
         self.job_manager.server.close()
         self.job_manager.threaded_server.close()
-        self.device_manager.keep_going = False
         self.auto_adder.stop()
         timed_print('Various services shutdown')
         # Do not report any errors that happen after the shutdown
@@ -1334,11 +1334,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup = cleanup_overseers()
         from calibre.live import async_stop_worker
         wait_for_stop = async_stop_worker()
-        timed_print('Waiting for overseers, mdns and live to shutdown')
+        timed_print('Waiting for overseers, mdns, device_manager and live to shutdown')
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
         wait_for_mdns_server_to_shutdown()
+        self.device_manager.join()
         self.shutdown_completed.emit()
         timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
         if DEBUG:
