@@ -863,6 +863,11 @@ class LayoutMixin:  # {{{
     def update_status_bar(self, *args):
         v = self.current_view()
         selected = len(v.selectionModel().selectedRows())
-        library_total, total, current = v.model().counts()
+        try:
+            library_total, total, current = v.model().counts()
+        except AttributeError:  # happens during shutdown
+            if self.shutting_down:
+                return
+            raise
         self.status_bar.update_state(library_total, total, current, selected)
 # }}}
