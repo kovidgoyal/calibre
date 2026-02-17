@@ -211,3 +211,17 @@ def stop_server(wait_for_stop=True):
                 t.join()
             else:
                 t.join(wait_for_stop)
+
+
+def stop_server_with_joinable():
+    global _server
+    srv, _server = _server, None
+    if srv is None:
+        def fake_join(timeout=None):
+            pass
+        return fake_join
+    def shutdown():
+        srv.close()
+    t = Thread(target=shutdown, name='CloseMDNSServer', daemon=True)
+    t.start()
+    return t.join

@@ -1236,6 +1236,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def shutdown(self, write_settings=True):
         from time import monotonic
+
+        from calibre.utils.mdns import stop_server_with_joinable
+        wait_for_mdns_server_to_shutdown = stop_server_with_joinable()
         st = monotonic()
         timed_print('Shutdown starting...')
         self.shutting_down = True
@@ -1329,10 +1332,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup = cleanup_overseers()
         from calibre.live import async_stop_worker
         wait_for_stop = async_stop_worker()
-        timed_print('Waiting for overseers and live to shutdown')
+        timed_print('Waiting for overseers, mdns and live to shutdown')
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
+        wait_for_mdns_server_to_shutdown()
         self.shutdown_completed.emit()
         timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
         try:
