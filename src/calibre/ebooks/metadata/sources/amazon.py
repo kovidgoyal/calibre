@@ -433,8 +433,10 @@ class Worker(Thread):  # Get details {{{
         if self.testing:
             import tempfile
             import uuid
+
+            from calibre.ptempfile import get_default_tempdir
             with tempfile.NamedTemporaryFile(prefix=(asin or type('')(uuid.uuid4())) + '_',
-                                             suffix='.html', delete=False) as f:
+                                             suffix='.html', delete=False, dir=get_default_tempdir()) as f:
                 f.write(raw)
             print('Downloaded HTML for', asin, 'saved in', f.name)
 
@@ -1043,13 +1045,14 @@ class Worker(Thread):  # Get details {{{
             pub = val.partition(';')[0].partition('(')[0].strip()
             if pub:
                 mi.publisher = pub
-            date = val.rpartition('(')[-1].replace(')', '').strip()
-            try:
-                from calibre.utils.date import parse_only_date
-                date = self.delocalize_datestr(date)
-                mi.pubdate = parse_only_date(date, assume_utc=True)
-            except Exception:
-                self.log.exception('Failed to parse pubdate: %s' % val)
+            if '(' in val:
+                date = val.rpartition('(')[-1].replace(')', '').strip()
+                try:
+                    from calibre.utils.date import parse_only_date
+                    date = self.delocalize_datestr(date)
+                    mi.pubdate = parse_only_date(date, assume_utc=True)
+                except Exception:
+                    self.log.exception('Failed to parse pubdate: %s' % val)
         elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
             ans = check_isbn(val)
             if ans:
