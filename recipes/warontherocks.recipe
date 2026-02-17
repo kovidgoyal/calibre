@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class WarOnTheRocks(BasicNewsRecipe):
+    title = 'War on the Rocks'
+    __author__ = 'lucaviness'
+    description = 'Analysis, commentary, and debate on foreign policy and national security.'
+    language = 'en'
+    publisher = 'War on the Rocks'
+    category = 'news, defense, foreign policy, national security'
+
+    oldest_article = 14
+    max_articles_per_feed = 30
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['style', 'height', 'width']
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
+    use_embedded_content = False
+
+    # WOTR uses only Tailwind utility classes with no semantic wrappers.
+    # Let calibre's readability algorithm extract the article content.
+    auto_cleanup = True
+
+    extra_css = '''
+        h1 { font-size: 1.8em; margin-bottom: 0.2em; }
+        h2 { font-size: 1.3em; margin-top: 1.2em; }
+        .byline { font-size: small; color: #404040; margin-bottom: 0.5em; }
+        .date { font-size: small; color: #404040; }
+        figcaption, .caption { font-size: small; color: #505050; text-align: center; }
+        img { display: block; margin: 0.5em auto; }
+        blockquote { margin: 1em 2em; font-style: italic; color: #202020; }
+        p { margin: 0.5em 0; line-height: 1.5; }
+    '''
+
+    feeds = ['https://warontherocks.com/feed/']
+
+    def preprocess_html(self, soup):
+        # Remove "BECOME A MEMBER" text blocks.
+        for el in soup.findAll(string=lambda t: t and 'BECOME A MEMBER' in t):
+            parent = el.find_parent(['div', 'section', 'p', 'a'])
+            if parent:
+                parent.decompose()
+
+        # Remove membership links.
+        for a in soup.findAll('a', attrs={'href': lambda x: x and 'membership' in x}):
+            a.decompose()
+
+        # Remove hashtag/category tag links.
+        for a in soup.findAll('a', attrs={'href': lambda x: x and '/tag/' in x if x else False}):
+            a.decompose()
+
+        # Remove author bio paragraphs at the end (italic "X is a ..." pattern).
+        for em in soup.findAll('em'):
+            t = self.tag_to_string(em).strip()
+            if t and (' is a ' in t or ' is the ' in t) and len(t) < 500:
+                parent = em.parent
+                if parent and parent.name == 'p':
+                    parent.decompose()
+                else:
+                    em.decompose()
+
+        # Ensure images have src from srcset.
+        for img in soup.findAll('img', attrs={'srcset': True}):
+            if not img.get('src') or 'data:' in img.get('src', ''):
+                parts = [s.strip() for s in img['srcset'].split(',') if s.strip()]
+                if parts:
+                    img['src'] = parts[-1].split()[0]
+
+        return soup
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        # Skip podcast episodes.
+        if url and '/podcasts/' in url:
+            return None
+        return url
