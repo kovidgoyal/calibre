@@ -73,8 +73,7 @@ def start_worker(code, pass_fds, name=''):
         name = '-' + name
     p = start_pipe_worker(code, pass_fds=pass_fds, **worker_kwargs)
     if get_stdout_from_child:
-        t = Thread(target=get_stdout, name='PoolWorkerGetStdout' + name, args=(p,), daemon=True)
-        t.start()
+        Thread(target=get_stdout, name='PoolWorkerGetStdout' + name, args=(p,), daemon=True).start()
     return p
 
 
