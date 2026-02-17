@@ -44,8 +44,10 @@ class Sueddeutsche(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/suddeutsche-zeitung/')
-        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        soup = self.index_to_soup('https://www.frontpages.com/germany-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'suddeutsche-zeitung' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     keep_only_tags = [
         dict(attrs={'data-manual':['overline', 'title', 'date', 'headerImage', 'teaserText', 'author', 'body']}),

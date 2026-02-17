@@ -40,8 +40,10 @@ class times(BasicNewsRecipe):
     browser_type = 'webengine'
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-times/')
-        return 'https://www.frontpages.com' + soup.find('img', attrs={'id':'giornale-img'})['src']
+        soup = self.index_to_soup('https://www.frontpages.com/uk-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'the-times' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     extra_css = '''
         .tc-view__TcView-nuazoi-0, [class^="keylines__KeylineItem-"], .sub { font-size:small; }
