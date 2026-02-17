@@ -829,19 +829,22 @@ class Worker(Thread):  # Get details {{{
                     # Try Japanese pattern like: "全5巻中第1巻", "全3冊中第2冊"
                     m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中第\s*([0-9.]+)\s*(?:巻|冊)', idxinfo)
                     if m is not None:
-                        ans = (series_name, float(m.group(1)))
-                        return ans
+                        return (series_name, float(m.group(1)))
 
                     # Newer JP pattern: "全24冊中4番目の本" (no 第 / no 冊 after index)
                     m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中\s*([0-9.]+)\s*番目', idxinfo)
                     if m is not None:
-                        ans = (series_name, float(m.group(1)))
-                        return ans
+                        return (series_name, float(m.group(1)))
 
-                    # Safer fallback: if there are multiple numbers, the LAST one is usually the index
+                    # Book X of Y
+                    m = re.search(r'([0-9.]+)\s+of\s+([0-9.]+)', idxinfo)
+                    if m is not None:
+                        return (series_name, float(m.group(1)))
+
+                    # Safer fallback: if there are multiple numbers, the FIRST one is usually the index
                     nums = re.findall(r'[0-9.]+', idxinfo)
                     if nums:
-                        ans = (series_name, float(nums[-1]))
+                        ans = (series_name, float(nums[0]))
                         return ans
 
         # This is found on the paperback/hardback pages for books on amazon.com
@@ -1116,7 +1119,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 17)
+    version = (1, 3, 18)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1799,6 +1802,11 @@ def manual_tests(domain, **kw):  # {{{
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
     all_tests = {}
     all_tests['com'] = [  # {{{
+        (   # Paperback with series
+            {'identifiers': {'amazon': 'B082D76DHS'}},
+            [title_test('Lost Coast: A Post-Apocalyptic Zombie Thriller', exact=False), series_test('Undead Ultra', 3)]
+        ),
+
         (  # in title
             {'title': 'Expert C# 2008 Business Objects',
              'authors': ['Lhotka']},
