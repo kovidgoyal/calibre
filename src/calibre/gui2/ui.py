@@ -1339,6 +1339,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_mdns_server_to_shutdown()
         self.shutdown_completed.emit()
         timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
+        if DEBUG:
+            import threading
+            threads = list(threading.enumerate())
+            if len(threads) > 1:
+                for thread in threads:
+                    if thread is not threading.main_thread():
+                        if not thread.isDaemon():
+                            timed_print('Non daemonic thread still alive:', thread)
         try:
             sys.stdout.flush()  # Make sure any buffered prints are written for debug mode
         except Exception:
