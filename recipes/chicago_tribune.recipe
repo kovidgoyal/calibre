@@ -36,11 +36,10 @@ class ChicagoTribune(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/chicago-tribune/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/us-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'chicago-tribune' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     keep_only_tags = [
         classes('headlines header-features coauthor-avatar-container article-body'),

@@ -117,11 +117,10 @@ class SCMP(BasicNewsRecipe):
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/c/c3/SCMP_logo.svg'
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/south-china-morning-post/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/china-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'south-china-morning-post' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     recipe_specific_options = {
         'days': {

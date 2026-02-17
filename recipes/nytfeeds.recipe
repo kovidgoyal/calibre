@@ -41,11 +41,10 @@ class NytFeeds(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-new-york-times/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/us-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'new-york-times' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     recipe_specific_options = {
         'days': {

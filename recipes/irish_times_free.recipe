@@ -51,11 +51,10 @@ class IrishTimes(BasicNewsRecipe):
     resolve_internal_links = True
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-irish-times/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/ireland-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'irish-times' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     feeds = []
 
