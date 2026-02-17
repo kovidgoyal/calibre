@@ -560,6 +560,25 @@ def main(args=sys.argv):
     del app
     import gc
     gc.collect(), gc.collect()
+    if iswindows:
+        # On Windows we get a mysterious deadlock that hangs the process on
+        # exit even if we call os._exit(0), once the wireless device driver connects.
+        # See https://bugs.launchpad.net/bugs/2141994
+        # Started in calibre 9 probably because of a new regression in Python/Qt
+        # Getting process properties via process explorer causes the process to exit.
+        # So it is likely a hang in the Loader Lock. Or memory corruption during exit.
+        # So we run the atexit handlers now and then exit using TerminateProcess
+        # This breaks cleanup code in non python DLLs and Py_AtExit. Cant be helped.
+        # At least worker process still seem to be closed.
+        from calibre.devices.smart_device_app.driver import wireless_driver_connected
+        if wireless_driver_connected:
+            import atexit
+            atexit._run_exitfuncs()
+            atexit._clear()
+            import ctypes
+            handle = ctypes.windll.kernel32.OpenProcess(0x0001, False, os.getpid())
+            # Terminate immediately This does NOT return; the process is gone the moment this is called.
+            ctypes.windll.kernel32.TerminateProcess(handle, 0)
 
 
 def run_main(app, opts, args, gui_debug, si):

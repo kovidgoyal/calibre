@@ -45,6 +45,8 @@ from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import as_bytes
 
+wireless_driver_connected = False
+
 
 def synchronous(tlockname):
     '''A decorator to place an instance based lock around a method '''
@@ -984,10 +986,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self if self.is_connected else None
 
         if getattr(self, 'listen_socket', None) is not None:
+            global wireless_driver_connected
             try:
                 ans = self.connection_queue.get_nowait()
                 self.device_socket = ans
                 self.is_connected = True
+                wireless_driver_connected = True
                 try:
                     peer = self.device_socket.getpeername()[0]
                     attempts = self.connection_attempts.get(peer, 0)
