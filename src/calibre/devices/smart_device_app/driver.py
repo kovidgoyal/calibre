@@ -19,7 +19,7 @@ import traceback
 from collections import defaultdict
 from errno import EAGAIN, EINTR
 from functools import wraps
-from threading import RLock, Thread
+from threading import Event, RLock, Thread
 
 from calibre import prints
 from calibre.constants import DEBUG, cache_dir, numeric_version
@@ -63,11 +63,11 @@ class ConnectionListener(Thread):
     def __init__(self, driver):
         super().__init__(name='SmartDeviceConnectionListener', daemon=True)
         self.driver = driver
-        self.keep_running = True
+        self.shutdown_event = Event()
         self.all_ip_addresses = {}
 
     def stop(self):
-        self.keep_running = False
+        self.shutdown_event.set()
 
     def _close_socket(self, the_socket):
         try:
@@ -81,14 +81,14 @@ class ConnectionListener(Thread):
         device_socket = None
         get_all_ips(reinitialize=True)
 
-        while self.keep_running:
+        while not self.shutdown_event.is_set():
             try:
-                time.sleep(1)
+                self.shutdown_event.wait(1)
             except Exception:
                 # Happens during interpreter shutdown
                 break
 
-            if not self.keep_running:
+            if self.shutdown_event.is_set():
                 break
 
             if not self.all_ip_addresses:
@@ -143,9 +143,8 @@ class ConnectionListener(Thread):
                     try:
                         self.driver._debug('attempt to open device socket')
                         device_socket = None
-                        self.driver.listen_socket.settimeout(0.100)
-                        device_socket, ign = eintr_retry_call(
-                                self.driver.listen_socket.accept)
+                        self.driver.listen_socket.settimeout(0.1)
+                        device_socket, ign = eintr_retry_call(self.driver.listen_socket.accept)
                         set_socket_inherit(device_socket, False)
                         self.driver.listen_socket.settimeout(None)
                         device_socket.settimeout(None)
@@ -618,7 +617,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     self._close_device_socket()
                     raise
-                time.sleep(0.1)  # lets not hammer the OS too hard
             except Exception:
                 self._close_device_socket()
                 raise
@@ -1996,6 +1994,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         with self.sync_lock:
             if getattr(self, 'listen_socket', None) is not None:
                 self.connection_listener.stop()
+                self.connection_listener.join()
                 try:
                     unpublish_zeroconf('calibre smart device client',
                                        '_calibresmartdeviceapp._tcp', self.port, {})
