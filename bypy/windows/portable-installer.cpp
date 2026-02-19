@@ -22,7 +22,14 @@
 #include "XUnzip.h"
 
 #define BUFSIZE 4096
-#define CALIBRE_PROCESS_COUNT 4
+#define arraysz(x) (sizeof(x)/sizeof(x[0]))
+
+static const LPCWSTR calibre_processes[] = {
+    L"calibre.exe",
+    L"calibre-parallel.exe",
+    L"ebook-viewer.exe",
+    L"ebook-edit.exe"
+};
 
 // Error handling {{{
 
@@ -447,26 +454,18 @@ static BOOL move_program() {
 }
 // }}}
 
-static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count) {
+static BOOL
+find_running_calibre_processes(LPWSTR *running_processes, int *count) {
     DWORD processes[4096], needed, num;
     unsigned int i;
     WCHAR name[4*MAX_PATH] = L"<unknown>";
     HANDLE h;
     DWORD len;
     LPWSTR fname = NULL;
-    const LPCWSTR target_processes[] = {
-        L"calibre.exe",
-        L"calibre-parallel.exe",
-        L"ebook-viewer.exe",
-        L"ebook-edit.exe"
-    };
-    int target_count = sizeof(target_processes) / sizeof(target_processes[0]);
-    BOOL found[CALIBRE_PROCESS_COUNT] = {FALSE};
+    BOOL found[arraysz(calibre_processes)] = {FALSE};
     *count = 0;
 
-    if ( !EnumProcesses( processes, sizeof(processes), &needed ) ) {
-        return true;
-    }
+    if (!EnumProcesses(processes, sizeof(processes), &needed)) return true;
     num = needed / sizeof(DWORD);
 
     for (i = 0; i < num; i++) {
@@ -478,10 +477,10 @@ static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count
             if (len != 0) {
                 name[len] = 0;
                 fname = PathFindFileName(name);
-                for (int j = 0; j < target_count; j++) {
-                    if (!found[j] && wcscmp(fname, target_processes[j]) == 0) {
+                for (int j = 0; j < arraysz(calibre_processes); j++) {
+                    if (!found[j] && wcscmp(fname, calibre_processes[j]) == 0) {
                         found[j] = TRUE;
-                        running_processes[*count] = _wcsdup(target_processes[j]);
+                        running_processes[*count] = _wcsdup(calibre_processes[j]);
                         (*count)++;
                         break;
                     }
@@ -493,8 +492,9 @@ static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count
     return *count > 0;
 }
 
-static BOOL ensure_not_running() {
-    LPWSTR running_processes[CALIBRE_PROCESS_COUNT] = {NULL};
+static BOOL
+ensure_not_running() {
+    LPWSTR running_processes[arraysz(calibre_processes)] = {NULL};
     int count = 0;
     WCHAR msg[4*MAX_PATH] = {0};
     WCHAR *msg_ptr;
@@ -504,17 +504,15 @@ static BOOL ensure_not_running() {
     while (TRUE) {
         // Reset buffer pointers for each iteration
         msg_ptr = msg;
-        remaining = sizeof(msg) / sizeof(WCHAR);
+        remaining = arraysz(msg);
         wmemset(msg, 0, remaining);
 
         // Check for running processes
-        if (!find_running_calibre_processes(running_processes, &count)) {
-            return true;  // No processes found
-        }
+        if (!find_running_calibre_processes(running_processes, &count)) return true;
 
         // Build the message with list of running processes
         int written = _snwprintf_s(msg_ptr, remaining, _TRUNCATE,
-            L"The following Calibre processes are currently running:\r\n\r\n");
+            L"The following calibre processes are currently running:\r\n\r\n");
         if (written > 0) {
             msg_ptr += written;
             remaining -= written;
@@ -530,11 +528,11 @@ static BOOL ensure_not_running() {
         }
 
         written = _snwprintf_s(msg_ptr, remaining, _TRUNCATE,
-            L"\r\nPlease quit Calibre before installing or upgrading Calibre Portable.\r\n\r\n"
-            L"Click 'Retry' after quitting Calibre, or 'Abort' to cancel installation.");
-        
+            L"\r\nPlease quit calibre before installing or upgrading Calibre Portable.\r\n\r\n"
+            L"Click 'Retry' after quitting calibre, or 'Abort' to cancel installation.");
+
         // Show dialog with Retry and Abort buttons
-        result = MessageBox(NULL, msg, L"Calibre is Running", 
+        result = MessageBox(NULL, msg, L"calibre is running",
                            MB_RETRYCANCEL | MB_ICONEXCLAMATION | MB_TOPMOST);
 
         // Free allocated memory
@@ -546,9 +544,7 @@ static BOOL ensure_not_running() {
         }
         count = 0;
 
-        if (result == IDCANCEL) {
-            return false;  // User chose to abort
-        }
+        if (result == IDCANCEL) return false;  // User chose to abort
         // If IDRETRY, loop continues to check again
     }
 
