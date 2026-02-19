@@ -534,7 +534,6 @@ static BOOL ensure_not_running() {
             L"Click 'Retry' after quitting Calibre, or 'Abort' to cancel installation.");
         
         // Show dialog with Retry and Abort buttons
-        MessageBeep(MB_ICONEXCLAMATION);
         result = MessageBox(NULL, msg, L"Calibre is Running", 
                            MB_RETRYCANCEL | MB_ICONEXCLAMATION | MB_TOPMOST);
 
