@@ -39,6 +39,7 @@ class TCROutput(OutputFormatPlugin):
         setattr(opts, 'indent_paras', False)
 
         writer = TXTMLizer(log)
+        opts.use_alt_text_for_images = False
         txt = writer.extract_content(oeb_book, opts).encode(opts.tcr_output_encoding, 'replace')
 
         log.info('Compressing text...')

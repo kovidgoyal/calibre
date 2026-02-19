@@ -46,6 +46,7 @@ class Writer(FormatWriter):
 
     def _generate_text(self, oeb_book):
         writer = TXTMLizer(self.log)
+        self.opts.use_alt_text_for_images = False
         txt = writer.extract_content(oeb_book, self.opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
