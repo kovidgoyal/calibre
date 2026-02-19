@@ -496,11 +496,16 @@ static BOOL ensure_not_running() {
     LPWSTR running_processes[4] = {NULL, NULL, NULL, NULL};
     int count = 0;
     WCHAR msg[4*MAX_PATH] = {0};
-    WCHAR *msg_ptr = msg;
-    size_t remaining = 4*MAX_PATH;
+    WCHAR *msg_ptr;
+    size_t remaining;
     int result;
 
     while (TRUE) {
+        // Reset buffer pointers for each iteration
+        msg_ptr = msg;
+        remaining = sizeof(msg) / sizeof(WCHAR);
+        wmemset(msg, 0, remaining);
+
         // Check for running processes
         if (!find_running_calibre_processes(running_processes, &count)) {
             return true;  // No processes found
