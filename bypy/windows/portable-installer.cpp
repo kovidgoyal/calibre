@@ -22,6 +22,7 @@
 #include "XUnzip.h"
 
 #define BUFSIZE 4096
+#define CALIBRE_PROCESS_COUNT 4
 
 // Error handling {{{
 
@@ -460,7 +461,7 @@ static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count
         L"ebook-edit.exe"
     };
     int target_count = sizeof(target_processes) / sizeof(target_processes[0]);
-    BOOL found[sizeof(target_processes) / sizeof(target_processes[0])] = {FALSE};
+    BOOL found[CALIBRE_PROCESS_COUNT] = {FALSE};
     *count = 0;
 
     if ( !EnumProcesses( processes, sizeof(processes), &needed ) ) {
@@ -493,7 +494,7 @@ static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count
 }
 
 static BOOL ensure_not_running() {
-    LPWSTR running_processes[4] = {NULL, NULL, NULL, NULL};
+    LPWSTR running_processes[CALIBRE_PROCESS_COUNT] = {NULL};
     int count = 0;
     WCHAR msg[4*MAX_PATH] = {0};
     WCHAR *msg_ptr;
