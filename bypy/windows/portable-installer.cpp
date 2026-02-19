@@ -460,7 +460,7 @@ static BOOL find_running_calibre_processes(LPWSTR *running_processes, int *count
         L"ebook-edit.exe"
     };
     int target_count = sizeof(target_processes) / sizeof(target_processes[0]);
-    BOOL found[4] = {FALSE, FALSE, FALSE, FALSE};
+    BOOL found[sizeof(target_processes) / sizeof(target_processes[0])] = {FALSE};
     *count = 0;
 
     if ( !EnumProcesses( processes, sizeof(processes), &needed ) ) {
@@ -521,7 +521,7 @@ static BOOL ensure_not_running() {
 
         for (int i = 0; i < count; i++) {
             written = _snwprintf_s(msg_ptr, remaining, _TRUNCATE,
-                L"  \u2022 %s\r\n", running_processes[i]);
+                L"  - %s\r\n", running_processes[i]);
             if (written > 0) {
                 msg_ptr += written;
                 remaining -= written;
