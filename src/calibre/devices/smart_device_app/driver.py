@@ -2017,6 +2017,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return self._startup_on_demand()
 
     def stop_plugin(self):
+        try:
+            if self.is_connected:
+                self.eject()
+        except Exception:
+            import traceback
+            traceback.print_exc()
         self._shutdown()
 
     def get_option(self, opt_string, default=None):
