@@ -23,6 +23,50 @@
 # - title by author
 # }}}
 
+{{{ 9.3.0 2026-02-20
+
+:: new features
+
+- Windows installer: Detect running calibre processes and ask user to shutdown calibre before proceeding with installation to avoid reboots post installation
+
+- Improve Preferences->Tweaks getting rid of the need for double apply
+
+- [2141251] KEPUB Output: When converting to KEPUB preserve cover aspect ratio regardless of the setting for it in the EPUB Output to match the behavior of KEPUB files from Kobo
+
+:: bug fixes
+
+- [2141151] Make the new pages column value available in save to disk/send to device templates
+
+- [2141625] Hanvon N10 device driver: Fix calibre unable to put its metadata files onto the device
+
+- Amazon metadata download plugin: Fix incorrect series index from amazon.com
+
+- [2142195] Fix a regression in calibre 9.0 that broke output to PDB/TCR/zTXT files
+
+- [2141994] Windows: Fix calibre not exiting on quit when the wireless device driver is used in calibre 9
+
+- Fix error in page counting when using the calibredb command to add a book
+
+- [2141170] Completion: When sorting completion matches in contains mode ensure matches are sorted first by distance from beginning and then sub-sorted alphabetically
+
+- [2141766] Windows: Fix a regression in calibre 9 that caused tooltips to not follow the color scheme
+
+- [2141197] PDF Input: Fix PDF Outline not being converted to Table of Contents in output document when using the calibre engine
+
+- ODT Input: Ensure images are extracted within container (CVE-2026-26064)
+
+- PDB Input: Ensure extracted images are within the container (CVE-2026-26065)
+
+- Fix a regression in calibre 9.0 that caused a spurious large books merge warning when merging books in the cover grid view
+
+- Windows: Fix harmless error popup if user tries to launch calibre multiple times in quick succession
+
+:: improved recipes
+- Financial Times
+- The Asahi Shimbun
+- Todoist
+}}}
+
 {{{ 9.2.1 2026-02-06
 
 :: new features
