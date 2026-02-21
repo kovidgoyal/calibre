@@ -61,7 +61,7 @@
 
 - Windows: Fix harmless error popup if user tries to launch calibre multiple times in quick succession
 
-- [2142318, 212296] Version 9.3.1 fixes a regression in the previous release that caused a spurious error message to show when merging books and a regression in calibre 9.0 that broke using textures as the Cover grid background when using the system theme on Windows
+- [2142318 212296] Version 9.3.1 fixes a regression in the previous release that caused a spurious error message to show when merging books and a regression in calibre 9.0 that broke using textures as the Cover grid background when using the system theme on Windows
 
 :: improved recipes
 - Financial Times
