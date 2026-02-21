@@ -19,6 +19,7 @@ from qt.core import (
     QAbstractItemModel,
     QAbstractItemView,
     QApplication,
+    QBrush,
     QBuffer,
     QByteArray,
     QColor,
@@ -26,6 +27,7 @@ from qt.core import (
     QEasingCurve,
     QEvent,
     QFont,
+    QFrame,
     QHelpEvent,
     QIcon,
     QImage,
@@ -66,6 +68,7 @@ from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
 from calibre.gui2.library.models import themed_icon_name
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
+from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils.config import prefs, tweaks
 
@@ -895,6 +898,9 @@ class GridView(MomentumScrollMixin, QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        self.setFrameShape(QFrame.Shape.Box)
+        self.setFrameShadow(QFrame.Shadow.Plain)
+        self.setLineWidth(1)
         self.accumulated_scroll_degrees = 0
         self.dbref = lambda: None
         self._ncols = None
@@ -993,24 +999,22 @@ class GridView(MomentumScrollMixin, QListView):
         pal = self.palette()
         bgcol = QColor(r, g, b)
         pal.setColor(QPalette.ColorRole.Base, bgcol)
-        self.setPalette(pal)
-        ss = f'background-color: {bgcol.name()}; border: 0px solid {bgcol.name()};'
+        pal.setColor(QPalette.ColorRole.WindowText, bgcol)  # frame color
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
             if path:
-                path = os.path.abspath(path).replace(os.sep, '/')
-                ss += f'background-image: url({path});'
-                ss += 'background-attachment: fixed;'
-                pm = QPixmap(path)
+                pm = QPixmap(os.path.abspath(path))
                 if not pm.isNull():
                     val = pm.scaled(1, 1).toImage().pixel(0, 0)
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
+                    pal.setBrush(QPalette.ColorRole.Base, QBrush(pm))
         dark = max(r, g, b) < 115
-        col = '#eee' if dark else '#111'
-        ss += f'color: {col};'
-        self.delegate.highlight_color = QColor(col)
-        self.setStyleSheet(f'QListView {{ {ss} }}')
+        p = dark_palette() if dark else light_palette()
+        col = p.color(QPalette.ColorRole.Text)
+        pal.setColor(QPalette.ColorRole.Text, col)
+        self.setPalette(pal)
+        self.delegate.highlight_color = col
 
     def refresh_settings(self):
         size_changed = (
