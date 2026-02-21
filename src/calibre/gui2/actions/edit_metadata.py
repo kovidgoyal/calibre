@@ -659,9 +659,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.merge_data_files(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
-            dest_row = rows[0].row()
+            dest_row = rows[0]
             for row in rows:
-                if row.row() < rows[0].row():
+                if row < rows[0]:
                     dest_row -= 1
             self.gui.library_view.set_current_row(dest_row)
         cr = self.gui.library_view.currentIndex().row()
