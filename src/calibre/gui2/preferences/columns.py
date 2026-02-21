@@ -225,6 +225,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item.setFlags(flags)
         if self.is_custom_key(key):
             item.setData(Qt.ItemDataRole.DecorationRole, (QIcon.ic('column.png')))
+        else:
+            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon.ic('blank.png')))
         self.opt_columns.setItem(row, self.HEADER_COLUMN, item)
 
         item = QTableWidgetItem(key)
