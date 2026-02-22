@@ -2629,31 +2629,30 @@ class CatalogBuilder:
 
         def _generate_html():
             args = dict(
-                        author=escape(author),
-                        author_prefix=escape(author_prefix),
-                        comments=comments,
-                        css=css,
-                        formats=formats,
-                        genres=genres,
-                        note_content=note_content,
-                        note_source=note_source,
-                        pubdate=pubdate,
-                        publisher=publisher,
-                        pubmonth=pubmonth,
-                        pubyear=pubyear,
-                        rating=rating,
-                        series=escape(series),
-                        series_index=series_index,
-                        thumb=thumb,
-                        title=escape(title),
-                        title_str=escape(title_str),
-                        xmlns=XHTML_NS,
-                        )
+                author=escape(author),
+                author_prefix=escape(author_prefix),
+                comments=comments,
+                css=css,
+                formats=formats,
+                genres=genres,
+                note_content=note_content,
+                note_source=note_source,
+                pubdate=pubdate,
+                publisher=publisher,
+                pubmonth=pubmonth,
+                pubyear=pubyear,
+                rating=rating,
+                series=escape(series),
+                series_index=series_index,
+                thumb=thumb,
+                title=escape(title),
+                title_str=escape(title_str),
+                xmlns=XHTML_NS,
+            )
             for k, v in args.items():
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
-            generated_html = P('catalog/template.xhtml',
-                    data=True).decode('utf-8').format(**args)
+            generated_html = P('catalog/template.xhtml', data=True).decode('utf-8').format(**args)
             generated_html = xml_replace_entities(generated_html)
             return BeautifulSoup(generated_html)
 
