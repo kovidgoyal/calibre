@@ -763,7 +763,7 @@ class CoverDelegate(QStyledItemDelegate):
                 if self.title_height != 0:
                     if self.flush_bottom:
                         trect.setTop(rect.bottom() + 5)
-                    self.paint_title(painter, trect, db, book_id)
+                    self.paint_title(painter, trect, db, book_id, align_top=self.flush_bottom)
             if self.emblem_size > 0:
                 # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
                 return
@@ -787,15 +787,20 @@ class CoverDelegate(QStyledItemDelegate):
         with clip_border_radius(painter, rect):
             painter.drawPixmap(rect, pixmap)
 
-    def paint_title(self, painter, rect, db, book_id):
+    def paint_title(self, painter, rect, db, book_id, align_top: bool = False):
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         title, is_stars = self.render_field(db, book_id)
         if is_stars:
             painter.setFont(self.rating_font)
         metrics = painter.fontMetrics()
         painter.setPen(self.highlight_color)
-        painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextSingleLine,
-                            metrics.elidedText(title, Qt.TextElideMode.ElideRight, rect.width()))
+        text = metrics.elidedText(title, Qt.TextElideMode.ElideRight, rect.width())
+        align = Qt.TextFlag.TextSingleLine
+        if align_top:
+            align |= Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter
+        else:
+            align |= Qt.AlignmentFlag.AlignCenter
+        painter.drawText(rect, align, text)
 
     def paint_emblems(self, painter, rect, emblems):
         gutter = self.emblem_size + self.MARGIN
