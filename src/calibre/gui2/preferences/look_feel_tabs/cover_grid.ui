@@ -52,6 +52,13 @@
      <item row="5" column="1">
       <widget class="QComboBox" name="opt_field_under_covers_in_grid"/>
      </item>
+     <item row="8" column="0" colspan="2">
+      <widget class="QCheckBox" name="opt_cover_grid_text_flush_bottom">
+       <property name="text">
+        <string>Draw field text flush with the &amp;bottom of the rendered cover</string>
+       </property>
+      </widget>
+     </item>
      <item row="6" column="0">
       <widget class="QLabel" name="label_16">
        <property name="text">
@@ -320,6 +327,22 @@ A value of zero means calculate automatically.</string>
     <hint type="destinationlabel">
      <x>101</x>
      <y>51</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>opt_cover_grid_show_title</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_cover_grid_text_flush_bottom</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>86</x>
+     <y>49</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>101</x>
+     <y>75</y>
     </hint>
    </hints>
   </connection>
