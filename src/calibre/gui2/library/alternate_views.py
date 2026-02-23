@@ -617,11 +617,10 @@ class CoverDelegate(QStyledItemDelegate):
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
         self.original_flush_bottom = self.flush_bottom = gprefs['cover_grid_text_flush_bottom']
-        self.original_show_emblems = gprefs['show_emblems']
+        self.original_emblem_style = gprefs['emblem_style']
         self.orginal_emblem_size = gprefs['emblem_size']
         self.orginal_emblem_position = gprefs['emblem_position']
-        self.original_draw_emblems_on_cover = gprefs['draw_emblems_on_cover']
-        self.emblem_size = gprefs['emblem_size'] if self.original_show_emblems else 0
+        self.emblem_size = gprefs['emblem_size'] if self.original_emblem_style != 'none' else 0
         try:
             self.gutter_position = getattr(self, self.orginal_emblem_position.upper())
         except Exception:
@@ -645,7 +644,7 @@ class CoverDelegate(QStyledItemDelegate):
                 sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
             self.title_height = int(max(25, sz + 10))
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
-        if self.emblem_size > 0 and not self.original_draw_emblems_on_cover:
+        if self.emblem_size > 0 and self.original_emblem_style == 'gutter':
             extra = self.emblem_size + self.MARGIN
             self.item_size += QSize(extra, 0) if self.gutter_position in (self.LEFT, self.RIGHT) else QSize(0, extra)
         self.calculate_spacing()
@@ -737,7 +736,7 @@ class CoverDelegate(QStyledItemDelegate):
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
-            if self.emblem_size > 0 and not self.original_draw_emblems_on_cover:
+            if self.emblem_size > 0 and self.original_emblem_style == 'gutter':
                 self.paint_emblems(painter, rect, emblems)
             orect = QRect(rect)
             trect = QRect(rect)
@@ -768,7 +767,7 @@ class CoverDelegate(QStyledItemDelegate):
                         trect.setTop(rect.bottom() + 5)
                     self.paint_title(painter, trect, db, book_id, align_top=self.flush_bottom)
                 emblem_rect = QRect(rect)
-            if self.original_draw_emblems_on_cover and emblems:
+            if self.original_emblem_style == 'emboss' and emblems:
                 self.paint_emblems_on_cover(painter, emblem_rect, emblems)
                 return
             if self.emblem_size > 0:
@@ -1068,11 +1067,10 @@ class GridView(MomentumScrollMixin, QListView):
         )
         if (size_changed or gprefs[
             'cover_grid_show_title'] != self.delegate.original_show_title or gprefs[
-                'show_emblems'] != self.delegate.original_show_emblems or gprefs[
+                'emblem_style'] != self.delegate.original_emblem_style or gprefs[
                     'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
                         'emblem_position'] != self.delegate.orginal_emblem_position or gprefs[
-                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom or gprefs[
-                                'draw_emblems_on_cover'] != self.delegate.original_draw_emblems_on_cover):
+                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:

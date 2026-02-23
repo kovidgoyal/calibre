@@ -451,10 +451,9 @@ def create_defs():
     defs['cb_preserve_aspect_ratio'] = False
     defs['cb_double_click_to_activate'] = False
     defs['gpm_template_editor_font_size'] = 10
-    defs['show_emblems'] = False
     defs['emblem_size'] = 32
     defs['emblem_position'] = 'left'
-    defs['draw_emblems_on_cover'] = False
+    defs['emblem_style'] = 'none'
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True
@@ -551,6 +550,15 @@ def create_defs():
     migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
     migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
     migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
+
+    # Migrate show_emblems and draw_emblems_on_cover to emblem_style
+    show_emblems = gprefs.pop('show_emblems', None)
+    draw_emblems_on_cover = gprefs.pop('draw_emblems_on_cover', None)
+    if show_emblems is not None or draw_emblems_on_cover is not None:
+        if show_emblems:
+            gprefs['emblem_style'] = 'emboss' if draw_emblems_on_cover else 'gutter'
+        else:
+            gprefs['emblem_style'] = 'none'
 
 
 create_defs()

@@ -38,7 +38,10 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
-        r('draw_emblems_on_cover', gprefs)
+        r('emblem_style', gprefs, choices=[
+            (_('Do not show emblems'), 'none'),
+            (_('Show in a gutter next to the cover'), 'gutter'),
+            (_('Draw on the cover'), 'emboss')])
 
         fm = db.field_metadata
         choices = sorted((('{} ({})'.format(fm[k]['name'], k), k) for k in fm.displayable_field_keys() if fm[k]['name']),
