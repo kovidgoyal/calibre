@@ -61,7 +61,7 @@ from qt.core import (
 
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
-from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
@@ -744,7 +744,7 @@ class CoverDelegate(QStyledItemDelegate):
                 trect.setTop(trect.bottom() - self.title_height + 5)
             if cover.isNull():
                 title = db.field_for('title', book_id, default_value='')
-                authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
+                authors = authors_to_string(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
                 if self.title_height != 0:
