@@ -620,6 +620,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.original_show_emblems = gprefs['show_emblems']
         self.orginal_emblem_size = gprefs['emblem_size']
         self.orginal_emblem_position = gprefs['emblem_position']
+        self.original_draw_emblems_on_cover = gprefs['draw_emblems_on_cover']
         self.emblem_size = gprefs['emblem_size'] if self.original_show_emblems else 0
         try:
             self.gutter_position = getattr(self, self.orginal_emblem_position.upper())
@@ -644,7 +645,7 @@ class CoverDelegate(QStyledItemDelegate):
                 sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
             self.title_height = int(max(25, sz + 10))
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
-        if self.emblem_size > 0:
+        if self.emblem_size > 0 and not self.original_draw_emblems_on_cover:
             extra = self.emblem_size + self.MARGIN
             self.item_size += QSize(extra, 0) if self.gutter_position in (self.LEFT, self.RIGHT) else QSize(0, extra)
         self.calculate_spacing()
@@ -735,7 +736,7 @@ class CoverDelegate(QStyledItemDelegate):
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
-            if self.emblem_size > 0:
+            if self.emblem_size > 0 and not self.original_draw_emblems_on_cover:
                 self.paint_emblems(painter, rect, emblems)
             orect = QRect(rect)
             trect = QRect(rect)
@@ -760,6 +761,8 @@ class CoverDelegate(QStyledItemDelegate):
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
+                if self.original_draw_emblems_on_cover and emblems:
+                    self.paint_emblems_on_cover(painter, rect, emblems)
                 if self.title_height != 0:
                     if self.flush_bottom:
                         trect.setTop(rect.bottom() + 5)
@@ -828,6 +831,31 @@ class CoverDelegate(QStyledItemDelegate):
                 rect = QRect(grect)
                 rect.setWidth(int(emblem.width() / emblem.devicePixelRatio())), rect.setHeight(int(emblem.height() / emblem.devicePixelRatio()))
                 painter.drawPixmap(rect, emblem)
+        finally:
+            painter.restore()
+
+    def paint_emblems_on_cover(self, painter, rect, emblems):
+        esz = self.emblem_size
+        if not esz:
+            return
+        margin = self.MARGIN
+        # How many emblems fit vertically along one edge
+        max_per_edge = max(1, rect.height() // (esz + margin))
+        painter.save()
+        try:
+            for i, emblem in enumerate(emblems):
+                if i < max_per_edge:
+                    x = rect.left() + margin
+                    y = rect.top() + margin + i * (esz + margin)
+                else:
+                    j = i - max_per_edge
+                    if j >= max_per_edge:
+                        break
+                    x = rect.right() - esz - margin
+                    y = rect.top() + margin + j * (esz + margin)
+                ew = int(emblem.width() / emblem.devicePixelRatio())
+                eh = int(emblem.height() / emblem.devicePixelRatio())
+                painter.drawPixmap(QRect(x, y, ew, eh), emblem)
         finally:
             painter.restore()
 

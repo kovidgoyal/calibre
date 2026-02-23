@@ -454,6 +454,7 @@ def create_defs():
     defs['show_emblems'] = False
     defs['emblem_size'] = 32
     defs['emblem_position'] = 'left'
+    defs['draw_emblems_on_cover'] = False
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True
