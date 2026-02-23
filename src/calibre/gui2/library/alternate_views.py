@@ -733,6 +733,7 @@ class CoverDelegate(QStyledItemDelegate):
 
         painter.save()
         right_adjust = 0
+        emblem_rect = None
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
@@ -748,10 +749,9 @@ class CoverDelegate(QStyledItemDelegate):
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
-                if self.original_draw_emblems_on_cover and emblems:
-                    self.paint_emblems_on_cover(painter, rect, emblems)
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
+                emblem_rect = QRect(rect)
             else:
                 if self.animating is not None and self.animating.row() == index.row():
                     cover = cover.scaled(cover.size() * self._animated_size)
@@ -763,12 +763,14 @@ class CoverDelegate(QStyledItemDelegate):
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
-                if self.original_draw_emblems_on_cover and emblems:
-                    self.paint_emblems_on_cover(painter, rect, emblems)
                 if self.title_height != 0:
                     if self.flush_bottom:
                         trect.setTop(rect.bottom() + 5)
                     self.paint_title(painter, trect, db, book_id, align_top=self.flush_bottom)
+                emblem_rect = QRect(rect)
+            if self.original_draw_emblems_on_cover and emblems:
+                self.paint_emblems_on_cover(painter, emblem_rect, emblems)
+                return
             if self.emblem_size > 0:
                 # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
                 return
@@ -841,19 +843,28 @@ class CoverDelegate(QStyledItemDelegate):
         if not esz:
             return
         margin = self.MARGIN
-        # How many emblems fit vertically along one edge
-        max_per_edge = max(1, rect.height() // (esz + margin))
+        r = gprefs['cover_corner_radius']
+        if r > 0:
+            if gprefs['cover_corner_radius_unit'] == '%':
+                corner_inset = int(r / 100 * min(rect.width(), rect.height()))
+            else:
+                corner_inset = int(r)
+        else:
+            corner_inset = 0
+        available_height = rect.height() - corner_inset
+        max_per_edge = max(1, available_height // (esz + margin))
         with painter:
+            painter.setClipRect(rect)
             for i, emblem in enumerate(emblems):
                 if i < max_per_edge:
                     x = rect.left() + margin
-                    y = rect.top() + margin + i * (esz + margin)
+                    y = rect.top() + corner_inset + i * (esz + margin)
                 else:
                     j = i - max_per_edge
                     if j >= max_per_edge:
                         break
                     x = rect.right() - esz - margin
-                    y = rect.top() + margin + j * (esz + margin)
+                    y = rect.top() + corner_inset + j * (esz + margin)
                 ew = int(emblem.width() / emblem.devicePixelRatio())
                 eh = int(emblem.height() / emblem.devicePixelRatio())
                 painter.drawPixmap(QRect(x, y, ew, eh), emblem)
