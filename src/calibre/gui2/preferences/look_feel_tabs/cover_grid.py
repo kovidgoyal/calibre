@@ -34,6 +34,7 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         r('cover_grid_height', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)
+        r('cover_grid_text_flush_bottom', gprefs)
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])

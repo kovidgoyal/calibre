@@ -616,6 +616,7 @@ class CoverDelegate(QStyledItemDelegate):
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
+        self.original_flush_bottom = self.flush_bottom = gprefs['cover_grid_text_flush_bottom']
         self.original_show_emblems = gprefs['show_emblems']
         self.orginal_emblem_size = gprefs['emblem_size']
         self.orginal_emblem_position = gprefs['emblem_position']
@@ -760,6 +761,8 @@ class CoverDelegate(QStyledItemDelegate):
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
                 if self.title_height != 0:
+                    if self.flush_bottom:
+                        trect.setTop(rect.bottom() + 5)
                     self.paint_title(painter, trect, db, book_id)
             if self.emblem_size > 0:
                 # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
@@ -1024,7 +1027,8 @@ class GridView(MomentumScrollMixin, QListView):
             'cover_grid_show_title'] != self.delegate.original_show_title or gprefs[
                 'show_emblems'] != self.delegate.original_show_emblems or gprefs[
                     'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
-                        'emblem_position'] != self.delegate.orginal_emblem_position):
+                        'emblem_position'] != self.delegate.orginal_emblem_position or gprefs[
+                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:

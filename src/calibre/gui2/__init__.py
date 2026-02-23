@@ -441,6 +441,7 @@ def create_defs():
     defs['cover_grid_cache_size_multiple'] = 5
     defs['cover_grid_disk_cache_size'] = 2500
     defs['cover_grid_show_title'] = False
+    defs['cover_grid_text_flush_bottom'] = False
     defs['cover_corner_radius'] = 0
     defs['cover_corner_radius_unit'] = 'px'
     defs['show_vl_tabs'] = False
