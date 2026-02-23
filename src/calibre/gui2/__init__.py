@@ -71,6 +71,7 @@ from calibre.constants import (
     islinux,
     ismacos,
     iswindows,
+    isworker,
     isxp,
     numeric_version,
     plugins_loc,
@@ -1707,7 +1708,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     return str(text)
 
 
-if is_running_from_develop:
+if is_running_from_develop and not isworker:
     from calibre.build_forms import build_forms
     build_forms(os.path.abspath(os.environ['CALIBRE_DEVELOP_FROM']), check_for_migration=True)
 
