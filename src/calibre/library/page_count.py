@@ -222,7 +222,8 @@ class Server:
         with write_pipe:
             cmd = f'from calibre.library.page_count import worker_main; worker_main({write_pipe.fileno()})'
             from calibre.utils.ipc.simple_worker import start_pipe_worker
-            self.worker = start_pipe_worker(cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL)
+            self.worker = start_pipe_worker(
+                cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.tasks_run_by_worker = 0
 
     def shutdown_worker(self) -> None:
