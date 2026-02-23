@@ -732,7 +732,6 @@ class CoverDelegate(QStyledItemDelegate):
 
         painter.save()
         right_adjust = 0
-        emblem_rect = None
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
@@ -750,7 +749,6 @@ class CoverDelegate(QStyledItemDelegate):
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
-                emblem_rect = QRect(rect)
             else:
                 if self.animating is not None and self.animating.row() == index.row():
                     cover = cover.scaled(cover.size() * self._animated_size)
@@ -766,9 +764,8 @@ class CoverDelegate(QStyledItemDelegate):
                     if self.flush_bottom:
                         trect.setTop(rect.bottom() + 5)
                     self.paint_title(painter, trect, db, book_id, align_top=self.flush_bottom)
-                emblem_rect = QRect(rect)
             if self.original_emblem_style == 'emboss' and emblems:
-                self.paint_emblems_on_cover(painter, emblem_rect, emblems)
+                self.paint_emblems_on_cover(painter, rect, emblems)
                 return
             if self.emblem_size > 0:
                 # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
@@ -838,10 +835,8 @@ class CoverDelegate(QStyledItemDelegate):
             painter.restore()
 
     def paint_emblems_on_cover(self, painter, rect, emblems):
-        esz = self.emblem_size
-        if not esz:
+        if not (esz := self.emblem_size):
             return
-        margin = self.MARGIN
         r = gprefs['cover_corner_radius']
         if r > 0:
             if gprefs['cover_corner_radius_unit'] == '%':
@@ -850,23 +845,29 @@ class CoverDelegate(QStyledItemDelegate):
                 corner_inset = int(r)
         else:
             corner_inset = 0
-        available_height = rect.height() - corner_inset
-        max_per_edge = max(1, available_height // (esz + margin))
-        with painter:
+        margin = self.MARGIN
+        rect = rect.adjusted(corner_inset, corner_inset, -corner_inset, -corner_inset - margin)
+        available_height = rect.height()
+        sz_with_margin = esz + margin
+        max_per_edge = max(1, available_height // sz_with_margin)
+        painter.save()
+        try:
             painter.setClipRect(rect)
             for i, emblem in enumerate(emblems):
                 if i < max_per_edge:
-                    x = rect.left() + margin
-                    y = rect.top() + corner_inset + i * (esz + margin)
+                    x = rect.left()
+                    y = rect.top() + i * sz_with_margin
                 else:
                     j = i - max_per_edge
                     if j >= max_per_edge:
                         break
-                    x = rect.right() - esz - margin
-                    y = rect.top() + corner_inset + j * (esz + margin)
+                    x = rect.right() - esz
+                    y = rect.top() + j * sz_with_margin
                 ew = int(emblem.width() / emblem.devicePixelRatio())
                 eh = int(emblem.height() / emblem.devicePixelRatio())
                 painter.drawPixmap(QRect(x, y, ew, eh), emblem)
+        finally:
+            painter.restore()
 
     def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True):
         drect = QRect(orect)

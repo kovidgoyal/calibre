@@ -530,35 +530,31 @@ def create_defs():
         'light': {}, 'dark': {},
     }
 
-    # Migrate beta bookshelf_thumbnail
-    if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
-        gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
+    with gprefs:
+        # Migrate beta bookshelf_thumbnail
+        if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
+            gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
 
-    def migrate_tweak(tweak_name, pref_name):
-        # If the tweak has been changed then leave the tweak in the file so
-        # that the user can bounce between versions with and without the
-        # migration. For versions before the migration the tweak wins. For
-        # versions after the migration any changes win.
-        v = tweaks.get(tweak_name, None)
-        migrated_tweak_name = pref_name + '_tweak_migrated'
-        m = gprefs.get(migrated_tweak_name, None)
-        if m is None and v is not None:
-            gprefs[pref_name] = v
-            gprefs[migrated_tweak_name] = True
-    migrate_tweak('metadata_edit_elide_labels', 'edit_metadata_elide_labels')
-    migrate_tweak('metadata_edit_elision_point', 'edit_metadata_elision_point')
-    migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
-    migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
-    migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
+        def migrate_tweak(tweak_name, pref_name):
+            # If the tweak has been changed then leave the tweak in the file so
+            # that the user can bounce between versions with and without the
+            # migration. For versions before the migration the tweak wins. For
+            # versions after the migration any changes win.
+            v = tweaks.get(tweak_name, None)
+            migrated_tweak_name = pref_name + '_tweak_migrated'
+            m = gprefs.get(migrated_tweak_name, None)
+            if m is None and v is not None:
+                gprefs[pref_name] = v
+                gprefs[migrated_tweak_name] = True
+        migrate_tweak('metadata_edit_elide_labels', 'edit_metadata_elide_labels')
+        migrate_tweak('metadata_edit_elision_point', 'edit_metadata_elision_point')
+        migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
+        migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
+        migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
 
-    # Migrate show_emblems and draw_emblems_on_cover to emblem_style
-    show_emblems = gprefs.pop('show_emblems', None)
-    draw_emblems_on_cover = gprefs.pop('draw_emblems_on_cover', None)
-    if show_emblems is not None or draw_emblems_on_cover is not None:
-        if show_emblems:
-            gprefs['emblem_style'] = 'emboss' if draw_emblems_on_cover else 'gutter'
-        else:
-            gprefs['emblem_style'] = 'none'
+        if gprefs.get('show_emblems'):
+            gprefs['emblem_style'] = 'gutter'
+            gprefs.pop('show_emblems', None)
 
 
 create_defs()

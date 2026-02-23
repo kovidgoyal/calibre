@@ -1180,16 +1180,6 @@ class EditRules(QWidget):  # {{{
                     '<p>You can <b>change an existing rule</b> by double clicking it.')
         self.l1.setText('<p>'+ text)
         match pref_name:
-            case 'cover_grid_icon_rules':
-                self.enabled.setVisible(True)
-                self.enabled.setChecked(gprefs['show_emblems'])
-                self.enabled.setText(_('Show &emblems next to the covers'))
-                self.enabled.stateChanged.connect(self.enabled_toggled)
-                self.enabled.setToolTip(_(
-                    'If checked, you can tell calibre to display icons of your choosing'
-                    ' next to the covers shown in the Cover grid, controlled by the'
-                    ' metadata of the book.'))
-                self.enabled_toggled()
             case 'bookshelf_icon_rules':
                 self.choices_label.setVisible(True)
                 self.choices.setVisible(True)
