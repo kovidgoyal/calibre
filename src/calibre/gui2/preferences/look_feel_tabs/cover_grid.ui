@@ -279,7 +279,7 @@ A value of zero means calculate automatically.</string>
     <item row="6" column="0" colspan="2">
      <widget class="QCheckBox" name="opt_cover_grid_text_flush_bottom">
       <property name="toolTip">
-       <string>&lt;p&gt;By default, the text is drawn at the bottom of the cell, leaving a gap between text and cover when the cover is small or has a wide aspect ratio. This option instead causes the text to be drawn flush witht he bottom of the cover.</string>
+       <string>&lt;p&gt;By default, the text is drawn at the bottom of the cell, leaving a gap between text and cover when the cover is small or has a wide aspect ratio. This option instead causes the text to be drawn flush with the bottom of the cover.</string>
       </property>
       <property name="text">
        <string>Draw text flush with the &amp;bottom of the rendered cover</string>
