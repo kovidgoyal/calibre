@@ -748,6 +748,8 @@ class CoverDelegate(QStyledItemDelegate):
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
+                if self.original_draw_emblems_on_cover and emblems:
+                    self.paint_emblems_on_cover(painter, rect, emblems)
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
             else:
@@ -841,8 +843,7 @@ class CoverDelegate(QStyledItemDelegate):
         margin = self.MARGIN
         # How many emblems fit vertically along one edge
         max_per_edge = max(1, rect.height() // (esz + margin))
-        painter.save()
-        try:
+        with painter:
             for i, emblem in enumerate(emblems):
                 if i < max_per_edge:
                     x = rect.left() + margin
@@ -856,8 +857,6 @@ class CoverDelegate(QStyledItemDelegate):
                 ew = int(emblem.width() / emblem.devicePixelRatio())
                 eh = int(emblem.height() / emblem.devicePixelRatio())
                 painter.drawPixmap(QRect(x, y, ew, eh), emblem)
-        finally:
-            painter.restore()
 
     def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True):
         drect = QRect(orect)
@@ -1061,7 +1060,8 @@ class GridView(MomentumScrollMixin, QListView):
                 'show_emblems'] != self.delegate.original_show_emblems or gprefs[
                     'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
                         'emblem_position'] != self.delegate.orginal_emblem_position or gprefs[
-                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom):
+                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom or gprefs[
+                                'draw_emblems_on_cover'] != self.delegate.original_draw_emblems_on_cover):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:
