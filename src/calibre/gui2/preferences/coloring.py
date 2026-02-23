@@ -1163,7 +1163,8 @@ class EditRules(QWidget):  # {{{
     def restore_defaults(self):
         match self.pref_name:
             case 'cover_grid_icon_rules':
-                self.enabled.setChecked(gprefs.defaults['show_emblems'])
+                idx = self.choices.findData(gprefs.defaults['emblem_style'])
+                self.choices.setCurrentIndex(max(0, idx))
             case 'bookshelf_icon_rules':
                 idx = self.choices.findData(gprefs.defaults['bookshelf_emblem_position'])
                 self.choices.setCurrentIndex(max(0, idx))
@@ -1180,9 +1181,15 @@ class EditRules(QWidget):  # {{{
                     '<p>You can <b>change an existing rule</b> by double clicking it.')
         self.l1.setText('<p>'+ text)
         match pref_name:
+            case 'cover_grid_icon_rules':
+                self.choices_label.setText(_('Emblem &style:'))
+                choice_map = (
+                    (_('No emblems'), 'none'),
+                    (_('Show next to cover'), 'gutter'),
+                    (_('Show on top of cover'), 'emboss')
+                )
+                pref_key = 'emblem_style'
             case 'bookshelf_icon_rules':
-                self.choices_label.setVisible(True)
-                self.choices.setVisible(True)
                 self.choices_label.setText(_('&Position of the emblem:'))
                 self.choices.setToolTip(_(
                     '<p>Display an icon of your choosing on the book spine in Bookshelf view.'
@@ -1196,11 +1203,18 @@ class EditRules(QWidget):  # {{{
                     (_('Top of the spine'), 'top'),
                     (_('Bottom of the spine'), 'bottom'),
                 )
-                for idx, (text, data) in enumerate(choice_map):
-                    self.choices.addItem(text, data)
-                    if data == gprefs['bookshelf_emblem_position']:
-                        self.choices.setCurrentIndex(idx)
-                self.choices.currentIndexChanged.connect(self.changed)
+                pref_key = 'bookshelf_emblem_position'
+            case _:
+                choice_map = None
+                pref_key = None
+        if choice_map:
+            self.choices_label.setVisible(True)
+            self.choices.setVisible(True)
+            for idx, (text, data) in enumerate(choice_map):
+                self.choices.addItem(text, data)
+                if data == gprefs[pref_key]:
+                    self.choices.setCurrentIndex(idx)
+            self.choices.currentIndexChanged.connect(self.changed)
 
     def enabled_toggled(self):
         enabled = self.enabled.isChecked()
@@ -1350,7 +1364,8 @@ class EditRules(QWidget):  # {{{
         self.model.commit(prefs)
         match self.pref_name:
             case 'cover_grid_icon_rules':
-                gprefs['show_emblems'] = self.enabled.isChecked()
+                idx = max(0, self.choices.currentIndex())
+                gprefs['emblem_style'] = self.choices.itemData(idx)
             case 'bookshelf_icon_rules':
                 idx = max(0, self.choices.currentIndex())
                 gprefs['bookshelf_emblem_position'] = self.choices.itemData(idx)

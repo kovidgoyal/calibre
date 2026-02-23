@@ -288,45 +288,10 @@ A value of zero means calculate automatically.</string>
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="tab_emblems">
+  <widget class="EditRulesWidget" name="opt_cover_grid_icon_rules">
    <attribute name="title">
     <string>&amp;Emblems</string>
    </attribute>
-   <layout class="QVBoxLayout" name="verticalLayout_emblems">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_emblems">
-      <item>
-       <widget class="QLabel" name="label_emblem_style">
-        <property name="text">
-         <string>Emblem &amp;style:</string>
-        </property>
-        <property name="buddy">
-         <cstring>opt_emblem_style</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="opt_emblem_style"/>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_emblems">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="EditRulesWidget" name="opt_cover_grid_icon_rules"/>
-    </item>
-   </layout>
   </widget>
   <widget class="CoverCacheConfig" name="config_cache">
    <attribute name="title">
