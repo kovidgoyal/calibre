@@ -56,6 +56,7 @@ from qt.core import (
     QWidget,
     pyqtSignal,
 )
+from qt.webengine import QWebEngineView
 
 from calibre import fit_image, human_readable
 from calibre.constants import DEBUG
@@ -64,7 +65,6 @@ from calibre.gui2 import choose_save_file, error_dialog, open_url, question_dial
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
-from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.utils.icu import numeric_sort_key, primary_contains
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, ngettext
 from calibre.utils.unicode_names import character_name_from_code
@@ -637,7 +637,7 @@ class LinksModel(FileCollection):
                 pass
 
 
-class WebView(RestartingWebEngineView):
+class WebView(QWebEngineView):
 
     def sizeHint(self):
         return QSize(600, 200)

@@ -182,7 +182,6 @@ class Boss(QObject):
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
         self.gui.preview.link_clicked.connect(self.link_clicked)
-        self.gui.preview.render_process_restarted.connect(self.report_render_process_restart)
         self.gui.preview.open_file_with.connect(self.open_file_with)
         self.gui.preview.edit_file.connect(self.edit_file_requested)
         self.gui.check_book.item_activated.connect(self.check_item_activated)
@@ -209,9 +208,6 @@ class Boss(QObject):
         self.gui.reports.edit_requested.connect(self.reports_edit_requested)
         self.gui.reports.refresh_starting.connect(self.commit_all_editors_to_container)
         self.gui.reports.delete_requested.connect(self.delete_requested)
-
-    def report_render_process_restart(self):
-        self.gui.show_status_message(_('The Qt WebEngine Render process crashed and has been restarted'))
 
     @property
     def currently_editing(self):

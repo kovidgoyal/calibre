@@ -44,7 +44,6 @@ from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
 from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
-from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import _, localize_user_manual_link
@@ -465,7 +464,7 @@ def system_colors():
     return ans
 
 
-class WebView(RestartingWebEngineView):
+class WebView(QWebEngineView):
 
     cfi_changed = pyqtSignal(object)
     reload_book = pyqtSignal()
@@ -512,13 +511,13 @@ class WebView(RestartingWebEngineView):
         self.callback_id_counter = count()
         self.callback_map = {}
         self.current_cfi = self.current_content_file = None
-        RestartingWebEngineView.__init__(self, parent)
+        super().__init__(parent)
         self.tts = TTS(self)
         self.tts.settings_changed.connect(self.tts_settings_changed)
         self.tts.event_received.connect(self.tts_event_received)
         self.tts.configured.connect(self.redraw_tts_bar)
         self.dead_renderer_error_shown = False
-        self.render_process_failed.connect(self.render_process_died)
+        self.renderProcessTerminated.connect(self.render_process_died)
         w = self.screen().availableSize().width()
         QApplication.instance().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True

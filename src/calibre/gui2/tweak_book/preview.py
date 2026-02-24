@@ -49,7 +49,6 @@ from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
 from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
-from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
 from calibre.utils.resources import get_path as P
@@ -414,10 +413,10 @@ class Inspector(QWidget):
         return QSize(1280, 600)
 
 
-class WebView(RestartingWebEngineView, OpenWithHandler):
+class WebView(QWebEngineView, OpenWithHandler):
 
     def __init__(self, parent=None):
-        RestartingWebEngineView.__init__(self, parent)
+        super().__init__(parent)
         self.inspector = Inspector(self)
         w = self.screen().availableSize().width()
         self._size_hint = QSize(int(w/3), int(w/2))
@@ -426,7 +425,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         self.clear()
         self.setAcceptDrops(False)
         self.dead_renderer_error_shown = False
-        self.render_process_failed.connect(self.render_process_died)
+        self.renderProcessTerminated.connect(self.render_process_died)
 
     def render_process_died(self):
         if self.dead_renderer_error_shown:
@@ -452,7 +451,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
 
     def set_url(self, qurl):
         self.update_settings()
-        RestartingWebEngineView.setUrl(self, qurl)
+        super().setUrl(qurl)
 
     def clear(self):
         self.update_settings()
@@ -518,7 +517,6 @@ class Preview(QWidget):
     refresh_starting = pyqtSignal()
     refreshed = pyqtSignal()
     live_css_data = pyqtSignal(object)
-    render_process_restarted = pyqtSignal()
     open_file_with = pyqtSignal(object, object, object)
     edit_file = pyqtSignal(object)
 
@@ -537,7 +535,6 @@ class Preview(QWidget):
         self.view._page.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.view._page.loadFinished.connect(self.load_finished)
         self.view._page.loadStarted.connect(self.load_started)
-        self.view.render_process_restarted.connect(self.render_process_restarted)
         self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
         self.stack.addWidget(self.view)
