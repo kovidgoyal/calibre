@@ -170,7 +170,10 @@ are two ways to do that:
       Content server, to allow any program, including calibredb, running on
       the local computer to make changes to your calibre data. When running
       the server from the main calibre program, this option is in
-      :guilabel:`Preferences->Sharing over the net->Advanced`.
+      :guilabel:`Preferences->Sharing over the net->Advanced`. Be careful though,
+      because some browsers, primarily Firefox, allow arbitrary websites to also
+      access local servers. If you use Firefox, it is better to setup username
+      and password, as described below.
 
     * If you want to enable access over the internet, then you should setup
       user accounts on the server and use the :option:`--username` and :option:`--password`
