@@ -52,6 +52,7 @@ class WiredDailyNews(BasicNewsRecipe):
         dict(name=['meta', 'link']),
         dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
     ]
+    remove_attributes = ['srcset']
 
     def parse_wired_index_page(self, currenturl, seen):
         self.log('Parsing index page', currenturl)
