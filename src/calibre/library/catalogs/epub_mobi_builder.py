@@ -18,7 +18,7 @@ from calibre import as_unicode, force_unicode, isbytestring, prepare_string_for_
 from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag, prettify
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, InvalidGenresSourceFieldException
@@ -2653,7 +2653,16 @@ class CatalogBuilder:
             for k, v in args.items():
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
-            generated_html = P('catalog/template.xhtml', data=True).decode('utf-8').format(**args)
+                elif isinstance(v, Tag):
+                    args[k] = str(v)
+            generated_html = P('catalog/template.xhtml', data=True).decode('utf-8')
+            ## unsafe_format used to raise exceptions matching prior
+            ## behavior
+            generated_html = self.formatter.unsafe_format(
+                generated_html,
+                args,
+                # _('Catalog template error:'), # for safe_format()
+                self.db.new_api.get_proxy_metadata(book['id']))
             generated_html = xml_replace_entities(generated_html)
             return BeautifulSoup(generated_html)
 
