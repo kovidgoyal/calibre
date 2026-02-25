@@ -1561,7 +1561,8 @@ class CatalogBuilder:
                 # aTag.insert(0,'%s%s' % (escape(book['title']), pubyear))
                 formatted_title = self.formatter.safe_format(
                                  self.by_authors_normal_title_template, args,
-                                 _('error in') + ' by_authors_normal_title_template:', self.db.new_api.get_proxy_metadata(book['id']))
+                                 _('error in') + ' by_authors_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                 non_series_books += 1
             aTag.insert(0, NavigableString(formatted_title))
 
@@ -1706,12 +1707,12 @@ class CatalogBuilder:
                         formatted_title = self.formatter.safe_format(
                                  self.by_month_added_series_title_template, args,
                                  _('error in') + ' by_month_added_series_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     else:
                         formatted_title = self.formatter.safe_format(
                                  self.by_month_added_normal_title_template, args,
                                  _('error in') + ' by_month_added_normal_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                         non_series_books += 1
                     aTag.insert(0, NavigableString(formatted_title))
                     spanTag.insert(stc, aTag)
@@ -1758,12 +1759,12 @@ class CatalogBuilder:
                         formatted_title = self.formatter.safe_format(
                                  self.by_recently_added_series_title_template, args,
                                  _('error in') + ' by_recently_added_series_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     else:
                         formatted_title = self.formatter.safe_format(
                                  self.by_recently_added_normal_title_template, args,
                                  _('error in') + ' by_recently_added_normal_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     aTag.insert(0, NavigableString(formatted_title))
                     spanTag.insert(stc, aTag)
                     stc += 1
