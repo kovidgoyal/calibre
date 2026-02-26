@@ -25,7 +25,7 @@ from read_book.highlights import create_highlights_panel
 from read_book.profiles import create_profiles_panel
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
-from read_book.prefs.head_foot import time_formatter
+from read_book.prefs.head_foot import time_formatter, format_time_left
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
@@ -293,6 +293,9 @@ class MainOverlay:  # {{{
             _('Highlights'), _('Browse all highlights'), def():
                 self.overlay.show_highlights()
             , 'image')
+        reading_stats_action = ac(_('Reading stats'), _('Show reading statistics for this book'), def():
+            self.overlay.show_reading_stats()
+        , 'hourglass')
 
         toc_actions = E.ul(ac(_('Table of Contents'), _('Browse the Table of Contents'), self.overlay.show_toc, 'toc'))
         toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, 'reference-mode'))
@@ -309,7 +312,7 @@ class MainOverlay:  # {{{
 
             toc_actions,
 
-            E.ul(highlights_action, bookmarks_action),
+            E.ul(highlights_action, bookmarks_action, reading_stats_action),
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
@@ -611,6 +614,167 @@ class OpenBook: # {{{
 # }}}
 
 
+class ReadingStatsOverlay:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click
+
+    def show(self, container):
+        simple_overlay_title(_('Reading statistics'), self.overlay, container)
+        view = self.overlay.view
+        book = view.book
+        if not book or not book.manifest:
+            container.appendChild(E.div(_('No book open'), style='padding: 1ex 1em'))
+            return
+
+        spine = book.manifest.spine
+        current_name = view.currently_showing.name
+        current_idx = spine.indexOf(current_name)
+        file_progress = view.current_file_progress_frac
+        chapter_length = book.manifest.files[current_name]?.length or 0
+        remaining_chars = chapter_length * max(0, 1 - file_progress)
+        chapter_remaining_time = view.timers.time_for(remaining_chars)
+        chapter_done_pct = Math.round(file_progress * 100)
+        total_chapters = spine.length
+
+        next_idx = current_idx + 1
+        next_name = spine[next_idx] if next_idx < spine.length else None
+        next_chapter_time = None
+        if next_name:
+            next_length = book.manifest.files[next_name]?.length or 0
+            next_chapter_time = view.timers.time_for(next_length)
+
+        content = E.div(style='padding: 1ex 1em')
+        if current_idx >= 0:
+            content.appendChild(E.p(
+                _('Chapter {current} of {total}: {pct}% complete').format(
+                    current=current_idx + 1, total=total_chapters, pct=chapter_done_pct),
+                style='margin: 0.5ex 0; font-weight: bold'))
+
+        if chapter_remaining_time is not None:
+            content.appendChild(E.p(
+                _('Time remaining in chapter: {}').format(format_time_left(chapter_remaining_time)),
+                style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(
+                _('Time remaining in chapter: {}').format(_('Calculating…')),
+                style='margin: 0.5ex 0'))
+
+        if next_name:
+            if next_chapter_time is not None:
+                content.appendChild(E.p(
+                    _('Estimated time for next chapter: {}').format(format_time_left(next_chapter_time)),
+                    style='margin: 0.5ex 0'))
+            else:
+                content.appendChild(E.p(
+                    _('Estimated time for next chapter: {}').format(_('Calculating…')),
+                    style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(_('This is the last chapter'), style='margin: 0.5ex 0'))
+
+        container.appendChild(content)
+
+        # Build bar graph of chapter reading times
+        chapter_times = view.timers.chapter_times
+        bar_data = v'[]'
+        max_time = 0
+        for i in range(spine.length):
+            name = spine[i]
+            length = book.manifest.files[name]?.length or 0
+            is_current = i == current_idx
+            if is_current:
+                actual_t = chapter_times[name] or 0
+                rem = view.timers.time_for(remaining_chars)
+                t = actual_t + rem if rem is not None else view.timers.time_for(length)
+                is_actual = actual_t > 0
+            elif i < current_idx:
+                actual_t = chapter_times[name]
+                if actual_t and actual_t > 0:
+                    t = actual_t
+                    is_actual = True
+                else:
+                    t = view.timers.time_for(length)
+                    is_actual = False
+            else:
+                t = view.timers.time_for(length)
+                is_actual = False
+            if t is not None and t > 0:
+                max_time = Math.max(max_time, t)
+            bar_data.push({'t': t, 'is_actual': is_actual, 'is_current': is_current, 'past': i < current_idx})
+
+        BAR_H = 120
+        BAR_W = 22
+        BAR_GAP = 3
+        COLOR_ACTUAL = '#27ae60'
+        COLOR_CURRENT = '#e67e22'
+        COLOR_ESTIMATED = '#7fb3d3'
+        COLOR_PAST_EST = '#95a5a6'
+
+        graph_section = E.div(style='padding: 0 1em 1em 1em')
+        graph_section.appendChild(E.div(
+            _('Chapter reading times'),
+            style='font-size: smaller; font-weight: bold; margin-bottom: 0.5ex'))
+
+        if max_time > 0:
+            bars_row = E.div(
+                style=f'display: flex; align-items: flex-end; overflow-x: auto; '
+                    f'border-bottom: 1px solid currentColor; min-height: {BAR_H + 4}px; padding-top: 4px')
+            for i in range(bar_data.length):
+                bd = bar_data[i]
+                t = bd.t
+                if t is not None and t > 0:
+                    h = max(2, Math.round(t / max_time * BAR_H))
+                else:
+                    h = 2
+                if bd.is_current:
+                    color = COLOR_CURRENT
+                elif bd.is_actual:
+                    color = COLOR_ACTUAL
+                elif bd.past:
+                    color = COLOR_PAST_EST
+                else:
+                    color = COLOR_ESTIMATED
+                outline = 'outline: 2px solid currentColor; outline-offset: 1px; ' if bd.is_current else ''
+                label = str(i + 1)
+                tip = _('Chapter {}').format(i + 1)
+                if t and t > 0:
+                    tip += ': ' + format_time_left(t)
+                elif bd.is_current or bd.past:
+                    tip += ' (' + _('no data') + ')'
+                else:
+                    tip += ' (' + _('Calculating…') + ')'
+                bar = E.div(
+                    style=f'display: inline-flex; flex-direction: column; align-items: center; '
+                        f'width: {BAR_W}px; flex-shrink: 0; margin-right: {BAR_GAP}px; cursor: default',
+                    title=tip,
+                    E.div(style=f'width: {BAR_W}px; height: {h}px; background-color: {color}; {outline}'),
+                    E.div(label, style=f'font-size: 9px; text-align: center; width: {BAR_W}px; margin-top: 2px; overflow: hidden')
+                )
+                bars_row.appendChild(bar)
+            graph_section.appendChild(bars_row)
+            if current_idx >= 0:
+                scroll_offset = max(0, current_idx * (BAR_W + BAR_GAP) - 80)
+                def do_scroll():
+                    bars_row.scrollLeft = scroll_offset
+                window.setTimeout(do_scroll, 0)
+        else:
+            graph_section.appendChild(E.div(
+                _('Start reading to see chapter time statistics'),
+                style='color: {}; font-style: italic'.format(get_color('faded-text'))))
+
+        legend = E.div(
+            style='display: flex; gap: 1em; margin-top: 0.5ex; font-size: smaller; flex-wrap: wrap',
+            E.span(E.span('■ ', style=f'color: {COLOR_ACTUAL}'), _('Actual time')),
+            E.span(E.span('■ ', style=f'color: {COLOR_CURRENT}'), _('Current chapter')),
+            E.span(E.span('■ ', style=f'color: {COLOR_ESTIMATED}'), _('Estimated')),
+        )
+        graph_section.appendChild(legend)
+        container.appendChild(graph_section)
+# }}}
+
 
 class Overlay:
 
@@ -867,6 +1031,11 @@ class Overlay:
     def show_search(self):
         self.hide()
         self.view.show_search()
+
+    def show_reading_stats(self):
+        self.hide_current_panel()
+        self.panels.push(ReadingStatsOverlay(self))
+        self.show_current_panel()
 
     def show_prefs(self):
         self.hide_current_panel()
