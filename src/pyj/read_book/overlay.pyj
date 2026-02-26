@@ -647,6 +647,11 @@ class ReadingStatsOverlay:  # {{{
             next_length = book.manifest.files[next_name]?.length or 0
             next_chapter_time = view.timers.time_for(next_length)
 
+        book_remaining_chars = remaining_chars
+        for spine_idx in range(next_idx, spine.length):
+            book_remaining_chars += book.manifest.files[spine[spine_idx]]?.length or 0
+        book_remaining_time = view.timers.time_for(book_remaining_chars)
+
         content = E.div(style='padding: 1ex 1em')
         if current_idx >= 0:
             content.appendChild(E.p(
@@ -661,6 +666,15 @@ class ReadingStatsOverlay:  # {{{
         else:
             content.appendChild(E.p(
                 _('Time remaining in chapter: {}').format(_('Calculating…')),
+                style='margin: 0.5ex 0'))
+
+        if book_remaining_time is not None:
+            content.appendChild(E.p(
+                _('Estimated time remaining in book: {}').format(format_time_left(book_remaining_time)),
+                style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(
+                _('Estimated time remaining in book: {}').format(_('Calculating…')),
                 style='margin: 0.5ex 0'))
 
         if next_name:
@@ -720,8 +734,8 @@ class ReadingStatsOverlay:  # {{{
 
         if max_time > 0:
             bars_row = E.div(
-                style=f'display: flex; align-items: flex-end; overflow-x: auto; '
-                    f'border-bottom: 1px solid currentColor; min-height: {BAR_H + 4}px; padding-top: 4px')
+                style='display: flex; align-items: flex-end; overflow-x: auto; '
+                    + f'border-bottom: 1px solid currentColor; min-height: {BAR_H + 4}px; padding-top: 4px')
             for i in range(bar_data.length):
                 bd = bar_data[i]
                 t = bd.t
@@ -747,8 +761,8 @@ class ReadingStatsOverlay:  # {{{
                 else:
                     tip += ' (' + _('Calculating…') + ')'
                 bar = E.div(
-                    style=f'display: inline-flex; flex-direction: column; align-items: center; '
-                        f'width: {BAR_W}px; flex-shrink: 0; margin-right: {BAR_GAP}px; cursor: default',
+                    style='display: inline-flex; flex-direction: column; align-items: center; '
+                        + f'width: {BAR_W}px; flex-shrink: 0; margin-right: {BAR_GAP}px; cursor: default',
                     title=tip,
                     E.div(style=f'width: {BAR_W}px; height: {h}px; background-color: {color}; {outline}'),
                     E.div(label, style=f'font-size: 9px; text-align: center; width: {BAR_W}px; margin-top: 2px; overflow: hidden')
@@ -770,6 +784,7 @@ class ReadingStatsOverlay:  # {{{
             E.span(E.span('■ ', style=f'color: {COLOR_ACTUAL}'), _('Actual time')),
             E.span(E.span('■ ', style=f'color: {COLOR_CURRENT}'), _('Current chapter')),
             E.span(E.span('■ ', style=f'color: {COLOR_ESTIMATED}'), _('Estimated')),
+            E.span(E.span('■ ', style=f'color: {COLOR_PAST_EST}'), _('Previous (estimated)')),
         )
         graph_section.appendChild(legend)
         container.appendChild(graph_section)
