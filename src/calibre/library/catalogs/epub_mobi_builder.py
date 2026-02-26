@@ -18,7 +18,7 @@ from calibre import as_unicode, force_unicode, isbytestring, prepare_string_for_
 from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, prettify
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, Tag, prettify
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
 from calibre.library.catalogs import AuthorSortMismatchException, EmptyCatalogException, InvalidGenresSourceFieldException
@@ -1561,7 +1561,8 @@ class CatalogBuilder:
                 # aTag.insert(0,'%s%s' % (escape(book['title']), pubyear))
                 formatted_title = self.formatter.safe_format(
                                  self.by_authors_normal_title_template, args,
-                                 _('error in') + ' by_authors_normal_title_template:', self.db.new_api.get_proxy_metadata(book['id']))
+                                 _('error in') + ' by_authors_normal_title_template:',
+                                 self.db.new_api.get_proxy_metadata(book['id']))
                 non_series_books += 1
             aTag.insert(0, NavigableString(formatted_title))
 
@@ -1706,12 +1707,12 @@ class CatalogBuilder:
                         formatted_title = self.formatter.safe_format(
                                  self.by_month_added_series_title_template, args,
                                  _('error in') + ' by_month_added_series_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     else:
                         formatted_title = self.formatter.safe_format(
                                  self.by_month_added_normal_title_template, args,
                                  _('error in') + ' by_month_added_normal_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                         non_series_books += 1
                     aTag.insert(0, NavigableString(formatted_title))
                     spanTag.insert(stc, aTag)
@@ -1758,12 +1759,12 @@ class CatalogBuilder:
                         formatted_title = self.formatter.safe_format(
                                  self.by_recently_added_series_title_template, args,
                                  _('error in') + ' by_recently_added_series_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     else:
                         formatted_title = self.formatter.safe_format(
                                  self.by_recently_added_normal_title_template, args,
                                  _('error in') + ' by_recently_added_normal_title_template:',
-                                 self.db.new_api.get_proxy_metadata(book['id']))
+                                 self.db.new_api.get_proxy_metadata(new_entry['id']))
                     aTag.insert(0, NavigableString(formatted_title))
                     spanTag.insert(stc, aTag)
                     stc += 1
@@ -2652,7 +2653,16 @@ class CatalogBuilder:
             for k, v in args.items():
                 if isbytestring(v):
                     args[k] = v.decode('utf-8')
-            generated_html = P('catalog/template.xhtml', data=True).decode('utf-8').format(**args)
+                elif isinstance(v, Tag):
+                    args[k] = str(v)
+            generated_html = P('catalog/template.xhtml', data=True).decode('utf-8')
+            ## unsafe_format used to raise exceptions matching prior
+            ## behavior
+            generated_html = self.formatter.unsafe_format(
+                generated_html,
+                args,
+                # _('Catalog template error:'), # for safe_format()
+                self.db.new_api.get_proxy_metadata(book['id']))
             generated_html = xml_replace_entities(generated_html)
             return BeautifulSoup(generated_html)
 
