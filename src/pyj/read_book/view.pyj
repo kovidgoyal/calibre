@@ -1076,6 +1076,7 @@ class View:
             'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
             'loading':True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
         }
+        self.timers.set_chapter(name)
         self.show_loading()
         set_current_spine_item(name)
         if idx > -1:
