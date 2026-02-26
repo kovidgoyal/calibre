@@ -2656,12 +2656,10 @@ class CatalogBuilder:
                 elif isinstance(v, Tag):
                     args[k] = str(v)
             generated_html = P('catalog/template.xhtml', data=True).decode('utf-8')
-            ## unsafe_format used to raise exceptions matching prior
-            ## behavior
-            generated_html = self.formatter.unsafe_format(
+            generated_html = self.formatter.safe_format(
                 generated_html,
                 args,
-                # _('Catalog template error:'), # for safe_format()
+                _('Catalog template error:'),
                 self.db.new_api.get_proxy_metadata(book['id']))
             generated_html = xml_replace_entities(generated_html)
             return BeautifulSoup(generated_html)
