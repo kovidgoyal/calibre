@@ -670,21 +670,21 @@ class ReadingStatsOverlay:  # {{{
 
         if book_remaining_time is not None:
             content.appendChild(E.p(
-                _('Estimated time remaining in book: {}').format(format_time_left(book_remaining_time)),
+                _('Time remaining in book: {}').format(format_time_left(book_remaining_time)),
                 style='margin: 0.5ex 0'))
         else:
             content.appendChild(E.p(
-                _('Estimated time remaining in book: {}').format(_('Calculating…')),
+                _('Time remaining in book: {}').format(_('Calculating…')),
                 style='margin: 0.5ex 0'))
 
         if next_name:
             if next_chapter_time is not None:
                 content.appendChild(E.p(
-                    _('Estimated time for next chapter: {}').format(format_time_left(next_chapter_time)),
+                    _('Time to read next chapter: {}').format(format_time_left(next_chapter_time)),
                     style='margin: 0.5ex 0'))
             else:
                 content.appendChild(E.p(
-                    _('Estimated time for next chapter: {}').format(_('Calculating…')),
+                    _('Time to read next chapter: {}').format(_('Calculating…')),
                     style='margin: 0.5ex 0'))
         else:
             content.appendChild(E.p(_('This is the last chapter'), style='margin: 0.5ex 0'))
@@ -771,9 +771,7 @@ class ReadingStatsOverlay:  # {{{
             graph_section.appendChild(bars_row)
             if current_idx >= 0:
                 scroll_offset = max(0, current_idx * (BAR_W + BAR_GAP) - 80)
-                def do_scroll():
-                    bars_row.scrollLeft = scroll_offset
-                window.setTimeout(do_scroll, 0)
+                window.setTimeout(def(): bars_row.scrollLeft = scroll_offset;, 0)
         else:
             graph_section.appendChild(E.div(
                 _('Start reading to see chapter time statistics'),
