@@ -786,6 +786,11 @@ class ReadingStatsOverlay:  # {{{
         )
         graph_section.appendChild(legend)
         container.appendChild(graph_section)
+        container.appendChild(E.div(_(
+            'For reading stats, a "chapter" is a single internal file inside the larger book. If you'
+            ' see very few "chapters" above, then try converting your book to EPUB in calibre, that'
+            ' will often automatically split up the book into per chapter files.'),
+            style='padding: 0 1em 1em 1em; font-size: smaller'))
 # }}}
 
 
