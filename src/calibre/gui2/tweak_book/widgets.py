@@ -121,7 +121,10 @@ class ManageTagList(Dialog):  # {{{
 
     def __init__(self, parent=None):
         self._entries = list(tprefs['insert_tag_mru'])
-        Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-list', parent=parent)
+        Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
+
+    def sizeHint(self):
+        return QSize(400, 500)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -132,15 +135,15 @@ class ManageTagList(Dialog):  # {{{
         l.addWidget(t)
 
         bh = QHBoxLayout()
-        self.add_button = ab = QPushButton(_('&Add'))
+        self.add_button = ab = QPushButton(QIcon.ic('plus.png'), _('&Add'))
         ab.clicked.connect(self._add_entry)
         bh.addWidget(ab)
 
-        self.edit_button = eb = QPushButton(_('&Edit'))
+        self.edit_button = eb = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
         eb.clicked.connect(self._edit_entry)
         bh.addWidget(eb)
 
-        self.remove_button = rb = QPushButton(_('&Remove'))
+        self.remove_button = rb = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
         rb.clicked.connect(self._remove_entry)
         bh.addWidget(rb)
 
@@ -229,7 +232,7 @@ class ManageTagList(Dialog):  # {{{
 
     def accept(self):
         tprefs['insert_tag_mru'] = self._entries
-        Dialog.accept(self)
+        super().accept()
 
 # }}}
 
