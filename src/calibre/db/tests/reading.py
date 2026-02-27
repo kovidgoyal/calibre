@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import datetime
 import os
+import unittest
 from io import BytesIO
 from time import time
 
@@ -909,6 +910,7 @@ class ReadingTest(BaseTest):
         self.assertEqual(set(v.split(',')), {'4', '6'})
     # }}}
 
+    @unittest.skipIf(os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1', 'Python templates disallowed')
     def test_python_templates(self):  # {{{
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
