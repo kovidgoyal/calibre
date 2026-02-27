@@ -622,6 +622,25 @@ class ReadingStatsOverlay:  # {{{
     def on_container_click(self, evt):
         pass  # Don't allow panel to be closed by a click
 
+    def reset_stats(self):
+        question_dialog(
+            _('Reset reading statistics'),
+            _('Are you sure you want to delete all reading statistics? This will remove all saved reading rate data.'),
+            def(yes):
+                if yes:
+                    self.do_reset()
+        )
+
+    def do_reset(self):
+        view = self.overlay.view
+        if view.timers:
+            view.timers.rates = v'[]'
+            view.timers.chapter_times = v'{}'
+            view.timers.average = view.timers.stddev = 0
+        if ui_operations.reset_reading_rates:
+            ui_operations.reset_reading_rates()
+        self.overlay.hide_current_panel()
+
     def show(self, container):
         simple_overlay_title(_('Reading statistics'), self.overlay, container)
         view = self.overlay.view
@@ -791,6 +810,10 @@ class ReadingStatsOverlay:  # {{{
             ' see very few "chapters" above, then try converting your book to EPUB in calibre, that'
             ' will often automatically split up the book into per chapter files.'),
             style='padding: 0 1em 1em 1em; font-size: smaller'))
+        container.appendChild(E.div(
+            style='padding: 0 1em 1em 1em; display: flex; justify-content: flex-end',
+            create_button(_('Reset statistics'), 'trash', action=self.reset_stats)
+        ))
 # }}}
 
 

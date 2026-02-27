@@ -293,6 +293,7 @@ class ViewerBridge(Bridge):
     show_book_folder = from_js()
     show_help = from_js(object)
     update_reading_rates = from_js(object)
+    reset_reading_rates = from_js()
     profile_op = from_js(object, object, object)
 
     create_view = to_js()
@@ -498,6 +499,7 @@ class WebView(QWebEngineView):
     close_prep_finished = pyqtSignal(object)
     highlights_changed = pyqtSignal(object)
     update_reading_rates = pyqtSignal(object)
+    reset_reading_rates = pyqtSignal()
     edit_book = pyqtSignal(object, object, object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
@@ -564,6 +566,7 @@ class WebView(QWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.update_reading_rates.connect(self.update_reading_rates)
+        self.bridge.reset_reading_rates.connect(self.reset_reading_rates)
         self.bridge.profile_op.connect(self.profile_op)
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
