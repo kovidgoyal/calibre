@@ -23,6 +23,33 @@
 # - title by author
 # }}}
 
+{{{ 9.4.0 2026-02-27
+
+:: new features
+
+- [2142715] E-book viewer: Add "reading stats" to show reading progress
+
+- Edit book: Nicer UI for changing the entries in the insert tag menu
+
+- Cover grid: Option to draw emblems on top of cover in Preferences->Look & feel->Cover grid->Emblems
+
+- Cover grid: Add option to draw text flush with bottom of rendered cover
+
+:: bug fixes
+
+- [2142611] DOCX Input: Fix paragraph/list margins in documents created by LibreOffice that do not have Word 2007 compatibility
+
+- [2142345] ODT Input: Fix a regression in the previous release that broke conversion of images
+
+- Content server: When banning IPs for repeated login is enabled, only use the IP address not any HTTP headers as the ban key (CVE-2026-27824)
+
+- Content server: Sanitize content disposition received as query parameter (CVE-2026-27810)
+
+:: improved recipes
+- WIRED Daily
+- TOI Print Edition
+}}}
+
 {{{ 9.3.1 2026-02-20
 
 :: new features
