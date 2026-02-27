@@ -513,6 +513,8 @@ if window is window.top:
         to_python.on_iframe_ready()
     ui_operations.update_reading_rates = def(rates):
         to_python.update_reading_rates(rates)
+    ui_operations.reset_reading_rates = def():
+        to_python.reset_reading_rates()
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

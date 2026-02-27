@@ -67,6 +67,7 @@ class ReadUI:
         ui_operations.update_last_read_time = self.db.update_last_read_time
         ui_operations.show_error = self.show_error.bind(self)
         ui_operations.update_reading_rates = self.update_reading_rates.bind(self)
+        ui_operations.reset_reading_rates = self.reset_reading_rates.bind(self)
         ui_operations.redisplay_book = self.redisplay_book.bind(self)
         ui_operations.reload_book = self.reload_book.bind(self)
         ui_operations.forward_gesture = self.forward_gesture.bind(self)
@@ -692,3 +693,9 @@ class ReadUI:
             return
         book = self.view.book
         self.db.save_reading_rates(book, rates)
+
+    def reset_reading_rates(self):
+        if not self.view?.book:
+            return
+        book = self.view.book
+        self.db.save_reading_rates(book, v'{}')

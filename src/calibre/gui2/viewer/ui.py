@@ -46,7 +46,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
 from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
+from calibre.gui2.viewer.config import delete_all_reading_rates, get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel, style_definition_for_name
 from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
@@ -211,6 +211,7 @@ class EbookViewer(MainWindow):
         self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.web_view.highlights_changed.connect(self.highlights_changed)
         self.web_view.update_reading_rates.connect(self.update_reading_rates)
+        self.web_view.reset_reading_rates.connect(self.reset_reading_rates)
         self.web_view.edit_book.connect(self.edit_book)
         self.web_view.content_file_changed.connect(self.content_file_changed)
 
@@ -752,6 +753,11 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['reading_rates'] = rates
         self.save_reading_rates()
+
+    def reset_reading_rates(self):
+        if self.current_book_data:
+            self.current_book_data.pop('reading_rates', None)
+        delete_all_reading_rates()
 
     def save_reading_rates(self):
         if not self.current_book_data:

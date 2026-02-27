@@ -109,6 +109,7 @@ ui_operations = {
     'focus_iframe': None,
     'toggle_toc': None,
     'toggle_full_screen': None,
+    'reset_reading_rates': None,
 }
 
 
