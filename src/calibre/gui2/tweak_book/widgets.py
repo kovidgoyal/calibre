@@ -31,6 +31,7 @@ from qt.core import (
     QLabel,
     QLineEdit,
     QListView,
+    QMenu,
     QModelIndex,
     QPainter,
     QPalette,
@@ -124,6 +125,14 @@ class ManageTagList(Dialog):  # {{{
         self._collapsed_tags = set(tprefs.get('manage_tag_list_collapsed_tags', []))
         Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
 
+    def open_menu(self, position):
+        menu = QMenu(self)
+        expand_action = menu.addAction('Expand All')
+        expand_action.triggered.connect(self.tree.expandAll)
+        collapse_action = menu.addAction('Collapse All')
+        collapse_action.triggered.connect(self.tree.collapseAll)
+        menu.exec(self.tree.viewport().mapToGlobal(position))
+
     def sizeHint(self):
         return QSize(400, 500)
 
@@ -131,6 +140,8 @@ class ManageTagList(Dialog):  # {{{
         self.l = l = QVBoxLayout(self)
 
         self.tree = t = QTreeWidget(self)
+        t.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        t.customContextMenuRequested.connect(self.open_menu)
         t.setHeaderHidden(True)
         t.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         l.addWidget(t)
