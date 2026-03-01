@@ -225,7 +225,7 @@ def create_profile():
         # Qt bugs see workaround_qt_bug() in ajax.pyj
         ua = f'calibre-viewer {__version__} {osname}'
         ans.setHttpUserAgent(ua)
-        if is_running_from_develop:
+        if is_running_from_develop or in_develop_mode or not getattr(sys, 'frozen', False):
             from calibre.utils.rapydscript import compile_viewer
             prints('Compiling viewer code...')
             compile_viewer()
@@ -295,6 +295,7 @@ class ViewerBridge(Bridge):
     update_reading_rates = from_js(object)
     reset_reading_rates = from_js()
     profile_op = from_js(object, object, object)
+    goldendict_lookup = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -466,6 +467,29 @@ def system_colors():
 
 
 class WebView(QWebEngineView):
+    def handle_goldendict_lookup(self, msg):
+        import subprocess
+        from calibre import prints
+        from calibre.gui2.viewer.config import get_session_pref
+        goldendict_path = get_session_pref('goldendict_path', '').strip()
+        # Fallback: also check root session_data if not found
+        if not goldendict_path:
+            try:
+                from calibre.gui2.viewer.config import vprefs
+                goldendict_path = vprefs['session_data'].get('goldendict_path', '').strip()
+            except Exception:
+                goldendict_path = ''
+        prints('goldendict_path (debug):', repr(goldendict_path))
+        text = msg.get('text') if isinstance(msg, dict) else msg
+        if not goldendict_path:
+            error_dialog(self, _('Goldendict launch failed'), _('No Goldendict path is set in preferences.'), show=True)
+            return
+        if text:
+            try:
+                prints('goldendict_lookup:', text)
+                subprocess.Popen([goldendict_path, text])
+            except Exception as e:
+                error_dialog(self, _('Goldendict launch failed'), str(e), show=True)
 
     cfi_changed = pyqtSignal(object)
     reload_book = pyqtSignal()
@@ -558,6 +582,7 @@ class WebView(QWebEngineView):
         self.bridge.show_loading_message.connect(self.show_loading_message)
         self.bridge.show_error.connect(self.show_error)
         self.bridge.print_book.connect(self.print_book)
+        self.bridge.goldendict_lookup.connect(self.handle_goldendict_lookup)
         self.bridge.clear_history.connect(self.clear_history)
         self.bridge.reset_interface.connect(self.reset_interface)
         self.bridge.quit.connect(self.quit)

@@ -218,6 +218,27 @@ def create_selection_panel(container, apply_func, cancel_func):
             _('Use "}}" and "{{" to escape "}" and "{".')
         )
     ))
+
+    # Goldendict path setting
+    container.appendChild(E.h3(_('Goldendict integration')))
+    container.appendChild(E.div(
+        style='margin-top:1ex',
+        E.label(
+            _('Path to Goldendict executable'),
+            E.br(),
+            E.input(
+                type='text',
+                name='goldendict_path',
+                value=sd.get('goldendict_path') or '',
+                size='50',
+                placeholder=_('e.g. C:\\GoldenDict\\GoldenDict.exe (Windows), /usr/bin/goldendict (Linux), /Applications/GoldenDict.app/Contents/MacOS/GoldenDict (macOS)')
+            ),
+            E.div(
+                style='font-size: 90%; color: #666; margin-top: 0.5ex',
+                _('Specify the full path to the Goldendict program. Supports platform-specific paths.')
+            )
+        )
+    ))
     set_actions()
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
