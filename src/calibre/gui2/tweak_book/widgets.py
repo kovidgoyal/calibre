@@ -121,6 +121,7 @@ class ManageTagList(Dialog):  # {{{
 
     def __init__(self, parent=None):
         self._entries = list(tprefs['insert_tag_mru'])
+        self._collapsed_tags = set(tprefs.get('manage_tag_list_collapsed_tags', []))
         Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
 
     def sizeHint(self):
@@ -160,6 +161,7 @@ class ManageTagList(Dialog):  # {{{
         return m.group() if m else entry
 
     def _populate_tree(self):
+        self._save_expanded_state()
         self.tree.clear()
         groups = {}
         for entry in self._entries:
@@ -173,7 +175,7 @@ class ManageTagList(Dialog):  # {{{
                 child.setData(0, Qt.ItemDataRole.UserRole, entry)
                 parent_item.addChild(child)
             self.tree.addTopLevelItem(parent_item)
-            parent_item.setExpanded(True)
+            parent_item.setExpanded(tag_name not in self._collapsed_tags)
         self._update_button_states()
 
     def _current_entry(self):
@@ -230,9 +232,24 @@ class ManageTagList(Dialog):  # {{{
             pass
         self._populate_tree()
 
+    def _save_expanded_state(self):
+        root = self.tree.invisibleRootItem()
+        for i in range(root.childCount()):
+            item = root.child(i)
+            if item.isExpanded():
+                self._collapsed_tags.discard(item.text(0))
+            else:
+                self._collapsed_tags.add(item.text(0))
+        tprefs['manage_tag_list_collapsed_tags'] = list(self._collapsed_tags)
+
     def accept(self):
+        self._save_expanded_state()
         tprefs['insert_tag_mru'] = self._entries
         super().accept()
+
+    def reject(self):
+        self._save_expanded_state()
+        super().reject()
 
 # }}}
 
