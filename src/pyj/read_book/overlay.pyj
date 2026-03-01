@@ -293,7 +293,7 @@ class MainOverlay:  # {{{
             _('Highlights'), _('Browse all highlights'), def():
                 self.overlay.show_highlights()
             , 'image')
-        reading_stats_action = ac(_('Reading stats'), _('Show reading statistics for this book'), def():
+        reading_stats_action = ac(_('Reading statistics'), _('Show reading statistics for this book'), def():
             self.overlay.show_reading_stats()
         , 'hourglass')
 
