@@ -43,6 +43,9 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
     identical_book_list, added_ids, updated_ids = set(), set(), set()
     duplicates = []
     identical_books_data = None
+    if is_remote and ('recipe' in format_map or 'original_recipe' in format_map):
+        raise ValueError(
+            'Cannot use the add interface to add recipe files, as they allow code execution')
 
     def add_format(book_id, fmt):
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)

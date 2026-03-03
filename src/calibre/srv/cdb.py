@@ -89,6 +89,8 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     fmt = fmt[1:] if fmt else None
     if not fmt:
         raise HTTPBadRequest('An filename with no extension is not allowed')
+    if fmt.lower() in ('recipe', 'original_recipe'):
+        raise HTTPForbidden('Cannot use the add book interface to add recipe files, as they allow code execution')
     if isinstance(rd.request_body_file, BytesIO):
         raise HTTPBadRequest('A request body containing the file data must be specified')
     add_duplicates = add_duplicates in ('y', '1')
@@ -194,6 +196,9 @@ def cdb_set_fields(ctx, rd, book_id, library_id):
             except Exception:
                 raise HTTPBadRequest('Format has no extension')
             if fmt:
+                if fmt.lower() in ('recipe', 'original_recipe'):
+                    raise HTTPForbidden(
+                        'Cannot use the add book interface to add recipe files, as they allow code execution')
                 try:
                     fmt_data = from_base64_bytes(data['data_url'].split(',', 1)[-1])
                 except Exception:

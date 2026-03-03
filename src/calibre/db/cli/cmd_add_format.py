@@ -14,6 +14,9 @@ version = 0  # change this if you change signature of implementation()
 def implementation(db, notify_changes, book_id, data, fmt, replace):
     is_remote = notify_changes is not None
     if is_remote:
+        if fmt.lower() in ('recipe', 'original_recipe'):
+            raise ValueError(
+                'Cannot use the add format interface to add recipe files, as they allow code execution')
         data = BytesIO(data[1])
     relpath = ''
     if fmt.startswith('.EXTRA_DATA_FILE:'):
