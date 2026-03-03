@@ -48,7 +48,7 @@ dependencies = [
 	"pykakasi == 2.3.0",
 	"zeroconf == 0.148.0",
 	"fonttools == 4.61.0",
-	"lxml_html_clean == 0.4.3",
+	"lxml_html_clean == 0.4.4",
 	"PyQt6_sip == 13.10.2",
 	"PyQt6 == 6.10.0",
 	"PyQt6_WebEngine == 6.10.0",
