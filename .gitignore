@@ -52,6 +52,7 @@
 /calibre_plugins/
 /.metadata/
 /.idea
+/.vscode
 /*env*/
 /cmake-build-*
 /bypy/b

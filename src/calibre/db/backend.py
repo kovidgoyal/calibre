@@ -22,7 +22,7 @@ from functools import partial
 import apsw
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
-from calibre.constants import filesystem_encoding, iswindows, plugins, preferred_encoding
+from calibre.constants import filesystem_encoding, iswindows, plugins, preferred_encoding, builtin_colors_light, builtin_decorations
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.constants import (
@@ -2548,7 +2548,7 @@ class DB:
                     self.execute('UPDATE annotations SET annot_data=?, timestamp=?, annot_type=?, searchable_text=?, annot_id=? WHERE id=?',
                         (json.dumps(annot), timestamp, atype, text, aid, annot_id))
 
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False, restrict_to_book_ids=None):
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, annotation_style=None, ignore_removed=False, restrict_to_book_ids=None):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
         data = []
@@ -2577,6 +2577,13 @@ class DB:
             if atype == 'bookmark':
                 text = annot['title']
             elif atype == 'highlight':
+                if annotation_style:
+                    query_style = ls(annotation_style)
+                    # Accept only if the styles in annotation_style are all present in the annotation style
+                    annot_style = annot.get('style', {})
+                    if not all(annot_style.get(k) == v for k, v in query_style.items()):
+                        continue
+
                 text = annot.get('highlighted_text') or ''
             yield {
                 'id': rowid,
@@ -2597,6 +2604,20 @@ class DB:
     def all_annotation_types(self):
         for x in self.execute('SELECT DISTINCT annot_type FROM annotations'):
             yield x[0]
+    
+    def all_annotation_styles(self):
+        all_styles = builtin_colors_light | builtin_decorations
+        styles = {}
+        for style_name, style in all_styles.items():
+            if isinstance(style, str):
+                style = {'kind': 'color', 'which': style_name}
+            else:
+                style['kind'] = 'decoration'
+            styles[style_name] = style
+        # In the future, we could merge in custom styles from the DB.
+        # Under the current schema, this would require scanning all annotations,
+        # so it's excluded for performance at this time.
+        return styles
 
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         try:

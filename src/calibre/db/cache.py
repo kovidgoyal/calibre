@@ -3448,13 +3448,20 @@ class Cache:
         return tuple(self.backend.all_annotation_types())
 
     @read_api
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False, restrict_to_book_ids=None):
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, annotation_style=None, ignore_removed=False, restrict_to_book_ids=None):
         '''
         Return a tuple of all annotations matching the specified criteria.
         `ignore_removed` controls whether removed (deleted) annotations are also returned. Removed annotations are just a skeleton
         used for merging of annotations.
         '''
-        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type, ignore_removed, restrict_to_book_ids))
+        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type, annotation_style, ignore_removed, restrict_to_book_ids))
+
+    @read_api
+    def all_annotation_styles(self):
+        '''
+        Return a tuple of all built-in annotation styles.
+        '''
+        return self.backend.all_annotation_styles()
 
     @read_api
     def search_annotations(
