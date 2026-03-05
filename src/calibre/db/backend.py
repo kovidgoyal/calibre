@@ -22,7 +22,7 @@ from functools import partial
 import apsw
 
 from calibre import as_unicode, force_unicode, isbytestring, prints
-from calibre.constants import filesystem_encoding, iswindows, plugins, preferred_encoding, builtin_colors_light, builtin_decorations
+from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.constants import (
@@ -2563,6 +2563,8 @@ class DB:
             q += ' WHERE ' + ' AND '.join(restrict_clauses)
         q += ' ORDER BY timestamp DESC '
         count = 0
+        query_style = None if annotation_style is None else tuple(annotation_style.items())
+        sentinel = object()
         for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
             if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
                 continue
@@ -2577,13 +2579,9 @@ class DB:
             if atype == 'bookmark':
                 text = annot['title']
             elif atype == 'highlight':
-                if annotation_style:
-                    query_style = ls(annotation_style)
-                    # Accept only if the styles in annotation_style are all present in the annotation style
-                    annot_style = annot.get('style', {})
-                    if not all(annot_style.get(k) == v for k, v in query_style.items()):
-                        continue
-
+                if query_style is not None and ((s := annot.get('style')) is None
+                        or not all(s.get(k, sentinel) == v for k, v in query_style)):
+                    continue
                 text = annot.get('highlighted_text') or ''
             yield {
                 'id': rowid,
@@ -2604,7 +2602,7 @@ class DB:
     def all_annotation_types(self):
         for x in self.execute('SELECT DISTINCT annot_type FROM annotations'):
             yield x[0]
-    
+
     def all_annotation_styles(self):
         all_styles = builtin_colors_light | builtin_decorations
         styles = {}

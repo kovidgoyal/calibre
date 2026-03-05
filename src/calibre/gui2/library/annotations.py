@@ -627,17 +627,17 @@ class Restrictions(QWidget):
             before = gprefs['browse_annots_restrict_to_type']
         tb.blockSignals(True)
         tb.clear()
-        tb.addItem(' ', ' ')
+        tb.addItem(' ', {})
         annotation_types = db.all_annotation_types()
         for atype in annotation_types:
-            tb.addItem(annotation_title(atype), atype)
+            tb.addItem(annotation_title(atype), {'type': atype})
         if before:
             row = tb.findData(before)
             if row > -1:
                 tb.setCurrentIndex(row)
-        
+
         # Append highlight colors after the 'highlight' entry, if it exists
-        highlight_row = tb.findData('highlight')
+        highlight_row = tb.findData({'type': 'highlight'})
         if highlight_row > -1:
             from calibre.gui2.viewer.highlights import decoration_for_style
             dpr = self.devicePixelRatioF()
@@ -645,9 +645,10 @@ class Restrictions(QWidget):
             model = tb.model()
             highlight_color_row = 1
             all_styles = db.all_annotation_styles()
+            translate = _
             for style_name, style in all_styles.items():
-                item = QStandardItem(_(annotation_title(style_name)))
-                item.setData('highlight:{}'.format(json.dumps(style)), Qt.ItemDataRole.UserRole)
+                item = QStandardItem(translate(annotation_title(style_name)))
+                item.setData({'type': 'highlight', 'style': style}, Qt.ItemDataRole.UserRole)
                 dec = decoration_for_style(self.palette(), style, self.icon_size, dpr, is_dark)
                 if dec:
                     item.setData(dec, Qt.ItemDataRole.DecorationRole)
@@ -676,6 +677,7 @@ class Restrictions(QWidget):
         tb.setVisible(ub_is_visible), tb.la.setVisible(ub_is_visible)
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
+
 
 class BrowsePanel(QWidget):
 
@@ -751,13 +753,15 @@ class BrowsePanel(QWidget):
     @property
     def effective_query(self):
         text = self.search_box.lineEdit().text().strip()
-        annotation_data = self.restrictions.types_box.currentData().split(':', 1)
-        atype = annotation_data[0] if annotation_data else ''
-        astyle = annotation_data[1] if len(annotation_data) > 1 else None
+        data = self.restrictions.types_box.currentData()
+        atype, style = '', None
+        if isinstance(data, dict):
+            atype = data.get('type') or ''
+            style = data.get('style')
         return {
             'fts_engine_query': text,
             'annotation_type': atype.strip(),
-            'annotation_style': astyle.strip() if astyle else None,
+            'annotation_style': style,
             'restrict_to_user': self.restrict_to_user,
             'use_stemming': bool(self.use_stemmer.isChecked()),
             'restrict_to_book_ids': self.restrictions.effective_restrict_to_book_ids,
