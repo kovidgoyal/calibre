@@ -437,7 +437,9 @@ def get_note(ctx, rd, field, item_id, library_id):
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
     html = _get_note(ctx, rd, db, field, item_id, library_id)
-    rd.outheaders['Content-Type'] = 'text/html; charset=UTF-8'
+    # Keep this mimetype text/plain to avoid XSS in case someone convinces a
+    # user to use this endpoint directly
+    rd.outheaders['Content-Type'] = 'text/plain; charset=UTF-8'
     return html
 
 
