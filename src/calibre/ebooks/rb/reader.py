@@ -67,6 +67,15 @@ class Reader:
 
         return toc
 
+    def get_safe_path(self, output_dir, name):
+        base = os.path.abspath(output_dir)
+        if not base.endswith(os.sep):
+            base += os.sep
+        ans = os.path.abspath(os.path.join(base, name))
+        if os.path.commonprefix([ans, base]) != base:
+            ans = ''
+        return ans
+
     def get_text(self, toc_item, output_dir):
         if toc_item.flags in (1, 2):
             return
@@ -87,8 +96,9 @@ class Reader:
         else:
             output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
-        with open(os.path.join(output_dir, toc_item.name.decode('utf-8')), 'wb') as html:
-            html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
+        if path := self.get_safe_path(output_dir, toc_item.name.decode('utf-8')):
+            with open(path, 'wb') as html:
+                html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
 
     def get_image(self, toc_item, output_dir):
         if toc_item.flags != 0:
@@ -97,8 +107,9 @@ class Reader:
         self.stream.seek(toc_item.offset)
         data = self.stream.read(toc_item.size)
 
-        with open(os.path.join(output_dir, toc_item.name.decode('utf-8')), 'wb') as img:
-            img.write(data)
+        if path := self.get_safe_path(output_dir, toc_item.name.decode('utf-8')):
+            with open(path, 'wb') as img:
+                img.write(data)
 
     def extract_content(self, output_dir):
         self.log.debug('Extracting content from file...')
