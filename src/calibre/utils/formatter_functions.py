@@ -295,8 +295,8 @@ class FormatterFunction:
 
 class BuiltinFormatterFunction(FormatterFunction):
 
-    def __init__(self):
-        formatter_functions().register_builtin(self)
+    def __init_subclass__(cls):
+        formatter_functions().register_builtin(cls())
 
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
@@ -3841,12 +3841,6 @@ returns `Foo, book 3 of 5`
 
     def evaluate(self, formatter, kwargs, mi, locals, fstring):
         raise ValueError(_('This function cannot be called directly. It is built into the formatter'))
-
-
-# Registering builtins
-for obj in list(globals().values()):
-    if isinstance(obj, type) and issubclass(obj, BuiltinFormatterFunction) and obj is not BuiltinFormatterFunction:
-        obj()
 
 
 class FormatterUserFunction(FormatterFunction):
