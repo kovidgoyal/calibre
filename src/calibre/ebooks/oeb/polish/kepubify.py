@@ -271,7 +271,7 @@ def unwrap(span: etree.Element) -> None:
     if len(span):
         p.insert(idx, span[0])
     else:
-        text = span.text + (span.tail or '')
+        text = (span.text or '') + (span.tail or '')
         if idx > 0:
             prev = p[idx-1]
             prev.tail = (prev.tail or '') + text
