@@ -846,13 +846,12 @@ plugins += [
 
 # New metadata download plugins {{{
 from calibre.ebooks.metadata.sources.amazon import Amazon
-from calibre.ebooks.metadata.sources.big_book_search import BigBookSearch
 from calibre.ebooks.metadata.sources.edelweiss import Edelweiss
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.google_images import GoogleImages
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 
-plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary, BigBookSearch]
+plugins += [GoogleBooks, GoogleImages, Amazon, Edelweiss, OpenLibrary]
 
 # }}}
 
