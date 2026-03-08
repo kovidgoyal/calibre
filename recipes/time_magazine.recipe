@@ -48,7 +48,8 @@ class TimeMagazine(BasicNewsRecipe):
                 cover_url = ''
             authors = ''
             for aut in article.get('authors') or ():
-                authors += '<p>' + aut.get('bio') + '</p>'
+                if hasattr(aut, 'get'):
+                    authors += '<p>' + aut.get('bio') + '</p>'
             articles.append({'title': title, 'url': url, 'desc': desc})
             text = '<html><head><meta charset="utf-8"></head><body><h1>{}</h1>{}<div><img src="{}"></div><div>{}</div></body></html>'.format(
                 title, authors, cover_url, article['content'])
