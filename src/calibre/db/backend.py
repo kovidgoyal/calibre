@@ -2604,18 +2604,12 @@ class DB:
             yield x[0]
 
     def all_annotation_styles(self):
-        all_styles = builtin_colors_light | builtin_decorations
-        styles = {}
-        for style_name, style in all_styles.items():
-            if isinstance(style, str):
-                style = {'kind': 'color', 'which': style_name}
-            else:
-                style['kind'] = 'decoration'
-            styles[style_name] = style
+        all_styles = [{'kind': 'color', 'which': style} for style in builtin_colors_light.keys()] + \
+            [{'kind': 'decoration', 'which': style} for style in builtin_decorations.keys()]
         # In the future, we could merge in custom styles from the DB.
         # Under the current schema, this would require scanning all annotations,
         # so it's excluded for performance at this time.
-        return styles
+        return {style['which']: style for style in all_styles}
 
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         try:
