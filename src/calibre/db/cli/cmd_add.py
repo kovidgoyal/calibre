@@ -296,6 +296,104 @@ def do_add(
         if merged_ids:
             prints(_('Merged book ids: %s') % (', '.join(map(str, merged_ids))))
 
+    return added_ids
+
+
+def fetch_and_apply_metadata(dbctx, book_id):
+    from threading import Event
+
+    from calibre.ebooks.metadata.sources.base import create_log
+    from calibre.ebooks.metadata.sources.identify import identify
+    from calibre.ebooks.metadata.sources.update import patch_plugins
+
+    patch_plugins()
+
+    mi = dbctx.run('show_metadata', book_id)
+    if mi is None:
+        prints(_('Book id %d not found in database, skipping metadata fetch') % book_id, file=sys.stderr)
+        return False
+
+    title = mi.title
+    authors = list(mi.authors) if mi.authors else None
+    identifiers = mi.get_identifiers() if hasattr(mi, 'get_identifiers') else (mi.identifiers or {})
+
+    log = create_log()
+    abort = Event()
+
+    prints(_('Fetching metadata for: %s by %s') % (title, ', '.join(authors) if authors else _('Unknown')))
+
+    try:
+        results = identify(log, abort, title=title, authors=authors, identifiers=identifiers, timeout=30)
+    except Exception as e:
+        prints(_('Failed to fetch metadata for book %d: %s') % (book_id, str(e)), file=sys.stderr)
+        return False
+
+    if not results:
+        prints(_('No metadata found for book %d') % book_id)
+        return False
+
+    best = results[0]
+    prints(_('Found metadata: %s by %s') % (best.title, ', '.join(best.authors) if best.authors else _('Unknown')))
+
+    # Apply the fetched metadata via set_metadata
+    fvals = []
+    if best.title:
+        fvals.append(('title', best.title))
+    if best.authors:
+        fvals.append(('authors', best.authors))
+    if best.publisher:
+        fvals.append(('publisher', best.publisher))
+    if best.comments:
+        fvals.append(('comments', best.comments))
+    if best.tags:
+        fvals.append(('tags', best.tags))
+    if best.series:
+        fvals.append(('series', best.series))
+        if best.series_index is not None:
+            fvals.append(('series_index', best.series_index))
+    if best.pubdate:
+        fvals.append(('pubdate', best.pubdate))
+    if best.rating:
+        fvals.append(('rating', best.rating))
+    if best.languages:
+        fvals.append(('languages', best.languages))
+    if best.identifiers:
+        # Merge identifiers: combine existing with new
+        merged_ids = dict(identifiers)
+        merged_ids.update(best.identifiers)
+        fvals.append(('identifiers', merged_ids))
+
+    if fvals:
+        dbctx.run('set_metadata', 'fields', book_id, fvals)
+        prints(_('Applied metadata for book %d') % book_id)
+
+    # Try to download and apply cover
+    try:
+        from calibre.ebooks.metadata.sources.covers import download_cover
+        cover_log = create_log()
+        cover_result = download_cover(
+            cover_log, title=best.title, authors=best.authors,
+            identifiers=best.identifiers or {}, timeout=30
+        )
+        if cover_result is not None:
+            plugin, width, height, fmt, data = cover_result
+            from calibre.ptempfile import PersistentTemporaryFile
+            with PersistentTemporaryFile(suffix='.' + fmt) as pt:
+                pt.write(data)
+                cover_path = pt.name
+            dbctx.run('set_metadata', 'fields', book_id, [('cover', dbctx.path(cover_path))])
+            try:
+                os.remove(cover_path)
+            except OSError:
+                pass
+            prints(_('Applied cover for book %d (%dx%d from %s)') % (book_id, width, height, plugin.name))
+        else:
+            prints(_('No cover found for book %d') % book_id)
+    except Exception as e:
+        prints(_('Could not download cover for book %d: %s') % (book_id, str(e)), file=sys.stderr)
+
+    return True
+
 
 def option_parser(get_parser, args):
     parser = get_parser(
@@ -387,6 +485,13 @@ the folder related options below.
             'A comma separated list of languages (best to use ISO639 language codes, though some language names may also be recognized)'
         )
     )
+    parser.add_option(
+        '-F',
+        '--fetch-metadata',
+        action='store_true',
+        default=False,
+        help=_('After adding, fetch metadata from online sources and apply it to the added book(s)')
+    )
 
     g = OptionGroup(
         parser,
@@ -469,9 +574,13 @@ def main(opts, args, dbctx):
         return 0
     if len(args) < 1:
         raise SystemExit(_('You must specify at least one file to add'))
-    do_add(
+    added_ids = do_add(
         dbctx, args, opts.one_book_per_directory, opts.recurse, opts.duplicates,
         opts.title, aut, opts.isbn, tags, opts.series, opts.series_index, opts.cover,
         identifiers, lcodes, opts.filters, opts.automerge
     )
+    if opts.fetch_metadata and added_ids:
+        prints(_('Fetching metadata for %d book(s)...') % len(added_ids))
+        for book_id in sorted(added_ids):
+            fetch_and_apply_metadata(dbctx, book_id)
     return 0

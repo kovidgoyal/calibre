@@ -138,6 +138,7 @@ unfixable = ['PIE794', 'ISC001']
 "src/calibre/ebooks/unihandecode/*codepoints.py" = ['E501']
 "src/calibre/ebooks/metadata/sources/*" = ['UP', 'FURB188']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
+"src/calibre/utils/img.py" = ['F821']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
 

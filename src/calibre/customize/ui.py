@@ -739,6 +739,27 @@ def all_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, Source):
             yield plugin
+    yield from _get_script_sources()
+
+
+_script_sources_cache = None
+
+
+def _get_script_sources():
+    global _script_sources_cache
+    if _script_sources_cache is None:
+        try:
+            from calibre.ebooks.metadata.sources.script_source import load_script_sources
+            _script_sources_cache = load_script_sources()
+        except Exception:
+            traceback.print_exc()
+            _script_sources_cache = []
+    return _script_sources_cache
+
+
+def reload_script_sources():
+    global _script_sources_cache
+    _script_sources_cache = None
 
 
 def patch_metadata_plugins(possibly_updated_plugins):

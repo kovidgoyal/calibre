@@ -11,8 +11,6 @@ import tempfile
 from io import BytesIO
 from threading import Thread
 
-from qt.core import QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap, Qt, QTransform, qRgba
-
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
@@ -21,6 +19,29 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
 from calibre.utils.resources import get_image_path as I
 from calibre_extensions import imageops
+
+_QT_NAMES = frozenset({
+    'QBuffer', 'QByteArray', 'QColor', 'QImage', 'QImageReader',
+    'QImageWriter', 'QIODevice', 'QPixmap', 'Qt', 'QTransform', 'qRgba',
+})
+
+
+def _ensure_qt():
+    if 'QImage' not in globals():
+        from qt.core import QBuffer, QByteArray, QColor, QImage, QImageReader, QImageWriter, QIODevice, QPixmap, Qt, QTransform, qRgba
+        globals().update({
+            'QBuffer': QBuffer, 'QByteArray': QByteArray, 'QColor': QColor,
+            'QImage': QImage, 'QImageReader': QImageReader, 'QImageWriter': QImageWriter,
+            'QIODevice': QIODevice, 'QPixmap': QPixmap, 'Qt': Qt,
+            'QTransform': QTransform, 'qRgba': qRgba,
+        })
+
+
+def __getattr__(name):
+    if name in _QT_NAMES:
+        _ensure_qt()
+        return globals()[name]
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
 
 # Utilities {{{
@@ -46,6 +67,7 @@ def get_exe_path(name):
 
 
 def load_jxr_data(data):
+    _ensure_qt()
     with TemporaryDirectory() as tdir:
         if isinstance(tdir, bytes):
             tdir = os.fsdecode(tdir)
@@ -111,11 +133,13 @@ def set_image_allocation_limit(size_in_mb=1024):
 
 def null_image():
     ' Create an invalid image. For internal use. '
+    _ensure_qt()
     return QImage()
 
 
 def image_from_data(data):
     ' Create an image object from data, which should be a bytestring. '
+    _ensure_qt()
     if isinstance(data, QImage):
         return data
     set_image_allocation_limit()
@@ -143,6 +167,7 @@ def image_from_path(path):
 
 def image_from_x(x):
     ' Create an image from a bytestring or a path or a file like object. '
+    _ensure_qt()
     if isinstance(x, str):
         return image_from_path(x)
     if hasattr(x, 'read'):
@@ -158,6 +183,7 @@ def image_from_x(x):
 
 def image_and_format_from_data(data):
     ' Create an image object from the specified data which should be a bytestring and also return the format of the image '
+    _ensure_qt()
     ba = QByteArray(data)
     buf = QBuffer(ba)
     buf.open(QIODevice.OpenModeFlag.ReadOnly)
@@ -182,6 +208,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
     :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
     '''
+    _ensure_qt()
     fmt = fmt.upper()
     ba = QByteArray()
     buf = QBuffer(ba)
@@ -263,6 +290,7 @@ def save_cover_data_to(
     :param letterbox_color: If letterboxing is used, this is the background color
         used. The default is black.
     '''
+    _ensure_qt()
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     if isinstance(data, QImage):
         img = data
@@ -314,6 +342,7 @@ def save_cover_data_to(
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     ' Blend the `img` onto a canvas with the specified background color and size '
+    _ensure_qt()
     w, h = img.width(), img.height()
     scaled, nw, nh = fit_image(w, h, width, height)
     if scaled:
@@ -328,6 +357,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
 class Canvas:
 
     def __init__(self, width, height, bgcolor='#ffffff'):
+        _ensure_qt()
         self.img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
         self.img.fill(QColor(bgcolor))
 
@@ -347,6 +377,7 @@ class Canvas:
 
 def create_canvas(width, height, bgcolor='#ffffff'):
     'Create a blank canvas of the specified size and color '
+    _ensure_qt()
     img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     img.fill(QColor(bgcolor))
     return img
@@ -354,6 +385,7 @@ def create_canvas(width, height, bgcolor='#ffffff'):
 
 def overlay_image(img, canvas=None, left=0, top=0):
     ' Overlay the `img` onto the canvas at the specified position '
+    _ensure_qt()
     if canvas is None:
         canvas = QImage(img.size(), QImage.Format.Format_RGB32)
         canvas.fill(Qt.GlobalColor.white)
@@ -371,6 +403,7 @@ def texture_image(canvas, texture):
 
 def blend_image(img, bgcolor='#ffffff'):
     ' Used to convert images that have semi-transparent pixels to opaque by blending with the specified color '
+    _ensure_qt()
     canvas = QImage(img.size(), QImage.Format.Format_RGB32)
     canvas.fill(QColor(bgcolor))
     overlay_image(img, canvas)
@@ -381,6 +414,7 @@ def blend_image(img, bgcolor='#ffffff'):
 # Image borders {{{
 
 def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+    _ensure_qt()
     img = image_from_data(img)
     if not (left > 0 or right > 0 or top > 0 or bottom > 0):
         return img
@@ -405,6 +439,7 @@ def remove_borders_from_image(img, fuzz=None):
 # Cropping/scaling of images {{{
 
 def resize_image(img, width, height):
+    _ensure_qt()
     return img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
 
@@ -419,6 +454,7 @@ def resize_to_fit(img, width, height):
 def clone_image(img):
     ''' Returns a shallow copy of the image. However, the underlying data buffer
     will be automatically copied-on-write '''
+    _ensure_qt()
     return QImage(img)
 
 
@@ -426,6 +462,7 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
     Transparency is alpha blended with white when converting to JPEG. Is thread
     safe and does not require a QApplication. '''
+    _ensure_qt()
     # We use Qt instead of ImageMagick here because ImageMagick seems to use
     # some kind of memory pool, causing memory consumption to sky rocket.
     img = image_from_data(data)
@@ -483,6 +520,7 @@ def image_has_transparent_pixels(img):
 
 
 def rotate_image(img, degrees):
+    _ensure_qt()
     t = QTransform()
     t.rotate(degrees)
     return image_from_data(img).transformed(t)
@@ -519,6 +557,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     :param dither: Whether to use dithering or not. dithering is almost always a good thing.
     :param palette: Use a manually specified palette instead. For example: palette='red green blue #eee'
     '''
+    _ensure_qt()
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
@@ -647,6 +686,7 @@ def optimize_webp(file_path, q=100, m=6, metadata='all'):
 
 
 def encode_jpeg(file_path, quality=80):
+    _ensure_qt()
     from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
@@ -698,6 +738,7 @@ def align8to32(bytes, width, mode):
 
 
 def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
+    _ensure_qt()
     data = None
     colortable = None
     if im.mode == 'RGBA':
