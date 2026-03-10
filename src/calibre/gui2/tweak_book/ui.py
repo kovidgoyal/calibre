@@ -491,6 +491,9 @@ class Main(MainWindow):
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
+        self.action_remove_unused_images = treg(
+            'edit-clear.png', _('Remove unused &images'), partial(
+                self.boss.polish, 'remove_unused_images', _('Remove unused images')), 'remove-unused-images', (), _('Remove unused images'))
         self.action_upgrade_book_internals = treg(
             'arrow-up.png', _('&Upgrade book internals'), partial(
                 self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
@@ -640,7 +643,9 @@ class Main(MainWindow):
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
-        e.addAction(self.action_remove_unused_css)
+        ru = e.addMenu(_('Remove &unused…'))
+        ru.addAction(self.action_remove_unused_css)
+        ru.addAction(self.action_remove_unused_images)
         e.addAction(self.action_transform_styles)
         e.addAction(self.action_transform_html)
         e.addAction(self.action_fix_html_all)
