@@ -1522,6 +1522,8 @@ def run_search(
                     show_current_diff(allow_revert=True)
             else:
                 info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True, det_msg=det_msg)
+                if hasattr(editor, 'editor'):
+                    QTimer.singleShot(0, lambda: editor.editor.setFocus(Qt.FocusReason.OtherFocusReason))
 
     def do_all(replace=True):
         count = 0
