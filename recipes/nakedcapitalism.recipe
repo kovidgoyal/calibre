@@ -1,44 +1,43 @@
-#!/usr/bin/env python
-__license__ = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.nakedcapitalism.com
-'''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class nakedcapitalism(BasicNewsRecipe):
+class NakedCapitalism(BasicNewsRecipe):
     title = 'Naked Capitalism'
-    __author__ = 'Darko Miletic'
-    description = 'Commentary on current economic and financial news.'
-    publisher = 'Aurora Advisors, Inc.'
-    category = 'news, business, finances, money, banking'
+    __author__ = 'PaulB223'
+    language = 'en_US'
     oldest_article = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 50
+
+    simultaneous_downloads = 1
+    delay = 5.0
+
+    disable_header = True
+    fetch_masthead = False
     no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf-8'
-    language = 'en'
-    extra_css = (' #BlogTitle{font-size: x-large; font-weight: bold}'
-                 ' #BlogDate{font-size: small} ')
-    auto_claenup = False
-
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
-
-    feeds = [
-        (u'Articles', u'http://www.nakedcapitalism.com/feed'),
-        (u'Comments', u'http://www.nakedcapitalism.com/comments/feed'),
-    ]
+    remove_javascript = True
 
     keep_only_tags = [
-        dict(name='header', attrs={'class': 'entry-header'}),
-        dict(name='div', attrs={'class': 'pf-content'})
+        dict(name='article'),
+        dict(attrs={'class': lambda x: x and 'post-content' in x.split()}),
+        dict(attrs={'class': 'entry-content'}),
+        dict(attrs={'class': 'post-content'}),
+        dict(id='content')
     ]
 
-    remove_tags = [dict(name=['object', 'link', 'base'])]
+    remove_tags = [
+        dict(name=['nav', 'header', 'footer', 'aside', 'svg', 'button', 'script', 'style']),
+        dict(attrs={'class': lambda x: x and any(c in x.lower() for c in ['sidebar', 'ads', 'ad-', 'share', 'donation', 'related', 'comments'])})
+    ]
+
+    def get_feeds(self):
+        return [
+            ('Naked Capitalism', 'https://www.nakedcapitalism.com/feed'),
+            ('Naked Capitalism (p2)', 'https://www.nakedcapitalism.com/feed?paged=2'),
+        ]
+
+    def preprocess_html(self, soup):
+        for link in soup.findAll('a', text=lambda x: x and 'Read more' in x):
+            link.decompose()
+        for link in soup.findAll('a', text=lambda x: x and 'Continue reading' in x):
+            link.decompose()
+        return soup
