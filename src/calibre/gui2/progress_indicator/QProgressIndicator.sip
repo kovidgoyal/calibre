@@ -95,6 +95,7 @@ double contrast_ratio(const QColor & c1, const QColor & c2);
 QString utf16_slice(const QString &src, qsizetype pos, qsizetype n=-1);
 void set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme);
 QIcon icon_from_name(QString name, const QByteArray fallback_data);
+QIcon icon_from_paths(QString any_path, QString light_path, QString dark_path);
 void install_qt_translator(PyObject *v);
 %MethodCode
     if (PyLong_Check(a0)) install_translator(PyLong_AsVoidPtr(a0));

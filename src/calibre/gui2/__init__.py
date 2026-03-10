@@ -95,6 +95,17 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
 from calibre_extensions.progress_indicator import icon_from_name, set_icon_theme
 
+try:
+    from calibre_extensions.progress_indicator import icon_from_paths
+except ImportError:  # people running from source
+    def icon_from_paths(either, light, dark):
+        order = (dark, either, light) if is_dark_theme() else (light, either, dark)
+        for x in order:
+            ans = QIcon(x)
+            if ans.is_ok():
+                return ans
+        return QIcon()
+
 del pqc, geometry_for_restore_as_dict
 timed_print  # for plugin compat
 NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_
@@ -110,7 +121,6 @@ class IconResourceManager:
         self.light_theme_name = self.default_light_theme_name = 'calibre-default-light'
         self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
         self.registered_user_resource_files = ()
-        self.color_palette = 'light'
         self.icon_cache = {}
 
     def user_theme_resource_file(self, which):
@@ -224,14 +234,18 @@ class IconResourceManager:
             else:
                 os.remove(q)
 
-    def overriden_icon_path(self, name):
+    def overriden_icon_paths(self, name: str) -> tuple[str, str, str]:
+        either = light = dark = ''
         parts = name.replace(os.sep, '/').split('/')
-        ans = os.path.join(self.override_icon_path, name)
+        sq = os.path.join(self.override_icon_path, name)
         if len(parts) == 1:
-            sq, ext = os.path.splitext(parts[0])
-            sq = f'{sq}-for-{self.color_palette}-theme{ext}'
-            if sq in self.override_items['']:
-                ans = os.path.join(self.override_icon_path, sq)
+            base, ext = os.path.splitext(parts[0])
+            if os.path.basename(sq) in self.override_items['']:
+                either = sq
+            if (sq := f'{base}-for-light-theme{ext}') in self.override_items['']:
+                light = os.path.join(self.override_icon_path, sq)
+            if (sq := f'{base}-for-dark-theme{ext}') in self.override_items['']:
+                dark = os.path.join(self.override_icon_path, sq)
         else:
             subfolder = '/'.join(parts[:-1])
             entries = self.override_items.get(subfolder)
@@ -241,11 +255,14 @@ class IconResourceManager:
                 except OSError:
                     self.override_items[subfolder] = entries = frozenset()
             if entries:
-                sq, ext = os.path.splitext(parts[-1])
-                sq = f'{sq}-for-{self.color_palette}-theme{ext}'
-                if sq in entries:
-                    ans = os.path.join(self.override_icon_path, subfolder, sq)
-        return ans
+                if os.path.basename(sq) in entries:
+                    either = sq
+                base, ext = os.path.splitext(parts[-1])
+                if (sq := f'{base}-for-light-theme{ext}') in entries:
+                    light = os.path.join(self.override_icon_path, subfolder, sq)
+                if (sq := f'{base}-for-dark-theme{ext}') in entries:
+                    dark = os.path.join(self.override_icon_path, subfolder, sq)
+        return either, light, dark
 
     def cached_icon(self, name=''):
         '''
@@ -268,9 +285,9 @@ class IconResourceManager:
         if os.path.isabs(name):
             return QIcon(name)
         if self.override_icon_path:
-            qi = QIcon(self.overriden_icon_path(name))
-            if qi.is_ok():
-                return qi
+            either, light, dark = self.overriden_icon_paths(name)
+            if either or light or dark:
+                return icon_from_paths(either, light, dark)
         icon_name = name.replace('\\', '__').replace('/', '__')
         ans = icon_from_name(icon_name, fallback)
         return ans
@@ -292,7 +309,6 @@ class IconResourceManager:
     def set_theme(self):
         self.icon_cache = {}
         is_dark = QApplication.instance().is_dark_theme
-        self.color_palette = 'dark' if is_dark else 'light'
         set_icon_theme(is_dark, bool(self.user_dark_theme_name), bool(self.user_light_theme_name), bool(self.user_any_theme_name))
 
 

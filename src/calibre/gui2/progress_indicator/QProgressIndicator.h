@@ -174,3 +174,4 @@ void install_translator(void *v);
 QString utf16_slice(const QString &src, qsizetype pos, qsizetype n=-1);
 void set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme);
 QIcon icon_from_name(QString name, const QByteArray fallback_data);
+QIcon icon_from_paths(QString any_path, QString light_path, QString dark_path);

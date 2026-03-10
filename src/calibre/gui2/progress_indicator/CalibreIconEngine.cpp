@@ -406,9 +406,11 @@ class CalibreIconEngine : public QIconEngine {
     const QByteArray fallback_data;
     std::atomic<unsigned> used_theme_key;
     QPixmapIconEngine pixmap_engine;
+    const QString any_path;
+    const QString dark_path;
+    const QString light_path;
 
-    bool try_with_key(const QString &key) {
-        QString path = ":/icons/"_L1 % key % "/images/"_L1 % name;
+    bool try_with_path(const QString &path) {
         QPixmap pm(path);
         if (pm.isNull()) return false;
         pixmap_engine.clear();
@@ -416,9 +418,27 @@ class CalibreIconEngine : public QIconEngine {
         return true;
     }
 
+    bool try_with_key(const QString &key) {
+        QString path = ":/icons/"_L1 % key % "/images/"_L1 % name;
+        return try_with_path(path);
+    }
+
+    void load_from_paths() {
+        if (theme.using_dark_colors) {
+            if (try_with_path(dark_path)) return;
+            if (try_with_path(any_path)) return;
+            try_with_path(light_path);
+        } else {
+            if (try_with_path(light_path)) return;
+            if (try_with_path(any_path)) return;
+            try_with_path(dark_path);
+        }
+    }
+
     void ensure_state() {
         if (used_theme_key == current_theme_key) return;
         used_theme_key.store(current_theme_key.load());
+        if (name.isEmpty()) { load_from_paths(); return; }
         if (theme.using_dark_colors) {
             if (theme.has_dark_user_theme && try_with_key("calibre-user-dark"_L1)) return;
             if (theme.has_any_user_theme) {
@@ -446,11 +466,15 @@ class CalibreIconEngine : public QIconEngine {
 
     public:
     CalibreIconEngine(QString name, QByteArray fallback_data) :
-        name(name), fallback_data(fallback_data), used_theme_key(0), pixmap_engine()
+        name(name), fallback_data(fallback_data), used_theme_key(0), pixmap_engine(), any_path(), dark_path(), light_path()
     {}
     CalibreIconEngine(const CalibreIconEngine &other) :
         QIconEngine(other), name(other.name), fallback_data(other.fallback_data),
-        used_theme_key(other.used_theme_key.load()), pixmap_engine(other.pixmap_engine)
+        used_theme_key(other.used_theme_key.load()), pixmap_engine(other.pixmap_engine),
+        any_path(other.any_path), dark_path(other.dark_path), light_path(other.light_path)
+    {}
+    CalibreIconEngine(QString any_path, QString light_path, QString dark_path) :
+        name(), fallback_data(), used_theme_key(0), pixmap_engine(), any_path(any_path), dark_path(dark_path), light_path(light_path)
     {}
 
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override {
@@ -500,5 +524,11 @@ set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme
 QIcon
 icon_from_name(QString name, const QByteArray fallback_data) {
     auto engine = new CalibreIconEngine(name, fallback_data);
+    return QIcon(reinterpret_cast<QIconEngine*>(engine));
+}
+
+QIcon
+icon_from_paths(QString any_path, QString light_path, QString dark_path) {
+    auto engine = new CalibreIconEngine(any_path, light_path, dark_path);
     return QIcon(reinterpret_cast<QIconEngine*>(engine));
 }
