@@ -3,11 +3,13 @@
 
 
 import os
+from collections import defaultdict
 from functools import partial
 from queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
+from calibre.utils.localization import ngettext
 
 
 class Worker(Thread):
@@ -128,3 +130,59 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
         else:
             report(_('Images are already fully optimized'))
     return changed, results
+
+
+def remove_unused_images(container, report=None):
+    '''
+    Remove images that are not referenced by any file in the spine or by any
+    stylesheet used by files in the spine.
+    '''
+    report = report or (lambda x: x)
+    from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
+    from calibre.ebooks.oeb.polish.report import safe_href_to_name
+
+    # Collect spine document names
+    spine_docs = {name for name, _ in container.spine_names}
+
+    # Collect stylesheets referenced by spine documents
+    used_stylesheets = set()
+    for name in spine_docs:
+        if not container.exists(name):
+            continue
+        root = container.parsed(name)
+        for link in root.xpath('//*[local-name()="link" and @href]'):
+            sname = safe_href_to_name(container, link.get('href'), name)
+            if sname and container.exists(sname):
+                mt = container.mime_map.get(sname, '')
+                if mt in OEB_STYLES:
+                    used_stylesheets.add(sname)
+
+    # Collect all images referenced by spine docs and their stylesheets
+    relevant_sources = spine_docs | used_stylesheets
+    referenced_images = set()
+    for source_name in relevant_sources:
+        if not container.exists(source_name):
+            continue
+        for href, line_number, offset in container.iterlinks(source_name):
+            target = safe_href_to_name(container, href, source_name)
+            if target and container.exists(target):
+                mt = container.mime_map.get(target, '')
+                if mt and mt.startswith('image/'):
+                    referenced_images.add(target)
+
+    # Find all images in the container and remove unused ones
+    all_images = {name for name, mt in container.mime_map.items() if mt.startswith('image/') and container.exists(name)}
+    unused_images = all_images - referenced_images
+
+    if not unused_images:
+        report(_('No unused images found'))
+        return False
+
+    for name in sorted(unused_images):
+        report(_('Removing unused image: {}').format(name))
+        container.remove_item(name)
+
+    report('')
+    num = len(unused_images)
+    report(ngettext('Removed one unused image', 'Removed {} unused images', num).format(num))
+    return True
