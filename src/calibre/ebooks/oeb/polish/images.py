@@ -3,7 +3,6 @@
 
 
 import os
-from collections import defaultdict
 from functools import partial
 from queue import Empty, Queue
 from threading import Event, Thread
@@ -138,7 +137,7 @@ def remove_unused_images(container, report=None):
     stylesheet used by files in the spine.
     '''
     report = report or (lambda x: x)
-    from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES
+    from calibre.ebooks.oeb.polish.container import OEB_STYLES
     from calibre.ebooks.oeb.polish.report import safe_href_to_name
 
     # Collect spine document names
