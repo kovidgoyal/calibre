@@ -1,0 +1,53 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Truthout_Sage(BasicNewsRecipe):
+    title          = 'Truthout'
+    __author__     = 'PaulB223'
+    language       = 'en'
+    encoding       = 'utf-8'
+    oldest_article = 4
+    max_articles_per_feed = 100
+
+    no_stylesheets = True
+    remove_javascript = True
+    remove_attributes = ['style', 'width', 'height']
+
+    feeds = [
+        ('Truthout News', 'http://truthout.org/feed?format=feed'),
+    ]
+
+    remove_tags = [
+        dict(name=['nav', 'header', 'footer', 'aside']),
+
+        dict(name=['link', 'meta', 'style', 'svg', 'input', 'source', 'noscript', 'button']),
+
+        dict(attrs={'class': lambda x: x and any(c in x.lower() for c in [
+            'social', 'donate', 'share', 'related', 'topics', 'author-wrapper',
+            'banner', 'newsletter', 'appeal'
+        ])}),
+
+        dict(id=['menu', 'donate-region', 'bannerandheader', 'search-container']),
+
+        dict(attrs={'class': lambda x: x and 'republish' in x.lower()})
+    ]
+
+    remove_tags_after = [
+        dict(attrs={'class': lambda x: x and 'author-bio' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'entry-content' in x.split()})
+    ]
+
+    def get_browser(self, *a, **kw):
+        from calibre import random_user_agent
+        kw['user_agent'] = random_user_agent(allow_ie=False)
+        return BasicNewsRecipe.get_browser(self, *a, **kw)
+
+    def preprocess_html(self, soup):
+        for h1 in soup.findAll('h1'):
+            h1.name = 'h2'
+
+        for img in soup.findAll('img'):
+            if img.has_attr('data-src'):
+                img['src'] = img['data-src']
+
+        return soup
