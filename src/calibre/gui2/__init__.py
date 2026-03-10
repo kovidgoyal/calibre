@@ -292,6 +292,7 @@ class IconResourceManager:
     def set_theme(self):
         self.icon_cache = {}
         is_dark = QApplication.instance().is_dark_theme
+        self.color_palette = 'dark' if is_dark else 'light'
         set_icon_theme(is_dark, bool(self.user_dark_theme_name), bool(self.user_light_theme_name), bool(self.user_any_theme_name))
 
 
