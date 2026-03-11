@@ -1234,6 +1234,7 @@ class ConfigWidget(ConfigWidgetBase):
     def __init__(self, *args, **kw):
         ConfigWidgetBase.__init__(self, *args, **kw)
         self.l = l = QVBoxLayout(self)
+        self.restart_server_after_stop = False
         l.setContentsMargins(0, 0, 0, 0)
         self.tabs_widget = t = QTabWidget(self)
         l.addWidget(t)
@@ -1294,14 +1295,12 @@ class ConfigWidget(ConfigWidgetBase):
     def start_server(self):
         if not self.save_changes():
             return
+        if self.server and self.server.is_running:
+            self.restart_server_after_stop = True
+            self.stop_server()
+            return
         self.setCursor(Qt.CursorShape.BusyCursor)
         try:
-            if self.server and self.server.is_running:
-                self.server.stop()
-                deadline = time.monotonic() + 60
-                while self.server.is_running and time.monotonic() < deadline:
-                    time.sleep(0.1)
-                self.gui.content_server = None
             self.gui.start_content_server(check_started=False)
             while (not self.server.is_running and self.server.exception is None):
                 time.sleep(0.1)
@@ -1336,6 +1335,9 @@ class ConfigWidget(ConfigWidgetBase):
         self.gui.content_server = None
         self.main_tab.update_button_state()
         self.stopping_msg.accept()
+        if self.restart_server_after_stop:
+            self.restart_server_after_stop = False
+            self.start_server()
 
     def test_server(self):
         from calibre.utils.network import format_addr_for_url, get_fallback_server_addr
