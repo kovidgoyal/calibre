@@ -885,6 +885,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 traceback.print_exc()
                 error_dialog(self, _('Failed to update annotations'), _(
                     'Failed to update annotations in the database for the book being currently viewed.'), det_msg=traceback.format_exc(), show=True)
+        elif msg.startswith('save-last-read-position:'):
+            from calibre.gui2.viewer.integration import save_last_read_position_in_gui
+            try:
+                if not save_last_read_position_in_gui(self.library_broker, msg[len('save-last-read-position:'):]):
+                    print('Failed to update last read position for book from viewer, book or library not found.', file=sys.stderr)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         elif msg.startswith('bookedited:'):
             parts = msg.split(':')[1:]
             try:

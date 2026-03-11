@@ -104,6 +104,8 @@ class EbookViewer(MainWindow):
         get_boss(self)
 
         self.annotations_saver = None
+        self.last_read_pos_saver = None
+        self._current_pos_frac = 0.0
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
         self.force_reload = force_reload
@@ -112,7 +114,7 @@ class EbookViewer(MainWindow):
         self.maximized_at_last_fullscreen = False
         self.save_pos_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(3000), t.setTimerType(Qt.TimerType.VeryCoarseTimer)
-        connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
+        t.timeout.connect(self._on_save_pos_timer)
         self.pending_open_at = open_at
         self.pending_search = None
         self.base_window_title = _('E-book viewer')
@@ -733,6 +735,47 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow().isoformat()}]
         self.save_pos_timer.start()
+
+    def _on_save_pos_timer(self):
+        self.save_annotations(in_book_file=False)
+        if self.current_book_data and self.current_book_data.get('book_library_details'):
+            self.web_view.get_current_cfi(self._on_last_read_pos_data)
+
+    def _ensure_last_read_pos_saver(self):
+        if self.last_read_pos_saver is None:
+            from calibre.gui2.viewer.integration import LastReadPositionSaver
+            self.last_read_pos_saver = LastReadPositionSaver()
+            self.last_read_pos_saver.start()
+
+    def _current_calibre_data(self):
+        return {
+            'library_id': self.current_book_data.get('calibre_library_id'),
+            'book_id': self.current_book_data.get('calibre_book_id'),
+            'book_fmt': self.current_book_data.get('calibre_book_fmt'),
+        }
+
+    def _on_last_read_pos_data(self, data):
+        if not data or not self.current_book_data:
+            return
+        cfi = data.get('cfi')
+        pos_frac = data.get('progress_frac') or 0.0
+        self._current_pos_frac = pos_frac
+        if not cfi:
+            return
+        bld = self.current_book_data.get('book_library_details')
+        if not bld:
+            return
+        self._ensure_last_read_pos_saver()
+        self.last_read_pos_saver.save_position(bld, cfi, pos_frac, self._current_calibre_data())
+
+    def _save_last_read_pos_for_close(self, cfi):
+        if not self.current_book_data:
+            return
+        bld = self.current_book_data.get('book_library_details')
+        if not bld:
+            return
+        self._ensure_last_read_pos_saver()
+        self.last_read_pos_saver.save_position(bld, cfi, self._current_pos_frac, self._current_calibre_data())
     # }}}
 
     # State serialization {{{
@@ -823,6 +866,7 @@ class EbookViewer(MainWindow):
     def close_prep_finished(self, cfi):
         if cfi:
             self.cfi_changed(cfi)
+            self._save_last_read_pos_for_close(cfi)
         self.force_close()
 
     def request_close(self):
@@ -849,6 +893,9 @@ class EbookViewer(MainWindow):
             if self.annotations_saver is not None:
                 self.annotations_saver.shutdown()
                 self.annotations_saver = None
+            if self.last_read_pos_saver is not None:
+                self.last_read_pos_saver.shutdown()
+                self.last_read_pos_saver = None
         except Exception:
             import traceback
             traceback.print_exc()
