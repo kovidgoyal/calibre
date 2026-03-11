@@ -363,6 +363,18 @@ def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, bo
         alist = tuple(annotations_as_copied_list(other_amap))
         save_annotations_for_book(cursor, book_id, book_fmt, alist, user_type='web', user=sync_annots_user)
 
+
+def save_last_read_position_to_cursor(cursor, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+    if cfi:
+        cursor.execute(
+            'INSERT OR REPLACE INTO last_read_positions'
+            '(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
+            (book_id, fmt.upper(), user, device, cfi, epoch or time.time(), pos_frac))
+    else:
+        cursor.execute(
+            'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
+            (book_id, fmt.upper(), user, device))
+
 # }}}
 
 
@@ -2645,6 +2657,9 @@ class DB:
             INSERT INTO {0}({0}) VALUES('rebuild');
             INSERT INTO {1}({1}) VALUES('rebuild');
         '''.format('annotations_fts', 'annotations_fts_stemmed'))
+
+    def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
+        save_last_read_position_to_cursor(self.conn.cursor(), book_id, fmt, user, device, cfi, epoch, pos_frac)
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):

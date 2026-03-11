@@ -139,8 +139,7 @@ def save_last_read_position_in_gui(library_broker, msg) -> bool:
     data = json.loads(msg)
     db = library_broker.get(data['library_id'])
     if db:
-        db = db.new_api
-        db.set_last_read_position(
+        db.new_api.set_last_read_position(
             int(data['book_id']), data['book_fmt'].upper(),
             user='local', device='calibre-desktop-viewer',
             cfi=data['cfi'], pos_frac=data['pos_frac'])
@@ -158,7 +157,7 @@ def save_last_read_position_to_library(book_library_details, cfi, pos_frac, cali
 
     import apsw
 
-    from calibre.db.backend import Connection
+    from calibre.db.backend import Connection, save_last_read_position_to_cursor
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)
@@ -168,20 +167,10 @@ def save_last_read_position_to_library(book_library_details, cfi, pos_frac, cali
         conn.setbusytimeout(Connection.BUSY_TIMEOUT)
         if not database_has_last_read_positions_support(conn.cursor()):
             return
-        from time import time
         with conn:
-            if cfi:
-                conn.cursor().execute(
-                    'INSERT OR REPLACE INTO last_read_positions'
-                    '(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
-                    (book_library_details['book_id'], book_library_details['fmt'].upper(),
-                     'local', 'calibre-desktop-viewer', cfi, time(), pos_frac))
-            else:
-                conn.cursor().execute(
-                    'DELETE FROM last_read_positions'
-                    ' WHERE book=? AND format=? AND user=? AND device=?',
-                    (book_library_details['book_id'], book_library_details['fmt'].upper(),
-                     'local', 'calibre-desktop-viewer'))
+            save_last_read_position_to_cursor(
+                conn.cursor(), book_library_details['book_id'], book_library_details['fmt'],
+                'local', 'calibre-desktop-viewer', cfi, pos_frac=pos_frac)
     finally:
         conn.close()
 
@@ -195,7 +184,7 @@ class LastReadPositionSaver(Thread):
     DEBOUNCE_SECONDS = 3.0
 
     def __init__(self):
-        Thread.__init__(self, name='LastReadPositionSaver', daemon=True)
+        super().__init__(name='LastReadPositionSaver', daemon=True)
         self._lock = Lock()
         self._pending = None
         self._event = Event()

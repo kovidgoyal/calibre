@@ -3311,17 +3311,7 @@ class Cache:
 
     @write_api
     def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
-        fmt = fmt.upper()
-        device = device or '_'
-        user = user or '_'
-        if not cfi:
-            self.backend.execute(
-                'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
-                (book_id, fmt, user, device))
-        else:
-            self.backend.execute(
-                'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
-                (book_id, fmt, user, device, cfi, epoch or time(), pos_frac))
+        self.backend.set_last_read_position(book_id, fmt, user, device, cfi, epoch, pos_frac)
 
     @write_api  # doesn't need write access but sqlite does require only a single thread to access the db during backup
     def export_library(self, library_key, exporter, progress=None, abort=None):
