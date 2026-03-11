@@ -878,7 +878,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         elif msg.startswith('save-annotations:'):
             from calibre.gui2.viewer.integration import save_annotations_in_gui
             try:
-                if not save_annotations_in_gui(self.library_broker, msg[len('save-annotations:'):]):
+                library_id, book_id = save_annotations_in_gui(self.library_broker, msg[len('save-annotations:'):])
+                if library_id:
+                    if self.current_db.new_api.library_id == library_id:
+                        lv = self.library_view
+                        current_row = -1
+                        if lv.current_id == book_id:
+                            current_row = lv.currentIndex().row()
+                        self.library_view.model().refresh_ids((book_id,), current_row)
+                else:
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
                 import traceback

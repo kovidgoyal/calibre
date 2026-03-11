@@ -259,15 +259,19 @@ class CreateCustomColumn(QDialog):
             'rating': _('My Rating'),
             'people': _('People'),
             'text': _('My Title'),
+            'read_progress': _('Read progress'),
         }[which])
         self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
-            self.composite_box.setText(
-                {
-                    'isbn': '{identifiers:select(isbn)}',
-                    'formats': "{:'re(approximate_formats(), ',', ', ')'}",
-                    }[which])
+            self.composite_box.setText({
+                'isbn': '{identifiers:select(isbn)}',
+                'formats': "{:'re(approximate_formats(), ',', ', ')'}",
+                'read_progress': '{id:reading_progress()}',
+            }[which])
             self.composite_sort_by.setCurrentIndex(0)
+            if which == 'read_progress':
+                self.composite_sort_by.setCurrentIndex(1)
+                self.store_template_value_in_opf.setChecked(False)
         if which == 'text':
             self.comments_heading_position.setCurrentIndex(self.comments_heading_position.findData('side'))
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
@@ -286,7 +290,8 @@ class CreateCustomColumn(QDialog):
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', ngettext('Series', 'Series', 1)), ('rating',
-                    _('Rating')), ('people', _('Names')), ('text', _('Short text'))]:
+                    _('Rating')), ('people', _('Names')), ('text', _('Short text')),
+                          ('read_progress', _('Read progress'))]:
             text += f' <a href="col:{col}">{name}</a>,'
         text = text[:-1]
         s.setText(text)
@@ -464,7 +469,7 @@ class CreateCustomColumn(QDialog):
 
         # Composite display properties
         l = QHBoxLayout()
-        self.composite_sort_by_label = la = QLabel(_('&Sort/search column by'))
+        self.composite_sort_by_label = la = QLabel(_('&Sort/search column by') + ':')
         self.composite_sort_by = csb = QComboBox(self)
         la.setBuddy(csb), csb.setToolTip(_('How this column should handled in the GUI when sorting and searching'))
         l.addWidget(la), l.addWidget(csb)

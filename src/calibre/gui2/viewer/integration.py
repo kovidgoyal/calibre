@@ -76,23 +76,24 @@ def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt, 
         return False
 
 
-def save_annotations_in_gui(library_broker, msg) -> bool:
+def save_annotations_in_gui(library_broker, msg) -> tuple[str, int]:
     import json
     data = json.loads(msg)
     db = library_broker.get(data['library_id'])
+    lid, book_id = '', 0
     if db:
         db = db.new_api
         book_id, fmt = int(data['book_id']), data['book_fmt'].upper()
         with db.write_lock:
             if db._has_format(book_id, fmt):
+                lid = db.library_id
                 db._save_annotations_list(book_id, fmt, data['sync_annots_user'], data['alist'])
                 if lrd := data.get('last_read_data'):
                     epoch = datetime.fromisoformat(lrd['timestamp']).timestamp()
                     db._set_last_read_position(
                         book_id, fmt, user=EBOOK_VIEWER_USER, device=EBOOK_VIEWER_DEVICE,
                         cfi=lrd['cfi'], pos_frac=lrd['pos_frac'], epoch=epoch)
-                return True
-    return False
+    return lid, book_id
 
 
 def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None, last_read_data=None):
