@@ -6,7 +6,7 @@ import os
 from functools import lru_cache
 from io import BytesIO
 from operator import itemgetter
-from queue import Queue
+from queue import Empty, Queue, ShutDown
 from threading import Thread
 
 from calibre.db.annotations import annotations_as_copied_list, merge_annot_lists
@@ -47,7 +47,7 @@ def save_annots_to_epub(path, serialized_annots):
         safe_replace(zf, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
 
-def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, calibre_data):
+def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, calibre_data, last_read_data=None):
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir(), annotations_path_key), 'wb') as f:
         f.write(annots)
@@ -56,7 +56,7 @@ def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, i
         save_annots_to_epub(pathtoebook, annots)
         update_book(pathtoebook, before_stat, {'calibre-book-annotations.json': annots})
     if bld:
-        save_annotations_list_to_library(bld, annotations_list, sync_annots_user, calibre_data=calibre_data)
+        save_annotations_list_to_library(bld, annotations_list, sync_annots_user, calibre_data=calibre_data, last_read_data=last_read_data)
 
 
 class AnnotationsSaveWorker(Thread):
@@ -67,15 +67,19 @@ class AnnotationsSaveWorker(Thread):
         self.queue = Queue()
 
     def shutdown(self):
-        if self.is_alive():
-            self.queue.put(None)
-            self.join()
+        self.queue.shutdown(True)
 
     def run(self):
         while True:
-            x = self.queue.get()
-            if x is None:
-                return
+            try:
+                x = self.queue.get()
+                while True:
+                    try:
+                        x = self.queue.get_nowait()
+                    except Empty:
+                        break
+            except ShutDown:
+                break
             annotations_list = x['annotations_list']
             annotations_path_key = x['annotations_path_key']
             bld = x['book_library_details']
@@ -83,13 +87,21 @@ class AnnotationsSaveWorker(Thread):
             in_book_file = x['in_book_file']
             sync_annots_user = x['sync_annots_user']
             try:
-                save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, x['calibre_data'])
+                save_annotations(
+                    annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user,
+                    x['calibre_data'], x['last_read_data'])
             except Exception:
                 import traceback
                 traceback.print_exc()
 
     def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user=''):
-        alist = tuple(annotations_as_copied_list(current_book_data['annotations_map']))
+        amap = current_book_data['annotations_map']
+        alist = tuple(annotations_as_copied_list(amap))
+        last_read_data = {}
+        if lr := amap.get('last-read'):
+            last_read_data['cfi'] = lr[0]['pos']
+            last_read_data['timestamp'] = lr[0]['timestamp']
+            last_read_data['pos_frac'] = current_book_data['pos_frac'] or 0.0
         ebp = current_book_data['pathtoebook']
         ext = ebp.rpartition('.')[-1].lower()
         can_save_in_book_file = ext in ('epub', 'kepub')
@@ -105,6 +117,7 @@ class AnnotationsSaveWorker(Thread):
                 'book_id': current_book_data.get('calibre_book_id'),
                 'book_fmt': current_book_data.get('calibre_book_fmt'),
             },
+            'last_read_data': last_read_data,
         })
 
 

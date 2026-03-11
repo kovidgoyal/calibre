@@ -249,6 +249,7 @@ class ViewerBridge(Bridge):
     view_created = from_js(object)
     on_iframe_ready = from_js()
     content_file_changed = from_js(object)
+    update_last_read_position = from_js(object, object)
     set_session_data = from_js(object, object)
     set_local_storage = from_js(object, object)
     reload_book = from_js()
@@ -506,6 +507,7 @@ class WebView(QWebEngineView):
     standalone_misc_settings_changed = pyqtSignal(object)
     view_created = pyqtSignal(object)
     content_file_changed = pyqtSignal(str)
+    update_last_read_position = pyqtSignal(object, object)
     change_toolbar_actions = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -531,6 +533,7 @@ class WebView(QWebEngineView):
         self.bridge.on_iframe_ready.connect(self.on_iframe_ready)
         self.bridge.view_created.connect(self.on_view_created)
         self.bridge.content_file_changed.connect(self.on_content_file_changed)
+        self.bridge.update_last_read_position.connect(self.update_last_read_position)
         self.bridge.set_session_data.connect(self.set_session_data)
         self.bridge.set_local_storage.connect(self.set_local_storage)
         self.bridge.reload_book.connect(self.reload_book)

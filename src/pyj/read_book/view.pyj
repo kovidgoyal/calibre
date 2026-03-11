@@ -1254,6 +1254,8 @@ class View:
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
     def update_cfi_data(self, data):
+        if ui_operations.update_last_read_position:
+            ui_operations.update_last_read_position(data.cfi, data.progress_frac)
         username = get_interface_data().username
         if self.book:
             self.currently_showing.bookpos = data.cfi

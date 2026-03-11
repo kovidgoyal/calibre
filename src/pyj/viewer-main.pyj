@@ -428,6 +428,8 @@ if window is window.top:
         to_python.toggle_inspector()
     ui_operations.content_file_changed = def(name):
         to_python.content_file_changed(name)
+    ui_operations.update_last_read_position = def(cfi, pos_frac):
+        to_python.update_last_read_position(cfi, pos_frac)
     ui_operations.show_search = def(text, trigger):
         to_python.show_search(text, v'!!trigger')
     ui_operations.find_next = def(previous):
