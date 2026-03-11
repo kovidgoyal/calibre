@@ -3267,6 +3267,80 @@ This function works only in the GUI and the content server.
             raise ValueError(str(e))
 
 
+class BuiltinReadingProgress(BuiltinFormatterFunction):
+    name = 'reading_progress'
+    arg_count = -1
+    category = DB_FUNCS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified ''
+output format.[/]The ``user`` parameter defaults to match any user. Use the value ``local`` to match reading progress in
+the calibre e-book viewer. Use ``_`` to match reading progress for anonymous users of the Content server viewer.
+Any other value matches the correcsponding username as used in the Content server.
+
+The ``output_fmt`` paramter controls the format of the text returned by this function. It takes three values:
+[LIST]
+[*] ``page_count`` - the default outputs ``pages read / total pages``. If page counting is not enabled outputs percent read.
+[*] ``percent`` - outputs percent read
+[*] ``pos_frac`` - outputs a fraction between zero and one.
+[/LIST]
+
+The ``which`` parameter controls how the specific reading progress record for the specified ``user`` is selected.
+There can be more than one record if the no user is specified or if the book has been read in multiple formats.
+It accepts two values:
+[LIST]
+[*] ``most_recent`` - the progress of the most recent reader of the book (the default value)
+[*] ``furthest`` - the furthest progress of all matching records
+[/LIST]
+
+The ``fmt`` parameter controls which book format is used. The default is to return records for all formats, the specific
+record is then selected by the ``which`` parameter.
+
+Some examples:
+[CODE]
+{id:reading_progress()} -- the reading progress as pages read / total pages
+                           for the most recent reading session of this book
+{id:reading_progress(,percent)} -- same as above, but as a percentage
+{id:reading_progress(,pos_frac,furthest)} -- same as above, but as a fraction and using the
+                                             furthest progress on this book.
+{id:reading_progress(bob,pos_frac,furthest,EPUB)} -- for the user "bob" and the "EPUB format
+[/CODE]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, book_id, *args):
+        if len(args) > 4:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('reading_progress'))
+        book_id = int(book_id)
+        for_user, output_fmt, which, fmt = '', 'page_count', 'most_recent', ''
+        match len(args):
+            case 4:
+                for_user, output_fmt, which, fmt = args
+            case 3:
+                for_user, output_fmt, which = args
+            case 2:
+                for_user, output_fmt = args
+            case 1:
+                for_user = args[0]
+        order_by = 'pos_frac' if which in ('furthest', 'farthest') else 'epoch'
+        pos_frac = 0
+        with (db := self.get_database(mi, formatter=formatter).new_api).safe_read_lock:
+            if records := db._get_last_read_positions(book_id, fmt=fmt, user=for_user, order_by=order_by, limit=1):
+                pos_frac = records[0]['pos_frac']
+                fmt = records[0]['format']
+            match output_fmt:
+                case 'percent':
+                    return f'{pos_frac:.0%}'
+                case 'page_count':
+                    page_count = 0
+                    if pages := db._get_pages(book_id):
+                        page_count = pages.pages
+                    if page_count > 0:
+                        return f'{int(pos_frac * page_count)} / {page_count}'
+                    return f'{pos_frac:.0%}'
+                case _:
+                    return str(pos_frac)
+
+
 class BuiltinIsDarkMode(BuiltinFormatterFunction):
     name = 'is_dark_mode'
     arg_count = 0

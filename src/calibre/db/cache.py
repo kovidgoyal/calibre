@@ -3300,14 +3300,21 @@ class Cache:
                 report_progress(i+1, len(book_ids), mi)
 
     @read_api
-    def get_last_read_positions(self, book_id, fmt, user):
-        fmt = fmt.upper()
-        ans = []
-        for device, cfi, epoch, pos_frac in self.backend.execute(
-                'SELECT device,cfi,epoch,pos_frac FROM last_read_positions WHERE book=? AND format=? AND user=?',
-                (book_id, fmt, user)):
-            ans.append({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac})
-        return ans
+    def get_last_read_positions(self, book_id, fmt='', user='', order_by='', limit=0):
+        q = 'SELECT device,cfi,epoch,pos_frac,format,user FROM last_read_positions WHERE book=?'
+        bindings = [book_id]
+        if fmt:
+            q += ' AND format=?'
+            bindings.append(fmt.upper())
+        if user:
+            q += ' AND user=?'
+            bindings.append(user)
+        if order_by in ('pos_frac', 'epoch'):
+            q += f' ORDER BY {order_by} DESC'
+        if limit:
+            q += f' LIMIT {int(limit)}'
+        return tuple({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac, 'format': format, 'user': user}
+            for device, cfi, epoch, pos_frac, format, user in self.backend.execute(q, tuple(bindings)))
 
     @write_api
     def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):

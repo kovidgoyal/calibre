@@ -813,7 +813,8 @@ class ReadingTest(BaseTest):
         epoch = time()
         cache.set_last_read_position(1, 'EPUB', 'user', 'device', 'cFi', epoch, 0.3)
         self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
-        self.assertEqual(cache.get_last_read_positions(1, 'ePuB', 'user'), [{'epoch':epoch, 'device':'device', 'cfi':'cFi', 'pos_frac':0.3}])
+        self.assertEqual(cache.get_last_read_positions(1, 'ePuB', 'user'), ({
+            'epoch':epoch, 'device':'device', 'cfi':'cFi', 'pos_frac':0.3, 'format': 'EPUB', 'user': 'user'},))
         cache.set_last_read_position(1, 'EPUB', 'user', 'device')
         self.assertFalse(cache.get_last_read_positions(1, 'ePuB', 'user'))
     # }}}
@@ -836,12 +837,22 @@ class ReadingTest(BaseTest):
         db = self.init_cache(self.library_path)
         db.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
         db.create_custom_column('pages', 'Pages', 'int', False)
-
-        # need an empty metadata object to pass to the formatter
-        db = self.init_legacy(self.library_path)
-        db.new_api.set_field('#pages', {1: '11', 2: '22', 3: '33'})
-        mi = db.get_metadata(1)
-
+        db.set_pages(2, 100, format='FMT1')
+        db.set_pages(2, 100, format='FMT2')
+        db.set_last_read_position(2, 'FMT1', pos_frac=0.25, cfi='epubcfi(/2)', epoch=2)
+        db.set_last_read_position(2, 'FMT2', pos_frac=0.35, cfi='epubcfi(/2)', epoch=1)
+        db.close()
+        db = self.init_cache(self.library_path)
+        db.set_field('#pages', {1: '11', 2: '22', 3: '33'})
+        mi = db.get_metadata(2)
+        # test reading_progress
+        def trp(expected, args=''):
+            self.assertEqual(expected, formatter.safe_format(f'{{id:reading_progress({args})}}', {}, 'TEMPLATE ERROR', mi))
+        trp('25 / 100')
+        trp('25%', ',percent')
+        trp('25%', '_,percent')
+        trp('0.35', ',pos_frac,furthest')
+        trp('0.25', ',pos_frac,furthest,fmt1')
         # test width_from_pages
         v = formatter.safe_format('{#pages:width_from_pages(2,2,0.5)}', {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(v, '1.0')
