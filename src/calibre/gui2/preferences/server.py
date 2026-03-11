@@ -436,7 +436,7 @@ class MainTab(QWidget):  # {{{
             is_running = gui.content_server is not None and gui.content_server.is_running
             self.ip_info.setVisible(is_running)
             self.update_ip_info()
-            self.start_server_button.setEnabled(not is_running)
+            self.start_server_button.setText(_('Re&start server') if is_running else _('&Start server'))
             self.stop_server_button.setEnabled(is_running)
             self.test_server_button.setEnabled(is_running)
 
@@ -1296,6 +1296,12 @@ class ConfigWidget(ConfigWidgetBase):
             return
         self.setCursor(Qt.CursorShape.BusyCursor)
         try:
+            if self.server and self.server.is_running:
+                self.server.stop()
+                deadline = time.monotonic() + 60
+                while self.server.is_running and time.monotonic() < deadline:
+                    time.sleep(0.1)
+                self.gui.content_server = None
             self.gui.start_content_server(check_started=False)
             while (not self.server.is_running and self.server.exception is None):
                 time.sleep(0.1)
