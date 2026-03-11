@@ -3273,20 +3273,21 @@ class BuiltinReadingProgress(BuiltinFormatterFunction):
     category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
-``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified ''
+``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified
 output format.[/]The ``user`` parameter defaults to match any user. Use the value ``local`` to match reading progress in
 the calibre e-book viewer. Use ``_`` to match reading progress for anonymous users of the Content server viewer.
 Any other value matches the correcsponding username as used in the Content server.
 
-The ``output_fmt`` paramter controls the format of the text returned by this function. It takes three values:
+The ``output_fmt`` parameter controls the format of the text returned by this function. It takes three values:
 [LIST]
-[*] ``page_count`` - the default outputs ``pages read / total pages``. If page counting is not enabled outputs percent read.
+[*] ``page_count`` - the default, outputs ``pages read / total pages``. If page counting is not enabled outputs percent read instead.
 [*] ``percent`` - outputs percent read
 [*] ``pos_frac`` - outputs a fraction between zero and one.
 [/LIST]
 
 The ``which`` parameter controls how the specific reading progress record for the specified ``user`` is selected.
-There can be more than one record if the no user is specified or if the book has been read in multiple formats.
+There can be more than one record if the no user is specified or if the book has been read in multiple formats
+or on multiple devices.
 It accepts two values:
 [LIST]
 [*] ``most_recent`` - the progress of the most recent reader of the book (the default value)
