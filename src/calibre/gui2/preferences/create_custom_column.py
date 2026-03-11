@@ -272,6 +272,9 @@ class CreateCustomColumn(QDialog):
             if which == 'read_progress':
                 self.composite_sort_by.setCurrentIndex(1)
                 self.store_template_value_in_opf.setChecked(False)
+                self.description_box.setText(_(
+                    'To customize this, read the help for the {0} template function in the calibre User Manual').format(
+                        'reading_progress()'))
         if which == 'text':
             self.comments_heading_position.setCurrentIndex(self.comments_heading_position.findData('side'))
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
