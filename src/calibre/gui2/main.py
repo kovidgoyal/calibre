@@ -468,7 +468,8 @@ def send_message(msg):
                 time.sleep(0.05)
                 with SingleInstance(singleinstance_name) as si:
                     if si:
-                        raise SystemExit(_('Other instance of calibre shutdown'))
+                        print(_('Other instance of calibre shutdown'), file=sys.stderr)
+                        raise SystemExit(0)
 
     print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
     print(fail_err, file=sys.stderr, flush=True)
