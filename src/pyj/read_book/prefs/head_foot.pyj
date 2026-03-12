@@ -9,6 +9,7 @@ from gettext import ngettext
 from book_list.globals import get_session_data
 from dom import clear, unique_id
 from read_book.prefs.utils import create_button_box
+from read_book.globals import current_book
 from session import get_interface_data, session_defaults
 from utils import fmt_sidx
 from viewer.constants import CHARS_PER_PAGE
@@ -50,6 +51,7 @@ def create_item(region, label, style):
             opt(_('Position in chapter'), 'pos-chapter'),
             opt(_('Pages in chapter'), 'pages-progress'),
             opt(_('Pages from paper edition'), 'page-list'),
+            opt(_('Pages from paper edition with total'), 'page-list-with-total'),
         ))
     )
 
@@ -252,6 +254,15 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
                 text = page_list[0].pagenum
             else:
                 text = f'{page_list[0].pagenum} - {page_list[-1].pagenum}'
+    elif field is 'page-list-with-total':
+        if page_list and page_list.length > 0:
+            if page_list.length is 1:
+                text = page_list[0].pagenum
+            else:
+                text = f'{page_list[0].pagenum} - {page_list[-1].pagenum}'
+            full_page_list = current_book().manifest.page_list
+            if full_page_list:
+                text = f'{text} / {full_page_list[-1].pagenum}'
     if not text:
         text = '\xa0'
     if text is not div.textContent:
