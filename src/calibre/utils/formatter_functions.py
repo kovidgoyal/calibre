@@ -3276,7 +3276,7 @@ r'''
 ``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified
 output format.[/]The ``user`` parameter defaults to match any user. Use the value ``local`` to match reading progress in
 the calibre e-book viewer. Use ``_`` to match reading progress for anonymous users of the Content server viewer.
-Any other value matches the correcsponding username as used in the Content server.
+Any other value matches the corresponding username as used in the Content server.
 
 The ``output_fmt`` parameter controls the format of the text returned by this function. It takes three values:
 [LIST]
