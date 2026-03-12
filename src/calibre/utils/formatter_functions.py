@@ -3286,7 +3286,7 @@ The ``output_fmt`` parameter controls the format of the text returned by this fu
 [/LIST]
 
 The ``which`` parameter controls how the specific reading progress record for the specified ``user`` is selected.
-There can be more than one record if the no user is specified or if the book has been read in multiple formats
+There can be more than one record if no user is specified or if the book has been read in multiple formats
 or on multiple devices.
 It accepts two values:
 [LIST]
