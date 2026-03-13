@@ -23,6 +23,47 @@
 # - title by author
 # }}}
 
+{{{ 9.5.0 2026-03-13
+
+:: new features
+
+- [2142135] Allow creating a column to display reading progress
+
+  Reading progress comes from the calibre E-book viewer. To create the
+  column, go to Preferences->Add your own columns, click the plus
+  button and finally click on the "Read progress" link.
+
+- Annotations browser: Allow filtering by highlight style
+
+- [2142728] E-book viewer: Add an option to display the pages from the paper book page list (when available) while also showing the last page number
+
+- Edit book: Add a tool to remove unused images, similar to the tool to remove unused CSS
+
+- Tolino driver: support new firmware version
+
+- E-book viewer: Add a reset button to the reading stats panel
+
+:: bug fixes
+
+- [2143063] Fix overridden icons from config directory not switching between dark/light variants on theme change
+
+- Fix: Use MOBI fallback for KFX format when downloading news periodicals
+
+- Edit book: Restore focus to editor after showing search count popup message
+
+- Fix a bug in KEPUB markup removal when there are empty kobo spans
+
+- RB Input: Ensure files are extracted within container dir (CVE-2026-30853)
+
+- Book list: Fix ctrl+shift+arrow key not moving the currently selected book. Fixes #2142950
+
+:: improved recipes
+- Naked Capitalism
+
+:: new recipes
+- Truthout by PaulB223
+}}}
+
 {{{ 9.4.0 2026-02-27
 
 :: new features
