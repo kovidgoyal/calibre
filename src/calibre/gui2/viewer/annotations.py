@@ -98,10 +98,10 @@ class AnnotationsSaveWorker(Thread):
         amap = current_book_data['annotations_map']
         alist = tuple(annotations_as_copied_list(amap))
         last_read_data = {}
-        if lr := amap.get('last-read'):
+        if (lr := amap.get('last-read')) and (pos_frac := current_book_data.get('pos_frac')) is not None:
             last_read_data['cfi'] = lr[0]['pos']
             last_read_data['timestamp'] = lr[0]['timestamp']
-            last_read_data['pos_frac'] = current_book_data['pos_frac'] or 0.0
+            last_read_data['pos_frac'] = pos_frac or 0.0
         ebp = current_book_data['pathtoebook']
         ext = ebp.rpartition('.')[-1].lower()
         can_save_in_book_file = ext in ('epub', 'kepub')
