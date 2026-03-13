@@ -10,6 +10,7 @@ class NytMag(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     description = 'The latest from The New York Times Style Magazine.'
     oldest_article = 30  # days
+    browser_type = 'qt'
     encoding = 'utf-8'
     use_embedded_content = False
     language = 'en_US'
@@ -107,7 +108,7 @@ class NytMag(BasicNewsRecipe):
         return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
+        kwargs['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 

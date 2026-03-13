@@ -103,6 +103,7 @@ class NewYorkTimes(BasicNewsRecipe):
             'New York Times. Todays Paper '
             'Use advanced menu to make changes to fetch Web Edition'
         )
+    browser_type = 'qt'
     encoding = 'utf-8'
     __author__ = 'Kovid Goyal'
     language = 'en_US'
@@ -236,7 +237,7 @@ class NewYorkTimes(BasicNewsRecipe):
         return feeds
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
+        kwargs['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
