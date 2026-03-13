@@ -25,6 +25,7 @@ from qt.core import (
     QLabel,
     QMenu,
     QModelIndex,
+    QPalette,
     QPixmap,
     QPushButton,
     QRect,
@@ -32,6 +33,7 @@ from qt.core import (
     QSplitter,
     QStackedWidget,
     Qt,
+    QTimer,
     QTreeView,
     QVBoxLayout,
     QWidget,
@@ -44,7 +46,6 @@ from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.library.models import render_pin
-from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
@@ -500,37 +501,61 @@ class ResultsView(QTreeView):
         return False
 
 
-class Spinner(ProgressIndicator):
+class Summary(QLabel):
 
-    last_mouse_press_at = 0
-    clicked = pyqtSignal(object)
+    frames = ('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
+    stop_requested = pyqtSignal()
 
-    def __init__(self, *a):
-        super().__init__(*a)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setTextFormat(Qt.TextFormat.RichText)
+        self.linkActivated.connect(self.stop_requested)
+        self.timer = t = QTimer(self)
+        t.setInterval(120)
+        t.timeout.connect(self.update_summary)
+        self.stopped_at = self.started_at = 0
+        self.num_matches_found = self.frame = -1
 
-    def sizeHint(self):
-        return QSize(8, 8)
+    def start(self):
+        self.frame = -1
+        self.num_matches_found = -2
+        self.stopped_at = 0
+        self.started_at = time.monotonic()
+        self.timer.start()
 
-    def paintEvent(self, ev):
-        if self.isAnimated():
-            super().paintEvent(ev)
+    def stop(self):
+        self.stopped_at = time.monotonic()
+        self.timer.stop()
+        self.update_summary()
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
-            self.last_mouse_press_at = time.monotonic()
-            ev.accept()
-        super().mousePressEvent(ev)
+    def set_num_of_matches_found(self, num: int) -> None:
+        self.num_matches_found = num
+        self.update_summary()
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
-            dt = time.monotonic() - self.last_mouse_press_at
-            self.last_mouse_press_at = 0
-            if dt < 0.5:
-                self.clicked.emit(ev)
-                ev.accept()
-                return
-        super().mouseReleaseEvent(ev)
+    def update_summary(self):
+        if self.num_matches_found < 0:
+            self.setText(_('Searching...') if self.num_matches_found == -2 else '')
+            return
+        self.frame += 1
+        self.frame %= len(self.frames)
+        frame = self.frames[self.frame]
+        base = ngettext('One book', '{num} books', self.num_matches_found).format(num=self.num_matches_found)
+        dim_color = self.palette().color(QPalette.Disabled, QPalette.Text).name()
+        duration = (self.stopped_at or time.monotonic()) - self.started_at
+        if duration < 60:
+            if self.stopped_at:
+                duration = str(round(duration)) + 's'
+            else:
+                duration = f'{duration:.1f}s'
+        else:
+            m, s = divmod(int(duration), 60)
+            duration = f'{m}m {s}s'
+        duration_text = f'<span style="color:{dim_color}">{duration}</span>'
+        if self.stopped_at:
+            self.setText(f'{base} {duration_text}')
+        else:
+            self.setText(
+                f'{base} {frame} <a href="stop://me.com" style="text-decoration: none">{_("Stop")}</a> {duration_text}')
 
 
 class SearchInputPanel(QWidget):
@@ -541,19 +566,24 @@ class SearchInputPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        QHBoxLayout(self)
+        self.started_at = self.stopped_at = 0
+        self.num_matches_found = -1
+        QVBoxLayout(self)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.v1 = v1 = QVBoxLayout()
-        v1.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.layout().addLayout(v1)
+        self.hsb = hsb = QHBoxLayout()
+        self.layout().addLayout(hsb)
         self.search_box = sb = SearchBox(self)
         sb.cleared.connect(self.clear_search)
         sb.initialize('library-fts-search-box')
         sb.lineEdit().returnPressed.connect(self.search_requested)
         sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
-        v1.addWidget(sb)
+        hsb.addWidget(sb, stretch=10)
+        self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
+        sb.clicked.connect(self.search_requested)
+        hsb.addWidget(sb)
+
         self.h1 = h1 = QHBoxLayout()
-        v1.addLayout(h1)
+        self.layout().addLayout(h1)
         self.restrict = r = QCheckBox(_('&Restrict searched books'))
         r.setToolTip('<p>' + _(
             'Restrict search results to only the books currently showing in the main'
@@ -568,18 +598,9 @@ class SearchInputPanel(QWidget):
             '<i>correction</i>', '<i>correcting</i>', '<i>corrected</i>'))
         rw.setChecked(gprefs['fts_library_use_stemmer'])
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
-        self.summary = s = QLabel(self)
+        self.summary = s = Summary(self)
+        s.stop_requested.connect(self.request_stop_search)
         h1.addWidget(r), h1.addWidget(rw), h1.addStretch(), h1.addWidget(s)
-
-        self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
-        sb.clicked.connect(self.search_requested)
-        self.v2 = v2 = QVBoxLayout()
-        v2.addWidget(sb)
-        self.pi = pi = Spinner(self)
-        pi.clicked.connect(self.request_stop_search)
-        v2.addWidget(pi)
-
-        self.layout().addLayout(v2)
 
     def clear_history(self):
         self.search_box.clear_history()
@@ -588,20 +609,17 @@ class SearchInputPanel(QWidget):
         self.search_box.setText(text)
 
     def start(self):
-        self.pi.start()
+        self.summary.start()
 
     def stop(self):
-        self.pi.stop()
+        self.summary.stop()
 
     def search_requested(self):
         text = self.search_box.text().strip()
         self.search_signal.emit(text)
 
     def matches_found(self, num):
-        if num < 0:
-            self.summary.setText('')
-        else:
-            self.summary.setText(ngettext('One book', '{num} books', num).format(num=num))
+        self.summary.set_num_of_matches_found(num)
 
 
 class ResultDetails(QWidget):
