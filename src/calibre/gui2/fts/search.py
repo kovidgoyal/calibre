@@ -968,7 +968,7 @@ class ResultsPanel(QWidget):
         self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
 
 
-if __name__ == '__main__':
+def develop(wclass=ResultsPanel):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
@@ -978,9 +978,14 @@ if __name__ == '__main__':
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     get_db.db = db(os.path.expanduser('~/test library'))
-    w = ResultsPanel(parent=d)
+    w = wclass(parent=d)
     l.addWidget(w)
     l.addWidget(bb)
     w.sip.search_box.setText('asimov')
     w.sip.search_button.click()
     d.exec()
+    del app
+
+
+if __name__ == '__main__':
+    develop()
