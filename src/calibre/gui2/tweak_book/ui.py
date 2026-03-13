@@ -635,7 +635,7 @@ class Main(MainWindow):
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
-        tm = e.addMenu(_('Table of Contents'))
+        tm = e.addMenu(QIcon.ic('toc.png'), _('Table of Contents'))
         tm.addAction(self.action_toc)
         tm.addAction(self.action_inline_toc)
         e.addAction(self.action_manage_fonts)
@@ -657,7 +657,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
-        er = e.addMenu(_('External &links'))
+        er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
