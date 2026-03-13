@@ -568,22 +568,13 @@ class SearchInputPanel(QWidget):
         super().__init__(parent)
         self.started_at = self.stopped_at = 0
         self.num_matches_found = -1
-        QVBoxLayout(self)
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.hsb = hsb = QHBoxLayout()
-        self.layout().addLayout(hsb)
         self.search_box = sb = SearchBox(self)
         sb.cleared.connect(self.clear_search)
         sb.initialize('library-fts-search-box')
         sb.lineEdit().returnPressed.connect(self.search_requested)
         sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
-        hsb.addWidget(sb, stretch=10)
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
-        hsb.addWidget(sb)
-
-        self.h1 = h1 = QHBoxLayout()
-        self.layout().addLayout(h1)
         self.restrict = r = QCheckBox(_('&Restrict searched books'))
         r.setToolTip('<p>' + _(
             'Restrict search results to only the books currently showing in the main'
@@ -600,7 +591,18 @@ class SearchInputPanel(QWidget):
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = Summary(self)
         s.stop_requested.connect(self.request_stop_search)
-        h1.addWidget(r), h1.addWidget(rw), h1.addStretch(), h1.addWidget(s)
+        self.do_layout()
+
+    def do_layout(self):
+        QVBoxLayout(self)
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.hsb = hsb = QHBoxLayout()
+        self.layout().addLayout(hsb)
+        hsb.addWidget(self.search_box, stretch=10)
+        hsb.addWidget(self.search_button)
+        self.h1 = h1 = QHBoxLayout()
+        self.layout().addLayout(h1)
+        h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addStretch(), h1.addWidget(self.summary)
 
     def clear_history(self):
         self.search_box.clear_history()
