@@ -31,6 +31,7 @@ from qt.core import (
     QRect,
     QSize,
     QSplitter,
+    QStackedLayout,
     QStackedWidget,
     Qt,
     QTimer,
@@ -416,26 +417,15 @@ class ResultsModel(QAbstractItemModel):
 
 class ResultsView(QTreeView):
 
-    search_started = pyqtSignal()
-    matches_found = pyqtSignal(int)
-    search_complete = pyqtSignal()
     current_changed = pyqtSignal(object, object)
-    result_with_context_found = pyqtSignal(object, int)
 
-    def __init__(self, parent=None):
+    def __init__(self, model, parent=None):
         super().__init__(parent)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setHeaderHidden(True)
-        self.m = ResultsModel(self)
-        self.m.result_with_context_found.connect(self.result_with_context_found)
-        self.m.search_complete.connect(self.search_complete)
-        self.m.search_started.connect(self.search_started)
-        self.m.search_started.connect(self.focus_self)
-        self.m.query_failed.connect(self.query_failed, type=Qt.ConnectionType.QueuedConnection)
-        self.m.matches_found.connect(self.matches_found)
-        self.setModel(self.m)
+        self.setModel(model)
         self.delegate = SearchDelegate(self)
         self.setItemDelegate(self.delegate)
         self.setUniformRowHeights(True)
@@ -448,7 +438,7 @@ class ResultsView(QTreeView):
         return ret
 
     def currentChanged(self, current, previous):
-        results, individual_match = self.m.data_for_index(current)
+        results, individual_match = self.model().data_for_index(current)
         if individual_match is not None:
             individual_match = current.row()
         self.current_changed.emit(results, individual_match)
@@ -456,25 +446,9 @@ class ResultsView(QTreeView):
     def focus_self(self):
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def query_failed(self, query, err_msg):
-        error_dialog(self, _('Invalid search query'), _(
-            'The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the'
-            ' supported query syntax.').format(
-                query=query, fts_url=fts_url), det_msg=err_msg, show=True)
-
-    def search(self, *a):
-        gui = get_gui()
-        restrict = None
-        if gui and gprefs['fts_library_restrict_books']:
-            restrict = frozenset(gui.library_view.model().all_current_book_ids())
-        with BusyCursor():
-            self.m.search(*a, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
-            self.expandAll()
-            self.setCurrentIndex(self.m.index(0, 0))
-
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
-        results, match = self.m.data_for_index(index)
+        results, match = self.model().data_for_index(index)
         m = QMenu(self)
         if results:
             m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
@@ -488,17 +462,6 @@ class ResultsView(QTreeView):
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
         m.exec(self.mapToGlobal(pos))
-
-    def view_current_result(self):
-        idx = self.currentIndex()
-        if idx.isValid():
-            results, match = self.m.data_for_index(idx)
-            if results:
-                if match is not None:
-                    match = idx.row()
-                open_book(results, match)
-                return True
-        return False
 
 
 class Summary(QLabel):
@@ -560,7 +523,7 @@ class Summary(QLabel):
 
 class SearchInputPanel(QWidget):
 
-    search_signal = pyqtSignal(object)
+    search_signal = pyqtSignal(str)
     clear_search = pyqtSignal()
     request_stop_search = pyqtSignal()
 
@@ -867,6 +830,50 @@ class LeftPanel(QWidget):
         return QSize(700, 700)
 
 
+class SplitView(QSplitter):
+
+    show_in_viewer = pyqtSignal(int, int, str)
+    remove_book_from_results = pyqtSignal(int)
+
+    def __init__(self, model, parent=None):
+        super().__init__(parent)
+        self.setChildrenCollapsible(False)
+        self.left_panel = lp = LeftPanel(self)
+        self.addWidget(lp)
+        self.results_view = rv = ResultsView(model, parent=self)
+        lp.layout().addWidget(rv)
+        self.details = d = DetailsPanel(parent=self)
+        self.addWidget(d)
+        model.result_with_context_found.connect(d.result_with_context_found)
+        d.show_in_viewer.connect(self.show_in_viewer)
+        d.remove_book_from_results.connect(self.remove_book_from_results)
+        rv.current_changed.connect(d.show_result)
+        st = gprefs.get('fts_search_splitter_state')
+        if st is not None:
+            self.restoreState(st)
+
+    def shutdown(self):
+        b = self.saveState()
+        gprefs['fts_search_splitter_state'] = bytearray(b)
+
+    def search_started(self):
+        self.results_view.focus_self()
+        self.details.clear()
+
+    def matches_found(self, num):
+        self.results_view.expandAll()
+        self.results_view.setCurrentIndex(self.results_view.model().index(0, 0))
+
+    def current_result(self):
+        idx = self.results_view.currentIndex()
+        if idx.isValid():
+            results, match = self.results_view.model().data_for_index(idx)
+            if match is None:
+                match = idx.row()
+            return results, match
+        return None, None
+
+
 class ResultsPanel(QWidget):
 
     switch_to_scan_panel = pyqtSignal()
@@ -875,44 +882,59 @@ class ResultsPanel(QWidget):
         super().__init__(parent)
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
-        self.l = l = QVBoxLayout(self)
-        l.setContentsMargins(0, 0, 0, 0)
-        self.splitter = s = QSplitter(self)
-        s.setChildrenCollapsible(False)
-        l.addWidget(s)
-
-        self.lp = lp = LeftPanel(self)
-        s.addWidget(lp)
-        l = lp.layout()
+        self.results_model = m = ResultsModel(self)
+        m.query_failed.connect(self.query_failed, type=Qt.ConnectionType.QueuedConnection)
+        m.search_started.connect(self.search_started)
+        m.matches_found.connect(self.matches_found)
+        m.search_complete.connect(self.search_complete)
         self.sip = sip = SearchInputPanel(parent=self)
         sip.request_stop_search.connect(self.request_stop_search)
-        l.addWidget(sip)
-        self.results_view = rv = ResultsView(parent=self)
-        l.addWidget(rv)
-        self.search = rv.search
-        rv.search_started.connect(self.sip.start)
-        rv.matches_found.connect(self.sip.matches_found)
-        rv.search_complete.connect(self.sip.stop)
         sip.search_signal.connect(self.search)
         sip.clear_search.connect(self.clear_results)
+        self.split_view = sv = SplitView(self.results_model, self)
+        sv.show_in_viewer.connect(self.show_in_viewer)
+        sv.remove_book_from_results.connect(self.remove_book_from_results)
+        QStackedLayout(self)
+        self.layout().addWidget(sv)
+        self.set_view_mode()
 
-        self.details = d = DetailsPanel(self)
-        d.show_in_viewer.connect(self.show_in_viewer)
-        d.remove_book_from_results.connect(self.remove_book_from_results)
-        rv.current_changed.connect(d.show_result)
-        rv.search_started.connect(d.clear)
-        rv.result_with_context_found.connect(d.result_with_context_found)
-        s.addWidget(d)
-        st = gprefs.get('fts_search_splitter_state')
-        if st is not None:
-            s.restoreState(st)
+    def set_view_mode(self, is_split=True):
+        if is_split:
+            self.split_view.left_panel.layout().insertWidget(0, self.sip)
+
+    @property
+    def current_view(self):
+        return self.split_view
+
+    def search(self, text: str):
+        gui = get_gui()
+        restrict = None
+        if gui and gprefs['fts_library_restrict_books']:
+            restrict = frozenset(gui.library_view.model().all_current_book_ids())
+        with BusyCursor():
+            self.results_model.search(text, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
+
+    def search_started(self):
+        self.split_view.search_started()
+        self.sip.start()
+
+    def search_complete(self):
+        self.sip.stop()
+
+    def matches_found(self, num):
+        self.split_view.matches_found(num)
+        self.sip.matches_found(num)
 
     @property
     def jump_to_current_book_action(self):
-        return self.details.result_details.jump_action
+        return self.split_view.details.result_details.jump_action
 
     def view_current_result(self):
-        return self.results_view.view_current_result()
+        results, match = self.current_view.current_result()
+        if results:
+            open_book(results, match)
+            return True
+        return False
 
     def clear_history(self):
         self.sip.clear_history()
@@ -921,15 +943,15 @@ class ResultsPanel(QWidget):
         self.sip.set_search_text(text)
 
     def remove_book_from_results(self, book_id):
-        self.results_view.m.remove_book(book_id)
+        self.results_model.remove_book(book_id)
 
     def show_in_viewer(self, book_id, result_num, fmt):
-        r = self.results_view.m.get_result(book_id, result_num)
+        r = self.results_model.get_result(book_id, result_num)
         show_in_viewer(book_id, r['text'], fmt)
 
     def request_stop_search(self):
         if question_dialog(self, _('Are you sure?'), _('Abort the current search?')):
-            self.results_view.m.abort_search()
+            self.results_model.abort_search()
 
     def specialize_button_box(self, bb):
         bb.clear()
@@ -958,16 +980,21 @@ class ResultsPanel(QWidget):
                 gui.library_view.select_rows(book_ids)
 
     def clear_results(self):
-        self.results_view.m.clear_results()
+        self.results_model.clear_results()
 
     def shutdown(self):
-        b = self.splitter.saveState()
-        gprefs['fts_search_splitter_state'] = bytearray(b)
+        self.split_view.shutdown()
         self.clear_results()
         self.sip.search_box.setText('')
 
     def on_show(self):
         self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def query_failed(self, query, err_msg):
+        error_dialog(self, _('Invalid search query'), _(
+            'The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the'
+            ' supported query syntax.').format(
+                query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
 
 def develop(wclass=ResultsPanel):
