@@ -45,7 +45,7 @@ from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
-from calibre.gui2.fts.utils import get_db
+from calibre.gui2.fts.utils import get_db, markup_text
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -715,24 +715,13 @@ class ResultDetails(QWidget):
 
     def render_results(self, results, individual_match=None):
         html = []
-        markup_pat = re.compile(r'\x1d')
-
-        def markup_text(text):
-            count = 0
-
-            def sub(m):
-                nonlocal count
-                count += 1
-                return '<b><i>' if count % 2 else '</i></b>'
-
-            return markup_pat.sub(sub, text)
 
         ci = self.current_individual_match
         for i, (result, formats) in enumerate(zip(results.result_dicts, results.formats)):
             if ci is not None and ci != i:
                 continue
             text = result['text']
-            text = markup_text(prepare_string_for_xml(text))
+            text = markup_text(text)
             html.append('<hr>')
             for fmt in formats:
                 fmt = fmt.upper()
