@@ -310,8 +310,10 @@ class LibraryDatabase:
         '''
         self.listeners.add(listener)
 
-    def notify(self, event, ids=[]):
+    def notify(self, event, ids=None):
         'Notify all listeners'
+        if ids is None:
+            ids = []
         for listener in self.listeners:
             try:
                 listener(event, ids)
@@ -612,7 +614,11 @@ class LibraryDatabase:
         if notify:
             self.notify('metadata', ids)
 
-    def bulk_modify_tags(self, ids, add=[], remove=[], notify=False):
+    def bulk_modify_tags(self, ids, add=None, remove=None, notify=False):
+        if add is None:
+            add = []
+        if remove is None:
+            remove = []
         self._do_bulk_modify('tags', ids, add, remove, notify)
 
     def set_custom_bulk_multiple(self, ids, add=[], remove=[], label=None, num=None, notify=False):
