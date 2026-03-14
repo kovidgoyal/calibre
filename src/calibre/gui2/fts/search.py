@@ -315,14 +315,15 @@ class ResultsModel(QAbstractItemModel):
         for book_id in book_ids:
             kw['restrict_to_book_ids'] = {book_id}
             for result in db.fts_search(*a, **kw):
-                # wait for some time so that other threads/processes that try to access the db can be scheduled
+                # wait for some time so that other threads/processes can be scheduled
                 if abort.wait(0.01):
                     return
                 try:
                     self.result_found.emit(query_id, result)
                 except RuntimeError:  # if dialog is deleted from under us
                     return
-        self.all_results_found.emit(query_id)
+        with suppress(RuntimeError):
+            self.all_results_found.emit(query_id)
 
     def result_with_text_found(self, query_id, result):
         if query_id != self.current_query_id:
