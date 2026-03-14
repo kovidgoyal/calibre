@@ -56,6 +56,7 @@ from calibre.utils.localization import ngettext
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
 fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
+jump_shortcut = ''
 
 
 def mark_books(*book_ids):
@@ -317,7 +318,10 @@ class ResultsModel(QAbstractItemModel):
                 # wait for some time so that other threads/processes that try to access the db can be scheduled
                 if abort.wait(0.01):
                     return
-                self.result_found.emit(query_id, result)
+                try:
+                    self.result_found.emit(query_id, result)
+                except RuntimeError:  # if dialog is deleted from under us
+                    return
         self.all_results_found.emit(query_id)
 
     def result_with_text_found(self, query_id, result):
@@ -594,9 +598,6 @@ class ResultDetails(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.jump_action = ac = QAction(self)
-        ac.triggered.connect(self.jump_to_current_book)
-        ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
         self.key = None
         self.pixmap_label = pl = QLabel(self)
         pl.setScaledContents(True)
@@ -620,7 +621,7 @@ class ResultDetails(QWidget):
             if url.host() == 'mark':
                 mark_books(self.current_book_id)
             elif url.host() == 'jump':
-                jump_to_book(self.current_book_id)
+                jump_to_book(self.current_book_id, self)
             elif url.host() == 'unindex':
                 db = get_db()
                 db.fts_unindex(self.current_book_id)
@@ -633,10 +634,6 @@ class ResultDetails(QWidget):
                     ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
                     ' to see updated results.'), show=True)
                 self.remove_book_from_results.emit(self.current_book_id)
-
-    def jump_to_current_book(self):
-        if self.current_book_id > -1:
-            jump_to_book(self.current_book_id)
 
     def results_anchor_clicked(self, url):
         if self.current_book_id > 0 and url.scheme() == 'book':
@@ -699,7 +696,7 @@ class ResultDetails(QWidget):
         ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
         text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
             _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it [{}]').format(
-                self.jump_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)), ict.format('lt.png'))
+                jump_shortcut), ict.format('lt.png'))
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
                 'Put a pin on this book in the calibre library, for future reference.'
@@ -845,6 +842,8 @@ class SplitView(QSplitter):
         self.details = d = DetailsPanel(parent=self)
         self.addWidget(d)
         model.result_with_context_found.connect(d.result_with_context_found)
+        model.matches_found.connect(self.matches_found)
+        model.search_started.connect(self.search_started)
         d.show_in_viewer.connect(self.show_in_viewer)
         d.remove_book_from_results.connect(self.remove_book_from_results)
         rv.current_changed.connect(d.show_result)
@@ -874,12 +873,24 @@ class SplitView(QSplitter):
         return None, None
 
 
+class CardView(QWidget):
+
+    def __init__(self, model, parent=None):
+        super().__init__(parent)
+        QVBoxLayout(self)
+
+
 class ResultsPanel(QWidget):
 
     switch_to_scan_panel = pyqtSignal()
 
     def __init__(self, parent=None):
+        global jump_shortcut
         super().__init__(parent)
+        self.jump_to_current_book_action = ac = QAction(self)
+        ac.triggered.connect(self.jump_to_current_book)
+        ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
+        jump_shortcut = ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
         self.results_model = m = ResultsModel(self)
@@ -896,15 +907,21 @@ class ResultsPanel(QWidget):
         sv.remove_book_from_results.connect(self.remove_book_from_results)
         QStackedLayout(self)
         self.layout().addWidget(sv)
+        self.card_view = cv = CardView(self.results_model, self)
+        self.layout().addWidget(cv)
         self.set_view_mode()
 
     def set_view_mode(self, is_split=True):
         if is_split:
             self.split_view.left_panel.layout().insertWidget(0, self.sip)
+            self.layout().setCurrentIndex(0)
+        else:
+            self.card_view.layout().insertWidget(0, self.sip)
+            self.layout().setCurrentIndex(1)
 
     @property
     def current_view(self):
-        return self.split_view
+        self.layout().currentWidget()
 
     def search(self, text: str):
         gui = get_gui()
@@ -915,19 +932,18 @@ class ResultsPanel(QWidget):
             self.results_model.search(text, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
 
     def search_started(self):
-        self.split_view.search_started()
         self.sip.start()
 
     def search_complete(self):
         self.sip.stop()
 
     def matches_found(self, num):
-        self.split_view.matches_found(num)
         self.sip.matches_found(num)
 
-    @property
-    def jump_to_current_book_action(self):
-        return self.split_view.details.result_details.jump_action
+    def jump_to_current_book(self):
+        results, match = self.current_view.current_result()
+        if results:
+            jump_to_book(results.book_id, self)
 
     def view_current_result(self):
         results, match = self.current_view.current_result()
