@@ -715,7 +715,6 @@ class ResultDetails(QWidget):
 
     def render_results(self, results, individual_match=None):
         html = []
-        space_pat = re.compile(r'\s+')
         markup_pat = re.compile(r'\x1d')
 
         def markup_text(text):
@@ -726,7 +725,7 @@ class ResultDetails(QWidget):
                 count += 1
                 return '<b><i>' if count % 2 else '</i></b>'
 
-            return space_pat.sub(' ', markup_pat.sub(sub, text))
+            return markup_pat.sub(sub, text)
 
         ci = self.current_individual_match
         for i, (result, formats) in enumerate(zip(results.result_dicts, results.formats)):
