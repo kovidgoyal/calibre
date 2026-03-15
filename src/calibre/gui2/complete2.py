@@ -31,6 +31,7 @@ from qt.core import (
 
 from calibre.constants import ismacos
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.spell.break_iterator import get_word_break_iterator_for_ui_thread
 from calibre.utils.config import tweaks
 from calibre.utils.icu import primary_contains, primary_find, primary_sort_key, primary_startswith, sort_key
 
@@ -43,6 +44,20 @@ def hierarchy_startswith(x, prefix, sep='.'):
     return primary_startswith(x, prefix) or primary_contains(sep + prefix, x)
 
 
+def word_prefix_find(x, prefix):
+    '''Return position of the first word in x that starts with prefix, or -1 if not found.'''
+    it = get_word_break_iterator_for_ui_thread()
+    it.set_text(x)
+    for pos, size in it.split2():
+        if primary_startswith(x[pos:], prefix):
+            return pos
+    return -1
+
+
+def word_prefix_match(x, prefix):
+    return word_prefix_find(x, prefix) >= 0
+
+
 class CompleteModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None, sort_func=sort_key, strip_completion_entries=True):
@@ -51,7 +66,9 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
-        self.use_startswith_search = tweaks['completion_mode'] == 'prefix'
+        completion_mode = tweaks['completion_mode']
+        self.use_startswith_search = completion_mode == 'prefix'
+        self.use_word_prefix_search = completion_mode == 'word-prefix'
 
     def set_items(self, items):
         if self.strip_completion_entries:
@@ -76,7 +93,10 @@ class CompleteModel(QAbstractListModel):  # {{{
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
-        func = primary_startswith if self.use_startswith_search else containsq
+        if self.use_word_prefix_search:
+            func = word_prefix_match
+        else:
+            func = primary_startswith if self.use_startswith_search else containsq
         if func is primary_startswith and hierarchy_separator:
             if hierarchy_separator != '.':
                 func = partial(hierarchy_startswith, sep=hierarchy_separator)
@@ -95,6 +115,12 @@ class CompleteModel(QAbstractListModel):  # {{{
                     return ans, sk
                 except Exception:
                     return len(x) + 10, sk
+            self.current_items = tuple(sorted(self.current_items, key=skey))
+        elif func is word_prefix_match:
+            def skey(x):
+                sk = primary_sort_key(x)
+                pos = word_prefix_find(x, prefix)
+                return (pos if pos >= 0 else len(x) + 10), sk
             self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
 
