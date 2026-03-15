@@ -229,9 +229,6 @@ class Results:
         self._book_in_db = in_db[self.book_id]
 
 
-FTS_SORT_ORDER_DEFAULT = 'relevance'
-
-
 class ResultsModel(QAbstractItemModel):
 
     result_found = pyqtSignal(int, object)
@@ -316,8 +313,11 @@ class ResultsModel(QAbstractItemModel):
             fts_engine_query, use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
             restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
         )
-        self.endResetModel()
         self._original_results = list(self.results)
+        sort_key = gprefs['fts_sort_order']
+        if sort_key != 'relevance':
+            self.do_sort_on_field(sort_key)
+        self.endResetModel()
         if not failure:
             self.matches_found.emit(len(self.results))
         self.current_query_id = next(self.query_id_counter)
@@ -349,19 +349,7 @@ class ResultsModel(QAbstractItemModel):
             return True
         return False
 
-    def sort_results(self, sort_key):
-        '''Re-sort the current results using the given sort key. Emits results_resorted signal.'''
-        if not self.results:
-            return
-        if sort_key == 'relevance':
-            if self._original_results is not None:
-                current_ids = frozenset(r.book_id for r in self.results)
-                self.beginResetModel()
-                self.results = [r for r in self._original_results if r.book_id in current_ids]
-                self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
-                self.endResetModel()
-                self.results_resorted.emit()
-            return
+    def do_sort_on_field(self, sort_key):
         field_map = {
             'newest': [('timestamp', False)],
             'rating': [('rating', False)],
@@ -376,11 +364,26 @@ class ResultsModel(QAbstractItemModel):
         current_ids = frozenset(r.book_id for r in self.results)
         sorted_ids = db.multisort(fields, ids_to_sort=current_ids)
         results_by_id = {r.book_id: r for r in self.results}
-        self.beginResetModel()
         self.results = [results_by_id[bid] for bid in sorted_ids if bid in results_by_id]
         self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
-        self.endResetModel()
-        self.results_resorted.emit()
+
+    def sort_results(self, sort_key):
+        '''Re-sort the current results using the given sort key. Emits results_resorted signal.'''
+        if not self.results:
+            return
+        if sort_key == 'relevance':
+            if self._original_results is not None:
+                current_ids = frozenset(r.book_id for r in self.results)
+                self.beginResetModel()
+                self.results = [r for r in self._original_results if r.book_id in current_ids]
+                self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
+                self.endResetModel()
+                self.results_resorted.emit()
+        else:
+            self.beginResetModel()
+            self.do_sort_on_field(sort_key)
+            self.endResetModel()
+            self.results_resorted.emit()
 
     def search_text_in_thread(self, query_id, abort, book_ids, *a, **kw):
         db = get_db()
@@ -664,15 +667,6 @@ class SearchInputPanel(QWidget):
         self._setup_sort_button()
         self.do_layout()
 
-    _sort_options = (
-        ('relevance', lambda: _('Relevance')),
-        ('newest',    lambda: _('Newest')),
-        ('rating',    lambda: _('Highest rating')),
-        ('pubdate',   lambda: _('Recently published')),
-        ('size',      lambda: _('Size')),
-        ('pages',     lambda: _('Pages')),
-    )
-
     def _setup_sort_button(self):
         self.sort_button = b = QToolButton(self)
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
@@ -682,11 +676,18 @@ class SearchInputPanel(QWidget):
         b.setMenu(sort_menu)
         ag = QActionGroup(b)
         ag.setExclusive(True)
-        current_sort = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
+        current_sort = gprefs['fts_sort_order']
         self._sort_action_map = {}
-        self._sort_labels = {key: label_func for key, label_func in self._sort_options}
-        for key, label_func in self._sort_options:
-            ac = sort_menu.addAction(label_func())
+        self._sort_labels = {
+            'relevance': _('Relevance'),
+            'newest':    _('Newest'),
+            'rating':    _('Highest rated'),
+            'pubdate':   _('Recently published'),
+            'size':      _('Largest'),
+            'pages':     _('Most pages'),
+        }
+        for key, label in self._sort_labels.items():
+            ac = sort_menu.addAction(label)
             ac.setCheckable(True)
             ac.setChecked(key == current_sort)
             ac.setData(key)
@@ -696,16 +697,14 @@ class SearchInputPanel(QWidget):
         self._update_sort_button_label()
 
     def _sort_triggered(self, action):
-        key = action.data()
-        if key:
+        if key := action.data():
             gprefs['fts_sort_order'] = key
             self._update_sort_button_label()
             self.sort_order_changed.emit(key)
 
     def _update_sort_button_label(self):
-        current = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
-        label_func = self._sort_labels.get(current, self._sort_options[0][1])
-        self.sort_button.setText(_('Sort by: {0}').format(label_func()))
+        q = gprefs['fts_sort_order']
+        self.sort_button.setText(_('Sort by: {}').format(self._sort_labels.get(q, q)))
 
     def do_layout(self):
         QVBoxLayout(self)
@@ -1048,9 +1047,6 @@ class ResultsPanel(QWidget):
 
     def search_complete(self):
         self.sip.stop()
-        sort_key = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
-        if sort_key != FTS_SORT_ORDER_DEFAULT:
-            self.results_model.sort_results(sort_key)
 
     def set_sort_order(self, sort_key):
         self.results_model.sort_results(sort_key)

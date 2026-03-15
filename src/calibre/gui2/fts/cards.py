@@ -371,7 +371,14 @@ class VirtualCardContainer(QWidget):
             self._cards_map[id(r)] for r in self.model.results if id(r) in self._cards_map
         )
         if self.isVisible():
+            self._clear_live_widgets()
             self._full_relayout()
+
+    def _clear_live_widgets(self):
+        for w in self._live_widgets.values():
+            self._pool.append(w)
+            w.hide()
+        self._live_widgets.clear()
 
     def render_covers(self, queue: Queue[int], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
         while True:
