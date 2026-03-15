@@ -48,7 +48,6 @@ from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.viewer.highlights import decoration_for_style
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
@@ -537,6 +536,7 @@ class ResultsList(QTreeWidget):
         '''
         Create child items under a parent of the annotations tree.
         '''
+        from calibre.gui2.viewer.highlights import decoration_for_style
         is_dark = is_dark_theme()
         dpr = self.devicePixelRatioF()
         for key, entry in sorted(children.items(), key=lambda kv: kv[0]):
@@ -707,6 +707,7 @@ class Restrictions(QWidget):
         # Append highlight colors after the 'highlight' entry, if it exists
         highlight_row = tb.findData({'type': 'highlight'})
         if highlight_row > -1:
+            from calibre.gui2.viewer.highlights import decoration_for_style
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
