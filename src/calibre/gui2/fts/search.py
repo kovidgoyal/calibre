@@ -361,6 +361,8 @@ class ResultsModel(QAbstractItemModel):
         if fields is None:
             return
         db = get_db()
+        if sort_key == 'pages':
+            db.queue_pages_scan()
         current_ids = frozenset(r.book_id for r in self.results)
         sorted_ids = db.multisort(fields, ids_to_sort=current_ids)
         results_by_id = {r.book_id: r for r in self.results}
