@@ -67,6 +67,14 @@ def mark_books(*book_ids):
         gui.iactions['Mark Books'].add_ids(book_ids)
 
 
+def reindex_book(book_id, parent):
+    get_db().reindex_fts_book(book_id)
+    info_dialog(parent, _('Scheduled for re-indexing'), _(
+        'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
+        ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
+        ' to see updated results.'), show=True)
+
+
 def jump_to_book(book_id, parent=None):
     gui = get_gui()
     if gui is not None:
@@ -651,12 +659,7 @@ class ResultDetails(QWidget):
                 db.fts_unindex(self.current_book_id)
                 self.remove_book_from_results.emit(self.current_book_id)
             elif url.host() == 'reindex':
-                db = get_db()
-                db.reindex_fts_book(self.current_book_id)
-                info_dialog(self, _('Scheduled for re-indexing'), _(
-                    'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
-                    ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
-                    ' to see updated results.'), show=True)
+                reindex_book(self.current_book_id, self)
                 self.remove_book_from_results.emit(self.current_book_id)
 
     def results_anchor_clicked(self, url):
@@ -977,16 +980,10 @@ class ResultsPanel(QWidget):
         elif which == 'mark':
             mark_books(book_id)
         elif which == 'unindex':
-            db = get_db()
-            db.fts_unindex(book_id)
+            get_db().fts_unindex(book_id)
             self.remove_book_from_results(book_id)
         elif which == 'reindex':
-            db = get_db()
-            db.reindex_fts_book(book_id)
-            info_dialog(self, _('Scheduled for re-indexing'), _(
-                'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
-                ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
-                ' to see updated results.'), show=True)
+            reindex_book(book_id, self)
             self.remove_book_from_results(book_id)
 
     def show_in_viewer(self, book_id, result_num, fmt):

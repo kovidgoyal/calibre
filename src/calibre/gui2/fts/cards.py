@@ -24,7 +24,6 @@ from qt.core import (
     Qt,
     QTextCursor,
     QTextDocument,
-    QTextFormat,
     QTimer,
     QToolTip,
     QUrl,
@@ -97,7 +96,8 @@ def button_line(book_id: int, has_book: bool) -> str:
     )
     if has_book:
         li = template.format(which='reindex', icon='view-refresh.png', text=_('Re-index'), tt=_(
-            'Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'))
+            'Re-index this book. Useful if the book has been changed'
+            ' outside of calibre, and thus not automatically re-indexed.'))
     else:
         li = template.format(which='unindex', icon='trash.png', text=_('Un-index'), tt=_(
             'This book has been deleted from the library but is still present in the'
@@ -229,8 +229,7 @@ class CardWidget(QWidget):
             cursor = QTextCursor(doc)
             cursor.setPosition(cursor_pos)
             fmt = cursor.charFormat()
-            if fmt.isAnchor():
-                title = fmt.stringProperty(QTextFormat.Property.AnchorTitle)
+            title = fmt.toolTip()
         return href, title
 
     def mouseMoveEvent(self, event):
