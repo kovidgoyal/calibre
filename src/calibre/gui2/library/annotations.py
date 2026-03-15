@@ -7,6 +7,7 @@ import os
 import re
 from functools import lru_cache, partial
 from urllib.parse import quote
+from enum import StrEnum
 
 from qt.core import (
     QAbstractItemView,
@@ -47,6 +48,7 @@ from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.viewer.highlights import decoration_for_style
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
@@ -377,6 +379,12 @@ def current_db():
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
 
 
+class Group(StrEnum):
+    BOOK_ID = "Title"
+    AUTHOR = "Author"
+    USER = "User"
+    DATE = "Date"
+
 class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
@@ -442,40 +450,32 @@ class ResultsList(QTreeWidget):
         if isinstance(r, dict):
             self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
 
-    def set_results(self, results, emphasize_text):
-        from calibre.gui2.viewer.highlights import decoration_for_style
-        is_dark = is_dark_theme()
-        dpr = self.devicePixelRatioF()
+    def set_results(self, results, emphasize_text, group_order=(Group.BOOK_ID,)):
         self.clear()
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
         self.item_map = []
-        book_id_map = {}
-        db = current_db()
+
+        # Ensure deepest level is always Book/Title
+        if not group_order:
+            group_order = (Group.BOOK_ID,)
+        if group_order[-1] != Group.BOOK_ID:
+            group_order = tuple(group_order) + (Group.BOOK_ID,)
+
+        tree = {}
         for result in results:
-            book_id = result['book_id']
-            if book_id not in book_id_map:
-                book_id_map[book_id] = {'title': db.field_for('title', book_id), 'matches': []}
-            book_id_map[book_id]['matches'].append(result)
-        for book_id, entry in book_id_map.items():
-            section = QTreeWidgetItem([entry['title']], 1)
-            section.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            section.setFont(0, self.section_font)
-            section.setData(0, Qt.ItemDataRole.UserRole, book_id)
-            self.addTopLevelItem(section)
-            section.setExpanded(True)
-            for result in sorted_items(entry['matches']):
-                item = QTreeWidgetItem(section, [' '], 2)
-                self.item_map.append(item)
-                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
-                item.setData(0, Qt.ItemDataRole.UserRole, result)
-                item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
-                self.number_of_results += 1
-                a = result.get('annotation')
-                if a and (s := a.get('style')):
-                    dec = decoration_for_style(self.palette(), s, self.icon_size, dpr, is_dark)
-                    if dec:
-                        item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
+            node = tree
+            entry = None
+            for g in group_order:
+                key, label = self.grouping_key(result, g)
+                if key not in node:
+                    node[key] = {'label': label, 'children': {}, 'results': []}
+                entry = node[key]
+                node = entry['children']
+            if entry is not None:
+                entry['results'].append(result)
+
+        self.add_children(None, tree)
         if self.item_map:
             self.setCurrentItem(self.item_map[0])
 
@@ -495,6 +495,74 @@ class ResultsList(QTreeWidget):
         i += -1 if backwards else 1
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
+    
+    def grouping_key(self, result, group_type):
+        '''
+        Given an annotation and group type, return an association from
+        the result to a localized value in that group.
+        '''
+        db = current_db()
+        bid = result['book_id']
+        if group_type == Group.BOOK_ID:
+            title = db.field_for('title', bid)
+            return (title.lower(), bid), title
+        if group_type == Group.AUTHOR:
+            authors = db.field_for('authors', bid)
+            text = authors_to_string(authors)
+            return (text.lower(), text), text or _('Unknown author')
+        if group_type == Group.USER:
+            user = friendly_username(result['user_type'], result['user'])
+            return (user.lower(), user), user
+        if group_type == Group.DATE:
+            # Using QDateTime is a little awkward here, as it's never displayed,
+            # but it contains a bunch of helpful tools for localization.
+            ts = result['annotation'].get('timestamp')
+            qdt = QDateTime.fromString(ts, Qt.DateFormat.ISODate)
+            if qdt.isValid():
+                # Bucket the timestamps by discrete day, using the system's local timezone
+                qdt = qdt.toLocalTime()
+                qdate = qdt.date()
+                jd = qdate.toJulianDay()
+            else:
+                qdate = QDateTime.currentDateTime().date()
+                jd = qdate.toJulianDay()
+            loc = QLocale.system()
+            label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat))
+            if not label:
+                label = _('Unknown date')
+            return (jd, label), label
+        return (result['id'],), _('Other')
+
+    def add_children(self, parent_item, children):
+        '''
+        Create child items under a parent of the annotations tree.
+        '''
+        is_dark = is_dark_theme()
+        dpr = self.devicePixelRatioF()
+        for key, entry in sorted(children.items(), key=lambda kv: kv[0]):
+            item = QTreeWidgetItem([entry['label']], 1)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            item.setFont(0, self.section_font)
+            item.setData(0, Qt.ItemDataRole.UserRole, key)
+            if parent_item is None:
+                self.addTopLevelItem(item)
+            else:
+                parent_item.addChild(item)
+            item.setExpanded(True)
+            if entry['children']:
+                self.add_children(item, entry['children'])
+            for result in sorted_items(entry['results']):
+                res_item = QTreeWidgetItem(item, [' '], 2)
+                self.item_map.append(res_item)
+                res_item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
+                res_item.setData(0, Qt.ItemDataRole.UserRole, result)
+                res_item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
+                self.number_of_results += 1
+                a = result.get('annotation')
+                if a and (s := a.get('style')):
+                    dec = decoration_for_style(self.palette(), s, self.icon_size, dpr, is_dark)
+                    if dec:
+                        res_item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
 
     @property
     def selected_annot_ids(self):
@@ -639,7 +707,6 @@ class Restrictions(QWidget):
         # Append highlight colors after the 'highlight' entry, if it exists
         highlight_row = tb.findData({'type': 'highlight'})
         if highlight_row > -1:
-            from calibre.gui2.viewer.highlights import decoration_for_style
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
@@ -678,6 +745,59 @@ class Restrictions(QWidget):
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
 
+class GroupOptions(QWidget):
+    grouping_changed = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        v = QVBoxLayout(self)
+        v.setContentsMargins(0, 0, 0, 0)
+        h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        v.addLayout(h)
+        la = QLabel(_('Group by:'))
+        h.addWidget(la)
+        self.group_box = gb = QComboBox(self)
+        gb.currentIndexChanged.connect(self.grouping_changed)
+        connect_lambda(gb.currentIndexChanged, gb, lambda gb: gprefs.set('browse_annots_group_by', gb.currentData()))
+        la.setBuddy(gb)
+        gb.setToolTip(_('Display annotations grouped by this value'))
+        gb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        h.addWidget(gb)
+        h.addStretch(10)
+
+    @property
+    def selected_group(self):
+        data = self.group_box.currentData()
+        if isinstance(data, dict):
+            # Backwards compatibility with previous storage format
+            data = next(iter(data.values())) if data else None
+        return data or Group.BOOK_ID
+
+    @property
+    def group_order(self):
+        # Ensure final level is always Book/Title
+        order = [self.selected_group]
+        if order[-1] != Group.BOOK_ID:
+            order.append(Group.BOOK_ID)
+        return tuple(order)
+
+    def re_initialize(self):
+        gb = self.group_box
+        before = gb.currentData()
+        if not before:
+            before = gprefs.get('browse_annots_group_by', Group.BOOK_ID)
+        if isinstance(before, dict):
+            before = next(iter(before.values())) if before else None
+        gb.blockSignals(True)
+        gb.clear()
+        for group_type in Group:
+            gb.addItem(_(group_type), group_type)
+        if before:
+            row = gb.findData(before)
+            if row > -1:
+                gb.setCurrentIndex(row)
+        gb.blockSignals(False)
 
 class BrowsePanel(QWidget):
 
@@ -722,6 +842,10 @@ class BrowsePanel(QWidget):
         self.use_stemmer.stateChanged.connect(self.effective_query_changed)
         l.addWidget(rs)
 
+        self.group_options = grp = GroupOptions(self)
+        grp.grouping_changed.connect(self.grouping_changed)
+        l.addWidget(grp)
+
         self.results_list = rl = ResultsList(self)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
@@ -735,11 +859,15 @@ class BrowsePanel(QWidget):
         db = current_db()
         self.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
         self.restrictions.re_initialize(db, restrict_to_book_ids or set())
+        self.group_options.re_initialize()
         self.current_query = None
         self.results_list.clear()
 
     def selection_changed(self, restrict_to_book_ids):
         self.restrictions.selection_changed(restrict_to_book_ids)
+
+    def grouping_changed(self):
+        self.refresh()
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -792,7 +920,8 @@ class BrowsePanel(QWidget):
                         highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
                         ignore_removed=True, **q2
                     )
-                self.results_list.set_results(results, bool(q['fts_engine_query']))
+                group_order = getattr(self.group_options, 'group_order', (Group.BOOK_ID,))
+                self.results_list.set_results(results, bool(q['fts_engine_query']), group_order=group_order)
                 self.current_query = q
         except FTSQueryError as err:
             return error_dialog(self, _('Invalid search expression'), '<p>' + _(
