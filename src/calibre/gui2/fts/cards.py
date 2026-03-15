@@ -107,7 +107,7 @@ def button_line(book_id: int, has_book: bool) -> str:
         template.format(which='jump', icon='lt.png', text=_('Select'), tt=_(
             'Scroll to this book in the calibre library book list and select it')) +
         template.format(which='mark', icon='marked.png', text=_('Mark'), tt=_(
-            'Put a pin on this book in the calibre library, for future reference.\n'
+            'Mark this book in the calibre library.\n'
             'You can search for marked books using the search term: {0}').format('marked:true')) +
         li)
 

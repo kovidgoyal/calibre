@@ -755,7 +755,7 @@ class ResultDetails(QWidget):
             _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it') +  f' [{jump_shortcut()}]', ict.format('lt.png'))
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
-                'Put a pin on this book in the calibre library [{0}].\n'
+                'Mark this book in the calibre library [{0}].\n'
                 'You can search for marked books using the search term: {1}').format(
                     mark_shortcut(), '<p>marked:true'), ict.format('marked.png'))
         if get_db().has_id(results.book_id):
