@@ -37,6 +37,7 @@ from qt.core import (
     Qt,
     QTimer,
     QTreeView,
+    QUrl,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -911,6 +912,7 @@ class ResultsPanel(QWidget):
         QStackedLayout(self)
         self.layout().addWidget(sv)
         self.card_view = cv = CardsView(self.results_model, self)
+        cv.link_activated.connect(self._cards_link_activated)
         self.layout().addWidget(cv)
         self.set_view_mode()
 
@@ -963,6 +965,29 @@ class ResultsPanel(QWidget):
 
     def remove_book_from_results(self, book_id):
         self.results_model.remove_book(book_id)
+
+    def _cards_link_activated(self, url: QUrl):
+        which = url.host()
+        try:
+            book_id = int(url.path().strip('/'))
+        except (ValueError, AttributeError):
+            return
+        if which == 'jump':
+            jump_to_book(book_id, self)
+        elif which == 'mark':
+            mark_books(book_id)
+        elif which == 'unindex':
+            db = get_db()
+            db.fts_unindex(book_id)
+            self.remove_book_from_results(book_id)
+        elif which == 'reindex':
+            db = get_db()
+            db.reindex_fts_book(book_id)
+            info_dialog(self, _('Scheduled for re-indexing'), _(
+                'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
+                ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
+                ' to see updated results.'), show=True)
+            self.remove_book_from_results(book_id)
 
     def show_in_viewer(self, book_id, result_num, fmt):
         r = self.results_model.get_result(book_id, result_num)
