@@ -36,6 +36,7 @@ from qt.core import (
     QStackedWidget,
     Qt,
     QTimer,
+    QToolButton,
     QTreeView,
     QUrl,
     QVBoxLayout,
@@ -557,11 +558,38 @@ class Summary(QLabel):
                 f'{base} {frame} <a href="stop://me.com" style="text-decoration: none">{_("Stop")}</a> {duration_text}')
 
 
+class SwitchViewButton(QToolButton):
+
+    visualisation_changed = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.update_state()
+        self.clicked.connect(self.toggle_state)
+
+    def update_state(self):
+        if gprefs['fts_visualisation'] == 'cards':
+            ic = QIcon.ic('highlight_only_on.png')
+            tt = _('Switch to a compact view of the results')
+        else:
+            ic = QIcon.ic('grid.png')
+            tt = _('Switch to a detailed view of the results, with covers')
+        self.setIcon(ic)
+        self.setToolTip(tt)
+
+    def toggle_state(self):
+        val = 'compact' if gprefs['fts_visualisation'] == 'cards' else 'cards'
+        gprefs['fts_visualisation'] = val
+        self.update_state()
+        self.visualisation_changed.emit(val)
+
+
 class SearchInputPanel(QWidget):
 
     search_signal = pyqtSignal(str)
     clear_search = pyqtSignal()
     request_stop_search = pyqtSignal()
+    visualisation_changed = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -590,6 +618,8 @@ class SearchInputPanel(QWidget):
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = Summary(self)
         s.stop_requested.connect(self.request_stop_search)
+        self.switch_view_button = b = SwitchViewButton(self)
+        b.visualisation_changed.connect(self.visualisation_changed)
         self.do_layout()
 
     def do_layout(self):
@@ -597,6 +627,7 @@ class SearchInputPanel(QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.hsb = hsb = QHBoxLayout()
         self.layout().addLayout(hsb)
+        hsb.addWidget(self.switch_view_button)
         hsb.addWidget(self.search_box, stretch=10)
         hsb.addWidget(self.search_button)
         self.h1 = h1 = QHBoxLayout()
@@ -909,6 +940,7 @@ class ResultsPanel(QWidget):
         sip.request_stop_search.connect(self.request_stop_search)
         sip.search_signal.connect(self.search)
         sip.clear_search.connect(self.clear_results)
+        sip.visualisation_changed.connect(self.set_view_mode)
         self.split_view = sv = SplitView(self.results_model, self)
         sv.show_in_viewer.connect(self.show_in_viewer)
         sv.remove_book_from_results.connect(self.remove_book_from_results)
@@ -917,10 +949,10 @@ class ResultsPanel(QWidget):
         self.card_view = cv = CardsView(self.results_model, self)
         cv.link_activated.connect(self._cards_link_activated)
         self.layout().addWidget(cv)
-        self.set_view_mode()
+        self.set_view_mode(gprefs['fts_visualisation'])
 
-    def set_view_mode(self, is_split=True):
-        if is_split:
+    def set_view_mode(self, mode: str = 'compact'):
+        if mode == 'compact':
             self.split_view.left_panel.layout().insertWidget(0, self.sip)
             self.layout().setCurrentIndex(0)
         else:
@@ -1040,7 +1072,7 @@ class ResultsPanel(QWidget):
                 query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
 
-def develop(is_split=True):
+def develop(view='compact'):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
@@ -1051,7 +1083,7 @@ def develop(is_split=True):
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     get_db.db = db(os.path.expanduser('~/test library'))
     w = ResultsPanel(parent=d)
-    w.set_view_mode(is_split)
+    w.set_view_mode(view)
     l.addWidget(w)
     l.addWidget(bb)
     from calibre.srv.render_book import Profiler

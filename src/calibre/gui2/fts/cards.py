@@ -593,7 +593,7 @@ class CardsView(QWidget):
 
 def develop():
     from calibre.gui2.fts.search import develop
-    develop(False)
+    develop('cards')
 
 
 if __name__ == '__main__':
