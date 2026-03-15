@@ -115,8 +115,9 @@ class CardData:
     def _compute_height(self):
         if self.doc is None:
             self._load_doc()
-        self.doc.setTextWidth(self.width)
-        self._height = int(self.doc.size().height()) + 2 * layout().padding + 2
+        lc = layout()
+        self.doc.setTextWidth(self.width - 2 * (lc.padding + 1))
+        self._height = int(self.doc.size().height()) + 2 * lc.padding + 2
 
     def _load_doc(self):
         lc = layout()
@@ -381,9 +382,10 @@ class VirtualCardContainer(QWidget):
         # Create/reuse widgets for newly visible cards
         for idx in needed:
             if idx in self._live_widgets:
-                # Already alive — just make sure position is correct
+                # Already alive — update size and position
                 card = self._cards[idx]
                 w = self._live_widgets[idx]
+                w.setFixedSize(card.width, card.height)
                 w.setGeometry(card.x, card.y, card.width, card.height)
                 continue
 
