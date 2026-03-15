@@ -21,6 +21,14 @@ def get_iterator(lang):
     return it
 
 
+def get_word_break_iterator_for_ui_thread():
+    if (ans := getattr(get_word_break_iterator_for_ui_thread, 'ans', None)) is None:
+        from calibre.utils.localization import get_lang
+        ans = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(get_lang() or 'en') or 'en')
+        setattr(get_word_break_iterator_for_ui_thread, 'ans', ans)
+    return ans
+
+
 def get_sentence_iterator(lang):
     it = _sentence_iterators.get(lang)
     if it is None:
