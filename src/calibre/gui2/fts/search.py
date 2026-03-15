@@ -15,6 +15,7 @@ from qt.core import (
     QAbstractItemModel,
     QAbstractItemView,
     QAction,
+    QActionGroup,
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -228,6 +229,9 @@ class Results:
         self._book_in_db = in_db[self.book_id]
 
 
+FTS_SORT_ORDER_DEFAULT = 'relevance'
+
+
 class ResultsModel(QAbstractItemModel):
 
     result_found = pyqtSignal(int, object)
@@ -237,12 +241,14 @@ class ResultsModel(QAbstractItemModel):
     search_complete = pyqtSignal()
     query_failed = pyqtSignal(str, str)
     result_with_context_found = pyqtSignal(object, int)
+    results_resorted = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.italic_font = parent.font() if parent else QFont()
         self.italic_font.setItalic(True)
         self.results = []
+        self._original_results = None
         self.query_id_counter = count()
         self.current_query_id = -1
         self.current_thread_abort = Event()
@@ -263,6 +269,7 @@ class ResultsModel(QAbstractItemModel):
         self.matches_found.emit(-1)
         self.beginResetModel()
         self.results = []
+        self._original_results = None
         self.endResetModel()
         self.search_complete.emit()
 
@@ -310,6 +317,7 @@ class ResultsModel(QAbstractItemModel):
             restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
         )
         self.endResetModel()
+        self._original_results = list(self.results)
         if not failure:
             self.matches_found.emit(len(self.results))
         self.current_query_id = next(self.query_id_counter)
@@ -340,6 +348,39 @@ class ResultsModel(QAbstractItemModel):
             self.matches_found.emit(len(self.results))
             return True
         return False
+
+    def sort_results(self, sort_key):
+        '''Re-sort the current results using the given sort key. Emits results_resorted signal.'''
+        if not self.results:
+            return
+        if sort_key == 'relevance':
+            if self._original_results is not None:
+                current_ids = frozenset(r.book_id for r in self.results)
+                self.beginResetModel()
+                self.results = [r for r in self._original_results if r.book_id in current_ids]
+                self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
+                self.endResetModel()
+                self.results_resorted.emit()
+            return
+        field_map = {
+            'newest': [('timestamp', False)],
+            'rating': [('rating', False)],
+            'pubdate': [('pubdate', False)],
+            'size': [('size', False)],
+            'pages': [('pages', False)],
+        }
+        fields = field_map.get(sort_key)
+        if fields is None:
+            return
+        db = get_db()
+        current_ids = frozenset(r.book_id for r in self.results)
+        sorted_ids = db.multisort(fields, ids_to_sort=current_ids)
+        results_by_id = {r.book_id: r for r in self.results}
+        self.beginResetModel()
+        self.results = [results_by_id[bid] for bid in sorted_ids if bid in results_by_id]
+        self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
+        self.endResetModel()
+        self.results_resorted.emit()
 
     def search_text_in_thread(self, query_id, abort, book_ids, *a, **kw):
         db = get_db()
@@ -589,6 +630,7 @@ class SearchInputPanel(QWidget):
     clear_search = pyqtSignal()
     request_stop_search = pyqtSignal()
     visualisation_changed = pyqtSignal(str)
+    sort_order_changed = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -619,7 +661,51 @@ class SearchInputPanel(QWidget):
         s.stop_requested.connect(self.request_stop_search)
         self.switch_view_button = b = SwitchViewButton(self)
         b.visualisation_changed.connect(self.visualisation_changed)
+        self._setup_sort_button()
         self.do_layout()
+
+    _sort_options = (
+        ('relevance', lambda: _('Relevance')),
+        ('newest',    lambda: _('Newest')),
+        ('rating',    lambda: _('Highest rating')),
+        ('pubdate',   lambda: _('Recently published')),
+        ('size',      lambda: _('Size')),
+        ('pages',     lambda: _('Pages')),
+    )
+
+    def _setup_sort_button(self):
+        self.sort_button = b = QToolButton(self)
+        b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setIcon(QIcon.ic('sort.png'))
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        sort_menu = QMenu(b)
+        b.setMenu(sort_menu)
+        ag = QActionGroup(b)
+        ag.setExclusive(True)
+        current_sort = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
+        self._sort_action_map = {}
+        self._sort_labels = {key: label_func for key, label_func in self._sort_options}
+        for key, label_func in self._sort_options:
+            ac = sort_menu.addAction(label_func())
+            ac.setCheckable(True)
+            ac.setChecked(key == current_sort)
+            ac.setData(key)
+            ag.addAction(ac)
+            self._sort_action_map[key] = ac
+        sort_menu.triggered.connect(self._sort_triggered)
+        self._update_sort_button_label()
+
+    def _sort_triggered(self, action):
+        key = action.data()
+        if key:
+            gprefs['fts_sort_order'] = key
+            self._update_sort_button_label()
+            self.sort_order_changed.emit(key)
+
+    def _update_sort_button_label(self):
+        current = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
+        label_func = self._sort_labels.get(current, self._sort_options[0][1])
+        self.sort_button.setText(_('Sort by: {0}').format(label_func()))
 
     def do_layout(self):
         QVBoxLayout(self)
@@ -631,7 +717,7 @@ class SearchInputPanel(QWidget):
         hsb.addWidget(self.search_button)
         self.h1 = h1 = QHBoxLayout()
         self.layout().addLayout(h1)
-        h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addStretch(), h1.addWidget(self.summary)
+        h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addWidget(self.sort_button), h1.addStretch(), h1.addWidget(self.summary)
 
     def clear_history(self):
         self.search_box.clear_history()
@@ -925,6 +1011,7 @@ class ResultsPanel(QWidget):
         sip.search_signal.connect(self.search)
         sip.clear_search.connect(self.clear_results)
         sip.visualisation_changed.connect(self.set_view_mode)
+        sip.sort_order_changed.connect(self.set_sort_order)
         self.focus_search_action.triggered.connect(sip.focus_self)
         self.split_view = sv = SplitView(self.results_model, self)
         sv.show_in_viewer.connect(self.show_in_viewer)
@@ -961,6 +1048,12 @@ class ResultsPanel(QWidget):
 
     def search_complete(self):
         self.sip.stop()
+        sort_key = gprefs.get('fts_sort_order', FTS_SORT_ORDER_DEFAULT)
+        if sort_key != FTS_SORT_ORDER_DEFAULT:
+            self.results_model.sort_results(sort_key)
+
+    def set_sort_order(self, sort_key):
+        self.results_model.sort_results(sort_key)
 
     def matches_found(self, num):
         self.sip.matches_found(num)
