@@ -363,6 +363,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.relayout_needed.connect(self.relayout)
         self.mcompleter.setFocusProxy(completer_widget)
         self.textEdited.connect(self.text_edited)
+        self.cursorPositionChanged.connect(self.cursor_position_changed)
         self.no_popup = False
 
     # Interface {{{
@@ -437,6 +438,15 @@ class LineEdit(QLineEdit, LineEditECM):
     def text_edited(self, *args):
         if self.no_popup:
             return
+        self._update_and_complete()
+
+    def cursor_position_changed(self, old, new):
+        if self.no_popup:
+            return
+        if self.mcompleter.isVisible():
+            self._update_and_complete()
+
+    def _update_and_complete(self):
         self.update_completions()
         select_first = len(self.mcompleter.model().current_prefix) > 0
         if not select_first:
