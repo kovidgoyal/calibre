@@ -1040,7 +1040,7 @@ class ResultsPanel(QWidget):
                 query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
 
-def develop(is_split=False):
+def develop(is_split=True):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
