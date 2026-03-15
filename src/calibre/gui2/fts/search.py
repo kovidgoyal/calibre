@@ -21,6 +21,7 @@ from qt.core import (
     QFont,
     QHBoxLayout,
     QIcon,
+    QImage,
     QKeySequence,
     QLabel,
     QMenu,
@@ -45,6 +46,7 @@ from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
+from calibre.gui2.fts.cards import CardsView
 from calibre.gui2.fts.utils import get_db, markup_text
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.ui import get_gui
@@ -179,6 +181,14 @@ class Results:
         return ans
 
     @property
+    def cover_as_image(self):
+        try:
+            ans = get_db().cover(self.book_id, as_image=True)
+        except Exception:
+            ans = QImage()
+        return ans
+
+    @property
     def series(self):
         if self._series is None:
             try:
@@ -195,6 +205,12 @@ class Results:
             except Exception:
                 self._series_index = 1
         return self._series_index
+
+    def preload(self, titles, authors, series, series_indices):
+        self._title = titles[self.book_id]
+        self._authors = authors[self.book_id]
+        self._series = series[self.book_id]
+        self._series_index = series_indices[self.book_id]
 
 
 class ResultsModel(QAbstractItemModel):
@@ -862,13 +878,6 @@ class SplitView(QSplitter):
         return None, None
 
 
-class CardView(QWidget):
-
-    def __init__(self, model, parent=None):
-        super().__init__(parent)
-        QVBoxLayout(self)
-
-
 class ResultsPanel(QWidget):
 
     switch_to_scan_panel = pyqtSignal()
@@ -896,7 +905,7 @@ class ResultsPanel(QWidget):
         sv.remove_book_from_results.connect(self.remove_book_from_results)
         QStackedLayout(self)
         self.layout().addWidget(sv)
-        self.card_view = cv = CardView(self.results_model, self)
+        self.card_view = cv = CardsView(self.results_model, self)
         self.layout().addWidget(cv)
         self.set_view_mode()
 
@@ -989,6 +998,7 @@ class ResultsPanel(QWidget):
 
     def shutdown(self):
         self.split_view.shutdown()
+        self.card_view.shutdown()
         self.clear_results()
         self.sip.search_box.setText('')
 
@@ -1002,7 +1012,7 @@ class ResultsPanel(QWidget):
                 query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
 
-def develop(wclass=ResultsPanel):
+def develop(is_split=False):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
@@ -1012,12 +1022,15 @@ def develop(wclass=ResultsPanel):
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     get_db.db = db(os.path.expanduser('~/test library'))
-    w = wclass(parent=d)
+    w = ResultsPanel(parent=d)
+    w.set_view_mode(is_split)
     l.addWidget(w)
     l.addWidget(bb)
-    w.sip.search_box.setText('asimov')
-    w.sip.search_button.click()
-    d.exec()
+    from calibre.srv.render_book import Profiler
+    with Profiler():
+        w.sip.search_box.setText('asimov')
+        w.sip.search_button.click()
+        d.exec()
     del app
 
 
