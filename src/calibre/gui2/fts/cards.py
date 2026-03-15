@@ -294,7 +294,7 @@ class CardWidget(QWidget):
             )
             pal = self.palette()
             p.fillPath(path, pal.color(QPalette.ColorRole.Base))
-            p.setPen(pal.color(QPalette.ColorRole.WindowText))
+            p.setPen(pal.color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text))
             p.drawPath(path)
             p.setClipPath(path)
             self.padding = lc.padding + 1
