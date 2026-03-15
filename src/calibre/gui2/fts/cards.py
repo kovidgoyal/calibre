@@ -91,7 +91,7 @@ def icon_resource_provider(qurl: QUrl) -> QVariant:
 @lru_cache(maxsize=256)
 def button_line(book_id: int, has_book: bool) -> str:
     template = (
-        f'<a style="text-decoration: none" href="calibre://{{which}}/{book_id}" title="{{tt}}">'
+        f'<a href="calibre://{{which}}/{book_id}" title="{{tt}}">'
         '<img valign="bottom" src="calibre-icon:///{icon}">\xa0{text}</a>\xa0\xa0\xa0'
     )
     if has_book:
@@ -181,8 +181,7 @@ class CardData:
                 fmt = fmt.upper()
                 tt = prepare_string_for_xml(ftt.format(fmt=fmt), attribute=True)
                 href = f'calibre://show/{self.results.book_id}/{fmt}/{i}'
-                fmts.append(f'<a style="text-decoration: none" title="{tt}" href="{href}">'
-                            f'{prepare_string_for_xml(fmt)}</a>\xa0 ')
+                fmts.append(f'<a title="{tt}" href="{href}">{prepare_string_for_xml(fmt)}</a>\xa0 ')
             if fmts:
                 ftxt = '\xa0'.join(fmts)
                 results.append(f'<br>{ftxt} {text}')
@@ -198,6 +197,7 @@ class CardData:
 </div>
 '''
         doc = QTextDocument()
+        doc.setDefaultStyleSheet('a { text-decoration: none; }')
         doc.setDocumentMargin(0)
         doc.setResourceProvider(icon_resource_provider)
         doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl('card://thumb'), c)
