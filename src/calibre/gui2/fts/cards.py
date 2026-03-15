@@ -21,6 +21,7 @@ from qt.core import (
     QRect,
     QScrollArea,
     QSizeF,
+    QStackedLayout,
     Qt,
     QTextCursor,
     QTextDocument,
@@ -37,7 +38,7 @@ from calibre import prepare_string_for_xml
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config
-from calibre.gui2.fts.utils import get_db, jump_shortcut, markup_text
+from calibre.gui2.fts.utils import get_db, help_panel, jump_shortcut, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
 
@@ -305,6 +306,7 @@ class VirtualCardContainer(QWidget):
 
     cover_rendered = pyqtSignal(int, int, QImage)
     link_activated = pyqtSignal(QUrl)
+    change_panel = pyqtSignal(int)
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
@@ -355,6 +357,7 @@ class VirtualCardContainer(QWidget):
         self.cover_render_queue.shutdown(True)
         self.cover_render_queue = Queue()
         self.generation += 1
+        self.change_panel.emit(0 if num < 0 else 1)
         Thread(daemon=True, name='FTSCoverRender', target=self.render_covers, args=(
             self.cover_render_queue, self.devicePixelRatioF(), layout(), default_cover,
             weakref.ref(get_db()), self.generation)).start()
@@ -530,6 +533,7 @@ class VirtualCardContainer(QWidget):
 class CardView(QScrollArea):
 
     link_activated = pyqtSignal(QUrl)
+    change_panel = pyqtSignal(int)
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
@@ -537,6 +541,7 @@ class CardView(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._container = VirtualCardContainer(model, self)
         self._container.link_activated.connect(self.link_activated)
+        self._container.change_panel.connect(self.change_panel)
         self.setWidget(self._container)
         self.verticalScrollBar().valueChanged.connect(self._on_scroll)
         # Debounce resize relayout
@@ -580,9 +585,14 @@ class CardsView(QWidget):
         super().__init__(parent)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
+        self.stack = s = QStackedLayout()
+        l.addLayout(s, 100)
+        self.help_panel = hp = help_panel(self)
+        s.addWidget(hp)
         self.view = cv = CardView(model, self)
         cv.link_activated.connect(self.link_activated)
-        l.addWidget(cv)
+        cv.change_panel.connect(s.setCurrentIndex)
+        s.addWidget(cv)
 
     def shutdown(self):
         self.view.shutdown()
