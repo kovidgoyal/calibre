@@ -35,6 +35,12 @@ def jump_shortcut(new_val: str = '') -> str:
     return getattr(jump_shortcut, 'ans', '')
 
 
+def mark_shortcut(new_val: str = '') -> str:
+    if new_val:
+        setattr(mark_shortcut, 'ans', new_val)
+    return getattr(mark_shortcut, 'ans', '')
+
+
 fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
 
 

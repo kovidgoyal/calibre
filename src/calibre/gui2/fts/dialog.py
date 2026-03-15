@@ -60,6 +60,7 @@ class FTSDialog(Dialog):
         self.update_indexing_label()
         self.scan_status.indexing_progress_changed.connect(self.update_indexing_label)
         self.addAction(self.results_panel.jump_to_current_book_action)
+        self.addAction(self.results_panel.mark_current_book_action)
         self.addAction(self.results_panel.mark_all_books_action)
         self.addAction(self.results_panel.select_all_books_action)
         self.addAction(self.results_panel.mark_select_all_books_action)

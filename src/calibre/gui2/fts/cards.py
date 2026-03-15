@@ -38,7 +38,7 @@ from calibre import prepare_string_for_xml
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config
-from calibre.gui2.fts.utils import get_db, help_panel, jump_shortcut, markup_text
+from calibre.gui2.fts.utils import get_db, help_panel, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
 
@@ -105,7 +105,7 @@ def button_line(book_id: int, has_book: bool) -> str:
             ' full text search index. Remove it.'))
     return (
         template.format(which='jump', icon='lt.png', text=_('Select'), tt=_(
-            'Scroll to this book in the calibre library book list and select it [{}]').format(jump_shortcut())) +
+            'Scroll to this book in the calibre library book list and select it')) +
         template.format(which='mark', icon='marked.png', text=_('Mark'), tt=_(
             'Put a pin on this book in the calibre library, for future reference.\n'
             'You can search for marked books using the search term: {0}').format('marked:true')) +

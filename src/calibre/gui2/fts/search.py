@@ -49,7 +49,7 @@ from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.fts.cards import CardsView
-from calibre.gui2.fts.utils import fts_url, get_db, help_panel, jump_shortcut, markup_text
+from calibre.gui2.fts.utils import fts_url, get_db, help_panel, jump_shortcut, mark_shortcut, markup_text
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -752,12 +752,12 @@ class ResultDetails(QWidget):
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
         ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
         text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
-            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it [{}]').format(
-                jump_shortcut()), ict.format('lt.png'))
+            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it') +  f' [{jump_shortcut()}]', ict.format('lt.png'))
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
-                'Put a pin on this book in the calibre library, for future reference.\n'
-                'You can search for marked books using the search term: {0}').format('<p>marked:true'), ict.format('marked.png'))
+                'Put a pin on this book in the calibre library [{0}].\n'
+                'You can search for marked books using the search term: {1}').format(
+                    mark_shortcut(), '<p>marked:true'), ict.format('marked.png'))
         if get_db().has_id(results.book_id):
             text += '<p><a href="calibre://reindex" title="{1}">{2}\xa0{0}</a>'.format(
                 _('Re-index'), _('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
@@ -894,6 +894,10 @@ class ResultsPanel(QWidget):
         ac.triggered.connect(self.jump_to_current_book)
         ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
         jump_shortcut(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
+        self.mark_current_book_action = ac = QAction(self)
+        ac.triggered.connect(self.mark_current_book)
+        ac.setShortcut(QKeySequence('Ctrl+M', QKeySequence.SequenceFormat.PortableText))
+        mark_shortcut(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
         self.mark_all_books_action = ac = QAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), self)
         ac.triggered.connect(partial(self.mark_books, 'mark'))
         ac.setShortcut(QKeySequence('Ctrl+Alt+M', QKeySequence.SequenceFormat.PortableText))
@@ -935,7 +939,7 @@ class ResultsPanel(QWidget):
 
     @property
     def current_view(self):
-        self.layout().currentWidget()
+        return self.layout().currentWidget()
 
     def search(self, text: str):
         gui = get_gui()
@@ -958,6 +962,11 @@ class ResultsPanel(QWidget):
         results, match = self.current_view.current_result()
         if results:
             jump_to_book(results.book_id, self)
+
+    def mark_current_book(self):
+        results, match = self.current_view.current_result()
+        if results:
+            mark_books(results.book_id)
 
     def view_current_result(self):
         results, match = self.current_view.current_result()
