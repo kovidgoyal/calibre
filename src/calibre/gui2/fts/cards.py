@@ -10,18 +10,23 @@ from typing import NamedTuple
 
 from qt.core import (
     QApplication,
+    QCursor,
     QFontMetricsF,
     QIcon,
     QImage,
     QPainter,
     QPainterPath,
     QPalette,
+    QPointF,
     QRect,
     QScrollArea,
     QSizeF,
     Qt,
+    QTextCursor,
     QTextDocument,
+    QTextFormat,
     QTimer,
+    QToolTip,
     QUrl,
     QVariant,
     QVBoxLayout,
@@ -189,16 +194,71 @@ class RowInfo(NamedTuple):
 
 
 class CardWidget(QWidget):
+
+    link_activated = pyqtSignal(QUrl)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._card: CardData | None = None
         self.padding = 0
+        self.setMouseTracking(True)
 
     def bind(self, card: CardData):
         '''Bind this widget to a CardData, rebuilding the document.'''
         self._card = card
         self.setFixedSize(card.width, card.height)
         self.update()
+
+    def _pos_in_doc(self, widget_pos) -> QPointF:
+        '''Convert a widget-local position to the document's coordinate space.'''
+        p = layout().padding + 1
+        return QPointF(widget_pos.x() - p, widget_pos.y() - p)
+
+    def _anchor_data(self, widget_pos) -> tuple[str, str]:
+        '''Return (href, title) of the anchor under widget_pos, or ("", "").'''
+        if self._card is None or self._card.doc is None:
+            return '', ''
+        doc = self._card.doc
+        dpos = self._pos_in_doc(widget_pos)
+        href = doc.documentLayout().anchorAt(dpos)
+        if not href:
+            return '', ''
+        title = ''
+        cursor_pos = doc.documentLayout().hitTest(dpos, Qt.HitTestAccuracy.FuzzyHit)
+        if cursor_pos >= 0:
+            cursor = QTextCursor(doc)
+            cursor.setPosition(cursor_pos)
+            fmt = cursor.charFormat()
+            if fmt.isAnchor():
+                title = fmt.stringProperty(QTextFormat.Property.AnchorTitle)
+        return href, title
+
+    def mouseMoveEvent(self, event):
+        href, title = self._anchor_data(event.pos())
+        if href:
+            self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            if title:
+                QToolTip.showText(event.globalPosition().toPoint(), title, self)
+            else:
+                QToolTip.hideText()
+        else:
+            self.unsetCursor()
+            QToolTip.hideText()
+        super().mouseMoveEvent(event)
+
+    def leaveEvent(self, event):
+        self.unsetCursor()
+        QToolTip.hideText()
+        super().leaveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            href, _ = self._anchor_data(event.pos())
+            if href:
+                event.accept()
+                self.link_activated.emit(QUrl(href))
+                return
+        super().mouseReleaseEvent(event)
 
     def paintEvent(self, event):
         doc = self._card.ensure_renderable(self.devicePixelRatioF())
@@ -225,6 +285,7 @@ class CardWidget(QWidget):
 class VirtualCardContainer(QWidget):
 
     cover_rendered = pyqtSignal(int, int, QImage)
+    link_activated = pyqtSignal(QUrl)
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
@@ -444,16 +505,21 @@ class VirtualCardContainer(QWidget):
             self._live_widgets[idx] = w
 
     def _create_card_widget(self):
-        return CardWidget(self)
+        w = CardWidget(self)
+        w.link_activated.connect(self.link_activated)
+        return w
 
 
 class CardView(QScrollArea):
+
+    link_activated = pyqtSignal(QUrl)
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
         self.setWidgetResizable(False)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._container = VirtualCardContainer(model, self)
+        self._container.link_activated.connect(self.link_activated)
         self.setWidget(self._container)
         self.verticalScrollBar().valueChanged.connect(self._on_scroll)
         # Debounce resize relayout
@@ -491,11 +557,14 @@ class CardView(QScrollArea):
 
 class CardsView(QWidget):
 
+    link_activated = pyqtSignal(QUrl)
+
     def __init__(self, model, parent=None):
         super().__init__(parent)
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.view = cv = CardView(model, self)
+        cv.link_activated.connect(self.link_activated)
         l.addWidget(cv)
 
     def shutdown(self):
