@@ -217,7 +217,7 @@ class Results:
     @property
     def book_in_db(self):
         if self._book_in_db is None:
-            self._book_in_db = get_db().has_book(self.book_id)
+            self._book_in_db = get_db().has_id(self.book_id)
         return self._book_in_db
 
     def preload(self, titles, authors, series, series_indices, in_db):
