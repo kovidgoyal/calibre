@@ -227,7 +227,7 @@ class CardWidget(QWidget):
     def bind(self, card: CardData):
         '''Bind this widget to a CardData, rebuilding the document.'''
         self._card = card
-        self.setFixedSize(card.width, card.height)
+        self.setFixedSize(max(0, card.width), max(0, card.height))
         self.update()
 
     def _pos_in_doc(self, widget_pos) -> QPointF:
@@ -448,7 +448,7 @@ class VirtualCardContainer(QWidget):
             row_idx += 1
 
         self._total_height = y - lc.spacing + lc.margin if self._rows else 0
-        self.setFixedHeight(self._total_height)
+        self.setFixedHeight(max(0, self._total_height))
         self._update_visible_widgets()
 
     # -- visibility determination (binary search on rows) --------------------
@@ -485,6 +485,7 @@ class VirtualCardContainer(QWidget):
 
     # -- widget lifecycle (create / recycle / hide) --------------------------
     def _update_visible_widgets(self):
+        self.preload()
         first_row, last_row = self._visible_row_range()
 
         # Determine which card indices should be visible
@@ -507,7 +508,7 @@ class VirtualCardContainer(QWidget):
                 # Already alive — update size and position
                 card = self._cards[idx]
                 w = self._live_widgets[idx]
-                w.setFixedSize(card.width, card.height)
+                w.setFixedSize(max(0, card.width), max(0, card.height))
                 w.setGeometry(card.x, card.y, card.width, card.height)
                 continue
 
@@ -560,7 +561,7 @@ class CardView(QScrollArea):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         # Set container width to match viewport width so row count updates
-        self._container.setFixedWidth(self.viewport().width())
+        self._container.setFixedWidth(max(0, self.viewport().width()))
         self._resize_timer.start()
 
     def _do_relayout(self):
@@ -570,7 +571,7 @@ class CardView(QScrollArea):
 
     def showEvent(self, event):
         super().showEvent(event)
-        self._container.setFixedWidth(self.viewport().width())
+        self._container.setFixedWidth(max(0, self.viewport().width()))
         self._do_relayout()
 
     def shutdown(self):
