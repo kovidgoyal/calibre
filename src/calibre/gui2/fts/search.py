@@ -894,6 +894,15 @@ class ResultsPanel(QWidget):
         ac.triggered.connect(self.jump_to_current_book)
         ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
         jump_shortcut(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
+        self.mark_all_books_action = ac = QAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), self)
+        ac.triggered.connect(partial(self.mark_books, 'mark'))
+        ac.setShortcut(QKeySequence('Ctrl+Alt+M', QKeySequence.SequenceFormat.PortableText))
+        self.select_all_books_action = ac = QAction(QIcon.ic('edit-select-all.png'), _('Select all matched books in the library'), self)
+        ac.triggered.connect(partial(self.mark_books, 'select'))
+        ac.setShortcut(QKeySequence('Ctrl+Alt+S', QKeySequence.SequenceFormat.PortableText))
+        self.mark_select_all_books_action = ac = QAction(_('Mark and select all matched books in the library'), self)
+        ac.triggered.connect(partial(self.mark_books, 'mark-select'))
+        ac.setShortcut(QKeySequence('Ctrl+Alt+B', QKeySequence.SequenceFormat.PortableText))
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
         self.results_model = m = ResultsModel(self)
@@ -999,11 +1008,12 @@ class ResultsPanel(QWidget):
         b = bb.addButton(_('&Mark all books'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon.ic('marked.png'))
         m = QMenu(b)
-        m.addAction(QIcon.ic('marked.png'), _('Mark all matched books in the library'), partial(self.mark_books, 'mark'))
-        m.addAction(QIcon.ic('edit-select-all.png'), _('Select all matched books in the library'), partial(self.mark_books, 'select'))
+        m.addAction(self.mark_all_books_action)
+        m.addAction(self.select_all_books_action)
         if not hasattr(self, 'colored_pin'):
             self.colored_pin = QIcon(render_pin())
-        m.addAction(QIcon(self.colored_pin), _('Mark and select all matched books'), partial(self.mark_books, 'mark-select'))
+            self.mark_select_all_books_action.setIcon(self.colored_pin)
+        m.addAction(self.mark_select_all_books_action)
         b.setMenu(m)
 
     def mark_books(self, which):
