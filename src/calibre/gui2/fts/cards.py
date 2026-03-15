@@ -314,6 +314,7 @@ class VirtualCardContainer(QWidget):
         self.model = model
         model.matches_found.connect(self.matches_found)
         model.result_with_context_found.connect(self.result_with_context_found)
+        model.results_resorted.connect(self.on_results_resorted)
         self._cards = ()
         self._cards_map = {}
         self._viewport_rect = QRect()
@@ -361,6 +362,14 @@ class VirtualCardContainer(QWidget):
         Thread(daemon=True, name='FTSCoverRender', target=self.render_covers, args=(
             self.cover_render_queue, self.devicePixelRatioF(), layout(), default_cover,
             weakref.ref(get_db()), self.generation)).start()
+        if self.isVisible():
+            self._full_relayout()
+
+    def on_results_resorted(self):
+        # Reorder cards to match the new model order, reusing existing CardData objects
+        self._cards = tuple(
+            self._cards_map[id(r)] for r in self.model.results if id(r) in self._cards_map
+        )
         if self.isVisible():
             self._full_relayout()
 
