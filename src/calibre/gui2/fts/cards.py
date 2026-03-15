@@ -23,6 +23,7 @@ from qt.core import (
     QTextDocument,
     QTimer,
     QUrl,
+    QVariant,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -32,7 +33,7 @@ from calibre import prepare_string_for_xml
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config
-from calibre.gui2.fts.utils import get_db
+from calibre.gui2.fts.utils import get_db, jump_shortcut
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
 
@@ -67,6 +68,42 @@ def dummy_image(width, height):
 def default_cover():
     ic = QIcon.ic('default_cover.png')
     return ic.pixmap(ic.availableSizes()[0]).toImage()
+
+
+@lru_cache(maxsize=8)
+def icon_resource_provider(qurl: QUrl) -> QVariant:
+    if qurl.scheme() == 'calibre-icon':
+        ic = QIcon.cached_icon(qurl.path().lstrip('/'))
+        if ic.is_ok():
+            dpr = QApplication.instance().devicePixelRatio()
+            pmap = ic.pixmap(ic.availableSizes()[0])
+            sz = QSizeF(16 * dpr, 16 * dpr).toSize()
+            pmap = pmap.scaled(sz, transformMode=Qt.TransformationMode.SmoothTransformation)
+            pmap.setDevicePixelRatio(dpr)
+            return pmap
+    return QVariant()
+
+
+@lru_cache(maxsize=256)
+def button_line(book_id: int, has_book: bool) -> str:
+    template = (
+        f'<a style="text-decoration: none" href="calibre://{{which}}/{book_id}" title="{{tt}}">'
+        '<img valign="bottom" src="calibre-icon:///{icon}">\xa0{text}</a>\xa0\xa0\xa0'
+    )
+    if has_book:
+        li = template.format(which='reindex', icon='view-refresh.png', text=_('Re-index'), tt=_(
+            'Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'))
+    else:
+        li = template.format(which='unindex', icon='trash.png', text=_('Un-index'), tt=_(
+            'This book has been deleted from the library but is still present in the'
+            ' full text search index. Remove it.'))
+    return (
+        template.format(which='jump', icon='lt.png', text=_('Select'), tt=_(
+            'Scroll to this book in the calibre library book list and select it [{}]').format(jump_shortcut())) +
+        template.format(which='mark', icon='marked.png', text=_('Mark'), tt=_(
+            'Put a pin on this book in the calibre library, for future reference.\n'
+            'You can search for marked books using the search term: {0}').format('marked:true')) +
+        li)
 
 
 class CardData:
@@ -133,9 +170,11 @@ class CardData:
 <big><b>{prepare_string_for_xml(self.results.title)}</b></big><br>
 {prepare_string_for_xml(authors_to_string(self.results.authors))}<br>
 {series}
+{button_line(self.results.book_id, self.results.book_in_db)}
 '''
         doc = QTextDocument()
         doc.setDocumentMargin(0)
+        doc.setResourceProvider(icon_resource_provider)
         doc.addResource(int(QTextDocument.ResourceType.ImageResource), QUrl('card://thumb'), c)
         doc.setHtml(html)
         self.doc = doc
@@ -224,8 +263,10 @@ class VirtualCardContainer(QWidget):
                 authors = db._all_field_for('authors', all_books, [_('Unknown author')])
                 series = db._all_field_for('series', all_books, '')
                 series_indices = db._all_field_for('series_index', all_books, 1)
+                abids = db._all_book_ids(lambda x: x)
+                in_db = {bid: bid in abids for bid in all_books}
             for card in self._cards:
-                card.results.preload(titles, authors, series, series_indices)
+                card.results.preload(titles, authors, series, series_indices, in_db)
 
     def matches_found(self, num):
         self._cards = tuple(CardData(r) for r in self.model.results) if num > 0 else ()
@@ -459,3 +500,6 @@ class CardsView(QWidget):
 
     def shutdown(self):
         self.view.shutdown()
+
+    def current_result(self):
+        return None, None

@@ -23,3 +23,9 @@ def markup_text(text: str) -> str:
         return '<b><i>' if closing else '</i></b>'
 
     return re.sub(r'\x1d', sub, prepare_string_for_xml(text))
+
+
+def jump_shortcut(new_val: str = '') -> str:
+    if new_val:
+        setattr(jump_shortcut, 'ans', new_val)
+    return getattr(jump_shortcut, 'ans', '')

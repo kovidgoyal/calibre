@@ -47,7 +47,7 @@ from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
 from calibre.gui2.fts.cards import CardsView
-from calibre.gui2.fts.utils import get_db, markup_text
+from calibre.gui2.fts.utils import get_db, jump_shortcut, markup_text
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -58,7 +58,6 @@ from calibre.utils.localization import ngettext
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
 fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
-jump_shortcut = ''
 
 
 def mark_books(*book_ids):
@@ -128,7 +127,7 @@ class SearchDelegate(ResultsDelegate):
 
 class Results:
 
-    _title = _authors = _series = _series_index = None
+    _title = _authors = _series = _series_index = _book_in_db = None
 
     def __init__(self, book_id):
         self.book_id = book_id
@@ -206,11 +205,18 @@ class Results:
                 self._series_index = 1
         return self._series_index
 
-    def preload(self, titles, authors, series, series_indices):
+    @property
+    def book_in_db(self):
+        if self._book_in_db is None:
+            self._book_in_db = get_db().has_book(self.book_id)
+        return self._book_in_db
+
+    def preload(self, titles, authors, series, series_indices, in_db):
         self._title = titles[self.book_id]
         self._authors = authors[self.book_id]
         self._series = series[self.book_id]
         self._series_index = series_indices[self.book_id]
+        self._book_in_db = in_db[self.book_id]
 
 
 class ResultsModel(QAbstractItemModel):
@@ -713,11 +719,11 @@ class ResultDetails(QWidget):
         ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
         text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
             _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it [{}]').format(
-                jump_shortcut), ict.format('lt.png'))
+                jump_shortcut()), ict.format('lt.png'))
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
             _('Mark'), '<p>' + _(
-                'Put a pin on this book in the calibre library, for future reference.'
-                ' You can search for marked books using the search term: {0}').format('<p>marked:true'), ict.format('marked.png'))
+                'Put a pin on this book in the calibre library, for future reference.\n'
+                'You can search for marked books using the search term: {0}').format('<p>marked:true'), ict.format('marked.png'))
         if get_db().has_id(results.book_id):
             text += '<p><a href="calibre://reindex" title="{1}">{2}\xa0{0}</a>'.format(
                 _('Re-index'), _('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
@@ -883,12 +889,11 @@ class ResultsPanel(QWidget):
     switch_to_scan_panel = pyqtSignal()
 
     def __init__(self, parent=None):
-        global jump_shortcut
         super().__init__(parent)
         self.jump_to_current_book_action = ac = QAction(self)
         ac.triggered.connect(self.jump_to_current_book)
         ac.setShortcut(QKeySequence('Ctrl+S', QKeySequence.SequenceFormat.PortableText))
-        jump_shortcut = ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
+        jump_shortcut(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
         self.results_model = m = ResultsModel(self)
