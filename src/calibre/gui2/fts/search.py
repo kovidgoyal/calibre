@@ -971,20 +971,21 @@ class ResultsPanel(QWidget):
 
     def _cards_link_activated(self, url: QUrl):
         which = url.host()
-        try:
-            book_id = int(url.path().strip('/'))
-        except (ValueError, AttributeError):
-            return
-        if which == 'jump':
-            jump_to_book(book_id, self)
-        elif which == 'mark':
-            mark_books(book_id)
-        elif which == 'unindex':
-            get_db().fts_unindex(book_id)
-            self.remove_book_from_results(book_id)
-        elif which == 'reindex':
-            reindex_book(book_id, self)
-            self.remove_book_from_results(book_id)
+        parts = url.path().strip('/').split('/')
+        book_id = int(parts[0])
+        match which:
+            case 'jump':
+                jump_to_book(book_id, self)
+            case 'mark':
+                mark_books(book_id)
+            case 'unindex':
+                get_db().fts_unindex(book_id)
+                self.remove_book_from_results(book_id)
+            case 'reindex':
+                reindex_book(book_id, self)
+                self.remove_book_from_results(book_id)
+            case 'show':
+                self.show_in_viewer(book_id, int(parts[2]), parts[1])
 
     def show_in_viewer(self, book_id, result_num, fmt):
         r = self.results_model.get_result(book_id, result_num)

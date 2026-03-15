@@ -37,7 +37,7 @@ from calibre import prepare_string_for_xml
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config
-from calibre.gui2.fts.utils import get_db, jump_shortcut
+from calibre.gui2.fts.utils import get_db, jump_shortcut, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
 
@@ -170,12 +170,32 @@ class CardData:
             sidx = fmt_sidx(self.results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
             series = _('{series_index} of {series}').format(series_index=sidx, series=s)
             series = f'{prepare_string_for_xml(series)}<br>'
+        results = []
+        ftt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\n'
+                       'to this search result automatically.')
+        for i, (result, formats) in enumerate(zip(self.results.result_dicts, self.results.formats)):
+            text = result['text']
+            text = markup_text(text)
+            fmts = []
+            for fmt in sorted(formats):
+                fmt = fmt.upper()
+                tt = prepare_string_for_xml(ftt.format(fmt=fmt), attribute=True)
+                href = f'calibre://show/{self.results.book_id}/{fmt}/{i}'
+                fmts.append(f'<a style="text-decoration: none" title="{tt}" href="{href}">'
+                            f'{prepare_string_for_xml(fmt)}</a>\xa0 ')
+            if fmts:
+                ftxt = '\xa0'.join(fmts)
+                results.append(f'<br>{ftxt} {text}')
+
         html = f'''
-<img src="card://thumb" width="{sz.width()}" height="{sz.height()}" align="left" /><p style="text-indent: 0; margin: 0">
+<img src="card://thumb" width="{sz.width()}" height="{sz.height()}" align="left" /><div style="margin: 0">
 <big><b>{prepare_string_for_xml(self.results.title)}</b></big><br>
 {prepare_string_for_xml(authors_to_string(self.results.authors))}<br>
 {series}
 {button_line(self.results.book_id, self.results.book_in_db)}
+<br>
+{'<br>'.join(results)}
+</div>
 '''
         doc = QTextDocument()
         doc.setDocumentMargin(0)
