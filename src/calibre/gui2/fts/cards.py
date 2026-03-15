@@ -429,9 +429,7 @@ class VirtualCardContainer(QWidget):
 
         # Assign cards to rows
         self._rows.clear()
-        row_idx = 0
-        i = 0
-        y = lc.margin
+        row_idx = i = y = 0
         while i < len(self._cards):
             row_cards = self._cards[i : i + self._cols_per_row]
             row_height = max(c.height for c in row_cards)
