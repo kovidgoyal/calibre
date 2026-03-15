@@ -47,9 +47,9 @@ from qt.core import (
 from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog, safe_open_url
+from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.fts.cards import CardsView
-from calibre.gui2.fts.utils import get_db, jump_shortcut, markup_text
+from calibre.gui2.fts.utils import fts_url, get_db, help_panel, jump_shortcut, markup_text
 from calibre.gui2.library.models import render_pin
 from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -59,7 +59,6 @@ from calibre.utils.localization import ngettext
 
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')
-fts_url = 'https://www.sqlite.org/fts5.html#full_text_query_syntax'
 
 
 def mark_books(*book_ids):
@@ -803,42 +802,8 @@ class DetailsPanel(QStackedWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # help panel {{{
-        self.help_panel = hp = HTMLDisplay(self)
-        hp.setDefaultStyleSheet('a { text-decoration: none; }')
-        hp.setHtml('''
-<style>
-.wrapper { margin-left: 4px }
-div { margin-top: 0.5ex }
-.h { font-weight: bold; }
-.bq { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }
-p { margin: 0; }
-</style><div class="wrapper">
-                   ''' + _('''
-<div class="h">Search for single words</div>
-<p>Simply type the word:</p>
-<div class="bq">awesome<br>calibre</div>
-
-<div class="h">Search for phrases</div>
-<p>Enclose the phrase in quotes:</p>
-<div class="bq">"early run"<br>"song of love"</div>
-
-<div class="h">Boolean searches</div>
-<div class="bq">(calibre AND ebook) NOT gun<br>simple NOT ("high bar" OR hard)</div>
-
-<div class="h">Phrases near each other</div>
-<div class="bq">NEAR("people" "in Asia" "try")<br>NEAR("Kovid" "calibre", 30)</div>
-<p>Here, 30 is the most words allowed between near groups. Defaults to 10 when unspecified.</p>
-
-<div style="margin-top: 1em"><a href="{fts_url}">Complete syntax reference</a></div>\
-''' + '</div>').format(fts_url=fts_url))
-        hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        hp.document().setDocumentMargin(0)
-        hp.anchor_clicked.connect(safe_open_url)
+        self.help_panel = hp = help_panel(self)
         self.addWidget(hp)
-        # }}}
-
         self.result_details = rd = ResultDetails(self)
         rd.show_in_viewer.connect(self.show_in_viewer)
         rd.remove_book_from_results.connect(self.remove_book_from_results)
