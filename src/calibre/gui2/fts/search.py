@@ -867,7 +867,7 @@ class LeftPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        QVBoxLayout(self)
+        QVBoxLayout(self).setContentsMargins(0, 0, 0, 0)
 
     def sizeHint(self):
         return QSize(700, 700)
