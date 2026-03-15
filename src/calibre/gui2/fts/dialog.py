@@ -64,6 +64,7 @@ class FTSDialog(Dialog):
         self.addAction(self.results_panel.mark_all_books_action)
         self.addAction(self.results_panel.select_all_books_action)
         self.addAction(self.results_panel.mark_select_all_books_action)
+        self.addAction(self.results_panel.focus_search_action)
 
     def show_fat_details(self):
         warning_dialog(self, _('Library on a FAT drive'), _(

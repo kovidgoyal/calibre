@@ -652,6 +652,10 @@ class SearchInputPanel(QWidget):
     def matches_found(self, num):
         self.summary.set_num_of_matches_found(num)
 
+    def focus_self(self):
+        self.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.search_box.selectAll()
+
 
 class ResultDetails(QWidget):
 
@@ -907,6 +911,8 @@ class ResultsPanel(QWidget):
         self.mark_select_all_books_action = ac = QAction(_('Mark and select all matched books in the library'), self)
         ac.triggered.connect(partial(self.mark_books, 'mark-select'))
         ac.setShortcut(QKeySequence('Ctrl+Alt+B', QKeySequence.SequenceFormat.PortableText))
+        self.focus_search_action = ac = QAction(self)
+        ac.setShortcuts([QKeySequence('Ctrl+F', QKeySequence.SequenceFormat.PortableText), QKeySequence('/', QKeySequence.SequenceFormat.PortableText)])
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
         self.results_model = m = ResultsModel(self)
@@ -919,6 +925,7 @@ class ResultsPanel(QWidget):
         sip.search_signal.connect(self.search)
         sip.clear_search.connect(self.clear_results)
         sip.visualisation_changed.connect(self.set_view_mode)
+        self.focus_search_action.triggered.connect(sip.focus_self)
         self.split_view = sv = SplitView(self.results_model, self)
         sv.show_in_viewer.connect(self.show_in_viewer)
         sv.remove_book_from_results.connect(self.remove_book_from_results)
