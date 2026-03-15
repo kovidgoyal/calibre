@@ -501,6 +501,9 @@ tab_accepts_uncompleted_text = False
 # all candidates that contain the text you have already typed. To do this, set
 # completion_mode to 'contains'. For example, if you type asi it will match both
 # Asimov and Quasimodo, whereas the default behavior would match only Asimov.
+# There is also a 'word-prefix' mode that matches only at the start of words,
+# so typing 'asi' will match Asimov and "Isaac Asimov" but not Quasimodo.
+# Similarly, typing 'cat' will match cathedral and "tabby cat" but not education.
 completion_mode = 'prefix'
 
 #: Sort the list of libraries alphabetically
