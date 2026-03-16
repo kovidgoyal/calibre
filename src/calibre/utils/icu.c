@@ -1666,15 +1666,13 @@ icu_word_prefix_find(PyObject *self, PyObject *args) {
     x_icu = python_to_icu(x_, &xsz);
     if (x_icu == NULL) return NULL;
     it->counter++;
-    if (it->text != NULL) { free(it->text); it->text = NULL; it->text_len = 0; }
     ubrk_setText(it->break_iterator, x_icu, xsz, &status);
     if (U_FAILURE(status)) {
         free(x_icu);
         PyErr_SetString(PyExc_ValueError, u_errorName(status));
         return NULL;
     }
-    it->text = x_icu; it->text_len = xsz;
-    x_icu = NULL;  // ownership transferred to it->text
+    free(it->text); it->text = x_icu; it->text_len = xsz; x_icu = NULL;  // ownership transferred to it->text
 
     // Convert prefix to ICU once
     prefix_icu = python_to_icu(prefix_, &prefix_sz);

@@ -287,6 +287,7 @@ class TestICU(unittest.TestCase):
         self.ae(wpf(c, it, 'hello world', 'he'), 0)
         self.ae(wpf(c, it, 'hello world', 'world'), 6)
         self.ae(wpf(c, it, 'hello world', 'hello'), 0)
+        self.ae(wpf(c, it, 'masi asim', 'asi'), 5)
         # No match returns -1
         self.ae(wpf(c, it, 'hello world', 'xyz'), -1)
         # Case-insensitive match with primary collator

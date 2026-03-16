@@ -239,7 +239,15 @@ startswith = make_two_arg_func(collator, 'startswith')
 primary_startswith = make_two_arg_func(primary_collator, 'startswith')
 safe_chr = _icu.chr
 ord_string = _icu.ord_string
-word_prefix_find = _icu.word_prefix_find
+try:
+    word_prefix_find = _icu.word_prefix_find
+except AttributeError:  # people running from source
+    def word_prefix_find(collator, it, x, prefix):
+        it.set_text(x)
+        for pos, size in it.split2():
+            if collator.startswith(x, prefix, pos):
+                return pos
+        return -1
 
 
 def character_name(string):
