@@ -390,41 +390,25 @@ icu_Collator_startswith(icu_Collator *self, PyObject *args) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0, start = 0;
     UChar *a = NULL, *b = NULL;
-    uint8_t ans = 0;
-    int offset = 0;
-
-    if (!PyArg_ParseTuple(args, "OO|i", &a_, &b_, &offset)) return NULL;
-    if (offset < 0) { PyErr_SetString(PyExc_ValueError, "offset must be non-negative"); return NULL; }
-
-    a = python_to_icu(a_, &asz);
-    if (a == NULL) goto end;
-    b = python_to_icu(b_, &bsz);
-    if (b == NULL) goto end;
-
+    unsigned offset = 0;
+    if (!PyArg_ParseTuple(args, "OO|I", &a_, &b_, &offset)) return NULL;
+    a = python_to_icu(a_, &asz); if (a == NULL) return NULL;
+    b = python_to_icu(b_, &bsz); if (b == NULL) { Py_DECREF(a); return NULL; }
+    PyObject *ans = Py_False;
     if (offset > 0) {
         // Advance start by 'offset' Unicode codepoints within the UTF-16 buffer.
-        // U16_FWD_N updates start in-place; no heap allocation needed.
-        // If offset exceeds the number of codepoints in a, start is clamped to asz.
         U16_FWD_N(a, start, asz, (uint32_t)offset);
         if (start >= asz) {
             // offset is at or beyond end of string; only an empty prefix can match
-            ans = (bsz == 0);
+            if (bsz == 0) ans = Py_True;
             goto end;
         }
     }
-
     if (asz - start < bsz) goto end;
-    if (bsz == 0) { ans = 1; goto end; }
-
-    ans = ucol_equal(self->collator, a + start, bsz, b, bsz);
-
+    if (bsz == 0) { ans = Py_True; goto end; }
+    if (ucol_equal(self->collator, a + start, bsz, b, bsz)) ans = Py_True;
 end:
-    if (a != NULL) free(a);
-    if (b != NULL) free(b);
-
-    if (PyErr_Occurred()) return NULL;
-    if (ans) { Py_RETURN_TRUE; }
-    Py_RETURN_FALSE;
+    free(a); free(b); return Py_NewRef(ans);
 } // }}}
 
 // Collator.collation_order {{{
