@@ -169,8 +169,8 @@ class CardData:
         series = ''
         if s := self.results.series:
             sidx = fmt_sidx(self.results.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
-            series = _('{series_index} of {series}').format(series_index=sidx, series=s)
-            series = f'{prepare_string_for_xml(series)}<br>'
+            series = _('{series_index} of <i>{series}</i>').format(series_index=sidx, series=prepare_string_for_xml(s))
+            series = f' ({series})'
         results = []
         ftt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\n'
                        'to this search result automatically.')
@@ -187,11 +187,12 @@ class CardData:
                 ftxt = '\xa0'.join(fmts)
                 results.append(f'<br>{ftxt} {text}')
 
+        pal = QApplication.instance().palette()
+        accent = pal.color(QPalette.ColorRole.Accent).name()
         html = f'''
 <img src="card://thumb" width="{sz.width()}" height="{sz.height()}" align="left" /><div style="margin: 0">
 <big><b>{prepare_string_for_xml(self.results.title)}</b></big><br>
-{prepare_string_for_xml(authors_to_string(self.results.authors))}<br>
-{series}
+<span style="color: {accent}">{prepare_string_for_xml(authors_to_string(self.results.authors))}</span>{series}<br>
 {button_line(self.results.book_id, self.results.book_in_db)}
 <br>
 {'<br>'.join(results)}

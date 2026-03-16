@@ -18,13 +18,13 @@ def get_db():
     return get_gui().current_db.new_api
 
 
-def markup_text(text: str) -> str:
+def markup_text(text: str, open_tag: str = '<b><i>', close_tag: str = '</i></b>') -> str:
     closing = False
 
     def sub(m):
         nonlocal closing
         closing = not closing
-        return '<b><i>' if closing else '</i></b>'
+        return open_tag if closing else close_tag
 
     return re.sub(r'\x1d', sub, prepare_string_for_xml(text))
 
