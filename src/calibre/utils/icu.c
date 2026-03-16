@@ -1016,6 +1016,19 @@ count_words_callback(void *data, int32_t pos, int32_t sz) {
 	return 1;
 }
 
+static int
+add_pos_only_callback(void *data, int32_t pos, int32_t sz) {
+	PyObject *ans = (PyObject*) data;
+	PyObject *temp;
+	if (pos >= 0) {
+		temp = PyLong_FromLong((long)pos);
+		if (temp == NULL) return 0;
+		if (PyList_Append(ans, temp) != 0) { Py_DECREF(temp); return 0; }
+		Py_DECREF(temp);
+	}
+	return 1;
+}
+
 
 static inline void
 do_split(icu_BreakIterator *self, int(*callback)(void*, int32_t, int32_t), void *callback_data) {
@@ -1076,6 +1089,30 @@ icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
 	do_split(self, add_split_pos_callback, ans);
 	if (PyErr_Occurred()) { Py_DECREF(ans); ans = NULL; }
     return ans;
+}
+
+static PyObject *
+icu_BreakIterator_iter_breaks(icu_BreakIterator *self, PyObject *args) {
+    PyObject *ans = NULL, *iter = NULL;
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+    do_split(self, add_split_pos_callback, ans);
+    if (PyErr_Occurred()) { Py_DECREF(ans); return NULL; }
+    iter = PyObject_GetIter(ans);
+    Py_DECREF(ans);
+    return iter;
+}
+
+static PyObject *
+icu_BreakIterator_iter_positions(icu_BreakIterator *self, PyObject *args) {
+    PyObject *ans = NULL, *iter = NULL;
+    ans = PyList_New(0);
+    if (ans == NULL) return PyErr_NoMemory();
+    do_split(self, add_pos_only_callback, ans);
+    if (PyErr_Occurred()) { Py_DECREF(ans); return NULL; }
+    iter = PyObject_GetIter(ans);
+    Py_DECREF(ans);
+    return iter;
 
 } // }}}
 
@@ -1086,6 +1123,14 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
     {"split2", (PyCFunction)icu_BreakIterator_split2, METH_NOARGS,
      "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_breaks", (PyCFunction)icu_BreakIterator_iter_breaks, METH_NOARGS,
+     "iter_breaks() -> Split the current text into tokens, returning an iterator that yields 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_positions", (PyCFunction)icu_BreakIterator_iter_positions, METH_NOARGS,
+     "iter_positions() -> Split the current text into tokens, returning an iterator that yields the position of each token as an integer. The numbers are suitable for indexing python strings regardless of narrow/wide builds."
     },
 
     {"count_words", (PyCFunction)icu_BreakIterator_count_words, METH_NOARGS,

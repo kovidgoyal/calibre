@@ -213,6 +213,23 @@ class TestICU(unittest.TestCase):
         self.ae(split('-one -a-b-c-d- e'), ['-one', '-a-b-c-d-', 'e'])
         self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (6, 5)])
         self.ae(count_words('a b c d e f'), 6)
+        # Test iter_breaks() and iter_positions()
+        from calibre_extensions import icu as _icu
+        it = _icu.BreakIterator(_icu.UBRK_WORD, 'en')
+        it.set_text('one two three')
+        self.ae(list(it.iter_breaks()), [(0, 3), (4, 3), (8, 5)])
+        it.set_text('one two three')
+        self.ae(list(it.iter_positions()), [0, 4, 8])
+        # Test with hyphenated words
+        it.set_text('out-of-the-box')
+        self.ae(list(it.iter_breaks()), [(0, 14)])
+        it.set_text('out-of-the-box')
+        self.ae(list(it.iter_positions()), [0])
+        # Test with surrogate pairs (emoji)
+        it.set_text('one \U0001f431 three')
+        self.ae(list(it.iter_breaks()), [(0, 3), (6, 5)])
+        it.set_text('one \U0001f431 three')
+        self.ae(list(it.iter_positions()), [0, 6])
         for needle, haystack, pos in (
                 ('word', 'a word b', 2),
                 ('word', 'a word', 2),
