@@ -45,11 +45,7 @@ def hierarchy_startswith(x, prefix, sep='.'):
 
 
 def word_prefix_matcher(collator, it, x, prefix):
-    it.set_text(x)
-    for pos, size in it.split2():
-        if collator.startswith(x, prefix, pos):
-            return True
-    return False
+    return word_prefix_find(collator, it, x, prefix) >= 0
 
 
 class CompleteModel(QAbstractListModel):  # {{{
