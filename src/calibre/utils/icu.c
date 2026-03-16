@@ -1010,17 +1010,9 @@ typedef struct {
 
 static void
 break_iter_state_init(icu_BreakIterator *bi, BreakIterState *state) {
+    memset(state, 0, sizeof(state[0]));
     state->p            = ubrk_first(bi->break_iterator);
-    state->last_pos     = 0;
-    state->last_sz      = 0;
-    state->last_count   = 0;
-    state->last_count32 = 0;
     state->count_start  = bi->text;
-    state->found_one    = 0;
-    state->done         = 0;
-    state->has_pending  = 0;
-    state->pending_pos  = 0;
-    state->pending_sz   = 0;
 }
 
 /* Advance one step.
@@ -1142,8 +1134,7 @@ typedef struct {
 static void
 icu_BreakIteratorIter_dealloc(icu_BreakIteratorIterObject *self)
 {
-    Py_XDECREF(self->parent);
-    self->parent = NULL;
+    Py_CLEAR(self->parent);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
