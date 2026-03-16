@@ -48,7 +48,13 @@ except Exception:
 del is_ascii
 
 
-thread_local_collator_cache = threading.local()
+class ThreadLocalCollatorCache(threading.local):
+
+    def __init__(self):
+        self.cache = {}
+
+
+thread_local_collator_cache = ThreadLocalCollatorCache()
 
 
 def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_first=None):
@@ -60,12 +66,7 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
             from calibre.utils.localization import get_lang
             _locale = get_lang()
     key = strength, numeric, ignore_alternate_chars, upper_first
-    try:
-        ans = thread_local_collator_cache.cache.get(key)
-    except AttributeError:
-        thread_local_collator_cache.cache = {}
-        ans = None
-    if ans is not None:
+    if (ans := thread_local_collator_cache.cache.get(key)) is not None:
         return ans
     if all(x is None for x in key):
         try:
