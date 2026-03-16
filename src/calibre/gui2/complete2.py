@@ -44,9 +44,7 @@ def hierarchy_startswith(x, prefix, sep='.'):
     return primary_startswith(x, prefix) or primary_contains(sep + prefix, x)
 
 
-def word_prefix_find(x, prefix):
-    '''Return position of the first word in x that starts with prefix, or -1 if not found.'''
-    it = get_word_break_iterator_for_ui_thread()
+def word_prefix_find(it, x, prefix):
     it.set_text(x)
     for pos, size in it.split2():
         if primary_startswith(x[pos:], prefix):
@@ -54,8 +52,12 @@ def word_prefix_find(x, prefix):
     return -1
 
 
-def word_prefix_match(x, prefix):
-    return word_prefix_find(x, prefix) >= 0
+def word_prefix_matcher(it, x, prefix):
+    it.set_text(x)
+    for pos, size in it.split2():
+        if primary_startswith(x[pos:], prefix):
+            return True
+    return False
 
 
 class CompleteModel(QAbstractListModel):  # {{{
@@ -93,6 +95,8 @@ class CompleteModel(QAbstractListModel):  # {{{
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
+        word_iterator = get_word_break_iterator_for_ui_thread()
+        word_prefix_match = partial(word_prefix_matcher, word_iterator)
         if self.use_word_prefix_search:
             func = word_prefix_match
         else:
@@ -119,7 +123,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         elif func is word_prefix_match:
             def skey(x):
                 sk = primary_sort_key(x)
-                pos = word_prefix_find(x, prefix)
+                pos = word_prefix_find(word_iterator, x, prefix)
                 return (pos if pos >= 0 else len(x) + 10), sk
             self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
@@ -667,7 +671,7 @@ if __name__ == '__main__':
     le = EditWithComplete(d)
     d.layout().addWidget(le)
     items = ['oane\n line2\n line3', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
-        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar']
+        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar', 'Asimov', 'Isacc Asimov', 'Quasimodo']
     le.update_items_cache(items)
     le.show_initial_value('')
     d.exec()
