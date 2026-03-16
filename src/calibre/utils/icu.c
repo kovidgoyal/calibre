@@ -859,6 +859,7 @@ typedef struct {
     UChar *text;
     int32_t text_len;
     UBreakIteratorType type;
+    unsigned long counter;  /* incremented on mutating method calls to invalidate live iterators */
 
 } icu_BreakIterator;
 
@@ -891,6 +892,7 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (icu_BreakIterator *)type->tp_alloc(type, 0);
     if (self != NULL) {
         self->break_iterator = break_iterator;
+        self->counter = 0;
     }
     self->text = NULL; self->text_len = 0; self->type = break_iterator_type;
 
@@ -904,6 +906,7 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
     UChar *buf = NULL;
     UErrorCode status = U_ZERO_ERROR;
 
+    self->counter++;
     buf = python_to_icu(input, &sz);
     if (buf == NULL) return NULL;
     ubrk_setText(self->break_iterator, buf, sz, &status);
@@ -925,6 +928,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
     UChar *buf = NULL, *needle = NULL;
     int32_t word_start = 0, p = 0, sz = 0, ans = -1, leading_hyphen = 0, trailing_hyphen = 0;
 
+    self->counter++;
     buf = python_to_icu(token, &sz);
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
@@ -973,7 +977,7 @@ end:
 
 } // }}}
 
-// BreakIterator.split2 {{{
+// BreakIterator iteration machinery {{{
 
 static inline void
 unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_count32, int32_t *word_start, int32_t *sz) {
@@ -988,94 +992,233 @@ unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_cou
 	*sz = sz32;
 }
 
-static int
-add_split_pos_callback(void *data, int32_t pos, int32_t sz) {
-	PyObject *ans = (PyObject*) data;
-	PyObject *t, *temp;
-	if (pos < 0) {
-		if (PyList_GET_SIZE(ans) > 0) {
-			t = PyLong_FromLong((long)sz);
-			if (t == NULL) return 0;
-			temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
-			Py_DECREF(PyTuple_GET_ITEM(temp, 1));
-			PyTuple_SET_ITEM(temp, 1, t);
-		}
-	} else {
-		temp = Py_BuildValue("ll", (long)(pos), (long)sz);
-		if (temp == NULL) return 0;
-		if (PyList_Append(ans, temp) != 0) { Py_DECREF(temp); return 0; }
-		Py_DECREF(temp);
-	}
-	return 1;
+/* State for lazily stepping through the break positions of an icu_BreakIterator.
+   Usable from both C (split2, count_words) and Python (BreakIteratorIter). */
+typedef struct {
+    int32_t p;             /* current ICU iterator position */
+    int32_t last_pos;      /* ICU end-position of last processed segment */
+    int32_t last_sz;       /* code-point size of the pending (buffered) token */
+    int32_t last_count;    /* UTF-16 offset bookkeeping for unicode_code_point_count */
+    int     last_count32;  /* code-point offset bookkeeping */
+    UChar  *count_start;   /* cursor through the text for unicode_code_point_count */
+    int     found_one;     /* whether any token has been buffered yet */
+    int     done;          /* whether the ICU iterator is exhausted */
+    int     has_pending;   /* whether a buffered token is waiting to be yielded */
+    int32_t pending_pos;
+    int32_t pending_sz;
+} BreakIterState;
+
+static void
+break_iter_state_init(icu_BreakIterator *bi, BreakIterState *state) {
+    state->p            = ubrk_first(bi->break_iterator);
+    state->last_pos     = 0;
+    state->last_sz      = 0;
+    state->last_count   = 0;
+    state->last_count32 = 0;
+    state->count_start  = bi->text;
+    state->found_one    = 0;
+    state->done         = 0;
+    state->has_pending  = 0;
+    state->pending_pos  = 0;
+    state->pending_sz   = 0;
 }
 
+/* Advance one step.
+   Returns 1 with the next token stored in *pos_out / *sz_out.
+   Returns 0 when there are no more tokens. */
 static int
-count_words_callback(void *data, int32_t pos, int32_t sz) {
-	unsigned long *total = (unsigned long*)data;
-	if (pos >= 0) (*total)++;
-	return 1;
-}
+break_iter_state_next(icu_BreakIterator *bi, BreakIterState *state,
+                      int32_t *pos_out, int32_t *sz_out) {
+    int32_t word_start, sz;
+    int is_hyphen_sep, leading_hyphen, trailing_hyphen, had_pending;
+    int32_t prev_pos, prev_sz;
+    UChar sep;
 
+    if (state->done) {
+        if (state->has_pending) {
+            state->has_pending = 0;
+            *pos_out = state->pending_pos;
+            *sz_out  = state->pending_sz;
+            return 1;
+        }
+        return 0;
+    }
 
-static inline void
-do_split(icu_BreakIterator *self, int(*callback)(void*, int32_t, int32_t), void *callback_data) {
-    int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0, last_count = 0, last_count32 = 0;
-    int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0, found_one = 0;
-    UChar sep = 0, *count_start = self->text;
-
-    p = ubrk_first(self->break_iterator);
-    while (p != UBRK_DONE) {
-        word_start = p; p = ubrk_next(self->break_iterator);
-        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE)
-            continue;  // We are not at the start of a word
-        sz = (p == UBRK_DONE) ? self->text_len - word_start : p - word_start;
+    while (state->p != UBRK_DONE) {
+        word_start = state->p;
+        state->p = ubrk_next(bi->break_iterator);
+        if (bi->type == UBRK_WORD && ubrk_getRuleStatus(bi->break_iterator) == UBRK_WORD_NONE)
+            continue;
+        sz = (state->p == UBRK_DONE) ? bi->text_len - word_start : state->p - word_start;
         if (sz > 0) {
-            // ICU breaks on words containing hyphens, we do not want that, so we recombine manually
             is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
-            if (word_start > 0) { // Look for a leading hyphen
-                sep = *(self->text + word_start - 1);
+            if (word_start > 0) {
+                sep = *(bi->text + word_start - 1);
                 if (IS_HYPHEN_CHAR(sep)) {
                     leading_hyphen = 1;
-                    if (last_pos > 0 && word_start - last_pos == 1) is_hyphen_sep = 1;
+                    if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
                 }
             }
-            if (word_start + sz < self->text_len) { // Look for a trailing hyphen
-                sep = *(self->text + word_start + sz);
+            if (word_start + sz < bi->text_len) {
+                sep = *(bi->text + word_start + sz);
                 if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
             }
-            last_pos = p;
-			unicode_code_point_count(&count_start, &last_count, &last_count32, &word_start, &sz);
-            if (is_hyphen_sep && found_one) {
-                sz = last_sz + sz + trailing_hyphen;
-                last_sz = sz;
-				if (!callback(callback_data, -1, sz)) break;
+            state->last_pos = state->p;
+            unicode_code_point_count(&state->count_start, &state->last_count, &state->last_count32, &word_start, &sz);
+            if (is_hyphen_sep && state->found_one) {
+                /* Extend the already-buffered token across the hyphen. */
+                sz = state->last_sz + sz + trailing_hyphen;
+                state->last_sz    = sz;
+                state->pending_sz = sz;
             } else {
-				found_one = 1;
+                /* Yield the previously buffered token (if any), then buffer this one. */
+                had_pending = state->has_pending;
+                prev_pos    = state->pending_pos;
+                prev_sz     = state->pending_sz;
+                state->found_one   = 1;
                 sz += leading_hyphen + trailing_hyphen;
-                last_sz = sz;
-				if (!callback(callback_data, word_start - leading_hyphen, sz)) break;
+                state->last_sz     = sz;
+                state->has_pending = 1;
+                state->pending_pos = word_start - leading_hyphen;
+                state->pending_sz  = sz;
+                if (had_pending) {
+                    *pos_out = prev_pos;
+                    *sz_out  = prev_sz;
+                    return 1;
+                }
             }
         }
     }
 
+    /* ICU iteration exhausted — flush the final buffered token. */
+    state->done = 1;
+    if (state->has_pending) {
+        state->has_pending = 0;
+        *pos_out = state->pending_pos;
+        *sz_out  = state->pending_sz;
+        return 1;
+    }
+    return 0;
 }
 
 static PyObject *
 icu_BreakIterator_count_words(icu_BreakIterator *self, PyObject *args) {
-	unsigned long ans = 0;
-	do_split(self, count_words_callback, &ans);
-	if (PyErr_Occurred()) return NULL;
-	return Py_BuildValue("k", ans);
+    unsigned long ans = 0;
+    int32_t pos, sz;
+    BreakIterState state;
+    self->counter++;
+    break_iter_state_init(self, &state);
+    while (break_iter_state_next(self, &state, &pos, &sz)) ans++;
+    return Py_BuildValue("k", ans);
 }
 
 static PyObject *
 icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
-    PyObject *ans = NULL;
+    PyObject *ans, *item;
+    int32_t pos, sz;
+    BreakIterState state;
     ans = PyList_New(0);
     if (ans == NULL) return PyErr_NoMemory();
-	do_split(self, add_split_pos_callback, ans);
-	if (PyErr_Occurred()) { Py_DECREF(ans); ans = NULL; }
+    self->counter++;
+    break_iter_state_init(self, &state);
+    while (break_iter_state_next(self, &state, &pos, &sz)) {
+        item = Py_BuildValue("ll", (long)pos, (long)sz);
+        if (item == NULL || PyList_Append(ans, item) != 0) { Py_XDECREF(item); Py_DECREF(ans); return NULL; }
+        Py_DECREF(item);
+    }
     return ans;
+}
+
+// BreakIteratorIter object {{{
+
+typedef struct {
+    PyObject_HEAD
+    icu_BreakIterator *parent;         /* strong reference */
+    unsigned long      counter_at_creation;
+    BreakIterState     state;
+    int                positions_only; /* 0 = yield (pos,sz) tuples; 1 = yield pos ints */
+} icu_BreakIteratorIterObject;
+
+static void
+icu_BreakIteratorIter_dealloc(icu_BreakIteratorIterObject *self)
+{
+    Py_XDECREF(self->parent);
+    self->parent = NULL;
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+icu_BreakIteratorIter_iternext(icu_BreakIteratorIterObject *self)
+{
+    int32_t pos, sz;
+    if (self->parent->counter != self->counter_at_creation) {
+        PyErr_SetString(PyExc_RuntimeError,
+            "BreakIterator was modified while iterating over it");
+        return NULL;
+    }
+    if (!break_iter_state_next(self->parent, &self->state, &pos, &sz))
+        return NULL;  /* StopIteration */
+    if (self->positions_only) return PyLong_FromLong((long)pos);
+    return Py_BuildValue("ll", (long)pos, (long)sz);
+}
+
+static PyTypeObject icu_BreakIteratorIterType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "icu.BreakIteratorIter",
+    /* tp_basicsize      */ sizeof(icu_BreakIteratorIterObject),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)icu_BreakIteratorIter_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT,
+    /* tp_doc            */ "Break Iterator Iterator",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ PyObject_SelfIter,
+    /* tp_iternext       */ (iternextfunc)icu_BreakIteratorIter_iternext,
+}; // }}}
+
+static PyObject *
+make_break_iterator_iter(icu_BreakIterator *parent, int positions_only)
+{
+    icu_BreakIteratorIterObject *iter;
+    if (parent->text == NULL || parent->text_len < 1) {
+        PyErr_SetString(PyExc_ValueError, "No text has been set on this BreakIterator");
+        return NULL;
+    }
+    iter = PyObject_New(icu_BreakIteratorIterObject, &icu_BreakIteratorIterType);
+    if (iter == NULL) return NULL;
+    parent->counter++;
+    break_iter_state_init(parent, &iter->state);
+    iter->counter_at_creation = parent->counter;
+    iter->positions_only = positions_only;
+    Py_INCREF(parent);
+    iter->parent = parent;
+    return (PyObject *)iter;
+}
+
+static PyObject *
+icu_BreakIterator_iter_breaks(icu_BreakIterator *self, PyObject *args) {
+    return make_break_iterator_iter(self, 0);
+}
+
+static PyObject *
+icu_BreakIterator_iter_positions(icu_BreakIterator *self, PyObject *args) {
+    return make_break_iterator_iter(self, 1);
 
 } // }}}
 
@@ -1086,6 +1229,14 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
     {"split2", (PyCFunction)icu_BreakIterator_split2, METH_NOARGS,
      "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_breaks", (PyCFunction)icu_BreakIterator_iter_breaks, METH_NOARGS,
+     "iter_breaks() -> Split the current text into tokens, returning an iterator that yields 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_positions", (PyCFunction)icu_BreakIterator_iter_positions, METH_NOARGS,
+     "iter_positions() -> Split the current text into tokens, returning an iterator that yields the position of each token as an integer. The numbers are suitable for indexing python strings regardless of narrow/wide builds."
     },
 
     {"count_words", (PyCFunction)icu_BreakIterator_count_words, METH_NOARGS,
@@ -1580,6 +1731,8 @@ exec_module(PyObject *mod) {
     if (PyType_Ready(&icu_CollatorType) < 0)
         return -1;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
+        return -1;
+    if (PyType_Ready(&icu_BreakIteratorIterType) < 0)
         return -1;
     if (PyType_Ready(&icu_TransliteratorType) < 0)
         return -1;
