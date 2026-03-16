@@ -187,17 +187,16 @@ static void calculate_gaussian_kernel(Py_ssize_t size, double *kernel, double ra
 }
 
 static PyObject*
-speedup_create_texture(PyObject *self, PyObject *const *args, Py_ssize_t nargs, PyObject *kwnames) {
+speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     PyObject *ret = NULL;
     Py_ssize_t width, height, weight = 3, i, j, r, c, half_weight;
     double pixel, *mask = NULL, radius = 1, *kernel = NULL, blend_alpha = 0.1;
     float density = 0.7f;
     unsigned char base_r, base_g, base_b, blend_r = 0, blend_g = 0, blend_b = 0, *ppm = NULL, *t = NULL;
     char header[100] = {0};
-    static const char * const kwlist[] = {"width", "height", "red", "green", "blue", "blend_red", "blend_green", "blend_blue", "blend_alpha", "density", "weight", "radius", NULL};
-    static _PyArg_Parser parser = {.format = "nnbbb|bbbdfnd", .keywords = kwlist, .fname = "create_texture"};
+    static char* kwlist[] = {"blend_red", "blend_green", "blend_blue", "blend_alpha", "density", "weight", "radius", NULL};
 
-    if (!_PyArg_ParseStackAndKeywords(args, nargs, kwnames, &parser, &width, &height, &base_r, &base_g, &base_b, &blend_r, &blend_g, &blend_b, &blend_alpha, &density, &weight, &radius)) return NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "nnbbb|bbbdfnd", kwlist, &width, &height, &base_r, &base_g, &base_b, &blend_r, &blend_g, &blend_b, &blend_alpha, &density, &weight, &radius)) return NULL;
     if (weight % 2 != 1 || weight < 1) { PyErr_SetString(PyExc_ValueError, "The weight must be an odd positive number"); return NULL; }
     if (radius <= 0) { PyErr_SetString(PyExc_ValueError, "The radius must be positive"); return NULL; }
     if (width > 100000 || height > 10000) { PyErr_SetString(PyExc_ValueError, "The width or height is too large"); return NULL; }
@@ -835,7 +834,7 @@ static PyMethodDef speedup_methods[] = {
         "detach()\n\nRedirect the standard I/O stream to the specified file (usually os.devnull)"
     },
 
-    {"create_texture", (PyCFunction)(void(*)(void))speedup_create_texture, METH_FASTCALL | METH_KEYWORDS,
+    {"create_texture", (PyCFunction)speedup_create_texture, METH_VARARGS | METH_KEYWORDS,
         "create_texture(width, height, red, green, blue, blend_red=0, blend_green=0, blend_blue=0, blend_alpha=0.1, density=0.7, weight=3, radius=1)\n\n"
             "Create a texture of the specified width and height from the specified color."
             " The texture is created by blending in random noise of the specified blend color into a flat image."
