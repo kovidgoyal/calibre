@@ -1640,6 +1640,68 @@ icu_utf16_length(PyObject *self, PyObject *src) {
     return Py_BuildValue("n", sz);
 } // }}}
 
+// word_prefix_find {{{
+// C implementation of word_prefix_find() from complete2.py.
+// Converts python strings to ICU strings only once, then iterates over
+// word positions and returns the first matching position or -1 on failure.
+static PyObject *
+icu_word_prefix_find(PyObject *self, PyObject *args) {
+    PyObject *collator_obj = NULL, *it_obj = NULL, *x_ = NULL, *prefix_ = NULL;
+    icu_Collator *collator = NULL;
+    icu_BreakIterator *it = NULL;
+    UChar *x_icu = NULL, *prefix_icu = NULL;
+    int32_t xsz = 0, prefix_sz = 0, pos, sz, utf16_start = 0, prev_cp_pos = 0;
+    UErrorCode status = U_ZERO_ERROR;
+    long ans = -1;
+    BreakIterState state;
+
+    if (!PyArg_ParseTuple(args, "O!O!OO",
+                          &icu_CollatorType, &collator_obj,
+                          &icu_BreakIteratorType, &it_obj,
+                          &x_, &prefix_)) return NULL;
+    collator = (icu_Collator *)collator_obj;
+    it = (icu_BreakIterator *)it_obj;
+
+    // Convert x to ICU and set it on the break iterator (equivalent to it.set_text(x))
+    x_icu = python_to_icu(x_, &xsz);
+    if (x_icu == NULL) return NULL;
+    it->counter++;
+    if (it->text != NULL) { free(it->text); it->text = NULL; it->text_len = 0; }
+    ubrk_setText(it->break_iterator, x_icu, xsz, &status);
+    if (U_FAILURE(status)) {
+        free(x_icu);
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return NULL;
+    }
+    it->text = x_icu; it->text_len = xsz;
+    x_icu = NULL;  // ownership transferred to it->text
+
+    // Convert prefix to ICU once
+    prefix_icu = python_to_icu(prefix_, &prefix_sz);
+    if (prefix_icu == NULL) return NULL;
+
+    // Iterate over word positions and find the first where x starts with prefix
+    break_iter_state_init(it, &state);
+    while (break_iter_state_next(it, &state, &pos, &sz)) {
+        // pos is a codepoint offset; advance the UTF-16 cursor incrementally
+        if (pos > prev_cp_pos) {
+            U16_FWD_N(it->text, utf16_start, it->text_len, (uint32_t)(pos - prev_cp_pos));
+            prev_cp_pos = pos;
+        }
+        if (utf16_start >= it->text_len) break;
+        // Empty prefix matches at the first word position
+        if (prefix_sz == 0) { ans = (long)pos; break; }
+        // Check if x starting at utf16_start begins with prefix using the collator
+        if (it->text_len - utf16_start >= prefix_sz &&
+                ucol_equal(collator->collator, it->text + utf16_start, prefix_sz, prefix_icu, prefix_sz)) {
+            ans = (long)pos;
+            break;
+        }
+    }
+    free(prefix_icu);
+    return Py_BuildValue("l", ans);
+} // }}}
+
 // Module initialization {{{
 static PyMethodDef icu_methods[] = {
     {"change_case", icu_change_case, METH_VARARGS,
@@ -1696,6 +1758,10 @@ static PyMethodDef icu_methods[] = {
 
     {"utf16_length", icu_utf16_length, METH_O,
      "utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs."
+    },
+
+    {"word_prefix_find", icu_word_prefix_find, METH_VARARGS,
+     "word_prefix_find(collator, break_iterator, string, prefix) -> Return the codepoint offset of the first word in string that starts with prefix according to collator, or -1 if none."
     },
 
     {NULL}  /* Sentinel */

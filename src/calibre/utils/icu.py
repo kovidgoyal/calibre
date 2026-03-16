@@ -239,6 +239,7 @@ startswith = make_two_arg_func(collator, 'startswith')
 primary_startswith = make_two_arg_func(primary_collator, 'startswith')
 safe_chr = _icu.chr
 ord_string = _icu.ord_string
+word_prefix_find = _icu.word_prefix_find
 
 
 def character_name(string):
