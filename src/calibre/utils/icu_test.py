@@ -107,6 +107,19 @@ class TestICU(unittest.TestCase):
         self.assertFalse(icu.startswith('xyz', 'a'))
         self.assertTrue(icu.startswith('xxx', ''))
         self.assertTrue(icu.primary_startswith('pena', 'peña'))
+        # test startswith with codepoint offset
+        c = icu.collator()
+        self.assertTrue(c.startswith('abcdef', 'cd', 2))
+        self.assertFalse(c.startswith('abcdef', 'cd', 3))
+        self.assertTrue(c.startswith('abcdef', '', 3))
+        self.assertFalse(c.startswith('abcdef', 'ab', 10))
+        self.assertTrue(c.startswith('abc', 'a', 0))
+        self.assertTrue(c.startswith('abc', '', 3))   # offset at end of string, empty prefix matches
+        self.assertFalse(c.startswith('abc', 'x', 3)) # offset at end of string, non-empty prefix fails
+        # offset counts codepoints, so emoji (2 UTF-16 units) counts as 1
+        self.assertTrue(c.startswith('x\U0001f431yz', 'y', 2))
+        self.assertFalse(c.startswith('x\U0001f431yz', 'y', 1))
+        self.assertRaises(ValueError, c.startswith, 'abc', 'a', -1)
         self.assertTrue(icu.contains('\U0001f431', '\U0001f431'))
         self.assertTrue(icu.contains('something', 'some other something else'))
         self.assertTrue(icu.contains('', 'a'))
