@@ -114,17 +114,6 @@ def background_image(encoded_fname=''):
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
     except FileNotFoundError:
-        if fname.startswith(('https://', 'http://')):
-            from calibre import browser
-            br = browser()
-            try:
-                with br.open(fname) as src:
-                    data = src.read()
-            except Exception:
-                return mt, b''
-            with open(make_long_path_useable(img_path), 'wb') as dest:
-                dest.write(data)
-            return mt, data
         return mt, b''
 
 
