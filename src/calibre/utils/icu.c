@@ -193,13 +193,14 @@ end:
 
 // Collator.strcmp {{{
 static PyObject *
-icu_Collator_strcmp(icu_Collator *self, PyObject *args) {
+icu_Collator_strcmp(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0;
     UChar *a = NULL, *b = NULL;
     UCollationResult res = UCOL_EQUAL;
 
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "strcmp takes exactly 2 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
@@ -232,7 +233,7 @@ create_word_iterator(icu_Collator *self) {
 }
 
 static PyObject *
-icu_Collator_find(icu_Collator *self, PyObject *args) {
+icu_Collator_find(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -240,7 +241,11 @@ icu_Collator_find(icu_Collator *self, PyObject *args) {
     UStringSearch *search = NULL;
     int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UU|p", &a_, &b_, &whole_words)) return NULL;
+    if (nargs < 2 || nargs > 3) { PyErr_SetString(PyExc_TypeError, "find requires 2 or 3 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
+    if (!PyUnicode_Check(a_) || !PyUnicode_Check(b_)) { PyErr_SetString(PyExc_TypeError, "pattern and source must be unicode strings"); return NULL; }
+    if (nargs > 2) whole_words = PyObject_IsTrue(args[2]);
+    if (whole_words == -1) return NULL;
     if (whole_words) create_word_iterator(self);
     if (PyErr_Occurred()) return NULL;
 
@@ -271,7 +276,7 @@ end:
 
 // Collator.find_all {{{
 static PyObject *
-icu_Collator_find_all(icu_Collator *self, PyObject *args) {
+icu_Collator_find_all(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL, *callback;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -279,7 +284,11 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
     UStringSearch *search = NULL;
     int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UUO|p", &a_, &b_, &callback, &whole_words)) return NULL;
+    if (nargs < 3 || nargs > 4) { PyErr_SetString(PyExc_TypeError, "find_all requires 3 or 4 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1]; callback = args[2];
+    if (!PyUnicode_Check(a_) || !PyUnicode_Check(b_)) { PyErr_SetString(PyExc_TypeError, "pattern and source must be unicode strings"); return NULL; }
+    if (nargs > 3) whole_words = PyObject_IsTrue(args[3]);
+    if (whole_words == -1) return NULL;
     if (whole_words) create_word_iterator(self);
     if (PyErr_Occurred()) return NULL;
 
@@ -312,7 +321,7 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
 
 // Collator.contains {{{
 static PyObject *
-icu_Collator_contains(icu_Collator *self, PyObject *args) {
+icu_Collator_contains(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1;
@@ -320,7 +329,8 @@ icu_Collator_contains(icu_Collator *self, PyObject *args) {
     UErrorCode status = U_ZERO_ERROR;
     UStringSearch *search = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "contains takes exactly 2 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
@@ -386,12 +396,18 @@ end:
 
 // Collator.startswith {{{
 static PyObject *
-icu_Collator_startswith(icu_Collator *self, PyObject *args) {
+icu_Collator_startswith(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0, start = 0;
     UChar *a = NULL, *b = NULL;
     unsigned offset = 0;
-    if (!PyArg_ParseTuple(args, "OO|I", &a_, &b_, &offset)) return NULL;
+    if (nargs < 2 || nargs > 3) { PyErr_SetString(PyExc_TypeError, "startswith requires 2 or 3 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
+    if (nargs > 2) {
+        unsigned long v = PyLong_AsUnsignedLong(args[2]);
+        if (PyErr_Occurred()) return NULL;
+        offset = (unsigned)v;
+    }
     a = python_to_icu(a_, &asz); if (a == NULL) return NULL;
     b = python_to_icu(b_, &bsz); if (b == NULL) { Py_DECREF(a); return NULL; }
     PyObject *ans = Py_False;
@@ -462,9 +478,10 @@ icu_Collator_set_upper_first(icu_Collator *self, PyObject *val, void *closure) {
 
 // Collator.get/set_attribute {{{
 static PyObject *
-icu_Collator_get_attribute(icu_Collator *self, PyObject *args) {
-    int k;
-    if (!PyArg_ParseTuple(args, "i", &k)) return NULL;
+icu_Collator_get_attribute(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "get_attribute takes exactly 1 argument"); return NULL; }
+    int k = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
     UErrorCode status = U_ZERO_ERROR;
     long v = ucol_getAttribute(self->collator, k, &status);
     if (U_FAILURE(status)) {
@@ -475,9 +492,12 @@ icu_Collator_get_attribute(icu_Collator *self, PyObject *args) {
 }
 
 static PyObject *
-icu_Collator_set_attribute(icu_Collator *self, PyObject *args) {
-    int k, v;
-    if (!PyArg_ParseTuple(args, "ii", &k, &v)) return NULL;
+icu_Collator_set_attribute(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "set_attribute takes exactly 2 arguments"); return NULL; }
+    int k = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    int v = (int)PyLong_AsLong(args[1]);
+    if (PyErr_Occurred()) return NULL;
     UErrorCode status = U_ZERO_ERROR;
     ucol_setAttribute(self->collator, k, v, &status);
     if (U_FAILURE(status)) {
@@ -495,27 +515,27 @@ static PyMethodDef icu_Collator_methods[] = {
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
     },
 
-    {"get_attribute", (PyCFunction)icu_Collator_get_attribute, METH_VARARGS,
+    {"get_attribute", (PyCFunction)(void(*)(void))icu_Collator_get_attribute, METH_FASTCALL,
      "get_attribute(key) -> get the specified attribute on this collator."
     },
 
-    {"set_attribute", (PyCFunction)icu_Collator_set_attribute, METH_VARARGS,
+    {"set_attribute", (PyCFunction)(void(*)(void))icu_Collator_set_attribute, METH_FASTCALL,
      "set_attribute(key, val) -> set the specified attribute on this collator."
     },
 
-    {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
+    {"strcmp", (PyCFunction)(void(*)(void))icu_Collator_strcmp, METH_FASTCALL,
      "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
     },
 
-    {"find_all", (PyCFunction)icu_Collator_find_all, METH_VARARGS,
+    {"find_all", (PyCFunction)(void(*)(void))icu_Collator_find_all, METH_FASTCALL,
         "find(pattern, source, callback) -> reports the position and length of all occurrences of pattern in source to callback. Aborts if callback returns anything other than None."
     },
 
-    {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
+    {"find", (PyCFunction)(void(*)(void))icu_Collator_find, METH_FASTCALL,
         "find(pattern, source) -> returns the position and length of the first occurrence of pattern in source. Returns (-1, -1) if not found."
     },
 
-    {"contains", (PyCFunction)icu_Collator_contains, METH_VARARGS,
+    {"contains", (PyCFunction)(void(*)(void))icu_Collator_contains, METH_FASTCALL,
         "contains(pattern, source) -> return True iff the pattern was found in the source."
     },
 
@@ -527,7 +547,7 @@ static PyMethodDef icu_Collator_methods[] = {
         "clone() -> returns a clone of this collator."
     },
 
-    {"startswith", (PyCFunction)icu_Collator_startswith, METH_VARARGS,
+    {"startswith", (PyCFunction)(void(*)(void))icu_Collator_startswith, METH_FASTCALL,
         "startswith(a, b, offset=0) -> returns True iff a startswith b at the given codepoint offset, following the current collation rules."
     },
 
@@ -1285,15 +1305,22 @@ static PyTypeObject icu_BreakIteratorType = { // {{{
 
 // change_case {{{
 
-static PyObject* icu_change_case(PyObject *self, PyObject *args) {
-    char *locale = NULL;
+static PyObject* icu_change_case(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    const char *locale = NULL;
     PyObject *input = NULL, *result = NULL;
     int which = UPPER_CASE;
     UErrorCode status = U_ZERO_ERROR;
     UChar *input_buf = NULL, *output_buf = NULL;
     int32_t sz = 0;
 
-    if (!PyArg_ParseTuple(args, "Oiz", &input, &which, &locale)) return NULL;
+    if (nargs != 3) { PyErr_SetString(PyExc_TypeError, "change_case takes exactly 3 arguments"); return NULL; }
+    input = args[0];
+    which = (int)PyLong_AsLong(args[1]);
+    if (PyErr_Occurred()) return NULL;
+    if (args[2] == Py_None) locale = NULL;
+    else if (PyUnicode_Check(args[2])) { locale = PyUnicode_AsUTF8(args[2]); if (!locale) return NULL; }
+    else if (PyBytes_Check(args[2])) { locale = PyBytes_AS_STRING(args[2]); }
+    else { PyErr_SetString(PyExc_TypeError, "locale must be a string or None"); return NULL; }
     if (locale == NULL) {
         PyErr_SetString(PyExc_NotImplementedError, "You must specify a locale");  // We deliberately use NotImplementedError so that this error can be unambiguously identified
         return NULL;
@@ -1358,7 +1385,7 @@ end:
 
 // set_default_encoding {{{
 static PyObject *
-icu_set_default_encoding(PyObject *self, PyObject *args) {
+icu_set_default_encoding(PyObject *self, PyObject *Py_UNUSED(ignored)) {
     Py_INCREF(Py_None);
     return Py_None;
 
@@ -1367,10 +1394,18 @@ icu_set_default_encoding(PyObject *self, PyObject *args) {
 
 // set_filesystem_encoding {{{
 static PyObject *
-icu_set_filesystem_encoding(PyObject *self, PyObject *args) {
-    char *encoding;
-    if (!PyArg_ParseTuple(args, "s:setfilesystemencoding", &encoding))
+icu_set_filesystem_encoding(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    const char *encoding;
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "set_filesystem_encoding takes exactly 1 argument"); return NULL; }
+    if (PyUnicode_Check(args[0])) {
+        encoding = PyUnicode_AsUTF8(args[0]);
+        if (!encoding) return NULL;
+    } else if (PyBytes_Check(args[0])) {
+        encoding = PyBytes_AS_STRING(args[0]);
+    } else {
+        PyErr_SetString(PyExc_TypeError, "encoding must be a string");
         return NULL;
+    }
 #if PY_VERSION_HEX < 0x03012000
     // The nitwits at Python deprecated this in 3.12 claiming we should use
     // PyConfig.filesystem_encoding instead. But that can only be used if we
@@ -1416,7 +1451,7 @@ icu_get_available_transliterators(PyObject *self, PyObject *args) {
 
 // character_name {{{
 static PyObject *
-icu_character_name(PyObject *self, PyObject *args) {
+icu_character_name(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     char name[512] = {0};
     int32_t sz = 0, alias = 0;
     UChar *buf;
@@ -1424,7 +1459,9 @@ icu_character_name(PyObject *self, PyObject *args) {
     PyObject *palias = NULL, *result = NULL, *input = NULL;
     UChar32 code = 0;
 
-    if (!PyArg_ParseTuple(args, "O|O", &input, &palias)) return NULL;
+    if (nargs < 1 || nargs > 2) { PyErr_SetString(PyExc_TypeError, "character_name takes 1 or 2 arguments"); return NULL; }
+    input = args[0];
+    palias = (nargs > 1) ? args[1] : NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1;
     buf = python_to_icu(input, &sz);
@@ -1445,14 +1482,19 @@ end:
 
 // character_name_from_code {{{
 static PyObject *
-icu_character_name_from_code(PyObject *self, PyObject *args) {
+icu_character_name_from_code(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     char name[512] = {0};
     int32_t sz, alias = 0;
     UErrorCode status = U_ZERO_ERROR;
     PyObject *palias = NULL, *result = NULL;
     UChar32 code = 0;
 
-    if (!PyArg_ParseTuple(args, "I|O", &code, &palias)) return NULL;
+    if (nargs < 1 || nargs > 2) { PyErr_SetString(PyExc_TypeError, "character_name_from_code takes 1 or 2 arguments"); return NULL; }
+    unsigned long code_ul = PyLong_AsUnsignedLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    if (code_ul > 0x10FFFF) { PyErr_SetString(PyExc_ValueError, "code point out of range(0x110000)"); return NULL; }
+    code = (UChar32)code_ul;
+    palias = (nargs > 1) ? args[1] : NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1;
 
@@ -1469,13 +1511,17 @@ end:
 
 // chr {{{
 static PyObject *
-icu_chr(PyObject *self, PyObject *args) {
+icu_chr(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     UErrorCode status = U_ZERO_ERROR;
     UChar32 code = 0;
     UChar buf[5] = {0};
     int32_t sz = 0;
 
-    if (!PyArg_ParseTuple(args, "I", &code)) return NULL;
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "chr takes exactly 1 argument"); return NULL; }
+    unsigned long code_ul = PyLong_AsUnsignedLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    if (code_ul > 0x10FFFF) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); return NULL; }
+    code = (UChar32)code_ul;
 
     u_strFromUTF32(buf, 4, &sz, &code, 1, &status);
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); return NULL; }
@@ -1508,14 +1554,18 @@ end:
 typedef enum { NFC, NFKC, NFD, NFKD } NORM_MODES;
 
 static PyObject *
-icu_normalize(PyObject *self, PyObject *args) {
+icu_normalize(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     UErrorCode status = U_ZERO_ERROR;
     int32_t sz = 0, cap = 0, rsz = 0;
     NORM_MODES mode;
     UChar *dest = NULL, *source = NULL;
     PyObject *ret = NULL, *src = NULL;
 
-    if (!PyArg_ParseTuple(args, "iO", &mode, &src)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "normalize takes exactly 2 arguments"); return NULL; }
+    int mode_int = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    mode = (NORM_MODES)mode_int;
+    src = args[1];
     const UNormalizer2 *n = NULL;
     switch (mode) {
         case NFC:
@@ -1645,7 +1695,7 @@ icu_utf16_length(PyObject *self, PyObject *src) {
 // Converts python strings to ICU strings only once, then iterates over
 // word positions and returns the first matching position or -1 on failure.
 static PyObject *
-icu_word_prefix_find(PyObject *self, PyObject *args) {
+icu_word_prefix_find(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *collator_obj = NULL, *it_obj = NULL, *x_ = NULL, *prefix_ = NULL;
     icu_Collator *collator = NULL;
     icu_BreakIterator *it = NULL;
@@ -1655,10 +1705,16 @@ icu_word_prefix_find(PyObject *self, PyObject *args) {
     long ans = -1;
     BreakIterState state;
 
-    if (!PyArg_ParseTuple(args, "O!O!OO",
-                          &icu_CollatorType, &collator_obj,
-                          &icu_BreakIteratorType, &it_obj,
-                          &x_, &prefix_)) return NULL;
+    if (nargs != 4) { PyErr_SetString(PyExc_TypeError, "word_prefix_find takes exactly 4 arguments"); return NULL; }
+    collator_obj = args[0]; it_obj = args[1]; x_ = args[2]; prefix_ = args[3];
+    if (!PyObject_TypeCheck(collator_obj, &icu_CollatorType)) {
+        PyErr_SetString(PyExc_TypeError, "first argument must be a Collator");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(it_obj, &icu_BreakIteratorType)) {
+        PyErr_SetString(PyExc_TypeError, "second argument must be a BreakIterator");
+        return NULL;
+    }
     collator = (icu_Collator *)collator_obj;
     it = (icu_BreakIterator *)it_obj;
 
@@ -1702,7 +1758,7 @@ icu_word_prefix_find(PyObject *self, PyObject *args) {
 
 // Module initialization {{{
 static PyMethodDef icu_methods[] = {
-    {"change_case", icu_change_case, METH_VARARGS,
+    {"change_case", (PyCFunction)(void(*)(void))icu_change_case, METH_FASTCALL,
         "change_case(unicode object, which, locale) -> change case to one of UPPER_CASE, LOWER_CASE, TITLE_CASE"
     },
 
@@ -1710,11 +1766,11 @@ static PyMethodDef icu_methods[] = {
         "swap_case(unicode object) -> swaps the case using the simple, locale independent unicode algorithm"
     },
 
-    {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
+    {"set_default_encoding", icu_set_default_encoding, METH_NOARGS,
         "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation. In Py3, this operation is a no-op"
     },
 
-    {"set_filesystem_encoding", icu_set_filesystem_encoding, METH_VARARGS,
+    {"set_filesystem_encoding", (PyCFunction)(void(*)(void))icu_set_filesystem_encoding, METH_FASTCALL,
         "set_filesystem_encoding(encoding) -> Set the filesystem encoding for python."
     },
 
@@ -1722,15 +1778,15 @@ static PyMethodDef icu_methods[] = {
         "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
     },
 
-    {"character_name", icu_character_name, METH_VARARGS,
+    {"character_name", (PyCFunction)(void(*)(void))icu_character_name, METH_FASTCALL,
      "character_name(char, alias=False) -> Return name for the first character in char, which must be a unicode string."
     },
 
-    {"character_name_from_code", icu_character_name_from_code, METH_VARARGS,
+    {"character_name_from_code", (PyCFunction)(void(*)(void))icu_character_name_from_code, METH_FASTCALL,
      "character_name_from_code(code, alias=False) -> Return the name for the specified unicode code point"
     },
 
-    {"chr", icu_chr, METH_VARARGS,
+    {"chr", (PyCFunction)(void(*)(void))icu_chr, METH_FASTCALL,
      "chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds)."
     },
 
@@ -1738,7 +1794,7 @@ static PyMethodDef icu_methods[] = {
      "ord_string(code) -> Convert a python unicode string to a tuple of unicode codepoints."
     },
 
-    {"normalize", icu_normalize, METH_VARARGS,
+    {"normalize", (PyCFunction)(void(*)(void))icu_normalize, METH_FASTCALL,
      "normalize(mode, unicode_text) -> Return a python unicode string which is normalized in the specified mode."
     },
 
@@ -1758,7 +1814,7 @@ static PyMethodDef icu_methods[] = {
      "utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs."
     },
 
-    {"word_prefix_find", icu_word_prefix_find, METH_VARARGS,
+    {"word_prefix_find", (PyCFunction)(void(*)(void))icu_word_prefix_find, METH_FASTCALL,
      "word_prefix_find(collator, break_iterator, string, prefix) -> Return the codepoint offset of the first word in string that starts with prefix according to collator, or -1 if none."
     },
 
