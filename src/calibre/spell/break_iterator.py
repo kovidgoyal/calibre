@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import threading
 
 from calibre.utils.icu import _icu
-from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.localization import get_lang, lang_as_iso639_1
 
 
 class PerThreadIterators(threading.local):
@@ -29,7 +29,6 @@ def get_iterator(lang):
 
 def get_word_break_iterator_for_ui_thread():
     if (ans := per_thread_iterators.ui_word_iterator) is None:
-        from calibre.utils.localization import get_lang
         ans = per_thread_iterators.ui_word_iterator = get_iterator(get_lang() or 'en')
     return ans
 
