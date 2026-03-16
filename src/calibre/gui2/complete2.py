@@ -33,7 +33,7 @@ from calibre.constants import ismacos
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.spell.break_iterator import get_word_break_iterator_for_ui_thread
 from calibre.utils.config import tweaks
-from calibre.utils.icu import primary_collator, primary_contains, primary_find, primary_sort_key, primary_startswith, sort_key
+from calibre.utils.icu import primary_collator, primary_contains, primary_find, primary_sort_key, primary_startswith, sort_key, word_prefix_find
 
 
 def containsq(x, prefix):
@@ -42,14 +42,6 @@ def containsq(x, prefix):
 
 def hierarchy_startswith(x, prefix, sep='.'):
     return primary_startswith(x, prefix) or primary_contains(sep + prefix, x)
-
-
-def word_prefix_find(collator, it, x, prefix):
-    it.set_text(x)
-    for pos, size in it.split2():
-        if collator.startswith(x, prefix, pos):
-            return pos
-    return -1
 
 
 def word_prefix_matcher(collator, it, x, prefix):

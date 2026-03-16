@@ -276,6 +276,35 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, f'Failed to find index of {needle!r} in {haystack!r} ({pos} != {fpos})')
 
+    def test_word_prefix_find(self):
+        ' Test the C implementation of word_prefix_find '
+        from calibre_extensions import icu as _icu
+        c = icu.primary_collator()
+        it = _icu.BreakIterator(_icu.UBRK_WORD, 'en')
+        wpf = _icu.word_prefix_find
+        # Basic prefix matches
+        self.ae(wpf(c, it, 'hello world', 'wo'), 6)
+        self.ae(wpf(c, it, 'hello world', 'he'), 0)
+        self.ae(wpf(c, it, 'hello world', 'world'), 6)
+        self.ae(wpf(c, it, 'hello world', 'hello'), 0)
+        # No match returns -1
+        self.ae(wpf(c, it, 'hello world', 'xyz'), -1)
+        # Case-insensitive match with primary collator
+        self.ae(wpf(c, it, 'Hello World', 'wo'), 6)
+        self.ae(wpf(c, it, 'Hello World', 'he'), 0)
+        # Accents ignored with primary collator
+        self.ae(wpf(c, it, 'peña mundo', 'pen'), 0)
+        # Empty prefix matches first word
+        self.ae(wpf(c, it, 'hello world', ''), 0)
+        # Empty string returns -1
+        self.ae(wpf(c, it, '', 'x'), -1)
+        self.ae(wpf(c, it, '', ''), -1)
+        # Surrogate pairs: emoji counts as 1 codepoint
+        self.ae(wpf(c, it, '\U0001f431 world', 'wo'), 2)
+        # Multiple calls reuse the iterator
+        self.ae(wpf(c, it, 'one two three', 'tw'), 4)
+        self.ae(wpf(c, it, 'one two three', 'th'), 8)
+
     def test_remove_accents(self):
         for func in (icu.remove_accents_icu, icu.remove_accents_regex):
             for q, expected in {
