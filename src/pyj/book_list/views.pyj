@@ -35,8 +35,9 @@ from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
 from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
+from book_list.theme import get_color
 from book_list.ui import query_as_href, set_panel_handler, show_panel
-from dom import add_extra_css, build_rule, clear, ensure_id, set_css
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
@@ -50,6 +51,125 @@ DEFAULT_MODE = 'cover_grid'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
+    # Pager for page-based navigation
+    ans += build_rule(sel + '.cs-book-pager',
+        display='flex', align_items='center', justify_content='space-between',
+        gap='0.75rem', padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
+        border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
+        background_color='rgba(0,0,0,0.02)',
+    )
+    ans += build_rule(sel + '.cs-book-pager-left', display='flex', align_items='center', gap='0.5rem', min_width='0')
+    ans += build_rule(sel + '.cs-book-pager-right', display='flex', align_items='center', gap='0.5rem')
+    ans += build_rule(sel + '.cs-book-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
+    ans += build_rule(sel + 'a.cs-book-pager-btn',
+        display='inline-flex', align_items='center', gap='0.35rem',
+        padding='0.45rem 0.7rem', border_radius='999px',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        cursor='pointer', user_select='none', text_decoration='none'
+    )
+    ans += build_rule(sel + 'a.cs-book-pager-btn:hover', background_color='var(--cs-accent-weak)')
+    ans += build_rule(sel + 'a.cs-book-pager-btn:active', transform='scale(0.99)')
+    ans += build_rule(sel + 'a.cs-book-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    ans += build_rule(sel + 'a.cs-book-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
+    ans += build_rule(sel + '.cs-book-pager-page', font_weight='600', opacity='0.9', white_space='nowrap')
+    # Loading overlay for page switches (prevents flicker)
+    ans += build_rule(sel + '.cs-book-list-wrap', position='relative')
+    ans += build_rule(sel + '.cs-book-loading-overlay',
+        position='absolute', left='0', top='0', right='0', bottom='0',
+        display='flex', align_items='center', justify_content='center',
+        background_color='rgba(255,255,255,0.55)',
+        backdrop_filter='blur(6px)',
+        opacity='0',
+        pointer_events='none',
+        transition='opacity 160ms ease'
+    )
+    ans += build_rule(sel + '.cs-book-loading .cs-book-loading-overlay', opacity='1')
+    ans += build_rule(sel + '.cs-book-loading [data-component="book_list"]', opacity='0.45', transition='opacity 160ms ease')
+    ans += r'''
+@keyframes cs_spin2 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.book-list-container .cs-book-loading-overlay svg { animation: cs_spin2 1.2s linear infinite; opacity: 0.85; }
+'''
+    # Mobile layout for pager (avoid cramped controls)
+    ans += r'''
+@media (max-width: 720px) {
+  .book-list-container .cs-book-pager {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.75rem;
+    margin: 0.75rem 0.75rem 0.5rem 0.75rem;
+  }
+  .book-list-container .cs-book-pager-left,
+  .book-list-container .cs-book-pager-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .book-list-container .cs-book-pager-right {
+    justify-content: flex-start;
+  }
+  .book-list-container .cs-book-pager-status {
+    white-space: normal;
+    flex: 1 1 100%;
+  }
+  .book-list-container a.cs-book-pager-btn {
+    padding: 0.6rem 0.9rem;
+  }
+}
+@media (max-width: 420px) {
+  .book-list-container .cs-book-pager-left {
+    justify-content: stretch;
+  }
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+  .book-list-container .cs-book-pager-page {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+}
+'''
+    # View mode dropdown in the top bar (book list page)
+    ans += build_rule('.main-top-bar select.cs-view-mode',
+        margin_left='0.75em',
+        padding='0.35em 0.7em',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        font_size='0.95em',
+        line_height='1.1',
+        appearance='none',
+        webkit_appearance='none',
+        moz_appearance='none',
+        max_width='14rem'
+    )
+    ans += build_rule('.main-top-bar select.cs-view-mode:hover',
+        background_color='var(--cs-accent-weak)',
+        border='1px solid rgba(0,0,0,0.14)'
+    )
+    ans += build_rule('.main-top-bar select.cs-view-mode:focus',
+        outline='none',
+        box_shadow='var(--cs-focus-ring)'
+    )
+    ans += r'''
+@media (max-width: 420px) {
+  .main-top-bar select.cs-view-mode {
+    margin-left: 0.5em;
+    max-width: 100%;
+  }
+}
+@media (max-width: 360px) {
+  .main-top-bar select.cs-view-mode {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+'''
     ans += cover_grid_css()
     ans += details_list_css()
     ans += custom_list_css()
@@ -60,17 +180,34 @@ book_list_data = {
     'container_id': None, 'shown_book_ids': set(), 'mode': None, 'fetching_more_books': None,
 }
 
+def parse_int(x, default_value):
+    try:
+        x = int(x)
+    except Exception:
+        x = default_value
+    return x
+
+
+def clamp(n, lo, hi):
+    return max(lo, min(hi, n))
+
 def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
 
 def clear_grid():
-    container = document.getElementById(book_list_data.container_id)
-    # We replace the div entirely so that any styles associated with it are also removed
+    # We replace the div entirely so that any styles associated with it are also removed.
+    # The book_list element may be wrapped (e.g. for loading overlays), so operate
+    # on its actual parent node, not the container.
     e = component('book_list')
+    if not e:
+        return
+    parent = e.parentNode
+    if not parent:
+        return
     bl = E.div(data_component='book_list')
-    container.insertBefore(bl, e)
-    container.removeChild(e)
+    parent.insertBefore(bl, e)
+    parent.removeChild(e)
     book_list_data.init_grid(bl)
 
 
@@ -162,6 +299,9 @@ def apply_view_mode(mode=DEFAULT_MODE):
     if book_list_data.mode is mode:
         return
     setup_view_mode(mode, book_list_data)
+    # We are switching the renderer, so the current DOM needs a full re-render.
+    # Reset shown ids so render_ids() actually repopulates the new grid/list.
+    book_list_data.shown_book_ids = set()
     clear_grid()
     render_ids()
 
@@ -236,6 +376,65 @@ def create_more_button(more):
 
 # }}}
 
+def set_enabled(elem, enabled):
+    elem.setAttribute('aria-disabled', 'false' if enabled else 'true')
+
+
+def replace_books_page(data):
+    # Replace the current page (do not accumulate)
+    for key in data.metadata:
+        library_data.metadata[key] = data.metadata[key]
+    library_data.previous_book_ids = v'[]'
+    library_data.search_result = data.search_result
+    book_list_data.shown_book_ids = set()
+    clear_grid()
+    render_ids(data.search_result.book_ids)
+
+
+def fetch_books_page(new_offset, page_size, on_done):
+    sr = library_data.search_result
+    if not sr:
+        if on_done:
+            on_done(False)
+        return
+    # Show loading overlay without clearing content
+    try:
+        container = document.getElementById(book_list_data.container_id)
+        if container:
+            container.classList.add('cs-book-loading')
+    except Exception:
+        pass
+    abort_get_more_books(True)
+    payload = {'offset': new_offset}
+    for key in 'query', 'sort', 'sort_order', 'vl':
+        payload[key] = sr[key]
+    book_list_data.fetching_more_books = ajax_send(
+        'interface-data/more-books', payload, def(end_type, xhr, event):
+            book_list_data.fetching_more_books = None
+            if end_type is 'load':
+                try:
+                    data = JSON.parse(xhr.responseText)
+                    if not data.search_result.book_ids:
+                        raise Exception('No books ids object in search result from server')
+                    replace_books_page(data)
+                    if on_done:
+                        on_done(True)
+                except Exception:
+                    if on_done:
+                        on_done(False)
+            elif end_type is not 'abort':
+                if on_done:
+                    on_done(False)
+            try:
+                container = document.getElementById(book_list_data.container_id)
+                if container:
+                    setTimeout(def(): container.classList.remove('cs-book-loading');, 60)
+            except Exception:
+                pass
+        ,
+        query={'library_id': loaded_books_query().library_id, 'num': str(page_size)}
+    )
+
 def fts():
     q = {'restricted': 'y', 'restriction': library_data.search_result.query}
     show_panel('fts', q)
@@ -272,14 +471,73 @@ def create_books_list(container):
     book_list_data.mode = None
     abort_get_more_books(True)
     container.appendChild(E.div(data_component='top_message'))
-    container.appendChild(E.div(data_component='book_list'))
-    container.appendChild(E.div(data_component='more_button'))
+    container.appendChild(E.div(data_component='pager'))
+    # Wrap list area so we can overlay loading without clearing
+    wrap = E.div(class_='cs-book-list-wrap')
+    wrap.appendChild(E.div(data_component='book_list'))
+    wrap.appendChild(E.div(class_='cs-book-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…'))))
+    container.appendChild(wrap)
     show_top_message()
     apply_view_mode(get_view_mode())
-    create_more_button(container.lastChild)
+    # Pager UI (page-based navigation)
+    pager = component('pager')
+    pager.classList.add('cs-book-pager')
+    left = E.div(class_='cs-book-pager-left')
+    right = E.div(class_='cs-book-pager-right')
+    pager.appendChild(left)
+    pager.appendChild(right)
+
+    def pager_btn(label, icon, onclick):
+        a = E.a(svgicon(icon), E.span(label), href='#', class_='cs-book-pager-btn')
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            onclick()
+        )
+        return a
+
+    page_info = E.span('', class_='cs-book-pager-page')
+    status = E.span('', class_='cs-book-pager-status')
+
+    q = parse_url_params()
+    page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
+
+    def update_pager():
+        sr = library_data.search_result
+        total = sr.total_num or 0
+        offset = sr.offset or 0
+        end = min(total, offset + page_size)
+        total_pages = Math.ceil(total / page_size) if total else 0
+        current_page = Math.floor(offset / page_size) + 1 if total else 0
+        page_info.textContent = (str(current_page) + ' / ' + str(total_pages)) if total_pages else ''
+        status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
+        set_enabled(prev_btn, offset > 0)
+        set_enabled(next_btn, end < total)
+
+    def go_to_offset(new_offset):
+        new_offset = max(0, new_offset)
+        qq = parse_url_params()
+        qq.offset = str(new_offset)
+        qq.num = str(page_size)
+        push_state(qq, replace=True, call_handler=False)
+        fetch_books_page(new_offset, page_size, def(ok):
+            if not ok:
+                error_dialog(_('Could not load books'), _('Failed to load the requested page'))
+            update_pager()
+        )
+
+    prev_btn = pager_btn(_('Prev'), 'chevron-left', def():
+        go_to_offset((library_data.search_result.offset or 0) - page_size)
+    )
+    next_btn = pager_btn(_('Next'), 'chevron-right', def():
+        go_to_offset((library_data.search_result.offset or 0) + page_size)
+    )
+    left.appendChild(prev_btn)
+    left.appendChild(next_btn)
+    left.appendChild(page_info)
+    right.appendChild(status)
+    update_pager()
     add_button(container.parentNode, icon='plus', action=show_subsequent_panel.bind(None, 'book_list^add'), tooltip=_('Add books'))
     add_button(container.parentNode, icon='sort-amount-desc', action=show_subsequent_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
-    add_button(container.parentNode, icon='search', action=show_subsequent_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
     add_button(container.parentNode, icon='ellipsis-v', action=show_subsequent_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
     q = parse_url_params()
     scrolled = False
@@ -327,6 +585,14 @@ def check_for_books_loaded():
         )
         return
     create_books_list(container)
+    # If the URL specifies an offset, show that page
+    q = parse_url_params()
+    desired_offset = max(0, parse_int(q.offset, 0))
+    if desired_offset:
+        page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
+        fetch_books_page(desired_offset, page_size, def(ok):
+            pass
+        )
     if library_data.search_result and jstype(library_data.search_result.num_books_without_search) is 'number':
         set_title_tooltip(this, _('Total number of books: {}').format(library_data.search_result.num_books_without_search))
 
@@ -339,6 +605,28 @@ def init(container_id):
     title = interface_data.library_map[lid]
     update_window_title(title)
     create_top_bar(container, title=title, action=def(): save_scroll_position(), home();, icon='home')
+
+    # View mode dropdown in the top bar (cover grid / list / custom)
+    try:
+        bar = container.getElementsByClassName('main-top-bar')[0]
+        right = bar.firstChild.nextSibling if bar else None
+        if right:
+            current_mode = get_view_mode()
+            mode_sel = E.select(class_='cs-view-mode', title=_('Change book list mode'))
+            mode_sel.appendChild(E.option(_('Cover grid'), value='cover_grid'))
+            mode_sel.appendChild(E.option(_('Detailed list'), value='details_list'))
+            mode_sel.appendChild(E.option(_('Custom list'), value='custom_list'))
+            mode_sel.value = current_mode
+            mode_sel.addEventListener('change', def(ev):
+                m = mode_sel.value
+                if m and m is not get_view_mode():
+                    get_session_data().set('view_mode', m)
+                    apply_view_mode(m)
+            )
+            right.appendChild(mode_sel)
+    except Exception:
+        pass
+
     container.appendChild(E.div(class_=CLASS_NAME))
     container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)

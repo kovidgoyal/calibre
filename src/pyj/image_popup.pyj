@@ -13,12 +13,40 @@ from read_book.touch import TouchHandler, install_handlers
 from utils import debounce
 
 add_extra_css(def():
-    bg = '#333'
-    fg = '#ddd'
-    button_bg = '#333'
-    css =  f'.calibre-image-popup {{ background-color: {bg}; color: {fg}; }}'
-    css += f'.calibre-image-popup a {{ padding: 0.25ex; display: inline-block; border-radius: 100%; cursor: pointer; background-color: {button_bg}; }}'
-    css += f'.calibre-image-popup.fit-to-window a.fit-to-window {{ color: {button_bg}; background-color: {fg}; }}'
+    # Modern, minimal "glass" image viewer styling
+    css = ''
+    css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); }\\n'
+    css += '.calibre-image-popup canvas { outline: none; }\\n'
+    css += '.calibre-image-popup .cs-image-toolbar {'
+    css += ' position: fixed; top: 0; left: 0; width: 100%;'
+    css += ' box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;'
+    css += ' padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 10px 12px;'
+    css += ' background: rgba(20,20,24,0.55);'
+    css += ' border-bottom: 1px solid rgba(255,255,255,0.08);'
+    css += ' backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);'
+    css += ' }\\n'
+    css += '.calibre-image-popup a {'
+    css += ' display: inline-flex; align-items: center; justify-content: center;'
+    css += ' gap: 0.4rem;'
+    css += ' padding: 0.55rem 0.75rem;'
+    css += ' border-radius: 999px;'
+    css += ' cursor: pointer; user-select: none;'
+    css += ' background: rgba(255,255,255,0.10);'
+    css += ' border: 1px solid rgba(255,255,255,0.10);'
+    css += ' color: inherit;'
+    css += ' }\\n'
+    css += '.calibre-image-popup a:hover { background: rgba(255,255,255,0.16); }\\n'
+    css += '.calibre-image-popup a:active { transform: scale(0.98); }\\n'
+    css += '.calibre-image-popup a:focus { outline: none; box-shadow: 0 0 0 3px rgba(108,180,238,0.35); }\\n'
+    css += '.calibre-image-popup svg { width: 2.1ex; height: 2.1ex; }\\n'
+    css += '.calibre-image-popup.fit-to-window a.fit-to-window {'
+    css += ' background: rgba(108,180,238,0.28);'
+    css += ' border-color: rgba(108,180,238,0.38);'
+    css += ' }\\n'
+    css += '@media (max-width: 720px) {'
+    css += ' .calibre-image-popup .cs-image-toolbar { padding-left: 10px; padding-right: 10px; }'
+    css += ' .calibre-image-popup a { padding: 0.65rem 0.9rem; }'
+    css += ' }\\n'
     return css
 )
 
@@ -69,7 +97,7 @@ class ImagePopup(TouchHandler):
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,
                 E.div(
-                    style='position: fixed; top: 0; left: 0; text-align: right; width: 100%; font-size: 200%; padding: 0.25ex; box-sizing: border-box; display: flex; justify-content: space-between',
+                    class_='cs-image-toolbar',
                     E.a(
                         svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window',
                         onclick=self.toggle_fit_to_window,
