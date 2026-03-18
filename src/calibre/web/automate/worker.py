@@ -78,7 +78,7 @@ async def start_server(
     loop = asyncio.get_running_loop()
     protocol_factory = partial(SingleObjectProtocol, handle_client)
     while True:
-        path = get_random_socket_path()
+        path = get_random_socket_path(name)
         try:
             if iswindows:
                 server = await loop.start_serving_pipe(protocol_factory, path)
@@ -113,8 +113,7 @@ async def handler_with_setup(
 async def watch_stdin():
     '''Abort mechanism: waits for stdin to close (EOF).'''
     reader = asyncio.StreamReader()
-    protocol = asyncio.StreamReaderProtocol(reader)
-    await asyncio.get_running_loop().connect_read_pipe(lambda: protocol, sys.stdin)
+    await asyncio.get_running_loop().connect_read_pipe(lambda: asyncio.StreamReaderProtocol(reader), sys.stdin)
     await reader.read()
 
 
@@ -131,12 +130,19 @@ async def async_main(
     wh = partial(handler_with_setup, handler=handler, setup=delayed_setup, setup_done=setup_done, setup_lock=setup_lock)
     abort_task = asyncio.create_task(watch_stdin())
     try:
-        server, path = await start_server(wh)
+        path, server = await start_server(wh)
         print(json.dumps(path), end='')
         sys.stdout.flush()
-        sys.stdout.close()
+        if sys.stdout.isatty():
+            print()
+        else:
+            sys.stdout.close()
+        serving = asyncio.create_task(server.serve_forever())
         try:
-            await asyncio.wait((server.serve_forever(), abort_task), return_when=asyncio.FIRST_COMPLETED)
+            await asyncio.wait((serving, abort_task), return_when=asyncio.FIRST_COMPLETED)
+        except asyncio.exceptions.CancelledError:
+            if sys.stdout.isatty():
+                print('Cancelled, closing', file=sys.stderr)
         finally:
             server.close()
             await server.wait_closed()
@@ -146,3 +152,7 @@ async def async_main(
 
 def main(*a, **kw) -> None:
     asyncio.run(async_main(*a, **kw))
+
+
+if __name__ == '__main__':
+    main(echo)
