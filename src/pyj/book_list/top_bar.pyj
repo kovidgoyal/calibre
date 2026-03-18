@@ -7,6 +7,9 @@ from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra
 from elementmaker import E
 from gettext import gettext as _
 from session import get_interface_data
+from book_list.router import home
+from book_list.router import back
+from utils import parse_url_params
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'
@@ -18,12 +21,13 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     style += create_keyframes(THROBBER_NAME, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
-    style += build_rule(sel + 'a', display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer', color=get_color('bar-foreground'), background='none', padding_top=VSPACING, padding_bottom=VSPACING)
-    style += build_rule(sel + 'a:hover', transform='scale(1.5)')
-    style += build_rule(sel + 'a:active', transform='scale(2)')
+    style += build_rule(sel + 'a', display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer', color=get_color('window-foreground'), background='none', padding_top=VSPACING, padding_bottom=VSPACING, border_radius='999px', padding_left='0.35em', padding_right='0.35em')
+    # No hover zoom; use highlight instead
+    style += build_rule(sel + 'a:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a:active', background_color='var(--cs-accent-weak-2)')
     style += build_rule(sel + 'a:focus', outline='none')
-    style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
-    style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
+    style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
+    style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
     return style
 )
 
@@ -35,11 +39,20 @@ def create_markup(container):
             E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
         )
         if i is 0:
-            set_css(bar, position='fixed', left='0', top='0', z_index='1')
+            # The main calibre content server UI can optionally have a fixed left sidebar.
+            # Offset the fixed top bar so it does not overlap the sidebar.
+            set_css(bar, position='fixed', left='var(--cs-sidebar-width, 0px)', top='0', z_index='1', width='calc(100% - var(--cs-sidebar-width, 0px))')
+        else:
+            # Spacer bar must match the fixed bar width so wrapping/height is identical.
+            set_css(bar, margin_left='var(--cs-sidebar-width, 0px)', width='calc(100% - var(--cs-sidebar-width, 0px))')
+            # But it should not be visible (prevents duplicate titles/buttons).
+            set_css(bar, visibility='hidden', pointer_events='none')
         set_css(bar,
-            width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
+            display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
             font_size=get_font_size('title'), user_select='none',
-            color=get_color('bar-foreground'), background_color=get_color('bar-background')
+            color=get_color('window-foreground'), background_color=get_color('window-background'),
+            border_bottom='1px solid rgba(0,0,0,0.10)',
+            box_shadow='0 1px 0 rgba(0,0,0,0.03)'
         )
         container.appendChild(bar)
 
@@ -52,12 +65,24 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
         if not tooltip:
             tooltip = _('Donate to support calibre development')
     interface_data = get_interface_data()
+    # Determine if we are on the home page (no panel)
+    try:
+        is_home = not (parse_url_params().panel or '')
+    except Exception:
+        is_home = False
 
     for i, bar in enumerate(bars):
         left = bar.firstChild
         clear(left)
         title_elem = 'a' if callable(title_action) else 'span'
-        left.appendChild(E.a(title=tooltip, svgicon(icon)))
+        # Show Back + Home buttons on all pages except the home page.
+        # Keep the special donate heart behavior intact.
+        if icon is not 'heart':
+            if not is_home:
+                left.appendChild(E.a(title=_('Back'), svgicon('arrow-left')))
+            left.appendChild(E.a(title=_('Go to the home page'), svgicon('home')))
+        else:
+            left.appendChild(E.a(title=tooltip, svgicon(icon)))
         left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
             style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
         if i is 0:
@@ -70,14 +95,29 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 set_css(a.firstChild, color=get_color('heart'))
                 a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
-            if action is not None:
-                a.addEventListener('click', def(event):
+            if icon is not 'heart':
+                btns = left.getElementsByTagName('a')
+                idx = 0
+                if not is_home:
+                    btns[idx].addEventListener('click', def(event):
+                        event.preventDefault()
+                        back.bind(event)()
+                    )
+                    idx += 1
+                btns[idx].addEventListener('click', def(event):
                     event.preventDefault()
-                    action.bind(event)()
+                    home.bind(event)()
                 )
+            else:
+                if action is not None:
+                    a.addEventListener('click', def(event):
+                        event.preventDefault()
+                        action.bind(event)()
+                    )
 
             if callable(title_action):
-                a = a.nextSibling
+                # If we injected Back/Home buttons, title is further to the right
+                a = left.querySelector('.top-bar-title')
                 a.addEventListener('click', def(event):
                     event.preventDefault()
                     title_action.bind(event)()
