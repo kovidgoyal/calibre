@@ -16,10 +16,12 @@ from book_list.constants import book_list_container_id, read_book_container_id, 
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color, get_font_family, css_for_variables
-from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
+from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state, home
 from book_list.globals import get_db, set_session_data
-from book_list.ui import apply_url_state as book_list_mode_handler
+from book_list.ui import apply_url_state as book_list_mode_handler, show_panel
 from read_book.ui import ReadUI
+from utils import parse_url_params
+from dom import svgicon
 
 # Register the various panels
 import book_list.home # noqa: unused-import
@@ -30,6 +32,7 @@ import book_list.edit_metadata # noqa: unused-import
 import book_list.convert_book # noqa: unused-import
 import book_list.fts # noqa: unused-import
 import book_list.show_note # noqa: unused-import
+import book_list.nav_list # noqa: unused-import
 
 
 def remove_initial_progress_bar():
@@ -71,9 +74,366 @@ def init_ui():
     remove_initial_progress_bar()
     document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-    document.body.appendChild(E.div())
-    document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
-    document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
+
+    # Left navigation bar (content server)
+    sidebar_width = '240px'
+    document.documentElement.style.setProperty('--cs-sidebar-width', sidebar_width)
+    document.head.appendChild(E.style('''
+        :root {
+            --cs-radius-sm: 10px;
+            --cs-radius: 14px;
+            --cs-radius-lg: 18px;
+            --cs-border: rgba(0,0,0,0.12);
+            --cs-border-2: rgba(0,0,0,0.08);
+            --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+            --cs-shadow: 0 10px 30px rgba(0,0,0,0.10);
+            --cs-shadow-lg: 0 24px 64px rgba(0,0,0,0.16);
+            --cs-transition: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+            --cs-accent: ''' + get_color('link-foreground') + ''';
+            --cs-accent-weak: rgba(108,180,238,0.18);
+            --cs-accent-weak-2: rgba(108,180,238,0.28);
+            --cs-focus-ring: 0 0 0 3px var(--cs-accent-weak-2);
+        }
+
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        /* Link styling: clear, modern, consistent */
+        a { color: var(--cs-accent); text-decoration: none; text-underline-offset: 0.18em; text-decoration-thickness: 0.08em; }
+        a:visited { color: var(--cs-accent); opacity: 0.92; }
+        a:hover { text-decoration: underline; }
+        a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
+        /* Do not underline button-like links */
+        a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover { text-decoration: none; }
+        ::selection { background: rgba(108,180,238,0.35); }
+
+        /* Subtle scrollbars */
+        * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.25) transparent; }
+        *::-webkit-scrollbar { height: 10px; width: 10px; }
+        *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.20); border-radius: 999px; border: 3px solid transparent; background-clip: content-box; }
+        *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); border: 3px solid transparent; background-clip: content-box; }
+        *::-webkit-scrollbar-track { background: transparent; }
+
+        /* Remove hover zoom; prefer highlight feedback */
+        .main-top-bar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
+        .main-top-bar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
+
+        .cs-app-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+        .cs-left-nav {
+            width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
+            box-sizing: border-box;
+            background: ''' + get_color('window-background') + ''';
+            color: ''' + get_color('window-foreground') + ''';
+            padding: 0.9rem 0.65rem;
+            border-right: 1px solid var(--cs-border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Sidebar title removed to avoid duplicate header */
+        .cs-left-nav a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: inherit;
+            /* Reserve left gutter for active indicator to keep alignment */
+            padding: 0.55rem 0.65rem 0.55rem calc(0.65rem + 10px);
+            border-radius: var(--cs-radius-sm);
+            text-decoration: none;
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--cs-transition), transform var(--cs-transition), opacity var(--cs-transition);
+        }
+        .cs-left-nav a .cs-nav-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+        }
+        .cs-left-nav a .cs-nav-icon {
+            opacity: 0.9;
+            flex: 0 0 auto;
+            width: 1.6rem;
+            display: inline-flex;
+            justify-content: center;
+        }
+        .cs-left-nav a .cs-nav-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .cs-left-nav a:hover { background: var(--cs-accent-weak); }
+        .cs-left-nav a:active { transform: none; opacity: 0.92; }
+        .cs-left-nav a:focus { outline: none; box-shadow: var(--cs-focus-ring); }
+        .cs-left-nav a.cs-nav-item:hover { background: var(--cs-accent-weak-2); }
+        .cs-left-nav a[data-active="1"] {
+            background: var(--cs-accent-weak-2);
+            position: relative;
+            font-weight: 600;
+        }
+        .cs-left-nav a[data-active="1"]::before {
+            content: "";
+            position: absolute;
+            left: 10px;
+            top: 8px;
+            bottom: 8px;
+            width: 3px;
+            border-radius: 999px;
+            background: var(--cs-accent);
+            opacity: 0.95;
+        }
+        .cs-left-nav .cs-nav-chevron { opacity: 0.7; margin-left: 0.75rem; flex: 0 0 auto; }
+        .cs-left-nav .cs-nav-section-contents {
+            overflow: auto;
+            padding: 0.25rem 0.25rem 0.75rem 0.25rem;
+            border-radius: var(--cs-radius);
+            border: 1px solid var(--cs-border-2);
+            background: rgba(0,0,0,0.02);
+        }
+        .cs-left-nav .cs-nav-item { padding-left: 0.9rem; }
+        .cs-left-nav .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        .cs-left-nav .cs-nav-group > a {
+            margin: 0 0.35rem;
+        }
+        /* Active state should not shift layout (no padding changes) */
+        .cs-left-nav .cs-nav-bottom { margin-top: auto; padding-top: 0.25rem; }
+        .cs-left-nav .cs-nav-divider {
+            height: 1px;
+            background: var(--cs-border);
+            margin: 0.75rem 0.65rem;
+            border-radius: 999px;
+            opacity: 0.9;
+        }
+        .cs-left-nav .cs-nav-group-title {
+            margin: 0.75rem 0.65rem 0.25rem 0.65rem;
+            font-size: 0.85em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.65;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .cs-left-nav .cs-nav-group-title svg { opacity: 0.8; }
+        .cs-left-nav .cs-sidebar-toggle {
+            margin: 0 0.35rem 0.25rem 0.35rem;
+        }
+        .cs-left-nav .cs-hamburger {
+            font-size: 1.25rem;
+            line-height: 1;
+            letter-spacing: -0.06em;
+        }
+
+        /* Collapsed sidebar */
+        :root.cs-sidebar-collapsed .cs-left-nav { padding-left: 0.35rem; padding-right: 0.35rem; }
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title,
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-divider,
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-chevron,
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-label {
+            display: none !important;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group > a {
+            margin-left: 0;
+            margin-right: 0;
+            justify-content: center;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a .cs-nav-left {
+            justify-content: center;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a {
+            padding-left: 0.55rem;
+            padding-right: 0.55rem;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a[data-active="1"]::before {
+            left: 6px;
+        }
+
+        .cs-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            background: ''' + get_color('window-background') + ''';
+        }
+
+        /* Give panels a bit of breathing room without touching internals too much */
+        #''' + book_list_container_id + ''', #''' + read_book_container_id + ''' {
+            height: 100%;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+    '''))
+
+    def nav_link(label, action, title='', icon=None, chevron=False):
+        left = E.span(class_='cs-nav-left')
+        if icon:
+            left.appendChild(E.span(svgicon(icon), class_='cs-nav-icon'))
+        else:
+            left.appendChild(E.span('', class_='cs-nav-icon'))
+        left.appendChild(E.span(label, class_='cs-nav-label'))
+        a = E.a(left, href='#', title=title)
+        if chevron:
+            a.appendChild(E.span('›', class_='cs-nav-chevron'))
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            action()
+        )
+        return a
+
+    root = E.div(class_='cs-app-root')
+    left = E.nav(class_='cs-left-nav')
+    # Sidebar collapse/expand state
+    collapsed_width = '64px'
+    expanded_width = sidebar_width
+
+    def apply_sidebar_state(collapsed):
+        de = document.documentElement
+        if collapsed:
+            de.classList.add('cs-sidebar-collapsed')
+            de.style.setProperty('--cs-sidebar-width', collapsed_width)
+        else:
+            de.classList.remove('cs-sidebar-collapsed')
+            de.style.setProperty('--cs-sidebar-width', expanded_width)
+        try:
+            window.localStorage.setItem('cs_sidebar_collapsed', '1' if collapsed else '0')
+        except Exception:
+            pass
+
+    def toggle_sidebar():
+        de = document.documentElement
+        apply_sidebar_state(not de.classList.contains('cs-sidebar-collapsed'))
+
+    # Restore previous state, default to collapsed on small screens
+    try:
+        stored = window.localStorage.getItem('cs_sidebar_collapsed')
+    except Exception:
+        stored = None
+    if stored is None or stored is '':
+        # No user preference yet
+        try:
+            small = window.matchMedia('(max-width: 720px)').matches
+        except Exception:
+            small = False
+        apply_sidebar_state(bool(small))
+    else:
+        apply_sidebar_state(stored is '1')
+
+    toggle_link = nav_link(_('Menu'), toggle_sidebar, _('Toggle navigation'), icon='toc')
+    toggle_link.classList.add('cs-sidebar-toggle')
+    left.appendChild(toggle_link)
+    # Group 1: primary navigation
+    left.appendChild(E.div(svgicon('home'), E.span(_('Navigation')), class_='cs-nav-group-title'))
+    g1 = E.div(class_='cs-nav-group')
+
+    home_link = nav_link(_('Home'), home, _('Go to Home'), icon='home')
+    g1.appendChild(home_link)
+    go_search = def():
+        show_panel('book_list^search')
+    search_link = nav_link(_('Search'), go_search, _('Search for books'), icon='search')
+    g1.appendChild(search_link)
+    left.appendChild(g1)
+
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Group 1.5: quick actions
+    left.appendChild(E.div(svgicon('random'), E.span(_('Quick actions')), class_='cs-nav-group-title'))
+    g1_5 = E.div(class_='cs-nav-group')
+    go_random = def():
+        show_panel('book_details', {'book_id': '0'})
+    random_link = nav_link(_('A random book'), go_random, _('Choose a random book from the library'), icon='random')
+    g1_5.appendChild(random_link)
+    left.appendChild(g1_5)
+
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Group 2: browse lists
+    left.appendChild(E.div(svgicon('toc'), E.span(_('Browse')), class_='cs-nav-group-title'))
+    g2 = E.div(class_='cs-nav-group')
+
+    def nav_section(label, field, tooltip='', icon='toc'):
+        action = def():
+            show_panel('nav_list', {'field': field})
+        t = nav_link(label, action, tooltip, icon=icon, chevron=True)
+        return t
+
+    section_elems = {}
+    section_elems.series = nav_section(_('Series'), 'series', _('Browse all series'), icon='book')
+    section_elems.authors = nav_section(_('Authors'), 'authors', _('Browse all authors'), icon='user')
+    # Reuse existing msgids so labels are localized across calibre translations.
+    # Some translations use full-width colon '：' and include placeholders, so
+    # we take only the prefix before the colon.
+    def label_prefix(x):
+        x = (x or '').toString()
+        if '：' in x:
+            return x.partition('：')[0]
+        if ':' in x:
+            return x.partition(':')[0]
+        return x
+
+    publisher_label = label_prefix(_('Publisher: {publisher}') or 'Publisher')
+    pubdate_label = label_prefix(_('Published: {pubdate}') or 'Published')
+    tags_label = (_('Tags') or 'Tags')
+    tag_label = 'Tag' if tags_label is 'Tags' else tags_label
+
+    section_elems.publisher = nav_section(publisher_label, 'publisher', _('Browse all publishers'), icon='library')
+    section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='bookmark')
+    section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='hourglass')
+    g2.appendChild(section_elems.series)
+    g2.appendChild(section_elems.authors)
+    g2.appendChild(section_elems.publisher)
+    g2.appendChild(section_elems.tags)
+    g2.appendChild(section_elems.pubdate)
+    left.appendChild(g2)
+
+    # Bottom group: settings
+    bottom = E.div(class_='cs-nav-bottom')
+    bottom.appendChild(E.div(class_='cs-nav-divider'))
+    bottom.appendChild(E.div(svgicon('cog'), E.span(_('System')), class_='cs-nav-group-title'))
+    g3 = E.div(class_='cs-nav-group')
+    go_settings = def():
+        show_panel('book_list^search^prefs')
+    settings_link = nav_link(_('Settings'), go_settings, _('Settings'), icon='cog')
+    g3.appendChild(settings_link)
+    bottom.appendChild(g3)
+    left.appendChild(bottom)
+
+    def clear_active(elem):
+        if elem and elem.dataset and elem.dataset.active:
+            elem.dataset.active = ''
+
+    def update_sidebar_active():
+        current = parse_url_params()
+        active_panel = current.panel or ''
+        active_field = current.field or ''
+        clear_active(home_link)
+        clear_active(search_link)
+        clear_active(settings_link)
+        for k in ('series', 'authors', 'publisher', 'tags', 'pubdate'):
+            clear_active(section_elems[k])
+        if active_panel is 'book_list^search':
+            search_link.dataset.active = '1'
+        elif active_panel is 'book_list^search^prefs':
+            settings_link.dataset.active = '1'
+        elif active_panel is 'nav_list' and active_field and section_elems[active_field]:
+            section_elems[active_field].dataset.active = '1'
+        elif not active_panel:
+            home_link.dataset.active = '1'
+
+    window.cs_update_sidebar_active = update_sidebar_active
+    update_sidebar_active()
+
+    main = E.div(class_='cs-main')
+    main.appendChild(E.div(id=book_list_container_id, style='display: none'))
+    main.appendChild(E.div(id=read_book_container_id, style='display: none'))
+    root.appendChild(left)
+    root.appendChild(main)
+    document.body.appendChild(root)
+
     create_modal_container()
     update_window_title()
     read_ui = ReadUI()

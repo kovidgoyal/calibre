@@ -51,6 +51,16 @@ def apply_url(ignore_handler):
     data.mode = data.mode or 'book_list'
     get_current_query(data)
     apply_mode()
+    # Allow the main UI (e.g. sidebar) to update highlighting when URL changes
+    try:
+        cb = window.cs_update_sidebar_active
+    except Exception:
+        cb = None
+    if cb:
+        try:
+            cb()
+        except Exception:
+            pass
     if not ignore_handler:
         handler = mode_handlers[data.mode] or default_mode_handler
         handler(data)

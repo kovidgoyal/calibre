@@ -556,6 +556,150 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
     style += build_rule(sel + ' .next-book-button:hover', transform='scale(1.5)')
+    # Modern layout for book details page
+    style += build_rule(sel + '.cs-bd-wrap',
+        padding='1rem',
+        max_width='1100px',
+        margin_left='auto',
+        margin_right='auto'
+    )
+    style += build_rule(sel + '.cs-bd-initial-loading',
+        min_height='min(70vh, 720px)',
+        display='flex',
+        align_items='center',
+        justify_content='center'
+    )
+    style += build_rule(sel + '.cs-bd-initial-loading-card',
+        width='min(820px, 100%)',
+        padding='1.1rem 1.1rem',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='18px',
+        background_color='rgba(0,0,0,0.02)',
+        box_shadow='0 10px 30px rgba(0,0,0,0.06)'
+    )
+    style += build_rule(sel + '.cs-bd-initial-loading-row',
+        display='flex',
+        align_items='center',
+        justify_content='center',
+        gap='0.6rem',
+        opacity='0.9',
+        font_weight='700'
+    )
+    style += build_rule(sel + '.cs-bd-initial-loading-sub',
+        margin_top='0.55rem',
+        text_align='center',
+        opacity='0.65'
+    )
+    style += build_rule(sel + '.cs-bd-hero',
+        display='grid',
+        grid_template_columns='220px 1fr',
+        gap='1.25rem',
+        align_items='start',
+        padding='1rem',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='18px',
+        background_color='rgba(0,0,0,0.02)',
+        box_shadow='0 10px 30px rgba(0,0,0,0.06)'
+    )
+    style += build_rule(sel + '.cs-bd-cover',
+        position='relative',
+        width='220px'
+    )
+    style += build_rule(sel + '.cs-bd-cover img',
+        width='100%',
+        height='auto',
+        display='block',
+        border_radius='18px',
+        box_shadow='0 18px 48px rgba(0,0,0,0.18)',
+        border='1px solid rgba(0,0,0,0.10)'
+    )
+    style += build_rule(sel + '.cs-bd-cover .cs-bd-nav',
+        position='absolute',
+        top='0',
+        left='0',
+        right='0',
+        padding='10px',
+        box_sizing='border-box',
+        display='flex',
+        justify_content='space-between',
+        pointer_events='none'
+    )
+    style += build_rule(sel + '.cs-bd-cover .next-book-button',
+        pointer_events='auto'
+    )
+    style += build_rule(sel + '.cs-bd-info', min_width='0')
+    style += build_rule(sel + '.cs-bd-title',
+        font_size='1.45em',
+        font_weight='800',
+        line_height='1.2',
+        margin_bottom='0.35rem'
+    )
+    style += build_rule(sel + '.cs-bd-authors',
+        opacity='0.85',
+        font_size='1.05em',
+        margin_bottom='0.75rem',
+        overflow='hidden',
+        text_overflow='ellipsis'
+    )
+    style += build_rule(sel + '.cs-bd-meta',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.35rem 0.6rem',
+        margin_bottom='0.9rem',
+        opacity='0.9'
+    )
+    style += build_rule(sel + '.cs-bd-badge',
+        display='inline-flex',
+        align_items='center',
+        gap='0.25rem',
+        padding='0.15rem 0.45rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.10)',
+        background='rgba(0,0,0,0.02)',
+        max_width='100%',
+        white_space='nowrap',
+        overflow='hidden',
+        text_overflow='ellipsis'
+    )
+    style += build_rule(sel + '.cs-bd-actions',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.5rem',
+        margin_top='0.2rem'
+    )
+    style += build_rule(sel + '.cs-bd-details',
+        margin_top='1rem',
+        padding='1rem',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='18px',
+        background_color=get_color('window-background'),
+        box_shadow='0 1px 2px rgba(0,0,0,0.06)'
+    )
+    style += r'''
+@media (max-width: 720px) {
+  .book-details-panel .cs-bd-wrap { padding: 0.75rem; }
+  .book-details-panel .cs-bd-hero { grid-template-columns: 1fr; }
+  .book-details-panel .cs-bd-cover { width: min(320px, 100%); margin-left: auto; margin-right: auto; }
+  .book-details-panel .cs-bd-title { font-size: 1.25em; }
+}
+'''
+    # Loading overlay (prevents flicker when fetching metadata)
+    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading-wrap', position='relative')
+    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading-overlay',
+        position='absolute', left='0', top='0', right='0', bottom='0',
+        display='flex', align_items='center', justify_content='center',
+        background_color='rgba(255,255,255,0.55)',
+        backdrop_filter='blur(6px)',
+        opacity='0',
+        pointer_events='none',
+        transition='opacity 160ms ease'
+    )
+    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading .cs-bd-loading-overlay', opacity='1')
+    style += build_rule('.' + CLASS_NAME + ' .cs-bd-loading .cs-bd-loading-content', opacity='0.45', transition='opacity 160ms ease')
+    style += r'''
+@keyframes cs_spin_bd { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.book-details-panel .cs-bd-loading-overlay svg { animation: cs_spin_bd 1.2s linear infinite; opacity: 0.85; }
+'''
 
     sel = '.' + SEARCH_INTERNET_CLASS
     style += build_rule(sel, margin='1ex 1em')
@@ -652,14 +796,14 @@ def render_book(container_id, book_id):
             onclick=next_book.bind(None, book_id, delta)
         )
 
-    imgdiv = E.div(style='position: relative',
+    imgdiv = E.div(class_='cs-bd-cover',
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
             onclick=read_book.bind(None, book_id),
-            style='cursor: pointer; border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: {}px'.format(get_font_size('title'), border_radius
-        )),
+            style='cursor: pointer;'
+        ),
         E.div(
-            style=f'position: absolute; top:0; width: 100%; padding: {border_radius//2}px; box-sizing: border-box; font-size: 2rem; display: flex; justify-content: space-between; color: {get_color("button-text")}',
+            class_='cs-bd-nav',
             prev_next_button(True),
             prev_next_button(),
         ),
@@ -668,24 +812,75 @@ def render_book(container_id, book_id):
     img.onerror = on_img_err
     img.src = cover_url(book_id)
     c = c.lastChild
-    c.appendChild(E.div(
-        style='display:flex; padding: 1ex 1em; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap',
-        E.div(style='margin-right: 1em; flex-grow: 3; max-width: 500px', data_book_id='' + book_id),
-        imgdiv
-    ))
-    container = c.lastChild.firstChild
+    wrap = E.div(class_='cs-bd-wrap')
+    c.appendChild(wrap)
+
+    # Hero: cover + basic info
+    hero = E.div(class_='cs-bd-hero')
+    wrap.appendChild(hero)
+    hero.appendChild(imgdiv)
+    info = E.div(class_='cs-bd-info', data_book_id='' + book_id)
+    hero.appendChild(info)
+
+    info.appendChild(E.div(metadata.title or _('Unknown'), class_='cs-bd-title'))
+    info.appendChild(E.div(authors, class_='cs-bd-authors'))
+
+    meta = E.div(class_='cs-bd-meta')
+    info.appendChild(meta)
+
+    def add_badge(icon, text, title=None):
+        if not text:
+            return
+        b = E.span(class_='cs-bd-badge')
+        if icon:
+            b.appendChild(svgicon(icon))
+        b.appendChild(E.span(text))
+        if title:
+            b.title = title
+        meta.appendChild(b)
+
+    # Rating, series, publisher, pubdate, formats (high-signal basics)
+    if metadata.rating:
+        stars = E.span(style='white-space:nowrap')
+        add_stars_to(stars, int(metadata.rating or 0), True)
+        add_badge(None, stars, _('Rating'))
+    if metadata.series:
+        try:
+            ival = float(metadata.series_index)
+        except Exception:
+            ival = 1.0
+        ival = fmt_sidx(ival, use_roman=get_interface_data().use_roman_numerals_for_series_number)
+        add_badge('bookmark', _('{0} of {1}').format(ival, metadata.series), _('Series'))
+    if metadata.publisher:
+        add_badge('library', metadata.publisher, _('Publisher'))
+    if metadata.pubdate:
+        try:
+            add_badge('hourglass', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
+        except Exception:
+            pass
+    if metadata.formats and metadata.formats.length:
+        add_badge('book', metadata.formats.slice(0, 4).join(' · '), _('Formats'))
+
+    actions = E.div(class_='cs-bd-actions')
+    info.appendChild(actions)
     read_button = create_button(_('Read'), 'book', read_book.bind(None, book_id), _('Read this book [V]'))
     fmt = preferred_format(book_id, True)
     download_button = create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
         _('Download this book in the {0} format ({1})').format(fmt, human_readable(metadata.format_sizes[fmt] or 0)),
         download_filename=f'{metadata.title}.{fmt.toLowerCase()}')
-    row = E.div(read_button, '\xa0\xa0\xa0', download_button, style='margin-bottom: 1ex')
+    row = E.div(read_button, download_button)
+    row.classList.add('cs-bd-actions')
     if not metadata.formats or not metadata.formats.length:
         row.style.display = 'none'
-    container.appendChild(row)
-    md = E.div(style='margin-bottom: 2ex')
+    # Put buttons into actions block (keeps hero tidy)
+    actions.appendChild(row)
+
+    # Details section (full metadata)
+    details = E.div(class_='cs-bd-details')
+    wrap.appendChild(details)
+    md = E.div(style='margin-bottom: 0')
     table = E.table(class_='metadata')
-    container.appendChild(md)
+    details.appendChild(md)
     md.appendChild(table)
 
     render_metadata(metadata, table, book_id)
@@ -720,6 +915,10 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
     if not c:
         return
     c = c.lastChild
+    try:
+        c.classList.remove('cs-bd-loading')
+    except Exception:
+        pass
     if end_type is 'load':
         try:
             data = JSON.parse(xhr.responseText)
@@ -749,12 +948,35 @@ def fetch_metadata(container_id, book_id, proceed):
     current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id, proceed),
                          query={'library_id':current_library_id(), 'vl':current_virtual_library()})
     current_fetch.send()
-    container = container.lastChild
-    clear(container)
-    container.appendChild(E.div(
-        style='margin: 1ex 1em',
-        create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
-    ))
+    body = container.lastChild
+    # If we already have content, do not clear; show an overlay to prevent flicker.
+    if body and body.firstChild:
+        body.classList.add('cs-bd-loading-wrap')
+        body.classList.add('cs-bd-loading')
+        # Ensure content wrapper exists so we can fade it
+        content = body.querySelector('.cs-bd-loading-content')
+        if not content:
+            content = E.div(class_='cs-bd-loading-content')
+            # Move existing children into content wrapper
+            while body.firstChild:
+                content.appendChild(body.firstChild)
+            body.appendChild(content)
+        overlay = body.querySelector('.cs-bd-loading-overlay')
+        if not overlay:
+            overlay = E.div(class_='cs-bd-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Fetching metadata…')))
+            body.appendChild(overlay)
+    else:
+        clear(body)
+        body.classList.add('cs-bd-loading-wrap')
+        wrap = E.div(class_='cs-bd-wrap cs-bd-initial-loading')
+        card = E.div(class_='cs-bd-initial-loading-card')
+        card.appendChild(E.div(class_='cs-bd-initial-loading-row',
+            create_spinner(),
+            E.span(_('Fetching metadata…'))
+        ))
+        card.appendChild(E.div(class_='cs-bd-initial-loading-sub', _('Fetching metadata for the book, please wait') + '…'))
+        wrap.appendChild(card)
+        body.appendChild(wrap)
 
 
 def install_touch_handlers(container, book_id):
@@ -879,7 +1101,7 @@ def init(container_id):
     elif ca is 'book_list':
         close_action = def():
             show_panel('book_list', {'book_id':q.book_id})
-    create_top_bar(container, title=_('Book details'), action=close_action, icon=close_icon)
+    create_top_bar(container, title='', action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0'))
     container.lastChild.addEventListener('keydown', onkeydown.bind(None, container_id, close_action), {'passive': False, 'capture': True})

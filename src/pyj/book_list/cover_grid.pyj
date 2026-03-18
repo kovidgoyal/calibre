@@ -34,8 +34,10 @@ def cover_grid_css():
     mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: 28{dim} }} }}\n'
     for dim in 'vw', 'vh':
         ans += mq.format(sel=sel, dim=dim, orient='portrait' if dim is 'vw' else 'landscape')
-    ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
-    ans += build_rule(f'{sel}:active', transform='scale(2)')
+    # No hover zoom; use highlight instead
+    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)', border_radius=BORDER_RADIUS+'px')
+    ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
+    ans += build_rule(f'{sel}:hover > img', box_shadow='0 14px 36px rgba(0,0,0,0.14)')
     ans += build_rule(sel + '.cover-grid-filler', height='0', max_height='0', min_height='0')
 
     # Container for cover failed to load message
@@ -43,7 +45,7 @@ def cover_grid_css():
 
     # The actual cover
     sel += ' > img'
-    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius=BORDER_RADIUS+'px')
+    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius=BORDER_RADIUS+'px', transition='box-shadow 160ms ease')
     return ans
 
 def init(container):

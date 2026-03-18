@@ -12,13 +12,49 @@ CLASS_NAME = 'generic-items-list'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = ''
-    style += build_rule(sel + 'li', padding='0', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
-    style += build_rule(sel + '.item-title', font_size=get_font_size('item-list-title'))
-    style += build_rule(sel + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='italic')
+    style += build_rule(sel, padding='0.75rem 1rem')
+    style += build_rule(sel + ' > p',
+        margin='0 0 0.75rem 0',
+        padding='0.6rem 0.75rem',
+        border='1px solid rgba(0,0,0,0.08)',
+        border_radius='12px',
+        background_color='rgba(0,0,0,0.02)',
+        font_style='normal',
+        opacity='0.8'
+    )
+    style += build_rule(sel + ' ul', list_style='none', margin='0', padding='0', display='flex', flex_direction='column', gap='0.5rem')
+    style += build_rule(sel + 'li',
+        padding='0',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='14px',
+        background_color=get_color('window-background'),
+        box_shadow='0 1px 2px rgba(0,0,0,0.06)',
+        cursor='pointer',
+        overflow='hidden'
+    )
+    style += build_rule(sel + 'li:hover',
+        background_color='var(--cs-accent-weak)',
+        box_shadow='0 8px 20px rgba(0,0,0,0.10)',
+        transform='translateY(-1px)'
+    )
+    style += build_rule(sel + 'li:active', transform='translateY(0px)')
+    style += build_rule(sel + '.item-title', font_size=get_font_size('item-list-title'), font_weight='700')
+    style += build_rule(sel + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
     sel += ' li > div:nth-child(1)'
-    style += build_rule(sel, padding='1rem')
-    style += build_rule(sel + ':hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
-    style += build_rule(sel + ':active', transform='scale(1, 1.5)')
+    style += build_rule(sel,
+        padding='0.85rem 0.95rem',
+        display='flex',
+        align_items='flex-start',
+        gap='0.5rem'
+    )
+    style += build_rule(sel + ' > span', opacity='0.8')
+    style += r'''
+@media (max-width: 420px) {
+  .generic-items-list { padding: 0.6rem 0.75rem; }
+  .generic-items-list ul { gap: 0.45rem; }
+  .generic-items-list li > div:nth-child(1) { padding: 0.75rem 0.75rem; }
+}
+'''
     return style
 )
 

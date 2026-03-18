@@ -497,3 +497,47 @@ def field_id_map(ctx, rd, field):
         return db.get_id_map(field)
     except ValueError:
         raise HTTPNotFound(f'{field} is not a one-one or many-one field')
+
+
+@endpoint('/interface-data/pubdate-groups', postprocess=json)
+def pubdate_groups(ctx, rd):
+    '''
+    Return published date groups for the current library/search context.
+
+    Optional: ?library_id=<default library>&vl=&search=&group=y|ym
+    '''
+    from datetime import date, datetime
+
+    library_id, db, _sorts, _orders, vl = get_basic_query_data(ctx, rd)
+    group = rd.query.get('group', 'y')
+    group = 'ym' if group == 'ym' else 'y'
+    searchq = rd.query.get('search', '') or ''
+
+    with db.safe_read_lock:
+        try:
+            ids, _parse_error = ctx.search(rd, db, searchq, vl=vl, report_restriction_errors=False)
+        except Exception as err:
+            raise HTTPBadRequest(as_unicode(err))
+        counts = {}
+        for book_id in ids:
+            val = db.field_for('pubdate', book_id, default_value=None)
+            if not val:
+                continue
+            if isinstance(val, datetime):
+                d = val.date()
+            elif isinstance(val, date):
+                d = val
+            else:
+                # Try ISO string
+                try:
+                    d = datetime.fromisoformat(as_unicode(val)).date()
+                except Exception:
+                    continue
+            if group == 'ym':
+                key = f'{d.year:04d}-{d.month:02d}'
+            else:
+                key = f'{d.year:04d}'
+            counts[key] = counts.get(key, 0) + 1
+
+    labels = sorted(counts, reverse=True)
+    return {'group': group, 'labels': labels, 'counts': counts, 'library_id': library_id}
