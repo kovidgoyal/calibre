@@ -12,6 +12,9 @@ all_settings = {
     'show_all_metadata': {'default': False, 'category': 'book_list'}, # show all metadata fields in the book details panel
     'show_nav_list_book_count': {'default': True, 'category': 'book_list', 'is_local': False},
     'show_nav_list_avg_rating': {'default': True, 'category': 'book_list', 'is_local': False},
+    'show_sidebar_in_book_viewer': {'default': True, 'category': 'book_list', 'is_local': False},
+    'series_nav_display_mode': {'default': 'stack', 'category': 'book_list', 'is_local': False},
+    'custom_categories': {'default': v'[]', 'category': 'book_list', 'is_local': False},
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
     'fts_related_words': {'default': True, 'category': 'book_list'},
