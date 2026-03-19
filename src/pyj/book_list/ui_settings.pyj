@@ -1,0 +1,159 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026
+from __python__ import hash_literals, bound_methods
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.router import back
+from book_list.theme import get_color
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler
+from session import local_storage
+from dom import add_extra_css, build_rule, clear
+from widgets import create_button
+
+
+CLASS_NAME = 'cs-ui-settings'
+KEY = 'primary_color'
+DEFAULT_PRIMARY = '#437000'
+
+
+def hex_to_rgb(hexval):
+    if not hexval:
+        return None
+    s = (hexval + '').strip()
+    if s.startswith('#'):
+        s = s[1:]
+    if len(s) == 3:
+        s = ''.join([c + c for c in s])
+    if len(s) != 6:
+        return None
+    try:
+        r = int(s[:2], 16)
+        g = int(s[2:4], 16)
+        b = int(s[4:6], 16)
+        return (r, g, b)
+    except Exception:
+        return None
+
+
+def apply_primary_color(hexval):
+    rgb = hex_to_rgb(hexval)
+    if not rgb:
+        return
+    r, g, b = rgb
+    de = document.documentElement
+    v = hexval or ''
+    if not (v + '').startswith('#'):
+        v = '#' + v
+    de.style.setProperty('--primary-color', v)
+    de.style.setProperty('--primary-light', f'rgba({r},{g},{b},0.18)')
+    de.style.setProperty('--primary-light-2', f'rgba({r},{g},{b},0.28)')
+    # Stronger glows for page background tinting
+    de.style.setProperty('--primary-glow-1', f'rgba({r},{g},{b},0.42)')
+    de.style.setProperty('--primary-glow-2', f'rgba({r},{g},{b},0.26)')
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = ''
+    # Reuse cs-prefs layout/classes; keep UI-settings-specific overrides only.
+    style += build_rule(sel + 'input[type="color"]',
+        flex='0 0 auto',
+        width='72px',
+        height='44px',
+        padding='0',
+        box_sizing='border-box',
+        border='none',
+        border_radius='10px',
+        background_color='transparent',
+        cursor='pointer'
+    )
+    # Make the internal color swatch fill the rounded input
+    style += r'''
+.cs-ui-settings input[type="color"]{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.cs-ui-settings input[type="color"]::-webkit-color-swatch-wrapper{
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.cs-ui-settings input[type="color"]::-webkit-color-swatch{
+  border: 0;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.cs-ui-settings input[type="color"]::-moz-color-swatch{
+  border: 0;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+}
+'''
+    # Prefer shared cs-prefs spacing; keep help a little softer.
+    style += build_rule(sel + '.help', opacity='0.75')
+    style += build_rule('.cs-ui-settings.cs-prefs .help', display='block')
+    return style
+)
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('UI settings'), action=back, icon='close')
+    # Use the same layout/class language as the Tag browser prefs panel
+    container.appendChild(E.div(class_='cs-prefs ' + CLASS_NAME))
+    root = container.lastChild
+    clear(root)
+
+    current = local_storage().get(KEY) or DEFAULT_PRIMARY
+    if current and not (current + '').startswith('#'):
+        current = '#' + current
+
+    outer = E.div(class_='list')
+    root.appendChild(outer)
+
+    item = E.div(class_='item', data_name=KEY,
+        E.div(class_='item-main'),
+        E.div(_('Used for primary buttons, links, focus rings, etc.'), class_='help')
+    )
+    outer.appendChild(item)
+
+    main = item.firstChild
+    color_input = E.input(type='color', value=current)
+    main.appendChild(E.div(id='ui-setting-' + KEY, class_='control',
+        E.span(_('Theme color'), class_='label'),
+        color_input
+    ))
+
+    footer = E.div(class_='footer')
+    root.appendChild(footer)
+
+    def save(ev=None):
+        val = color_input.value or ''
+        local_storage().set(KEY, val)
+        apply_primary_color(val)
+
+    def reset(ev=None):
+        val = DEFAULT_PRIMARY
+        color_input.value = val
+        local_storage().set(KEY, val)
+        apply_primary_color(val)
+
+    footer.appendChild(create_button(_('Save'), icon='check', action=save, highlight=True))
+    footer.appendChild(E.span('\xa0'))
+    footer.appendChild(create_button(_('Restore default'), icon='refresh', action=reset))
+
+
+set_panel_handler('book_list^ui_settings', init)
+

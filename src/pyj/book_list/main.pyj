@@ -7,7 +7,7 @@ from elementmaker import E
 from ajax import ajax
 from dom import set_css, get_widget_css
 from modals import create_modal_container, error_dialog
-from session import get_interface_data, UserSessionData, update_interface_data, get_translations
+from session import get_interface_data, UserSessionData, update_interface_data, get_translations, local_storage
 from gettext import gettext as _, install
 from popups import install_event_filters
 from utils import safe_set_inner_html
@@ -15,13 +15,14 @@ from utils import safe_set_inner_html
 from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
-from book_list.theme import get_color, get_font_family, css_for_variables
+from book_list.theme import get_color, get_color_as_rgba, get_font_family, css_for_variables
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state, home
 from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler, show_panel
 from read_book.ui import ReadUI
 from utils import parse_url_params
 from dom import svgicon
+from book_list.ui_settings import apply_primary_color
 
 # Register the various panels
 import book_list.home # noqa: unused-import
@@ -33,6 +34,7 @@ import book_list.convert_book # noqa: unused-import
 import book_list.fts # noqa: unused-import
 import book_list.show_note # noqa: unused-import
 import book_list.nav_list # noqa: unused-import
+import book_list.ui_settings # noqa: unused-import
 
 
 def remove_initial_progress_bar():
@@ -74,6 +76,26 @@ def init_ui():
     remove_initial_progress_bar()
     document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    # Apply user-selected primary color (if any) early, so UI renders consistently.
+    try:
+        # Theme color is stored locally (no server sync).
+        val = local_storage().get('primary_color')
+        if val:
+            apply_primary_color(val)
+    except Exception:
+        pass
+    # Glass/surface variables derived from current theme colors (light/dark aware)
+    try:
+        wb = get_color_as_rgba('window-background')
+        wf = get_color_as_rgba('window-foreground')
+        de = document.documentElement.style
+        de.setProperty('--cs-surface-1', f'rgba({wb[0]},{wb[1]},{wb[2]},0.08)')
+        de.setProperty('--cs-surface-2', f'rgba({wb[0]},{wb[1]},{wb[2]},0.04)')
+        de.setProperty('--cs-surface-3', f'rgba({wb[0]},{wb[1]},{wb[2]},0.02)')
+        de.setProperty('--cs-surface-border', f'rgba({wf[0]},{wf[1]},{wf[2]},0.10)')
+        de.setProperty('--cs-surface-border-strong', f'rgba({wf[0]},{wf[1]},{wf[2]},0.14)')
+    except Exception:
+        pass
 
     # Left navigation bar (content server)
     sidebar_width = '240px'
@@ -88,11 +110,29 @@ def init_ui():
             --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
             --cs-shadow: 0 10px 30px rgba(0,0,0,0.10);
             --cs-shadow-lg: 0 24px 64px rgba(0,0,0,0.16);
-            --cs-transition: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
-            --cs-accent: ''' + get_color('link-foreground') + ''';
-            --cs-accent-weak: rgba(108,180,238,0.18);
-            --cs-accent-weak-2: rgba(108,180,238,0.28);
-            --cs-focus-ring: 0 0 0 3px var(--cs-accent-weak-2);
+            /* Motion system */
+            --cs-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+            --cs-ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --cs-dur-1: 140ms;
+            --cs-dur-2: 220ms;
+            --cs-dur-3: 360ms;
+            --cs-transition: var(--cs-dur-2) var(--cs-ease);
+            /* Theme color system */
+            --primary-color: #437000;
+            --primary-light: rgba(67,112,0,0.18);
+            --primary-light-2: rgba(67,112,0,0.28);
+
+            /* Backwards-compatible aliases used across existing CSS */
+            --cs-accent: var(--primary-color);
+            --cs-accent-weak: var(--primary-light);
+            --cs-accent-weak-2: var(--primary-light-2);
+            --cs-focus-ring: 0 0 0 3px var(--primary-light-2);
+            /* Surface hierarchy (computed at runtime; fallback values here) */
+            --cs-surface-1: rgba(255,255,255,0.08);
+            --cs-surface-2: rgba(255,255,255,0.04);
+            --cs-surface-3: rgba(255,255,255,0.02);
+            --cs-surface-border: rgba(0,0,0,0.10);
+            --cs-surface-border-strong: rgba(0,0,0,0.14);
         }
 
         html, body { height: 100%; }
@@ -101,15 +141,47 @@ def init_ui():
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
+            background: var(--calibre-color-window-background);
         }
+        .cs-surface-1 { background: var(--cs-surface-1); border: 1px solid var(--cs-surface-border); }
+        .cs-surface-2 { background: var(--cs-surface-2); border: 1px solid var(--cs-surface-border); }
+        .cs-surface-3 { background: var(--cs-surface-3); border: 1px solid var(--cs-surface-border-strong); }
         /* Link styling: clear, modern, consistent */
-        a { color: var(--cs-accent); text-decoration: none; text-underline-offset: 0.18em; text-decoration-thickness: 0.08em; }
-        a:visited { color: var(--cs-accent); opacity: 0.92; }
+        a { color: var(--primary-color); text-decoration: none; text-underline-offset: 0.18em; text-decoration-thickness: 0.08em; }
+        a:visited { color: var(--primary-color); opacity: 0.92; }
         a:hover { text-decoration: underline; }
         a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
         /* Do not underline button-like links */
         a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover { text-decoration: none; }
-        ::selection { background: rgba(108,180,238,0.35); }
+        ::selection { background: rgba(67,112,0,0.28); }
+        /* Replace italic emphasis with bold for a more consistent modern look. */
+        i, em { font-style: normal !important; font-weight: 700 !important; }
+
+        /* Inputs: theme focus border */
+        input[type="text"], input[type="search"], input[type="url"], input[type="number"], input[type="password"], textarea, select {
+            outline: none;
+        }
+        input[type="text"]:focus, input[type="search"]:focus, input[type="url"]:focus, input[type="number"]:focus, input[type="password"]:focus,
+        textarea:focus, select:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px var(--primary-light-2) !important;
+        }
+
+        /* Checkbox/Radio: selected state */
+        input[type="checkbox"], input[type="radio"] { accent-color: var(--primary-color); }
+
+        /* Loading / spinner color */
+        .spin, .cs-book-loading-overlay svg, .cs-bd-loading-overlay svg, .cs-nav-list .cs-loading-overlay svg { color: var(--primary-color); }
+
+        /* Progress bars */
+        progress { accent-color: var(--primary-color); }
+        progress::-webkit-progress-value { background-color: var(--primary-color); }
+        progress::-moz-progress-bar { background-color: var(--primary-color); }
+
+        /* Tabs (generic) */
+        [role="tablist"] [role="tab"][aria-selected="true"] { color: var(--primary-color); }
+        [role="tablist"] { --tab-indicator: var(--primary-color); }
+        [role="tab"][aria-selected="true"] { border-bottom: 2px solid var(--primary-color); }
 
         /* Subtle scrollbars */
         * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.25) transparent; }
@@ -122,17 +194,18 @@ def init_ui():
         .main-top-bar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
         .main-top-bar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
 
-        .cs-app-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+        .cs-app-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
         .cs-left-nav {
             width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
             box-sizing: border-box;
             background: ''' + get_color('window-background') + ''';
             color: ''' + get_color('window-foreground') + ''';
             padding: 0.9rem 0.65rem;
-            border-right: 1px solid var(--cs-border);
+            border-right: 1px solid rgba(0,0,0,0.10);
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: width var(--cs-dur-3) var(--cs-ease), flex-basis var(--cs-dur-3) var(--cs-ease), padding var(--cs-dur-2) var(--cs-ease-soft);
         }
         /* Sidebar title removed to avoid duplicate header */
         .cs-left-nav a {
@@ -191,8 +264,8 @@ def init_ui():
             overflow: auto;
             padding: 0.25rem 0.25rem 0.75rem 0.25rem;
             border-radius: var(--cs-radius);
-            border: 1px solid var(--cs-border-2);
-            background: rgba(0,0,0,0.02);
+            border: 1px solid var(--cs-surface-border);
+            background: linear-gradient(135deg, var(--cs-surface-2) 0%, var(--cs-surface-3) 100%);
         }
         .cs-left-nav .cs-nav-item { padding-left: 0.9rem; }
         .cs-left-nav .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -258,6 +331,7 @@ def init_ui():
             min-width: 0;
             overflow: hidden;
             background: ''' + get_color('window-background') + ''';
+            transition: margin-left var(--cs-dur-3) var(--cs-ease), width var(--cs-dur-3) var(--cs-ease);
         }
 
         /* Give panels a bit of breathing room without touching internals too much */
@@ -382,11 +456,13 @@ def init_ui():
 
     section_elems.publisher = nav_section(publisher_label, 'publisher', _('Browse all publishers'), icon='library')
     section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='bookmark')
+    section_elems.formats = nav_section(_('Formats'), 'formats', _('Browse all formats'), icon='convert')
     section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='hourglass')
     g2.appendChild(section_elems.series)
     g2.appendChild(section_elems.authors)
     g2.appendChild(section_elems.publisher)
     g2.appendChild(section_elems.tags)
+    g2.appendChild(section_elems.formats)
     g2.appendChild(section_elems.pubdate)
     left.appendChild(g2)
 
@@ -397,8 +473,13 @@ def init_ui():
     g3 = E.div(class_='cs-nav-group')
     go_settings = def():
         show_panel('book_list^search^prefs')
-    settings_link = nav_link(_('Settings'), go_settings, _('Settings'), icon='cog')
+    # Renamed: this page configures the Tag browser behavior.
+    settings_link = nav_link(_('Configure Tag browser'), go_settings, _('Configure Tag browser'), icon='cog')
+    go_ui_settings = def():
+        show_panel('book_list^ui_settings')
+    ui_settings_link = nav_link(_('UI settings'), go_ui_settings, _('UI settings'), icon='pencil')
     g3.appendChild(settings_link)
+    g3.appendChild(ui_settings_link)
     bottom.appendChild(g3)
     left.appendChild(bottom)
 
@@ -413,12 +494,15 @@ def init_ui():
         clear_active(home_link)
         clear_active(search_link)
         clear_active(settings_link)
-        for k in ('series', 'authors', 'publisher', 'tags', 'pubdate'):
+        clear_active(ui_settings_link)
+        for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'pubdate'):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
             search_link.dataset.active = '1'
         elif active_panel is 'book_list^search^prefs':
             settings_link.dataset.active = '1'
+        elif active_panel is 'book_list^ui_settings':
+            ui_settings_link.dataset.active = '1'
         elif active_panel is 'nav_list' and active_field and section_elems[active_field]:
             section_elems[active_field].dataset.active = '1'
         elif not active_panel:

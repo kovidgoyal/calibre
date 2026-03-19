@@ -9,10 +9,26 @@ from gettext import gettext as _
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 3 * 100
-THUMBNAIL_MAX_HEIGHT = 4 * 100
+THUMBNAIL_MAX_HEIGHT = int(THUMBNAIL_MAX_WIDTH * 3 / 2)
 THUMBNAIL_MIN_WIDTH = 3 * 35
-THUMBNAIL_MIN_HEIGHT = 4 * 35
+THUMBNAIL_MIN_HEIGHT = int(THUMBNAIL_MIN_WIDTH * 3 / 2)
 BORDER_RADIUS = 10
+
+
+def cover_grid_thumb_size():
+    # The grid item size is controlled by cover_grid_css():
+    # - portrait: 21vw x (21vw * 3/2)
+    # - landscape: 21vh x (21vh * 3/2)
+    # We request thumbnails that roughly match the visible size.
+    portrait = window.innerWidth >= window.innerHeight
+    base = window.innerWidth if portrait else window.innerHeight
+    w = Math.ceil(base * 0.21)
+    h = Math.ceil(w * 3 / 2)
+
+    # Clamp to match CSS max/min constraints.
+    w = Math.max(THUMBNAIL_MIN_WIDTH, Math.min(w, THUMBNAIL_MAX_WIDTH))
+    h = Math.max(THUMBNAIL_MIN_HEIGHT, Math.min(h, THUMBNAIL_MAX_HEIGHT))
+    return w, h
 
 
 def description():
@@ -21,31 +37,86 @@ def description():
 
 def cover_grid_css():
     sel = '.' + COVER_GRID_CLASS
+    item_sel = sel + ' > a'
     margin, margin_unit = 10, 'px'
+    # NOTE: overflow must be visible so cover shadows are not clipped.
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end',
-                     align_content='flex-start', user_select='none', overflow='hidden', margin_top=f'{margin / 2}{margin_unit}')
+                     align_content='flex-start', user_select='none', overflow='visible', margin_top=f'{margin / 2}{margin_unit}')
 
     # Container for an individual cover
     sel += ' > a'
     ans += build_rule(
-        sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='center', justify_content='space-around',
+        sel,
+        margin=f'{margin}{margin_unit}',
+        display='block',
         max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
-        min_width=THUMBNAIL_MIN_WIDTH+'px', min_height=THUMBNAIL_MIN_HEIGHT + 'px')
-    mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: 28{dim} }} }}\n'
+        min_width=THUMBNAIL_MIN_WIDTH+'px', min_height=THUMBNAIL_MIN_HEIGHT + 'px',
+        position='relative',
+        overflow='visible',
+        transition='background-color 160ms ease'
+    )
+    mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: calc(21{dim} * 1.5) }} }}\n'
     for dim in 'vw', 'vh':
         ans += mq.format(sel=sel, dim=dim, orient='portrait' if dim is 'vw' else 'landscape')
     # No hover zoom; use highlight instead
-    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)', border_radius=BORDER_RADIUS+'px')
+    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)')
     ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
-    ans += build_rule(f'{sel}:hover > img', box_shadow='0 14px 36px rgba(0,0,0,0.14)')
+    # Inner frame defines the real cover bounds (shadow + radius + mask alignment)
+    ans += build_rule(f'{item_sel} > .cs-cover-frame',
+        position='relative',
+        width='100%',
+        height='100%',
+        overflow='hidden',
+        border_radius=BORDER_RADIUS+'px',
+        box_shadow='0 clamp(10px, 1.8vh, 14px) clamp(26px, 4.2vh, 48px) rgba(0,0,0,0.18)',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color='rgba(0,0,0,0.02)',
+        transition='box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease'
+    )
+    ans += build_rule(f'{item_sel}:hover > .cs-cover-frame',
+        background_color='var(--cs-accent-weak)',
+        border_color='var(--cs-surface-border-strong)',
+        box_shadow='0 clamp(14px, 2.6vh, 18px) clamp(34px, 5.2vh, 62px) rgba(0,0,0,0.24), 0 0 0 4px var(--primary-light)'
+    )
+
+    # Cover overlay (title + author)
+    ans += build_rule(f'{item_sel} .cs-cover-frame > .cs-cover-mask',
+        position='absolute', left='0', right='0', bottom='0',
+        padding='0.85rem 0.75rem 0.6rem 0.75rem',
+        display='flex', flex_direction='column', gap='0.25rem',
+        justify_content='flex-end',
+        # Use full-width children for reliable ellipsis + right alignment.
+        align_items='stretch',
+        text_align='right',
+        # Black transparent gradient (bottom -> top): darker bottom, smoother transition.
+        background='linear-gradient(to top, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.88) 18%, rgba(0,0,0,0.62) 48%, rgba(0,0,0,0.20) 78%, rgba(0,0,0,0.0) 100%)',
+        color='rgba(255,255,255,0.97)',
+        text_shadow='0 2px 10px rgba(0,0,0,0.65)',
+        pointer_events='none'
+    )
+    ans += build_rule(f'{item_sel} .cs-cover-frame > .cs-cover-mask .cs-cover-mask-title',
+        font_size='0.95rem', font_weight='800',
+        width='100%',
+        white_space='nowrap', overflow='hidden', text_overflow='ellipsis'
+    )
+    ans += build_rule(f'{item_sel} .cs-cover-frame > .cs-cover-mask .cs-cover-mask-authors',
+        font_size='0.82rem', font_weight='600', opacity='0.92',
+        width='100%',
+        white_space='nowrap', overflow='hidden', text_overflow='ellipsis'
+    )
+
     ans += build_rule(sel + '.cover-grid-filler', height='0', max_height='0', min_height='0')
 
     # Container for cover failed to load message
     ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)', margin='0')
 
-    # The actual cover
-    sel += ' > img'
-    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius=BORDER_RADIUS+'px', transition='box-shadow 160ms ease')
+    # The actual cover (fills the frame so mask aligns perfectly)
+    ans += build_rule(f'{item_sel} .cs-cover-frame > img',
+        width='100%',
+        height='100%',
+        display='block',
+        object_fit='cover'
+    )
     return ans
 
 def init(container):
@@ -69,11 +140,18 @@ def on_img_load(img, load_type):
 
 def create_item(book_id, metadata, create_image, show_book_details, href):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
-    img = create_image(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    w, h = cover_grid_thumb_size()
+    img = create_image(book_id, w, h, on_img_load)
     tooltip = _('{} by {}').format(metadata.title, authors)
     img.setAttribute('alt', tooltip)
     img.dataset.title, img.dataset.authors = metadata.title, authors
-    ans = E.a(img, onclick=show_book_details, title=tooltip, href=href)
+    mask = E.div(
+        class_='cs-cover-mask',
+        E.div(metadata.title or '', class_='cs-cover-mask-title'),
+        E.div(authors or '', class_='cs-cover-mask-authors')
+    )
+    frame = E.div(img, mask, class_='cs-cover-frame')
+    ans = E.a(frame, onclick=show_book_details, title=tooltip, href=href)
     return ans
 
 def append_item(container, item):

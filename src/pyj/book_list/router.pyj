@@ -46,6 +46,13 @@ def apply_mode():
 
 
 def apply_url(ignore_handler):
+    # Ensure the current history entry has a state marker, so back() works
+    # reliably even after a page refresh.
+    try:
+        if not (window.history.state and window.history.state.cs_url_state?):
+            window.history.replaceState({'cs_url_state': True, 'cs_idx': 0}, '', window.location.href)
+    except Exception:
+        pass
     close_all_modals()  # needed to close any error dialogs, etc when clicking back or forward in the browser or using push_state() to go to a new page
     data = parse_url_params()
     data.mode = data.mode or 'book_list'
@@ -127,22 +134,31 @@ def push_state(query, replace=False, mode='book_list', call_handler=True):
     if mode is not 'book_list':
         query.mode = mode
     query = encode_query_with_path(query)
-    if replace:
-        window.history.replaceState(None, '', query)
-    else:
-        window.history.pushState(None, '', query)
-        push_state.history_count += 1
+    try:
+        cur = window.history.state or {}
+        cur_idx = cur.cs_idx or 0
+        if replace:
+            window.history.replaceState({'cs_url_state': True, 'cs_idx': cur_idx}, '', query)
+        else:
+            window.history.pushState({'cs_url_state': True, 'cs_idx': cur_idx + 1}, '', query)
+    except Exception:
+        # Fallback to old behavior if history state is unavailable for some reason
+        if replace:
+            window.history.replaceState(None, '', query)
+        else:
+            window.history.pushState(None, '', query)
     apply_url(not call_handler)
 
-push_state.history_count = 0
-
 def on_pop_state(ev):
-    push_state.history_count = max(0, push_state.history_count - 1)
     apply_url()
 
 
 def back():
-    if push_state.history_count > 0:
+    try:
+        idx = (window.history.state and window.history.state.cs_idx) or 0
+    except Exception:
+        idx = 0
+    if idx > 0:
         window.history.back()
     else:
         cq = get_current_query()

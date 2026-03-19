@@ -13,7 +13,6 @@ all_settings = {
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
     'fts_related_words': {'default': True, 'category': 'book_list'},
-
     # Tag Browser settings
     'and_search_terms': {'default': False, 'category': 'tag_browser'},  # how to add search terms to the search expression from the Tag Browser
     'collapse_at': {'default': 25, 'category': 'tag_browser'},  # number of items at which sub-groups are created, 0 to disable

@@ -547,7 +547,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
-    style += build_rule(sel + 'table.metadata td:first-of-type', font_style='italic', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
+    style += build_rule(sel + 'table.metadata td:first-of-type', font_style='normal', font_weight='700', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
     return style
 
@@ -613,20 +613,26 @@ add_extra_css(def():
         box_shadow='0 18px 48px rgba(0,0,0,0.18)',
         border='1px solid rgba(0,0,0,0.10)'
     )
-    style += build_rule(sel + '.cs-bd-cover .cs-bd-nav',
-        position='absolute',
-        top='0',
-        left='0',
-        right='0',
-        padding='10px',
-        box_sizing='border-box',
+    # Prev/next navigation is rendered below the details.
+    style += build_rule(sel + '.cs-bd-nav',
+        margin_top='1rem',
         display='flex',
         justify_content='space-between',
-        pointer_events='none'
+        gap='0.75rem'
     )
-    style += build_rule(sel + '.cs-bd-cover .next-book-button',
-        pointer_events='auto'
+    style += build_rule(sel + '.cs-bd-nav a.calibre-push-button',
+        flex='1 1 0',
+        display='inline-flex',
+        align_items='center',
+        justify_content='center',
+        gap='0.4rem'
     )
+    style += r'''
+@media (max-width: 720px) {
+  .book-details-panel .cs-bd-nav { gap: 0.6rem; }
+  .book-details-panel .cs-bd-nav a.calibre-push-button { justify-content: center; }
+}
+'''
     style += build_rule(sel + '.cs-bd-info', min_width='0')
     style += build_rule(sel + '.cs-bd-title',
         font_size='1.45em',
@@ -689,7 +695,6 @@ add_extra_css(def():
         position='absolute', left='0', top='0', right='0', bottom='0',
         display='flex', align_items='center', justify_content='center',
         background_color='rgba(255,255,255,0.55)',
-        backdrop_filter='blur(6px)',
         opacity='0',
         pointer_events='none',
         transition='opacity 160ms ease'
@@ -775,37 +780,13 @@ def render_book(container_id, book_id):
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     alt = _('{} by {}\n\nClick to read').format(metadata.title, authors)
-    border_radius = 20
-    button_style = f'cursor: pointer; border-radius: {border_radius//5}px;'
-    button_style += 'color: #ccc; background-color:rgba(0, 0, 0, 0.75);'
-    button_style += 'display: flex; justify-content: center; align-items: center; padding: 2px;'
     if is_random:
-        button_style += 'display: none;'
-
-    def prev_next_button(is_prev):
-        delta = -1 if is_prev else 1
-        nbid = book_after(book_id, delta)
-        s = button_style
-        if not nbid or nbid is book_id:
-            s += '; display: none'
-        return E.div(
-            style=s,
-            title=_('Previous book [Ctrl+Left]') if is_prev else _('Next book [Ctrl+Right]'),
-            class_='next-book-button',
-            svgicon('chevron-left' if is_prev else 'chevron-right'),
-            onclick=next_book.bind(None, book_id, delta)
-        )
-
+        pass
     imgdiv = E.div(class_='cs-bd-cover',
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
             onclick=read_book.bind(None, book_id),
             style='cursor: pointer;'
-        ),
-        E.div(
-            class_='cs-bd-nav',
-            prev_next_button(True),
-            prev_next_button(),
         ),
     )
     img = imgdiv.getElementsByTagName('img')[0]
@@ -875,6 +856,71 @@ def render_book(container_id, book_id):
     # Put buttons into actions block (keeps hero tidy)
     actions.appendChild(row)
 
+    # Secondary actions: Convert/Edit/Delete + More actions.
+    # These are placed right below the Read/Download buttons, and "More actions"
+    # opens a floating dialog (not a new page/panel).
+    def show_more_actions_modal(ev=None):
+        create_custom_dialog(_('More actions…'), def(parent, close_modal):
+            if get_session_data().get('show_all_metadata'):
+                title, subtitle = _('Show important metadata'), _('Show only the important metadata fields in the book details')
+            else:
+                title, subtitle = _('Show all metadata'), _('Show all metadata fields in the book details')
+
+            items = [
+                create_item(_('Search the internet'),
+                    subtitle=_('Search for this author or book on various websites'),
+                    action=def():
+                        close_modal()
+                        show_subsequent_panel('search_internet', replace=True)
+                ),
+
+                create_item(title, subtitle=subtitle,
+                    action=def():
+                        close_modal()
+                        toggle_fields()
+                ),
+
+                create_item(_('Copy to library'),
+                    subtitle=_('Copy or move this book to another calibre library'),
+                    action=def():
+                        close_modal()
+                        show_subsequent_panel('copy_to_library', replace=True)
+                ),
+
+                create_item(_('Manage data files'),
+                    subtitle=_('Upload or download additional data files to this book'),
+                    action=def():
+                        close_modal()
+                        show_subsequent_panel('data_files', replace=True)
+                ),
+            ]
+
+            wrapper = E.div()
+            parent.appendChild(wrapper)
+            create_item_list(wrapper, items)
+        )
+
+    row2 = E.div(style='flex-basis: 100%; width: 100%;')
+    row2.classList.add('cs-bd-actions')
+
+    def on_convert(ev):
+        convert_book()
+
+    def on_edit(ev):
+        edit_metadata()
+
+    def on_delete(ev):
+        delete_book()
+
+    def on_more(ev):
+        show_more_actions_modal(ev)
+
+    row2.appendChild(create_button(_('Convert'), 'convert', on_convert, _('Convert this book to another format [C]')))
+    row2.appendChild(create_button(_('Edit'), 'edit', on_edit, _('Edit the metadata for this book [E]')))
+    row2.appendChild(create_button(_('Delete'), 'trash', on_delete, _('Delete this book')))
+    row2.appendChild(create_button('', 'ellipsis-v', on_more, _('More actions')))
+    actions.appendChild(row2)
+
     # Details section (full metadata)
     details = E.div(class_='cs-bd-details')
     wrap.appendChild(details)
@@ -885,20 +931,33 @@ def render_book(container_id, book_id):
 
     render_metadata(metadata, table, book_id)
 
+    # Prev/next navigation should be below the details section.
+    def make_nav_button(is_prev):
+        delta = -1 if is_prev else 1
+        nbid = book_after(book_id, delta)
+        if not nbid or nbid is book_id or is_random:
+            return None
+        return create_button(
+            _('Previous') if is_prev else _('Next'),
+            'chevron-left' if is_prev else 'chevron-right',
+            next_book.bind(None, book_id, delta),
+            _('Previous book [Ctrl+Left]') if is_prev else _('Next book [Ctrl+Right]')
+        )
+
+    prev_btn = make_nav_button(True)
+    next_btn = make_nav_button(False)
+    if prev_btn or next_btn:
+        nav = E.div(class_='cs-bd-nav')
+        nav.appendChild(prev_btn or E.span())
+        nav.appendChild(next_btn or E.span())
+        wrap.appendChild(nav)
+
 
 def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
-        add_button(container, 'convert', action=convert_book, tooltip=_('Convert this book to another format [C]'))
-        add_button(container, 'edit', action=edit_metadata, tooltip=_('Edit the metadata for this book [E]'))
-        add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
-        book_id = parse_url_params().book_id
-        if book_id is '0':
-            add_button(container, 'random', tooltip=_('Show a random book'), action=def():
-                fetch_metadata(container_id, 0, proceed_after_succesful_fetch_metadata)
-            )
-        add_button(container, 'ellipsis-v', action=show_subsequent_panel.bind(None, 'more_actions'), tooltip=_('More actions'))
+        # Book actions are rendered in the hero section (below Read/Download).
 
 
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
@@ -915,8 +974,26 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
     if not c:
         return
     c = c.lastChild
+    # Always cleanup transient loading UI so it never leaves layout artifacts
+    # (e.g. empty lines) after the request completes or is aborted.
     try:
         c.classList.remove('cs-bd-loading')
+        c.classList.remove('cs-bd-loading-wrap')
+    except Exception:
+        pass
+    try:
+        overlay = c.querySelector('.cs-bd-loading-overlay')
+        if overlay and overlay.parentNode:
+            overlay.parentNode.removeChild(overlay)
+    except Exception:
+        pass
+    try:
+        content = c.querySelector('.cs-bd-loading-content')
+        if content and content.parentNode:
+            # If we created a wrapper to fade existing content, unwrap it now.
+            while content.firstChild:
+                c.insertBefore(content.firstChild, content)
+            content.parentNode.removeChild(content)
     except Exception:
         pass
     if end_type is 'load':
@@ -1093,6 +1170,7 @@ def onkeydown(container_id, close_action, ev):
 
 def init(container_id):
     container = document.getElementById(container_id)
+    clear(container)
     close_action, close_icon = back, 'close'
     q = parse_url_params()
     ca = q.close_action
@@ -1130,6 +1208,7 @@ def convert_book():
 
 def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
+    clear(container)
     create_top_bar(container, title=_('More actions…'), action=back, icon='close')
     if get_session_data().get('show_all_metadata'):
         title, subtitle = _('Show important metadata'), _('Show only the important metadata fields in the book details')
@@ -1279,6 +1358,7 @@ def upload_data_file(container_id):
         return return_to_book_details()
     book_id = render_book.book_id
     container = document.getElementById(container_id)
+    clear(container)
     create_top_bar(container, title=_('Upload data files'), action=back, icon='close')
     div = E.div(id=unique_id())
     container.appendChild(div)
@@ -1357,6 +1437,7 @@ def data_files(container_id):
     book_id = render_book.book_id
 
     container = document.getElementById(container_id)
+    clear(container)
     create_top_bar(container, title=_('Manage data files'), action=back, icon='close')
     container.appendChild(E.div(class_=DATA_FILES_CLASS))
     container = container.lastChild
@@ -1368,6 +1449,7 @@ def search_internet(container_id):
     if not render_book.book_id or not book_metadata(render_book.book_id):
         return return_to_book_details()
     container = document.getElementById(container_id)
+    clear(container)
     create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
     mi = book_metadata(render_book.book_id)
     data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
@@ -1503,6 +1585,7 @@ def copy_to_library(container_id):
     if not render_book.book_id or not book_metadata(render_book.book_id):
         return return_to_book_details()
     container = document.getElementById(container_id)
+    clear(container)
     create_top_bar(container, title=_('Copy to library'), action=back, icon='close')
     libraries = all_libraries()
     container.appendChild(E.div(class_=COPY_TO_LIBRARY_CLASS))

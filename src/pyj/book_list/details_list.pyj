@@ -18,22 +18,66 @@ def description():
     return _('A list with thumbnails and some book details')
 
 THUMBNAIL_MAX_WIDTH = 35 * 3
-THUMBNAIL_MAX_HEIGHT = 35 * 4
+THUMBNAIL_MAX_HEIGHT = int(THUMBNAIL_MAX_WIDTH * 3 / 2)
 BORDER_RADIUS = 6
 
 
 def details_list_css():
     ans = ''
     sel = '.' + DETAILS_LIST_CLASS
-    ans += build_rule(sel, cursor='pointer', user_select='none')
-    ans += build_rule(sel + ' > div', margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
+    ans += build_rule(sel,
+        cursor='pointer',
+        user_select='none',
+        display='flex',
+        flex_direction='column',
+        gap='0.75rem',
+        padding_top='0.75rem',
+        padding_bottom='0.75rem'
+    )
+    # Do not underline list-row links on hover (keep the row feeling like a card)
+    ans += build_rule(sel + ' a:hover', text_decoration='none')
+    # Remove legacy separator rows; use gap + card surfaces instead
+    ans += build_rule(sel + ' > div', margin='0', padding='0', border='none')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}',
+        display='flex',
+        align_items='stretch',
+        gap='1rem',
+        padding='0.85rem 1rem',
+        border_radius='18px',
+        border='1px solid var(--cs-surface-border)',
+        background='var(--cs-surface-1)',
+        box_shadow='0 16px 44px rgba(0,0,0,0.10)',
+        text_decoration='none'
+    )
     # No hover zoom; use highlight instead
-    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover', background_color='var(--cs-accent-weak)', border_radius='14px')
-    ans += build_rule(f'{sel} .{ITEM_CLASS}:active', background_color='var(--cs-accent-weak-2)')
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:hover',
+        background_color='var(--cs-accent-weak)',
+        border_color='var(--cs-surface-border-strong)',
+        box_shadow='0 20px 56px rgba(0,0,0,0.12), 0 0 0 4px var(--primary-light)'
+    )
+    ans += build_rule(f'{sel} .{ITEM_CLASS}:active',
+        background_color='var(--cs-accent-weak-2)',
+        transform='translateY(0.5px)'
+    )
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')
     s = sel + ' .details-list-left'
-    ans += build_rule(s, margin_right='1em', min_width=f'{THUMBNAIL_MAX_WIDTH}px')
-    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', max_height=f'{THUMBNAIL_MAX_HEIGHT}px', max_width=f'{THUMBNAIL_MAX_WIDTH}px', transition='box-shadow 160ms ease')
+    ans += build_rule(s,
+        margin_right='1em',
+        min_width=f'{THUMBNAIL_MAX_WIDTH}px',
+        height=f'{THUMBNAIL_MAX_HEIGHT}px',
+        display='flex',
+        align_items='stretch'
+    )
+    # Make the cover fill the full row height
+    ans += build_rule(s + ' > img',
+        border_radius=BORDER_RADIUS+'px',
+        width=f'{THUMBNAIL_MAX_WIDTH}px',
+        height=f'{THUMBNAIL_MAX_HEIGHT}px',
+        display='block',
+        object_fit='cover',
+        border='1px solid rgba(0,0,0,0.10)',
+        transition='box-shadow 160ms ease'
+    )
     s = sel + ' .details-list-right'
     ans += build_rule(s, flex_grow='10', overflow='hidden', display='flex', flex_direction='column')
     ans += build_rule(sel + ' .details-comments',
@@ -61,8 +105,8 @@ def details_list_css():
         gap='0.25rem',
         padding='0.15rem 0.45rem',
         border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
-        background='rgba(0,0,0,0.02)',
+        border='1px solid var(--cs-surface-border)',
+        background='var(--cs-surface-3)',
         max_width='100%',
         white_space='nowrap',
         overflow='hidden',
