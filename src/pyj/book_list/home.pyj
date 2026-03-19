@@ -59,6 +59,7 @@ add_extra_css(def():
         flex_wrap='wrap',
         gap='0.65rem'
     )
+    ans += build_rule(sel + '.cs-home-download-actions', margin_top='0.55rem')
     ans += build_rule(sel + '.cs-home-actions a.calibre-push-button', margin='0')
     # Covers row
     ans += build_rule(sel + '.cs-home-covers', display='flex', flex_wrap='wrap')
@@ -177,7 +178,7 @@ def prepare_recent_container(container):
     container.appendChild(E.h2(_('Continue reading…')))
     container.appendChild(E.div(class_='cs-home-covers'))
     cover_container = container.lastChild
-    container.appendChild(E.div(class_='cs-home-actions',
+    container.appendChild(E.div(class_='cs-home-actions cs-home-download-actions',
         create_button(
             _('Browse all downloaded books…'),
             action=def():
