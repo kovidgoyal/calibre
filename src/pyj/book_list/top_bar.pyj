@@ -13,15 +13,31 @@ from utils import parse_url_params
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'
-SPACING = '0.75em'
-VSPACING = '0.5ex'
+SPACING = '0.5em'
+VSPACING = '0.55ex'
 THROBBER_NAME = 'top-bar-throbber'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     style += create_keyframes(THROBBER_NAME, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
-    style += build_rule(sel + 'a', display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer', color=get_color('window-foreground'), background='none', padding_top=VSPACING, padding_bottom=VSPACING, border_radius='999px', padding_left='0.35em', padding_right='0.35em')
+    style += build_rule(sel + 'a',
+        display='inline-flex',
+        align_items='center',
+        gap='0.35rem',
+        line_height='1.0',
+        overflow='hidden',
+        cursor='pointer',
+        color=get_color('window-foreground'),
+        background='none',
+        padding_top=VSPACING,
+        padding_bottom=VSPACING,
+        border_radius='999px',
+        padding_left='0.35em',
+        padding_right='0.35em'
+    )
+    style += build_rule(sel + 'a svg', display='block', height='1.35ex', width='1.35ex', vertical_align='middle', opacity='0.92')
+    style += build_rule(sel + 'a span', line_height='1.0')
     # No hover zoom; use highlight instead
     style += build_rule(sel + 'a:hover', background_color='var(--cs-accent-weak)')
     style += build_rule(sel + 'a:active', background_color='var(--cs-accent-weak-2)')
@@ -35,8 +51,8 @@ def create_markup(container):
     for i in range(2):
         bar = E.div(
             class_=CLASS_NAME,
-            E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
-            E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
+            E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.45em; display:flex; align-items:center; gap: 0.45em; min-width: 0;"),
+            E.div(style="white-space:nowrap; text-align:right; padding-right: 0.45em; display:flex; align-items:center; justify-content:flex-end; gap: 0.45em;")
         )
         if i is 0:
             # The main calibre content server UI can optionally have a fixed left sidebar.
@@ -48,7 +64,7 @@ def create_markup(container):
             # But it should not be visible (prevents duplicate titles/buttons).
             set_css(bar, visibility='hidden', pointer_events='none')
         set_css(bar,
-            display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
+            display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between', align_items='center',
             font_size=get_font_size('title'), user_select='none',
             color=get_color('window-foreground'), background_color=get_color('window-background'),
             border_bottom='1px solid rgba(0,0,0,0.10)',

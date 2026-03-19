@@ -71,7 +71,7 @@ def build_list(container, items, subtitle):
     clear(c)
     c.classList.add(CLASS_NAME)
     if subtitle:
-        c.appendChild(E.p(subtitle, style="font-style:italic; padding: 1em 1ex; border-bottom: solid 1px currentColor"))
+        c.appendChild(E.p(subtitle, style="font-style:normal; font-weight:700; padding: 1em 1ex; border-bottom: solid 1px currentColor"))
     ul = E.ul()
     c.appendChild(ul)
     has_icons = False

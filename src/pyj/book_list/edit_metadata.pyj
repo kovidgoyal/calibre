@@ -37,24 +37,139 @@ def identity(x):
     return x
 value_to_json = identity
 changes = {}
+draft_changes = {}
 has_changes = False
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
     style += build_rule(sel + 'table.metadata', width='100%')
-    style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
-    style += build_rule(sel + 'table.metadata tr:hover td:first-of-type', color='green')
-    style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
+    style += build_rule(sel + 'table.metadata td',
+        padding_top='0.65rem', padding_bottom='0.65rem',
+        padding_left='0.75rem', padding_right='0.75rem',
+        cursor='pointer',
+        border_bottom='1px solid rgba(0,0,0,0.06)'
+    )
+    style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='600')
+    style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'table.metadata tr:active td', transform='translateY(0.5px)')
 
-    style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex')
-    style += build_rule(sel + '.completions > div', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
-    style += build_rule(sel + '.completions > div:active', transform='scale(1.5)')
-    style += build_rule(sel + '.completions > div:hover', background=get_color('window-foreground'), color=get_color('window-background'))
+    style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex', gap='0.4rem')
+    style += build_rule(sel + '.completions > div',
+        margin='0',
+        padding='0.45ex 0.75rem',
+        border='solid 1px rgba(0,0,0,0.12)',
+        border_radius='999px',
+        cursor='pointer',
+        user_select='none'
+    )
+    style += build_rule(sel + '.completions > div:hover',
+        background_color='var(--cs-accent-weak)',
+        border='solid 1px rgba(0,0,0,0.18)'
+    )
 
     style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
     style += build_rule(sel + '.rating-edit-container > li', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
     style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
+
+    # Floating editor modal (field editing)
+    style += build_rule(sel + 'div[data-ctype="edit"]',
+        position='fixed',
+        left='50%',
+        top='10vh',
+        transform='translateX(-50%)',
+        width='min(980px, calc(100% - 2rem))',
+        max_height='80vh',
+        overflow='auto',
+        z_index='1001',
+        background_color=get_color('window-background'),
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='16px',
+        box_shadow='0 24px 64px rgba(0,0,0,0.18)',
+        padding='1rem'
+    )
+    # Modal content styling: align with overall theme
+    style += build_rule(sel + 'div[data-ctype="edit"] h3',
+        margin='0 0 0.75rem 0',
+        font_weight='800'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .metadata-editor',
+        width='100%',
+        box_sizing='border-box'
+    )
+    style += build_rule(
+        sel + 'div[data-ctype="edit"] input[type="text"], ' +
+        sel + 'div[data-ctype="edit"] input[type="number"], ' +
+        sel + 'div[data-ctype="edit"] textarea, ' +
+        sel + 'div[data-ctype="edit"] select',
+        width='100%',
+        box_sizing='border-box',
+        padding='0.6rem 0.75rem',
+        border_radius='12px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] textarea',
+        min_height='10rem',
+        resize='vertical'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .edit-form-button-container',
+        display='flex',
+        justify_content='flex-end',
+        margin_top='0.75rem'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-layout',
+        display='flex',
+        flex_direction='column',
+        gap='0.85rem'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-preview',
+        width='min(260px, 45vw)',
+        aspect_ratio='2 / 3',
+        border_radius='14px',
+        overflow='hidden',
+        border='1px solid rgba(0,0,0,0.12)',
+        background='rgba(0,0,0,0.04)',
+        box_shadow='0 10px 24px rgba(0,0,0,0.12)'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-preview img',
+        width='100%',
+        height='100%',
+        display='block',
+        object_fit='cover'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-help',
+        opacity='0.78',
+        font_weight='700'
+    )
+    style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-actions',
+        display='flex',
+        gap='0.6rem',
+        flex_wrap='wrap'
+    )
+    style += build_rule(sel + '[data-modal="1"] div[data-ctype="show"]',
+        opacity='0.5',
+        pointer_events='none',
+        filter='blur(1px)'
+    )
+    style += r'''
+edit-metadata-panel[data-modal="1"]::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  z-index:1000;
+}
+'''
+    style += build_rule(sel + ' .edit-metadata-footer',
+        display='flex',
+        align_items='center',
+        justify_content='center',
+        gap='0.75rem',
+        flex_wrap='wrap',
+        padding='0 1rem 1.5rem 1rem'
+    )
+
     return style
 )
 
@@ -89,7 +204,7 @@ def truncated_html(val):
 
 
 def onsubmit_field2(container_id, book_id, field, value):
-    nonlocal has_changes
+    nonlocal has_changes, draft_changes
     c = document.getElementById(container_id)
     if not c:
         return
@@ -105,15 +220,12 @@ def onsubmit_field2(container_id, book_id, field, value):
         on_close(container_id)
         return
 
-    clear(d)
-    d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
     if is_series:
-        changes[field] = value_to_json(value.series_name)
-        changes[field + '_index'] = float(value.series_index)
+        draft_changes[field] = value_to_json(value.series_name)
+        draft_changes[field + '_index'] = float(value.series_index)
     else:
-        changes[field] = value_to_json(value)
+        draft_changes[field] = value_to_json(value)
     has_changes = True
-    show_book(container_id, book_id)
     on_close(container_id)
 
 
@@ -136,12 +248,13 @@ def onsubmit_field(get_value, container_id, book_id, field):
 
 def create_form(widget, get_value, container_id, book_id, field):
     submit_action = onsubmit_field.bind(None, get_value, container_id, book_id, field)
-    button = create_button(_('OK'), action=submit_action)
+    button = create_button(_('OK'), icon='check', action=submit_action, highlight=True)
+    cancel_button = create_button(_('Cancel'), icon='close', action=def(ev): on_close(container_id);)
     widget.classList.add('metadata-editor')
     form = E.form(
         action='javascript: void(0)', onsubmit=submit_action, style='margin: 1ex auto',
         E.div(widget, style='margin-bottom: 1ex'),
-        E.div(class_='edit-form-button-container', button), E.input(type='submit', style='display:none'),
+        E.div(class_='edit-form-button-container', cancel_button, '\xa0', button), E.input(type='submit', style='display:none'),
     )
     return form
 
@@ -615,46 +728,122 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
 # Cover edit {{{
 
 def cover_chosen(top_container_id, book_id, container_id, files):
-    nonlocal has_changes
+    nonlocal has_changes, draft_changes
     container = document.getElementById(container_id)
     if not container:
         return
     if not files[0]:
         return
     file = files[0]
-    changes.cover = file
+    draft_changes.cover = file
     has_changes = True
     on_close(top_container_id)
 cover_chosen.counter = 0
 
 
 def remove_cover(top_container_id, book_id):
-    nonlocal has_changes
-    changes.cover = '--remove--'
+    nonlocal has_changes, draft_changes
+    draft_changes.cover = '--remove--'
     has_changes = True
     on_close(top_container_id)
 
 
 def cover_edit(container_id, book_id, field, fm, div, mi):
-    upload_files_widget(div, cover_chosen.bind(None, container_id, book_id), _(
+    nonlocal has_changes, draft_changes
+    pending = {'file': None, 'remove': False}
+    object_url = None
+
+    panel = E.div(class_='cover-edit-layout')
+    panel.appendChild(E.h3(_('Edit cover')))
+    panel.appendChild(E.div(_('Changes apply only after pressing Save.'), class_='cover-edit-help'))
+
+    preview = E.div(class_='cover-edit-preview')
+    panel.appendChild(preview)
+
+    def refresh_preview():
+        nonlocal object_url
+        clear(preview)
+        if object_url:
+            try:
+                window.URL.revokeObjectURL(object_url)
+            except Exception:
+                pass
+            object_url = None
+        if pending.remove:
+            preview.appendChild(E.div(
+                _('Cover will be removed'),
+                style='height:100%;display:flex;align-items:center;justify-content:center;opacity:0.75;font-weight:700;'
+            ))
+            return
+        img = E.img()
+        if pending.file:
+            object_url = window.URL.createObjectURL(pending.file)
+            img.src = object_url
+        else:
+            img.src = cover_url(book_id)
+        preview.appendChild(img)
+
+    def on_cover_selected(files):
+        f = files and files[0]
+        if not f:
+            return
+        pending.file = f
+        pending.remove = False
+        refresh_preview()
+
+    upload_files_widget(panel, on_cover_selected, _(
         'Change the cover by <a>selecting the cover image</a> or drag and drop of the cover image here.'),
-    single_file=True, accept_extensions='png jpeg jpg')
-    div.appendChild(E.div(
-        style='padding: 1rem',
-        create_button(_('Remove existing cover'), action=remove_cover.bind(None, container_id, book_id))))
+        single_file=True, accept_extensions='png jpeg jpg'
+    )
+
+    actions = E.div(class_='cover-edit-actions')
+    actions.appendChild(create_button(_('Remove existing cover'), action=def(ev):
+        pending.file = None
+        pending.remove = True
+        refresh_preview()
+    ))
+    panel.appendChild(actions)
+
+    footer = E.div(class_='edit-form-button-container')
+    footer.appendChild(create_button(_('Save'), icon='check', action=def(ev):
+        if pending.remove:
+            draft_changes.cover = '--remove--'
+            has_changes = True
+        elif pending.file:
+            draft_changes.cover = pending.file
+            has_changes = True
+        if object_url:
+            try:
+                window.URL.revokeObjectURL(object_url)
+            except Exception:
+                pass
+        on_close(container_id)
+    , highlight=True))
+    footer.appendChild(E.span('\xa0'))
+    footer.appendChild(create_button(_('Cancel'), icon='close', action=def(ev):
+        if object_url:
+            try:
+                window.URL.revokeObjectURL(object_url)
+            except Exception:
+                pass
+        on_close(container_id)
+    ))
+    panel.appendChild(footer)
+    div.appendChild(panel)
+    refresh_preview()
 
 # }}}
 
 # Formats edit {{{
 
 def format_added(top_container_id, book_id, container_id, files):
-    nonlocal has_changes
+    nonlocal has_changes, draft_changes
     container = document.getElementById(container_id)
     if not container:
         return
     if not files[0]:
         return
-    added = changes.added_formats or v'[]'
+    added = draft_changes.added_formats or v'[]'
     for file in files:
         ext = file.name.rpartition('.')[-1]
         data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None, 'ext': ext}
@@ -663,17 +852,17 @@ def format_added(top_container_id, book_id, container_id, files):
         r.onload = def(evt):
             data.data_url = evt.target.result
         r.readAsDataURL(file)
-    changes.added_formats = added
+    draft_changes.added_formats = added
     has_changes = True
     on_close(top_container_id)
 
 
 def remove_format(top_container_id, book_id, fmt):
-    nonlocal has_changes
+    nonlocal has_changes, draft_changes
     has_changes = True
-    removed_formats = changes.removed_formats or v'[]'
+    removed_formats = draft_changes.removed_formats or v'[]'
     removed_formats.push(fmt.toUpperCase())
-    changes.removed_formats = removed_formats
+    draft_changes.removed_formats = removed_formats
     on_close(top_container_id)
 
 
@@ -696,7 +885,25 @@ def formats_edit(container_id, book_id, field, fm, div, mi):
 def switch_to_edit_panel(container):
     d = container.querySelector('div[data-ctype="edit"]')
     d.style.display = 'block'
-    d.previousSibling.style.display = 'none'
+    container.dataset.modal = '1'
+    # Dim the underlying panel (visual modal effect).
+    d.previousSibling.style.opacity = '0.5'
+    d.previousSibling.style.pointerEvents = 'none'
+    d.previousSibling.style.filter = 'blur(1px)'
+    # Make the edit panel a floating modal window.
+    d.style.position = 'fixed'
+    d.style.left = '50%'
+    d.style.top = '10vh'
+    d.style.transform = 'translateX(-50%)'
+    d.style.width = 'min(980px, calc(100% - 2rem))'
+    d.style.maxHeight = '80vh'
+    d.style.overflow = 'auto'
+    d.style.zIndex = '1001'
+    d.style.backgroundColor = 'var(--calibre-color-window-background)'
+    d.style.border = '1px solid rgba(0,0,0,0.10)'
+    d.style.borderRadius = '16px'
+    d.style.boxShadow = '0 24px 64px rgba(0,0,0,0.18)'
+    d.style.padding = '1rem'
     clear(d)
     return d
 
@@ -1086,8 +1293,11 @@ def show_book(container_id, book_id):
     clear(div)
     cq = get_current_query()
     if has_changes:
-        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
-        div.appendChild(E.div(style='margin: 1ex 1rem', b))
+        div.appendChild(E.div(
+            style='margin: 1ex 1rem',
+            E.div(_('You have unsaved changes.')),
+            E.div(_('Use Save/Cancel below to apply or discard them.')),
+        ))
     else:
         div.appendChild(E.div(
             style='margin: 1ex 1rem',
@@ -1097,8 +1307,23 @@ def show_book(container_id, book_id):
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
     if has_changes:
-        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
-        div.appendChild(E.div(style='margin: 1ex 1rem', b))
+        def save_action(ev=None):
+            nonlocal changes, draft_changes, has_changes
+            changes = draft_changes
+            draft_changes = {}
+            has_changes = False
+            submit_changes(container_id, book_id)
+
+        def cancel_action(ev=None):
+            nonlocal draft_changes, has_changes
+            draft_changes = {}
+            has_changes = False
+            show_book(container_id, book_id)
+
+        div.appendChild(E.div(class_='edit-metadata-footer', style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem',
+            create_button(_('Save'), None, save_action, highlight=True),
+            create_button(_('Cancel'), None, cancel_action),
+        ))
 
 
 def is_edit_panel_showing(container):
@@ -1109,8 +1334,11 @@ def is_edit_panel_showing(container):
 def close_edit_panel(container):
     d = container.querySelector('div[data-ctype="edit"]')
     d.style.display = 'none'
-    d.previousSibling.style.display = 'block'
-    clear(d), clear(d.previousSibling)
+    container.dataset.modal = ''
+    d.previousSibling.style.opacity = ''
+    d.previousSibling.style.pointerEvents = ''
+    d.previousSibling.style.filter = ''
+    clear(d)
 
 
 def on_close(container_id):
@@ -1144,8 +1372,9 @@ def on_close(container_id):
 
 
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
-    nonlocal changes, has_changes
+    nonlocal changes, draft_changes, has_changes
     changes = {}
+    draft_changes = {}
     has_changes = False
     container = document.getElementById(container_id)
     mi = book_metadata(book_id)
