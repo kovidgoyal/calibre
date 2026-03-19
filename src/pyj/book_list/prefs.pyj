@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import clear, ensure_id
+from dom import clear, ensure_id, add_extra_css, build_rule
 from elementmaker import E
 from widgets import create_button
 from gettext import gettext as _
@@ -10,10 +10,91 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.top_bar import create_top_bar
 from book_list.router import back
-# from book_list.theme import get_font_size, get_color
+from book_list.theme import get_color
 
 pp_counter = 0
 widget_counter = 0
+
+CLASS_NAME = 'cs-prefs'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = ''
+    # Match page gutter + readable width
+    style += build_rule(sel,
+        padding='0.75rem 1rem 1rem 1rem',
+        max_width='980px',
+        margin_left='auto',
+        margin_right='auto'
+    )
+    style += r'''
+@media (max-width: 720px) {
+  .cs-prefs { padding-left: 0.75rem; padding-right: 0.75rem; }
+}
+'''
+    style += build_rule(sel + '.list', display='flex', flex_direction='column', gap='0.65rem')
+    style += build_rule(sel + '.item',
+        padding='0.85rem 1rem',
+        border_radius='16px',
+        border='1px solid var(--cs-surface-border)',
+        background='linear-gradient(135deg, var(--cs-surface-1) 0%, var(--cs-surface-2) 100%)',
+        box_shadow='0 12px 32px rgba(0,0,0,0.08)',
+        # No frosted glass effects (restore original, flat styling)
+    )
+    style += build_rule(sel + '.item:hover',
+        border='1px solid var(--cs-surface-border-strong)',
+        box_shadow='0 16px 44px rgba(0,0,0,0.10)'
+    )
+    style += build_rule(sel + '.item-main',
+        display='flex',
+        align_items='center',
+        justify_content='space-between',
+        gap='1rem',
+        flex_wrap='wrap'
+    )
+    style += build_rule(sel + '.control',
+        display='flex',
+        align_items='center',
+        justify_content='space-between',
+        gap='0.75rem',
+        flex='1 1 32rem',
+        min_width='14rem'
+    )
+    style += build_rule(sel + '.label',
+        font_weight='800',
+        white_space='normal',
+        opacity='0.92',
+        flex='1 1 auto',
+        min_width='12rem'
+    )
+    style += build_rule(sel + '.control select,' + sel + '.control input[type="text"],' + sel + '.control input[type="number"]',
+        padding='0.55rem 0.75rem',
+        border_radius='12px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        min_width='14rem'
+    )
+    style += build_rule(sel + '.control input[type="checkbox"]',
+        width='18px',
+        height='18px'
+    )
+    style += build_rule(sel + '.help',
+        margin_top='0.65rem',
+        padding_top='0.65rem',
+        border_top='1px solid rgba(0,0,0,0.08)',
+        font_size='0.85rem',
+        font_weight='700',
+        opacity='0.75',
+        display='none'
+    )
+    style += build_rule(sel + '.footer',
+        margin_top='1rem',
+        display='flex',
+        justify_content='flex-end'
+    )
+    return style
+)
 
 class ConfigItem:
 
@@ -78,9 +159,10 @@ class Choices(ConfigItem):
         ConfigItem.__init__(self, item_data)
         div = E.div(
             id=self.widget_id,
-            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.span(item_data.text, class_='label'),
             E.select(required='1')
         )
+        div.classList.add('control')
         container.appendChild(div)
         select = div.lastChild
         for choice, text in item_data.choices:
@@ -102,8 +184,9 @@ class CheckBox(ConfigItem):
         div = E.div(
             id=self.widget_id,
             E.input(type='checkbox'),
-            E.span(' ' + item_data.text, style='white-space:pre')
+            E.span(item_data.text, class_='label')
         )
+        div.classList.add('control')
         container.appendChild(div)
         control = div.firstChild
         control.addEventListener('change', self.ui_value_changed.bind(self))
@@ -131,9 +214,10 @@ class SpinBox(ConfigItem):
         ConfigItem.__init__(self, item_data)
         div = E.div(
             id=self.widget_id,
-            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.span(item_data.text, class_='label'),
             E.input(type='number', step='any', min='1', max='100')
         )
+        div.classList.add('control')
         container.appendChild(div)
         control = div.lastChild
         for attr in 'min max step'.split(' '):
@@ -156,9 +240,10 @@ class LineEdit(ConfigItem):
         ConfigItem.__init__(self, item_data)
         div = E.div(
             id=self.widget_id,
-            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.span(item_data.text, class_='label'),
             E.input(type='text')
         )
+        div.classList.add('control')
         container.appendChild(div)
         control = div.lastChild
         control.addEventListener('change', self.ui_value_changed.bind(self))
@@ -186,19 +271,23 @@ def create_prefs_widget(container, prefs_data):
     state.container_id = ensure_id(container)
     state.widgets = []
     clear(container)
+    try:
+        container.classList.add(CLASS_NAME)
+    except Exception:
+        pass
+
+    outer = E.div(class_='list')
+    container.appendChild(outer)
 
     for item in prefs_data:
         div = E.div(
-            style='margin-bottom:1ex; padding: 1ex 1em; border-bottom: solid 1px currentColor',
             title=item.tooltip,
             data_name=item.name,
-            E.div(),
-            E.div(
-                item.tooltip or '',
-                style='font-size:0.8rem; font-style: italic; margin-top:1ex; display:none'
-            )
+            class_='item',
+            E.div(class_='item-main'),
+            E.div(item.tooltip or '', class_='help')
         )
-        container.appendChild(div)
+        outer.appendChild(div)
         val = get_session_data().get(item.name)
         if item.from_storage:
             val = item.from_storage(val)
@@ -212,12 +301,9 @@ def create_prefs_widget(container, prefs_data):
             cls = LineEdit
         state.widgets.push((new cls(item, div.firstChild, onfocus(item.name))).initialize())
     if state.widgets.length:
-        container.appendChild(
-            E.div(
-                style='margin:1rem;',
-                create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
-            )
-        )
+        container.appendChild(E.div(class_='footer',
+            create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
+        ))
 
 
 def reset_to_defaults():
