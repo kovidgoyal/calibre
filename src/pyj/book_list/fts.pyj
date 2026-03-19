@@ -27,9 +27,9 @@ add_extra_css(def():
     style = f'{sel} ' + '{ padding-top: 0.5ex }\n'
     style += f'{sel} div' + ' { margin-top: 0.5ex }\n'
     style += f'{sel} .h' + ' { font-weight: bold; padding-bottom: 0.25ex }\n'
-    style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: italic }\n'
+    style += f'{sel} .bq' + ' { margin-left: 1em; margin-top: 0.5ex; margin-bottom: 0.5ex; font-style: normal; font-weight: 700 }\n'
     style += f'{sel} p' + ' { margin: 0}\n'
-    style += '.fts-highlight-match { font-style: italic; font-weight: bold }\n'
+    style += '.fts-highlight-match { font-style: normal; font-weight: bold }\n'
     return style
 )
 
@@ -360,7 +360,7 @@ def book_result_tile(book_id, title, authors):
 
         E.div(
             style=f'display:flex; flex-direction: column; height: 100%; overflow-y: auto',
-            E.div(E.span(style='font-size: small; font-style: italic; opacity: 0.5;', _('loading'), '…'), class_='snippets_container'),
+            E.div(E.span(style='font-size: small; font-style: normal; font-weight: 600; opacity: 0.5;', _('loading'), '…'), class_='snippets_container'),
         )
     )
 

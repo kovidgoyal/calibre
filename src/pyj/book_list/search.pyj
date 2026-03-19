@@ -37,6 +37,51 @@ add_extra_css(def():
     style += build_rule(sel + ' div.tag-name:active', transform='scale(1.5)')
     style += build_rule(sel + ' div.tag-menu:active', transform='scale(2)')
 
+    # Search header / input styling (match modern panel visuals)
+    style += build_rule(sel + ' .cs-search-header',
+        padding='0.9rem 1rem',
+        border_bottom='1px solid rgba(127,127,127,0.28)',
+        background_color=get_color('window-background'),
+    )
+    style += build_rule(sel + ' .cs-search-row',
+        display='flex',
+        align_items='center',
+        gap='0.6rem',
+        width='min(980px, 100%)',
+        margin_left='auto',
+        margin_right='auto',
+    )
+    style += build_rule(sel + ' .cs-search-row > div',
+        flex_grow='1',
+        min_width='0',
+    )
+    style += build_rule(sel + ' input[name="search-books"]',
+        width='100%',
+        box_sizing='border-box',
+        padding='0.62rem 0.85rem',
+        border_radius='999px',
+        border='1px solid rgba(127,127,127,0.35)',
+        background_color=get_color('input-background'),
+        color=get_color('input-foreground'),
+        font_size='1rem',
+        line_height='1.2',
+    )
+    style += build_rule(sel + ' input[name="search-books"]::placeholder',
+        color=get_color('faded-text'),
+        opacity='0.95',
+    )
+    style += build_rule(sel + ' input[name="search-books"]:focus',
+        outline='2px solid var(--calibre-color-input-focus-outline-color)',
+        outline_offset='2px',
+    )
+    style += build_rule(sel + ' .cs-search-help',
+        width='min(980px, 100%)',
+        margin_left='auto',
+        margin_right='auto',
+        text_align='left',
+        padding_top='0.75rem',
+    )
+
     # search items list
     style += build_rule(sel + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
     style += build_rule(sel + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
@@ -448,7 +493,7 @@ def create_search_panel(container):
     # search input container
     container.appendChild(E.div(
         data_component='search',
-        style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"
+        class_='cs-search-header'
     ))
     container.appendChild(E.div(
         E.div(data_component='loading'),
@@ -462,9 +507,8 @@ def create_search_panel(container):
     search_container = component(container, 'search')
     search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
     search_bar = create_search_bar(execute_search_interactive, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
-    set_css(search_bar, flex_grow='10', margin_right='0.5em')
-    search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
-    search_container.appendChild(E.div(style="text-align: left; padding-top: 1ex", E.a(class_="blue-link", svgicon("fts"), '\xa0', _('Search the full text of books instead'), href='javascript: void(0)', onclick=show_panel.bind(None, "fts"))))
+    search_container.appendChild(E.div(class_='cs-search-row', search_bar, search_button))
+    search_container.appendChild(E.div(class_='cs-search-help', E.a(class_="blue-link", svgicon("fts"), '\xa0', _('Search the full text of books instead'), href='javascript: void(0)', onclick=show_panel.bind(None, "fts"))))
     search_container.appendChild(E.ul(class_='search-items', data_component='search_expression'))
 
     # Build loading panel
