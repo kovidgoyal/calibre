@@ -101,14 +101,14 @@ class Server:
     def __init__(self, platform_implementation: asyncio.Server | list[asyncio.Transport]):
         self.platform_implementation = platform_implementation
 
-    def close(self):
+    def close(self) -> None:
         if isinstance(self.platform_implementation, asyncio.Server):
             self.platform_implementation.close()
         else:
             for x in self.platform_implementation:
                 x.close()
 
-    async def serve_till_stdin_is_closed(self):
+    async def serve_till_stdin_is_closed(self) -> None:
         if isinstance(self.platform_implementation, asyncio.Server):
             reader = asyncio.StreamReader()
             await asyncio.get_running_loop().connect_read_pipe(lambda: asyncio.StreamReaderProtocol(reader), sys.stdin)
@@ -122,7 +122,7 @@ class Server:
         self.close()
         await self.wait_closed()
 
-    async def wait_closed(self):
+    async def wait_closed(self) -> None:
         if isinstance(self.platform_implementation, asyncio.Server):
             await self.platform_implementation.wait_closed()
 
