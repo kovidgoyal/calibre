@@ -584,7 +584,7 @@ def create_nav_list_panel(container_id):
         return (x or '').toString().toLowerCase()
 
     def to_item(x):
-        if x and typeof x is 'object' and 'name' in x:
+        if x and jstype(x) is 'object' and 'name' in x:
             return x
         s = (x or '') + ''
         return {'name': s, 'count': None, 'avg_rating': None, 'search_name': s}
@@ -595,7 +595,7 @@ def create_nav_list_panel(container_id):
         nq = norm(query_text)
         ans = []
         for x in items:
-            n = (x.name if (x and typeof x is 'object') else x) + ''
+            n = (x.name if (x and jstype(x) is 'object') else x) + ''
             if n and norm(n).indexOf(nq) != -1:
                 ans.push(x)
         return ans
@@ -723,11 +723,14 @@ def create_nav_list_panel(container_id):
     TAG_BROWSER_FIELDS = v"['tags', 'series', 'authors', 'publisher', 'formats', 'rating']"
 
     def format_count_rating(count, avg_rating):
+        sd = get_session_data()
+        show_count = sd.get('show_nav_list_book_count', True)
+        show_rating = sd.get('show_nav_list_avg_rating', True)
         parts = []
-        if count is not None and str(count).strip() != '':
+        if show_count and count is not None and str(count).strip() != '':
             n = int(count)
             parts.push(_('{} books').format(n))
-        if avg_rating is not None and str(avg_rating).strip() != '':
+        if show_rating and avg_rating is not None and str(avg_rating).strip() != '':
             r = float(avg_rating) if avg_rating else 0
             if r > 0:
                 parts.push(stars_for_rating(str(Math.round(r / 2))))

@@ -5,6 +5,7 @@ from __python__ import hash_literals, bound_methods
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.globals import get_session_data
 from book_list.router import back
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
@@ -135,6 +136,35 @@ def init(container_id):
         E.span(_('Theme color'), class_='label'),
         color_input
     ))
+
+    sd = get_session_data()
+    show_count_key = 'show_nav_list_book_count'
+    show_rating_key = 'show_nav_list_avg_rating'
+
+    def make_toggle_item(key, label, help_text):
+        item = E.div(class_='item', data_name=key,
+            E.div(class_='item-main'),
+            E.div(help_text, class_='help')
+        )
+        outer.appendChild(item)
+        main = item.firstChild
+        cb = E.input(type='checkbox')
+        cb.checked = bool(sd.get(key, True))
+        ctrl = E.div(id='ui-setting-' + key, class_='control',
+            E.span(label, class_='label'),
+            cb
+        )
+        main.appendChild(ctrl)
+        def on_change(ev):
+            sd.set(key, cb.checked)
+        def toggle(ev):
+            cb.checked = not cb.checked
+            on_change(ev)
+        cb.addEventListener('change', on_change)
+        ctrl.querySelector('.label').addEventListener('click', toggle)
+
+    make_toggle_item(show_count_key, _('Show book count in category lists'), _('Display the number of books for each tag, series, author, etc. in the navigation sidebar.'))
+    make_toggle_item(show_rating_key, _('Show average rating in category lists'), _('Display the average rating (stars) for each tag, series, author, etc. in the navigation sidebar.'))
 
     footer = E.div(class_='footer')
     root.appendChild(footer)
