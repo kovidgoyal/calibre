@@ -5,8 +5,8 @@ from __python__ import hash_literals, bound_methods
 import traceback
 from elementmaker import E
 from ajax import ajax
-from dom import set_css, get_widget_css
-from modals import create_modal_container, error_dialog
+from dom import set_css, get_widget_css, clear
+from modals import create_modal_container, create_custom_dialog, error_dialog
 from session import get_interface_data, UserSessionData, update_interface_data, get_translations, local_storage
 from gettext import gettext as _, install
 from popups import install_event_filters
@@ -17,12 +17,13 @@ from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color, get_color_as_rgba, get_font_family, css_for_variables
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state, home
-from book_list.globals import get_db, set_session_data
+from book_list.globals import get_db, set_session_data, get_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler, show_panel
 from read_book.ui import ReadUI
 from utils import parse_url_params
 from dom import svgicon
 from book_list.ui_settings import apply_primary_color
+from widgets import create_button
 
 # Register the various panels
 import book_list.home # noqa: unused-import
@@ -304,26 +305,15 @@ def init_ui():
 
         /* Collapsed sidebar */
         :root.cs-sidebar-collapsed .cs-left-nav { padding-left: 0.35rem; padding-right: 0.35rem; }
-        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title,
-        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-divider,
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-chevron,
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-label {
             display: none !important;
         }
-        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group > a {
-            margin-left: 0;
-            margin-right: 0;
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title > span {
+            display: none !important;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title {
             justify-content: center;
-        }
-        :root.cs-sidebar-collapsed .cs-left-nav a .cs-nav-left {
-            justify-content: center;
-        }
-        :root.cs-sidebar-collapsed .cs-left-nav a {
-            padding-left: 0.55rem;
-            padding-right: 0.55rem;
-        }
-        :root.cs-sidebar-collapsed .cs-left-nav a[data-active="1"]::before {
-            left: 6px;
         }
 
         .cs-main {
@@ -472,6 +462,13 @@ def init_ui():
     g2.appendChild(section_elems.pubdate)
     left.appendChild(g2)
 
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Group: custom category
+    left.appendChild(E.div(svgicon('folder'), E.span(_('Custom Category')), class_='cs-nav-group-title'))
+    g_custom = E.div(class_='cs-nav-group')
+    left.appendChild(g_custom)
+
     # Bottom group: settings
     bottom = E.div(class_='cs-nav-bottom')
     bottom.appendChild(E.div(class_='cs-nav-divider'))
@@ -493,8 +490,98 @@ def init_ui():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
+    def get_custom_categories():
+        sd = get_session_data()
+        categories = sd.get('custom_categories', v'[]') or v'[]'
+        if not Array.isArray(categories):
+            categories = v'[]'
+        return categories
+
+    def set_custom_categories(categories):
+        get_session_data().set('custom_categories', categories or v'[]')
+
+    def edit_custom_category(index):
+        categories = get_custom_categories()
+        item = categories[index] or v'{}'
+        initial_name = (item.name or '') + ''
+        initial_filter = (item.filter or '') + ''
+
+        create_custom_dialog(_('Edit custom Category'), def(parent, close_modal):
+            name_input = E.input(type='text', value=initial_name, placeholder=_('Category name'))
+            filter_input = E.input(type='text', value=initial_filter, placeholder=_('Filter condition'))
+
+            def save_changes(ev=None):
+                name = (name_input.value or '').strip()
+                filter_expr = (filter_input.value or '').strip()
+                if not name or not filter_expr:
+                    return
+                categories = get_custom_categories()
+                if index < 0 or index >= categories.length:
+                    return
+                categories[index] = {'name': name, 'filter': filter_expr}
+                set_custom_categories(categories)
+                close_modal()
+                render_custom_categories()
+
+            def delete_item(ev=None):
+                categories = get_custom_categories()
+                if index < 0 or index >= categories.length:
+                    return
+                categories.splice(index, 1)
+                set_custom_categories(categories)
+                close_modal()
+                render_custom_categories()
+
+            parent.appendChild(E.div(
+                E.div(style='margin-bottom:0.5rem', _('Category name')),
+                name_input,
+                E.div(style='margin:0.8rem 0 0.5rem 0', _('Filter condition')),
+                filter_input,
+                E.div(class_='button-box',
+                    create_button(_('Save'), 'check', save_changes, highlight=True),
+                    '\xa0',
+                    create_button(_('Delete'), 'trash', delete_item),
+                    '\xa0',
+                    create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                )
+            ))
+            setTimeout(def():
+                name_input.focus()
+            , 10)
+        )
+
+    def render_custom_categories():
+        clear(g_custom)
+        for i, item in enumerate(get_custom_categories()):
+            name = (item.name or '') + ''
+            search_expr = (item.filter or '') + ''
+            if not name or not search_expr:
+                continue
+            action = def(expr=search_expr):
+                show_panel('book_list', {'search': expr}, replace=True)
+            row = E.div(style='display:flex; align-items:center; gap:0.35rem; margin:0 0.35rem;')
+            link = nav_link(name, action, search_expr, icon='folder', chevron=True)
+            link.style.margin = '0'
+            link.style.flex = '1 1 auto'
+            cfg = E.a(svgicon('cog'), href='#', title=_('Configure custom Category'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
+            cfg.addEventListener('click', def(ev, idx=i):
+                ev.preventDefault()
+                ev.stopPropagation()
+                edit_custom_category(idx)
+            )
+            row.appendChild(link)
+            row.appendChild(cfg)
+            g_custom.appendChild(row)
+
+    def update_sidebar_visibility(current):
+        sd = get_session_data()
+        show_in_viewer = sd.get('show_sidebar_in_book_viewer', True)
+        mode = (current.mode or 'book_list') if current else 'book_list'
+        left.style.display = 'flex' if (mode is not 'read_book' or show_in_viewer) else 'none'
+
     def update_sidebar_active():
         current = parse_url_params()
+        update_sidebar_visibility(current)
         active_panel = current.panel or ''
         active_field = current.field or ''
         clear_active(home_link)
@@ -518,6 +605,8 @@ def init_ui():
             home_link.dataset.active = '1'
 
     window.cs_update_sidebar_active = update_sidebar_active
+    window.cs_refresh_custom_categories = render_custom_categories
+    render_custom_categories()
     update_sidebar_active()
 
     main = E.div(class_='cs-main')
