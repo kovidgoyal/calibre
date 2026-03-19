@@ -131,7 +131,7 @@ class Server:
 
 async def start_server(
     handle_client: Handler = echo,
-    name: str = 'calibre-aweb',
+    name: str = 'aweb' if ismacos else 'calibre-aweb',
     random_suffix: str = '',
     num_attempts: int = 10,
 ) -> tuple[str, Server]:
