@@ -213,6 +213,7 @@ def side_margin_elem(self, sd, which, icon):
 class View:
 
     def __init__(self, container):
+        self.container = container
         self.timers = Timers()
         self.reference_mode_enabled = False
         self.loaded_resources = {}
@@ -289,20 +290,20 @@ class View:
         iframe_kw = {
             'id': iframe_id, 'seamless': True,
             'sandbox': 'allow-popups allow-scripts allow-popups-to-escape-sandbox',
-            'style': 'flex-grow: 2', 'allowfullscreen': 'true',
+            'style': 'flex-grow: 2; width: 100%; max-width: 100%; min-width: 0; overflow: hidden;', 'allowfullscreen': 'true',
         }
         iframe, self.iframe_wrapper = create_wrapped_iframe(handlers, _('Bootstrapping book reader...'), entry_point, iframe_kw)
         container.appendChild(
-            E.div(style='max-height: 100dvh; width: 100dvw; height: 100dvh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+            E.div(style='max-height: 100dvh; width: 100%; max-width: 100%; height: 100dvh; overflow: hidden; overflow-x: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                 oncontextmenu=def (ev):
                     if not default_context_menu_should_be_allowed(ev):
                         ev.preventDefault()
                 ,
 
-                E.div(style='max-height: 100dvh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='max-height: 100dvh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                E.div(style='max-height: 100dvh; min-width: 0; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='position: relative; max-height: 100dvh; min-width: 0; flex-grow: 2; display:flex; align-items: stretch; overflow: hidden',  # container for iframe and its overlay
                         left_margin,
-                        E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
+                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
                             iframe,
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
@@ -781,14 +782,18 @@ class View:
         margin_right = 0 if no_margins else sd.get('margin_right')
         margin_top = 0 if no_margins else sd.get('margin_top')
         margin_bottom = 0 if no_margins else sd.get('margin_bottom')
+        # Use reader container size (not window size) so side nav/top bars
+        # do not skew overlay/control positioning.
+        container_width = self.container.clientWidth or window.innerWidth
+        container_height = self.container.clientHeight or window.innerHeight
         max_text_height = sd.get('max_text_height')
-        th = window.innerHeight - margin_top - margin_bottom
+        th = container_height - margin_top - margin_bottom
         if not no_margins and max_text_height > 100 and th > max_text_height:
             extra = (th - max_text_height) // 2
             margin_top += extra
             margin_bottom += extra
         max_text_width = sd.get('max_text_width')
-        tw = window.innerWidth - margin_left - margin_right
+        tw = container_width - margin_left - margin_right
         if not no_margins and max_text_width > 100 and tw > max_text_width:
             extra = (tw - max_text_width) // 2
             margin_left += extra
@@ -801,8 +806,8 @@ class View:
                 # Explicitly set the width of the central panel. This is needed
                 # on small screens with chrome, without it sometimes the right
                 # margin/scrollbar goes off the screen.
-                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(
-                    margin_left + margin_right + self.book_scrollbar.effective_width)
+                usable_width = max(0, container_width - margin_left - margin_right - self.book_scrollbar.effective_width)
+                m.nextSibling.style.maxWidth = usable_width + 'px'
             set_css(m, width=val + 'px')
             val = min(val, 25)
             s = m.querySelector('.arrow').style
