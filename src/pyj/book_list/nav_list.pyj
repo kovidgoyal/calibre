@@ -41,6 +41,7 @@ def title_for_field(field):
         'authors': _('Authors'),
         'publisher': publisher_label,
         'tags': tag_label,
+        'formats': _('Formats'),
         'pubdate': pubdate_label,
     }
     return m[field] or field
@@ -53,6 +54,7 @@ def subtitle_for_field(field):
         'authors': _('Browse all authors'),
         'publisher': _('Browse all publishers'),
         'tags': _('Browse all tags'),
+        'formats': _('Browse all formats'),
         'pubdate': _('Browse by published date'),
     }
     return m[field] or ''
@@ -104,6 +106,69 @@ add_extra_css(def():
         color=get_color('window-foreground'),
         min_width='12rem'
     )
+    # Unified nav subtitle (so "Browse all ..." looks consistent across fields)
+    style += build_rule(sel + '.cs-nav-subtitle',
+        margin='0',
+        padding='0.9rem 1rem 0 1rem',
+        opacity='0.8'
+    )
+    for fld in ('authors', 'publisher', 'series', 'formats'):
+        style += build_rule(sel + f'[data-field="{fld}"] .generic-items-list > p',
+            margin='0',
+            padding='0.9rem 1rem 0 1rem',
+            border='none',
+            background='none',
+            border_radius='0',
+            font_style='normal',
+            opacity='0.8'
+        )
+    # Tags: render as bubbles with incremental "show more"
+    style += build_rule(sel + '[data-field="tags"] .cs-pager-left', display='none')
+    style += build_rule(sel + '.cs-tag-bubbles',
+        padding='0.75rem 1rem',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.55rem 0.55rem',
+        align_content='flex-start'
+    )
+    style += build_rule(sel + 'a.cs-tag-bubble',
+        display='inline-flex',
+        align_items='center',
+        max_width='100%',
+        padding='0.45rem 0.75rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        text_decoration='none',
+        cursor='pointer',
+        user_select='none',
+        white_space='nowrap',
+        overflow='hidden',
+        text_overflow='ellipsis',
+    )
+    style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-tag-bubble:active', transform='scale(0.99)')
+    style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    style += build_rule(sel + '.cs-show-more-wrap',
+        padding='0.25rem 1rem 1rem 1rem',
+        display='flex',
+        justify_content='center'
+    )
+    style += build_rule(sel + 'a.cs-show-more',
+        display='inline-flex',
+        align_items='center',
+        gap='0.35rem',
+        padding='0.55rem 0.9rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        text_decoration='none',
+        cursor='pointer',
+        user_select='none'
+    )
+    style += build_rule(sel + 'a.cs-show-more:hover', background_color='var(--cs-accent-weak)')
     # Toggle (segmented) control
     style += build_rule(sel + '.cs-toggle',
         display='inline-flex',
@@ -128,7 +193,7 @@ add_extra_css(def():
     style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--cs-accent-weak)')
     # Series cover stack (styled like "stacked covers" cards)
     style += build_rule(sel + '.cs-series-row', display='flex', align_items='center', gap='0.85rem', min_width='0')
-    style += build_rule(sel + '.cs-series-covers', position='relative', width='160px', height='230px', flex='0 0 auto')
+    style += build_rule(sel + '.cs-series-covers', position='relative', width='160px', height='240px', flex='0 0 auto')
     style += build_rule(sel + '.cs-series-covers img.cover-img',
         position='absolute',
         left='50%',
@@ -218,7 +283,6 @@ add_extra_css(def():
         position='absolute', left='0', top='0', right='0', bottom='0',
         display='flex', align_items='center', justify_content='center',
         background_color='rgba(255,255,255,0.55)',
-        backdrop_filter='blur(6px)',
         opacity='0',
         pointer_events='none',
         transition='opacity 160ms ease'
@@ -240,7 +304,8 @@ add_extra_css(def():
         gap='0.75rem'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li',
-        aspect_ratio='3 / 4',
+        # Slightly shorter cards (less tall than 3/4)
+        aspect_ratio='4 / 5',
         display='flex'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
@@ -259,13 +324,18 @@ add_extra_css(def():
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-row',
         flex_direction='column',
         align_items='center',
-        gap='0.6rem'
+        # More space between cover stack and title
+        gap='0.95rem'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers',
         width='min(100%, 340px)',
-        height='260px',
+        height='220px',
         margin_left='auto',
         margin_right='auto'
+    )
+    # Move the cover stack a bit higher inside shorter cards
+    style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers img.cover-img',
+        bottom='10px'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-name',
         text_align='center',
@@ -378,6 +448,8 @@ def create_nav_list_panel(container_id):
     group_mode = (q.g or 'y').toString()  # for pubdate: 'y' (year) or 'ym' (year-month)
     if field is 'pubdate':
         query_text = ''
+    # Tags panel: render all tags progressively on one page (no paging)
+    visible_tags = 50
     title = title_for_field(field)
     create_top_bar(container, title=title, action=back, icon='close')
     container.appendChild(E.div())
@@ -452,14 +524,17 @@ def create_nav_list_panel(container_id):
             return a
 
         seg.appendChild(toggle_btn(_('Year'), 'y'))
-        seg.appendChild(toggle_btn(_('Year + month'), 'ym'))
+        seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
         group_toggle.appendChild(seg)
         left.appendChild(group_toggle)
     list_wrap = E.div(class_='cs-list-wrap')
     body.appendChild(list_wrap)
     set_css(list_wrap, flex='1 1 auto', min_height='0')
+    nav_subtitle = E.p('', class_='cs-nav-subtitle')
+    nav_subtitle.style.display = 'none'
     list_container = E.div(class_='cs-list-content')
     overlay = E.div(class_='cs-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…')))
+    list_wrap.appendChild(nav_subtitle)
     list_wrap.appendChild(list_container)
     list_wrap.appendChild(overlay)
     set_css(list_container, height='100%', overflow='auto')
@@ -692,6 +767,53 @@ def create_nav_list_panel(container_id):
             names = labels
         names = filtered(names)
         total = names.length or 0
+        if field is 'tags':
+            shown = min(total, visible_tags)
+            page_info.textContent = ''
+            status.textContent = _('Showing {} of {}').format(shown, total)
+            set_enabled(prev_btn, False)
+            set_enabled(next_btn, False)
+
+            clear(list_container)
+            subtitle = subtitle_for_field(field)
+            if subtitle:
+                list_container.appendChild(E.p(subtitle, class_='cs-nav-subtitle'))
+
+            bubbles = E.div(class_='cs-tag-bubbles')
+            list_container.appendChild(bubbles)
+
+            def make_action(search_query):
+                return def(ev):
+                    if ev:
+                        ev.preventDefault()
+                    show_panel('book_list', query=search_query, replace=True)
+
+            for label in names.slice(0, shown):
+                if not label:
+                    continue
+                label = label + ''
+                bubbles.appendChild(E.a(
+                    href='#',
+                    class_='cs-tag-bubble',
+                    onclick=make_action(make_search(field, label)),
+                    title=label,
+                    label
+                ))
+
+            if shown < total:
+                wrap = E.div(class_='cs-show-more-wrap')
+                list_container.appendChild(wrap)
+                a = E.a(href='#', class_='cs-show-more')
+                a.appendChild(svgicon('plus'))
+                a.appendChild(E.span(_('Show more')))
+                a.addEventListener('click', def(ev):
+                    nonlocal visible_tags
+                    ev.preventDefault()
+                    visible_tags = min(total, visible_tags + 50)
+                    render_page(names)
+                )
+                wrap.appendChild(a)
+            return
         if offset >= total and total > 0:
             # Clamp to last page
             new_offset = max(0, (Math.floor((total - 1) / num) * num))
@@ -731,7 +853,14 @@ def create_nav_list_panel(container_id):
                 items.push(create_item(label, action=make_action(pubdate_query_for(label))))
             else:
                 items.push(create_item(label, action=make_action(make_search(field, label))))
-        create_item_list(list_container, items, subtitle_for_field(field))
+        subtitle = subtitle_for_field(field)
+        if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'pubdate':
+            nav_subtitle.textContent = subtitle or ''
+            nav_subtitle.style.display = 'block' if subtitle else 'none'
+            create_item_list(list_container, items)
+        else:
+            nav_subtitle.style.display = 'none'
+            create_item_list(list_container, items, subtitle)
         if field is 'series':
             # After rendering, lazily fetch covers for visible series
             for row in list_container.querySelectorAll('[data-series-name]'):
