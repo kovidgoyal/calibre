@@ -7,18 +7,21 @@ import errno
 import json
 import os
 import secrets
+import socket
+import struct
 import sys
 from collections.abc import Awaitable, Callable
 from functools import partial
-from typing import Any
+from typing import Any, NamedTuple
 
 from calibre.constants import islinux, iswindows
 from calibre.ptempfile import base_dir
+from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
 if iswindows:
     from asyncio.windows_events import PipeServer
 
-    import winutil
+    from calibre_extensions import winutil
 else:
     PipeServer = asyncio.Server
 
@@ -39,11 +42,19 @@ def get_random_socket_path(name: str, random_suffix: str = '') -> str:
     return os.path.join(base_dir(), f'{name}.sock')
 
 
+def debug(*a, **kw):
+    kw['file'] = sys.stderr
+    kw['flush'] = True
+    print(*a, **kw)
+
+
 class SingleObjectProtocol(asyncio.Protocol):
 
     def __init__(self, handler_callback: Handler):
         self.handler = handler_callback
         self.transport = None
+        self.expected_length = None
+        self.task = None
         self._buffer = bytearray()
 
     def connection_made(self, transport):
@@ -51,15 +62,25 @@ class SingleObjectProtocol(asyncio.Protocol):
 
     def data_received(self, data):
         self._buffer.extend(data)
+        if self.expected_length is None and len(self._buffer) > 3:
+            header = self._buffer[:4]
+            del self._buffer[:4]
+            self.expected_length = struct.unpack('!I', header)[0]
+        if self.expected_length is not None and len(self._buffer) >= self.expected_length:
+            complete_data = self._buffer[:self.expected_length]
+            del self._buffer[:self.expected_length]
+            self.expected_length = None
+            self.task = asyncio.create_task(self._process_and_respond(complete_data))
 
     def eof_received(self):
-        # Client finished writing. Process what we have.
-        self.task = asyncio.create_task(self._process_and_respond())
+        if self.task is None:
+            payload = {'exception': 'Complete message not received from client'}
+            self.transport.write(msgpack_dumps(payload))
         return False  # Returning False closes the transport
 
-    async def _process_and_respond(self):
+    async def _process_and_respond(self, data: bytearray):
         try:
-            data = json.loads(self._buffer)
+            data = msgpack_loads(data)
             self._buffer.clear()
             response = await self.handler(data)
             payload = {'response': response}
@@ -67,7 +88,7 @@ class SingleObjectProtocol(asyncio.Protocol):
             import traceback
             payload = {'exception': str(e), 'traceback': traceback.format_exc()}
         finally:
-            self.transport.write(json.dumps(payload))
+            self.transport.write(msgpack_dumps(payload))
             self.transport.close()
 
 
@@ -77,14 +98,32 @@ async def echo(x):
 
 class Server:
 
-    def __init__(self, platform_implementation: asyncio.Server | PipeServer):
+    def __init__(self, platform_implementation: asyncio.Server | list[asyncio.Transport]):
         self.platform_implementation = platform_implementation
 
     def close(self):
-        self.platform_implementation.close()
+        if isinstance(self.platform_implementation, asyncio.Server):
+            self.platform_implementation.close()
+        else:
+            for x in self.platform_implementation:
+                x.close()
+
+    async def serve_till_stdin_is_closed(self):
+        if isinstance(self.platform_implementation, asyncio.Server):
+            reader = asyncio.StreamReader()
+            await asyncio.get_running_loop().connect_read_pipe(lambda: asyncio.StreamReaderProtocol(reader), sys.stdin)
+            abort_task = asyncio.create_task(reader.read())
+            serving = asyncio.create_task(self.platform_implementation.serve_forever())
+            await asyncio.wait((serving, abort_task), return_when=asyncio.FIRST_COMPLETED)
+        else:
+            loop = asyncio.get_running_loop()
+            abort_task = loop.run_in_executor(None, sys.stdin.read)
+            await abort_task
+        self.close()
+        await self.wait_closed()
 
     async def wait_closed(self):
-        if hasattr(self.platform_implementation, 'wait_closed'):
+        if isinstance(self.platform_implementation, asyncio.Server):
             await self.platform_implementation.wait_closed()
 
 
@@ -101,11 +140,9 @@ async def start_server(
         path = get_random_socket_path(name, random_suffix)
         try:
             if iswindows:
-                servers = await loop.start_serving_pipe(protocol_factory, path)
-                assert len(servers) == 1
-                server = servers[0]
+                server = await loop.start_serving_pipe(protocol_factory, path)
             else:
-                server = await asyncio.start_unix_server(protocol_factory, path=path)
+                server = await loop.create_unix_server(protocol_factory, path=path)
             return path, Server(server)
         except OSError as e:
             if iswindows:
@@ -133,13 +170,6 @@ async def handler_with_setup(
     return await handler(x)
 
 
-async def watch_stdin():
-    '''Abort mechanism: waits for stdin to close (EOF).'''
-    reader = asyncio.StreamReader()
-    await asyncio.get_running_loop().connect_read_pipe(lambda: asyncio.StreamReaderProtocol(reader), sys.stdin)
-    await reader.read()
-
-
 async def async_main(
     # async handler that is called to handle each connection
     handler: Handler = echo,
@@ -152,7 +182,7 @@ async def async_main(
     input_data = None
     if read_input_data:
         for line in sys.stdin:
-            input_data = json.decode(line)
+            input_data = json.loads(line)
             break
         handler = partial(handler, input_data)
         delayed_setup = partial(delayed_setup, input_data)
@@ -160,24 +190,22 @@ async def async_main(
     setup_done = asyncio.Event()
     setup_lock = asyncio.Lock()
     wh = partial(handler_with_setup, handler=handler, setup=delayed_setup, setup_done=setup_done, setup_lock=setup_lock)
-    abort_task = asyncio.create_task(watch_stdin())
+    stdout_is_tty = sys.stdout.isatty()
     try:
         path, server = await start_server(wh)
-        print(json.dumps(path), end='')
-        sys.stdout.flush()
-        if sys.stdout.isatty():
+        sys.__stdout__.write(json.dumps(path))
+        sys.__stdout__.flush()
+        if stdout_is_tty:
             print()
         else:
-            sys.stdout.close()
-        serving = asyncio.create_task(server.serve_forever())
+            devnull = os.open(os.devnull, os.O_WRONLY)
+            os.dup2(devnull, sys.__stdout__.fileno())
+            os.close(devnull)
         try:
-            await asyncio.wait((serving, abort_task), return_when=asyncio.FIRST_COMPLETED)
+            await server.serve_till_stdin_is_closed()
         except asyncio.exceptions.CancelledError:
-            if sys.stdout.isatty():
+            if stdout_is_tty:
                 print('Cancelled, closing', file=sys.stderr)
-        finally:
-            server.close()
-            await server.wait_closed()
     finally:
         finalizer()
 
@@ -186,11 +214,20 @@ def main(*a, **kw) -> None:
     asyncio.run(async_main(*a, **kw))
 
 
-def start_worker(handler: str, delayed_setup: str = '', finalize: str = '', input_data: Any = None) -> str:
+def start_worker(
+    handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None
+) -> tuple[str, Callable[[], None]]:
+    '''
+    Run the specified handler, delayed_setup and finalizer functions in a worker process, passing input_data (if not None)
+    to each function as its first parameter.
+
+    Returns: path the worker is listening on for connections and a function to gracefully kill the worker. The worker
+    will anyway gracefully close when its parent process closes. The function is mainly useful for testing.
+    '''
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     def parse(x: str) -> tuple[str, str, str]:
-        module, func = x.partition(':')
+        module, _, func = x.partition(':')
         return module, func
 
     def imp(x: str) -> str:
@@ -198,30 +235,70 @@ def start_worker(handler: str, delayed_setup: str = '', finalize: str = '', inpu
         return f'from {m} import {f}'
 
     command = [
-        'from calibre.web.automate import main',
-        imp(handler),
+        'import os, sys',
+        'os.set_inheritable(sys.stdout.fileno(), False)',
+        'os.set_inheritable(sys.stdin.fileno(), False)',
+        'from calibre.web.automate.worker import main',
     ]
+    args = []
+    if handler:
+        command.append(imp(handler))
+        args.append(f'handler={parse(handler)[1]}')
     if delayed_setup:
         command.append(imp(delayed_setup))
-    if finalize:
-        command.append(imp(finalize))
-    invoke = f'main(handler={parse(handler)[1]}'
-    if delayed_setup:
-        invoke += f', delayed_setup={parse(delayed_setup)[1]}'
-    if finalize:
-        invoke += f', finalize={parse(finalize)[1]}'
+        args.append(f'delayed_setup={parse(delayed_setup)[1]}')
+    if finalizer:
+        command.append(imp(finalizer))
+        args.append(f'finalizer={parse(finalizer)[1]}')
     if input_data is not None:
-        invoke += ', read_input_data=True'
-    invoke += ')'
+        args.append('read_input_data=True')
+    invoke = f'main({", ".join(args)})'
     command.append(invoke)
-    p = start_pipe_worker(';'.join(command))
+    p = start_pipe_worker('\n'.join(command))
     if input_data is not None:
         stdin = json.dumps(input_data).encode()
         p.stdin.write(stdin)
         p.stdin.write(os.linesep.encode())
         p.stdin.flush()
-    socket_path: str = json.decode(p.stdout.read())
-    return socket_path
+    path_data = p.stdout.read()
+    try:
+        socket_path: str = json.loads(path_data)
+    except Exception:
+        raise ValueError(f'Got invalid response from worker process: {path_data}')
+    def close_and_reap():
+        p.stdin.close()
+        return p.wait()
+    return socket_path, close_and_reap
+
+
+class Response(NamedTuple):
+    response: Any = None
+    exception: str = ''
+    traceback: str = ''
+
+
+def make_request(worker_path: str, data: Any = None) -> Response:
+    ' Make a request and get a response from the worker '
+    data = msgpack_dumps(data)
+    datalen = struct.pack('!I', len(data))
+    if iswindows:
+        with open(worker_path, 'r+b', buffering=0) as w:
+            w.write(datalen)
+            w.write(data)
+            w.flush()
+            resdata = w.read()
+    else:
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+            s.connect(worker_path)
+            with s.makefile('wb', buffering=0) as f_write:
+                f_write.write(datalen)
+                f_write.write(data)
+                f_write.flush()
+            s.shutdown(socket.SHUT_WR)
+            with s.makefile('rb') as f_read:
+                resdata = f_read.read()
+    r = msgpack_loads(resdata)
+    return Response(r.get('response'), r.get('exception', ''), r.get('traceback'))
 
 
 if __name__ == '__main__':
