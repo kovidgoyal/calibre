@@ -377,6 +377,26 @@ add_extra_css(def():
     # Disable hover "lift" animation for series items (prevents cover zoom feel)
     style += build_rule('.generic-items-list li.cs-series-item:hover', transform='none')
     style += build_rule('.generic-items-list li.cs-series-item:active', transform='none')
+    # Series list mode: same layout as authors/publisher (no grid, no covers)
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list ul',
+        display='flex',
+        flex_direction='column',
+        gap='0.5rem'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list li',
+        aspect_ratio='auto',
+        display='block'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list li > div:nth-child(1)',
+        display='flex',
+        flex_direction='row',
+        align_items='flex-start',
+        justify_content='flex-start',
+        padding='0.85rem 0.95rem'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .item-title',
+        text_align='left'
+    )
     # Mobile layout: stack pager controls and make filter usable
     style += r'''
 @media (max-width: 720px) {
@@ -487,6 +507,10 @@ def create_nav_list_panel(container_id):
     set_css(body, flex='1 1 auto', min_height='0', overflow='hidden', display='flex', flex_direction='column')
     body.classList.add('cs-nav-list')
     body.dataset.field = field
+    if field is 'series':
+        sd = get_session_data()
+        series_mode = sd.get('series_nav_display_mode', 'stack') or 'stack'
+        body.dataset.seriesDisplay = series_mode
 
     pager = E.div(class_='cs-pager')
     body.appendChild(pager)
@@ -956,10 +980,14 @@ def create_nav_list_panel(container_id):
             search_val = it.search_name or label
             meta = format_count_rating(it.count, it.avg_rating)
             if field is 'series':
-                covers = E.div(class_='cs-series-covers')
-                row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
-                row.dataset.seriesName = label
-                list_items.push(create_item(row, action=make_action(make_search(field, search_val)), subtitle=meta))
+                series_mode = body.dataset.seriesDisplay or 'stack'
+                if series_mode is 'list':
+                    list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
+                else:
+                    covers = E.div(class_='cs-series-covers')
+                    row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
+                    row.dataset.seriesName = label
+                    list_items.push(create_item(row, action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'rating':
                 list_items.push(create_item(stars_for_rating(label), action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'pubdate':

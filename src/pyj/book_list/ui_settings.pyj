@@ -105,6 +105,14 @@ add_extra_css(def():
     # Prefer shared cs-prefs spacing; keep help a little softer.
     style += build_rule(sel + '.help', opacity='0.75')
     style += build_rule('.cs-ui-settings.cs-prefs .help', display='block')
+    style += build_rule(sel + '.control select',
+        padding='0.55rem 0.75rem',
+        border_radius='12px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        min_width='14rem'
+    )
     return style
 )
 
@@ -140,6 +148,7 @@ def init(container_id):
     sd = get_session_data()
     show_count_key = 'show_nav_list_book_count'
     show_rating_key = 'show_nav_list_avg_rating'
+    show_sidebar_in_viewer_key = 'show_sidebar_in_book_viewer'
 
     def make_toggle_item(key, label, help_text):
         item = E.div(class_='item', data_name=key,
@@ -165,6 +174,26 @@ def init(container_id):
 
     make_toggle_item(show_count_key, _('Show book count in category lists'), _('Display the number of books for each tag, series, author, etc. in the navigation sidebar.'))
     make_toggle_item(show_rating_key, _('Show average rating in category lists'), _('Display the average rating (stars) for each tag, series, author, etc. in the navigation sidebar.'))
+    make_toggle_item(show_sidebar_in_viewer_key, _('Show sidebar in book viewer'), _('Show or hide the left navigation sidebar while reading a book in the viewer.'))
+
+    series_mode_key = 'series_nav_display_mode'
+    series_mode_item = E.div(class_='item', data_name=series_mode_key,
+        E.div(class_='item-main'),
+        E.div(_('Choose how series are displayed in the Series navigation panel.'), class_='help')
+    )
+    outer.appendChild(series_mode_item)
+    series_main = series_mode_item.firstChild
+    series_select = E.select()
+    series_select.appendChild(E.option(_('Stacked covers'), value='stack'))
+    series_select.appendChild(E.option(_('List'), value='list'))
+    series_select.value = sd.get(series_mode_key, 'stack') or 'stack'
+    series_main.appendChild(E.div(id='ui-setting-' + series_mode_key, class_='control',
+        E.span(_('Series display mode'), class_='label'),
+        series_select
+    ))
+    series_select.addEventListener('change', def(ev):
+        sd.set(series_mode_key, series_select.value)
+    )
 
     footer = E.div(class_='footer')
     root.appendChild(footer)
