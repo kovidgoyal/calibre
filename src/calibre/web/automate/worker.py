@@ -14,7 +14,7 @@ from collections.abc import Awaitable, Callable
 from functools import partial
 from typing import Any, NamedTuple
 
-from calibre.constants import islinux, iswindows
+from calibre.constants import islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 
@@ -29,7 +29,9 @@ Handler = Callable[[Any], Awaitable[Any]]
 
 
 def get_random_socket_path(name: str, random_suffix: str = '') -> str:
-    random_suffix = random_suffix or secrets.token_hex(32)
+    # Bloody primitive macOS has a 104 character limit on socket paths and uses
+    # insanely long paths for user private tmp dirs. Sigh.
+    random_suffix = random_suffix or secrets.token_hex(8 if ismacos else 32)
     name = f'{name}-{random_suffix}'
 
     if iswindows:
@@ -142,7 +144,19 @@ async def start_server(
             if iswindows:
                 server = await loop.start_serving_pipe(protocol_factory, path)
             else:
-                server = await loop.create_unix_server(protocol_factory, path=path)
+                sock = None
+                if path.startswith('/'):
+                    # Python's stdlib deletes the socket file
+                    # if it exists with no way to prevent that. Sigh.
+                    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                    try:
+                        sock.bind(path)
+                        server = await loop.create_unix_server(protocol_factory, sock=sock)
+                    except Exception:
+                        sock.close()
+                        raise
+                else:
+                    server = await loop.create_unix_server(protocol_factory, path=path)
             return path, Server(server)
         except OSError as e:
             if iswindows:

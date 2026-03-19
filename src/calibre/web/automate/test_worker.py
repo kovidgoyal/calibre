@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 
+from calibre.constants import ismacos
 from calibre.web.automate.worker import make_request, start_server, start_worker
 
 
@@ -26,13 +27,14 @@ class TestAutomateWorker(unittest.TestCase):
 
 async def name_collision(self: TestAutomateWorker):
     path1, srv1 = await start_server(random_suffix='test')
-    self.assertEndsWith(path1, '-test')
+    q = '-test.sock' if ismacos else '-test'
+    self.assertEndsWith(path1, q)
     path2, srv2 = await start_server(random_suffix='test')
     self.assertNotEqual(path1, path2)
     srv1.close()
     await srv1.wait_closed()
     path3, srv3 = await start_server(random_suffix='test')
-    self.assertEndsWith(path3, '-test')
+    self.assertEndsWith(path3, q)
     srv2.close()
     await srv2.wait_closed()
     srv3.close()
