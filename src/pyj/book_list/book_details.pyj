@@ -383,14 +383,15 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     def process_identifiers(field, fm, name, val):
 
         def ids_sorter(x):
-            return (x[0] or '').toLowerCase()
+            return (x[1] or '').toLowerCase()
 
         if val and mi.urls_from_identifiers and mi.urls_from_identifiers.length > 0:
             td = E.td()
-            for text, k, idval, url in sorted(mi.urls_from_identifiers or v'[]', key=ids_sorter):
+            for _, id_name, id_value, url in sorted(mi.urls_from_identifiers or v'[]', key=ids_sorter):
                 if td.childNodes.length:
                     td.appendChild(document.createTextNode(', '))
-                td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=url, text))
+                label = '{}:{}'.format(id_name or '', id_value or '')
+                td.appendChild(E.a(class_='blue-link', title=label, target='_new', href=url, label))
             if td.childNodes.length:
                 table.appendChild(E.tr(E.td(name), td))
 
