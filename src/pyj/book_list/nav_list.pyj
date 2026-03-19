@@ -42,6 +42,7 @@ def title_for_field(field):
         'publisher': publisher_label,
         'tags': tag_label,
         'formats': _('Formats'),
+        'rating': _('Rating'),
         'pubdate': pubdate_label,
     }
     return m[field] or field
@@ -55,6 +56,7 @@ def subtitle_for_field(field):
         'publisher': _('Browse all publishers'),
         'tags': _('Browse all tags'),
         'formats': _('Browse all formats'),
+        'rating': _('Browse by rating'),
         'pubdate': _('Browse by published date'),
     }
     return m[field] or ''
@@ -66,6 +68,15 @@ def make_search(field, label):
     if not field:
         return {'search': ''}
     return {'search': f'{field}:"{escape_for_search(label)}"'}
+
+
+def stars_for_rating(label):
+    try:
+        n = int(label)
+    except Exception:
+        n = 0
+    n = max(1, min(5, n))
+    return '★' * n
 
 
 cached_names = {}
@@ -848,13 +859,15 @@ def create_nav_list_panel(container_id):
                 row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
                 row.dataset.seriesName = label
                 items.push(create_item(row, action=make_action(make_search(field, label))))
+            elif field is 'rating':
+                items.push(create_item(stars_for_rating(label), action=make_action(make_search(field, label))))
             elif field is 'pubdate':
                 # label is 'YYYY' or 'YYYY-MM'
                 items.push(create_item(label, action=make_action(pubdate_query_for(label))))
             else:
                 items.push(create_item(label, action=make_action(make_search(field, label))))
         subtitle = subtitle_for_field(field)
-        if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'pubdate':
+        if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'rating' or field is 'pubdate':
             nav_subtitle.textContent = subtitle or ''
             nav_subtitle.style.display = 'block' if subtitle else 'none'
             create_item_list(list_container, items)
@@ -894,7 +907,11 @@ def create_nav_list_panel(container_id):
             render_page(grp.labels or v'[]')
         )
     else:
-        if cached_names[field]:
+        if field is 'rating':
+            names = v"['1', '2', '3', '4', '5']"
+            cached_names[field] = names
+            render_page(names)
+        elif cached_names[field]:
             render_page(cached_names[field])
         else:
             set_loading(True)
