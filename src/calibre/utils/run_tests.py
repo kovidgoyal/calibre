@@ -261,6 +261,8 @@ def find_tests(which_tests=None, exclude_tests=None):
     if ok('scraper'):
         from calibre.scraper.test_fetch_backend import find_tests
         a(find_tests())
+        from calibre.web.automate.test_worker import find_tests
+        a(find_tests())
     if ok('icu'):
         from calibre.utils.icu_test import find_tests
         a(find_tests())

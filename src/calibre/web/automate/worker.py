@@ -5,8 +5,8 @@
 import asyncio
 import errno
 import json
+import os
 import secrets
-import string
 import sys
 from collections.abc import Awaitable, Callable
 from functools import partial
@@ -15,13 +15,18 @@ from typing import Any
 from calibre.constants import islinux, iswindows
 from calibre.ptempfile import base_dir
 
-WIN_ERROR_ALREADY_EXISTS = 183
-WIN_ERROR_PIPE_BUSY = 231
+if iswindows:
+    from asyncio.windows_events import PipeServer
+
+    import winutil
+else:
+    PipeServer = asyncio.Server
+
 Handler = Callable[[Any], Awaitable[Any]]
 
 
-def get_random_socket_path(name: str) -> str:
-    random_suffix = ''.join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+def get_random_socket_path(name: str, random_suffix: str = '') -> str:
+    random_suffix = random_suffix or secrets.token_hex(32)
     name = f'{name}-{random_suffix}'
 
     if iswindows:
@@ -31,7 +36,7 @@ def get_random_socket_path(name: str) -> str:
         # Abstract Unix Socket for Linux (starts with null byte)
         return f'\x00{name}'
     # Standard Unix Domain Socket for macOS/BSD
-    return f'/{base_dir()}/{name}.sock'
+    return os.path.join(base_dir(), f'{name}.sock')
 
 
 class SingleObjectProtocol(asyncio.Protocol):
@@ -70,28 +75,46 @@ async def echo(x):
     return x
 
 
+class Server:
+
+    def __init__(self, platform_implementation: asyncio.Server | PipeServer):
+        self.platform_implementation = platform_implementation
+
+    def close(self):
+        self.platform_implementation.close()
+
+    async def wait_closed(self):
+        if hasattr(self.platform_implementation, 'wait_closed'):
+            await self.platform_implementation.wait_closed()
+
+
 async def start_server(
     handle_client: Handler = echo,
-    name: str = 'calibre-aweb'
-) -> tuple[str, asyncio.Server]:
+    name: str = 'calibre-aweb',
+    random_suffix: str = '',
+    num_attempts: int = 10,
+) -> tuple[str, Server]:
     '''Tries to start the server, retrying on name collisions.'''
     loop = asyncio.get_running_loop()
     protocol_factory = partial(SingleObjectProtocol, handle_client)
-    while True:
-        path = get_random_socket_path(name)
+    for attempt in range(num_attempts):
+        path = get_random_socket_path(name, random_suffix)
         try:
             if iswindows:
-                server = await loop.start_serving_pipe(protocol_factory, path)
+                servers = await loop.start_serving_pipe(protocol_factory, path)
+                assert len(servers) == 1
+                server = servers[0]
             else:
                 server = await asyncio.start_unix_server(protocol_factory, path=path)
-            return path, server
+            return path, Server(server)
         except OSError as e:
             if iswindows:
-                exists = e.winerror in (WIN_ERROR_ALREADY_EXISTS, WIN_ERROR_PIPE_BUSY)
+                exists = e.winerror in (winutil.ERROR_ACCESS_DENIED, winutil.ERROR_ALREADY_EXISTS, winutil.ERROR_PIPE_BUSY)
             else:
                 exists = e.errno in (errno.EADDRINUSE, errno.EEXIST)
             if not exists:
                 raise
+            random_suffix = ''
 
 
 async def no_setup() -> None:
@@ -124,7 +147,16 @@ async def async_main(
     delayed_setup: Callable[[], Awaitable[None]] = no_setup,
     # called after server is shutdown
     finalizer: Callable[[], None] = lambda: None,
+    read_input_data: bool = False,
 ) -> None:
+    input_data = None
+    if read_input_data:
+        for line in sys.stdin:
+            input_data = json.decode(line)
+            break
+        handler = partial(handler, input_data)
+        delayed_setup = partial(delayed_setup, input_data)
+        finalizer = partial(finalizer, input_data)
     setup_done = asyncio.Event()
     setup_lock = asyncio.Lock()
     wh = partial(handler_with_setup, handler=handler, setup=delayed_setup, setup_done=setup_done, setup_lock=setup_lock)
@@ -152,6 +184,44 @@ async def async_main(
 
 def main(*a, **kw) -> None:
     asyncio.run(async_main(*a, **kw))
+
+
+def start_worker(handler: str, delayed_setup: str = '', finalize: str = '', input_data: Any = None) -> str:
+    from calibre.utils.ipc.simple_worker import start_pipe_worker
+
+    def parse(x: str) -> tuple[str, str, str]:
+        module, func = x.partition(':')
+        return module, func
+
+    def imp(x: str) -> str:
+        m, f = parse(x)
+        return f'from {m} import {f}'
+
+    command = [
+        'from calibre.web.automate import main',
+        imp(handler),
+    ]
+    if delayed_setup:
+        command.append(imp(delayed_setup))
+    if finalize:
+        command.append(imp(finalize))
+    invoke = f'main(handler={parse(handler)[1]}'
+    if delayed_setup:
+        invoke += f', delayed_setup={parse(delayed_setup)[1]}'
+    if finalize:
+        invoke += f', finalize={parse(finalize)[1]}'
+    if input_data is not None:
+        invoke += ', read_input_data=True'
+    invoke += ')'
+    command.append(invoke)
+    p = start_pipe_worker(';'.join(command))
+    if input_data is not None:
+        stdin = json.dumps(input_data).encode()
+        p.stdin.write(stdin)
+        p.stdin.write(os.linesep.encode())
+        p.stdin.flush()
+    socket_path: str = json.decode(p.stdout.read())
+    return socket_path
 
 
 if __name__ == '__main__':
