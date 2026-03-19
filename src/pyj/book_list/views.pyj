@@ -38,7 +38,7 @@ from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
 from book_list.theme import get_color
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
-from modals import error_dialog
+from modals import create_custom_dialog, error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
 from widgets import create_button, create_spinner, enable_escape_key
@@ -575,6 +575,57 @@ def fts():
     show_panel('fts', q)
 
 
+def clear_search_history():
+    get_interface_data()  # keep dependency usage consistent
+    try:
+        window.localStorage.removeItem('calibre-local-search-bar-history-search-books')
+    except Exception:
+        pass
+
+
+def save_to_custom_category():
+    sd = get_session_data()
+    current_filter = (library_data.search_result?.query or '') + ''
+
+    create_custom_dialog(_('Save to custom Category'), def(parent, close_modal):
+        name_input = E.input(type='text', placeholder=_('Category name'))
+        filter_input = E.input(type='text', placeholder=_('Filter expression'), value=current_filter)
+
+        def do_save(ev=None):
+            name = (name_input.value or '').strip()
+            filter_expr = (filter_input.value or '').strip()
+            if not name or not filter_expr:
+                return
+            items = sd.get('custom_categories', v'[]') or v'[]'
+            # Keep unique names: overwrite existing item with same name.
+            items = [x for x in items if ((x.name or '') + '') is not name]
+            items.unshift({'name': name, 'filter': filter_expr})
+            sd.set('custom_categories', items)
+            close_modal()
+            try:
+                cb = window.cs_refresh_custom_categories
+            except Exception:
+                cb = None
+            if cb:
+                cb()
+
+        parent.appendChild(E.div(
+            E.div(style='margin-bottom:0.6rem', _('Category name')),
+            name_input,
+            E.div(style='margin:0.8rem 0 0.6rem 0', _('Filter condition')),
+            filter_input,
+            E.div(class_='button-box',
+                create_button(_('Save'), 'check', do_save, highlight=True),
+                '\xa0',
+                create_button(_('Cancel'), 'close', def(ev=None): close_modal();)
+            )
+        ))
+        setTimeout(def():
+            name_input.focus()
+        , 10)
+    )
+
+
 def show_top_message():
     container = component('top_message')
     q = loaded_books_query()
@@ -594,6 +645,8 @@ def show_top_message():
             # Keep the query, omit the noisy total-matches suffix.
             c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query)))
             c.appendChild(E.span(' ', E.a(_('Clear search'), class_='blue-link', onclick=def(): search();)))
+            c.appendChild(E.span(_(' · '), E.a(_('Clear search history'), class_='blue-link', onclick=def(): clear_search_history();)))
+            c.appendChild(E.span(_(' · '), E.a(_('Save to custom Category'), class_='blue-link', onclick=def(): save_to_custom_category();)))
             if library_data.fts_enabled:
                 c.appendChild(E.span(_(' or '), E.a(_('Search the text of these books'), class_='blue-link', onclick=def(): fts();)))
         else:
