@@ -312,6 +312,9 @@ def init_ui():
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title > span {
             display: none !important;
         }
+        :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title svg {
+            display: none !important;
+        }
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-group-title {
             justify-content: center;
         }
@@ -330,6 +333,34 @@ def init_ui():
             overflow: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
+        }
+        /* Custom category dialog */
+        .cs-custom-category-dialog {
+            min-width: min(36rem, 82vw);
+            max-width: min(42rem, 92vw);
+        }
+        .cs-custom-category-dialog .cc-row {
+            margin-bottom: 0.75rem;
+        }
+        .cs-custom-category-dialog .cc-label {
+            display: block;
+            margin: 0 0 0.45rem 0;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+        .cs-custom-category-dialog input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.62rem 0.8rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.18);
+            background: rgba(0,0,0,0.02);
+            color: inherit;
+        }
+        .cs-custom-category-dialog .button-box {
+            margin-top: 0.35rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(0,0,0,0.10);
         }
     '''))
 
@@ -490,6 +521,25 @@ def init_ui():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
+    icon_choices = [
+        ('folder', _('Folder')),
+        ('bookmark', _('Tag')),
+        ('book', _('Book')),
+        ('user', _('User')),
+        ('library', _('Library')),
+        ('star', _('Star')),
+        ('search', _('Search')),
+        ('random', _('Random')),
+        ('cog', _('Settings')),
+    ]
+
+    def create_icon_selector(initial_icon='folder'):
+        sel = E.select()
+        for icon_name, label in icon_choices:
+            sel.appendChild(E.option(label, value=icon_name))
+        sel.value = initial_icon or 'folder'
+        return sel
+
     def get_custom_categories():
         sd = get_session_data()
         categories = sd.get('custom_categories', v'[]') or v'[]'
@@ -509,6 +559,7 @@ def init_ui():
         create_custom_dialog(_('Edit custom Category'), def(parent, close_modal):
             name_input = E.input(type='text', value=initial_name, placeholder=_('Category name'))
             filter_input = E.input(type='text', value=initial_filter, placeholder=_('Filter condition'))
+            icon_select = create_icon_selector((item.icon or 'folder') + '')
 
             def save_changes(ev=None):
                 name = (name_input.value or '').strip()
@@ -518,7 +569,7 @@ def init_ui():
                 categories = get_custom_categories()
                 if index < 0 or index >= categories.length:
                     return
-                categories[index] = {'name': name, 'filter': filter_expr}
+                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_select.value or 'folder')}
                 set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
@@ -532,15 +583,64 @@ def init_ui():
                 close_modal()
                 render_custom_categories()
 
-            parent.appendChild(E.div(
-                E.div(style='margin-bottom:0.5rem', _('Category name')),
-                name_input,
-                E.div(style='margin:0.8rem 0 0.5rem 0', _('Filter condition')),
-                filter_input,
+            parent.appendChild(E.div(class_='cs-custom-category-dialog',
+                E.div(class_='cc-row',
+                    E.label(_('Category name'), class_='cc-label'),
+                    name_input
+                ),
+                E.div(class_='cc-row',
+                    E.label(_('Filter condition'), class_='cc-label'),
+                    filter_input
+                ),
+                E.div(class_='cc-row',
+                    E.label(_('Icon'), class_='cc-label'),
+                    icon_select
+                ),
                 E.div(class_='button-box',
                     create_button(_('Save'), 'check', save_changes, highlight=True),
                     '\xa0',
                     create_button(_('Delete'), 'trash', delete_item),
+                    '\xa0',
+                    create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                )
+            ))
+            setTimeout(def():
+                name_input.focus()
+            , 10)
+        )
+
+    def create_custom_category():
+        create_custom_dialog(_('New custom directory'), def(parent, close_modal):
+            name_input = E.input(type='text', placeholder=_('Category name'))
+            filter_input = E.input(type='text', placeholder=_('Filter condition'))
+            icon_select = create_icon_selector('folder')
+
+            def create_item(ev=None):
+                name = (name_input.value or '').strip()
+                filter_expr = (filter_input.value or '').strip()
+                if not name or not filter_expr:
+                    return
+                categories = get_custom_categories()
+                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_select.value or 'folder')})
+                set_custom_categories(categories)
+                close_modal()
+                render_custom_categories()
+
+            parent.appendChild(E.div(class_='cs-custom-category-dialog',
+                E.div(class_='cc-row',
+                    E.label(_('Category name'), class_='cc-label'),
+                    name_input
+                ),
+                E.div(class_='cc-row',
+                    E.label(_('Filter condition'), class_='cc-label'),
+                    filter_input
+                ),
+                E.div(class_='cc-row',
+                    E.label(_('Icon'), class_='cc-label'),
+                    icon_select
+                ),
+                E.div(class_='button-box',
+                    create_button(_('Create'), 'plus', create_item, highlight=True),
                     '\xa0',
                     create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
                 )
@@ -555,12 +655,13 @@ def init_ui():
         for i, item in enumerate(get_custom_categories()):
             name = (item.name or '') + ''
             search_expr = (item.filter or '') + ''
+            icon_name = (item.icon or 'folder') + ''
             if not name or not search_expr:
                 continue
             action = def(expr=search_expr):
                 show_panel('book_list', {'search': expr}, replace=True)
             row = E.div(style='display:flex; align-items:center; gap:0.35rem; margin:0 0.35rem;')
-            link = nav_link(name, action, search_expr, icon='folder', chevron=True)
+            link = nav_link(name, action, search_expr, icon=icon_name, chevron=True)
             link.style.margin = '0'
             link.style.flex = '1 1 auto'
             cfg = E.a(svgicon('cog'), href='#', title=_('Configure custom Category'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
@@ -572,6 +673,8 @@ def init_ui():
             row.appendChild(link)
             row.appendChild(cfg)
             g_custom.appendChild(row)
+        add_link = nav_link(_('New custom directory'), create_custom_category, _('Create a new custom category'), icon='plus')
+        g_custom.appendChild(add_link)
 
     def update_sidebar_visibility(current):
         sd = get_session_data()
