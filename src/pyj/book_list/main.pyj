@@ -410,6 +410,10 @@ def init_ui():
         show_panel('book_list^search')
     search_link = nav_link(_('Search'), go_search, _('Search for books'), icon='search')
     g1.appendChild(search_link)
+    go_reader = def():
+        show_panel('local_books')
+    reader_link = nav_link(_('Downloaded books'), go_reader, _('Open reader'), icon='book')
+    g1.appendChild(reader_link)
     left.appendChild(g1)
 
     left.appendChild(E.div(class_='cs-nav-divider'))
@@ -493,12 +497,15 @@ def init_ui():
         active_field = current.field or ''
         clear_active(home_link)
         clear_active(search_link)
+        clear_active(reader_link)
         clear_active(settings_link)
         clear_active(ui_settings_link)
         for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'pubdate'):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
             search_link.dataset.active = '1'
+        elif active_panel is 'local_books':
+            reader_link.dataset.active = '1'
         elif active_panel is 'book_list^search^prefs':
             settings_link.dataset.active = '1'
         elif active_panel is 'book_list^ui_settings':

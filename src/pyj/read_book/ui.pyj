@@ -53,7 +53,7 @@ class ReadUI:
         ))
 
         container.appendChild(E.div(
-            id=self.display_id, style='display:none',
+            id=self.display_id, style='display:none; overflow-x:hidden; width:100%; max-width:100%;',
         ))
         self.view = View(container.lastChild)
         self.tts_client = Client()
@@ -224,6 +224,20 @@ class ReadUI:
         div.lastChild.textContent = msg or ''
 
     def close_book(self):
+        # Called when leaving reader mode: always stop any ongoing speech/audio.
+        try:
+            self.tts_client.stop()
+        except Exception:
+            pass
+        if self.view:
+            try:
+                self.view.read_aloud.hide()
+            except Exception:
+                pass
+            try:
+                self.view.read_audio_ebook.hide()
+            except Exception:
+                pass
         self.base_url_data = {}
 
     def copy_image(self, image_file_name):

@@ -10,6 +10,7 @@ from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.globals import get_current_query, get_session_data
 from book_list.library_data import current_library_id
 from modals import close_all_modals
+from read_book.globals import ui_operations
 from utils import (
     encode_query_with_path, parse_url_params, request_full_screen,
     safe_set_inner_html
@@ -54,8 +55,17 @@ def apply_url(ignore_handler):
     except Exception:
         pass
     close_all_modals()  # needed to close any error dialogs, etc when clicking back or forward in the browser or using push_state() to go to a new page
+    prev = get_current_query()
     data = parse_url_params()
     data.mode = data.mode or 'book_list'
+    if prev?.mode is read_book_mode and data.mode is not read_book_mode:
+        # Ensure read-aloud/TTS is stopped when leaving reader mode from
+        # global navigation paths that do not explicitly call close_book().
+        try:
+            if ui_operations.close_book:
+                ui_operations.close_book()
+        except Exception:
+            pass
     get_current_query(data)
     apply_mode()
     # Allow the main UI (e.g. sidebar) to update highlighting when URL changes

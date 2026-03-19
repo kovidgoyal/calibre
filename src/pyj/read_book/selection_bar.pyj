@@ -32,6 +32,14 @@ def get_margins():
     }
 
 
+def get_overlay_origin():
+    c = document.getElementById('book-selection-bar-overlay')
+    if not c:
+        return {'left': 0, 'top': 0}
+    r = c.getBoundingClientRect()
+    return {'left': r.left or 0, 'top': r.top or 0}
+
+
 def map_boundaries(cs, vertical, rtl):
     margins = get_margins()
 
@@ -56,8 +64,9 @@ def map_boundaries(cs, vertical, rtl):
 
 
 def map_to_iframe_coords(point, margins):
-    point.x -= margins.left
-    point.y -= margins.top
+    origin = get_overlay_origin()
+    point.x -= (margins.left + origin.left)
+    point.y -= (margins.top + origin.top)
     return point
 
 
@@ -522,8 +531,9 @@ class SelectionBar:
     def move_handle(self, ev):
         handle = document.getElementById(self.dragging_handle)
         s = handle.style
-        s.left = (ev.clientX - self.position_in_handle.x) + 'px'
-        s.top = (ev.clientY - self.position_in_handle.y) + 'px'
+        rect = self.container.getBoundingClientRect()
+        s.left = (ev.clientX - rect.left - self.position_in_handle.x) + 'px'
+        s.top = (ev.clientY - rect.top - self.position_in_handle.y) + 'px'
         margins = get_margins()
         pos = self.current_handle_position
         if self.dragging_handle is self.start_handle_id:
