@@ -461,12 +461,14 @@ def init_ui():
     section_elems.publisher = nav_section(publisher_label, 'publisher', _('Browse all publishers'), icon='library')
     section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='bookmark')
     section_elems.formats = nav_section(_('Formats'), 'formats', _('Browse all formats'), icon='convert')
+    section_elems.rating = nav_section(_('Rating'), 'rating', _('Browse by rating'), icon='star')
     section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='hourglass')
     g2.appendChild(section_elems.series)
     g2.appendChild(section_elems.authors)
     g2.appendChild(section_elems.publisher)
     g2.appendChild(section_elems.tags)
     g2.appendChild(section_elems.formats)
+    g2.appendChild(section_elems.rating)
     g2.appendChild(section_elems.pubdate)
     left.appendChild(g2)
 
@@ -500,7 +502,7 @@ def init_ui():
         clear_active(reader_link)
         clear_active(settings_link)
         clear_active(ui_settings_link)
-        for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'pubdate'):
+        for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'rating', 'pubdate'):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
             search_link.dataset.active = '1'
