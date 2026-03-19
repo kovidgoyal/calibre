@@ -5,6 +5,7 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import field_names_for
 from book_list.library_data import cover_url, current_library_id
@@ -79,10 +80,25 @@ def stars_for_rating(label):
     return '★' * n
 
 
+def tags_cache_key():
+    q = parse_url_params()
+    sd = get_session_data()
+    return '|'.join([
+        current_library_id() or '',
+        q.vl or '',
+        sd.get('sort_tags_by') + '',
+        sd.get('partition_method') + '',
+        sd.get('collapse_at') + '',
+        sd.get('dont_collapse') + '',
+        sd.get('hide_empty_categories') + '',
+    ])
+
+
 cached_names = {}
 series_cover_cache = {}
 series_cover_inflight = {}
 pubdate_group_cache = {}
+tag_browser_cache = {}
 
 add_extra_css(def():
     sel = '.cs-nav-list '
@@ -161,6 +177,7 @@ add_extra_css(def():
     style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--cs-accent-weak)')
     style += build_rule(sel + 'a.cs-tag-bubble:active', transform='scale(0.99)')
     style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    style += build_rule(sel + 'a.cs-tag-bubble .cs-tag-meta', font_size='0.85em', opacity='0.78')
     style += build_rule(sel + '.cs-show-more-wrap',
         padding='0.25rem 1rem 1rem 1rem',
         display='flex',
@@ -566,14 +583,21 @@ def create_nav_list_panel(container_id):
     def norm(x):
         return (x or '').toString().toLowerCase()
 
-    def filtered(names):
+    def to_item(x):
+        if x and typeof x is 'object' and 'name' in x:
+            return x
+        s = (x or '') + ''
+        return {'name': s, 'count': None, 'avg_rating': None, 'search_name': s}
+
+    def filtered(items):
         if not query_text:
-            return names
+            return items
         nq = norm(query_text)
         ans = []
-        for n in names:
+        for x in items:
+            n = (x.name if (x and typeof x is 'object') else x) + ''
             if n and norm(n).indexOf(nq) != -1:
-                ans.push(n)
+                ans.push(x)
         return ans
 
     def to_ymd(val):
@@ -696,6 +720,73 @@ def create_nav_list_panel(container_id):
 
     series_cover_targets = {}
 
+    TAG_BROWSER_FIELDS = v"['tags', 'series', 'authors', 'publisher', 'formats', 'rating']"
+
+    def format_count_rating(count, avg_rating):
+        parts = []
+        if count is not None and str(count).strip() != '':
+            n = int(count)
+            parts.push(_('{} books').format(n))
+        if avg_rating is not None and str(avg_rating).strip() != '':
+            r = float(avg_rating) if avg_rating else 0
+            if r > 0:
+                parts.push(stars_for_rating(str(Math.round(r / 2))))
+        return ' · '.join(parts)
+
+    def fetch_from_tag_browser(field, proceed):
+        ck = tags_cache_key() + '|' + field
+        cached = tag_browser_cache[ck]
+        if cached:
+            proceed(True, cached)
+            return
+        q = parse_url_params()
+        sd = get_session_data()
+        query = {'library_id': current_library_id(), 'vl': q.vl or ''}
+        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
+            query[k] = sd.get(k) + ''
+
+        def done(end_type, xhr, ev):
+            if end_type is not 'load':
+                proceed(False, xhr.error_html)
+                return
+            try:
+                data = JSON.parse(xhr.responseText)
+            except Exception:
+                proceed(False, 'Invalid JSON from server')
+                return
+            root = data.root or v'{}'
+            item_map = data.item_map or v'{}'
+            category_node = None
+            for child in (root.children or v'[]'):
+                item = item_map[child.id] or v'{}'
+                if item.is_category and item.category is field:
+                    category_node = child
+                    break
+            if not category_node:
+                tag_browser_cache[ck] = v'[]'
+                proceed(True, v'[]')
+                return
+
+            items = []
+            seen = {}
+
+            def walk(node):
+                for ch in (node.children or v'[]'):
+                    item = item_map[ch.id] or v'{}'
+                    name = (item.name or '') + ''
+                    if (not item.is_category) and name and (not seen[name]):
+                        seen[name] = True
+                        search_name = (item.original_name or name) + ''
+                        items.push({'name': name, 'count': item.count, 'avg_rating': item.avg_rating, 'search_name': search_name})
+                    if ch.children and ch.children.length:
+                        walk(ch)
+
+            walk(category_node)
+            tag_browser_cache[ck] = items
+            proceed(True, items)
+
+        ajax('interface-data/tag-browser', done, query=query, bypass_cache=False).send()
+
     def ensure_series_covers(series_name, target_div):
         if not series_name:
             return
@@ -757,14 +848,14 @@ def create_nav_list_panel(container_id):
                     img = E.img(src=u, class_='cover-img cover-' + str(i))
                     div.appendChild(img)
 
-    def render_page(names):
+    def render_page(data):
         set_loading(False)
-        names = names or v'[]'
+        raw = data or v'[]'
         # Special handling for Published date: derive group labels from raw date values
         if field is 'pubdate':
             yset = {}
             ymset = {}
-            for v in names:
+            for v in raw:
                 ymd = to_ymd(v)
                 if not ymd:
                     continue
@@ -775,9 +866,10 @@ def create_nav_list_panel(container_id):
             labels = Object.keys(ymset) if group_mode is 'ym' else Object.keys(yset)
             # Sort descending so newest first
             labels.sort().reverse()
-            names = labels
-        names = filtered(names)
-        total = names.length or 0
+            raw = labels
+        items = [to_item(x) for x in raw]
+        items = filtered(items)
+        total = items.length or 0
         if field is 'tags':
             shown = min(total, visible_tags)
             page_info.textContent = ''
@@ -799,16 +891,20 @@ def create_nav_list_panel(container_id):
                         ev.preventDefault()
                     show_panel('book_list', query=search_query, replace=True)
 
-            for label in names.slice(0, shown):
-                if not label:
+            for it in items.slice(0, shown):
+                if not it or not it.name:
                     continue
-                label = label + ''
+                meta = format_count_rating(it.count, it.avg_rating)
+                label = it.name + ''
+                inner = E.span(label)
+                if meta:
+                    inner = E.span(E.span(label), E.span(' ' + meta, class_='cs-tag-meta'))
                 bubbles.appendChild(E.a(
                     href='#',
                     class_='cs-tag-bubble',
-                    onclick=make_action(make_search(field, label)),
+                    onclick=make_action(make_search(field, it.search_name or label)),
                     title=label,
-                    label
+                    inner
                 ))
 
             if shown < total:
@@ -821,7 +917,7 @@ def create_nav_list_panel(container_id):
                     nonlocal visible_tags
                     ev.preventDefault()
                     visible_tags = min(total, visible_tags + 50)
-                    render_page(names)
+                    render_page(data)
                 )
                 wrap.appendChild(a)
             return
@@ -842,7 +938,7 @@ def create_nav_list_panel(container_id):
         set_enabled(prev_btn, offset > 0)
         set_enabled(next_btn, end < total)
 
-        items = []
+        list_items = []
 
         def make_action(search_query):
             return def(ev):
@@ -850,30 +946,32 @@ def create_nav_list_panel(container_id):
                     ev.preventDefault()
                 show_panel('book_list', query=search_query, replace=True)
 
-        for n in names.slice(offset, offset + num):
-            if not n:
+        for it in items.slice(offset, offset + num):
+            if not it or not it.name:
                 continue
-            label = n + ''
+            label = it.name + ''
+            search_val = it.search_name or label
+            meta = format_count_rating(it.count, it.avg_rating)
             if field is 'series':
                 covers = E.div(class_='cs-series-covers')
                 row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
                 row.dataset.seriesName = label
-                items.push(create_item(row, action=make_action(make_search(field, label))))
+                list_items.push(create_item(row, action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'rating':
-                items.push(create_item(stars_for_rating(label), action=make_action(make_search(field, label))))
+                list_items.push(create_item(stars_for_rating(label), action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'pubdate':
                 # label is 'YYYY' or 'YYYY-MM'
-                items.push(create_item(label, action=make_action(pubdate_query_for(label))))
+                list_items.push(create_item(label, action=make_action(pubdate_query_for(label))))
             else:
-                items.push(create_item(label, action=make_action(make_search(field, label))))
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
         subtitle = subtitle_for_field(field)
         if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'rating' or field is 'pubdate':
             nav_subtitle.textContent = subtitle or ''
             nav_subtitle.style.display = 'block' if subtitle else 'none'
-            create_item_list(list_container, items)
+            create_item_list(list_container, list_items)
         else:
             nav_subtitle.style.display = 'none'
-            create_item_list(list_container, items, subtitle)
+            create_item_list(list_container, list_items, subtitle)
         if field is 'series':
             # After rendering, lazily fetch covers for visible series
             for row in list_container.querySelectorAll('[data-series-name]'):
@@ -907,10 +1005,14 @@ def create_nav_list_panel(container_id):
             render_page(grp.labels or v'[]')
         )
     else:
-        if field is 'rating':
-            names = v"['1', '2', '3', '4', '5']"
-            cached_names[field] = names
-            render_page(names)
+        if field in TAG_BROWSER_FIELDS:
+            if cached_names[field]:
+                render_page(cached_names[field])
+            else:
+                set_loading(True)
+                fetch_from_tag_browser(field, def(ok, payload):
+                    render(ok, field, payload)
+                )
         elif cached_names[field]:
             render_page(cached_names[field])
         else:
