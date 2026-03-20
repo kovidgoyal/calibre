@@ -674,13 +674,12 @@ class SelectionBar:
                     E.div(text),
                     E.div(
                         class_='button-box',
+                        create_button(_('OK'), None, close_modal),
                         create_button(
                             _('Copy notes to clipboard'), None, def():
                                     ui_operations.copy_selection(notes)
                                     close_modal()
                             , highlight=True),
-                        '\xa0',
-                        create_button(_('OK'), None, close_modal),
                     )
                 ))
             )

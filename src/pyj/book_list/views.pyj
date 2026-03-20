@@ -61,6 +61,11 @@ add_extra_css(def():
 '''
     # top_message is moved into the pager header; ensure no leftover outer margins
     ans += build_rule(sel + '[data-component="top_message"]', margin='0')
+    ans += build_rule(sel + '.book-list-item',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
     # Pager for page-based navigation
     ans += build_rule(sel + '.cs-book-pager',
         display='flex',
@@ -746,6 +751,18 @@ def save_to_custom_category():
         name_input = E.input(type='text', placeholder=_('Category name'))
         filter_input = E.input(type='text', placeholder=_('Filter expression'), value=current_filter)
         icon_picker = create_custom_category_icon_picker('folder')
+        use_icon_cb = E.input(type='checkbox')
+        use_icon_cb.checked = True
+        icon_section = E.div(class_='cc-icon-section',
+            E.div(style='margin:0.8rem 0 0.6rem 0', _('Icon')),
+            icon_picker.root,
+        )
+        use_icon_help = E.div(style='opacity:0.75;font-size:0.9em;margin-bottom:0.6rem', _('When disabled, only the first character of the name is shown while the navigation is collapsed.'))
+
+        def sync_icon_section_visibility(ev=None):
+            on = use_icon_cb.checked
+            icon_section.style.display = 'block' if on else 'none'
+            use_icon_help.style.display = 'none' if on else 'block'
 
         def do_save(ev=None):
             name = (name_input.value or '').strip()
@@ -755,7 +772,7 @@ def save_to_custom_category():
             items = sd.get('custom_categories', v'[]') or v'[]'
             # Keep unique names: overwrite existing item with same name.
             items = [x for x in items if ((x.name or '') + '') is not name]
-            items.unshift({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')})
+            items.unshift({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked})
             sd.set('custom_categories', items)
             close_modal()
             try:
@@ -770,14 +787,19 @@ def save_to_custom_category():
             name_input,
             E.div(style='margin:0.8rem 0 0.6rem 0', _('Filter condition')),
             filter_input,
-            E.div(style='margin:0.8rem 0 0.6rem 0', _('Icon')),
-            icon_picker.root,
-            E.div(class_='button-box',
+            E.div(style='display:flex;align-items:center;margin:0.8rem 0 0.35rem 0',
+                use_icon_cb,
+                E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
+            ),
+            use_icon_help,
+            icon_section,
+            E.div(class_='cc-actions-save-cancel cc-actions-save-cancel--toprule',
+                create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
                 create_button(_('Save'), 'check', do_save, highlight=True),
-                '\xa0',
-                create_button(_('Cancel'), 'close', def(ev=None): close_modal();)
             )
         ))
+        use_icon_cb.addEventListener('change', sync_icon_section_visibility)
+        sync_icon_section_visibility()
         setTimeout(def():
             name_input.focus()
         , 10)
@@ -828,7 +850,7 @@ def clear_book_list_inner(inner):
         clear(inner)
 
 
-def populate_book_list_toolbar(toolbar_el, include_sort):
+def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=None):
     if not toolbar_el:
         return
     clear(toolbar_el)
@@ -843,7 +865,10 @@ def populate_book_list_toolbar(toolbar_el, include_sort):
             m = mode_sel.value
             if m and m is not get_view_mode():
                 get_session_data().set('view_mode', m)
-                apply_view_mode(m)
+                if on_view_mode_change:
+                    on_view_mode_change(m)
+                else:
+                    apply_view_mode(m)
         )
         mode_wrap = E.div(class_='cs-select-wrap')
         mode_wrap.appendChild(mode_sel)

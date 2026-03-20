@@ -24,6 +24,9 @@ add_extra_css(def():
     style += build_rule(sel,
         padding='0.75rem 1rem 1rem 1rem',
         max_width='980px',
+        width='100%',
+        box_sizing='border-box',
+        min_width='0',
         margin_left='auto',
         margin_right='auto'
     )
@@ -31,14 +34,36 @@ add_extra_css(def():
 @media (max-width: 720px) {
   .cs-prefs { padding-left: 0.75rem; padding-right: 0.75rem; }
 }
+@media (max-width: 520px) {
+  .cs-prefs .item-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cs-prefs .control {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  .cs-prefs .control .label {
+    flex: 0 0 auto;
+  }
+}
 '''
-    style += build_rule(sel + '.list', display='flex', flex_direction='column', gap='0.65rem')
+    style += build_rule(sel + '.list',
+        display='flex', flex_direction='column', gap='0.65rem',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
+    )
     style += build_rule(sel + '.item',
         padding='0.85rem 1rem',
         border_radius='16px',
         border='1px solid var(--cs-surface-border)',
         background='linear-gradient(135deg, var(--cs-surface-1) 0%, var(--cs-surface-2) 100%)',
         box_shadow='0 12px 32px rgba(0,0,0,0.08)',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
         # No frosted glass effects (restore original, flat styling)
     )
     style += build_rule(sel + '.item:hover',
@@ -50,22 +75,30 @@ add_extra_css(def():
         align_items='center',
         justify_content='space-between',
         gap='1rem',
-        flex_wrap='wrap'
+        flex_wrap='wrap',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
     )
     style += build_rule(sel + '.control',
         display='flex',
         align_items='center',
         justify_content='space-between',
         gap='0.75rem',
-        flex='1 1 32rem',
-        min_width='14rem'
+        flex='1 1 auto',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
     )
     style += build_rule(sel + '.label',
         font_weight='800',
         white_space='normal',
         opacity='0.92',
         flex='1 1 auto',
-        min_width='12rem'
+        min_width='0',
+        max_width='100%',
+        overflow_wrap='anywhere',
+        word_break='break-word',
     )
     style += build_rule(sel + '.control select,' + sel + '.control input[type="text"],' + sel + '.control input[type="number"]',
         padding='0.55rem 0.75rem',
@@ -73,7 +106,11 @@ add_extra_css(def():
         border='1px solid rgba(0,0,0,0.12)',
         background_color='rgba(0,0,0,0.02)',
         color=get_color('window-foreground'),
-        min_width='14rem'
+        min_width='0',
+        max_width='100%',
+        width='100%',
+        box_sizing='border-box',
+        flex='1 1 auto',
     )
     style += build_rule(sel + '.control input[type="checkbox"]',
         width='18px',
@@ -86,7 +123,10 @@ add_extra_css(def():
         font_size='0.85rem',
         font_weight='700',
         opacity='0.75',
-        display='none'
+        display='none',
+        max_width='100%',
+        overflow_wrap='anywhere',
+        word_break='break-word',
     )
     style += build_rule(sel + '.footer',
         margin_top='1rem',
