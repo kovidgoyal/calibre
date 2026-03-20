@@ -20,14 +20,15 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
             proceed(container_id, files)
 
     msg = msg or _('Upload books by either <a>selecting the book files</a> or drag and drop the files here')
-    c = E.div(E.span(), E.input(type='file', style='display:none', onchange=files_selected))
+    c = E.div(
+        class_='cs-upload-dropzone',
+        E.span(class_='cs-upload-dropzone-msg'),
+        E.input(type='file', class_='cs-upload-file-input', style='display:none', onchange=files_selected),
+    )
     if not single_file:
         c.lastChild.setAttribute('multiple', 'multiple')
     if accept_extensions:
         c.lastChild.setAttribute('accept', ', '.join(['.' + x for x in accept_extensions.split(' ')]))
-    c.style.minHeight = '80vh'
-    c.style.padding = '1rem'
-    c.style.borderBottom = 'solid 1px currentColor'
 
     safe_set_inner_html(c.firstChild, msg)
     a = c.getElementsByTagName('a')[0]
@@ -36,6 +37,16 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
     a.addEventListener('click', def():
         document.getElementById(container_id).querySelector('input[type=file]').click()
     , False)
+
+    def pick_if_not_link(ev):
+        t = ev.target
+        if t and t.tagName.toLowerCase() is 'a':
+            return
+        inp = document.getElementById(container_id).querySelector('.cs-upload-file-input')
+        if inp:
+            inp.click()
+
+    c.addEventListener('click', pick_if_not_link, False)
     container.appendChild(c)
 
     def stop(e):
@@ -61,9 +72,9 @@ def update_status_widget(w, sent, total):
 
 
 def upload_status_widget(name, job_id):
-    ans = E.div(style='padding: 1rem 1ex;', data_job='' + job_id)
+    ans = E.div(class_='cs-upload-job', data_job='' + job_id)
     if name:
-        ans.appendChild(E.h3(E.b(name)))
-    ans.appendChild(E.progress())
-    ans.appendChild(E.span())
+        ans.appendChild(E.h3(E.b(name), class_='cs-upload-job-title'))
+    ans.appendChild(E.progress(class_='cs-upload-progress'))
+    ans.appendChild(E.span(class_='cs-upload-progress-label'))
     return ans
