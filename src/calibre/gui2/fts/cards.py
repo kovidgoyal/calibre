@@ -536,8 +536,11 @@ class VirtualCardContainer(QWidget):
             else:
                 w = self._create_card_widget()
             if not card.cover_requested:
-                self.cover_render_queue.put((card.results.book_id, idx))
-                card.cover_requested = True
+                try:
+                    self.cover_render_queue.put((card.results.book_id, idx))
+                    card.cover_requested = True
+                except ShutDown:
+                    pass
             w.bind(card)
             w.setGeometry(card.x, card.y, card.width, card.height)
             w.show()
