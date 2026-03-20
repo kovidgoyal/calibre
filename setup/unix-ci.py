@@ -189,6 +189,8 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2025-12781',
     'CVE-2025-11468',
     'CVE-2026-2297',
+    'CVE-2026-3644',
+    'CVE-2026-4224',  # expat parser unused
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
@@ -202,6 +204,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
     'CVE-2025-25469', 'CVE-2025-25468',  # memory leak, not a security issue
     'CVE-2025-12343', 'CVE-2025-10256',  # DoS in video decoder unused in calibre
+    'CVE-2026-2673',  # openssl fix not released
 ]
 
 
