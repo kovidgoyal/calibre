@@ -23,11 +23,13 @@ from read_book.ui import ReadUI
 from utils import parse_url_params
 from dom import svgicon
 from book_list.ui_settings import apply_primary_color
+from book_list.custom_category_icon_picker import create_custom_category_icon_picker
 from widgets import create_button
 
 # Register the various panels
 import book_list.home # noqa: unused-import
 import book_list.views # noqa: unused-import
+from book_list.views import show_subsequent_panel
 import book_list.local_books # noqa: unused-import
 import book_list.book_details # noqa: unused-import
 import book_list.edit_metadata # noqa: unused-import
@@ -153,7 +155,7 @@ def init_ui():
         a:hover { text-decoration: underline; }
         a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
         /* Do not underline button-like links */
-        a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover { text-decoration: none; }
+        a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover, .cs-book-list-toolbar a:hover { text-decoration: none; }
         ::selection { background: rgba(67,112,0,0.28); }
         /* Replace italic emphasis with bold for a more consistent modern look. */
         i, em { font-style: normal !important; font-weight: 700 !important; }
@@ -192,8 +194,8 @@ def init_ui():
         *::-webkit-scrollbar-track { background: transparent; }
 
         /* Remove hover zoom; prefer highlight feedback */
-        .main-top-bar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
-        .main-top-bar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
+        .main-top-bar a:hover, .cs-book-list-toolbar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
+        .main-top-bar a:active, .cs-book-list-toolbar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
 
         .cs-app-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
         .cs-left-nav {
@@ -305,6 +307,17 @@ def init_ui():
 
         /* Collapsed sidebar */
         :root.cs-sidebar-collapsed .cs-left-nav { padding-left: 0.35rem; padding-right: 0.35rem; }
+        :root.cs-sidebar-collapsed .cs-left-nav a {
+            justify-content: center;
+            padding: 0.55rem 0.5rem;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a .cs-nav-left {
+            width: 100%;
+            justify-content: center;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a[data-active="1"]::before {
+            display: none;
+        }
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-chevron,
         :root.cs-sidebar-collapsed .cs-left-nav .cs-nav-label {
             display: none !important;
@@ -322,7 +335,11 @@ def init_ui():
         .cs-main {
             flex: 1 1 auto;
             min-width: 0;
+            max-width: 100%;
             overflow: hidden;
+            overflow-x: hidden;
+            overscroll-behavior-x: none;
+            touch-action: pan-y pinch-zoom;
             background: ''' + get_color('window-background') + ''';
             transition: margin-left var(--cs-dur-3) var(--cs-ease), width var(--cs-dur-3) var(--cs-ease);
         }
@@ -330,9 +347,20 @@ def init_ui():
         /* Give panels a bit of breathing room without touching internals too much */
         #''' + book_list_container_id + ''', #''' + read_book_container_id + ''' {
             height: 100%;
-            overflow: auto;
+            min-width: 0;
+            max-width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            overscroll-behavior: contain;
+            overscroll-behavior-x: none;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y pinch-zoom;
+        }
+        /* Reserve one row for cover-grid size dock (toolbar at bottom of book list / local books). */
+        :root.cs-cover-grid-dock-visible #''' + book_list_container_id + ''',
+        :root.cs-cover-grid-dock-visible .local-books-list {
+            padding-bottom: calc(var(--cs-cover-grid-dock-height, 3.25rem) + 0.85rem + env(safe-area-inset-bottom, 0px));
+            box-sizing: border-box;
         }
         /* Custom category dialog */
         .cs-custom-category-dialog {
@@ -442,6 +470,10 @@ def init_ui():
     # Group 1.5: quick actions
     left.appendChild(E.div(svgicon('random'), E.span(_('Quick actions')), class_='cs-nav-group-title'))
     g1_5 = E.div(class_='cs-nav-group')
+    go_add_books = def():
+        show_subsequent_panel('book_list^add')
+    add_books_nav = nav_link(_('Add books'), go_add_books, _('Add books to the library'), icon='plus')
+    g1_5.appendChild(add_books_nav)
     go_random = def():
         show_panel('book_details', {'book_id': '0'})
     random_link = nav_link(_('A random book'), go_random, _('Choose a random book from the library'), icon='random')
@@ -521,25 +553,6 @@ def init_ui():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
-    icon_choices = [
-        ('folder', _('Folder')),
-        ('bookmark', _('Tag')),
-        ('book', _('Book')),
-        ('user', _('User')),
-        ('library', _('Library')),
-        ('star', _('Star')),
-        ('search', _('Search')),
-        ('random', _('Random')),
-        ('cog', _('Settings')),
-    ]
-
-    def create_icon_selector(initial_icon='folder'):
-        sel = E.select()
-        for icon_name, label in icon_choices:
-            sel.appendChild(E.option(label, value=icon_name))
-        sel.value = initial_icon or 'folder'
-        return sel
-
     def get_custom_categories():
         sd = get_session_data()
         categories = sd.get('custom_categories', v'[]') or v'[]'
@@ -559,7 +572,7 @@ def init_ui():
         create_custom_dialog(_('Edit custom Category'), def(parent, close_modal):
             name_input = E.input(type='text', value=initial_name, placeholder=_('Category name'))
             filter_input = E.input(type='text', value=initial_filter, placeholder=_('Filter condition'))
-            icon_select = create_icon_selector((item.icon or 'folder') + '')
+            icon_picker = create_custom_category_icon_picker((item.icon or 'folder') + '')
 
             def save_changes(ev=None):
                 name = (name_input.value or '').strip()
@@ -569,7 +582,7 @@ def init_ui():
                 categories = get_custom_categories()
                 if index < 0 or index >= categories.length:
                     return
-                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_select.value or 'folder')}
+                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')}
                 set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
@@ -594,7 +607,7 @@ def init_ui():
                 ),
                 E.div(class_='cc-row',
                     E.label(_('Icon'), class_='cc-label'),
-                    icon_select
+                    icon_picker.root
                 ),
                 E.div(class_='button-box',
                     create_button(_('Save'), 'check', save_changes, highlight=True),
@@ -613,7 +626,7 @@ def init_ui():
         create_custom_dialog(_('New custom directory'), def(parent, close_modal):
             name_input = E.input(type='text', placeholder=_('Category name'))
             filter_input = E.input(type='text', placeholder=_('Filter condition'))
-            icon_select = create_icon_selector('folder')
+            icon_picker = create_custom_category_icon_picker('folder')
 
             def create_item(ev=None):
                 name = (name_input.value or '').strip()
@@ -621,7 +634,7 @@ def init_ui():
                 if not name or not filter_expr:
                     return
                 categories = get_custom_categories()
-                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_select.value or 'folder')})
+                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')})
                 set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
@@ -637,7 +650,7 @@ def init_ui():
                 ),
                 E.div(class_='cc-row',
                     E.label(_('Icon'), class_='cc-label'),
-                    icon_select
+                    icon_picker.root
                 ),
                 E.div(class_='button-box',
                     create_button(_('Create'), 'plus', create_item, highlight=True),

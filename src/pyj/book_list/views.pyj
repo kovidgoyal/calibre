@@ -11,7 +11,7 @@ from book_list.add import add_books_panel
 from book_list.cover_grid import (
     append_item as cover_grid_append_item, cover_grid_css,
     create_item as create_cover_grid_item, description as COVER_GRID_DESCRIPTION,
-    init as init_cover_grid
+    init as init_cover_grid, sync_cover_grid_size_dock
 )
 from book_list.custom_list import (
     append_item as custom_list_append_item, create_item as create_custom_list_item,
@@ -34,7 +34,8 @@ from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
-from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
+from book_list.top_bar import create_top_bar, set_title_tooltip
+from book_list.custom_category_icon_picker import create_custom_category_icon_picker
 from book_list.theme import get_color
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
@@ -44,6 +45,7 @@ from utils import conditional_timeout, parse_url_params, safe_set_inner_html
 from widgets import create_button, create_spinner, enable_escape_key
 
 CLASS_NAME = 'book-list-container'
+LIST_TOOLBAR_CLASS = 'cs-book-list-toolbar'
 ITEM_CLASS_NAME = 'book-list-item'
 ALLOWED_MODES = {'cover_grid', 'details_list', 'custom_list'}
 DEFAULT_MODE = 'cover_grid'
@@ -86,8 +88,36 @@ add_extra_css(def():
         font_weight='700',
         opacity='0.92'
     )
+    ans += build_rule(sel + '.cs-book-pager-top .cs-top-message-line',
+        display='flex', flex_wrap='nowrap', align_items='center', gap='0.35rem',
+        min_width='0',
+    )
+    ans += build_rule(sel + '.cs-book-pager-top .cs-top-message-primary',
+        min_width='0',
+    )
     ans += build_rule(sel + '.cs-book-pager-top a.blue-link',
         font_weight='700'
+    )
+    ans += build_rule(sel + '.cs-book-pager-top a.cs-book-pager-top-icon',
+        display='inline-flex',
+        align_items='center',
+        justify_content='center',
+        width='1.9em',
+        height='1.9em',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='999px',
+        margin_left='0.4em',
+        text_decoration='none',
+        color=get_color('window-foreground'),
+        background_color=get_color('window-background')
+    )
+    ans += build_rule(sel + '.cs-book-pager-top a.cs-book-pager-top-icon:hover',
+        background_color='var(--cs-accent-weak)'
+    )
+    ans += build_rule(sel + '.cs-book-pager-top a.cs-book-pager-top-icon svg',
+        width='1.1em',
+        height='1.1em',
+        opacity='0.9'
     )
     ans += build_rule(sel + '.cs-book-pager-divider',
         height='1px',
@@ -98,18 +128,37 @@ add_extra_css(def():
         display='flex',
         align_items='center',
         justify_content='space-between',
-        gap='0.75rem'
+        gap='0.75rem',
+        flex_wrap='wrap',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
     )
-    ans += build_rule(sel + '.cs-book-pager-left', display='flex', align_items='center', gap='0.5rem', min_width='0')
-    ans += build_rule(sel + '.cs-book-pager-right', display='flex', align_items='center', gap='0.5rem')
-    ans += build_rule(sel + '.cs-book-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
+    ans += build_rule(sel + '.cs-book-pager-left',
+        display='flex', align_items='center', gap='0.5rem', min_width='0',
+        flex='0 1 auto', max_width='100%',
+    )
+    ans += build_rule(sel + '.cs-book-pager-right',
+        display='flex', align_items='center', gap='0.5rem', min_width='0',
+        flex='1 1 12rem', max_width='100%', justify_content='flex-end',
+    )
+    ans += build_rule(sel + '.cs-book-pager-status',
+        opacity='0.75', min_width='0', max_width='100%',
+        white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
     ans += build_rule(sel + 'a.cs-book-pager-btn',
         display='inline-flex', align_items='center', gap='0.35rem',
         padding='0.35rem 0.65rem', border_radius='999px',
         border='1px solid rgba(0,0,0,0.10)',
         background_color=get_color('window-background'),
         color=get_color('window-foreground'),
-        cursor='pointer', user_select='none', text_decoration='none'
+        cursor='pointer', user_select='none', text_decoration='none',
+        box_sizing='border-box', min_width='0', max_width='100%',
+    )
+    ans += build_rule(sel + 'a.cs-book-pager-btn svg',
+        flex_shrink='0', width='1em', height='1em', display='block',
+    )
+    ans += build_rule(sel + 'a.cs-book-pager-btn > span',
+        min_width='0',
     )
     ans += build_rule(sel + 'a.cs-book-pager-btn:hover', background_color='var(--cs-accent-weak)')
     ans += build_rule(sel + 'a.cs-book-pager-btn:active', transform='scale(0.99)')
@@ -139,31 +188,116 @@ add_extra_css(def():
     gap: 0.6rem;
     padding: 0.6rem 0.75rem;
     margin: 0.9rem 0 0.5rem 0;
+    min-width: 0;
   }
   .book-list-container .cs-book-pager-controls,
-  .book-list-container .cs-book-pager-top {
+  .book-list-container .cs-book-pager-top,
+  .book-list-container .cs-book-pager .cs-book-list-toolbar {
     width: 100%;
+    max-width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
+    min-width: 0;
+  }
+  .book-list-container .cs-book-pager .cs-book-list-toolbar {
+    justify-content: flex-start;
+  }
+  .book-list-container .cs-book-pager-left,
+  .book-list-container .cs-book-pager-right {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .book-list-container .cs-book-pager-left {
+    flex: 1 1 auto;
   }
   .book-list-container .cs-book-pager-right {
     justify-content: flex-start;
+    flex: 1 1 100%;
   }
   .book-list-container .cs-book-pager-status {
     white-space: normal;
-    flex: 1 1 100%;
+    flex: 1 1 auto;
+    word-break: break-word;
   }
   .book-list-container a.cs-book-pager-btn {
+    padding: 0.5rem 0.85rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    overflow: hidden;
+  }
+  /* Let Prev/Next shrink instead of overflowing the row (flex default min-width: auto) */
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  /* top_message: one row; truncate long search / VL labels */
+  .book-list-container .cs-book-pager-top [data-component="top_message"] {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .book-list-container .cs-book-pager-top [data-component="top_message"] br {
+    display: none;
+  }
+  .book-list-container .cs-book-pager-top .cs-top-message-line {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .book-list-container .cs-book-pager-top .cs-top-message-primary {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .book-list-container .cs-book-pager-top [data-component="top_message"] .cs-book-pager-top-icon,
+  .book-list-container .cs-book-pager-top [data-component="top_message"] a.calibre-push-button {
+    flex-shrink: 0;
+  }
+  .book-list-container .cs-book-pager .cs-book-list-toolbar select {
+    padding: 0.5rem 2.0em 0.5rem 0.85rem;
+  }
+  .book-list-container .cs-book-pager .cs-book-list-toolbar a.cs-sort-order-btn,
+  .book-list-container .cs-book-pager .cs-book-list-toolbar a.calibre-push-button {
     padding: 0.5rem 0.85rem;
   }
 }
 @media (max-width: 420px) {
+  .book-list-container .cs-book-pager-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
   .book-list-container .cs-book-pager-left {
     justify-content: stretch;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    box-sizing: border-box;
+  }
+  .book-list-container .cs-book-pager-right {
+    width: 100%;
+    justify-content: stretch;
+    flex-basis: auto;
   }
   .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
     flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
     justify-content: center;
   }
   .book-list-container .cs-book-pager-page {
@@ -171,68 +305,108 @@ add_extra_css(def():
     text-align: center;
   }
 }
+@media (max-width: 360px) {
+  .book-list-container .cs-book-pager {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .book-list-container .cs-book-pager-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
 '''
-    # View mode dropdown in the top bar (book list page)
-    # Unified select styling for all topbar selects
-    ans += build_rule('.main-top-bar select',
-        margin_left='0.5em',
-        margin_top='0.25em',
-        margin_bottom='0.25em',
-        padding='0.3em 2.0em 0.3em 0.6em',
+    # List toolbar lives inside .cs-book-pager (between top and controls); dividers separate rows.
+    ans += build_rule(sel + '.cs-book-pager .' + LIST_TOOLBAR_CLASS,
+        display='flex',
+        flex_wrap='wrap',
+        align_items='center',
+        justify_content='flex-start',
+        gap='0.5rem',
+        padding='0',
+        margin='0',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
+    )
+    ans += r'''
+@media (max-width: 720px) {
+  .book-list-container .cs-book-pager .cs-book-list-toolbar { padding-left: 0; padding-right: 0; }
+}
+'''
+    tb_sel = '.' + CLASS_NAME + ' .cs-book-pager .' + LIST_TOOLBAR_CLASS
+    ans += build_rule(tb_sel + ' select',
+        margin='0',
+        padding='0.35rem 2.0em 0.35rem 0.65rem',
         border_radius='999px',
-        border='1px solid rgba(0,0,0,0.12)',
-        background_color='rgba(0,0,0,0.02)',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color=get_color('window-background'),
         color=get_color('window-foreground'),
-        font_size='0.75em',
-        font_weight='500',
-        line_height='1.0',
+        font_size='inherit',
+        font_weight='inherit',
+        line_height='1.2',
         align_self='center',
         appearance='none',
         webkit_appearance='none',
         moz_appearance='none',
+        box_sizing='border-box',
     )
-    ans += build_rule('.main-top-bar select:hover',
+    ans += build_rule(tb_sel + ' select:hover',
         background_color='var(--cs-accent-weak)',
         border='1px solid rgba(0,0,0,0.14)'
     )
-    ans += build_rule('.main-top-bar select:focus',
+    ans += build_rule(tb_sel + ' select:focus',
         outline='none',
         box_shadow='var(--cs-focus-ring)'
     )
-    # Keep per-control max-widths as overrides
-    ans += build_rule('.main-top-bar select.cs-view-mode', max_width='14rem')
-    ans += build_rule('.main-top-bar select.cs-sort-mode', max_width='16rem')
-    # Sort order toggle control (separate from sort field select)
-    ans += build_rule('.main-top-bar a.cs-sort-order-btn',
-        margin_left='0.5em',
-        font_size='0.8em',
-        font_weight='600',
-        line_height='1.0',
-        padding='0.3em 0.45em',
+    ans += build_rule(tb_sel + ' select.cs-view-mode', max_width='14rem')
+    ans += build_rule(tb_sel + ' select.cs-sort-mode', max_width='16rem')
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn',
+        margin='0',
+        font_size='inherit',
+        font_weight='inherit',
+        line_height='1.2',
+        padding='0.35rem 0.65rem',
         border_radius='999px',
-        max_width='2.2rem',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        min_width='0',
         display='inline-flex',
         align_items='center',
-        gap='0.35rem'
+        justify_content='center',
+        gap='0.35rem',
+        flex_shrink='0',
+        box_sizing='border-box',
+        cursor='pointer',
+        user_select='none',
+        text_decoration='none',
     )
-    ans += build_rule('.main-top-bar a.cs-sort-order-btn span', line_height='1.0', display='inline-flex', align_items='center')
-    ans += build_rule('.main-top-bar a.cs-sort-order-btn svg',
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn span', line_height='1.2', display='inline-flex', align_items='center')
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn svg',
         display='block',
-        height='1.2ex',
-        width='1.2ex',
-        vertical_align='middle',
-        opacity='0.9'
+        flex_shrink='0',
+        width='1em',
+        height='1em',
+        opacity='0.9',
     )
-    ans += build_rule('.main-top-bar a.cs-sort-order-btn:hover', background_color='var(--cs-accent-weak)')
-    ans += build_rule('.main-top-bar a.cs-sort-order-btn:active', transform='scale(0.99)')
-    # Select dropdown icon (use SVG for better alignment).
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn:hover', background_color='var(--cs-accent-weak)')
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn:active', transform='scale(0.99)')
+    ans += build_rule(tb_sel + ' a.cs-sort-order-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
     ans += r'''
-.main-top-bar .cs-select-wrap{
+.book-list-container .cs-book-pager .cs-book-list-toolbar .cs-select-wrap{
   position: relative;
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
 }
-.main-top-bar .cs-select-icon{
+.book-list-container .cs-book-pager .cs-book-list-toolbar .cs-select-icon{
   position: absolute;
   right: 0.65em;
   top: 50%;
@@ -244,63 +418,52 @@ add_extra_css(def():
   align-items: center;
   justify-content: center;
 }
-.main-top-bar .cs-select-icon svg{
-  height: 1.2ex;
-  width: 1.2ex;
-  vertical-align: middle;
+.book-list-container .cs-book-pager .cs-book-list-toolbar .cs-select-icon svg{
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
 }
 '''
 
-    # Make calibre-push-button match topbar select sizing
-    ans += build_rule('.main-top-bar a.calibre-push-button',
-        margin_left='0.5em',
-        margin_top='0.25em',
-        margin_bottom='0.25em',
-        padding='0.3em 0.6em',
-        font_size='0.8em',
-        line_height='1.0',
-        align_self='center'
+    ans += build_rule(tb_sel + ' a.calibre-push-button',
+        margin='0',
+        padding='0.35rem 0.65rem',
+        font_size='inherit',
+        line_height='1.2',
+        align_self='center',
+        flex_shrink='0',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.10)',
+        box_sizing='border-box',
     )
-    ans += build_rule('.main-top-bar a.calibre-push-button span', line_height='1.0')
-    ans += build_rule('.main-top-bar a.calibre-push-button svg',
-        height='1.35ex',
-        width='1.35ex',
-        vertical_align='middle',
-        opacity='0.92'
+    ans += build_rule(tb_sel + ' a.calibre-push-button span', line_height='1.2')
+    ans += build_rule(tb_sel + ' a.calibre-push-button svg',
+        width='1em',
+        height='1em',
+        opacity='0.92',
+        flex_shrink='0',
     )
     ans += r'''
 @media (max-width: 420px) {
-  .main-top-bar select {
-    margin-left: 0.5em;
+  .book-list-container .cs-book-pager .cs-book-list-toolbar select {
     max-width: 100%;
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
   }
-  .main-top-bar a.cs-sort-order-btn {
-    margin-left: 0.5em;
+  .book-list-container .cs-book-pager .cs-book-list-toolbar a.cs-sort-order-btn {
     max-width: 100%;
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
   }
-  .main-top-bar .cs-select-wrap {
+  .book-list-container .cs-book-pager .cs-book-list-toolbar .cs-select-wrap {
     max-width: 100%;
   }
 }
 @media (max-width: 360px) {
-  .main-top-bar select {
-    margin-left: 0;
-    width: 100%;
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
-  }
-  .main-top-bar .cs-select-wrap {
+  .book-list-container .cs-book-pager .cs-book-list-toolbar select {
     width: 100%;
   }
-  .main-top-bar a.cs-sort-order-btn {
-    margin-left: 0;
+  .book-list-container .cs-book-pager .cs-book-list-toolbar .cs-select-wrap {
     width: 100%;
-    margin-top: 0.25em;
-    margin-bottom: 0.25em;
+  }
+  .book-list-container .cs-book-pager .cs-book-list-toolbar a.cs-sort-order-btn {
+    width: 100%;
     justify-content: center;
   }
 }
@@ -431,14 +594,14 @@ def setup_view_mode(mode, book_list_data):
 
 
 def apply_view_mode(mode=DEFAULT_MODE):
-    if book_list_data.mode is mode:
-        return
-    setup_view_mode(mode, book_list_data)
-    # We are switching the renderer, so the current DOM needs a full re-render.
-    # Reset shown ids so render_ids() actually repopulates the new grid/list.
-    book_list_data.shown_book_ids = set()
-    clear_grid()
-    render_ids()
+    if book_list_data.mode is not mode:
+        setup_view_mode(mode, book_list_data)
+        # We are switching the renderer, so the current DOM needs a full re-render.
+        # Reset shown ids so render_ids() actually repopulates the new grid/list.
+        book_list_data.shown_book_ids = set()
+        clear_grid()
+        render_ids()
+    sync_cover_grid_size_dock(mode)
 
 
 # More button {{{
@@ -575,36 +738,14 @@ def fts():
     show_panel('fts', q)
 
 
-def clear_search_history():
-    get_interface_data()  # keep dependency usage consistent
-    try:
-        window.localStorage.removeItem('calibre-local-search-bar-history-search-books')
-    except Exception:
-        pass
-
-
 def save_to_custom_category():
     sd = get_session_data()
     current_filter = (library_data.search_result?.query or '') + ''
-    icon_choices = [
-        ('folder', _('Folder')),
-        ('bookmark', _('Tag')),
-        ('book', _('Book')),
-        ('user', _('User')),
-        ('library', _('Library')),
-        ('star', _('Star')),
-        ('search', _('Search')),
-        ('random', _('Random')),
-        ('cog', _('Settings')),
-    ]
 
     create_custom_dialog(_('Save to custom Category'), def(parent, close_modal):
         name_input = E.input(type='text', placeholder=_('Category name'))
         filter_input = E.input(type='text', placeholder=_('Filter expression'), value=current_filter)
-        icon_select = E.select()
-        for icon_name, label in icon_choices:
-            icon_select.appendChild(E.option(label, value=icon_name))
-        icon_select.value = 'folder'
+        icon_picker = create_custom_category_icon_picker('folder')
 
         def do_save(ev=None):
             name = (name_input.value or '').strip()
@@ -614,7 +755,7 @@ def save_to_custom_category():
             items = sd.get('custom_categories', v'[]') or v'[]'
             # Keep unique names: overwrite existing item with same name.
             items = [x for x in items if ((x.name or '') + '') is not name]
-            items.unshift({'name': name, 'filter': filter_expr, 'icon': (icon_select.value or 'folder')})
+            items.unshift({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')})
             sd.set('custom_categories', items)
             close_modal()
             try:
@@ -624,13 +765,13 @@ def save_to_custom_category():
             if cb:
                 cb()
 
-        parent.appendChild(E.div(
+        parent.appendChild(E.div(class_='cs-custom-category-dialog',
             E.div(style='margin-bottom:0.6rem', _('Category name')),
             name_input,
             E.div(style='margin:0.8rem 0 0.6rem 0', _('Filter condition')),
             filter_input,
             E.div(style='margin:0.8rem 0 0.6rem 0', _('Icon')),
-            icon_select,
+            icon_picker.root,
             E.div(class_='button-box',
                 create_button(_('Save'), 'check', do_save, highlight=True),
                 '\xa0',
@@ -651,25 +792,106 @@ def show_top_message():
         return
     if q.vl:
         container.appendChild(E.span(
-            E.span(_('Showing Virtual library: {} ').format(q.vl)),
-            create_button(_('Close'), 'close', def(): show_vl();, _('Show all books in library'))
+            E.span(_('Showing Virtual library: {} ').format(q.vl), class_='cs-top-message-primary'),
+            create_button(_('Close'), 'close', def(): show_vl();, _('Show all books in library')),
+            class_='cs-top-message-line',
         ))
         if q.search:
             container.appendChild(E.br())
     if q.search:
-        c = E.span()
+        c = E.span(class_='cs-top-message-line')
+        def icon_action(icon_name, tooltip, action):
+            return E.a(
+                svgicon(icon_name),
+                href='#',
+                class_='blue-link cs-book-pager-top-icon',
+                title=tooltip,
+                onclick=def(evt):
+                    evt.preventDefault()
+                    action()
+            )
         if library_data.search_result.total_num:
             # Keep the query, omit the noisy total-matches suffix.
-            c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query)))
-            c.appendChild(E.span(' ', E.a(_('Clear search'), class_='blue-link', onclick=def(): search();)))
-            c.appendChild(E.span(_(' · '), E.a(_('Clear search history'), class_='blue-link', onclick=def(): clear_search_history();)))
-            c.appendChild(E.span(_(' · '), E.a(_('Save to custom Category'), class_='blue-link', onclick=def(): save_to_custom_category();)))
+            c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query), class_='cs-top-message-primary'))
+            c.appendChild(E.span(' ', icon_action('close', _('Clear search'), def(): search();)))
+            c.appendChild(E.span(' ', icon_action('plus', _('Save to custom Category'), save_to_custom_category)))
             if library_data.fts_enabled:
-                c.appendChild(E.span(_(' or '), E.a(_('Search the text of these books'), class_='blue-link', onclick=def(): fts();)))
+                c.appendChild(E.span(' ', icon_action('search', _('Search the text of these books'), fts)))
         else:
-            c.appendChild(E.span(_('No books matching:'), ' ', E.i(library_data.search_result.query)))
+            c.appendChild(E.span(_('No books matching:'), ' ', E.i(library_data.search_result.query), class_='cs-top-message-primary'))
 
         container.appendChild(c)
+
+
+def clear_book_list_inner(inner):
+    if inner:
+        clear(inner)
+
+
+def populate_book_list_toolbar(toolbar_el, include_sort):
+    if not toolbar_el:
+        return
+    clear(toolbar_el)
+    try:
+        current_mode = get_view_mode()
+        mode_sel = E.select(class_='cs-view-mode', title=_('Change book list mode'))
+        mode_sel.appendChild(E.option(_('Cover grid'), value='cover_grid'))
+        mode_sel.appendChild(E.option(_('Detailed list'), value='details_list'))
+        mode_sel.appendChild(E.option(_('Custom list'), value='custom_list'))
+        mode_sel.value = current_mode
+        mode_sel.addEventListener('change', def(ev):
+            m = mode_sel.value
+            if m and m is not get_view_mode():
+                get_session_data().set('view_mode', m)
+                apply_view_mode(m)
+        )
+        mode_wrap = E.div(class_='cs-select-wrap')
+        mode_wrap.appendChild(mode_sel)
+        mode_wrap.appendChild(E.span(svgicon('angle-down'), class_='cs-select-icon'))
+        toolbar_el.appendChild(mode_wrap)
+    except Exception:
+        pass
+    if not include_sort:
+        return
+    try:
+        if not library_data.sortable_fields:
+            return
+        csf, csfo = current_sorted_field()
+        if csf is 'date':
+            csf = 'timestamp'
+        sort_field_sel = E.select(class_='cs-sort-mode', title=_('Change how the list is sorted'))
+        found = False
+        for field, name in library_data.sortable_fields:
+            sort_field_sel.appendChild(E.option(name, value=field))
+            if field is csf:
+                found = True
+        if not found and library_data.sortable_fields?.length:
+            sort_field_sel.value = library_data.sortable_fields[0][0]
+        else:
+            sort_field_sel.value = csf
+        sort_field_sel.addEventListener('change', def(ev):
+            f = sort_field_sel.value or ''
+            if f:
+                change_sort(f, None)
+        )
+        sort_wrap = E.div(class_='cs-select-wrap')
+        sort_wrap.appendChild(sort_field_sel)
+        sort_wrap.appendChild(E.span(svgicon('angle-down'), class_='cs-select-icon'))
+        toolbar_el.appendChild(sort_wrap)
+
+        def toggle_sort_order(ev=None):
+            _csf, _csfo = current_sorted_field()
+            if _csf is 'date':
+                _csf = 'timestamp'
+            new_order = 'desc' if _csfo is 'asc' else 'asc'
+            if _csf:
+                change_sort(_csf, new_order)
+
+        icon_name = 'sort-amount-asc' if (csfo or 'asc') is 'asc' else 'sort-amount-desc'
+        toolbar_el.appendChild(create_button('', icon=icon_name, action=toggle_sort_order, tooltip=_('Toggle sort order'), class_='cs-sort-order-btn'))
+    except Exception:
+        pass
+
 
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
@@ -685,21 +907,11 @@ def create_books_list(container):
     container.appendChild(wrap)
     show_top_message()
     apply_view_mode(get_view_mode())
-    # Pager UI (page-based navigation) + top message
+    # Pager UI: optional top_message, toolbar (list controls), then page controls
     pager = component('pager')
     pager.classList.add('cs-book-pager')
 
     controls = E.div(class_='cs-book-pager-controls')
-    pager.appendChild(controls)
-
-    # Move top_message into the pager header area
-    tm = component('top_message')
-    if tm and tm.style.display is not 'none' and (tm.textContent or '').strip():
-        top = E.div(class_='cs-book-pager-top')
-        top.appendChild(tm)
-        pager.insertBefore(top, controls)
-        pager.insertBefore(E.div(class_='cs-book-pager-divider'), controls)
-
     left = E.div(class_='cs-book-pager-left')
     right = E.div(class_='cs-book-pager-right')
     controls.appendChild(left)
@@ -749,71 +961,19 @@ def create_books_list(container):
     left.appendChild(next_btn)
     right.appendChild(status)
     update_pager()
-    # Place "Add books" next to the topbar title (left side).
-    try:
-        bar = container.parentNode.getElementsByClassName('main-top-bar')[0]
-        left = bar.firstChild
-        title_elem = left.querySelector('.top-bar-title')
-        action = show_subsequent_panel.bind(None, 'book_list^add')
-        btn = E.a(
-            style='margin-left: 0.75em',
-            title=_('Add books'),
-            svgicon('plus')
-        )
-        btn.dataset.buttonIcon = 'plus'
-        btn.addEventListener('click', def(event):
-            event.preventDefault(), action()
-        )
-        if title_elem and title_elem.nextSibling:
-            left.insertBefore(btn, title_elem.nextSibling)
-        else:
-            left.appendChild(btn)
-    except Exception:
-        pass
-    # Replace the "Sort books" icon button with a dropdown
-    try:
-        bar = container.parentNode.getElementsByClassName('main-top-bar')[0]
-        right = bar.firstChild.nextSibling if bar else None
-        if right and library_data.sortable_fields:
-            csf, csfo = current_sorted_field()
-            # UI field name mapping (server may use a slightly different internal name).
-            if csf is 'date':
-                csf = 'timestamp'
-            sort_field_sel = E.select(class_='cs-sort-mode', title=_('Change how the list is sorted'))
-            found = False
-            for field, name in library_data.sortable_fields:
-                sort_field_sel.appendChild(E.option(name, value=field))
-                if field is csf:
-                    found = True
-            if not found and library_data.sortable_fields?.length:
-                sort_field_sel.value = library_data.sortable_fields[0][0]
-            else:
-                sort_field_sel.value = csf
-            sort_field_sel.addEventListener('change', def(ev):
-                f = sort_field_sel.value or ''
-                if f:
-                    # order is handled by the separate control
-                    change_sort(f, None)
-            )
-            sort_wrap = E.div(class_='cs-select-wrap')
-            sort_wrap.appendChild(sort_field_sel)
-            sort_wrap.appendChild(E.span(svgicon('angle-down'), class_='cs-select-icon'))
-            right.appendChild(sort_wrap)
 
-            def toggle_sort_order(ev=None):
-                # Use the current active sort query.
-                _csf, _csfo = current_sorted_field()
-                if _csf is 'date':
-                    _csf = 'timestamp'
-                new_order = 'desc' if _csfo is 'asc' else 'asc'
-                if _csf:
-                    change_sort(_csf, new_order)
+    tm = component('top_message')
+    if tm and tm.style.display is not 'none' and (tm.textContent or '').strip():
+        top = E.div(class_='cs-book-pager-top')
+        top.appendChild(tm)
+        pager.appendChild(top)
+        pager.appendChild(E.div(class_='cs-book-pager-divider'))
+    toolbar_el = E.div(class_=LIST_TOOLBAR_CLASS)
+    pager.appendChild(toolbar_el)
+    pager.appendChild(E.div(class_='cs-book-pager-divider'))
+    pager.appendChild(controls)
+    populate_book_list_toolbar(toolbar_el, True)
 
-            icon_name = 'sort-amount-asc' if (csfo or 'asc') is 'asc' else 'sort-amount-desc'
-            # Icon-only control (keep tooltip for clarity)
-            right.appendChild(create_button('', icon=icon_name, action=toggle_sort_order, tooltip=_('Toggle sort order'), class_='cs-sort-order-btn'))
-    except Exception:
-        pass
     q = parse_url_params()
     scrolled = False
     if q.book_id:
@@ -838,8 +998,8 @@ def check_for_books_loaded():
         conditional_timeout(container_id, 5, check_for_books_loaded)
         return
     container = container.lastChild
-    clear(container)
     if not load_status.ok:
+        clear(container)
         if load_status.http_error_code is 401:
             # Unauthorized, keep retrying until the user provides a
             # username/password
@@ -859,6 +1019,7 @@ def check_for_books_loaded():
             ),
         )
         return
+    clear_book_list_inner(container)
     create_books_list(container)
     # If the URL specifies an offset, show that page
     q = parse_url_params()
@@ -881,32 +1042,9 @@ def init(container_id):
     update_window_title(title)
     create_top_bar(container, title=title, action=def(): save_scroll_position(), home();, icon='home')
 
-    # View mode dropdown in the top bar (cover grid / list / custom)
-    try:
-        bar = container.getElementsByClassName('main-top-bar')[0]
-        right = bar.firstChild.nextSibling if bar else None
-        if right:
-            current_mode = get_view_mode()
-            mode_sel = E.select(class_='cs-view-mode', title=_('Change book list mode'))
-            mode_sel.appendChild(E.option(_('Cover grid'), value='cover_grid'))
-            mode_sel.appendChild(E.option(_('Detailed list'), value='details_list'))
-            mode_sel.appendChild(E.option(_('Custom list'), value='custom_list'))
-            mode_sel.value = current_mode
-            mode_sel.addEventListener('change', def(ev):
-                m = mode_sel.value
-                if m and m is not get_view_mode():
-                    get_session_data().set('view_mode', m)
-                    apply_view_mode(m)
-            )
-            mode_wrap = E.div(class_='cs-select-wrap')
-            mode_wrap.appendChild(mode_sel)
-            mode_wrap.appendChild(E.span(svgicon('angle-down'), class_='cs-select-icon'))
-            right.appendChild(mode_wrap)
-    except Exception:
-        pass
-
-    container.appendChild(E.div(class_=CLASS_NAME))
-    container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
+    inner = E.div(class_=CLASS_NAME)
+    container.appendChild(inner)
+    inner.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
@@ -1066,3 +1204,9 @@ set_panel_handler('book_list^search', init_search_panel)
 set_panel_handler('book_list^choose_mode', create_mode_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
 set_panel_handler('book_list^more_actions', create_more_actions_panel)
+
+try:
+    window.cs_sync_cover_grid_dock = def():
+        sync_cover_grid_size_dock(get_view_mode())
+except Exception:
+    pass

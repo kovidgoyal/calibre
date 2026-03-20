@@ -10,6 +10,7 @@ from book_list.router import home, open_book
 from book_list.top_bar import add_button, create_top_bar
 from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
+from book_list.cover_grid import sync_cover_grid_size_dock
 from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
@@ -177,10 +178,12 @@ def render_books(books):
 def apply_view_mode(mode):
     mode = mode or DEFAULT_MODE
     if book_list_data.mode is mode:
+        sync_cover_grid_size_dock(mode)
         return
     setup_view_mode(mode, book_list_data)
     clear_grid()
     render_books()
+    sync_cover_grid_size_dock(mode)
 
 
 def create_books_list(container, books):

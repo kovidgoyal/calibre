@@ -27,6 +27,7 @@ add_extra_css(def():
         gap='0.35rem',
         line_height='1.0',
         overflow='hidden',
+        flex_shrink='0',
         cursor='pointer',
         color=get_color('window-foreground'),
         background='none',
@@ -36,14 +37,39 @@ add_extra_css(def():
         padding_left='0.35em',
         padding_right='0.35em'
     )
-    style += build_rule(sel + 'a svg', display='block', height='1.35ex', width='1.35ex', vertical_align='middle', opacity='0.92')
+    # ex alone shrinks too much on narrow layouts / nested em fonts; keep a readable minimum tap target
+    style += build_rule(sel + 'a svg',
+        display='block', height='max(1.125rem, 1.35ex)', width='max(1.125rem, 1.35ex)',
+        vertical_align='middle', opacity='0.92', flex_shrink='0')
     style += build_rule(sel + 'a span', line_height='1.0')
+    # Title shrinks on narrow widths; single line + ellipsis (main bar does not wrap).
+    style += build_rule(sel + 'a.top-bar-title',
+        flex_shrink='1', min_width='0', max_width='100%',
+        overflow='hidden', text_overflow='ellipsis', white_space='nowrap')
+    style += build_rule(sel + 'span.top-bar-title',
+        flex_shrink='1', min_width='0', max_width='100%',
+        overflow='hidden', text_overflow='ellipsis', white_space='nowrap',
+        display='block')
     # No hover zoom; use highlight instead
     style += build_rule(sel + 'a:hover', background_color='var(--cs-accent-weak)')
     style += build_rule(sel + 'a:active', background_color='var(--cs-accent-weak-2)')
     style += build_rule(sel + 'a:focus', outline='none')
     style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
     style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
+    # Left/right slots: single row; title ellipsis handles narrow width.
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-left',
+        display='flex', flex_wrap='nowrap', align_items='center',
+        gap='0.45em',
+        min_width='0', max_width='100%', flex='1 1 0%', box_sizing='border-box',
+        padding_left='0.45em', overflow='hidden')
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-right',
+        display='flex', flex_wrap='nowrap', align_items='center',
+        justify_content='flex-end', gap='0.45em',
+        flex='0 0 auto', margin_left='auto', box_sizing='border-box',
+        padding_right='0.45em')
+    # Do not reserve right-slot space when there are no controls (for very narrow layouts).
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-right:empty',
+        display='none', margin_left='0', padding_right='0')
     return style
 )
 
@@ -51,8 +77,8 @@ def create_markup(container):
     for i in range(2):
         bar = E.div(
             class_=CLASS_NAME,
-            E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.45em; display:flex; align-items:center; gap: 0.45em; min-width: 0;"),
-            E.div(style="white-space:nowrap; text-align:right; padding-right: 0.45em; display:flex; align-items:center; justify-content:flex-end; gap: 0.45em;")
+            E.div(class_='main-top-bar-left'),
+            E.div(class_='main-top-bar-right')
         )
         if i is 0:
             # The main calibre content server UI can optionally have a fixed left sidebar.
@@ -64,13 +90,107 @@ def create_markup(container):
             # But it should not be visible (prevents duplicate titles/buttons).
             set_css(bar, visibility='hidden', pointer_events='none')
         set_css(bar,
-            display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between', align_items='center',
+            display='flex', flex_direction='row', flex_wrap='nowrap', justify_content='flex-start', align_items='center',
+            gap='0.45rem',
+            overflow='hidden',
             font_size=get_font_size('title'), user_select='none',
             color=get_color('window-foreground'), background_color=get_color('window-background'),
             border_bottom='1px solid rgba(0,0,0,0.10)',
             box_shadow='0 1px 0 rgba(0,0,0,0.03)'
         )
         container.appendChild(bar)
+    # Fixed bar #0 often grows taller than spacer #1 (extra controls are only appended to bar #0),
+    # so in-flow spacer would be too short and content (e.g. cs-book-pager) sits under the fixed bar.
+    install_top_bar_spacer_sync(container)
+    install_right_slot_auto_collapse(container)
+
+
+def _sync_top_bar_spacer_height(container):
+    bars = get_bars(container)
+    if bars.length < 2:
+        return
+    fixed = bars[0]
+    spacer = bars[1]
+    h = fixed.offsetHeight
+    if h:
+        spacer.style.minHeight = h + 'px'
+
+
+def install_top_bar_spacer_sync(container):
+    try:
+        if container.dataset and container.dataset.csTopBarSpacerSync:
+            return
+        if container.dataset:
+            container.dataset.csTopBarSpacerSync = '1'
+    except Exception:
+        pass
+    _sync_top_bar_spacer_height(container)
+    bars = get_bars(container)
+    if bars.length < 2:
+        return
+    fixed = bars[0]
+
+    def on_resize_or_layout():
+        _sync_top_bar_spacer_height(container)
+
+    RO = window.ResizeObserver
+    if RO:
+        obs = new RO(def(entries): on_resize_or_layout();)
+        obs.observe(fixed)
+    else:
+        window.addEventListener('resize', on_resize_or_layout)
+
+
+def _has_visible_right_child(right):
+    if not right:
+        return False
+    kids = right.children or v'[]'
+    for kid in kids:
+        if not kid or kid.nodeType is not Node.ELEMENT_NODE:
+            continue
+        # Ignore explicitly hidden elements; they should not reserve slot width.
+        if kid.hidden or kid.style?.display is 'none':
+            continue
+        try:
+            cs = window.getComputedStyle(kid)
+            if cs and cs.display is 'none':
+                continue
+        except Exception:
+            pass
+        return True
+    return False
+
+
+def _sync_right_slot_visibility(container):
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling if bar?.firstChild else None
+        if not right:
+            continue
+        has_visible = _has_visible_right_child(right)
+        if has_visible:
+            right.style.display = 'flex'
+            right.style.marginLeft = 'auto'
+            right.style.paddingRight = '0.45em'
+        else:
+            right.style.display = 'none'
+            right.style.marginLeft = '0'
+            right.style.paddingRight = '0'
+
+
+def install_right_slot_auto_collapse(container):
+    _sync_right_slot_visibility(container)
+    MO = window.MutationObserver
+    if not MO:
+        return
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling if bar?.firstChild else None
+        if not right:
+            continue
+        obs = new MO(def(mutations):
+            _sync_right_slot_visibility(container)
+        )
+        obs.observe(right, {'childList': True, 'subtree': True, 'attributes': True, 'attributeFilter': v'["style", "class", "hidden"]'})
+
 
 def get_bars(container):
     return container.getElementsByClassName(CLASS_NAME)
@@ -171,12 +291,14 @@ def add_button(container, icon, action=None, tooltip=''):
                 right.lastChild.addEventListener('click', def(event):
                     event.preventDefault(), action()
                 )
+    _sync_right_slot_visibility(container)
 
 def clear_buttons(container):
     bars = get_bars(container)
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         clear(right)
+    _sync_right_slot_visibility(container)
 
 
 def set_button_visibility(container, icon, visible):
@@ -185,3 +307,4 @@ def set_button_visibility(container, icon, visible):
         elem = right.querySelector(f'[data-button-icon="{icon}"]')
         if elem:
             elem.style.display = 'inline-block' if visible else 'none'
+    _sync_right_slot_visibility(container)
