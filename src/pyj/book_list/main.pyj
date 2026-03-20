@@ -12,10 +12,10 @@ from gettext import gettext as _, install
 from popups import install_event_filters
 from utils import safe_set_inner_html
 
-from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
+from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id, INIT_ENDPOINT
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
-from book_list.theme import get_color, get_color_as_rgba, get_font_family, css_for_variables
+from book_list.theme import get_color, get_font_family, css_for_variables, apply_book_list_theme, bind_book_list_color_scheme_listener
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state, home
 from book_list.globals import get_db, set_session_data, get_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler, show_panel
@@ -23,7 +23,7 @@ from read_book.ui import ReadUI
 from utils import parse_url_params
 from dom import svgicon
 from book_list.ui_settings import apply_primary_color
-from book_list.custom_category_icon_picker import create_custom_category_icon_picker
+from book_list.custom_category_icon_picker import create_custom_category_icon_picker, normalize_custom_category_icon
 from widgets import create_button
 
 # Register the various panels
@@ -78,27 +78,15 @@ def init_ui():
     install(translations)
     remove_initial_progress_bar()
     document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
-    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-    # Apply user-selected primary color (if any) early, so UI renders consistently.
+    # Apply user-selected primary color (if any) early, then shell light/dark + surfaces + body.
     try:
-        # Theme color is stored locally (no server sync).
         val = local_storage().get('primary_color')
         if val:
             apply_primary_color(val)
     except Exception:
         pass
-    # Glass/surface variables derived from current theme colors (light/dark aware)
-    try:
-        wb = get_color_as_rgba('window-background')
-        wf = get_color_as_rgba('window-foreground')
-        de = document.documentElement.style
-        de.setProperty('--cs-surface-1', f'rgba({wb[0]},{wb[1]},{wb[2]},0.08)')
-        de.setProperty('--cs-surface-2', f'rgba({wb[0]},{wb[1]},{wb[2]},0.04)')
-        de.setProperty('--cs-surface-3', f'rgba({wb[0]},{wb[1]},{wb[2]},0.02)')
-        de.setProperty('--cs-surface-border', f'rgba({wf[0]},{wf[1]},{wf[2]},0.10)')
-        de.setProperty('--cs-surface-border-strong', f'rgba({wf[0]},{wf[1]},{wf[2]},0.14)')
-    except Exception:
-        pass
+    apply_book_list_theme()
+    bind_book_list_color_scheme_listener()
 
     # Left navigation bar (content server)
     sidebar_width = '240px'
@@ -197,7 +185,12 @@ def init_ui():
         .main-top-bar a:hover, .cs-book-list-toolbar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
         .main-top-bar a:active, .cs-book-list-toolbar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
 
-        .cs-app-root { display: flex; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1; }
+        .cs-app-root {
+            display: flex; flex-direction: column;
+            height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1;
+        }
+        .cs-shell-top { flex: 0 0 auto; width: 100%; min-height: 0; position: relative; z-index: 2; }
+        #''' + cs_top_bar_host_id + ''' { width: 100%; min-height: 0; }
         .cs-left-nav {
             width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
             box-sizing: border-box;
@@ -236,6 +229,26 @@ def init_ui():
             width: 1.6rem;
             display: inline-flex;
             justify-content: center;
+            align-items: center;
+        }
+        .cs-left-nav a .cs-nav-icon-emoji {
+            font-size: 1.2rem;
+            line-height: 1;
+            width: 1.6rem;
+            text-align: center;
+        }
+        .cs-left-nav a .cs-nav-collapsed-initial {
+            display: none !important;
+            font-size: 1.15rem;
+            line-height: 1;
+            font-weight: 700;
+            width: 1.6rem;
+            text-align: center;
+        }
+        :root.cs-sidebar-collapsed .cs-left-nav a .cs-nav-collapsed-initial {
+            display: inline-flex !important;
+            justify-content: center;
+            align-items: center;
         }
         .cs-left-nav a .cs-nav-label {
             overflow: hidden;
@@ -334,6 +347,16 @@ def init_ui():
 
         .cs-main {
             flex: 1 1 auto;
+            min-height: 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            overflow: hidden;
+            background: ''' + get_color('window-background') + ''';
+        }
+        .cs-main-body {
+            flex: 1 1 auto;
             min-width: 0;
             max-width: 100%;
             overflow: hidden;
@@ -364,11 +387,18 @@ def init_ui():
         }
         /* Custom category dialog */
         .cs-custom-category-dialog {
-            min-width: min(36rem, 82vw);
-            max-width: min(42rem, 92vw);
+            width: 100%;
+            min-width: 0;
+            max-width: min(42rem, calc(100vw - 2rem));
+            box-sizing: border-box;
         }
         .cs-custom-category-dialog .cc-row {
             margin-bottom: 0.75rem;
+        }
+        .cs-custom-category-dialog .cc-checkbox-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.35rem;
         }
         .cs-custom-category-dialog .cc-label {
             display: block;
@@ -385,16 +415,38 @@ def init_ui():
             background: rgba(0,0,0,0.02);
             color: inherit;
         }
-        .cs-custom-category-dialog .button-box {
+        .cs-custom-category-dialog .cc-actions-delete {
+            margin-top: 0.35rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(0,0,0,0.10);
+        }
+        .cs-custom-category-dialog .cc-actions-save-cancel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+        }
+        .cs-custom-category-dialog .cc-actions-save-cancel > a.calibre-push-button {
+            flex: 1 1 0;
+            min-width: 0;
+            justify-content: center;
+        }
+        .cs-custom-category-dialog .cc-actions-save-cancel--toprule {
             margin-top: 0.35rem;
             padding-top: 0.6rem;
             border-top: 1px solid rgba(0,0,0,0.10);
         }
     '''))
 
-    def nav_link(label, action, title='', icon=None, chevron=False):
+    def nav_link(label, action, title='', icon=None, icon_emoji=None, chevron=False, collapsed_initial=None):
         left = E.span(class_='cs-nav-left')
-        if icon:
+        if icon_emoji is not None and (icon_emoji + ''):
+            left.appendChild(E.span(icon_emoji + '', class_='cs-nav-icon cs-nav-icon-emoji'))
+        elif collapsed_initial is not None and (collapsed_initial + ''):
+            left.appendChild(E.span(collapsed_initial + '', class_='cs-nav-icon cs-nav-collapsed-initial'))
+        elif icon:
             left.appendChild(E.span(svgicon(icon), class_='cs-nav-icon'))
         else:
             left.appendChild(E.span('', class_='cs-nav-icon'))
@@ -528,7 +580,7 @@ def init_ui():
     left.appendChild(E.div(class_='cs-nav-divider'))
 
     # Group: custom category
-    left.appendChild(E.div(svgicon('folder'), E.span(_('Custom Category')), class_='cs-nav-group-title'))
+    left.appendChild(E.div(svgicon('star'), E.span(_('Custom Category')), class_='cs-nav-group-title'))
     g_custom = E.div(class_='cs-nav-group')
     left.appendChild(g_custom)
 
@@ -553,6 +605,12 @@ def init_ui():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
+    def custom_category_nav_initial(name):
+        s = ((name or '') + '').strip()
+        if not s:
+            return '·'
+        return s[0]
+
     def get_custom_categories():
         sd = get_session_data()
         categories = sd.get('custom_categories', v'[]') or v'[]'
@@ -573,6 +631,20 @@ def init_ui():
             name_input = E.input(type='text', value=initial_name, placeholder=_('Category name'))
             filter_input = E.input(type='text', value=initial_filter, placeholder=_('Filter condition'))
             icon_picker = create_custom_category_icon_picker((item.icon or 'folder') + '')
+            use_icon_cb = E.input(type='checkbox')
+            use_icon_cb.checked = item.use_icon is not False
+            icon_section = E.div(class_='cc-icon-section',
+                E.div(class_='cc-row',
+                    E.label(_('Icon'), class_='cc-label'),
+                    icon_picker.root
+                ),
+            )
+            use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
+
+            def sync_icon_section_visibility(ev=None):
+                on = use_icon_cb.checked
+                icon_section.style.display = 'block' if on else 'none'
+                use_icon_help.style.display = 'none' if on else 'block'
 
             def save_changes(ev=None):
                 name = (name_input.value or '').strip()
@@ -582,7 +654,7 @@ def init_ui():
                 categories = get_custom_categories()
                 if index < 0 or index >= categories.length:
                     return
-                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')}
+                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked}
                 set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
@@ -605,28 +677,46 @@ def init_ui():
                     E.label(_('Filter condition'), class_='cc-label'),
                     filter_input
                 ),
-                E.div(class_='cc-row',
-                    E.label(_('Icon'), class_='cc-label'),
-                    icon_picker.root
+                E.div(class_='cc-checkbox-row',
+                    use_icon_cb,
+                    E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
                 ),
-                E.div(class_='button-box',
-                    create_button(_('Save'), 'check', save_changes, highlight=True),
-                    '\xa0',
+                use_icon_help,
+                icon_section,
+                E.div(class_='cc-actions-delete',
                     create_button(_('Delete'), 'trash', delete_item),
-                    '\xa0',
+                ),
+                E.div(class_='cc-actions-save-cancel',
                     create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                    create_button(_('Save'), 'check', save_changes, highlight=True),
                 )
             ))
+            use_icon_cb.addEventListener('change', sync_icon_section_visibility)
+            sync_icon_section_visibility()
             setTimeout(def():
                 name_input.focus()
             , 10)
         )
 
     def create_custom_category():
-        create_custom_dialog(_('New custom directory'), def(parent, close_modal):
+        create_custom_dialog(_('New Category'), def(parent, close_modal):
             name_input = E.input(type='text', placeholder=_('Category name'))
             filter_input = E.input(type='text', placeholder=_('Filter condition'))
             icon_picker = create_custom_category_icon_picker('folder')
+            use_icon_cb = E.input(type='checkbox')
+            use_icon_cb.checked = True
+            icon_section = E.div(class_='cc-icon-section',
+                E.div(class_='cc-row',
+                    E.label(_('Icon'), class_='cc-label'),
+                    icon_picker.root
+                ),
+            )
+            use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
+
+            def sync_icon_section_visibility(ev=None):
+                on = use_icon_cb.checked
+                icon_section.style.display = 'block' if on else 'none'
+                use_icon_help.style.display = 'none' if on else 'block'
 
             def create_item(ev=None):
                 name = (name_input.value or '').strip()
@@ -634,7 +724,7 @@ def init_ui():
                 if not name or not filter_expr:
                     return
                 categories = get_custom_categories()
-                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or 'folder')})
+                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked})
                 set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
@@ -648,16 +738,19 @@ def init_ui():
                     E.label(_('Filter condition'), class_='cc-label'),
                     filter_input
                 ),
-                E.div(class_='cc-row',
-                    E.label(_('Icon'), class_='cc-label'),
-                    icon_picker.root
+                E.div(class_='cc-checkbox-row',
+                    use_icon_cb,
+                    E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
                 ),
-                E.div(class_='button-box',
-                    create_button(_('Create'), 'plus', create_item, highlight=True),
-                    '\xa0',
+                use_icon_help,
+                icon_section,
+                E.div(class_='cc-actions-save-cancel cc-actions-save-cancel--toprule',
                     create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                    create_button(_('Create'), 'plus', create_item, highlight=True),
                 )
             ))
+            use_icon_cb.addEventListener('change', sync_icon_section_visibility)
+            sync_icon_section_visibility()
             setTimeout(def():
                 name_input.focus()
             , 10)
@@ -674,7 +767,11 @@ def init_ui():
             action = def(expr=search_expr):
                 show_panel('book_list', {'search': expr}, replace=True)
             row = E.div(style='display:flex; align-items:center; gap:0.35rem; margin:0 0.35rem;')
-            link = nav_link(name, action, search_expr, icon=icon_name, chevron=True)
+            show_icon = item.use_icon is not False
+            if show_icon:
+                link = nav_link(name, action, search_expr, icon_emoji=normalize_custom_category_icon(icon_name), chevron=True)
+            else:
+                link = nav_link(name, action, search_expr, collapsed_initial=custom_category_nav_initial(name), chevron=True)
             link.style.margin = '0'
             link.style.flex = '1 1 auto'
             cfg = E.a(svgicon('cog'), href='#', title=_('Configure custom Category'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
@@ -686,7 +783,7 @@ def init_ui():
             row.appendChild(link)
             row.appendChild(cfg)
             g_custom.appendChild(row)
-        add_link = nav_link(_('New custom directory'), create_custom_category, _('Create a new custom category'), icon='plus')
+        add_link = nav_link(_('New Category'), create_custom_category, _('Create a new custom category'), icon='plus')
         g_custom.appendChild(add_link)
 
     def update_sidebar_visibility(current):
@@ -725,11 +822,16 @@ def init_ui():
     render_custom_categories()
     update_sidebar_active()
 
-    main = E.div(class_='cs-main')
-    main.appendChild(E.div(id=book_list_container_id, style='display: none'))
-    main.appendChild(E.div(id=read_book_container_id, style='display: none'))
-    root.appendChild(left)
-    root.appendChild(main)
+    shell_top = E.div(class_='cs-shell-top')
+    shell_top.appendChild(E.div(id=cs_top_bar_host_id))
+    main_row = E.div(class_='cs-main')
+    main_body = E.div(class_='cs-main-body')
+    main_body.appendChild(E.div(id=book_list_container_id, style='display: none'))
+    main_body.appendChild(E.div(id=read_book_container_id, style='display: none'))
+    main_row.appendChild(left)
+    main_row.appendChild(main_body)
+    root.appendChild(shell_top)
+    root.appendChild(main_row)
     document.body.appendChild(root)
 
     create_modal_container()

@@ -84,8 +84,9 @@ create_button.style += build_rule('a.calibre-push-button[aria-disabled="true"]',
 create_button.style += build_rule('a.calibre-push-button:visited', color=get_color('window-foreground'))
 create_button.style += r'''
 @media (max-width: 420px) {
-  .button-box { flex-wrap: wrap; gap: 0.5rem; }
-  .button-box .calibre-push-button { width: 100%; justify-content: center; }
+  #modal-container .button-box { flex-direction: column; align-items: stretch; }
+  #modal-container .button-box > a.calibre-push-button { width: 100%; flex: 1 1 auto; justify-content: center; }
+  #modal-container .button-box > a.calibre-push-button:only-of-type { margin-left: 0; }
   a.calibre-push-button { max-width: 100%; white-space: normal; }
 }
 '''

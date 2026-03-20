@@ -23,6 +23,38 @@ def escape_for_search(x):
     return (x or '').replace('\\', '\\\\').replace('"', '\\"')
 
 
+def sync_cs_list_row_heights(list_root):
+    """Make all list rows the same height (max of siblings) so item-subtitle stacks don't vary row height."""
+    if not list_root:
+        return
+    ul = list_root.querySelector('ul')
+    if not ul:
+        return
+    disp = (window.getComputedStyle(ul).display or '') + ''
+    if disp.indexOf('flex') == -1:
+        return
+    ch = ul.children
+    lis = v'[]'
+    for i in range(ch.length):
+        node = ch[i]
+        if node.tagName.toLowerCase() is 'li':
+            lis.push(node)
+    if lis.length is 0:
+        return
+    for i in range(lis.length):
+        lis[i].style.minHeight = ''
+    max_h = 0
+    for i in range(lis.length):
+        h = lis[i].offsetHeight
+        if h > max_h:
+            max_h = h
+    if max_h <= 0:
+        return
+    mh = str(max_h) + 'px'
+    for i in range(lis.length):
+        lis[i].style.minHeight = mh
+
+
 def title_for_field(field):
     field = field or ''
     # Reuse existing msgids so labels are localized across calibre translations
@@ -104,13 +136,20 @@ add_extra_css(def():
     sel = '.cs-nav-list '
     style = ''
     style += build_rule(sel + '.cs-pager',
-        display='flex', align_items='center', justify_content='space-between',
+        display='flex', flex_wrap='wrap', align_items='center', justify_content='flex_start',
         gap='0.75rem', padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
         border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
         background_color='rgba(0,0,0,0.02)',
     )
-    style += build_rule(sel + '.cs-pager-left', display='flex', align_items='center', gap='0.5rem', min_width='0')
-    style += build_rule(sel + '.cs-pager-right', display='flex', align_items='center', gap='0.5rem')
+    style += build_rule(sel + '.cs-pager-left',
+        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
+        flex='0 1 auto', min_width='min(100%, max-content)', max_width='100%',
+    )
+    style += build_rule(sel + '.cs-pager-right',
+        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
+        flex='0 1 auto', min_width='0', max_width='100%',
+        margin_left='auto', justify_content='flex_end',
+    )
     style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
     style += build_rule(sel + 'a.cs-pager-btn',
         display='inline-flex', align_items='center', gap='0.35rem',
@@ -124,14 +163,17 @@ add_extra_css(def():
     style += build_rule(sel + 'a.cs-pager-btn:active', transform='scale(0.99)')
     style += build_rule(sel + 'a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
     style += build_rule(sel + 'a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
-    style += build_rule(sel + '.cs-pager-page', font_weight='600', opacity='0.9', white_space='nowrap')
     style += build_rule(sel + 'input.cs-filter',
         padding='0.45rem 0.7rem',
         border_radius='999px',
         border='1px solid rgba(0,0,0,0.10)',
         background_color=get_color('window-background'),
         color=get_color('window-foreground'),
-        min_width='12rem'
+        box_sizing='border-box',
+        min_width='0',
+        flex='1 1 10rem',
+        max_width='min(22rem, 100%)',
+        width='auto',
     )
     # Unified nav subtitle (so "Browse all ..." looks consistent across fields)
     style += build_rule(sel + '.cs-nav-subtitle',
@@ -220,45 +262,36 @@ add_extra_css(def():
     )
     style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--cs-accent-weak)')
     # Series cover stack (styled like "stacked covers" cards)
-    style += build_rule(sel + '.cs-series-row', display='flex', align_items='center', gap='0.85rem', min_width='0')
-    style += build_rule(sel + '.cs-series-covers', position='relative', width='160px', height='240px', flex='0 0 auto')
+    style += build_rule(sel + '.cs-series-row', display='flex', align_items='center', gap='0.65rem', min_width='0')
+    style += build_rule(sel + '.cs-series-covers', position='relative', width='132px', height='198px', flex='0 0 auto')
     style += build_rule(sel + '.cs-series-covers img.cover-img',
         position='absolute',
         left='50%',
         bottom='0px',
-        width='128px', height='192px',
+        width='108px', height='162px',
         object_fit='cover',
-        border_radius='16px',
+        border_radius='14px',
         border='1px solid rgba(0,0,0,0.10)',
         background_color='rgba(0,0,0,0.05)',
-        box_shadow='0 18px 48px rgba(0,0,0,0.18)',
+        box_shadow='0 14px 36px rgba(0,0,0,0.16)',
         transition='transform 200ms ease, box-shadow 200ms ease'
     )
     style += build_rule(sel + '.cs-series-covers img.cover-img:hover',
         box_shadow='0 26px 64px rgba(0,0,0,0.22)'
     )
-    # Per-count positioning (pyramid/stack)
+    # Per-count positioning: only odd stacks (1 / 3 / 5); tighter offsets than before
     style += r'''
 .cs-nav-list .cs-series-covers.covers-1 .cover-0 {
   transform: translate(-50%, 0) rotate(0deg) scale(1);
   z-index: 3;
 }
 
-.cs-nav-list .cs-series-covers.covers-2 .cover-0 {
-  transform: translate(calc(-50% - 34px), -10px) rotate(-6deg) scale(0.92);
-  z-index: 1;
-}
-.cs-nav-list .cs-series-covers.covers-2 .cover-1 {
-  transform: translate(-50%, 0) rotate(0deg) scale(1);
-  z-index: 3;
-}
-
 .cs-nav-list .cs-series-covers.covers-3 .cover-0 {
-  transform: translate(calc(-50% - 46px), -22px) rotate(-7deg) scale(0.86);
+  transform: translate(calc(-50% - 28px), -12px) rotate(-6deg) scale(0.90);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-3 .cover-1 {
-  transform: translate(calc(-50% + 46px), -22px) rotate(7deg) scale(0.86);
+  transform: translate(calc(-50% + 28px), -12px) rotate(6deg) scale(0.90);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-3 .cover-2 {
@@ -266,37 +299,20 @@ add_extra_css(def():
   z-index: 3;
 }
 
-.cs-nav-list .cs-series-covers.covers-4 .cover-0 {
-  transform: translate(calc(-50% - 62px), -22px) rotate(-8deg) scale(0.82);
-  z-index: 1;
-}
-.cs-nav-list .cs-series-covers.covers-4 .cover-1 {
-  transform: translate(calc(-50% + 62px), -22px) rotate(8deg) scale(0.82);
-  z-index: 1;
-}
-.cs-nav-list .cs-series-covers.covers-4 .cover-2 {
-  transform: translate(calc(-50% - 26px), -8px) rotate(-4deg) scale(0.92);
-  z-index: 2;
-}
-.cs-nav-list .cs-series-covers.covers-4 .cover-3 {
-  transform: translate(-50%, 0) rotate(0deg) scale(1);
-  z-index: 3;
-}
-
 .cs-nav-list .cs-series-covers.covers-5 .cover-0 {
-  transform: translate(calc(-50% - 72px), -24px) rotate(-8deg) scale(0.80);
+  transform: translate(calc(-50% - 42px), -14px) rotate(-7deg) scale(0.84);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-1 {
-  transform: translate(calc(-50% + 72px), -24px) rotate(8deg) scale(0.80);
+  transform: translate(calc(-50% + 42px), -14px) rotate(7deg) scale(0.84);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-2 {
-  transform: translate(calc(-50% - 38px), -14px) rotate(-5deg) scale(0.90);
+  transform: translate(calc(-50% - 20px), -6px) rotate(-3.5deg) scale(0.93);
   z-index: 2;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-3 {
-  transform: translate(calc(-50% + 38px), -14px) rotate(5deg) scale(0.90);
+  transform: translate(calc(-50% + 20px), -6px) rotate(3.5deg) scale(0.93);
   z-index: 2;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-4 {
@@ -318,6 +334,61 @@ add_extra_css(def():
     style += build_rule(sel + '.cs-list-content',
         transition='opacity 160ms ease',
         will_change='opacity'
+    )
+    # Nav browse list: rating/count column absolutely positioned right. Row uses flex + align center so
+    # item-title-body stays vertically centered when subtitle stack is taller (after li min-height sync).
+    nav_flex_li = (
+        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))), ' +
+        '.cs-nav-list[data-field="series"][data-series-display="list"] .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2)))'
+    )
+    style += build_rule(nav_flex_li,
+        display='flex',
+        flex_direction='column',
+    )
+    nav_flex_li_cell = (
+        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1), ' +
+        '.cs-nav-list[data-field="series"][data-series-display="list"] .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1)'
+    )
+    style += build_rule(nav_flex_li_cell,
+        flex_grow='1',
+        flex_shrink='0',
+        width='100%',
+        min_height='0',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:not(:has(.item-subtitle-nav))',
+        display='flex',
+    )
+    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav)',
+        display='flex',
+        align_items='center',
+    )
+    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
+        padding_right='9.5rem',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '.cs-list-content .generic-items-list .item-subtitle.item-subtitle-nav',
+        position='absolute',
+        right='0.95rem',
+        top='0',
+        bottom='0',
+        margin_top='auto',
+        margin_bottom='auto',
+        height='fit-content',
+        max_height='100%',
+        width='max-content',
+        max_width='min(9rem, calc(100% - 1rem))',
+        margin_left='0',
+        text_align='right',
+        display='flex',
+        flex_direction='column',
+        align_items='flex_end',
+        justify_content='center',
+        gap='0.1rem',
+        line_height='1.15',
+        padding_top='0',
+        overflow='hidden',
+        box_sizing='border-box',
     )
     style += build_rule(sel + '.cs-loading .cs-loading-overlay', opacity='1')
     style += build_rule(sel + '.cs-loading .cs-list-content', opacity='0.45')
@@ -406,13 +477,11 @@ add_extra_css(def():
         display='block'
     )
     style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list li > div:nth-child(1)',
-        display='flex',
-        flex_direction='row',
-        align_items='flex-start',
-        justify_content='flex-start',
+        display='block',
+        position='relative',
         padding='0.85rem 0.95rem'
     )
-    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .item-title',
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .item-title-body',
         text_align='left'
     )
     # Mobile layout: stack pager controls and make filter usable
@@ -433,6 +502,7 @@ add_extra_css(def():
   }
   .cs-nav-list .cs-pager-right {
     justify-content: stretch;
+    margin-left: 0;
   }
   .cs-nav-list input.cs-filter {
     flex: 1 1 auto;
@@ -453,10 +523,6 @@ add_extra_css(def():
   .cs-nav-list .cs-pager-left a.cs-pager-btn {
     flex: 1 1 0;
     justify-content: center;
-  }
-  .cs-nav-list .cs-pager-page {
-    flex: 1 1 100%;
-    text-align: center;
   }
 }
 @media (max-width: 420px) {
@@ -566,7 +632,6 @@ def create_nav_list_panel(container_id):
     next_btn = pager_btn(_('Next'), 'chevron-right', def():
         update_nav_list_url(field, offset + num, num, query_text, replace=True)
     )
-    page_info = E.span('', class_='cs-pager-page')
     status = E.span('', class_='cs-pager-status')
     search_inp = E.input(
         type='search',
@@ -582,7 +647,6 @@ def create_nav_list_panel(container_id):
     apply_btn.title = _('Apply')
     left.appendChild(prev_btn)
     left.appendChild(next_btn)
-    left.appendChild(page_info)
     if field is not 'pubdate':
         right.appendChild(search_inp)
         right.appendChild(apply_btn)
@@ -776,18 +840,32 @@ def create_nav_list_panel(container_id):
 
     TAG_BROWSER_FIELDS = v"['tags', 'series', 'authors', 'publisher', 'formats', 'rating']"
 
-    def format_count_rating(count, avg_rating):
+    def nav_list_rating_count_parts(count, avg_rating):
         sd = get_session_data()
         show_count = sd.get('show_nav_list_book_count', True)
         show_rating = sd.get('show_nav_list_avg_rating', True)
-        parts = []
+        count_s = None
+        rating_s = None
         if show_count and count is not None and str(count).strip() != '':
             n = int(count)
-            parts.push(_('{} books').format(n))
+            count_s = _('{} books').format(n)
         if show_rating and avg_rating is not None and str(avg_rating).strip() != '':
             r = float(avg_rating) if avg_rating else 0
             if r > 0:
-                parts.push(stars_for_rating(str(Math.round(r / 2))))
+                rating_s = stars_for_rating(str(Math.round(r / 2)))
+        if not count_s and not rating_s:
+            return None
+        return {'rating': rating_s, 'count': count_s}
+
+    def format_count_rating(count, avg_rating):
+        p = nav_list_rating_count_parts(count, avg_rating)
+        if not p:
+            return ''
+        parts = []
+        if p.count:
+            parts.push(p.count)
+        if p.rating:
+            parts.push(p.rating)
         return ' · '.join(parts)
 
     def fetch_from_tag_browser(field, proceed):
@@ -887,17 +965,21 @@ def create_nav_list_panel(container_id):
             while div.firstChild:
                 div.removeChild(div.firstChild)
             if urls:
-                # Keep the stack symmetric for 1-5 covers
+                # Odd stacks only (1 / 3 / 5); cap at 5; drop trailing when count is even (>1).
                 actual = []
                 for u in urls:
                     if u:
                         actual.push(u)
+                while actual.length > 5:
+                    actual.pop()
+                while actual.length > 1 and (actual.length % 2 == 0):
+                    actual.pop()
                 n = actual.length or 0
                 if n < 1:
                     continue
                 # Structure like reference implementation: container gets covers-N,
                 # images get cover-i classes. Positioning is done in CSS.
-                # Clear any previous covers-* classes
+                # Clear any previous covers-* classes (include legacy even counts)
                 cover_classes = v'["covers-1","covers-2","covers-3","covers-4","covers-5"]'
                 for cls in cover_classes:
                     div.classList.remove(cls)
@@ -930,7 +1012,6 @@ def create_nav_list_panel(container_id):
         total = items.length or 0
         if field is 'tags':
             shown = min(total, visible_tags)
-            page_info.textContent = ''
             status.textContent = _('Showing {} of {}').format(shown, total)
             set_enabled(prev_btn, False)
             set_enabled(next_btn, False)
@@ -986,12 +1067,6 @@ def create_nav_list_panel(container_id):
                 update_nav_list_url(field, new_offset, num, query_text, replace=True)
                 return
         end = min(total, offset + num)
-        total_pages = 0
-        current_page = 0
-        if total:
-            total_pages = Math.ceil(total / num)
-            current_page = Math.floor(offset / num) + 1
-        page_info.textContent = (str(current_page) + ' / ' + str(total_pages)) if total_pages else ''
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
         set_enabled(prev_btn, offset > 0)
         set_enabled(next_btn, end < total)
@@ -1009,24 +1084,24 @@ def create_nav_list_panel(container_id):
                 continue
             label = it.name + ''
             search_val = it.search_name or label
-            meta = format_count_rating(it.count, it.avg_rating)
+            meta = nav_list_rating_count_parts(it.count, it.avg_rating)
             if field is 'series':
                 series_mode = body.dataset.seriesDisplay or 'stack'
                 if series_mode is 'list':
-                    list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
+                    list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
                 else:
                     covers = E.div(class_='cs-series-covers')
                     row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
                     row.dataset.seriesName = label
-                    list_items.push(create_item(row, action=make_action(make_search(field, search_val)), subtitle=meta))
+                    list_items.push(create_item(row, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
             elif field is 'rating':
                 # Use server-provided display name (tag-browser item.name); do not parse as int — names are localized.
-                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
             elif field is 'pubdate':
                 # label is 'YYYY' or 'YYYY-MM'
                 list_items.push(create_item(label, action=make_action(pubdate_query_for(label))))
             else:
-                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
         subtitle = subtitle_for_field(field)
         if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'rating' or field is 'pubdate':
             nav_subtitle.textContent = subtitle or ''
@@ -1035,6 +1110,15 @@ def create_nav_list_panel(container_id):
         else:
             nav_subtitle.style.display = 'none'
             create_item_list(list_container, list_items, subtitle)
+
+        def flush_row_heights():
+            sync_cs_list_row_heights(list_container)
+
+        flush_row_heights()
+        raf = window.requestAnimationFrame
+        if raf:
+            raf(flush_row_heights)
+
         if field is 'series':
             # After rendering, lazily fetch covers for visible series
             for row in list_container.querySelectorAll('[data-series-name]'):
