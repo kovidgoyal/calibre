@@ -509,7 +509,7 @@ class VirtualCardContainer(QWidget):
         needed: set[int] = set()
         for r in range(first_row, last_row):
             ri = self._rows[r]
-            for idx in range(ri.first_index, ri.first_index + ri.card_count):
+            for idx in range(ri.first_index, min(ri.first_index + ri.card_count, len(self._cards))):
                 needed.add(idx)
 
         # Recycle widgets that are no longer needed
