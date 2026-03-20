@@ -58,9 +58,8 @@ def pickle_binary_string(data):
 
 def kill_parent_if_needed(parent_pid: int, timeout: float = 1.0, parent_process_handle: int = 0) -> None:
     import ctypes
-    import os
-    import signal
     SYNCHRONIZE = 0x00100000
+    PROCESS_TERMINATE = 0x0001
     WAIT_OBJECT_0 = 0x00000000
     WAIT_TIMEOUT = 0x00000102
 
@@ -69,7 +68,7 @@ def kill_parent_if_needed(parent_pid: int, timeout: float = 1.0, parent_process_
         handle = parent_process_handle
     else:
         kernel32.OpenProcess.restype = ctypes.c_void_p
-        handle = kernel32.OpenProcess(SYNCHRONIZE, False, parent_pid)
+        handle = kernel32.OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, False, parent_pid)
         if not handle:
             return
     try:
@@ -77,6 +76,6 @@ def kill_parent_if_needed(parent_pid: int, timeout: float = 1.0, parent_process_
         if result == WAIT_OBJECT_0:
             return
         if result == WAIT_TIMEOUT:
-            os.kill(parent_pid, signal.SIGTERM)
+            kernel32.TerminateProcess(handle, 1)
     finally:
         kernel32.CloseHandle(handle)
