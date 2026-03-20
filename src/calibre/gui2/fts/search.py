@@ -686,8 +686,10 @@ class SearchInputPanel(QWidget):
             'rating':    _('Highest rated'),
             'pubdate':   _('Recently published'),
             'size':      _('Largest'),
-            'pages':     _('Most pages'),
         }
+        db = get_db()
+        if db.pref('full_page_scan_requested'):
+            self._sort_labels['pages'] = _('Most pages')
         for key, label in self._sort_labels.items():
             ac = sort_menu.addAction(label)
             ac.setCheckable(True)
