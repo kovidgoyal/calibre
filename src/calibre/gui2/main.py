@@ -413,12 +413,12 @@ def workaround_windows_shutdown_hang(timeout: float=1.0):
     SYNCHRONIZE = 0x00100000
     PROCESS_TERMINATE = 0x0001
     kernel32 = ctypes.windll.kernel32
-    new_handle = ctypes.c_void_p()
-    current_process = kernel32.GetCurrentProcess()
-    if kernel32.DuplicateHandle(
-            current_process, current_process, current_process,
-            ctypes.byref(new_handle), SYNCHRONIZE | PROCESS_TERMINATE, True, 0):
-        handle = new_handle.value
+    # Use OpenProcess on our own PID with bInheritHandle=True to get a real,
+    # inheritable handle. We set the restype to c_void_p so the 64-bit handle
+    # value is not truncated on x64 systems.
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    handle = kernel32.OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, True, os.getpid())
+    if handle:
         try:
             start_pipe_worker(
                 f'from calibre.utils import kill_parent_if_needed; kill_parent_if_needed({os.getpid()!r}, {timeout!r}, {handle!r})',

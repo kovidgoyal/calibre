@@ -68,6 +68,7 @@ def kill_parent_if_needed(parent_pid: int, timeout: float = 1.0, parent_process_
     if parent_process_handle:
         handle = parent_process_handle
     else:
+        kernel32.OpenProcess.restype = ctypes.c_void_p
         handle = kernel32.OpenProcess(SYNCHRONIZE, False, parent_pid)
         if not handle:
             return
