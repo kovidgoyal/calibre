@@ -397,7 +397,7 @@ def run_gui(opts, args, app, gui_debug=None):
         run_gui_(opts, args, app, gui_debug)
 
 
-def workaround_windows_shutdown_hang(timeout: float=1.0):
+def workaround_windows_shutdown_hang(timeout: float=1.0, exit_code: int = 0):
     # On Windows we get a mysterious deadlock that hangs the process on
     # exit even if we call os._exit(0), once the wireless device driver connects.
     # See https://bugs.launchpad.net/bugs/2141994
@@ -422,7 +422,7 @@ def workaround_windows_shutdown_hang(timeout: float=1.0):
     if handle:
         try:
             start_pipe_worker(
-                f'from calibre.utils import kill_parent_if_needed; kill_parent_if_needed({handle!r}, {timeout!r})',
+                f'from calibre.utils import *; kill_parent_if_needed({handle!r}, {timeout!r}, {exit_code!r})',
                 pass_fds=(handle,))
         finally:
             kernel32.CloseHandle(handle)

@@ -56,13 +56,13 @@ def pickle_binary_string(data):
     return PROTO + b'\x02' + BINSTRING + struct.pack(b'<i', len(data)) + data + STOP
 
 
-def kill_parent_if_needed(parent_process_handle: int, timeout: float = 1.0) -> None:
+def kill_parent_if_needed(parent_process_handle: int, timeout: float = 1.0, exit_code: int = 0) -> None:
     import ctypes
     WAIT_TIMEOUT = 0x00000102
 
     kernel32 = ctypes.windll.kernel32
     try:
         if kernel32.WaitForSingleObject(parent_process_handle, int(timeout * 1000)) == WAIT_TIMEOUT:
-            kernel32.TerminateProcess(parent_process_handle, 17)
+            kernel32.TerminateProcess(parent_process_handle, exit_code)
     finally:
         kernel32.CloseHandle(parent_process_handle)

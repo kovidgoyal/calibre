@@ -132,7 +132,7 @@ def winkill_main(hang=True):
 
     def exit_sequence():
         from calibre.gui2.main import workaround_windows_shutdown_hang
-        workaround_windows_shutdown_hang(0.1)
+        workaround_windows_shutdown_hang(0.1, 17)
         time.sleep(10 if hang else 0.1)
     atexit.register(exit_sequence)
 
