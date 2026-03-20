@@ -48,7 +48,7 @@ def choose_block_style(proceed):
 
         parent.appendChild(E.div(
             E.div(_('Choose the block style you would like to use')),
-            E.div(class_='button-box', style='flex-wrap: wrap',
+            E.div(class_='button-box button-box--wrap-chips', style='flex-wrap: wrap',
                 s(_('Normal'), 'div'), spc, s('H1', 'h1'), spc, s('H2', 'h2'), spc, s('H3', 'h3'), spc, s('H4', 'h4'), spc, s('H5', 'h5'), spc, s('H6', 'h6'), spc, s(_('Quote'), 'blockquote')
             )
         ))
@@ -191,9 +191,8 @@ def insert_image(editor):
                 ),
             ),
             E.div(class_='button-box',
-                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
-                  '\xa0',
                   create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
             ),
 
         ))
@@ -212,14 +211,13 @@ def insert_link(title, msg, proceed):
 
         parent.appendChild(E.div(class_='il-modal-container',
             E.div(msg),
-            E.table(style='width: 95%; margin-top: 1ex',
+            E.table(style='width: 100%; max-width: 100%; margin-top: 1ex; table-layout: fixed; box-sizing: border-box',
                 E.tr(E.td('URL:'), E.td(style='padding-bottom: 1ex', E.input(type='url', name='url', style='width: 100%'))),
                 E.tr(E.td(_('Name (optional):')), E.td(E.input(type='text', name='name', style='width: 100%'))),
             ),
             E.div(class_='button-box',
-                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
-                  '\xa0',
                   create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
             ),
         ))
     )
@@ -249,9 +247,8 @@ def set_color(title, msg, proceed):
             E.div(msg),
             E.div(E.input(type='color', name='color')),
             E.div(class_='button-box',
-                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
-                  '\xa0',
                   create_button(_('Cancel'), action=action.bind(None, False), highlight=False),
+                  create_button(_('OK'), action=action.bind(None, True), highlight=True),
             ),
         ))
     )

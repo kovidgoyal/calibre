@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.router import back
-from book_list.theme import get_color
+from book_list.theme import get_color, apply_book_list_theme
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 from session import local_storage
@@ -111,7 +111,10 @@ add_extra_css(def():
         border='1px solid rgba(0,0,0,0.12)',
         background_color='rgba(0,0,0,0.02)',
         color=get_color('window-foreground'),
-        min_width='14rem'
+        min_width='0',
+        max_width='100%',
+        width='100%',
+        box_sizing='border-box',
     )
     return style
 )
@@ -119,15 +122,25 @@ add_extra_css(def():
 
 def init(container_id):
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('UI settings'), action=back, icon='close')
     # Use the same layout/class language as the Tag browser prefs panel
     container.appendChild(E.div(class_='cs-prefs ' + CLASS_NAME))
     root = container.lastChild
     clear(root)
 
-    current = local_storage().get(KEY) or DEFAULT_PRIMARY
-    if current and not (current + '').startswith('#'):
-        current = '#' + current
+    committed = local_storage().get(KEY) or DEFAULT_PRIMARY
+    if committed and not (committed + '').startswith('#'):
+        committed = '#' + committed
+    current = committed
+
+    def apply_primary_theme_preview(val):
+        apply_primary_color(val)
+        apply_book_list_theme()
+
+    def leave_without_saving():
+        apply_primary_theme_preview(committed)
+        back()
+
+    create_top_bar(container, title=_('UI settings'), icon='close', back_action=leave_without_saving)
 
     outer = E.div(class_='list')
     root.appendChild(outer)
@@ -145,7 +158,37 @@ def init(container_id):
         color_input
     ))
 
+    def on_color_preview(ev):
+        apply_primary_theme_preview(color_input.value or '')
+
+    color_input.addEventListener('input', on_color_preview)
+    color_input.addEventListener('change', on_color_preview)
+
     sd = get_session_data()
+    scheme_key = 'book_list_color_scheme'
+    scheme_item = E.div(class_='item', data_name=scheme_key,
+        E.div(class_='item-main'),
+        E.div(_('Controls light or dark styling for the library interface (sidebar, lists, dialogs). Automatic follows your device or browser.'), class_='help')
+    )
+    outer.appendChild(scheme_item)
+    scheme_main = scheme_item.firstChild
+    scheme_select = E.select()
+    scheme_select.appendChild(E.option(_('Automatic'), value='auto'))
+    scheme_select.appendChild(E.option(_('Dark'), value='dark'))
+    scheme_select.appendChild(E.option(_('Light'), value='light'))
+    cur_scheme = (sd.get(scheme_key, 'auto') or 'auto') + ''
+    if cur_scheme is not 'dark' and cur_scheme is not 'light' and cur_scheme is not 'auto':
+        cur_scheme = 'auto'
+    scheme_select.value = cur_scheme
+    scheme_main.appendChild(E.div(id='ui-setting-' + scheme_key, class_='control',
+        E.span(_('Display mode'), class_='label'),
+        scheme_select
+    ))
+    scheme_select.addEventListener('change', def(ev):
+        sd.set(scheme_key, scheme_select.value)
+        apply_book_list_theme()
+    )
+
     show_count_key = 'show_nav_list_book_count'
     show_rating_key = 'show_nav_list_avg_rating'
     show_sidebar_in_viewer_key = 'show_sidebar_in_book_viewer'
@@ -199,15 +242,20 @@ def init(container_id):
     root.appendChild(footer)
 
     def save(ev=None):
+        nonlocal committed
         val = color_input.value or ''
+        if val and not (val + '').startswith('#'):
+            val = '#' + val
         local_storage().set(KEY, val)
-        apply_primary_color(val)
+        committed = val
+        apply_primary_theme_preview(val)
 
     def reset(ev=None):
         val = DEFAULT_PRIMARY
+        if val and not (val + '').startswith('#'):
+            val = '#' + val
         color_input.value = val
-        local_storage().set(KEY, val)
-        apply_primary_color(val)
+        apply_primary_theme_preview(val)
 
     footer.appendChild(create_button(_('Save'), icon='check', action=save, highlight=True))
     footer.appendChild(E.span('\xa0'))

@@ -6,9 +6,10 @@ from ajax import absolute_path, encode_query
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.constants import book_list_container_id, read_book_container_id
+from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id
 from book_list.globals import get_current_query, get_session_data
 from book_list.library_data import current_library_id
+from dom import clear
 from modals import close_all_modals
 from read_book.globals import ui_operations
 from utils import (
@@ -44,6 +45,10 @@ def apply_mode():
     divid = read_book_container_id if is_reading_book() else book_list_container_id
     for div in document.getElementById(divid).parentNode.childNodes:
         div.style.display = 'block' if div.id is divid else 'none'
+    if is_reading_book():
+        host = document.getElementById(cs_top_bar_host_id)
+        if host:
+            clear(host)
 
 
 def apply_url(ignore_handler):

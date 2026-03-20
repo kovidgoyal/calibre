@@ -38,16 +38,28 @@ add_extra_css(def():
         transform='translateY(-1px)'
     )
     style += build_rule(sel + 'li:active', transform='translateY(0px)')
-    style += build_rule(sel + '.item-title', font_size=get_font_size('item-list-title'), font_weight='700')
-    style += build_rule(sel + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
+    style += build_rule(sel + ' .item-title-body .item-title',
+        font_size=get_font_size('item-list-title'), font_weight='700')
+    style += build_rule(sel + ' .item-subtitle',
+        font_size=get_font_size('item-list-subtitle'), font_style='normal', opacity='0.78')
     sel += ' li > div:nth-child(1)'
     style += build_rule(sel,
         padding='0.85rem 0.95rem',
+        position='relative',
         display='flex',
         align_items='flex-start',
-        gap='0.5rem'
+        flex_wrap='wrap',
+        gap='0.5rem',
+        box_sizing='border-box',
     )
-    style += build_rule(sel + ' > span', opacity='0.8')
+    style += build_rule(sel + ' .item-title-body',
+        display='flex',
+        align_items='center',
+        gap='0.5rem',
+        min_width='0',
+        flex='1 1 auto',
+    )
+    style += build_rule(sel + ' .item-title-body > span:not(.item-title)', opacity='0.8')
     style += r'''
 @media (max-width: 420px) {
   .generic-items-list { padding: 0.6rem 0.75rem; }
@@ -81,15 +93,31 @@ def build_list(container, items, subtitle):
             break
 
     for item in items:
-        ic = ''
+        title_body = E.div(class_='item-title-body')
         if has_icons:
+            ic = ''
             if item.icon:
                 ic = svgicon(item.icon)
-            ic = E.span(ic, '\xa0')
-        li = E.li(E.div(ic, item.title, class_='item-title'))
+            title_body.appendChild(E.span(ic, '\xa0'))
+        tit = item.title
+        if jstype(tit) is 'string':
+            title_body.appendChild(E.span((tit or '') + '', class_='item-title'))
+        else:
+            title_body.appendChild(tit)
+        row = E.div(class_='item-first-row')
+        row.appendChild(title_body)
+        nm = item.nav_list_meta
+        if nm and (nm.rating or nm.count):
+            stack = E.div(class_='item-subtitle item-subtitle-nav')
+            if nm.rating:
+                stack.appendChild(E.div(nm.rating, class_='item-subtitle-rating'))
+            if nm.count:
+                stack.appendChild(E.div(nm.count, class_='item-subtitle-count'))
+            row.appendChild(stack)
+        elif item.subtitle:
+            row.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
+        li = E.li(row)
         ul.appendChild(li)
-        if item.subtitle:
-            li.firstChild.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
         if item.action:
             li.addEventListener('click', item.action)
         if item.data:
@@ -116,8 +144,8 @@ def create_side_action(icon, action=None, tooltip=None):
     return {'icon':icon, 'action': action, 'tooltip': tooltip}
 
 
-def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon, 'data': data, 'side_actions': side_actions or v'[]'}
+def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None):
+    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon, 'data': data, 'side_actions': side_actions or v'[]', 'nav_list_meta': nav_list_meta}
 
 
 def create_item_list(container, items, subtitle=None):

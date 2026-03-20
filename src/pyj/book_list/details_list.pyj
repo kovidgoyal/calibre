@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.theme import browser_in_dark_mode, css_for_variables, get_color
+from book_list.theme import effective_book_list_is_dark, css_for_variables, get_color
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
 from session import get_interface_data
@@ -32,7 +32,15 @@ def details_list_css():
         flex_direction='column',
         gap='0.75rem',
         padding_top='0.75rem',
-        padding_bottom='0.75rem'
+        padding_bottom='0.75rem',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    ans += build_rule(f'{sel} > .book-list-item',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
     )
     # Do not underline list-row links on hover (keep the row feeling like a card)
     ans += build_rule(sel + ' a:hover', text_decoration='none')
@@ -47,7 +55,12 @@ def details_list_css():
         border='1px solid var(--cs-surface-border)',
         background='var(--cs-surface-1)',
         box_shadow='0 16px 44px rgba(0,0,0,0.10)',
-        text_decoration='none'
+        text_decoration='none',
+        min_width='0',
+        max_width='100%',
+        width='100%',
+        box_sizing='border-box',
+        overflow='hidden',
     )
     # No hover zoom; use highlight instead
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover',
@@ -79,18 +92,45 @@ def details_list_css():
         transition='box-shadow 160ms ease'
     )
     s = sel + ' .details-list-right'
-    ans += build_rule(s, flex_grow='10', overflow='hidden', display='flex', flex_direction='column', min_height='0')
+    ans += build_rule(s,
+        flex_grow='10',
+        flex_shrink='1',
+        flex_basis='0',
+        min_width='0',
+        max_width='100%',
+        overflow_x='hidden',
+        overflow_y='visible',
+        display='flex',
+        flex_direction='column',
+        min_height='0',
+        box_sizing='border-box',
+    )
     ans += build_rule(sel + ' .details-main-head',
         display='flex',
         justify_content='space-between',
         gap='0.75rem',
+        overflow_x='hidden',
+        overflow_y='visible',
+        flex='0 1 auto',
+        min_height='0',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    ans += build_rule(sel + ' .details-head-primary',
+        display='flex',
+        flex_direction='column',
+        flex='1 1 0',
+        min_width='0',
+        max_width='100%',
+        min_height='0',
         overflow='hidden',
-        flex='0 0 auto',
-        min_height='0'
     )
     ans += build_rule(sel + ' .details-title-authors',
+        flex='0 0 auto',
         min_width='0',
-        overflow='hidden'
+        max_width='100%',
+        overflow='hidden',
     )
     ans += build_rule(sel + ' .details-title',
         display='block',
@@ -106,18 +146,25 @@ def details_list_css():
         overflow='hidden',
         text_overflow='ellipsis'
     )
-    ans += build_rule(sel + ' .details-comments',
-        margin_top='0.65ex',
-        opacity='0.85',
-        font_size='0.95em',
-        white_space='pre-wrap',
-        overflow='hidden',
-        min_height='0',
-        flex='1 1 auto',
-        display='-webkit-box',
-        webkit_line_clamp='3',
-        webkit_box_orient='vertical'
-    )
+    # line-clamp needs literal -webkit-* names; build_rule emits invalid "webkit-line-clamp".
+    ans += sel + ''' .details-comments {
+  margin-top: 0.65ex;
+  opacity: 0.85;
+  font-size: 0.95em;
+  min-height: 0;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 5 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+'''
     ans += build_rule(sel + ' .details-meta',
         margin_top='0.35ex',
         display='flex',
@@ -125,7 +172,13 @@ def details_list_css():
         gap='0.35rem 0.6rem',
         opacity='0.78',
         font_size='0.92em',
-        overflow='hidden'
+        overflow='hidden',
+        flex='0 2 auto',
+        min_width='0',
+        max_width='100%',
+    )
+    ans += build_rule(sel + ' .details-meta:empty',
+        display='none', margin_top='0'
     )
     ans += build_rule(sel + ' .details-badge',
         display='inline-flex',
@@ -140,8 +193,14 @@ def details_list_css():
         overflow='hidden',
         text_overflow='ellipsis'
     )
-    # Series line (rating + "N of Series"): single line, ellipsis if too long
     ans += build_rule(sel + ' .details-series',
+        display='block',
+        white_space='nowrap',
+        overflow='hidden',
+        text_overflow='ellipsis',
+        max_width='100%',
+    )
+    ans += build_rule(sel + ' .details-rating',
         display='block',
         white_space='nowrap',
         overflow='hidden',
@@ -150,13 +209,17 @@ def details_list_css():
     )
     top = sel + ' .details-main-head'
     extra_data = top + ' > div:last-child'
+    primary = sel + ' .details-head-primary'
     ans += build_rule(extra_data,
         text_align='right',
+        flex='0 3 auto',
         min_width='0',
-        overflow='hidden',
+        max_width='min(18rem, 48%)',
+        overflow_x='hidden',
+        overflow_y='visible',
+        box_sizing='border-box',
     )
-    # Narrow viewports: stack title block above rating/series (was wrongly scoped to .details-list-right iframe)
-    ta = sel + ' .details-title-authors'
+    # Narrow viewports: stack [title+meta] above rating/series. Shrink order: comments > extra > meta > title (via flex-shrink).
     ans += r'''
 @media (max-width: 640px) {
   __TOP__ {
@@ -169,12 +232,26 @@ def details_list_css():
     margin-top: 0.15rem;
     align-self: stretch;
     max-width: 100%;
+    flex: 0 3 auto;
+  }
+  __PRIMARY__ {
+    max-width: 100%;
+    flex: 0 1 auto;
+    min-height: 0;
   }
   __TA__ {
     max-width: 100%;
   }
 }
-'''.replace('__TOP__', top).replace('__EXTRA__', extra_data).replace('__TA__', ta)
+'''.replace('__TOP__', top).replace('__EXTRA__', extra_data).replace('__PRIMARY__', primary).replace('__TA__', sel + ' .details-title-authors')
+    ans += r'''
+@media (max-width: 420px) {
+  ''' + sel + ''' .details-comments {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+'''
     return ans
 
 
@@ -200,7 +277,7 @@ def on_img_load(img, load_type):
 def sandbox_css():
     # Kept for compatibility: used by other modules (e.g. custom_list) that still
     # sandbox HTML into an iframe. The details list itself does not use iframes.
-    is_dark_theme = browser_in_dark_mode()
+    is_dark_theme = effective_book_list_is_dark()
     if not sandbox_css.ans or sandbox_css.is_dark_theme is not is_dark_theme:
         sandbox_css.ans = css_for_variables() + '\n\n'
         sandbox_css.ans += 'html {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
@@ -234,7 +311,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         comments.style.display = 'none'
     interface_data = get_interface_data()
     if metadata.rating:
-        stars = E.span(style='white-space:nowrap')
+        stars = E.span(class_='details-rating')
         for i in range(int(metadata.rating) // 2):
             stars.appendChild(svgicon('star'))
         extra_data.appendChild(stars), extra_data.appendChild(E.br())
@@ -274,15 +351,19 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         add_badge('global-search', langs.slice(0, 3).join(' · '), _('Languages'))
     tgs = metadata.tags or v'[]'
     if tgs and tgs.length:
-        add_badge('link', tgs.slice(0, 4).join(' · '), _('Tag'))
+        for tg in tgs.slice(0, 4):
+            add_badge('link', tg, _('Tag'))
     right = E.div(
         class_='details-list-right',
         E.div(
             class_='details-main-head',
             E.div(
-                class_='details-title-authors',
-                E.b(metadata.title or _('Unknown'), class_='details-title'),
-                E.span(authors, class_='details-authors'),
+                class_='details-head-primary',
+                E.div(
+                    class_='details-title-authors',
+                    E.b(metadata.title or _('Unknown'), class_='details-title'),
+                    E.span(authors, class_='details-authors'),
+                ),
                 meta,
             ),
             extra_data
@@ -290,7 +371,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         comments,
     )
     ans = E.div(E.a(img_div, right, href=href,
-                style=f'height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
+                style=f'min-height:{THUMBNAIL_MAX_HEIGHT}px; display: flex',
                 class_=ITEM_CLASS,
     ))
     ans.addEventListener('click', show_book_details, True)
