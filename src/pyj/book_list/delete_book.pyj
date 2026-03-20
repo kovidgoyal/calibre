@@ -70,9 +70,8 @@ def confirm_delete_from_library(library_id, book_id, title):
         parent.appendChild(E.div(
             m,
             E.div(class_='button-box',
-                create_button(_('OK'), None, action.bind(None, True)),
-                '\xa0',
-                create_button(_('Cancel'), None, action.bind(None, False), highlight=True),
+                create_button(_('Cancel'), None, action.bind(None, False)),
+                create_button(_('OK'), None, action.bind(None, True), highlight=True),
             )
         ))
     )
@@ -95,7 +94,6 @@ def choose_which_delete(library_id, book_id, title):
                     ' your calibre library. Where do you want to delete it from?').format(title)),
             E.div(class_='button-box',
                 create_button(_('Cache'), None, action.bind(None, True, False)),
-                '\xa0',
                 create_button(_('Library and cache'), None, action.bind(None, True, True)),
             )
         ))
