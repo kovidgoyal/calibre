@@ -30,26 +30,48 @@ sp_counter = 0
 CLASS_NAME = 'book-search-panel'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
+    card_bg = 'var(--cs-surface-1)'
+    card_border = '1px solid var(--cs-surface-border)'
 
-    style =  build_rule(sel + ' div.tag-name > span', word_break='break-all', hyphens='auto', padding_left='1ex')
-    style +=  build_rule(sel + ' div.tag-name:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-    style += build_rule(sel + ' div.tag-menu:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-    style += build_rule(sel + ' div.tag-name:active', transform='scale(1.5)')
-    style += build_rule(sel + ' div.tag-menu:active', transform='scale(2)')
+    style = build_rule(sel,
+        padding='0.75rem 1rem 1rem 1rem',
+        max_width='980px',
+        margin_top='0.75rem',
+        margin_bottom='0.75rem',
+        margin_left='auto',
+        margin_right='auto',
+        box_sizing='border-box',
+        display='flex',
+        flex_direction='column',
+        gap='1rem',
+    )
+    style += r'''
+@media (max-width: 720px) {
+  .''' + CLASS_NAME + r''' { padding-left: 0.75rem; padding-right: 0.75rem; }
+}
+'''
 
-    # Search header / input styling (match modern panel visuals)
+    style += build_rule(sel + ' .cs-search-body', margin_top='0', display='flex', flex_direction='column', gap='0.95rem')
+
+    style += build_rule(sel + ' div.tag-name > span', word_break='break-all', hyphens='auto', padding_left='1ex')
+    style += build_rule(sel + ' div.tag-name:hover', color='inherit', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + ' div.tag-menu:hover', color='inherit', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + ' div.tag-name:active', transform='none', opacity='0.92')
+    style += build_rule(sel + ' div.tag-menu:active', transform='none', opacity='0.92')
+
+    # Search header card (match home / details-list surfaces)
     style += build_rule(sel + ' .cs-search-header',
-        padding='0.9rem 1rem',
-        border_bottom='1px solid rgba(127,127,127,0.28)',
-        background_color=get_color('window-background'),
+        padding='1rem',
+        border_radius='18px',
+        border=card_border,
+        background=card_bg,
+        box_shadow='none',
     )
     style += build_rule(sel + ' .cs-search-row',
         display='flex',
         align_items='center',
-        gap='0.6rem',
-        width='min(980px, 100%)',
-        margin_left='auto',
-        margin_right='auto',
+        gap='0.65rem',
+        width='100%',
     )
     style += build_rule(sel + ' .cs-search-row > div',
         flex_grow='1',
@@ -60,7 +82,7 @@ add_extra_css(def():
         box_sizing='border-box',
         padding='0.62rem 0.85rem',
         border_radius='999px',
-        border='1px solid rgba(127,127,127,0.35)',
+        border='1px solid var(--cs-surface-border-strong)',
         background_color=get_color('input-background'),
         color=get_color('input-foreground'),
         font_size='1rem',
@@ -71,25 +93,123 @@ add_extra_css(def():
         opacity='0.95',
     )
     style += build_rule(sel + ' input[name="search-books"]:focus',
-        outline='2px solid var(--calibre-color-input-focus-outline-color)',
-        outline_offset='2px',
+        border_color='var(--primary-color)',
+        outline='none',
+        box_shadow='0 0 0 3px var(--primary-light-2)',
     )
     style += build_rule(sel + ' .cs-search-help',
-        width='min(980px, 100%)',
-        margin_left='auto',
-        margin_right='auto',
+        width='100%',
         text_align='left',
-        padding_top='0.75rem',
+        padding_top='0.65rem',
     )
 
-    # search items list
-    style += build_rule(sel + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
-    style += build_rule(sel + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
-    style += build_rule(sel + ' ul.search-items > li:hover', color=get_color('window-hover-foreground'))
-    style += build_rule(sel + ' ul.search-items > li:active', transform='scale(1.5)')
+    # Active search terms chips (match details-list badges)
+    style += build_rule(sel + ' ul.search-items',
+        margin_top='0.65rem',
+        margin_bottom='0',
+        list_style_type='none',
+        text_align='left',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.35rem',
+        padding='0',
+    )
+    style += build_rule(sel + ' ul.search-items > li',
+        display='inline-flex',
+        align_items='center',
+        gap='0.25rem',
+        cursor='pointer',
+        padding='0.15rem 0.5rem',
+        border_radius='999px',
+        border='1px solid var(--cs-surface-border)',
+        background='var(--cs-surface-3)',
+        font_size='0.92em',
+    )
+    style += build_rule(sel + ' ul.search-items > li:hover',
+        background='var(--cs-accent-weak)',
+        border_color='var(--cs-surface-border-strong)',
+    )
+    style += build_rule(sel + ' ul.search-items > li:active',
+        background='var(--cs-accent-weak-2)',
+        transform='none',
+    )
+
+    # Tag browser card + breadcrumbs
+    style += build_rule(sel + ' .cs-search-tag-card',
+        padding='1rem',
+        border_radius='18px',
+        border=card_border,
+        background=card_bg,
+        box_shadow='none',
+    )
+    style += build_rule(sel + ' .cs-search-breadcrumbs.calibre-breadcrumbs',
+        background='var(--cs-surface-2)',
+        border='1px solid var(--cs-surface-border)',
+        border_radius='14px',
+        margin='0 0 0.85rem 0',
+        padding='0.25rem 0',
+        z_index='auto',
+    )
+    style += build_rule(sel + ' .cs-search-breadcrumbs.calibre-breadcrumbs > li:hover',
+        color='inherit',
+    )
+    style += build_rule(sel + ' .cs-search-tags',
+        padding='0',
+        display='flex',
+        flex_direction='column',
+        gap='0.65rem',
+        margin='0',
+        width='100%',
+    )
+    style += build_rule(sel + ' .cs-search-tag-row',
+        display='flex',
+        align_items='stretch',
+        max_width='100%',
+        border='1px solid var(--cs-surface-border)',
+        border_radius='14px',
+        background='var(--cs-surface-2)',
+        box_shadow='none',
+        cursor='pointer',
+        overflow='hidden',
+        user_select='none',
+        transition='background-color 160ms ease, border-color 160ms ease',
+    )
+    style += build_rule(sel + ' .cs-search-tag-row:hover',
+        background_color='var(--cs-accent-weak)',
+        border_color='var(--cs-surface-border-strong)',
+        box_shadow='none',
+    )
+    style += build_rule(sel + ' .cs-search-tag-row:active',
+        background_color='var(--cs-accent-weak-2)',
+        transform='translateY(0.5px)',
+    )
+    style += build_rule(sel + ' .cs-search-tag-row .tag-name',
+        border_right='1px solid var(--cs-surface-border)',
+        padding='0.65rem 0.85rem',
+        display='flex',
+        align_items='center',
+        flex='1 1 auto',
+        min_width='0',
+    )
+    style += build_rule(sel + ' .cs-search-tag-row .tag-menu',
+        padding='0.65rem 0.75rem',
+        display='flex',
+        align_items='center',
+        flex='0 0 auto',
+        background='var(--cs-surface-3)',
+    )
+
+    style += build_rule(sel + ' .cs-search-loading',
+        padding='2.5rem 1rem',
+        text_align='center',
+        border_radius='18px',
+        border=card_border,
+        background=card_bg,
+        box_shadow='none',
+    )
 
     # Actions popup
-    style +=  build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
     style += build_rule('#modal-container ul.tb-action-list > li:active', color=get_color('window-hover-foreground'), color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
 
     return style
@@ -149,9 +269,8 @@ def ask_about_smart_quotes(text):
         parent.appendChild(E.div(
             E.div(_('The search expression {} contains smart quotes. By default, Apple inserts smart quotes instead of normal quotes when tapping the quote button. This will prevent the search from working, if you intended to use normal quotes. You can type normal quotes by long-tapping the quotes button. Do you want to keep the smart quotes or replace them with normal quotes?').format(text)),
             E.div(class_='button-box',
-                create_button(_('Replace'), None, action.bind(None, True), highlight=True),
-                '\xa0',
                 create_button(_('Keep'), None, action.bind(None, False)),
+                create_button(_('Replace'), None, action.bind(None, True), highlight=True),
             )
         ))
     )
@@ -306,7 +425,7 @@ def menu_clicked(i):
             _('Search for books based on this category (a search term will be added to the search field)')
         ))
 
-        ul = E.ul(style='list-style:none; overflow:hidden', class_='tb-action-list')
+        ul = E.ul(style='list-style:none; overflow-x:auto; overflow-y:visible', class_='tb-action-list')
         container.appendChild(ul)
         items = [
             (_('Books matching this category'), 'plus'),
@@ -371,18 +490,15 @@ def render_children(container, children):
         icon, fallback = icon_for_node(node)
         div = E.div(
                 title=tooltip.lstrip(),
-                style="display:flex; align-items: stretch",
+                class_='cs-search-tag-row',
                 E.div(class_='tag-name',
-                    style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
-                    E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='display:inline-block; max-height:2.5ex'),
+                    E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='display:inline-block; max-height:2.5ex; margin-right:0.5rem; flex-shrink:0'),
                     E.span(data.name),
                 ),
                 E.div(class_='tag-menu',
-                    style='padding: 1ex; display:flex; align-items:center',
                     E.div(svgicon('angle-down'))
                 )
         )
-        set_css(div, max_width='95vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
         div.firstChild.addEventListener('click', node_clicked.bind(None, i))
         div.lastChild.addEventListener('click', menu_clicked.bind(None, i))
         container.appendChild(div)
@@ -418,7 +534,7 @@ def render_breadcrumbs():
 def render_tag_browser():
     container = component(document.getElementById(state.container_id), "tag_browser")
     clear(container)
-    set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
+    set_css(container, padding='0', display='flex', flex_direction='column', gap='0.65rem', width='100%')
     try:
         node = node_for_path()
     except:
@@ -439,8 +555,11 @@ def on_data_fetched(end_type, xhr, ev):
 
     loading_panel = component(container, 'loading')
     loading_panel.style.display = 'none'
+    tc = component(container, 'tag_card')
+    if tc:
+        tc.style.display = 'block'
     container = component(container, 'tag_browser')
-    container.style.display = 'block'
+    container.style.display = 'flex'
     clear(container)
 
     def show_error(error_html):
@@ -474,6 +593,14 @@ def on_data_fetched(end_type, xhr, ev):
 
 
 def refresh():
+    root = document.getElementById(state.container_id)
+    if root:
+        lp = component(root, 'loading')
+        if lp:
+            lp.style.display = 'block'
+        tc = component(root, 'tag_card')
+        if tc:
+            tc.style.display = 'none'
     if state.currently_loading is not None:
         state.currently_loading.abort()
         state.currently_loading = None
@@ -495,10 +622,12 @@ def create_search_panel(container):
         data_component='search',
         class_='cs-search-header'
     ))
-    container.appendChild(E.div(
-        E.div(data_component='loading'),
-        E.ol(style="display:none", data_component='breadcrumbs'),
-        E.div(style="display:none", data_component='tag_browser')
+    container.appendChild(E.div(class_='cs-search-body',
+        E.div(data_component='loading', class_='cs-search-loading'),
+        E.div(data_component='tag_card', class_='cs-search-tag-card', style='display:none',
+            E.ol(style="display:none", data_component='breadcrumbs', class_='cs-search-breadcrumbs'),
+            E.div(style="display:none", data_component='tag_browser', class_='cs-search-tags'),
+        ),
     ))
 
     # Build search input
@@ -515,7 +644,7 @@ def create_search_panel(container):
     loading_panel = component(container, 'loading')
     loading_panel.appendChild(E.div(
         create_spinner(), '\xa0' + _('Fetching data for the Tag browser, please wait') + '…',
-        style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
+        style='font-size: 1.15rem; font-weight: 700; opacity: 0.9')
     )
 
     # Build breadcrumbs

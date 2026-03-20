@@ -676,7 +676,6 @@ def show_export_dialog(annotations_manager, book_metadata):
                     x.select()
                     document.execCommand('copy')
                 ),
-                '\xa0',
                 create_button(_('Download'), 'cloud-download', def (ev):
                     nonlocal fmt
                     text = document.getElementById(ta_id).textContent

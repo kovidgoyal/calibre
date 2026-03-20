@@ -3,6 +3,7 @@
 from __python__ import hash_literals
 
 from book_list.theme import get_color, get_font_size
+from book_list.constants import book_list_container_id, cs_top_bar_host_id
 from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
@@ -73,7 +74,26 @@ add_extra_css(def():
     return style
 )
 
+def top_bar_target_container(container):
+    # Book-list UI top bar mounts in the shell host above the sidebar + main column.
+    if not container:
+        return container
+    bl = document.getElementById(book_list_container_id)
+    host = document.getElementById(cs_top_bar_host_id)
+    if bl and host and bl.contains(container):
+        return host
+    return container
+
+
 def create_markup(container):
+    target = top_bar_target_container(container)
+    if target and target.id is cs_top_bar_host_id:
+        clear(target)
+        try:
+            if target.dataset and target.dataset.csTopBarSpacerSync:
+                v'delete target.dataset.csTopBarSpacerSync'
+        except Exception:
+            pass
     for i in range(2):
         bar = E.div(
             class_=CLASS_NAME,
@@ -81,12 +101,9 @@ def create_markup(container):
             E.div(class_='main-top-bar-right')
         )
         if i is 0:
-            # The main calibre content server UI can optionally have a fixed left sidebar.
-            # Offset the fixed top bar so it does not overlap the sidebar.
-            set_css(bar, position='fixed', left='var(--cs-sidebar-width, 0px)', top='0', z_index='1', width='calc(100% - var(--cs-sidebar-width, 0px))')
+            set_css(bar, position='fixed', left='0', top='0', z_index='1', width='100%')
         else:
-            # Spacer bar must match the fixed bar width so wrapping/height is identical.
-            set_css(bar, margin_left='var(--cs-sidebar-width, 0px)', width='calc(100% - var(--cs-sidebar-width, 0px))')
+            set_css(bar, margin_left='0', width='100%')
             # But it should not be visible (prevents duplicate titles/buttons).
             set_css(bar, visibility='hidden', pointer_events='none')
         set_css(bar,
@@ -98,11 +115,11 @@ def create_markup(container):
             border_bottom='1px solid rgba(0,0,0,0.10)',
             box_shadow='0 1px 0 rgba(0,0,0,0.03)'
         )
-        container.appendChild(bar)
+        target.appendChild(bar)
     # Fixed bar #0 often grows taller than spacer #1 (extra controls are only appended to bar #0),
     # so in-flow spacer would be too short and content (e.g. cs-book-pager) sits under the fixed bar.
-    install_top_bar_spacer_sync(container)
-    install_right_slot_auto_collapse(container)
+    install_top_bar_spacer_sync(target)
+    install_right_slot_auto_collapse(target)
 
 
 def _sync_top_bar_spacer_height(container):
@@ -193,9 +210,14 @@ def install_right_slot_auto_collapse(container):
 
 
 def get_bars(container):
-    return container.getElementsByClassName(CLASS_NAME)
+    target = top_bar_target_container(container)
+    if not target:
+        if container:
+            return container.getElementsByClassName(CLASS_NAME)
+        return document.createElement('div').getElementsByClassName(CLASS_NAME)
+    return target.getElementsByClassName(CLASS_NAME)
 
-def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
+def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None, back_action=None):
     bars = get_bars(container)
     if icon is 'heart':
         if not tooltip:
@@ -235,10 +257,14 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 btns = left.getElementsByTagName('a')
                 idx = 0
                 if not is_home:
-                    btns[idx].addEventListener('click', def(event):
+                    def on_back_click(event):
                         event.preventDefault()
-                        back.bind(event)()
-                    )
+                        if callable(back_action):
+                            back_action(event)
+                        else:
+                            back.bind(event)()
+
+                    btns[idx].addEventListener('click', on_back_click)
                     idx += 1
                 btns[idx].addEventListener('click', def(event):
                     event.preventDefault()
@@ -262,13 +288,19 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
 def set_title(container, text):
     bars = get_bars(container)
     for bar in bars:
-        bar.firstChild.firstChild.nextSibling.textContent = text
+        left = bar.firstChild
+        el = left.querySelector('.top-bar-title') if left else None
+        if el:
+            el.textContent = text
 
 
 def set_title_tooltip(container, text):
     bars = get_bars(container)
     for bar in bars:
-        bar.firstChild.firstChild.nextSibling.title = text
+        left = bar.firstChild
+        el = left.querySelector('.top-bar-title') if left else None
+        if el:
+            el.title = text
 
 
 def create_top_bar(container, **kw):
