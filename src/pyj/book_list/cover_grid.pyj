@@ -30,9 +30,41 @@ def current_book_list_panel_id():
 
 THUMBNAIL_MAX_WIDTH = 3 * 85
 THUMBNAIL_MAX_HEIGHT = int(THUMBNAIL_MAX_WIDTH * 3 / 2)
-THUMBNAIL_MIN_WIDTH = 3 * 20
+# Slightly lower floor so small containers get more slider range before hitting a px plateau.
+THUMBNAIL_MIN_WIDTH = 3 * 16
 THUMBNAIL_MIN_HEIGHT = int(THUMBNAIL_MIN_WIDTH * 3 / 2)
 BORDER_RADIUS = 10
+# Row gap (vertical). Column gap is computed per width so tile width stays at slider size;
+# column gap is clamped to [ROW_GAP, tile_width].
+COVER_GRID_ROW_GAP = 10
+
+
+def cover_grid_column_layout(container_w, tile_px, row_gap):
+    """Pick column count and horizontal gap: n*T + (n-1)*g == W, row_gap <= g <= tile_px."""
+    W = float(container_w)
+    T = float(tile_px)
+    R = float(row_gap)
+    if W < 32 or T < 1:
+        return 1, 0
+    # Max columns if gaps were at least R (each extra column adds T+R except first T).
+    n_hi = int(Math.floor((W + R) / (T + R)))
+    n_cap = int(Math.floor(W / T))
+    if n_hi > n_cap:
+        n_hi = n_cap
+    if n_hi < 1:
+        n_hi = 1
+    n = 1
+    g = 0.0
+    if n_hi >= 2:
+        cand = n_hi
+        while cand >= 2:
+            g_try = (W - cand * T) / (cand - 1)
+            if g_try + 1e-6 >= R and g_try <= T + 1e-6:
+                n = cand
+                g = g_try
+                break
+            cand -= 1
+    return n, g
 
 
 def get_cover_grid_pct():
@@ -40,14 +72,14 @@ def get_cover_grid_pct():
     if jstype(raw) is 'number':
         n = raw
     else:
-        n = parseInt(str(raw), 10)
+        n = parseFloat(str(raw))
     if n != n:
         n = COVER_GRID_PCT_DEFAULT
     return Math.max(COVER_GRID_PCT_MIN, Math.min(COVER_GRID_PCT_MAX, n))
 
 
 def sync_cover_grid_tile_px():
-    """Set --cs-cover-tile-px on the grid from real container width (calc(% ) is unreliable in some WebEngines)."""
+    """Fixed tile width from slider; column count + horizontal gap fill row (gap in [row, tile])."""
     grid = document.querySelector('.' + COVER_GRID_CLASS)
     if not grid:
         return
@@ -55,9 +87,16 @@ def sync_cover_grid_tile_px():
     if cw < 32:
         return
     pct = get_cover_grid_pct()
-    px = Math.floor(cw * pct / 100)
+    px = Math.round(cw * pct / 100)
     px = Math.max(THUMBNAIL_MIN_WIDTH, Math.min(THUMBNAIL_MAX_WIDTH, px))
     grid.style.setProperty('--cs-cover-tile-px', str(px) + 'px')
+    n_cols, col_gap = cover_grid_column_layout(cw, px, COVER_GRID_ROW_GAP)
+    grid.style.gridTemplateColumns = 'repeat(' + str(n_cols) + ', ' + str(px) + 'px)'
+    grid.style.rowGap = str(COVER_GRID_ROW_GAP) + 'px'
+    if n_cols > 1:
+        grid.style.columnGap = str(col_gap) + 'px'
+    else:
+        grid.style.columnGap = '0px'
 
 
 def apply_cover_grid_pct_css():
@@ -97,10 +136,11 @@ def sync_cover_grid_size_dock(mode):
 
 
 def on_cover_grid_size_input(ev):
-    v = parseInt(ev.target.value, 10)
+    v = parseFloat(ev.target.value)
     if v != v:
         return
     v = Math.max(COVER_GRID_PCT_MIN, Math.min(COVER_GRID_PCT_MAX, v))
+    v = Math.round(v * 40) / 40
     get_session_data().set('cover_grid_tile_pct', v)
     apply_cover_grid_pct_css()
 
@@ -108,7 +148,7 @@ def on_cover_grid_size_input(ev):
 def build_cover_grid_size_dock():
     lab = E.span(class_='cs-cover-grid-size-label')
     lab.textContent = _('Grid tile size')
-    r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='1')
+    r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='0.025')
     r.value = str(get_cover_grid_pct())
     r.title = _('Adjust cover grid tile size')
     r.addEventListener('input', on_cover_grid_size_input)
@@ -147,8 +187,8 @@ def cover_grid_thumb_size():
     base = grid.clientWidth if grid and grid.clientWidth > 40 else 0
     if not base:
         base = window.innerWidth
-    w = Math.ceil(base * frac)
-    h = Math.ceil(w * 3 / 2)
+    w = Math.round(base * frac)
+    h = Math.round(w * 3 / 2)
 
     # Clamp to match CSS max/min constraints.
     w = Math.max(THUMBNAIL_MIN_WIDTH, Math.min(w, THUMBNAIL_MAX_WIDTH))
@@ -166,32 +206,31 @@ def cover_grid_css():
     item_sel = sel + ' > a'
     margin_unit = 'px'
     ans = ':root { --cs-cover-grid-pct: %s; --cs-cover-grid-dock-height: 3.25rem; }\n' % COVER_GRID_PCT_DEFAULT
-    # Uniform row/column spacing (explicit row/column gap for engines that mishandle flex `gap` shorthand).
-    grid_gap = '10' + margin_unit
     # NOTE: overflow must be visible so cover shadows are not clipped.
-    # --cs-cover-tile-px is set from JS (sync_cover_grid_tile_px); fallback for first paint.
+    # Tile px, column count, and column-gap are set from JS (sync_cover_grid_tile_px).
     ans += '.book-list-cover-grid { --cs-cover-tile-px: 120px; }\n'
-    ans += build_rule(sel, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end',
-                     align_content='flex-start', user_select='none', overflow='visible',
+    ans += build_rule(sel, display='grid',
+                     justify_items='stretch', align_items='end', justify_content='start',
+                     user_select='none', overflow='visible',
+                     position='relative',
                      margin_top='5' + margin_unit,
-                     gap=grid_gap, row_gap=grid_gap, column_gap=grid_gap,
+                     row_gap=str(COVER_GRID_ROW_GAP) + margin_unit,
+                     column_gap='0' + margin_unit,
                      width='100%', min_width='0', max_width='100%', box_sizing='border-box')
     ans += build_rule(
-        '.book-list-container .cs-book-list-wrap',
+        '.book-list-container .cs-book-list-wrap, .local-books-list .cs-book-list-wrap',
         width='100%', min_width='0', max_width='100%', box_sizing='border-box')
     ans += build_rule(
         '.book-list-container [data-component="book_list"], .local-books-list [data-component="book_list"]',
         display='block', width='100%', min_width='0', max_width='100%', box_sizing='border-box')
 
-    # Flex item: fixed basis from --cs-cover-tile-px (updated when container width / slider / resize changes).
+    # Grid cell stretches horizontally; min column width follows --cs-cover-tile-px (slider / resize).
     sel = item_sel
-    tile = 'var(--cs-cover-tile-px, 120px)'
     ans += build_rule(
         sel,
         margin='0',
         display='block',
-        flex='0 0 ' + tile,
-        width=tile,
+        width='100%',
         min_width='0',
         max_width='100%',
         height='auto',
@@ -249,7 +288,19 @@ def cover_grid_css():
         white_space='nowrap', overflow='hidden', text_overflow='ellipsis'
     )
 
-    ans += build_rule(grid_root + ' > .cover-grid-filler', height='0', max_height='0', min_height='0', flex_basis='auto')
+    ans += build_rule(grid_root + ' > .cover-grid-filler',
+        position='absolute',
+        left='0',
+        top='0',
+        width='1px',
+        height='1px',
+        margin='0',
+        padding='0',
+        overflow='hidden',
+        visibility='hidden',
+        pointer_events='none',
+        z_index='-1',
+    )
 
     # Container for cover failed to load message
     ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)', margin='0')
@@ -276,11 +327,9 @@ def cover_grid_css():
         flex_wrap='nowrap',
         padding='0.35rem 0.85rem',
         padding_bottom='calc(0.35rem + env(safe-area-inset-bottom, 0px))',
-        background='linear-gradient(180deg, rgba(0,0,0,0.00) 0%, var(--cs-surface-2) 32%, var(--cs-surface-2) 100%)',
+        background='var(--calibre-color-window-background)',
         border_top='1px solid var(--cs-surface-border)',
         color='inherit',
-        backdrop_filter='blur(8px)',
-        webkit_backdrop_filter='blur(8px)',
     )
     ans += build_rule('.cs-cover-grid-size-dock .cs-cover-grid-size-label',
         font_size='0.88rem',
