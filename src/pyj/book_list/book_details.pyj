@@ -106,7 +106,6 @@ def on_fmt_click(ev):
             E.div(_('What would you like to do with the {} format?').format(fmt)),
             E.div(class_='button-box',
                 create_button(_('Read'), 'book', read_button),
-                '\xa0',
                 create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
                               _('File size: {}').format(human_readable(sz)),
                               download_filename=f'{title}.{fmt.toLowerCase()}')
@@ -688,6 +687,7 @@ add_extra_css(def():
         overflow_x='hidden',
         overflow_wrap='break-word',
         word_break='break-word',
+        text_align='left',
     )
     style += build_rule(sel + '.cs-bd-details table.metadata',
         width='100%',
@@ -695,6 +695,7 @@ add_extra_css(def():
         table_layout='fixed',
         box_sizing='border-box',
     )
+    style += build_rule(sel + '.cs-bd-details table.metadata td:first-of-type', text_align='left')
     style += build_rule(sel + '.cs-bd-details pre', white_space='pre-wrap', word_break='break-word', max_width='100%', overflow_x='auto')
     style += build_rule(sel + '.cs-bd-details code', word_break='break-word', overflow_wrap='anywhere')
     style += r'''
@@ -1595,11 +1596,9 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
             ),
             E.div(
                 class_='button-box',
-                create_button(_('Copy'), None, trigger_copy.bind(None, container_id, False, close_func), highlight=True),
-                '\xa0',
-                create_button(_('Move'), None, trigger_copy.bind(None, container_id, True, close_func)),
-                '\xa0',
                 create_button(_('Cancel'), None, close_func),
+                create_button(_('Move'), None, trigger_copy.bind(None, container_id, True, close_func)),
+                create_button(_('Copy'), None, trigger_copy.bind(None, container_id, False, close_func), highlight=True),
             )
         ))
         if not container.querySelector(f'#{dupes_id} input[name="dupes"]:checked'):

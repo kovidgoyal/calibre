@@ -316,9 +316,10 @@ class Client:
                     select.options[select.selectedIndex].scrollIntoView()
                 parent_div.appendChild(E.div(_('Position of bar:') + '\xa0', pos_select, style='margin-top: 1rem'))
                 parent_div.appendChild(E.div(
-                        style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
+                        class_='button-box',
+                        style='margin: 1rem',
+                        create_button(_('Close'), action=close_modal),
                         create_button(_('Restore defaults'), action=restore_defaults),
-                        create_button(_('Close'), action=close_modal)
                 ))
 
             , on_close=def():
