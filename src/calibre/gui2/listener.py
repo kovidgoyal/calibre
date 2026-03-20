@@ -147,7 +147,7 @@ def find_tests():
             p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=False)')
             self.assertEqual(0, p.wait())
             p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=True)')
-            self.assertNotEqual(0, p.wait())
+            self.assertEqual(17, p.wait())
 
         def test_listener_ipc(self):
             from calibre.utils.ipc.simple_worker import start_pipe_worker
