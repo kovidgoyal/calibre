@@ -406,9 +406,26 @@ def workaround_windows_shutdown_hang(timeout: float=1.0):
     # So it is likely a hang in the Loader Lock. Or memory corruption during exit.
     # So we run a child process that will wait a second for the parent process
     # to exit and if it hasnt, will kill it.
+    # We pass an inheritable process handle so the child does not accidentally
+    # kill the wrong process due to PID reuse.
+    import ctypes
+
     from calibre.utils.ipc.simple_worker import start_pipe_worker
-    start_pipe_worker(
-        f'from calibre.utils import kill_parent_if_needed; kill_parent_if_needed({os.getpid()!r}, {timeout!r})')
+    SYNCHRONIZE = 0x00100000
+    PROCESS_TERMINATE = 0x0001
+    kernel32 = ctypes.windll.kernel32
+    # Use OpenProcess on our own PID with bInheritHandle=True to get a real,
+    # inheritable handle. We set the restype to c_void_p so the 64-bit handle
+    # value is not truncated on x64 systems.
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    handle = kernel32.OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, True, os.getpid())
+    if handle:
+        try:
+            start_pipe_worker(
+                f'from calibre.utils import kill_parent_if_needed; kill_parent_if_needed({handle!r}, {timeout!r})',
+                pass_fds=(handle,))
+        finally:
+            kernel32.CloseHandle(handle)
 
 
 def run_gui_(opts, args, app, gui_debug=None):
