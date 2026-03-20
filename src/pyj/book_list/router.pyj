@@ -81,6 +81,12 @@ def apply_url(ignore_handler):
     if not ignore_handler:
         handler = mode_handlers[data.mode] or default_mode_handler
         handler(data)
+    try:
+        cb = window.cs_sync_cover_grid_dock
+        if cb:
+            cb()
+    except Exception:
+        pass
 
 
 def request_full_screen_if_wanted():

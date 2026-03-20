@@ -17,6 +17,8 @@ all_settings = {
     'custom_categories': {'default': v'[]', 'category': 'book_list', 'is_local': False},
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
+    # Cover grid tile width as % of viewport axis (portrait: vw, landscape: vh), integer ~8–45.
+    'cover_grid_tile_pct': {'default': 17, 'category': 'book_list'},
     'fts_related_words': {'default': True, 'category': 'book_list'},
     # Tag Browser settings
     'and_search_terms': {'default': False, 'category': 'tag_browser'},  # how to add search terms to the search expression from the Tag Browser
