@@ -140,11 +140,41 @@ def details_list_css():
         overflow='hidden',
         text_overflow='ellipsis'
     )
+    # Series line (rating + "N of Series"): single line, ellipsis if too long
+    ans += build_rule(sel + ' .details-series',
+        display='block',
+        white_space='nowrap',
+        overflow='hidden',
+        text_overflow='ellipsis',
+        max_width='100%',
+    )
     top = sel + ' .details-main-head'
     extra_data = top + ' > div:last-child'
-    ans += f'{extra_data} {{ text-align: right }}'
-    narrow_style = f'{s} iframe {{ display: none }} {top} {{ flex-direction: column }} {extra_data} {{ text-align: left; margin-top: 1ex }}'
-    ans += f'@media (max-width: 450px) {{ {narrow_style} }}'
+    ans += build_rule(extra_data,
+        text_align='right',
+        min_width='0',
+        overflow='hidden',
+    )
+    # Narrow viewports: stack title block above rating/series (was wrongly scoped to .details-list-right iframe)
+    ta = sel + ' .details-title-authors'
+    ans += r'''
+@media (max-width: 640px) {
+  __TOP__ {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  __EXTRA__ {
+    text-align: left;
+    margin-top: 0.15rem;
+    align-self: stretch;
+    max-width: 100%;
+  }
+  __TA__ {
+    max-width: 100%;
+  }
+}
+'''.replace('__TOP__', top).replace('__EXTRA__', extra_data).replace('__TA__', ta)
     return ans
 
 
@@ -214,7 +244,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
         except Exception:
             ival = 1.0
         ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
-        extra_data.appendChild(safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, metadata.series)))
+        extra_data.appendChild(safe_set_inner_html(E.span(class_='details-series'), _('{0} of <i>{1}</i>').format(ival, metadata.series)))
 
     # Extra metadata line (publisher / published / formats / languages / tags)
     meta = E.div(class_='details-meta')

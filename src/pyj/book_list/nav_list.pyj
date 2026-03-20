@@ -267,11 +267,11 @@ add_extra_css(def():
 }
 
 .cs-nav-list .cs-series-covers.covers-4 .cover-0 {
-  transform: translate(calc(-50% - 62px), -28px) rotate(-8deg) scale(0.82);
+  transform: translate(calc(-50% - 62px), -22px) rotate(-8deg) scale(0.82);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-4 .cover-1 {
-  transform: translate(calc(-50% + 62px), -28px) rotate(8deg) scale(0.82);
+  transform: translate(calc(-50% + 62px), -22px) rotate(8deg) scale(0.82);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-4 .cover-2 {
@@ -284,11 +284,11 @@ add_extra_css(def():
 }
 
 .cs-nav-list .cs-series-covers.covers-5 .cover-0 {
-  transform: translate(calc(-50% - 72px), -32px) rotate(-8deg) scale(0.80);
+  transform: translate(calc(-50% - 72px), -24px) rotate(-8deg) scale(0.80);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-1 {
-  transform: translate(calc(-50% + 72px), -32px) rotate(8deg) scale(0.80);
+  transform: translate(calc(-50% + 72px), -24px) rotate(8deg) scale(0.80);
   z-index: 1;
 }
 .cs-nav-list .cs-series-covers.covers-5 .cover-2 {
@@ -329,41 +329,56 @@ add_extra_css(def():
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list ul',
         display='grid',
         grid_template_columns='repeat(auto-fill, minmax(220px, 1fr))',
-        gap='0.75rem'
+        gap='0.75rem',
+        # Do not stretch every card to the row height (was leaving huge empty band under short titles on narrow grids).
+        align_items='start',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li',
-        # Slightly shorter cards (less tall than 3/4)
-        aspect_ratio='4 / 5',
-        display='flex'
-    )
-    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
-        flex='1 1 auto',
+        # Height from content only; cover stack area already has fixed min-height via .cs-series-covers
         display='flex',
         flex_direction='column',
-        justify_content='center',
+        align_items='stretch',
+        height='auto',
+    )
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
+        flex='0 1 auto',
+        width='100%',
+        display='flex',
+        flex_direction='column',
+        justify_content='flex-start',
         align_items='center'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li:hover',
         transform='translateY(-1px)'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
-        padding='1rem 0.95rem'
+        padding='0.95rem 0.95rem 0.9rem 0.95rem'
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-row',
         flex_direction='column',
         align_items='center',
-        # More space between cover stack and title
-        gap='0.95rem'
+        gap='0.55rem',
+        flex_shrink='0',
+        width='100%',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers',
-        width='min(100%, 340px)',
-        height='220px',
+        width='min(100%, 260px)',
+        height='252px',
+        box_sizing='border-box',
+        padding_top='36px',
         margin_left='auto',
-        margin_right='auto'
+        margin_right='auto',
+        flex_shrink='0',
+        overflow='visible',
+        border_radius='14px',
     )
-    # Move the cover stack a bit higher inside shorter cards
+    # Cover size ~2:3; box height must clear stack transforms + shadow
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers img.cover-img',
-        bottom='10px'
+        bottom='12px',
+        width='112px',
+        height='168px',
+        border_radius='12px',
+        box_shadow='0 12px 32px rgba(0,0,0,0.16)',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-name',
         text_align='center',
@@ -374,6 +389,9 @@ add_extra_css(def():
         webkit_line_clamp='2',
         webkit_box_orient='vertical'
     )
+    # Keep series stack fully inside the card; no overflow outside list item.
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-item',
+        overflow='hidden')
     # Disable hover "lift" animation for series items (prevents cover zoom feel)
     style += build_rule('.generic-items-list li.cs-series-item:hover', transform='none')
     style += build_rule('.generic-items-list li.cs-series-item:active', transform='none')
@@ -443,18 +461,30 @@ add_extra_css(def():
 }
 @media (max-width: 420px) {
   .cs-nav-list[data-field="series"] .generic-items-list ul {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.55rem;
   }
   .cs-nav-list[data-field="series"] .cs-series-covers {
-    width: min(100%, 220px);
-    height: 160px;
+    width: min(100%, 200px);
+    height: 214px;
+    padding-top: 30px;
+  }
+  .cs-nav-list[data-field="series"] .cs-series-covers img.cover-img {
+    width: 88px;
+    height: 132px;
+    bottom: 10px;
   }
 }
 @media (max-width: 360px) {
   .cs-nav-list[data-field="series"] .cs-series-covers {
-    width: min(100%, 200px);
-    height: 150px;
+    width: min(100%, 180px);
+    height: 198px;
+    padding-top: 28px;
+  }
+  .cs-nav-list[data-field="series"] .cs-series-covers img.cover-img {
+    width: 80px;
+    height: 120px;
+    bottom: 9px;
   }
 }
 '''
@@ -868,7 +898,8 @@ def create_nav_list_panel(container_id):
                 # Structure like reference implementation: container gets covers-N,
                 # images get cover-i classes. Positioning is done in CSS.
                 # Clear any previous covers-* classes
-                for cls in v"['covers-1','covers-2','covers-3','covers-4','covers-5']":
+                cover_classes = v'["covers-1","covers-2","covers-3","covers-4","covers-5"]'
+                for cls in cover_classes:
                     div.classList.remove(cls)
                 div.classList.add('covers-' + str(n))
                 for i, u in enumerate(actual):
@@ -989,7 +1020,8 @@ def create_nav_list_panel(container_id):
                     row.dataset.seriesName = label
                     list_items.push(create_item(row, action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'rating':
-                list_items.push(create_item(stars_for_rating(label), action=make_action(make_search(field, search_val)), subtitle=meta))
+                # Use server-provided display name (tag-browser item.name); do not parse as int — names are localized.
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), subtitle=meta))
             elif field is 'pubdate':
                 # label is 'YYYY' or 'YYYY-MM'
                 list_items.push(create_item(label, action=make_action(pubdate_query_for(label))))

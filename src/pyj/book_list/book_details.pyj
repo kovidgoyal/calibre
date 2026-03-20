@@ -549,7 +549,8 @@ def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
     style += build_rule(sel + 'table.metadata td:first-of-type', font_style='normal', font_weight='700', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
-    style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
+    # Values column: prefer wrapping long tokens (paths, ids) on narrow screens
+    style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='anywhere', word_break='break-word')
     return style
 
 
@@ -680,14 +681,39 @@ add_extra_css(def():
         border='1px solid rgba(0,0,0,0.10)',
         border_radius='18px',
         background_color=get_color('window-background'),
-        box_shadow='0 1px 2px rgba(0,0,0,0.06)'
+        box_shadow='0 1px 2px rgba(0,0,0,0.06)',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+        overflow_x='hidden',
+        overflow_wrap='break-word',
+        word_break='break-word',
     )
+    style += build_rule(sel + '.cs-bd-details table.metadata',
+        width='100%',
+        max_width='100%',
+        table_layout='fixed',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '.cs-bd-details pre', white_space='pre-wrap', word_break='break-word', max_width='100%', overflow_x='auto')
+    style += build_rule(sel + '.cs-bd-details code', word_break='break-word', overflow_wrap='anywhere')
     style += r'''
 @media (max-width: 720px) {
-  .book-details-panel .cs-bd-wrap { padding: 0.75rem; }
-  .book-details-panel .cs-bd-hero { grid-template-columns: 1fr; }
+  .book-details-panel .cs-bd-wrap { padding: 0.75rem; min-width: 0; }
+  .book-details-panel .cs-bd-hero { grid-template-columns: 1fr; min-width: 0; }
   .book-details-panel .cs-bd-cover { width: min(320px, 100%); margin-left: auto; margin-right: auto; }
   .book-details-panel .cs-bd-title { font-size: 1.25em; }
+  .book-details-panel .cs-bd-details { padding: 0.75rem; }
+  .book-details-panel .cs-bd-details table.metadata td {
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .book-details-panel .cs-bd-details table.metadata td:first-of-type {
+    white-space: normal;
+    text-align: left;
+    padding-right: 0.35rem;
+  }
 }
 '''
     # Loading overlay (prevents flicker when fetching metadata)

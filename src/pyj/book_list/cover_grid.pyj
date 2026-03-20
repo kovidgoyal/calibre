@@ -6,23 +6,148 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.constants import book_list_container_id
+from book_list.globals import get_session_data
+from book_list.router import is_reading_book
+
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
-THUMBNAIL_MAX_WIDTH = 3 * 100
+# Default tile width as % of viewport (must stay in sync with session default cover_grid_tile_pct).
+COVER_GRID_VIEWPORT_FRAC = 0.165
+COVER_GRID_PCT_DEFAULT = Math.round(100 * COVER_GRID_VIEWPORT_FRAC)
+# Viewport percentage (slider): ~8% = many columns, ~45% = large tiles / few columns.
+COVER_GRID_PCT_MIN = 8
+COVER_GRID_PCT_MAX = 45
+GRID_SIZE_DOCK_ID = 'cs-cover-grid-size-dock'
+
+
+def current_book_list_panel_id():
+    c = document.getElementById(book_list_container_id)
+    if not c or not c.dataset:
+        return ''
+    return c.dataset.panel or ''
+
+
+THUMBNAIL_MAX_WIDTH = 3 * 85
 THUMBNAIL_MAX_HEIGHT = int(THUMBNAIL_MAX_WIDTH * 3 / 2)
-THUMBNAIL_MIN_WIDTH = 3 * 35
+THUMBNAIL_MIN_WIDTH = 3 * 20
 THUMBNAIL_MIN_HEIGHT = int(THUMBNAIL_MIN_WIDTH * 3 / 2)
 BORDER_RADIUS = 10
 
 
+def get_cover_grid_pct():
+    raw = get_session_data().get('cover_grid_tile_pct', COVER_GRID_PCT_DEFAULT)
+    if jstype(raw) is 'number':
+        n = raw
+    else:
+        n = parseInt(str(raw), 10)
+    if n != n:
+        n = COVER_GRID_PCT_DEFAULT
+    return Math.max(COVER_GRID_PCT_MIN, Math.min(COVER_GRID_PCT_MAX, n))
+
+
+def sync_cover_grid_tile_px():
+    """Set --cs-cover-tile-px on the grid from real container width (calc(% ) is unreliable in some WebEngines)."""
+    grid = document.querySelector('.' + COVER_GRID_CLASS)
+    if not grid:
+        return
+    cw = grid.clientWidth
+    if cw < 32:
+        return
+    pct = get_cover_grid_pct()
+    px = Math.floor(cw * pct / 100)
+    px = Math.max(THUMBNAIL_MIN_WIDTH, Math.min(THUMBNAIL_MAX_WIDTH, px))
+    grid.style.setProperty('--cs-cover-tile-px', str(px) + 'px')
+
+
+def apply_cover_grid_pct_css():
+    document.documentElement.style.setProperty('--cs-cover-grid-pct', str(get_cover_grid_pct()))
+    sync_cover_grid_tile_px()
+    raf = window.requestAnimationFrame
+    if raf:
+        raf(sync_cover_grid_tile_px)
+    else:
+        window.setTimeout(sync_cover_grid_tile_px, 0)
+
+
+def ensure_cover_grid_resize_listener():
+    if window.cs_cover_grid_resize_bound:
+        return
+    window.cs_cover_grid_resize_bound = True
+
+    def on_resize(ev):
+        apply_cover_grid_pct_css()
+
+    window.addEventListener('resize', on_resize, False)
+
+
+def sync_cover_grid_size_dock(mode):
+    if is_reading_book():
+        hide_cover_grid_size_dock()
+        return
+    panel = current_book_list_panel_id()
+    # Only the main book list / downloaded-books list show the grid; sub-panels replace content.
+    list_ok = panel is 'book_list' or panel is 'local_books'
+    bl = document.getElementById(book_list_container_id)
+    bl_visible = bl and bl.style.display is not 'none'
+    if mode is 'cover_grid' and list_ok and bl_visible:
+        ensure_cover_grid_size_dock()
+    else:
+        hide_cover_grid_size_dock()
+
+
+def on_cover_grid_size_input(ev):
+    v = parseInt(ev.target.value, 10)
+    if v != v:
+        return
+    v = Math.max(COVER_GRID_PCT_MIN, Math.min(COVER_GRID_PCT_MAX, v))
+    get_session_data().set('cover_grid_tile_pct', v)
+    apply_cover_grid_pct_css()
+
+
+def build_cover_grid_size_dock():
+    lab = E.span(class_='cs-cover-grid-size-label')
+    lab.textContent = _('Grid tile size')
+    r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='1')
+    r.value = str(get_cover_grid_pct())
+    r.title = _('Adjust cover grid tile size')
+    r.addEventListener('input', on_cover_grid_size_input)
+    dock = E.div(lab, r, id=GRID_SIZE_DOCK_ID, class_='cs-cover-grid-size-dock')
+    dock.setAttribute('role', 'region')
+    dock.setAttribute('aria-label', _('Cover grid size'))
+    return dock
+
+
+def ensure_cover_grid_size_dock():
+    el = document.getElementById(GRID_SIZE_DOCK_ID)
+    if not el:
+        el = build_cover_grid_size_dock()
+        document.body.appendChild(el)
+    else:
+        r = el.querySelector('.cs-cover-grid-size-range')
+        if r:
+            r.value = str(get_cover_grid_pct())
+    ensure_cover_grid_resize_listener()
+    apply_cover_grid_pct_css()
+    set_css(el, display='flex')
+    document.documentElement.classList.add('cs-cover-grid-dock-visible')
+
+
+def hide_cover_grid_size_dock():
+    el = document.getElementById(GRID_SIZE_DOCK_ID)
+    if el:
+        set_css(el, display='none')
+    document.documentElement.classList.remove('cs-cover-grid-dock-visible')
+
+
 def cover_grid_thumb_size():
-    # The grid item size is controlled by cover_grid_css():
-    # - portrait: 21vw x (21vw * 3/2)
-    # - landscape: 21vh x (21vh * 3/2)
-    # We request thumbnails that roughly match the visible size.
-    portrait = window.innerWidth >= window.innerHeight
-    base = window.innerWidth if portrait else window.innerHeight
-    w = Math.ceil(base * 0.21)
+    # Match CSS: width is pct of .book-list-cover-grid container (not full viewport).
+    frac = get_cover_grid_pct() / 100
+    grid = document.querySelector('.' + COVER_GRID_CLASS)
+    base = grid.clientWidth if grid and grid.clientWidth > 40 else 0
+    if not base:
+        base = window.innerWidth
+    w = Math.ceil(base * frac)
     h = Math.ceil(w * 3 / 2)
 
     # Clamp to match CSS max/min constraints.
@@ -36,28 +161,47 @@ def description():
 
 
 def cover_grid_css():
-    sel = '.' + COVER_GRID_CLASS
+    grid_root = '.' + COVER_GRID_CLASS
+    sel = grid_root
     item_sel = sel + ' > a'
-    margin, margin_unit = 10, 'px'
+    margin_unit = 'px'
+    ans = ':root { --cs-cover-grid-pct: %s; --cs-cover-grid-dock-height: 3.25rem; }\n' % COVER_GRID_PCT_DEFAULT
+    # Uniform row/column spacing (explicit row/column gap for engines that mishandle flex `gap` shorthand).
+    grid_gap = '10' + margin_unit
     # NOTE: overflow must be visible so cover shadows are not clipped.
-    ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end',
-                     align_content='flex-start', user_select='none', overflow='visible', margin_top=f'{margin / 2}{margin_unit}')
+    # --cs-cover-tile-px is set from JS (sync_cover_grid_tile_px); fallback for first paint.
+    ans += '.book-list-cover-grid { --cs-cover-tile-px: 120px; }\n'
+    ans += build_rule(sel, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end',
+                     align_content='flex-start', user_select='none', overflow='visible',
+                     margin_top='5' + margin_unit,
+                     gap=grid_gap, row_gap=grid_gap, column_gap=grid_gap,
+                     width='100%', min_width='0', max_width='100%', box_sizing='border-box')
+    ans += build_rule(
+        '.book-list-container .cs-book-list-wrap',
+        width='100%', min_width='0', max_width='100%', box_sizing='border-box')
+    ans += build_rule(
+        '.book-list-container [data-component="book_list"], .local-books-list [data-component="book_list"]',
+        display='block', width='100%', min_width='0', max_width='100%', box_sizing='border-box')
 
-    # Container for an individual cover
-    sel += ' > a'
+    # Flex item: fixed basis from --cs-cover-tile-px (updated when container width / slider / resize changes).
+    sel = item_sel
+    tile = 'var(--cs-cover-tile-px, 120px)'
     ans += build_rule(
         sel,
-        margin=f'{margin}{margin_unit}',
+        margin='0',
         display='block',
-        max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
-        min_width=THUMBNAIL_MIN_WIDTH+'px', min_height=THUMBNAIL_MIN_HEIGHT + 'px',
+        flex='0 0 ' + tile,
+        width=tile,
+        min_width='0',
+        max_width='100%',
+        height='auto',
+        aspect_ratio='2 / 3',
+        cursor='pointer',
         position='relative',
         overflow='visible',
-        transition='background-color 160ms ease'
+        box_sizing='border-box',
+        transition='background-color 160ms ease, width 0.2s ease',
     )
-    mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: calc(21{dim} * 1.5) }} }}\n'
-    for dim in 'vw', 'vh':
-        ans += mq.format(sel=sel, dim=dim, orient='portrait' if dim is 'vw' else 'landscape')
     # No hover zoom; use highlight instead
     ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)')
     ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
@@ -105,7 +249,7 @@ def cover_grid_css():
         white_space='nowrap', overflow='hidden', text_overflow='ellipsis'
     )
 
-    ans += build_rule(sel + '.cover-grid-filler', height='0', max_height='0', min_height='0')
+    ans += build_rule(grid_root + ' > .cover-grid-filler', height='0', max_height='0', min_height='0', flex_basis='auto')
 
     # Container for cover failed to load message
     ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)', margin='0')
@@ -117,6 +261,41 @@ def cover_grid_css():
         display='block',
         object_fit='cover'
     )
+    # Bottom dock: slider to resize grid (cover grid mode only; shown via JS).
+    ans += build_rule('.cs-cover-grid-size-dock',
+        display='none',
+        position='fixed',
+        bottom='0',
+        left='var(--cs-sidebar-width, 240px)',
+        right='0',
+        z_index='60',
+        box_sizing='border-box',
+        min_height='var(--cs-cover-grid-dock-height, 3.25rem)',
+        align_items='center',
+        gap='0.65rem',
+        flex_wrap='nowrap',
+        padding='0.35rem 0.85rem',
+        padding_bottom='calc(0.35rem + env(safe-area-inset-bottom, 0px))',
+        background='linear-gradient(180deg, rgba(0,0,0,0.00) 0%, var(--cs-surface-2) 32%, var(--cs-surface-2) 100%)',
+        border_top='1px solid var(--cs-surface-border)',
+        color='inherit',
+        backdrop_filter='blur(8px)',
+        webkit_backdrop_filter='blur(8px)',
+    )
+    ans += build_rule('.cs-cover-grid-size-dock .cs-cover-grid-size-label',
+        font_size='0.88rem',
+        font_weight='600',
+        opacity='0.88',
+        white_space='nowrap',
+        flex_shrink='0',
+    )
+    ans += build_rule('.cs-cover-grid-size-dock .cs-cover-grid-size-range',
+        flex='1 1 auto',
+        min_width='3rem',
+        width='auto',
+        max_width='32rem',
+        margin='0',
+    )
     return ans
 
 def init(container):
@@ -124,6 +303,8 @@ def init(container):
     container.appendChild(E.div(class_=COVER_GRID_CLASS))
     for i in range(12):
         container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
+    ensure_cover_grid_resize_listener()
+    apply_cover_grid_pct_css()
 
 def on_img_load(img, load_type):
     div = img.parentNode
@@ -157,3 +338,17 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
 def append_item(container, item):
     first_filler = container.lastChild.querySelector('.cover-grid-filler')
     container.lastChild.insertBefore(item, first_filler)
+    # Throttle: render_ids may append many tiles; one sync per frame is enough.
+    if window.cs_cover_grid_tile_sync_scheduled:
+        return
+    window.cs_cover_grid_tile_sync_scheduled = True
+
+    def flush():
+        window.cs_cover_grid_tile_sync_scheduled = False
+        apply_cover_grid_pct_css()
+
+    raf = window.requestAnimationFrame
+    if raf:
+        raf(flush)
+    else:
+        window.setTimeout(flush, 0)

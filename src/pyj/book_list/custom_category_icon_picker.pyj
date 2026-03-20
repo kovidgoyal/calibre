@@ -1,0 +1,154 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026
+from __python__ import hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, svgicon
+
+# Stored icon id "folder" is kept for compatibility; no folder.svg in content-server sprite.
+def _sprite_icon_name(stored_name):
+    if stored_name is 'folder':
+        return 'toc'
+    return stored_name
+
+
+# Only names that exist in content-server SVG sprite (imgsrc/srv/*.svg).
+CUSTOM_CATEGORY_ICON_CHOICES = [
+    ('folder', _('Folder')),
+    ('bookmark', _('Tag')),
+    ('book', _('Book')),
+    ('library', _('Library')),
+    ('user', _('User')),
+    ('star', _('Star')),
+    ('star-half', _('Half star')),
+    ('heart', _('Heart')),
+    ('home', _('Home')),
+    ('plus', _('Plus')),
+    ('pencil', _('Pencil')),
+    ('image', _('Image')),
+    ('link', _('Link')),
+    ('external-link', _('External link')),
+    ('insert-link', _('Insert link')),
+    ('search', _('Search')),
+    ('ai', _('AI')),
+    ('random', _('Random')),
+    ('check', _('Checkmark')),
+    ('highlight', _('Highlight')),
+    ('warning', _('Warning')),
+    ('help', _('Help')),
+    ('print', _('Print')),
+    ('play', _('Play')),
+    ('pause', _('Pause')),
+    ('copy', _('Copy')),
+    ('send', _('Send')),
+    ('hourglass', _('Hourglass')),
+    ('refresh', _('Refresh')),
+    ('trash', _('Trash')),
+    ('remove', _('Remove')),
+    ('close', _('Close')),
+    ('bullhorn', _('Announcement')),
+    ('full-screen', _('Full screen')),
+    ('auto-scroll', _('Auto scroll')),
+    ('arrows-h', _('Resize horizontal')),
+    ('arrow-right', _('Arrow right')),
+    ('arrow-left', _('Arrow left')),
+    ('chevron-down', _('Expand')),
+    ('angle-down', _('Menu')),
+    ('sort-amount-asc', _('Sort ascending')),
+    ('sort-amount-desc', _('Sort descending')),
+    ('cog', _('Settings')),
+]
+
+add_extra_css(def():
+    sel = '.cs-cc-icon-picker '
+    ans = build_rule('.cs-cc-icon-picker', margin_top='0.35rem')
+    ans += build_rule(sel + '.cs-cc-icon-grid',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.45rem',
+        align_items='stretch',
+        justify_content='flex-start',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn',
+        display='inline-flex',
+        align_items='center',
+        justify_content='center',
+        width='2.35rem',
+        height='2.35rem',
+        padding='0',
+        margin='0',
+        box_sizing='border-box',
+        border='1px solid rgba(0,0,0,0.16)',
+        border_radius='10px',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        cursor='pointer',
+        line_height='0',
+        transition='background 120ms ease, border-color 120ms ease, box-shadow 120ms ease',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn svg',
+        width='1.15rem',
+        height='1.15rem',
+        opacity='0.92',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn:hover',
+        background_color='var(--cs-accent-weak)',
+        border_color='rgba(0,0,0,0.22)',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn:focus',
+        outline='none',
+        box_shadow='var(--cs-focus-ring)',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn-selected',
+        background_color='var(--cs-accent-weak-2)',
+        border_color='rgba(0,0,0,0.32)',
+        font_weight='600',
+    )
+    return ans
+)
+
+
+def create_custom_category_icon_picker(initial_icon='folder'):
+    state = {'icon': (initial_icon or 'folder') + ''}
+    grid = E.div(class_='cs-cc-icon-grid', role='radiogroup', aria_label=_('Icon'))
+
+    def sync():
+        for btn in grid.querySelectorAll('button.cs-cc-icon-btn'):
+            nm = btn.dataset.ccIcon
+            on = nm is state.icon
+            if on:
+                btn.classList.add('cs-cc-icon-btn-selected')
+            else:
+                btn.classList.remove('cs-cc-icon-btn-selected')
+            btn.setAttribute('aria-checked', 'true' if on else 'false')
+
+    def make_handler(stored_name):
+        def on_click(evt):
+            evt.preventDefault()
+            state.icon = stored_name
+            sync()
+        return on_click
+
+    for icon_name, label in CUSTOM_CATEGORY_ICON_CHOICES:
+        btn = E.button(
+            type='button',
+            class_='cs-cc-icon-btn',
+            role='radio',
+            title=label,
+        )
+        btn.dataset.ccIcon = icon_name
+        btn.setAttribute('aria-label', label)
+        btn.appendChild(svgicon(_sprite_icon_name(icon_name)))
+        btn.addEventListener('click', make_handler(icon_name))
+        grid.appendChild(btn)
+
+    sync()
+    root = E.div(class_='cs-cc-icon-picker', grid)
+
+    def get_value():
+        return state.icon or 'folder'
+
+    return {'root': root, 'get_value': get_value}
