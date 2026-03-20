@@ -680,6 +680,7 @@ class SearchInputPanel(QWidget):
             ac.setData(key)
             ag.addAction(ac)
         add('relevance', _('Relevance'))
+        sort_menu.addSeparator()
         for name, key in get_sorted_fields(get_db()):
             if key in hidden or key == 'ondevice':
                 continue
