@@ -390,30 +390,50 @@ add_extra_css(def():
         overflow='hidden',
         box_sizing='border-box',
     )
+    # Series card grid: same row has subtitle-nav but layout must stay columnar (not browse-row center).
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav)',
+        display='flex',
+        flex_direction='column',
+        align_items='stretch',
+        flex_wrap='nowrap',
+    )
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
+        flex='1 1 auto',
+        min_width='0',
+        min_height='0',
+        width='100%',
+        padding_right='9.5rem',
+        box_sizing='border-box',
+        display='flex',
+        align_items='stretch',
+        justify_content='flex_start',
+    )
     style += build_rule(sel + '.cs-loading .cs-loading-overlay', opacity='1')
     style += build_rule(sel + '.cs-loading .cs-list-content', opacity='0.45')
     style += r'''
 @keyframes cs_spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .cs-nav-list .cs-loading-overlay svg { animation: cs_spin 1.2s linear infinite; opacity: 0.85; }
 '''
-    # Series panel as grid (cards)
+    # Series panel as grid (cards): stretch items in each row to the row's max height so tiles align.
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list ul',
         display='grid',
         grid_template_columns='repeat(auto-fill, minmax(220px, 1fr))',
         gap='0.75rem',
-        # Do not stretch every card to the row height (was leaving huge empty band under short titles on narrow grids).
-        align_items='start',
+        align_items='stretch',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li',
-        # Height from content only; cover stack area already has fixed min-height via .cs-series-covers
         display='flex',
         flex_direction='column',
         align_items='stretch',
-        height='auto',
+        min_height='0',
+        height='100%',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
-        flex='0 1 auto',
+        flex='1 1 auto',
         width='100%',
+        min_height='0',
         display='flex',
         flex_direction='column',
         justify_content='flex-start',
@@ -430,7 +450,10 @@ add_extra_css(def():
         align_items='center',
         gap='0.55rem',
         flex_shrink='0',
+        flex_grow='1',
         width='100%',
+        min_height='0',
+        justify_content='flex-start',
     )
     style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers',
         width='min(100%, 260px)',
@@ -458,7 +481,9 @@ add_extra_css(def():
         overflow='hidden',
         display='-webkit-box',
         webkit_line_clamp='2',
-        webkit_box_orient='vertical'
+        webkit_box_orient='vertical',
+        margin_top='auto',
+        flex_shrink='0',
     )
     # Keep series stack fully inside the card; no overflow outside list item.
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-item',
