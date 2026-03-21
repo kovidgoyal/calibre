@@ -258,7 +258,7 @@ private:
         return ans->second;
     }
 
-    int tokenize_script_block(const icu::UnicodeString &str, int32_t block_start, int32_t block_limit, bool for_query, token_callback_func callback, void *callback_ctx, BreakIterator &word_iterator, StemmerPtr &stemmer) {
+    int tokenize_script_block(const icu::UnicodeString &str, int32_t block_start, int32_t block_limit, bool for_query, bool for_aux, token_callback_func callback, void *callback_ctx, BreakIterator &word_iterator, StemmerPtr &stemmer) {
         word_iterator->setText(str.tempSubStringBetween(block_start, block_limit));
         int32_t token_start_pos = word_iterator->first() + block_start, token_end_pos;
         int rc = SQLITE_OK;
@@ -275,7 +275,7 @@ private:
                     icu::UnicodeString token(str, token_start_pos, token_end_pos - token_start_pos);
                     token.foldCase();
                     if ((rc = send_token(token, token_start_pos, token_end_pos, stemmer)) != SQLITE_OK) return rc;
-                    if (!for_query && remove_diacritics) {
+                    if (!for_query && !for_aux && remove_diacritics) {
                         icu::UnicodeString tt(str, token_start_pos, token_end_pos - token_start_pos);
                         diacritics_remover->transliterate(tt);
                         tt.foldCase();
@@ -336,6 +336,7 @@ public:
         int32_t offset = str.getChar32Start(0);
         int rc = SQLITE_OK;
         bool for_query = (flags & FTS5_TOKENIZE_QUERY) != 0;
+        bool for_aux = (flags & FTS5_TOKENIZE_AUX) != 0;
         IteratorDescription state;
         state.language = ""; state.script = USCRIPT_COMMON;
         int32_t start_script_block_at = offset;
@@ -347,7 +348,7 @@ public:
                 if (offset > start_script_block_at) {
                     if ((rc = tokenize_script_block(
                         str, start_script_block_at, offset,
-                        for_query, callback, callback_ctx, word_iterator, stemmer)) != SQLITE_OK) return rc;
+                        for_query, for_aux, callback, callback_ctx, word_iterator, stemmer)) != SQLITE_OK) return rc;
                 }
                 start_script_block_at = offset;
                 word_iterator = ensure_lang_iterator(state.language);
@@ -356,7 +357,7 @@ public:
             offset = str.moveIndex32(offset, 1);
         }
         if (offset > start_script_block_at) {
-            rc = tokenize_script_block(str, start_script_block_at, offset, for_query, callback, callback_ctx, word_iterator, stemmer);
+            rc = tokenize_script_block(str, start_script_block_at, offset, for_query, for_aux, callback, callback_ctx, word_iterator, stemmer);
         }
         return rc;
     }
