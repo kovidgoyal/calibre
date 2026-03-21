@@ -219,6 +219,8 @@ class View:
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
         self.current_status_message = ''
+        self.unsynced_message = ''
+        self.last_position_data = None
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.current_toc_families = v'[]'
         self.report_cfi_callbacks = {}
@@ -1300,6 +1302,7 @@ class View:
         if username:
             key = self.book.key
             lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+            self.last_position_data = lrd
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
                 library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
                     if end_type is not 'load':
@@ -1332,6 +1335,21 @@ class View:
                 timeout = 10000
             window.setTimeout(def(): self.show_status_message();, timeout)
 
+    def show_unsynced_indicator(self, visible):
+        self.unsynced_message = _('Unsynced changes') if visible else ''
+        self.update_header_footer()
+
+    def upload_current_position(self, callback):
+        if not self.last_position_data or not self.book:
+            callback(True)
+            return
+        key = self.book.key
+        ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
+            library_id=key[0], book_id=key[1], fmt=key[2]),
+            self.last_position_data, def(end_type, xhr, ev):
+                callback(end_type is 'load')
+        )
+
     def create_template_renderer(self):
         if not self.book:
             return
@@ -1362,7 +1380,7 @@ class View:
             b = c.previousSibling
             a = b.previousSibling
             if sd.get(f'margin_{edge}', 20) > 5:
-                override = self.current_status_message if edge is 'bottom' else ''
+                override = (self.current_status_message or self.unsynced_message) if edge is 'bottom' else ''
                 hca = renderer(a, name, 'left', override)
                 hcb = renderer(b, name, 'middle', '')
                 hcc = renderer(c, name, 'right', '')

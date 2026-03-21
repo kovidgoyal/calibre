@@ -151,8 +151,21 @@ class SyncBook:  # {{{
         set_css(container, background_color=get_color('window-background'))
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
-        self.overlay.view.annotations_manager.sync_annots_to_server()
-        sync_library_books(book.key[0], to_sync, self.sync_data_received)
+        view = self.overlay.view
+
+        def start_download():
+            sync_library_books(book.key[0], to_sync, self.sync_data_received)
+
+        def after_position_upload(success):
+            start_download()
+
+        def after_annot_upload(success):
+            view.upload_current_position(after_position_upload)
+
+        if ui_operations.upload_pending_annotations:
+            ui_operations.upload_pending_annotations(after_annot_upload)
+        else:
+            after_annot_upload(True)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             E.div(style='margin:1ex 1em; max-width: 80vw',
@@ -271,6 +284,8 @@ class MainOverlay:  # {{{
             return E.li(icon, text, onclick=action, title=tooltip)
 
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
+        if ui_operations.has_unsynced_changes and ui_operations.has_unsynced_changes():
+            sync_action.firstChild.style.color = '#d4a017'
         delete_action = ac(_('Delete'), _('Delete this book from local storage'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
         back_action = ac(_('Back'), _('Go back'), self.back, 'arrow-left')

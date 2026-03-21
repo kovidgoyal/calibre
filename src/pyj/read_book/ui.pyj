@@ -58,6 +58,9 @@ class ReadUI:
         self.view = View(container.lastChild)
         self.tts_client = Client()
         self.windows_to_listen_for_messages_from = []
+        self.unsynced_amap = None
+        self.unsynced_indicator_active = False
+        self.unsynced_indicator_timer = None
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         window.addEventListener('message', self.message_from_other_window.bind(self))
         self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
@@ -83,6 +86,8 @@ class ReadUI:
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.annots_changed = self.annots_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
+        ui_operations.has_unsynced_changes = self.has_unsynced_changes.bind(self)
+        ui_operations.upload_pending_annotations = self.upload_pending_annotations.bind(self)
         ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
         ui_operations.update_metadata = self.update_metadata.bind(self)
@@ -305,7 +310,46 @@ class ReadUI:
         book_id = self.base_url_data.book_id
         fmt = self.base_url_data.fmt
         self.db.update_annotations_data_from_key(library_id, book_id, fmt, {'annotations_map': amap})
-        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, def (): pass;)
+        self.unsynced_amap = amap
+        self._reschedule_unsynced_indicator()
+        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, self._annot_upload_done.bind(self))
+
+    def _annot_upload_done(self, end_type, xhr, ev):
+        if end_type is 'load':
+            self.unsynced_amap = None
+            if self.unsynced_indicator_timer:
+                window.clearTimeout(self.unsynced_indicator_timer)
+                self.unsynced_indicator_timer = None
+            if self.unsynced_indicator_active:
+                self.unsynced_indicator_active = False
+                self.view.show_unsynced_indicator(False)
+
+    def _reschedule_unsynced_indicator(self):
+        if self.unsynced_indicator_timer:
+            window.clearTimeout(self.unsynced_indicator_timer)
+        self.unsynced_indicator_timer = window.setTimeout(self._show_unsynced_if_needed.bind(self), 60000)
+
+    def _show_unsynced_if_needed(self):
+        self.unsynced_indicator_timer = None
+        if self.unsynced_amap is not None:
+            self.unsynced_indicator_active = True
+            self.view.show_unsynced_indicator(True)
+
+    def has_unsynced_changes(self):
+        return self.unsynced_indicator_active
+
+    def upload_pending_annotations(self, callback):
+        if self.unsynced_amap is None:
+            callback(True)
+            return
+        library_id = self.base_url_data.library_id
+        book_id = self.base_url_data.book_id
+        fmt = self.base_url_data.fmt
+        amap = self.unsynced_amap
+        def done(end_type, xhr, ev):
+            self._annot_upload_done(end_type, xhr, ev)
+            callback(end_type is 'load')
+        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, done)
 
     def annotations_synced(self, amap):
         library_id = self.base_url_data.library_id

@@ -110,6 +110,8 @@ ui_operations = {
     'toggle_toc': None,
     'toggle_full_screen': None,
     'reset_reading_rates': None,
+    'has_unsynced_changes': None,
+    'upload_pending_annotations': None,
 }
 
 
