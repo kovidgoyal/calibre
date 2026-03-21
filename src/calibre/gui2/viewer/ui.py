@@ -341,11 +341,11 @@ class EbookViewer(MainWindow):
     def show_search_result(self, sr):
         self.web_view.show_search_result(sr)
 
-    def show_search(self, text, trigger=False, search_type=None, case_sensitive=None):
+    def show_search(self, text, trigger=False, search_type=None, case_sensitive=None, no_history=False):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
         self.search_dock.raise_and_focus()
-        self.search_widget.focus_input(text, search_type, case_sensitive)
+        self.search_widget.focus_input(text, search_type, case_sensitive, no_history=no_history)
         if trigger:
             self.search_widget.trigger()
 
@@ -495,7 +495,7 @@ class EbookViewer(MainWindow):
     def content_file_changed(self, fname):
         if self.pending_search:
             search, self.pending_search = self.pending_search, None
-            self.show_search(text=search['query'], trigger=True, search_type=search['type'], case_sensitive=search['case_sensitive'])
+            self.show_search(text=search['query'], trigger=True, search_type=search['type'], case_sensitive=search['case_sensitive'], no_history=True)
 
     def show_error(self, title, msg, details):
         self.loading_overlay.hide()
