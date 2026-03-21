@@ -151,8 +151,21 @@ class SyncBook:  # {{{
         set_css(container, background_color=get_color('window-background'))
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
-        self.overlay.view.annotations_manager.sync_annots_to_server()
-        sync_library_books(book.key[0], to_sync, self.sync_data_received)
+        view = self.overlay.view
+
+        def start_download():
+            sync_library_books(book.key[0], to_sync, self.sync_data_received)
+
+        def after_position_upload(success):
+            start_download()
+
+        def after_annot_upload(success):
+            view.upload_current_position(after_position_upload)
+
+        if ui_operations.upload_pending_annotations:
+            ui_operations.upload_pending_annotations(after_annot_upload)
+        else:
+            after_annot_upload(True)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             E.div(style='margin:1ex 1em; max-width: 80vw',
