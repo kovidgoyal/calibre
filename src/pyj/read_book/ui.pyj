@@ -61,6 +61,7 @@ class ReadUI:
         self.unsynced_amap = None
         self.unsynced_indicator_active = False
         self.unsynced_indicator_timer = None
+        self.annot_upload_auth_retry_pending = False
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         window.addEventListener('online', self._on_network_restored.bind(self))
         window.addEventListener('message', self.message_from_other_window.bind(self))
@@ -318,6 +319,7 @@ class ReadUI:
 
     def _annot_upload_done(self, end_type, xhr, ev):
         if end_type is 'load':
+            self.annot_upload_auth_retry_pending = False
             self.unsynced_amap = None
             self.db.clear_pending_annot_upload()
             if self.unsynced_indicator_timer:
@@ -326,6 +328,14 @@ class ReadUI:
             if self.unsynced_indicator_active:
                 self.unsynced_indicator_active = False
                 self.view.show_unsynced_indicator(False)
+        elif xhr and xhr.status is 401 and not self.annot_upload_auth_retry_pending:
+            self.annot_upload_auth_retry_pending = True
+            def do_retry():
+                if self.unsynced_amap is not None and self.base_url_data:
+                    ajax_send(
+                        f'book-update-annotations/{self.base_url_data.library_id}/{self.base_url_data.book_id}/{self.base_url_data.fmt}',
+                        self.unsynced_amap, self._annot_upload_done.bind(self))
+            window.setTimeout(do_retry, 1500)
 
     def has_unsynced_changes(self):
         return self.unsynced_indicator_active
@@ -340,6 +350,7 @@ class ReadUI:
 
     def upload_pending_annotations(self, callback):
         if self.unsynced_amap is not None:
+            self.annot_upload_auth_retry_pending = False
             library_id = self.base_url_data.library_id
             book_id = self.base_url_data.book_id
             fmt = self.base_url_data.fmt
