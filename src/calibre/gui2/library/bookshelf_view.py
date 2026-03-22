@@ -107,6 +107,11 @@ def random_from_id(book_id: int, limit: int = 21) -> int:
     return xxh3_64_intdigest(b'', seed=book_id) % limit
 
 
+def random_from_group_name(group_name: str, limit: int = 21) -> int:
+    ' Return a pseudo random integer in [0, limit) that is fully determined by group_name '
+    return xxh3_64_intdigest(group_name.encode()) % limit
+
+
 def normalised_size(size_bytes: int) -> float:
     '''Estimate page count from file size.'''
     # Average ebook: ~1-2KB per page, so estimate pages from size
@@ -781,8 +786,13 @@ class LayoutConstraints(NamedTuple):
         return self.spine_height + self.shelf_height
 
 
-def height_reduction_for_book_id(book_id: int) -> int:
-    return random_from_id(book_id) if gprefs['bookshelf_variable_height'] else 0
+def height_reduction_for_book(book_id: int, group_name: str) -> int:
+    mode = gprefs['bookshelf_variable_height']
+    if mode == 'variable':
+        return random_from_id(book_id)
+    if mode == 'per_group':
+        return random_from_group_name(group_name)
+    return 0
 
 
 class ShelfItem(NamedTuple):
@@ -893,7 +903,7 @@ class CaseItem:
         if (x := self._get_x_for_item(width, lc)) is None:
             return False
         s = ShelfItem(
-            start_x=x, book_id=book_id, reduce_height_by=height_reduction_for_book_id(book_id),
+            start_x=x, book_id=book_id, reduce_height_by=height_reduction_for_book(book_id, group_name),
             width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
         self.width = s.start_x + s.width

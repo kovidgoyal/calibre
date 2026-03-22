@@ -526,7 +526,7 @@ def create_defs():
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = 'crops'
     defs['bookshelf_thumbnail_opacity'] = 30
-    defs['bookshelf_variable_height'] = True
+    defs['bookshelf_variable_height'] = 'variable'
     defs['bookshelf_fade_time'] = 400
     defs['bookshelf_hover'] = 'shift'
     defs['bookshelf_up_to_down'] = False
@@ -554,6 +554,10 @@ def create_defs():
         # Migrate beta bookshelf_thumbnail
         if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
             gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
+
+        # Migrate bookshelf_variable_height from bool to enum
+        if isinstance(vhv := gprefs.get('bookshelf_variable_height'), bool):
+            gprefs['bookshelf_variable_height'] = 'variable' if vhv else 'constant'
 
         def migrate_tweak(tweak_name, pref_name):
             # If the tweak has been changed then leave the tweak in the file so
