@@ -219,6 +219,7 @@ class View:
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
         self.current_status_message = ''
+        self.unsynced_message = ''
         self.last_position_data = None
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.current_toc_families = v'[]'
@@ -1345,6 +1346,10 @@ class View:
                 callback(end_type is 'load')
         )
 
+    def show_unsynced_indicator(self, visible):
+        self.unsynced_message = _('Unsynced changes') if visible else ''
+        self.update_header_footer()
+
     def create_template_renderer(self):
         if not self.book:
             return
@@ -1375,7 +1380,7 @@ class View:
             b = c.previousSibling
             a = b.previousSibling
             if sd.get(f'margin_{edge}', 20) > 5:
-                override = self.current_status_message if edge is 'bottom' else ''
+                override = (self.current_status_message or self.unsynced_message) if edge is 'bottom' else ''
                 hca = renderer(a, name, 'left', override)
                 hcb = renderer(b, name, 'middle', '')
                 hcc = renderer(c, name, 'right', '')

@@ -59,6 +59,8 @@ class ReadUI:
         self.tts_client = Client()
         self.windows_to_listen_for_messages_from = []
         self.unsynced_amap = None
+        self.unsynced_indicator_active = False
+        self.unsynced_indicator_timer = None
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         window.addEventListener('online', self._on_network_restored.bind(self))
         window.addEventListener('message', self.message_from_other_window.bind(self))
@@ -311,15 +313,30 @@ class ReadUI:
         self.db.update_annotations_data_from_key(library_id, book_id, fmt, {'annotations_map': amap})
         self.unsynced_amap = amap
         self.db.set_pending_annot_upload(library_id, book_id, fmt, amap)
+        self._reschedule_unsynced_indicator()
         ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, self._annot_upload_done.bind(self))
 
     def _annot_upload_done(self, end_type, xhr, ev):
         if end_type is 'load':
             self.unsynced_amap = None
             self.db.clear_pending_annot_upload()
+            if self.unsynced_indicator_timer:
+                window.clearTimeout(self.unsynced_indicator_timer)
+                self.unsynced_indicator_timer = None
+            if self.unsynced_indicator_active:
+                self.unsynced_indicator_active = False
+                self.view.show_unsynced_indicator(False)
 
     def has_unsynced_changes(self):
-        return self.unsynced_amap is not None
+        return self.unsynced_indicator_active
+
+    def _reschedule_unsynced_indicator(self):
+        if self.unsynced_indicator_timer:
+            window.clearTimeout(self.unsynced_indicator_timer)
+        def show_it():
+            self.unsynced_indicator_active = True
+            self.view.show_unsynced_indicator(True)
+        self.unsynced_indicator_timer = window.setTimeout(show_it, 60000)
 
     def upload_pending_annotations(self, callback):
         if self.unsynced_amap is not None:
