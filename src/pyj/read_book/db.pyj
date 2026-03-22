@@ -156,7 +156,10 @@ class DB:
             self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the Reload button in your browser.'))
         if window.navigator.storage?.persist:
-            window.navigator.storage.persist()
+            window.navigator.storage.persisted().then(def(already_persistent):
+                if not already_persistent:
+                    window.navigator.storage.persist()
+            )
         self.callback()
 
     def display_error(self, msg, event):
