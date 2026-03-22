@@ -203,18 +203,32 @@ class DB:
             self.display_error(error_msg, event)
 
     def set_pending_annot_upload(self, library_id, book_id, fmt, amap):
-        entry = {'key': 'pending-annot-upload', 'library_id': library_id,
-                 'book_id': book_id, 'fmt': fmt, 'amap': amap}
+        key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
+        entry = {'key': key, 'library_id': library_id, 'book_id': book_id, 'fmt': fmt, 'amap': amap}
         self.do_op(['objects'], entry, _('Failed to save pending annotation upload'),
                    def(): None;, op='put')
 
-    def get_pending_annot_upload(self, proceed):
-        self.do_op(['objects'], 'pending-annot-upload',
-                   _('Failed to read pending annotation upload'), proceed)
+    def get_all_pending_annot_uploads(self, proceed):
+        transaction = self.idb.transaction(['objects'])
+        store = transaction.objectStore('objects')
+        key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')
+        entries = v'[]'
+        req = store.openCursor(key_range)
+        req.onsuccess = def(event):
+            cursor = event.target.result
+            if cursor:
+                entries.push(cursor.value)
+                cursor.continue()
+            else:
+                proceed(entries)
+        req.onerror = def(event):
+            self.display_error(_('Failed to read pending annotation uploads'), event)
+            proceed(v'[]')
 
-    def clear_pending_annot_upload(self):
-        self.do_op(['objects'], 'pending-annot-upload',
-                   _('Failed to clear pending annotation upload'), def(): None;, op='delete')
+    def clear_pending_annot_upload(self, library_id, book_id, fmt, proceed):
+        key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
+        self.do_op(['objects'], key,
+                   _('Failed to clear pending annotation upload'), proceed or def(): None;, op='delete')
 
     def get_book(self, library_id, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
