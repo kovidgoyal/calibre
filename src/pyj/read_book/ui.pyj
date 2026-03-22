@@ -355,6 +355,7 @@ class ReadUI:
                 callback(True)
                 return
             self.unsynced_amap = entry.amap
+            self._reschedule_unsynced_indicator()
             self.upload_pending_annotations(callback)
         )
 
