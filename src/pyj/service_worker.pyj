@@ -1,0 +1,43 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: self, caches, Promise
+from __python__ import hash_literals
+
+CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__'
+PRECACHE_URLS = v"['/']"
+
+self.addEventListener('install', def(event):
+    event.waitUntil(
+        caches.open(CACHE_NAME).then(def(cache):
+            return cache.addAll(PRECACHE_URLS)
+        )
+    )
+    self.skipWaiting()
+)
+
+self.addEventListener('activate', def(event):
+    event.waitUntil(
+        caches.keys().then(def(keys):
+            return Promise.all(
+                keys.filter(def(key): return key is not CACHE_NAME;)
+                    .map(def(key): return caches.delete(key);)
+            )
+        )
+    )
+    self.clients.claim()
+)
+
+self.addEventListener('fetch', def(event):
+    if event.request.method is not 'GET':
+        return
+    url = new URL(event.request.url)
+    if url.origin is not self.location.origin:
+        return
+    if url.pathname is not '/':
+        return
+    event.respondWith(
+        caches.match(event.request).then(def(cached):
+            return cached or fetch(event.request)
+        )
+    )
+)

@@ -512,6 +512,17 @@ def compile_srv():
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
+    compile_service_worker()
+
+
+def compile_service_worker():
+    base = base_dir()
+    rapydscript_dir = os.path.join(base, 'src', 'pyj')
+    fname = os.path.join(rapydscript_dir, 'service_worker.pyj')
+    with open(fname, 'rb') as f:
+        js = set_data(compile_fast(f.read(), fname))
+    out_base = os.path.join(base, 'resources', 'content-server')
+    atomic_write(out_base, 'sw.js', js)
 
 # }}}
 
