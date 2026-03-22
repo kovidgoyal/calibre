@@ -102,12 +102,16 @@ from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 # Utility functions {{{
 
 
-def random_from_id(book_id: int, limit: int = 21) -> int:
+HEIGHT_REDUCTION_LIMIT = 21
+
+
+def random_from_id(book_id: int, limit: int = HEIGHT_REDUCTION_LIMIT) -> int:
     ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
     return xxh3_64_intdigest(b'', seed=book_id) % limit
 
 
-def random_from_group_name(group_name: str, limit: int = 21) -> int:
+@lru_cache(maxsize=4096)
+def random_from_group_name(group_name: str, limit: int = HEIGHT_REDUCTION_LIMIT) -> int:
     ' Return a pseudo random integer in [0, limit) that is fully determined by group_name '
     return xxh3_64_intdigest(group_name.encode()) % limit
 
@@ -786,13 +790,8 @@ class LayoutConstraints(NamedTuple):
         return self.spine_height + self.shelf_height
 
 
-def height_reduction_for_book(book_id: int, group_name: str) -> int:
-    mode = gprefs['bookshelf_variable_height']
-    if mode == 'variable':
-        return random_from_id(book_id)
-    if mode == 'per_group':
-        return random_from_group_name(group_name)
-    return 0
+def height_reduction_for_book(book_id: int, group_height_reduction: int, use_group: bool) -> int:
+    return group_height_reduction if use_group else random_from_id(book_id)
 
 
 class ShelfItem(NamedTuple):
@@ -899,11 +898,11 @@ class CaseItem:
         self.width = s.start_x + s.width
         return True
 
-    def add_book(self, book_id: int, width: int, group_name: str, lc: LayoutConstraints) -> bool:
+    def add_book(self, book_id: int, width: int, group_name: str, lc: LayoutConstraints, reduce_height_by: int) -> bool:
         if (x := self._get_x_for_item(width, lc)) is None:
             return False
         s = ShelfItem(
-            start_x=x, book_id=book_id, reduce_height_by=height_reduction_for_book(book_id, group_name),
+            start_x=x, book_id=book_id, reduce_height_by=reduce_height_by,
             width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
         self.width = s.start_x + s.width
@@ -1248,6 +1247,15 @@ class BookCase(QObject):
         min_width = min(max(min_line_height, lc.min_spine_width), lc.max_spine_width-1)
         lc = lc._replace(min_spine_width=min_width)
         add_group_dividers = gprefs['bookshelf_divider_style'] != 'hidden'
+        height_reduction_required = False
+        height_reduction_is_per_group = False
+        match gprefs['bookshelf_variable_height']:
+            case 'per_group':
+                height_reduction_required = True
+                height_reduction_is_per_group = bool(group_field_name)
+            case 'variable':
+                height_reduction_required = True
+                height_reduction_is_per_group = False
         for group_name, book_ids_in_group in group_iter:
             if invalidate.is_set():
                 return
@@ -1255,6 +1263,7 @@ class BookCase(QObject):
                 y = commit_case_item(current_case_item)
                 current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
                 current_case_item.add_group_divider(group_name, lc)
+            group_height_reduction = random_from_group_name(group_name) if height_reduction_is_per_group else 0
             for book_id in book_ids_in_group:
                 if invalidate.is_set():
                     return
@@ -1263,7 +1272,9 @@ class BookCase(QObject):
                         book_id, db, spine_size_template, template_cache, lc, self.spine_width_cache)
                 except Exception:
                     spine_width = lc.default_spine_width
-                if not current_case_item.add_book(book_id, spine_width, group_name, lc):
+                book_height_reduction = height_reduction_for_book(
+                    book_id, group_height_reduction, height_reduction_is_per_group) if height_reduction_required else 0
+                if not current_case_item.add_book(book_id, spine_width, group_name, lc, book_height_reduction):
                     case_end_divider = ''
                     if current_case_item.items[-1].is_divider:
                         case_end_divider = current_case_item.items.pop(-1).group_name
@@ -1274,7 +1285,7 @@ class BookCase(QObject):
                             current_case_item.add_group_divider(case_end_divider, lc)
                         elif start_with_divider:
                             current_case_item.add_group_divider(group_name, lc)
-                    if not current_case_item.add_book(book_id, spine_width, group_name, lc):
+                    if not current_case_item.add_book(book_id, spine_width, group_name, lc, book_height_reduction):
                         raise ValueError(
                             f'Failed to add a single book to a new shelf: {book_id=} {spine_width=} {lc.width=} {lc.max_spine_width=}')
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
