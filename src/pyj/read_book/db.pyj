@@ -155,6 +155,21 @@ class DB:
             idb.close()
             self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the Reload button in your browser.'))
+        if window.navigator.storage?.persist:
+            if window.navigator.locks:
+                def try_persist(lock):
+                    if not lock:
+                        return  # another tab is already requesting persistence
+                    return window.navigator.storage.persisted().then(def(already_persistent):
+                        if not already_persistent:
+                            return window.navigator.storage.persist()
+                    )
+                window.navigator.locks.request('calibre-storage-persist', {'ifAvailable': True}, try_persist)
+            else:
+                window.navigator.storage.persisted().then(def(already_persistent):
+                    if not already_persistent:
+                        window.navigator.storage.persist()
+                )
         self.callback()
 
     def display_error(self, msg, event):
@@ -179,8 +194,41 @@ class DB:
             req = transaction.objectStore(store).put(data)
             if proceed:
                 req.onsuccess = proceed
+        elif op is 'delete':
+            transaction = self.idb.transaction(stores, 'readwrite')
+            req = transaction.objectStore(store).delete(data)
+            if proceed:
+                req.onsuccess = proceed
         req.onerror = def(event):
             self.display_error(error_msg, event)
+
+    def set_pending_annot_upload(self, library_id, book_id, fmt, amap):
+        key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
+        entry = {'key': key, 'library_id': library_id, 'book_id': book_id, 'fmt': fmt, 'amap': amap}
+        self.do_op(['objects'], entry, _('Failed to save pending annotation upload'),
+                   def(): None;, op='put')
+
+    def get_all_pending_annot_uploads(self, proceed):
+        transaction = self.idb.transaction(['objects'])
+        store = transaction.objectStore('objects')
+        key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')
+        entries = v'[]'
+        req = store.openCursor(key_range)
+        req.onsuccess = def(event):
+            cursor = event.target.result
+            if cursor:
+                entries.push(cursor.value)
+                cursor.continue()
+            else:
+                proceed(entries)
+        req.onerror = def(event):
+            self.display_error(_('Failed to read pending annotation uploads'), event)
+            proceed(v'[]')
+
+    def clear_pending_annot_upload(self, library_id, book_id, fmt, proceed):
+        key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
+        self.do_op(['objects'], key,
+                   _('Failed to clear pending annotation upload'), proceed or def(): None;, op='delete')
 
     def get_book(self, library_id, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
