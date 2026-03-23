@@ -95,11 +95,32 @@ def subtitle_for_field(field):
     return m[field] or ''
 
 
+def rating_search_query_from_display_name(label):
+    """Map tag-browser rating label (e.g. ★★★) to calibre search rating:N with N in 1..5."""
+    s = (label or '') + ''
+    n = 0
+    for i in range(s.length):
+        if s[i] is '★':
+            n += 1
+    if n >= 1 and n <= 5:
+        return n
+    try:
+        v = int(Math.round(parseFloat(s)))
+        if v >= 1 and v <= 5:
+            return v
+    except Exception:
+        pass
+    return 1
+
+
 def make_search(field, label):
     label = label or ''
     field = field or ''
     if not field:
         return {'search': ''}
+    if field is 'rating':
+        n = rating_search_query_from_display_name(label)
+        return {'search': 'rating:' + str(n)}
     return {'search': f'{field}:"{escape_for_search(label)}"'}
 
 
