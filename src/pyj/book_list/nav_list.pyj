@@ -133,6 +133,34 @@ def stars_for_rating(label):
     return '★' * n
 
 
+def parse_rating_from_api(avg_rating):
+    if avg_rating is None or str(avg_rating).strip() == '':
+        return None
+    try:
+        r = float(avg_rating)
+    except Exception:
+        return None
+    if not isFinite(r):
+        return None
+    r = clamp(r, 0, 5)
+    # Keep one decimal as requested for display/tooltip.
+    text = '{:.1f}'.format(r)
+    return {'value': r, 'text': text}
+
+
+def create_fractional_rating_stars(avg_rating):
+    info = parse_rating_from_api(avg_rating)
+    if not info:
+        return None
+    percent = (info.value / 5.0) * 100.0
+    root = E.span(class_='cs-rating-stars', title=info.text)
+    root.appendChild(E.span('★★★★★', class_='cs-rating-stars-base'))
+    fill = E.span('★★★★★', class_='cs-rating-stars-fill')
+    fill.style.width = '{:.1f}%'.format(percent)
+    root.appendChild(fill)
+    return root
+
+
 def tags_cache_key():
     q = parse_url_params()
     sd = get_session_data()
@@ -260,6 +288,27 @@ add_extra_css(def():
         user_select='none'
     )
     style += build_rule(sel + 'a.cs-show-more:hover', background_color='var(--cs-accent-weak)')
+    # Fractional rating stars (5 base stars + themed fill overlay)
+    style += build_rule(sel + '.cs-rating-stars',
+        position='relative',
+        display='inline-block',
+        line_height='1',
+        letter_spacing='0.06em',
+        white_space='nowrap',
+        user_select='none'
+    )
+    style += build_rule(sel + '.cs-rating-stars-base',
+        color='rgba(0,0,0,0.18)'
+    )
+    style += build_rule(sel + '.cs-rating-stars-fill',
+        position='absolute',
+        left='0',
+        top='0',
+        overflow='hidden',
+        white_space='nowrap',
+        color='var(--primary-color)',
+        pointer_events='none'
+    )
     # Toggle (segmented) control
     style += build_rule(sel + '.cs-toggle',
         display='inline-flex',
@@ -282,66 +331,89 @@ add_extra_css(def():
         font_weight='700'
     )
     style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--cs-accent-weak)')
-    # Series cover stack (styled like "stacked covers" cards)
-    style += build_rule(sel + '.cs-series-row', display='flex', align_items='center', gap='0.65rem', min_width='0')
-    style += build_rule(sel + '.cs-series-covers', position='relative', width='132px', height='198px', flex='0 0 auto')
-    style += build_rule(sel + '.cs-series-covers img.cover-img',
+    # Series stack-cover mode: isolated classes to avoid conflicts with list mode selectors.
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-row',
+        display='flex',
+        flex_direction='column',
+        align_items='center',
+        justify_content='center',
+        gap='0.55rem',
+        min_width='0',
+        width='100%',
+        flex='1 1 auto'
+    )
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers',
+        position='relative',
+        width='min(100%, 260px)',
+        height='252px',
+        box_sizing='border-box',
+        padding_top='36px',
+        margin_left='auto',
+        margin_right='auto',
+        flex='0 0 auto',
+        overflow='visible',
+        border_radius='14px'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img',
         position='absolute',
         left='50%',
-        bottom='0px',
-        width='108px', height='162px',
+        bottom='12px',
+        width='112px',
+        height='168px',
         object_fit='cover',
-        border_radius='14px',
+        border_radius='12px',
         border='1px solid rgba(0,0,0,0.10)',
         background_color='rgba(0,0,0,0.05)',
-        box_shadow='0 14px 36px rgba(0,0,0,0.16)',
+        box_shadow='0 12px 32px rgba(0,0,0,0.16)',
         transition='transform 200ms ease, box-shadow 200ms ease'
     )
-    style += build_rule(sel + '.cs-series-covers img.cover-img:hover',
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img:hover',
         box_shadow='0 26px 64px rgba(0,0,0,0.22)'
     )
+
     # Per-count positioning: only odd stacks (1 / 3 / 5); tighter offsets than before
     style += r'''
-.cs-nav-list .cs-series-covers.covers-1 .cover-0 {
+.cs-nav-list .cs-series-stack-covers.covers-1 .cover-0 {
   transform: translate(-50%, 0) rotate(0deg) scale(1);
   z-index: 3;
 }
 
-.cs-nav-list .cs-series-covers.covers-3 .cover-0 {
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-0 {
   transform: translate(calc(-50% - 28px), -12px) rotate(-6deg) scale(0.90);
   z-index: 1;
 }
-.cs-nav-list .cs-series-covers.covers-3 .cover-1 {
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-1 {
   transform: translate(calc(-50% + 28px), -12px) rotate(6deg) scale(0.90);
   z-index: 1;
 }
-.cs-nav-list .cs-series-covers.covers-3 .cover-2 {
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-2 {
   transform: translate(-50%, 0) rotate(0deg) scale(1);
   z-index: 3;
 }
 
-.cs-nav-list .cs-series-covers.covers-5 .cover-0 {
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-0 {
   transform: translate(calc(-50% - 42px), -14px) rotate(-7deg) scale(0.84);
   z-index: 1;
 }
-.cs-nav-list .cs-series-covers.covers-5 .cover-1 {
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-1 {
   transform: translate(calc(-50% + 42px), -14px) rotate(7deg) scale(0.84);
   z-index: 1;
 }
-.cs-nav-list .cs-series-covers.covers-5 .cover-2 {
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-2 {
   transform: translate(calc(-50% - 20px), -6px) rotate(-3.5deg) scale(0.93);
   z-index: 2;
 }
-.cs-nav-list .cs-series-covers.covers-5 .cover-3 {
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-3 {
   transform: translate(calc(-50% + 20px), -6px) rotate(3.5deg) scale(0.93);
   z-index: 2;
 }
-.cs-nav-list .cs-series-covers.covers-5 .cover-4 {
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-4 {
   transform: translate(-50%, 0) rotate(0deg) scale(1);
   z-index: 3;
 }
 '''
-    style += build_rule(sel + '.cs-series-name', min_width='0', overflow='hidden', text_overflow='ellipsis', white_space='nowrap')
     # Loading overlay (prevents flash/flicker on updates)
     style += build_rule(sel + '.cs-list-wrap', position='relative', flex='1 1 auto', min_height='0')
     style += build_rule(sel + '.cs-loading-overlay',
@@ -377,18 +449,18 @@ add_extra_css(def():
         min_height='0',
         box_sizing='border-box',
     )
-    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:not(:has(.item-subtitle-nav))',
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:not(:has(.item-subtitle-nav))',
         display='flex',
     )
-    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav)',
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:has(.item-subtitle-nav)',
         display='flex',
         align_items='center',
     )
-    style += build_rule(sel + '.cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
         padding_right='9.5rem',
         box_sizing='border-box',
     )
-    style += build_rule(sel + '.cs-list-content .generic-items-list .item-subtitle.item-subtitle-nav',
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-subtitle.item-subtitle-nav',
         position='absolute',
         right='0.95rem',
         top='0',
@@ -411,26 +483,9 @@ add_extra_css(def():
         overflow='hidden',
         box_sizing='border-box',
     )
+
     # Series card grid: same row has subtitle-nav but layout must stay columnar (not browse-row center).
-    style += build_rule(
-        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav)',
-        display='flex',
-        flex_direction='column',
-        align_items='stretch',
-        flex_wrap='nowrap',
-    )
-    style += build_rule(
-        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-list-content .generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
-        flex='1 1 auto',
-        min_width='0',
-        min_height='0',
-        width='100%',
-        padding_right='9.5rem',
-        box_sizing='border-box',
-        display='flex',
-        align_items='stretch',
-        justify_content='flex_start',
-    )
+
     style += build_rule(sel + '.cs-loading .cs-loading-overlay', opacity='1')
     style += build_rule(sel + '.cs-loading .cs-list-content', opacity='0.45')
     style += r'''
@@ -466,52 +521,13 @@ add_extra_css(def():
     style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
         padding='0.95rem 0.95rem 0.9rem 0.95rem'
     )
-    style += build_rule('.cs-nav-list[data-field="series"] .cs-series-row',
-        flex_direction='column',
-        align_items='center',
-        gap='0.55rem',
-        flex_shrink='0',
-        flex_grow='1',
-        width='100%',
-        min_height='0',
-        justify_content='flex-start',
-    )
-    style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers',
-        width='min(100%, 260px)',
-        height='252px',
-        box_sizing='border-box',
-        padding_top='36px',
-        margin_left='auto',
-        margin_right='auto',
-        flex_shrink='0',
-        overflow='visible',
-        border_radius='14px',
-    )
-    # Cover size ~2:3; box height must clear stack transforms + shadow
-    style += build_rule('.cs-nav-list[data-field="series"] .cs-series-covers img.cover-img',
-        bottom='12px',
-        width='112px',
-        height='168px',
-        border_radius='12px',
-        box_shadow='0 12px 32px rgba(0,0,0,0.16)',
-    )
-    style += build_rule('.cs-nav-list[data-field="series"] .cs-series-name',
-        text_align='center',
-        max_width='100%',
-        white_space='normal',
-        overflow='hidden',
-        display='-webkit-box',
-        webkit_line_clamp='2',
-        webkit_box_orient='vertical',
-        margin_top='auto',
-        flex_shrink='0',
-    )
     # Keep series stack fully inside the card; no overflow outside list item.
-    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-item',
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item',
         overflow='hidden')
+
     # Disable hover "lift" animation for series items (prevents cover zoom feel)
-    style += build_rule('.generic-items-list li.cs-series-item:hover', transform='none')
-    style += build_rule('.generic-items-list li.cs-series-item:active', transform='none')
+    style += build_rule('.generic-items-list li.cs-series-stack-item:hover', transform='none')
+    style += build_rule('.generic-items-list li.cs-series-stack-item:active', transform='none')
     # Series list mode: same layout as authors/publisher (no grid, no covers)
     style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list ul',
         display='flex',
@@ -529,6 +545,21 @@ add_extra_css(def():
     )
     style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .item-title-body',
         text_align='left'
+    )
+    # Series stack mode: same layout as authors/publisher (no grid, no covers)
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-title-body',
+        padding_right='0',
+    )
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-subtitle.item-subtitle-nav',
+       position='relative',
+       right='0',
+       top='0',
+       bottom='0',
+       margin_top='auto',
+       margin_bottom='auto',
+       height='fit-content',
+       max_height='100%',
+       width='max-content',
     )
     # Mobile layout: stack pager controls and make filter usable
     style += r'''
@@ -576,24 +607,24 @@ add_extra_css(def():
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.55rem;
   }
-  .cs-nav-list[data-field="series"] .cs-series-covers {
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
     width: min(100%, 200px);
     height: 214px;
     padding-top: 30px;
   }
-  .cs-nav-list[data-field="series"] .cs-series-covers img.cover-img {
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
     width: 88px;
     height: 132px;
     bottom: 10px;
   }
 }
 @media (max-width: 360px) {
-  .cs-nav-list[data-field="series"] .cs-series-covers {
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
     width: min(100%, 180px);
     height: 198px;
     padding-top: 28px;
   }
-  .cs-nav-list[data-field="series"] .cs-series-covers img.cover-img {
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
     width: 80px;
     height: 120px;
     bottom: 9px;
@@ -896,9 +927,9 @@ def create_nav_list_panel(container_id):
             n = int(count)
             count_s = _('{} books').format(n)
         if show_rating and avg_rating is not None and str(avg_rating).strip() != '':
-            r = float(avg_rating) if avg_rating else 0
-            if r > 0:
-                rating_s = stars_for_rating(str(Math.round(r / 2)))
+            info = parse_rating_from_api(avg_rating)
+            if info and info.value > 0:
+                rating_s = create_fractional_rating_stars(info.value)
         if not count_s and not rating_s:
             return None
         return {'rating': rating_s, 'count': count_s}
@@ -911,7 +942,9 @@ def create_nav_list_panel(container_id):
         if p.count:
             parts.push(p.count)
         if p.rating:
-            parts.push(p.rating)
+            info = parse_rating_from_api(avg_rating)
+            if info:
+                parts.push(info.text )
         return ' · '.join(parts)
 
     def fetch_from_tag_browser(field, proceed):
@@ -1136,8 +1169,8 @@ def create_nav_list_panel(container_id):
                 if series_mode is 'list':
                     list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
                 else:
-                    covers = E.div(class_='cs-series-covers')
-                    row = E.div(class_='cs-series-row', E.div(covers), E.div(label, class_='cs-series-name'))
+                    covers = E.div(class_='cs-series-stack-covers')
+                    row = E.div(class_='cs-series-stack-row', E.div(covers), E.div(label, class_='cs-series-stack-name'))
                     row.dataset.seriesName = label
                     list_items.push(create_item(row, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
             elif field is 'rating':
@@ -1170,9 +1203,9 @@ def create_nav_list_panel(container_id):
             for row in list_container.querySelectorAll('[data-series-name]'):
                 li = row.closest('li')
                 if li:
-                    li.classList.add('cs-series-item')
+                    li.classList.add('cs-series-stack-item')
                 sname = row.dataset.seriesName
-                cdiv = row.querySelector('.cs-series-covers')
+                cdiv = row.querySelector('.cs-series-stack-covers')
                 if cdiv:
                     ensure_series_covers(sname, cdiv)
 
