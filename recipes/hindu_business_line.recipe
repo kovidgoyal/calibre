@@ -1,85 +1,258 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+
+import json
+import re
+from collections import defaultdict
+from datetime import date
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-class BusinessLine(BasicNewsRecipe):
-    title = 'The Hindu BusinessLine'
-    __author__ = 'unkn0wn'
-    description = (
-        'The Hindu BusinessLine is known for its credibility, accuracy, in-depth analysis of markets and sober coverage'
-        ' of business news. BusinessLine reduces the daily grind of business to relevant, readable, byte-sized stories.'
-        ' The newspaper is extensively followed by the decision makers and change leaders from the world of business.'
-    )
-    no_stylesheets = True
-    use_embedded_content = False
-    oldest_article = 1.15  # days
-    max_articles_per_feed = 50
-    encoding = 'utf-8'
-    language = 'en_IN'
-    remove_attributes = ['height', 'width', 'padding-bottom']
-    masthead_url = 'https://www.thehindubusinessline.com/theme/images/bl-online/bllogo.png'
-    ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds = True
+def absurl(url):
+    if url.startswith('/'):
+        return 'https://www.thehindubusinessline.com' + url
+    return url
 
-    def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
-        )
-        return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
+
+class BusinessLine(BasicNewsRecipe):
+    title = 'BusinessLine Print Edition'
+    __author__ = 'improved'
+    description = "BusinessLine ePaper (The Hindu Group)"
+    language = 'en_IN'
+
+    no_stylesheets = True
+    remove_attributes = ['style', 'height', 'width']
+
+    masthead_url = 'https://assetsbl.thehindubusinessline.com/theme/images/bl-online/logo.svg'
+
+    extra_css = '''
+        body { font-family: serif; line-height:1.5; }
+        img { display:block; margin:1em auto; max-width:100%; }
+        .photo-container { text-align:center; margin:1.5em 0; padding: 0.5em; border-bottom: 2px solid #ddd; }
+        .photo-caption { font-size:0.85em; font-style: italic; color:#555; margin-top:0.5em; display: block; line-height: 1.3; }
+        .byline { font-size:0.9em; color:#444; margin-bottom:1em; font-weight: bold; }
+        .keywords { margin-top:2em; font-size:0.9em; border-top:1px solid #ccc; padding-top:0.5em; }
+    '''
+
+    recipe_specific_options = {
+        'location': {
+            'short': 'Edition (e.g., chennai, delhi)',
+            'default': 'chennai'
+        },
+        'date': {
+            'short': 'Edition date (YYYY-MM-DD)',
+        }
+    }
+
+    ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes(
-            'tp-title-inf bi-line leadtext lead-img-caption slide-moadal img-container'
-        ),
-        dict(
-            name='div', attrs={'id': lambda x: x and x.startswith('content-body-')}
-        )
+        classes('article-section'),
+        classes('article-main-col'),
+        dict(id='content-body')
     ]
 
     remove_tags = [
-        classes(
-            'swiper-button-prev left-arrow swiper-button-next right-arrow close cursor tagsBtm share-topic comment-rules vuukle-div paywallbox '
-        )
-    ]
-
-    feeds = [
-        (
-            'Markets',
-            'https://www.thehindubusinessline.com/markets/feeder/default.rss'
-        ),
-        (
-            'Companies',
-            'https://www.thehindubusinessline.com/companies/feeder/default.rss'
-        ),
-        (
-            'Opinion',
-            'https://www.thehindubusinessline.com/opinion/feeder/default.rss'
-        ),
-        (
-            'Economy',
-            'https://www.thehindubusinessline.com/economy/feeder/default.rss'
-        ),
-        (
-            'Portfolio Premium',
-            'https://www.thehindubusinessline.com/portfolio/feeder/default.rss'
-        ),
-        (
-            'Info-Tech',
-            'https://www.thehindubusinessline.com/info-tech/feeder/default.rss'
-        ),
-        (
-            'Data-Stories',
-            'https://www.thehindubusinessline.com/data-stories/feeder/default.rss'
-        ),
-        (
-            'Money & Banking',
-            'https://www.thehindubusinessline.com/money-and-banking/feeder/default.rss'
-        ),
-        ('News', 'https://www.thehindubusinessline.com/news/feeder/default.rss'),
+        dict(id='paywallbox'),
+        classes('comments-shares share-page editiondetails')
     ]
 
     def preprocess_html(self, soup):
-        for image in soup.findAll('source', attrs={'srcset': True}):
-            image['src'] = image['srcset']
-        for img in soup.findAll('img', attrs={'data-src-template': True}):
-            img['src'] = img['data-src-template']
+        keywords = []
+
+        # -------------------------
+        # Extract metadata
+        # -------------------------
+        header = soup.find('div', class_='article-section')
+
+        title = ''
+        author = ''
+        dateline = ''
+
+        if header:
+            h1 = header.find('h1')
+            if h1:
+                title = self.tag_to_string(h1)
+
+            auth = header.find('h3', class_='author')
+            if auth:
+                author = self.tag_to_string(auth)
+
+            date_div = header.find('div', class_='dateline')
+            if date_div:
+                dateline = self.tag_to_string(date_div)
+
+        # -------------------------
+        # Normalize ALL images
+        # -------------------------
+        for img in soup.find_all('img'):
+            src = (
+                img.get('data-original') or
+                img.get('data-src') or
+                img.get('data-src-template') or
+                img.get('src')
+            )
+            if src:
+                img['src'] = absurl(src)
+
+       # -------------------------
+        # Fix article images + captions
+        # -------------------------
+        for pic in soup.find_all('div', class_='article-picture'):
+            # Use a standard div with a class instead of <figure>
+            figure = soup.new_tag('div')
+            figure['class'] = 'photo-container'
+
+            img = pic.find('img')
+            if img:
+                figure.append(img)
+
+            caption = None
+
+            cap = pic.find('p', class_='caption')
+            if cap:
+                caption = cap.get_text(" ", strip=True)
+
+            if not caption:
+                nxt = pic.find_next_sibling()
+                if nxt and nxt.name == 'p' and 'caption' in (nxt.get('class') or []):
+                    caption = nxt.get_text(" ", strip=True)
+                    nxt.decompose()
+
+            if caption:
+                # Use a standard div with a class instead of <figcaption>
+                figcap = soup.new_tag('div')
+                figcap['class'] = 'photo-caption'
+                figcap.string = caption
+                figure.append(figcap)
+
+            pic.replace_with(figure)
+
+        # -------------------------
+        # Collect subheads as keywords
+        # -------------------------
+        for sub in soup.find_all('div', class_='subhead'):
+            txt = sub.get_text(strip=True)
+            if txt:
+                keywords.append(txt)
+            sub.decompose()
+
+        # -------------------------
+        # Remove empty paragraphs
+        # -------------------------
+        for p in soup.find_all('p'):
+            if not p.get_text(strip=True) and not p.find('img'):
+                p.decompose()
+
+        # -------------------------
+        # Build clean article
+        # -------------------------
+        
+        # 1. Rebuild the header in its original location
+        if header:
+            new_header = soup.new_tag('div')
+            new_header['class'] = 'clean-header' # Optional wrapper
+
+            if title:
+                h1_tag = soup.new_tag('h1')
+                h1_tag.string = title
+                new_header.append(h1_tag)
+
+            if author or dateline:
+                byline = soup.new_tag('div')
+                byline['class'] = 'byline'
+                byline.string = ' | '.join(filter(None, [author, dateline]))
+                new_header.append(byline)
+
+            # Replace the old messy header with our clean reconstructed one
+            header.replace_with(new_header)
+
+        # 2. Add keywords to the end of the body
+        body = soup.find('div', id='content-body')
+        if body and keywords:
+            kw = soup.new_tag('div')
+            kw['class'] = 'keywords'
+            kw.string = 'Keywords: ' + ' - '.join(keywords)
+            body.append(kw)
+
         return soup
+
+    def parse_index(self):
+        self.title = 'BusinessLine'
+
+        local_edition = 'bl_chennai'
+        loc = self.recipe_specific_options.get('location')
+        
+        # CLI Fallback: If it's still the schema dictionary, extract the default value
+        if isinstance(loc, dict):
+            loc = loc.get('default', 'chennai')
+            
+        if loc:
+            local_edition = 'bl_' + loc
+
+        dt = date.today()
+        past = self.recipe_specific_options.get('date')
+        
+        # CLI Fallback: Extract default if it's the schema dictionary (returns None if undefined)
+        if isinstance(past, dict):
+            past = past.get('default')
+
+        if past:
+            y, m, d = (int(x) for x in past.split('-'))
+            dt = date(y, m, d)
+
+        today = dt.strftime('%Y-%m-%d')
+
+        self.log(f'Downloading BusinessLine ({local_edition[3:]}) - {today}')
+
+        url = absurl(f'/todays-paper/{today}/{local_edition}/')
+
+        raw = self.index_to_soup(url, raw=True)
+        soup = self.index_to_soup(raw)
+
+        feeds = self.parse_businessline_index(soup)
+
+        if not feeds:
+            raise ValueError('BusinessLine not published today.')
+
+        cover = soup.find('img')
+        if cover:
+            self.cover_url = absurl(cover.get('src'))
+
+        return feeds
+
+    def parse_businessline_index(self, soup):
+        for script in soup.find_all('script'):
+            text = self.tag_to_string(script)
+
+            if 'grouped_articles = {' not in text:
+                continue
+
+            match = re.search(r'grouped_articles = ({\".*)', text)
+            if not match:
+                continue
+
+            data = json.JSONDecoder().raw_decode(match.group(1))[0]
+
+            feeds_dict = defaultdict(list)
+
+            for section_key in data:
+                section = section_key.replace('BL_', '').replace('bl_', '')
+
+                for item in data[section_key]:
+                    title = item.get('articleheadline', 'No title')
+                    url = absurl(item.get('href', ''))
+                    desc = f"Page {item.get('pageno', '')}"
+
+                    self.log('  ', title)
+
+                    feeds_dict[section].append({
+                        'title': title,
+                        'url': url,
+                        'description': desc
+                    })
+
+            return list(feeds_dict.items())
+
+        return []
