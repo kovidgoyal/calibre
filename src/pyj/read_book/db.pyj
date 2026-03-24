@@ -155,15 +155,16 @@ class DB:
             idb.close()
             self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the Reload button in your browser.'))
+
+        def try_persist(lock):
+            if not lock:
+                return  # another tab is already requesting persistence
+            return window.navigator.storage.persisted().then(def(already_persistent):
+                if not already_persistent:
+                    return window.navigator.storage.persist()
+            )
         if window.navigator.storage?.persist:
             if window.navigator.locks:
-                def try_persist(lock):
-                    if not lock:
-                        return  # another tab is already requesting persistence
-                    return window.navigator.storage.persisted().then(def(already_persistent):
-                        if not already_persistent:
-                            return window.navigator.storage.persist()
-                    )
                 window.navigator.locks.request('calibre-storage-persist', {'ifAvailable': True}, try_persist)
             else:
                 window.navigator.storage.persisted().then(def(already_persistent):
@@ -211,7 +212,7 @@ class DB:
     def get_all_pending_annot_uploads(self, proceed):
         transaction = self.idb.transaction(['objects'])
         store = transaction.objectStore('objects')
-        key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')
+        key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')  # noqa
         entries = v'[]'
         req = store.openCursor(key_range)
         req.onsuccess = def(event):

@@ -325,21 +325,22 @@ class ReadUI:
                   self._make_annot_upload_done(library_id, book_id, fmt))
 
     def _make_annot_upload_done(self, library_id, book_id, fmt):
+        def on_cleared():
+            if (self.unsynced_amap is not None and self.base_url_data
+                    and self.base_url_data.library_id is library_id
+                    and str(self.base_url_data.book_id) is str(book_id)
+                    and self.base_url_data.fmt is fmt):
+                self.unsynced_amap = None
+                if self.unsynced_indicator_timer:
+                    window.clearTimeout(self.unsynced_indicator_timer)
+                    self.unsynced_indicator_timer = None
+                if self.unsynced_indicator_active:
+                    self.unsynced_indicator_active = False
+                    self.view.show_unsynced_indicator(False)
+            self._upload_next_from_idb()
+
         def done(end_type, xhr, ev):
             if end_type is 'load':
-                def on_cleared():
-                    if (self.unsynced_amap is not None and self.base_url_data
-                            and self.base_url_data.library_id is library_id
-                            and str(self.base_url_data.book_id) is str(book_id)
-                            and self.base_url_data.fmt is fmt):
-                        self.unsynced_amap = None
-                        if self.unsynced_indicator_timer:
-                            window.clearTimeout(self.unsynced_indicator_timer)
-                            self.unsynced_indicator_timer = None
-                        if self.unsynced_indicator_active:
-                            self.unsynced_indicator_active = False
-                            self.view.show_unsynced_indicator(False)
-                    self._upload_next_from_idb()
                 self.db.clear_pending_annot_upload(library_id, book_id, fmt, on_cleared)
         return done
 
@@ -379,7 +380,7 @@ class ReadUI:
                       self._make_annot_upload_done(library_id, book_id, fmt))
             callback(True)
             return
-        # unsynced_amap is None — page may have been killed or this is another book;
+        # unsynced_amap is None — page may have been killed or this is another book
         # check IDB for surviving entries
         self.db.get_all_pending_annot_uploads(def(entries):
             if not entries.length:
