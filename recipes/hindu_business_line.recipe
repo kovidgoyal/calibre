@@ -16,16 +16,20 @@ def absurl(url):
 
 
 class BusinessLine(BasicNewsRecipe):
-    title = 'BusinessLine Print Edition'
-    __author__ = 'improved'
-    description = "BusinessLine ePaper (The Hindu Group)"
-    
+    title = 'The Hindu BusinessLine'
+    __author__ = 'unkn0wn, Hardik Gupta'
+    description = (
+        'The Hindu BusinessLine is known for its credibility, accuracy, in-depth analysis of markets and sober coverage'
+        ' of business news. BusinessLine reduces the daily grind of business to relevant, readable, byte-sized stories.'
+        ' The newspaper is extensively followed by the decision makers and change leaders from the world of business.'
+    )
+
     def get_cover_url(self):
         soup = self.index_to_soup(
             'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
         )
         return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
-    
+
     language = 'en_IN'
 
     no_stylesheets = True
@@ -103,7 +107,7 @@ class BusinessLine(BasicNewsRecipe):
             if src:
                 img['src'] = absurl(src)
 
-       # -------------------------
+        # -------------------------
         # Fix article images + captions
         # -------------------------
         for pic in soup.find_all('div', class_='article-picture'):
@@ -119,12 +123,12 @@ class BusinessLine(BasicNewsRecipe):
 
             cap = pic.find('p', class_='caption')
             if cap:
-                caption = cap.get_text(" ", strip=True)
+                caption = cap.get_text(' ', strip=True)
 
             if not caption:
                 nxt = pic.find_next_sibling()
                 if nxt and nxt.name == 'p' and 'caption' in (nxt.get('class') or []):
-                    caption = nxt.get_text(" ", strip=True)
+                    caption = nxt.get_text(' ', strip=True)
                     nxt.decompose()
 
             if caption:
@@ -155,11 +159,11 @@ class BusinessLine(BasicNewsRecipe):
         # -------------------------
         # Build clean article
         # -------------------------
-        
+
         # 1. Rebuild the header in its original location
         if header:
             new_header = soup.new_tag('div')
-            new_header['class'] = 'clean-header' # Optional wrapper
+            new_header['class'] = 'clean-header'  # Optional wrapper
 
             if title:
                 h1_tag = soup.new_tag('h1')
@@ -190,17 +194,17 @@ class BusinessLine(BasicNewsRecipe):
 
         local_edition = 'bl_chennai'
         loc = self.recipe_specific_options.get('location')
-        
+
         # CLI Fallback: If it's still the schema dictionary, extract the default value
         if isinstance(loc, dict):
             loc = loc.get('default', 'chennai')
-            
+
         if loc:
             local_edition = 'bl_' + loc
 
         dt = date.today()
         past = self.recipe_specific_options.get('date')
-        
+
         # CLI Fallback: Extract default if it's the schema dictionary (returns None if undefined)
         if isinstance(past, dict):
             past = past.get('default')
