@@ -19,6 +19,13 @@ class BusinessLine(BasicNewsRecipe):
     title = 'BusinessLine Print Edition'
     __author__ = 'improved'
     description = "BusinessLine ePaper (The Hindu Group)"
+    
+    def get_cover_url(self):
+        soup = self.index_to_soup(
+            'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
+        )
+        return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
+    
     language = 'en_IN'
 
     no_stylesheets = True
