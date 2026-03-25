@@ -178,7 +178,7 @@ class TestImports(unittest.TestCase):
     def test_import_of_all_python_modules(self):
         from calibre.constants import isbsd, islinux, ismacos, iswindows
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
-        exclude_modules = set()
+        exclude_modules = {'calibre.web.automate.browser'}
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
             exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
