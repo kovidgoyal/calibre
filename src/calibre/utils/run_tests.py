@@ -188,7 +188,7 @@ class TestImports(unittest.TestCase):
             exclude_modules |= {
                 'calibre.linux', 'calibre.gui2.tts.speechd',
                 'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
-                'calibre.gui2.linux_file_dialogs',
+                'calibre.gui2.linux_file_dialogs', 'calibre.web.automate.browser',
             }
         if 'SKIP_SPEECH_TESTS' in os.environ:
             exclude_packages.add('calibre.gui2.tts')
