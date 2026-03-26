@@ -63,9 +63,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         completion_mode = get_completion_mode()
         self.use_startswith_search = completion_mode == 'prefix'
         self.use_word_prefix_search = completion_mode == 'word-prefix'
-        ewbc = tweaks['extra_word_break_chars'] or ''
-        if not isinstance(ewbc, str):
-            ewbc = ''.join(ewbc)
+        ewbc = str(tweaks['extra_word_break_chars'] or '')
         self.extra_word_break_chars = ''.join(set(ewbc))
 
     def set_items(self, items):

@@ -506,8 +506,8 @@ tab_accepts_uncompleted_text = False
 # Similarly, typing 'cat' will match cathedral and "tabby cat" but not education.
 #
 # If completion_mode is 'word-prefix', you can specify additionals word break chars
-# with the extra_word_break_chars list.
-# For example, for extra_word_break_chars = ['-'], typing 'fic' will match
+# with the extra_word_break_chars setting.
+# For example, for extra_word_break_chars = '-' typing 'fic' will match
 # both "Science Fiction" and "Science-Fiction", instead of only the first one.
 completion_mode = 'prefix'
 extra_word_break_chars = []
