@@ -32,7 +32,7 @@ from mechanize import Cookie
 
 class ZeitEPUBAbo(BasicNewsRecipe):
 
-    title = u'My Zeit'
+    title = u'Die Zeit'
     description = u'Das EPUB Abo der Zeit (needs subscription - use session-cookie as password)'
     language = 'de'
     lang = 'de-DE'
