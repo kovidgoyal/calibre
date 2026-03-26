@@ -276,6 +276,37 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, f'Failed to find index of {needle!r} in {haystack!r} ({pos} != {fpos})')
 
+        # Test extra word break characters
+        # Use 'X' (a letter) as extra break char: ICU treats "fooXbar" as one word,
+        # but with extra 'X' it is split into "foo" and "bar".
+        it_x = _icu.BreakIterator(_icu.UBRK_WORD, 'en', 'X')
+        it_x.set_text('fooXbar baz')
+        self.ae(list(it_x.iter_breaks()), [(0, 3), (4, 3), (8, 3)])
+        # count_words and split2 also respect extra break chars
+        it_x.set_text('aXbXc')
+        self.ae(it_x.count_words(), 3)
+        self.ae(it_x.split2(), [(0, 1), (2, 1), (4, 1)])
+        # Adjacent extra break chars: empty segments between them are skipped
+        it_x.set_text('aXXb')
+        self.ae(list(it_x.iter_breaks()), [(0, 1), (3, 1)])
+        # Multiple extra break chars
+        it_xy = _icu.BreakIterator(_icu.UBRK_WORD, 'en', 'XY')
+        it_xy.set_text('aXbYc d')
+        self.ae(list(it_xy.iter_breaks()), [(0, 1), (2, 1), (4, 1), (6, 1)])
+        # Default (no extra chars) treats "fooXbar" as a single word
+        it_default = _icu.BreakIterator(_icu.UBRK_WORD, 'en')
+        it_default.set_text('fooXbar')
+        self.ae(list(it_default.iter_breaks()), [(0, 7)])
+        # None extra_chars is identical to the default
+        it_none = _icu.BreakIterator(_icu.UBRK_WORD, 'en', None)
+        it_none.set_text('fooXbar')
+        self.ae(list(it_none.iter_breaks()), [(0, 7)])
+        # Surrogate-pair extra break char: emoji is 2 UTF-16 units but 1 Python codepoint;
+        # "hello" is at Python string position 0 (size 5), "world" at position 6 (size 5).
+        it_cat = _icu.BreakIterator(_icu.UBRK_WORD, 'en', '\U0001f431')
+        it_cat.set_text('hello\U0001f431world')
+        self.ae(list(it_cat.iter_breaks()), [(0, 5), (6, 5)])
+
     def test_word_prefix_find(self):
         ' Test the C implementation of word_prefix_find '
         from calibre_extensions import icu as _icu

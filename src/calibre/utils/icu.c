@@ -878,7 +878,8 @@ typedef struct {
     int32_t text_len;
     UBreakIteratorType type;
     unsigned long counter;  /* incremented on mutating method calls to invalidate live iterators */
-
+    UChar32 *extra_word_break_chars;     /* optional sorted array of extra word-break codepoints */
+    int32_t  num_extra_word_break_chars; /* length of the array; 0 = disabled (fast path) */
 } icu_BreakIterator;
 
 static void
@@ -886,7 +887,8 @@ icu_BreakIterator_dealloc(icu_BreakIterator* self)
 {
     if (self->break_iterator != NULL) ubrk_close(self->break_iterator);
     if (self->text != NULL) free(self->text);
-    self->break_iterator = NULL; self->text = NULL;
+    if (self->extra_word_break_chars != NULL) free(self->extra_word_break_chars);
+    self->break_iterator = NULL; self->text = NULL; self->extra_word_break_chars = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -899,8 +901,9 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int break_iterator_type = UBRK_WORD;
     UErrorCode status = U_ZERO_ERROR;
     UBreakIterator *break_iterator;
+    PyObject *extra_chars_obj = NULL;
 
-    if (!PyArg_ParseTuple(args, "is", &break_iterator_type, &locale)) return NULL;
+    if (!PyArg_ParseTuple(args, "is|O", &break_iterator_type, &locale, &extra_chars_obj)) return NULL;
     break_iterator = ubrk_open(break_iterator_type, locale, NULL, 0, &status);
     if (break_iterator == NULL || U_FAILURE(status)) {
         PyErr_SetString(PyExc_ValueError, u_errorName(status));
@@ -908,11 +911,37 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     self = (icu_BreakIterator *)type->tp_alloc(type, 0);
-    if (self != NULL) {
-        self->break_iterator = break_iterator;
-        self->counter = 0;
-    }
+    if (self == NULL) { ubrk_close(break_iterator); return NULL; }
+    self->break_iterator = break_iterator;
+    self->counter = 0;
     self->text = NULL; self->text_len = 0; self->type = break_iterator_type;
+    self->extra_word_break_chars = NULL; self->num_extra_word_break_chars = 0;
+
+    /* Parse optional extra break characters (only meaningful for UBRK_WORD). */
+    if (extra_chars_obj != NULL && extra_chars_obj != Py_None
+            && break_iterator_type == UBRK_WORD) {
+        int32_t extra_sz = 0;
+        UChar *extra_buf = python_to_icu(extra_chars_obj, &extra_sz);
+        if (extra_buf == NULL) { Py_DECREF(self); return NULL; }
+        int32_t count = u_countChar32(extra_buf, extra_sz);
+        if (count > 0) {
+            UChar32 *chars = (UChar32*)malloc(count * sizeof(UChar32));
+            if (chars == NULL) { free(extra_buf); Py_DECREF(self); return PyErr_NoMemory(); }
+            int32_t i = 0, j = 0;
+            while (i < extra_sz) { U16_NEXT(extra_buf, i, extra_sz, chars[j]); j++; }
+            free(extra_buf);
+            /* Sort using insertion sort — sets are expected to be tiny. */
+            for (int32_t k = 1; k < count; k++) {
+                UChar32 key = chars[k]; int32_t m = k - 1;
+                while (m >= 0 && chars[m] > key) { chars[m + 1] = chars[m]; m--; }
+                chars[m + 1] = key;
+            }
+            self->extra_word_break_chars     = chars;
+            self->num_extra_word_break_chars = count;
+        } else {
+            free(extra_buf);
+        }
+    }
 
     return (PyObject *)self;
 }
@@ -1024,6 +1053,10 @@ typedef struct {
     int     has_pending;   /* whether a buffered token is waiting to be yielded */
     int32_t pending_pos;
     int32_t pending_sz;
+    /* Extra break character sub-segmentation state */
+    int32_t extra_break_seg_start; /* UTF-16 start of the remaining sub-segment */
+    int32_t extra_break_seg_end;   /* UTF-16 end (exclusive) of the remaining sub-segment */
+    int     extra_break_active;    /* 1 if there is a pending sub-segment to process */
 } BreakIterState;
 
 static void
@@ -1031,6 +1064,26 @@ break_iter_state_init(icu_BreakIterator *bi, BreakIterState *state) {
     memset(state, 0, sizeof(state[0]));
     state->p            = ubrk_first(bi->break_iterator);
     state->count_start  = bi->text;
+}
+
+/* Find the first extra word-break character in the UTF-16 segment [start, end).
+   Returns the UTF-16 offset of the character if found (and sets *char_len_out to its
+   UTF-16 length), or -1 if not found. */
+static inline int32_t
+find_extra_word_break(const icu_BreakIterator *bi, int32_t start, int32_t end,
+                      int32_t *char_len_out) {
+    int32_t i = start;
+    const UChar32 *chars = bi->extra_word_break_chars;
+    const int32_t  n     = bi->num_extra_word_break_chars;
+    while (i < end) {
+        UChar32 c;
+        int32_t prev_i = i;
+        U16_NEXT(bi->text, i, end, c);
+        for (int32_t k = 0; k < n; k++) {
+            if (chars[k] == c) { *char_len_out = i - prev_i; return prev_i; }
+        }
+    }
+    return -1;
 }
 
 /* Advance one step.
@@ -1054,61 +1107,122 @@ break_iter_state_next(icu_BreakIterator *bi, BreakIterState *state,
         return 0;
     }
 
-    while (state->p != UBRK_DONE) {
-        word_start = state->p;
-        state->p = ubrk_next(bi->break_iterator);
-        if (bi->type == UBRK_WORD && ubrk_getRuleStatus(bi->break_iterator) == UBRK_WORD_NONE)
-            continue;
-        sz = (state->p == UBRK_DONE) ? bi->text_len - word_start : state->p - word_start;
-        if (sz > 0) {
-            is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
-            if (word_start > 0) {
-                sep = *(bi->text + word_start - 1);
-                if (IS_HYPHEN_CHAR(sep)) {
-                    leading_hyphen = 1;
-                    if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
-                }
-            }
-            if (word_start + sz < bi->text_len) {
-                sep = *(bi->text + word_start + sz);
-                if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
-            }
-            state->last_pos = state->p;
-            unicode_code_point_count(&state->count_start, &state->last_count, &state->last_count32, &word_start, &sz);
-            if (is_hyphen_sep && state->found_one) {
-                /* Extend the already-buffered token across the hyphen. */
-                sz = state->last_sz + sz + trailing_hyphen;
-                state->last_sz    = sz;
-                state->pending_sz = sz;
+    for (;;) {
+        /* --- Extra-break sub-segmentation ---
+           When a prior ICU segment contained an extra break character, the remainder
+           of that segment is stored in extra_break_seg_[start,end).  Drain it before
+           fetching more data from the ICU iterator. */
+        if (state->extra_break_active) {
+            if (state->extra_break_seg_start >= state->extra_break_seg_end) {
+                /* Sub-segment exhausted; fall through to the ICU loop. */
+                state->extra_break_active = 0;
             } else {
-                /* Yield the previously buffered token (if any), then buffer this one. */
-                had_pending = state->has_pending;
-                prev_pos    = state->pending_pos;
-                prev_sz     = state->pending_sz;
+                int32_t char_len;
+                int32_t q = find_extra_word_break(bi,
+                        state->extra_break_seg_start, state->extra_break_seg_end, &char_len);
+                int32_t sub_ws = state->extra_break_seg_start; /* UTF-16 start of piece */
+                if (q >= 0) {
+                    sz = q - sub_ws;
+                    state->extra_break_seg_start = q + char_len;
+                } else {
+                    sz = state->extra_break_seg_end - sub_ws;
+                    state->extra_break_active = 0;
+                }
+                if (sz == 0) continue; /* empty piece (adjacent extra-break chars) */
+                /* Check for a trailing hyphen at the UTF-16 level (before conversion)
+                   so that a subsequent ICU segment can be hyphen-joined with this piece. */
+                int sub_trailing = 0;
+                if (sub_ws + sz < bi->text_len) {
+                    UChar trail = *(bi->text + sub_ws + sz);
+                    if (IS_HYPHEN_CHAR(trail)) sub_trailing = 1;
+                }
+                word_start = sub_ws;
+                unicode_code_point_count(&state->count_start, &state->last_count,
+                                         &state->last_count32, &word_start, &sz);
+                sz += sub_trailing; /* extend to include the trailing hyphen */
+                had_pending        = state->has_pending;
+                prev_pos           = state->pending_pos;
+                prev_sz            = state->pending_sz;
                 state->found_one   = 1;
-                sz += leading_hyphen + trailing_hyphen;
                 state->last_sz     = sz;
                 state->has_pending = 1;
-                state->pending_pos = word_start - leading_hyphen;
+                state->pending_pos = word_start;
                 state->pending_sz  = sz;
-                if (had_pending) {
-                    *pos_out = prev_pos;
-                    *sz_out  = prev_sz;
-                    return 1;
-                }
+                if (had_pending) { *pos_out = prev_pos; *sz_out = prev_sz; return 1; }
+                continue; /* look for more sub-segments or the next ICU token */
             }
         }
-    }
 
-    /* ICU iteration exhausted — flush the final buffered token. */
-    state->done = 1;
-    if (state->has_pending) {
-        state->has_pending = 0;
-        *pos_out = state->pending_pos;
-        *sz_out  = state->pending_sz;
-        return 1;
+        /* --- ICU break iterator --- */
+        if (state->p == UBRK_DONE) {
+            /* ICU exhausted — flush the final buffered token. */
+            state->done = 1;
+            if (state->has_pending) {
+                state->has_pending = 0;
+                *pos_out = state->pending_pos;
+                *sz_out  = state->pending_sz;
+                return 1;
+            }
+            return 0;
+        }
+
+        word_start = state->p;
+        state->p   = ubrk_next(bi->break_iterator);
+        if (bi->type == UBRK_WORD &&
+                ubrk_getRuleStatus(bi->break_iterator) == UBRK_WORD_NONE)
+            continue; /* skip non-word runs (spaces, punctuation, …) */
+        sz = (state->p == UBRK_DONE) ? bi->text_len - word_start
+                                      : state->p     - word_start;
+        if (sz <= 0) continue;
+
+        /* Check for extra break characters inside this ICU word segment.
+           Split at the first one; the tail is deferred into extra_break_seg. */
+        if (bi->num_extra_word_break_chars > 0) {
+            int32_t char_len;
+            int32_t q = find_extra_word_break(bi, word_start, word_start + sz, &char_len);
+            if (q >= 0) {
+                state->extra_break_active    = 1;
+                state->extra_break_seg_start = q + char_len;
+                state->extra_break_seg_end   = word_start + sz;
+                sz = q - word_start;
+                if (sz == 0) continue; /* segment begins with an extra break char */
+            }
+        }
+
+        is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
+        if (word_start > 0) {
+            sep = *(bi->text + word_start - 1);
+            if (IS_HYPHEN_CHAR(sep)) {
+                leading_hyphen = 1;
+                if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
+            }
+        }
+        if (word_start + sz < bi->text_len) {
+            sep = *(bi->text + word_start + sz);
+            if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
+        }
+        state->last_pos = state->p;
+        unicode_code_point_count(&state->count_start, &state->last_count,
+                                  &state->last_count32, &word_start, &sz);
+        if (is_hyphen_sep && state->found_one) {
+            /* Extend the already-buffered token across the hyphen. */
+            sz = state->last_sz + sz + trailing_hyphen;
+            state->last_sz    = sz;
+            state->pending_sz = sz;
+        } else {
+            /* Yield the previously buffered token (if any), then buffer this one. */
+            had_pending = state->has_pending;
+            prev_pos    = state->pending_pos;
+            prev_sz     = state->pending_sz;
+            state->found_one   = 1;
+            sz += leading_hyphen + trailing_hyphen;
+            state->last_sz     = sz;
+            state->has_pending = 1;
+            state->pending_pos = word_start - leading_hyphen;
+            state->pending_sz  = sz;
+            if (had_pending) { *pos_out = prev_pos; *sz_out = prev_sz; return 1; }
+        }
     }
-    return 0;
 }
 
 static PyObject *
@@ -1281,7 +1395,7 @@ static PyTypeObject icu_BreakIteratorType = { // {{{
     /* tp_setattro       */ 0,
     /* tp_as_buffer      */ 0,
     /* tp_flags          */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
-    /* tp_doc            */ "Break Iterator",
+    /* tp_doc            */ "BreakIterator(type, locale[, extra_word_break_chars]) -> Create a break iterator.\nFor UBRK_WORD iterators, extra_word_break_chars is an optional string of characters\nthat act as additional word-break points beyond the ICU defaults.",
     /* tp_traverse       */ 0,
     /* tp_clear          */ 0,
     /* tp_richcompare    */ 0,
