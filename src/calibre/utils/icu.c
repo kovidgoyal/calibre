@@ -869,6 +869,8 @@ static PyTypeObject icu_TransliteratorType = { // {{{
 }; // }}}
 // }}}
 
+#define IS_HYPHEN_CHAR(x) ((x) == 0x2d || (x) == 0x2010)
+
 // BreakIterator object definition {{{
 typedef struct {
     PyObject_HEAD
@@ -880,6 +882,7 @@ typedef struct {
     unsigned long counter;  /* incremented on mutating method calls to invalidate live iterators */
     UChar32 *extra_word_break_chars;     /* optional sorted array of extra word-break codepoints */
     int32_t  num_extra_word_break_chars; /* length of the array; 0 = disabled (fast path) */
+    int      hyphen_is_extra_break;      /* 1 if a hyphen char is in extra_word_break_chars */
 } icu_BreakIterator;
 
 static void
@@ -916,6 +919,7 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->counter = 0;
     self->text = NULL; self->text_len = 0; self->type = break_iterator_type;
     self->extra_word_break_chars = NULL; self->num_extra_word_break_chars = 0;
+    self->hyphen_is_extra_break = 0;
 
     /* Parse optional extra break characters (only meaningful for UBRK_WORD). */
     if (extra_chars_obj != NULL && extra_chars_obj != Py_None
@@ -938,6 +942,10 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             }
             self->extra_word_break_chars     = chars;
             self->num_extra_word_break_chars = count;
+            /* Check if any hyphen character is in the extra break set. */
+            for (int32_t k = 0; k < count; k++) {
+                if (IS_HYPHEN_CHAR(chars[k])) { self->hyphen_is_extra_break = 1; break; }
+            }
         } else {
             free(extra_buf);
         }
@@ -965,8 +973,6 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
     Py_RETURN_NONE;
 
 } // }}}
-
-#define IS_HYPHEN_CHAR(x) ((x) == 0x2d || (x) == 0x2010)
 
 // BreakIterator.index {{{
 static PyObject *
@@ -1130,9 +1136,10 @@ break_iter_state_next(icu_BreakIterator *bi, BreakIterState *state,
                 }
                 if (sz == 0) continue; /* empty piece (adjacent extra-break chars) */
                 /* Check for a trailing hyphen at the UTF-16 level (before conversion)
-                   so that a subsequent ICU segment can be hyphen-joined with this piece. */
+                   so that a subsequent ICU segment can be hyphen-joined with this piece.
+                   Skip when hyphens are themselves extra break chars. */
                 int sub_trailing = 0;
-                if (sub_ws + sz < bi->text_len) {
+                if (!bi->hyphen_is_extra_break && sub_ws + sz < bi->text_len) {
                     UChar trail = *(bi->text + sub_ws + sz);
                     if (IS_HYPHEN_CHAR(trail)) sub_trailing = 1;
                 }
@@ -1190,16 +1197,18 @@ break_iter_state_next(icu_BreakIterator *bi, BreakIterState *state,
         }
 
         is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
-        if (word_start > 0) {
-            sep = *(bi->text + word_start - 1);
-            if (IS_HYPHEN_CHAR(sep)) {
-                leading_hyphen = 1;
-                if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
+        if (!bi->hyphen_is_extra_break) {
+            if (word_start > 0) {
+                sep = *(bi->text + word_start - 1);
+                if (IS_HYPHEN_CHAR(sep)) {
+                    leading_hyphen = 1;
+                    if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
+                }
             }
-        }
-        if (word_start + sz < bi->text_len) {
-            sep = *(bi->text + word_start + sz);
-            if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
+            if (word_start + sz < bi->text_len) {
+                sep = *(bi->text + word_start + sz);
+                if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
+            }
         }
         state->last_pos = state->p;
         unicode_code_point_count(&state->count_start, &state->last_count,

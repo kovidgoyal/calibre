@@ -306,6 +306,14 @@ class TestICU(unittest.TestCase):
         it_cat = _icu.BreakIterator(_icu.UBRK_WORD, 'en', '\U0001f431')
         it_cat.set_text('hello\U0001f431world')
         self.ae(list(it_cat.iter_breaks()), [(0, 5), (6, 5)])
+        # Hyphen as extra break char disables hyphen-joining
+        it_hyp = _icu.BreakIterator(_icu.UBRK_WORD, 'en', '-')
+        it_hyp.set_text('out-of-the-box')
+        self.ae(list(it_hyp.iter_breaks()), [(0, 3), (4, 2), (7, 3), (11, 3)])
+        # Without the flag, hyphens join words
+        it_no_hyp = _icu.BreakIterator(_icu.UBRK_WORD, 'en')
+        it_no_hyp.set_text('out-of-the-box')
+        self.ae(list(it_no_hyp.iter_breaks()), [(0, 14)])
 
     def test_word_prefix_find(self):
         ' Test the C implementation of word_prefix_find '
