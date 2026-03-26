@@ -510,7 +510,7 @@ tab_accepts_uncompleted_text = False
 # For example, for extra_word_break_chars = '-' typing 'fic' will match
 # both "Science Fiction" and "Science-Fiction", instead of only the first one.
 completion_mode = 'prefix'
-extra_word_break_chars = []
+extra_word_break_chars = ''
 
 #: Sort the list of libraries alphabetically
 # The list of libraries in the Copy to library and Quick switch menus are
