@@ -504,7 +504,13 @@ tab_accepts_uncompleted_text = False
 # There is also a 'word-prefix' mode that matches only at the start of words,
 # so typing 'asi' will match Asimov and "Isaac Asimov" but not Quasimodo.
 # Similarly, typing 'cat' will match cathedral and "tabby cat" but not education.
+#
+# If completion_mode is 'word-prefix', you can specify additionals word break chars
+# with the extra_word_break_chars list.
+# For example, for extra_word_break_chars = ['-'], typing 'fic' will match
+# both "Science Fiction" and "Science-Fiction", instead of only the first one.
 completion_mode = 'prefix'
+extra_word_break_chars = []
 
 #: Sort the list of libraries alphabetically
 # The list of libraries in the Copy to library and Quick switch menus are

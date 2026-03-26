@@ -63,6 +63,10 @@ class CompleteModel(QAbstractListModel):  # {{{
         completion_mode = get_completion_mode()
         self.use_startswith_search = completion_mode == 'prefix'
         self.use_word_prefix_search = completion_mode == 'word-prefix'
+        ewbc = tweaks['extra_word_break_chars'] or ''
+        if not isinstance(ewbc, str):
+            ewbc = ''.join(ewbc)
+        self.extra_word_break_chars = ''.join(set(ewbc))
 
     def set_items(self, items):
         if self.strip_completion_entries:
@@ -87,7 +91,8 @@ class CompleteModel(QAbstractListModel):  # {{{
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
-        word_iterator = get_word_break_iterator_with_extra_chars(extra_break_chars=hierarchy_separator)
+        extra_break_chars = hierarchy_separator + self.extra_word_break_chars
+        word_iterator = get_word_break_iterator_with_extra_chars(extra_break_chars=extra_break_chars)
         collator = primary_collator()
         word_prefix_match = partial(word_prefix_matcher, collator, word_iterator)
         if self.use_word_prefix_search:
