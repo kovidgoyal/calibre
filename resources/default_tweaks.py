@@ -505,7 +505,7 @@ tab_accepts_uncompleted_text = False
 # so typing 'asi' will match Asimov and "Isaac Asimov" but not Quasimodo.
 # Similarly, typing 'cat' will match cathedral and "tabby cat" but not education.
 #
-# If completion_mode is 'word-prefix', you can specify additionals word break chars
+# If completion_mode is 'word-prefix', you can specify additional word break chars
 # with the extra_word_break_chars setting.
 # For example, for extra_word_break_chars = '-' typing 'fic' will match
 # both "Science Fiction" and "Science-Fiction", instead of only the first one.
