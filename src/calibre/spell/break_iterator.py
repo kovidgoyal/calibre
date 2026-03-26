@@ -15,7 +15,7 @@ class PerThreadIterators(threading.local):
     def __init__(self):
         self.iterators = {}
         self.sentence_iterators = {}
-        self.ui_word_iterator = None
+        self.extra_break_char_word_iterators = {}
 
 
 per_thread_iterators = PerThreadIterators()
@@ -23,14 +23,23 @@ per_thread_iterators = PerThreadIterators()
 
 def get_iterator(lang):
     if (it := per_thread_iterators.iterators.get(lang)) is None:
-        it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+        it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(
+                _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
     return it
 
 
-def get_word_break_iterator_for_ui_thread():
-    if (ans := per_thread_iterators.ui_word_iterator) is None:
-        ans = per_thread_iterators.ui_word_iterator = get_iterator(get_lang() or 'en')
-    return ans
+def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: str | None = None):
+    extra_break_chars = extra_break_chars or None
+    lang = lang or get_lang() or 'en'
+    key = lang, extra_break_chars
+    if (it := per_thread_iterators.extra_break_char_word_iterators.get(key)) is None:
+        try:
+            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
+                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
+        except TypeError:  # people running from source
+            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
+                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+    return it
 
 
 def get_sentence_iterator(lang):

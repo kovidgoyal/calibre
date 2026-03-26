@@ -31,7 +31,7 @@ from qt.core import (
 
 from calibre.constants import ismacos
 from calibre.gui2.widgets import EnComboBox, LineEditECM
-from calibre.spell.break_iterator import get_word_break_iterator_for_ui_thread
+from calibre.spell.break_iterator import get_word_break_iterator_with_extra_chars
 from calibre.utils.config import tweaks
 from calibre.utils.icu import primary_collator, primary_contains, primary_find, primary_sort_key, primary_startswith, sort_key, word_prefix_find
 
@@ -48,6 +48,10 @@ def word_prefix_matcher(collator, it, x, prefix):
     return word_prefix_find(collator, it, x, prefix) >= 0
 
 
+def get_completion_mode() -> str:
+    return getattr(get_completion_mode, 'override', None) or tweaks['completion_mode']
+
+
 class CompleteModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None, sort_func=sort_key, strip_completion_entries=True):
@@ -56,7 +60,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.sort_func = sort_func
         self.all_items = self.current_items = ()
         self.current_prefix = ''
-        completion_mode = tweaks['completion_mode']
+        completion_mode = get_completion_mode()
         self.use_startswith_search = completion_mode == 'prefix'
         self.use_word_prefix_search = completion_mode == 'word-prefix'
 
@@ -83,7 +87,7 @@ class CompleteModel(QAbstractListModel):  # {{{
             return
         subset = prefix.startswith(old_prefix)
         universe = self.current_items if subset else self.all_items
-        word_iterator = get_word_break_iterator_for_ui_thread()
+        word_iterator = get_word_break_iterator_with_extra_chars(extra_break_chars=hierarchy_separator)
         collator = primary_collator()
         word_prefix_match = partial(word_prefix_matcher, collator, word_iterator)
         if self.use_word_prefix_search:
@@ -657,10 +661,14 @@ if __name__ == '__main__':
     app = Application([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
+    get_completion_mode.override = 'word-prefix'
     le = EditWithComplete(d)
     d.layout().addWidget(le)
     items = ['oane\n line2\n line3', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
-        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar', 'Asimov', 'Isaac Asimov', 'Quasimodo']
+        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar', 'Asimov', 'Isaac Asimov', 'Quasimodo',
+        'Fiction.Cozy Mystery', 'Fiction.Mystery',
+    ]
+    le.set_hierarchy_separator('.')
     le.update_items_cache(items)
     le.show_initial_value('')
     d.exec()
