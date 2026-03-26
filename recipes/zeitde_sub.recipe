@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext de'
 __version__ = '1.5'
 
 '''
-My Zeit EPUB
+Die Zeit EPUB
 '''
 
 import io
