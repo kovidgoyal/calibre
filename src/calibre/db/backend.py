@@ -1425,6 +1425,7 @@ class DB:
     def delete_custom_column(self, label=None, num=None):
         data = self.custom_field_metadata(label, num)
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
+        self.notes.delete_field(self.conn, '#' + data['label'])
 
     def close(self, force=True, unload_formatter_functions=True):
         if getattr(self, '_conn', None) is not None:
