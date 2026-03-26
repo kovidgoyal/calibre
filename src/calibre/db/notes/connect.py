@@ -99,6 +99,13 @@ class Notes:
         self.allowed_fields = frozenset(self.allowed_fields)
         SchemaUpgrade(conn, '\n'.join(triggers))
 
+    def rename_field(self, conn, old_field_name, new_field_name):
+        conn.execute('UPDATE notes_db.notes SET colname=? WHERE colname=?', (new_field_name, old_field_name))
+        old_backup = make_long_path_useable(os.path.join(self.backup_dir, old_field_name))
+        new_backup = make_long_path_useable(os.path.join(self.backup_dir, new_field_name))
+        if os.path.exists(old_backup) and not os.path.exists(new_backup):
+            os.rename(old_backup, new_backup)
+
     def delete_field(self, conn, field_name):
         note_ids = conn.get('SELECT id from notes_db.notes WHERE colname=?', (field_name,))
         if note_ids:

@@ -1248,8 +1248,11 @@ class DB:
             self.execute('UPDATE custom_columns SET name=? WHERE id=?', (name, num))
             changed = True
         if label is not None:
+            old_label = self.custom_column_num_to_label_map.get(num)
             self.execute('UPDATE custom_columns SET label=? WHERE id=?', (label, num))
             changed = True
+            if old_label and old_label != label:
+                self.notes.rename_field(self.conn, '#' + old_label, '#' + label)
         if is_editable is not None:
             self.execute('UPDATE custom_columns SET editable=? WHERE id=?', (bool(is_editable), num))
             self.custom_column_num_map[num]['is_editable'] = bool(is_editable)
