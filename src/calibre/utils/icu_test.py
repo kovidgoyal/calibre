@@ -314,6 +314,9 @@ class TestICU(unittest.TestCase):
         it_no_hyp = _icu.BreakIterator(_icu.UBRK_WORD, 'en')
         it_no_hyp.set_text('out-of-the-box')
         self.ae(list(it_no_hyp.iter_breaks()), [(0, 14)])
+        it_comp = _icu.BreakIterator(_icu.UBRK_WORD, 'en', '-.')
+        it_comp.set_text('some-thing.else wise')
+        self.ae(list(it_comp.iter_breaks()), [(0, 4), (5, 5), (11, 4), (16, 4)])
 
     def test_word_prefix_find(self):
         ' Test the C implementation of word_prefix_find '
