@@ -504,16 +504,24 @@ def compile_srv():
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with open(fname, 'rb') as f:
-        js = set_data(
-            compile_fast(f.read(), fname),
-            __RENDER_VERSION__=rv,
-            __MATHJAX_VERSION__=mathjax_version
-        ).encode('utf-8')
+        srv_src = f.read()
+    js = set_data(
+        compile_fast(srv_src, fname),
+        __RENDER_VERSION__=rv,
+        __MATHJAX_VERSION__=mathjax_version
+    ).encode('utf-8')
     with open(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
-    content_hash = hashlib.sha1(html).hexdigest()[:8]
+    # Hash source inputs, not compiled output, so the cache-busting hash is
+    # stable between recompiles of unchanged source.  Random SVG IDs from
+    # generate.py's merge() previously made every compile produce a new hash,
+    # causing the browser to reinstall the SW and wipe the cache.
+    sw_fname = os.path.join(rapydscript_dir, 'service_worker.js')
+    with open(sw_fname, 'rb') as f:
+        sw_src = f.read()
+    content_hash = hashlib.sha1(srv_src + rv.encode() + mathjax_version.encode() + sw_src).hexdigest()[:8]
     compile_service_worker(content_hash)
 
 
