@@ -37,7 +37,7 @@
 
 - Bookshelves: Add option to have the height of books be constant per group
 
-- Edit book: File list: Allow using Ctrl+Left/Right to move an item to top/bottom of the list
+- Edit book: File list: Allow using Ctrl+Shift+Left/Right to move an item to top/bottom of the list
 
 :: bug fixes
 
