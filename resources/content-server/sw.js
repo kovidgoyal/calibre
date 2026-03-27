@@ -4,7 +4,7 @@
 // where the RapydScript runtime throws during evaluation.
 'use strict';
 
-var CACHE_NAME = 'calibre-app-9.5.101-660875f3';
+var CACHE_NAME = 'calibre-app-9.5.101-b3000a64';
 
 self.addEventListener('install', function(event) {
     event.waitUntil(self.skipWaiting());

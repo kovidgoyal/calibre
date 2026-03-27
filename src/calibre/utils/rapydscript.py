@@ -3,6 +3,7 @@
 
 
 import errno
+import glob
 import hashlib
 import json
 import os
@@ -514,15 +515,19 @@ def compile_srv():
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
-    # Hash the compiled JS (not the final HTML) so the cache-busting hash is
-    # stable between recompiles of unchanged source.  index-generated.html is
-    # non-deterministic (random SVG IDs from generate.py's merge()), but the
-    # compiled JS is deterministic and includes all imported .pyj files, so
-    # any change to any pyj file is reflected in the hash.
+    # Hash all .pyj source files (sorted for determinism) plus the SW template.
+    # index-generated.html and the compiled JS are both non-deterministic
+    # (random SVG IDs from generate.py's merge(); non-deterministic compiler
+    # output between runs).  Hashing only srv.pyj missed changes to imported
+    # files.  Hashing all .pyj files is deterministic and captures every import.
     sw_fname = os.path.join(rapydscript_dir, 'service_worker.js')
+    h = hashlib.sha1()
+    for pyj in sorted(glob.glob(os.path.join(rapydscript_dir, '**', '*.pyj'), recursive=True)):
+        with open(pyj, 'rb') as f:
+            h.update(f.read())
     with open(sw_fname, 'rb') as f:
-        sw_src = f.read()
-    content_hash = hashlib.sha1(js + sw_src).hexdigest()[:8]
+        h.update(f.read())
+    content_hash = h.hexdigest()[:8]
     compile_service_worker(content_hash)
 
 
