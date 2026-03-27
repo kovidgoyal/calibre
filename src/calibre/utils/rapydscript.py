@@ -514,14 +514,15 @@ def compile_srv():
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
-    # Hash source inputs, not compiled output, so the cache-busting hash is
-    # stable between recompiles of unchanged source.  Random SVG IDs from
-    # generate.py's merge() previously made every compile produce a new hash,
-    # causing the browser to reinstall the SW and wipe the cache.
+    # Hash the compiled JS (not the final HTML) so the cache-busting hash is
+    # stable between recompiles of unchanged source.  index-generated.html is
+    # non-deterministic (random SVG IDs from generate.py's merge()), but the
+    # compiled JS is deterministic and includes all imported .pyj files, so
+    # any change to any pyj file is reflected in the hash.
     sw_fname = os.path.join(rapydscript_dir, 'service_worker.js')
     with open(sw_fname, 'rb') as f:
         sw_src = f.read()
-    content_hash = hashlib.sha1(srv_src + rv.encode() + mathjax_version.encode() + sw_src).hexdigest()[:8]
+    content_hash = hashlib.sha1(js + sw_src).hexdigest()[:8]
     compile_service_worker(content_hash)
 
 

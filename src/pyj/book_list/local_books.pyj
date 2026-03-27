@@ -176,6 +176,10 @@ def render_books(books):
 
 def apply_view_mode(mode):
     mode = mode or DEFAULT_MODE
+    # custom_list requires field_metadata from the server; fall back to the
+    # default grid when offline so downloaded books are still visible.
+    if mode is 'custom_list' and not library_data.field_metadata:
+        mode = DEFAULT_MODE
     if book_list_data.mode is mode:
         return
     setup_view_mode(mode, book_list_data)
@@ -210,7 +214,7 @@ def show_recent_stage2(books):
 def show_recent():
     container = this
     db = get_db()
-    if not db.initialized or not library_data.field_metadata:
+    if not db.initialized:
         conditional_timeout(container.id, 5, show_recent)
         return
     if db.is_ok:
