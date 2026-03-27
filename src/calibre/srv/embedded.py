@@ -108,28 +108,23 @@ class Server:
             )
             t.daemon = True
             t.start()
+            if self.state_callback is not None:
+                try:
+                    self.state_callback(True)
+                except Exception:
+                    pass
 
     def serve_forever(self):
         self.exception = None
         from calibre.srv.content import reset_caches
-        try:
-            if is_running_from_develop:
-                from calibre.utils.rapydscript import compile_srv
-                compile_srv()
-        except BaseException as e:
-            self.exception = e
-            if self.start_failure_callback is not None:
-                try:
-                    self.start_failure_callback(as_unicode(e))
-                except Exception:
-                    pass
-            return
-        if self.state_callback is not None:
-            try:
-                self.state_callback(True)
-            except Exception:
-                pass
         reset_caches()  # we reset the cache as the server tdir has changed
+        if is_running_from_develop:
+            # Compile the app shell in the background so the server starts
+            # immediately rather than blocking the tray-icon update for the
+            # ~10 s that RapydScript compilation takes.  atomic_write() in
+            # compile_srv() ensures no partial-file reads during the race.
+            from calibre.utils.rapydscript import compile_srv
+            Thread(name='DevServerCompile', target=compile_srv, daemon=True).start()
         try:
             self.loop.serve_forever()
         except BaseException as e:
