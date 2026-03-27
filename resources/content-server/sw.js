@@ -54,8 +54,9 @@ self.addEventListener('fetch', function(event) {
         event.preloadResponse
             .then(function(response) {
                 if (response && response.ok) {
+                    var cloned = response.clone();
                     caches.open(CACHE_NAME).then(function(cache) {
-                        cache.put(event.request.url, response.clone());
+                        cache.put(event.request.url, cloned);
                     });
                     return response;
                 }
