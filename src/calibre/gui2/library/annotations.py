@@ -7,7 +7,7 @@ import os
 import re
 from functools import lru_cache, partial
 from urllib.parse import quote
-from enum import StrEnum
+from enum import Enum, auto
 
 from qt.core import (
     QAbstractItemView,
@@ -45,7 +45,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
-from calibre.ebooks.metadata import authors_to_string, fmt_sidx
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx
 from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -378,11 +378,120 @@ def current_db():
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
 
 
-class Group(StrEnum):
-    BOOK_ID = "Title"
-    AUTHOR = "Author"
-    USER = "User"
-    DATE = "Date"
+class Group(Enum):
+    BOOK_ID = auto()
+    AUTHOR = auto()
+    USER = auto()
+    DATE = auto()
+
+    @property
+    def field_name(self) -> str:
+        '''The underlying annotation or book field this grouping applies to.'''
+        return GROUP_INFO[self]['field_name']
+    
+    @property
+    def display_name(self) -> str:
+        '''A localized human-readable name for this grouping.'''
+        return GROUP_INFO[self]['display_name']
+
+GROUP_INFO: dict[Group, dict[str, str]] = {
+    Group.BOOK_ID: {
+        'field_name': 'title',
+        'display_name': _('Title'),
+    },
+    Group.AUTHOR: {
+        'field_name': 'authors',
+        'display_name': _('Author'),
+    },
+    Group.USER: {
+        'field_name': 'user',
+        'display_name': _('User'),
+    },
+    Group.DATE: {
+        'field_name': 'timestamp',
+        'display_name': _('Date'),
+    },
+}
+
+def get_annotation_value(annotation, bid, field, db):
+    '''
+    Get the value for a field from an annotation result, checking
+    annotation-level fields first and falling back to book metadata.
+    '''
+    val = annotation.get(field)
+    if val is None:
+        val = annotation.get('annotation', {}).get(field)
+    if val is None:
+        val = db.field_for(field, bid)
+    return val
+
+def get_group_key(result, field, db):
+    '''
+    Return (sort_key, display_label) for an annotation result grouped by field.
+
+    field may be a Group enum member or any string naming a field in the
+    annotation row (e.g. 'format', 'annot_type', 'user', 'timestamp') or a
+    book metadata field accessible via db.field_for (e.g. 'title', 'authors').
+
+    sort_key is a tuple suitable for use as a dict key and for natural ordering.
+    display_label is a localized human-readable string for the group header.
+    '''
+    if isinstance(field, Group):
+        field = field.field_name
+
+    fm = db.field_metadata
+    dt = fm.get(field, {}).get('datatype')
+    bid = result['book_id']
+
+    match field:
+        case 'title':
+            title = db.field_for('title', bid)
+            return (title.lower(), bid), title
+        case 'authors':
+            authors = db.field_for('authors', bid)
+            sort_key = authors_to_sort_string(authors)
+            text = authors_to_string(authors)
+            return (sort_key, text), text or _('Unknown author')
+        case 'user':
+            user = friendly_username(result['user_type'], result['user'])
+            return (user.lower(), user), user
+        case field if dt == 'datetime':
+            ts = get_annotation_value(result, bid, field, db)
+            df = fm[field].get('display', {}).get('date_format') or 'dd MMM yyyy'
+            if 'd' in df:
+                qdt = QDateTime.fromString(ts, Qt.DateFormat.ISODate)
+                if qdt.isValid():
+                    # Bucket the timestamps by discrete day, using the system's local timezone
+                    qdt = qdt.toLocalTime()
+                    qdate = qdt.date()
+                    jd = qdate.toJulianDay()
+                else:
+                    qdate = QDateTime.currentDateTime().date()
+                    jd = qdate.toJulianDay()
+                # Store the number of days in the past so we get the natural sort order
+                today = QDateTime.currentDateTime().toLocalTime().date()
+                days_past = today.toJulianDay() - jd
+                loc = QLocale.system()
+                label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat))
+                if not label:
+                    label = _('Unknown date')
+                return (days_past, label), label
+            else: # Assume it's a year
+                year = QDateTime.fromString(ts, Qt.DateFormat.ISODate).date().year()
+                current_year = QDateTime.currentDateTime().date().year()
+                years_past = current_year - year
+                label = str(year) if year > 0 else _('Unknown year')
+                return (years_past, label), label
+    
+    # Generic fallback
+    val = get_annotation_value(result, bid, field, db)
+    if not val:
+        return ('',), _('Unknown')
+    sort_key = val
+    if dt == 'text':
+        sort_key = val.lower()
+    label = str(val)
+    return (sort_key, label), label
 
 class ResultsList(QTreeWidget):
 
@@ -461,12 +570,14 @@ class ResultsList(QTreeWidget):
         if group_order[-1] != Group.BOOK_ID:
             group_order = tuple(group_order) + (Group.BOOK_ID,)
 
+        db = current_db()
+
         tree = {}
         for result in results:
             node = tree
             entry = None
             for g in group_order:
-                key, label = self.grouping_key(result, g)
+                key, label = get_group_key(result, g, db)
                 if key not in node:
                     node[key] = {'label': label, 'children': {}, 'results': []}
                 entry = node[key]
@@ -494,43 +605,6 @@ class ResultsList(QTreeWidget):
         i += -1 if backwards else 1
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
-    
-    def grouping_key(self, result, group_type):
-        '''
-        Given an annotation and group type, return an association from
-        the result to a localized value in that group.
-        '''
-        db = current_db()
-        bid = result['book_id']
-        if group_type == Group.BOOK_ID:
-            title = db.field_for('title', bid)
-            return (title.lower(), bid), title
-        if group_type == Group.AUTHOR:
-            authors = db.field_for('authors', bid)
-            text = authors_to_string(authors)
-            return (text.lower(), text), text or _('Unknown author')
-        if group_type == Group.USER:
-            user = friendly_username(result['user_type'], result['user'])
-            return (user.lower(), user), user
-        if group_type == Group.DATE:
-            # Using QDateTime is a little awkward here, as it's never displayed,
-            # but it contains a bunch of helpful tools for localization.
-            ts = result['annotation'].get('timestamp')
-            qdt = QDateTime.fromString(ts, Qt.DateFormat.ISODate)
-            if qdt.isValid():
-                # Bucket the timestamps by discrete day, using the system's local timezone
-                qdt = qdt.toLocalTime()
-                qdate = qdt.date()
-                jd = qdate.toJulianDay()
-            else:
-                qdate = QDateTime.currentDateTime().date()
-                jd = qdate.toJulianDay()
-            loc = QLocale.system()
-            label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat))
-            if not label:
-                label = _('Unknown date')
-            return (jd, label), label
-        return (result['id'],), _('Other')
 
     def add_children(self, parent_item, children):
         '''
@@ -756,11 +830,11 @@ class GroupOptions(QWidget):
         h = QHBoxLayout()
         h.setContentsMargins(0, 0, 0, 0)
         v.addLayout(h)
-        la = QLabel(_('Group by:'))
+        la = QLabel(_('&Group by:'))
         h.addWidget(la)
         self.group_box = gb = QComboBox(self)
         gb.currentIndexChanged.connect(self.grouping_changed)
-        connect_lambda(gb.currentIndexChanged, gb, lambda gb: gprefs.set('browse_annots_group_by', gb.currentData()))
+        connect_lambda(gb.currentIndexChanged, gb, lambda gb: gprefs.set('browse_annots_group_by', gb.currentData().name))
         la.setBuddy(gb)
         gb.setToolTip(_('Display annotations grouped by this value'))
         gb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
@@ -770,9 +844,6 @@ class GroupOptions(QWidget):
     @property
     def selected_group(self):
         data = self.group_box.currentData()
-        if isinstance(data, dict):
-            # Backwards compatibility with previous storage format
-            data = next(iter(data.values())) if data else None
         return data or Group.BOOK_ID
 
     @property
@@ -787,13 +858,11 @@ class GroupOptions(QWidget):
         gb = self.group_box
         before = gb.currentData()
         if not before:
-            before = gprefs.get('browse_annots_group_by', Group.BOOK_ID)
-        if isinstance(before, dict):
-            before = next(iter(before.values())) if before else None
+            before = Group[gprefs.get('browse_annots_group_by', Group.BOOK_ID.name)]
         gb.blockSignals(True)
         gb.clear()
         for group_type in Group:
-            gb.addItem(_(group_type), group_type)
+            gb.addItem(group_type.display_name, group_type)
         if before:
             row = gb.findData(before)
             if row > -1:
