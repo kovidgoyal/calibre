@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 9.6.0 2026-03-27
+
+:: new features
+
+- [major] Full text search: A new cards based view of full text search results with book covers
+
+  To perform a full text search, click the "FT" button on the left of the search bar. The old compact
+  result view can be re-activated by clicking the button to the left of the search bar
+  in the Full text search window.
+
+- [2144422] A new "word-prefix" completion mode that shows matches that have any word starting with the typed in letters
+
+- Bookshelves: Add option to have the height of books be constant per group
+
+- Edit book: File list: Allow using Ctrl+Left/Right to move an item to top/bottom of the list
+
+:: bug fixes
+
+- [2146404] Fix notes being lost when changing the lookup name of custom column
+
+- E-book viewer: Fix using the slower/faster buttons causing a chapter skip when using the Piper neural speech backend
+
+- Content server viewer: Fix annotations being not synced to the server in some Android devices when using the Firefox browser
+
+- Windows: Force kill calibre.exe on quit to workaround hang in interpreter shutdown on some systems
+
+- TXT Output: Fix asciiize option not applying to generated inline Table of Contents
+
+- E-book viewer: Disallow background images from the internet. This was an unused feature anyway (CVE-2026-33205)
+
+- TXT Input: Ensure resource files are read only from book contents (CVE-2026-33206)
+
+- [2144489] Only apply changes to text fields in the book list when the new value is different from the old
+
+- [2144486] Completions: Update list of completion suggestions when cursor is moved
+
+:: improved recipes
+- BusinessLine
+- Naked Capitalism
+- Le Canard Enchaine
+- Le Monde
+- Courrier International
+- L'Equipe by Kabonix
+
+:: new recipes
+- L'Humanite by Kabonix
+- Telerama by Kabonix
+- Le Parisien by Kabonix
+}}}
+
 {{{ 9.5.0 2026-03-13
 
 :: new features
