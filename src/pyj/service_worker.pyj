@@ -10,9 +10,10 @@ self.addEventListener('install', def(event):
     event.waitUntil(
         caches.open(CACHE_NAME).then(def(cache):
             return cache.addAll(PRECACHE_URLS)
+        ).then(def():
+            return self.skipWaiting()
         )
     )
-    self.skipWaiting()
 )
 
 self.addEventListener('activate', def(event):
@@ -22,9 +23,10 @@ self.addEventListener('activate', def(event):
                 keys.filter(def(key): return key is not CACHE_NAME;)
                     .map(def(key): return caches.delete(key);)
             )
+        ).then(def():
+            return self.clients.claim()
         )
     )
-    self.clients.claim()
 )
 
 self.addEventListener('fetch', def(event):

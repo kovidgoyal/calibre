@@ -4349,7 +4349,7 @@ var str = ρσ_str, repr = ρσ_repr;;
 
 
         var CACHE_NAME, PRECACHE_URLS;
-        CACHE_NAME = "calibre-app-9.5.101-33aa091f";
+        CACHE_NAME = "calibre-app-9.5.101-8b37f88a";
         PRECACHE_URLS = ['/'];
         self.addEventListener("install", (function() {
             var ρσ_anonfunc = function (event) {
@@ -4362,8 +4362,15 @@ var str = ρσ_str, repr = ρσ_repr;;
                         __module__ : {value: "__main__"}
                     });
                     return ρσ_anonfunc;
+                })()).then((function() {
+                    var ρσ_anonfunc = function () {
+                        return self.skipWaiting();
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "__main__"}
+                    });
+                    return ρσ_anonfunc;
                 })()));
-                self.skipWaiting();
             };
             if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
                 __argnames__ : {value: ["event"]},
@@ -4400,8 +4407,15 @@ var str = ρσ_str, repr = ρσ_repr;;
                         __module__ : {value: "__main__"}
                     });
                     return ρσ_anonfunc;
+                })()).then((function() {
+                    var ρσ_anonfunc = function () {
+                        return self.clients.claim();
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
+                        __module__ : {value: "__main__"}
+                    });
+                    return ρσ_anonfunc;
                 })()));
-                self.clients.claim();
             };
             if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
                 __argnames__ : {value: ["event"]},
