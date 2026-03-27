@@ -4349,7 +4349,7 @@ var str = ρσ_str, repr = ρσ_repr;;
 
 
         var CACHE_NAME, PRECACHE_URLS;
-        CACHE_NAME = "calibre-app-9.5.101-8b37f88a";
+        CACHE_NAME = "calibre-app-9.5.101-6ea1905b";
         PRECACHE_URLS = ['/'];
         self.addEventListener("install", (function() {
             var ρσ_anonfunc = function (event) {
