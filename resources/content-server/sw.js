@@ -4348,29 +4348,11 @@ var str = ρσ_str, repr = ρσ_repr;;
         var __name__ = "__main__";
 
 
-        var CACHE_NAME, PRECACHE_URLS;
-        CACHE_NAME = "calibre-app-9.5.101-6ea1905b";
-        PRECACHE_URLS = ['/'];
+        var CACHE_NAME;
+        CACHE_NAME = "calibre-app-9.5.101-8b37f88a";
         self.addEventListener("install", (function() {
             var ρσ_anonfunc = function (event) {
-                event.waitUntil(caches.open(CACHE_NAME).then((function() {
-                    var ρσ_anonfunc = function (cache) {
-                        return cache.addAll(PRECACHE_URLS);
-                    };
-                    if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["cache"]},
-                        __module__ : {value: "__main__"}
-                    });
-                    return ρσ_anonfunc;
-                })()).then((function() {
-                    var ρσ_anonfunc = function () {
-                        return self.skipWaiting();
-                    };
-                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
-                        __module__ : {value: "__main__"}
-                    });
-                    return ρσ_anonfunc;
-                })()));
+                event.waitUntil(self.skipWaiting());
             };
             if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
                 __argnames__ : {value: ["event"]},
@@ -4436,12 +4418,32 @@ var str = ρσ_str, repr = ρσ_repr;;
                 if (url.pathname !== "/") {
                     return;
                 }
-                event.respondWith(caches.match(event.request).then((function() {
-                    var ρσ_anonfunc = function (cached) {
-                        return cached || fetch(event.request);
+                event.respondWith(fetch(event.request).then((function() {
+                    var ρσ_anonfunc = function (response) {
+                        if (response.ok) {
+                            caches.open(CACHE_NAME).then((function() {
+                                var ρσ_anonfunc = function (cache) {
+                                    cache.put(event.request.url, response.clone());
+                                };
+                                if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
+                                    __argnames__ : {value: ["cache"]},
+                                    __module__ : {value: "__main__"}
+                                });
+                                return ρσ_anonfunc;
+                            })());
+                        }
+                        return response;
                     };
                     if (!ρσ_anonfunc.__argnames__) Object.defineProperties(ρσ_anonfunc, {
-                        __argnames__ : {value: ["cached"]},
+                        __argnames__ : {value: ["response"]},
+                        __module__ : {value: "__main__"}
+                    });
+                    return ρσ_anonfunc;
+                })()).catch((function() {
+                    var ρσ_anonfunc = function () {
+                        return caches.match(event.request.url);
+                    };
+                    if (!ρσ_anonfunc.__module__) Object.defineProperties(ρσ_anonfunc, {
                         __module__ : {value: "__main__"}
                     });
                     return ρσ_anonfunc;
