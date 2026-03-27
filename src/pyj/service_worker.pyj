@@ -3,7 +3,7 @@
 # globals: self, caches, Promise
 from __python__ import hash_literals
 
-CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__'
+CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__-__CACHE_HASH__'
 PRECACHE_URLS = v"['/']"
 
 self.addEventListener('install', def(event):
