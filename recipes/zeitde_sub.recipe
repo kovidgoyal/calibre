@@ -26,9 +26,10 @@ except ImportError:
     from urlparse import urlparse
 from contextlib import closing
 
+from mechanize import Cookie
+
 from calibre.utils.magick.draw import save_cover_data_to
 
-from mechanize import Cookie
 
 class ZeitEPUBAbo(BasicNewsRecipe):
 
@@ -273,7 +274,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             )
             browser.cookiejar.set_cookie(c)
             browser.open(url)
-           
+
             # change into abo section - not needed at the moment
             # browser.open(url)
             # abolink = browser.find_link(text_regex=re.compile(
@@ -312,6 +313,3 @@ class ZeitEPUBAbo(BasicNewsRecipe):
                 self.log.warning('Using static old low-res cover')
                 cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
         return cover_url
-
-
-calibre_most_common_ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36'
