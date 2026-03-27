@@ -519,10 +519,9 @@ def compile_srv():
 
 def compile_service_worker(content_hash):
     base = base_dir()
-    rapydscript_dir = os.path.join(base, 'src', 'pyj')
-    fname = os.path.join(rapydscript_dir, 'service_worker.pyj')
-    with open(fname, 'rb') as f:
-        js = set_data(compile_fast(f.read(), fname), __CACHE_HASH__=content_hash)
+    fname = os.path.join(base, 'src', 'pyj', 'service_worker.js')
+    with open(fname, 'r', encoding='utf-8') as f:
+        js = set_data(f.read(), __CACHE_HASH__=content_hash)
     out_base = os.path.join(base, 'resources', 'content-server')
     atomic_write(out_base, 'sw.js', js)
 

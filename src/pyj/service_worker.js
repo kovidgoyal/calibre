@@ -5,7 +5,7 @@
 // ServiceWorkerGlobalScope where the RapydScript runtime throws on evaluation.
 'use strict';
 
-var CACHE_NAME = 'calibre-app-9.5.101-9ed7b558';
+var CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__-__CACHE_HASH__';
 
 // No pre-caching in install: cache.addAll(['/']) would make a bare fetch()
 // that cannot replay the server's Digest-auth challenge and would always get
