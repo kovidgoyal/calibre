@@ -43,7 +43,9 @@ def toplevel_main():
     # we know are going to be needed immediately.
     window.addEventListener('load', main)
     if window.navigator.serviceWorker:
-        window.navigator.serviceWorker.register('/sw.js')
+        window.navigator.serviceWorker.register('/sw.js').catch(
+            def(err): console.error('SW registration failed:', err);
+        )
 
     ajax('ajax-setup', def(end_type, xhr, event):
         nonlocal autoreload_enabled, print

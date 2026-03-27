@@ -4,7 +4,7 @@
 // where the RapydScript runtime throws during evaluation.
 'use strict';
 
-var CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__-__CACHE_HASH__';
+const CACHE_NAME = 'calibre-app-__CALIBRE_VERSION__-__CACHE_HASH__';
 
 self.addEventListener('install', function(event) {
     event.waitUntil(self.skipWaiting());
@@ -18,7 +18,7 @@ self.addEventListener('install', function(event) {
 // with SW activation; the result arrives as event.preloadResponse in the fetch
 // handler below — already authenticated, ready to cache.
 self.addEventListener('activate', function(event) {
-    var preloadEnabled = self.registration.navigationPreload
+    const preloadEnabled = self.registration.navigationPreload
         ? self.registration.navigationPreload.enable()
         : Promise.resolve();
     event.waitUntil(
@@ -45,7 +45,7 @@ self.addEventListener('activate', function(event) {
 // On network error (offline): serve the cached app shell.
 self.addEventListener('fetch', function(event) {
     if (event.request.method !== 'GET') return;
-    var url = new URL(event.request.url);
+    const url = new URL(event.request.url);
     if (url.origin !== self.location.origin) return;
     if (url.pathname !== '/') return;
     if (!event.preloadResponse) return;  // let browser handle unaided
@@ -54,10 +54,10 @@ self.addEventListener('fetch', function(event) {
         event.preloadResponse
             .then(function(response) {
                 if (response && response.ok) {
-                    var cloned = response.clone();
+                    const cloned = response.clone();
                     caches.open(CACHE_NAME).then(function(cache) {
-                        cache.put(event.request.url, cloned);
-                    });
+                        return cache.put(event.request.url, cloned);
+                    }).catch(function() {});
                     return response;
                 }
                 // Unexpected non-OK preload response — prefer cached copy.
