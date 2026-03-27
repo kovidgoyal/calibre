@@ -105,23 +105,15 @@ def background_image(encoded_fname=''):
         except FileNotFoundError:
             return 'image/jpeg', b''
     fname = bytes.fromhex(encoded_fname).decode()
-    img_path = os.path.join(viewer_config_dir, 'background-images', fname)
+    base = os.path.abspath(os.path.join(viewer_config_dir, 'background-images')) + os.sep
+    img_path = os.path.abspath(os.path.join(base, fname))
     mt = guess_type(fname)[0] or 'image/jpeg'
+    if not img_path.startswith(base):
+        return mt, b''
     try:
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
     except FileNotFoundError:
-        if fname.startswith(('https://', 'http://')):
-            from calibre import browser
-            br = browser()
-            try:
-                with br.open(fname) as src:
-                    data = src.read()
-            except Exception:
-                return mt, b''
-            with open(make_long_path_useable(img_path), 'wb') as dest:
-                dest.write(data)
-            return mt, data
         return mt, b''
 
 

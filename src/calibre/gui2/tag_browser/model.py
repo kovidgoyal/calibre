@@ -515,7 +515,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in hidden_cats:
             if cat in db.field_metadata:
                 self.hidden_categories.add(cat)
-        db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
+        db.new_api.set_pref('tag_browser_hidden_categories', sorted(self.hidden_categories))
         if hidden_categories is not None:
             self.hidden_categories = hidden_categories
 

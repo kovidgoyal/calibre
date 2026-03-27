@@ -4,78 +4,84 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from threading import Lock
+import threading
 
 from calibre.utils.icu import _icu
-from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.localization import get_lang, lang_as_iso639_1
 
-_iterators = {}
-_sentence_iterators = {}
-_lock = Lock()
+
+class PerThreadIterators(threading.local):
+
+    def __init__(self):
+        self.iterators = {}
+        self.sentence_iterators = {}
+        self.extra_break_char_word_iterators = {}
+
+
+per_thread_iterators = PerThreadIterators()
 
 
 def get_iterator(lang):
-    it = _iterators.get(lang)
-    if it is None:
-        it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+    if (it := per_thread_iterators.iterators.get(lang)) is None:
+        it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(
+                _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
     return it
 
 
-def get_word_break_iterator_for_ui_thread():
-    if (ans := getattr(get_word_break_iterator_for_ui_thread, 'ans', None)) is None:
-        from calibre.utils.localization import get_lang
-        ans = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(get_lang() or 'en') or 'en')
-        setattr(get_word_break_iterator_for_ui_thread, 'ans', ans)
-    return ans
+def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: str | None = None):
+    extra_break_chars = extra_break_chars or None
+    lang = lang or get_lang() or 'en'
+    key = lang, extra_break_chars
+    if (it := per_thread_iterators.extra_break_char_word_iterators.get(key)) is None:
+        try:
+            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
+                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
+        except TypeError:  # people running from source
+            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
+                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+    return it
 
 
 def get_sentence_iterator(lang):
-    it = _sentence_iterators.get(lang)
-    if it is None:
-        it = _sentence_iterators[lang] = _icu.BreakIterator(_icu.UBRK_SENTENCE, lang_as_iso639_1(lang) or lang)
+    if (it := per_thread_iterators.sentence_iterators.get(lang)) is None:
+        it = per_thread_iterators.sentence_iterators[lang] = _icu.BreakIterator(_icu.UBRK_SENTENCE, lang_as_iso639_1(lang) or lang)
     return it
 
 
 def split_into_words(text, lang='en'):
-    with _lock:
-        it = get_iterator(lang)
-        it.set_text(text)
-        return [text[p:p+s] for p, s in it.split2()]
+    it = get_iterator(lang)
+    it.set_text(text)
+    return [text[p:p+s] for p, s in it.split2()]
 
 
 def split_into_words_and_positions(text, lang='en'):
-    with _lock:
-        it = get_iterator(lang)
-        it.set_text(text)
-        return it.split2()
+    it = get_iterator(lang)
+    it.set_text(text)
+    return it.split2()
 
 
 def sentence_positions(text, lang='en'):
-    with _lock:
-        it = get_sentence_iterator(lang)
-        it.set_text(text)
-        return it.split2()
+    it = get_sentence_iterator(lang)
+    it.set_text(text)
+    return it.split2()
 
 
 def split_into_sentences(text, lang='en'):
-    with _lock:
-        it = get_sentence_iterator(lang)
-        it.set_text(text)
-        return tuple(text[p:p+s] for p, s in it.split2())
+    it = get_sentence_iterator(lang)
+    it.set_text(text)
+    return tuple(text[p:p+s] for p, s in it.split2())
 
 
 def index_of(needle, haystack, lang='en'):
-    with _lock:
-        it = get_iterator(lang)
-        it.set_text(haystack)
-        return it.index(needle)
+    it = get_iterator(lang)
+    it.set_text(haystack)
+    return it.index(needle)
 
 
 def count_words(text, lang='en'):
-    with _lock:
-        it = get_iterator(lang)
-        it.set_text(text)
-        return it.count_words()
+    it = get_iterator(lang)
+    it.set_text(text)
+    return it.count_words()
 
 
 def split_long_sentences(sentence: str, offset: int, lang: str = 'en', limit: int = 2048):

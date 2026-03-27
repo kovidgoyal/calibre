@@ -11,6 +11,7 @@ from itertools import count
 
 from qt.core import QAbstractSocket, QLocalServer, pyqtSignal
 
+from calibre.constants import iswindows
 from calibre.utils.ipc import gui_socket_address, socket_address
 
 
@@ -125,9 +126,28 @@ def listener_for_test(address):
     app.exec()
 
 
+def winkill_main(hang=True):
+    import atexit
+    import time
+
+    def exit_sequence():
+        from calibre.gui2.main import workaround_windows_shutdown_hang
+        workaround_windows_shutdown_hang(0.1, 17)
+        time.sleep(10 if hang else 0.1)
+    atexit.register(exit_sequence)
+
+
 def find_tests():
     import unittest
     class TestIPC(unittest.TestCase):
+
+        @unittest.skipUnless(iswindows, 'Only needed on windows')
+        def test_windows_exit_kill_workaround(self):
+            from calibre.utils.ipc.simple_worker import start_pipe_worker
+            p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=False)')
+            self.assertEqual(0, p.wait())
+            p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=True)')
+            self.assertEqual(17, p.wait())
 
         def test_listener_ipc(self):
             from calibre.utils.ipc.simple_worker import start_pipe_worker

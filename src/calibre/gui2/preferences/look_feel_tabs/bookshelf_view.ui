@@ -32,34 +32,40 @@
      </widget>
     </item>
     <item row="2" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <item>
-       <widget class="QSpinBox" name="opt_bookshelf_height">
-        <property name="toolTip">
-         <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
-        </property>
-        <property name="specialValueText">
-         <string>Automatic</string>
-        </property>
-        <property name="suffix">
-         <string> px</string>
-        </property>
-        <property name="minimum">
-         <number>119</number>
-        </property>
-        <property name="maximum">
-         <number>1200</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_variable_height">
-        <property name="text">
-         <string>Variable book &amp;height</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QSpinBox" name="opt_bookshelf_height">
+      <property name="toolTip">
+       <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
+      </property>
+      <property name="specialValueText">
+       <string>Automatic</string>
+      </property>
+      <property name="suffix">
+       <string> px</string>
+      </property>
+      <property name="minimum">
+       <number>119</number>
+      </property>
+      <property name="maximum">
+       <number>1200</number>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_variable_height">
+      <property name="text">
+       <string>Book &amp;height variation:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_variable_height</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_variable_height">
+      <property name="toolTip">
+       <string>Control how the height of book spines varies on the shelf. "Constant" makes all books the same height. "Constant per group" makes all books in the same group the same height. "Variable" gives each book a unique height.</string>
+      </property>
+     </widget>
     </item>
     <item row="3" column="0">
      <widget class="QLabel" name="label_fade_time">

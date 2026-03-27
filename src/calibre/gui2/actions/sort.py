@@ -30,6 +30,16 @@ from calibre.utils.icu import primary_sort_key
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
 
 
+def hidden_fields(db):
+    return frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+
+
+def get_sorted_fields(db):
+    fm = db.field_metadata
+    name_map = [(v,k) for k, v in fm.ui_sortable_field_keys().items()]
+    return sorted(name_map, key=lambda x: primary_sort_key(x[0]))
+
+
 class SortAction(QAction):
 
     sort_requested = pyqtSignal(object, object)
@@ -108,10 +118,7 @@ class SortByAction(InterfaceAction):
         self.update_menu()
 
     def get_sorted_fields(self):
-        db = self.gui.current_db
-        fm = db.field_metadata
-        name_map = [(v,k) for k, v in fm.ui_sortable_field_keys().items()]
-        return sorted(name_map, key=lambda x: primary_sort_key(x[0]))
+        return get_sorted_fields(self.gui.current_db)
 
     def update_menu(self, menu=None):
         menu = menu or self.qaction.menu()
@@ -149,7 +156,7 @@ class SortByAction(InterfaceAction):
         menu.addSeparator()
 
         # Add the columns to the menu
-        hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+        hidden = hidden_fields(self.gui.current_db)
 
         for name, key in self.get_sorted_fields():
             if key == 'ondevice' and self.gui.device_connected is None:
@@ -164,7 +171,7 @@ class SortByAction(InterfaceAction):
 
     def select_sortable_columns(self):
         db = self.gui.current_db
-        hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+        hidden = hidden_fields(db)
         items = QListWidget()
         items.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         for display_name, key in self.get_sorted_fields():

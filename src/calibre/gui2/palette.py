@@ -81,6 +81,7 @@ def default_dark_palette():
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.darkMagenta)
     p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
     p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
+    p.setColor(QPalette.ColorRole.Accent, QColor(0x7a, 0xbc, 0x43))
 
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
@@ -107,6 +108,7 @@ def default_light_palette():
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.magenta)
     p.setColor(QPalette.ColorRole.Highlight, QColor(48, 140, 198))
     p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
+    p.setColor(QPalette.ColorRole.Accent, QColor(0x31, 0xbd, 0x5a))
 
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
@@ -132,6 +134,7 @@ def palette_colors():
         'AlternateBase': _('The background color for alternate rows in tables and lists'),
         'ToolTipBase': _('The background color for tool tips'),
         'Highlight': _('The background color for highlighted items'),
+        'Accent': _('The color for emphasised items'),
 
         'Link': _('The color for links'),
         'LinkVisited': _('The color for visited links'),

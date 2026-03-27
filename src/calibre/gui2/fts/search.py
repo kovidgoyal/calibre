@@ -49,6 +49,7 @@ from calibre import fit_image, prepare_string_for_xml
 from calibre.db import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import config, error_dialog, gprefs, info_dialog, question_dialog
+from calibre.gui2.actions.sort import get_sorted_fields, hidden_fields
 from calibre.gui2.fts.cards import CardsView
 from calibre.gui2.fts.utils import fts_url, get_db, help_panel, jump_shortcut, mark_shortcut, markup_text
 from calibre.gui2.library.models import render_pin
@@ -350,21 +351,11 @@ class ResultsModel(QAbstractItemModel):
         return False
 
     def do_sort_on_field(self, sort_key):
-        field_map = {
-            'newest': [('timestamp', False)],
-            'rating': [('rating', False)],
-            'pubdate': [('pubdate', False)],
-            'size': [('size', False)],
-            'pages': [('pages', False)],
-        }
-        fields = field_map.get(sort_key)
-        if fields is None:
-            return
         db = get_db()
         if sort_key == 'pages':
             db.queue_pages_scan()
         current_ids = frozenset(r.book_id for r in self.results)
-        sorted_ids = db.multisort(fields, ids_to_sort=current_ids)
+        sorted_ids = db.multisort([(sort_key, False)], ids_to_sort=current_ids)
         results_by_id = {r.book_id: r for r in self.results}
         self.results = [results_by_id[bid] for bid in sorted_ids if bid in results_by_id]
         self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
@@ -679,22 +670,21 @@ class SearchInputPanel(QWidget):
         ag = QActionGroup(b)
         ag.setExclusive(True)
         current_sort = gprefs['fts_sort_order']
-        self._sort_action_map = {}
-        self._sort_labels = {
-            'relevance': _('Relevance'),
-            'newest':    _('Newest'),
-            'rating':    _('Highest rated'),
-            'pubdate':   _('Recently published'),
-            'size':      _('Largest'),
-            'pages':     _('Most pages'),
-        }
-        for key, label in self._sort_labels.items():
+        hidden = hidden_fields(get_db())
+        self._sort_labels = {}
+        def add(key, label):
+            self._sort_labels[key] = label
             ac = sort_menu.addAction(label)
             ac.setCheckable(True)
             ac.setChecked(key == current_sort)
             ac.setData(key)
             ag.addAction(ac)
-            self._sort_action_map[key] = ac
+        add('relevance', _('Relevance'))
+        sort_menu.addSeparator()
+        for name, key in get_sorted_fields(get_db()):
+            if key in hidden or key == 'ondevice':
+                continue
+            add(key, name)
         sort_menu.triggered.connect(self._sort_triggered)
         self._update_sort_button_label()
 
@@ -1154,7 +1144,7 @@ class ResultsPanel(QWidget):
                 query=query, fts_url=fts_url), det_msg=err_msg, show=True)
 
 
-def develop(view='compact'):
+def develop(view='cards'):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])

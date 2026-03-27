@@ -41,7 +41,7 @@ class TBDisplayedFields(DisplayedFields):
 
     def commit(self):
         if self.changed:
-            self.db.prefs.set('tag_browser_hidden_categories', [k for k,v in self.fields if not v])
+            self.db.prefs.set('tag_browser_hidden_categories', sorted(k for k,v in self.fields if not v))
             self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
 
 

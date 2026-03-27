@@ -193,13 +193,14 @@ end:
 
 // Collator.strcmp {{{
 static PyObject *
-icu_Collator_strcmp(icu_Collator *self, PyObject *args) {
+icu_Collator_strcmp(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     int32_t asz = 0, bsz = 0;
     UChar *a = NULL, *b = NULL;
     UCollationResult res = UCOL_EQUAL;
 
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "strcmp takes exactly 2 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
@@ -232,7 +233,7 @@ create_word_iterator(icu_Collator *self) {
 }
 
 static PyObject *
-icu_Collator_find(icu_Collator *self, PyObject *args) {
+icu_Collator_find(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -240,7 +241,11 @@ icu_Collator_find(icu_Collator *self, PyObject *args) {
     UStringSearch *search = NULL;
     int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UU|p", &a_, &b_, &whole_words)) return NULL;
+    if (nargs < 2 || nargs > 3) { PyErr_SetString(PyExc_TypeError, "find requires 2 or 3 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
+    if (!PyUnicode_Check(a_) || !PyUnicode_Check(b_)) { PyErr_SetString(PyExc_TypeError, "pattern and source must be unicode strings"); return NULL; }
+    if (nargs > 2) whole_words = PyObject_IsTrue(args[2]);
+    if (whole_words == -1) return NULL;
     if (whole_words) create_word_iterator(self);
     if (PyErr_Occurred()) return NULL;
 
@@ -271,7 +276,7 @@ end:
 
 // Collator.find_all {{{
 static PyObject *
-icu_Collator_find_all(icu_Collator *self, PyObject *args) {
+icu_Collator_find_all(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL, *callback;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1, length = -1;
@@ -279,7 +284,11 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
     UStringSearch *search = NULL;
     int whole_words = 0;
 
-    if (!PyArg_ParseTuple(args, "UUO|p", &a_, &b_, &callback, &whole_words)) return NULL;
+    if (nargs < 3 || nargs > 4) { PyErr_SetString(PyExc_TypeError, "find_all requires 3 or 4 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1]; callback = args[2];
+    if (!PyUnicode_Check(a_) || !PyUnicode_Check(b_)) { PyErr_SetString(PyExc_TypeError, "pattern and source must be unicode strings"); return NULL; }
+    if (nargs > 3) whole_words = PyObject_IsTrue(args[3]);
+    if (whole_words == -1) return NULL;
     if (whole_words) create_word_iterator(self);
     if (PyErr_Occurred()) return NULL;
 
@@ -312,7 +321,7 @@ icu_Collator_find_all(icu_Collator *self, PyObject *args) {
 
 // Collator.contains {{{
 static PyObject *
-icu_Collator_contains(icu_Collator *self, PyObject *args) {
+icu_Collator_contains(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
     UChar *a = NULL, *b = NULL;
     int32_t asz = 0, bsz = 0, pos = -1;
@@ -320,7 +329,8 @@ icu_Collator_contains(icu_Collator *self, PyObject *args) {
     UErrorCode status = U_ZERO_ERROR;
     UStringSearch *search = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "contains takes exactly 2 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
@@ -386,31 +396,35 @@ end:
 
 // Collator.startswith {{{
 static PyObject *
-icu_Collator_startswith(icu_Collator *self, PyObject *args) {
+icu_Collator_startswith(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
     PyObject *a_ = NULL, *b_ = NULL;
-    int32_t asz = 0, bsz = 0;
+    int32_t asz = 0, bsz = 0, start = 0;
     UChar *a = NULL, *b = NULL;
-    uint8_t ans = 0;
-
-    if (!PyArg_ParseTuple(args, "OO", &a_, &b_)) return NULL;
-
-    a = python_to_icu(a_, &asz);
-    if (a == NULL) goto end;
-    b = python_to_icu(b_, &bsz);
-    if (b == NULL) goto end;
-
-    if (asz < bsz) goto end;
-    if (bsz == 0) { ans = 1; goto end; }
-
-    ans = ucol_equal(self->collator, a, bsz, b, bsz);
-
+    unsigned offset = 0;
+    if (nargs < 2 || nargs > 3) { PyErr_SetString(PyExc_TypeError, "startswith requires 2 or 3 arguments"); return NULL; }
+    a_ = args[0]; b_ = args[1];
+    if (nargs > 2) {
+        unsigned long v = PyLong_AsUnsignedLong(args[2]);
+        if (PyErr_Occurred()) return NULL;
+        offset = (unsigned)v;
+    }
+    a = python_to_icu(a_, &asz); if (a == NULL) return NULL;
+    b = python_to_icu(b_, &bsz); if (b == NULL) { Py_DECREF(a); return NULL; }
+    PyObject *ans = Py_False;
+    if (offset > 0) {
+        // Advance start by 'offset' Unicode codepoints within the UTF-16 buffer.
+        U16_FWD_N(a, start, asz, (uint32_t)offset);
+        if (start >= asz) {
+            // offset is at or beyond end of string; only an empty prefix can match
+            if (bsz == 0) ans = Py_True;
+            goto end;
+        }
+    }
+    if (asz - start < bsz) goto end;
+    if (bsz == 0) { ans = Py_True; goto end; }
+    if (ucol_equal(self->collator, a + start, bsz, b, bsz)) ans = Py_True;
 end:
-    if (a != NULL) free(a);
-    if (b != NULL) free(b);
-
-    if (PyErr_Occurred()) return NULL;
-    if (ans) { Py_RETURN_TRUE; }
-    Py_RETURN_FALSE;
+    free(a); free(b); return Py_NewRef(ans);
 } // }}}
 
 // Collator.collation_order {{{
@@ -464,9 +478,10 @@ icu_Collator_set_upper_first(icu_Collator *self, PyObject *val, void *closure) {
 
 // Collator.get/set_attribute {{{
 static PyObject *
-icu_Collator_get_attribute(icu_Collator *self, PyObject *args) {
-    int k;
-    if (!PyArg_ParseTuple(args, "i", &k)) return NULL;
+icu_Collator_get_attribute(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "get_attribute takes exactly 1 argument"); return NULL; }
+    int k = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
     UErrorCode status = U_ZERO_ERROR;
     long v = ucol_getAttribute(self->collator, k, &status);
     if (U_FAILURE(status)) {
@@ -477,9 +492,12 @@ icu_Collator_get_attribute(icu_Collator *self, PyObject *args) {
 }
 
 static PyObject *
-icu_Collator_set_attribute(icu_Collator *self, PyObject *args) {
-    int k, v;
-    if (!PyArg_ParseTuple(args, "ii", &k, &v)) return NULL;
+icu_Collator_set_attribute(icu_Collator *self, PyObject *const *args, Py_ssize_t nargs) {
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "set_attribute takes exactly 2 arguments"); return NULL; }
+    int k = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    int v = (int)PyLong_AsLong(args[1]);
+    if (PyErr_Occurred()) return NULL;
     UErrorCode status = U_ZERO_ERROR;
     ucol_setAttribute(self->collator, k, v, &status);
     if (U_FAILURE(status)) {
@@ -497,27 +515,27 @@ static PyMethodDef icu_Collator_methods[] = {
      "sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU."
     },
 
-    {"get_attribute", (PyCFunction)icu_Collator_get_attribute, METH_VARARGS,
+    {"get_attribute", (PyCFunction)(void(*)(void))icu_Collator_get_attribute, METH_FASTCALL,
      "get_attribute(key) -> get the specified attribute on this collator."
     },
 
-    {"set_attribute", (PyCFunction)icu_Collator_set_attribute, METH_VARARGS,
+    {"set_attribute", (PyCFunction)(void(*)(void))icu_Collator_set_attribute, METH_FASTCALL,
      "set_attribute(key, val) -> set the specified attribute on this collator."
     },
 
-    {"strcmp", (PyCFunction)icu_Collator_strcmp, METH_VARARGS,
+    {"strcmp", (PyCFunction)(void(*)(void))icu_Collator_strcmp, METH_FASTCALL,
      "strcmp(unicode object, unicode object) -> strcmp(a, b) <=> cmp(sorty_key(a), sort_key(b)), but faster."
     },
 
-    {"find_all", (PyCFunction)icu_Collator_find_all, METH_VARARGS,
+    {"find_all", (PyCFunction)(void(*)(void))icu_Collator_find_all, METH_FASTCALL,
         "find(pattern, source, callback) -> reports the position and length of all occurrences of pattern in source to callback. Aborts if callback returns anything other than None."
     },
 
-    {"find", (PyCFunction)icu_Collator_find, METH_VARARGS,
+    {"find", (PyCFunction)(void(*)(void))icu_Collator_find, METH_FASTCALL,
         "find(pattern, source) -> returns the position and length of the first occurrence of pattern in source. Returns (-1, -1) if not found."
     },
 
-    {"contains", (PyCFunction)icu_Collator_contains, METH_VARARGS,
+    {"contains", (PyCFunction)(void(*)(void))icu_Collator_contains, METH_FASTCALL,
         "contains(pattern, source) -> return True iff the pattern was found in the source."
     },
 
@@ -529,8 +547,8 @@ static PyMethodDef icu_Collator_methods[] = {
         "clone() -> returns a clone of this collator."
     },
 
-    {"startswith", (PyCFunction)icu_Collator_startswith, METH_VARARGS,
-        "startswith(a, b) -> returns True iff a startswith b, following the current collation rules."
+    {"startswith", (PyCFunction)(void(*)(void))icu_Collator_startswith, METH_FASTCALL,
+        "startswith(a, b, offset=0) -> returns True iff a startswith b at the given codepoint offset, following the current collation rules."
     },
 
     {"collation_order", (PyCFunction)icu_Collator_collation_order, METH_O,
@@ -851,6 +869,8 @@ static PyTypeObject icu_TransliteratorType = { // {{{
 }; // }}}
 // }}}
 
+#define IS_HYPHEN_CHAR(x) ((x) == 0x2d || (x) == 0x2010)
+
 // BreakIterator object definition {{{
 typedef struct {
     PyObject_HEAD
@@ -859,7 +879,10 @@ typedef struct {
     UChar *text;
     int32_t text_len;
     UBreakIteratorType type;
-
+    unsigned long counter;  /* incremented on mutating method calls to invalidate live iterators */
+    UChar32 *extra_word_break_chars;     /* optional sorted array of extra word-break codepoints */
+    int32_t  num_extra_word_break_chars; /* length of the array; 0 = disabled (fast path) */
+    int      hyphen_is_extra_break;      /* 1 if a hyphen char is in extra_word_break_chars */
 } icu_BreakIterator;
 
 static void
@@ -867,7 +890,8 @@ icu_BreakIterator_dealloc(icu_BreakIterator* self)
 {
     if (self->break_iterator != NULL) ubrk_close(self->break_iterator);
     if (self->text != NULL) free(self->text);
-    self->break_iterator = NULL; self->text = NULL;
+    if (self->extra_word_break_chars != NULL) free(self->extra_word_break_chars);
+    self->break_iterator = NULL; self->text = NULL; self->extra_word_break_chars = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -880,8 +904,9 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int break_iterator_type = UBRK_WORD;
     UErrorCode status = U_ZERO_ERROR;
     UBreakIterator *break_iterator;
+    PyObject *extra_chars_obj = NULL;
 
-    if (!PyArg_ParseTuple(args, "is", &break_iterator_type, &locale)) return NULL;
+    if (!PyArg_ParseTuple(args, "is|O", &break_iterator_type, &locale, &extra_chars_obj)) return NULL;
     break_iterator = ubrk_open(break_iterator_type, locale, NULL, 0, &status);
     if (break_iterator == NULL || U_FAILURE(status)) {
         PyErr_SetString(PyExc_ValueError, u_errorName(status));
@@ -889,10 +914,42 @@ icu_BreakIterator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     self = (icu_BreakIterator *)type->tp_alloc(type, 0);
-    if (self != NULL) {
-        self->break_iterator = break_iterator;
-    }
+    if (self == NULL) { ubrk_close(break_iterator); return NULL; }
+    self->break_iterator = break_iterator;
+    self->counter = 0;
     self->text = NULL; self->text_len = 0; self->type = break_iterator_type;
+    self->extra_word_break_chars = NULL; self->num_extra_word_break_chars = 0;
+    self->hyphen_is_extra_break = 0;
+
+    /* Parse optional extra break characters (only meaningful for UBRK_WORD). */
+    if (extra_chars_obj != NULL && extra_chars_obj != Py_None
+            && break_iterator_type == UBRK_WORD) {
+        int32_t extra_sz = 0;
+        UChar *extra_buf = python_to_icu(extra_chars_obj, &extra_sz);
+        if (extra_buf == NULL) { Py_DECREF(self); return NULL; }
+        int32_t count = u_countChar32(extra_buf, extra_sz);
+        if (count > 0) {
+            UChar32 *chars = (UChar32*)malloc(count * sizeof(UChar32));
+            if (chars == NULL) { free(extra_buf); Py_DECREF(self); return PyErr_NoMemory(); }
+            int32_t i = 0, j = 0;
+            while (i < extra_sz) { U16_NEXT(extra_buf, i, extra_sz, chars[j]); j++; }
+            free(extra_buf);
+            /* Sort using insertion sort — sets are expected to be tiny. */
+            for (int32_t k = 1; k < count; k++) {
+                UChar32 key = chars[k]; int32_t m = k - 1;
+                while (m >= 0 && chars[m] > key) { chars[m + 1] = chars[m]; m--; }
+                chars[m + 1] = key;
+            }
+            self->extra_word_break_chars     = chars;
+            self->num_extra_word_break_chars = count;
+            /* Check if any hyphen character is in the extra break set. */
+            for (int32_t k = 0; k < count; k++) {
+                if (IS_HYPHEN_CHAR(chars[k])) { self->hyphen_is_extra_break = 1; break; }
+            }
+        } else {
+            free(extra_buf);
+        }
+    }
 
     return (PyObject *)self;
 }
@@ -904,6 +961,7 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
     UChar *buf = NULL;
     UErrorCode status = U_ZERO_ERROR;
 
+    self->counter++;
     buf = python_to_icu(input, &sz);
     if (buf == NULL) return NULL;
     ubrk_setText(self->break_iterator, buf, sz, &status);
@@ -916,8 +974,6 @@ icu_BreakIterator_set_text(icu_BreakIterator *self, PyObject *input) {
 
 } // }}}
 
-#define IS_HYPHEN_CHAR(x) ((x) == 0x2d || (x) == 0x2010)
-
 // BreakIterator.index {{{
 static PyObject *
 icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
@@ -925,6 +981,7 @@ icu_BreakIterator_index(icu_BreakIterator *self, PyObject *token) {
     UChar *buf = NULL, *needle = NULL;
     int32_t word_start = 0, p = 0, sz = 0, ans = -1, leading_hyphen = 0, trailing_hyphen = 0;
 
+    self->counter++;
     buf = python_to_icu(token, &sz);
     if (buf == NULL) return NULL;
     if (sz < 1) goto end;
@@ -973,7 +1030,7 @@ end:
 
 } // }}}
 
-// BreakIterator.split2 {{{
+// BreakIterator iteration machinery {{{
 
 static inline void
 unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_count32, int32_t *word_start, int32_t *sz) {
@@ -988,94 +1045,312 @@ unicode_code_point_count(UChar **count_start, int32_t *last_count, int *last_cou
 	*sz = sz32;
 }
 
-static int
-add_split_pos_callback(void *data, int32_t pos, int32_t sz) {
-	PyObject *ans = (PyObject*) data;
-	PyObject *t, *temp;
-	if (pos < 0) {
-		if (PyList_GET_SIZE(ans) > 0) {
-			t = PyLong_FromLong((long)sz);
-			if (t == NULL) return 0;
-			temp = PyList_GET_ITEM(ans, PyList_GET_SIZE(ans) - 1);
-			Py_DECREF(PyTuple_GET_ITEM(temp, 1));
-			PyTuple_SET_ITEM(temp, 1, t);
-		}
-	} else {
-		temp = Py_BuildValue("ll", (long)(pos), (long)sz);
-		if (temp == NULL) return 0;
-		if (PyList_Append(ans, temp) != 0) { Py_DECREF(temp); return 0; }
-		Py_DECREF(temp);
-	}
-	return 1;
+/* State for lazily stepping through the break positions of an icu_BreakIterator.
+   Usable from both C (split2, count_words) and Python (BreakIteratorIter). */
+typedef struct {
+    int32_t p;             /* current ICU iterator position */
+    int32_t last_pos;      /* ICU end-position of last processed segment */
+    int32_t last_sz;       /* code-point size of the pending (buffered) token */
+    int32_t last_count;    /* UTF-16 offset bookkeeping for unicode_code_point_count */
+    int     last_count32;  /* code-point offset bookkeeping */
+    UChar  *count_start;   /* cursor through the text for unicode_code_point_count */
+    int     found_one;     /* whether any token has been buffered yet */
+    int     done;          /* whether the ICU iterator is exhausted */
+    int     has_pending;   /* whether a buffered token is waiting to be yielded */
+    int32_t pending_pos;
+    int32_t pending_sz;
+    /* Extra break character sub-segmentation state */
+    int32_t extra_break_seg_start; /* UTF-16 start of the remaining sub-segment */
+    int32_t extra_break_seg_end;   /* UTF-16 end (exclusive) of the remaining sub-segment */
+    int     extra_break_active;    /* 1 if there is a pending sub-segment to process */
+} BreakIterState;
+
+static void
+break_iter_state_init(icu_BreakIterator *bi, BreakIterState *state) {
+    memset(state, 0, sizeof(state[0]));
+    state->p            = ubrk_first(bi->break_iterator);
+    state->count_start  = bi->text;
 }
 
-static int
-count_words_callback(void *data, int32_t pos, int32_t sz) {
-	unsigned long *total = (unsigned long*)data;
-	if (pos >= 0) (*total)++;
-	return 1;
-}
-
-
-static inline void
-do_split(icu_BreakIterator *self, int(*callback)(void*, int32_t, int32_t), void *callback_data) {
-    int32_t word_start = 0, p = 0, sz = 0, last_pos = 0, last_sz = 0, last_count = 0, last_count32 = 0;
-    int is_hyphen_sep = 0, leading_hyphen = 0, trailing_hyphen = 0, found_one = 0;
-    UChar sep = 0, *count_start = self->text;
-
-    p = ubrk_first(self->break_iterator);
-    while (p != UBRK_DONE) {
-        word_start = p; p = ubrk_next(self->break_iterator);
-        if (self->type == UBRK_WORD && ubrk_getRuleStatus(self->break_iterator) == UBRK_WORD_NONE)
-            continue;  // We are not at the start of a word
-        sz = (p == UBRK_DONE) ? self->text_len - word_start : p - word_start;
-        if (sz > 0) {
-            // ICU breaks on words containing hyphens, we do not want that, so we recombine manually
-            is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
-            if (word_start > 0) { // Look for a leading hyphen
-                sep = *(self->text + word_start - 1);
-                if (IS_HYPHEN_CHAR(sep)) {
-                    leading_hyphen = 1;
-                    if (last_pos > 0 && word_start - last_pos == 1) is_hyphen_sep = 1;
-                }
-            }
-            if (word_start + sz < self->text_len) { // Look for a trailing hyphen
-                sep = *(self->text + word_start + sz);
-                if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
-            }
-            last_pos = p;
-			unicode_code_point_count(&count_start, &last_count, &last_count32, &word_start, &sz);
-            if (is_hyphen_sep && found_one) {
-                sz = last_sz + sz + trailing_hyphen;
-                last_sz = sz;
-				if (!callback(callback_data, -1, sz)) break;
-            } else {
-				found_one = 1;
-                sz += leading_hyphen + trailing_hyphen;
-                last_sz = sz;
-				if (!callback(callback_data, word_start - leading_hyphen, sz)) break;
-            }
+/* Find the first extra word-break character in the UTF-16 segment [start, end).
+   Returns the UTF-16 offset of the character if found (and sets *char_len_out to its
+   UTF-16 length), or -1 if not found. */
+static inline int32_t
+find_extra_word_break(const icu_BreakIterator *bi, int32_t start, int32_t end,
+                      int32_t *char_len_out) {
+    int32_t i = start;
+    const UChar32 *chars = bi->extra_word_break_chars;
+    const int32_t  n     = bi->num_extra_word_break_chars;
+    while (i < end) {
+        UChar32 c;
+        int32_t prev_i = i;
+        U16_NEXT(bi->text, i, end, c);
+        for (int32_t k = 0; k < n; k++) {
+            if (chars[k] == c) { *char_len_out = i - prev_i; return prev_i; }
         }
     }
+    return -1;
+}
 
+/* Advance one step.
+   Returns 1 with the next token stored in *pos_out / *sz_out.
+   Returns 0 when there are no more tokens. */
+static int
+break_iter_state_next(icu_BreakIterator *bi, BreakIterState *state,
+                      int32_t *pos_out, int32_t *sz_out) {
+    int32_t word_start, sz;
+    int is_hyphen_sep, leading_hyphen, trailing_hyphen, had_pending;
+    int32_t prev_pos, prev_sz;
+    UChar sep;
+
+    if (state->done) {
+        if (state->has_pending) {
+            state->has_pending = 0;
+            *pos_out = state->pending_pos;
+            *sz_out  = state->pending_sz;
+            return 1;
+        }
+        return 0;
+    }
+
+    for (;;) {
+        /* --- Extra-break sub-segmentation ---
+           When a prior ICU segment contained an extra break character, the remainder
+           of that segment is stored in extra_break_seg_[start,end).  Drain it before
+           fetching more data from the ICU iterator. */
+        if (state->extra_break_active) {
+            if (state->extra_break_seg_start >= state->extra_break_seg_end) {
+                /* Sub-segment exhausted; fall through to the ICU loop. */
+                state->extra_break_active = 0;
+            } else {
+                int32_t char_len;
+                int32_t q = find_extra_word_break(bi,
+                        state->extra_break_seg_start, state->extra_break_seg_end, &char_len);
+                int32_t sub_ws = state->extra_break_seg_start; /* UTF-16 start of piece */
+                if (q >= 0) {
+                    sz = q - sub_ws;
+                    state->extra_break_seg_start = q + char_len;
+                } else {
+                    sz = state->extra_break_seg_end - sub_ws;
+                    state->extra_break_active = 0;
+                }
+                if (sz == 0) continue; /* empty piece (adjacent extra-break chars) */
+                /* Check for a trailing hyphen at the UTF-16 level (before conversion)
+                   so that a subsequent ICU segment can be hyphen-joined with this piece.
+                   Skip when hyphens are themselves extra break chars. */
+                int sub_trailing = 0;
+                if (!bi->hyphen_is_extra_break && sub_ws + sz < bi->text_len) {
+                    UChar trail = *(bi->text + sub_ws + sz);
+                    if (IS_HYPHEN_CHAR(trail)) sub_trailing = 1;
+                }
+                word_start = sub_ws;
+                unicode_code_point_count(&state->count_start, &state->last_count,
+                                         &state->last_count32, &word_start, &sz);
+                sz += sub_trailing; /* extend to include the trailing hyphen */
+                had_pending        = state->has_pending;
+                prev_pos           = state->pending_pos;
+                prev_sz            = state->pending_sz;
+                state->found_one   = 1;
+                state->last_sz     = sz;
+                state->has_pending = 1;
+                state->pending_pos = word_start;
+                state->pending_sz  = sz;
+                if (had_pending) { *pos_out = prev_pos; *sz_out = prev_sz; return 1; }
+                continue; /* look for more sub-segments or the next ICU token */
+            }
+        }
+
+        /* --- ICU break iterator --- */
+        if (state->p == UBRK_DONE) {
+            /* ICU exhausted — flush the final buffered token. */
+            state->done = 1;
+            if (state->has_pending) {
+                state->has_pending = 0;
+                *pos_out = state->pending_pos;
+                *sz_out  = state->pending_sz;
+                return 1;
+            }
+            return 0;
+        }
+
+        word_start = state->p;
+        state->p   = ubrk_next(bi->break_iterator);
+        if (bi->type == UBRK_WORD &&
+                ubrk_getRuleStatus(bi->break_iterator) == UBRK_WORD_NONE)
+            continue; /* skip non-word runs (spaces, punctuation, …) */
+        sz = (state->p == UBRK_DONE) ? bi->text_len - word_start
+                                      : state->p     - word_start;
+        if (sz <= 0) continue;
+
+        /* Check for extra break characters inside this ICU word segment.
+           Split at the first one; the tail is deferred into extra_break_seg. */
+        if (bi->num_extra_word_break_chars > 0) {
+            int32_t char_len;
+            int32_t q = find_extra_word_break(bi, word_start, word_start + sz, &char_len);
+            if (q >= 0) {
+                state->extra_break_active    = 1;
+                state->extra_break_seg_start = q + char_len;
+                state->extra_break_seg_end   = word_start + sz;
+                sz = q - word_start;
+                if (sz == 0) continue; /* segment begins with an extra break char */
+            }
+        }
+
+        is_hyphen_sep = 0; leading_hyphen = 0; trailing_hyphen = 0;
+        if (!bi->hyphen_is_extra_break) {
+            if (word_start > 0) {
+                sep = *(bi->text + word_start - 1);
+                if (IS_HYPHEN_CHAR(sep)) {
+                    leading_hyphen = 1;
+                    if (state->last_pos > 0 && word_start - state->last_pos == 1) is_hyphen_sep = 1;
+                }
+            }
+            if (word_start + sz < bi->text_len) {
+                sep = *(bi->text + word_start + sz);
+                if (IS_HYPHEN_CHAR(sep)) trailing_hyphen = 1;
+            }
+        }
+        state->last_pos = state->p;
+        unicode_code_point_count(&state->count_start, &state->last_count,
+                                  &state->last_count32, &word_start, &sz);
+        if (is_hyphen_sep && state->found_one) {
+            /* Extend the already-buffered token across the hyphen. */
+            sz = state->last_sz + sz + trailing_hyphen;
+            state->last_sz    = sz;
+            state->pending_sz = sz;
+        } else {
+            /* Yield the previously buffered token (if any), then buffer this one. */
+            had_pending = state->has_pending;
+            prev_pos    = state->pending_pos;
+            prev_sz     = state->pending_sz;
+            state->found_one   = 1;
+            sz += leading_hyphen + trailing_hyphen;
+            state->last_sz     = sz;
+            state->has_pending = 1;
+            state->pending_pos = word_start - leading_hyphen;
+            state->pending_sz  = sz;
+            if (had_pending) { *pos_out = prev_pos; *sz_out = prev_sz; return 1; }
+        }
+    }
 }
 
 static PyObject *
 icu_BreakIterator_count_words(icu_BreakIterator *self, PyObject *args) {
-	unsigned long ans = 0;
-	do_split(self, count_words_callback, &ans);
-	if (PyErr_Occurred()) return NULL;
-	return Py_BuildValue("k", ans);
+    unsigned long ans = 0;
+    int32_t pos, sz;
+    BreakIterState state;
+    self->counter++;
+    break_iter_state_init(self, &state);
+    while (break_iter_state_next(self, &state, &pos, &sz)) ans++;
+    return Py_BuildValue("k", ans);
 }
 
 static PyObject *
 icu_BreakIterator_split2(icu_BreakIterator *self, PyObject *args) {
-    PyObject *ans = NULL;
+    PyObject *ans, *item;
+    int32_t pos, sz;
+    BreakIterState state;
     ans = PyList_New(0);
     if (ans == NULL) return PyErr_NoMemory();
-	do_split(self, add_split_pos_callback, ans);
-	if (PyErr_Occurred()) { Py_DECREF(ans); ans = NULL; }
+    self->counter++;
+    break_iter_state_init(self, &state);
+    while (break_iter_state_next(self, &state, &pos, &sz)) {
+        item = Py_BuildValue("ll", (long)pos, (long)sz);
+        if (item == NULL || PyList_Append(ans, item) != 0) { Py_XDECREF(item); Py_DECREF(ans); return NULL; }
+        Py_DECREF(item);
+    }
     return ans;
+}
+
+// BreakIteratorIter object {{{
+
+typedef struct {
+    PyObject_HEAD
+    icu_BreakIterator *parent;         /* strong reference */
+    unsigned long      counter_at_creation;
+    BreakIterState     state;
+    int                positions_only; /* 0 = yield (pos,sz) tuples; 1 = yield pos ints */
+} icu_BreakIteratorIterObject;
+
+static void
+icu_BreakIteratorIter_dealloc(icu_BreakIteratorIterObject *self)
+{
+    Py_CLEAR(self->parent);
+    Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+icu_BreakIteratorIter_iternext(icu_BreakIteratorIterObject *self)
+{
+    int32_t pos, sz;
+    if (self->parent->counter != self->counter_at_creation) {
+        PyErr_SetString(PyExc_RuntimeError,
+            "BreakIterator was modified while iterating over it");
+        return NULL;
+    }
+    if (!break_iter_state_next(self->parent, &self->state, &pos, &sz))
+        return NULL;  /* StopIteration */
+    if (self->positions_only) return PyLong_FromLong((long)pos);
+    return Py_BuildValue("ll", (long)pos, (long)sz);
+}
+
+static PyTypeObject icu_BreakIteratorIterType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "icu.BreakIteratorIter",
+    /* tp_basicsize      */ sizeof(icu_BreakIteratorIterObject),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor)icu_BreakIteratorIter_dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT,
+    /* tp_doc            */ "Break Iterator Iterator",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ PyObject_SelfIter,
+    /* tp_iternext       */ (iternextfunc)icu_BreakIteratorIter_iternext,
+}; // }}}
+
+static PyObject *
+make_break_iterator_iter(icu_BreakIterator *parent, int positions_only)
+{
+    icu_BreakIteratorIterObject *iter;
+    if (parent->text == NULL || parent->text_len < 1) {
+        PyErr_SetString(PyExc_ValueError, "No text has been set on this BreakIterator");
+        return NULL;
+    }
+    iter = PyObject_New(icu_BreakIteratorIterObject, &icu_BreakIteratorIterType);
+    if (iter == NULL) return NULL;
+    parent->counter++;
+    break_iter_state_init(parent, &iter->state);
+    iter->counter_at_creation = parent->counter;
+    iter->positions_only = positions_only;
+    Py_INCREF(parent);
+    iter->parent = parent;
+    return (PyObject *)iter;
+}
+
+static PyObject *
+icu_BreakIterator_iter_breaks(icu_BreakIterator *self, PyObject *args) {
+    return make_break_iterator_iter(self, 0);
+}
+
+static PyObject *
+icu_BreakIterator_iter_positions(icu_BreakIterator *self, PyObject *args) {
+    return make_break_iterator_iter(self, 1);
 
 } // }}}
 
@@ -1086,6 +1361,14 @@ static PyMethodDef icu_BreakIterator_methods[] = {
 
     {"split2", (PyCFunction)icu_BreakIterator_split2, METH_NOARGS,
      "split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_breaks", (PyCFunction)icu_BreakIterator_iter_breaks, METH_NOARGS,
+     "iter_breaks() -> Split the current text into tokens, returning an iterator that yields 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds."
+    },
+
+    {"iter_positions", (PyCFunction)icu_BreakIterator_iter_positions, METH_NOARGS,
+     "iter_positions() -> Split the current text into tokens, returning an iterator that yields the position of each token as an integer. The numbers are suitable for indexing python strings regardless of narrow/wide builds."
     },
 
     {"count_words", (PyCFunction)icu_BreakIterator_count_words, METH_NOARGS,
@@ -1121,7 +1404,7 @@ static PyTypeObject icu_BreakIteratorType = { // {{{
     /* tp_setattro       */ 0,
     /* tp_as_buffer      */ 0,
     /* tp_flags          */ Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,
-    /* tp_doc            */ "Break Iterator",
+    /* tp_doc            */ "BreakIterator(type, locale[, extra_word_break_chars]) -> Create a break iterator.\nFor UBRK_WORD iterators, extra_word_break_chars is an optional string of characters\nthat act as additional word-break points beyond the ICU defaults.",
     /* tp_traverse       */ 0,
     /* tp_clear          */ 0,
     /* tp_richcompare    */ 0,
@@ -1145,15 +1428,22 @@ static PyTypeObject icu_BreakIteratorType = { // {{{
 
 // change_case {{{
 
-static PyObject* icu_change_case(PyObject *self, PyObject *args) {
-    char *locale = NULL;
+static PyObject* icu_change_case(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    const char *locale = NULL;
     PyObject *input = NULL, *result = NULL;
     int which = UPPER_CASE;
     UErrorCode status = U_ZERO_ERROR;
     UChar *input_buf = NULL, *output_buf = NULL;
     int32_t sz = 0;
 
-    if (!PyArg_ParseTuple(args, "Oiz", &input, &which, &locale)) return NULL;
+    if (nargs != 3) { PyErr_SetString(PyExc_TypeError, "change_case takes exactly 3 arguments"); return NULL; }
+    input = args[0];
+    which = (int)PyLong_AsLong(args[1]);
+    if (PyErr_Occurred()) return NULL;
+    if (args[2] == Py_None) locale = NULL;
+    else if (PyUnicode_Check(args[2])) { locale = PyUnicode_AsUTF8(args[2]); if (!locale) return NULL; }
+    else if (PyBytes_Check(args[2])) { locale = PyBytes_AS_STRING(args[2]); }
+    else { PyErr_SetString(PyExc_TypeError, "locale must be a string or None"); return NULL; }
     if (locale == NULL) {
         PyErr_SetString(PyExc_NotImplementedError, "You must specify a locale");  // We deliberately use NotImplementedError so that this error can be unambiguously identified
         return NULL;
@@ -1218,7 +1508,7 @@ end:
 
 // set_default_encoding {{{
 static PyObject *
-icu_set_default_encoding(PyObject *self, PyObject *args) {
+icu_set_default_encoding(PyObject *self, PyObject *Py_UNUSED(ignored)) {
     Py_INCREF(Py_None);
     return Py_None;
 
@@ -1227,10 +1517,18 @@ icu_set_default_encoding(PyObject *self, PyObject *args) {
 
 // set_filesystem_encoding {{{
 static PyObject *
-icu_set_filesystem_encoding(PyObject *self, PyObject *args) {
-    char *encoding;
-    if (!PyArg_ParseTuple(args, "s:setfilesystemencoding", &encoding))
+icu_set_filesystem_encoding(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    const char *encoding;
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "set_filesystem_encoding takes exactly 1 argument"); return NULL; }
+    if (PyUnicode_Check(args[0])) {
+        encoding = PyUnicode_AsUTF8(args[0]);
+        if (!encoding) return NULL;
+    } else if (PyBytes_Check(args[0])) {
+        encoding = PyBytes_AS_STRING(args[0]);
+    } else {
+        PyErr_SetString(PyExc_TypeError, "encoding must be a string");
         return NULL;
+    }
 #if PY_VERSION_HEX < 0x03012000
     // The nitwits at Python deprecated this in 3.12 claiming we should use
     // PyConfig.filesystem_encoding instead. But that can only be used if we
@@ -1276,7 +1574,7 @@ icu_get_available_transliterators(PyObject *self, PyObject *args) {
 
 // character_name {{{
 static PyObject *
-icu_character_name(PyObject *self, PyObject *args) {
+icu_character_name(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     char name[512] = {0};
     int32_t sz = 0, alias = 0;
     UChar *buf;
@@ -1284,7 +1582,9 @@ icu_character_name(PyObject *self, PyObject *args) {
     PyObject *palias = NULL, *result = NULL, *input = NULL;
     UChar32 code = 0;
 
-    if (!PyArg_ParseTuple(args, "O|O", &input, &palias)) return NULL;
+    if (nargs < 1 || nargs > 2) { PyErr_SetString(PyExc_TypeError, "character_name takes 1 or 2 arguments"); return NULL; }
+    input = args[0];
+    palias = (nargs > 1) ? args[1] : NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1;
     buf = python_to_icu(input, &sz);
@@ -1305,14 +1605,19 @@ end:
 
 // character_name_from_code {{{
 static PyObject *
-icu_character_name_from_code(PyObject *self, PyObject *args) {
+icu_character_name_from_code(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     char name[512] = {0};
     int32_t sz, alias = 0;
     UErrorCode status = U_ZERO_ERROR;
     PyObject *palias = NULL, *result = NULL;
     UChar32 code = 0;
 
-    if (!PyArg_ParseTuple(args, "I|O", &code, &palias)) return NULL;
+    if (nargs < 1 || nargs > 2) { PyErr_SetString(PyExc_TypeError, "character_name_from_code takes 1 or 2 arguments"); return NULL; }
+    unsigned long code_ul = PyLong_AsUnsignedLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    if (code_ul > 0x10FFFF) { PyErr_SetString(PyExc_ValueError, "code point out of range(0x110000)"); return NULL; }
+    code = (UChar32)code_ul;
+    palias = (nargs > 1) ? args[1] : NULL;
 
     if (palias != NULL && PyObject_IsTrue(palias)) alias = 1;
 
@@ -1329,13 +1634,17 @@ end:
 
 // chr {{{
 static PyObject *
-icu_chr(PyObject *self, PyObject *args) {
+icu_chr(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     UErrorCode status = U_ZERO_ERROR;
     UChar32 code = 0;
     UChar buf[5] = {0};
     int32_t sz = 0;
 
-    if (!PyArg_ParseTuple(args, "I", &code)) return NULL;
+    if (nargs != 1) { PyErr_SetString(PyExc_TypeError, "chr takes exactly 1 argument"); return NULL; }
+    unsigned long code_ul = PyLong_AsUnsignedLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    if (code_ul > 0x10FFFF) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); return NULL; }
+    code = (UChar32)code_ul;
 
     u_strFromUTF32(buf, 4, &sz, &code, 1, &status);
     if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, "arg not in range(0x110000)"); return NULL; }
@@ -1368,14 +1677,18 @@ end:
 typedef enum { NFC, NFKC, NFD, NFKD } NORM_MODES;
 
 static PyObject *
-icu_normalize(PyObject *self, PyObject *args) {
+icu_normalize(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
     UErrorCode status = U_ZERO_ERROR;
     int32_t sz = 0, cap = 0, rsz = 0;
     NORM_MODES mode;
     UChar *dest = NULL, *source = NULL;
     PyObject *ret = NULL, *src = NULL;
 
-    if (!PyArg_ParseTuple(args, "iO", &mode, &src)) return NULL;
+    if (nargs != 2) { PyErr_SetString(PyExc_TypeError, "normalize takes exactly 2 arguments"); return NULL; }
+    int mode_int = (int)PyLong_AsLong(args[0]);
+    if (PyErr_Occurred()) return NULL;
+    mode = (NORM_MODES)mode_int;
+    src = args[1];
     const UNormalizer2 *n = NULL;
     switch (mode) {
         case NFC:
@@ -1500,9 +1813,75 @@ icu_utf16_length(PyObject *self, PyObject *src) {
     return Py_BuildValue("n", sz);
 } // }}}
 
+// word_prefix_find {{{
+// C implementation of word_prefix_find() from complete2.py.
+// Converts python strings to ICU strings only once, then iterates over
+// word positions and returns the first matching position or -1 on failure.
+static PyObject *
+icu_word_prefix_find(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
+    PyObject *collator_obj = NULL, *it_obj = NULL, *x_ = NULL, *prefix_ = NULL;
+    icu_Collator *collator = NULL;
+    icu_BreakIterator *it = NULL;
+    UChar *x_icu = NULL, *prefix_icu = NULL;
+    int32_t xsz = 0, prefix_sz = 0, pos, sz, utf16_start = 0, prev_cp_pos = 0;
+    UErrorCode status = U_ZERO_ERROR;
+    long ans = -1;
+    BreakIterState state;
+
+    if (nargs != 4) { PyErr_SetString(PyExc_TypeError, "word_prefix_find takes exactly 4 arguments"); return NULL; }
+    collator_obj = args[0]; it_obj = args[1]; x_ = args[2]; prefix_ = args[3];
+    if (!PyObject_TypeCheck(collator_obj, &icu_CollatorType)) {
+        PyErr_SetString(PyExc_TypeError, "first argument must be a Collator");
+        return NULL;
+    }
+    if (!PyObject_TypeCheck(it_obj, &icu_BreakIteratorType)) {
+        PyErr_SetString(PyExc_TypeError, "second argument must be a BreakIterator");
+        return NULL;
+    }
+    collator = (icu_Collator *)collator_obj;
+    it = (icu_BreakIterator *)it_obj;
+
+    // Convert x to ICU and set it on the break iterator (equivalent to it.set_text(x))
+    x_icu = python_to_icu(x_, &xsz);
+    if (x_icu == NULL) return NULL;
+    it->counter++;
+    ubrk_setText(it->break_iterator, x_icu, xsz, &status);
+    if (U_FAILURE(status)) {
+        free(x_icu);
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        return NULL;
+    }
+    free(it->text); it->text = x_icu; it->text_len = xsz; x_icu = NULL;  // ownership transferred to it->text
+
+    // Convert prefix to ICU once
+    prefix_icu = python_to_icu(prefix_, &prefix_sz);
+    if (prefix_icu == NULL) return NULL;
+
+    // Iterate over word positions and find the first where x starts with prefix
+    break_iter_state_init(it, &state);
+    while (break_iter_state_next(it, &state, &pos, &sz)) {
+        // pos is a codepoint offset; advance the UTF-16 cursor incrementally
+        if (pos > prev_cp_pos) {
+            U16_FWD_N(it->text, utf16_start, it->text_len, (uint32_t)(pos - prev_cp_pos));
+            prev_cp_pos = pos;
+        }
+        if (utf16_start >= it->text_len) break;
+        // Empty prefix matches at the first word position
+        if (prefix_sz == 0) { ans = (long)pos; break; }
+        // Check if x starting at utf16_start begins with prefix using the collator
+        if (it->text_len - utf16_start >= prefix_sz &&
+                ucol_equal(collator->collator, it->text + utf16_start, prefix_sz, prefix_icu, prefix_sz)) {
+            ans = (long)pos;
+            break;
+        }
+    }
+    free(prefix_icu);
+    return Py_BuildValue("l", ans);
+} // }}}
+
 // Module initialization {{{
 static PyMethodDef icu_methods[] = {
-    {"change_case", icu_change_case, METH_VARARGS,
+    {"change_case", (PyCFunction)(void(*)(void))icu_change_case, METH_FASTCALL,
         "change_case(unicode object, which, locale) -> change case to one of UPPER_CASE, LOWER_CASE, TITLE_CASE"
     },
 
@@ -1510,11 +1889,11 @@ static PyMethodDef icu_methods[] = {
         "swap_case(unicode object) -> swaps the case using the simple, locale independent unicode algorithm"
     },
 
-    {"set_default_encoding", icu_set_default_encoding, METH_VARARGS,
+    {"set_default_encoding", icu_set_default_encoding, METH_NOARGS,
         "set_default_encoding(encoding) -> Set the default encoding for the python unicode implementation. In Py3, this operation is a no-op"
     },
 
-    {"set_filesystem_encoding", icu_set_filesystem_encoding, METH_VARARGS,
+    {"set_filesystem_encoding", (PyCFunction)(void(*)(void))icu_set_filesystem_encoding, METH_FASTCALL,
         "set_filesystem_encoding(encoding) -> Set the filesystem encoding for python."
     },
 
@@ -1522,15 +1901,15 @@ static PyMethodDef icu_methods[] = {
         "get_available_transliterators() -> Return list of available transliterators. This list is rather limited on OS X."
     },
 
-    {"character_name", icu_character_name, METH_VARARGS,
+    {"character_name", (PyCFunction)(void(*)(void))icu_character_name, METH_FASTCALL,
      "character_name(char, alias=False) -> Return name for the first character in char, which must be a unicode string."
     },
 
-    {"character_name_from_code", icu_character_name_from_code, METH_VARARGS,
+    {"character_name_from_code", (PyCFunction)(void(*)(void))icu_character_name_from_code, METH_FASTCALL,
      "character_name_from_code(code, alias=False) -> Return the name for the specified unicode code point"
     },
 
-    {"chr", icu_chr, METH_VARARGS,
+    {"chr", (PyCFunction)(void(*)(void))icu_chr, METH_FASTCALL,
      "chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds)."
     },
 
@@ -1538,7 +1917,7 @@ static PyMethodDef icu_methods[] = {
      "ord_string(code) -> Convert a python unicode string to a tuple of unicode codepoints."
     },
 
-    {"normalize", icu_normalize, METH_VARARGS,
+    {"normalize", (PyCFunction)(void(*)(void))icu_normalize, METH_FASTCALL,
      "normalize(mode, unicode_text) -> Return a python unicode string which is normalized in the specified mode."
     },
 
@@ -1556,6 +1935,10 @@ static PyMethodDef icu_methods[] = {
 
     {"utf16_length", icu_utf16_length, METH_O,
      "utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs."
+    },
+
+    {"word_prefix_find", (PyCFunction)(void(*)(void))icu_word_prefix_find, METH_FASTCALL,
+     "word_prefix_find(collator, break_iterator, string, prefix) -> Return the codepoint offset of the first word in string that starts with prefix according to collator, or -1 if none."
     },
 
     {NULL}  /* Sentinel */
@@ -1580,6 +1963,8 @@ exec_module(PyObject *mod) {
     if (PyType_Ready(&icu_CollatorType) < 0)
         return -1;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
+        return -1;
+    if (PyType_Ready(&icu_BreakIteratorIterType) < 0)
         return -1;
     if (PyType_Ready(&icu_TransliteratorType) < 0)
         return -1;

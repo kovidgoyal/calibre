@@ -255,7 +255,7 @@ class TTSManager(QObject):
                 self.emit_state_event('begin')
         elif state is QTextToSpeech.State.Ready:
             if prev_state is QTextToSpeech.State.Speaking:
-                if not self.speaking_simple_text:
+                if not self.speaking_simple_text and not self._resuming_after_configure:
                     if self.tracker.pop_first() and (text := self.tracker.current_text()):
                         self.tts.say(text)
                     else:

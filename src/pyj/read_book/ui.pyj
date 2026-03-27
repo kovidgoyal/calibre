@@ -58,7 +58,11 @@ class ReadUI:
         self.view = View(container.lastChild)
         self.tts_client = Client()
         self.windows_to_listen_for_messages_from = []
+        self.unsynced_amap = None
+        self.unsynced_indicator_active = False
+        self.unsynced_indicator_timer = None
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
+        window.addEventListener('online', self._on_network_restored.bind(self))
         window.addEventListener('message', self.message_from_other_window.bind(self))
         self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
         ui_operations.get_file = self.db.get_file
@@ -83,6 +87,8 @@ class ReadUI:
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.annots_changed = self.annots_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
+        ui_operations.has_unsynced_changes = self.has_unsynced_changes.bind(self)
+        ui_operations.upload_pending_annotations = self.upload_pending_annotations.bind(self)
         ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
         ui_operations.update_metadata = self.update_metadata.bind(self)
@@ -247,6 +253,13 @@ class ReadUI:
         )
 
     def load_book(self, library_id, book_id, fmt, metadata, force_reload):
+        self.unsynced_amap = None
+        if self.unsynced_indicator_timer:
+            window.clearTimeout(self.unsynced_indicator_timer)
+            self.unsynced_indicator_timer = None
+        if self.unsynced_indicator_active:
+            self.unsynced_indicator_active = False
+            self.view.show_unsynced_indicator(False)
         self.base_url_data = {'library_id': library_id, 'book_id':book_id, 'fmt':fmt}
         if not self.db.initialized:
             self.pending_load = [book_id, fmt, metadata, force_reload]
@@ -305,7 +318,88 @@ class ReadUI:
         book_id = self.base_url_data.book_id
         fmt = self.base_url_data.fmt
         self.db.update_annotations_data_from_key(library_id, book_id, fmt, {'annotations_map': amap})
-        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, def (): pass;)
+        self.unsynced_amap = amap
+        self.db.set_pending_annot_upload(library_id, book_id, fmt, amap)
+        self._reschedule_unsynced_indicator()
+        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap,
+                  self._make_annot_upload_done(library_id, book_id, fmt))
+
+    def _make_annot_upload_done(self, library_id, book_id, fmt):
+        def on_cleared():
+            if (self.unsynced_amap is not None and self.base_url_data
+                    and self.base_url_data.library_id is library_id
+                    and str(self.base_url_data.book_id) is str(book_id)
+                    and self.base_url_data.fmt is fmt):
+                self.unsynced_amap = None
+                if self.unsynced_indicator_timer:
+                    window.clearTimeout(self.unsynced_indicator_timer)
+                    self.unsynced_indicator_timer = None
+                if self.unsynced_indicator_active:
+                    self.unsynced_indicator_active = False
+                    self.view.show_unsynced_indicator(False)
+            self._upload_next_from_idb()
+
+        def done(end_type, xhr, ev):
+            if end_type is 'load':
+                self.db.clear_pending_annot_upload(library_id, book_id, fmt, on_cleared)
+        return done
+
+    def _upload_next_from_idb(self):
+        self.db.get_all_pending_annot_uploads(def(entries):
+            if not entries.length:
+                return
+            e = entries[0]
+            if (self.base_url_data
+                    and self.base_url_data.library_id is e.library_id
+                    and str(self.base_url_data.book_id) is str(e.book_id)
+                    and self.base_url_data.fmt is e.fmt):
+                self.unsynced_amap = e.amap
+                self._reschedule_unsynced_indicator()
+            ajax_send(f'book-update-annotations/{e.library_id}/{e.book_id}/{e.fmt}', e.amap,
+                      self._make_annot_upload_done(e.library_id, e.book_id, e.fmt))
+        )
+
+    def has_unsynced_changes(self):
+        return self.unsynced_indicator_active
+
+    def _reschedule_unsynced_indicator(self):
+        if self.unsynced_indicator_timer:
+            window.clearTimeout(self.unsynced_indicator_timer)
+        def show_it():
+            self.unsynced_indicator_active = True
+            self.view.show_unsynced_indicator(True)
+        self.unsynced_indicator_timer = window.setTimeout(show_it, 60000)
+
+    def upload_pending_annotations(self, callback):
+        if self.unsynced_amap is not None:
+            library_id = self.base_url_data.library_id
+            book_id = self.base_url_data.book_id
+            fmt = self.base_url_data.fmt
+            amap = self.unsynced_amap
+            ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap,
+                      self._make_annot_upload_done(library_id, book_id, fmt))
+            callback(True)
+            return
+        # unsynced_amap is None — page may have been killed or this is another book
+        # check IDB for surviving entries
+        self.db.get_all_pending_annot_uploads(def(entries):
+            if not entries.length:
+                callback(True)
+                return
+            e = entries[0]
+            if (self.base_url_data
+                    and self.base_url_data.library_id is e.library_id
+                    and str(self.base_url_data.book_id) is str(e.book_id)
+                    and self.base_url_data.fmt is e.fmt):
+                self.unsynced_amap = e.amap
+                self._reschedule_unsynced_indicator()
+            ajax_send(f'book-update-annotations/{e.library_id}/{e.book_id}/{e.fmt}', e.amap,
+                      self._make_annot_upload_done(e.library_id, e.book_id, e.fmt))
+            callback(True)
+        )
+
+    def _on_network_restored(self):
+        self.upload_pending_annotations(def(ok): None;)
 
     def annotations_synced(self, amap):
         library_id = self.base_url_data.library_id
@@ -634,6 +728,8 @@ class ReadUI:
         update_window_title('', self.current_metadata.title)
         self.show_stack(self.display_id)
         self.view.display_book(book)
+        if window.navigator.onLine:
+            self.upload_pending_annotations(def(ok): None;)
 
     def apply_url_state(self, current_query):
         same = True

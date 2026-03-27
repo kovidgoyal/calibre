@@ -844,7 +844,10 @@ class FileList(QTreeWidget, OpenWithHandler):
             self.request_delete()
         elif mods == (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier):
             m = self.categories['text'].childCount()
-            amt = {Qt.Key.Key_Up: -1, Qt.Key.Key_Down: 1, Qt.Key.Key_Home: -m, Qt.Key.Key_End: m}.get(k, None)
+            amt = {
+                Qt.Key.Key_Up: -1, Qt.Key.Key_Down: 1, Qt.Key.Key_Home: -m, Qt.Key.Key_End: m,
+                Qt.Key.Key_Left: -m, Qt.Key.Key_Right: m
+            }.get(k)
             if amt is not None:
                 ev.accept()
                 self.move_selected_text_items(amt)

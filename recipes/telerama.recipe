@@ -1,0 +1,189 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+__license__   = 'GPL v3'
+__copyright__ = '2026, Kabonix'
+
+import json
+import re
+from urllib.parse import urlparse
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class TeleramaPremium(BasicNewsRecipe):
+    title = 'Télérama'
+    __author__ = 'Kabonix'
+    description = 'Édition complète (API Bypass) - Cover HD & Lecture Pure'
+    publisher = 'Télérama'
+    language = 'fr'
+    encoding = 'utf-8'
+
+    oldest_article = 7
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    # On laisse les images des articles tranquilles
+    scale_news_images = None
+
+    # --- API ---
+    headers = {
+        'User-Agent': 'Telerama/4.3.5 (Android; 14)',
+        'X-Lmd-Token': 'TWPLMOLMO',
+        'Accept': 'application/json'
+    }
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        for name, val in self.headers.items():
+            br.addheaders.append((name, val))
+        return br
+
+    # --- COUVERTURE DYNAMIQUE (Ta demande) ---
+    def get_cover_url(self):
+        cover_url = None
+        try:
+            self.log('🔍 Recherche de la dernière couverture...')
+            # On va sur la page kiosque
+            soup = self.index_to_soup('https://www.telerama.fr/kiosque/telerama')
+
+            # On cherche le premier élément "popin-link" avec une data-cover-url
+            # Le premier de la liste est toujours le dernier numéro paru
+            link = soup.find('a', attrs={'class': 'popin-link', 'data-cover-url': True})
+
+            if link:
+                url = link['data-cover-url']
+                # L'URL contient /180/ (basse déf). On passe en HD /1200/
+                # Ex: .../0/0/180/0/... -> .../0/0/1200/0/...
+                cover_url = url.replace('/180/', '/1200/')
+                self.log(f'✅ Couverture trouvée : {cover_url}')
+            else:
+                self.log('⚠️ Aucune couverture trouvée dans le kiosque.')
+        except Exception as e:
+            self.log(f'❌ Erreur récupération couverture : {e}')
+
+        return cover_url
+
+    # --- BYPASS API ---
+    def get_article_url(self, article):
+        url = article.get('link', article.get('url', ''))
+        path = urlparse(url).path
+        return 'https://apps.telerama.fr/tlr/v1/premium-android-phone/element?id={}'.format(path)
+
+    # --- JSON TO HTML ---
+    def preprocess_raw_html(self, raw_html, url):
+        if '/tlr/v1/' in url:
+            try:
+                data = json.loads(raw_html)
+                content = ''
+                title = 'Télérama'
+
+                if 'templates' in data and 'raw_content' in data['templates']:
+                    content = data['templates']['raw_content']['content']
+                elif 'body' in data:
+                    content = data['body']
+
+                if 'template_vars' in data:
+                    title = data['template_vars'].get('share_title', 'Article Télérama')
+
+                if not content:
+                    return '<html><body><h2>Contenu vide</h2></body></html>'
+
+                # Nettoyage préventif
+                content = content.replace('{{{ scripts_bottom }}}', '')
+                content = re.sub(r'>\s*[•·]\s*<', '><', content)
+
+                # Fix images
+                content = content.replace('{{width}}', '1200').replace('{{height}}', '')
+                content = content.replace('%7B%7Bwidth%7D%7D', '1200')
+
+                html = f'<html><head><title>{title}</title></head><body><h1 id="main-title">{title}</h1>{content}</body></html>'
+                return html
+
+            except Exception as e:
+                self.log(f'Erreur JSON : {e}')
+                return raw_html
+        return raw_html
+
+    # --- NETTOYAGE ---
+    def preprocess_html(self, soup):
+        # 1. Suppression doublons structurels
+        for header in soup.find_all(attrs={'class': re.compile(r'article__page-header|header__article', re.I)}):
+            header.decompose()
+        for ns in soup.find_all('noscript'):
+            ns.decompose()
+
+        # 2. Suppression "À lire aussi"
+        for p in soup.find_all(['p', 'h3', 'h4', 'div', 'aside']):
+            text = p.get_text().strip()
+            if re.search(r'^(À|A) lire aussi', text, re.IGNORECASE):
+                p.decompose()
+
+        # 3. Nettoyage Méta TV et Puces
+        for tag in soup.find_all(['p', 'div', 'span', 'li', 'ul']):
+            text = tag.get_text().strip()
+            normalized_text = re.sub(r'\s+', ' ', text)
+
+            # Puces seules
+            if re.match(r'^[\s\n\r•·|\-.]+$', text):
+                tag.decompose()
+                continue
+            # Mots clés TV seuls
+            if re.match(r'^(Direct|Inédit|Replay|\s)+$', normalized_text, re.IGNORECASE):
+                tag.decompose()
+                continue
+            # Mots clés TV avec séparateurs
+            if re.search(r'(Direct|Inédit|Replay)\s*[•·-]', text, re.IGNORECASE):
+                tag.decompose()
+
+        # 4. SUPPRESSION DES LIENS (Lecture Pure)
+        for a in soup.find_all('a'):
+            a.unwrap()
+
+        return soup
+
+    keep_only_tags = [
+        dict(name='h1', attrs={'id': 'main-title'}),
+        dict(attrs={'class': ['article__page-content', 'article-body']}),
+    ]
+
+    remove_tags = [
+        dict(attrs={'class': re.compile(r'paywall|premium-banner|banner|pubstack|marketing', re.I)}),
+        dict(attrs={'class': re.compile(r'sharing|social|bookmark|button|btn|openapp|listBtns', re.I)}),
+        dict(attrs={'class': re.compile(r'OUTBRAIN|forecast|overlay', re.I)}),
+        dict(name=['script', 'style', 'nav', 'footer', 'button', 'iframe'])
+    ]
+
+    extra_css = '''
+        h1 {
+            font-family: "Georgia", serif;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0.5em;
+            color: #111;
+        }
+        .article__label-subscriber {
+            display: block; background-color: #ffe600; color: #000; font-weight: bold;
+            font-size: 0.8em; text-transform: uppercase; padding: 4px 8px;
+            margin: 0 auto 1em auto; width: fit-content; border-radius: 4px;
+        }
+        .article__chapeau { font-weight: bold; font-style: italic; margin: 1.5em 0; font-size: 1.1em; color: #444; }
+        p { text-align: justify; line-height: 1.5; margin-bottom: 1em; }
+        figure { margin: 1.5em 0; }
+        img { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+        figcaption, .media__caption, .media__legend { font-size: 0.75em; color: #666; text-align: center; font-style: italic; margin-top: 0.5em; }
+        .author { font-weight: bold; margin-top: 2em; border-top: 1px solid #eee; padding-top: 1em; color: #333; }
+        a { color: inherit; text-decoration: none; pointer-events: none; }
+    '''
+
+    feeds = [
+        ('À la une', 'https://www.telerama.fr/rss/une.xml'),
+        ('Cinéma', 'https://www.telerama.fr/rss/cinema.xml'),
+        ('Séries', 'https://www.telerama.fr/rss/series.xml'),
+        ('Télévision', 'https://www.telerama.fr/rss/television.xml'),
+        ('Musique', 'https://www.telerama.fr/rss/musique.xml'),
+        ('Livres', 'https://www.telerama.fr/rss/livres.xml'),
+    ]

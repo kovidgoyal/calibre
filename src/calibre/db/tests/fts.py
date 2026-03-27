@@ -137,6 +137,12 @@ class FTSTest(BaseTest):
         conn.insert_text('coộl')
         self.ae(conn.term_row_counts(), {'coộl': 1})
 
+        # test that snippet highlighting is not off by one for words with diacritics
+        conn = TestConn()
+        conn.insert_text('coộl world')
+        self.ae(conn.search('world'), [('coộl >world<',)])
+        self.ae(conn.search('cool'), [('>coộl< world',)])
+
         conn = TestConn()
         conn.insert_text("你don't叫mess")
         self.ae(conn.term_row_counts(), {"don't": 1, 'mess': 1, '你': 1, '叫': 1})

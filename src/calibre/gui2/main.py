@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import atexit
 import os
 import re
 import sys
@@ -336,7 +337,6 @@ class GuiRunner(QObject):
                     # On some windows systems the existing db file gets locked
                     # by something when running restore from the main process.
                     # So run the restore in a separate process.
-                    import atexit
                     atexit.register(windows_repair, self.library_path)
                     self.app.quit()
                     return
@@ -397,6 +397,37 @@ def run_gui(opts, args, app, gui_debug=None):
         run_gui_(opts, args, app, gui_debug)
 
 
+def workaround_windows_shutdown_hang(timeout: float=1.0, exit_code: int = 0):
+    # On Windows we get a mysterious deadlock that hangs the process on
+    # exit even if we call os._exit(0), once the wireless device driver connects.
+    # See https://bugs.launchpad.net/bugs/2141994
+    # Started in calibre 9 probably because of a new regression in Python/Qt
+    # Getting process properties via process explorer causes the process to exit.
+    # So it is likely a hang in the Loader Lock. Or memory corruption during exit.
+    # So we run a child process that will wait a second for the parent process
+    # to exit and if it hasnt, will kill it.
+    # We pass an inheritable process handle so the child does not accidentally
+    # kill the wrong process due to PID reuse.
+    import ctypes
+
+    from calibre.utils.ipc.simple_worker import start_pipe_worker
+    SYNCHRONIZE = 0x00100000
+    PROCESS_TERMINATE = 0x0001
+    kernel32 = ctypes.windll.kernel32
+    # Use OpenProcess on our own PID with bInheritHandle=True to get a real,
+    # inheritable handle. We set the restype to c_void_p so the 64-bit handle
+    # value is not truncated on x64 systems.
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    handle = kernel32.OpenProcess(SYNCHRONIZE | PROCESS_TERMINATE, True, os.getpid())
+    if handle:
+        try:
+            start_pipe_worker(
+                f'from calibre.utils import *; kill_parent_if_needed({handle!r}, {timeout!r}, {exit_code!r})',
+                pass_fds=(handle,))
+        finally:
+            kernel32.CloseHandle(handle)
+
+
 def run_gui_(opts, args, app, gui_debug=None):
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
@@ -404,6 +435,9 @@ def run_gui_(opts, args, app, gui_debug=None):
         from calibre.gui2.wizard import wizard
         wizard().exec()
         dynamic.set('welcome_wizard_was_run', True)
+    if iswindows:
+        # registered first so it runs last
+        atexit.register(workaround_windows_shutdown_hang)
     from calibre.gui2.ui import Main
     if ismacos:
         actions = tuple(Main.create_application_menubar())
@@ -561,25 +595,6 @@ def main(args=sys.argv):
     del app
     import gc
     gc.collect(), gc.collect()
-    if iswindows:
-        # On Windows we get a mysterious deadlock that hangs the process on
-        # exit even if we call os._exit(0), once the wireless device driver connects.
-        # See https://bugs.launchpad.net/bugs/2141994
-        # Started in calibre 9 probably because of a new regression in Python/Qt
-        # Getting process properties via process explorer causes the process to exit.
-        # So it is likely a hang in the Loader Lock. Or memory corruption during exit.
-        # So we run the atexit handlers now and then exit using TerminateProcess
-        # This breaks cleanup code in non python DLLs and Py_AtExit. Cant be helped.
-        # At least worker process still seem to be closed.
-        from calibre.devices.smart_device_app.driver import wireless_driver_connected
-        if wireless_driver_connected:
-            import atexit
-            atexit._run_exitfuncs()
-            atexit._clear()
-            import ctypes
-            handle = ctypes.windll.kernel32.OpenProcess(0x0001, False, os.getpid())
-            # Terminate immediately This does NOT return; the process is gone the moment this is called.
-            ctypes.windll.kernel32.TerminateProcess(handle, 0)
 
 
 def run_main(app, opts, args, gui_debug, si):

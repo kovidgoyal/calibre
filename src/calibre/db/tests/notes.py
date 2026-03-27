@@ -170,6 +170,38 @@ def test_cache_api(self: NotesTest):
         self.ae(sorted(res, key=itemgetter('name')), sorted(res2, key=itemgetter('name')))
 
 
+def test_rename_and_delete_custom_column(self: NotesTest):
+    cache, notes = self.create_notes_db()
+    doc = 'notes for a custom column item'
+
+    # set up notes on #tags
+    tags = cache.field_for('#tags', 1)
+    tag_id = cache.get_item_id('#tags', tags[0])
+    h1 = cache.add_notes_resource(b'resource1', 'r1.jpg')
+    h2 = cache.add_notes_resource(b'resource2', 'r1.jpg')
+    cache.set_notes_for('#tags', tag_id, doc, resource_hashes=(h1, h2))
+    self.ae(cache.notes_for('#tags', tag_id), doc)
+    self.ae(cache.notes_resources_used_by('#tags', tag_id), frozenset({h1, h2}))
+
+    # test renaming the lookup name of a custom column preserves notes
+    num = cache.backend.custom_field_metadata('tags')['num']
+    cache.set_custom_column_metadata(num, label='newtags')
+    cache.close()
+    cache = self.init_cache(cache.backend.library_path)
+    self.ae(cache.notes_for('#newtags', tag_id), doc)
+    self.ae(cache.notes_resources_used_by('#newtags', tag_id), frozenset({h1, h2}))
+    self.ae(cache.get_notes_resource(h1)['data'], b'resource1')
+    self.ae(cache.get_notes_resource(h2)['data'], b'resource2')
+    # old name should no longer have notes
+    self.ae(cache.notes_for('#tags', tag_id), '')
+
+    # test deleting a custom column immediately removes its notes
+    cache.delete_custom_column('newtags')
+    self.ae(cache.notes_for('#newtags', tag_id), '')
+    self.assertIsNone(cache.get_notes_resource(h1))
+    self.assertIsNone(cache.get_notes_resource(h2))
+
+
 def test_fts(self: NotesTest):
     cache, _ = self.create_notes_db()
     authors = sorted(cache.all_field_ids('authors'))
@@ -208,3 +240,4 @@ class NotesTest(BaseTest):
         test_fts(self)
         test_cache_api(self)
         test_notes_api(self)
+        test_rename_and_delete_custom_column(self)

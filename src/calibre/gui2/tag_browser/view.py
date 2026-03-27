@@ -915,7 +915,7 @@ class TagsView(QTreeView):  # {{{
             elif action == 'edit_enum':
                 self.edit_enum_values.emit(self, self.db, key)
                 return
-            self.db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
+            self.db.new_api.set_pref('tag_browser_hidden_categories', sorted(self.hidden_categories))
             if reset_filter_categories:
                 self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
