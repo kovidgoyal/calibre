@@ -17,15 +17,96 @@ modal_container = None
 modal_count = 0
 
 add_extra_css(def():
+    modal_max = 'min(48rem, calc(100vw - 2rem))'
     style = build_rule(
         '#modal-container > div > a:hover',
         color=get_color('dialog-foreground') + ' !important',
         background_color=get_color('dialog-background') + ' !important'
     )
     style += build_rule(
-        '.button-box', display='flex', justify_content='flex-end', padding='1rem 0rem', overflow='hidden'
+        '#modal-container',
+        overflow_x='auto',
+        overflow_y='auto',
+        overscroll_behavior_x='none',
+        overscroll_behavior_y='contain',
+        touch_action='pan-x pan-y',
+        padding='max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px)) max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px))',
+        box_sizing='border-box',
     )
-    style += build_rule('.button-box .calibre-push-button', transform_origin='right')
+    style += build_rule(
+        '#modal-container > div',
+        # Must not clip the absolutely positioned close control (it sits slightly outside the box)
+        overflow_x='visible',
+        overflow_y='visible',
+        width='max-content',
+        min_width='0',
+        max_width=modal_max,
+        box_sizing='border-box',
+    )
+    style += build_rule(
+        '.modal_height_container',
+        min_width='0',
+        max_width='100%',
+        overflow_wrap='anywhere',
+        word_break='break-word',
+        overflow_x='auto',
+        overflow_y='auto',
+        overscroll_behavior_x='none',
+        touch_action='pan-x pan-y',
+    )
+    style += build_rule(
+        '#modal-container .modal_height_container pre, #modal-container .modal_height_container code',
+        white_space='pre-wrap',
+        overflow_wrap='anywhere',
+        word_break='break-word',
+    )
+    style += build_rule(
+        '#modal-container .modal_height_container img, #modal-container .modal_height_container iframe',
+        max_width='100%',
+        height='auto',
+    )
+    style += build_rule(
+        '#modal-container .modal_height_container table',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    style += build_rule(
+        '#modal-container .modal_height_container th, #modal-container .modal_height_container td',
+        overflow_wrap='anywhere',
+        word_break='break-word',
+    )
+    style += build_rule(
+        '#modal-container .modal_height_container input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]),' +
+        '#modal-container .modal_height_container textarea, #modal-container .modal_height_container select',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    style += build_rule(
+        '#modal-container .button-box',
+        display='flex', justify_content='space-between', align_items='stretch',
+        flex_wrap='wrap', gap='0.5rem',
+        padding='1rem 0rem', min_width='0',
+    )
+    style += build_rule(
+        '#modal-container .button-box > a.calibre-push-button',
+        flex='1 1 0', min_width='0', justify_content='center',
+    )
+    style += build_rule(
+        '#modal-container .button-box > a.calibre-push-button:only-of-type',
+        flex='0 1 auto', margin_left='auto',
+    )
+    style += build_rule(
+        '#modal-container .button-box.button-box--wrap-chips',
+        justify_content='flex-start',
+    )
+    style += build_rule(
+        '#modal-container .button-box.button-box--wrap-chips > a.calibre-push-button',
+        flex='0 1 auto',
+    )
+    style += build_rule(
+        '#modal-container > div > a:last-child',
+        z_index='2',
+    )
     return style
 )
 
@@ -54,17 +135,24 @@ class ModalContainer:
         # Container style
         set_css(div,
             position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
-            background_color='rgba(0,0,0,0.8)', z_index=MODAL_Z_INDEX + '',
+            background_color='rgba(0,0,0,0.5)', backdrop_filter='blur(2px)', webkit_backdrop_filter='blur(2px)',
+            z_index=MODAL_Z_INDEX + '',
             display='none', user_select='none', justify_content='center', align_items='center',
+            overscroll_behavior_x='none', overscroll_behavior_y='contain',
         )
 
-        # Popup style
+        # Popup style (no background gradient — solid dialog-background for readability)
+        popup_max = 'min(48rem, calc(100vw - 2rem))'
         set_css(div.firstChild,
             position='relative', display='inline-block',
-            min_width='25vw', max_width='70vw',  # Needed for iPhone 5
+            min_width='min(16rem, calc(100vw - 2rem))', max_width=popup_max,
+            overflow_x='visible', overflow_y='visible', box_sizing='border-box',
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
-            background=get_color('dialog-background'), color=get_color('dialog-foreground'),
-            background_image=get_color('dialog-background-image'), get_color('dialog-background'), get_color('dialog-background2')
+            background_color=get_color('dialog-background'),
+            color=get_color('dialog-foreground'),
+            background_image=get_color('dialog-background-image'),
+            box_shadow='0 12px 40px rgba(0,0,0,0.2)',
+            border='1px solid rgba(0,0,0,0.1)',
         )
 
         # Close button style
@@ -72,11 +160,13 @@ class ModalContainer:
             font_size='1.5em', line_height='100%', cursor='pointer', position='absolute',
             right='-0.5em', top='-0.5em', width='1em', height='1em',
             background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
-            border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black'
+            border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black',
+            z_index='2',
         )
         # Content container style
         # need padding: 1px to avoid scrollbar in modal on Qt WebEngine 6.3
-        set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto', padding='1px')
+        set_css(div.firstChild.firstChild, user_select='text', max_height='min(60vh, calc(100vh - 6rem))',
+            overflow_x='auto', overflow_y='auto', overscroll_behavior_x='none', padding='1px', min_width='0', max_width='100%')
 
         self.modals = v'[]'
         self.current_modal = None
@@ -167,12 +257,12 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
         prefix = '\xa0'
     parent.appendChild(
         E.div(
-            style='max-width:40em; text-align: left',
+            style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word',
             E.h2(
                 E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title,
-                style='font-weight: bold; font-size: ' + get_font_size('title')
+                style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'
             ),
-            E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+            E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word'),
             E.div(style='display: ' + ('block' if details else 'none'),
                 show_details,
                 E.div(details_container,
@@ -192,9 +282,9 @@ def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown
         content_div = E.div()
         parent.appendChild(
             E.div(
-                style='max-width:60em; text-align: left',
-                E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
-                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+                style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word',
+                E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'),
+                E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0'),
         ))
         content_generator_func(content_div, close_modal)
     show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
@@ -223,11 +313,10 @@ def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
     create_custom_dialog(
         title, def(parent, close_modal):
             parent.appendChild(E.div(
-                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='min-width: min(40rem, 60vw)'),
+                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='width:100%; max-width:100%; min-width:0; box-sizing:border-box; resize:vertical'),
                 E.div(class_='button-box',
+                    create_button(_('Cancel'), 'close', keyaction.bind(None, False, close_modal)),
                     create_button(_('OK'), 'check', keyaction.bind(None, True, close_modal), highlight=True),
-                    '\xa0',
-                    create_button(_('Cancel'), 'close', keyaction.bind(None, False, close_modal))
                 ),
             ))
             window.setTimeout(def(): parent.querySelector('textarea').focus();, 10)
@@ -289,9 +378,8 @@ def question_dialog(
                 E.div(msg),
                 skip_box,
                 E.div(class_='button-box',
+                    create_button(no_text, 'close', keyaction.bind(None, False, close_modal)),
                     create_button(yes_text, 'check', keyaction.bind(None, True, close_modal), highlight=True),
-                    '\xa0',
-                    create_button(no_text, 'close', keyaction.bind(None, False, close_modal))
                 ))
             )
         ,
@@ -305,7 +393,7 @@ def create_progress_dialog(msg, on_close):
     msg = msg or _('Loading, please wait...')
     pbar, msg_div = E.progress(style='display:inline-block'), E.div(msg, style='text-align:center; padding-top:1ex')
     def create_func(parent):
-        parent.appendChild(E.div(style='text-align: center', pbar, msg_div))
+        parent.appendChild(E.div(style='text-align: center; max-width:100%; min-width:0; box-sizing:border-box', pbar, msg_div))
     show_close = on_close is not None
     modal_id = show_modal(create_func, on_close, show_close)
     return {

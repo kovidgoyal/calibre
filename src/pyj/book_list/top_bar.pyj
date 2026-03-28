@@ -3,61 +3,244 @@
 from __python__ import hash_literals
 
 from book_list.theme import get_color, get_font_size
+from book_list.constants import book_list_container_id, cs_top_bar_host_id
 from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 from session import get_interface_data
+from book_list.router import home
+from book_list.router import back
+from utils import parse_url_params
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'
-SPACING = '0.75em'
-VSPACING = '0.5ex'
+SPACING = '0.5em'
+VSPACING = '0.55ex'
 THROBBER_NAME = 'top-bar-throbber'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     style += create_keyframes(THROBBER_NAME, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
-    style += build_rule(sel + 'a', display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer', color=get_color('bar-foreground'), background='none', padding_top=VSPACING, padding_bottom=VSPACING)
-    style += build_rule(sel + 'a:hover', transform='scale(1.5)')
-    style += build_rule(sel + 'a:active', transform='scale(2)')
+    style += build_rule(sel + 'a',
+        display='inline-flex',
+        align_items='center',
+        gap='0.35rem',
+        line_height='1.0',
+        overflow='hidden',
+        flex_shrink='0',
+        cursor='pointer',
+        color=get_color('window-foreground'),
+        background='none',
+        padding_top=VSPACING,
+        padding_bottom=VSPACING,
+        border_radius='999px',
+        padding_left='0.35em',
+        padding_right='0.35em'
+    )
+    # ex alone shrinks too much on narrow layouts / nested em fonts; keep a readable minimum tap target
+    style += build_rule(sel + 'a svg',
+        display='block', height='max(1.125rem, 1.35ex)', width='max(1.125rem, 1.35ex)',
+        vertical_align='middle', opacity='0.92', flex_shrink='0')
+    style += build_rule(sel + 'a span', line_height='1.0')
+    # Title shrinks on narrow widths; single line + ellipsis (main bar does not wrap).
+    style += build_rule(sel + 'a.top-bar-title',
+        flex_shrink='1', min_width='0', max_width='100%',
+        overflow='hidden', text_overflow='ellipsis', white_space='nowrap')
+    style += build_rule(sel + 'span.top-bar-title',
+        flex_shrink='1', min_width='0', max_width='100%',
+        overflow='hidden', text_overflow='ellipsis', white_space='nowrap',
+        display='block')
+    # No hover zoom; use highlight instead
+    style += build_rule(sel + 'a:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a:active', background_color='var(--cs-accent-weak-2)')
     style += build_rule(sel + 'a:focus', outline='none')
-    style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
-    style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
+    style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
+    style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('link-foreground'), font_style='normal')
+    # Left/right slots: single row; title ellipsis handles narrow width.
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-left',
+        display='flex', flex_wrap='nowrap', align_items='center',
+        gap='0.45em',
+        min_width='0', max_width='100%', flex='1 1 0%', box_sizing='border-box',
+        padding_left='0.45em', overflow='hidden')
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-right',
+        display='flex', flex_wrap='nowrap', align_items='center',
+        justify_content='flex-end', gap='0.45em',
+        flex='0 0 auto', margin_left='auto', box_sizing='border-box',
+        padding_right='0.45em')
+    # Do not reserve right-slot space when there are no controls (for very narrow layouts).
+    style += build_rule('.' + CLASS_NAME + ' > .main-top-bar-right:empty',
+        display='none', margin_left='0', padding_right='0')
     return style
 )
 
+def top_bar_target_container(container):
+    # Book-list UI top bar mounts in the shell host above the sidebar + main column.
+    if not container:
+        return container
+    bl = document.getElementById(book_list_container_id)
+    host = document.getElementById(cs_top_bar_host_id)
+    if bl and host and bl.contains(container):
+        return host
+    return container
+
+
 def create_markup(container):
+    target = top_bar_target_container(container)
+    if target and target.id is cs_top_bar_host_id:
+        clear(target)
+        try:
+            if target.dataset and target.dataset.csTopBarSpacerSync:
+                v'delete target.dataset.csTopBarSpacerSync'
+        except Exception:
+            pass
     for i in range(2):
         bar = E.div(
             class_=CLASS_NAME,
-            E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
-            E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
+            E.div(class_='main-top-bar-left'),
+            E.div(class_='main-top-bar-right')
         )
         if i is 0:
-            set_css(bar, position='fixed', left='0', top='0', z_index='1')
+            set_css(bar, position='fixed', left='0', top='0', z_index='1', width='100%')
+        else:
+            set_css(bar, margin_left='0', width='100%')
+            # But it should not be visible (prevents duplicate titles/buttons).
+            set_css(bar, visibility='hidden', pointer_events='none')
         set_css(bar,
-            width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
+            display='flex', flex_direction='row', flex_wrap='nowrap', justify_content='flex-start', align_items='center',
+            gap='0.45rem',
+            overflow='hidden',
             font_size=get_font_size('title'), user_select='none',
-            color=get_color('bar-foreground'), background_color=get_color('bar-background')
+            color=get_color('window-foreground'), background_color=get_color('window-background'),
+            border_bottom='1px solid rgba(0,0,0,0.10)',
+            box_shadow='0 1px 0 rgba(0,0,0,0.03)'
         )
-        container.appendChild(bar)
+        target.appendChild(bar)
+    # Fixed bar #0 often grows taller than spacer #1 (extra controls are only appended to bar #0),
+    # so in-flow spacer would be too short and content (e.g. cs-book-pager) sits under the fixed bar.
+    install_top_bar_spacer_sync(target)
+    install_right_slot_auto_collapse(target)
+
+
+def _sync_top_bar_spacer_height(container):
+    bars = get_bars(container)
+    if bars.length < 2:
+        return
+    fixed = bars[0]
+    spacer = bars[1]
+    h = fixed.offsetHeight
+    if h:
+        spacer.style.minHeight = h + 'px'
+
+
+def install_top_bar_spacer_sync(container):
+    try:
+        if container.dataset and container.dataset.csTopBarSpacerSync:
+            return
+        if container.dataset:
+            container.dataset.csTopBarSpacerSync = '1'
+    except Exception:
+        pass
+    _sync_top_bar_spacer_height(container)
+    bars = get_bars(container)
+    if bars.length < 2:
+        return
+    fixed = bars[0]
+
+    def on_resize_or_layout():
+        _sync_top_bar_spacer_height(container)
+
+    RO = window.ResizeObserver
+    if RO:
+        obs = new RO(def(entries): on_resize_or_layout();)
+        obs.observe(fixed)
+    else:
+        window.addEventListener('resize', on_resize_or_layout)
+
+
+def _has_visible_right_child(right):
+    if not right:
+        return False
+    kids = right.children or v'[]'
+    for kid in kids:
+        if not kid or kid.nodeType is not Node.ELEMENT_NODE:
+            continue
+        # Ignore explicitly hidden elements; they should not reserve slot width.
+        if kid.hidden or kid.style?.display is 'none':
+            continue
+        try:
+            cs = window.getComputedStyle(kid)
+            if cs and cs.display is 'none':
+                continue
+        except Exception:
+            pass
+        return True
+    return False
+
+
+def _sync_right_slot_visibility(container):
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling if bar?.firstChild else None
+        if not right:
+            continue
+        has_visible = _has_visible_right_child(right)
+        if has_visible:
+            right.style.display = 'flex'
+            right.style.marginLeft = 'auto'
+            right.style.paddingRight = '0.45em'
+        else:
+            right.style.display = 'none'
+            right.style.marginLeft = '0'
+            right.style.paddingRight = '0'
+
+
+def install_right_slot_auto_collapse(container):
+    _sync_right_slot_visibility(container)
+    MO = window.MutationObserver
+    if not MO:
+        return
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling if bar?.firstChild else None
+        if not right:
+            continue
+        obs = new MO(def(mutations):
+            _sync_right_slot_visibility(container)
+        )
+        obs.observe(right, {'childList': True, 'subtree': True, 'attributes': True, 'attributeFilter': v'["style", "class", "hidden"]'})
+
 
 def get_bars(container):
-    return container.getElementsByClassName(CLASS_NAME)
+    target = top_bar_target_container(container)
+    if not target:
+        if container:
+            return container.getElementsByClassName(CLASS_NAME)
+        return document.createElement('div').getElementsByClassName(CLASS_NAME)
+    return target.getElementsByClassName(CLASS_NAME)
 
-def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
+def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None, back_action=None):
     bars = get_bars(container)
     if icon is 'heart':
         if not tooltip:
             tooltip = _('Donate to support calibre development')
     interface_data = get_interface_data()
+    # Determine if we are on the home page (no panel)
+    try:
+        is_home = not (parse_url_params().panel or '')
+    except Exception:
+        is_home = False
 
     for i, bar in enumerate(bars):
         left = bar.firstChild
         clear(left)
         title_elem = 'a' if callable(title_action) else 'span'
-        left.appendChild(E.a(title=tooltip, svgicon(icon)))
+        # Show Back + Home buttons on all pages except the home page.
+        # Keep the special donate heart behavior intact.
+        if icon is not 'heart':
+            if not is_home:
+                left.appendChild(E.a(title=_('Back'), svgicon('arrow-left')))
+            left.appendChild(E.a(title=_('Go to the home page'), svgicon('home')))
+        else:
+            left.appendChild(E.a(title=tooltip, svgicon(icon)))
         left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
             style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
         if i is 0:
@@ -70,14 +253,33 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 set_css(a.firstChild, color=get_color('heart'))
                 a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
-            if action is not None:
-                a.addEventListener('click', def(event):
+            if icon is not 'heart':
+                btns = left.getElementsByTagName('a')
+                idx = 0
+                if not is_home:
+                    def on_back_click(event):
+                        event.preventDefault()
+                        if callable(back_action):
+                            back_action(event)
+                        else:
+                            back.bind(event)()
+
+                    btns[idx].addEventListener('click', on_back_click)
+                    idx += 1
+                btns[idx].addEventListener('click', def(event):
                     event.preventDefault()
-                    action.bind(event)()
+                    home.bind(event)()
                 )
+            else:
+                if action is not None:
+                    a.addEventListener('click', def(event):
+                        event.preventDefault()
+                        action.bind(event)()
+                    )
 
             if callable(title_action):
-                a = a.nextSibling
+                # If we injected Back/Home buttons, title is further to the right
+                a = left.querySelector('.top-bar-title')
                 a.addEventListener('click', def(event):
                     event.preventDefault()
                     title_action.bind(event)()
@@ -86,13 +288,19 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
 def set_title(container, text):
     bars = get_bars(container)
     for bar in bars:
-        bar.firstChild.firstChild.nextSibling.textContent = text
+        left = bar.firstChild
+        el = left.querySelector('.top-bar-title') if left else None
+        if el:
+            el.textContent = text
 
 
 def set_title_tooltip(container, text):
     bars = get_bars(container)
     for bar in bars:
-        bar.firstChild.firstChild.nextSibling.title = text
+        left = bar.firstChild
+        el = left.querySelector('.top-bar-title') if left else None
+        if el:
+            el.title = text
 
 
 def create_top_bar(container, **kw):
@@ -115,12 +323,14 @@ def add_button(container, icon, action=None, tooltip=''):
                 right.lastChild.addEventListener('click', def(event):
                     event.preventDefault(), action()
                 )
+    _sync_right_slot_visibility(container)
 
 def clear_buttons(container):
     bars = get_bars(container)
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         clear(right)
+    _sync_right_slot_visibility(container)
 
 
 def set_button_visibility(container, icon, visible):
@@ -129,3 +339,4 @@ def set_button_visibility(container, icon, visible):
         elem = right.querySelector(f'[data-button-icon="{icon}"]')
         if elem:
             elem.style.display = 'inline-block' if visible else 'none'
+    _sync_right_slot_visibility(container)

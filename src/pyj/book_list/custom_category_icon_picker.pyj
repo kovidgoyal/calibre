@@ -1,0 +1,274 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026
+from __python__ import hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, unique_id
+
+# Older sessions stored content-server SVG sprite ids; map to emoji for display & picker.
+LEGACY_ICON_TO_EMOJI = {
+    'folder': '📁',
+    'bookmark': '🔖',
+    'book': '📖',
+    'library': '📚',
+    'user': '👤',
+    'star': '⭐',
+    'star-half': '🌟',
+    'heart': '❤️',
+    'home': '🏠',
+    'plus': '➕',
+    'pencil': '✏️',
+    'image': '🖼️',
+    'link': '🔗',
+    'external-link': '🔭',
+    'insert-link': '🔗',
+    'search': '🔍',
+    'ai': '🤖',
+    'random': '🎲',
+    'check': '✅',
+    'highlight': '✨',
+    'warning': '⚠️',
+    'help': '❓',
+    'print': '🖨️',
+    'play': '▶️',
+    'pause': '⏸️',
+    'copy': '📋',
+    'send': '📤',
+    'hourglass': '⌛',
+    'refresh': '🔄',
+    'trash': '🗑️',
+    'remove': '➖',
+    'close': '❌',
+    'bullhorn': '📣',
+    'full-screen': '⛶',
+    'auto-scroll': '📜',
+    'arrows-h': '↔️',
+    'arrow-right': '➡️',
+    'arrow-left': '⬅️',
+    'chevron-down': '🔽',
+    'angle-down': '🔻',
+    'sort-amount-asc': '⬆️',
+    'sort-amount-desc': '⬇️',
+    'cog': '⚙️',
+}
+
+
+def normalize_custom_category_icon(stored):
+    s = (stored or '') + ''
+    if s in LEGACY_ICON_TO_EMOJI:
+        return LEGACY_ICON_TO_EMOJI[s]
+    return s if s else '📁'
+
+
+# (emoji stored in session, short description for picker tooltip / a11y)
+CUSTOM_CATEGORY_ICON_CHOICES = [
+    ('📁', _('Folder')),
+    ('📂', _('Open folder')),
+    ('🔖', _('Bookmark')),
+    ('📖', _('Book')),
+    ('📚', _('Library')),
+    ('🏠', _('Home')),
+    ('⭐', _('Star')),
+    ('🌟', _('Sparkle')),
+    ('❤️', _('Heart')),
+    ('🔍', _('Search')),
+    ('➕', _('Plus')),
+    ('✏️', _('Pencil')),
+    ('🖼️', _('Image')),
+    ('🔗', _('Link')),
+    ('🤖', _('AI')),
+    ('🎲', _('Random')),
+    ('✅', _('Checkmark')),
+    ('✨', _('Highlight')),
+    ('⚠️', _('Warning')),
+    ('❓', _('Help')),
+    ('🗑️', _('Trash')),
+    ('⚙️', _('Settings')),
+    ('👤', _('User')),
+    ('📣', _('Announcement')),
+    ('🔄', _('Refresh')),
+    ('⬆️', _('Sort up')),
+    ('⬇️', _('Sort down')),
+    ('📋', _('Clipboard')),
+    ('📤', _('Send')),
+    ('🎯', _('Target')),
+    ('💡', _('Idea')),
+    ('🏷️', _('Tag')),
+    ('🌈', _('Rainbow')),
+    ('🎵', _('Music')),
+    ('🎬', _('Film')),
+    ('📌', _('Pin')),
+    ('📝', _('Memo')),
+]
+
+
+add_extra_css(def():
+    sel = '.cs-cc-icon-picker '
+    ans = build_rule('.cs-cc-icon-picker', margin_top='0.35rem')
+    ans += build_rule(sel + '.cs-cc-icon-grid',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.45rem',
+        align_items='stretch',
+        justify_content='flex-start',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn',
+        display='inline-flex',
+        align_items='center',
+        justify_content='center',
+        width='2.35rem',
+        height='2.35rem',
+        padding='0',
+        margin='0',
+        box_sizing='border-box',
+        border='1px solid rgba(0,0,0,0.16)',
+        border_radius='10px',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        cursor='pointer',
+        line_height='1',
+        transition='background 120ms ease, border-color 120ms ease, box-shadow 120ms ease',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn .cs-cc-emoji',
+        font_size='1.3rem',
+        line_height='1',
+        user_select='none',
+        pointer_events='none',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn:hover',
+        background_color='var(--cs-accent-weak)',
+        border_color='rgba(0,0,0,0.22)',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn:focus',
+        outline='none',
+        box_shadow='var(--cs-focus-ring)',
+    )
+    ans += build_rule(sel + 'button.cs-cc-icon-btn-selected',
+        background_color='var(--cs-accent-weak-2)',
+        border_color='rgba(0,0,0,0.32)',
+        font_weight='600',
+    )
+    ans += build_rule(sel + '.cs-cc-icon-custom-wrap',
+        margin_top='0.55rem',
+        display='flex',
+        flex_direction='column',
+        gap='0.35rem',
+        width='100%',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    ans += build_rule(sel + '.cs-cc-icon-custom-wrap label',
+        font_size='0.88rem',
+        font_weight='600',
+        opacity='0.88',
+    )
+    ans += build_rule(sel + 'input.cs-cc-icon-custom-input',
+        width='100%',
+        max_width='100%',
+        box_sizing='border-box',
+        padding='0.5rem 0.65rem',
+        border_radius='10px',
+        border='1px solid rgba(0,0,0,0.14)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        font_size='1.1rem',
+        line_height='1.3',
+    )
+    ans += build_rule(sel + '.cs-cc-icon-custom-hint',
+        font_size='0.82rem',
+        font_weight='600',
+        opacity='0.72',
+        line_height='1.35',
+    )
+    return ans
+)
+
+
+def create_custom_category_icon_picker(initial_icon='folder'):
+    state = {'icon': normalize_custom_category_icon(initial_icon) + ''}
+    grid = E.div(class_='cs-cc-icon-grid', role='radiogroup', aria_label=_('Icon presets'))
+
+    inp_id = unique_id('cs-cc-icon-custom')
+
+    def sync_grid_only():
+        for btn in grid.querySelectorAll('button.cs-cc-icon-btn'):
+            nm = btn.dataset.ccIcon
+            on = nm is state.icon
+            if on:
+                btn.classList.add('cs-cc-icon-btn-selected')
+            else:
+                btn.classList.remove('cs-cc-icon-btn-selected')
+            btn.setAttribute('aria-checked', 'true' if on else 'false')
+
+    def sync_from_input():
+        raw = (custom_inp.value or '') + ''
+        trimmed = raw.strip()
+        if trimmed:
+            state.icon = trimmed
+        else:
+            state.icon = '📁'
+            custom_inp.value = '📁'
+        sync_grid_only()
+
+    def make_handler(stored_emoji):
+        def on_click(evt):
+            evt.preventDefault()
+            state.icon = stored_emoji
+            custom_inp.value = stored_emoji
+            sync_grid_only()
+        return on_click
+
+    for emoji_char, label in CUSTOM_CATEGORY_ICON_CHOICES:
+        btn = E.button(
+            type='button',
+            class_='cs-cc-icon-btn',
+            role='radio',
+            title=label,
+        )
+        btn.dataset.ccIcon = emoji_char
+        btn.setAttribute('aria-label', label)
+        btn.appendChild(E.span(emoji_char, class_='cs-cc-emoji'))
+        btn.addEventListener('click', make_handler(emoji_char))
+        grid.appendChild(btn)
+
+    custom_inp = E.input(
+        type='text',
+        id=inp_id,
+        class_='cs-cc-icon-custom-input',
+        maxlength='16',
+        placeholder=_('e.g. emoji or a few characters'),
+        aria_label=_('Custom icon'),
+    )
+    custom_inp.value = state.icon
+    custom_inp.addEventListener('input', def(ev):
+        sync_from_input()
+    )
+    custom_inp.addEventListener('change', def(ev):
+        sync_from_input()
+    )
+
+    custom_wrap = E.div(
+        class_='cs-cc-icon-custom-wrap',
+        E.label(_('Custom'), class_='cs-cc-custom-label', for_=inp_id),
+        custom_inp,
+    )
+    help_span = E.span(
+        _('You can pick a preset above or type your own (emoji, letter, etc.).'),
+        class_='cs-cc-icon-custom-hint',
+    )
+    custom_wrap.appendChild(help_span)
+
+    sync_grid_only()
+    root = E.div(class_='cs-cc-icon-picker', grid, custom_wrap)
+
+    def get_value():
+        raw = (custom_inp.value or '') + ''
+        trimmed = raw.strip()
+        if trimmed:
+            return trimmed
+        return state.icon or '📁'
+
+    return {'root': root, 'get_value': get_value}

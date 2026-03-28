@@ -25,11 +25,109 @@ CLASS_NAME = 'home-page'
 add_extra_css(def():
     ans = ''
     sel = f'.{CLASS_NAME} '
-    ans += build_rule(f'{sel} h2', padding='1rem', font_size='1.5em')
-    sel += '.recently-read img'
-    ans += build_rule(sel, max_width='25vw', max_height='30vh', height='auto', border_radius=f'{BORDER_RADIUS}px')
-    ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
-    ans += build_rule(f'{sel}:active', transform='scale(2)')
+    ans += build_rule('.' + CLASS_NAME,
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    # Page gutter + consistent width like other pages (narrow: never wider than viewport)
+    ans += build_rule(sel + '.cs-home-content',
+        padding='0.75rem 1rem 1rem 1rem',
+        max_width='980px',
+        width='100%',
+        min_width='0',
+        box_sizing='border-box',
+        margin_left='auto',
+        margin_right='auto'
+    )
+    ans += r'''
+@media (max-width: 720px) {
+  .home-page .cs-home-content { padding-left: 0.75rem; padding-right: 0.75rem; }
+}
+@media (max-width: 380px) {
+  .home-page .cs-home-content { padding-left: 0.5rem; padding-right: 0.5rem; }
+}
+'''
+    # Section cards (surface hierarchy)
+    ans += build_rule(sel + '.cs-home-section',
+        margin_top='0.95rem',
+        padding='1rem',
+        border_radius='18px',
+        border='1px solid var(--cs-surface-border)',
+        background='var(--cs-surface-1)',
+        box_shadow='0 16px 44px rgba(0,0,0,0.10)',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+        overflow_x='hidden',
+    )
+    ans += build_rule(sel + '.cs-home-section:first-child', margin_top='0')
+    ans += build_rule(sel + '.cs-home-section h2',
+        margin='0 0 0.85rem 0',
+        padding='0',
+        font_size='1.1em',
+        font_weight='800',
+        opacity='0.92'
+    )
+    ans += build_rule(sel + '.cs-home-actions',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.65rem',
+        min_width='0',
+        max_width='100%',
+    )
+    ans += build_rule(sel + '.cs-home-download-actions', margin_top='0.55rem')
+    ans += build_rule(sel + '.cs-home-actions a.calibre-push-button', margin='0')
+    # Covers row — match book-list-cover-grid gap (10px); no per-tile margins (see inline styles removed in JS)
+    ans += build_rule(sel + '.cs-home-covers',
+        display='flex',
+        flex_wrap='wrap',
+        align_items='flex-start',
+        align_content='flex-start',
+        gap='10px',
+        row_gap='10px',
+        column_gap='10px',
+        width='100%',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    ans += build_rule(sel + '.cs-home-covers > div',
+        margin='0',
+        flex_grow='0',
+        flex_shrink='1',
+        flex_basis='auto',
+        min_width='0',
+        width='min(118px, max(72px, calc((100% - 20px) / 3.15)))',
+        max_width='100%',
+        box_sizing='border-box',
+    )
+    ans += build_rule(sel + '.cs-home-covers > div > a',
+        display='block',
+        width='100%',
+        min_width='0',
+        box_sizing='border-box',
+    )
+    img_sel = sel + '.recently-read img'
+    ans += build_rule(img_sel,
+        width='100%',
+        height='auto',
+        aspect_ratio='2 / 3',
+        border_radius=f'{BORDER_RADIUS}px',
+        display='block',
+        object_fit='cover',
+        border='1px solid rgba(0,0,0,0.10)',
+        box_shadow='0 10px 26px rgba(0,0,0,0.14)',
+        transition='box-shadow 160ms ease, filter 160ms ease',
+    )
+    ans += build_rule(f'{img_sel}:hover',
+        box_shadow='0 16px 44px rgba(0,0,0,0.18), 0 0 0 4px var(--primary-light)',
+        filter='brightness(1.03)'
+    )
+    ans += build_rule(f'{img_sel}:active',
+        box_shadow='0 12px 34px rgba(0,0,0,0.18), 0 0 0 4px var(--primary-light-2)',
+        filter='brightness(1.01)'
+    )
     return ans
 )
 
@@ -121,13 +219,10 @@ def start_sync(to_sync):
 
 def prepare_recent_container(container):
     container.style.display = 'block'
-    container.style.borderBottom = 'solid 1px currentColor'
-    container.style.paddingBottom = '1em'
-    container.appendChild(E.h2(_(
-        'Continue reading…')))
-    container.appendChild(E.div(style='display:flex'))
+    container.appendChild(E.h2(_('Continue reading…')))
+    container.appendChild(E.div(class_='cs-home-covers'))
     cover_container = container.lastChild
-    container.appendChild(E.div(style='margin: 1rem 1rem',
+    container.appendChild(E.div(class_='cs-home-actions cs-home-download-actions',
         create_button(
             _('Browse all downloaded books…'),
             action=def():
@@ -146,7 +241,6 @@ def show_recent_for_user(container_id):
         rb = read_book.bind(None, item.library_id, item.book_id, item.format, q)
         img = E.img(alt=item.tooltip, src=absolute_path(f'get/cover/{item.book_id}/{item.library_id}'))
         images.appendChild(E.div(
-            style='margin: 0 1em',
             E.a(title=item.tooltip, href='javascript:void(0)', img, onclick=rb)
         ))
         img.onerror = def(err):
@@ -171,7 +265,7 @@ def show_recent_stage2(books):
             alt=_('{} by {}').format(book.metadata.title, authors)
         )
         img_id = ensure_id(img)
-        images.appendChild(E.div(style='margin: 0 1em',
+        images.appendChild(E.div(
             E.a(img, href='javascript: void(0)', title=img.alt,
                 onclick=read_book.bind(None, book.key[0], book.key[1], book.key[2], None)
             ),
@@ -210,14 +304,14 @@ def newly_added_received(newly_container_id, end_type, xhr, ev):
     if not data.books or not data.books.length:
         return
     container.style.display = 'block'
-    container.appendChild(E.div(style='display:flex'))
+    container.appendChild(E.div(class_='cs-home-covers'))
     images = container.lastChild
 
     for book_id in data.books:
         authors = data.authors[book_id].join(' & ')
         alt=_('{} by {}').format(data.titles[book_id], authors)
         img = E.img(alt=alt, src=absolute_path(f'get/cover/{book_id}/{data.library_id}'))
-        images.appendChild(E.div(style='margin: 0 1em',
+        images.appendChild(E.div(
             E.a(img, href='javascript: void(0)', title=img.alt,
                 onclick=view_book_page.bind(None, data.library_id, book_id)
             ),
@@ -277,8 +371,8 @@ def change_password():
 
         parent.appendChild(
             E.div(class_='button-box',
-                create_button(_('OK'), None, ok), '\xa0',
                 create_button(_('Cancel'), None, close_modal),
+                create_button(_('OK'), None, ok, highlight=True),
             )
         )
     )
@@ -293,11 +387,11 @@ def show_user_details():
             parent.appendChild(msg)
             parent.appendChild(
                 E.div(class_='button-box',
+                    create_button(_('Close'), None, close_modal),
                     create_button(_('Change password'), None, def():
                         setTimeout(change_password, 0)
                         close_modal()
-                    ), '\xa0',
-                    create_button(_('Close'), None, close_modal),
+                    , highlight=True),
                 )
             )
     )
@@ -314,19 +408,24 @@ def init(container_id):
     if interface_data.username:
         add_button(container, 'user', show_user_details, _('Logged in as {}').format(interface_data.username))
 
+    content = E.div(class_='cs-home-content')
+    container.appendChild(content)
+
     # Recent books
-    recent = E.div(style='display:none', class_='recently-read')
+    recent = E.div(style='display:none', class_='cs-home-section recently-read')
     recent_container_id = ensure_id(recent)
-    container.appendChild(recent)
+    content.appendChild(recent)
     if interface_data.username:
         conditional_timeout(recent_container_id, 5, show_recent_for_user_if_fetched)
     else:
         conditional_timeout(recent_container_id, 5, show_recent)
 
     # Choose library
-    container.appendChild(E.h2(_('Choose the calibre library to browse…')))
-    container.appendChild(E.div(style='display: flex; flex-wrap: wrap'))
-    cl = container.lastChild
+    choose = E.div(class_='cs-home-section')
+    content.appendChild(choose)
+    choose.appendChild(E.h2(_('Choose the calibre library to browse…')))
+    choose.appendChild(E.div(class_='cs-home-actions'))
+    cl = choose.lastChild
     for library_id, library_name in all_libraries():
         library_name = interface_data.library_map[library_id]
         if library_name:
@@ -339,14 +438,13 @@ def init(container_id):
                         q.vl = vlid
                     show_panel('book_list', q)
             ))
-            cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
 
     # Newly added
-    newly = E.div(style='border-top: solid 1px currentColor; padding-top: 1em; display: none', class_='recently-read')
+    newly = E.div(style='display: none', class_='cs-home-section recently-read')
     newly.appendChild(E.h2(_('Newly added…')))
     newly_container_id = ensure_id(newly)
-    container.appendChild(newly)
+    content.appendChild(newly)
     ajax('interface-data/newly-added', newly_added_received.bind(None, newly_container_id)).send()
 
 set_default_panel_handler(init)
