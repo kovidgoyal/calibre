@@ -1116,7 +1116,7 @@ class ResultsPanel(QWidget):
     def mark_books(self, which):
         gui = get_gui()
         if gui is not None:
-            book_ids = tuple(self.results_view.model().all_book_ids())
+            book_ids = tuple(self.results_model.all_book_ids())
             if which == 'mark':
                 gui.iactions['Mark Books'].add_ids(book_ids)
             elif which == 'select':
