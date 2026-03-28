@@ -53,6 +53,12 @@ def robots(ctx, rd):
     return b'User-agent: *\nDisallow: /'
 
 
+@endpoint('/sw.js', auth_required=False, cache_control='no-cache')
+def service_worker_js(ctx, rd):
+    rd.outheaders['Content-Type'] = 'application/javascript; charset=UTF-8'
+    return open(P('content-server/sw.js'), 'rb')
+
+
 @endpoint('/ajax-setup', auth_required=False, cache_control='no-cache', postprocess=json)
 def ajax_setup(ctx, rd):
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)

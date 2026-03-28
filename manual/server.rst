@@ -213,13 +213,25 @@ server address.
 Enabling offline support
 ---------------------------
 
-Browser makers have been trying to force people to use SSL by disabling
-advanced features in their browsers for plain HTTP connections. One such
-casualty is ApplicationCache, which was what was used in calibre for offline
-support. As a result nowadays sadly, offline mode works only as long as you
-keep the browser tab open. In addition, in Firefox on Android, you will need to
-type ``about:config`` and create a preference called ``browser.tabs.useCache``
-and set it to ``true``.
+The calibre viewer registers a `Service Worker
+<https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API>`_ that
+caches the viewer application shell so that books you have already downloaded
+can be read even when the calibre content server is unreachable.
+
+To activate offline support, open the viewer in your browser at least twice
+while the server is running (the first visit registers and activates the
+Service Worker; the second visit populates the cache). After that, previously
+downloaded books remain accessible without a server connection.
+
+.. note::
+    Service Workers require a *secure context*: either ``https://`` or
+    ``localhost``. The embedded server (started from
+    :guilabel:`Connect/share -> Start Content server`) runs on localhost, so
+    offline support works automatically. If you run :command:`calibre-server`
+    on a non-localhost address over plain HTTP, the Service Worker will not
+    register and offline support will be unavailable. In that case, set up
+    SSL, as described in the *Integrating the calibre Content server into
+    other servers* section below.
 
 Managing user accounts from the command-line only
 -----------------------------------------------------

@@ -3,6 +3,8 @@
 
 
 import errno
+import glob
+import hashlib
 import json
 import os
 import re
@@ -503,15 +505,39 @@ def compile_srv():
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with open(fname, 'rb') as f:
-        js = set_data(
-            compile_fast(f.read(), fname),
-            __RENDER_VERSION__=rv,
-            __MATHJAX_VERSION__=mathjax_version
-        ).encode('utf-8')
+        srv_src = f.read()
+    js = set_data(
+        compile_fast(srv_src, fname),
+        __RENDER_VERSION__=rv,
+        __MATHJAX_VERSION__=mathjax_version
+    ).encode('utf-8')
     with open(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
+    # Hash all .pyj source files (sorted for determinism) plus the SW template.
+    # index-generated.html and the compiled JS are both non-deterministic
+    # (random SVG IDs from generate.py's merge(); non-deterministic compiler
+    # output between runs).  Hashing only srv.pyj missed changes to imported
+    # files.  Hashing all .pyj files is deterministic and captures every import.
+    sw_fname = os.path.join(rapydscript_dir, 'service_worker.js')
+    h = hashlib.sha1()
+    for pyj in sorted(glob.glob(os.path.join(rapydscript_dir, '**', '*.pyj'), recursive=True)):
+        with open(pyj, 'rb') as f:
+            h.update(f.read())
+    with open(sw_fname, 'rb') as f:
+        h.update(f.read())
+    content_hash = h.hexdigest()[:8]
+    compile_service_worker(content_hash)
+
+
+def compile_service_worker(content_hash):
+    base = base_dir()
+    fname = os.path.join(base, 'src', 'pyj', 'service_worker.js')
+    with open(fname, 'r', encoding='utf-8') as f:
+        js = set_data(f.read(), __CACHE_HASH__=content_hash)
+    out_base = os.path.join(base, 'resources', 'content-server')
+    atomic_write(out_base, 'sw.js', js)
 
 # }}}
 
