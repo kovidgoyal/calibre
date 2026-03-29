@@ -3,6 +3,8 @@
 
 
 import errno
+import glob
+import hashlib
 import json
 import os
 import re
@@ -512,6 +514,30 @@ def compile_srv():
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
     atomic_write(base, 'index-generated.html', html)
+
+    # Hash all .pyj source files (sorted for determinism) plus the SW template.
+    # index-generated.html and the compiled JS are both non-deterministic
+    # (random SVG IDs from generate.py's merge(); non-deterministic compiler
+    # output between runs). Hashing all .pyj files is deterministic and
+    # captures every import.
+    sw_src = os.path.join(rapydscript_dir, 'service_worker.js')
+    h = hashlib.sha1()
+    for pyj in sorted(glob.glob(os.path.join(rapydscript_dir, '**', '*.pyj'), recursive=True)):
+        with open(pyj, 'rb') as f:
+            h.update(f.read())
+    with open(sw_src, 'rb') as f:
+        h.update(f.read())
+    compile_service_worker(h.hexdigest()[:8])
+
+
+def compile_service_worker(content_hash):
+    from calibre.constants import __version__
+    base = base_dir()
+    src_path = os.path.join(base, 'src', 'pyj', 'service_worker.js')
+    with open(src_path, 'r', encoding='utf-8') as f:
+        js = f.read().replace('__CALIBRE_VERSION__', __version__, 1).replace('__CACHE_HASH__', content_hash, 1)
+    out_base = os.path.join(base, 'resources', 'content-server')
+    atomic_write(out_base, 'service_worker.js', js)
 
 # }}}
 
