@@ -220,7 +220,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
         srv = d(fpath)
         add(srv)
         base = d(d(d(srv)))
-        add(os.path.join(base, 'resources', 'server'))
+        add(os.path.join(base, 'resources', 'content-server'))
         add(os.path.join(base, 'src', 'calibre', 'db'))
         add(os.path.join(base, 'src', 'pyj'))
         add(os.path.join(base, 'imgsrc', 'srv'))
