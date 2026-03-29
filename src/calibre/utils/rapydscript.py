@@ -450,7 +450,7 @@ def set_data(src, **kw):
         '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations),
         '__NO_SEARCH_LINK__': NO_SEARCH_LINK,
         '__CHARS_PER_PAGE__': str(CHARS_PER_PAGE),
-        '__EDITABLE_FORMATS__': json.dumps(tuple(SUPPORTED)),
+        '__EDITABLE_FORMATS__': json.dumps(sorted(SUPPORTED)),
     }.items():
         src = src.replace(k, v, 1)
     for k, v in kw.items():

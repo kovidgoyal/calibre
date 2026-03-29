@@ -31,7 +31,7 @@ def merge():
             recover=True, no_network=True, resolve_entities=False
         )
     )
-    for f in os.listdir(base):
+    for f in sorted(os.listdir(base)):
         if not f.endswith('.svg'):
             continue
         with open(os.path.join(base, f), 'rb') as ff:
