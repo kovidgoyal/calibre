@@ -36,7 +36,7 @@ class NoAutoReload(EnvironmentError):
 
 class WatcherBase:
 
-    EXTENSIONS_TO_WATCH = frozenset('py pyj svg'.split())
+    EXTENSIONS_TO_WATCH = frozenset('py pyj svg js'.split())
     BOUNCE_INTERVAL = 2  # seconds
 
     def __init__(self, worker, log):
