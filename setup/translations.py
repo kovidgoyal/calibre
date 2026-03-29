@@ -555,7 +555,7 @@ class Translations(POT):  # {{{
                         continue
                     l = f.partition('.')[0]
                     pf = l.split('_')[0]
-                    if pf in {'en'}:
+                    if pf == 'en':
                         continue
                     d = os.path.join(tdir, l + '.mo')
                     f = os.path.join(srcbase, f)
