@@ -173,7 +173,8 @@ are two ways to do that:
       :guilabel:`Preferences->Sharing over the net->Advanced`. Be careful though,
       because some browsers, primarily Firefox, allow arbitrary websites to also
       access local servers. If you use Firefox, it is better to setup username
-      and password, as described below.
+      and password, as described below. Local Network Access restriction has 
+      still not been implemented as of Firefox v149.
 
     * If you want to enable access over the internet, then you should setup
       user accounts on the server and use the :option:`--username` and :option:`--password`

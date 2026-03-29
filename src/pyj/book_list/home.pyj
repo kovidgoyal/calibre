@@ -349,4 +349,24 @@ def init(container_id):
     container.appendChild(newly)
     ajax('interface-data/newly-added', newly_added_received.bind(None, newly_container_id)).send()
 
+    # Service worker status
+    offline_mode = E.div(
+        style='border-top: solid 1px currentColor; padding: 1rem; font-size:smaller', class_='recently-read')
+    offline_mode.textContent = _('Offline mode is not supported')
+    container.appendChild(offline_mode)
+    if window.performance?.getEntriesByType:
+        nav = window.performance.getEntriesByType('navigation')
+        if nav and nav.length > 0:
+            nav = nav[0]
+            if nav.workerStart > 0:
+                if (nav.transferSize is 0 and nav.decodedBodySize > 0):
+                    offline_mode.textContent = _('Loaded from cache in offline mode')
+                else:
+                    offline_mode.textContent = _('Offline mode is available')
+            else:
+                if window.isSecureContext:
+                    offline_mode.textContent = _('Offline mode is possible, reload the page to enable it')
+                else:
+                    offline_mode.textContent = _('Offline mode is not available, you need to setup HTTPS support in the calibre Content server')
+
 set_default_panel_handler(init)

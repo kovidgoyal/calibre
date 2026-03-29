@@ -32,7 +32,7 @@ from calibre.utils.serialize import json_dumps
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
-@endpoint('', auth_required=True)  # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
+@endpoint('', auth_required=False)
 def index(ctx, rd):
     if rd.opts.url_prefix and rd.request_original_uri:
         # We need a trailing slash for relative URLs to resolve correctly, for
@@ -42,10 +42,8 @@ def index(ctx, rd):
         if not p.path.endswith(b'/'):
             p = p._replace(path=p.path + b'/')
             raise HTTPRedirect(urlunparse(p).decode('utf-8'))
-    ans_file = open(P('content-server/index-generated.html'), 'rb')
-    if not in_develop_mode:
-        return ans_file
-    return ans_file.read().replace(b'__IN_DEVELOP_MODE__', b'1')
+    # allow serving the data via sendfile() for performance
+    return open(P('content-server/index-generated.html'), 'rb')
 
 
 @endpoint('/robots.txt', auth_required=False)
@@ -53,13 +51,21 @@ def robots(ctx, rd):
     return b'User-agent: *\nDisallow: /'
 
 
-@endpoint('/ajax-setup', auth_required=False, cache_control='no-cache', postprocess=json)
+@endpoint('/service_worker.js', auth_required=False, cache_control='no-cache')
+def service_worker_js(ctx, rd):
+    rd.outheaders['Content-Type'] = 'application/javascript; charset=UTF-8'
+    return open(P('content-server/service_worker.js', allow_user_override=False), 'rb')
+
+
+# auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
+@endpoint('/ajax-setup', auth_required=True, cache_control='no-cache', postprocess=json)
 def ajax_setup(ctx, rd):
     auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
     return {
         'auto_reload_port': max(0, auto_reload_port),
         'allow_console_print': bool(getattr(rd.opts, 'allow_console_print', False)),
         'ajax_timeout': rd.opts.ajax_timeout,
+        'in_develop_mode': bool(in_develop_mode),
     }
 
 

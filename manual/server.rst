@@ -139,6 +139,9 @@ is as follows.
      setup an easy to remember address to use instead of the IP address you
      found in the first step.
 
+
+.. _cs_https_mode:
+
 .. note::
     For maximum security, you should also enable HTTPS on the Content server.
     You can either do so directly in the server by providing the path to
@@ -213,13 +216,15 @@ server address.
 Enabling offline support
 ---------------------------
 
-Browser makers have been trying to force people to use SSL by disabling
-advanced features in their browsers for plain HTTP connections. One such
-casualty is ApplicationCache, which was what was used in calibre for offline
-support. As a result nowadays sadly, offline mode works only as long as you
-keep the browser tab open. In addition, in Firefox on Android, you will need to
-type ``about:config`` and create a preference called ``browser.tabs.useCache``
-and set it to ``true``.
+The server has full support for offline mode, you can open a book and once it
+is loaded, continue reading it offline. However, typical browsers require the
+use of HTTPS connections to enable offline mode (service workers).
+So :ref:`setup HTTPS support <cs_https_mode>` as described above. Scroll to the
+bottom of the home page and you will see a message about the status of offline
+mode.
+
+Alternately, you can open a book and keep the browser tab open. As long as the
+tab stays open you can continue reading the book, even when offline.
 
 Managing user accounts from the command-line only
 -----------------------------------------------------
