@@ -32,8 +32,33 @@ from calibre.utils.serialize import json_dumps
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
+def wants_classic_interface(rd):
+    q = (rd.query.get('interface') or '').strip().lower()
+    return q in {'classic', 'compat', 'old'}
+
+
+def build_classic_url(ctx, rd):
+    params = []
+    for key in (
+        'library_id',
+        'search',
+        'sort',
+        'num',
+        'vl',
+        'book_id',
+        'mode',
+        'view',
+    ):
+        val = rd.query.get(key)
+        if val not in (None, ''):
+            params.append((key, val))
+    return ctx.url_for('/classic', **dict(params))
+
+
 @endpoint('', auth_required=True)  # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
 def index(ctx, rd):
+    if wants_classic_interface(rd):
+        raise HTTPRedirect(build_classic_url(ctx, rd))
     if rd.opts.url_prefix and rd.request_original_uri:
         # We need a trailing slash for relative URLs to resolve correctly, for
         # example the link to the mobile page in index.html
@@ -173,6 +198,9 @@ def basic_interface_data(ctx, rd):
         'donate_link': localize_website_link('https://calibre-ebook.com/donate'),
         'lang_code_for_user_manual': lang_code_for_user_manual(),
         'default_author_link': resolve_default_author_link(get_gpref('default_author_link')),
+        'classic_interface_path': ctx.url_for('/classic'),
+        'mobile_interface_path': ctx.url_for('/mobile'),
+        'modern_interface_path': ctx.url_for(''),
     }
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
