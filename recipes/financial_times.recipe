@@ -25,6 +25,7 @@ class ft(BasicNewsRecipe):
     remove_attributes = ['style', 'width', 'height']
     masthead_url = 'https://im.ft-static.com/m/img/masthead_main.jpg'
     simultaneous_downloads = 1
+    delay = 1
 
     extra_css = '''
         .article-info__time-byline {font-size:small; font-weight:bold; }
@@ -93,7 +94,10 @@ class ft(BasicNewsRecipe):
         return self.get_browser()
 
     def open_novisit(self, *args, **kwargs):
-        br = browser(user_agent='Mozilla/5.0 (Java) outbrain')
+        br = browser(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0')
+        br.addheaders += [
+            ('Referer', 'https://www.google.com/')
+        ]
         return br.open_novisit(*args, **kwargs)
 
     open = open_novisit
