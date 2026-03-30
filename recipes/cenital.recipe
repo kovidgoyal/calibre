@@ -22,7 +22,7 @@ class Cenital(BasicNewsRecipe):
     max_articles_per_feed = 1
     timefmt               = ' [%a, %d %b %Y]'
 
-    # Cenital's RSS feeds include full article content in <content:encoded>
+    # Use full content from RSS <content:encoded> — avoids fetching each article individually
     use_embedded_content = True
 
     no_stylesheets       = True
@@ -30,7 +30,6 @@ class Cenital(BasicNewsRecipe):
     auto_cleanup         = True
     compress_news_images = True
 
-    cover_url    = 'https://cenital.com/wp-content/uploads/2021/12/cenital_wide.jpg'
     masthead_url = 'https://cenital.com/wp-content/uploads/2020/04/cenital-logo.png'
 
     # 8 weekly newsletters (Mon–Fri dailies "Primera mañana" and "Antes de mañana" excluded)
@@ -63,3 +62,81 @@ class Cenital(BasicNewsRecipe):
         p { line-height: 1.5; margin-bottom: 0.8em; }
         img { max-width: 100%; height: auto; }
     '''
+
+    def get_cover_url(self):
+        '''
+        Builds a magazine-style cover: 2x4 grid of the featured image from each
+        newsletter's latest article, with a dark overlay and the Cenital logo centred.
+        Falls back to the static wide image if PIL is unavailable.
+        '''
+        import tempfile
+        from io import BytesIO
+        from xml.etree import ElementTree as ET
+        from urllib.request import urlopen, Request
+
+        try:
+            from PIL import Image
+        except ImportError:
+            return 'https://cenital.com/wp-content/uploads/2021/12/cenital_wide.jpg'
+
+        MEDIA_NS = '{http://search.yahoo.com/mrss/}'
+        HEADERS  = {'User-Agent': 'Mozilla/5.0'}
+        W, H     = 800, 1200
+        COLS     = 2
+        ROWS     = len(self.feeds) // COLS   # 4 rows for 8 feeds
+        CELL_W   = W // COLS
+        CELL_H   = H // ROWS
+
+        cover = Image.new('RGB', (W, H), (15, 15, 15))
+        col, row = 0, 0
+
+        for _name, feed_url in self.feeds:
+            if row >= ROWS:
+                break
+            try:
+                root    = ET.fromstring(urlopen(Request(feed_url, headers=HEADERS), timeout=15).read())
+                channel = root.find('channel')
+                item    = channel.find('item') if channel is not None else None
+                if item is None:
+                    raise ValueError('empty feed')
+
+                media   = item.find(MEDIA_NS + 'content')
+                img_url = media.get('url') if media is not None else None
+                if not img_url:
+                    raise ValueError('no media:content')
+
+                tile = Image.open(BytesIO(
+                    urlopen(Request(img_url, headers=HEADERS), timeout=15).read()
+                )).convert('RGB').resize((CELL_W, CELL_H), Image.LANCZOS)
+                cover.paste(tile, (col * CELL_W, row * CELL_H))
+
+            except Exception:
+                pass   # leave that cell dark — don't abort the whole cover
+
+            col += 1
+            if col >= COLS:
+                col = 0
+                row += 1
+
+        # Semi-transparent dark overlay so the white logo is always readable
+        overlay = Image.new('RGBA', (W, H), (0, 0, 0, 150))
+        cover   = Image.alpha_composite(cover.convert('RGBA'), overlay)
+
+        # Cenital logo centred
+        try:
+            logo = Image.open(BytesIO(
+                urlopen(Request(
+                    'https://cenital.com/wp-content/uploads/2020/04/cenital-logo.png',
+                    headers=HEADERS
+                ), timeout=15).read()
+            )).convert('RGBA')
+            logo_w = int(W * 0.65)
+            logo_h = int(logo.height * logo_w / logo.width)
+            logo   = logo.resize((logo_w, logo_h), Image.LANCZOS)
+            cover.paste(logo, ((W - logo_w) // 2, (H - logo_h) // 2), logo)
+        except Exception:
+            pass
+
+        tmp = tempfile.NamedTemporaryFile(suffix='.jpg', delete=False)
+        cover.convert('RGB').save(tmp.name, 'JPEG', quality=90)
+        return tmp.name
