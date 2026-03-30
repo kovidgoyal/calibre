@@ -1,0 +1,65 @@
+__license__   = 'GPL v3'
+__copyright__ = '2026, Rodrigo Pazos'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Cenital(BasicNewsRecipe):
+    title            = 'Cenital'
+    __author__       = 'Rodrigo Pazos'
+    description      = (
+        'Revista semanal con el último número de cada newsletter semanal de Cenital: '
+        'análisis político, económico, internacional y cultural argentino. '
+        'Incluye: Mundo propio, Off the record, Rollover, Receta para el desastre, '
+        'Una calle me separa, El hilo conductor, Sistema 2 y Kohan.'
+    )
+    publisher        = 'Cenital'
+    language         = 'es_AR'
+    category         = 'politics, economics, Argentina, news'
+    publication_type = 'magazine'
+
+    oldest_article        = 30
+    max_articles_per_feed = 1
+    timefmt               = ' [%a, %d %b %Y]'
+
+    # Cenital's RSS feeds include full article content in <content:encoded>
+    use_embedded_content = True
+
+    no_stylesheets       = True
+    remove_javascript    = True
+    auto_cleanup         = True
+    compress_news_images = True
+
+    cover_url    = 'https://cenital.com/wp-content/uploads/2021/12/cenital_wide.jpg'
+    masthead_url = 'https://cenital.com/wp-content/uploads/2020/04/cenital-logo.png'
+
+    # 8 weekly newsletters (Mon–Fri dailies "Primera mañana" and "Antes de mañana" excluded)
+    feeds = [
+        ('Mundo propio',            'https://cenital.com/secciones/newsletters/mundo-propio/feed/'),
+        ('Off the record',          'https://cenital.com/secciones/newsletters/off-the-record/feed/'),
+        ('Rollover',                'https://cenital.com/secciones/newsletters/rollover/feed/'),
+        ('Receta para el desastre', 'https://cenital.com/secciones/newsletters/receta-para-el-desastre/feed/'),
+        ('Una calle me separa',     'https://cenital.com/secciones/newsletters/una-calle-me-separa/feed/'),
+        ('El hilo conductor',       'https://cenital.com/secciones/newsletters/el-hilo-conductor/feed/'),
+        ('Sistema 2',               'https://cenital.com/secciones/newsletters/sistema-dos/feed/'),
+        ('Kohan',                   'https://cenital.com/secciones/newsletters/kohan/feed/'),
+    ]
+
+    remove_tags = [
+        dict(name=['script', 'style', 'iframe', 'form']),
+        dict(attrs={'class': lambda x: x and any(c in x for c in [
+            'wp-block-subscribe',
+            'wp-block-buttons',
+            'newsletter',
+            'subscription',
+            'suscripcion',
+        ])}),
+    ]
+
+    remove_attributes = ['style', 'onclick', 'data-src']
+
+    extra_css = '''
+        h1, h2 { font-size: 1.4em; margin-bottom: 0.3em; }
+        p { line-height: 1.5; margin-bottom: 0.8em; }
+        img { max-width: 100%; height: auto; }
+    '''
