@@ -770,6 +770,17 @@ def all_groupings() -> dict[str, str]:
     }
 
 
+def iter_all_groups(fm) -> Iterator[tuple[str, str]]:
+    cf = {}
+    for field, m in fm.custom_field_metadata(include_composites=False).items():
+        if m['is_category'] or m['datatype'] == 'datetime':
+            cf[field] = numeric_sort_key(m['name'])
+    for k in all_groupings():
+        cf[k] = numeric_sort_key(fm[k]['name'])
+    for k in sorted(cf, key=cf.get):
+        yield k, fm[k]['name']
+
+
 class LayoutConstraints(NamedTuple):
     min_spine_width: int = 15
     max_spine_width: int = 80
@@ -2385,14 +2396,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             action.triggered.connect(partial(self.set_grouping_mode, field))
         add('', _('Ungrouped'))
         grouping_menu.addSeparator()
-        cf = {}
-        for field, m in fm.custom_field_metadata(include_composites=False).items():
-            if m['is_category'] or m['datatype'] == 'datetime':
-                cf[field] = numeric_sort_key(m['name'])
-        for k in all_groupings():
-            cf[k] = numeric_sort_key(fm[k]['name'])
-        for k in sorted(cf, key=cf.get):
-            add(k, fm[k]['name'])
+        for k, name in iter_all_groups(fm):
+            add(k, name)
 
     def contextMenuEvent(self, ev: QContextMenuEvent):
         if self.context_menu:
