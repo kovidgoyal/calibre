@@ -494,11 +494,8 @@ def get_group_key(result, field, db):
     val = get_annotation_value(result, bid, field, db)
     if not val:
         return ('',), _('Unknown')
-    sort_key = val
-    if dt == 'text':
-        sort_key = primary_sort_key(val)
-        return (sort_key, label := str(val)), label
     label = str(val)
+    sort_key = primary_sort_key(val) if dt == 'text' else val
     return (sort_key, label), label
 
 

@@ -229,14 +229,15 @@ class GroupKeysListTest(unittest.TestCase):
         self.assertEqual(sorted(labels), ['fantasy', 'sci-fi'])
 
     def test_multi_valued_field_empty_returns_ungrouped(self):
+        from calibre.gui2.library.bookshelf_view import all_groupings
         db = _make_mock_db(
             field_for_map={'tags': ()},
             field_metadata={'tags': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},
         )
         entries = get_group_keys_list(_make_result(), 'tags', db)
         self.assertEqual(len(entries), 1)
-        # Should be the ungrouped label from all_groupings()
-        self.assertIn('Untagged', entries[0][1])
+        expected_label = all_groupings()['tags']
+        self.assertEqual(entries[0][1], expected_label)
 
     def test_title_returns_one_entry(self):
         db = _make_mock_db(
