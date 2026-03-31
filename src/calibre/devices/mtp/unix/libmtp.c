@@ -491,7 +491,10 @@ find_in_parent(Device *self, unsigned long storage_id, unsigned long parent_id, 
             break;
         }
     }
-    for (f = files; f != NULL; f = f->next) LIBMTP_destroy_file_t(f);
+    f = files;
+    while (f != NULL) {
+        files = f; f = f->next; LIBMTP_destroy_file_t(files);
+    }
     return found;
 }
 
@@ -590,7 +593,10 @@ Device_list_folder_by_name(Device *self, PyObject *args) {
         Py_DECREF(entry);
         if (!appended) { Py_CLEAR(ans); break; }
     }
-    for (f = files; f != NULL; f = f->next) LIBMTP_destroy_file_t(f);
+    f = files;
+    while (f != NULL) {
+	    files = f; f = f->next; LIBMTP_destroy_file_t(files);
+    }
     return ans;
 } // }}}
 
