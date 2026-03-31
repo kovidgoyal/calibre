@@ -5,6 +5,7 @@ import codecs
 import json
 import os
 import re
+from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache, partial
 from urllib.parse import quote
@@ -52,6 +53,7 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 from calibre.startup import connect_lambda
+from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext, pgettext
 
 
@@ -410,7 +412,7 @@ GROUP_INFO: dict[Group, dict[str, str]] = {
     },
     Group.DATE: {
         'field_name': 'timestamp',
-        'display_name': _('Date'),
+        'display_name': _('Annotation date'),
     },
 }
 
@@ -449,15 +451,15 @@ def get_group_key(result, field, db):
     match field:
         case 'title':
             title = db.field_for('title', bid)
-            return (title.lower(), bid), title
+            return (primary_sort_key(title), bid), title
         case 'authors':
             authors = db.field_for('authors', bid)
-            sort_key = authors_to_sort_string(authors)
+            sort_key = primary_sort_key(authors_to_sort_string(authors))
             text = authors_to_string(authors)
             return (sort_key, text), text or _('Unknown author')
         case 'user':
             user = friendly_username(result['user_type'], result['user'])
-            return (user.lower(), user), user
+            return (primary_sort_key(user), user), user
         case field if dt == 'datetime':
             ts = get_annotation_value(result, bid, field, db)
             df = fm[field].get('display', {}).get('date_format') or 'dd MMM yyyy'
@@ -492,7 +494,7 @@ def get_group_key(result, field, db):
         return ('',), _('Unknown')
     sort_key = val
     if dt == 'text':
-        sort_key = val.lower()
+        sort_key = primary_sort_key(val)
     label = str(val)
     return (sort_key, label), label
 
@@ -699,7 +701,7 @@ class Restrictions(QWidget):
 
     restrictions_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, group_by):
         self.restrict_to_book_ids = frozenset()
         self.icon_size = 12
         QWidget.__init__(self, parent)
@@ -738,6 +740,8 @@ class Restrictions(QWidget):
         cb.setChecked(bool(gprefs.get('show_annots_from_selected_books_only', False)))
         cb.stateChanged.connect(self.show_only_selected_changed)
         h.addWidget(cb)
+        h.addStretch(10)
+        h.addWidget(group_by)
         v.addLayout(h)
 
     def update_book_restrictions_text(self):
@@ -830,11 +834,8 @@ class GroupOptions(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        v = QVBoxLayout(self)
-        v.setContentsMargins(0, 0, 0, 0)
-        h = QHBoxLayout()
+        h = QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
-        v.addLayout(h)
         la = QLabel(_('&Group by:'))
         h.addWidget(la)
         self.group_box = gb = QComboBox(self)
@@ -844,7 +845,6 @@ class GroupOptions(QWidget):
         gb.setToolTip(_('Display annotations grouped by this value'))
         gb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         h.addWidget(gb)
-        h.addStretch(10)
 
     @property
     def selected_group(self):
@@ -861,9 +861,9 @@ class GroupOptions(QWidget):
 
     def re_initialize(self):
         gb = self.group_box
-        before = gb.currentData()
-        if not before:
-            before = Group[gprefs.get('browse_annots_group_by', Group.BOOK_ID.name)]
+        if not (before := gb.currentData()):
+            with suppress(KeyError):
+                before = Group[gprefs.get('browse_annots_group_by', Group.BOOK_ID.name)]
         gb.blockSignals(True)
         gb.clear()
         for group_type in Group:
@@ -913,14 +913,12 @@ class BrowsePanel(QWidget):
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
-        self.restrictions = rs = Restrictions(self)
+        self.group_options = grp = GroupOptions(self)
+        grp.grouping_changed.connect(self.grouping_changed)
+        self.restrictions = rs = Restrictions(self, grp)
         rs.restrictions_changed.connect(self.effective_query_changed)
         self.use_stemmer.stateChanged.connect(self.effective_query_changed)
         l.addWidget(rs)
-
-        self.group_options = grp = GroupOptions(self)
-        grp.grouping_changed.connect(self.grouping_changed)
-        l.addWidget(grp)
 
         self.results_list = rl = ResultsList(self)
         rl.current_result_changed.connect(self.current_result_changed)
