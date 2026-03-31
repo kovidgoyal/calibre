@@ -194,6 +194,18 @@ class AddAction(InterfaceAction):
                 if fmt:
                     db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
                         notify=True)
+            if not db.has_cover(id_):
+                from calibre.ebooks.metadata.meta import get_metadata
+                for fmt, fpath in fmt_map.items():
+                    if fmt:
+                        try:
+                            with open(fpath, 'rb') as f:
+                                mi = get_metadata(f, stream_type=fmt.lower())
+                            if mi.cover_data and mi.cover_data[1]:
+                                db.new_api.set_cover({id_: mi.cover_data[1]})
+                                break
+                        except Exception:
+                            pass
         current_idx = self.gui.library_view.currentIndex()
         if current_idx.isValid():
             self.gui.library_view.model().current_changed(current_idx, current_idx)
