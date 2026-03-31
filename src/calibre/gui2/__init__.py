@@ -491,6 +491,7 @@ def create_defs():
     defs['browse_annots_restrict_to_type'] = None
     defs['browse_annots_use_stemmer'] = True
     defs['browse_notes_use_stemmer'] = True
+    defs['browse_annots_group_by'] = None
     defs['fts_library_use_stemmer'] = True
     defs['fts_library_restrict_books'] = False
     defs['fts_visualisation'] = 'cards'
