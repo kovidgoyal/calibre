@@ -45,13 +45,14 @@ from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx
-from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
+from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.bookshelf_view import all_groupings, iter_all_groups
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 from calibre.startup import connect_lambda
+from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext, pgettext
 
@@ -465,8 +466,8 @@ def get_group_key(result, field, db):
         case field if dt == 'datetime':
             ts = db.field_for(field, bid)
             df = fm[field].get('display', {}).get('date_format') or 'dd MMM yyyy'
+            qdt = qt_from_dt(ts) if ts else UNDEFINED_QDATETIME
             if 'd' in df:
-                qdt = QDateTime.fromString(ts, Qt.DateFormat.ISODate)
                 if qdt.isValid():
                     # Bucket the timestamps by discrete day, using the system's local timezone
                     qdt = qdt.toLocalTime()
@@ -479,12 +480,10 @@ def get_group_key(result, field, db):
                 today = QDateTime.currentDateTime().toLocalTime().date()
                 days_past = today.toJulianDay() - jd
                 loc = QLocale.system()
-                label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat))
-                if not label:
-                    label = _('Unknown date')
+                label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat)) or _('Unknown date')
                 return (days_past, label), label
             else:  # Assume it's a year
-                year = QDateTime.fromString(ts, Qt.DateFormat.ISODate).date().year()
+                year = qdt.date().year()
                 current_year = QDateTime.currentDateTime().date().year()
                 years_past = current_year - year
                 label = str(year) if year > 0 else _('Unknown year')
@@ -493,7 +492,7 @@ def get_group_key(result, field, db):
     # Generic fallback
     val = get_annotation_value(result, bid, field, db)
     if not val:
-        return ('',), _('Unknown')
+        return (primary_sort_key(''),), _('Unknown')
     label = str(val)
     sort_key = primary_sort_key(val) if dt == 'text' else val
     return (sort_key, label), label
@@ -527,7 +526,7 @@ def get_group_keys_list(result, field, db):
         ungrouped = all_groupings().get(field) or _('Unknown')
         if field == 'authors':
             ungrouped = _('Unknown author')
-        return [(('',), ungrouped)]
+        return [((primary_sort_key(''),), ungrouped)]
 
     dt = fm_entry.get('datatype')
     entries = []
@@ -918,15 +917,23 @@ class GroupOptions(QWidget):
         before = gb.currentData() or db.pref(BROWSE_ANNOTS_GROUP_BY_PREF, 'title')
         gb.blockSignals(True)
         gb.clear()
+        font = QFont()
+        font.setItalic(True)
+        font.setBold(True)
+        def add(label, field):
+            gb.addItem(label, field)
+            if before == field:
+                gb.setItemData(gb.count()-1, font, Qt.ItemDataRole.FontRole)
+        # Title grouping
+        add(_('Title'), 'title')
         # Annotation-specific fields first
         for field, display_name in annotation_only_groupings().items():
-            gb.addItem(display_name, field)
-        # Title grouping
-        gb.addItem(_('Title'), 'title')
+            add(display_name, field)
+        gb.insertSeparator(gb.count())
         # All groupable DB fields
         fm = db.field_metadata
         for field, display_name in iter_all_groups(fm):
-            gb.addItem(display_name, field)
+            add(display_name, field)
         if before:
             row = gb.findData(before)
             if row > -1:
