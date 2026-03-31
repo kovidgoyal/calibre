@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import MagicMock
 
-from calibre.gui2.library.annotations import get_group_key
+from calibre.gui2.library.annotations import get_group_key, get_group_keys_list
 
 
 def _make_result(book_id=1, annot_id=1, **extra):
@@ -113,19 +113,6 @@ class GroupKeyTest(unittest.TestCase):
         db.field_for.assert_not_called()
         self.assertEqual(label, 'PDF')
 
-    def test_group_enum_resolves_via_field_name_property(self):
-        from calibre.gui2.library.annotations import Group
-
-        db = _make_mock_db(
-            field_for_map={'title': 'Dune'},
-            field_metadata={},
-        )
-        (sort_key_enum, label_enum) = get_group_key(_make_result(), Group.BOOK_ID, db)
-        (sort_key_str, label_str) = get_group_key(_make_result(), 'title', db)
-
-        self.assertEqual(label_enum, label_str)
-        self.assertEqual(sort_key_enum, sort_key_str)
-
     def test_group_by_book_id_title(self):
         db = _make_mock_db(
             field_for_map={'title': 'The Great Gatsby'},
@@ -164,21 +151,14 @@ class GroupKeyTest(unittest.TestCase):
         self.assertIsInstance(label, str)
         self.assertEqual(sort_key[0], label.lower())
 
-    def test_group_by_timestamp_day_bucketing(self):
+    def test_group_by_annot_timestamp_day_bucketing(self):
         from qt.core import QDateTime, Qt
 
         # Use an ISO timestamp from the annotation
         ts_iso = '2024-12-25T10:30:00.000Z'
-        db = _make_mock_db(
-            field_metadata={
-                'timestamp': {
-                    'datatype': 'datetime',
-                    'display': {'date_format': 'dd MMM yyyy'},
-                }
-            }
-        )
+        db = _make_mock_db(field_metadata={})
         result = _make_result(annotation={'timestamp': ts_iso})
-        (sort_key, label) = get_group_key(result, 'timestamp', db)
+        (sort_key, label) = get_group_key(result, 'annot_timestamp', db)
 
         # Parse the timestamp to verify sort key
         qdt = QDateTime.fromString(ts_iso, Qt.DateFormat.ISODate)
@@ -193,22 +173,99 @@ class GroupKeyTest(unittest.TestCase):
         # Not asserting a particular label due to locale variations
         self.assertIsInstance(label, str)
 
-    def test_group_by_timestamp_with_invalid_date(self):
-        db = _make_mock_db(
-            field_metadata={
-                'timestamp': {
-                    'datatype': 'datetime',
-                    'display': {'date_format': 'dd MMM yyyy'},
-                }
-            }
-        )
+    def test_group_by_annot_timestamp_with_invalid_date(self):
+        db = _make_mock_db(field_metadata={})
         result = _make_result(annotation={'timestamp': 'invalid-timestamp'})
-        (sort_key, _) = get_group_key(result, 'timestamp', db)
+        (sort_key, _) = get_group_key(result, 'annot_timestamp', db)
 
         # Should use current date when parse fails
         self.assertIsInstance(sort_key[0], int)
         self.assertIsInstance(sort_key[1], str)
 
+    def test_group_by_book_timestamp_uses_db_field(self):
+        from qt.core import QDateTime, Qt
+        ts_iso = '2023-06-15T08:00:00.000Z'
+        db = _make_mock_db(
+            field_for_map={'timestamp': ts_iso},
+            field_metadata={
+                'timestamp': {
+                    'datatype': 'datetime',
+                    'display': {'date_format': 'dd MMM yyyy'},
+                }
+            },
+        )
+        # Even if the annotation has its own timestamp, grouping by 'timestamp'
+        # must use the book's Date Added value from the DB.
+        result = _make_result(annotation={'timestamp': '2000-01-01T00:00:00.000Z'})
+        (sort_key, label) = get_group_key(result, 'timestamp', db)
+
+        qdt = QDateTime.fromString(ts_iso, Qt.DateFormat.ISODate).toLocalTime()
+        qdate = qdt.date()
+        today = QDateTime.currentDateTime().toLocalTime().date()
+        expected_days_past = today.toJulianDay() - qdate.toJulianDay()
+
+        self.assertEqual(sort_key[0], expected_days_past)
+        self.assertIsInstance(label, str)
+
+
+class GroupKeysListTest(unittest.TestCase):
+
+    def test_single_valued_field_returns_one_entry(self):
+        db = _make_mock_db(
+            field_for_map={'publisher': 'Tor Books'},
+            field_metadata={'publisher': {'datatype': 'text', 'is_multiple': {}}},
+        )
+        entries = get_group_keys_list(_make_result(), 'publisher', db)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0][1], 'Tor Books')
+
+    def test_multi_valued_field_returns_one_entry_per_value(self):
+        db = _make_mock_db(
+            field_for_map={'tags': ('sci-fi', 'fantasy')},
+            field_metadata={'tags': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},
+        )
+        entries = get_group_keys_list(_make_result(), 'tags', db)
+        labels = [label for _, label in entries]
+        self.assertEqual(sorted(labels), ['fantasy', 'sci-fi'])
+
+    def test_multi_valued_field_empty_returns_ungrouped(self):
+        db = _make_mock_db(
+            field_for_map={'tags': ()},
+            field_metadata={'tags': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},
+        )
+        entries = get_group_keys_list(_make_result(), 'tags', db)
+        self.assertEqual(len(entries), 1)
+        # Should be the ungrouped label from all_groupings()
+        self.assertIn('Untagged', entries[0][1])
+
+    def test_title_returns_one_entry(self):
+        db = _make_mock_db(
+            field_for_map={'title': 'Dune'},
+            field_metadata={},
+        )
+        entries = get_group_keys_list(_make_result(), 'title', db)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0][1], 'Dune')
+
+    def test_annot_timestamp_returns_one_entry(self):
+        db = _make_mock_db(field_metadata={})
+        result = _make_result(annotation={'timestamp': '2024-01-01T00:00:00.000Z'})
+        entries = get_group_keys_list(result, 'annot_timestamp', db)
+        self.assertEqual(len(entries), 1)
+
+    def test_authors_multi_valued_returns_one_per_author(self):
+        db = _make_mock_db(
+            field_for_map={'authors': ('Alice', 'Bob')},
+            field_metadata={'authors': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},
+        )
+        entries = get_group_keys_list(_make_result(), 'authors', db)
+        labels = [label for _, label in entries]
+        self.assertEqual(sorted(labels), ['Alice', 'Bob'])
+
 
 def find_tests():
-    return unittest.defaultTestLoader.loadTestsFromTestCase(GroupKeyTest)
+    loader = unittest.defaultTestLoader
+    suite = unittest.TestSuite()
+    suite.addTests(loader.loadTestsFromTestCase(GroupKeyTest))
+    suite.addTests(loader.loadTestsFromTestCase(GroupKeysListTest))
+    return suite
