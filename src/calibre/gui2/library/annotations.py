@@ -44,7 +44,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
-from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.bookshelf_view import all_groupings, iter_all_groups
@@ -491,8 +491,33 @@ def get_group_key(result, field, db):
 
     # Generic fallback
     val = get_annotation_value(result, bid, field, db)
+    if dt == 'rating':
+        # rating val is an int 0–10 (0 and None both mean unrated)
+        ival = int(val or 0)
+        if not ival:
+            unrated = _('Unrated')
+            return (0, unrated), unrated
+        allow_half = fm.get(field, {}).get('display', {}).get('allow_half_stars', False)
+        label = rating_to_stars(ival, allow_half)
+        return (ival, label), label
     if not val:
-        return (primary_sort_key(''),), _('Unknown')
+        # Use a type-compatible sentinel so that missing-value groups sort
+        # correctly alongside non-missing groups.  The non-missing path uses
+        # primary_sort_key(val) for text fields (bytes) and val directly for
+        # everything else, so the sentinel must match that type.
+        if dt == 'text':
+            missing_sk = primary_sort_key('')
+        elif dt == 'int':
+            missing_sk = -1
+        elif dt == 'float':
+            missing_sk = -1.0
+        elif dt == 'bool':
+            missing_sk = False
+        else:
+            # series, enumeration, comments, composite, or unknown – all
+            # treated as string-like by the non-missing path below.
+            missing_sk = ''
+        return (missing_sk,), _('Unknown')
     label = str(val)
     sort_key = primary_sort_key(val) if dt == 'text' else val
     return (sort_key, label), label
