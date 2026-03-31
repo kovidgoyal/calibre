@@ -163,7 +163,7 @@ class DB:
                 if not already_persistent:
                     return window.navigator.storage.persist()
             )
-        if window.navigator.storage?.persist:
+        if window?.navigator?.storage?.persist:
             if window.navigator.locks:
                 window.navigator.locks.request('calibre-storage-persist', {'ifAvailable': True}, try_persist)
             else:
