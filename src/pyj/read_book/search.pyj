@@ -207,7 +207,9 @@ class SearchOverlay:
         if msg.type is 'error':
             emsg, details = parse_error_msg(msg)
             self.view.hide_loading()
-            error_dialog(_('Could not search'), emsg, details)
+            window.setTimeout(def():
+                error_dialog(_('Could not search'), emsg, details)
+            , 1000)
             self.result_handler = None
             self.initial_search_result_counter = 0
         elif msg.id is self.search_in_flight.id:
