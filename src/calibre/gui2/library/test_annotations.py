@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import MagicMock
 
 from calibre.gui2.library.annotations import get_group_key, get_group_keys_list
+from calibre.utils.icu import primary_sort_key
 
 
 def _make_result(book_id=1, annot_id=1, **extra):
@@ -84,7 +85,7 @@ class GroupKeyTest(unittest.TestCase):
         (sort_key, label) = get_group_key(_make_result(), 'publisher', db)
 
         self.assertEqual(label, 'Tor Books')
-        self.assertEqual(sort_key, ('tor books', 'Tor Books'))
+        self.assertEqual(sort_key, (primary_sort_key('Tor Books'), 'Tor Books'))
 
     def test_arbitrary_float_field_uses_raw_value_as_sort_key(self):
         db = _make_mock_db(
@@ -122,7 +123,7 @@ class GroupKeyTest(unittest.TestCase):
         (sort_key, label) = get_group_key(result, 'title', db)
 
         self.assertEqual(label, 'The Great Gatsby')
-        self.assertEqual(sort_key, ('the great gatsby', 42))
+        self.assertEqual(sort_key, (primary_sort_key('The Great Gatsby'), 42))
 
     def test_group_by_authors(self):
         db = _make_mock_db(
@@ -132,7 +133,7 @@ class GroupKeyTest(unittest.TestCase):
         (sort_key, label) = get_group_key(_make_result(), 'authors', db)
 
         self.assertEqual(label, 'F. Scott Fitzgerald')
-        self.assertIsInstance(sort_key[0], str)  # Don't test the implementation of authors_to_sort_string
+        self.assertIsInstance(sort_key[0], bytes)  # Don't test the implementation of authors_to_sort_string
 
     def test_group_by_authors_unknown_when_empty(self):
         db = _make_mock_db(
@@ -149,7 +150,7 @@ class GroupKeyTest(unittest.TestCase):
         (sort_key, label) = get_group_key(result, 'user', db)
 
         self.assertIsInstance(label, str)
-        self.assertEqual(sort_key[0], label.lower())
+        self.assertEqual(sort_key[0], primary_sort_key(label))
 
     def test_group_by_annot_timestamp_day_bucketing(self):
         from qt.core import QDateTime, Qt
