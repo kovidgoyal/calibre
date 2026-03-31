@@ -492,7 +492,23 @@ def get_group_key(result, field, db):
     # Generic fallback
     val = get_annotation_value(result, bid, field, db)
     if not val:
-        return (primary_sort_key(''),), _('Unknown')
+        # Use a type-compatible sentinel so that missing-value groups sort
+        # correctly alongside non-missing groups.  The non-missing path uses
+        # primary_sort_key(val) for text fields (bytes) and val directly for
+        # everything else, so the sentinel must match that type.
+        if dt == 'text':
+            missing_sk = primary_sort_key('')
+        elif dt in ('int', 'rating'):
+            missing_sk = -1
+        elif dt == 'float':
+            missing_sk = -1.0
+        elif dt == 'bool':
+            missing_sk = False
+        else:
+            # series, enumeration, comments, composite, or unknown – all
+            # treated as string-like by the non-missing path below.
+            missing_sk = ''
+        return (missing_sk,), _('Unknown')
     label = str(val)
     sort_key = primary_sort_key(val) if dt == 'text' else val
     return (sort_key, label), label
