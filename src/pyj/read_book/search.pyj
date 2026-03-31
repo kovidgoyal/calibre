@@ -206,6 +206,7 @@ class SearchOverlay:
     def handle_initial_search_result(self, msg):
         if msg.type is 'error':
             emsg, details = parse_error_msg(msg)
+            self.view.hide_loading()
             error_dialog(_('Could not search'), emsg, details)
             self.result_handler = None
             self.initial_search_result_counter = 0

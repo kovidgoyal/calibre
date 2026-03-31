@@ -11,11 +11,15 @@ CONNECT_FAILED = 2
 UNHANDLED_ERROR = 3
 DB_ERROR = 4
 
-_RE_ESCAPE = /[-\/\\^$*+?.()|[\]{}]/g
+_RE_ESCAPE = /[\/\\^$*+?.()|[\]{}]/g
 quote_map = {'"': '"“”', "'": "'‘’"}
 qpat = /(['"])/g
 spat = /(\s+)/g
 invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
+# Matches each "atom" in an escaped string: an escape sequence (\X) or a
+# single Unicode code point.  The u flag ensures surrogate pairs are kept
+# together as one code point.
+_ESCAPED_ATOM = /\\[\s\S]|[\s\S]/gu
 
 def escape(string):
     return string.replace(_RE_ESCAPE, '\\$&')
@@ -31,7 +35,9 @@ def text_to_regex(text):
         return r'\s+'
     has_leading = text.lstrip() is not text
     has_trailing = text.rstrip() is not text
-    ans = v'["\s+"]' if has_leading else v'[]'
+    ans = v'[]'
+    if has_leading:
+        ans.push(r'\s+')
     for wpart in split_string(spat, text.strip()):
         if not wpart.strip():
             ans.push(r'\s+')
@@ -40,12 +46,10 @@ def text_to_regex(text):
                 r = quote_map[part]
                 if r:
                     ans.push('[' + r + ']')
-                else:
-                    chars = v'[]'
-                    for ch in part:
-                        chars.push(escape(ch))
-                    chars.join(invisible_chars)
-                    ans.push(part)
+                elif part:
+                    atoms = escape(part).match(_ESCAPED_ATOM)
+                    if atoms:
+                        ans.push(atoms.join(invisible_chars))
     if has_trailing:
         ans.push(r'\s+')
     return ans.join('')
@@ -244,6 +248,10 @@ def perform_search(query):
     idx = wc.current_book.spine.indexOf(query.current_name)
     if idx < 0:
         idx = 0
+    # Ensure current_name is always a valid spine item name so that the search
+    # terminates after going through all spine items exactly once (the search
+    # loop ends when it wraps back around to current_name).
+    wc.current_query.current_name = wc.current_book.spine[idx]
     queue_next_spine_item(idx, True)
 
 
