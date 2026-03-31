@@ -5,9 +5,9 @@ import codecs
 import json
 import os
 import re
+from enum import Enum, auto
 from functools import lru_cache, partial
 from urllib.parse import quote
-from enum import Enum, auto
 
 from qt.core import (
     QAbstractItemView,
@@ -388,11 +388,12 @@ class Group(Enum):
     def field_name(self) -> str:
         '''The underlying annotation or book field this grouping applies to.'''
         return GROUP_INFO[self]['field_name']
-    
+
     @property
     def display_name(self) -> str:
         '''A localized human-readable name for this grouping.'''
         return GROUP_INFO[self]['display_name']
+
 
 GROUP_INFO: dict[Group, dict[str, str]] = {
     Group.BOOK_ID: {
@@ -413,6 +414,7 @@ GROUP_INFO: dict[Group, dict[str, str]] = {
     },
 }
 
+
 def get_annotation_value(annotation, bid, field, db):
     '''
     Get the value for a field from an annotation result, checking
@@ -424,6 +426,7 @@ def get_annotation_value(annotation, bid, field, db):
     if val is None:
         val = db.field_for(field, bid)
     return val
+
 
 def get_group_key(result, field, db):
     '''
@@ -476,13 +479,13 @@ def get_group_key(result, field, db):
                 if not label:
                     label = _('Unknown date')
                 return (days_past, label), label
-            else: # Assume it's a year
+            else:  # Assume it's a year
                 year = QDateTime.fromString(ts, Qt.DateFormat.ISODate).date().year()
                 current_year = QDateTime.currentDateTime().date().year()
                 years_past = current_year - year
                 label = str(year) if year > 0 else _('Unknown year')
                 return (years_past, label), label
-    
+
     # Generic fallback
     val = get_annotation_value(result, bid, field, db)
     if not val:
@@ -492,6 +495,7 @@ def get_group_key(result, field, db):
         sort_key = val.lower()
     label = str(val)
     return (sort_key, label), label
+
 
 class ResultsList(QTreeWidget):
 
@@ -820,6 +824,7 @@ class Restrictions(QWidget):
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
 
+
 class GroupOptions(QWidget):
     grouping_changed = pyqtSignal()
 
@@ -868,6 +873,7 @@ class GroupOptions(QWidget):
             if row > -1:
                 gb.setCurrentIndex(row)
         gb.blockSignals(False)
+
 
 class BrowsePanel(QWidget):
 

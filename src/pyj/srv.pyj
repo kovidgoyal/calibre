@@ -41,7 +41,8 @@ def toplevel_main():
     script = undefined
     if window.navigator.serviceWorker:
         window.navigator.serviceWorker.register(absolute_path('service_worker.js')).catch(
-            def(err): console.error('Service worker registration failed:', err);
+            def(err):
+                console.error('Service worker registration failed:', err)
         )
 
     ajax('ajax-setup', def(end_type, xhr, event):

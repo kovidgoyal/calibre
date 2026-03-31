@@ -37,6 +37,7 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
     db.field_metadata = field_metadata or {}
     return db
 
+
 class GroupKeyTest(unittest.TestCase):
 
     def test_pubdate_year_buckets_without_day_in_format(self):
@@ -57,8 +58,8 @@ class GroupKeyTest(unittest.TestCase):
         expected_year = QDateTime.fromString(pub_iso, Qt.DateFormat.ISODate).date().year()
         current_year = QDateTime.currentDateTime().date().year()
 
-        self.assertEqual(label, str(expected_year), "Expected label to be the year string")
-        self.assertEqual(sort_key, (current_year - expected_year, label), "Expected sort key to be (years_past, label)")
+        self.assertEqual(label, str(expected_year), 'Expected label to be the year string')
+        self.assertEqual(sort_key, (current_year - expected_year, label), 'Expected sort key to be (years_past, label)')
 
     def test_pubdate_unknown_year_when_invalid_timestamp(self):
         db = _make_mock_db(
@@ -73,7 +74,7 @@ class GroupKeyTest(unittest.TestCase):
         (_, label) = get_group_key(_make_result(), 'pubdate', db)
 
         # year() returns 0 for an invalid QDate; the code treats 0 as "unknown"
-        self.assertIn('Unknown', label, "Expected label to indicate unknown year")
+        self.assertIn('Unknown', label, 'Expected label to indicate unknown year')
 
     def test_arbitrary_text_field_sorts_case_insensitively(self):
         db = _make_mock_db(
@@ -102,7 +103,7 @@ class GroupKeyTest(unittest.TestCase):
         )
         (sort_key, _) = get_group_key(_make_result(), 'publisher', db)
 
-        self.assertEqual(sort_key, ('',), "Expected sort key to be the unknown sentinel")
+        self.assertEqual(sort_key, ('',), 'Expected sort key to be the unknown sentinel')
 
     def test_annotation_level_field_read_from_result_dict(self):
         db = _make_mock_db(field_metadata={'format': {'datatype': 'text'}})
@@ -144,7 +145,7 @@ class GroupKeyTest(unittest.TestCase):
         (sort_key, label) = get_group_key(_make_result(), 'authors', db)
 
         self.assertEqual(label, 'F. Scott Fitzgerald')
-        self.assertIsInstance(sort_key[0], str) # Don't test the implementation of authors_to_sort_string
+        self.assertIsInstance(sort_key[0], str)  # Don't test the implementation of authors_to_sort_string
 
     def test_group_by_authors_unknown_when_empty(self):
         db = _make_mock_db(
@@ -181,7 +182,7 @@ class GroupKeyTest(unittest.TestCase):
 
         # Parse the timestamp to verify sort key
         qdt = QDateTime.fromString(ts_iso, Qt.DateFormat.ISODate)
-        self.assertTrue(qdt.isValid(), "Test setup: timestamp should be valid")
+        self.assertTrue(qdt.isValid(), 'Test setup: timestamp should be valid')
         qdt = qdt.toLocalTime()
         qdate = qdt.date()
         today = QDateTime.currentDateTime().toLocalTime().date()
