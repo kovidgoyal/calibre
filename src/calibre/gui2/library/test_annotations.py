@@ -42,11 +42,13 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
 class GroupKeyTest(unittest.TestCase):
 
     def test_pubdate_year_buckets_without_day_in_format(self):
-        from qt.core import QDateTime, Qt
+        from datetime import datetime, timezone
 
-        pub_iso = '2005-03-01T00:00:00.000Z'
+        from qt.core import QDateTime
+
+        pub_dt = datetime(2005, 3, 1, 0, 0, 0, tzinfo=timezone.utc)
         db = _make_mock_db(
-            field_for_map={'pubdate': pub_iso},
+            field_for_map={'pubdate': pub_dt},
             field_metadata={
                 'pubdate': {
                     'datatype': 'datetime',
@@ -56,15 +58,16 @@ class GroupKeyTest(unittest.TestCase):
         )
         (sort_key, label) = get_group_key(_make_result(), 'pubdate', db)
 
-        expected_year = QDateTime.fromString(pub_iso, Qt.DateFormat.ISODate).date().year()
+        expected_year = pub_dt.year
         current_year = QDateTime.currentDateTime().date().year()
 
         self.assertEqual(label, str(expected_year), 'Expected label to be the year string')
         self.assertEqual(sort_key, (current_year - expected_year, label), 'Expected sort key to be (years_past, label)')
 
-    def test_pubdate_unknown_year_when_invalid_timestamp(self):
+    def test_pubdate_unknown_year_when_no_pubdate(self):
+        from calibre.utils.iso8601 import UNDEFINED_DATE
         db = _make_mock_db(
-            field_for_map={'pubdate': 'not-a-date'},
+            field_for_map={'pubdate': None},
             field_metadata={
                 'pubdate': {
                     'datatype': 'datetime',
@@ -74,8 +77,9 @@ class GroupKeyTest(unittest.TestCase):
         )
         (_, label) = get_group_key(_make_result(), 'pubdate', db)
 
-        # year() returns 0 for an invalid QDate; the code treats 0 as "unknown"
-        self.assertIn('Unknown', label, 'Expected label to indicate unknown year')
+        # When pubdate is None the code falls back to UNDEFINED_QDATETIME whose
+        # year equals UNDEFINED_DATE.year; the label should be that year as a string.
+        self.assertEqual(label, str(UNDEFINED_DATE.year), 'Expected label to be the undefined-date year string')
 
     def test_arbitrary_text_field_sorts_case_insensitively(self):
         db = _make_mock_db(
@@ -104,7 +108,7 @@ class GroupKeyTest(unittest.TestCase):
         )
         (sort_key, _) = get_group_key(_make_result(), 'publisher', db)
 
-        self.assertEqual(sort_key, ('',), 'Expected sort key to be the unknown sentinel')
+        self.assertEqual(sort_key, (primary_sort_key(''),), 'Expected sort key to be the unknown sentinel')
 
     def test_annotation_level_field_read_from_result_dict(self):
         db = _make_mock_db(field_metadata={'format': {'datatype': 'text'}})
@@ -184,10 +188,13 @@ class GroupKeyTest(unittest.TestCase):
         self.assertIsInstance(sort_key[1], str)
 
     def test_group_by_book_timestamp_uses_db_field(self):
+        from datetime import datetime, timezone
+
         from qt.core import QDateTime, Qt
         ts_iso = '2023-06-15T08:00:00.000Z'
+        ts_dt = datetime(2023, 6, 15, 8, 0, 0, tzinfo=timezone.utc)
         db = _make_mock_db(
-            field_for_map={'timestamp': ts_iso},
+            field_for_map={'timestamp': ts_dt},
             field_metadata={
                 'timestamp': {
                     'datatype': 'datetime',
