@@ -44,8 +44,7 @@ def text_to_regex(text):
                     chars = v'[]'
                     for ch in part:
                         chars.push(escape(ch))
-                    chars.join(invisible_chars)
-                    ans.push(part)
+                    ans.push(chars.join(invisible_chars))
     if has_trailing:
         ans.push(r'\s+')
     return ans.join('')
@@ -244,6 +243,10 @@ def perform_search(query):
     idx = wc.current_book.spine.indexOf(query.current_name)
     if idx < 0:
         idx = 0
+    # Ensure current_name is always a valid spine item name so that the search
+    # terminates after going through all spine items exactly once (the search
+    # loop ends when it wraps back around to current_name).
+    wc.current_query.current_name = wc.current_book.spine[idx]
     queue_next_spine_item(idx, True)
 
 
