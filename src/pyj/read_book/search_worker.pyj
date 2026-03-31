@@ -47,7 +47,6 @@ def text_to_regex(text):
                 if r:
                     ans.push('[' + r + ']')
                 elif part:
-                    _ESCAPED_ATOM.lastIndex = 0
                     atoms = escape(part).match(_ESCAPED_ATOM)
                     if atoms:
                         ans.push(atoms.join(invisible_chars))
