@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import itertools
 import operator
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from functools import partial
 
 from qt.core import (
@@ -661,9 +661,11 @@ class BooksView(TableView):  # {{{
             m.setIcon(QIcon.ic('plus.png'))
             hcols = [(hcol, str(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
                      for hcol, hidx in hidden_cols.items()]
+            name_counts = Counter(hname for _, hname in hcols)
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
-                m.addAction(hname.replace('&', '&&'), partial(handler, action='show', column=hcol))
+                display = f'{hname} [{hcol}]' if name_counts[hname] > 1 else hname
+                m.addAction(display.replace('&', '&&'), partial(handler, action='show', column=hcol))
         ans.addSeparator()
         if col == 'ondevice':
             ans.addAction(_('Remember On Device column width'),
