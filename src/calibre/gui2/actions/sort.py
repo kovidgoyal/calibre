@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from contextlib import suppress
+from collections import Counter
 from functools import partial
 
 from qt.core import (
@@ -37,6 +38,8 @@ def hidden_fields(db):
 def get_sorted_fields(db):
     fm = db.field_metadata
     name_map = [(v,k) for k, v in fm.ui_sortable_field_keys().items()]
+    counts = Counter(name for name, _ in name_map)
+    name_map = [(f'{name} [{key}]' if counts[name] > 1 else name, key) for name, key in name_map]
     return sorted(name_map, key=lambda x: primary_sort_key(x[0]))
 
 
