@@ -16,7 +16,7 @@ from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
@@ -255,6 +255,8 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
     match s:
         case 'low' | 'medium' | 'high':
             data['reasoning']['effort'] = s
+        case 'auto':
+            pass
         case _:
             data['reasoning']['enabled'] = False
     add_websearch_if_desired(data, models)
