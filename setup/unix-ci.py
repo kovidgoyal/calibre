@@ -192,6 +192,13 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-3644',
     'CVE-2026-4224',  # expat parser unused
     'CVE-2026-4519',  # webbrowser() unused
+    # nodejs used only at build time CVEs are irrelevant
+    'CVE-2026-21710',
+    'CVE-2026-21717',
+    'CVE-2026-21714',
+    'CVE-2026-21713',
+    'CVE-2026-21715',
+    'CVE-2026-21716',
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
