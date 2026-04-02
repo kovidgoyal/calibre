@@ -31,6 +31,11 @@ class WorkerError(Exception):
         self.orig_tb = orig_tb
         self.log_path = log_path
 
+        if orig_tb:
+            self.add_note(f'Original traceback:\n{orig_tb}')
+        if log_path:
+            self.add_note(f'Log path: {log_path}')
+
 
 class ConnectedWorker(Thread):
 
