@@ -31,6 +31,10 @@ class WorkerError(Exception):
         self.orig_tb = orig_tb
         self.log_path = log_path
 
+        if orig_tb != '' :
+            self.add_note(str(orig_tb))
+        if log_path :
+            self.add_note(str(log_path))
 
 class ConnectedWorker(Thread):
 
