@@ -1075,6 +1075,10 @@ For many reasons:
   * There are third party automatic updaters for calibre made by calibre users
     in the `calibre forum <https://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
 
+  * There is a third party plugin called :guilabel:`calibre Auto-update` that you can
+    install via :guilabel:`Preferences->Plugins->Get new plugins` for a more
+    streamlined update experience.
+
   * Additionally, some third-party updaters such as Norton or Avast may update
     software behind the user's back. If you find calibre has updated unexpectedly,
     check for the presence of one.
