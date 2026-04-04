@@ -2466,7 +2466,7 @@ class DB:
 
     def search_annotations(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
-        restrict_to_book_ids, restrict_to_user, ignore_removed=False
+        restrict_to_book_ids, restrict_to_user, ignore_removed=False, annotation_style=None,
     ):
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
@@ -2492,6 +2492,8 @@ class DB:
             data.append(annotation_type)
         query += f' ORDER BY {fts_table}.rank '
         ls = json.loads
+        query_style = None if annotation_style is None else tuple(annotation_style.items())
+        sentinel = object()
         try:
             for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
                 if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
@@ -2501,6 +2503,9 @@ class DB:
                 except Exception:
                     continue
                 if ignore_removed and parsed_annot.get('removed'):
+                    continue
+                if query_style is not None and ((s := parsed_annot.get('style')) is None
+                        or not all(s.get(k, sentinel) == v for k, v in query_style)):
                     continue
                 yield {
                     'id': rowid,

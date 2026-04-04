@@ -3474,7 +3474,8 @@ class Cache:
         annotation_type=None,
         restrict_to_book_ids=None,
         restrict_to_user=None,
-        ignore_removed=False
+        ignore_removed=False,
+        annotation_style=None,
     ):
         '''
         Return of a tuple of annotations matching the specified Full-text query.
@@ -3482,7 +3483,7 @@ class Cache:
         return tuple(self.backend.search_annotations(
             fts_engine_query, use_stemming, highlight_start, highlight_end,
             snippet_size, annotation_type, restrict_to_book_ids, restrict_to_user,
-            ignore_removed
+            ignore_removed, annotation_style,
         ))
 
     @write_api
