@@ -959,7 +959,7 @@ class SplitView(QSplitter):
         idx = self.results_view.currentIndex()
         if idx.isValid():
             results, match = self.results_view.model().data_for_index(idx)
-            if match is None:
+            if match is not None:
                 match = idx.row()
             return results, match
         return None, None
