@@ -93,16 +93,27 @@ class LibraryViewMixin:  # {{{
 
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
+    def context_menu_action_hovered(self, ac):
+        ac.showStatusText(self)
+
     def build_context_menus(self):
         from calibre.gui2.bars import populate_menu
+        def connect_hovered(menu):
+            menu.hovered.connect(self.context_menu_action_hovered)
+            for action in menu.actions():
+                if m := action.menu():
+                    connect_hovered(m)
         lm = QMenu(self)
         populate_menu(lm, gprefs['action-layout-context-menu'], self.iactions)
+        connect_hovered(lm)
         dm = QMenu(self)
         populate_menu(dm, gprefs['action-layout-context-menu-device'], self.iactions)
+        connect_hovered(dm)
         ec = self.iactions['Edit Collections'].qaction
         self.library_view.set_context_menu(lm, ec)
         sm = QMenu(self)
         populate_menu(sm, gprefs['action-layout-context-menu-split'], self.iactions)
+        connect_hovered(sm)
         self.library_view.pin_view.set_context_menu(sm)
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
@@ -111,6 +122,7 @@ class LibraryViewMixin:  # {{{
             cm = QMenu(self.cover_flow)
             populate_menu(cm,
                     gprefs['action-layout-context-menu-cover-browser'], self.iactions)
+            connect_hovered(cm)
             self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):
