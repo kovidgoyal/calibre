@@ -209,7 +209,11 @@ def got_spine_item(query_id, spine_idx, result):
         return
     if result.ok:
         name = wc.current_book.spine[spine_idx]
-        wc.text_cache[name] = text_from_serialized_html(result.result, True)
+        data = result.result
+        if v'data instanceof Blob':  # happens for titlepage which is stored as html for some reason
+            queue_next_spine_item(spine_idx + 1)
+            return
+        wc.text_cache[name] = text_from_serialized_html(data, True)
         search_in_text_of(name)
         setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
     else:
