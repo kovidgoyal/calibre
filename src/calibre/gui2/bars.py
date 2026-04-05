@@ -394,6 +394,7 @@ if ismacos:
             self.setCheckable(self.clone.isCheckable())
             self.setChecked(self.clone.isChecked())
             self.setIcon(self.clone.icon())
+            self.setStatusTip(self.clone.statusTip())
             if self.clone_shortcuts:
                 sc = self.clone.shortcut()
                 if sc and not sc.isEmpty():
