@@ -2,6 +2,8 @@
 # vim:fileencoding=utf-8
 import json
 import re
+import urllib.parse
+from datetime import datetime, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -36,11 +38,19 @@ class LiveMint(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://epaper.livemint.com/')
-        cov = soup.findAll('img', attrs={'src': lambda x: x and x.startswith('/EPAPERIMAGES')})
-        for x in cov:
-            if 'MINT_FRONT_1' in x['src']:
-                return 'https://epaper.livemint.com' + x['src'].replace('-S', '')
+        today = datetime.today().strftime('%d/%m/%Y')
+        if datetime.today().weekday() in (5, 6):
+            today = (
+                datetime.today() - timedelta(days=datetime.today().weekday() - 4)
+            ).strftime('%d/%m/%Y')
+        soup = self.index_to_soup(
+            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate='
+            + urllib.parse.quote(today, safe=''),
+            raw=True,
+        )
+        for x in json.loads(soup):
+            if 'Mint_Front_' in x['SectionName'] or 'Mint_Cover' in x['SectionName']:
+                return x['MrImageUrl']
 
     extra_css = '''
         img {margin:0 auto;}
@@ -58,7 +68,12 @@ class LiveMint(BasicNewsRecipe):
             name='article',
             attrs={'id': lambda x: x and x.startswith(('article_', 'box_'))},
         ),
-        dict(attrs={'class': lambda x: x and x.startswith(('storyPage_storyBox__', 'storyBoxSchema'))}),
+        dict(
+            attrs={
+                'class': lambda x: x
+                and x.startswith(('storyPage_storyBox__', 'storyBoxSchema'))
+            }
+        ),
         classes('contentSec'),
     ]
 
@@ -67,13 +82,11 @@ class LiveMint(BasicNewsRecipe):
         dict(
             attrs={
                 'class': lambda x: x
-                and x.startswith(
-                    (
-                        'storyPage_alsoRead__',
-                        'storyPage_firstPublishDate__',
-                        'storyPage_bcrumb__',
-                    )
-                )
+                and x.startswith((
+                    'storyPage_alsoRead__',
+                    'storyPage_firstPublishDate__',
+                    'storyPage_bcrumb__',
+                ))
             }
         ),
         dict(attrs={'id': ['faqSection', 'seoText', 'ellipsisId', 'gift_redeemed_box ']}),
@@ -108,7 +121,9 @@ class LiveMint(BasicNewsRecipe):
     def preprocess_raw_html(self, raw, *a):
         # remove empty p tags
         raw = re.sub(
-            r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])', r'\g<2>', re.sub(
+            r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])',
+            r'\g<2>',
+            re.sub(
                 r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
             ),
         )
