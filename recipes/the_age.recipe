@@ -73,10 +73,9 @@ class TheAge(BasicNewsRecipe):
         # Done with the sorted feeds
 
         for i in feedSort:
-            del sections[i]
+            sections.pop(i, None)
 
         # Append what is left over...
-
         for i,s in sections.items():
             feeds.append((i, s))
 
