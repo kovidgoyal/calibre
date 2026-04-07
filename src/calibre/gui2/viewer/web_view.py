@@ -11,6 +11,7 @@ from qt.core import (
     QT_VERSION,
     QApplication,
     QByteArray,
+    QEvent,
     QFontDatabase,
     QFontInfo,
     QHBoxLayout,
@@ -579,6 +580,20 @@ class WebView(QWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+        self.focusProxy().installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        match event.type():
+            case QEvent.Type.NativeGesture:
+                match event.gestureType():
+                    case Qt.NativeGestureType.BeginNativeGesture:
+                        self.font_size_adjust_accumulated_value = 0
+                    case Qt.NativeGestureType.ZoomNativeGesture:
+                        self.font_size_adjust_accumulated_value += event.value()
+                        if self.adjust_font_size_by_fraction(1 + self.font_size_adjust_accumulated_value):
+                            self.font_size_adjust_accumulated_value = 0
+                        return True
+        return super().eventFilter(obj, event)
 
     def profile_op(self, which, profile_name, settings):
         if which == 'all-profiles':
@@ -691,6 +706,20 @@ class WebView(QWebEngineView):
 
     def notify_full_screen_state_change(self, in_fullscreen_mode):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
+
+    def adjust_font_size_by_fraction(self, frac):
+        sd = vprefs['session_data']
+        fs = sd.get('standalone_font_settings', {})
+        if (mfs := fs.get('minimum_font_size')) is None:
+            mfs = 8
+        bfs = sd.get('base_font_size')
+        nbfs = max(mfs, min(round(frac * bfs), 72))
+        if nbfs != bfs:
+            sd['base_font_size'] = nbfs
+            vprefs['session_data'] = sd
+            apply_font_settings(self)
+            return True
+        return False
 
     def set_session_data(self, key, val):
         fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = False
