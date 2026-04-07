@@ -73,9 +73,21 @@ class Notes:
             os.makedirs(self.notes_dir, exist_ok=True)
             if iswindows:
                 winutil.set_file_attributes(self.notes_dir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
-        os.makedirs(self.resources_dir, exist_ok=True)
-        os.makedirs(self.backup_dir, exist_ok=True)
-        os.makedirs(self.retired_dir, exist_ok=True)
+        try:
+            os.makedirs(self.resources_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.resources_dir)
+            os.makedirs(self.resources_dir, exist_ok=True)
+        try:
+            os.makedirs(self.backup_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.backup_dir)
+            os.makedirs(self.backup_dir, exist_ok=True)
+        try:
+            os.makedirs(self.retired_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.retired_dir)
+            os.makedirs(self.retired_dir, exist_ok=True)
         self.reopen(backend)
         for cat in backend.deleted_fields:
             self.delete_field(conn, cat)
