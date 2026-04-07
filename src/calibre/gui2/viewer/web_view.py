@@ -11,7 +11,6 @@ from qt.core import (
     QT_VERSION,
     QApplication,
     QByteArray,
-    QEvent,
     QFontDatabase,
     QFontInfo,
     QHBoxLayout,
@@ -24,7 +23,6 @@ from qt.core import (
     QUrl,
     QWidget,
     pyqtSignal,
-    sip,
 )
 from qt.webengine import (
     QWebEnginePage,
@@ -620,12 +618,6 @@ class WebView(QWebEngineView):
                     self.current_cfi = cfi
                     self.cfi_changed.emit(cfi)
 
-    @property
-    def host_widget(self):
-        ans = self._host_widget
-        if ans is not None and not sip.isdeleted(ans):
-            return ans
-
     def render_process_died(self):
         if self.dead_renderer_error_shown:
             return
@@ -633,14 +625,6 @@ class WebView(QWebEngineView):
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed.'
             ' You should try restarting the viewer.'), show=True)
-
-    def event(self, event):
-        if event.type() == QEvent.Type.ChildPolished:
-            child = event.child()
-            if 'HostView' in child.metaObject().className():
-                self._host_widget = child
-                self._host_widget.setFocus(Qt.FocusReason.OtherFocusReason)
-        return QWebEngineView.event(self, event)
 
     def sizeHint(self):
         return self._size_hint
