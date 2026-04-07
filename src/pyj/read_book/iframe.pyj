@@ -172,6 +172,7 @@ class IframeBoss:
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'gesture_from_margin': self.gesture_from_margin,
+            'native_gesture': self.native_gesture,
             'get_current_cfi': self.get_current_cfi,
             'initialize':self.initialize,
             'modify_selection': self.modify_selection,
@@ -372,6 +373,9 @@ class IframeBoss:
             s.addRange(r)
 
     def gesture_from_margin(self, data):
+        self.handle_gesture(data.gesture)
+
+    def native_gesture(self, data):
         self.handle_gesture(data.gesture)
 
     def fake_wheel_event(self, data):

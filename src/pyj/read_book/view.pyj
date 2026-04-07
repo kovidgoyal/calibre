@@ -430,6 +430,9 @@ class View:
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
 
+    def native_gesture(self, gesture):
+        self.iframe_wrapper.send_message('native_gesture', gesture=gesture)
+
     def iframe_size(self):
         iframe = self.iframe
         l, r = document.getElementById('book-left-margin'), document.getElementById('book-right-margin')

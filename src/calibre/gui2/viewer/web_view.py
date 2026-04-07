@@ -303,6 +303,7 @@ class ViewerBridge(Bridge):
     highlight_action = to_js()
     generic_action = to_js()
     show_search_result = to_js()
+    native_gesture = to_js()
     prepare_for_close = to_js()
     repair_after_fullscreen_switch = to_js()
     viewer_font_size_changed = to_js()
@@ -587,12 +588,14 @@ class WebView(QWebEngineView):
             case QEvent.Type.NativeGesture:
                 match event.gestureType():
                     case Qt.NativeGestureType.BeginNativeGesture:
-                        self.font_size_adjust_accumulated_value = 0
+                        self.pinch_accumulated_value = 0
                     case Qt.NativeGestureType.ZoomNativeGesture:
-                        self.font_size_adjust_accumulated_value += event.value()
-                        if self.adjust_font_size_by_fraction(1 + self.font_size_adjust_accumulated_value):
-                            self.font_size_adjust_accumulated_value = 0
+                        self.pinch_accumulated_value += event.value()
                         return True
+                    case Qt.NativeGestureType.EndNativeGesture:
+                        if abs(self.pinch_accumulated_value) > 0.05:
+                            out = self.pinch_accumulated_value > 0
+                            self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
         return super().eventFilter(obj, event)
 
     def profile_op(self, which, profile_name, settings):

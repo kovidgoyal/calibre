@@ -367,6 +367,10 @@ def viewer_font_size_changed():
     if view:
         view.viewer_font_size_changed()
 
+@from_python
+def native_gesture(gesture):
+    if view:
+        view.native_gesture(gesture)
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
