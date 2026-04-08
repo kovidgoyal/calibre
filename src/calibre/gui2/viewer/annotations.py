@@ -67,19 +67,20 @@ class AnnotationsSaveWorker(Thread):
         self.queue = Queue()
 
     def shutdown(self):
-        self.queue.shutdown(True)
+        self.queue.shutdown(immediate=False)
+        self.join()
 
     def run(self):
         while True:
             try:
                 x = self.queue.get()
-                while True:
-                    try:
-                        x = self.queue.get_nowait()
-                    except Empty:
-                        break
             except ShutDown:
                 break
+            while True:
+                try:
+                    x = self.queue.get_nowait()
+                except (Empty, ShutDown):
+                    break
             annotations_list = x['annotations_list']
             annotations_path_key = x['annotations_path_key']
             bld = x['book_library_details']
