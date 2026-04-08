@@ -5,8 +5,10 @@ import datetime
 import json
 import os
 from collections.abc import Iterable, Iterator
+from contextlib import suppress
 from functools import lru_cache
 from typing import Any, NamedTuple
+from urllib.error import HTTPError
 from urllib.request import Request
 
 from calibre.ai import AICapabilities, ChatMessage, ChatMessageType, ChatResponse, NoAPIKey, ResultBlocked
@@ -15,7 +17,7 @@ from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 MODELS_URL = 'https://models.github.ai/catalog/models'
 CHAT_URL = 'https://models.github.ai/inference/chat/completions'
 API_VERSION = '2022-11-28'
@@ -122,6 +124,58 @@ def human_readable_model_name(model_id: str) -> str:
     return model_id
 
 
+def resolve_model(model_ref: str) -> Model | None:
+    text = str(model_ref or '').strip()
+    if not text:
+        return None
+    models = get_available_models()
+    if m := models.get(text):
+        return m
+    lower_text = text.lower()
+    for model_id, model in models.items():
+        if model_id.lower() == lower_text or model.name.strip().lower() == lower_text:
+            return model
+    if '/' not in text:
+        if m := models.get('openai/' + text):
+            return m
+    for match in find_models_matching_name(text):
+        if m := models.get(match):
+            return m
+    return None
+
+
+def configured_text_model() -> Model | None:
+    raw = pref('text_model')
+    candidates: tuple[str, ...]
+    if isinstance(raw, dict):
+        candidates = (str(raw.get('id') or ''), str(raw.get('name') or ''))
+    elif isinstance(raw, (list, tuple)):
+        candidates = tuple(str(x or '') for x in raw)
+    elif isinstance(raw, str):
+        candidates = (raw,)
+    else:
+        candidates = ()
+    for candidate in candidates:
+        if m := resolve_model(candidate):
+            return m
+    return None
+
+
+def model_choice_strategy() -> str:
+    strategy = str(pref('model_choice_strategy', pref('model_strategy', 'medium')) or 'medium').strip().lower()
+    return strategy if strategy in {'high', 'medium', 'low'} else 'medium'
+
+
+def preferred_text_model_ids(strategy: str) -> tuple[str, ...]:
+    match strategy:
+        case 'low':
+            return ('openai/gpt-4.1-mini', 'openai/gpt-4o-mini', 'openai/gpt-4.1', 'openai/gpt-4o')
+        case 'high':
+            return ('openai/gpt-4o', 'openai/gpt-4.1', 'openai/gpt-4o-mini', 'openai/gpt-4.1-mini')
+        case _:
+            return ('openai/gpt-4.1', 'openai/gpt-4.1-mini', 'openai/gpt-4o-mini', 'openai/gpt-4o')
+
+
 @lru_cache(2)
 def newest_gpt_models() -> dict[str, Model]:
     high, medium, low = [], [], []
@@ -147,10 +201,36 @@ def newest_gpt_models() -> dict[str, Model]:
     }
 
 
-@lru_cache(2)
-def model_choice_for_text() -> Model:
-    m = newest_gpt_models()
-    return m.get(pref('model_strategy', 'medium'), m['medium'])
+def model_choice_for_text() -> tuple[Model, ...]:
+    seen: set[str] = set()
+    ans: list[Model] = []
+
+    def add(model: Model | None):
+        if model is None or model.id in seen:
+            return
+        seen.add(model.id)
+        ans.append(model)
+
+    add(configured_text_model())
+    for model_id in preferred_text_model_ids(model_choice_strategy()):
+        add(resolve_model(model_id))
+    with suppress(Exception):
+        legacy = newest_gpt_models()
+        add(legacy.get(model_choice_strategy()))
+        add(legacy.get('medium'))
+        add(legacy.get('high'))
+        add(legacy.get('low'))
+    return tuple(ans)
+
+
+def unavailable_model_error_message(err: HTTPError) -> str:
+    details = ''
+    with suppress(Exception):
+        details = err.fp.read().decode('utf-8', 'replace')
+    with suppress(Exception):
+        error_json = json.loads(details)
+        details = error_json.get('error', {}).get('message', details)
+    return details
 
 
 def chat_request(data: dict[str, Any], model: Model) -> Request:
@@ -187,19 +267,37 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
     # https://docs.github.com/en/rest/models/inference
     if use_model:
-        model = get_available_models()[use_model]
+        model = resolve_model(use_model)
+        if model is None:
+            raise KeyError(f'No GitHub AI model matching: {use_model}')
+        models = (model,)
     else:
-        model = model_choice_for_text()
-    data = {
-        'model': model.id,
-        'messages': [for_assistant(m) for m in messages],
-    }
-    rq = chat_request(data, model)
-    for datum in read_streaming_response(rq, GitHubAI.name):
-        for res in as_chat_responses(datum, model):
-            yield res
-            if res.exception:
-                break
+        models = model_choice_for_text()
+        if not models:
+            raise KeyError('No usable GitHub AI text model could be determined')
+    messages = tuple(messages)
+    last_error = None
+    for i, model in enumerate(models):
+        data = {
+            'model': model.id,
+            'messages': [for_assistant(m) for m in messages],
+        }
+        rq = chat_request(data, model)
+        try:
+            for datum in read_streaming_response(rq, GitHubAI.name):
+                for res in as_chat_responses(datum, model):
+                    yield res
+                    if res.exception:
+                        break
+            return
+        except HTTPError as err:
+            details = unavailable_model_error_message(err)
+            last_error = err
+            if err.code == 400 and 'unavailable model' in details.lower() and i + 1 < len(models):
+                continue
+            raise
+    if last_error is not None:
+        raise last_error
 
 
 def text_chat(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
