@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2026, calibre contributors
 
 import unittest
+from datetime import UTC
 from unittest.mock import MagicMock
 
 from calibre.gui2.library.annotations import get_group_key, get_group_keys_list
@@ -42,11 +43,11 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
 class GroupKeyTest(unittest.TestCase):
 
     def test_pubdate_year_buckets_without_day_in_format(self):
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from qt.core import QDateTime
 
-        pub_dt = datetime(2005, 3, 1, 0, 0, 0, tzinfo=timezone.utc)
+        pub_dt = datetime(2005, 3, 1, 0, 0, 0, tzinfo=UTC)
         db = _make_mock_db(
             field_for_map={'pubdate': pub_dt},
             field_metadata={
@@ -188,11 +189,11 @@ class GroupKeyTest(unittest.TestCase):
         self.assertIsInstance(sort_key[1], str)
 
     def test_group_by_book_timestamp_uses_db_field(self):
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         from qt.core import QDateTime, Qt
         ts_iso = '2023-06-15T08:00:00.000Z'
-        ts_dt = datetime(2023, 6, 15, 8, 0, 0, tzinfo=timezone.utc)
+        ts_dt = datetime(2023, 6, 15, 8, 0, 0, tzinfo=UTC)
         db = _make_mock_db(
             field_for_map={'timestamp': ts_dt},
             field_metadata={

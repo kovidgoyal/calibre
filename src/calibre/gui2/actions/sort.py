@@ -4,8 +4,8 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from contextlib import suppress
 from collections import Counter
+from contextlib import suppress
 from functools import partial
 
 from qt.core import (
