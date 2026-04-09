@@ -654,7 +654,7 @@ class GetTranslations(Translations):  # {{{
 
     def add_options(self, parser):
         parser.add_option('-e', '--check-for-errors', default=False, action='store_true',
-                          help='Check for errors in .po files')
+                          help='Only check for errors in .po files')
 
     def run(self, opts):
         require_git_master()
@@ -727,6 +727,10 @@ class GetTranslations(Translations):  # {{{
 
     def check_group(self, group):
         files = glob.glob(os.path.join(self.TRANSLATIONS, group, '*.po'))
+        SKIP_BAD_LANGUAGES = (
+            'ko',  # too many errors in the translations
+        ) if group == 'website' else ()
+        files = [x for x in files if os.path.basename(x).rpartition('.')[0] not in SKIP_BAD_LANGUAGES]
         cmd = ['msgfmt', '-o', os.devnull, '--check-format']
         # Disabled because too many such errors, and not that critical anyway
         # if group == 'calibre':
