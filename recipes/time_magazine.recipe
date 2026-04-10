@@ -1,8 +1,9 @@
 import re
 import time as time_mod
 from datetime import datetime
-from calibre.web.feeds.news import BasicNewsRecipe
+
 from calibre.utils.date import utcnow
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TimeMagazineUSA(BasicNewsRecipe):
@@ -79,7 +80,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
             if not time_tag:
                 continue
             try:
-                dt = datetime.fromisoformat(time_tag['datetime'].replace('Z', '+00:00'))
+                dt = datetime.fromisoformat(time_tag['datetime'])
                 candidates.append((dt, href, a.get_text(strip=True)))
             except Exception:
                 pass
@@ -119,7 +120,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
             if articles:
                 sections.append((section_name, articles))
 
-        return sections if sections else None
+        return sections or None
 
     def _slug_to_title(self, path):
         parts = path.strip('/').split('/')
