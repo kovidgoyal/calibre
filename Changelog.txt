@@ -23,6 +23,44 @@
 # - title by author
 # }}}
 
+{{{ 9.7.0 2026-04-10
+
+:: new features
+
+- Annotations browser: Allow grouping results by any field
+
+- E-book viewer: Handle native pinch to zoom gesture on touchpads the same as the pinch to zoom on touchscreens. Default action is to change font size.
+
+- Content server: Implement full offline mode when using HTTPS connections to the content server
+
+:: bug fixes
+
+- [2146912] E-book viewer: Fix a regression in the previous release that caused annotations/last read information to not be saved in e-book files
+
+- [2147495] AI: Make the GitHub backend a bit more robust
+
+- [2147008] AI: OpenRouter backend: Fix reasoning level "auto" disabling all reasoning
+
+- [2147261] Content server: Read book: Fix regression causing error during searching
+
+- [2146829] Content server: Fix opening results from full text search not working
+
+- Fix a couple of minor regress in the new Full text search view introduced in the previous release
+
+- MTP driver: Linux: Fix a rare crash when connecting devices with large collections
+
+- Fix cover not being set when adding files to existing book records with no cover
+
+:: improved recipes
+- The Week
+- The Age
+- Financial Times
+- Mint
+
+:: new recipes
+- Cenital by Rodrigo Pazos
+}}}
+
 {{{ 9.6.0 2026-03-27
 
 :: new features
