@@ -1,70 +1,296 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import json
-
-from calibre.constants import iswindows
-from calibre.ptempfile import PersistentTemporaryFile
+import re
+import time as time_mod
+from datetime import datetime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.date import utcnow
 
 
-class TimeMagazine(BasicNewsRecipe):
-
+class TimeMagazineUSA(BasicNewsRecipe):
     title = 'TIME Magazine'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Monkfishare'
     description = 'Weekly US magazine.'
     language = 'en'
+    timefmt = ''
     no_stylesheets = True
     remove_javascript = True
+    remove_empty_feeds = True
 
-    def parse_index(self):
-        root = self.index_to_soup('https://time.com/magazine', as_tree=True)
-        for script in root.iterdescendants('script'):
-            if script.text and script.text.startswith('Time.bootstrap ='):
-                data = json.loads(script.text.partition('=')[2].lstrip())
-                break
-        else:
-            raise ValueError(
-                'The TIME website has changed, this recipe needs to be rewritten')
-        data = data['magazine']['us'][0]
-        self.timefmt = ' [%s]' % data['title'].split('|')[0].strip()
-        self.cover_url = data['hero']['src']['large']
-        articles = []
-        self.turl_map = {}
-        for article in data['articles']:
-            title = article.get('friendly_title') or article.get('short_title')
-            if title == 'In the Latest Issue' or 'content' not in article:
+    recipe_specific_options = {
+        'edition': {
+            'short': 'Edition URL',
+            'long': 'e.g. https://time.com/magazine/us/7362702/february-9th-2026-vol-207-no-3-u-s/ — leave blank for latest',
+            'default': '',
+        }
+    }
+
+    keep_only_tags = [
+        dict(name='section', attrs={'aria-labelledby': lambda v: v and (
+            v == 'intro-section' or re.match(r'^[a-z][a-z0-9_]*$', v)
+        )}),
+        dict(name='article'),
+    ]
+
+    remove_tags = [
+        dict(attrs={'class': lambda c: c and any(x in c for x in [
+            'bg-warm-grey-ads', 'native-ad', 'advertisement', 'sr-only',
+            'google-source', 'print:hidden', 'rightrail',
+        ])}),
+        dict(attrs={'data-testid': 'authors-list'}),
+        dict(name='button'),
+        dict(name='svg'),
+        dict(attrs={'aria-hidden': 'true'}),
+        dict(attrs={'role': 'tooltip'}),
+        dict(attrs={'class': lambda c: c and 'items-center' in c and 'flex-row' in c}),
+        dict(attrs={'class': lambda c: c and 'relative' in c and 'inline-flex' in c and 'w-max' in c}),
+    ]
+
+    extra_css = '''
+        h1 { font-size: 1.6em; }
+        h2, h3 { font-size: 1.2em; }
+        time { color: #666; font-size: 0.85em; }
+        img { display: block; max-width: 100%; height: auto;
+              position: static !important; float: none !important; }
+        figure { display: block; position: static !important;
+                 margin: 1em 0; overflow: visible; }
+    '''
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.addheaders += [
+            ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+            ('Accept-Language', 'en-US,en;q=0.9'),
+            ('Sec-Fetch-Mode', 'navigate'),
+            ('Sec-Fetch-Dest', 'document'),
+            ('Sec-Fetch-Site', 'none'),
+            ('Upgrade-Insecure-Requests', '1'),
+        ]
+        return br
+
+    def _find_latest_us_edition(self, soup):
+        candidates = []
+        for art in soup.find_all('article'):
+            a = art.find('a', href=True)
+            if not a:
                 continue
-            url = article['shortlink'].replace('?p=', '')
-            desc = article.get('excerpt') or ''
-            self.log(title, ' at ', url)
-            self.log('\t', desc)
+            href = a['href']
+            if '/magazine/us/' not in href:
+                continue
+            time_tag = art.find('time', attrs={'datetime': True})
+            if not time_tag:
+                continue
             try:
-                cover_url = article['hero']['src']['large']
+                dt = datetime.fromisoformat(time_tag['datetime'].replace('Z', '+00:00'))
+                candidates.append((dt, href, a.get_text(strip=True)))
             except Exception:
-                cover_url = ''
-            authors = ''
-            for aut in article.get('authors') or ():
-                if hasattr(aut, 'get'):
-                    authors += '<p>' + aut.get('bio') + '</p>'
-            articles.append({'title': title, 'url': url, 'desc': desc})
-            text = '<html><head><meta charset="utf-8"></head><body><h1>{}</h1>{}<div><img src="{}"></div><div>{}</div></body></html>'.format(
-                title, authors, cover_url, article['content'])
-            with PersistentTemporaryFile('-time-recipe.html') as f:
-                f.write(text.encode('utf-8'))
-            name = ('/' if iswindows else '') + f.name
-            self.turl_map[url] = 'file://' + name
+                pass
+        if not candidates:
+            return None, None
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        return candidates[0][1], candidates[0][2]
+
+    def _parse_toc_from_soup(self, soup):
+        toc_container = soup.find('div', class_=lambda c: c and 'columns-1' in c)
+        if not toc_container:
+            return None
+
+        sections = []
+        for section_div in toc_container.find_all(
+            'div', class_=lambda c: c and 'break-inside-avoid' in c
+        ):
+            h3 = section_div.find('h3', class_=lambda c: c and 'text-4xl' in c)
+            section_name = h3.get_text(strip=True) if h3 else None
+            if not section_name:
+                continue
+
+            articles = []
+            for title_h3 in section_div.find_all(
+                'h3', class_=lambda c: c and 'font-editorial' in c
+            ):
+                title = title_h3.get_text(strip=True)
+                a = title_h3.find_parent('a', href=True)
+                if not a:
+                    continue
+                href = a['href']
+                if not re.match(r'^(/\d{7,}/|/article/|/collection/)', href):
+                    continue
+                if title:
+                    articles.append({'title': title, 'url': 'https://time.com' + href})
+
+            if articles:
+                sections.append((section_name, articles))
+
+        return sections if sections else None
+
+    def _slug_to_title(self, path):
+        parts = path.strip('/').split('/')
+        slug = parts[1] if len(parts) >= 2 else parts[0]
+        return slug.replace('-', ' ').title()
+
+    def _parse_toc_from_raw(self, raw_html):
+        text = raw_html.replace('\\/', '/')
+        text = re.sub(r'\\u002[Ff]', '/', text)
+
+        combined = re.compile(
+            r'(?:'
+            r'/\d{7,}/[a-z0-9][a-z0-9\-]*/'
+            r'|/article/\d{4}/\d{2}/\d{2}/[a-z0-9][a-z0-9\-]*/'
+            r'|/collection/[a-z0-9\-]+/\d{4}/[a-z0-9\-]*/'
+            r')'
+        )
+
+        seen = set()
+        paths = []
+        for m in combined.finditer(text):
+            path = m.group(0)
+            if re.search(r'/magazine/|/section/|/vault/', path):
+                continue
+            if path not in seen:
+                seen.add(path)
+                paths.append(path)
+
+        if not paths:
+            return None
+
+        articles = []
+        for path in paths:
+            url = 'https://time.com' + path
+            try:
+                art_soup = self.index_to_soup(url)
+                h1 = art_soup.find('h1')
+                title = h1.get_text(strip=True) if h1 else self._slug_to_title(path)
+            except Exception:
+                title = self._slug_to_title(path)
+            articles.append({'title': title, 'url': url})
+            time_mod.sleep(0.5)
+
         return [('Articles', articles)]
 
-    def print_version(self, url):
-        return self.turl_map[url]
+    def _fetch_raw(self, url):
+        resp = self.browser.open(url)
+        return resp.read().decode('utf-8', errors='replace')
+
+    def _title_from_path(self, path):
+        slug = path.strip('/').split('/')[-1]
+        m = re.match(r'([a-z]+)-(\d+)[a-z]*-(\d{4})', slug)
+        if m:
+            month, day, year = m.group(1).capitalize(), m.group(2), m.group(3)
+            return '%s %s, %s' % (month, day, year)
+        return slug.replace('-', ' ').title()
+
+    def parse_index(self):
+        opts = self.recipe_specific_options
+        custom_path = (opts.get('edition') or '').strip()
+
+        if custom_path:
+            edition_url = custom_path if custom_path.startswith('http') else 'https://time.com' + custom_path
+            date_str = self._title_from_path(custom_path)
+            self.log('Using custom edition:', edition_url)
+        else:
+            year = utcnow().year
+            archive_soup = self.index_to_soup('https://time.com/vault/year/%d/' % year)
+            edition_url, edition_title = self._find_latest_us_edition(archive_soup)
+            if not edition_url:
+                archive_soup = self.index_to_soup(
+                    'https://time.com/vault/year/%d/' % (year - 1)
+                )
+                edition_url, edition_title = self._find_latest_us_edition(archive_soup)
+            if not edition_url:
+                raise ValueError('Could not find latest US edition')
+            self.log('Found edition:', edition_url)
+            date_str = edition_title.split('|')[0].strip() if edition_title else 'USA'
+
+        self.title = 'TIME Magazine [' + date_str + ']'
+
+        raw_html = self._fetch_raw(edition_url)
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+        soup = BeautifulSoup(raw_html, 'html.parser')
+
+        figure = soup.find('figure')
+        if figure:
+            img = figure.find('img')
+            if img:
+                src = img.get('src', '')
+                self.cover_url = re.sub(r'width=\d+', '', src)
+
+        sections = self._parse_toc_from_soup(soup)
+        if sections:
+            self.log('Parsed TOC from HTML structure (%d sections)' % len(sections))
+            return sections
+
+        self.log('TOC not in HTML structure, trying raw payload extraction')
+        sections = self._parse_toc_from_raw(raw_html)
+        if sections:
+            self.log('Extracted %d article URLs from raw payload' % len(sections[0][1]))
+            return sections
+
+        raise ValueError(
+            'Could not parse edition TOC from either HTML or raw payload. '
+            'Response length: %d bytes' % len(raw_html)
+        )
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
-            img['src'] = img['data-lazy-src']
-        for img in soup.findAll('img', src=lambda x: not x):
-            img.extract()
+        for a in soup.find_all('a', href=True):
+            if 'magazineshop' in a['href']:
+                parent = a.find_parent()
+                if parent and parent.name in ('p', 'div', 'span'):
+                    parent.decompose()
+                else:
+                    a.decompose()
+
+        for figure in soup.find_all('figure'):
+            figcaption = figure.find('figcaption')
+            caption_text = figcaption.get_text(strip=True) if figcaption else ''
+            img = figure.find('img')
+            if img:
+                img_tag = soup.new_tag('img', src=img.get('src', ''), alt=caption_text)
+                new_fig = soup.new_tag('figure')
+                new_fig.append(img_tag)
+                if caption_text:
+                    new_cap = soup.new_tag(
+                        'figcaption',
+                        style='font-size:0.8em; color:#555; font-style:italic; text-align:center; margin-top:0.3em;'
+                    )
+                    new_cap.string = caption_text
+                    new_fig.append(new_cap)
+                figure.replace_with(new_fig)
+            else:
+                figure.decompose()
+
+        for tag in soup.find_all(['img']):
+            for attr in ('style', 'class'):
+                if tag.has_attr(attr):
+                    del tag[attr]
+
+        for div in soup.find_all(
+            'div', class_=lambda c: c and 'justify-items-center' in c
+        ):
+            div.unwrap()
+        for div in soup.find_all(
+            'div', class_=lambda c: c and 'container' in c and 'mx-auto' in c
+        ):
+            div.unwrap()
+        for div in soup.find_all('div', class_=lambda c: c and 'grid' in c):
+            div.unwrap()
+
+        for ul in soup.find_all('ul'):
+            tag_links = [a for a in ul.find_all('a', href=True)
+                         if '/section/' in a['href'] or '/tag/' in a['href']]
+            if tag_links:
+                p = soup.new_tag('p')
+                for i, a in enumerate(tag_links):
+                    if i > 0:
+                        p.append(' | ')
+                    p.append(a)
+                ul.replace_with(p)
+
+        for p in soup.find_all('p'):
+            if p.get_text(strip=True) == 'Advertisement':
+                parent = p.find_parent(attrs={'data-ad-wrapper': True}) or p.find_parent(
+                    class_=lambda c: c and 'bg-warm-grey-ads' in c
+                )
+                if parent:
+                    parent.decompose()
+                else:
+                    p.decompose()
+
         return soup
