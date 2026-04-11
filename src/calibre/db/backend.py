@@ -1662,7 +1662,7 @@ class DB:
             return
         with candidates:
             for x in candidates:
-                if x.name.endswith(q) and x.is_file():
+                if x.name.endswith(q) and x.is_file() and not x.name.startswith('._'):
                     if not do_file_rename:
                         return x.path
                     x = x.path
