@@ -32,6 +32,7 @@ from qt.core import (
     Qt,
     QTabWidget,
     QTextBrowser,
+    QTimer,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -66,6 +67,13 @@ def for_display_to_human(self: ChatMessage, is_initial_query: bool = False, cont
     if is_initial_query and (idx := q.find(prompt_sep)) > -1:
         q = q[:idx] + '\n\n' + q[idx + len(prompt_sep):]
     return response_to_html(q, content_type=content_type)
+
+
+def streaming_text_as_html(text: str, emphasize: bool = False) -> str:
+    style = 'white-space: pre-wrap;'
+    if emphasize:
+        style += ' font-style: italic;'
+    return f'<div style="{style}">{escape(text)}</div>'
 
 
 def show_reasoning(reasoning: str, parent: QWidget | None = None):
@@ -241,6 +249,10 @@ class ConverseWidget(QWidget):
         self.layout.addLayout(footer_layout)
 
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
+        self.streaming_render_timer = t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(50)
+        t.timeout.connect(self.update_ui_state)
         self.show_initial_message()
         self.update_cost()
 
@@ -320,10 +332,9 @@ class ConverseWidget(QWidget):
         if self.conversation_history.api_call_active:
             a = self.conversation_history.accumulator
             has_content = bool(a.all_content)
-            content_for_display = for_display_to_human(ChatMessage(a.all_content or a.all_reasoning))
+            streaming_text = a.all_content or a.all_reasoning
+            content_for_display = streaming_text_as_html(streaming_text, emphasize=not has_content)
             activity = _('answering') if has_content else _('thinking')
-            if not has_content:
-                content_for_display = '<i>' + content_for_display + '</i>'
             self.result_display.add_block(
                 content_for_display, Header(_('{assistant} {activity}').format(
                     assistant=assistant, activity=activity) + '…'), is_response=True)
@@ -388,15 +399,22 @@ class ConverseWidget(QWidget):
         if r is None:
             self.conversation_history.finalize_response()
             self.update_cost()
+            self.streaming_render_timer.stop()
+            self.update_ui_state()
+            return
         elif r.exception is not None:
             self.conversation_history.current_response_completed = True
             self.conversation_history.api_call_active = False
             self.current_error_html = f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}'''
             self.current_error_details = r.error_details
             self.current_error_level = ERROR
+            self.streaming_render_timer.stop()
+            self.update_ui_state()
+            return
         else:
             self.conversation_history.accumulator.accumulate(r)
-        self.update_ui_state()
+            if not self.streaming_render_timer.isActive():
+                self.streaming_render_timer.start()
 
     def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
         self.clear_current_conversation()
