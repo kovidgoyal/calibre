@@ -375,7 +375,9 @@ class ConverseWidget(QWidget):
             self.conversation_history.finalize_response()
             self.update_cost()
         elif r.exception is not None:
-            self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
+            self.result_display.show_message(
+                f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''',
+                r.error_details, ERROR, clear_conversation=False)
         else:
             self.conversation_history.accumulator.accumulate(r)
         self.update_ui_state()
