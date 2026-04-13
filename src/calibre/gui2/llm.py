@@ -51,7 +51,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ui_language_as_english
-from calibre.utils.logging import ERROR, WARN
+from calibre.utils.logging import ERROR, INFO, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode
 
@@ -203,6 +203,9 @@ class ConverseWidget(QWidget):
         self.current_api_call_number = 0
         self.session_cost = 0.0
         self.session_cost_currency = ''
+        self.current_error_html = ''
+        self.current_error_details = ''
+        self.current_error_level = INFO
         self.update_ai_provider_plugin()
         self.clear_current_conversation()
 
@@ -324,6 +327,16 @@ class ConverseWidget(QWidget):
             self.result_display.add_block(
                 content_for_display, Header(_('{assistant} {activity}').format(
                     assistant=assistant, activity=activity) + '…'), is_response=True)
+        if self.current_error_html:
+            style = ''
+            if self.current_error_level == WARN:
+                style = 'color: orange;'
+            elif self.current_error_level > WARN:
+                style = 'color: red;'
+            err_html = f'<div style="{style}">{self.current_error_html}</div>'
+            if self.current_error_details:
+                err_html += f"<pre>{_('Details:')}\n{escape(self.current_error_details)}</pre>"
+            self.result_display.add_block(err_html)
         self.result_display.re_render()
         self.scroll_to_bottom()
 
@@ -336,6 +349,7 @@ class ConverseWidget(QWidget):
         self.result_display.scroll_to_bottom()
 
     def start_api_call(self, action_prompt: str, **kwargs: Any) -> None:
+        self.clear_current_error()
         if not self.is_ready_for_use:
             self.show_error(f'''<b>{_('AI provider not configured.')}</b> <a href="http://{self.configure_ai_hostname}">{_(
                 'Configure AI provider')}</a>''', is_critical=False)
@@ -375,7 +389,11 @@ class ConverseWidget(QWidget):
             self.conversation_history.finalize_response()
             self.update_cost()
         elif r.exception is not None:
-            self.show_error(f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''', details=r.error_details, is_critical=True)
+            self.conversation_history.current_response_completed = True
+            self.conversation_history.api_call_active = False
+            self.current_error_html = f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}'''
+            self.current_error_details = r.error_details
+            self.current_error_level = ERROR
         else:
             self.conversation_history.accumulator.accumulate(r)
         self.update_ui_state()
@@ -387,6 +405,12 @@ class ConverseWidget(QWidget):
 
     def clear_current_conversation(self) -> None:
         self.conversation_history = ConversationHistory()
+        self.clear_current_error()
+
+    def clear_current_error(self) -> None:
+        self.current_error_html = ''
+        self.current_error_details = ''
+        self.current_error_level = INFO
 
     def update_ui_state(self) -> None:
         if self.conversation_history:
