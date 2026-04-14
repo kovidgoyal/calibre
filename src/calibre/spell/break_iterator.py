@@ -33,12 +33,8 @@ def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: 
     lang = lang or get_lang() or 'en'
     key = lang, extra_break_chars
     if (it := per_thread_iterators.extra_break_char_word_iterators.get(key)) is None:
-        try:
-            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
-                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
-        except TypeError:  # people running from source
-            it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
-                    _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+        it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
+                _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
     return it
 
 

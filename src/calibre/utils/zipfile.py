@@ -20,12 +20,8 @@ from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre_extensions.speedup import pread_all
 from polyglot.builtins import as_bytes
-
-try:
-    from calibre_extensions.speedup import pread_all
-except ImportError:
-    pread_all = None  # running from source
 
 __all__ = [
     'ZIP_DEFLATED',
@@ -799,15 +795,14 @@ class ZipFile:
             self.fp = file
             self.filename = getattr(file, 'name', None)
         self.pread_fd = -1
-        if pread_all is not None:
-            try:
-                fd = self.fp.fileno()
-            except Exception:
-                fd = -1
-            if fd > -1:
-                with suppress(Exception):
-                    pread_all(fd, 1, 0)
-                    self.pread_fd = fd
+        try:
+            fd = self.fp.fileno()
+        except Exception:
+            fd = -1
+        if fd > -1:
+            with suppress(Exception):
+                pread_all(fd, 1, 0)
+                self.pread_fd = fd
 
         if key == 'r':
             self._GetContents()

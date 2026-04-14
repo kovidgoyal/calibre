@@ -9,16 +9,8 @@ import ssl
 import traceback
 from collections.abc import Callable, Iterator
 from contextlib import ExitStack
-from itertools import chain, islice
+from itertools import batched, chain
 from typing import Any, BinaryIO, NamedTuple
-
-try:
-    from itertools import batched
-except ImportError:
-    def batched(iterable, n):
-        iterator = iter(iterable)
-        while batch := tuple(islice(iterator, n)):
-            yield batch
 
 
 class _RemoteTraceback(Exception):
