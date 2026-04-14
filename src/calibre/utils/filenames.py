@@ -695,3 +695,28 @@ else:
     def is_fat_filesystem(path):
         # TODO: Implement for Linux and macOS
         return False
+
+
+def clone_file_metadata(src_fd: int, dest_fd: int, dest_name: str = '') -> None:
+    dest_name = dest_name or 'temp file'
+    if hasattr(os, 'fchown'):
+        import errno
+        import stat
+
+        from calibre.utils.filenames import format_permissions
+        st = os.stat(src_fd)
+        try:
+            os.fchmod(dest_fd, st.st_mode | stat.S_IWUSR)
+        except OSError as err:
+            if err.errno != errno.EPERM:
+                raise
+            raise OSError(f'Failed to change permissions of {dest_name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
+                        f'with error: {errno.errorcode[err.errno]}. Most likely the directory it is in has a restrictive umask')
+        try:
+            os.fchown(dest_fd, st.st_uid, st.st_gid)
+        except OSError as err:
+            if err.errno not in (errno.EPERM, errno.EACCES):
+                # ignore chown failure as user could be modifying a file belonging
+                # to a different user, in which case we really can't do anything
+                # about it short of making the file update non-atomic
+                raise

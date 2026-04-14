@@ -9,6 +9,7 @@ import shutil
 import stat
 import struct
 import sys
+import tempfile
 import time
 from compression import zlib
 from concurrent.futures import ThreadPoolExecutor
@@ -1532,27 +1533,10 @@ class ZipFile:
         self.fp = None
 
 
-def safe_replace(zipstream, name, datastream, extra_replacements={},
-        add_missing=False):
-    '''
-    Replace a file in a zip file in a safe manner. This proceeds by extracting
-    and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
-    sometimes created corrupted zip files.
-
-
-    :param zipstream:  Stream from a zip file
-    :param name:       The name of the file to replace
-    :param datastream: The data to replace the file with.
-    :param extra_replacements: Extra replacements. Mapping of name to file-like
-                               objects
-    :param add_missing: If a replacement does not exist in the zip file, it is
-                        added. Use with care as currently parent directories
-                        are not created.
-
-    '''
-    z = ZipFile(zipstream, 'r')
-    replacements = {name:datastream}
-    replacements.update(extra_replacements)
+def do_replace(src_zip_file, output_stream, name, replacement_data_stream, extra_replacements=None, add_missing=False):
+    z = src_zip_file
+    replacements = {name:replacement_data_stream}
+    replacements.update(extra_replacements or {})
     names = frozenset(replacements.keys())
     found = set()
 
@@ -1562,8 +1546,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
             r = r.read()
         return r
 
-    with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
-        ztemp = ZipFile(temp, 'w')
+    with ZipFile(output_stream, 'w') as ztemp:
         for obj in z.infolist():
             if isinstance(obj.filename, str):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
@@ -1575,13 +1558,49 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
         if add_missing:
             for name in names - found:
                 ztemp.writestr(name, rbytes(name))
-        ztemp.close()
-        z.close()
-        temp.seek(0)
-        zipstream.seek(0)
-        zipstream.truncate()
-        shutil.copyfileobj(temp, zipstream)
-        zipstream.flush()
+
+
+def safe_replace(zipstream_or_path, name, datastream, extra_replacements=None, add_missing=False):
+    '''
+    Replace a file in a zip file in a safe manner. This proceeds by extracting
+    and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
+    sometimes created corrupted zip files.
+
+
+    :param zipstream:  Stream from a zip file or path to a zip file
+    :param name:       The name of the file to replace
+    :param datastream: The data to replace the file with.
+    :param extra_replacements: Extra replacements. Mapping of name to file-like
+                               objects
+    :param add_missing: If a replacement does not exist in the zip file, it is
+                        added. Use with care as currently parent directories
+                        are not created.
+
+    '''
+    if isinstance(zipstream_or_path, str):
+        from calibre.utils.filenames import clone_file_metadata
+        path = os.path.abspath(zipstream_or_path)
+        parent_dir = os.path.dirname(path)
+        prefix = '_' if os.sep == '\\' else '.'
+        with ZipFile(zipstream_or_path, 'r') as z, tempfile.NamedTemporaryFile(
+                prefix=prefix, dir=parent_dir, delete=False) as temp:
+            clone_file_metadata(z.fp.fileno(), temp.fileno(), temp.name)
+            do_replace(z, temp, name, datastream, extra_replacements, add_missing)
+        try:
+            os.replace(temp.name, path)
+        except OSError:
+            os.remove(temp.name)
+            raise
+    else:
+        zipstream = zipstream_or_path
+        with ZipFile(zipstream, 'r') as z, SpooledTemporaryFile(max_size=100*1024*1024) as temp:
+            do_replace(z, temp, name, datastream, extra_replacements, add_missing)
+            z.close()
+            temp.seek(0)
+            zipstream.seek(0)
+            zipstream.truncate()
+            shutil.copyfileobj(temp, zipstream)
+            zipstream.flush()
 
 
 class PyZipFile(ZipFile):
@@ -1748,6 +1767,14 @@ def main(args=None):
             addToZip(zf, src, os.path.basename(src))
 
         zf.close()
+
+
+def find_tests():
+    import unittest
+    class TextZipFile(unittest.TestCase):
+
+        def test_zipfile_safe_replace(self):
+            pass
 
 
 if __name__ == '__main__':
