@@ -9,6 +9,7 @@ import shutil
 import stat
 import struct
 import sys
+import tempfile
 import time
 from compression import zlib
 from concurrent.futures import ThreadPoolExecutor
@@ -1539,6 +1540,10 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
     sometimes created corrupted zip files.
 
+    When zipstream is a real file on disk the replacement is performed
+    atomically: the new archive is written to a temporary file in the same
+    directory and then renamed over the original so that an interruption (e.g.
+    during shutdown) cannot leave a truncated file behind.
 
     :param zipstream:  Stream from a zip file
     :param name:       The name of the file to replace
@@ -1578,10 +1583,33 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
         ztemp.close()
         z.close()
         temp.seek(0)
-        zipstream.seek(0)
-        zipstream.truncate()
-        shutil.copyfileobj(temp, zipstream)
-        zipstream.flush()
+        # When zipstream is a real on-disk file, write atomically: build the
+        # new archive in a sibling temp file, preserve permissions, then rename
+        # over the original.  This prevents a truncated file if the process is
+        # interrupted (e.g. during viewer shutdown) between the truncate and
+        # the copy-back that the non-atomic path would perform.
+        filepath = getattr(zipstream, 'name', None)
+        if filepath and isinstance(filepath, str) and os.path.isfile(filepath):
+            dirpath = os.path.dirname(os.path.abspath(filepath))
+            tmppath = None
+            try:
+                fd, tmppath = tempfile.mkstemp(dir=dirpath, suffix='.tmp')
+                with os.fdopen(fd, 'wb') as tmpf:
+                    shutil.copyfileobj(temp, tmpf)
+                with suppress(OSError):
+                    shutil.copystat(filepath, tmppath)
+                zipstream.close()
+                os.replace(tmppath, filepath)
+            except Exception:
+                if tmppath is not None:
+                    with suppress(OSError):
+                        os.unlink(tmppath)
+                raise
+        else:
+            zipstream.seek(0)
+            zipstream.truncate()
+            shutil.copyfileobj(temp, zipstream)
+            zipstream.flush()
 
 
 class PyZipFile(ZipFile):
