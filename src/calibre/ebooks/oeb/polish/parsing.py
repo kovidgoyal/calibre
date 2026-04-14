@@ -13,13 +13,7 @@ from lxml.etree import Element as LxmlElement
 from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.xml_parse import safe_xml_fromstring
-
-try:
-    from calibre_extensions.fast_html_entities import replace_all_entities
-except ImportError:
-    def replace_all_entities(raw, keep_xml_entities: bool = False):
-        from calibre import xml_replace_entities
-        return xml_replace_entities(raw)
+from calibre_extensions.fast_html_entities import replace_all_entities
 
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 

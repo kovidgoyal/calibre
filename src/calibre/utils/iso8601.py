@@ -6,15 +6,12 @@ from datetime import UTC as utc_tz
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+import tzlocal
+
 from calibre_extensions import speedup
 
-try:
-    import tzlocal  # inside the try for people running from source without updated binaries
-    tz_name = tzlocal.get_localzone_name()
-    local_tz = ZoneInfo(tz_name)
-except Exception:
-    tz_name = ''
-    local_tz = datetime.now().astimezone().tzinfo
+tz_name = tzlocal.get_localzone_name() or 'UTC'
+local_tz = ZoneInfo(tz_name)
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 
