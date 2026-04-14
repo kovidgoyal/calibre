@@ -195,10 +195,10 @@
     },
 
     {
-        "name": "python 3.14.2",
+        "name": "python 3.14.4",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:ce543ab854bc256b61b71e9b27f831ffd1bfd60a479d639f8be7f9757cf573e9",
+            "hash": "sha256:d923c51303e38e249136fc1bdf3568d56ecb03214efdef48516176d3d7faaef8",
             "urls": ["https://www.python.org/ftp/python/{version}/Python-{version}.{file_extension}"]
         }
     },
