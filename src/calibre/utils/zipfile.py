@@ -1600,6 +1600,8 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
                     shutil.copystat(filepath, tmppath)
                 zipstream.close()
                 os.replace(tmppath, filepath)
+                # If os.replace raises, the except block below cleans up tmppath.
+                # The original file was never truncated so it remains intact.
             except Exception:
                 if tmppath is not None:
                     with suppress(OSError):
