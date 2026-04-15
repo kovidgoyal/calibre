@@ -85,6 +85,8 @@ class TheHindu(BasicNewsRecipe):
 
         self.log('Downloading The Hindu, ' + local_edition[3:] + ' edition, ' + today)
         url = absurl('/todays-paper/' + today + '/' + local_edition + '/')
+        if local_edition == 'th_chennai' and today == date.today().strftime('%Y-%m-%d'):
+            url = absurl('/todays-paper/')
 
         mag_url = None
         if dt.weekday() == 0:
