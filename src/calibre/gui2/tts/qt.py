@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-from unicodedata import normalize
+import unicodedata
 
 from qt.core import QMediaDevices, QObject, QTextToSpeech
 
@@ -62,7 +62,7 @@ class QtTTSBackend(TTSBackend):
             # https://bugs.launchpad.net/calibre/+bug/2148341
             # the darwin TTS engine expects ascii and might
             # cause unintended jumps if given utf-8
-            text = normalize('NFKC', text)
+            text = ''.join(c for c in unicodedata.normalize('NFKC', text) if unicodedata.category(c) != 'Mn')
         self.speaking_text = text
         self.tts.say(text)
 
