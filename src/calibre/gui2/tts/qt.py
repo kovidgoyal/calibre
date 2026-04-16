@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+from unicodedata import normalize
 
 from qt.core import QMediaDevices, QObject, QTextToSpeech
 
@@ -57,6 +58,11 @@ class QtTTSBackend(TTSBackend):
             # https://bugs.launchpad.net/bugs/2092948
             text = text.replace('<3', ' 3')
             self.ignore_tracking_until_state_changes_to_speaking = True
+        elif self.tts.engine() == 'darwin':
+            # https://bugs.launchpad.net/calibre/+bug/2148341
+            # the darwin TTS engine expects ascii and might
+            # cause unintended jumps if given utf-8
+            text = normalize('NFKC', text)
         self.speaking_text = text
         self.tts.say(text)
 
