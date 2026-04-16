@@ -93,7 +93,11 @@ class AnimatedGIF(ValueError):
 def gif_data_to_png_data(data, discard_animation=False):
     from PIL import Image
     img = Image.open(BytesIO(data))
-    if img.is_animated and not discard_animation:
+    try:
+        is_animated = img.is_animated
+    except Exception:
+        is_animated = False
+    if is_animated and not discard_animation:
         raise AnimatedGIF()
     buf = BytesIO()
     img.save(buf, 'png')
