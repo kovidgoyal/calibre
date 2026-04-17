@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+from unicodedata import normalize
 
 from qt.core import QMediaDevices, QObject, QTextToSpeech
 
@@ -50,13 +51,18 @@ class QtTTSBackend(TTSBackend):
         else:
             self.tts.stop()
 
+    def normalize_text(self, text: str) -> str:
+        return normalize('NFKC', text)
+
     def say(self, text: str) -> None:
         self.last_word_offset = 0
         self.last_spoken_word = None
-        if self.tts.engine() == 'sapi':
-            # https://bugs.launchpad.net/bugs/2092948
-            text = text.replace('<3', ' 3')
-            self.ignore_tracking_until_state_changes_to_speaking = True
+        text = self.normalize_text(text)
+        match self.tts.engine():
+            case 'sapi':
+                # https://bugs.launchpad.net/bugs/2092948
+                text = text.replace('<3', ' 3')
+                self.ignore_tracking_until_state_changes_to_speaking = True
         self.speaking_text = text
         self.tts.say(text)
 
@@ -111,6 +117,7 @@ class QtTTSBackend(TTSBackend):
         self._current_settings = settings
 
     def _saying_word(self, word: str, utterance_id: int, start: int, length: int) -> None:
+        word = self.normalize_text(word)
         # print(f'{repr(word)=} {start=} {length=}, {repr(self.speaking_text[start:start+length])=} {self.ignore_tracking_until_state_changes_to_speaking=}')
         if self.ignore_tracking_until_state_changes_to_speaking:
             return
