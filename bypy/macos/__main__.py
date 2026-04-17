@@ -58,11 +58,11 @@ def generate_icns(light_iconset: str, dark_iconset: str, output_path: str) -> No
                 icns.add_media(file=os.path.join(path, img))
     dark_icns = icnsutil.IcnsFile()
     add_iconset(dark_icns, dark_iconset)
-    dark_icns.write(output_path, toc=True)
+    dark_icns.write(output_path)
     light_icns = icnsutil.IcnsFile()
     add_iconset(light_icns, light_iconset)
     light_icns.add_media(icnsutil.IcnsType.key_from_readable('dark'), file=output_path)
-    light_icns.write(output_path, toc=True)
+    light_icns.write(output_path)
 
 
 def compile_launcher_lib(contents_dir, base, pyver, inc_dir):
