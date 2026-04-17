@@ -19,6 +19,8 @@ import zipfile
 from functools import partial, reduce
 from itertools import repeat
 
+import icnsutil
+
 from bypy.constants import OUTPUT_DIR, PREFIX, PYTHON, python_major_minor_version
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
@@ -47,6 +49,20 @@ basenames, main_modules, main_functions = calibre_constants['basenames'], calibr
 ARCH_FLAGS = '-arch x86_64 -arch arm64'.split()
 EXPECTED_ARCHES = {'x86_64', 'arm64'}
 MINIMUM_SYSTEM_VERSION = '14.0.0'
+
+
+def generate_icns(light_iconset: str, dark_iconset: str, output_path: str) -> None:
+    def add_iconset(icns, path):
+        for img in os.listdir(path):
+            if img.endswith('.png'):
+                icns.add_media(file=os.path.join(path, img))
+    dark_icns = icnsutil.IcnsFile()
+    add_iconset(dark_icns, dark_iconset)
+    dark_icns.write(output_path, toc=True)
+    light_icns = icnsutil.IcnsFile()
+    add_iconset(light_icns, light_iconset)
+    light_icns.add_media(icnsutil.IcnsType.key_from_readable('dark'), file=output_path)
+    light_icns.write(output_path, toc=True)
 
 
 def compile_launcher_lib(contents_dir, base, pyver, inc_dir):
@@ -223,6 +239,7 @@ class Freeze:
 
     @flush
     def run_tests(self):
+        print('Running tests...', flush=True)
         self.test_runner(join(self.contents_dir, 'MacOS', 'calibre-debug'), self.contents_dir)
 
     @flush
@@ -377,9 +394,10 @@ class Freeze:
         if not icons:
             raise SystemExit('Failed to find icns format icons')
         for x in icons:
-            subprocess.check_call([
-                'iconutil', '-c', 'icns', x, '-o', join(
-                    self.resources_dir, basename(x).partition('.')[0] + '.icns')])
+            output_icns = join(self.resources_dir, basename(x).partition('.')[0] + '.icns')
+            xd = x.replace('/light/', '/dark/')
+            assert x != xd
+            generate_icns(x, xd, output_icns)
         for helpers in (self.helpers_dir,):
             os.makedirs(helpers)
             cdir = dirname(helpers)

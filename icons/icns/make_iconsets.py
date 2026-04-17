@@ -41,12 +41,11 @@ with tempfile.TemporaryDirectory() as tdir:
         frame = render_frame(mode, sz)
         icon = os.path.join(tdir, f'icon-{sz}.png')
         render_svg(src, int(shrink_factor * sz), icon)
-        subprocess.check_call(f'convert {frame} {icon} -gravity center -compose over -composite {iname}'.split())
+        subprocess.check_call(f'magick {frame} {icon} -gravity center -compose over -composite {iname}'.split())
 
     for mode in ('light', 'dark'):
         subdir = mode
-        if not os.path.exists(subdir):
-            os.mkdir(subdir)
+        os.makedirs(subdir, exist_ok=True)
         for name, src in sources.items():
             iconset = j(subdir, name + '.iconset')
             if os.path.exists(iconset):
@@ -54,19 +53,19 @@ with tempfile.TemporaryDirectory() as tdir:
             os.mkdir(iconset)
             os.chdir(iconset)
             try:
-                for sz in (16, 32, 128, 256, 512, 1024):
+                for sz in (16, 32, 64, 128, 256, 512, 1024):
                     iname = f'icon_{sz}x{sz}.png'
                     iname2x = f'icon_{sz // 2}x{sz // 2}@2x.png'
                     if sz < 128:
                         render_svg(src, sz, iname)
                     else:
                         render_framed(mode, sz, iname)
+                    subprocess.check_call(['optipng', '-o7', '-strip', 'all', iname])
                     if sz > 16:
                         shutil.copy2(iname, iname2x)
-                    if sz > 512:
+                    if sz > 512 or sz == 64:
                         os.remove(iname)
-                    for name in (iname, iname2x):
-                        if os.path.exists(name):
-                            subprocess.check_call(['optipng', '-o7', '-strip', 'all', name])
+                    if sz == 128:
+                        os.remove(iname2x)
             finally:
                 os.chdir('../..')
