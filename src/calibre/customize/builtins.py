@@ -8,8 +8,8 @@ from calibre.ai.github import GitHubAI
 from calibre.ai.google import GoogleAI
 from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.ollama import OllamaAI
-from calibre.ai.openai_compatible import OpenAICompatible
 from calibre.ai.open_router import OpenRouterAI
+from calibre.ai.openai_compatible import OpenAICompatible
 from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP

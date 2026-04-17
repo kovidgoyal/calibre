@@ -30,7 +30,7 @@ class Model(NamedTuple):
     owner: str
 
     @classmethod
-    def from_dict(cls, x: dict[str, Any]) -> 'Model':
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         return cls(id=x['id'], owner=x.get('owned_by', 'remote'))
 
 
@@ -141,7 +141,7 @@ def as_chat_responses(d: dict[str, Any], model_id: str) -> Iterator[ChatResponse
     if blocked:
         yield ChatResponse(exception=ResultBlocked(ResultBlockReason.safety), plugin_name=OpenAICompatible.name)
         return
-    if usage := d.get('usage'):
+    if d.get('usage'):
         yield ChatResponse(
             has_metadata=True, provider=OpenAICompatible.name, model=d.get('model') or model_id,
             plugin_name=OpenAICompatible.name
