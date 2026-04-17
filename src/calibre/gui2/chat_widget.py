@@ -11,6 +11,7 @@ from qt.core import (
     QFrame,
     QHBoxLayout,
     QIcon,
+    QLabel,
     QPalette,
     QSize,
     QSizePolicy,
@@ -175,16 +176,26 @@ class ChatWidget(QWidget):
         self.browser = b = Browser(self)
         b.anchorClicked.connect(self.link_clicked)
         l.addWidget(b)
-        self.input = iw = Input(parent=self, placeholder_text=placeholder_text)
-        iw.send_requested.connect(self.on_input)
-        l.addWidget(iw)
         self.blocks: list[str] = []
         self.current_message = ''
         pal = self.palette()
         self.response_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
+        self.disclaimer_label = dl = QLabel(self.disclaimer_text, self)
+        dl.setWordWrap(True)
+        dl.setTextFormat(Qt.TextFormat.PlainText)
+        dl.setMargin(2)
+        font = QFont(dl.font())
+        font.setItalic(True)
+        dl.setFont(font)
+        dl.setStyleSheet(f'background-color: {self.base_color};')
+        l.addWidget(dl)
+        self.input = iw = Input(parent=self, placeholder_text=placeholder_text)
+        iw.send_requested.connect(self.on_input)
+        l.addWidget(iw)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.line_spacing = self.browser.fontMetrics().lineSpacing()
+        self.disclaimer_label.setVisible(False)
 
     def setFocus(self, reason) -> None:
         self.input.setFocus(reason)
@@ -234,11 +245,11 @@ class ChatWidget(QWidget):
         self.input.set_max_height(ceil(self.height() * 0.25))
 
     def re_render(self) -> None:
+        self.disclaimer_label.setVisible(not self.current_message and bool(self.blocks))
         if self.current_message:
             self.browser.setHtml(self.current_message)
         else:
             html = '\n\n'.join(self.blocks)
-            html += self.wrap_content_in_padding_table(f'<p><i>{escape(self.disclaimer_text)}</i></p>')
             self.browser.setHtml(html)
 
     def on_input(self) -> None:

@@ -32,6 +32,7 @@ from qt.core import (
     Qt,
     QTabWidget,
     QTextBrowser,
+    QTimer,
     QUrl,
     QVBoxLayout,
     QWidget,
@@ -238,6 +239,10 @@ class ConverseWidget(QWidget):
         self.layout.addLayout(footer_layout)
 
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
+        self.streaming_render_timer = t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(50)
+        t.timeout.connect(self.update_ui_state)
         self.show_initial_message()
         self.update_cost()
 
@@ -374,13 +379,18 @@ class ConverseWidget(QWidget):
         if r is None:
             self.conversation_history.finalize_response()
             self.update_cost()
+            self.streaming_render_timer.stop()
+            self.update_ui_state()
+            return
         elif r.exception is not None:
+            self.streaming_render_timer.stop()
             self.result_display.show_message(
                 f'''{_('Talking to AI failed with error:')} {escape(str(r.exception))}''',
                 r.error_details, ERROR, clear_conversation=False)
-        else:
-            self.conversation_history.accumulator.accumulate(r)
-        self.update_ui_state()
+            return
+        self.conversation_history.accumulator.accumulate(r)
+        if not self.streaming_render_timer.isActive():
+            self.streaming_render_timer.start()
 
     def show_error(self, html: str, is_critical: bool = False, details: str = '') -> None:
         self.clear_current_conversation()
@@ -389,6 +399,8 @@ class ConverseWidget(QWidget):
 
     def clear_current_conversation(self) -> None:
         self.conversation_history = ConversationHistory()
+        if hasattr(self, 'streaming_render_timer'):
+            self.streaming_render_timer.stop()
 
     def update_ui_state(self) -> None:
         if self.conversation_history:
@@ -513,6 +525,7 @@ class ConverseWidget(QWidget):
         return ''
 
     def cleanup_on_close(self) -> None:
+        self.streaming_render_timer.stop()
         self.response_received.disconnect(self.on_response_from_ai)
     # }}}
 
@@ -766,3 +779,200 @@ class LLMSettingsDialogBase(Dialog):
                 self.tabs.setCurrentWidget(w)
                 return
         super().accept()
+
+
+class FakeAIProvider:
+
+    is_ready_for_use = True
+
+    def human_readable_model_name(self, model_name: str) -> str:
+        return model_name or _('Assistant')
+
+
+class StreamingDemoWidget(ConverseWidget):
+
+    def __init__(self, title: str, throttle_streaming: bool, parent: QWidget | None = None):
+        self.demo_title = title
+        self.throttle_streaming = throttle_streaming
+        self.render_count = 0
+        super().__init__(parent)
+        self.render_count_label = QLabel('', self)
+        self.layout.insertWidget(0, self.render_count_label)
+        self.settings_button.setVisible(False)
+        self.result_display.input.setEnabled(False)
+        self.original_re_render = self.result_display.re_render
+        self.result_display.re_render = self.counted_re_render
+        self.reset_render_count()
+
+    def counted_re_render(self) -> None:
+        self.render_count += 1
+        self.render_count_label.setText(_('Full document renders: {}').format(self.render_count))
+        self.original_re_render()
+
+    def reset_render_count(self) -> None:
+        self.render_count = 0
+        self.render_count_label.setText(_('Full document renders: 0'))
+
+    def update_ai_provider_plugin(self):
+        self.ai_provider_plugin = FakeAIProvider()
+
+    def settings_dialog(self) -> QDialog:
+        return QDialog(self)
+
+    def handle_chat_link(self, qurl: QUrl) -> bool:
+        return False
+
+    def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
+        yield ChatMessage(action_prompt)
+
+    def choose_action_message(self) -> str:
+        return ''
+
+    def prompt_text_for_action(self, action) -> str:
+        return ''
+
+    def ready_message(self) -> str:
+        return self.demo_title
+
+    def start_demo_stream(self, prompt: str) -> None:
+        self.clear_current_conversation()
+        self.current_api_call_number = next(self.counter)
+        self.conversation_history.append(ChatMessage(prompt))
+        self.conversation_history.new_api_call()
+        self.reset_render_count()
+        self.update_ui_state()
+
+    def feed_demo_chunk(self, chunk: str) -> None:
+        if self.throttle_streaming:
+            self.on_response_from_ai(self.current_api_call_number, ChatResponse(content=chunk))
+            return
+        self.conversation_history.accumulator.accumulate(ChatResponse(content=chunk))
+        self.update_ui_state()
+
+    def finish_demo_stream(self) -> None:
+        if self.throttle_streaming:
+            self.on_response_from_ai(self.current_api_call_number, None)
+            return
+        self.conversation_history.finalize_response()
+        self.update_ui_state()
+
+
+class StreamingRenderDemo(QDialog):
+
+    def __init__(self, auto_close: bool = False, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.auto_close = auto_close
+        self.summary: dict[str, int] = {}
+        self.chunk_size = 4
+        self.chunk_interval_ms = 5
+        self.chunks: list[str] = []
+        self.current_chunk = 0
+        self.setWindowTitle(_('AI streaming render demo'))
+        self.resize(1400, 800)
+
+        l = QVBoxLayout(self)
+        self.status_label = QLabel('', self)
+        l.addWidget(self.status_label)
+
+        panels = QHBoxLayout()
+        l.addLayout(panels)
+        self.immediate_widget = self.create_demo_panel(_('Immediate full re-render'), False)
+        self.throttled_widget = self.create_demo_panel(_('50 ms batched re-render'), True)
+        panels.addWidget(self.immediate_widget.parentWidget())
+        panels.addWidget(self.throttled_widget.parentWidget())
+
+        controls = QHBoxLayout()
+        self.restart_button = QPushButton(_('Restart demo'), self)
+        self.restart_button.clicked.connect(self.restart)
+        controls.addWidget(self.restart_button)
+        controls.addStretch()
+        close_button = QPushButton(_('Close'), self)
+        close_button.clicked.connect(self.reject)
+        controls.addWidget(close_button)
+        l.addLayout(controls)
+
+        self.chunk_timer = t = QTimer(self)
+        t.setInterval(self.chunk_interval_ms)
+        t.timeout.connect(self.inject_next_chunk)
+        QTimer.singleShot(0, self.restart)
+
+    def create_demo_panel(self, title: str, throttle_streaming: bool) -> StreamingDemoWidget:
+        gb = QGroupBox(title, self)
+        l = QVBoxLayout(gb)
+        widget = StreamingDemoWidget(title, throttle_streaming, gb)
+        l.addWidget(widget)
+        return widget
+
+    def restart(self) -> None:
+        self.chunk_timer.stop()
+        payload = self.fake_streaming_answer()
+        self.chunks = [payload[i:i + self.chunk_size] for i in range(0, len(payload), self.chunk_size)]
+        self.current_chunk = 0
+        prompt = _('Demonstrate a streaming markdown response.')
+        self.immediate_widget.start_demo_stream(prompt)
+        self.throttled_widget.start_demo_stream(prompt)
+        self.status_label.setText(_(
+            'Injecting {chunks} chunks at {interval} ms per chunk into two widgets with identical content.'
+        ).format(chunks=len(self.chunks), interval=self.chunk_interval_ms))
+        self.chunk_timer.start()
+
+    def inject_next_chunk(self) -> None:
+        if self.current_chunk >= len(self.chunks):
+            self.chunk_timer.stop()
+            self.immediate_widget.finish_demo_stream()
+            self.throttled_widget.finish_demo_stream()
+            self.summary = {
+                'immediate': self.immediate_widget.render_count,
+                'throttled': self.throttled_widget.render_count,
+            }
+            self.status_label.setText(_(
+                'Immediate widget: {immediate} full renders. Batched widget: {throttled} full renders.'
+            ).format(**self.summary))
+            if self.auto_close:
+                print(f"immediate={self.summary['immediate']} throttled={self.summary['throttled']}")
+                QTimer.singleShot(0, self.accept)
+            return
+        chunk = self.chunks[self.current_chunk]
+        self.current_chunk += 1
+        self.immediate_widget.feed_demo_chunk(chunk)
+        self.throttled_widget.feed_demo_chunk(chunk)
+
+    def fake_streaming_answer(self) -> str:
+        block = textwrap.dedent('''
+            ## Streaming response
+
+            The content in this demo is intentionally long enough to keep moving the bottom edge of the document while it grows.
+
+            - Bullet one with **bold text**
+            - Bullet two with `inline code`
+            - Bullet three with a [link](https://example.com)
+
+            1. First numbered item
+            2. Second numbered item
+            3. Third numbered item
+
+            > A quoted paragraph that becomes taller over time as more chunks arrive.
+
+            ```python
+            def answer(question):
+                return "streaming"
+            ```
+
+            Final paragraph for more vertical movement in the viewport.
+        ''').strip()
+        return '\n\n'.join(block for _ in range(3))
+
+
+def develop(auto_close: bool = False):
+    from calibre.gui2 import Application
+
+    app = Application([])
+    d = StreamingRenderDemo(auto_close=auto_close)
+    d.show()
+    app.exec()
+    if auto_close:
+        return d.summary
+
+
+if __name__ == '__main__':
+    develop()
