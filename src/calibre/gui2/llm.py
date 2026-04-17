@@ -58,6 +58,7 @@ from polyglot.binary import as_hex_unicode
 
 prompt_sep = '\n\n------\n\n'
 reasoning_icon = 'reports.png'
+STREAMING_RENDER_THROTTLE_TIME = 50  # ms
 
 
 def for_display_to_human(self: ChatMessage, is_initial_query: bool = False, content_type: ContentType = ContentType.unknown) -> str:
@@ -204,6 +205,10 @@ class ConverseWidget(QWidget):
         self.current_api_call_number = 0
         self.session_cost = 0.0
         self.session_cost_currency = ''
+        self.streaming_render_timer = t = QTimer(self)
+        t.setSingleShot(True)
+        t.setInterval(STREAMING_RENDER_THROTTLE_TIME)
+        t.timeout.connect(self.update_ui_state)
         self.update_ai_provider_plugin()
         self.clear_current_conversation()
 
@@ -239,10 +244,6 @@ class ConverseWidget(QWidget):
         self.layout.addLayout(footer_layout)
 
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
-        self.streaming_render_timer = t = QTimer(self)
-        t.setSingleShot(True)
-        t.setInterval(50)
-        t.timeout.connect(self.update_ui_state)
         self.show_initial_message()
         self.update_cost()
 
@@ -399,8 +400,7 @@ class ConverseWidget(QWidget):
 
     def clear_current_conversation(self) -> None:
         self.conversation_history = ConversationHistory()
-        if hasattr(self, 'streaming_render_timer'):
-            self.streaming_render_timer.stop()
+        self.streaming_render_timer.stop()
 
     def update_ui_state(self) -> None:
         if self.conversation_history:
