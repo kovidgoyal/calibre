@@ -877,7 +877,7 @@ class StreamingRenderDemo(QDialog):
         panels = QHBoxLayout()
         l.addLayout(panels)
         self.immediate_widget = self.create_demo_panel(_('Immediate full re-render'), False)
-        self.throttled_widget = self.create_demo_panel(_('50 ms batched re-render'), True)
+        self.throttled_widget = self.create_demo_panel(_('{} ms batched re-render').format(STREAMING_RENDER_THROTTLE_TIME), True)
         panels.addWidget(self.immediate_widget.parentWidget())
         panels.addWidget(self.throttled_widget.parentWidget())
 
