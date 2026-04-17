@@ -53,7 +53,7 @@ MINIMUM_SYSTEM_VERSION = '14.0.0'
 
 def generate_icns(light_iconset: str, dark_iconset: str, output_path: str) -> None:
     def add_iconset(icns, path):
-        for img in os.listdir(path):
+        for img in sorted(os.listdir(path)):
             if img.endswith('.png'):
                 icns.add_media(file=os.path.join(path, img))
     dark_icns = icnsutil.IcnsFile()
