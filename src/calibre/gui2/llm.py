@@ -802,16 +802,17 @@ class StreamingDemoWidget(ConverseWidget):
         self.result_display.input.setEnabled(False)
         self.original_re_render = self.result_display.re_render
         self.result_display.re_render = self.counted_re_render
-        self.reset_render_count()
+        self.update_render_count(True)
 
     def counted_re_render(self) -> None:
         self.render_count += 1
-        self.render_count_label.setText(_('Full document renders: {}').format(self.render_count))
+        self.update_render_count()
         self.original_re_render()
 
-    def reset_render_count(self) -> None:
-        self.render_count = 0
-        self.render_count_label.setText(_('Full document renders: 0'))
+    def update_render_count(self, reset=False) -> None:
+        if reset:
+            self.render_count = 0
+        self.render_count_label.setText(_('Full document renders: {}').format(self.render_count))
 
     def update_ai_provider_plugin(self):
         self.ai_provider_plugin = FakeAIProvider()
@@ -839,7 +840,7 @@ class StreamingDemoWidget(ConverseWidget):
         self.current_api_call_number = next(self.counter)
         self.conversation_history.append(ChatMessage(prompt))
         self.conversation_history.new_api_call()
-        self.reset_render_count()
+        self.update_render_count(True)
         self.update_ui_state()
 
     def feed_demo_chunk(self, chunk: str) -> None:
