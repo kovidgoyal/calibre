@@ -142,11 +142,12 @@
     },
 
     {
-        "name": "sqlite 3.51.1",
-		"comment": "When updating this also update apsw in pyproject.toml",
+        "name": "sqlite 3.53.0",
+        "comment": "When updating this also update apsw in pyproject.toml",
         "unix": {
-            "hash": "sha256:4f2445cd70479724d32ad015ec7fd37fbb6f6130013bd4bfbc80c32beb42b7e0",
-            "urls": ["https://www.sqlite.org/2025/{name}-autoconf-3510100.{file_extension}"]
+            "file_extension": "tar.gz",
+            "hash": "sha256:a3db587a1b92ee5ddac2f66b3edb41b26f9c867275782d46c3a088977d6a5b18",
+            "urls": ["https://www.sqlite.org/2025/{name}-autoconf-3500400.{file_extension}"]
         }
     },
 
