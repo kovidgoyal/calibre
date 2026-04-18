@@ -133,10 +133,7 @@ def create_assets():
             # Generate .icns for backwards compat
             subprocess.check_call(actool + ['--app-icon', name, icons[-1]])
             os.remove('Assets.car')
-    subprocess.check_call([
-        'xcrun', 'actool', '--warnings', '--platform', 'macosx', '--compile', '.',
-        '--minimum-deployment-target', '15.0', '--output-partial-info-plist', '/dev/stdout',
-        '--app-icon', primary] + alternates + icons)
+    subprocess.check_call(actool + ['--app-icon', primary] + alternates + icons)
     for x in icons:
         shutil.rmtree(x)
 
