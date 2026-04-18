@@ -35,7 +35,8 @@
 /resources/mozilla-ca-certs.pem
 /resources/user-agent-data.json
 /resources/piper-voices.json
-/icons/icns/*/*.iconset
+/icons/icns/*.icns
+/icons/icns/*.car
 /setup/installer/windows/calibre/build.log
 /setup/pyqt_enums
 /tags

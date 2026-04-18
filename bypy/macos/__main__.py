@@ -387,17 +387,14 @@ class Freeze:
 
     @flush
     def create_skeleton(self):
+        print('Creating skeleton')
         c = join(self.build_dir, 'Contents')
         for x in ('Frameworks', 'MacOS', 'Resources'):
             os.makedirs(join(c, x))
-        icons = glob.glob(join(CALIBRE_DIR, 'icons', 'icns', 'light', '*.iconset'))
-        if not icons:
-            raise SystemExit('Failed to find icns format icons')
-        for x in icons:
-            output_icns = join(self.resources_dir, basename(x).partition('.')[0] + '.icns')
-            xd = x.replace('/light/', '/dark/')
-            assert x != xd
-            generate_icns(x, xd, output_icns)
+        icns_dir = join(CALIBRE_DIR, 'icons', 'icns')
+        shutil.copy(join(icns_dir, 'Assets.car'), self.resources_dir)
+        for x in glob.glob(join(icns_dir, '*.icns')):
+            shutil.copy(x, self.resources_dir)
         for helpers in (self.helpers_dir,):
             os.makedirs(helpers)
             cdir = dirname(helpers)
@@ -421,7 +418,8 @@ class Freeze:
                 LSMinimumSystemVersion=MINIMUM_SYSTEM_VERSION,
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
-                CFBundleIconFile='',
+                CFBundleIconFile='book.icns',
+                CFBundleIconName='book',
             )
             with open(join(cdir, 'Info.plist'), 'wb') as p:
                 plistlib.dump(pl, p)
@@ -475,6 +473,7 @@ class Freeze:
             NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
             CFBundleGetInfoString=('calibre, an E-book management '
                                    'application. Visit https://calibre-ebook.com for details.'),
+            CFBundleIconName='calibre',
             CFBundleIconFile='calibre.icns',
             NSHighResolutionCapable=True,
             LSApplicationCategoryType='public.app-category.productivity',
@@ -778,6 +777,7 @@ class Freeze:
             }[launcher]
             plist['CFBundleExecutable'] = launcher
             plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
+            plist['CFBundleIconName'] = launcher
             plist['CFBundleIconFile'] = launcher + '.icns'
             e = plist['CFBundleDocumentTypes'][0]
             e['CFBundleTypeExtensions'] = [x.lower() for x in formats]
