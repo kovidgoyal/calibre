@@ -351,7 +351,7 @@ class PluginWidget(QWidget, Ui_Form):
             c_name, c_def, c_type = opt
             opt_value = gprefs.get(self.name + '_' + c_name, c_def)
             if c_type == 'check_box':
-                getattr(self, c_name).setChecked(eval(str(opt_value)))
+                getattr(self, c_name).setChecked(str(opt_value) == 'True')
                 getattr(self, c_name).clicked.connect(partial(self.settings_changed, c_name))
             elif c_type == 'combo_box':
                 if opt_value is None:
@@ -653,9 +653,9 @@ class PluginWidget(QWidget, Ui_Form):
             else:
                 continue
             if c_type == 'check_box':
-                getattr(self, c_name).setChecked(eval(str(opt_value)))
+                getattr(self, c_name).setChecked(str(opt_value) == 'True')
                 if c_name == 'generate_genres':
-                    self.genre_source_field.setEnabled(eval(str(opt_value)))
+                    self.genre_source_field.setEnabled(str(opt_value) == 'True')
             elif c_type == 'combo_box':
                 if opt_value is None:
                     index = 0
