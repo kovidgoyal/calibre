@@ -230,6 +230,22 @@ You can look up the meaning of words in the current book by double clicking
 or long tapping the word you want to lookup and then clicking the lookup button
 that looks like a library.
 
+Custom lookup sources
+^^^^^^^^^^^^^^^^^^^^^^
+
+In addition to the built-in sources (such as Google dictionary and Wordnik), you
+can add your own. In the :guilabel:`Lookup` panel, click :guilabel:`Add sources`,
+then :guilabel:`Add`, and enter a name and a URL template. The placeholder
+:code:`{word}` in the URL is replaced with the selected word at lookup time. You
+can also restrict a source to specific book languages so that it is only used
+when the book matches.
+
+This can be used to point the viewer at any web dictionary that exposes a
+per-word URL, or at a local HTTP server running on your machine. For example, a
+URL template like :code:`http://127.0.0.1:8000/{word}` will query a dictionary
+server running locally, which is useful for offline reading or for using
+dictionaries that are not available online.
+
 
 Copying text and images
 -------------------------
