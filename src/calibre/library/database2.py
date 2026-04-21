@@ -107,10 +107,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     @library_id.setter
     def library_id(self, val):
         self._library_id_ = str(val)
-        self.conn.executescript(f'''
-                DELETE FROM library_id;
-                INSERT INTO library_id (uuid) VALUES ("{self._library_id_}");
-                ''')
+        self.conn.execute('DELETE FROM library_id')
+        self.conn.execute('INSERT INTO library_id (uuid) VALUES (?)', (self._library_id_,))
         self.conn.commit()
 
     def connect(self):

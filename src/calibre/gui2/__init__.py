@@ -908,6 +908,8 @@ class FunctionDispatcher(QObject):
         try:
             res = self.func(*args, **kwargs)
         except Exception:
+            import traceback
+            traceback.print_exc()
             res = None
         q.put(res)
 

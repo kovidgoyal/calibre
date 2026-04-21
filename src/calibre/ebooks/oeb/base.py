@@ -595,12 +595,16 @@ class DirContainer:
     def read(self, path):
         if path is None:
             path = self.opfname
-        path = os.path.join(self.rootdir, self._unquote(path))
+        path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
+        if not path.startswith(os.path.abspath(self.rootdir)):
+            raise ValueError(f'Path {path!r} is not inside {self.rootdir!r}')
         with open(path, 'rb') as f:
             return f.read()
 
     def write(self, path, data):
-        path = os.path.join(self.rootdir, self._unquote(path))
+        path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
+        if not path.startswith(os.path.abspath(self.rootdir)):
+            raise ValueError(f'Path {path!r} is not inside {self.rootdir!r}')
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
@@ -611,8 +615,10 @@ class DirContainer:
         if not path:
             return False
         try:
-            path = os.path.join(self.rootdir, self._unquote(path))
+            path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
         except ValueError:  # Happens if path contains quoted special chars
+            return False
+        if not path.startswith(os.path.abspath(self.rootdir)):
             return False
         try:
             return os.path.isfile(path)
