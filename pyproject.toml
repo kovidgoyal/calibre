@@ -8,7 +8,7 @@ dynamic = ["version"]
 dependencies = [
 	"six == 1.17.0",
 	"unrardll == 0.1.7",
-	"lxml == 6.0.2",
+	"lxml == 6.1.0",
 	"pychm == 0.8.6",
 	"html5-parser == 0.4.12",
 	"css-parser == 1.0.10",
