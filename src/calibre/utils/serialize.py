@@ -119,4 +119,4 @@ def pickle_dumps(data):
 
 def pickle_loads(dump):
     import pickle
-    return pickle.loads(dump, encoding='utf-8')
+    return pickle.loads(dump, encoding='utf-8')  # nosec: only used for calibre's own serialized data

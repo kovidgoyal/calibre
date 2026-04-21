@@ -197,7 +197,7 @@ def use_implicit_styling_for_a(a, style_map):
 def merge_contiguous_links(root):
     all_hrefs = set(root.xpath('//a/@href'))
     for href in all_hrefs:
-        tags = root.xpath(f'//a[@href="{href}"]')
+        tags = root.xpath('//a[@href=$h]', h=href)
         processed = set()
 
         def insert_tag(parent, child):

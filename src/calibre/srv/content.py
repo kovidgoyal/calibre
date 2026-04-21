@@ -306,7 +306,7 @@ def icon(ctx, rd, which):
 
 @endpoint('/reader-background/{encoded_fname}', android_workaround=True)
 def reader_background(ctx, rd, encoded_fname):
-    base = os.path.abspath(os.path.normapth(os.path.join(config_dir, 'viewer', 'background-images')))
+    base = os.path.abspath(os.path.normpath(os.path.join(config_dir, 'viewer', 'background-images')))
     fname = bytes.fromhex(encoded_fname)
     q = os.path.abspath(os.path.normpath(os.path.join(base, fname)))
     if not q.startswith(base):
