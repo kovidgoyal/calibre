@@ -213,6 +213,8 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
     'CVE-2025-25469', 'CVE-2025-25468',  # memory leak, not a security issue
     'CVE-2025-12343', 'CVE-2025-10256',  # DoS in video decoder unused in calibre
+    'CVE-2026-40962',  # overflow in video decoder not used by calibre
+
     'CVE-2026-2673',  # openssl fix not released
 ]
 
