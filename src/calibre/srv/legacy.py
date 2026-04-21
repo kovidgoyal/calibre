@@ -13,7 +13,7 @@ from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.content import book_filename, get
-from calibre.srv.errors import HTTPBadRequest, HTTPRedirect
+from calibre.srv.errors import HTTPBadRequest, HTTPRedirect, BookNotFound
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
@@ -153,9 +153,18 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
     )
 
     for book in books:
+        # Link to book details page (legacy-safe)
+        book_link = ctx.url_for('/legacy/book', book_id=book.id, library_id=library_id)
+
         thumbnail = E.td(
-                E.img(type='image/jpeg', border='0', src=ctx.url_for('/get', what='thumb', book_id=book.id, library_id=library_id),
-                      class_='thumbnail')
+            E.a(
+                E.img(
+                    type='image/jpeg', border='0',
+                    src=ctx.url_for('/get', what='thumb', book_id=book.id, library_id=library_id),
+                    class_='thumbnail'
+                ),
+                href=book_link  # Make cover clickable
+            )
         )
 
         data = E.td()
@@ -167,7 +176,8 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
                     fmt.lower(),
                     href=ctx.url_for('/legacy/get', what=fmt, book_id=book.id, library_id=library_id, filename=book_filename(rd, book.id, book, fmt))
                 ),
-                class_='button')
+                class_='button'
+            )
             s.tail = ''
             data.append(s)
 
@@ -186,8 +196,13 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             if val:
                 ctext += f'{name}=[{val}] '
 
-        first = E.span(f'{book.title} {series} by {authors_to_string(book.authors)}', class_='first-line')
+        # Make title clickable
+        first = E.span(
+            E.a(f'{book.title} {series} by {authors_to_string(book.authors)}', href=book_link),
+            class_='first-line'
+        )
         div.append(first)
+
         ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
         second = E.span(f'{ds} {tags} {ctext}', class_='second-line')
         div.append(second)
@@ -204,6 +219,7 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
                     'but it may not work well on a small screen')),
         style='text-align:center')
     )
+
     return E.html(
         E.head(
             E.title(__appname__ + ' Library'),
@@ -211,9 +227,9 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             E.link(rel='stylesheet', type='text/css', href=ctx.url_for('/static', what='mobile.css')),
             E.link(rel='apple-touch-icon', href=ctx.url_for('/static', what='calibre.png')),
             E.meta(name='robots', content='noindex')
-        ),  # End head
+        ),
         body
-    )  # End html
+    )
 # }}}
 
 
@@ -288,3 +304,25 @@ def legacy_get(ctx, rd, what, book_id, library_id, filename):
         # https://www.mobileread.com/forums/showthread.php?t=364015
         rd.outheaders.pop('Content-Disposition', '')
     return ans
+
+from calibre.srv.routes import endpoint
+from calibre.srv.legacy_book_details import render_legacy_book_details
+
+
+@endpoint('/legacy/book/{book_id}/{library_id}')
+def legacy_book(ctx, rd, book_id, library_id):
+    # Set library_id in query to match get_library_data expectations
+    rd.query['library_id'] = library_id
+    db, library_id, library_map, default_library = get_library_data(ctx, rd)
+    try:
+        book_id = int(book_id)
+    except Exception:
+        raise HTTPRedirect(ctx.url_for('/mobile'))
+    with db.safe_read_lock:
+        if not ctx.has_id(rd, db, book_id):
+            raise BookNotFound(book_id, db)
+        mi = db.get_metadata(book_id, get_cover=False)
+    rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
+    html_str = render_legacy_book_details(ctx, mi, library_id)
+    rd.outheaders.set('Content-Type', 'text/html; charset=UTF-8', replace_all=True)
+    return html_str.encode('utf-8')
