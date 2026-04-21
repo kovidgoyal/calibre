@@ -52,6 +52,7 @@ json.loads, json.dumps = jsonlib.loads, jsonlib.dumps
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
 
+
 def endpoint(route,
              methods=default_methods,
              types=None,
@@ -103,6 +104,7 @@ def endpoint(route,
         )
         return f
     return annotate
+
 
 class Route:
 

@@ -1,6 +1,6 @@
 from html import escape
-from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.date import strftime, dt_as_local, is_date_undefined
+
+from calibre.utils.date import dt_as_local, is_date_undefined, strftime
 
 
 def safe_date(dt, fmt='%d %b %Y'):
@@ -13,7 +13,6 @@ def render_legacy_book_details(ctx, mi, library_id):
     book_id = mi.id
 
     title = escape(mi.title or 'Unknown')
-    authors = escape(authors_to_string(mi.authors or []))
 
     series = ''
     if mi.series:
@@ -57,14 +56,14 @@ def render_legacy_book_details(ctx, mi, library_id):
     if mi.authors:
         author_links = []
         for author in mi.authors:
-            search_url = f"/mobile?library_id={library_id}&search=authors:%22%3D{escape(author)}%22"
+            search_url = f'/mobile?library_id={library_id}&search=authors:%22%3D{escape(author)}%22'
             author_links.append(f'<a href="{search_url}">{escape(author)}</a>')
         metadata_rows.append(f'<tr><td>Authors</td><td>{" ".join(author_links)}</td></tr>')
 
     # Series
     if series:
         series_name = escape(mi.series)
-        search_url = f"/mobile?library_id={library_id}&search=series:%22%3D{series_name}%22"
+        search_url = f'/mobile?library_id={library_id}&search=series:%22%3D{series_name}%22'
         metadata_rows.append(f'<tr><td>Series</td><td><a href="{search_url}">{series}</a></td></tr>')
 
     # Tags
@@ -76,23 +75,23 @@ def render_legacy_book_details(ctx, mi, library_id):
 
     if mi.pubdate:
         date_str = safe_date(mi.pubdate)
-        search_url = f"/mobile?library_id={library_id}&search=pubdate:%22%3D{mi.pubdate.isoformat()}%22"
+        search_url = f'/mobile?library_id={library_id}&search=pubdate:%22%3D{mi.pubdate.isoformat()}%22'
         metadata_rows.append(f'<tr><td>Published</td><td><a href="{search_url}">{date_str}</a></td></tr>')
 
     if mi.timestamp:
         date_str = safe_date(mi.timestamp)
-        search_url = f"/mobile?library_id={library_id}&search=timestamp:%22%3D{mi.timestamp.isoformat()}%22"
+        search_url = f'/mobile?library_id={library_id}&search=timestamp:%22%3D{mi.timestamp.isoformat()}%22'
         metadata_rows.append(f'<tr><td>Date</td><td><a href="{search_url}">{date_str}</a></td></tr>')
 
     if mi.rating and mi.rating > 0:
-        stars = '★' * int(round(mi.rating))
-        search_url = f"/mobile?library_id={library_id}&search=rating:%22%3D{int(mi.rating)}%22"
+        stars = '★' * round(mi.rating)
+        search_url = f'/mobile?library_id={library_id}&search=rating:%22%3D{int(mi.rating)}%22'
         metadata_rows.append(f'<tr><td>Rating</td><td><a href="{search_url}">{stars}</a></td></tr>')
 
     if mi.languages:
         lang_links = []
         for lang in mi.languages:
-            search_url = f"/mobile?library_id={library_id}&search=languages:%22%3D{lang}%22"
+            search_url = f'/mobile?library_id={library_id}&search=languages:%22%3D{lang}%22'
             lang_links.append(f'<a href="{search_url}">{lang}</a>')
         metadata_rows.append(f'<tr><td>Languages</td><td>{", ".join(lang_links)}</td></tr>')
 
@@ -129,7 +128,10 @@ def render_legacy_book_details(ctx, mi, library_id):
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
             body {{ font-family: sans-serif; margin: 0; padding: 0; background-color: #f6f3e9; color: var(--calibre-color-window-foreground); }}
-            .top-bar {{ position: fixed; top: 0; left: 0; width: 100%; background: #39322b; color: #f6f3e9; padding: 0.5em; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1; }}
+            .top-bar {{
+                    position: fixed; top: 0; left: 0; width: 100%; background: #39322b;
+                    color: #f6f3e9; padding: 0.5em; display: flex; justify-content: space-between;
+                    align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 1; }}
             .top-bar a {{ text-decoration: none; color: #f6f3e9; }}
             .top-bar .title {{ font-weight: bold; flex-grow: 1; margin-left: 0.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
             .content {{ margin-top: 4em; padding: 1em; }}
@@ -143,7 +145,10 @@ def render_legacy_book_details(ctx, mi, library_id):
             .metadata a {{ color: var(--calibre-color-link); text-decoration: none; }}
             .metadata a:hover {{ text-decoration: underline; }}
             .formats {{ margin-top: 1em; }}
-            .download-button {{ display: inline-block; padding: 0.5em 1em; background: #39322b; color: #f6f3e9; text-decoration: none; border-radius: 4px; margin-right: 0.5em; }}
+            .download-button {{
+                display: inline-block; padding: 0.5em 1em; background: #39322b;
+                color: #f6f3e9; text-decoration: none; border-radius: 4px; margin-right: 0.5em;
+            }}
             .download-button:hover {{ background: #2a2520; }}
             .description {{ margin-top: 2em; word-wrap: break-word; }}
             @media (max-width: 600px) {{

@@ -13,7 +13,8 @@ from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.content import book_filename, get
-from calibre.srv.errors import HTTPBadRequest, HTTPRedirect, BookNotFound
+from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPRedirect
+from calibre.srv.legacy_book_details import render_legacy_book_details
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
@@ -304,9 +305,6 @@ def legacy_get(ctx, rd, what, book_id, library_id, filename):
         # https://www.mobileread.com/forums/showthread.php?t=364015
         rd.outheaders.pop('Content-Disposition', '')
     return ans
-
-from calibre.srv.routes import endpoint
-from calibre.srv.legacy_book_details import render_legacy_book_details
 
 
 @endpoint('/legacy/book/{book_id}/{library_id}')
