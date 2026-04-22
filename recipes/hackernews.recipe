@@ -13,7 +13,6 @@ except ImportError:
     from urlparse import urlparse
 import re
 
-
 HN_URL_RE = re.compile(r'https://news\.ycombinator\.com/item\?id=\d+')
 HN_COMMENTS_URL_RE = re.compile(
     r'Comments URL:\s*<a [^>]*href="(https://news\.ycombinator\.com/item\?id=\d+)"'
