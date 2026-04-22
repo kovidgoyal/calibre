@@ -14,6 +14,12 @@ except ImportError:
 import re
 
 
+HN_URL_RE = re.compile(r'https://news\.ycombinator\.com/item\?id=\d+')
+HN_COMMENTS_URL_RE = re.compile(
+    r'Comments URL:\s*<a [^>]*href="(https://news\.ycombinator\.com/item\?id=\d+)"'
+)
+
+
 class HNWithCommentsLink(BasicNewsRecipe):
     title = 'HN With Actual Comments'
     __author__ = 'Tom Scholl & David Kerschner'
@@ -37,36 +43,49 @@ class HNWithCommentsLink(BasicNewsRecipe):
     temp_files = []
     articles_are_obfuscated = True
 
+    def _find_hn_url(self, article):
+        # hnrss.org sets <guid> to the HN thread URL, so article.id is normally
+        # that URL. Fall back to scraping the description HTML for
+        # "Comments URL: <a href='...'>" if the id isn't populated.
+        aid = getattr(article, 'id', None)
+        if aid and isinstance(aid, str):
+            m = HN_URL_RE.match(aid)
+            if m:
+                return m.group(0)
+        for attr in ('summary', 'text_summary', 'content'):
+            text = getattr(article, attr, None)
+            if text:
+                m = HN_COMMENTS_URL_RE.search(text)
+                if m:
+                    return m.group(1)
+                m = HN_URL_RE.search(text)
+                if m:
+                    return m.group(0)
+        return None
+
+    def parse_feeds(self):
+        feeds = super().parse_feeds()
+        # Build a map from article URL to HN thread URL so that when the article
+        # <link> points to an external site we can still fetch the HN comments.
+        self.url_to_comments = {}
+        for feed in feeds:
+            for article in feed.articles:
+                hn_url = self._find_hn_url(article)
+                if hn_url and article.url != hn_url:
+                    self.url_to_comments[article.url] = hn_url
+        if feeds:
+            self.hn_articles = feeds[0].articles
+        return feeds
+
     def get_readable_content(self, url):
         self.log('get_readable_content(' + url + ')')
         br = self.get_browser()
         f = br.open(url)
         html = f.read()
         f.close()
-
         return self.extract_readable_article(html, url)
 
-    def get_hn_content(self, url):
-        self.log('get_hn_content(' + url + ')')
-        soup = self.index_to_soup(url)
-        main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
-
-        title_element = main.select('td.title .titleline a')[0]
-        title = self.tag_to_string(title_element)
-        link = title_element['href']
-        # link = main.find('td', 'title').find('a')['href']
-        if link.startswith('item?'):
-            link = 'https://news.ycombinator.com/' + link
-        readable_link = link.rpartition('http://')[2].rpartition('https://')[2]
-        subtext = self.tag_to_string(main.find('td', 'subtext'))
-
-        title_content_td = main.find('td', 'title').findParent(
-            'tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
-        title_content = u''
-        if not title_content_td.find('form'):
-            title_content_td.name = 'div'
-            title_content = title_content_td.prettify()
-
+    def _extract_comments_from_soup(self, main):
         comments = u''
         for td in main.findAll('td', 'default'):
             comhead = td.find('span', 'comhead')
@@ -83,25 +102,53 @@ class HNWithCommentsLink(BasicNewsRecipe):
                 indent_width = (int(td.parent.find('td').img['width']) * 2) / 3
                 td['style'] = 'padding-left: ' + str(indent_width) + 'px'
                 comments = comments + com_title + td.prettify()
+        return comments
 
-        body = (u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link +
-                u'</a><br/><strong>' + subtext + u'</strong></p>' + title_content + u'<br/>')
-        body = body + comments
+    def get_hn_comments_html(self, url):
+        # Comments-only fragment, used when the article's main content comes
+        # from an external site and we want to append the HN discussion.
+        self.log('get_hn_comments_html(' + url + ')')
+        soup = self.index_to_soup(url)
+        main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
+        subtext = self.tag_to_string(main.find('td', 'subtext'))
+        comments = self._extract_comments_from_soup(main)
+        return (u'<hr/><h2>Hacker News Discussion</h2>'
+                + u'<p><em>' + subtext + u'</em></p>' + comments)
+
+    def get_hn_content(self, url):
+        self.log('get_hn_content(' + url + ')')
+        soup = self.index_to_soup(url)
+        main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
+
+        title_element = main.select('td.title .titleline a')[0]
+        title = self.tag_to_string(title_element)
+        link = title_element['href']
+        if link.startswith('item?'):
+            link = 'https://news.ycombinator.com/' + link
+        readable_link = link.rpartition('http://')[2].rpartition('https://')[2]
+
+        subtext = self.tag_to_string(main.find('td', 'subtext'))
+
+        title_content_td = main.find('td', 'title').findParent(
+            'tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
+        title_content = u''
+        if not title_content_td.find('form'):
+            title_content_td.name = 'div'
+            title_content = title_content_td.prettify()
+
+        comments = self._extract_comments_from_soup(main)
+        body = (u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link
+                + u'</a><br/><strong>' + subtext + u'</strong></p>' + title_content
+                + u'<hr/><h3>Comments</h3>' + comments)
         return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
-
-    def parse_feeds(self):
-        a = super().parse_feeds()
-        self.hn_articles = a[0].articles
-        return a
 
     def get_obfuscated_article(self, url):
         self.log('get_obfuscated_article with url=' + url)
         if url.startswith('https://news.ycombinator.com'):
             content = self.get_hn_content(url)
         else:
-            # TODO: use content-type header instead of url
             is_image = False
-            for ext in ['.jpg', '.png', '.svg', '.gif', '.jpeg', '.tiff', '.bmp', ]:
+            for ext in ['.jpg', '.png', '.svg', '.gif', '.jpeg', '.tiff', '.bmp']:
                 if url.endswith(ext):
                     is_image = True
                     break
@@ -112,7 +159,15 @@ class HNWithCommentsLink(BasicNewsRecipe):
             else:
                 content = self.get_readable_content(url)
 
-        # content = re.sub(r'</body>\s*</html>\s*$', '', content) + article.summary + '</body></html>'
+            hn_url = self.url_to_comments.get(url)
+            if hn_url:
+                comments_html = self.get_hn_comments_html(hn_url)
+                if isinstance(content, bytes):
+                    content = content.decode('utf-8', 'replace')
+                if '</body>' in content:
+                    content = content.replace('</body>', comments_html + '</body>', 1)
+                else:
+                    content = content + comments_html
 
         if not isinstance(content, bytes):
             content = content.encode('utf-8')
@@ -132,8 +187,3 @@ class HNWithCommentsLink(BasicNewsRecipe):
     def populate_article_metadata(self, article, soup, first):
         article.text_summary = self.prettyify_url(article.url)
         article.summary = article.text_summary
-
-    # def parse_index(self):
-    #     feeds = []
-    #     feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
-    #     return feeds
