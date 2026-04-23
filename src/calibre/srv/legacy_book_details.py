@@ -1,5 +1,6 @@
 from html import escape
 
+from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import dt_as_local, is_date_undefined, strftime
 
 
@@ -37,7 +38,7 @@ def render_legacy_book_details(ctx, mi, library_id):
                 book_id=book_id,
                 library_id=library_id
             )
-
+            fmt = escape(fmt)
             links.append(f'<a href="{url}" class="download-button" download="{title}.{fmt.lower()}">Download {fmt}</a>')
 
         formats_html = ' '.join(links)
@@ -178,7 +179,7 @@ def render_legacy_book_details(ctx, mi, library_id):
                     {metadata_table}
                 </div>
             </div>
-            {f'<div class="description"><h2>Description</h2>{comments}</div>' if comments else ''}
+            {f'<div class="description"><h2>Description</h2>{sanitize_comments_html(comments)}</div>' if comments else ''}
         </div>
     </body>
     </html>
