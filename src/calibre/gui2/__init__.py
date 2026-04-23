@@ -889,6 +889,10 @@ class FunctionDispatcher(QObject):
 
         QObject.__init__(self, parent)
         self.func = func
+        try:
+            self.func_name = func.__name__
+        except Exception:
+            self.func_name = 'unnamed_function'
         typ = Qt.ConnectionType.QueuedConnection
         if not queued:
             typ = Qt.ConnectionType.AutoConnection if queued is None else Qt.ConnectionType.DirectConnection
@@ -910,6 +914,7 @@ class FunctionDispatcher(QObject):
             try:
                 res = f(*args, **kwargs)
             except Exception:
+                print(f'Failed dispatching call to function: {self.func_name}', file=sys.stderr)
                 import traceback
                 traceback.print_exc()
         q.put(res)
