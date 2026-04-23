@@ -905,12 +905,13 @@ class FunctionDispatcher(QObject):
         return res
 
     def dispatch(self, q, args, kwargs):
-        try:
-            res = self.func(*args, **kwargs)
-        except Exception:
-            import traceback
-            traceback.print_exc()
-            res = None
+        res = None
+        if (f := self.func) is not None:
+            try:
+                res = f(*args, **kwargs)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         q.put(res)
 
 
