@@ -40,7 +40,11 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'epub', 'fb2', 'fbz', 'djv', 'djvu', 'lrx', 'cbr', 'cb7', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
                    'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx', 'docm', 'md',
-                   'textile', 'markdown', 'ibook', 'ibooks', 'iba', 'azw3', 'ps', 'kepub', 'kfx', 'kpf']
+                   'textile', 'markdown', 'ibook', 'ibooks', 'iba', 'azw3', 'ps', 'kepub', 'kfx', 'kpf',
+                   'm4b', 'mp3', 'm4a', 'flac', 'ogg', 'opus']
+
+AUDIOBOOK_EXTENSIONS = frozenset({'m4b', 'mp3', 'm4a', 'flac', 'ogg', 'opus', 'oga',
+                                   'mp4', 'aac', 'wma', 'aiff', 'wav', 'webm', 'mka'})
 
 
 def return_raster_image(path):
