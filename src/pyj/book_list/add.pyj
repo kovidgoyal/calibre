@@ -10,7 +10,8 @@ from book_list.library_data import force_refresh_on_next_load, loaded_books_quer
 from book_list.router import back
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
-from dom import clear, ensure_id
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, clear, ensure_id
 from file_uploads import (
     update_status_widget, upload_files_widget, upload_status_widget
 )
@@ -26,6 +27,139 @@ state = {
     'fake_send': False,
     'transfers': v'[]',
 }
+
+
+add_extra_css(def():
+    panel = '.cs-add-books'
+    sel = panel + ' '
+    s = ''
+    s += build_rule(panel,
+        display='flex',
+        flex_direction='column',
+        min_height='0',
+        flex='1 1 auto',
+    )
+    s += build_rule('.cs-upload-dropzone',
+        box_sizing='border-box',
+        min_height='10rem',
+        padding='1.1rem 1rem',
+        border='1px dashed var(--cs-surface-border)',
+        border_radius='14px',
+        background_color='var(--cs-accent-weak)',
+        color='inherit',
+        transition='background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease',
+    )
+    s += build_rule(sel + '.cs-upload-dropzone',
+        min_height='min(72vh, 520px)',
+        padding='2rem 1.5rem',
+        margin='0.75rem 1rem 0.5rem 1rem',
+        border='2px dashed var(--cs-surface-border-strong)',
+        border_radius='18px',
+        display='flex',
+        flex_direction='column',
+        align_items='center',
+        justify_content='center',
+        cursor='pointer',
+        box_shadow='0 1px 2px rgba(0,0,0,0.04)',
+    )
+    s += build_rule(sel + '.cs-upload-dropzone:hover',
+        background_color='var(--cs-accent-weak-2)',
+        border_color='var(--primary-color, #437000)',
+        box_shadow='0 4px 18px rgba(0,0,0,0.08)',
+    )
+    s += build_rule('.cs-upload-dropzone-msg',
+        display='block',
+        max_width='28rem',
+        margin='0',
+        text_align='center',
+        font_size='1.02rem',
+        line_height='1.55',
+        opacity='0.92',
+    )
+    s += build_rule(sel + '.cs-upload-dropzone-msg',
+        font_size='1.06rem',
+        line_height='1.6',
+    )
+    s += build_rule('.cs-upload-dropzone-msg a.blue-link',
+        font_weight='600',
+        text_decoration='underline',
+        text_underline_offset='3px',
+    )
+    s += build_rule('.cs-upload-job',
+        margin='0 0 0.65rem 0',
+        padding='1.1rem 1.2rem',
+        box_sizing='border-box',
+        border='1px solid var(--cs-surface-border)',
+        border_radius='14px',
+        background_color=get_color('window-background'),
+        box_shadow='0 2px 8px rgba(0,0,0,0.06)',
+    )
+    s += build_rule(sel + '.cs-upload-job',
+        margin_left='1rem',
+        margin_right='1rem',
+    )
+    s += build_rule('.cs-upload-job-title',
+        margin='0 0 0.75rem 0',
+        font_size='1.02rem',
+        font_weight='700',
+        line_height='1.35',
+        word_break='break-word',
+    )
+    s += build_rule('.cs-upload-progress',
+        width='100%',
+        height='0.5rem',
+        border_radius='999px',
+        overflow='hidden',
+        border='none',
+        background_color='rgba(0,0,0,0.08)',
+        accent_color='var(--primary-color, #437000)',
+    )
+    s += build_rule('.cs-upload-progress-label',
+        display='block',
+        margin_top='0.55rem',
+        font_size='0.88rem',
+        opacity='0.8',
+    )
+    s += build_rule(sel + '.cs-add-books-done-msg',
+        display='inline',
+        margin_right='0.35rem',
+        font_size='0.95rem',
+        opacity='0.88',
+    )
+    s += build_rule(sel + '.cs-add-books-dup-list',
+        margin_top='0.45rem',
+    )
+    s += build_rule(sel + '.cs-add-books-dup-hint',
+        padding='0.35rem 0',
+        line_height='1.5',
+        opacity='0.9',
+    )
+    s += build_rule(sel + '.cs-add-books-dup-detail',
+        margin_top='0.85rem',
+        padding_top='0.85rem',
+        border_top='1px solid var(--cs-surface-border)',
+        font_size='0.95rem',
+        line_height='1.5',
+        opacity='0.88',
+    )
+    s += build_rule(sel + '.cs-add-books-dup-detail ol',
+        margin='0.5rem 0 0 0',
+        padding_left='1.25rem',
+    )
+    s += build_rule(sel + '.cs-add-books-error',
+        padding='0.5rem 0 0 0',
+        font_size='0.95rem',
+        line_height='1.55',
+        color='inherit',
+    )
+    s += r'''
+@media (max-width: 520px) {
+  .cs-add-books .cs-upload-dropzone { min-height: 56vh; padding: 1.35rem 1rem; margin-left: 0.65rem; margin-right: 0.65rem; }
+  .cs-add-books .cs-upload-job { margin-left: 0.65rem; margin-right: 0.65rem; }
+}
+'''
+    return s
+)
 
 
 def cancel_in_progress():
@@ -56,8 +190,14 @@ def on_progress(container_id, job_id, loaded, total, xhr):
 
 
 def list_added_book(container, data):
-    container.appendChild(E.h3(E.b(data.title), E.span(' ' + _('by') + ' '), E.i(' & '.join(data.authors))))
-    container.appendChild(E.span(_('Added successfully') + ' '))
+    container.appendChild(E.h3(
+        E.b(data.title),
+        E.span(' ' + _('by') + ' '),
+        E.i(' & '.join(data.authors)),
+        class_='cs-upload-job-title',
+    ))
+    done_msg = _('Added successfully') + ' '
+    container.appendChild(E.span(done_msg, class_='cs-add-books-done-msg'))
     q = {'book_id': data.book_id + ''}
     a = create_button(_('Open'), action=query_as_href(q, 'book_details'))
     if state.number > 1:
@@ -72,9 +212,9 @@ def list_added_book(container, data):
 
 def list_duplicate_book(container, container_id, job_id, data, file):
     container.appendChild(E.div(
-        style="padding: 1rem 1ex",
-        _('A book with the title "{0}" already exists in the library.'
-    ).format(data.title)))
+        _('A book with the title "{0}" already exists in the library.').format(data.title),
+        class_='cs-add-books-dup-hint',
+    ))
     b = create_button(_('Add anyway'), action=def():
         c = get_job_container(container_id, job_id)
         clear(c)
@@ -84,17 +224,18 @@ def list_duplicate_book(container, container_id, job_id, data, file):
     )
 
     def list_duplicates():
-        ans = E.ol(style='margin-left: 2rem')
+        ans = E.ol(class_='cs-add-books-dup-ol')
         for item in data.duplicates:
             ans.appendChild(E.li(_('{0} by {1}').format(item.title, ' & '.join(item.authors))))
         return ans
 
     container.appendChild(b)
     container.appendChild(E.div(
-        style='margin: 1rem 1ex; border-top: solid 1px currentColor; padding-top: 1ex',
-        _('The book you are trying to add is:'), E.span(' ', E.b(data.title), ' ', _('by'), ' ', E.i(' & '.join(data.authors))),
+        class_='cs-add-books-dup-detail',
+        _('The book you are trying to add is:'),
+        E.span(' ', E.b(data.title), ' ', _('by'), ' ', E.i(' & '.join(data.authors))),
         _('. Books already in the library with that title are:'),
-        E.div(style='padding-top:1ex', list_duplicates())
+        E.div(class_='cs-add-books-dup-list', list_duplicates())
     ))
 
 
@@ -128,7 +269,7 @@ def on_complete(container_id, job_id, end_type, xhr, ev):
         return
     else:
         html = write_access_error(_('Failed to upload the file: {}').format(this.name), xhr)
-        safe_set_inner_html(container, html)
+        safe_set_inner_html(container, '<div class="cs-add-books-error">' + html + '</div>')
 
 
 def fake_send(container_id, job_id):
@@ -161,7 +302,6 @@ def files_chosen(container_id, files):
         job_id = state.counter
         w = upload_status_widget(file.name, job_id)
         container.appendChild(w)
-        w.style.borderBottom = 'solid 1px currentColor'
         if state.fake_send:
             setTimeout(fake_send.bind(None, container_id, job_id), 100)
         else:
@@ -170,6 +310,7 @@ def files_chosen(container_id, files):
 
 def add_books_panel(container_id):
     container = document.getElementById(container_id)
+    container.classList.add('cs-add-books')
     create_top_bar(container, title=_('Add books'), action=on_close, icon='close')
     cancel_in_progress()
     state.in_progress = True

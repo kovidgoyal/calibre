@@ -24,12 +24,22 @@ def custom_list_css():
     sel = '.' + CUSTOM_LIST_CLASS
     ans += build_rule(sel, cursor='pointer', user_select='none')
     sel += ' .' + ITEM_CLASS
-    ans += build_rule(sel, margin='1ex 1em', padding_bottom='1ex', border_bottom='solid 1px currentColor')
-    ans += build_rule(f'{sel}:hover .custom-list-left', transform='scale(1.2)')
-    ans += build_rule(f'{sel}:active .custom-list-left', transform='scale(2)')
+    ans += build_rule(sel,
+        margin='1ex 1em',
+        padding_bottom='1ex',
+        border_bottom='solid 1px currentColor',
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+        overflow='hidden',
+    )
+    # No hover zoom; use highlight instead
+    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)', border_radius='14px')
+    ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
+    ans += build_rule(f'{sel}:hover .custom-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')
     s = sel + ' .custom-list-left'
     ans += build_rule(s, margin_right='1em')
-    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px')
+    ans += build_rule(s + ' > img', border_radius=BORDER_RADIUS+'px', transition='box-shadow 160ms ease')
     sel += ' iframe'
     # To enable clicking anywhere on the item to load book details to work, we
     # have to set pointer-events: none
