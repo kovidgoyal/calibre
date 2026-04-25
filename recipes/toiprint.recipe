@@ -49,7 +49,7 @@ class TOIPring(BasicNewsRecipe):
 
     def parse_index(self):
         url = 'https://epaper.indiatimes.com/english-news-paper-today-toi-print-edition/'
-        url = 'file:///t/raw.html'
+        # url = 'file:///t/raw.html'
         soup = self.index_to_soup(url)
         ans = []
         for sec in soup.find_all('section', attrs={'data-content':True}):
