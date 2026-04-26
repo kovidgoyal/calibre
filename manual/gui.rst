@@ -49,7 +49,7 @@ Add books
 
     #. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the settings for the Save to disk action).
 
-    #. **Add multiple books from archive (ZIP/RAR/7z)**: Allows you to add multiple e-books that are stored inside the selected archive files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
+    #. **Add multiple books from archive (ZIP/RAR/7z)**: Allows you to add multiple e-books that are stored inside the selected archive files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via add books from folders.
 
     #. **Add empty book (Book Entry with no formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
 
