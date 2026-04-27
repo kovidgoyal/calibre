@@ -106,6 +106,17 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="auto_close_calibre">
+     <property name="text">
+      <string>&amp;Automatically close calibre after all jobs are finished</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/dialog_warning.png</normaloff>:/images/dialog_warning.png</iconset>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>

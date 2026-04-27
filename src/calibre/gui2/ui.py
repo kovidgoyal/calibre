@@ -26,7 +26,19 @@ from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encodin
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.gui2 import Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog, max_available_height, open_url, question_dialog, warning_dialog
+from calibre.gui2 import (
+    Dispatcher,
+    GetMetadata,
+    config,
+    error_dialog,
+    gprefs,
+    info_dialog,
+    max_available_height,
+    open_url,
+    question_dialog,
+    show_auto_close_warning,
+    warning_dialog,
+)
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -238,6 +250,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.jobs_button = JobsButton(parent=self)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
+        self.job_manager.job_done.connect(self._jobs_auto_close)
         # }}}
 
         LayoutMixin.init_layout_mixin(self)
@@ -1218,6 +1231,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             # Needed on windows to prevent multiple systray icons
             self.system_tray_icon.setVisible(False)
         QApplication.instance().exit()
+
+    def _jobs_auto_close(self, nnum):
+        if self.jobs_dialog.auto_close_calibre.isChecked() and nnum == 0:
+            self.auto_close_calibre()
+
+    def auto_close_calibre(self):
+        timed_print('Auto-closing asked...')
+        if show_auto_close_warning(self):
+            self.quit(confirm_quit=False)
+        else:
+            timed_print('Auto-closing rejected')
+            self.jobs_dialog.auto_close_calibre.setChecked(False)
 
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
