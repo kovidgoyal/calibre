@@ -467,6 +467,9 @@ class WebView(QWebEngineView, OpenWithHandler):
             aspects of your e-book will not work, such as page breaks and page margins.
             '''))
 
+    def reset_zoom(self):
+        self.setZoomFactor(1.0)
+
     def inspect(self):
         self.inspector.parent().show()
         self.inspector.parent().raise_and_focus()
@@ -483,6 +486,8 @@ class WebView(QWebEngineView, OpenWithHandler):
             if ca.isEnabled():
                 menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
+        if self.zoomFactor() != 1.0:
+            menu.addAction(_('Reset zoom to 100%'), self.reset_zoom)
         menu.addAction(QIcon.ic('debug.png'), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
             menu.addAction(_('Open link'), partial(safe_open_url, data.linkUrl()))
