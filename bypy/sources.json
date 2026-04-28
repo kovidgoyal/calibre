@@ -438,11 +438,11 @@
     },
 
     {
-        "name": "libgcrypt 1.11.2",
+        "name": "libgcrypt 1.11.3",
         "os": "linux",
         "unix": {
             "file_extension": "tar.bz2",
-            "hash": "sha256:6ba59dd192270e8c1d22ddb41a07d95dcdbc1f0fb02d03c4b54b235814330aac",
+            "hash": "sha256:2c6d562e894b2b06eefbc427d12d51ee9d3e50e90012ad6596b4cb3e421a95f2",
             "urls": ["https://gnupg.org/ftp/gcrypt/libgcrypt/{filename}"]
         }
     },
