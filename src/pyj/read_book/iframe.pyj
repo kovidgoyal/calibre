@@ -453,6 +453,7 @@ class IframeBoss:
     def change_color_scheme(self, data):
         if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
             opts.color_scheme = data.color_scheme
+            opts.is_dark_theme = v'!!data.color_scheme.is_dark_theme'
             apply_colors()
             set_color_scheme_class()
 
