@@ -19,7 +19,7 @@ from io import BytesIO
 from queue import Empty, Queue
 
 import apsw
-from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
+from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
 
 from calibre import detect_ncpus, force_unicode, prints, timed_print
 from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
@@ -1246,7 +1246,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                       Quitting may cause corruption on the device.<br>
                       Are you sure you want to quit?''')+'</p>'
 
-            if not question_dialog(self, _('Active jobs'), msg):
+            d = warning_dialog(self, _('Active jobs'), msg, show_copy_button=False)
+            b = d.bb.addButton(_('Quit after jobs &finish'), QDialogButtonBox.ButtonRole.RejectRole)
+            b.setIcon(QIcon.ic('jobs.png'))
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('Quit anyway'))
+            d.bb.addButton(_('&Cancel'), QDialogButtonBox.ButtonRole.RejectRole)
+            d.after_jobs_finish = False
+            def jf():
+                d.after_jobs_finish = True
+            b.clicked.connect(jf)
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(False)
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon.ic('dialog_warning.png'))
+            b.setDefault(True)
+            if d.exec() != QDialog.DialogCode.Accepted:
+                if d.after_jobs_finish:
+                    self.jobs_dialog.auto_close_calibre.setChecked(True)
                 return False
 
         if self.proceed_question.questions:
