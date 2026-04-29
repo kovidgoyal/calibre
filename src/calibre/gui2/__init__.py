@@ -843,6 +843,12 @@ def show_restart_warning(msg, parent=None):
     return d.do_restart
 
 
+def show_auto_close_warning(parent, timeout=30):
+    from calibre.gui2.dialogs.message_box import AutoCloseNotification
+    d = AutoCloseNotification(parent=parent, timeout=timeout)
+    return d.exec() == QDialog.DialogCode.Accepted
+
+
 class Dispatcher(QObject):
     '''
     Convenience class to use Qt signals with arbitrary python callables.
