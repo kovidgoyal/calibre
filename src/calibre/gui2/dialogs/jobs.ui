@@ -111,6 +111,9 @@
      <property name="text">
       <string>&amp;Automatically close calibre after all jobs are finished</string>
      </property>
+     <property name="toolTip">
+      <string>Once all currently running jobs are completed, calibre will automatically quit. Before quitting, a popup will be shown for thirty seconds allowing you to cancel the automatic quit.</string>
+     </property>
      <property name="icon">
       <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/dialog_warning.png</normaloff>:/images/dialog_warning.png</iconset>

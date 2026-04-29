@@ -384,8 +384,8 @@ class AutoCloseNotification(MessageBox):  # {{{
     def __init__(self, timeout=30, parent=None):
         super().__init__(
             MessageBox.QUESTION,
-            _('calibre automatic closing'),
-            _('calibre is about to close automatically. Do you want to confim or abort the action?'),
+            _('calibre is about to quit'),
+            _('calibre is about to quit. Proceed or abort?'),
             parent=parent,
             show_copy_button=False,
             q_icon='dialog_warning.png',
@@ -405,6 +405,16 @@ class AutoCloseNotification(MessageBox):  # {{{
         self.timer.start()
         self.updater.start()
         self.update_texts()
+
+    def reject(self):
+        self.timer.stop()
+        self.updater.stop()
+        return super().reject()
+
+    def accept(self):
+        self.timer.stop()
+        self.updater.stop()
+        return super().accept()
 
     def update_texts(self):
         time = self.timer.remainingTime() // 1000

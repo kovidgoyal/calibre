@@ -26,19 +26,7 @@ from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encodin
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.gui2 import (
-    Dispatcher,
-    GetMetadata,
-    config,
-    error_dialog,
-    gprefs,
-    info_dialog,
-    max_available_height,
-    open_url,
-    question_dialog,
-    show_auto_close_warning,
-    warning_dialog,
-)
+from calibre.gui2 import Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog, max_available_height, open_url, question_dialog, warning_dialog
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -1233,16 +1221,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         QApplication.instance().exit()
 
     def _jobs_auto_close(self, nnum):
-        if self.jobs_dialog.auto_close_calibre.isChecked() and nnum == 0:
-            self.auto_close_calibre()
-
-    def auto_close_calibre(self):
-        timed_print('Auto-closing asked...')
-        if show_auto_close_warning(self):
-            self.quit(confirm_quit=False)
-        else:
-            timed_print('Auto-closing rejected')
+        if nnum == 0 and self.jobs_dialog.auto_close_calibre.isChecked():
             self.jobs_dialog.auto_close_calibre.setChecked(False)
+            if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
+                self.show_windows()
+            from calibre.gui2.dialogs.message_box import AutoCloseNotification
+            app = QApplication.instance()
+            parent = app.focusWidget() or self
+            parent.raise_()
+            parent.activateWindow()
+            if AutoCloseNotification(parent=parent).exec() == QDialog.DialogCode.Accepted:
+                self.quit(confirm_quit=False)
 
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
