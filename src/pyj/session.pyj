@@ -10,10 +10,18 @@ all_settings = {
     'copy_to_library_dupes': {'default': 'add;overwrite', 'category': 'book_list'},
     'last_sort_order': {'default': {}, 'category': 'book_list'},
     'show_all_metadata': {'default': False, 'category': 'book_list'}, # show all metadata fields in the book details panel
+    'show_nav_list_book_count': {'default': True, 'category': 'book_list', 'is_local': False},
+    'show_nav_list_avg_rating': {'default': True, 'category': 'book_list', 'is_local': False},
+    'show_sidebar_in_book_viewer': {'default': True, 'category': 'book_list', 'is_local': False},
+    # auto = follow OS; dark/light = force content-server chrome (book list, sidebar, modals).
+    'book_list_color_scheme': {'default': 'auto', 'category': 'book_list', 'is_local': False},
+    'series_nav_display_mode': {'default': 'stack', 'category': 'book_list', 'is_local': False},
+    'custom_categories': {'default': v'[]', 'category': 'book_list', 'is_local': False},
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
+    # Cover grid tile width as % of viewport axis (portrait: vw, landscape: vh), integer ~8–45.
+    'cover_grid_tile_pct': {'default': 17, 'category': 'book_list'},
     'fts_related_words': {'default': True, 'category': 'book_list'},
-
     # Tag Browser settings
     'and_search_terms': {'default': False, 'category': 'tag_browser'},  # how to add search terms to the search expression from the Tag Browser
     'collapse_at': {'default': 25, 'category': 'tag_browser'},  # number of items at which sub-groups are created, 0 to disable

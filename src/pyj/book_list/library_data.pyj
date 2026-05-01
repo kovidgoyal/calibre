@@ -11,7 +11,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}}
 
 
 def current_library_id():
@@ -192,6 +192,8 @@ def field_names_received(library_id, field, proceed, end_type, xhr, event):
 
 
 def field_names_for(field, proceed):
+    if not library_data.field_names:
+        library_data.field_names = {}
     if library_data.field_names[field] and library_data.field_names[field].loaded:
         proceed(True, field, library_data.field_names[field].names)
     if not library_data.field_names[field] or (not library_data.field_names[field].loading and Date.now() - library_data.field_names[field].last_updated_at > 3600 * 1000):

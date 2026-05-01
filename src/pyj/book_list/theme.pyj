@@ -2,19 +2,118 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
+from book_list.globals import get_session_data
+from dom import set_css
+
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
 LIGHT_DARKER = '#b6b3a8'
-LIGHT_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(LIGHT, LIGHT_DARKER)
 DT_DARK = '#2d2d2d'
 DT_DARK_DARKER = 'black'
 DT_DARK_LIGHTER = '#777'
 DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
-DARK_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(DT_DARK_LIGHTER, DT_DARK)
+
+# Fallback when --primary-color is missing (matches main.pyj / ui_settings default).
+DEFAULT_PRIMARY_HEX = '#437000'
+
 
 def c(light, dark):
     return {'light': light, 'dark': dark or light}
+
+
+def _byte(n):
+    if n < 0:
+        return 0
+    if n > 255:
+        return 255
+    return int(n)
+
+
+def parse_hex_color(s):
+    if not s:
+        return None
+    v = (s + '').strip()
+    if v.startsWith('#'):
+        v = v[1:]
+    if v.length is 3:
+        v = v[0] + v[0] + v[1] + v[1] + v[2] + v[2]
+    if v.length is not 6:
+        return None
+    try:
+        return [int(v[0:2], 16), int(v[2:4], 16), int(v[4:6], 16)]
+    except Exception:
+        return None
+
+
+def get_theme_primary_rgb():
+    de = document.documentElement
+    raw = (de.style.getPropertyValue('--primary-color') or '').strip()
+    if not raw:
+        try:
+            raw = (window.getComputedStyle(de).getPropertyValue('--primary-color') or '').strip()
+        except Exception:
+            raw = ''
+    rgb = parse_hex_color(raw)
+    if rgb:
+        return rgb
+    return parse_hex_color(DEFAULT_PRIMARY_HEX) or [67, 112, 0]
+
+
+def mix_rgb_channel(a, b, t):
+    return _byte(Math.round(a * (1 - t) + b * t))
+
+
+def mix_rgb(a, b, t):
+    r0 = mix_rgb_channel(a[0], b[0], t)
+    r1 = mix_rgb_channel(a[1], b[1], t)
+    r2 = mix_rgb_channel(a[2], b[2], t)
+    return [r0, r1, r2]
+
+
+def rgb_to_hex(rgb):
+    r = rgb[0]
+    g = rgb[1]
+    b = rgb[2]
+
+    def h(n):
+        s = n.toString(16)
+        if s.length < 2:
+            s = '0' + s
+        return s
+
+    return '#' + h(r) + h(g) + h(b)
+
+
+def apply_light_mode_primary_tinted_backgrounds():
+    P = get_theme_primary_rgb()
+    W = [255, 255, 255]
+    s = document.documentElement.style
+    wb = rgb_to_hex(mix_rgb(W, P, 0.055))
+    wb2 = rgb_to_hex(mix_rgb(W, P, 0.115))
+    tree = rgb_to_hex(mix_rgb(W, P, 0.095))
+    dlg = wb
+    lh_bg = rgb_to_hex(mix_rgb(W, P, 0.168))
+    inp = rgb_to_hex(mix_rgb(W, P, 0.068))
+    bar_bg = rgb_to_hex(mix_rgb(W, P, 0.052))
+    # Controls: keep contrast but hue-lock to primary.
+    btn_base = [36, 38, 40]
+    btn_base2 = [52, 54, 58]
+    btn_s = rgb_to_hex(mix_rgb(btn_base, P, 0.4))
+    btn_e = rgb_to_hex(mix_rgb(btn_base2, P, 0.36))
+    s.setProperty('--calibre-color-window-background', wb)
+    s.setProperty('--calibre-color-window-background2', wb2)
+    s.setProperty('--calibre-color-tree-highlight-item', tree)
+    s.setProperty('--calibre-color-dialog-background', dlg)
+    s.setProperty('--calibre-color-list-hover-background', lh_bg)
+    s.setProperty('--calibre-color-list-hover-foreground', DARK)
+    s.setProperty('--calibre-color-input-background', inp)
+    s.setProperty('--calibre-color-bar-background', bar_bg)
+    s.setProperty('--calibre-color-bar-foreground', DARK)
+    s.setProperty('--calibre-color-button-start', btn_s)
+    s.setProperty('--calibre-color-button-end', btn_e)
+    get_color_as_rgba.cache = {}
+    cached_color_to_rgba.cache = {}
 
 
 DEFAULT_COLORS = {
@@ -45,9 +144,9 @@ DEFAULT_COLORS = {
     'button-end': c('#49423B', '#666'),
     'button-text': c(LIGHT, DT_DARK),
 
-    # Dialog colors
+    # Dialog colors (solid panel — gradients hurt text contrast on some displays)
     'dialog-background': c(LIGHT, DT_DARK),
-    'dialog-background-image': c(LIGHT_GRADIENT, DARK_GRADIENT),
+    'dialog-background-image': c('none', 'none'),
     'dialog-foreground': c(DARK, DT_LIGHT),
 
     # Native controls
@@ -82,8 +181,68 @@ def browser_in_dark_mode():
     return window.matchMedia('(prefers-color-scheme: dark)').matches
 
 
+def effective_book_list_is_dark():
+    try:
+        sd = get_session_data()
+        if not sd:
+            return browser_in_dark_mode()
+        pref = (sd.get('book_list_color_scheme', 'auto') or 'auto') + ''
+    except Exception:
+        return browser_in_dark_mode()
+    if pref is 'dark':
+        return True
+    if pref is 'light':
+        return False
+    return browser_in_dark_mode()
+
+
+def apply_book_list_theme():
+    is_dark = effective_book_list_is_dark()
+    set_ui_colors(is_dark)
+    if not is_dark:
+        apply_light_mode_primary_tinted_backgrounds()
+    try:
+        wb = get_color_as_rgba('window-background')
+        wf = get_color_as_rgba('window-foreground')
+        de = document.documentElement.style
+        de.setProperty('--cs-surface-1', f'rgba({wb[0]},{wb[1]},{wb[2]},0.08)')
+        de.setProperty('--cs-surface-2', f'rgba({wb[0]},{wb[1]},{wb[2]},0.04)')
+        de.setProperty('--cs-surface-3', f'rgba({wb[0]},{wb[1]},{wb[2]},0.02)')
+        de.setProperty('--cs-surface-border', f'rgba({wf[0]},{wf[1]},{wf[2]},0.10)')
+        de.setProperty('--cs-surface-border-strong', f'rgba({wf[0]},{wf[1]},{wf[2]},0.14)')
+    except Exception:
+        pass
+    try:
+        set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+    except Exception:
+        pass
+
+
+def bind_book_list_color_scheme_listener():
+    try:
+        mq = window.matchMedia('(prefers-color-scheme: dark)')
+    except Exception:
+        return
+
+    def on_pref_change(ev):
+        try:
+            sd = get_session_data()
+            if not sd:
+                return
+            if ((sd.get('book_list_color_scheme', 'auto') or 'auto') + '') is not 'auto':
+                return
+        except Exception:
+            return
+        apply_book_list_theme()
+
+    if mq.addEventListener:
+        mq.addEventListener('change', on_pref_change)
+    else:
+        mq.addListener(on_pref_change)
+
+
 def color_scheme():
-    return 'dark' if browser_in_dark_mode() or document.documentElement.style.colorScheme is 'dark' else 'light'
+    return 'dark' if effective_book_list_is_dark() else 'light'
 
 
 def css_for_variables():
@@ -96,7 +255,7 @@ def css_for_variables():
             outline-color: var(--calibre-color-input-focus-outline-color); \
         }
     '''
-    is_dark_theme = browser_in_dark_mode()
+    is_dark_theme = effective_book_list_is_dark()
     attr = 'dark' if is_dark_theme else 'light'
     ans = v'[]'
     for k in DEFAULT_COLORS:
