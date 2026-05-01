@@ -30,6 +30,7 @@ except ImportError:
 
 import json
 
+
 class WolneLekturyStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -75,10 +76,10 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author
                 s.price = price
-                s.detail_item = "https://wolnelektury.pl/katalog/lektura/" + id
-                
+                s.detail_item = 'https://wolnelektury.pl/katalog/lektura/' + id
+
                 s.downloads.update(self._search_formats(id, timeout=timeout))
-                
+
                 s.formats = ', '.join(s.downloads.keys())
                 s.drm = SearchResult.DRM_UNLOCKED
 
@@ -88,16 +89,16 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
 
     def _search_formats(self, id: str, timeout: int = 60) -> dict[str, str]:
         # formats used by the site and calibre (as of 01.05.2026)
-        ALLOWED_FORMATS: tuple[str,...] = ("pdf", "epub", "mobi", "txt", "html", "fb2")
+        ALLOWED_FORMATS: tuple[str,...] = ('pdf', 'epub', 'mobi', 'txt', 'html', 'fb2')
         result: dict[str, str] = {}
         br=browser()
-        url = f"https://wolnelektury.pl/api/books/{id}/?format=json"
+        url = f'https://wolnelektury.pl/api/books/{id}/?format=json'
         with closing(br.open(url, timeout=timeout)) as page:
             parsed_data = json.load(page)
             for ext in ALLOWED_FORMATS:
                 if (book_url := parsed_data.get(ext)) is None:
                     continue
-                if book_url != "":
+                if book_url != '':
                     result[ext] = book_url
-        
+
         return result
