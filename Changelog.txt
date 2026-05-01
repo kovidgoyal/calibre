@@ -35,6 +35,8 @@
 
 - AI: Support for arbitrary local providers that export an OpenAI compatible interface
 
+- Allow auto closing calibre after running jobs complete when an attempt to close calibre is made while there are running jobs
+
 :: bug fixes
 
 - Native TTS engine: Normalize text to NFKC so that word tracking works when the native engine reports spoken word with different normal form
