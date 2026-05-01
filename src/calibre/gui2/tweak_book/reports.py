@@ -864,7 +864,7 @@ class CharsModel(FileCollection):
             except IndexError:
                 return None
             if col == 0:
-                return entry.char
+                return entry.char.replace('\n', ' ')
             if col == 1:
                 return {0xa:'LINE FEED', 0xd:'CARRIAGE RETURN', 0x9:'TAB'}.get(entry.codepoint, character_name_from_code(entry.codepoint))
             if col == 2:
