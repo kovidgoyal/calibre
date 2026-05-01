@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 9.8.0 2026-05-01
+
+:: new features
+
+- Content server: In the /mobile view allow clicking on book titles/covers to see book details
+
+- Edit book: Allow reset of zoom to 100% by right clicking in the preview panel
+
+- macOS Tahoe: Have the calibre app icon automatically use a dark look when the system is in dark mode
+
+- AI: Support for arbitrary local providers that export an OpenAI compatible interface
+
+:: bug fixes
+
+- Native TTS engine: Normalize text to NFKC so that word tracking works when the native engine reports spoken word with different normal form
+
+- [2148533] When converting GIF images to PNG workaround bug in PIL causing exception when checking if the GIF is animated
+
+- Preserve existing conversation with AI when there is an error talking to it
+
+:: improved recipes
+- Hacker News
+- The Atlantic
+- Scientific American
+- Mediapart
+- Hindu
+}}}
+
 {{{ 9.7.0 2026-04-10
 
 :: new features
