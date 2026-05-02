@@ -15,13 +15,26 @@ class TimeMagazineUSA(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Time_Magazine_logo.svg/960px-Time_Magazine_logo.svg.png'
 
     recipe_specific_options = {
         'edition': {
             'short': 'Edition URL',
-            'long': 'e.g. https://time.com/magazine/us/7362702/february-9th-2026-vol-207-no-3-u-s/ — leave blank for latest',
+            'long': (
+                'For example, https://time.com/magazine/us/7362702/february-9th-2026-vol-207-no-3-u-s/\n'
+                'Browse past editions at https://time.com/vault/year/2026 (change the year as needed).\n'
+                'Leave the URL field blank to automatically download the latest US edition.'
+            ),
             'default': '',
-        }
+        },
+        'res': {
+            'short': 'Image resolution (width in pixels)',
+            'long': (
+                'Recommended for e-ink devices: 1200, 1600, or 2000 (default)\n'
+                'Use 400 or 800 for smaller file sizes or non e-ink devices.'
+            ),
+            'default': '2000',
+        },
     }
 
     keep_only_tags = [
@@ -66,6 +79,25 @@ class TimeMagazineUSA(BasicNewsRecipe):
             ('Upgrade-Insecure-Requests', '1'),
         ]
         return br
+
+    def _img_width(self):
+        w = self.recipe_specific_options.get('res')
+        if w and isinstance(w, str) and w.isdigit():
+            return w
+        return '2000'
+
+    def _set_img_width(self, src):
+        src = re.sub(r'[?&]width=\d+', '', src).rstrip('?&')
+        sep = '&' if '?' in src else '?'
+        return src + sep + 'width=' + self._img_width()
+
+    def _sanitize_nested_anchors(self, raw_html):
+        return re.sub(
+            r'<a\b([^>]*\bhref="/section/[^"]*"[^>]*)>(.*?)</a>',
+            r'<span\1>\2</span>',
+            raw_html,
+            flags=re.DOTALL,
+        )
 
     def _find_latest_us_edition(self, soup):
         candidates = []
@@ -115,9 +147,13 @@ class TimeMagazineUSA(BasicNewsRecipe):
                 if not re.match(r'^(/\d{7,}/|/article/|/collection/)', href):
                     continue
                 if title:
-                    articles.append({'title': title, 'url': 'https://time.com' + href})
+                    p = a.find('p', class_=lambda c: c and 'text-t4' in c)
+                    desc = p.get_text(strip=True) if p else ''
+                    self.log('	', title)
+                    articles.append({'title': title, 'url': 'https://time.com' + href, 'description': desc})
 
             if articles:
+                self.log(section_name)
                 sections.append((section_name, articles))
 
         return sections or None
@@ -143,7 +179,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
         paths = []
         for m in combined.finditer(text):
             path = m.group(0)
-            if re.search(r'/magazine/|/section/|/vault/', path) or path.endswith('/time/'):
+            if re.search(r'/magazine/|/section/|/vault/', path):
                 continue
             if path not in seen:
                 seen.add(path)
@@ -161,6 +197,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
                 title = h1.get_text(strip=True) if h1 else self._slug_to_title(path)
             except Exception:
                 title = self._slug_to_title(path)
+            self.log('\t', title)
             articles.append({'title': title, 'url': url})
             time_mod.sleep(0.5)
 
@@ -200,18 +237,33 @@ class TimeMagazineUSA(BasicNewsRecipe):
             self.log('Found edition:', edition_url)
             date_str = edition_title.split('|')[0].strip() if edition_title else 'USA'
 
-        self.title = 'TIME Magazine [' + date_str + ']'
+        self.title = 'TIME Magazine'
+        self.timefmt = ' [' + date_str + ']'
 
         raw_html = self._fetch_raw(edition_url)
+        raw_html = self._sanitize_nested_anchors(raw_html)
+
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
         soup = BeautifulSoup(raw_html, 'html.parser')
+
+        for span in soup.find_all('span', class_=lambda c: c and 'text-t3' in c):
+            if span.get_text(strip=True).lower() == 'issue name':
+                p = span.find_next_sibling('p')
+                if p:
+                    full_issue_name = p.get_text(strip=True)
+                    date_str = full_issue_name.split('|')[0].strip()
+                    if date_str:
+                        self.timefmt = ' [' + date_str + ']'
+                        self.log('Issue name:', full_issue_name)
+                break
 
         figure = soup.find('figure')
         if figure:
             img = figure.find('img')
             if img:
                 src = img.get('src', '')
-                self.cover_url = re.sub(r'width=\d+', '', src)
+                self.cover_url = self._set_img_width(src)
+                self.log('Cover:', self.cover_url)
 
         sections = self._parse_toc_from_soup(soup)
         if sections:
@@ -243,7 +295,8 @@ class TimeMagazineUSA(BasicNewsRecipe):
             caption_text = figcaption.get_text(strip=True) if figcaption else ''
             img = figure.find('img')
             if img:
-                img_tag = soup.new_tag('img', src=img.get('src', ''), alt=caption_text)
+                img_src = self._set_img_width(img.get('src', ''))
+                img_tag = soup.new_tag('img', src=img_src, alt=caption_text)
                 new_fig = soup.new_tag('figure')
                 new_fig.append(img_tag)
                 if caption_text:
@@ -261,6 +314,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
             for attr in ('style', 'class'):
                 if tag.has_attr(attr):
                     del tag[attr]
+            tag['src'] = self._set_img_width(tag.get('src', ''))
 
         for div in soup.find_all(
             'div', class_=lambda c: c and 'justify-items-center' in c
