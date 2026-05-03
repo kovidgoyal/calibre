@@ -282,6 +282,16 @@ class TimeMagazineUSA(BasicNewsRecipe):
         )
 
     def preprocess_html(self, soup):
+        for picture in soup.find_all('picture'):
+            img = picture.find('img')
+            if img:
+                for attr in ('srcset', 'sizes', 'class', 'style', 'loading', 'decoding'):
+                    img.attrs.pop(attr, None)
+                img['src'] = self._set_img_width(img.get('src', ''))
+                picture.replace_with(img)
+            else:
+                picture.decompose()
+
         for a in soup.find_all('a', href=True):
             if 'magazineshop' in a['href']:
                 parent = a.find_parent()
