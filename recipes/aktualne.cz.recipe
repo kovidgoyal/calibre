@@ -1,28 +1,23 @@
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import unicode_literals
-
 import re
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class aktualneRecipe(BasicNewsRecipe):
-    __author__ = 'bubak'
+    __author__  = 'bubak'
     title = u'aktualne.cz'
     publisher = u'Centrum holdings'
     description = 'aktuálně.cz'
     oldest_article = 1
     max_articles_per_feed = 20
-    encoding = 'utf-8'
 
     feeds = [
-        (u'Domácí', u'http://aktualne.centrum.cz/feeds/rss/domaci/?photo=0'),
-        (u'Zprávy', u'http://aktualne.centrum.cz/feeds/rss/zpravy/?photo=0'),
-        (u'Praha', u'http://aktualne.centrum.cz/feeds/rss/domaci/regiony/praha/?photo=0'),
-        (u'Ekonomika', u'http://aktualne.centrum.cz/feeds/rss/ekonomika/?photo=0'),
-        (u'Finance', u'http://aktualne.centrum.cz/feeds/rss/finance/?photo=0'),
-        (u'Blogy a názory', u'http://blog.aktualne.centrum.cz/export-all.php')
-    ]
+            (u'Domácí', u'https://zpravy.aktualne.cz/rss/domaci/'),
+            (u'Zprávy', u'https://zpravy.aktualne.cz/rss/'),
+            (u'Zahraniční zprávy', u'https://zpravy.aktualne.cz/rss/zahranici/'),
+            (u'Ekonomika', u'https://zpravy.aktualne.cz/rss/ekonomika/'),
+            (u'Blogy a názory', u'https://nazory.aktualne.cz/rss/')
+            ]
 
     language = 'cs'
     cover_url = 'http://img.aktualne.centrum.cz/design/akt4/o/l/logo-akt-ciste.png'
@@ -30,31 +25,37 @@ class aktualneRecipe(BasicNewsRecipe):
     no_stylesheets = True
 
     remove_attributes = []
-    remove_tags_before = dict(name='h1', attrs={'class': ['titulek-clanku']})
+    remove_tags_before  = dict(name='h1', attrs={'class':['titulek-clanku']})
+    remove_tags_after  = dict(name='div', attrs={'class':['e-articles-show-body-bottom__share']})
     filter_regexps = [r'img.aktualne.centrum.cz']
-    remove_tags = [dict(name='div', attrs={'id': ['social-bookmark']}),
-                   dict(name='div', attrs={'class': ['box1', 'svazane-tagy']}),
-                   dict(name='div', attrs={'class': 'itemcomment id0'}),
-                   dict(name='div', attrs={'class': 'hlavicka'}),
-                   dict(name='div', attrs={'class': 'hlavni-menu'}),
-                   dict(name='div', attrs={
-                        'class': 'top-standard-brand-obal'}),
-                   dict(name='div', attrs={'class': 'breadcrumb'}),
-                   dict(name='div', attrs={'id': 'start-standard'}),
-                   dict(name='div', attrs={'id': 'forum'}),
-                   dict(name='span', attrs={'class': 'akce'}),
-                   dict(name='span', attrs={'class': 'odrazka vetsi'}),
-                   dict(name='div', attrs={'class': 'boxP'}),
-                   dict(name='div', attrs={'class': 'box2'})]
+    remove_tags = [dict(name='div',   attrs={'id':['social-bookmark']}),
+                dict(name='div', attrs={'class':['box1', 'svazane-tagy']}),
+                dict(name='div', attrs={'class':'itemcomment id0'}),
+                dict(name='div', attrs={'class':'hlavicka'}),
+                dict(name='div', attrs={'class':'hlavni-menu'}),
+                dict(name='div', attrs={'class':'top-standard-brand-obal'}),
+                dict(name='div', attrs={'class':['breadcrumb', 'hlavicka clearfix', 'e-ui-sub-menu',
+                    'e-web-aktualne-articles-show-header__authors-and-share', 'f-tiptap-node',
+                    'e-web-aktualne-articles-show__recommended']}),
+                dict(name='div', attrs={'id':'start-standard'}),
+                dict(name='div', attrs={'id':'forum'}),
+                dict(name='ul', attrs={'id':'nav-breadcrumb'}),
+                dict(name='header'),
+                dict(name='footer'),
+                dict(name='aside'),
+                dict(name='span', attrs={'class':'akce'}),
+                dict(name='span', attrs={'class':'odrazka vetsi'}),
+                dict(name='div', attrs={'class':'boxP'}),
+                dict(name='div', attrs={'class':'box2'})]
     preprocess_regexps = [
-        (re.compile(r'<div class="(contenttitle"|socialni-site|wiki|facebook-promo|facebook-like-button"|meta-akce).*',
-                    re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
-        (re.compile(r'<div class="[^"]*poutak-clanek-trojka".*', re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
+            (re.compile(r'<div class="(contenttitle"|socialni-site|wiki|facebook-promo|facebook-like-button"|meta-akce).*',
+                        re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+            (re.compile(r'<div class="[^"]*poutak-clanek-trojka".*', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+           (re.compile(r'<[aA]\s[^>]*>', re.DOTALL|re.IGNORECASE), lambda match: '')]
 
     keep_only_tags = []
 
     visited_urls = {}
-
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         if url in self.visited_urls:
