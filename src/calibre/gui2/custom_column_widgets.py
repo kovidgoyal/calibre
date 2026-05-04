@@ -14,7 +14,6 @@ from qt.core import (
     QCheckBox,
     QComboBox,
     QDialog,
-    QDoubleSpinBox,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -25,7 +24,6 @@ from qt.core import (
     QPlainTextEdit,
     QSizePolicy,
     QSpacerItem,
-    QSpinBox,
     QStyle,
     Qt,
     QToolButton,
@@ -715,7 +713,7 @@ class Series(Base):
         w = QLabel(label_string(self.col_metadata['name'])+_(' index'), parent)
         w.setToolTip(get_tooltip(self.col_metadata, add_index=True))
         self.widgets.append(w)
-        w = QDoubleSpinBox(parent)
+        w = ClearingDoubleSpinBox(parent)
         w.setRange(-10000., float(100000000))
         w.setDecimals(2)
         w.setSingleStep(1)
@@ -1198,7 +1196,7 @@ class BulkBool(BulkBase, Bool):
 class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, QSpinBox)
+        self.make_widgets(parent, ClearingSpinBox)
         self.main_widget.setRange(-1000000, 100000000)
         self.finish_ui_setup(parent)
 
@@ -1233,7 +1231,7 @@ class BulkInt(BulkBase):
 class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, QDoubleSpinBox)
+        self.make_widgets(parent, ClearingDoubleSpinBox)
         self.main_widget.setRange(-1000000., float(100000000))
         self.main_widget.setDecimals(int(self.col_metadata['display'].get('decimals', 2)))
         self.finish_ui_setup(parent)
@@ -1344,12 +1342,12 @@ class BulkSeries(BulkBase):
             'box will tell calibre to start numbering from the value '
             'in the box') + '</p>')
         layout.addWidget(self.force_number)
-        self.series_start_number = QDoubleSpinBox(parent)
+        self.series_start_number = ClearingDoubleSpinBox(parent)
         self.series_start_number.setMinimum(0.0)
         self.series_start_number.setMaximum(9999999.0)
         self.series_start_number.setProperty('value', 1.0)
         layout.addWidget(self.series_start_number)
-        self.series_increment = QDoubleSpinBox(parent)
+        self.series_increment = ClearingDoubleSpinBox(parent)
         self.series_increment.setMinimum(0.00)
         self.series_increment.setMaximum(99999.0)
         self.series_increment.setProperty('value', 1.0)
