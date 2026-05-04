@@ -1198,7 +1198,7 @@ class BulkBool(BulkBase, Bool):
 class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, QSpinBox)
+        self.make_widgets(parent, ClearingSpinBox)
         self.main_widget.setRange(-1000000, 100000000)
         self.finish_ui_setup(parent)
 
@@ -1233,7 +1233,7 @@ class BulkInt(BulkBase):
 class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, QDoubleSpinBox)
+        self.make_widgets(parent, ClearingDoubleSpinBox)
         self.main_widget.setRange(-1000000., float(100000000))
         self.main_widget.setDecimals(int(self.col_metadata['display'].get('decimals', 2)))
         self.finish_ui_setup(parent)
