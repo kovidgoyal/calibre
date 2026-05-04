@@ -1,4 +1,3 @@
-import locale
 import re
 from datetime import datetime, timezone
 
@@ -16,7 +15,6 @@ class ellenpontRecipe(BasicNewsRecipe):
     cover_url = 'https://ellenpont.hu/images/ellenpont_cim_nagy.png'
     remove_javascript = True
     no_stylesheets = True
-    locale.setlocale(locale.LC_ALL, 'hu_HU')
 
     sections = [
             (u'Politika', u'https://ellenpont.hu/politika')
@@ -89,7 +87,6 @@ class ellenpontRecipe(BasicNewsRecipe):
         return res
 
     def populate_article_metadata(self, article, soup, first):
-        locale.setlocale(locale.LC_ALL, 'hu_HU')
         self.log('article is ', str(article))
         s = soup.find('div', attrs={'class':'intro-content'})
         dd = s('ul')[1].li.text
