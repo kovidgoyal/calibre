@@ -1,0 +1,55 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class argumentRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'!argument'
+    description = 'casopisargument.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    sections = [
+            (u'Argument', u'http://casopisargument.cz')
+            ]
+
+    language = 'cs'
+    cover_url = 'http://casopisargument.cz/wp-content/uploads/2016/12/logo-argument.png'
+    remove_javascript = True
+    no_stylesheets = True
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='h1', attrs={'class':['entry-title']})
+    remove_tags_after  = dict(name='footer', attrs={'class':['entry-footer']})
+    remove_tags = [dict(name='img'),
+                            dict(name='div',   attrs={'id':['AAAsocial-bookmark']})
+                        ]
+
+    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    def parse_index(self):
+        res = []
+        seen_titles = set()
+        for section in self.sections:
+            self.log('\tTrying section ' + section[0])
+            articles = []
+            soup = self.index_to_soup(section[1])
+            content = soup.findAll('article')
+            if content is None:
+                raise ValueError('Could not find category content')
+            for c in content:
+                article = c.find('a', text=re.compile(r'.'))
+                if article and article.get('href'):
+                    url = article['href']
+                    title = re.sub(r'^\s*(\S.*\S)\s*$', r'\1', article.text)
+                    if url.startswith('/'):
+                        url = 'http://casopisargument.cz'+url
+                    if title in seen_titles:
+                        self.log('\tAlready seen: ', title)
+                        continue
+                    seen_titles.add(title)
+                    self.log('\tFound article:', title, 'at', url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            res.append((section[0], articles))
+        return res

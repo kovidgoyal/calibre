@@ -1,0 +1,70 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class mandinerRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Mandiner'
+    description = 'mandiner.hu'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Mandiner', u'https://mandiner.hu/rss')
+            ]
+
+    language = 'hu'
+    cover_url = 'https://mandiner.hu/assets/images/mandiner-logo.svg'
+    remove_javascript = True
+    no_stylesheets = True
+
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [
+                         (re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))
+                         ,(re.compile(r'<i>\s*Nyitókép[^<]*</i>', re.DOTALL|re.IGNORECASE), lambda match: '')
+                         ,(re.compile(r'<div>\s[^<]*?comment-card-feedback\b.*?</div>', re.DOTALL|re.IGNORECASE), lambda match: '<br>')
+                        ]
+
+    remove_attributes = []
+    filter_regexps = [r'/assets']
+    remove_tags = [
+                     dict(name='div',  attrs={'class':re.compile(r'sidebar-column|post-share|no-login-icon', re.IGNORECASE)})
+                    ,dict(name='div', attrs={'class':['recommendation-block', 'header', 'article-page-social']})
+                    ,dict(name='div', attrs={'id':['related-articles', 'header-bottom-menu']})
+                    ,dict(name='div', attrs={'class':['newsletter-diverter-card-article', 'guest-overlay', 'sort',
+                        'article-page-social', 'm2m-authors',
+                        'article-page-published mobile']})
+                    ,dict(name='div', attrs={'class':['mwg_footer_lower', 'comment-warning']})
+                    ,dict(name='ul', attrs={'class':['header-bottom', 'header-bottom-menu-list']})
+                    ,dict(name='man-header')
+                    ,dict(name='header')
+                    ,dict(name='footer')
+                    ,dict(name='kesma-mediaworks-footer')
+                    ,dict(name='article')
+                    ,dict(name='aside')
+                    ,dict(name='man-trending-topics')
+                    ,dict(name='man-breadcrumb')
+                    ,dict(name='img')
+                    ,dict(name='a', attrs={'class':'trending-topics-topic'})
+                    ,dict(name='section', attrs={'class':'desktop-ad'})
+                    ,dict(name='app-article-break-news')
+                    ,dict(name='app-comment-section')
+                    ,dict(name='app-static-mobile-nav')
+                    ]
+
+    visited_urls = {}
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return url
+
+    def get_browser(self, *a, **kw):
+        kw['verify_ssl_certificates'] = False
+        return super().get_browser(*a, **kw)

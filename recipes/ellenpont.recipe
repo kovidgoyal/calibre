@@ -1,0 +1,102 @@
+import locale
+import re
+from datetime import datetime, timezone
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class ellenpontRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Ellenpont'
+    description = 'ellenpont.hu'
+    oldest_article = 2
+    max_articles_per_feed = 20
+
+    language = 'hu'
+    cover_url = 'https://ellenpont.hu/images/ellenpont_cim_nagy.png'
+    remove_javascript = True
+    no_stylesheets = True
+    locale.setlocale(locale.LC_ALL, 'hu_HU')
+
+    sections = [
+            (u'Politika', u'https://ellenpont.hu/politika')
+            ,(u'Oknyomozás', u'https://ellenpont.hu/oknyomozas')
+            ,(u'Vélemény', u'https://ellenpont.hu/velemeny')
+            ]
+    ignore_duplicate_articles = {'title', 'url'}
+
+    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    remove_attributes = []
+    remove_tags_before = dict(name='h1', attrs={'class':['AAAtitulek-clanku']})
+    remove_tags = [dict(name='div',   attrs={'id':['AAAsocial-bookmark']})
+                    ,dict(name='div',   attrs={'class':re.compile(r'sidebar-column|post-share|no-login-icon', re.IGNORECASE)})
+                    ,dict(name=['header', 'footer'])
+                    ,dict(name='ol',   attrs={'class':['frontend_footnotes-list']})
+                    ,dict(name='div',   attrs={'class':['article-footer']})
+                    ]
+
+    visited_urls = {}
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return url
+
+    def get_browser(self, *a, **kw):
+        kw['verify_ssl_certificates'] = False
+        return super().get_browser(*a, **kw)
+
+    def parse_index(self):
+        res = []
+        for section in self.sections:
+            self.log('\tTrying section ' + section[0])
+            soup = self.index_to_soup(section[1])
+            content = soup.findAll('div', attrs={'class':'news-card'})
+
+            if content is None:
+                raise ValueError('Could not find section content')
+            seen_urls = set()
+            articles = []
+            for a in content:
+                if a.a:
+                    url = a.a['href']
+                    if url.startswith('/'):
+                        url = 'https://ellenpont.hu'+url
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    self.log('\tFound a ' + url)
+                    title = a.h3.a.contents[0]
+                    self.log('\tFound article:', title, url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+                else:
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://ellenpont.hu'+url
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    self.log('\tFound ' + url)
+                    title = a.find('div').find('div').find('div').contents[0]
+                    self.log('\tFound article:', title, url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            res.append((section[0], articles))
+        return res
+
+    def populate_article_metadata(self, article, soup, first):
+        locale.setlocale(locale.LC_ALL, 'hu_HU')
+        self.log('article is ', str(article))
+        s = soup.find('div', attrs={'class':'intro-content'})
+        dd = s('ul')[1].li.text
+        d = datetime.strptime(dd, '%Y. %B %d. %-H:%-M').timestamp()
+        nn = datetime.now(timezone.utc).timestamp()
+        article.date = dd
+        self.log('Article date ', article.date)
+        if d < nn - self.oldest_article * 86400:
+            self.log('Aborting article date ', article.date, ' oldest ', self.oldest_article)
+            self.abort_article('aborting date dd')

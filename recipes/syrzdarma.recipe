@@ -1,0 +1,93 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class syrzdarmaRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Sýr zdarma'
+    description = 'syrzdarma.cz'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    sections = [
+            (u'Sýr zdarma', u'https://www.syrzdarma.cz')
+            ]
+
+    language = 'cs'
+    cover_url = 'https://www.syrzdarma.cz/assets/logo-text-optimized.svg'
+    remove_javascript = False
+    no_stylesheets = True
+    use_embedded_content = False
+    recursions = 0
+    articles_are_obfuscated = True
+
+    ignore_duplicate_articles = {'title', 'url'}
+
+    remove_attributes = []
+    remove_tags_before  = dict(name='h1', attrs={'class':['AAAtitulek-clanku']})
+    remove_tags = [dict(name='img'),
+                    dict(name='div',   attrs={'AAAclass':re.compile(r'sidebar-column|post-share|no-login-icon', re.IGNORECASE)})
+                  ]
+
+    visited_urls = {}
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return url
+
+    def get_obfuscated_article(self, url):
+        result = None
+        response = self.browser.open(url)
+        html = response.read().decode('utf-8')
+
+        s1 = re.sub(r'^.*cdk-overlay-container', '', html, flags=re.DOTALL)
+        s2 = re.sub(r'^.*articleComponent_article', '', s1, flags=re.DOTALL)
+        s2a = re.sub(r'\n.*', '', s2)
+        s3 = re.sub(r'\\&q;', '', s2a)
+        s4 = re.sub(r',*{insert:([^}]*)},*', r'\1', s3)
+        s5 = re.sub(r',*{attributes:{([^:]*)[^}]*},insert:([^}]*)}', r'<\1>\2</\1>', s4)
+        s5a = re.sub(r',*{attributes:{nbsp:{}},insert:([^}]*)}', '&nbsp;', s5)
+        s6 = re.sub(r'\\\\n', '<br>', s5a)
+        s6a = re.sub(r'\\n', '<br>', s6)
+        s7 = s6a.replace(r'bold>', 'b>')
+        s8 = s7.replace(r'italic>', 'i>')
+        s9 = re.sub(r'].*', '', s8)
+        s9a = s9.replace('&s;', "'")
+        s10 = re.sub(r'^.*title&q;:&q;([^&]*)&.*perex&q;:&q;([^&]*)&q.*\[', r'<h1>\1</h1><i>\2</i>', s9a)
+
+        result = s10
+        return {'data' : result, 'url' : url}
+
+    def parse_index(self):
+        res = []
+        for section in self.sections:
+            self.log('\tTrying section ' + section[0])
+            soup = self.index_to_soup(section[1])
+            content = soup.find_all('h1')
+            if content is None:
+                raise ValueError('Could not find category content')
+            seen_urls = set()
+            articles = []
+            for article in content:
+                a = article.find('a')
+                if a.get('href'):
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://syrzdarma.cz'+url
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    title = a.contents[0]
+                    self.log('\tFound article:', title, url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            res.append((section[0], articles))
+        return res
+
+        def image_url_processor(b, u):
+            None

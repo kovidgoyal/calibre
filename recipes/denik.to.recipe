@@ -1,0 +1,43 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class todenikRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Deník To'
+    description = 'denik.to'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    feeds = [
+            (u'Deník TO', u'https://denik.to/rss')
+            ]
+
+    language = 'cs'
+    cover_url = 'https://denik.to/wp-content/uploads/2023/06/logo.svg'
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+
+    ignore_duplicate_articles = {'title', 'url'}
+
+    remove_attributes = []
+    remove_tags_after  = dict(name='div', attrs={'id':'comments'})
+    remove_tags = [dict(name='div', attrs={'class':['picture', 'top-tags', 'caption']})
+                   ,dict(name='div', attrs={'class':re.compile(r'hustle|sidebar-widget|breadcrumbs|inline-post|byline', re.IGNORECASE)})
+                   ,dict(name='div', attrs={'id':'comments'})
+                   ,dict(name='figure')
+                   ,dict(name='aside')
+                   ,dict(name='footer')
+                   ]
+
+    keep_only_tags = [dict(name='main')]
+    preprocess_regexps = [
+                        (re.compile(r'<a\s[^>]*>(<[^>]*>)*([^<]*)(<[^>]*>)*</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(2)),
+                        ]
+
+    def get_browser(self, *a, **kw):
+        from calibre import browser
+        kw['user_agent'] = 'Silver'
+        return browser(*a, **kw)

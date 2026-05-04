@@ -1,0 +1,79 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class telexRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'telex'
+    description = 'telex.hu'
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    sections = [
+            (u'BELFÖLD', u'https://telex.hu/rovat/belfold')
+            ,(u'KÜLFÖLD', u'https://telex.hu/rovat/kulfold')
+            ,(u'GAZDASÁG', u'https://telex.hu/rovat/gazdasag')
+            ,(u'ÉLET', u'https://telex.hu/rovat/eletmod')
+            ,(u'TECHTUD', u'https://telex.hu/rovat/techtud')
+            ,(u'ENGLISH', u'https://telex.hu/english')
+            ]
+
+    language = 'hu'
+    no_stylesheets = True
+    use_embedded_content = False
+
+    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    remove_attributes = []
+    remove_tags = [dict(name='div',   attrs={'class':['navigation-container', 'content-wrapper', 'hint_box', 'journalist']})
+                    ,dict(name='div', attrs={'class':re.compile(r'navigation--ov26', re.IGNORECASE)})
+                    ]
+    remove_tags_after  = dict(name='div', attrs={'class':'support-box'})
+
+    visited_urls = {}
+
+    def get_browser(self, *a, **kw):
+        kw['verify_ssl_certificates'] = False
+        return super().get_browser(*a, **kw)
+
+    def parse_index(self):
+        res = []
+        for section in self.sections:
+            self.log('\tTrying section ' + section[0])
+            soup = self.index_to_soup(section[1])
+            content = soup.findAll('div', attrs={'class':re.compile(r'list__highlight__item__title', re.IGNORECASE)})
+            content += soup.findAll('a', attrs={'class':re.compile(r'list__item__title', re.IGNORECASE)})
+
+            if content is None:
+                raise ValueError('Could not find section content')
+            seen_urls = set()
+            articles = []
+            for a in content:
+                if a.a:
+                    url = a.a['href']
+                    if url.startswith('/'):
+                        url = 'https://telex.hu'+url
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    self.log('\tFound ' + url)
+                    title = a.a.contents[0]
+                    self.log('\tFound article:', title, url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+                else:
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://telex.hu'+url
+                    if url in seen_urls:
+                        continue
+                    seen_urls.add(url)
+                    self.log('\tFound ' + url)
+                    title = a.find('div').find('div').find('div').contents[0]
+                    self.log('\tFound article:', title, url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            res.append((section[0], articles))
+        return res
+
+    def populate_article_metadata(self, article, soup, first):
+        self.log('Article date ', article.date)
