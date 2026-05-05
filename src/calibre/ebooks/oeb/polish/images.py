@@ -76,10 +76,12 @@ def get_compressible_images(container):
     return images
 
 
-def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, progress_callback=lambda n, t, name:True):
+def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, progress_callback=lambda n, t, name:True):
     images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
+    if not compress_png:
+        images = {name for name in images if 'png' not in container.mime_map.get(name, '')}
     results = {}
     queue = Queue()
     abort = Event()

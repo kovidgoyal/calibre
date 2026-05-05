@@ -257,8 +257,17 @@ class CompressImages(Dialog):
         l.addSpacing(30), l.addWidget(self.jpeg)
         self.webp = LossyCompression('webp', default_compression=75, parent=self)
         l.addSpacing(30), l.addWidget(self.webp)
+        l.addSpacing(30)
+        self.disable_png = dp = QCheckBox(_('Disable compression of &PNG images'))
+        dp.setToolTip(_('When checked, PNG images will not be compressed'))
+        dp.setChecked(tprefs.get('compress_images_disable_png', False))
+        dp.toggled.connect(self.save_disable_png)
+        l.addWidget(dp)
         l.addStretch(10)
         l.addWidget(self.bb)
+
+    def save_disable_png(self):
+        tprefs.set('compress_images_disable_png', self.disable_png.isChecked())
 
     @property
     def names(self):
@@ -276,15 +285,20 @@ class CompressImages(Dialog):
             return None
         return self.webp.jq.value()
 
+    @property
+    def compress_png(self):
+        return not self.disable_png.isChecked()
+
 
 class CompressImagesProgress(Dialog):
 
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, parent=None):
         self.names, self.jpeg_quality = names, jpeg_quality
         self.webp_quality = webp_quality
+        self.compress_png = compress_png
         self.keep_going = True
         self.result = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
@@ -300,7 +314,8 @@ class CompressImagesProgress(Dialog):
         report = []
         try:
             self.result = (compress_images(
-                current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality, webp_quality=self.webp_quality,
+                current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality,
+                webp_quality=self.webp_quality, compress_png=self.compress_png,
                 progress_callback=self.progress_callback
             )[0], report)
         except Exception:
