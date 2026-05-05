@@ -81,7 +81,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
     if names is not None:
         images &= set(names)
     if not compress_png:
-        images = {name for name in images if 'png' not in container.mime_map.get(name, '')}
+        images = {name for name in images if container.mime_map.get(name) != 'image/png'}
     results = {}
     queue = Queue()
     abort = Event()
