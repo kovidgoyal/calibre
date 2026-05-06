@@ -698,7 +698,10 @@ class SearchRestrictionMixin:
         # the book count.
         self.library_view.model().db.data.set_search_restriction(restriction)
         self.library_view.model().db.data.set_search_restriction_name(name)
-        self.search.clear(emit_search=True)
+        if gprefs.get('keep_search_when_switching_vl') and self.search.current_text:
+            self.search.do_search()
+        else:
+            self.search.clear(emit_search=True)
         self.tags_view.recount()
         self.set_number_of_books_shown()
         self.focus_current_view()
