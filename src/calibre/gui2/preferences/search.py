@@ -32,6 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('use_primary_find_in_search', prefs)
         r('search_tool_bar_shows_text', gprefs)
         r('allow_keyboard_search_in_library_views', gprefs)
+        r('keep_search_when_switching_vl', gprefs)
         ossm = self.opt_saved_search_menu_is_hierarchical
         ossm.setChecked('search' in db.new_api.pref('categories_using_hierarchy', []))
         ossm.stateChanged.connect(self.changed_signal)

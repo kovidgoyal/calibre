@@ -170,6 +170,16 @@
          </property>
         </widget>
        </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="opt_keep_search_when_switching_vl">
+         <property name="text">
+          <string>Keep current search when switching Virtual libraries</string>
+         </property>
+         <property name="toolTip">
+          <string>&lt;p&gt;When enabled, the current search is kept and re-applied when switching Virtual libraries, instead of being cleared.&lt;/p&gt;</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">

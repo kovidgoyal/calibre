@@ -496,6 +496,7 @@ def create_defs():
     defs['tb_search_order'] = {'0': 1, '1': 2, '2': 3, '3': 4, '4': 0}
     defs['search_tool_bar_shows_text'] = True
     defs['allow_keyboard_search_in_library_views'] = True
+    defs['keep_search_when_switching_vl'] = False
     defs['show_links_in_tag_browser'] = False
     defs['show_notes_in_tag_browser'] = False
     defs['icons_on_right_in_tag_browser'] = True
