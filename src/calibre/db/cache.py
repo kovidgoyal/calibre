@@ -1050,7 +1050,7 @@ class Cache:
     def get_book_path(self, book_id, sep=os.sep, unsafe=False):
         '''
         Return the relative book path for the given id.
-        Prefer this because you can choose the directory separator, default use the os one.
+        Prefer this because you can choose the directory separator, default use the OS one.
         If unsafe is True, allow to return None if the book_id is not in the library.
         '''
         rslt = self._field_for('path', book_id)
