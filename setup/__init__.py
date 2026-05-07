@@ -23,7 +23,7 @@ isfreebsd = 'freebsd' in sys.platform
 isnetbsd = 'netbsd' in sys.platform
 isdragonflybsd = 'dragonfly' in sys.platform
 isbsd = isnetbsd or isfreebsd or isdragonflybsd
-ishaiku = 'haiku1' in sys.platform
+ishaiku = 'haiku' in sys.platform
 islinux = not ismacos and not iswindows and not isbsd and not ishaiku
 is_ci = os.environ.get('CI', '').lower() == 'true'
 sys.setup_dir = os.path.dirname(os.path.abspath(__file__))
