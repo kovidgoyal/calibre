@@ -19,7 +19,8 @@ class IndianExpress(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     extra_css = '''
-        .ie-custom-caption, .custom-caption, .ie-authorbox, .author-block, #storycenterbyline .top-opinion { font-size:small; }
+        .ie-custom-caption, .custom-caption, .ie-authorbox, .author-block, .post-info { font-size:small; }
+        #storycenterbyline, .author-name-wrap, .top-opinion, .single-author  { font-size:small; }
         blockquote { color:#404040; }
         em, #sub-d, .top-description { color:#202020; font-style:italic; }
         img { display:block; margin:0 auto; }
@@ -36,16 +37,21 @@ class IndianExpress(BasicNewsRecipe):
     remove_tags = [
         dict(name='div', attrs={'id': 'ie_story_comments'}),
         dict(name='div', attrs={'class': lambda x: x and 'related-widget' in x}),
-        dict(name='img', attrs={'src': lambda x: x and x.endswith('-button-300-ie.jpeg')}),
-        dict(name='a', attrs={'href': lambda x: x and x.endswith('/?utm_source=newbanner')}),
+        dict(
+            name='img', attrs={'src': lambda x: x and x.endswith('-button-300-ie.jpeg')}
+        ),
+        dict(
+            name='a', attrs={'href': lambda x: x and x.endswith('/?utm_source=newbanner')}
+        ),
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright '
             'storytags pdsc-related-modify news-guard premium-story append_social_share ie-int-campign-ad '
             'digital-subscriber-only h-text-widget ie-premium ie-first-publish adboxtop adsizes immigrationimg '
             'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare osv-ad-class '
             'custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list subscriber_hide '
-            'author-social author-follow author-img premium_widget_below_article author-block'
-        )
+            'author-social author-follow author-img premium_widget_below_article author-block most-read-container '
+            'desktop-full-ad iers_mr_widget'
+        ),
     ]
 
     recipe_specific_options = {
@@ -94,9 +100,14 @@ class IndianExpress(BasicNewsRecipe):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             width = w
-        if h2 := (soup.find(attrs={'itemprop': 'description'}) or soup.find(**classes('synopsis top-description'))):
+        if h2 := (
+            soup.find('h2', **classes('synopsis top-description'))
+            or soup.find(attrs={'itemprop': 'description'})
+        ):
             h2.name = 'p'
             h2['id'] = 'sub-d'
+        for heads in soup.findAll(('h2', 'h3')):
+            heads.name = 'h4'
         for span in soup.findAll(
             'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
         ):
@@ -104,10 +115,10 @@ class IndianExpress(BasicNewsRecipe):
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0] + '?w=' + width
         # if span := soup.find('span', content=True, attrs={'itemprop': 'dateModified'}):
-            # date = parse_date(span['content']).replace(tzinfo=None)
-            # today = datetime.now()
-            # if (today - date) > timedelta(self.oldest_article):
-            #     self.abort_article('Skipping old article')
+        # date = parse_date(span['content']).replace(tzinfo=None)
+        # today = datetime.now()
+        # if (today - date) > timedelta(self.oldest_article):
+        #     self.abort_article('Skipping old article')
         for img in soup.findAll('img', attrs={'src': True}):
             img['src'] = img['src'].split('?')[0] + '?w=' + width
         return soup
