@@ -521,10 +521,12 @@ class BuildTest(unittest.TestCase):
     def test_openssl(self):
         import ssl
         ssl.PROTOCOL_TLSv1_2
-        if ismacos:
-            cafile = ssl.get_default_verify_paths().cafile
-            if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
-                raise AssertionError('Mozilla CA certs not loaded')
+        if ismacos or iswindows:
+            paths = ssl.get_default_verify_paths()
+            capath = paths.capath
+            if not capath or os.path.basename(capath) != 'mozilla-ca-certs' or not os.path.isdir(capath):
+                cadir_env = os.environ.get('SSL_CERT_DIR')
+                raise AssertionError(f'Mozilla CA certs not loaded ({paths=} {cadir_env=})')
         # On Fedora create_default_context() succeeds in the main thread but
         # not in other threads, because upstream OpenSSL cannot read whatever
         # shit Fedora puts in /etc/ssl, so this check makes sure our bundled

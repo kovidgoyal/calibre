@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import errno
 import glob
 import json
 import os
@@ -30,35 +29,31 @@ def get_opts_from_parser(parser):
 class CACerts(Command):  # {{{
 
     description = 'Get updated mozilla CA certificate bundle'
-    CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs.pem')
+    CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs')
 
     def add_options(self, parser):
         parser.add_option('--path-to-cacerts', help='Path to previously downloaded mozilla-ca-certs.pem')
 
     def run(self, opts):
+        import calibre  # needed to ensure calibre_extensions is available
+        _ = calibre
+        from calibre_extensions.certgen import create_CA_dir
         if opts.path_to_cacerts:
-            shutil.copyfile(opts.path_to_cacerts, self.CA_PATH)
-            os.chmod(self.CA_PATH, 0o644)
+            with open(opts.path_to_cacerts, 'rb') as f:
+                raw = f.read()
         else:
-            try:
-                with open(self.CA_PATH, 'rb') as f:
-                    raw = f.read()
-            except OSError as err:
-                if err.errno != errno.ENOENT:
-                    raise
-                raw = b''
-            nraw = download_securely('https://curl.haxx.se/ca/cacert.pem')
-            if not nraw:
+            raw = download_securely('https://curl.haxx.se/ca/cacert.pem')
+            if not raw:
                 raise RuntimeError('Failed to download CA cert bundle')
-            if nraw != raw:
-                self.info('Updating Mozilla CA certificates')
-                with open(self.CA_PATH, 'wb') as f:
-                    f.write(nraw)
-                self.verify_ca_certs()
+        if os.path.exists(self.CA_PATH):
+            shutil.rmtree(self.CA_PATH)
+        os.mkdir(self.CA_PATH)
+        create_CA_dir(raw, self.CA_PATH)
+        self.verify_ca_certs()
 
     def verify_ca_certs(self):
         from calibre.utils.https import get_https_resource_securely
-        get_https_resource_securely('https://calibre-ebook.com', cacerts=self.b(self.CA_PATH))
+        get_https_resource_securely('https://calibre-ebook.com', cadir=self.CA_PATH)
 # }}}
 
 

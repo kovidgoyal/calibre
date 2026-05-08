@@ -40,7 +40,7 @@ QT_FRAMEWORKS = [x.replace(f'{QT_MAJOR}', '') for x in QT_DLLS]
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-    SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
+    SSL_CERT_DIR='@executable_path/../Resources/resources/mozilla-ca-certs',
     OPENSSL_ENGINES='@executable_path/../Frameworks/engines-3',
     OPENSSL_MODULES='@executable_path/../Frameworks/ossl-modules',
 )

@@ -32,7 +32,7 @@
 /resources/content-server/locales.zip
 /resources/mathjax
 /resources/fonts/liberation
-/resources/mozilla-ca-certs.pem
+/resources/mozilla-ca-certs
 /resources/user-agent-data.json
 /resources/piper-voices.json
 /icons/icns/*.icns

@@ -316,8 +316,8 @@ username = api
         os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
         os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
         if ismacos:
-            os.environ['SSL_CERT_FILE'] = os.path.abspath(
-                'resources/mozilla-ca-certs.pem')
+            os.environ['SSL_CERT_DIR'] = os.path.abspath(
+                'resources/mozilla-ca-certs')
             # needed to ensure correct libxml2 is loaded
             os.environ['DYLD_INSERT_LIBRARIES'] = ':'.join(os.path.join(SW, 'lib', x) for x in 'libxml2.dylib libxslt.dylib libexslt.dylib'.split())
             os.environ['OPENSSL_ENGINES'] = os.path.join(SW, 'lib', 'engines-3')
