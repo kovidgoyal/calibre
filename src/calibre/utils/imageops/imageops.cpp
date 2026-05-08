@@ -308,9 +308,9 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     float sigmaPI2 = 2.0*M_PI*sigma*sigma;
 
     int half = matrix_size/2;
-    int x, y, i=0, j=half;
+    int x, y, i=0;
     float normalize=0.0;
-    for(y=(-half); y <= half; ++y, --j){
+    for(y=(-half); y <= half; ++y){
         for(x=(-half); x <= half; ++x, ++i){
             alpha = std::exp(-((float)x*x+y*y)/sigma2);
             matrix[i] = alpha/sigmaPI2;
