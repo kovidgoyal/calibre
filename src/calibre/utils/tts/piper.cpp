@@ -288,10 +288,7 @@ set_voice(PyObject *self, PyObject *args) {
 static PyObject*
 normalize(const char *text) {
     PyObject *t = PyUnicode_FromString(text);
-    if (!t) return NULL;
-    if (PyTuple_SetItem(normalize_data.args, 1, t) != 0) {
-        return NULL;
-    }
+    if (!t || PyTuple_SetItem(normalize_data.args, 1, t) != 0) return NULL;
     return PyObject_CallObject(normalize_data.func, normalize_data.args);
 }
 
