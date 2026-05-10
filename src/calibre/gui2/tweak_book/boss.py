@@ -1687,7 +1687,8 @@ class Boss(QObject):
         if d.exec() == QDialog.DialogCode.Accepted:
             with BusyCursor():
                 self.add_savepoint(_('Before: compress images'))
-                d = CompressImagesProgress(names=d.names, jpeg_quality=d.jpeg_quality, webp_quality=d.webp_quality, compress_png=d.compress_png, parent=self.gui)
+                d = CompressImagesProgress(
+                    names=d.names, jpeg_quality=d.jpeg_quality, webp_quality=d.webp_quality, compress_png=d.compress_png, parent=self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:
                     self.rewind_savepoint()
                     return

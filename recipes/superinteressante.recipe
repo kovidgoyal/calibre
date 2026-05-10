@@ -1,14 +1,14 @@
-from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class SuperInteressante(BasicNewsRecipe):
     title = 'Superinteressante: Revista'
     description = 'Escolha uma edição específica ou baixe a mais recente.'
-    language = 'pt-br'
+    language = 'pt_BR'
     __author__ = 'Pedro Souza'
 
-
-    
     recipe_specific_options = {
         'edicao_numero': {
             'short': 'Número da edição',
@@ -16,7 +16,7 @@ class SuperInteressante(BasicNewsRecipe):
             'default': ''
         }
     }
-    
+
     no_shortcuts = True
     encoding = 'utf-8'
     max_articles_per_feed = 100
@@ -28,13 +28,13 @@ class SuperInteressante(BasicNewsRecipe):
     # Desativa cache para forçar novo download sempre
     no_favicon = True
     ignore_duplicate_articles = {'title', 'url'}
-    
+
     keep_only_tags = [
         dict(name='article'),
         dict(name='div', attrs={'class': ['content-body', 'article-content', 'entry-content']}),
         dict(name='header', attrs={'class': ['article-header']})
     ]
-    
+
     remove_tags = [
         dict(name='div', attrs={'class': lambda x: x and any(c in x.split() for c in ['ads', 'post-ads', 'noreadme-audima', 'top-share'])}),
         dict(name='div', attrs={'class': ['banner-container', 'trending', 'sidebar', 'social-share', 'tags', 'related-posts', 'newsletter-box']}),
@@ -73,15 +73,14 @@ class SuperInteressante(BasicNewsRecipe):
             soup_arquivo = self.index_to_soup('https://super.abril.com.br/superarquivo/')
             all_links = soup_arquivo.find_all('a', href=re.compile(r'/superarquivo/\d+/?$'))
             if not all_links:
-                raise ValueError("Não foi possível localizar o arquivo.")
+                raise ValueError('Não foi possível localizar o arquivo.')
             issue_link = all_links[0]['href']
             if not issue_link.startswith('http'):
                 issue_link = 'https://super.abril.com.br' + issue_link
 
-            
         self.log(f'Baixando: {self.title} via {issue_link}')
         soup_issue = self.index_to_soup(issue_link)
-        
+
         # CAPTURA DA CAPA
         cover_div = soup_issue.find('div', attrs={'class': 'cover'})
         if cover_div:
@@ -90,28 +89,33 @@ class SuperInteressante(BasicNewsRecipe):
                 self.cover_url = img_tag.get('data-src') or img_tag.get('src')
                 if self.cover_url and ' ' in self.cover_url:
                     self.cover_url = self.cover_url.split(' ')[0].split(',')[0]
-        
+
         # CAPTURA DOS ARTIGOS
         articles = []
         found_links = soup_issue.select('a.list-item-link, .list-item a, .article-title a, h2 a')
         seen_urls = set()
-        
+
         for link in found_links:
             url = link.get('href')
-            if not url or not url.startswith(('http', '/')): continue
-            if not url.startswith('http'): url = 'https://super.abril.com.br' + url
-            if any(x in url for x in ['/facebook', '/twitter', '/whatsapp', '/tags/']): continue
-            if url in seen_urls or url == issue_link: continue
-                
+            if not url or not url.startswith(('http', '/')):
+                continue
+            if not url.startswith('http'):
+                url = 'https://super.abril.com.br' + url
+            if any(x in url for x in ['/facebook', '/twitter', '/whatsapp', '/tags/']):
+                continue
+            if url in seen_urls or url == issue_link:
+                continue
+
             title = self.tag_to_string(link).strip()
             if not title:
                 title_tag = link.find(['h2', 'h3', 'span'])
-                if title_tag: title = self.tag_to_string(title_tag).strip()
-            
+                if title_tag:
+                    title = self.tag_to_string(title_tag).strip()
+
             if title and len(title) > 10:
                 articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
                 seen_urls.add(url)
-        
+
         self.log(f'[DEBUG] Total de artigos encontrados: {len(articles)}')
         return [('Matérias', articles)]
 
