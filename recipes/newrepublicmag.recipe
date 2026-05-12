@@ -46,6 +46,7 @@ class NewRepublicMagazine(BasicNewsRecipe):
     remove_attributes = ['height', 'width']
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
+    compress_news_images = True
     compress_news_images_auto_size = 6
     requires_version = (5, 0, 0)
 
