@@ -133,14 +133,15 @@ class TestICU(unittest.TestCase):
         self.ae((0, 5), icu.primary_no_punc_find('abcd', 'ab cd'))
         # test find all
         m = []
-        def a(p, l):
-            return m.append((p, l))
         haystack = 'a𝄞ShuffleX'
+        def a(p, l):
+            return m.append(haystack[p:p+l])
         icu.primary_collator_without_punctuation().find_all('shuffle', haystack, a)
-        self.ae(haystack[m[0][0]:m[0][0] + m[0][1]], 'Shuffle')
+        self.ae(m, ['Shuffle'])
         del m[:]
-        icu.primary_collator_without_punctuation().find_all('a', 'a a🐱a', a)
-        self.ae(m, [(0, 1), (2, 1), (4, 1)])
+        haystack =  'a a🐱a'
+        icu.primary_collator_without_punctuation().find_all('a', haystack, a)
+        self.ae(m, ['a', 'a', 'a'])
         # test find whole words
         c = icu.primary_collator_without_punctuation()
         self.ae(c.find('a', 'abc a bc'), (0, 1))
