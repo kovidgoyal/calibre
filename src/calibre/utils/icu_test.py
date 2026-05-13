@@ -135,8 +135,12 @@ class TestICU(unittest.TestCase):
         m = []
         def a(p, l):
             return m.append((p, l))
+        haystack = 'a𝄞ShuffleX'
+        icu.primary_collator_without_punctuation().find_all('shuffle', haystack, a)
+        self.ae(haystack[m[0][0]:m[0][0] + m[0][1]], 'Shuffle')
+        del m[:]
         icu.primary_collator_without_punctuation().find_all('a', 'a a🐱a', a)
-        self.ae(m, [(0, 1), (2, 1), (5, 1)])
+        self.ae(m, [(0, 1), (2, 1), (4, 1)])
         # test find whole words
         c = icu.primary_collator_without_punctuation()
         self.ae(c.find('a', 'abc a bc'), (0, 1))

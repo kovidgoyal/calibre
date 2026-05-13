@@ -298,15 +298,15 @@ icu_Collator_find_all(icu_Collator *self, PyObject *const *args, Py_ssize_t narg
         search = usearch_openFromCollator(a, asz, b, bsz, self->collator, whole_words ? self->word_iterator : NULL, &status);
         if (search && U_SUCCESS(status)) {
             pos = usearch_first(search, &status);
-            int32_t pos_for_codepoint_count = 0;
+            int32_t pos_for_codepoint_count = 0, utf32pos = 0;
             while (pos != USEARCH_DONE) {
-                u_countChar32(b + pos_for_codepoint_count, pos - pos_for_codepoint_count);
+                utf32pos += u_countChar32(b + pos_for_codepoint_count, pos - pos_for_codepoint_count);
                 pos_for_codepoint_count = pos;
                 length = usearch_getMatchedLength(search);
                 length = u_countChar32(b + pos, length);
-                PyObject *ret = PyObject_CallFunction(callback, "ii", pos, length);
-                if (ret && ret == Py_None) pos = usearch_next(search, &status);
-                else pos = USEARCH_DONE;
+                PyObject *ret = PyObject_CallFunction(callback, "ii", utf32pos, length);
+                if (ret == Py_None) pos = usearch_next(search, &status);
+                else { pos = USEARCH_DONE; if (ret == NULL) PyErr_Clear(); }
                 Py_CLEAR(ret);
             }
         } else PyErr_SetString(PyExc_ValueError, u_errorName(status));
