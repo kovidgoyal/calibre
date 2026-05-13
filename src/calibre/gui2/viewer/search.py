@@ -2,6 +2,32 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
+
+
+def utf16_slice_tail(text, n):
+    # Return the last n UTF-16 code units of text as a Python string.
+    # Unlike text[-n:] which counts code points, this mirrors JavaScript's
+    # str.slice(-n) which counts UTF-16 code units. Surrogate pairs are never split.
+    count = 0
+    for i in range(len(text) - 1, -1, -1):
+        count += 2 if ord(text[i]) > 0xFFFF else 1
+        if count >= n:
+            return text[i:]
+    return text
+
+
+def utf16_slice_head(text, n):
+    # Return the first n UTF-16 code units of text as a Python string.
+    # Unlike text[:n] which counts code points, this mirrors JavaScript's
+    # str.slice(0, n) which counts UTF-16 code units. Surrogate pairs are never split.
+    count = 0
+    for i, c in enumerate(text):
+        count += 2 if ord(c) > 0xFFFF else 1
+        if count >= n:
+            return text[:i + 1]
+    return text
+
+
 from collections import Counter, OrderedDict
 from functools import cache, lru_cache
 from html import escape
@@ -877,7 +903,7 @@ class SearchPanel(QWidget):  # {{{
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after, offset = result
-                        q = (before or '')[-15:] + text + (after or '')[:15]
+                        q = utf16_slice_tail(before or '', 15) + text + utf16_slice_head(after or '', 15)
                         result_num += 1
                         self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num))
                         counter[q] += 1

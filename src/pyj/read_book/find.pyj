@@ -2,6 +2,35 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+
+def utf16_slice_tail(s, n):
+    # Like s[-n:] but counts UTF-16 code units instead of code points,
+    # mirroring Python's utf16_slice_tail(). Never splits a surrogate pair.
+    if s.length <= n:
+        return s
+    start = s.length - n
+    # If we landed on a low surrogate (second half of a pair), step back one unit
+    # so the returned string always starts on a proper code-point boundary.
+    code = s.charCodeAt(start)
+    if code >= 0xDC00 and code <= 0xDFFF:
+        start -= 1
+    return s.slice(start)
+
+
+def utf16_slice_head(s, n):
+    # Like s[:n] but counts UTF-16 code units instead of code points,
+    # mirroring Python's utf16_slice_head(). Never splits a surrogate pair.
+    if s.length <= n:
+        return s
+    end = n
+    # If we ended on a high surrogate (first half of a pair), extend by one unit
+    # so the returned string always ends on a proper code-point boundary.
+    code = s.charCodeAt(end - 1)
+    if code >= 0xD800 and code <= 0xDBFF:
+        end += 1
+    return s.slice(0, end)
+
+
 ignored_tags = {
     'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
     'img': True, 'rt': True, 'rp': True, 'rtc': True,
@@ -178,11 +207,11 @@ def select_search_result(sr):
     q = ''
     before_len = after_len = 0
     if sr.before:
-        q = sr.before[-15:]
+        q = utf16_slice_tail(sr.before, 15)
         before_len = q.length
     q += sr.text
     if sr.after:
-        after = sr.after[:15]
+        after = utf16_slice_head(sr.after, 15)
         after_len = after.length
         q += after
     match = find_specific_occurrence(q, int(sr.index), before_len, after_len, cache.text_map, sr.from_offset)
