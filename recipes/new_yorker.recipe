@@ -139,6 +139,17 @@ class NewYorker(BasicNewsRecipe):
                     secname = self.tag_to_string(h2)
                 self.log(secname)
                 for a in section.findAll('a', href=True, attrs={'class':lambda x: x and 'summary-item__hed-link' in x}):
+                    # Skip non-article stub tiles: summary-item--externallink
+                    # (Cartoon Caption Contest, links to interactive contest)
+                    # and summary-item--gallery (Cartoon Slide Show, links to
+                    # gallery widget). Neither has an article body to extract.
+                    wrapper = a.find_parent(attrs={'class': lambda x: x and 'SummaryItemWrapper-' in (' '.join(x) if isinstance(x, list) else x)})
+                    if wrapper:
+                        wcls = wrapper.get('class') or []
+                        if isinstance(wcls, list):
+                            wcls = ' '.join(wcls)
+                        if 'summary-item--externallink' in wcls or 'summary-item--gallery' in wcls:
+                            continue
                     section = secname
                     url = absurl(a['href'])
                     title = self.tag_to_string(a)
