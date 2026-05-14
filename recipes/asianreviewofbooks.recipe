@@ -8,7 +8,7 @@ __copyright__ = '2012-2017, Darko Miletic <darko.miletic at gmail.com>'
 asianreviewofbooks.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class AsianReviewOfBooks(BasicNewsRecipe):
@@ -24,8 +24,27 @@ class AsianReviewOfBooks(BasicNewsRecipe):
     encoding = 'utf8'
     language = 'en_CN'
     publication_type = 'magazine'
-    auto_cleanup = True
+    auto_cleanup = False
     masthead_url = 'https://i2.wp.com/asianreviewofbooks.com/content/wp-content/uploads/2016/09/ARBwidelogo.png'
+
+    keep_only_tags = [
+        # The single-article wrapper. WordPress emits the detail page as
+        # <article class="entry ... single-entry ...">; the "single-entry"
+        # class distinguishes it from the related-articles carousel below,
+        # where each tile is a sibling <article class="... loop-entry ...">.
+        classes('single-entry'),
+    ]
+
+    remove_tags = [
+        # Kadence theme social-share container at the foot of the body —
+        # empty SVG ghosts in the EPUB, the real icons are JS-rendered.
+        classes('kt_simple_share_container'),
+        # Post-tags footer that duplicates the category links shown above.
+        classes('entry-footer'),
+        # "Related" carousel of other reviews — title plus 6-tile splide
+        # carousel appended after the body, inside the single-entry wrapper.
+        classes('entry-related'),
+    ]
     extra_css             = '''
                                body{font-family: "Droid Serif", serif}
                                .entry-title {font-family: "Playfair Display", serif}
