@@ -31,7 +31,8 @@ class ProPublicaRecipe(BasicNewsRecipe):
         classes('title-wrapper content-wrapper article-header lead-art article-body')
     ]
     remove_tags = [
-        classes('email-signup story-tools newsletter topics-list')
+        classes('email-signup story-tools newsletter topics-list'),
+        classes('wp-block-propublica-notes--top'),
     ]
     remove_tags_after = classes('article-body')
 
