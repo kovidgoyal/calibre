@@ -122,6 +122,15 @@ class LATimes(BasicNewsRecipe):
             for attr in ('sizes', 'fetchpriority'):
                 if attr in img.attrs:
                     del img[attr]
+        # Drop the Twitter "Follow" link from each byline. The anchor wraps
+        # an SVG <use> sprite reference that points at a <shape> in a
+        # sibling <svg> elsewhere in the source document; that cross-
+        # document reference can't resolve in the converted EPUB, so the
+        # anchor renders as an empty icon slot followed by the orphan word
+        # "Follow" next to the byline. The "Staff Writer" <span> sibling
+        # is not a descendant of the anchor, so the rubric stays in place.
+        for a in soup.findAll('a', attrs={'data-social-trigger': 'enhancedByline'}):
+            a.decompose()
         return soup
 
     def find_articles(self, index, pattern):
