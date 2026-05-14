@@ -44,6 +44,17 @@ class TLS(BasicNewsRecipe):
         }
     }
 
+    def get_browser(self, *args, **kwargs):
+        # Default Chrome UA is served a CloudFront CAPTCHA page that
+        # lacks the rel=shortlink Link header parse_index needs to
+        # extract the WordPress issue id. Safari UA gets the real page.
+        kwargs['user_agent'] = (
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+            'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+            'Version/17.0 Safari/605.1.15'
+        )
+        return BasicNewsRecipe.get_browser(self, *args, **kwargs)
+
     def parse_index(self):
         issue = 'https://www.the-tls.com/issues/current-issue/'
 
