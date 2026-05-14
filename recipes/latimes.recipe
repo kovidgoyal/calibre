@@ -116,5 +116,29 @@ class LATimes(BasicNewsRecipe):
             a.contents) == 1 and a.find(text=True, recursive=False)]
         articles = [
             {'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
+        # Populate `description` from each article page's
+        cache = getattr(self, '_og_desc_cache', None)
+        if cache is None:
+            cache = self._og_desc_cache = {}
+        for art in articles:
+            url = art.get('url')
+            if not url:
+                continue
+            if url not in cache:
+                cache[url] = self._fetch_og_description(url)
+            desc = cache[url]
+            if desc and len(desc) >= 20:
+                art['description'] = desc
         self.log('Found: ', len(articles), ' articles.\n')
         return articles
+
+    def _fetch_og_description(self, url):
+        try:
+            soup = self.index_to_soup(url)
+        except Exception as e:
+            self.log.warn('LAT og:description fetch failed for', url, ':', e)
+            return None
+        meta = soup.find('meta', attrs={'property': 'og:description'})
+        if meta and meta.get('content'):
+            return meta['content'].strip() or None
+        return None
