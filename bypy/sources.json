@@ -331,11 +331,11 @@
     },
 
     {
-        "name": "libxml2 2.15.1",
+        "name": "libxml2 2.15.3",
 		"comment": "When updating this, must rebuild at least: libxslt, lxml, html5-parser, podofo, qt-webengine",
         "unix": {
             "file_extension": "tar.xz",
-            "hash": "sha256:c008bac08fd5c7b4a87f7b8a71f283fa581d80d80ff8d2efd3b26224c39bc54c",
+            "hash": "sha256:78262a6e7ac170d6528ebfe2efccdf220191a5af6a6cd61ea4a9a9a5042c7a07",
             "urls": ["https://download.gnome.org/sources/libxml2/{version_except_last}/{filename}"]
         }
     },
