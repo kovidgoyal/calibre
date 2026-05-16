@@ -435,6 +435,17 @@ class ZipMetadataReader(MetadataReaderPlugin):
         return get_metadata(stream)
 
 
+class AudioBookMetadataReader(MetadataReaderPlugin):
+
+    name = 'Read audiobook metadata'
+    file_types = {'m4b', 'mp3', 'm4a', 'flac', 'ogg', 'opus', 'oga', 'aac', 'wma'}
+    description = _('Read metadata from audiobook files (M4B, MP3, FLAC, etc.) via ffprobe')
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.audio import get_metadata
+        return get_metadata(stream, ftype)
+
+
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and
                                         x.__name__.endswith('MetadataReader')]
 
@@ -937,6 +948,12 @@ class ActionView(InterfaceActionBase):
     description = _('Read books in your calibre library')
 
 
+class ActionAudiobook(InterfaceActionBase):
+    name = 'Audiobook'
+    actual_plugin = 'calibre.gui2.actions.audiobook:AudiobookAction'
+    description = _('Play audiobooks, convert ebooks to audio via TTS, and sync with Audiobookshelf')
+
+
 class ActionLLMBook(InterfaceActionBase):
     name = 'Discuss book with AI'
     actual_plugin = 'calibre.gui2.actions.llm_book:LLMBookAction'
@@ -1187,7 +1204,7 @@ class ActionPluginUpdater(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 
-plugins += [ActionAdd, ActionAllActions, ActionColumnTooltip, ActionFetchAnnotations,
+plugins += [ActionAdd, ActionAllActions, ActionAudiobook, ActionColumnTooltip, ActionFetchAnnotations,
         ActionGenerateCatalog, ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish, ActionLLMBook,
         ActionShowBookDetails, ActionRestart, ActionOpenFolder, ActionConnectShare,
