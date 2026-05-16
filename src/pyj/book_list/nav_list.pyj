@@ -1,0 +1,1257 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026
+from __python__ import hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list
+from book_list.library_data import field_names_for
+from book_list.library_data import cover_url, current_library_id
+from book_list.router import back
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler, show_panel
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, clear, set_css, svgicon
+from ajax import ajax, ajax_send
+from utils import parse_url_params
+
+
+def escape_for_search(x):
+    # Minimal escaping for calibre search syntax
+    return (x or '').replace('\\', '\\\\').replace('"', '\\"')
+
+
+def sync_cs_list_row_heights(list_root):
+    """Make all list rows the same height (max of siblings) so item-subtitle stacks don't vary row height."""
+    if not list_root:
+        return
+    ul = list_root.querySelector('ul')
+    if not ul:
+        return
+    disp = (window.getComputedStyle(ul).display or '') + ''
+    if disp.indexOf('flex') == -1:
+        return
+    ch = ul.children
+    lis = v'[]'
+    for i in range(ch.length):
+        node = ch[i]
+        if node.tagName.toLowerCase() is 'li':
+            lis.push(node)
+    if lis.length is 0:
+        return
+    for i in range(lis.length):
+        lis[i].style.minHeight = ''
+    max_h = 0
+    for i in range(lis.length):
+        h = lis[i].offsetHeight
+        if h > max_h:
+            max_h = h
+    if max_h <= 0:
+        return
+    mh = str(max_h) + 'px'
+    for i in range(lis.length):
+        lis[i].style.minHeight = mh
+
+
+def title_for_field(field):
+    field = field or ''
+    # Reuse existing msgids so labels are localized across calibre translations
+    def label_prefix(x):
+        x = (x or '').toString()
+        if '：' in x:
+            return x.partition('：')[0]
+        if ':' in x:
+            return x.partition(':')[0]
+        return x
+    publisher_label = label_prefix(_('Publisher: {publisher}') or 'Publisher')
+    pubdate_label = label_prefix(_('Published: {pubdate}') or 'Published')
+    tags_label = (_('Tags') or 'Tags')
+    tag_label = 'Tag' if tags_label is 'Tags' else tags_label
+    m = {
+        'series': _('Series'),
+        'authors': _('Authors'),
+        'publisher': publisher_label,
+        'tags': tag_label,
+        'formats': _('Formats'),
+        'rating': _('Rating'),
+        'pubdate': pubdate_label,
+    }
+    return m[field] or field
+
+
+def subtitle_for_field(field):
+    field = field or ''
+    m = {
+        'series': _('Browse all series'),
+        'authors': _('Browse all authors'),
+        'publisher': _('Browse all publishers'),
+        'tags': _('Browse all tags'),
+        'formats': _('Browse all formats'),
+        'rating': _('Browse by rating'),
+        'pubdate': _('Browse by published date'),
+    }
+    return m[field] or ''
+
+
+def rating_search_query_from_display_name(label):
+    """Map tag-browser rating label (e.g. ★★★) to calibre search rating:N with N in 1..5."""
+    s = (label or '') + ''
+    n = 0
+    for i in range(s.length):
+        if s[i] is '★':
+            n += 1
+    if n >= 1 and n <= 5:
+        return n
+    try:
+        v = int(Math.round(parseFloat(s)))
+        if v >= 1 and v <= 5:
+            return v
+    except Exception:
+        pass
+    return 1
+
+
+def make_search(field, label):
+    label = label or ''
+    field = field or ''
+    if not field:
+        return {'search': ''}
+    if field is 'rating':
+        n = rating_search_query_from_display_name(label)
+        return {'search': 'rating:' + str(n)}
+    return {'search': f'{field}:"{escape_for_search(label)}"'}
+
+
+def stars_for_rating(label):
+    try:
+        n = int(label)
+    except Exception:
+        n = 0
+    n = max(1, min(5, n))
+    return '★' * n
+
+
+def parse_rating_from_api(avg_rating):
+    if avg_rating is None or str(avg_rating).strip() == '':
+        return None
+    try:
+        r = float(avg_rating)
+    except Exception:
+        return None
+    if not isFinite(r):
+        return None
+    r = clamp(r, 0, 5)
+    # Keep one decimal as requested for display/tooltip.
+    text = '{:.1f}'.format(r)
+    return {'value': r, 'text': text}
+
+
+def create_fractional_rating_stars(avg_rating):
+    info = parse_rating_from_api(avg_rating)
+    if not info:
+        return None
+    percent = (info.value / 5.0) * 100.0
+    root = E.span(class_='cs-rating-stars', title=info.text)
+    root.appendChild(E.span('★★★★★', class_='cs-rating-stars-base'))
+    fill = E.span('★★★★★', class_='cs-rating-stars-fill')
+    fill.style.width = '{:.1f}%'.format(percent)
+    root.appendChild(fill)
+    return root
+
+
+def tags_cache_key():
+    q = parse_url_params()
+    sd = get_session_data()
+    return '|'.join([
+        current_library_id() or '',
+        q.vl or '',
+        sd.get('sort_tags_by') + '',
+        sd.get('partition_method') + '',
+        sd.get('collapse_at') + '',
+        sd.get('dont_collapse') + '',
+        sd.get('hide_empty_categories') + '',
+    ])
+
+
+cached_names = {}
+series_cover_cache = {}
+series_cover_inflight = {}
+pubdate_group_cache = {}
+tag_browser_cache = {}
+
+add_extra_css(def():
+    sel = '.cs-nav-list '
+    style = ''
+    style += build_rule(sel + '.cs-pager',
+        display='flex', flex_wrap='wrap', align_items='center', justify_content='flex_start',
+        gap='0.75rem', padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
+        border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
+        background_color='rgba(0,0,0,0.02)',
+    )
+    style += build_rule(sel + '.cs-pager-left',
+        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
+        flex='0 1 auto', min_width='min(100%, max-content)', max_width='100%',
+    )
+    style += build_rule(sel + '.cs-pager-right',
+        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
+        flex='0 1 auto', min_width='0', max_width='100%',
+        margin_left='auto', justify_content='flex_end',
+    )
+    style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
+    style += build_rule(sel + 'a.cs-pager-btn',
+        display='inline-flex', align_items='center', gap='0.35rem',
+        padding='0.45rem 0.7rem', border_radius='999px',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        cursor='pointer', user_select='none', text_decoration='none'
+    )
+    style += build_rule(sel + 'a.cs-pager-btn:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-pager-btn:active', transform='scale(0.99)')
+    style += build_rule(sel + 'a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    style += build_rule(sel + 'a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
+    style += build_rule(sel + 'input.cs-filter',
+        padding='0.45rem 0.7rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        box_sizing='border-box',
+        min_width='0',
+        flex='1 1 10rem',
+        max_width='min(22rem, 100%)',
+        width='auto',
+    )
+    # Unified nav subtitle (so "Browse all ..." looks consistent across fields)
+    style += build_rule(sel + '.cs-nav-subtitle',
+        margin='0',
+        padding='0.9rem 1rem 0 1rem',
+        opacity='0.8'
+    )
+    for fld in ('authors', 'publisher', 'series', 'formats'):
+        style += build_rule(sel + f'[data-field="{fld}"] .generic-items-list > p',
+            margin='0',
+            padding='0.9rem 1rem 0 1rem',
+            border='none',
+            background='none',
+            border_radius='0',
+            font_style='normal',
+            opacity='0.8'
+        )
+    # Tags: render as bubbles with incremental "show more"
+    style += build_rule(sel + '[data-field="tags"] .cs-pager-left', display='none')
+    style += build_rule(sel + '.cs-tag-bubbles',
+        padding='0.75rem 1rem',
+        display='flex',
+        flex_wrap='wrap',
+        gap='0.55rem 0.55rem',
+        align_content='flex-start'
+    )
+    style += build_rule(sel + 'a.cs-tag-bubble',
+        display='inline-flex',
+        align_items='center',
+        max_width='100%',
+        padding='0.45rem 0.75rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color=get_color('window-background'),
+        color=get_color('window-foreground'),
+        text_decoration='none',
+        cursor='pointer',
+        user_select='none',
+        white_space='nowrap',
+        overflow='hidden',
+        text_overflow='ellipsis',
+    )
+    style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-tag-bubble:active', transform='scale(0.99)')
+    style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    style += build_rule(sel + 'a.cs-tag-bubble .cs-tag-meta', font_size='0.85em', opacity='0.78')
+    style += build_rule(sel + '.cs-show-more-wrap',
+        padding='0.25rem 1rem 1rem 1rem',
+        display='flex',
+        justify_content='center'
+    )
+    style += build_rule(sel + 'a.cs-show-more',
+        display='inline-flex',
+        align_items='center',
+        gap='0.35rem',
+        padding='0.55rem 0.9rem',
+        border_radius='999px',
+        border='1px solid rgba(0,0,0,0.12)',
+        background_color='rgba(0,0,0,0.02)',
+        color=get_color('window-foreground'),
+        text_decoration='none',
+        cursor='pointer',
+        user_select='none'
+    )
+    style += build_rule(sel + 'a.cs-show-more:hover', background_color='var(--cs-accent-weak)')
+    # Fractional rating stars (5 base stars + themed fill overlay)
+    style += build_rule(sel + '.cs-rating-stars',
+        position='relative',
+        display='inline-block',
+        line_height='1',
+        letter_spacing='0.06em',
+        white_space='nowrap',
+        user_select='none'
+    )
+    style += build_rule(sel + '.cs-rating-stars-base',
+        color='rgba(0,0,0,0.18)'
+    )
+    style += build_rule(sel + '.cs-rating-stars-fill',
+        position='absolute',
+        left='0',
+        top='0',
+        overflow='hidden',
+        white_space='nowrap',
+        color='var(--primary-color)',
+        pointer_events='none'
+    )
+    # Toggle (segmented) control
+    style += build_rule(sel + '.cs-toggle',
+        display='inline-flex',
+        align_items='stretch',
+        border='1px solid rgba(0,0,0,0.10)',
+        border_radius='999px',
+        overflow='hidden',
+        background_color=get_color('window-background')
+    )
+    style += build_rule(sel + 'a.cs-toggle-btn',
+        display='inline-flex', align_items='center', gap='0.35rem',
+        padding='0.45rem 0.7rem',
+        color=get_color('window-foreground'),
+        cursor='pointer', user_select='none', text_decoration='none',
+        border_right='1px solid rgba(0,0,0,0.08)'
+    )
+    style += build_rule(sel + 'a.cs-toggle-btn:last-child', border_right='none')
+    style += build_rule(sel + 'a.cs-toggle-btn[aria-pressed="true"]',
+        background_color='var(--cs-accent-weak-2)',
+        font_weight='700'
+    )
+    style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--cs-accent-weak)')
+    # Series stack-cover mode: isolated classes to avoid conflicts with list mode selectors.
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-row',
+        display='flex',
+        flex_direction='column',
+        align_items='center',
+        justify_content='center',
+        gap='0.55rem',
+        min_width='0',
+        width='100%',
+        flex='1 1 auto'
+    )
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers',
+        position='relative',
+        width='min(100%, 260px)',
+        height='252px',
+        box_sizing='border-box',
+        padding_top='36px',
+        margin_left='auto',
+        margin_right='auto',
+        flex='0 0 auto',
+        overflow='visible',
+        border_radius='14px'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img',
+        position='absolute',
+        left='50%',
+        bottom='12px',
+        width='112px',
+        height='168px',
+        object_fit='cover',
+        border_radius='12px',
+        border='1px solid rgba(0,0,0,0.10)',
+        background_color='rgba(0,0,0,0.05)',
+        box_shadow='0 12px 32px rgba(0,0,0,0.16)',
+        transition='transform 200ms ease, box-shadow 200ms ease'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img:hover',
+        box_shadow='0 26px 64px rgba(0,0,0,0.22)'
+    )
+
+    # Per-count positioning: only odd stacks (1 / 3 / 5); tighter offsets than before
+    style += r'''
+.cs-nav-list .cs-series-stack-covers.covers-1 .cover-0 {
+  transform: translate(-50%, 0) rotate(0deg) scale(1);
+  z-index: 3;
+}
+
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-0 {
+  transform: translate(calc(-50% - 28px), -12px) rotate(-6deg) scale(0.90);
+  z-index: 1;
+}
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-1 {
+  transform: translate(calc(-50% + 28px), -12px) rotate(6deg) scale(0.90);
+  z-index: 1;
+}
+.cs-nav-list .cs-series-stack-covers.covers-3 .cover-2 {
+  transform: translate(-50%, 0) rotate(0deg) scale(1);
+  z-index: 3;
+}
+
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-0 {
+  transform: translate(calc(-50% - 42px), -14px) rotate(-7deg) scale(0.84);
+  z-index: 1;
+}
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-1 {
+  transform: translate(calc(-50% + 42px), -14px) rotate(7deg) scale(0.84);
+  z-index: 1;
+}
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-2 {
+  transform: translate(calc(-50% - 20px), -6px) rotate(-3.5deg) scale(0.93);
+  z-index: 2;
+}
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-3 {
+  transform: translate(calc(-50% + 20px), -6px) rotate(3.5deg) scale(0.93);
+  z-index: 2;
+}
+.cs-nav-list .cs-series-stack-covers.covers-5 .cover-4 {
+  transform: translate(-50%, 0) rotate(0deg) scale(1);
+  z-index: 3;
+}
+'''
+    # Loading overlay (prevents flash/flicker on updates)
+    style += build_rule(sel + '.cs-list-wrap', position='relative', flex='1 1 auto', min_height='0')
+    style += build_rule(sel + '.cs-loading-overlay',
+        position='absolute', left='0', top='0', right='0', bottom='0',
+        display='flex', align_items='center', justify_content='center',
+        background_color='rgba(255,255,255,0.55)',
+        opacity='0',
+        pointer_events='none',
+        transition='opacity 160ms ease'
+    )
+    style += build_rule(sel + '.cs-list-content',
+        transition='opacity 160ms ease',
+        will_change='opacity'
+    )
+    # Nav browse list: rating/count column absolutely positioned right. Row uses flex + align center so
+    # item-title-body stays vertically centered when subtitle stack is taller (after li min-height sync).
+    nav_flex_li = (
+        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))), ' +
+        '.cs-nav-list[data-field="series"][data-series-display="list"] .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2)))'
+    )
+    style += build_rule(nav_flex_li,
+        display='flex',
+        flex_direction='column',
+    )
+    nav_flex_li_cell = (
+        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1), ' +
+        '.cs-nav-list[data-field="series"][data-series-display="list"] .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1)'
+    )
+    style += build_rule(nav_flex_li_cell,
+        flex_grow='1',
+        flex_shrink='0',
+        width='100%',
+        min_height='0',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:not(:has(.item-subtitle-nav))',
+        display='flex',
+    )
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:has(.item-subtitle-nav)',
+        display='flex',
+        align_items='center',
+    )
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-first-row:has(.item-subtitle-nav) .item-title-body',
+        padding_right='9.5rem',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '.cs-list-content.generic-items-list .item-subtitle.item-subtitle-nav',
+        position='absolute',
+        right='0.95rem',
+        top='0',
+        bottom='0',
+        margin_top='auto',
+        margin_bottom='auto',
+        height='fit-content',
+        max_height='100%',
+        width='max-content',
+        max_width='min(9rem, calc(100% - 1rem))',
+        margin_left='0',
+        text_align='right',
+        display='flex',
+        flex_direction='column',
+        align_items='flex_end',
+        justify_content='center',
+        gap='0.1rem',
+        line_height='1.15',
+        padding_top='0',
+        overflow='hidden',
+        box_sizing='border-box',
+    )
+
+    # Series card grid: same row has subtitle-nav but layout must stay columnar (not browse-row center).
+
+    style += build_rule(sel + '.cs-loading .cs-loading-overlay', opacity='1')
+    style += build_rule(sel + '.cs-loading .cs-list-content', opacity='0.45')
+    style += r'''
+@keyframes cs_spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.cs-nav-list .cs-loading-overlay svg { animation: cs_spin 1.2s linear infinite; opacity: 0.85; }
+'''
+    # Series panel as grid (cards): stretch items in each row to the row's max height so tiles align.
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list ul',
+        display='grid',
+        grid_template_columns='repeat(auto-fill, minmax(220px, 1fr))',
+        gap='0.75rem',
+        align_items='stretch',
+    )
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li',
+        display='flex',
+        flex_direction='column',
+        align_items='stretch',
+        min_height='0',
+        height='100%',
+    )
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
+        flex='1 1 auto',
+        width='100%',
+        min_height='0',
+        display='flex',
+        flex_direction='column',
+        justify_content='flex-start',
+        align_items='center'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li:hover',
+        transform='translateY(-1px)'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"] .generic-items-list li > div:nth-child(1)',
+        padding='0.95rem 0.95rem 0.9rem 0.95rem'
+    )
+    # Keep series stack fully inside the card; no overflow outside list item.
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item',
+        overflow='hidden')
+
+    # Disable hover "lift" animation for series items (prevents cover zoom feel)
+    style += build_rule('.generic-items-list li.cs-series-stack-item:hover', transform='none')
+    style += build_rule('.generic-items-list li.cs-series-stack-item:active', transform='none')
+    # Series list mode: same layout as authors/publisher (no grid, no covers)
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list ul',
+        display='flex',
+        flex_direction='column',
+        gap='0.5rem'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list li',
+        aspect_ratio='auto',
+        display='block'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .generic-items-list li > div:nth-child(1)',
+        display='block',
+        position='relative',
+        padding='0.85rem 0.95rem'
+    )
+    style += build_rule('.cs-nav-list[data-field="series"][data-series-display="list"] .item-title-body',
+        text_align='left'
+    )
+    # Series stack mode: same layout as authors/publisher (no grid, no covers)
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-title-body',
+        padding_right='0',
+    )
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-subtitle.item-subtitle-nav',
+       position='relative',
+       right='0',
+       top='0',
+       bottom='0',
+       margin_top='auto',
+       margin_bottom='auto',
+       height='fit-content',
+       max_height='100%',
+       width='max-content',
+    )
+    # Mobile layout: stack pager controls and make filter usable
+    style += r'''
+@media (max-width: 720px) {
+  .cs-nav-list .cs-pager {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.75rem;
+    margin: 0.75rem 0.75rem 0.5rem 0.75rem;
+  }
+  .cs-nav-list .cs-pager-left, .cs-nav-list .cs-pager-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .cs-nav-list .cs-pager-right {
+    justify-content: stretch;
+    margin-left: 0;
+  }
+  .cs-nav-list input.cs-filter {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+  .cs-nav-list .cs-pager-status {
+    white-space: normal;
+  }
+  .cs-nav-list a.cs-pager-btn {
+    padding: 0.6rem 0.9rem;
+  }
+}
+@media (max-width: 420px) {
+  .cs-nav-list .cs-pager-left {
+    justify-content: stretch;
+  }
+  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+}
+@media (max-width: 420px) {
+  .cs-nav-list[data-field="series"] .generic-items-list ul {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.55rem;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
+    width: min(100%, 200px);
+    height: 214px;
+    padding-top: 30px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
+    width: 88px;
+    height: 132px;
+    bottom: 10px;
+  }
+}
+@media (max-width: 360px) {
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
+    width: min(100%, 180px);
+    height: 198px;
+    padding-top: 28px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
+    width: 80px;
+    height: 120px;
+    bottom: 9px;
+  }
+}
+'''
+    return style
+)
+
+
+def parse_int(x, default_value):
+    try:
+        x = int(x)
+    except Exception:
+        x = default_value
+    return x
+
+
+def clamp(n, lo, hi):
+    return max(lo, min(hi, n))
+
+
+def update_nav_list_url(field, offset, num, query_text=None, replace=True, g=None):
+    q = {'field': field, 'offset': str(offset), 'num': str(num)}
+    if query_text:
+        q.q = query_text
+    if field is 'pubdate':
+        g = g or parse_url_params().g
+        if g:
+            q.g = g
+    show_panel('nav_list', q, replace=replace)
+
+
+def create_nav_list_panel(container_id):
+    container = document.getElementById(container_id)
+    clear(container)
+    q = parse_url_params()
+    field = q.field or ''
+    num = clamp(parse_int(q.num, 15), 5, 100)
+    offset = max(0, parse_int(q.offset, 0))
+    query_text = (q.q or '').toString()
+    group_mode = (q.g or 'y').toString()  # for pubdate: 'y' (year) or 'ym' (year-month)
+    if field is 'pubdate':
+        query_text = ''
+    # Tags panel: render all tags progressively on one page (no paging)
+    visible_tags = 50
+    title = title_for_field(field)
+    create_top_bar(container, title=title, action=back, icon='close')
+    container.appendChild(E.div())
+    body = container.lastChild
+    # Ensure the panel uses a constrained layout so the list can scroll
+    set_css(container, height='100%', display='flex', flex_direction='column', overflow='hidden')
+    set_css(body, flex='1 1 auto', min_height='0', overflow='hidden', display='flex', flex_direction='column')
+    body.classList.add('cs-nav-list')
+    body.dataset.field = field
+    if field is 'series':
+        sd = get_session_data()
+        series_mode = sd.get('series_nav_display_mode', 'stack') or 'stack'
+        body.dataset.seriesDisplay = series_mode
+
+    pager = E.div(class_='cs-pager')
+    body.appendChild(pager)
+    left = E.div(class_='cs-pager-left')
+    right = E.div(class_='cs-pager-right')
+    pager.appendChild(left)
+    pager.appendChild(right)
+
+    def pager_btn(label, icon, onclick):
+        a = E.a(href='#', class_='cs-pager-btn')
+        a.appendChild(svgicon(icon))
+        if label:
+            a.appendChild(E.span(label))
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            onclick()
+        )
+        return a
+
+    prev_btn = pager_btn(_('Prev'), 'chevron-left', def():
+        update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
+    )
+    next_btn = pager_btn(_('Next'), 'chevron-right', def():
+        update_nav_list_url(field, offset + num, num, query_text, replace=True)
+    )
+    status = E.span('', class_='cs-pager-status')
+    search_inp = E.input(
+        type='search',
+        placeholder=_('Filter…'),
+        value=query_text,
+        class_='cs-filter'
+    )
+    apply_btn = pager_btn('', 'search', def():
+        nonlocal query_text
+        query_text = search_inp.value or ''
+        update_nav_list_url(field, 0, num, query_text, replace=True)
+    )
+    apply_btn.title = _('Apply')
+    left.appendChild(prev_btn)
+    left.appendChild(next_btn)
+    if field is not 'pubdate':
+        right.appendChild(search_inp)
+        right.appendChild(apply_btn)
+        right.appendChild(status)
+
+    # Grouping toggle for Published date panel
+    group_toggle = None
+    if field is 'pubdate':
+        group_toggle = E.div(style='display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap')
+        group_toggle.appendChild(E.span(_('Group:'), style='opacity:0.75'))
+        seg = E.div(class_='cs-toggle')
+
+        def toggle_btn(label, mode):
+            a = E.a(href='#', class_='cs-toggle-btn')
+            a.setAttribute('aria-pressed', 'true' if group_mode is mode else 'false')
+            a.appendChild(E.span(label))
+            a.addEventListener('click', def(evt):
+                evt.preventDefault()
+                update_nav_list_url(field, 0, num, None, replace=True, g=mode)
+            )
+            return a
+
+        seg.appendChild(toggle_btn(_('Year'), 'y'))
+        seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
+        group_toggle.appendChild(seg)
+        left.appendChild(group_toggle)
+    list_wrap = E.div(class_='cs-list-wrap')
+    body.appendChild(list_wrap)
+    set_css(list_wrap, flex='1 1 auto', min_height='0')
+    nav_subtitle = E.p('', class_='cs-nav-subtitle')
+    nav_subtitle.style.display = 'none'
+    list_container = E.div(class_='cs-list-content')
+    overlay = E.div(class_='cs-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…')))
+    list_wrap.appendChild(nav_subtitle)
+    list_wrap.appendChild(list_container)
+    list_wrap.appendChild(overlay)
+    set_css(list_container, height='100%', overflow='auto')
+    list_wrap.classList.add('cs-loading')
+
+    def set_loading(is_loading):
+        if is_loading:
+            list_wrap.classList.add('cs-loading')
+        else:
+            # Delay removal slightly to avoid a flash on very fast responses
+            setTimeout(def():
+                list_wrap.classList.remove('cs-loading')
+            , 60)
+
+    def set_enabled(elem, enabled):
+        elem.setAttribute('aria-disabled', 'false' if enabled else 'true')
+
+    def norm(x):
+        return (x or '').toString().toLowerCase()
+
+    def to_item(x):
+        if x and jstype(x) is 'object' and 'name' in x:
+            return x
+        s = (x or '') + ''
+        return {'name': s, 'count': None, 'avg_rating': None, 'search_name': s}
+
+    def filtered(items):
+        if not query_text:
+            return items
+        nq = norm(query_text)
+        ans = []
+        for x in items:
+            n = (x.name if (x and jstype(x) is 'object') else x) + ''
+            if n and norm(n).indexOf(nq) != -1:
+                ans.push(x)
+        return ans
+
+    def to_ymd(val):
+        # Accept ISO-ish strings, return 'YYYY-MM-DD' or ''
+        if not val:
+            return ''
+        s = (val + '').strip()
+        if s.length >= 10 and s[4] is '-' and s[7] is '-':
+            return s.slice(0, 10)
+        # Some values might be 'YYYY-MM' or 'YYYY'
+        if s.length >= 7 and s[4] is '-' and s.length == 7:
+            return s + '-01'
+        if s.length == 4:
+            return s + '-01-01'
+        return ''
+
+    def aggregate_pubdate_groups_from_metadata(meta_map, counts_y, counts_ym):
+        # meta_map: {book_id: metadata}
+        if not meta_map:
+            return
+        for bid in Object.keys(meta_map):
+            mi = meta_map[bid]
+            if not mi:
+                continue
+            ymd = to_ymd(mi.pubdate)
+            if not ymd:
+                continue
+            y = ymd.slice(0, 4)
+            ym = ymd.slice(0, 7)
+            counts_y[y] = (counts_y[y] or 0) + 1
+            counts_ym[ym] = (counts_ym[ym] or 0) + 1
+
+
+    def fetch_pubdate_groups(proceed):
+        # Use interface-data/more-books to iterate through all matching books and
+        # aggregate pubdate groups client-side. Works with the shipped Calibre.app backend.
+        ck = (current_library_id() or '') + '|' + (parse_url_params().vl or '') + '|' + (parse_url_params().search or '')
+        cached = pubdate_group_cache[ck]
+        if cached:
+            proceed(True, cached)
+            return
+
+        counts_y = {}
+        counts_ym = {}
+        offset0 = 0
+        page_size = 200
+        total = None
+
+        # Build a query payload similar to book list pagination
+        q = parse_url_params()
+        searchq = q.search or ''
+        vlq = q.vl or ''
+        # We don't care about sort for aggregation, but backend expects it
+        sort_field = 'timestamp'
+        sort_order = 'desc'
+
+        def step():
+            nonlocal offset0, total
+            payload = {
+                'query': searchq,
+                'sort': sort_field,
+                'sort_order': sort_order,
+                'vl': vlq,
+                'offset': offset0,
+            }
+            def done(end_type, xhr, ev):
+                nonlocal offset0, total
+                if end_type is not 'load':
+                    if end_type is not 'abort':
+                        proceed(False, xhr.error_html)
+                    return
+                try:
+                    data = JSON.parse(xhr.responseText)
+                except Exception:
+                    proceed(False, 'Invalid JSON from server')
+                    return
+                sr = data.search_result or v'{}'
+                if total is None:
+                    total = sr.total_num or 0
+                aggregate_pubdate_groups_from_metadata(data.metadata, counts_y, counts_ym)
+                got = (sr.book_ids.length or 0) if sr.book_ids else 0
+                offset0 += got
+                if got <= 0 or offset0 >= total:
+                    labels_y = Object.keys(counts_y).sort().reverse()
+                    labels_ym = Object.keys(counts_ym).sort().reverse()
+                    res = {'y': {'labels': labels_y, 'counts': counts_y}, 'ym': {'labels': labels_ym, 'counts': counts_ym}}
+                    pubdate_group_cache[ck] = res
+                    proceed(True, res)
+                else:
+                    step()
+
+            ajax_send('interface-data/more-books', payload, done,
+                      query={'library_id': current_library_id(), 'num': str(page_size)} )
+        step()
+
+    def next_month(y, m):
+        y = int(y); m = int(m)
+        m += 1
+        if m > 12:
+            m = 1
+            y += 1
+        mm = ('0' + str(m)) if m < 10 else str(m)
+        return str(y), mm
+
+    def pubdate_query_for(label):
+        # label is either 'YYYY' or 'YYYY-MM'
+        s = label or ''
+        if s.length == 4:
+            y = int(s)
+            start = s + '-01-01'
+            end = str(y + 1) + '-01-01'
+        else:
+            y = s.slice(0, 4)
+            m = s.slice(5, 7)
+            start = y + '-' + m + '-01'
+            ny, nm = next_month(y, m)
+            end = ny + '-' + nm + '-01'
+        # Use a range query so it works even if stored as full dates
+        return {'search': f'pubdate:>={start} and pubdate:<{end}'}
+
+    series_cover_targets = {}
+
+    TAG_BROWSER_FIELDS = v"['tags', 'series', 'authors', 'publisher', 'formats', 'rating']"
+
+    def nav_list_rating_count_parts(count, avg_rating):
+        sd = get_session_data()
+        show_count = sd.get('show_nav_list_book_count', True)
+        show_rating = sd.get('show_nav_list_avg_rating', True)
+        count_s = None
+        rating_s = None
+        if show_count and count is not None and str(count).strip() != '':
+            n = int(count)
+            count_s = _('{} books').format(n)
+        if show_rating and avg_rating is not None and str(avg_rating).strip() != '':
+            info = parse_rating_from_api(avg_rating)
+            if info and info.value > 0:
+                rating_s = create_fractional_rating_stars(info.value)
+        if not count_s and not rating_s:
+            return None
+        return {'rating': rating_s, 'count': count_s}
+
+    def format_count_rating(count, avg_rating):
+        p = nav_list_rating_count_parts(count, avg_rating)
+        if not p:
+            return ''
+        parts = []
+        if p.count:
+            parts.push(p.count)
+        if p.rating:
+            info = parse_rating_from_api(avg_rating)
+            if info:
+                parts.push(info.text )
+        return ' · '.join(parts)
+
+    def fetch_from_tag_browser(field, proceed):
+        ck = tags_cache_key() + '|' + field
+        cached = tag_browser_cache[ck]
+        if cached:
+            proceed(True, cached)
+            return
+        q = parse_url_params()
+        sd = get_session_data()
+        query = {'library_id': current_library_id(), 'vl': q.vl or ''}
+        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
+            query[k] = sd.get(k) + ''
+
+        def done(end_type, xhr, ev):
+            if end_type is not 'load':
+                proceed(False, xhr.error_html)
+                return
+            try:
+                data = JSON.parse(xhr.responseText)
+            except Exception:
+                proceed(False, 'Invalid JSON from server')
+                return
+            root = data.root or v'{}'
+            item_map = data.item_map or v'{}'
+            category_node = None
+            for child in (root.children or v'[]'):
+                item = item_map[child.id] or v'{}'
+                if item.is_category and item.category is field:
+                    category_node = child
+                    break
+            if not category_node:
+                tag_browser_cache[ck] = v'[]'
+                proceed(True, v'[]')
+                return
+
+            items = []
+            seen = {}
+
+            def walk(node):
+                for ch in (node.children or v'[]'):
+                    item = item_map[ch.id] or v'{}'
+                    name = (item.name or '') + ''
+                    if (not item.is_category) and name and (not seen[name]):
+                        seen[name] = True
+                        search_name = (item.original_name or name) + ''
+                        items.push({'name': name, 'count': item.count, 'avg_rating': item.avg_rating, 'search_name': search_name})
+                    if ch.children and ch.children.length:
+                        walk(ch)
+
+            walk(category_node)
+            tag_browser_cache[ck] = items
+            proceed(True, items)
+
+        ajax('interface-data/tag-browser', done, query=query, bypass_cache=False).send()
+
+    def ensure_series_covers(series_name, target_div):
+        if not series_name:
+            return
+        series_cover_targets[series_name] = (series_cover_targets[series_name] or v'[]')
+        series_cover_targets[series_name].push(target_div)
+        cached = series_cover_cache[series_name]
+        if cached:
+            apply_series_covers(series_name, cached)
+            return
+        if series_cover_inflight[series_name]:
+            return
+        series_cover_inflight[series_name] = True
+        lid = current_library_id()
+        query = {
+            'library_id': lid,
+            'num': '5',
+            'search': f'series:"{escape_for_search(series_name)}"'
+        }
+
+        def done(end_type, xhr, ev):
+            series_cover_inflight[series_name] = False
+            if end_type is not 'load':
+                return
+            try:
+                data = JSON.parse(xhr.responseText)
+            except Exception:
+                return
+            ids = data.search_result?.book_ids or v'[]'
+            urls = []
+            for bid in ids.slice(0, 5):
+                urls.push(cover_url(bid))
+            series_cover_cache[series_name] = urls
+            apply_series_covers(series_name, urls)
+
+        ajax('interface-data/get-books', done, query=query).send()
+
+    def apply_series_covers(series_name, urls):
+        targets = series_cover_targets[series_name] or v'[]'
+        for div in targets:
+            # Build exactly as many images as we have URLs
+            while div.firstChild:
+                div.removeChild(div.firstChild)
+            if urls:
+                # Odd stacks only (1 / 3 / 5); cap at 5; drop trailing when count is even (>1).
+                actual = []
+                for u in urls:
+                    if u:
+                        actual.push(u)
+                while actual.length > 5:
+                    actual.pop()
+                while actual.length > 1 and (actual.length % 2 == 0):
+                    actual.pop()
+                n = actual.length or 0
+                if n < 1:
+                    continue
+                # Structure like reference implementation: container gets covers-N,
+                # images get cover-i classes. Positioning is done in CSS.
+                # Clear any previous covers-* classes (include legacy even counts)
+                cover_classes = v'["covers-1","covers-2","covers-3","covers-4","covers-5"]'
+                for cls in cover_classes:
+                    div.classList.remove(cls)
+                div.classList.add('covers-' + str(n))
+                for i, u in enumerate(actual):
+                    img = E.img(src=u, class_='cover-img cover-' + str(i))
+                    div.appendChild(img)
+
+    def render_page(data):
+        set_loading(False)
+        raw = data or v'[]'
+        # Special handling for Published date: derive group labels from raw date values
+        if field is 'pubdate':
+            yset = {}
+            ymset = {}
+            for v in raw:
+                ymd = to_ymd(v)
+                if not ymd:
+                    continue
+                y = ymd.slice(0, 4)
+                ym = ymd.slice(0, 7)
+                yset[y] = True
+                ymset[ym] = True
+            labels = Object.keys(ymset) if group_mode is 'ym' else Object.keys(yset)
+            # Sort descending so newest first
+            labels.sort().reverse()
+            raw = labels
+        items = [to_item(x) for x in raw]
+        items = filtered(items)
+        total = items.length or 0
+        if field is 'tags':
+            shown = min(total, visible_tags)
+            status.textContent = _('Showing {} of {}').format(shown, total)
+            set_enabled(prev_btn, False)
+            set_enabled(next_btn, False)
+
+            clear(list_container)
+            subtitle = subtitle_for_field(field)
+            if subtitle:
+                list_container.appendChild(E.p(subtitle, class_='cs-nav-subtitle'))
+
+            bubbles = E.div(class_='cs-tag-bubbles')
+            list_container.appendChild(bubbles)
+
+            def make_action(search_query):
+                return def(ev):
+                    if ev:
+                        ev.preventDefault()
+                    show_panel('book_list', query=search_query, replace=True)
+
+            for it in items.slice(0, shown):
+                if not it or not it.name:
+                    continue
+                meta = format_count_rating(it.count, it.avg_rating)
+                label = it.name + ''
+                inner = E.span(label)
+                if meta:
+                    inner = E.span(E.span(label), E.span(' ' + meta, class_='cs-tag-meta'))
+                bubbles.appendChild(E.a(
+                    href='#',
+                    class_='cs-tag-bubble',
+                    onclick=make_action(make_search(field, it.search_name or label)),
+                    title=label,
+                    inner
+                ))
+
+            if shown < total:
+                wrap = E.div(class_='cs-show-more-wrap')
+                list_container.appendChild(wrap)
+                a = E.a(href='#', class_='cs-show-more')
+                a.appendChild(svgicon('plus'))
+                a.appendChild(E.span(_('Show more')))
+                a.addEventListener('click', def(ev):
+                    nonlocal visible_tags
+                    ev.preventDefault()
+                    visible_tags = min(total, visible_tags + 50)
+                    render_page(data)
+                )
+                wrap.appendChild(a)
+            return
+        if offset >= total and total > 0:
+            # Clamp to last page
+            new_offset = max(0, (Math.floor((total - 1) / num) * num))
+            if new_offset is not offset:
+                update_nav_list_url(field, new_offset, num, query_text, replace=True)
+                return
+        end = min(total, offset + num)
+        status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
+        set_enabled(prev_btn, offset > 0)
+        set_enabled(next_btn, end < total)
+
+        list_items = []
+
+        def make_action(search_query):
+            return def(ev):
+                if ev:
+                    ev.preventDefault()
+                show_panel('book_list', query=search_query, replace=True)
+
+        for it in items.slice(offset, offset + num):
+            if not it or not it.name:
+                continue
+            label = it.name + ''
+            search_val = it.search_name or label
+            meta = nav_list_rating_count_parts(it.count, it.avg_rating)
+            if field is 'series':
+                series_mode = body.dataset.seriesDisplay or 'stack'
+                if series_mode is 'list':
+                    list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+                else:
+                    covers = E.div(class_='cs-series-stack-covers')
+                    row = E.div(class_='cs-series-stack-row', E.div(covers), E.div(label, class_='cs-series-stack-name'))
+                    row.dataset.seriesName = label
+                    list_items.push(create_item(row, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+            elif field is 'rating':
+                # Use server-provided display name (tag-browser item.name); do not parse as int — names are localized.
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+            elif field is 'pubdate':
+                # label is 'YYYY' or 'YYYY-MM'
+                list_items.push(create_item(label, action=make_action(pubdate_query_for(label))))
+            else:
+                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+        subtitle = subtitle_for_field(field)
+        if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'rating' or field is 'pubdate':
+            nav_subtitle.textContent = subtitle or ''
+            nav_subtitle.style.display = 'block' if subtitle else 'none'
+            create_item_list(list_container, list_items)
+        else:
+            nav_subtitle.style.display = 'none'
+            create_item_list(list_container, list_items, subtitle)
+
+        def flush_row_heights():
+            sync_cs_list_row_heights(list_container)
+
+        flush_row_heights()
+        raf = window.requestAnimationFrame
+        if raf:
+            raf(flush_row_heights)
+
+        if field is 'series':
+            # After rendering, lazily fetch covers for visible series
+            for row in list_container.querySelectorAll('[data-series-name]'):
+                li = row.closest('li')
+                if li:
+                    li.classList.add('cs-series-stack-item')
+                sname = row.dataset.seriesName
+                cdiv = row.querySelector('.cs-series-stack-covers')
+                if cdiv:
+                    ensure_series_covers(sname, cdiv)
+
+    def render(ok, fieldname, payload):
+        set_loading(False)
+        if not ok:
+            clear(list_container)
+            list_container.appendChild(E.div(_('Failed to load list'), style='opacity:0.9; padding: 1rem'))
+            list_container.appendChild(E.div(payload or '', style='opacity:0.8; padding: 0 1rem 1rem 1rem; font-size: smaller'))
+            return
+        # Update without flashing: create_item_list will clear content itself
+        names = payload or v'[]'
+        cached_names[field] = names
+        render_page(names)
+
+    if field is 'pubdate':
+        set_loading(True)
+        fetch_pubdate_groups(def(ok, data):
+            if not ok:
+                render(False, field, data)
+                return
+            grp = data[group_mode] or v'{}'
+            render_page(grp.labels or v'[]')
+        )
+    else:
+        if field in TAG_BROWSER_FIELDS:
+            if cached_names[field]:
+                render_page(cached_names[field])
+            else:
+                set_loading(True)
+                fetch_from_tag_browser(field, def(ok, payload):
+                    render(ok, field, payload)
+                )
+        elif cached_names[field]:
+            render_page(cached_names[field])
+        else:
+            set_loading(True)
+            field_names_for(field, render)
+
+    if field is not 'pubdate':
+        search_inp.addEventListener('keydown', def(ev):
+            if ev.key is 'Enter':
+                ev.preventDefault()
+                apply_btn.click()
+        )
+
+
+set_panel_handler('nav_list', create_nav_list_panel)
+
