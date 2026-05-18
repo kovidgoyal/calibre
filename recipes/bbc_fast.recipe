@@ -202,7 +202,6 @@ class BBC(BasicNewsRecipe):
         ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
         ('Entertainment/Arts',
          'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
-        ('Magazine', 'https://feeds.bbci.co.uk/news/magazine/rss.xml'),
         ('Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
         ('Politics', 'https://feeds.bbci.co.uk/news/politics/rss.xml'),
         ('Health', 'https://feeds.bbci.co.uk/news/health/rss.xml'),
