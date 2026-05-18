@@ -330,6 +330,22 @@ class BBCNews(BasicNewsRecipe):
             placeholder.decompose()
         for img in soup.findAll('img'):
             img.attrs = {'src': img.get('src', '')}
+        # If no <h1> made it through (JSON parse fell back to raw HTML, or
+        # headline was empty), inject one from <title> so the article opens
+        # with a visible heading rather than starting at the byline/body.
+        body = soup.find('body')
+        if body is not None and not body.find('h1'):
+            title_tag = soup.find('title')
+            title_text = self.tag_to_string(title_tag).strip() if title_tag else ''
+            # Strip the common " - BBC News" / " - BBC" suffix.
+            for suffix in (' - BBC News', ' - BBC Sport', ' - BBC'):
+                if title_text.endswith(suffix):
+                    title_text = title_text[:-len(suffix)].strip()
+                    break
+            if title_text:
+                h1 = soup.new_tag('h1')
+                h1.string = title_text
+                body.insert(0, h1)
         for h2 in soup.findAll(['h2', 'h3']):
             h2.name = 'h4'
         return soup
