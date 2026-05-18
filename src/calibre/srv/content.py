@@ -17,6 +17,7 @@ from urllib.parse import quote
 
 from calibre import fit_image, guess_type, sanitize_file_name
 from calibre.constants import config_dir, iswindows
+from calibre.customize.ui import apply_null_metadata
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, RESOURCE_URL_SCHEME
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import cprefs, generate_cover, override_prefs, scale_cover, set_use_roman
@@ -218,7 +219,8 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
                 cdata = db.cover(book_id)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
-            set_metadata(dest, mi, fmt)
+            with apply_null_metadata:
+                set_metadata(dest, mi, fmt)
             dest.seek(0)
 
     cd = sanitize_content_disposition(rd.query.get('content_disposition', 'attachment'))
