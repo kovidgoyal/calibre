@@ -245,6 +245,9 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
 .cs-left-nav .cs-sidebar-toggle {
     margin: 0 0.35rem 0.25rem 0.35rem;
 }
+.cs-left-nav .cs-sidebar-toggle-expand {
+    display: none;
+}
 .cs-left-nav .cs-hamburger {
     font-size: 1.25rem;
     line-height: 1;
@@ -253,6 +256,8 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
 
 /* Collapsed sidebar */
 :root.cs-sidebar-collapsed .cs-left-nav { padding-left: 0.35rem; padding-right: 0.35rem; }
+:root.cs-sidebar-collapsed .cs-left-nav .cs-sidebar-toggle-expand { display: inline }
+:root.cs-sidebar-collapsed .cs-left-nav .cs-sidebar-toggle-collapse { display: none }
 :root.cs-sidebar-collapsed .cs-left-nav a {
     justify-content: center;
     padding: 0.55rem 0.5rem;

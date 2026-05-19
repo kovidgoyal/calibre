@@ -7,10 +7,6 @@ their border color contrast more. Similarly why a dull green for
 link/highlight color? Blue is more generally recognized and used in the
 calibre UI itself.
 
-5) The Menu button in the sidebar is confusing. It should instead say
-"collapse" or something similar and have `<` as its icon when expanded and
-`>` as the icon when collapsed.
-
 6) New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books? Calling it Virtual
 library will mean calibre users will be more likely to understand what
