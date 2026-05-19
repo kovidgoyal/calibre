@@ -1,3 +1,7 @@
+1) the book list and nav list have different headers behavior. In the former
+the top info and prev next buttons scroll with the books in the latter they do not.
+They should scroll with books in both cases. Also there should be prev/next buttons at the bottom as well.
+
 2) cover grid move cover size control into list view header rather than global footer dock
 
 3) Clicking back after browsing books in a category does not take us to nav_list page
@@ -6,6 +10,11 @@
 their border color contrast more. Similarly why a dull green for
 link/highlight color? Blue is more generally recognized and used in the
 calibre UI itself.
+
+5) restore defaults in UI settings doesnt work. And there should be only one settings page
+with both tag browser and ui settings on that page under using some kind of tab or collapse
+view. It should also be possible to access the tag browser settings via an icon in the top bar
+of the book list page
 
 6) New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books? Calling it Virtual
