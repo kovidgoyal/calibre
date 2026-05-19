@@ -1,0 +1,50 @@
+1) From the details list you have removed iframes. They are necessary to
+sandbox HTML content that can come from ebook metadata and is therefore
+not safe. You are instead using text_from_html() I believe. But that
+means all formatting in the comments is lost. Maybe this is an
+acceptable tradeoff, but why remove the iframes? Also I doubt ext_from_html is secure, IIRC it sets innerHTML and reads back textContent? that gives event handler attributes in the HTML a window to run no?
+
+3) Move the sidebar code into its own module rather than having it in main.pyj
+
+4) The buttons in dark mode are a little hard to make out. Maybe make
+their border color contrast more. Similarly why a dull green for
+link/highlight color? Blue is more generally recognized and used in the
+calibre UI itself.
+
+5) The Menu button in the sidebar is confusing. It should instead say
+"collapse" or something similar and have `<` as its icon when expanded and
+`>` as the icon when collapsed.
+
+6) New category is confusingly named. From what I can tell its basically
+a virtual library used to filter the shown books? Calling it Virtual
+library will mean calibre users will be more likely to understand what
+it is. Also perhaps add a line of text to it explaining what it does.
+
+7) There appears to be no way to add custom columns (user created
+columns) to the browse section. This should be added in system or ui
+settings. You can see code for how to implement this in
+bookshelf_view.py, see get_grouped_iterator() It would need to be ported
+to RapydScript, of course.
+
+8) The default value for the setting to show sidebar in the viewer
+should be off
+
+9) I recently added "Offline mode status" to the home page. You need to
+change that to match with your redesign it currently shows up using a
+plain hr and looks odd
+
+10) The scrollbars in dark mode have very low contrast
+
+11) There should be a way to add some quick actions or alternatively
+simply remove that section from the sidebar and instead put the plus and
+random in the top bar.
+
+12) In the UI settings panel the color picker appears off screen, it
+needs to be shifted left so that it is on screen. The popups for the
+comboboxes in dark mode are unreadable as they have light background.
+"Display mode" should be renamed to "Color mode"
+
+13) Maybe have configure tag browser out of the side bar and made into a
+section in UI settings panel. Then the "System" category can be removed
+and replaced with just a single "Configure" item.
+Reduces the number of entries in the sidebar.
