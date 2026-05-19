@@ -1,8 +1,4 @@
-1) From the details list you have removed iframes. They are necessary to
-sandbox HTML content that can come from ebook metadata and is therefore
-not safe. You are instead using text_from_html() I believe. But that
-means all formatting in the comments is lost. Maybe this is an
-acceptable tradeoff, but why remove the iframes? Also I doubt ext_from_html is secure, IIRC it sets innerHTML and reads back textContent? that gives event handler attributes in the HTML a window to run no?
+1) fix icons used for dates, tags etc in detailed list and move publisher to end of list
 
 3) Move the sidebar code into its own module rather than having it in main.pyj
 
