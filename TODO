@@ -18,9 +18,6 @@ settings. You can see code for how to implement this in
 bookshelf_view.py, see get_grouped_iterator() It would need to be ported
 to RapydScript, of course.
 
-8) The default value for the setting to show sidebar in the viewer
-should be off
-
 9) I recently added "Offline mode status" to the home page. You need to
 change that to match with your redesign it currently shows up using a
 plain hr and looks odd
