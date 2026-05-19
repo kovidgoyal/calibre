@@ -566,10 +566,10 @@ def init_ui():
     tag_label = 'Tag' if tags_label is 'Tags' else tags_label
 
     section_elems.publisher = nav_section(publisher_label, 'publisher', _('Browse all publishers'), icon='library')
-    section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='bookmark')
+    section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='tags')
     section_elems.formats = nav_section(_('Formats'), 'formats', _('Browse all formats'), icon='convert')
     section_elems.rating = nav_section(_('Rating'), 'rating', _('Browse by rating'), icon='star')
-    section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='hourglass')
+    section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='date')
     g2.appendChild(section_elems.series)
     g2.appendChild(section_elems.authors)
     g2.appendChild(section_elems.publisher)
