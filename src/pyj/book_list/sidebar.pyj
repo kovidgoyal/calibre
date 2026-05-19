@@ -78,9 +78,15 @@ def create_sidebar():
     else:
         apply_sidebar_state(stored is '1')
 
-    toggle_link = nav_link(_('Menu'), toggle_sidebar, _('Toggle navigation'), icon='toc')
-    toggle_link.classList.add('cs-sidebar-toggle')
-    left.appendChild(toggle_link)
+    collapse = nav_link(_('Collapse'), toggle_sidebar, _('Toggle sidebar'), icon='chevron-left')
+    collapse.classList.add('cs-sidebar-toggle')
+    collapse.classList.add('cs-sidebar-toggle-collapse')
+    expand = nav_link('', toggle_sidebar, _('Toggle sidebar'), icon='chevron-right')
+    expand.classList.add('cs-sidebar-toggle')
+    expand.classList.add('cs-sidebar-toggle-expand')
+    left.appendChild(collapse)
+    left.appendChild(expand)
+
     # Group 1: primary navigation
     left.appendChild(E.div(svgicon('home'), E.span(_('Navigation')), class_='cs-nav-group-title'))
     g1 = E.div(class_='cs-nav-group')
