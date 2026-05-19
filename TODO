@@ -1,6 +1,6 @@
 2) cover grid move cover size control into list view header rather than global footer dock
 
-3) Move the sidebar code into its own module rather than having it in main.pyj
+3) Clicking back after browsing books in a category does not take us to nav_list page
 
 4) The buttons in dark mode are a little hard to make out. Maybe make
 their border color contrast more. Similarly why a dull green for
