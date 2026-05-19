@@ -1,4 +1,4 @@
-1) fix icons used for dates, tags etc in detailed list and move publisher to end of list
+2) cover grid move cover size control into list view header rather than global footer dock
 
 3) Move the sidebar code into its own module rather than having it in main.pyj
 

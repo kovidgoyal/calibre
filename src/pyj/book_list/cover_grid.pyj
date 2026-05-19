@@ -147,7 +147,7 @@ def on_cover_grid_size_input(ev):
 
 def build_cover_grid_size_dock():
     lab = E.span(class_='cs-cover-grid-size-label')
-    lab.textContent = _('Grid tile size')
+    lab.textContent = _('Cover size')
     r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='0.025')
     r.value = str(get_cover_grid_pct())
     r.title = _('Adjust cover grid tile size')
