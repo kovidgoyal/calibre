@@ -16,9 +16,9 @@ from book_list.library_data import (
 )
 from book_list.router import back, home, open_book, report_a_load_failure, show_note, open_book_url_in_library, search_url_in_library
 from book_list.theme import (
-    color_scheme, get_color, get_color_as_rgba, get_font_size
+    color_scheme, get_color, get_color_as_rgba
 )
-from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
+from book_list.top_bar import clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
@@ -965,12 +965,16 @@ def render_book(container_id, book_id):
         nbid = book_after(book_id, delta)
         if not nbid or nbid is book_id or is_random:
             return None
-        return create_button(
+        ans = create_button(
             _('Previous') if is_prev else _('Next'),
             'chevron-left' if is_prev else 'chevron-right',
             next_book.bind(None, book_id, delta),
             _('Previous book [Ctrl+Left]') if is_prev else _('Next book [Ctrl+Right]')
         )
+        if not is_prev:
+            ans.insertBefore(ans.firstChild.nextSibling, ans.firstChild)
+        ans.style.justifyContent = 'start' if is_prev else 'end'
+        return ans
 
     prev_btn = make_nav_button(True)
     next_btn = make_nav_button(False)
