@@ -57,8 +57,8 @@ a { color: var(--primary-color); text-decoration: none; text-underline-offset: 0
 a:visited { color: var(--primary-color); opacity: 0.92; }
 a:hover { text-decoration: underline; }
 a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
-.book-list-item a { color: currentColor; }
-.book-list-item a:visited { color: currentColor; }
+[data-component="book_list"] a { color: currentColor; }
+[data-component="book_list"] a:visited { color: currentColor; }
 
 
 /* Do not underline button-like links */
