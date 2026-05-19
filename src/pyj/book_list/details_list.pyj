@@ -9,7 +9,7 @@ from book_list.theme import effective_book_list_is_dark, css_for_variables, get_
 from date import format_date
 from dom import build_rule, clear, set_css, svgicon
 from session import get_interface_data
-from utils import fmt_sidx, safe_set_inner_html
+from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 
 DETAILS_LIST_CLASS = 'book-list-details-list'
 ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
@@ -111,7 +111,7 @@ def details_list_css():
         gap='0.75rem',
         overflow_x='hidden',
         overflow_y='hidden',
-        flex='1 1 0',
+        flex_shrink='0',
         min_height='0',
         min_width='0',
         max_width='100%',
@@ -146,25 +146,14 @@ def details_list_css():
         overflow='hidden',
         text_overflow='ellipsis'
     )
-    # line-clamp needs literal -webkit-* names; build_rule emits invalid "webkit-line-clamp".
-    ans += sel + ''' .details-comments {
-  margin-top: 0.65ex;
-  opacity: 0.85;
-  font-size: 0.95em;
-  line-height: 1.45;
-  min-width: 0;
-  max-width: 100%;
-  flex: 0 0 auto;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-'''
+    ans += build_rule(sel + ' .details-comments',
+        min_height='4ex',
+        margin_top='0.65ex',
+        height='0',
+        border='none',
+        flex_grow='1',
+    )
+
     # Wrap badges (~2 rows): flex cannot use line-clamp; cap height and clip (align-content top).
     ans += sel + ''' .details-meta {
   margin-top: 0.35ex;
@@ -272,27 +261,12 @@ def on_img_load(img, load_type):
 
 
 def sandbox_css():
-    # Kept for compatibility: used by other modules (e.g. custom_list) that still
-    # sandbox HTML into an iframe. The details list itself does not use iframes.
     is_dark_theme = effective_book_list_is_dark()
     if not sandbox_css.ans or sandbox_css.is_dark_theme is not is_dark_theme:
         sandbox_css.ans = css_for_variables() + '\n\n'
         sandbox_css.ans += 'html {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
         sandbox_css.is_dark_theme = is_dark_theme
     return sandbox_css.ans
-
-
-def text_from_html(x):
-    # Convert HTML-ish book comments to plain text for list view
-    if not x:
-        return ''
-    try:
-        div = document.createElement('div')
-        div.innerHTML = x + ''
-        return (div.textContent or div.innerText or '').strip()
-    except Exception:
-        # Fallback: crude tag stripping
-        return (x + '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').strip()
 
 
 def create_item(book_id, metadata, create_image, show_book_details, href):
@@ -302,9 +276,9 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
     img.dataset.title, img.dataset.authors = metadata.title, authors
     img_div = E.div(img, class_='details-list-left')
     extra_data = E.div()
-    comments_text = text_from_html(metadata.comments)
-    comments = E.div(comments_text, class_='details-comments')
-    if not comments_text:
+    comments = sandboxed_html(metadata.comments, sandbox_css())
+    comments.classList.add('details-comments')
+    if not metadata.comments:
         comments.style.display = 'none'
     interface_data = get_interface_data()
     if metadata.rating:
