@@ -942,8 +942,11 @@ def create_books_list(container):
     controls.appendChild(left)
     controls.appendChild(right)
 
-    def pager_btn(label, icon, onclick):
-        a = E.a(svgicon(icon), E.span(label), href='#', class_='cs-book-pager-btn')
+    def pager_btn(is_prev, label, icon, onclick):
+        a = E.a(svgicon(icon), E.span(label), href='javascript:void', class_='cs-book-pager-btn')
+        if not is_prev:
+            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
+            a.style.justifyContent = 'end'
         a.addEventListener('click', def(evt):
             evt.preventDefault()
             onclick()
@@ -976,10 +979,10 @@ def create_books_list(container):
             update_pager()
         )
 
-    prev_btn = pager_btn(_('Prev'), 'chevron-left', def():
+    prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
         go_to_offset((library_data.search_result.offset or 0) - page_size)
     )
-    next_btn = pager_btn(_('Next'), 'chevron-right', def():
+    next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
         go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
     left.appendChild(prev_btn)
