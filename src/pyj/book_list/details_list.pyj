@@ -307,11 +307,9 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
             b.title = title
         meta.appendChild(b)
 
-    if metadata.publisher:
-        add_badge('library', metadata.publisher, _('Publisher'))
     if metadata.pubdate:
         try:
-            add_badge('bookmark', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
+            add_badge('date', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
         except Exception:
             pass
     fmts = metadata.formats or v'[]'
@@ -323,7 +321,10 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
     tgs = metadata.tags or v'[]'
     if tgs and tgs.length:
         for tg in tgs.slice(0, 4):
-            add_badge('link', tg, _('Tag'))
+            add_badge('tags', tg, _('Tag'))
+    if metadata.publisher:
+        add_badge('library', metadata.publisher, _('Publisher'))
+
     right = E.div(
         class_='details-list-right',
         E.div(

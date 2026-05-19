@@ -864,7 +864,7 @@ def render_book(container_id, book_id):
         add_badge('library', metadata.publisher, _('Publisher'))
     if metadata.pubdate:
         try:
-            add_badge('hourglass', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
+            add_badge('date', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
         except Exception:
             pass
     if metadata.formats and metadata.formats.length:
