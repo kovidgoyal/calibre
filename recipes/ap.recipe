@@ -95,7 +95,7 @@ class AssociatedPress(BasicNewsRecipe):
             cache[url] = None
             return None
         try:
-            pub = datetime.fromisoformat(meta['content'].replace('Z', '+00:00'))
+            pub = datetime.fromisoformat(meta['content'])
         except Exception as e:
             self.log.warn('AP bad published_time on', url, ':', e)
             cache[url] = None
