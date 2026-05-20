@@ -27,10 +27,6 @@ settings. You can see code for how to implement this in
 bookshelf_view.py, see get_grouped_iterator() It would need to be ported
 to RapydScript, of course.
 
-9) I recently added "Offline mode status" to the home page. You need to
-change that to match with your redesign it currently shows up using a
-plain hr and looks odd
-
 10) The scrollbars in dark mode have very low contrast
 
 11) There should be a way to add some quick actions or alternatively
