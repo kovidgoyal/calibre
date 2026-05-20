@@ -449,9 +449,9 @@ def init(container_id):
 
     # Service worker status
     offline_mode = E.div(
-        style='border-top: solid 1px currentColor; padding: 1rem; font-size:smaller', class_='recently-read')
+        style='font-size:smaller', class_='cs-home-section recently-read')
     offline_mode.textContent = _('Offline mode is not supported')
-    container.appendChild(offline_mode)
+    content.appendChild(offline_mode)
     if window.performance?.getEntriesByType:
         nav = window.performance.getEntriesByType('navigation')
         if nav and nav.length > 0:
