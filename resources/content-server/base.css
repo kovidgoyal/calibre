@@ -78,12 +78,7 @@ textarea:focus, select:focus {
 }
 
 /* Select: use themed background/foreground so dropdown popups are readable in dark mode */
-select {
-    background-color: var(--calibre-color-window-background);
-    color: var(--calibre-color-window-foreground);
-}
-
-select option {
+select, select option {
     background-color: var(--calibre-color-window-background);
     color: var(--calibre-color-window-foreground);
 }
