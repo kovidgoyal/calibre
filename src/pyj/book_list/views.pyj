@@ -322,7 +322,8 @@ add_extra_css(def():
     flex-direction: column;
     align-items: stretch;
   }
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn,
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn.cs-book-pager-next {
     flex: 0 0 auto;
     width: 100%;
     max-width: 100%;

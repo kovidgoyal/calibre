@@ -212,6 +212,9 @@ add_extra_css(def():
     style += build_rule(sel + 'a.cs-pager-btn:active', transform='scale(0.99)')
     style += build_rule(sel + 'a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
     style += build_rule(sel + 'a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
+    style += build_rule(sel + 'a.cs-pager-btn svg',
+        flex_shrink='0', width='1em', height='1em', display='block',
+    )
     style += build_rule(sel + 'input.cs-filter',
         padding='0.45rem 0.7rem',
         border_radius='999px',
@@ -584,6 +587,13 @@ add_extra_css(def():
     flex: 1 1 0;
     min-width: 0;
     justify-content: center;
+    overflow: hidden;
+  }
+  .cs-nav-list .cs-pager-left a.cs-pager-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
   .cs-nav-list .cs-pager-right {
     justify-content: stretch;
@@ -608,6 +618,18 @@ add_extra_css(def():
   .cs-nav-list .cs-pager-left a.cs-pager-btn {
     flex: 1 1 0;
     justify-content: center;
+  }
+}
+@media (max-width: 360px) {
+  .cs-nav-list .cs-pager-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
 @media (max-width: 420px) {
