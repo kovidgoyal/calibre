@@ -295,22 +295,13 @@ def color_scheme():
 
 
 def css_for_variables():
-    input_css = '''
-        input, textarea {
-            color: var(--calibre-color-input-foreground); \
-            background-color: var(--calibre-color-input-background); \
-        }
-        input:focus, textarea:focus {
-            outline-color: var(--calibre-color-input-focus-outline-color); \
-        }
-    '''
     is_dark_theme = effective_book_list_is_dark()
     attr = 'dark' if is_dark_theme else 'light'
     ans = v'[]'
     for k in DEFAULT_COLORS:
         val = DEFAULT_COLORS[k][attr]
         ans.push(f'--calibre-color-{k}: {val};')
-    return f':root {{ color-scheme: {attr}; ' + ans.join('\n') + '}\n\n' + input_css
+    return f':root {{ color-scheme: {attr}; ' + ans.join('\n') + '}\n\n'
 
 
 def get_color(name):
