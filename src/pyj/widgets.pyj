@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.theme import get_color
 
@@ -90,6 +91,93 @@ create_button.style += r'''
   a.calibre-push-button { max-width: 100%; white-space: normal; }
 }
 '''
+# }}}
+
+# Pager Button {{{
+
+def create_pager_button(is_prev, label, icon, onclick):
+    a = E.a(svgicon(icon), E.span(label), href='javascript:void(0)', class_='cs-pager-btn')
+    if label:
+        if is_prev:
+            a.classList.add('cs-pager-btn-prev')
+        else:
+            a.classList.add('cs-pager-btn-next')
+            # Next button: move span before svg so icon is on the right
+            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
+    a.addEventListener('click', def(evt):
+        evt.preventDefault()
+        onclick()
+    )
+    return a
+
+
+def set_pager_button_enabled(btn, enabled):
+    btn.setAttribute('aria-disabled', 'false' if enabled else 'true')
+
+
+create_pager_button.style = build_rule('a.cs-pager-btn',
+    display='inline-flex', align_items='center', gap='0.35rem',
+    padding='0.4rem 0.7rem', border_radius='999px',
+    border='1px solid rgba(0,0,0,0.10)',
+    background_color=get_color('window-background'),
+    color=get_color('window-foreground'),
+    cursor='pointer', user_select='none', text_decoration='none',
+    box_sizing='border-box', min_width='0', max_width='100%',
+)
+create_pager_button.style += build_rule('a.cs-pager-btn svg',
+    flex_shrink='0', width='1em', height='1em', display='block',
+)
+create_pager_button.style += build_rule('a.cs-pager-btn > span', min_width='0')
+create_pager_button.style += build_rule('a.cs-pager-btn:hover', background_color='var(--cs-accent-weak)')
+create_pager_button.style += build_rule('a.cs-pager-btn:active', transform='scale(0.99)')
+create_pager_button.style += build_rule('a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+create_pager_button.style += build_rule('a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
+# Prev: content left-aligned; Next: content right-aligned. flex: 1 1 0 lets buttons
+# grow to fill their flex container so the alignment is visually apparent.
+create_pager_button.style += build_rule('a.cs-pager-btn.cs-pager-btn-prev',
+    justify_content='flex-start', flex='1 1 0')
+create_pager_button.style += build_rule('a.cs-pager-btn.cs-pager-btn-next',
+    justify_content='flex-end', flex='1 1 0')
+
+# }}}
+
+# Pager Widget {{{
+
+def create_pager_widget(on_prev, on_next):
+    prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', on_prev)
+    next_btn = create_pager_button(False, _('Next'), 'chevron-right', on_next)
+    left = E.div(class_='cs-pager-widget-left')
+    left.appendChild(prev_btn)
+    left.appendChild(next_btn)
+    right = E.div(class_='cs-pager-widget-right')
+    container = E.div(class_='cs-pager-widget')
+    container.appendChild(left)
+    container.appendChild(right)
+
+    def set_enabled(prev_en, next_en):
+        set_pager_button_enabled(prev_btn, prev_en)
+        set_pager_button_enabled(next_btn, next_en)
+
+    return {
+        'container': container, 'left': left, 'right': right,
+        'prev_btn': prev_btn, 'next_btn': next_btn, 'set_enabled': set_enabled
+    }
+
+
+create_pager_widget.style = build_rule('div.cs-pager-widget',
+    display='flex', align_items='center', justify_content='space-between',
+    gap='0.75rem', flex_wrap='wrap', min_width='0', width='100%',
+    box_sizing='border-box',
+)
+create_pager_widget.style += build_rule('div.cs-pager-widget-left',
+    display='flex', align_items='center', gap='0.5rem',
+    flex='1 1 auto', min_width='0', max_width='100%',
+)
+create_pager_widget.style += build_rule('div.cs-pager-widget-right',
+    display='flex', align_items='center', gap='0.5rem',
+    min_width='0', max_width='100%', justify_content='flex-end',
+)
+
 # }}}
 
 # Spinner {{{
@@ -271,7 +359,8 @@ add_extra_css(def():
     # Use theme primary color for all "blue-link" links.
     ans += '.blue-link { cursor: pointer; color: var(--primary-color) } .blue-link:visited { color: var(--primary-color)} .blue-link:hover { color: var(--primary-color) } .blue-link:active { transform: scale(1.5) }\n'
     ans += create_button.style + '\n'
-    ans += create_button.style + '\n'
+    ans += create_pager_button.style + '\n'
+    ans += create_pager_widget.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'
     # Chrome hardcodes the size of these to 13.3px. In safari on some devices
