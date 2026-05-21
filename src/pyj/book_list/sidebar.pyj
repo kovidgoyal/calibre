@@ -374,6 +374,7 @@ def create_sidebar():
         clear_active(home_link)
         clear_active(search_link)
         clear_active(reader_link)
+        clear_active(settings_link)
         for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'rating', 'pubdate'):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
