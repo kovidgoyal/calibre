@@ -80,6 +80,41 @@ textarea:focus, select:focus {
 /* Checkbox/Radio: selected state */
 input[type="checkbox"], input[type="radio"] { accent-color: var(--primary-color); }
 
+select, ::picker(select) {
+  appearance: base-select;
+}
+
+::picker(select) {
+  background-color: var(--calibre-color-window-background);
+  border: 2px solid var(--primary-light-2);
+  border-radius: 6px;
+  padding: 5px;
+}
+
+input, textarea, select {
+    color: var(--calibre-color-input-foreground);
+    background-color: var(--calibre-color-input-background);
+}
+
+select option {
+    background-color: var(--calibre-color-window-background);
+    color: var(--calibre-color-input-foreground);
+}
+
+select option:checked {
+    outline-color: var(--primary-color);
+}
+
+select option:hover {
+    background-color: var(--calibre-color-input-background);
+    color: var(--primary-color);
+}
+
+
+input:focus, textarea:focus, select:focus {
+    outline-color: var(--calibre-color-input-focus-outline-color);
+}
+
 /* Loading / spinner color */
 .spin, .cs-book-loading-overlay svg, .cs-bd-loading-overlay svg, .cs-nav-list .cs-loading-overlay svg { color: var(--primary-color); }
 
