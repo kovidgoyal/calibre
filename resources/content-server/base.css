@@ -64,7 +64,7 @@ a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
 /* Do not underline button-like links */
 a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover, .cs-book-list-toolbar a:hover { text-decoration: none; }
 
-::selection { background: rgba(67,112,0,0.28); }
+::selection { background: var(--primary-light-2); }
 
 /* Inputs: theme focus border */
 input[type="text"], input[type="search"], input[type="url"], input[type="number"], input[type="password"], textarea, select {
