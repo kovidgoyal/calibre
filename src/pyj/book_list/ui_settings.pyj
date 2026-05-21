@@ -146,19 +146,6 @@ add_extra_css(def():
         user_select='none',
         white_space='nowrap',
     )
-    style += build_rule(sel + '[role="tab"]:hover',
-        opacity='0.88',
-        color='var(--primary-color)',
-    )
-    style += build_rule(sel + '[role="tab"][aria-selected="true"]',
-        color='var(--primary-color)',
-        border_bottom='2px solid var(--primary-color)',
-        opacity='1',
-    )
-    style += build_rule(sel + '[role="tab"]:focus',
-        box_shadow='var(--cs-focus-ring)',
-        border_radius='var(--cs-radius-sm)',
-    )
     style += build_rule(sel + '[role="tabpanel"]',
         min_width='0',
         width='100%',
@@ -203,6 +190,7 @@ def init(container_id):
         aria_selected='true',
         aria_controls=tab_interface_id,
         tabindex='0',
+        title=_('Customise the look & feel of the interface'),
     )
     tab_tagbrowser_btn = E.button(
         _('Tag browser'),
@@ -210,6 +198,7 @@ def init(container_id):
         aria_selected='false',
         aria_controls=tab_tagbrowser_id,
         tabindex='-1',
+        title=_('Customise how the Tag browser (accessible via the search button) behaves'),
     )
 
     tablist = E.div(role='tablist', aria_label=_('Settings sections'))
@@ -242,8 +231,8 @@ def init(container_id):
             p.setAttribute('hidden', '')
         panel.removeAttribute('hidden')
 
-    tab_interface_btn.addEventListener('click', def(ev): select_tab(tab_interface_btn, panel_interface))
-    tab_tagbrowser_btn.addEventListener('click', def(ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser))
+    tab_interface_btn.addEventListener('click', def(ev): select_tab(tab_interface_btn, panel_interface);)
+    tab_tagbrowser_btn.addEventListener('click', def(ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser);)
 
     def on_tablist_keydown(ev):
         tabs = tablist.querySelectorAll('[role="tab"]')
