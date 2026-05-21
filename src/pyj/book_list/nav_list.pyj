@@ -13,9 +13,10 @@ from book_list.router import back
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler, show_panel
 from book_list.theme import get_color
-from dom import add_extra_css, build_rule, clear, set_css, svgicon
+from dom import add_extra_css, build_rule, clear, svgicon
 from ajax import ajax, ajax_send
 from utils import parse_url_params
+from widgets import create_pager_widget, create_pager_button
 
 
 def escape_for_search(x):
@@ -185,33 +186,18 @@ add_extra_css(def():
     sel = '.cs-nav-list '
     style = ''
     style += build_rule(sel + '.cs-pager',
-        display='flex', flex_wrap='wrap', align_items='center', justify_content='flex_start',
-        gap='0.75rem', padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
+        padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
         border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
         background_color='rgba(0,0,0,0.02)',
     )
-    style += build_rule(sel + '.cs-pager-left',
-        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
-        flex='0 1 auto', min_width='min(100%, max-content)', max_width='100%',
+    # Context overrides for cs-pager-widget inside cs-nav-list
+    style += build_rule(sel + '.cs-pager-widget-left',
+        flex_wrap='wrap', min_width='min(100%, max-content)',
     )
-    style += build_rule(sel + '.cs-pager-right',
-        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
-        flex='0 1 auto', min_width='0', max_width='100%',
-        margin_left='auto', justify_content='flex_end',
+    style += build_rule(sel + '.cs-pager-widget-right',
+        flex_wrap='wrap', flex='0 1 auto', margin_left='auto',
     )
     style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
-    style += build_rule(sel + 'a.cs-pager-btn',
-        display='inline-flex', align_items='center', gap='0.35rem',
-        padding='0.45rem 0.7rem', border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
-        background_color=get_color('window-background'),
-        color=get_color('window-foreground'),
-        cursor='pointer', user_select='none', text_decoration='none'
-    )
-    style += build_rule(sel + 'a.cs-pager-btn:hover', background_color='var(--cs-accent-weak)')
-    style += build_rule(sel + 'a.cs-pager-btn:active', transform='scale(0.99)')
-    style += build_rule(sel + 'a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
-    style += build_rule(sel + 'a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
     style += build_rule(sel + 'input.cs-filter',
         padding='0.45rem 0.7rem',
         border_radius='999px',
@@ -241,7 +227,7 @@ add_extra_css(def():
             opacity='0.8'
         )
     # Tags: render as bubbles with incremental "show more"
-    style += build_rule(sel + '[data-field="tags"] .cs-pager-left', display='none')
+    style += build_rule(sel + '[data-field="tags"] .cs-pager-widget-left', display='none')
     style += build_rule(sel + '.cs-tag-bubbles',
         padding='0.75rem 1rem',
         display='flex',
@@ -565,19 +551,35 @@ add_extra_css(def():
     style += r'''
 @media (max-width: 720px) {
   .cs-nav-list .cs-pager {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
     padding: 0.75rem;
     margin: 0.75rem 0.75rem 0.5rem 0.75rem;
   }
-  .cs-nav-list .cs-pager-left, .cs-nav-list .cs-pager-right {
+  .cs-nav-list .cs-pager-widget {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+  .cs-nav-list .cs-pager-widget-left, .cs-nav-list .cs-pager-widget-right {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  .cs-nav-list .cs-pager-right {
+  .cs-nav-list .cs-pager-widget-left {
+    flex-wrap: nowrap;
+  }
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .cs-nav-list .cs-pager-widget-right {
     justify-content: stretch;
     margin-left: 0;
   }
@@ -594,12 +596,23 @@ add_extra_css(def():
   }
 }
 @media (max-width: 420px) {
-  .cs-nav-list .cs-pager-left {
+  .cs-nav-list .cs-pager-widget-left {
     justify-content: stretch;
   }
-  .cs-nav-list .cs-pager-left a.cs-pager-btn {
-    flex: 1 1 0;
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
     justify-content: center;
+  }
+}
+@media (max-width: 360px) {
+  .cs-nav-list .cs-pager-widget-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
 @media (max-width: 420px) {
@@ -675,9 +688,6 @@ def create_nav_list_panel(container_id):
     create_top_bar(container, title=title, action=back, icon='close')
     container.appendChild(E.div())
     body = container.lastChild
-    # Ensure the panel uses a constrained layout so the list can scroll
-    set_css(container, height='100%', display='flex', flex_direction='column', overflow='hidden')
-    set_css(body, flex='1 1 auto', min_height='0', overflow='hidden', display='flex', flex_direction='column')
     body.classList.add('cs-nav-list')
     body.dataset.field = field
     if field is 'series':
@@ -687,28 +697,12 @@ def create_nav_list_panel(container_id):
 
     pager = E.div(class_='cs-pager')
     body.appendChild(pager)
-    left = E.div(class_='cs-pager-left')
-    right = E.div(class_='cs-pager-right')
-    pager.appendChild(left)
-    pager.appendChild(right)
-
-    def pager_btn(label, icon, onclick):
-        a = E.a(href='#', class_='cs-pager-btn')
-        a.appendChild(svgicon(icon))
-        if label:
-            a.appendChild(E.span(label))
-        a.addEventListener('click', def(evt):
-            evt.preventDefault()
-            onclick()
-        )
-        return a
-
-    prev_btn = pager_btn(_('Prev'), 'chevron-left', def():
-        update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
+    top_pager_widget = create_pager_widget(
+        def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
+        def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
     )
-    next_btn = pager_btn(_('Next'), 'chevron-right', def():
-        update_nav_list_url(field, offset + num, num, query_text, replace=True)
-    )
+    pager.appendChild(top_pager_widget.container)
+
     status = E.span('', class_='cs-pager-status')
     search_inp = E.input(
         type='search',
@@ -716,18 +710,16 @@ def create_nav_list_panel(container_id):
         value=query_text,
         class_='cs-filter'
     )
-    apply_btn = pager_btn('', 'search', def():
+    apply_btn = create_pager_button(True, '', 'search', def():
         nonlocal query_text
         query_text = search_inp.value or ''
         update_nav_list_url(field, 0, num, query_text, replace=True)
     )
     apply_btn.title = _('Apply')
-    left.appendChild(prev_btn)
-    left.appendChild(next_btn)
     if field is not 'pubdate':
-        right.appendChild(search_inp)
-        right.appendChild(apply_btn)
-        right.appendChild(status)
+        top_pager_widget.right.appendChild(search_inp)
+        top_pager_widget.right.appendChild(apply_btn)
+        top_pager_widget.right.appendChild(status)
 
     # Grouping toggle for Published date panel
     group_toggle = None
@@ -749,18 +741,18 @@ def create_nav_list_panel(container_id):
         seg.appendChild(toggle_btn(_('Year'), 'y'))
         seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
         group_toggle.appendChild(seg)
-        left.appendChild(group_toggle)
+        top_pager_widget.left.appendChild(group_toggle)
     list_wrap = E.div(class_='cs-list-wrap')
     body.appendChild(list_wrap)
-    set_css(list_wrap, flex='1 1 auto', min_height='0')
     nav_subtitle = E.p('', class_='cs-nav-subtitle')
     nav_subtitle.style.display = 'none'
     list_container = E.div(class_='cs-list-content')
+    bottom_pager = E.div(class_='cs-pager', style='display:none; margin-bottom:1rem')
     overlay = E.div(class_='cs-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…')))
     list_wrap.appendChild(nav_subtitle)
     list_wrap.appendChild(list_container)
+    list_wrap.appendChild(bottom_pager)
     list_wrap.appendChild(overlay)
-    set_css(list_container, height='100%', overflow='auto')
     list_wrap.classList.add('cs-loading')
 
     def set_loading(is_loading):
@@ -771,9 +763,6 @@ def create_nav_list_panel(container_id):
             setTimeout(def():
                 list_wrap.classList.remove('cs-loading')
             , 60)
-
-    def set_enabled(elem, enabled):
-        elem.setAttribute('aria-disabled', 'false' if enabled else 'true')
 
     def norm(x):
         return (x or '').toString().toLowerCase()
@@ -1092,8 +1081,7 @@ def create_nav_list_panel(container_id):
         if field is 'tags':
             shown = min(total, visible_tags)
             status.textContent = _('Showing {} of {}').format(shown, total)
-            set_enabled(prev_btn, False)
-            set_enabled(next_btn, False)
+            top_pager_widget.set_enabled(False, False)
 
             clear(list_container)
             subtitle = subtitle_for_field(field)
@@ -1138,6 +1126,7 @@ def create_nav_list_panel(container_id):
                     render_page(data)
                 )
                 wrap.appendChild(a)
+            bottom_pager.style.display = 'none'
             return
         if offset >= total and total > 0:
             # Clamp to last page
@@ -1147,8 +1136,7 @@ def create_nav_list_panel(container_id):
                 return
         end = min(total, offset + num)
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
-        set_enabled(prev_btn, offset > 0)
-        set_enabled(next_btn, end < total)
+        top_pager_widget.set_enabled(offset > 0, end < total)
 
         list_items = []
 
@@ -1209,6 +1197,16 @@ def create_nav_list_panel(container_id):
                 if cdiv:
                     ensure_series_covers(sname, cdiv)
 
+        # Bottom prev/next mirrors top pager state
+        clear(bottom_pager)
+        bot_widget = create_pager_widget(
+            def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
+            def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
+        )
+        bot_widget.set_enabled(offset > 0, end < total)
+        bottom_pager.appendChild(bot_widget.container)
+        bottom_pager.style.display = ''
+
     def render(ok, fieldname, payload):
         set_loading(False)
         if not ok:
@@ -1254,4 +1252,3 @@ def create_nav_list_panel(container_id):
 
 
 set_panel_handler('nav_list', create_nav_list_panel)
-
