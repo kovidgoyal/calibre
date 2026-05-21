@@ -116,6 +116,57 @@ add_extra_css(def():
         width='100%',
         box_sizing='border-box',
     )
+    # Tabs widget
+    style += build_rule(sel + '.cs-tabs',
+        width='100%',
+        min_width='0',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '[role="tablist"]',
+        display='flex',
+        flex_direction='row',
+        gap='0',
+        border_bottom='1px solid var(--cs-border)',
+        margin_bottom='1rem',
+    )
+    style += build_rule(sel + '[role="tab"]',
+        background='none',
+        border='none',
+        border_bottom='2px solid transparent',
+        padding='0.6rem 1.1rem',
+        font_size='0.97rem',
+        font_weight='600',
+        color=get_color('window-foreground'),
+        opacity='0.65',
+        cursor='pointer',
+        border_radius='0',
+        margin_bottom='-1px',
+        transition='color var(--cs-dur-2) var(--cs-ease), border-color var(--cs-dur-2) var(--cs-ease), opacity var(--cs-dur-2) var(--cs-ease)',
+        outline='none',
+        user_select='none',
+        white_space='nowrap',
+    )
+    style += build_rule(sel + '[role="tab"]:hover',
+        opacity='0.88',
+        color='var(--primary-color)',
+    )
+    style += build_rule(sel + '[role="tab"][aria-selected="true"]',
+        color='var(--primary-color)',
+        border_bottom='2px solid var(--primary-color)',
+        opacity='1',
+    )
+    style += build_rule(sel + '[role="tab"]:focus',
+        box_shadow='var(--cs-focus-ring)',
+        border_radius='var(--cs-radius-sm)',
+    )
+    style += build_rule(sel + '[role="tabpanel"]',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '[role="tabpanel"][hidden]',
+        display='none',
+    )
     return style
 )
 
@@ -142,14 +193,89 @@ def init(container_id):
 
     create_top_bar(container, title=_('Settings'), icon='close', back_action=leave_without_saving)
 
-    outer = E.div(class_='list')
-    root.appendChild(outer)
+    # --- Tabs widget ---
+    tab_interface_id = 'cs-ui-tab-panel-interface'
+    tab_tagbrowser_id = 'cs-ui-tab-panel-tagbrowser'
+
+    tab_interface_btn = E.button(
+        _('Interface'),
+        role='tab',
+        aria_selected='true',
+        aria_controls=tab_interface_id,
+        tabindex='0',
+    )
+    tab_tagbrowser_btn = E.button(
+        _('Tag browser'),
+        role='tab',
+        aria_selected='false',
+        aria_controls=tab_tagbrowser_id,
+        tabindex='-1',
+    )
+
+    tablist = E.div(role='tablist', aria_label=_('Settings sections'))
+    tablist.appendChild(tab_interface_btn)
+    tablist.appendChild(tab_tagbrowser_btn)
+
+    panel_interface = E.div(
+        id=tab_interface_id,
+        role='tabpanel',
+    )
+    panel_tagbrowser = E.div(
+        id=tab_tagbrowser_id,
+        role='tabpanel',
+    )
+    panel_tagbrowser.setAttribute('hidden', '')
+
+    tabs_widget = E.div(class_='cs-tabs')
+    tabs_widget.appendChild(tablist)
+    tabs_widget.appendChild(panel_interface)
+    tabs_widget.appendChild(panel_tagbrowser)
+    root.appendChild(tabs_widget)
+
+    def select_tab(btn, panel):
+        for tb in tablist.querySelectorAll('[role="tab"]'):
+            tb.setAttribute('aria-selected', 'false')
+            tb.setAttribute('tabindex', '-1')
+        btn.setAttribute('aria-selected', 'true')
+        btn.setAttribute('tabindex', '0')
+        for p in tabs_widget.querySelectorAll('[role="tabpanel"]'):
+            p.setAttribute('hidden', '')
+        panel.removeAttribute('hidden')
+
+    tab_interface_btn.addEventListener('click', def(ev): select_tab(tab_interface_btn, panel_interface))
+    tab_tagbrowser_btn.addEventListener('click', def(ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser))
+
+    def on_tablist_keydown(ev):
+        tabs = tablist.querySelectorAll('[role="tab"]')
+        idx = -1
+        for i in range(tabs.length):
+            if tabs[i] is ev.target:
+                idx = i
+                break
+        if idx < 0:
+            return
+        if ev.key is 'ArrowRight':
+            ev.preventDefault()
+            next_idx = (idx + 1) % tabs.length
+            tabs[next_idx].focus()
+            tabs[next_idx].click()
+        elif ev.key is 'ArrowLeft':
+            ev.preventDefault()
+            next_idx = (idx - 1 + tabs.length) % tabs.length
+            tabs[next_idx].focus()
+            tabs[next_idx].click()
+
+    tablist.addEventListener('keydown', on_tablist_keydown)
+
+    # --- Interface tab content ---
+    iface_list = E.div(class_='list')
+    panel_interface.appendChild(iface_list)
 
     item = E.div(class_='item', data_name=KEY,
         E.div(class_='item-main'),
         E.div(_('Used for primary buttons, links, focus rings, etc.'), class_='help')
     )
-    outer.appendChild(item)
+    iface_list.appendChild(item)
 
     main = item.firstChild
     color_input = E.input(type='color', value=current)
@@ -170,7 +296,7 @@ def init(container_id):
         E.div(class_='item-main'),
         E.div(_('Controls light or dark styling for the library interface (sidebar, lists, dialogs). Automatic follows your device or browser.'), class_='help')
     )
-    outer.appendChild(scheme_item)
+    iface_list.appendChild(scheme_item)
     scheme_main = scheme_item.firstChild
     scheme_select = E.select()
     scheme_select.appendChild(E.option(_('Automatic'), value='auto'))
@@ -189,24 +315,23 @@ def init(container_id):
         apply_book_list_theme()
     )
 
-    show_count_key = 'show_nav_list_book_count'
-    show_rating_key = 'show_nav_list_avg_rating'
     show_sidebar_in_viewer_key = 'show_sidebar_in_book_viewer'
+    series_mode_key = 'series_nav_display_mode'
 
-    def make_toggle_item(key, label, help_text):
-        item = E.div(class_='item', data_name=key,
+    def make_toggle_item(outer, key, label, help_text):
+        titem = E.div(class_='item', data_name=key,
             E.div(class_='item-main'),
             E.div(help_text, class_='help')
         )
-        outer.appendChild(item)
-        main = item.firstChild
+        outer.appendChild(titem)
+        tmain = titem.firstChild
         cb = E.input(type='checkbox')
         cb.checked = bool(sd.get(key, True))
         ctrl = E.div(id='ui-setting-' + key, class_='control',
             E.span(label, class_='label'),
             cb
         )
-        main.appendChild(ctrl)
+        tmain.appendChild(ctrl)
         def on_change(ev):
             sd.set(key, cb.checked)
         def toggle(ev):
@@ -215,16 +340,13 @@ def init(container_id):
         cb.addEventListener('change', on_change)
         ctrl.querySelector('.label').addEventListener('click', toggle)
 
-    make_toggle_item(show_count_key, _('Show book count in category lists'), _('Display the number of books for each tag, series, author, etc. in the navigation sidebar.'))
-    make_toggle_item(show_rating_key, _('Show average rating in category lists'), _('Display the average rating (stars) for each tag, series, author, etc. in the navigation sidebar.'))
-    make_toggle_item(show_sidebar_in_viewer_key, _('Show sidebar in book viewer'), _('Show or hide the left navigation sidebar while reading a book in the viewer.'))
+    make_toggle_item(iface_list, show_sidebar_in_viewer_key, _('Show sidebar in book viewer'), _('Show or hide the left navigation sidebar while reading a book in the viewer.'))
 
-    series_mode_key = 'series_nav_display_mode'
     series_mode_item = E.div(class_='item', data_name=series_mode_key,
         E.div(class_='item-main'),
         E.div(_('Choose how series are displayed in the Series navigation panel.'), class_='help')
     )
-    outer.appendChild(series_mode_item)
+    iface_list.appendChild(series_mode_item)
     series_main = series_mode_item.firstChild
     series_select = E.select()
     series_select.appendChild(E.option(_('Stacked covers'), value='stack'))
@@ -238,6 +360,17 @@ def init(container_id):
         sd.set(series_mode_key, series_select.value)
     )
 
+    # --- Tag browser tab content ---
+    show_count_key = 'show_nav_list_book_count'
+    show_rating_key = 'show_nav_list_avg_rating'
+
+    tb_list = E.div(class_='list')
+    panel_tagbrowser.appendChild(tb_list)
+
+    make_toggle_item(tb_list, show_count_key, _('Show book count in category lists'), _('Display the number of books for each tag, series, author, etc. in the navigation sidebar.'))
+    make_toggle_item(tb_list, show_rating_key, _('Show average rating in category lists'), _('Display the average rating (stars) for each tag, series, author, etc. in the navigation sidebar.'))
+
+    # --- Footer ---
     footer = E.div(class_='footer')
     root.appendChild(footer)
 
