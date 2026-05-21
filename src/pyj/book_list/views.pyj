@@ -42,7 +42,7 @@ from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import create_custom_dialog, error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
-from widgets import create_button, create_spinner, enable_escape_key
+from widgets import create_button, create_pager_button, create_spinner, enable_escape_key, set_pager_button_enabled
 
 CLASS_NAME = 'book-list-container'
 LIST_TOOLBAR_CLASS = 'cs-book-list-toolbar'
@@ -141,7 +141,7 @@ add_extra_css(def():
     )
     ans += build_rule(sel + '.cs-book-pager-left',
         display='flex', align_items='center', gap='0.5rem', min_width='0',
-        flex='0 1 auto', max_width='100%',
+        flex='1 1 auto', max_width='100%',
     )
     ans += build_rule(sel + '.cs-book-pager-right',
         display='flex', align_items='center', gap='0.5rem', min_width='0',
@@ -150,26 +150,6 @@ add_extra_css(def():
     ans += build_rule(sel + '.cs-book-pager-status',
         opacity='0.75', min_width='0', max_width='100%',
         white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
-    ans += build_rule(sel + 'a.cs-book-pager-btn',
-        display='inline-flex', align_items='center', gap='0.35rem',
-        padding='0.35rem 0.65rem', border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
-        background_color=get_color('window-background'),
-        color=get_color('window-foreground'),
-        cursor='pointer', user_select='none', text_decoration='none',
-        box_sizing='border-box', min_width='0', max_width='100%',
-    )
-    ans += build_rule(sel + 'a.cs-book-pager-btn svg',
-        flex_shrink='0', width='1em', height='1em', display='block',
-    )
-    ans += build_rule(sel + 'a.cs-book-pager-btn > span',
-        min_width='0',
-    )
-    ans += build_rule(sel + 'a.cs-book-pager-btn:hover', background_color='var(--cs-accent-weak)')
-    ans += build_rule(sel + 'a.cs-book-pager-btn:active', transform='scale(0.99)')
-    ans += build_rule(sel + 'a.cs-book-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
-    ans += build_rule(sel + 'a.cs-book-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
-    ans += build_rule(sel + 'a.cs-book-pager-btn.cs-book-pager-next', justify_content='flex-end')
     ans += build_rule(sel + '.cs-book-pager-page', font_weight='600', opacity='0.9', white_space='nowrap')
     # Loading overlay for page switches (prevents flicker)
     ans += build_rule(sel + '.cs-book-list-wrap', position='relative')
@@ -226,21 +206,16 @@ add_extra_css(def():
     flex: 1 1 auto;
     word-break: break-word;
   }
-  .book-list-container a.cs-book-pager-btn {
+  .book-list-container a.cs-pager-btn {
     padding: 0.5rem 0.85rem;
-    max-width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
     overflow: hidden;
   }
-  /* Let Prev/Next shrink instead of overflowing the row (flex default min-width: auto) */
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn,
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn.cs-book-pager-next {
-    flex: 1 1 0;
-    min-width: 0;
+  /* On narrow screens center text within stretched buttons */
+  .book-list-container .cs-book-pager-left a.cs-pager-btn {
     justify-content: center;
+    min-width: 0;
   }
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn span {
+  .book-list-container .cs-book-pager-left a.cs-pager-btn span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -302,10 +277,7 @@ add_extra_css(def():
     justify-content: stretch;
     flex-basis: auto;
   }
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 100%;
+  .book-list-container .cs-book-pager-left a.cs-pager-btn {
     justify-content: center;
   }
   .book-list-container .cs-book-pager-page {
@@ -322,8 +294,7 @@ add_extra_css(def():
     flex-direction: column;
     align-items: stretch;
   }
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn,
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn.cs-book-pager-next {
+  .book-list-container .cs-book-pager-left a.cs-pager-btn {
     flex: 0 0 auto;
     width: 100%;
     max-width: 100%;
@@ -683,9 +654,6 @@ def create_more_button(more):
 
 # }}}
 
-def set_enabled(elem, enabled):
-    elem.setAttribute('aria-disabled', 'false' if enabled else 'true')
-
 
 def replace_books_page(data):
     # Replace the current page (do not accumulate)
@@ -955,17 +923,6 @@ def create_books_list(container):
     controls.appendChild(left)
     controls.appendChild(right)
 
-    def pager_btn(is_prev, label, icon, onclick):
-        a = E.a(svgicon(icon), E.span(label), href='javascript:void', class_='cs-book-pager-btn')
-        if not is_prev:
-            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
-            a.classList.add('cs-book-pager-next')
-        a.addEventListener('click', def(evt):
-            evt.preventDefault()
-            onclick()
-        )
-        return a
-
     status = E.span('', class_='cs-book-pager-status')
 
     q = parse_url_params()
@@ -977,10 +934,10 @@ def create_books_list(container):
         offset = sr.offset or 0
         end = min(total, offset + page_size)
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
-        set_enabled(prev_btn, offset > 0)
-        set_enabled(next_btn, end < total)
-        set_enabled(bottom_prev_btn, offset > 0)
-        set_enabled(bottom_next_btn, end < total)
+        set_pager_button_enabled(prev_btn, offset > 0)
+        set_pager_button_enabled(next_btn, end < total)
+        set_pager_button_enabled(bottom_prev_btn, offset > 0)
+        set_pager_button_enabled(bottom_next_btn, end < total)
 
     def go_to_offset(new_offset):
         new_offset = max(0, new_offset)
@@ -994,19 +951,19 @@ def create_books_list(container):
             update_pager()
         )
 
-    prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
+    prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
         go_to_offset((library_data.search_result.offset or 0) - page_size)
     )
-    next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
+    next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
         go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
     left.appendChild(prev_btn)
     left.appendChild(next_btn)
     right.appendChild(status)
-    bottom_prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
+    bottom_prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
         go_to_offset((library_data.search_result.offset or 0) - page_size)
     )
-    bottom_next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
+    bottom_next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
         go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
     bottom_left_el.appendChild(bottom_prev_btn)

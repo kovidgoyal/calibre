@@ -16,6 +16,7 @@ from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, svgicon
 from ajax import ajax, ajax_send
 from utils import parse_url_params
+from widgets import create_pager_button, set_pager_button_enabled
 
 
 def escape_for_search(x):
@@ -192,7 +193,7 @@ add_extra_css(def():
     )
     style += build_rule(sel + '.cs-pager-left',
         display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
-        flex='0 1 auto', min_width='min(100%, max-content)', max_width='100%',
+        flex='1 1 auto', min_width='min(100%, max-content)', max_width='100%',
     )
     style += build_rule(sel + '.cs-pager-right',
         display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
@@ -200,21 +201,6 @@ add_extra_css(def():
         margin_left='auto', justify_content='flex_end',
     )
     style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
-    style += build_rule(sel + 'a.cs-pager-btn',
-        display='inline-flex', align_items='center', gap='0.35rem',
-        padding='0.45rem 0.7rem', border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
-        background_color=get_color('window-background'),
-        color=get_color('window-foreground'),
-        cursor='pointer', user_select='none', text_decoration='none'
-    )
-    style += build_rule(sel + 'a.cs-pager-btn:hover', background_color='var(--cs-accent-weak)')
-    style += build_rule(sel + 'a.cs-pager-btn:active', transform='scale(0.99)')
-    style += build_rule(sel + 'a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
-    style += build_rule(sel + 'a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
-    style += build_rule(sel + 'a.cs-pager-btn svg',
-        flex_shrink='0', width='1em', height='1em', display='block',
-    )
     style += build_rule(sel + 'input.cs-filter',
         padding='0.45rem 0.7rem',
         border_radius='999px',
@@ -584,9 +570,8 @@ add_extra_css(def():
     flex-wrap: nowrap;
   }
   .cs-nav-list .cs-pager-left a.cs-pager-btn {
-    flex: 1 1 0;
-    min-width: 0;
     justify-content: center;
+    min-width: 0;
     overflow: hidden;
   }
   .cs-nav-list .cs-pager-left a.cs-pager-btn span {
@@ -616,7 +601,6 @@ add_extra_css(def():
     justify-content: stretch;
   }
   .cs-nav-list .cs-pager-left a.cs-pager-btn {
-    flex: 1 1 0;
     justify-content: center;
   }
 }
@@ -719,24 +703,10 @@ def create_nav_list_panel(container_id):
     pager.appendChild(left)
     pager.appendChild(right)
 
-    def pager_btn(is_prev, label, icon, onclick):
-        a = E.a(href='#', class_='cs-pager-btn')
-        a.appendChild(svgicon(icon))
-        if label:
-            a.appendChild(E.span(label))
-        if not is_prev:
-            # Next button: swap to [text][icon] so icon is on the right
-            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
-        a.addEventListener('click', def(evt):
-            evt.preventDefault()
-            onclick()
-        )
-        return a
-
-    prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
+    prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
         update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
     )
-    next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
+    next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
         update_nav_list_url(field, offset + num, num, query_text, replace=True)
     )
     status = E.span('', class_='cs-pager-status')
@@ -746,7 +716,7 @@ def create_nav_list_panel(container_id):
         value=query_text,
         class_='cs-filter'
     )
-    apply_btn = pager_btn(True, '', 'search', def():
+    apply_btn = create_pager_button(True, '', 'search', def():
         nonlocal query_text
         query_text = search_inp.value or ''
         update_nav_list_url(field, 0, num, query_text, replace=True)
@@ -801,9 +771,6 @@ def create_nav_list_panel(container_id):
             setTimeout(def():
                 list_wrap.classList.remove('cs-loading')
             , 60)
-
-    def set_enabled(elem, enabled):
-        elem.setAttribute('aria-disabled', 'false' if enabled else 'true')
 
     def norm(x):
         return (x or '').toString().toLowerCase()
@@ -1122,8 +1089,8 @@ def create_nav_list_panel(container_id):
         if field is 'tags':
             shown = min(total, visible_tags)
             status.textContent = _('Showing {} of {}').format(shown, total)
-            set_enabled(prev_btn, False)
-            set_enabled(next_btn, False)
+            set_pager_button_enabled(prev_btn, False)
+            set_pager_button_enabled(next_btn, False)
 
             clear(list_container)
             subtitle = subtitle_for_field(field)
@@ -1178,8 +1145,8 @@ def create_nav_list_panel(container_id):
                 return
         end = min(total, offset + num)
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
-        set_enabled(prev_btn, offset > 0)
-        set_enabled(next_btn, end < total)
+        set_pager_button_enabled(prev_btn, offset > 0)
+        set_pager_button_enabled(next_btn, end < total)
 
         list_items = []
 
@@ -1244,14 +1211,14 @@ def create_nav_list_panel(container_id):
         clear(bottom_pager)
         bot_left = E.div(class_='cs-pager-left')
         bot_right = E.div(class_='cs-pager-right')
-        bot_prev = pager_btn(True, _('Prev'), 'chevron-left', def():
+        bot_prev = create_pager_button(True, _('Prev'), 'chevron-left', def():
             update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
         )
-        bot_next = pager_btn(False, _('Next'), 'chevron-right', def():
+        bot_next = create_pager_button(False, _('Next'), 'chevron-right', def():
             update_nav_list_url(field, offset + num, num, query_text, replace=True)
         )
-        set_enabled(bot_prev, offset > 0)
-        set_enabled(bot_next, end < total)
+        set_pager_button_enabled(bot_prev, offset > 0)
+        set_pager_button_enabled(bot_next, end < total)
         bot_left.appendChild(bot_prev)
         bot_left.appendChild(bot_next)
         bottom_pager.appendChild(bot_left)
