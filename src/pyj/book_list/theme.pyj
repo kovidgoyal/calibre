@@ -4,6 +4,7 @@ from __python__ import hash_literals, bound_methods
 
 from book_list.globals import get_session_data
 from dom import set_css
+from session import all_settings
 
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
@@ -166,6 +167,44 @@ DEFAULT_FONTS = {
 }
 
 
+def hex_to_rgb(hexval):
+    if not hexval:
+        return None
+    s = (hexval + '').strip()
+    if s.startswith('#'):
+        s = s[1:]
+    if len(s) == 3:
+        s = ''.join([c + c for c in s])
+    if len(s) != 6:
+        return None
+    try:
+        r = int(s[:2], 16)
+        g = int(s[2:4], 16)
+        b = int(s[4:6], 16)
+        return (r, g, b)
+    except Exception:
+        return None
+
+
+
+def apply_primary_color(hexval):
+    rgb = hex_to_rgb(hexval)
+    if not rgb:
+        return
+    r, g, b = rgb
+    de = document.documentElement
+    v = hexval or ''
+    if not (v + '').startswith('#'):
+        v = '#' + v
+    de.style.setProperty('--primary-color', v)
+    de.style.setProperty('--primary-light', f'rgba({r},{g},{b},0.18)')
+    de.style.setProperty('--primary-light-2', f'rgba({r},{g},{b},0.28)')
+    # Stronger glows for page background tinting
+    de.style.setProperty('--primary-glow-1', f'rgba({r},{g},{b},0.42)')
+    de.style.setProperty('--primary-glow-2', f'rgba({r},{g},{b},0.26)')
+
+
+
 def set_ui_colors(is_dark_theme):
     attr = 'dark' if is_dark_theme else 'light'
     s = document.documentElement.style
@@ -197,6 +236,16 @@ def effective_book_list_is_dark():
 
 
 def apply_book_list_theme():
+    try:
+        sd = get_session_data()
+    except Exception:
+        sd = None
+    if not sd:
+        primary_color = all_settings.book_list_color_scheme.default
+    else:
+        primary_color = sd.get('ui_highlight_color')
+    apply_primary_color(primary_color)
+
     is_dark = effective_book_list_is_dark()
     set_ui_colors(is_dark)
     if not is_dark:
