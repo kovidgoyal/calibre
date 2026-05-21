@@ -89,7 +89,7 @@ progress::-webkit-progress-value { background-color: var(--primary-color); }
 progress::-moz-progress-bar { background-color: var(--primary-color); }
 
 /* Tabs (generic) */
-[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--primary-color); }
+[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--primary-color); opacity: 1; }
 [role="tablist"] { --tab-indicator: var(--primary-color); }
 [role="tab"][aria-selected="true"] { border-bottom: 2px solid var(--primary-color); }
 
