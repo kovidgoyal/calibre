@@ -930,6 +930,15 @@ def create_books_list(container):
     wrap.appendChild(E.div(data_component='book_list'))
     wrap.appendChild(E.div(class_='cs-book-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…'))))
     container.appendChild(wrap)
+    # Bottom prev/next pager – appended after the book list wrap so it scrolls with items
+    bottom_pager_el = E.div(class_='cs-book-pager', style='margin-bottom:1.5rem')
+    bottom_controls_el = E.div(class_='cs-book-pager-controls')
+    bottom_left = E.div(class_='cs-book-pager-left')
+    bottom_right_el = E.div(class_='cs-book-pager-right')
+    bottom_controls_el.appendChild(bottom_left)
+    bottom_controls_el.appendChild(bottom_right_el)
+    bottom_pager_el.appendChild(bottom_controls_el)
+    container.appendChild(bottom_pager_el)
     show_top_message()
     apply_view_mode(get_view_mode())
     # Pager UI: optional top_message, toolbar (list controls), then page controls
@@ -966,6 +975,8 @@ def create_books_list(container):
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
         set_enabled(prev_btn, offset > 0)
         set_enabled(next_btn, end < total)
+        set_enabled(bottom_prev_btn, offset > 0)
+        set_enabled(bottom_next_btn, end < total)
 
     def go_to_offset(new_offset):
         new_offset = max(0, new_offset)
@@ -988,6 +999,14 @@ def create_books_list(container):
     left.appendChild(prev_btn)
     left.appendChild(next_btn)
     right.appendChild(status)
+    bottom_prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
+        go_to_offset((library_data.search_result.offset or 0) - page_size)
+    )
+    bottom_next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
+        go_to_offset((library_data.search_result.offset or 0) + page_size)
+    )
+    bottom_left.appendChild(bottom_prev_btn)
+    bottom_left.appendChild(bottom_next_btn)
     update_pager()
 
     tm = component('top_message')
