@@ -223,6 +223,7 @@ class CheckBox(ConfigItem):
         ConfigItem.__init__(self, item_data)
         div = E.div(
             id=self.widget_id,
+            style='cursor: pointer',
             E.input(type='checkbox'),
             E.span(item_data.text, class_='label')
         )
@@ -296,13 +297,46 @@ class LineEdit(ConfigItem):
     def from_ui(self):
         return self.control.value or ''
 
+
+class ColorEdit(ConfigItem):
+
+    def __init__(self, item_data, container, onfocus):
+        ConfigItem.__init__(self, item_data)
+        div = E.div(
+            id=self.widget_id,
+            E.span(item_data.text, class_='label'),
+            E.input(type='color')
+        )
+        div.classList.add('control')
+        container.appendChild(div)
+        control = div.lastChild
+        control.addEventListener('change', self.ui_value_changed.bind(self))
+        control.addEventListener('input', self.ui_value_changed.bind(self))
+        control.addEventListener('focus', onfocus)
+        div.addEventListener('click', onfocus)
+
+    def ui_value_changed(self):
+        if self.ignore_ui_value_changed:
+            return
+        self.to_storage(self.from_ui())
+        if self.item_data.onchange:
+            self.item_data.onchange()
+
+    def to_ui(self, val):
+        self.control.value = val or ''
+
+    def from_ui(self):
+        return self.control.value or ''
+
+
 state = {}
 
 def onfocus(name):
     return def(ev):
         c = document.getElementById(state.container_id)
         div = c.querySelector('div[data-name="{}"]'.format(name))
-        div.lastChild.style.display = 'block'
+        if div?.lastChild:
+            div.lastChild.style.display = 'block'
 
 
 def create_prefs_widget(container, prefs_data):
@@ -333,6 +367,8 @@ def create_prefs_widget(container, prefs_data):
             val = item.from_storage(val)
         if item.choices:
             cls = Choices
+        elif item.type is 'color':
+            cls = ColorEdit
         elif val is True or val is False:
             cls = CheckBox
         elif jstype(val) is 'number':
