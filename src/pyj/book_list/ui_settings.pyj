@@ -140,7 +140,7 @@ def init(container_id):
         apply_primary_theme_preview(committed)
         back()
 
-    create_top_bar(container, title=_('UI settings'), icon='close', back_action=leave_without_saving)
+    create_top_bar(container, title=_('Settings'), icon='close', back_action=leave_without_saving)
 
     outer = E.div(class_='list')
     root.appendChild(outer)
@@ -262,5 +262,4 @@ def init(container_id):
     footer.appendChild(create_button(_('Restore default'), icon='refresh', action=reset))
 
 
-set_panel_handler('book_list^ui_settings', init)
-
+set_panel_handler('book_list^prefs', init)
