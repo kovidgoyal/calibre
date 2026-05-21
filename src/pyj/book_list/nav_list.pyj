@@ -16,7 +16,7 @@ from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, svgicon
 from ajax import ajax, ajax_send
 from utils import parse_url_params
-from widgets import create_pager_button, set_pager_button_enabled
+from widgets import create_pager_widget, create_pager_button
 
 
 def escape_for_search(x):
@@ -186,19 +186,16 @@ add_extra_css(def():
     sel = '.cs-nav-list '
     style = ''
     style += build_rule(sel + '.cs-pager',
-        display='flex', flex_wrap='wrap', align_items='center', justify_content='flex_start',
-        gap='0.75rem', padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
+        padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
         border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
         background_color='rgba(0,0,0,0.02)',
     )
-    style += build_rule(sel + '.cs-pager-left',
-        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
-        flex='1 1 auto', min_width='min(100%, max-content)', max_width='100%',
+    # Context overrides for cs-pager-widget inside cs-nav-list
+    style += build_rule(sel + '.cs-pager-widget-left',
+        flex_wrap='wrap', min_width='min(100%, max-content)',
     )
-    style += build_rule(sel + '.cs-pager-right',
-        display='flex', flex_wrap='wrap', align_items='center', gap='0.5rem',
-        flex='0 1 auto', min_width='0', max_width='100%',
-        margin_left='auto', justify_content='flex_end',
+    style += build_rule(sel + '.cs-pager-widget-right',
+        flex_wrap='wrap', flex='0 1 auto', margin_left='auto',
     )
     style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
     style += build_rule(sel + 'input.cs-filter',
@@ -230,7 +227,7 @@ add_extra_css(def():
             opacity='0.8'
         )
     # Tags: render as bubbles with incremental "show more"
-    style += build_rule(sel + '[data-field="tags"] .cs-pager-left', display='none')
+    style += build_rule(sel + '[data-field="tags"] .cs-pager-widget-left', display='none')
     style += build_rule(sel + '.cs-tag-bubbles',
         padding='0.75rem 1rem',
         display='flex',
@@ -554,33 +551,35 @@ add_extra_css(def():
     style += r'''
 @media (max-width: 720px) {
   .cs-nav-list .cs-pager {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
     padding: 0.75rem;
     margin: 0.75rem 0.75rem 0.5rem 0.75rem;
   }
-  .cs-nav-list .cs-pager-left, .cs-nav-list .cs-pager-right {
+  .cs-nav-list .cs-pager-widget {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+  .cs-nav-list .cs-pager-widget-left, .cs-nav-list .cs-pager-widget-right {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  .cs-nav-list .cs-pager-left {
+  .cs-nav-list .cs-pager-widget-left {
     flex-wrap: nowrap;
   }
-  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
     justify-content: center;
     min-width: 0;
     overflow: hidden;
   }
-  .cs-nav-list .cs-pager-left a.cs-pager-btn span {
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
   }
-  .cs-nav-list .cs-pager-right {
+  .cs-nav-list .cs-pager-widget-right {
     justify-content: stretch;
     margin-left: 0;
   }
@@ -597,19 +596,19 @@ add_extra_css(def():
   }
 }
 @media (max-width: 420px) {
-  .cs-nav-list .cs-pager-left {
+  .cs-nav-list .cs-pager-widget-left {
     justify-content: stretch;
   }
-  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
     justify-content: center;
   }
 }
 @media (max-width: 360px) {
-  .cs-nav-list .cs-pager-left {
+  .cs-nav-list .cs-pager-widget-left {
     flex-direction: column;
     align-items: stretch;
   }
-  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
     flex: 0 0 auto;
     width: 100%;
     max-width: 100%;
@@ -698,17 +697,12 @@ def create_nav_list_panel(container_id):
 
     pager = E.div(class_='cs-pager')
     body.appendChild(pager)
-    left = E.div(class_='cs-pager-left')
-    right = E.div(class_='cs-pager-right')
-    pager.appendChild(left)
-    pager.appendChild(right)
+    top_pager_widget = create_pager_widget(
+        def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True),
+        def(): update_nav_list_url(field, offset + num, num, query_text, replace=True)
+    )
+    pager.appendChild(top_pager_widget.container)
 
-    prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
-        update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
-    )
-    next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
-        update_nav_list_url(field, offset + num, num, query_text, replace=True)
-    )
     status = E.span('', class_='cs-pager-status')
     search_inp = E.input(
         type='search',
@@ -722,12 +716,10 @@ def create_nav_list_panel(container_id):
         update_nav_list_url(field, 0, num, query_text, replace=True)
     )
     apply_btn.title = _('Apply')
-    left.appendChild(prev_btn)
-    left.appendChild(next_btn)
     if field is not 'pubdate':
-        right.appendChild(search_inp)
-        right.appendChild(apply_btn)
-        right.appendChild(status)
+        top_pager_widget.right.appendChild(search_inp)
+        top_pager_widget.right.appendChild(apply_btn)
+        top_pager_widget.right.appendChild(status)
 
     # Grouping toggle for Published date panel
     group_toggle = None
@@ -749,7 +741,7 @@ def create_nav_list_panel(container_id):
         seg.appendChild(toggle_btn(_('Year'), 'y'))
         seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
         group_toggle.appendChild(seg)
-        left.appendChild(group_toggle)
+        top_pager_widget.left.appendChild(group_toggle)
     list_wrap = E.div(class_='cs-list-wrap')
     body.appendChild(list_wrap)
     nav_subtitle = E.p('', class_='cs-nav-subtitle')
@@ -1089,8 +1081,7 @@ def create_nav_list_panel(container_id):
         if field is 'tags':
             shown = min(total, visible_tags)
             status.textContent = _('Showing {} of {}').format(shown, total)
-            set_pager_button_enabled(prev_btn, False)
-            set_pager_button_enabled(next_btn, False)
+            top_pager_widget.set_enabled(False, False)
 
             clear(list_container)
             subtitle = subtitle_for_field(field)
@@ -1145,8 +1136,7 @@ def create_nav_list_panel(container_id):
                 return
         end = min(total, offset + num)
         status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
-        set_pager_button_enabled(prev_btn, offset > 0)
-        set_pager_button_enabled(next_btn, end < total)
+        top_pager_widget.set_enabled(offset > 0, end < total)
 
         list_items = []
 
@@ -1209,20 +1199,12 @@ def create_nav_list_panel(container_id):
 
         # Bottom prev/next mirrors top pager state
         clear(bottom_pager)
-        bot_left = E.div(class_='cs-pager-left')
-        bot_right = E.div(class_='cs-pager-right')
-        bot_prev = create_pager_button(True, _('Prev'), 'chevron-left', def():
-            update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
+        bot_widget = create_pager_widget(
+            def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True),
+            def(): update_nav_list_url(field, offset + num, num, query_text, replace=True)
         )
-        bot_next = create_pager_button(False, _('Next'), 'chevron-right', def():
-            update_nav_list_url(field, offset + num, num, query_text, replace=True)
-        )
-        set_pager_button_enabled(bot_prev, offset > 0)
-        set_pager_button_enabled(bot_next, end < total)
-        bot_left.appendChild(bot_prev)
-        bot_left.appendChild(bot_next)
-        bottom_pager.appendChild(bot_left)
-        bottom_pager.appendChild(bot_right)
+        bot_widget.set_enabled(offset > 0, end < total)
+        bottom_pager.appendChild(bot_widget.container)
         bottom_pager.style.display = ''
 
     def render(ok, fieldname, payload):

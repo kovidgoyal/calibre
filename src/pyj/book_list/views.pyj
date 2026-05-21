@@ -42,7 +42,7 @@ from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import create_custom_dialog, error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
-from widgets import create_button, create_pager_button, create_spinner, enable_escape_key, set_pager_button_enabled
+from widgets import create_button, create_pager_widget, create_spinner, enable_escape_key
 
 CLASS_NAME = 'book-list-container'
 LIST_TOOLBAR_CLASS = 'cs-book-list-toolbar'
@@ -129,23 +129,9 @@ add_extra_css(def():
         background='rgba(0,0,0,0.12)',
         border_radius='999px'
     )
-    ans += build_rule(sel + '.cs-book-pager-controls',
-        display='flex',
-        align_items='center',
-        justify_content='space-between',
-        gap='0.75rem',
-        flex_wrap='wrap',
-        min_width='0',
-        width='100%',
-        box_sizing='border-box',
-    )
-    ans += build_rule(sel + '.cs-book-pager-left',
-        display='flex', align_items='center', gap='0.5rem', min_width='0',
-        flex='1 1 auto', max_width='100%',
-    )
-    ans += build_rule(sel + '.cs-book-pager-right',
-        display='flex', align_items='center', gap='0.5rem', min_width='0',
-        flex='1 1 12rem', max_width='100%', justify_content='flex-end',
+    # Context override: right section gets wider flex-basis in book list
+    ans += build_rule(sel + '.cs-pager-widget-right',
+        flex='1 1 12rem',
     )
     ans += build_rule(sel + '.cs-book-pager-status',
         opacity='0.75', min_width='0', max_width='100%',
@@ -176,7 +162,7 @@ add_extra_css(def():
     margin: 0.9rem 0 0.5rem 0;
     min-width: 0;
   }
-  .book-list-container .cs-book-pager-controls,
+  .book-list-container .cs-pager-widget,
   .book-list-container .cs-book-pager-top,
   .book-list-container .cs-book-pager .cs-book-list-toolbar {
     width: 100%;
@@ -189,15 +175,15 @@ add_extra_css(def():
   .book-list-container .cs-book-pager .cs-book-list-toolbar {
     justify-content: flex-start;
   }
-  .book-list-container .cs-book-pager-left,
-  .book-list-container .cs-book-pager-right {
+  .book-list-container .cs-pager-widget-left,
+  .book-list-container .cs-pager-widget-right {
     min-width: 0;
     max-width: 100%;
   }
-  .book-list-container .cs-book-pager-left {
+  .book-list-container .cs-pager-widget-left {
     flex: 1 1 auto;
   }
-  .book-list-container .cs-book-pager-right {
+  .book-list-container .cs-pager-widget-right {
     justify-content: flex-start;
     flex: 1 1 100%;
   }
@@ -211,11 +197,11 @@ add_extra_css(def():
     overflow: hidden;
   }
   /* On narrow screens center text within stretched buttons */
-  .book-list-container .cs-book-pager-left a.cs-pager-btn {
+  .book-list-container .cs-pager-widget-left a.cs-pager-btn {
     justify-content: center;
     min-width: 0;
   }
-  .book-list-container .cs-book-pager-left a.cs-pager-btn span {
+  .book-list-container .cs-pager-widget-left a.cs-pager-btn span {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -260,24 +246,24 @@ add_extra_css(def():
   }
 }
 @media (max-width: 420px) {
-  .book-list-container .cs-book-pager-controls {
+  .book-list-container .cs-pager-widget {
     flex-direction: column;
     align-items: stretch;
     gap: 0.55rem;
   }
-  .book-list-container .cs-book-pager-left {
+  .book-list-container .cs-pager-widget-left {
     justify-content: stretch;
     width: 100%;
     max-width: 100%;
     flex-wrap: nowrap;
     box-sizing: border-box;
   }
-  .book-list-container .cs-book-pager-right {
+  .book-list-container .cs-pager-widget-right {
     width: 100%;
     justify-content: stretch;
     flex-basis: auto;
   }
-  .book-list-container .cs-book-pager-left a.cs-pager-btn {
+  .book-list-container .cs-pager-widget-left a.cs-pager-btn {
     justify-content: center;
   }
   .book-list-container .cs-book-pager-page {
@@ -290,11 +276,11 @@ add_extra_css(def():
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
-  .book-list-container .cs-book-pager-left {
+  .book-list-container .cs-pager-widget-left {
     flex-direction: column;
     align-items: stretch;
   }
-  .book-list-container .cs-book-pager-left a.cs-pager-btn {
+  .book-list-container .cs-pager-widget-left a.cs-pager-btn {
     flex: 0 0 auto;
     width: 100%;
     max-width: 100%;
@@ -904,12 +890,6 @@ def create_books_list(container):
     container.appendChild(wrap)
     # Bottom prev/next pager – appended after the book list wrap so it scrolls with items
     bottom_pager_el = E.div(class_='cs-book-pager', style='margin-bottom:1.5rem')
-    bottom_controls_el = E.div(class_='cs-book-pager-controls')
-    bottom_left_el = E.div(class_='cs-book-pager-left')
-    bottom_right_el = E.div(class_='cs-book-pager-right')
-    bottom_controls_el.appendChild(bottom_left_el)
-    bottom_controls_el.appendChild(bottom_right_el)
-    bottom_pager_el.appendChild(bottom_controls_el)
     container.appendChild(bottom_pager_el)
     show_top_message()
     apply_view_mode(get_view_mode())
@@ -917,27 +897,10 @@ def create_books_list(container):
     pager = component('pager')
     pager.classList.add('cs-book-pager')
 
-    controls = E.div(class_='cs-book-pager-controls')
-    left = E.div(class_='cs-book-pager-left')
-    right = E.div(class_='cs-book-pager-right')
-    controls.appendChild(left)
-    controls.appendChild(right)
-
     status = E.span('', class_='cs-book-pager-status')
 
     q = parse_url_params()
     page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
-
-    def update_pager():
-        sr = library_data.search_result
-        total = sr.total_num or 0
-        offset = sr.offset or 0
-        end = min(total, offset + page_size)
-        status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
-        set_pager_button_enabled(prev_btn, offset > 0)
-        set_pager_button_enabled(next_btn, end < total)
-        set_pager_button_enabled(bottom_prev_btn, offset > 0)
-        set_pager_button_enabled(bottom_next_btn, end < total)
 
     def go_to_offset(new_offset):
         new_offset = max(0, new_offset)
@@ -951,23 +914,26 @@ def create_books_list(container):
             update_pager()
         )
 
-    prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
-        go_to_offset((library_data.search_result.offset or 0) - page_size)
+    top_widget = create_pager_widget(
+        def(): go_to_offset((library_data.search_result.offset or 0) - page_size),
+        def(): go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
-    next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
-        go_to_offset((library_data.search_result.offset or 0) + page_size)
+    top_widget.right.appendChild(status)
+    bottom_widget = create_pager_widget(
+        def(): go_to_offset((library_data.search_result.offset or 0) - page_size),
+        def(): go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
-    left.appendChild(prev_btn)
-    left.appendChild(next_btn)
-    right.appendChild(status)
-    bottom_prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', def():
-        go_to_offset((library_data.search_result.offset or 0) - page_size)
-    )
-    bottom_next_btn = create_pager_button(False, _('Next'), 'chevron-right', def():
-        go_to_offset((library_data.search_result.offset or 0) + page_size)
-    )
-    bottom_left_el.appendChild(bottom_prev_btn)
-    bottom_left_el.appendChild(bottom_next_btn)
+    bottom_pager_el.appendChild(bottom_widget.container)
+
+    def update_pager():
+        sr = library_data.search_result
+        total = sr.total_num or 0
+        offset = sr.offset or 0
+        end = min(total, offset + page_size)
+        status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
+        top_widget.set_enabled(offset > 0, end < total)
+        bottom_widget.set_enabled(offset > 0, end < total)
+
     update_pager()
 
     tm = component('top_message')
@@ -979,7 +945,7 @@ def create_books_list(container):
     toolbar_el = E.div(class_=LIST_TOOLBAR_CLASS)
     pager.appendChild(toolbar_el)
     pager.appendChild(E.div(class_='cs-book-pager-divider'))
-    pager.appendChild(controls)
+    pager.appendChild(top_widget.container)
     populate_book_list_toolbar(toolbar_el, True)
 
     q = parse_url_params()
