@@ -50,7 +50,7 @@ class IndianExpress(BasicNewsRecipe):
             'next-story-wrap ie-ie-share next-story-box brand-logo quote_section ie-customshare osv-ad-class '
             'custom-share o-story-paper-quite ie-network-commenting audio-player-tts-sec o-story-list subscriber_hide '
             'author-social author-follow author-img premium_widget_below_article author-block most-read-container '
-            'desktop-full-ad iers_mr_widget'
+            'desktop-full-ad iers_mr_widget ie-newsletter-widget'
         ),
     ]
 
