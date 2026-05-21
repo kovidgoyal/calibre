@@ -137,15 +137,15 @@ class BusinessStandardPrint(BasicNewsRecipe):
         if 'featuredImageObj' in data:
             if 'url' in data['featuredImageObj']:
                 if img_url is not None:
-                    lede = '<p class="cap"><img src="{}">'.format(img_url)
+                    lede = '<br><div class="cap"><img src="{}">'.format(img_url)
                 else:
-                    lede = '<p class="cap"><img src="{}">'.format(
+                    lede = '<br><div class="cap"><img src="{}">'.format(
                         data['featuredImageObj']['url']
                     )
             if 'alt_text' in data['featuredImageObj']:
-                caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
+                caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></div>'
 
-        body = data['htmlContent']
+        body = '<div id="bdy">' + data['htmlContent'] + '</div>'
 
         return (
             '<html><body>'
@@ -155,12 +155,16 @@ class BusinessStandardPrint(BasicNewsRecipe):
             + auth
             + lede
             + caption
-            + '<div><br>'
             + body
-            + '</div></body></html>'
+            + '</body></html>'
         )
 
     def preprocess_html(self, soup):
+        bdy = soup.find('div', attrs={'id': 'bdy'})
+        for p in bdy.findAll('div', attrs={}):
+            p.name = 'p'
+        for small in soup.findAll('small', attrs={'class': 'brtag'}):
+            small.decompose()
         for img in soup.findAll('img'):
             img.attrs = {'src': img.get('src', '')}
         for x in soup.findAll('div', 'p'):
