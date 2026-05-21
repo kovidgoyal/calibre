@@ -11,11 +11,6 @@ their border color contrast more. Similarly why a dull green for
 link/highlight color? Blue is more generally recognized and used in the
 calibre UI itself.
 
-5) restore defaults in UI settings doesnt work. And there should be only one settings page
-with both tag browser and ui settings on that page under using some kind of tab or collapse
-view. It should also be possible to access the tag browser settings via an icon in the top bar
-of the book list page
-
 6) New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books? Calling it Virtual
 library will mean calibre users will be more likely to understand what
@@ -33,12 +28,4 @@ to RapydScript, of course.
 simply remove that section from the sidebar and instead put the plus and
 random in the top bar.
 
-12) In the UI settings panel the color picker appears off screen, it
-needs to be shifted left so that it is on screen. The popups for the
-comboboxes in dark mode are unreadable as they have light background.
-"Display mode" should be renamed to "Color mode"
-
-13) Maybe have configure tag browser out of the side bar and made into a
-section in UI settings panel. Then the "System" category can be removed
-and replaced with just a single "Configure" item.
-Reduces the number of entries in the sidebar.
+12) The popups for the comboboxes in dark mode are unreadable as they have light background.
