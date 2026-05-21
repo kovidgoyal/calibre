@@ -577,6 +577,14 @@ add_extra_css(def():
     flex-wrap: wrap;
     gap: 0.5rem;
   }
+  .cs-nav-list .cs-pager-left {
+    flex-wrap: nowrap;
+  }
+  .cs-nav-list .cs-pager-left a.cs-pager-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+  }
   .cs-nav-list .cs-pager-right {
     justify-content: stretch;
     margin-left: 0;
