@@ -79,11 +79,9 @@ def create_sidebar():
         apply_sidebar_state(stored is '1')
 
     collapse = nav_link(_('Collapse'), toggle_sidebar, _('Toggle sidebar'), icon='chevron-left')
-    collapse.classList.add('cs-sidebar-toggle')
-    collapse.classList.add('cs-sidebar-toggle-collapse')
+    collapse.classList.add('cs-sidebar-toggle', 'cs-sidebar-toggle-collapse')
     expand = nav_link('', toggle_sidebar, _('Toggle sidebar'), icon='chevron-right')
-    expand.classList.add('cs-sidebar-toggle')
-    expand.classList.add('cs-sidebar-toggle-expand')
+    expand.classList.add('cs-sidebar-toggle', 'cs-sidebar-toggle-expand')
     left.appendChild(collapse)
     left.appendChild(expand)
 
@@ -170,22 +168,12 @@ def create_sidebar():
     g_custom = E.div(class_='cs-nav-group')
     left.appendChild(g_custom)
 
-    # Bottom group: settings
-    bottom = E.div(class_='cs-nav-bottom')
-    bottom.appendChild(E.div(class_='cs-nav-divider'))
-    bottom.appendChild(E.div(svgicon('cog'), E.span(_('System')), class_='cs-nav-group-title'))
-    g3 = E.div(class_='cs-nav-group')
-    go_settings = def():
-        show_panel('book_list^search^prefs')
-    # Renamed: this page configures the Tag browser behavior.
-    settings_link = nav_link(_('Configure Tag browser'), go_settings, _('Configure Tag browser'), icon='cog')
-    go_ui_settings = def():
-        show_panel('book_list^ui_settings')
-    ui_settings_link = nav_link(_('UI settings'), go_ui_settings, _('UI settings'), icon='pencil')
-    g3.appendChild(settings_link)
-    g3.appendChild(ui_settings_link)
-    bottom.appendChild(g3)
-    left.appendChild(bottom)
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Bottom: settings
+    settings_link = nav_link(_('Settings'), def(): show_panel('book_list^prefs');, _('Configure web interface'), icon='cog')
+    settings_link.classList.add('cs-sidebar-toggle')
+    left.appendChild(settings_link)
 
     def clear_active(elem):
         if elem and elem.dataset and elem.dataset.active:
@@ -386,18 +374,14 @@ def create_sidebar():
         clear_active(home_link)
         clear_active(search_link)
         clear_active(reader_link)
-        clear_active(settings_link)
-        clear_active(ui_settings_link)
         for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'rating', 'pubdate'):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
             search_link.dataset.active = '1'
         elif active_panel is 'local_books':
             reader_link.dataset.active = '1'
-        elif active_panel is 'book_list^search^prefs':
+        elif active_panel is 'book_list^prefs':
             settings_link.dataset.active = '1'
-        elif active_panel is 'book_list^ui_settings':
-            ui_settings_link.dataset.active = '1'
         elif active_panel is 'nav_list' and active_field and section_elems[active_field]:
             section_elems[active_field].dataset.active = '1'
         elif not active_panel:
