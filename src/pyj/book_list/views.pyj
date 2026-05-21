@@ -933,9 +933,9 @@ def create_books_list(container):
     # Bottom prev/next pager – appended after the book list wrap so it scrolls with items
     bottom_pager_el = E.div(class_='cs-book-pager', style='margin-bottom:1.5rem')
     bottom_controls_el = E.div(class_='cs-book-pager-controls')
-    bottom_left = E.div(class_='cs-book-pager-left')
+    bottom_left_el = E.div(class_='cs-book-pager-left')
     bottom_right_el = E.div(class_='cs-book-pager-right')
-    bottom_controls_el.appendChild(bottom_left)
+    bottom_controls_el.appendChild(bottom_left_el)
     bottom_controls_el.appendChild(bottom_right_el)
     bottom_pager_el.appendChild(bottom_controls_el)
     container.appendChild(bottom_pager_el)
@@ -1005,8 +1005,8 @@ def create_books_list(container):
     bottom_next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
         go_to_offset((library_data.search_result.offset or 0) + page_size)
     )
-    bottom_left.appendChild(bottom_prev_btn)
-    bottom_left.appendChild(bottom_next_btn)
+    bottom_left_el.appendChild(bottom_prev_btn)
+    bottom_left_el.appendChild(bottom_next_btn)
     update_pager()
 
     tm = component('top_message')
