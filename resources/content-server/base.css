@@ -77,6 +77,17 @@ textarea:focus, select:focus {
     box-shadow: 0 0 0 3px var(--primary-light-2) !important;
 }
 
+/* Select: use themed background/foreground so dropdown popups are readable in dark mode */
+select {
+    background-color: var(--calibre-color-window-background);
+    color: var(--calibre-color-window-foreground);
+}
+
+select option {
+    background-color: var(--calibre-color-window-background);
+    color: var(--calibre-color-window-foreground);
+}
+
 /* Checkbox/Radio: selected state */
 input[type="checkbox"], input[type="radio"] { accent-color: var(--primary-color); }
 

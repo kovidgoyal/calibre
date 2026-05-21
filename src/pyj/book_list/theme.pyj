@@ -296,11 +296,11 @@ def color_scheme():
 
 def css_for_variables():
     input_css = '''
-        input, textarea {
+        input, textarea, select {
             color: var(--calibre-color-input-foreground); \
             background-color: var(--calibre-color-input-background); \
         }
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline-color: var(--calibre-color-input-focus-outline-color); \
         }
     '''
