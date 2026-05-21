@@ -697,21 +697,24 @@ def create_nav_list_panel(container_id):
     pager.appendChild(left)
     pager.appendChild(right)
 
-    def pager_btn(label, icon, onclick):
+    def pager_btn(is_prev, label, icon, onclick):
         a = E.a(href='#', class_='cs-pager-btn')
         a.appendChild(svgicon(icon))
         if label:
             a.appendChild(E.span(label))
+        if not is_prev:
+            # Next button: swap to [text][icon] so icon is on the right
+            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
         a.addEventListener('click', def(evt):
             evt.preventDefault()
             onclick()
         )
         return a
 
-    prev_btn = pager_btn(_('Prev'), 'chevron-left', def():
+    prev_btn = pager_btn(True, _('Prev'), 'chevron-left', def():
         update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
     )
-    next_btn = pager_btn(_('Next'), 'chevron-right', def():
+    next_btn = pager_btn(False, _('Next'), 'chevron-right', def():
         update_nav_list_url(field, offset + num, num, query_text, replace=True)
     )
     status = E.span('', class_='cs-pager-status')
@@ -721,7 +724,7 @@ def create_nav_list_panel(container_id):
         value=query_text,
         class_='cs-filter'
     )
-    apply_btn = pager_btn('', 'search', def():
+    apply_btn = pager_btn(True, '', 'search', def():
         nonlocal query_text
         query_text = search_inp.value or ''
         update_nav_list_url(field, 0, num, query_text, replace=True)
@@ -1219,10 +1222,10 @@ def create_nav_list_panel(container_id):
         clear(bottom_pager)
         bot_left = E.div(class_='cs-pager-left')
         bot_right = E.div(class_='cs-pager-right')
-        bot_prev = pager_btn(_('Prev'), 'chevron-left', def():
+        bot_prev = pager_btn(True, _('Prev'), 'chevron-left', def():
             update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True)
         )
-        bot_next = pager_btn(_('Next'), 'chevron-right', def():
+        bot_next = pager_btn(False, _('Next'), 'chevron-right', def():
             update_nav_list_url(field, offset + num, num, query_text, replace=True)
         )
         set_enabled(bot_prev, offset > 0)

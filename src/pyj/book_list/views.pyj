@@ -169,6 +169,7 @@ add_extra_css(def():
     ans += build_rule(sel + 'a.cs-book-pager-btn:active', transform='scale(0.99)')
     ans += build_rule(sel + 'a.cs-book-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
     ans += build_rule(sel + 'a.cs-book-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
+    ans += build_rule(sel + 'a.cs-book-pager-btn.cs-book-pager-next', justify_content='flex-end')
     ans += build_rule(sel + '.cs-book-pager-page', font_weight='600', opacity='0.9', white_space='nowrap')
     # Loading overlay for page switches (prevents flicker)
     ans += build_rule(sel + '.cs-book-list-wrap', position='relative')
@@ -233,9 +234,11 @@ add_extra_css(def():
     overflow: hidden;
   }
   /* Let Prev/Next shrink instead of overflowing the row (flex default min-width: auto) */
-  .book-list-container .cs-book-pager-left a.cs-book-pager-btn {
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn,
+  .book-list-container .cs-book-pager-left a.cs-book-pager-btn.cs-book-pager-next {
     flex: 1 1 0;
     min-width: 0;
+    justify-content: center;
   }
   .book-list-container .cs-book-pager-left a.cs-book-pager-btn span {
     overflow: hidden;
@@ -955,7 +958,7 @@ def create_books_list(container):
         a = E.a(svgicon(icon), E.span(label), href='javascript:void', class_='cs-book-pager-btn')
         if not is_prev:
             a.insertBefore(a.firstChild.nextSibling, a.firstChild)
-            a.style.justifyContent = 'end'
+            a.classList.add('cs-book-pager-next')
         a.addEventListener('click', def(evt):
             evt.preventDefault()
             onclick()
