@@ -234,6 +234,24 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http.client.OK)
             self.ae(r.read(), b'testbody')
 
+            def bad_request(raw, msg):
+                conn = server.connect()
+                r = raw_send(conn, raw)
+                self.ae(r.status, http.client.BAD_REQUEST)
+                self.assertIn(msg, r.read())
+
+            # Identical Content-Length headers are harmless, conflicting or
+            # malformed ones are rejected before the body is read.
+            r = raw_send(server.connect(), b'POST /test HTTP/1.1\r\nContent-Length: 4\r\nContent-Length: 4\r\n\r\nbody')
+            self.ae(r.status, http.client.OK)
+            self.ae(r.read(), b'testbody')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: -1\r\n\r\nbody', b'Content-Length is not a valid decimal integer')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: abc\r\n\r\nbody', b'Content-Length is not a valid decimal integer')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: 4\r\nContent-Length: 5\r\n\r\nbodyx', b'Conflicting Content-Length headers')
+            bad_request(
+                b'POST /test HTTP/1.1\r\nTransfer-Encoding: chunked\r\nContent-Length: 200\r\n\r\n4\r\nbody\r\n0\r\n\r\n',
+                b'Cannot specify both Transfer-Encoding and Content-Length')
+
             # Test POST with chunked transfer encoding
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'4\r\nbody\r\na\r\n1234567890\r\n0\r\n\r\n')
