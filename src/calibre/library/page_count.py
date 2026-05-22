@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
 from calibre.ebooks.oeb.polish.pretty import NON_NAMESPACED_BLOCK_TAGS
 from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.utils import fixed_layout_data
 from calibre.ptempfile import TemporaryDirectory, override_base_dir
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
@@ -163,12 +164,14 @@ def count_pages_oeb(pathtoebook: str, tdir: str, executor: Executor | None = Non
     nulllog = DevNull()
     book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=nulllog, only_input_plugin=True)
     container = SimpleContainer(tdir, opfpath, nulllog)
+    spine = {name for name, is_linear in container.spine_names}
+    if fixed_layout_data(container):
+        return len(spine)
     tocobj = get_toc(container, verify_destinations=False)
     if page_list := getattr(tocobj, 'page_list', ()):
         uniq_page_numbers = frozenset(map(itemgetter('pagenum'), page_list))
         if len(uniq_page_numbers) > 50:
             return len(uniq_page_numbers)
-    spine = {name for name, is_linear in container.spine_names}
     paths = {container.get_file_path_for_processing(name, allow_modification=False) for name in spine}
     paths = {p for p in paths if os.path.isfile(p)}
 
@@ -206,7 +209,7 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 class Server:
 
-    ALGORITHM = 3
+    ALGORITHM = 4
 
     def __init__(self, max_jobs_per_worker: int = 2048):
         self.worker: subprocess.Popen | None = None
