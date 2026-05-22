@@ -55,6 +55,37 @@ class ContentTest(LibraryBaseTest):
 
     # }}}
 
+    def test_move_duplicate_to_library(self):  # {{{
+        'Test that ignored duplicates are not removed when moving to another library'
+        target_library_path = self.mkdtemp()
+        self.create_db(target_library_path)
+        with self.create_server(libraries=(self.library_path, target_library_path), auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            ctx = server.handler.router.ctx
+            library_map = ctx.library_broker.library_map
+            target_library_id = next(
+                library_id for library_id, name in library_map.items()
+                if name == os.path.basename(target_library_path))
+            source_db = ctx.library_broker.get(None)
+            target_db = ctx.library_broker.get(target_library_id)
+            target_book_ids = target_db.all_book_ids()
+            self.assertTrue(source_db.has_id(1))
+            conn = server.connect()
+            r, data = make_request(
+                conn, f'/cdb/copy-to-library/{target_library_id}/{source_db.server_library_id}',
+                username='12', password='test',
+                prefix='', method='POST', headers={'Content-Type': 'application/json'}, data=json.dumps({
+                    'book_ids': [1], 'move': True, 'duplicate_action': 'ignore', 'automerge_action': 'overwrite',
+                }).encode('utf-8'))
+            self.ae(r.status, OK)
+            self.assertTrue(data['1']['ok'])
+            self.ae(data['1']['payload']['action'], 'duplicate')
+            self.assertIsNone(data['1']['payload']['new_book_id'])
+            self.assertTrue(source_db.has_id(1))
+            self.ae(target_db.all_book_ids(), target_book_ids)
+
+    # }}}
+
     def test_ajax_categories(self):  # {{{
         'Test /ajax/categories and /ajax/search'
         with self.create_server() as server:

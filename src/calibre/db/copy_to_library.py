@@ -6,6 +6,8 @@ from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 
+source_removal_actions = frozenset({'add', 'automerge'})
+
 
 def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
     seen_fmts = set()

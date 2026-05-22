@@ -248,13 +248,13 @@ def cdb_copy_to_library(ctx, rd, target_library_id, library_id):
     if duplicate_action != 'add':
         identical_books_data = db_dest.data_for_find_identical_books()
     to_remove = set()
-    from calibre.db.copy_to_library import copy_one_book
+    from calibre.db.copy_to_library import copy_one_book, source_removal_actions
     for book_id in book_ids:
         try:
             rdata = copy_one_book(
                     book_id, db_src, db_dest, duplicate_action=duplicate_action, automerge_action=automerge_action,
                     preserve_uuid=move_books, preserve_date=preserve_date, identical_books_data=identical_books_data)
-            if move_books:
+            if move_books and rdata['action'] in source_removal_actions:
                 to_remove.add(book_id)
             response[book_id] = {'ok': True, 'payload': rdata}
         except Exception:
