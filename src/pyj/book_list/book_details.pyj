@@ -1213,14 +1213,15 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
                 response.payload
             )
             return
-        if response.action is 'duplicate':
+        payload = response.payload
+        if payload.action is 'duplicate':
             warning_dialog(_('Book already exists'), _(
                 'Could not copy as a book with the same title and authors already exists in the {} library').format(target_library_name))
 
-        elif response.action is 'automerge':
+        elif payload.action is 'automerge':
             warning_dialog(_('Book merged'), _(
                 'The files from the book were merged into a book with the same title and authors in the {} library').format(target_library_name))
-        if move:
+        if move and payload.action in ('add', 'automerge'):
             refresh_after_delete(book_id, current_library_id())
 
 
