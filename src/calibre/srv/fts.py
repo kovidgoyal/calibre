@@ -7,6 +7,14 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.srv.errors import HTTPBadRequest, HTTPPreconditionRequired, HTTPUnprocessableEntity
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data
+from calibre.utils.search_query_parser import ParseException
+
+
+def book_ids_from_user_restriction(ctx, rd, db):
+    try:
+        return ctx.get_allowed_book_ids_from_restriction(rd, db)
+    except ParseException:
+        return frozenset()
 
 
 @endpoint('/fts/search', postprocess=json)
@@ -31,9 +39,10 @@ def fts_search(ctx, rd):
     qid = rd.query.get('query_id')
     if qid:
         ans['query_id'] = qid
-    book_ids = None
+    book_ids = book_ids_from_user_restriction(ctx, rd, db)
     if rd.query.get('restriction'):
-        book_ids = db.search('', restriction=rd.query.get('restriction'), allow_templates=False)
+        restricted_ids = db.search('', restriction=rd.query.get('restriction'), allow_templates=False)
+        book_ids = restricted_ids if book_ids is None else book_ids & restricted_ids
 
     def add_metadata(result):
         result.pop('id', None)
@@ -114,6 +123,9 @@ def fts_snippets(ctx, rd, book_ids):
         bids = frozenset(map(int, book_ids.split(',')))
     except Exception:
         raise HTTPBadRequest('Invalid list of book ids')
+    allowed_book_ids = book_ids_from_user_restriction(ctx, rd, db)
+    if allowed_book_ids is not None:
+        bids &= allowed_book_ids
     try:
         ssz = int(rd.query.get('snippet_size', 32))
     except Exception:

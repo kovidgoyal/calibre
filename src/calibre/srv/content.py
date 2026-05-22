@@ -537,11 +537,18 @@ def data_file(rd, fname, path, stat_result):
     return rd.filesystem_file_with_custom_etag(share_open(path, 'rb'), stat_result.st_dev, stat_result.st_ino, stat_result.st_size, stat_result.st_mtime)
 
 
-@endpoint('/data-files/get/{book_id}/{relpath}/{library_id=None}', types={'book_id': int})
-def get_data_file(ctx, rd, book_id, relpath, library_id):
+def get_db_for_data_file(ctx, rd, book_id, library_id):
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
+    if not ctx.has_id(rd, db, book_id):
+        raise BookNotFound(book_id, db)
+    return db
+
+
+@endpoint('/data-files/get/{book_id}/{relpath}/{library_id=None}', types={'book_id': int})
+def get_data_file(ctx, rd, book_id, relpath, library_id):
+    db = get_db_for_data_file(ctx, rd, book_id, library_id)
     for ef in db.list_extra_files(book_id, pattern=DATA_FILE_PATTERN):
         if ef.relpath == relpath:
             return data_file(rd, relpath.rpartition('/')[2], ef.file_path, ef.stat_result)
@@ -557,9 +564,7 @@ def strerr(e: Exception):
 
 @endpoint('/data-files/upload/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
 def upload_data_files(ctx, rd, book_id, library_id):
-    db = get_db(ctx, rd, library_id)
-    if db is None:
-        raise HTTPNotFound(f'Library {library_id} not found')
+    db = get_db_for_data_file(ctx, rd, book_id, library_id)
     files = {}
     try:
         recvd = load_json_file(rd.request_body_file)
@@ -580,9 +585,7 @@ def upload_data_files(ctx, rd, book_id, library_id):
 
 @endpoint('/data-files/remove/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
 def remove_data_files(ctx, rd, book_id, library_id):
-    db = get_db(ctx, rd, library_id)
-    if db is None:
-        raise HTTPNotFound(f'Library {library_id} not found')
+    db = get_db_for_data_file(ctx, rd, book_id, library_id)
     try:
         relpaths = load_json_file(rd.request_body_file)
         if not isinstance(relpaths, list):
