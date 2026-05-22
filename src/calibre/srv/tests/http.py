@@ -300,16 +300,33 @@ class TestHTTP(BaseTest):
 
             # Test closing
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
-            conn.request('GET', '/close', headers={'Connection':'close'})
+            def assert_no_active_connections():
+                server.loop.wakeup()
+                num = 10
+                while num and server.loop.num_active_connections != 0:
+                    time.sleep(0.01)
+                    num -= 1
+                self.ae(server.loop.num_active_connections, 0)
+
+            conn.request('GET', '/close', headers={'Connection':'Close, Upgrade'})
             r = conn.getresponse()
             self.ae(r.status, 200), self.ae(r.read(), b'close')
-            server.loop.wakeup()
-            num = 10
-            while num and server.loop.num_active_connections != 0:
-                time.sleep(0.01)
-                num -= 1
-            self.ae(server.loop.num_active_connections, 0)
+            assert_no_active_connections()
             self.assertIsNone(conn.sock)
+
+            conn = server.connect()
+            r = raw_send(conn, b'GET /close HTTP/1.0\r\nConnection: keep-alive, close\r\n\r\n')
+            self.ae(r.status, 200), self.ae(r.read(), b'close')
+            self.assertIsNone(r.getheader('Connection'))
+            assert_no_active_connections()
+            conn.close()
+
+            conn = server.connect()
+            r = raw_send(conn, b'GET /keep-alive HTTP/1.0\r\nConnection: keep-alive, upgrade\r\n\r\n')
+            self.ae(r.status, 200), self.ae(r.read(), b'keep-alive')
+            self.ae(r.getheader('Connection'), 'Keep-Alive')
+            self.assertIsNotNone(conn.sock)
+            conn.close()
 
             # Test timeout
             server.loop.opts.timeout = 0.1
