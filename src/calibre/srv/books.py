@@ -20,7 +20,7 @@ from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
-from calibre.utils.filenames import rmtree
+from calibre.utils.filenames import path_from_root, rmtree
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_dumps
@@ -187,9 +187,10 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
     bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
-    base = abspath(os.path.join(books_cache_dir(), 'f'))
-    mpath = abspath(os.path.join(base, bhash, name))
-    if not mpath.startswith(base):
+    base = abspath(os.path.join(books_cache_dir(), 'f', bhash))
+    try:
+        mpath = path_from_root(base, name)
+    except ValueError:
         raise HTTPNotFound(f'No book file with hash: {bhash} and name: {name}')
     try:
         return rd.filesystem_file_with_custom_etag(open(mpath, 'rb'), bhash, name)
