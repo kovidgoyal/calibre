@@ -6,6 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 import os
+from base64 import standard_b64encode
 from compression import zlib
 from functools import partial
 from http.client import FORBIDDEN, NOT_FOUND, OK
@@ -83,6 +84,42 @@ class ContentTest(LibraryBaseTest):
             self.assertIsNone(data['1']['payload']['new_book_id'])
             self.assertTrue(source_db.has_id(1))
             self.ae(target_db.all_book_ids(), target_book_ids)
+
+    # }}}
+
+    def test_data_file_paths_are_confined_to_book_dir(self):  # {{{
+        with self.create_server(auth=True, auth_mode='basic') as server:
+            server.handler.ctx.user_manager.add_user('12', 'test')
+            db = server.handler.router.ctx.library_broker.get(None)
+            bookdir = os.path.dirname(db.format_abspath(1, 'FMT1'))
+            sibling = bookdir + ' sibling'
+            os.makedirs(sibling)
+            victim = os.path.join(sibling, 'victim')
+            with open(victim, 'wb') as f:
+                f.write(b'outside')
+
+            conn = server.connect()
+            url_for = server.handler.router.url_for
+            bad_name = '../../' + os.path.basename(sibling) + '/victim'
+            r, data = make_request(
+                conn, url_for('/data-files/upload', book_id=1), prefix='', method='POST',
+                username='12', password='test',
+                headers={'Content-Type': 'application/json'}, data=json.dumps([{
+                    'name': bad_name,
+                    'data_url': 'data:application/octet-stream;base64,' + standard_b64encode(b'bad').decode('ascii'),
+                }]).encode('utf-8'))
+            self.ae(r.status, OK)
+            with open(victim, 'rb') as f:
+                self.ae(f.read(), b'outside')
+            self.assertNotIn('data/' + bad_name, data['data_files'])
+
+            r, data = make_request(
+                conn, url_for('/data-files/remove', book_id=1), prefix='', method='POST',
+                username='12', password='test',
+                headers={'Content-Type': 'application/json'}, data=json.dumps(['data/' + bad_name]).encode('utf-8'))
+            self.ae(r.status, OK)
+            with open(victim, 'rb') as f:
+                self.ae(f.read(), b'outside')
 
     # }}}
 
