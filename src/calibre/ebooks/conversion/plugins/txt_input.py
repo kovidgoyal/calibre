@@ -6,6 +6,7 @@ import os
 
 from calibre import walk, xml_replace_entities
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
@@ -182,7 +183,7 @@ class TXTInput(InputFormatPlugin):
                                 options.paragraph_type = 'off'
                     crelpath = root.find('cover-relpath-from-base')
                     if crelpath is not None and crelpath.text:
-                        cover_path = os.path.abspath(crelpath.text)
+                        cover_path = crelpath.text
 
             if options.formatting_type == 'auto':
                 if file_ext == 'textile':
@@ -336,13 +337,13 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         meta_info_to_oeb_metadata(input_mi, oeb.metadata, log)
         self.html_postprocess_title = input_mi.title
-        if cover_path and os.path.exists(cover_path):
-            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
-                cdata = cf.read()
-            cover_name = os.path.basename(cover_path)
-            id, href = oeb.manifest.generate('cover', cover_name)
-            oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
-            oeb.guide.add('cover', 'Cover', href)
+        if cover_path:
+            cover_data = archive_file_data(base_dir, cover_path)
+            if cover_data is not None:
+                cover_name, cdata = cover_data
+                id, href = oeb.manifest.generate('cover', cover_name)
+                oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
+                oeb.guide.add('cover', 'Cover', href)
 
         return oeb
 

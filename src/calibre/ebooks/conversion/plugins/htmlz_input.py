@@ -6,6 +6,7 @@ import os
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
 
 
 class HTMLZInput(InputFormatPlugin):
@@ -120,12 +121,11 @@ class HTMLZInput(InputFormatPlugin):
             os.remove(opf)  # don't confuse code that searches for OPF files later on the oeb object will create its own OPF
         # Set the cover.
         if cover_path:
-            cdata = None
-            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
-                cdata = cf.read()
-            cover_name = os.path.basename(cover_path)
-            id, href = oeb.manifest.generate('cover', cover_name)
-            oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
-            oeb.guide.add('cover', 'Cover', href)
+            cover_data = archive_file_data(os.getcwd(), cover_path)
+            if cover_data is not None:
+                cover_name, cdata = cover_data
+                id, href = oeb.manifest.generate('cover', cover_name)
+                oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
+                oeb.guide.add('cover', 'Cover', href)
 
         return oeb
