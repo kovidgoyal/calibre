@@ -309,7 +309,7 @@ def icon(ctx, rd, which):
 def reader_background(ctx, rd, encoded_fname):
     base = os.path.abspath(os.path.normpath(os.path.join(config_dir, 'viewer', 'background-images')))
     try:
-        q = path_from_root(base, bytes.fromhex(encoded_fname).decode('utf-8'), reject_colon=True)
+        q = path_from_root(base, bytes.fromhex(encoded_fname).decode('utf-8'), reject_colon=iswindows)
     except (ValueError, UnicodeDecodeError):
         raise HTTPNotFound(f'Reader background {encoded_fname} not found')
     try:

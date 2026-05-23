@@ -649,7 +649,9 @@ def is_path_inside(parent: str, child: str, allow_parent: bool = False, case_sen
     return allow_parent or child != parent
 
 
-def path_from_root(root: str, path: str, allow_root: bool = False, reject_colon: bool = False) -> str:
+def path_from_root(
+    root: str, path: str, allow_root: bool = False, reject_colon: bool = False, case_sensitive: bool = True
+) -> str:
     '''
     Resolve a relative path under root. Raises ValueError for absolute paths,
     drive-qualified paths, traversal components, or paths outside root.
@@ -668,7 +670,7 @@ def path_from_root(root: str, path: str, allow_root: bool = False, reject_colon:
     if any(x in ('', '.', '..') for x in parts):
         raise ValueError('invalid path component')
     ans = os.path.abspath(os.path.join(root, *parts))
-    if not is_path_inside(root, ans, allow_parent=allow_root):
+    if not is_path_inside(root, ans, allow_parent=allow_root, case_sensitive=case_sensitive):
         raise ValueError('path is outside root')
     return ans
 

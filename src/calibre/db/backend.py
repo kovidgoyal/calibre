@@ -1686,7 +1686,7 @@ class DB:
 
     def is_path_inside_book_dir(self, path, book_relpath, sub_path):
         book_path = os.path.abspath(os.path.join(self.library_path, book_relpath, sub_path))
-        return is_path_inside(book_path, path)
+        return is_path_inside(book_path, path, case_sensitive=self.is_case_sensitive)
 
     def apply_to_format(self, book_id, path, fname, fmt, func, missing_value=None):
         path = self.format_abspath(book_id, fmt, fname, path)
@@ -2077,7 +2077,7 @@ class DB:
     def copy_extra_file_to(self, book_id, book_path, relpath, stream_or_path):
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         try:
-            extra_file_path = path_from_root(full_book_path, relpath)
+            extra_file_path = path_from_root(full_book_path, relpath, case_sensitive=self.is_case_sensitive)
         except ValueError:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), relpath)
         src_path = make_long_path_useable(extra_file_path)
@@ -2136,7 +2136,7 @@ class DB:
         errors = {}
         for relpath in relpaths:
             try:
-                path = path_from_root(bookdir, relpath)
+                path = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
             except ValueError:
                 continue
             try:
@@ -2162,8 +2162,8 @@ class DB:
     def rename_extra_file(self, relpath, newrelpath, book_path, replace=True):
         bookdir = os.path.join(self.library_path, book_path)
         try:
-            src = path_from_root(bookdir, relpath)
-            dest = path_from_root(bookdir, newrelpath)
+            src = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
+            dest = path_from_root(bookdir, newrelpath, case_sensitive=self.is_case_sensitive)
         except ValueError:
             return False
         src, dest = make_long_path_useable(src), make_long_path_useable(dest)
@@ -2181,7 +2181,7 @@ class DB:
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)
         try:
-            dest = path_from_root(bookdir, relpath)
+            dest = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
         except ValueError:
             return None
         if not replace and os.path.exists(make_long_path_useable(dest)):

@@ -106,7 +106,7 @@ def background_image(encoded_fname=''):
             return 'image/jpeg', b''
     try:
         fname = bytes.fromhex(encoded_fname).decode('utf-8')
-        img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=True)
+        img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=iswindows)
     except (ValueError, UnicodeDecodeError):
         return 'image/jpeg', b''
     mt = guess_type(fname)[0] or 'image/jpeg'
