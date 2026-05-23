@@ -13,7 +13,7 @@ from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import READ, WRITE, Connection
-from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict
+from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict, connection_header_tokens
 from polyglot.builtins import error_message
 from polyglot.urllib import unquote
 
@@ -334,12 +334,11 @@ class HTTPRequest(Connection):
         except ValueError as e:
             return self.simple_response(http.client.BAD_REQUEST, str(e))
         # Persistent connection support
-        if self.response_protocol is HTTP11:
-            # Both server and client are HTTP/1.1
-            if inheaders.get('Connection', '') == 'close':
-                self.close_after_response = True
+        connection = connection_header_tokens(inheaders.get('Connection', ''))
+        if 'close' in connection:
+            self.close_after_response = True
         # Either the server or client (or both) are HTTP/1.0
-        elif inheaders.get('Connection', '') != 'Keep-Alive':
+        elif self.response_protocol is not HTTP11 and 'keep-alive' not in connection:
             self.close_after_response = True
 
         # Transfer-Encoding support

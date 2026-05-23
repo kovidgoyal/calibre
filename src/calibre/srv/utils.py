@@ -31,6 +31,10 @@ DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
 encode_name, decode_name
 
 
+def connection_header_tokens(value):
+    return {x.strip().lower() for x in value.split(',') if x.strip()}
+
+
 def http_date(timeval=None):
     return str(formatdate(timeval=timeval, usegmt=True))
 
