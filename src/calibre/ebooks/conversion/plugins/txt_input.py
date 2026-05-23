@@ -28,6 +28,16 @@ MD_EXTENSIONS = {
     'wikilinks': _('Wiki style links'),
 }
 
+TXTZ_FORMATTING_FOR_EXTENSION = {'md': 'markdown', 'markdown': 'markdown', 'textile': 'textile'}
+
+
+def txtz_file_ext(path):
+    return os.path.splitext(path)[1].lower().lstrip('.')
+
+
+def txtz_formatting_for_extension(file_ext):
+    return TXTZ_FORMATTING_FOR_EXTENSION.get(file_ext.lower().lstrip('.'))
+
 
 class TXTInput(InputFormatPlugin):
 
@@ -159,8 +169,8 @@ class TXTInput(InputFormatPlugin):
             zf.extractall('.')
 
             for x in walk('.'):
-                ext = os.path.splitext(x)[1].lower()
-                if ext in ('.txt', '.text', '.textile', '.md', '.markdown'):
+                ext = txtz_file_ext(x)
+                if ext in {'txt', 'text', 'textile', 'md', 'markdown'}:
                     file_ext = ext
                     with open(x, 'rb') as tf:
                         txt += tf.read() + b'\n\n'
@@ -186,11 +196,9 @@ class TXTInput(InputFormatPlugin):
                         cover_path = crelpath.text
 
             if options.formatting_type == 'auto':
-                if file_ext == 'textile':
-                    options.formatting_type = txt_formatting
-                    options.paragraph_type = 'off'
-                elif file_ext in ('md', 'markdown'):
-                    options.formatting_type = txt_formatting
+                formatting_type = txtz_formatting_for_extension(file_ext)
+                if formatting_type:
+                    options.formatting_type = formatting_type
                     options.paragraph_type = 'off'
         else:
             if getattr(stream, 'name', None):
