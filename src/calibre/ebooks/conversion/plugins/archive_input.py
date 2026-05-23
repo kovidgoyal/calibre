@@ -22,3 +22,35 @@ def archive_file_data(root, path):
         if os.path.isfile(path):
             with open(path, 'rb') as f:
                 return os.path.basename(path), f.read()
+
+
+def find_tests():
+    import os
+    import tempfile
+    import unittest
+
+    class ArchiveInputTest(unittest.TestCase):
+
+        def test_archive_file_data(self):
+            with tempfile.TemporaryDirectory() as tdir:
+                root = os.path.abspath(tdir)
+                os.mkdir(os.path.join(root, 'images'))
+                with open(os.path.join(root, 'images', 'cover.jpg'), 'wb') as f:
+                    f.write(b'cover')
+                sibling = root + ' sibling'
+                os.mkdir(sibling)
+                with open(os.path.join(sibling, 'cover.jpg'), 'wb') as f:
+                    f.write(b'outside')
+
+                self.assertEqual(archive_file_data(root, 'images/cover.jpg'), ('cover.jpg', b'cover'))
+                self.assertEqual(archive_file_data(root, r'images\cover.jpg'), ('cover.jpg', b'cover'))
+                for path in ('images/missing.jpg', '../' + os.path.basename(sibling) + '/cover.jpg',
+                             '/cover.jpg', 'C:/cover.jpg', 'C:cover.jpg'):
+                    self.assertIsNone(archive_file_data(root, path))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(ArchiveInputTest)
+
+
+if __name__ == '__main__':
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)

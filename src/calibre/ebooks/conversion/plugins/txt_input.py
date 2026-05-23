@@ -361,3 +361,24 @@ class TXTInput(InputFormatPlugin):
                 for title in item.data.xpath('//*[local-name()="title"]'):
                     if title.text == _('Unknown'):
                         title.text = self.html_postprocess_title
+
+
+def find_tests():
+    import unittest
+
+    class TXTInputTest(unittest.TestCase):
+
+        def test_txtz_extension_formatting(self):
+            self.assertEqual(txtz_file_ext('book.md'), 'md')
+            self.assertEqual(txtz_file_ext('book.MARKDOWN'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('.md'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('markdown'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('.textile'), 'textile')
+            self.assertIsNone(txtz_formatting_for_extension('.txt'))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TXTInputTest)
+
+
+if __name__ == '__main__':
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
