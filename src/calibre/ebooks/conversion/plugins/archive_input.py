@@ -8,11 +8,16 @@ __docformat__ = 'restructuredtext en'
 
 def path_in_archive_root(root, path):
     ' Resolve a path from archive metadata, returning None if it leaves root. '
-    from calibre.utils.filenames import path_from_root
-    try:
-        return path_from_root(root, path)
-    except ValueError:
-        return None
+    import os
+    from calibre.utils.filenames import is_path_inside, path_from_root
+    if isinstance(path, str) and os.path.isabs(path):
+        if is_path_inside(root, path):
+            return os.path.abspath(path)
+    else:
+        try:
+            return path_from_root(root, path)
+        except ValueError:
+            pass
 
 
 def archive_file_data(root, path):
@@ -43,6 +48,8 @@ def find_tests():
                     f.write(b'outside')
 
                 self.assertEqual(archive_file_data(root, 'images/cover.jpg'), ('cover.jpg', b'cover'))
+                self.assertEqual(
+                    archive_file_data(root, os.path.join(root, 'images', 'cover.jpg')), ('cover.jpg', b'cover'))
                 self.assertEqual(archive_file_data(root, r'images\cover.jpg'), ('cover.jpg', b'cover'))
                 for path in ('images/missing.jpg', '../' + os.path.basename(sibling) + '/cover.jpg',
                              '/cover.jpg', 'C:/cover.jpg', 'C:cover.jpg'):
