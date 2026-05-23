@@ -31,7 +31,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_use_roman, http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
-from calibre.utils.filenames import ascii_filename, atomic_rename, make_long_path_useable
+from calibre.utils.filenames import ascii_filename, atomic_rename, make_long_path_useable, path_from_root
 from calibre.utils.img import image_from_data, scale_image
 from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
@@ -236,11 +236,10 @@ def static(ctx, rd, what):
     if not what:
         raise HTTPNotFound()
     base = P('content-server', allow_user_override=False)
-    path = os.path.abspath(os.path.join(base, *what.split('/')))
-    if not path.startswith(base) or ':' in what:
+    try:
+        path = path_from_root(base, what, reject_colon=True)
+    except ValueError:
         raise HTTPNotFound('Naughty, naughty!')
-    path = os.path.relpath(path, base).replace(os.sep, '/')
-    path = P('content-server/' + path)
     try:
         return share_open(path, 'rb')
     except OSError:
@@ -269,16 +268,16 @@ def icon(ctx, rd, which):
         raise HTTPNotFound()
     if which.startswith('_'):
         base = os.path.join(config_dir, 'tb_icons')
-        path = os.path.abspath(os.path.join(base, *which[1:].split('/')))
-        if not path.startswith(base) or ':' in which:
+        try:
+            path = path_from_root(base, which[1:], reject_colon=True)
+        except ValueError:
             raise HTTPNotFound('Naughty, naughty!')
     else:
         base = P('images', allow_user_override=False)
-        path = os.path.abspath(os.path.join(base, *which.split('/')))
-        if not path.startswith(base) or ':' in which:
+        try:
+            path = path_from_root(base, which, reject_colon=True)
+        except ValueError:
             raise HTTPNotFound('Naughty, naughty!')
-        path = os.path.relpath(path, base).replace(os.sep, '/')
-        path = P('images/' + path)
     if sz == 'full':
         try:
             return share_open(path, 'rb')
@@ -309,9 +308,9 @@ def icon(ctx, rd, which):
 @endpoint('/reader-background/{encoded_fname}', android_workaround=True)
 def reader_background(ctx, rd, encoded_fname):
     base = os.path.abspath(os.path.normpath(os.path.join(config_dir, 'viewer', 'background-images')))
-    fname = bytes.fromhex(encoded_fname)
-    q = os.path.abspath(os.path.normpath(os.path.join(base, fname)))
-    if not q.startswith(base):
+    try:
+        q = path_from_root(base, bytes.fromhex(encoded_fname).decode('utf-8'), reject_colon=iswindows)
+    except (ValueError, UnicodeDecodeError):
         raise HTTPNotFound(f'Reader background {encoded_fname} not found')
     try:
         return share_open(make_long_path_useable(q), 'rb')

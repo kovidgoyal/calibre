@@ -4,6 +4,7 @@ meaning as possible.
 '''
 
 import errno
+import ntpath
 import os
 import shutil
 import time
@@ -631,6 +632,49 @@ def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile)
                 filecopyfunc(src, df)
 
 
+def _normalize_path_for_containment(path, case_sensitive=True):
+    ans = os.path.abspath(path)
+    return ans if case_sensitive else os.path.normcase(ans).lower()
+
+
+def is_path_inside(parent: str, child: str, allow_parent: bool = False, case_sensitive: bool = True) -> bool:
+    ' Check if child is under parent, using lexical path component boundaries. '
+    parent = _normalize_path_for_containment(parent, case_sensitive=case_sensitive)
+    child = _normalize_path_for_containment(child, case_sensitive=case_sensitive)
+    try:
+        if os.path.commonpath((parent, child)) != parent:
+            return False
+    except ValueError:
+        return False
+    return allow_parent or child != parent
+
+
+def path_from_root(
+    root: str, path: str, allow_root: bool = False, reject_colon: bool = False, case_sensitive: bool = True
+) -> str:
+    '''
+    Resolve a relative path under root. Raises ValueError for absolute paths,
+    drive-qualified paths, traversal components, or paths outside root.
+    '''
+    if not isinstance(path, str):
+        raise ValueError('path must be text')
+    if reject_colon and ':' in path:
+        raise ValueError('colon not allowed in path')
+    if not path:
+        if allow_root:
+            return os.path.abspath(root)
+        raise ValueError('empty path not allowed')
+    if os.path.isabs(path) or ntpath.isabs(path) or os.path.splitdrive(path)[0] or ntpath.splitdrive(path)[0]:
+        raise ValueError('absolute paths are not allowed')
+    parts = path.replace('\\', '/').split('/')
+    if any(x in ('', '.', '..') for x in parts):
+        raise ValueError('invalid path component')
+    ans = os.path.abspath(os.path.join(root, *parts))
+    if not is_path_inside(root, ans, allow_parent=allow_root, case_sensitive=case_sensitive):
+        raise ValueError('path is outside root')
+    return ans
+
+
 def is_existing_subpath(child: str, parent: str) -> bool:
     ' Check if child is under parent. If either child or parent dont exist, returns False. '
     try:
@@ -638,11 +682,7 @@ def is_existing_subpath(child: str, parent: str) -> bool:
         child = os.path.realpath(child, strict=True)
     except OSError:
         return False
-    parent = os.path.abspath(parent)
-    child = os.path.abspath(child)
-    if not parent.endswith(os.sep):
-        parent += os.sep
-    return child.startswith(parent)
+    return is_path_inside(parent, child)
 
 
 rmtree = shutil.rmtree

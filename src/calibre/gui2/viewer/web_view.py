@@ -44,7 +44,7 @@ from calibre.gui2.viewer import link_prefix_for_location_links, performance_moni
 from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.srv.code import get_translations_data
-from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.filenames import make_long_path_useable, path_from_root
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
@@ -74,9 +74,10 @@ def get_path_for_name(name):
     bdir = getattr(set_book_path, 'path', None)
     if bdir is None:
         return
-    path = os.path.abspath(os.path.join(bdir, name))
-    if path.startswith(bdir):
-        return path
+    try:
+        return path_from_root(bdir, name)
+    except ValueError:
+        pass
 
 
 def get_data(name):
@@ -103,12 +104,12 @@ def background_image(encoded_fname=''):
             return mt, data
         except FileNotFoundError:
             return 'image/jpeg', b''
-    fname = bytes.fromhex(encoded_fname).decode()
-    base = os.path.abspath(os.path.join(viewer_config_dir, 'background-images')) + os.sep
-    img_path = os.path.abspath(os.path.join(base, fname))
+    try:
+        fname = bytes.fromhex(encoded_fname).decode('utf-8')
+        img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=iswindows)
+    except (ValueError, UnicodeDecodeError):
+        return 'image/jpeg', b''
     mt = guess_type(fname)[0] or 'image/jpeg'
-    if not img_path.startswith(base):
-        return mt, b''
     try:
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
@@ -123,8 +124,12 @@ def get_mathjax_dir():
 
 def handle_mathjax_request(rq, name):
     mathjax_dir = get_mathjax_dir()
-    path = os.path.abspath(os.path.join(mathjax_dir, '..', name))
-    if path.startswith(mathjax_dir):
+    mathjax_name = name.partition('/')[2]
+    try:
+        path = path_from_root(mathjax_dir, mathjax_name)
+    except ValueError:
+        pass
+    else:
         mt = guess_type(name)
         try:
             with open(path, 'rb') as f:
@@ -136,9 +141,9 @@ def handle_mathjax_request(rq, name):
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
-    else:
-        prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
-        rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
+        return
+    prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
+    rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):

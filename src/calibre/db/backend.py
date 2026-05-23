@@ -62,11 +62,12 @@ from calibre.utils.filenames import (
     atomic_rename,
     copyfile_using_links,
     copytree_using_links,
-    get_long_path_name,
     hardlink_file,
     is_case_sensitive,
     is_fat_filesystem,
+    is_path_inside,
     make_long_path_useable,
+    path_from_root,
     remove_dir_if_empty,
     samefile,
 )
@@ -1685,9 +1686,7 @@ class DB:
 
     def is_path_inside_book_dir(self, path, book_relpath, sub_path):
         book_path = os.path.abspath(os.path.join(self.library_path, book_relpath, sub_path))
-        book_path = os.path.normcase(get_long_path_name(book_path)).rstrip(os.sep)
-        path = os.path.normcase(get_long_path_name(os.path.abspath(path))).rstrip(os.sep)
-        return path.startswith(book_path + os.sep)
+        return is_path_inside(book_path, path, case_sensitive=self.is_case_sensitive)
 
     def apply_to_format(self, book_id, path, fname, fmt, func, missing_value=None):
         path = self.format_abspath(book_id, fmt, fname, path)
@@ -2077,8 +2076,9 @@ class DB:
 
     def copy_extra_file_to(self, book_id, book_path, relpath, stream_or_path):
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
-        extra_file_path = os.path.abspath(os.path.join(full_book_path, relpath))
-        if not extra_file_path.startswith(full_book_path):
+        try:
+            extra_file_path = path_from_root(full_book_path, relpath, case_sensitive=self.is_case_sensitive)
+        except ValueError:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), relpath)
         src_path = make_long_path_useable(extra_file_path)
         if isinstance(stream_or_path, str):
@@ -2135,8 +2135,9 @@ class DB:
         bookdir = os.path.join(self.library_path, book_path)
         errors = {}
         for relpath in relpaths:
-            path = os.path.abspath(os.path.join(bookdir, relpath))
-            if not self.normpath(path).startswith(self.normpath(bookdir)):
+            try:
+                path = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
+            except ValueError:
                 continue
             try:
                 if permanent:
@@ -2160,8 +2161,11 @@ class DB:
 
     def rename_extra_file(self, relpath, newrelpath, book_path, replace=True):
         bookdir = os.path.join(self.library_path, book_path)
-        src = os.path.abspath(os.path.join(bookdir, relpath))
-        dest = os.path.abspath(os.path.join(bookdir, newrelpath))
+        try:
+            src = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
+            dest = path_from_root(bookdir, newrelpath, case_sensitive=self.is_case_sensitive)
+        except ValueError:
+            return False
         src, dest = make_long_path_useable(src), make_long_path_useable(dest)
         if src == dest or not os.path.exists(src):
             return False
@@ -2176,8 +2180,9 @@ class DB:
 
     def add_extra_file(self, relpath, stream, book_path, replace=True, auto_rename=False):
         bookdir = os.path.join(self.library_path, book_path)
-        dest = os.path.abspath(os.path.join(bookdir, relpath))
-        if not self.normpath(dest).startswith(self.normpath(bookdir)):
+        try:
+            dest = path_from_root(bookdir, relpath, case_sensitive=self.is_case_sensitive)
+        except ValueError:
             return None
         if not replace and os.path.exists(make_long_path_useable(dest)):
             if not auto_rename:

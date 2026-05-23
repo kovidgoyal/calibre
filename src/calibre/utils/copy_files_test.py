@@ -12,7 +12,7 @@ from calibre import walk
 from calibre.constants import iswindows
 
 from .copy_files import copy_tree, rename_files
-from .filenames import nlinks_file
+from .filenames import is_path_inside, nlinks_file, path_from_root
 
 if iswindows:
     from calibre_extensions import winutil
@@ -64,6 +64,21 @@ class TestCopyFiles(unittest.TestCase):
         rename_files(renames)
         contents = set(os.listdir(self.tdir)) - {'base', 'src'}
         self.ae(contents, {'One', 'three'})
+
+    def test_rooted_path_containment(self):
+        root = os.path.join(self.tdir, 'Root')
+        sibling = os.path.join(self.tdir, 'Root sibling')
+        os.makedirs(root), os.makedirs(sibling)
+        good = path_from_root(root, 'data/file.txt')
+        self.ae(good, os.path.join(root, 'data', 'file.txt'))
+        self.assertTrue(is_path_inside(root, good))
+        self.assertTrue(is_path_inside(os.path.join(self.tdir, 'ROOT'), good, case_sensitive=False))
+        for bad in '../Root sibling/file.txt', 'data/../../Root sibling/file.txt', '/tmp/x', 'C:/x', 'C:x', 'data//x', 'data/./x':
+            with self.assertRaises(ValueError):
+                path_from_root(root, bad)
+        self.assertTrue(path_from_root(root, 'name:with-colon.txt').endswith('name:with-colon.txt'))
+        with self.assertRaises(ValueError):
+            path_from_root(root, 'name:with-colon.txt', reject_colon=True)
 
     def test_pread_all(self):
         from calibre_extensions.speedup import pread_all
