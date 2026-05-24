@@ -11,7 +11,7 @@ from book_list.top_bar import add_button, create_top_bar
 from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
 from book_list.cover_grid import sync_cover_grid_size_dock
-from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar, LIST_TOOLBAR_CLASS
+from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
 from dom import clear, ensure_id, svgicon
 from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout, safe_set_inner_html
@@ -209,7 +209,7 @@ def create_books_list(container, books):
 
     pager = E.div(data_component='pager')
     pager.classList.add('cs-book-pager')
-    toolbar_el = E.div(class_=LIST_TOOLBAR_CLASS)
+    toolbar_el = E.div()
     pager.appendChild(toolbar_el)
     populate_book_list_toolbar(toolbar_el, False, apply_view_mode)
 
