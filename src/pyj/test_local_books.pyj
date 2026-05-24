@@ -45,6 +45,7 @@ def local_book_search_metadata_text():
     assert_equal(text.indexOf('title') >= 0, True)
     assert_equal(text.indexOf('author') >= 0, True)
     assert_equal(text.indexOf('isbn') >= 0, True)
+    assert_equal(text.indexOf('authors'), -1)
     assert_equal(text.indexOf('not searchable'), -1)
 
 
