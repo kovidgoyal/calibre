@@ -12,7 +12,7 @@ from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
 from book_list.cover_grid import sync_cover_grid_size_dock
 from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
-from dom import clear, ensure_id, svgicon
+from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout, safe_set_inner_html
 from widgets import create_button, enable_escape_key
@@ -212,12 +212,8 @@ def create_books_list(container, books):
     pager.appendChild(toolbar_el)
     populate_book_list_toolbar(toolbar_el, False, apply_view_mode)
 
-    wrap = E.div(class_='cs-book-list-wrap')
-    wrap.appendChild(E.div(data_component='book_list'))
-    wrap.appendChild(E.div(class_='cs-book-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…'))))
-
     container.appendChild(pager)
-    container.appendChild(wrap)
+    container.appendChild(E.div(data_component='book_list'))
     apply_view_mode(get_view_mode())
 
 
