@@ -40,13 +40,18 @@ def local_book_search_metadata_text():
         'title': 'Title',
         'authors': ['Author'],
         'identifiers': {'isbn': '123'},
+        'lang_names': {'eng': 'English'},
         'comments': 'not searchable',
+        'unknown_field': 'hidden value',
     })
     assert_equal(text.indexOf('title') >= 0, True)
     assert_equal(text.indexOf('author') >= 0, True)
     assert_equal(text.indexOf('isbn') >= 0, True)
+    assert_equal(text.indexOf('123') >= 0, True)
+    assert_equal(text.indexOf('english') >= 0, True)
     assert_equal(text.indexOf('authors'), -1)
     assert_equal(text.indexOf('not searchable'), -1)
+    assert_equal(text.indexOf('hidden value'), -1)
 
 
 @test

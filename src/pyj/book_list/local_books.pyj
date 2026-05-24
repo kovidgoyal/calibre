@@ -22,21 +22,16 @@ BOOK_LIST_CONTAINER_CLASS = 'book-list-container'
 CLASS_NAME = 'local-books-list'
 
 book_list_data = {}
-SEARCH_IGNORED_METADATA_FIELDS = {
-    'comments': True,
-    'comments#markdown#': True,
-    'data_files': True,
-    'format_sizes': True,
-    'items_with_notes': True,
-    'link_maps': True,
-    'urls_from_identifiers': True,
-}
+LOCAL_SEARCH_METADATA_FIELDS = [
+    'title', 'authors', 'author_sort', 'publisher', 'series', 'tags',
+    'formats', 'identifiers', 'languages', 'lang_names'
+]
 
 def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
 
-def add_search_text(parts, value, include_object_keys=False):
+def add_search_text(parts, value):
     if value is None or value is undefined:
         return
     if Array.isArray(value):
@@ -44,19 +39,33 @@ def add_search_text(parts, value, include_object_keys=False):
             add_search_text(parts, x)
     elif jstype(value) is 'object':
         for key in Object.keys(value):
-            if include_object_keys:
-                parts.push(key)
             add_search_text(parts, value[key])
     else:
         parts.push(str(value))
 
 
+def add_search_mapping_text(parts, value, include_keys=False):
+    if value is None or value is undefined:
+        return
+    if jstype(value) is 'object' and not Array.isArray(value):
+        for key in Object.keys(value):
+            if include_keys:
+                parts.push(key)
+            add_search_text(parts, value[key])
+    else:
+        add_search_text(parts, value)
+
+
 def metadata_search_text(metadata):
     parts = v'[]'
     if metadata:
-        for key in Object.keys(metadata):
-            if not SEARCH_IGNORED_METADATA_FIELDS[key]:
-                add_search_text(parts, metadata[key], key is 'identifiers')
+        for key in LOCAL_SEARCH_METADATA_FIELDS:
+            if key is 'identifiers':
+                add_search_mapping_text(parts, metadata[key], include_keys=True)
+            elif key is 'lang_names':
+                add_search_mapping_text(parts, metadata[key])
+            else:
+                add_search_text(parts, metadata[key])
     return parts.join('\n').toLowerCase()
 
 
