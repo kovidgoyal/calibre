@@ -439,8 +439,7 @@ class DB:
             else:
                 proceed(data)
 
-    def get_recently_read_books(self, proceed, limit):
-        limit = limit or 3
+    def get_books_by_recent_date(self, proceed, limit=None):
         c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
         books = v'[]'
         c.onerror = def(event):
@@ -450,11 +449,17 @@ class DB:
             cursor = ev.target.result
             if cursor:
                 books.push(cursor.value)
-            if books.length >= limit or not cursor:
+            if (limit is not None and books.length >= limit) or not cursor:
                 proceed(books)
                 return
             if cursor:
                 cursor.continue()
+
+    def get_recently_read_books(self, proceed, limit):
+        self.get_books_by_recent_date(proceed, limit or 3)
+
+    def get_downloaded_books(self, proceed):
+        self.get_books_by_recent_date(proceed)
 
     def has_book_matching(self, library_id, book_id, proceed):
         # Should really be using a multiEntry index to avoid iterating over all
