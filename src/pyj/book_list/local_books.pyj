@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import unique_id
 from elementmaker import E
 from gettext import gettext as _, ngettext
 
@@ -12,11 +11,11 @@ from book_list.top_bar import add_button, create_top_bar
 from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
 from book_list.cover_grid import sync_cover_grid_size_dock
-from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar, icon_action
+from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout, safe_set_inner_html
-from widgets import create_button, enable_escape_key, create_pager_widget
+from widgets import create_button, enable_escape_key, create_pager_widget, create_search_widget
 
 # Same as book_list.views CLASS_NAME (library list root), for shared CSS
 BOOK_LIST_CONTAINER_CLASS = 'book-list-container'
@@ -284,21 +283,8 @@ def apply_view_mode(mode):
 
 
 def create_search_box():
-    box = E.div(data_component='search_box', style='width: 100%; display: flex; align-items: center; gap: 0.65rem')
-    search = E.input(
-        type='search', id=unique_id(), value=book_list_data.search_query,
-        placeholder=_('Search downloaded books'), title=_('Search downloaded books'), autocomplete='off',
-        style='width: 0; flex-grow: 1',
-    )
-    sid = search.id
-    search.addEventListener('input', def(event): apply_search(this.value);)
-    box.appendChild(search)
-    sb = icon_action('search', _('Search'), def():apply_search(document.getElementById(sid).value);)
-    sb.style.marginLeft = 'auto'
-    sb.tabindex = '-1'
-    sb.addEventListener('mousedown', def (evt): evt.preventDefault();)
-    box.appendChild(sb)
-    return box
+    return create_search_widget(
+        apply_search, value=book_list_data.search_query, placeholder=_('Search downloaded books'), live_searching=True)
 
 
 def create_books_list(container, books, search_query=None):

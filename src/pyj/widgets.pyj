@@ -152,6 +152,33 @@ div.calibre-pager-widget {
 
 # }}}
 
+# Search {{{
+def create_search_widget(onsearch, value='', placeholder='', tooltip='', live_searching=False):
+    box = E.div(
+        data_component='search_box',
+        style='width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 0.65rem'
+    )
+    search = E.input(
+        type='search', value=value, placeholder=placeholder, title=tooltip or placeholder, autocomplete='off',
+        style='width: 0; flex-grow: 1; min-width: 6em',
+    )
+    search.addEventListener('input' if live_searching else 'search', def(): onsearch(this.value);)
+    box.appendChild(search)
+    sb = E.a(
+        svgicon('search'),
+        class_='calibre-icon-button',
+        style='margin-left: auto',
+        href='javascript:void(0)',
+        title=_('Search'),
+        onmousedown=def(evt): evt.preventDefault();,
+        onclick=def(evt):
+            evt.preventDefault()
+            onsearch(this.previousSibling.value)
+    )
+    box.appendChild(sb)
+    return box
+# }}}
+
 # Select {{{
 def create_select(title, current_value, **options):
     sel = E.select(title=title)
