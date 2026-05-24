@@ -16,7 +16,7 @@ from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, svgicon
 from ajax import ajax, ajax_send
 from utils import parse_url_params
-from widgets import create_pager_widget, create_pager_button
+from widgets import create_pager_widget, create_button
 
 
 def escape_for_search(x):
@@ -190,14 +190,6 @@ add_extra_css(def():
         border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
         background_color='rgba(0,0,0,0.02)',
     )
-    # Context overrides for cs-pager-widget inside cs-nav-list
-    style += build_rule(sel + '.cs-pager-widget-left',
-        flex_wrap='wrap', min_width='min(100%, max-content)',
-    )
-    style += build_rule(sel + '.cs-pager-widget-right',
-        flex_wrap='wrap', flex='0 1 auto', margin_left='auto',
-    )
-    style += build_rule(sel + '.cs-pager-status', opacity='0.75', white_space='nowrap', overflow='hidden', text_overflow='ellipsis')
     style += build_rule(sel + 'input.cs-filter',
         padding='0.45rem 0.7rem',
         border_radius='999px',
@@ -227,7 +219,6 @@ add_extra_css(def():
             opacity='0.8'
         )
     # Tags: render as bubbles with incremental "show more"
-    style += build_rule(sel + '[data-field="tags"] .cs-pager-widget-left', display='none')
     style += build_rule(sel + '.cs-tag-bubbles',
         padding='0.75rem 1rem',
         display='flex',
@@ -547,71 +538,16 @@ add_extra_css(def():
        max_height='100%',
        width='max-content',
     )
-    # Mobile layout: stack pager controls and make filter usable
+    # Mobile layout: make filter usable
     style += r'''
 @media (max-width: 720px) {
   .cs-nav-list .cs-pager {
     padding: 0.75rem;
     margin: 0.75rem 0.75rem 0.5rem 0.75rem;
   }
-  .cs-nav-list .cs-pager-widget {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
-  }
-  .cs-nav-list .cs-pager-widget-left, .cs-nav-list .cs-pager-widget-right {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .cs-nav-list .cs-pager-widget-left {
-    flex-wrap: nowrap;
-  }
-  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
-    justify-content: center;
-    min-width: 0;
-    overflow: hidden;
-  }
-  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-  .cs-nav-list .cs-pager-widget-right {
-    justify-content: stretch;
-    margin-left: 0;
-  }
   .cs-nav-list input.cs-filter {
     flex: 1 1 auto;
     width: 100%;
-    min-width: 0;
-  }
-  .cs-nav-list .cs-pager-status {
-    white-space: normal;
-  }
-  .cs-nav-list a.cs-pager-btn {
-    padding: 0.6rem 0.9rem;
-  }
-}
-@media (max-width: 420px) {
-  .cs-nav-list .cs-pager-widget-left {
-    justify-content: stretch;
-  }
-  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
-    justify-content: center;
-  }
-}
-@media (max-width: 360px) {
-  .cs-nav-list .cs-pager-widget-left {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .cs-nav-list .cs-pager-widget-left a.cs-pager-btn {
-    flex: 0 0 auto;
-    width: 100%;
-    max-width: 100%;
     min-width: 0;
   }
 }
@@ -697,29 +633,26 @@ def create_nav_list_panel(container_id):
 
     pager = E.div(class_='cs-pager')
     body.appendChild(pager)
-    top_pager_widget = create_pager_widget(
-        def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
-        def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
-    )
-    pager.appendChild(top_pager_widget.container)
-
-    status = E.span('', class_='cs-pager-status')
     search_inp = E.input(
         type='search',
         placeholder=_('Filter…'),
         value=query_text,
         class_='cs-filter'
     )
-    apply_btn = create_pager_button(True, '', 'search', def():
+    apply_btn = create_button(_('Apply'), icons='search', action=def():
         nonlocal query_text
         query_text = search_inp.value or ''
         update_nav_list_url(field, 0, num, query_text, replace=True)
     )
-    apply_btn.title = _('Apply')
     if field is not 'pubdate':
-        top_pager_widget.right.appendChild(search_inp)
-        top_pager_widget.right.appendChild(apply_btn)
-        top_pager_widget.right.appendChild(status)
+        pager.appendChild(E.div(search_inp, apply_btn))
+        pager.appendChild(E.hr())
+    top_pager_widget = create_pager_widget(
+        def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
+        def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
+    )
+    pager.appendChild(top_pager_widget.container)
+    status = top_pager_widget.count_msg
 
     # Grouping toggle for Published date panel
     group_toggle = None
@@ -1080,7 +1013,7 @@ def create_nav_list_panel(container_id):
         total = items.length or 0
         if field is 'tags':
             shown = min(total, visible_tags)
-            status.textContent = _('Showing {} of {}').format(shown, total)
+            status.textContent = _('{0} of {1}').format(shown, total)
             top_pager_widget.set_enabled(False, False)
 
             clear(list_container)
@@ -1135,7 +1068,7 @@ def create_nav_list_panel(container_id):
                 update_nav_list_url(field, new_offset, num, query_text, replace=True)
                 return
         end = min(total, offset + num)
-        status.textContent = _('Showing {}–{} of {}').format((offset + 1) if total else 0, end, total)
+        status.textContent = _('{0}–{1} of {2}').format((offset + 1) if total else 0, end, total)
         top_pager_widget.set_enabled(offset > 0, end < total)
 
         list_items = []
