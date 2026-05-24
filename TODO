@@ -3,22 +3,21 @@ cover grid/local books move cover size control into list view header rather than
 Clicking back after browsing books in a category does not take us to nav_list page
 
 New category is confusingly named. From what I can tell its basically
-a virtual library used to filter the shown books? Calling it Virtual
+a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
-it is. Also perhaps add a line of text to it explaining what it does.
+it is.
 
 There appears to be no way to add custom columns (user created
 columns) to the browse section. This should be added in system or ui
 settings. You can see code for how to implement this in
-bookshelf_view.py, see get_grouped_iterator() It would need to be ported
-to RapydScript, of course.
+bookshelf_view.py, see get_grouped_iterator() it will require a new end point
+in srv/code.py
 
 The scrollbars in dark mode have very low contrast
 
-There should be a way to add some quick actions or alternatively
-simply remove that section from the sidebar and instead put the plus and
-random in the top bar.
+Remove the quick actions form the sidebar. Put the plus and random in the top
+bar at the right on the book list pages.
 
 Viewer UI needs to be re styled to match overall server UI
 
-Review appearance of all pages in light mode as well
+Review appearance of all pages in light and dark mode
