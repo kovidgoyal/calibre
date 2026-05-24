@@ -225,6 +225,7 @@ def prepare_recent_container(container):
     container.appendChild(E.div(class_='cs-home-actions cs-home-download-actions',
         create_button(
             _('Browse all downloaded books…'),
+            icon='cloud-download',
             action=def():
                 show_panel('local_books')
     )))
