@@ -36,7 +36,7 @@ def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
 
-def add_search_text(parts, value):
+def add_search_text(parts, value, include_object_keys=False):
     if value is None or value is undefined:
         return
     if Array.isArray(value):
@@ -44,7 +44,8 @@ def add_search_text(parts, value):
             add_search_text(parts, x)
     elif jstype(value) is 'object':
         for key in Object.keys(value):
-            parts.push(key)
+            if include_object_keys:
+                parts.push(key)
             add_search_text(parts, value[key])
     else:
         parts.push(str(value))
@@ -55,7 +56,7 @@ def metadata_search_text(metadata):
     if metadata:
         for key in Object.keys(metadata):
             if not SEARCH_IGNORED_METADATA_FIELDS[key]:
-                add_search_text(parts, metadata[key])
+                add_search_text(parts, metadata[key], key is 'identifiers')
     return parts.join('\n').toLowerCase()
 
 
@@ -226,7 +227,7 @@ def render_book(book_idx):
 
 def render_books(books):
     div = component('book_list')
-    if books is None:
+    if books is None or books is undefined:
         books = book_list_data.books
     for book_idx in books:
         child = render_book(book_idx)
