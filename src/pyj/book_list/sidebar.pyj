@@ -97,7 +97,7 @@ def create_sidebar():
     g1.appendChild(search_link)
     go_reader = def():
         show_panel('local_books')
-    reader_link = nav_link(_('Downloaded books'), go_reader, _('Read previously downloaded books'), icon='book')
+    reader_link = nav_link(_('Downloaded books'), go_reader, _('Read previously downloaded books'), icon='cloud-download')
     g1.appendChild(reader_link)
     left.appendChild(g1)
 
