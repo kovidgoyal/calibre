@@ -31,153 +31,197 @@ def create_button(text, icon=None, action=None, tooltip=None, highlight=False, d
         set_css(ans, font_size='larger', font_weight='bold')
     return ans
 
-# Modern button styling matching the content server UI
-create_button.style = build_rule('a.calibre-push-button',
-    display='inline-flex',
-    align_items='center',
-    gap='0.35rem',
-    padding='0.55ex 0.95em',
-    border_radius='999px',
-    border='1px solid rgba(0,0,0,0.12)',
-    background_color='rgba(0,0,0,0.02)',
-    color=get_color('window-foreground'),
-    cursor='pointer',
-    font_size='inherit',
-    font_weight='600',
-    text_decoration='none',
-    user_select='none',
-    white_space='nowrap',
-    transition='background 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease'
-)
-create_button.style += build_rule('a.calibre-push-button:hover',
-    background_color='var(--cs-accent-weak)',
-    border_color='rgba(0,0,0,0.14)',
-    box_shadow='0 8px 20px rgba(0,0,0,0.10)'
-)
-create_button.style += build_rule('a.calibre-push-button:active',
-    background_color='var(--cs-accent-weak-2)',
-    box_shadow='0 2px 8px rgba(0,0,0,0.12)'
-)
-create_button.style += build_rule('a.calibre-push-button:focus',
-    outline='none',
-    box_shadow='var(--cs-focus-ring)'
-)
-
-# Primary button variant (theme color)
-create_button.style += build_rule('a.calibre-push-button.cs-primary',
-    background_color='var(--primary-color)',
-    border_color='rgba(0,0,0,0.10)',
-    color='white'
-)
-create_button.style += build_rule('a.calibre-push-button.cs-primary:hover',
-    filter='brightness(0.96)',
-    box_shadow='0 10px 24px rgba(0,0,0,0.14)'
-)
-create_button.style += build_rule('a.calibre-push-button.cs-primary:active',
-    filter='brightness(0.90)',
-    box_shadow='0 4px 12px rgba(0,0,0,0.16)'
-)
-create_button.style += build_rule('a.calibre-push-button[aria-disabled="true"]',
-    opacity='0.5',
-    pointer_events='none'
-)
-# This is needed because of a bug in Firefox: https://bugs.launchpad.net/bugs/1881385
-create_button.style += build_rule('a.calibre-push-button:visited', color=get_color('window-foreground'))
 create_button.style += r'''
 @media (max-width: 420px) {
   #modal-container .button-box { flex-direction: column; align-items: stretch; }
   #modal-container .button-box > a.calibre-push-button { width: 100%; flex: 1 1 auto; justify-content: center; }
   #modal-container .button-box > a.calibre-push-button:only-of-type { margin-left: 0; }
-  a.calibre-push-button { max-width: 100%; white-space: normal; }
 }
 '''
-# }}}
-
-# Pager Button {{{
-
-def create_pager_button(is_prev, label, icon, onclick):
-    a = E.a(svgicon(icon), E.span(label), href='javascript:void(0)', class_='cs-pager-btn')
-    if label:
-        if is_prev:
-            a.classList.add('cs-pager-btn-prev')
-        else:
-            a.classList.add('cs-pager-btn-next')
-            # Next button: move span before svg so icon is on the right
-            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
-    a.addEventListener('click', def(evt):
-        evt.preventDefault()
-        onclick()
-    )
-    return a
-
-
-def set_pager_button_enabled(btn, enabled):
-    btn.setAttribute('aria-disabled', 'false' if enabled else 'true')
-
-
-create_pager_button.style = build_rule('a.cs-pager-btn',
-    display='inline-flex', align_items='center', gap='0.35rem',
-    padding='0.4rem 0.7rem', border_radius='999px',
-    border='1px solid rgba(0,0,0,0.10)',
-    background_color=get_color('window-background'),
-    color=get_color('window-foreground'),
-    cursor='pointer', user_select='none', text_decoration='none',
-    box_sizing='border-box', min_width='0', max_width='100%',
-)
-create_pager_button.style += build_rule('a.cs-pager-btn svg',
-    flex_shrink='0', width='1em', height='1em', display='block',
-)
-create_pager_button.style += build_rule('a.cs-pager-btn > span', min_width='0')
-create_pager_button.style += build_rule('a.cs-pager-btn:hover', background_color='var(--cs-accent-weak)')
-create_pager_button.style += build_rule('a.cs-pager-btn:active', transform='scale(0.99)')
-create_pager_button.style += build_rule('a.cs-pager-btn:focus', outline='none', box_shadow='var(--cs-focus-ring)')
-create_pager_button.style += build_rule('a.cs-pager-btn[aria-disabled="true"]', opacity='0.45', pointer_events='none')
-# Prev: content left-aligned; Next: content right-aligned. flex: 1 1 0 lets buttons
-# grow to fill their flex container so the alignment is visually apparent.
-create_pager_button.style += build_rule('a.cs-pager-btn.cs-pager-btn-prev',
-    justify_content='flex-start', flex='1 1 0')
-create_pager_button.style += build_rule('a.cs-pager-btn.cs-pager-btn-next',
-    justify_content='flex-end', flex='1 1 0')
-
 # }}}
 
 # Pager Widget {{{
 
 def create_pager_widget(on_prev, on_next):
+    def create_pager_button(is_prev, label, icon, onclick):
+        a = E.a(svgicon(icon), E.span(label), href='javascript:void(0)', class_='calibre-push-button')
+        if not is_prev:  # next button should have icon on the right
+            a.insertBefore(a.firstChild.nextSibling, a.firstChild)
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            onclick()
+        )
+        return a
+
     prev_btn = create_pager_button(True, _('Prev'), 'chevron-left', on_prev)
     next_btn = create_pager_button(False, _('Next'), 'chevron-right', on_next)
-    left = E.div(class_='cs-pager-widget-left')
-    left.appendChild(prev_btn)
-    left.appendChild(next_btn)
-    right = E.div(class_='cs-pager-widget-right')
-    container = E.div(class_='cs-pager-widget')
-    container.appendChild(left)
-    container.appendChild(right)
+    buttons_container = E.div(prev_btn, E.div(), next_btn, class_='bottom-row')
+    top_row = E.div(class_='top-row hidden')
+    middle_row = E.div(class_='middle-row hidden')
 
-    def set_enabled(prev_en, next_en):
-        set_pager_button_enabled(prev_btn, prev_en)
-        set_pager_button_enabled(next_btn, next_en)
+    container = E.div(
+        top_row,
+        E.hr(),
+        middle_row,
+        E.hr(),
+        buttons_container,
+        class_='calibre-pager-widget calibre-group-box',
+    )
+
+    def set_enabled(has_prev, has_next):
+        prev_btn.setAttribute('aria-disabled', 'false' if has_prev else 'true')
+        next_btn.setAttribute('aria-disabled', 'false' if has_next else 'true')
+        if has_prev or has_next:
+            buttons_container.classList.remove('hidden')
+        else:
+            buttons_container.classList.add('hidden')
+
+    def set_visible(which, visible):
+        if visible:
+            which.classList.remove('hidden')
+        else:
+            which.classList.add('hidden')
 
     return {
-        'container': container, 'left': left, 'right': right,
-        'prev_btn': prev_btn, 'next_btn': next_btn, 'set_enabled': set_enabled
+        'container': container, 'count_msg': buttons_container.firstChild.nextSibling,
+        'prev_btn': prev_btn, 'next_btn': next_btn, 'set_enabled': set_enabled,
+        'top_row': top_row, 'middle_row': middle_row,
+        'set_top_row_visibility': def(visible): set_visible(top_row, visible);,
+        'set_middle_row_visibility': def(visible): set_visible(middle_row, visible);,
     }
 
 
-create_pager_widget.style = build_rule('div.cs-pager-widget',
-    display='flex', align_items='center', justify_content='space-between',
-    gap='0.75rem', flex_wrap='wrap', min_width='0', width='100%',
-    box_sizing='border-box',
-)
-create_pager_widget.style += build_rule('div.cs-pager-widget-left',
-    display='flex', align_items='center', gap='0.5rem',
-    flex='1 1 auto', min_width='0', max_width='100%',
-)
-create_pager_widget.style += build_rule('div.cs-pager-widget-right',
-    display='flex', align_items='center', gap='0.5rem',
-    min_width='0', max_width='100%', justify_content='flex-end',
-)
+create_pager_widget.style = '''
+div.calibre-pager-widget {
+    display: flex;
+    flex-direction: column;
 
+    & > hr {
+        margin-top: 0.9ex; margin-bottom: 0.9ex;
+    }
+
+    & > .top-row {
+        display: flex;
+        overflow: hidden;
+        gap: 0.75rem;
+    }
+
+    & > .middle-row {
+        display: flex;
+        overflow: hidden;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    & > .bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        min-width: 0;
+        width: 100%;
+        box-sizing: border-box;
+
+        & > :first-child, & > :last-child {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        & > :first-child { justify-content: flex-start; }
+        & > :last-child { justify-content: flex-end; }
+        & > :nth-child(2) {
+            text-align: center;
+            display: block;
+            text-overflow: ellipsis;
+        }
+    }
+
+    & > .hidden {
+        display: none;
+        & + hr { display: none; }
+    }
+    & > hr:has(+ .hidden) { display: none; }
+
+}
+'''
+
+# }}}
+
+# Select {{{
+def create_select(title, current_value, **options):
+    sel = E.select(title=title)
+    for value, text in Object.entries(options):
+        sel.appendChild(E.option(text, value=value))
+    sel.value = current_value
+
+    container = E.div(
+        sel, E.span(svgicon('angle-down')),
+        data_component='select',
+    )
+    return container, sel
+
+create_select.style = '''
+div[data-component=select] {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    flex-shrink: 0;
+
+    & > select {
+        appearance: none;
+        margin: 0;
+        padding: 0.35rem 2.0em 0.35rem 0.65rem;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,0.10);
+        background-color: var(--calibre-color-window-background);
+        color: var(--calibre-color-window-foreground);
+        align-self: center;
+        box-sizing: border-box;
+
+        &:hover {
+            background-color: var(--primary-light);
+            border: 1px solid rgba(0,0,0,0.14);
+        }
+        &:focus {
+            outline: none;
+            border: 1px solid rgba(0,0,0,0.14);
+        }
+
+        & > option {
+            background-color: var(--calibre-color-window-background);
+            color: var(--calibre-color-input-foreground);
+            &:checked { outline-color: var(--primary-color); }
+            &:hover {
+                background-color: var(--calibre-color-window-background);
+                color: var(--primary-color);
+            }
+        }
+    }
+    & > span {
+        position: absolute;
+        right: 0.65em;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        opacity: 0.75;
+        color: currentColor;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        & > svg {
+            width: 1em;
+            height: 1em;
+            flex-shrink: 0;
+        }
+    }
+}
+'''
 # }}}
 
 # Spinner {{{
@@ -359,10 +403,10 @@ add_extra_css(def():
     # Use theme primary color for all "blue-link" links.
     ans += '.blue-link { cursor: pointer; color: var(--primary-color) } .blue-link:visited { color: var(--primary-color)} .blue-link:hover { color: var(--primary-color) } .blue-link:active { transform: scale(1.5) }\n'
     ans += create_button.style + '\n'
-    ans += create_pager_button.style + '\n'
     ans += create_pager_widget.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'
+    ans += create_select.style + '\n'
     # Chrome hardcodes the size of these to 13.3px. In safari on some devices
     # the font size is smaller than the body font size and small enough to
     # trigger page zooms. So set it to 1em so they scale with body font size.

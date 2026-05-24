@@ -34,8 +34,6 @@ add_extra_css(def():
     # Make the internal color swatch fill the rounded input
     style += r'''
 .cs-ui-settings input[type="color"]{
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   overflow: hidden;
   padding: 0;
@@ -66,17 +64,6 @@ add_extra_css(def():
     # Prefer shared cs-prefs spacing; keep help a little softer.
     style += build_rule(sel + '.help', opacity='0.75')
     style += build_rule('.cs-ui-settings.cs-prefs .help', display='block')
-    style += build_rule(sel + '.control select',
-        padding='0.55rem 0.75rem',
-        border_radius='12px',
-        border='1px solid rgba(0,0,0,0.12)',
-        background_color='rgba(0,0,0,0.02)',
-        color='var(--calibre-color-window-foreground)',
-        min_width='0',
-        max_width='100%',
-        width='100%',
-        box_sizing='border-box',
-    )
     # Tabs widget
     style += build_rule(sel + '.cs-tabs',
         width='100%',
@@ -205,13 +192,14 @@ def get_ui_prefs():
             'text': _('Color scheme'),
             'tooltip': _('Light or dark styling for the interface. Automatic follows your device or browser'),
             'choices': [('auto', _('Automatic')), ('dark', _('Dark')), ('light', _('Light'))],
+            'onchange': apply_book_list_theme,
         },
         {
             'name': 'ui_highlight_color',
             'text': _('Highlight color'),
             'tooltip': _('Used for primary buttons, links, focus rings, et cetera'),
             'type': 'color',
-            'onchange': def(): apply_book_list_theme();,
+            'onchange': apply_book_list_theme,
         },
         {
             'name': 'show_sidebar_in_viewer',

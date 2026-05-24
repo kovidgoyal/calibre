@@ -167,28 +167,8 @@ DEFAULT_FONTS = {
 }
 
 
-def hex_to_rgb(hexval):
-    if not hexval:
-        return None
-    s = (hexval + '').strip()
-    if s.startswith('#'):
-        s = s[1:]
-    if len(s) == 3:
-        s = ''.join([c + c for c in s])
-    if len(s) != 6:
-        return None
-    try:
-        r = int(s[:2], 16)
-        g = int(s[2:4], 16)
-        b = int(s[4:6], 16)
-        return (r, g, b)
-    except Exception:
-        return None
-
-
-
 def apply_primary_color(hexval):
-    rgb = hex_to_rgb(hexval)
+    rgb = parse_hex_color(hexval)
     if not rgb:
         return
     r, g, b = rgb
