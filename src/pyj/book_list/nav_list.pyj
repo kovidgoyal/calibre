@@ -185,23 +185,6 @@ tag_browser_cache = {}
 add_extra_css(def():
     sel = '.cs-nav-list '
     style = ''
-    style += build_rule(sel + '.cs-pager',
-        padding='0.75rem 1rem', margin='0.75rem 1rem 0.5rem 1rem',
-        border='1px solid rgba(0,0,0,0.10)', border_radius='14px',
-        background_color='rgba(0,0,0,0.02)',
-    )
-    style += build_rule(sel + 'input.cs-filter',
-        padding='0.45rem 0.7rem',
-        border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
-        background_color=get_color('window-background'),
-        color=get_color('window-foreground'),
-        box_sizing='border-box',
-        min_width='0',
-        flex='1 1 10rem',
-        max_width='min(22rem, 100%)',
-        width='auto',
-    )
     # Unified nav subtitle (so "Browse all ..." looks consistent across fields)
     style += build_rule(sel + '.cs-nav-subtitle',
         margin='0',
@@ -290,10 +273,9 @@ add_extra_css(def():
     style += build_rule(sel + '.cs-toggle',
         display='inline-flex',
         align_items='stretch',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='1px solid var(--cs-surface-border)',
         border_radius='999px',
         overflow='hidden',
-        background_color=get_color('window-background')
     )
     style += build_rule(sel + 'a.cs-toggle-btn',
         display='inline-flex', align_items='center', gap='0.35rem',
@@ -538,17 +520,12 @@ add_extra_css(def():
        max_height='100%',
        width='max-content',
     )
-    # Mobile layout: make filter usable
     style += r'''
-@media (max-width: 720px) {
-  .cs-nav-list .cs-pager {
-    padding: 0.75rem;
-    margin: 0.75rem 0.75rem 0.5rem 0.75rem;
-  }
   .cs-nav-list input.cs-filter {
     flex: 1 1 auto;
     width: 100%;
-    min-width: 0;
+    min-width: 9em;
+    width: 0;
   }
 }
 @media (max-width: 420px) {
@@ -631,32 +608,35 @@ def create_nav_list_panel(container_id):
         series_mode = sd.get('series_nav_display_mode', 'stack') or 'stack'
         body.dataset.seriesDisplay = series_mode
 
-    pager = E.div(class_='cs-pager')
-    body.appendChild(pager)
-    search_inp = E.input(
-        type='search',
-        placeholder=_('Filter…'),
-        value=query_text,
-        class_='cs-filter'
-    )
-    apply_btn = create_button(_('Apply'), icons='search', action=def():
-        nonlocal query_text
-        query_text = search_inp.value or ''
-        update_nav_list_url(field, 0, num, query_text, replace=True)
-    )
-    if field is not 'pubdate':
-        pager.appendChild(E.div(search_inp, apply_btn))
-        pager.appendChild(E.hr())
     top_pager_widget = create_pager_widget(
         def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
         def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
     )
-    pager.appendChild(top_pager_widget.container)
+    body.appendChild(E.div(top_pager_widget.container, style='margin: 0 0.75rem'))
     status = top_pager_widget.count_msg
+    if field is not 'pubdate':
+        search_inp = E.input(
+            type='search',
+            placeholder=_('Filter…'),
+            value=query_text,
+            class_='cs-filter'
+        )
+        search_inp.addEventListener('keydown', def(ev):
+            if ev.key is 'Enter':
+                ev.preventDefault()
+                apply_btn.click()
+        )
+        apply_btn = create_button(_('Apply'), icons='search', action=def():
+            nonlocal query_text
+            query_text = search_inp.value or ''
+            update_nav_list_url(field, 0, num, query_text, replace=True)
+        )
+        top_pager_widget.middle_row.appendChild(search_inp)
+        top_pager_widget.middle_row.appendChild(apply_btn)
 
-    # Grouping toggle for Published date panel
-    group_toggle = None
+
     if field is 'pubdate':
+        # Grouping toggle for Published date panel
         group_toggle = E.div(style='display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap')
         group_toggle.appendChild(E.span(_('Group:'), style='opacity:0.75'))
         seg = E.div(class_='cs-toggle')
@@ -674,13 +654,15 @@ def create_nav_list_panel(container_id):
         seg.appendChild(toggle_btn(_('Year'), 'y'))
         seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
         group_toggle.appendChild(seg)
-        top_pager_widget.left.appendChild(group_toggle)
+        top_pager_widget.middle_row.appendChild(group_toggle)
+
+    top_pager_widget.set_middle_row_visibility(True)
     list_wrap = E.div(class_='cs-list-wrap')
     body.appendChild(list_wrap)
     nav_subtitle = E.p('', class_='cs-nav-subtitle')
     nav_subtitle.style.display = 'none'
     list_container = E.div(class_='cs-list-content')
-    bottom_pager = E.div(class_='cs-pager', style='display:none; margin-bottom:1rem')
+    bottom_pager = E.div(style='display:none; margin: 0 0.75rem')
     overlay = E.div(class_='cs-loading-overlay', svgicon('cog'), E.span('\xa0' + _('Loading…')))
     list_wrap.appendChild(nav_subtitle)
     list_wrap.appendChild(list_container)
@@ -1175,13 +1157,5 @@ def create_nav_list_panel(container_id):
         else:
             set_loading(True)
             field_names_for(field, render)
-
-    if field is not 'pubdate':
-        search_inp.addEventListener('keydown', def(ev):
-            if ev.key is 'Enter':
-                ev.preventDefault()
-                apply_btn.click()
-        )
-
 
 set_panel_handler('nav_list', create_nav_list_panel)

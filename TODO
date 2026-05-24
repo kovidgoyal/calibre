@@ -1,29 +1,24 @@
-1) the book list and nav list have different headers behavior. In the former
-the top info and prev next buttons scroll with the books in the latter they do not.
-They should scroll with books in both cases. Also there should be prev/next buttons at the bottom as well.
+cover grid/local books move cover size control into list view header rather than global footer dock
 
-2) cover grid move cover size control into list view header rather than global footer dock
+Clicking back after browsing books in a category does not take us to nav_list page
 
-3) Clicking back after browsing books in a category does not take us to nav_list page
-
-4) The buttons in dark mode are a little hard to make out. Maybe make
-their border color contrast more. Similarly why a dull green for
-link/highlight color? Blue is more generally recognized and used in the
-calibre UI itself.
-
-6) New category is confusingly named. From what I can tell its basically
+New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books? Calling it Virtual
 library will mean calibre users will be more likely to understand what
 it is. Also perhaps add a line of text to it explaining what it does.
 
-7) There appears to be no way to add custom columns (user created
+There appears to be no way to add custom columns (user created
 columns) to the browse section. This should be added in system or ui
 settings. You can see code for how to implement this in
 bookshelf_view.py, see get_grouped_iterator() It would need to be ported
 to RapydScript, of course.
 
-10) The scrollbars in dark mode have very low contrast
+The scrollbars in dark mode have very low contrast
 
-11) There should be a way to add some quick actions or alternatively
+There should be a way to add some quick actions or alternatively
 simply remove that section from the sidebar and instead put the plus and
 random in the top bar.
+
+Viewer UI needs to be re styled to match overall server UI
+
+Review appearance of all pages in light mode as well
