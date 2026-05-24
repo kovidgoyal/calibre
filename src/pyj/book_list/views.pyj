@@ -387,19 +387,20 @@ def save_to_custom_category():
     )
 
 
-def show_top_message(container):
-    def icon_action(icon_name, tooltip, action):
-        return E.a(
-            svgicon(icon_name),
-            class_='calibre-icon-button',
-            style='margin-left: 0.4em',
-            href='javascript:void(0)',
-            title=tooltip,
-            onclick=def(evt):
-                evt.preventDefault()
-                action()
-        )
+def icon_action(icon_name, tooltip, action):
+    return E.a(
+        svgicon(icon_name),
+        class_='calibre-icon-button',
+        style='margin-left: 0.4em',
+        href='javascript:void(0)',
+        title=tooltip,
+        onclick=def(evt):
+            evt.preventDefault()
+            action()
+    )
 
+
+def show_top_message(container):
     q = loaded_books_query()
     if not q.search and not q.vl:
         return False
