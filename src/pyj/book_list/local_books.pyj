@@ -208,7 +208,6 @@ def create_books_list(container, books):
         return
 
     pager = E.div(data_component='pager')
-    pager.classList.add('cs-book-pager')
     toolbar_el = E.div()
     pager.appendChild(toolbar_el)
     populate_book_list_toolbar(toolbar_el, False, apply_view_mode)
