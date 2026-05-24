@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 from book_list.local_books import (
     matching_book_indices_for_query, metadata_search_text,
-    normalize_local_search_query,
+    normalize_local_search_query
 )
 from testing import assert_equal, test
 
