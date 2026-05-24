@@ -2098,10 +2098,16 @@ class DB:
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         if pattern:
             from pathlib import Path
+            try:
+                path_from_root(full_book_path, pattern, case_sensitive=self.is_case_sensitive)
+            except ValueError:
+                return
             def iterator():
                 p = Path(full_book_path)
                 for x in p.glob(pattern):
-                    yield str(x)
+                    path = str(x)
+                    if is_path_inside(full_book_path, path, case_sensitive=self.is_case_sensitive):
+                        yield path
         else:
             def iterator():
                 for dirpath, dirnames, filenames in os.walk(full_book_path):

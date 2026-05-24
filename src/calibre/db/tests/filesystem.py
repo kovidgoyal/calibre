@@ -179,11 +179,20 @@ class FilesystemTest(BaseTest):
             cache.copy_extra_file_to(1, bad_relpath, buf)
         self.assertEqual(buf.getvalue(), b'')
 
-        cache.add_extra_files(1, {'safe': BytesIO(b'safe')})
+        cache.add_extra_files(1, {'safe': BytesIO(b'safe'), 'data/inside': BytesIO(b'inside')})
         self.assertEqual(cache.rename_extra_files(1, {bad_relpath: 'moved'}), set())
         self.assertEqual(cache.rename_extra_files(1, {'safe': bad_relpath}), set())
         self.assertEqual(read(victim, 'rb'), b'outside')
-        self.assertEqual({e.relpath for e in cache.list_extra_files(1)}, {'safe'})
+
+        def listed(pattern):
+            return {e.relpath for e in cache.list_extra_files(1, use_cache=False, pattern=pattern)}
+
+        self.assertEqual(listed('data/**/*'), {'data/inside'})
+        sibling_pattern = '../' + os.path.basename(sibling) + '/*'
+        for pattern in (sibling_pattern, 'data/../../' + os.path.basename(sibling) + '/*',
+                        sibling_pattern.replace('/', '\\'), os.path.join(sibling, '*')):
+            self.assertEqual(listed(pattern), set())
+        self.assertEqual({e.relpath for e in cache.list_extra_files(1)}, {'safe', 'data/inside'})
 
         self.assertEqual(cache.remove_extra_files(1, [bad_relpath], permanent=True), {})
         self.assertEqual(read(victim, 'rb'), b'outside')
