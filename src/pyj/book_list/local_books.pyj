@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from dom import unique_id
 from elementmaker import E
 from gettext import gettext as _, ngettext
 
@@ -285,18 +286,17 @@ def apply_view_mode(mode):
 def create_search_box():
     box = E.div(data_component='search_box', style='width: 100%; display: flex; align-items: center; gap: 0.65rem')
     search = E.input(
-        type='search', name='search-downloaded-books', value=book_list_data.search_query,
+        type='search', id=unique_id(), value=book_list_data.search_query,
         placeholder=_('Search downloaded books'), title=_('Search downloaded books'), autocomplete='off',
         style='width: 0; flex-grow: 1',
     )
+    sid = search.id
     search.addEventListener('input', def(event): apply_search(this.value);)
     box.appendChild(search)
-    sb = icon_action('search', _('Search'), def():apply_search(this.previousSibling.value);)
+    sb = icon_action('search', _('Search'), def():apply_search(document.getElementById(sid).value);)
     sb.style.marginLeft = 'auto'
-    sb.style.paddingTop = '0.2em'
-    sb.style.paddingBottom = '0.2em'
-    sb.style.paddingLeft = '0.2em'
-    sb.style.paddingRight = '0.2em'
+    sb.tabindex = '-1'
+    sb.addEventListener('mousedown', def (evt): evt.preventDefault();)
     box.appendChild(sb)
     return box
 
