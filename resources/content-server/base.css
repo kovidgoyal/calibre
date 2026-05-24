@@ -174,7 +174,7 @@ input[type="checkbox"], input[type="radio"] {
     width: 1.2em; height: 1.2em;
 }
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], input[type="search"] {
     padding: 0.55em 0.75em;
     border-radius: 999px;
     border: solid 1px var(--cs-surface-border);
