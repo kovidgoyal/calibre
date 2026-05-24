@@ -69,7 +69,7 @@ a.calibre-icon-button {
     align-items: center;
     justify-content: center;
     width: 1.9em; height: 1.9em;
-    border: 1px solid rgba(0,0,0,0.10);
+    border: 1px solid var(--cs-surface-border);
     border-radius: 999px;
     color: currentColor;
 
@@ -98,7 +98,7 @@ a.calibre-push-button {
     gap: 0.35em;
     padding: 0.55ex 0.95em;
     border-radius: 999px;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid var(--cs-surface-border);
     cursor: pointer;
     font-size: inherit;
     font-weight: 600;
@@ -169,7 +169,23 @@ textarea:focus, select:focus {
 }
 
 /* Checkbox/Radio: selected state */
-input[type="checkbox"], input[type="radio"] { accent-color: var(--primary-color); }
+input[type="checkbox"], input[type="radio"] {
+    accent-color: var(--primary-color);
+    width: 1.2em; height: 1.2em;
+}
+
+input[type="text"], input[type="number"] {
+    padding: 0.55em 0.75em;
+    border-radius: 999px;
+    border: solid 1px var(--cs-surface-border);
+    background-color: var(--cs-surface-3);
+    color: var(--calibre-color-window-foreground);
+    box-sizing: border-box;
+    &:hover {
+        border-color: var(--cs-surface-border-strong);
+        background-color: var(--primary-light);
+    }
+}
 
 select, ::picker(select) {
   appearance: base-select;
@@ -191,9 +207,9 @@ input, textarea {
 div.calibre-group-box {
     padding: 0.75rem 1rem;
     margin-top: 0.75em; margin-bottom: 0.75em;
-    border: 1px solid rgba(0, 0, 0, 0.10);
+    border: solid 1px var(--cs-surface-border);
     border-radius: 14px;
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: var(--cs-surface-1);
 
     @media (max-width: 720px) { padding: 0.75rem; }
 }

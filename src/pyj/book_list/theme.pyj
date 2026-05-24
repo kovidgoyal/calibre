@@ -179,10 +179,6 @@ def apply_primary_color(hexval):
     de.style.setProperty('--primary-color', v)
     de.style.setProperty('--primary-light', f'rgba({r},{g},{b},0.18)')
     de.style.setProperty('--primary-light-2', f'rgba({r},{g},{b},0.28)')
-    # Stronger glows for page background tinting
-    de.style.setProperty('--primary-glow-1', f'rgba({r},{g},{b},0.42)')
-    de.style.setProperty('--primary-glow-2', f'rgba({r},{g},{b},0.26)')
-
 
 
 def set_ui_colors(is_dark_theme):
