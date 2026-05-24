@@ -198,9 +198,6 @@ div.calibre-group-box {
     @media (max-width: 720px) { padding: 0.75rem; }
 }
 
-/* Loading / spinner color */
-.spin, .cs-book-loading-overlay svg, .cs-bd-loading-overlay svg, .cs-nav-list .cs-loading-overlay svg { color: var(--primary-color); }
-
 /* Progress bars */
 progress { accent-color: var(--primary-color); }
 progress::-webkit-progress-value { background-color: var(--primary-color); }
