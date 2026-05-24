@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 from dom import clear, ensure_id, add_extra_css, build_rule
 from elementmaker import E
-from widgets import create_button
+from widgets import create_button, create_select
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
@@ -100,7 +100,7 @@ add_extra_css(def():
         overflow_wrap='anywhere',
         word_break='break-word',
     )
-    style += build_rule(sel + '.control select,' + sel + '.control input[type="text"],' + sel + '.control input[type="number"]',
+    style += build_rule(sel + '.control input[type="text"],' + sel + '.control input[type="number"]',
         padding='0.55rem 0.75rem',
         border_radius='12px',
         border='1px solid rgba(0,0,0,0.12)',
@@ -181,7 +181,10 @@ class ConfigItem:
     def ui_value_changed(self):
         if self.ignore_ui_value_changed:
             return
-        self.to_storage(self.from_ui())
+        val = self.from_ui()
+        self.to_storage(val)
+        if self.item_data.onchange:
+            self.item_data.onchange(val)
 
     def reset_to_default(self):
         self.to_ui(self.defval())
@@ -197,25 +200,31 @@ class Choices(ConfigItem):
 
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
+        options = {}
+        for choice, text in item_data.choices:
+            options[choice] = text
+        c, select = create_select(item_data.text, '', **options)
         div = E.div(
             id=self.widget_id,
             E.span(item_data.text, class_='label'),
-            E.select(required='1')
+            c
         )
         div.classList.add('control')
         container.appendChild(div)
-        select = div.lastChild
-        for choice, text in item_data.choices:
-            select.appendChild(E.option(text, value=choice))
         select.addEventListener('change', self.ui_value_changed.bind(self))
         select.addEventListener('focus', onfocus)
         div.addEventListener('click', onfocus)
+
+    @property
+    def control(self):
+        return self.container.getElementsByTagName('select')[0]
 
     def to_ui(self, val):
         self.control.value = val
 
     def from_ui(self):
         return self.control.value
+
 
 class CheckBox(ConfigItem):
 
@@ -314,13 +323,6 @@ class ColorEdit(ConfigItem):
         control.addEventListener('input', self.ui_value_changed.bind(self))
         control.addEventListener('focus', onfocus)
         div.addEventListener('click', onfocus)
-
-    def ui_value_changed(self):
-        if self.ignore_ui_value_changed:
-            return
-        self.to_storage(self.from_ui())
-        if self.item_data.onchange:
-            self.item_data.onchange()
 
     def to_ui(self, val):
         self.control.value = val or ''
