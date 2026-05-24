@@ -53,16 +53,107 @@ body {
 .cs-surface-3 { background: var(--cs-surface-3); border: 1px solid var(--cs-surface-border-strong); }
 
 /* Link styling: clear, modern, consistent */
-a { color: var(--primary-color); text-decoration: none; text-underline-offset: 0.18em; text-decoration-thickness: 0.08em; }
-a:visited { color: var(--primary-color); opacity: 0.92; }
-a:hover { text-decoration: underline; }
-a:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
-[data-component="book_list"] a { color: currentColor; }
-[data-component="book_list"] a:visited { color: currentColor; }
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 0.08em;
 
+    &:visited { color: var(--primary-color); opacity: 0.92; }
+    &:hover { text-decoration: underline; }
+    &:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
+}
+
+a.calibre-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9em; height: 1.9em;
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 999px;
+    color: currentColor;
+
+    &:visited {
+        opacity: 1; color: var(--calibre-color-window-foreground);
+    }
+    &:hover {
+        background-color: var(--primary-light);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        text-decoration: none;
+    }
+    &:active {
+        background-color: var(--primary-light-2);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    &[aria-disabled="true"] {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+a.calibre-push-button {
+    display: inline-flex;
+    align-items: center;
+    color: currentColor;
+    gap: 0.35em;
+    padding: 0.55ex 0.95em;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.12);
+    cursor: pointer;
+    font-size: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    user-select: none;
+    white-space: nowrap;
+    transition: background 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease;
+    max-width: 100%;
+    overflow: hidden;
+
+    @media (max-width: 420px) {
+        white-space: normal;
+    }
+
+    & > svg {
+        flex-shrink: 0;
+        width: 1em;
+        height: 1em;
+        display: block;
+    }
+
+    & > span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &:visited {
+        opacity: 1; color: var(--calibre-color-window-foreground);
+    }
+    &:hover {
+        background-color: var(--primary-light);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.10);
+        text-decoration: none;
+    }
+    &:active {
+        background-color: var(--primary-light-2);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    &[aria-disabled="true"] {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
+
+hr {
+    height: 1px;
+    background-color: rgba(0,0,0,0.12);
+    border-radius: 999px;
+    margin: 0;
+    border-width: 0;
+}
 
 /* Do not underline button-like links */
-a.calibre-push-button:hover, a.cs-pager-btn:hover, a.cs-toggle-btn:hover, .cs-left-nav a:hover, .main-top-bar a:hover, .cs-book-list-toolbar a:hover { text-decoration: none; }
+.cs-left-nav a:hover, .main-top-bar a:hover, .cs-book-list-toolbar a:hover { text-decoration: none; }
 
 ::selection { background: var(--primary-light-2); }
 
@@ -91,28 +182,20 @@ select, ::picker(select) {
   padding: 5px;
 }
 
-input, textarea, select {
+input, textarea {
     color: var(--calibre-color-input-foreground);
     background-color: var(--calibre-color-input-background);
+    &:focus { outline-color: var(--calibre-color-input-focus-outline-color); }
 }
 
-select option {
-    background-color: var(--calibre-color-window-background);
-    color: var(--calibre-color-input-foreground);
-}
+div.calibre-group-box {
+    padding: 0.75rem 1rem;
+    margin-top: 0.75em; margin-bottom: 0.75em;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-radius: 14px;
+    background-color: rgba(0, 0, 0, 0.02);
 
-select option:checked {
-    outline-color: var(--primary-color);
-}
-
-select option:hover {
-    background-color: var(--calibre-color-input-background);
-    color: var(--primary-color);
-}
-
-
-input:focus, textarea:focus, select:focus {
-    outline-color: var(--calibre-color-input-focus-outline-color);
+    @media (max-width: 720px) { padding: 0.75rem; }
 }
 
 /* Loading / spinner color */
@@ -348,7 +431,6 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     max-width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: none;
     overscroll-behavior-y: contain;
     touch-action: pan-y pinch-zoom;
