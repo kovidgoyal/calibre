@@ -177,7 +177,7 @@ div[data-component=select] {
         margin: 0;
         padding: 0.35rem 2.0em 0.35rem 0.65rem;
         border-radius: 999px;
-        border: 1px solid rgba(0,0,0,0.10);
+        border: 1px solid var(--cs-surface-border);
         background-color: var(--calibre-color-window-background);
         color: var(--calibre-color-window-foreground);
         align-self: center;
@@ -185,11 +185,11 @@ div[data-component=select] {
 
         &:hover {
             background-color: var(--primary-light);
-            border: 1px solid rgba(0,0,0,0.14);
+            border: 1px solid var(--cs-surface-border-strong);
         }
         &:focus {
             outline: none;
-            border: 1px solid rgba(0,0,0,0.14);
+            border: 1px solid var(--cs-surface-border);
         }
 
         & > option {

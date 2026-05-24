@@ -10,7 +10,6 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.top_bar import create_top_bar
 from book_list.router import back
-from book_list.theme import get_color
 
 pp_counter = 0
 widget_counter = 0
@@ -101,20 +100,10 @@ add_extra_css(def():
         word_break='break-word',
     )
     style += build_rule(sel + '.control input[type="text"],' + sel + '.control input[type="number"]',
-        padding='0.55rem 0.75rem',
-        border_radius='12px',
-        border='1px solid rgba(0,0,0,0.12)',
-        background_color='rgba(0,0,0,0.02)',
-        color=get_color('window-foreground'),
         min_width='0',
         max_width='100%',
         width='100%',
-        box_sizing='border-box',
         flex='1 1 auto',
-    )
-    style += build_rule(sel + '.control input[type="checkbox"]',
-        width='18px',
-        height='18px'
     )
     style += build_rule(sel + '.help',
         margin_top='0.65rem',
