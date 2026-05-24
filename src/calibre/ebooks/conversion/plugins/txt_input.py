@@ -6,6 +6,7 @@ import os
 
 from calibre import walk, xml_replace_entities
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
@@ -26,6 +27,16 @@ MD_EXTENSIONS = {
     'toc': _('Generate a table of contents'),
     'wikilinks': _('Wiki style links'),
 }
+
+TXTZ_FORMATTING_FOR_EXTENSION = {'md': 'markdown', 'markdown': 'markdown', 'textile': 'textile'}
+
+
+def txtz_file_ext(path):
+    return os.path.splitext(path)[1].lower().lstrip('.')
+
+
+def txtz_formatting_for_extension(file_ext):
+    return TXTZ_FORMATTING_FOR_EXTENSION.get(file_ext.lower().lstrip('.'))
 
 
 class TXTInput(InputFormatPlugin):
@@ -158,8 +169,8 @@ class TXTInput(InputFormatPlugin):
             zf.extractall('.')
 
             for x in walk('.'):
-                ext = os.path.splitext(x)[1].lower()
-                if ext in ('.txt', '.text', '.textile', '.md', '.markdown'):
+                ext = txtz_file_ext(x)
+                if ext in {'txt', 'text', 'textile', 'md', 'markdown'}:
                     file_ext = ext
                     with open(x, 'rb') as tf:
                         txt += tf.read() + b'\n\n'
@@ -182,14 +193,12 @@ class TXTInput(InputFormatPlugin):
                                 options.paragraph_type = 'off'
                     crelpath = root.find('cover-relpath-from-base')
                     if crelpath is not None and crelpath.text:
-                        cover_path = os.path.abspath(crelpath.text)
+                        cover_path = crelpath.text
 
             if options.formatting_type == 'auto':
-                if file_ext == 'textile':
-                    options.formatting_type = txt_formatting
-                    options.paragraph_type = 'off'
-                elif file_ext in ('md', 'markdown'):
-                    options.formatting_type = txt_formatting
+                formatting_type = txtz_formatting_for_extension(file_ext)
+                if formatting_type:
+                    options.formatting_type = formatting_type
                     options.paragraph_type = 'off'
         else:
             if getattr(stream, 'name', None):
@@ -336,13 +345,13 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         meta_info_to_oeb_metadata(input_mi, oeb.metadata, log)
         self.html_postprocess_title = input_mi.title
-        if cover_path and os.path.exists(cover_path):
-            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
-                cdata = cf.read()
-            cover_name = os.path.basename(cover_path)
-            id, href = oeb.manifest.generate('cover', cover_name)
-            oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
-            oeb.guide.add('cover', 'Cover', href)
+        if cover_path:
+            cover_data = archive_file_data(base_dir, cover_path)
+            if cover_data is not None:
+                cover_name, cdata = cover_data
+                id, href = oeb.manifest.generate('cover', cover_name)
+                oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
+                oeb.guide.add('cover', 'Cover', href)
 
         return oeb
 
@@ -352,3 +361,24 @@ class TXTInput(InputFormatPlugin):
                 for title in item.data.xpath('//*[local-name()="title"]'):
                     if title.text == _('Unknown'):
                         title.text = self.html_postprocess_title
+
+
+def find_tests():
+    import unittest
+
+    class TXTInputTest(unittest.TestCase):
+
+        def test_txtz_extension_formatting(self):
+            self.assertEqual(txtz_file_ext('book.md'), 'md')
+            self.assertEqual(txtz_file_ext('book.MARKDOWN'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('.md'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('markdown'), 'markdown')
+            self.assertEqual(txtz_formatting_for_extension('.textile'), 'textile')
+            self.assertIsNone(txtz_formatting_for_extension('.txt'))
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TXTInputTest)
+
+
+if __name__ == '__main__':
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
