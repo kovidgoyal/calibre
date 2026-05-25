@@ -16,7 +16,7 @@ from complete import create_search_bar
 from dom import add_extra_css, clear, set_css, svgicon
 from gettext import gettext as _
 from modals import create_custom_dialog, error_dialog, info_dialog, question_dialog
-from widgets import create_button, create_spinner
+from widgets import create_spinner
 
 overall_container_id = ''
 current_fts_query = {}
@@ -117,11 +117,10 @@ def build_search_page():
     # search input container
     container = component('search')
     clear(container)
-    search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
-    search_bar = create_search_bar(execute_search_interactive, 'search-books-fts', tooltip=_('Search for books'), placeholder=_('Enter words to search for'), button=search_button)
+    search_bar = create_search_bar(execute_search_interactive, 'search-books-fts', tooltip=_('Search for books'), placeholder=_('Enter words to search for'), button='icon-button')
     set_css(search_bar, flex_grow='10', margin_right='0.5em')
     search_bar.dataset.component = 'query'
-    container.appendChild(E.div(style="display: flex; width: 100%; align-items: center", svgicon('fts'), E.span('\xa0'), search_bar, search_button))
+    container.appendChild(search_bar)
     sd = get_session_data()
     related_words = E.label(E.input(
         type="checkbox", data_component="related_words", checked=bool(sd.get('fts_related_words'))),
