@@ -13,9 +13,6 @@ in srv/code.py
 
 The scrollbars in dark mode have very low contrast
 
-Remove the quick actions form the sidebar. Put the plus and random in the top
-bar at the right on the book list pages.
-
 Viewer UI needs to be re styled to match overall server UI
 
 Review appearance of all pages in light and dark mode
