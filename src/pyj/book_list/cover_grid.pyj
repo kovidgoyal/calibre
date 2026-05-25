@@ -6,9 +6,7 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.constants import book_list_container_id
 from book_list.globals import get_session_data
-from book_list.router import is_reading_book
 
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
@@ -18,14 +16,6 @@ COVER_GRID_PCT_DEFAULT = Math.round(100 * COVER_GRID_VIEWPORT_FRAC)
 # Viewport percentage (slider): ~8% = many columns, ~45% = large tiles / few columns.
 COVER_GRID_PCT_MIN = 8
 COVER_GRID_PCT_MAX = 45
-GRID_SIZE_DOCK_ID = 'cs-cover-grid-size-dock'
-
-
-def current_book_list_panel_id():
-    c = document.getElementById(book_list_container_id)
-    if not c or not c.dataset:
-        return ''
-    return c.dataset.panel or ''
 
 
 THUMBNAIL_MAX_WIDTH = 3 * 85
@@ -120,21 +110,6 @@ def ensure_cover_grid_resize_listener():
     window.addEventListener('resize', on_resize, False)
 
 
-def sync_cover_grid_size_dock(mode):
-    if is_reading_book():
-        hide_cover_grid_size_dock()
-        return
-    panel = current_book_list_panel_id()
-    # Only the main book list / downloaded-books list show the grid; sub-panels replace content.
-    list_ok = panel is 'book_list' or panel is 'local_books'
-    bl = document.getElementById(book_list_container_id)
-    bl_visible = bl and bl.style.display is not 'none'
-    if mode is 'cover_grid' and list_ok and bl_visible:
-        ensure_cover_grid_size_dock()
-    else:
-        hide_cover_grid_size_dock()
-
-
 def on_cover_grid_size_input(ev):
     v = parseFloat(ev.target.value)
     if v != v:
@@ -145,39 +120,32 @@ def on_cover_grid_size_input(ev):
     apply_cover_grid_pct_css()
 
 
-def build_cover_grid_size_dock():
+def sync_cover_grid_size_control(control, mode):
+    if not control:
+        return
+    r = control.querySelector('.cs-cover-grid-size-range')
+    if r:
+        r.value = str(get_cover_grid_pct())
+    if mode is 'cover_grid':
+        ensure_cover_grid_resize_listener()
+        apply_cover_grid_pct_css()
+        set_css(control, display='inline-flex')
+    else:
+        set_css(control, display='none')
+
+
+def create_cover_grid_size_control(mode):
     lab = E.span(class_='cs-cover-grid-size-label')
     lab.textContent = _('Cover size')
     r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='0.025')
     r.value = str(get_cover_grid_pct())
     r.title = _('Adjust cover grid tile size')
     r.addEventListener('input', on_cover_grid_size_input)
-    dock = E.div(lab, r, id=GRID_SIZE_DOCK_ID, class_='cs-cover-grid-size-dock')
-    dock.setAttribute('role', 'region')
-    dock.setAttribute('aria-label', _('Cover grid size'))
-    return dock
-
-
-def ensure_cover_grid_size_dock():
-    el = document.getElementById(GRID_SIZE_DOCK_ID)
-    if not el:
-        el = build_cover_grid_size_dock()
-        document.body.appendChild(el)
-    else:
-        r = el.querySelector('.cs-cover-grid-size-range')
-        if r:
-            r.value = str(get_cover_grid_pct())
-    ensure_cover_grid_resize_listener()
-    apply_cover_grid_pct_css()
-    set_css(el, display='flex')
-    document.documentElement.classList.add('cs-cover-grid-dock-visible')
-
-
-def hide_cover_grid_size_dock():
-    el = document.getElementById(GRID_SIZE_DOCK_ID)
-    if el:
-        set_css(el, display='none')
-    document.documentElement.classList.remove('cs-cover-grid-dock-visible')
+    control = E.div(lab, r, class_='cs-cover-grid-size-control')
+    control.setAttribute('role', 'group')
+    control.setAttribute('aria-label', _('Cover grid size'))
+    sync_cover_grid_size_control(control, mode)
+    return control
 
 
 def cover_grid_thumb_size():
@@ -205,7 +173,7 @@ def cover_grid_css():
     sel = grid_root
     item_sel = sel + ' > a'
     margin_unit = 'px'
-    ans = ':root { --cs-cover-grid-pct: %s; --cs-cover-grid-dock-height: 3.25rem; }\n' % COVER_GRID_PCT_DEFAULT
+    ans = ':root { --cs-cover-grid-pct: %s; }\n' % COVER_GRID_PCT_DEFAULT
     # NOTE: overflow must be visible so cover shadows are not clipped.
     # Tile px, column count, and column-gap are set from JS (sync_cover_grid_tile_px).
     ans += '.book-list-cover-grid { --cs-cover-tile-px: 120px; }\n'
@@ -312,37 +280,25 @@ def cover_grid_css():
         display='block',
         object_fit='cover'
     )
-    # Bottom dock: slider to resize grid (cover grid mode only; shown via JS).
-    ans += build_rule('.cs-cover-grid-size-dock',
-        display='none',
-        position='fixed',
-        bottom='0',
-        left='var(--cs-sidebar-width, 240px)',
-        right='0',
-        z_index='60',
-        box_sizing='border-box',
-        min_height='var(--cs-cover-grid-dock-height, 3.25rem)',
+    ans += build_rule('.cs-cover-grid-size-control',
+        display='inline-flex',
         align_items='center',
         gap='0.65rem',
-        flex_wrap='nowrap',
-        padding='0.35rem 0.85rem',
-        padding_bottom='calc(0.35rem + env(safe-area-inset-bottom, 0px))',
-        background='var(--calibre-color-window-background)',
-        border_top='1px solid var(--cs-surface-border)',
-        color='inherit',
+        flex='1 1 15rem',
+        min_width='min(100%, 13rem)',
+        max_width='24rem',
+        box_sizing='border-box',
     )
-    ans += build_rule('.cs-cover-grid-size-dock .cs-cover-grid-size-label',
+    ans += build_rule('.cs-cover-grid-size-control .cs-cover-grid-size-label',
         font_size='0.88rem',
         font_weight='600',
         opacity='0.88',
         white_space='nowrap',
         flex_shrink='0',
     )
-    ans += build_rule('.cs-cover-grid-size-dock .cs-cover-grid-size-range',
+    ans += build_rule('.cs-cover-grid-size-control .cs-cover-grid-size-range',
         flex='1 1 auto',
         min_width='3rem',
-        width='auto',
-        max_width='32rem',
         margin='0',
     )
     return ans

@@ -11,7 +11,7 @@ from book_list.add import add_books_panel
 from book_list.cover_grid import (
     append_item as cover_grid_append_item, cover_grid_css,
     create_item as create_cover_grid_item, description as COVER_GRID_DESCRIPTION,
-    init as init_cover_grid, sync_cover_grid_size_dock
+    init as init_cover_grid, create_cover_grid_size_control, sync_cover_grid_size_control
 )
 from book_list.custom_list import (
     append_item as custom_list_append_item, create_item as create_custom_list_item,
@@ -203,7 +203,7 @@ def apply_view_mode(mode=DEFAULT_MODE):
         book_list_data.shown_book_ids = set()
         clear_grid()
         render_ids()
-    sync_cover_grid_size_dock(mode)
+    return mode
 
 
 # More button {{{
@@ -442,27 +442,42 @@ def clear_book_list_inner(inner):
         clear(inner)
 
 
-def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=None):
+def create_optional_cover_grid_size_control(mode):
+    try:
+        return create_cover_grid_size_control(mode)
+    except Exception as err:
+        console.warn('Failed to create cover grid size toolbar control')
+        console.warn(err)
+
+
+def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=None, initial_mode=None):
     if not toolbar_el:
         return
     clear(toolbar_el)
-    try:
-        current_mode = get_view_mode()
-        mode_wrap, mode_sel = create_select(
-            _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
-            details_list=_('Detailed list'), custom_list=_('Custom list'))
-        mode_sel.addEventListener('change', def(ev):
-            m = mode_sel.value
-            if m and m is not get_view_mode():
-                get_session_data().set('view_mode', m)
-                if on_view_mode_change:
-                    on_view_mode_change(m)
-                else:
-                    apply_view_mode(m)
-        )
-        toolbar_el.appendChild(mode_wrap)
-    except Exception:
-        pass
+    cover_grid_size_control = None
+    current_mode = initial_mode or get_view_mode()
+    mode_wrap, mode_sel = create_select(
+        _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
+        details_list=_('Detailed list'), custom_list=_('Custom list'))
+    mode_sel.dataset.currentMode = current_mode
+    mode_sel.addEventListener('change', def(ev):
+        requested_mode = mode_sel.value
+        current_mode = mode_sel.dataset.currentMode
+        if requested_mode and requested_mode is not current_mode:
+            get_session_data().set('view_mode', requested_mode)
+            if on_view_mode_change:
+                current_mode = on_view_mode_change(requested_mode) or requested_mode
+            else:
+                current_mode = apply_view_mode(requested_mode) or requested_mode
+            mode_sel.dataset.currentMode = current_mode
+            mode_sel.value = current_mode
+            if cover_grid_size_control:
+                sync_cover_grid_size_control(cover_grid_size_control, current_mode)
+    )
+    toolbar_el.appendChild(mode_wrap)
+    cover_grid_size_control = create_optional_cover_grid_size_control(current_mode)
+    if cover_grid_size_control:
+        toolbar_el.appendChild(cover_grid_size_control)
     if not include_sort:
         return
     def toggle_sort_order(ev=None):
@@ -787,9 +802,3 @@ set_panel_handler('book_list^search', init_search_panel)
 set_panel_handler('book_list^choose_mode', create_mode_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
 set_panel_handler('book_list^more_actions', create_more_actions_panel)
-
-try:
-    window.cs_sync_cover_grid_dock = def():
-        sync_cover_grid_size_dock(get_view_mode())
-except Exception:
-    pass
