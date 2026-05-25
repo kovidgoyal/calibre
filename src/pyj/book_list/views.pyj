@@ -442,46 +442,42 @@ def clear_book_list_inner(inner):
         clear(inner)
 
 
+def create_optional_cover_grid_size_control(mode):
+    try:
+        return create_cover_grid_size_control(mode)
+    except Exception as err:
+        console.warn('Failed to create cover grid size toolbar control')
+        console.warn(err)
+
+
 def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=None, initial_mode=None):
     if not toolbar_el:
         return
     clear(toolbar_el)
-    try:
-        current_mode = initial_mode or get_view_mode()
-    except Exception:
-        current_mode = DEFAULT_MODE
     cover_grid_size_control = None
-    try:
-        cover_grid_size_control = create_cover_grid_size_control(current_mode)
-    except Exception:
-        pass
-    try:
-        mode_wrap, mode_sel = create_select(
-            _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
-            details_list=_('Detailed list'), custom_list=_('Custom list'))
-        mode_sel.dataset.currentMode = current_mode
-        mode_sel.addEventListener('change', def(ev):
-            requested_mode = mode_sel.value
-            current_mode = mode_sel.dataset.currentMode
-            if requested_mode and requested_mode is not current_mode:
-                get_session_data().set('view_mode', requested_mode)
-                if on_view_mode_change:
-                    current_mode = on_view_mode_change(requested_mode) or requested_mode
-                else:
-                    current_mode = apply_view_mode(requested_mode) or requested_mode
-                mode_sel.dataset.currentMode = current_mode
-                mode_sel.value = current_mode
-                if cover_grid_size_control:
-                    sync_cover_grid_size_control(cover_grid_size_control, current_mode)
-        )
-        toolbar_el.appendChild(mode_wrap)
-    except Exception:
-        pass
-    try:
-        if cover_grid_size_control:
-            toolbar_el.appendChild(cover_grid_size_control)
-    except Exception:
-        pass
+    current_mode = initial_mode or get_view_mode()
+    mode_wrap, mode_sel = create_select(
+        _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
+        details_list=_('Detailed list'), custom_list=_('Custom list'))
+    mode_sel.dataset.currentMode = current_mode
+    mode_sel.addEventListener('change', def(ev):
+        requested_mode = mode_sel.value
+        current_mode = mode_sel.dataset.currentMode
+        if requested_mode and requested_mode is not current_mode:
+            get_session_data().set('view_mode', requested_mode)
+            if on_view_mode_change:
+                current_mode = on_view_mode_change(requested_mode) or requested_mode
+            else:
+                current_mode = apply_view_mode(requested_mode) or requested_mode
+            mode_sel.dataset.currentMode = current_mode
+            mode_sel.value = current_mode
+            if cover_grid_size_control:
+                sync_cover_grid_size_control(cover_grid_size_control, current_mode)
+    )
+    toolbar_el.appendChild(mode_wrap)
+    cover_grid_size_control = create_optional_cover_grid_size_control(current_mode)
+    if cover_grid_size_control:
+        toolbar_el.appendChild(cover_grid_size_control)
     if not include_sort:
         return
     def toggle_sort_order(ev=None):
