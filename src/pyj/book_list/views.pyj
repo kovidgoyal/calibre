@@ -448,7 +448,14 @@ def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=Non
     clear(toolbar_el)
     try:
         current_mode = initial_mode or get_view_mode()
+    except Exception:
+        current_mode = DEFAULT_MODE
+    cover_grid_size_control = None
+    try:
         cover_grid_size_control = create_cover_grid_size_control(current_mode)
+    except Exception:
+        pass
+    try:
         mode_wrap, mode_sel = create_select(
             _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
             details_list=_('Detailed list'), custom_list=_('Custom list'))
@@ -464,10 +471,15 @@ def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=Non
                     current_mode = apply_view_mode(requested_mode) or requested_mode
                 mode_sel.dataset.currentMode = current_mode
                 mode_sel.value = current_mode
-                sync_cover_grid_size_control(cover_grid_size_control, current_mode)
+                if cover_grid_size_control:
+                    sync_cover_grid_size_control(cover_grid_size_control, current_mode)
         )
         toolbar_el.appendChild(mode_wrap)
-        toolbar_el.appendChild(cover_grid_size_control)
+    except Exception:
+        pass
+    try:
+        if cover_grid_size_control:
+            toolbar_el.appendChild(cover_grid_size_control)
     except Exception:
         pass
     if not include_sort:
