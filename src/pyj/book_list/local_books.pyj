@@ -10,7 +10,6 @@ from book_list.router import home, open_book
 from book_list.top_bar import add_button, create_top_bar
 from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
-from book_list.cover_grid import sync_cover_grid_size_dock
 from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
@@ -273,13 +272,12 @@ def apply_view_mode(mode):
     if mode is 'custom_list' and not library_data.field_metadata:
         mode = DEFAULT_MODE
     if book_list_data.mode is mode:
-        sync_cover_grid_size_dock(mode)
-        return
+        return mode
     setup_view_mode(mode, book_list_data)
     clear_grid()
     render_books()
-    sync_cover_grid_size_dock(mode)
     update_empty_message()
+    return mode
 
 
 def create_search_box():
@@ -308,14 +306,17 @@ def create_books_list(container, books, search_query=None):
     pw = create_pager_widget()
     pw.top_row.appendChild(create_search_box())
     pw.set_top_row_visibility(True)
-    populate_book_list_toolbar(pw.middle_row, False, apply_view_mode)
+    mode = get_view_mode()
+    if mode is 'custom_list' and not library_data.field_metadata:
+        mode = DEFAULT_MODE
+    populate_book_list_toolbar(pw.middle_row, False, apply_view_mode, mode)
     pw.set_middle_row_visibility(True)
     pw.set_enabled(False, False)
 
     container.appendChild(pw.container)
     container.appendChild(E.div(data_component='empty_message', style='display: none; margin: 1rem 0'))
     container.appendChild(E.div(data_component='book_list'))
-    apply_view_mode(get_view_mode())
+    apply_view_mode(mode)
 
 
 def show_recent_stage2(books, search_query=None):
