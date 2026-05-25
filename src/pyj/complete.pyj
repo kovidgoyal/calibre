@@ -2,7 +2,8 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import ensure_id, unique_id, clear
+from dom import ensure_id, unique_id, clear, svgicon
+from gettext import gettext as _
 from elementmaker import E
 from session import local_storage
 from popups import CompletionPopup
@@ -11,7 +12,10 @@ from utils import uniq
 class EditWithComplete:
 
     def __init__(self, name, placeholder=None, tooltip=None, parent=None, input_type='text', onenterkey=None):
-        inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '', autocomplete='off')
+        inpt = E.input(
+            type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '', autocomplete='off',
+            style='width: 0; flex-grow: 1; min-width: 6em',
+        )
         self.input_id = ensure_id(inpt)
         self.onenterkey = onenterkey
         self.completion_popup = CompletionPopup(parent=parent, onselect=self.apply_completion)
@@ -75,8 +79,11 @@ class EditWithComplete:
 
 
 def create_search_bar(action, name, tooltip=None, placeholder=None, button=None, history_size=100, associated_widgets=None):
-    parent = E.div(style="display:flex")
-    ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder, input_type='search')
+    parent = E.div(
+        style="display:flex; gap: 0.65rem; align-items: center; justify-content: space-between",
+        data_component='search_box')
+    ewc = EditWithComplete(
+        name, parent=parent, tooltip=tooltip or placeholder, placeholder=placeholder, input_type='search')
     parent.lastChild.style.width = '100%'
     history_name = 'search-bar-history-' + name
 
@@ -99,8 +106,18 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
             local_storage().set(history_name, uniq(items[:history_size]))
             update_completion_items()
     ewc.onenterkey = trigger
-    parent.querySelector('input').addEventListener('search', trigger)
-
+    inp = parent.querySelector('input')
+    inp.addEventListener('search', trigger)
+    if button is 'icon-button':
+        button = E.a(
+            svgicon('search'),
+            class_='calibre-icon-button',
+            style='margin-left: auto',
+            href='javascript:void(0)',
+            title=_('Search'),
+            onmousedown=def(evt): evt.preventDefault();,
+        )
+        parent.appendChild(button)
     if button:
         ewc.add_associated_widget(button)
         button.addEventListener('click', trigger)

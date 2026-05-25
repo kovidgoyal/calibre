@@ -59,50 +59,6 @@ add_extra_css(def():
     style += build_rule(sel + ' div.tag-name:active', transform='none', opacity='0.92')
     style += build_rule(sel + ' div.tag-menu:active', transform='none', opacity='0.92')
 
-    # Search header card (match home / details-list surfaces)
-    style += build_rule(sel + ' .cs-search-header',
-        padding='1rem',
-        border_radius='18px',
-        border=card_border,
-        background=card_bg,
-        box_shadow='none',
-    )
-    style += build_rule(sel + ' .cs-search-row',
-        display='flex',
-        align_items='center',
-        gap='0.65rem',
-        width='100%',
-    )
-    style += build_rule(sel + ' .cs-search-row > div',
-        flex_grow='1',
-        min_width='0',
-    )
-    style += build_rule(sel + ' input[name="search-books"]',
-        width='100%',
-        box_sizing='border-box',
-        padding='0.62rem 0.85rem',
-        border_radius='999px',
-        border='1px solid var(--cs-surface-border-strong)',
-        background_color=get_color('input-background'),
-        color=get_color('input-foreground'),
-        font_size='1rem',
-        line_height='1.2',
-    )
-    style += build_rule(sel + ' input[name="search-books"]::placeholder',
-        color=get_color('faded-text'),
-        opacity='0.95',
-    )
-    style += build_rule(sel + ' input[name="search-books"]:focus',
-        border_color='var(--primary-color)',
-        outline='none',
-        box_shadow='0 0 0 3px var(--primary-light-2)',
-    )
-    style += build_rule(sel + ' .cs-search-help',
-        width='100%',
-        text_align='left',
-        padding_top='0.65rem',
-    )
-
     # Active search terms chips (match details-list badges)
     style += build_rule(sel + ' ul.search-items',
         margin_top='0.65rem',
@@ -618,10 +574,8 @@ def create_search_panel(container):
     state = {}
     container.classList.add(CLASS_NAME)
     # search input container
-    container.appendChild(E.div(
-        data_component='search',
-        class_='cs-search-header'
-    ))
+    search_container = E.div(class_='calibre-group-box', data_component='search')
+    container.appendChild(search_container)
     container.appendChild(E.div(class_='cs-search-body',
         E.div(data_component='loading', class_='cs-search-loading'),
         E.div(data_component='tag_card', class_='cs-search-tag-card', style='display:none',
@@ -633,11 +587,12 @@ def create_search_panel(container):
     # Build search input
     # We don't focus the search box because on mobile that will cause the
     # keyboard to popup and obscure the rest of the page
-    search_container = component(container, 'search')
-    search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
-    search_bar = create_search_bar(execute_search_interactive, 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
-    search_container.appendChild(E.div(class_='cs-search-row', search_bar, search_button))
-    search_container.appendChild(E.div(class_='cs-search-help', E.a(class_="blue-link", svgicon("fts"), '\xa0', _('Search the full text of books instead'), href='javascript: void(0)', onclick=show_panel.bind(None, "fts"))))
+
+    search_bar = create_search_bar(
+        execute_search_interactive, 'search-books', tooltip=_('Search for books'),
+        placeholder=_('Enter the search query'), button='icon-button')
+    search_container.appendChild(search_bar)
+    search_container.appendChild(E.div(E.a(class_="blue-link", svgicon("fts"), '\xa0', _('Search the full text of books instead'), href='javascript: void(0)', onclick=show_panel.bind(None, "fts")), style='margin-top: 1rem'))
     search_container.appendChild(E.ul(class_='search-items', data_component='search_expression'))
 
     # Build loading panel
