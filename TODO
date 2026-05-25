@@ -1,5 +1,7 @@
 cover grid/local books move cover size control into list view header rather than global footer dock
 
+Remove the weird changes to the top bar done in the original PR
+
 Clicking back after browsing books in a category does not take us to nav_list page
 
 New category is confusingly named. From what I can tell its basically
@@ -8,8 +10,8 @@ library will mean calibre users will be more likely to understand what
 it is.
 
 There appears to be no way to add custom columns (user created
-columns) to the browse section. This should be added in system or ui
-settings. You can see code for how to implement this in
+columns) to the browse section. This should be added in settings.
+You can see code for how to implement this in
 bookshelf_view.py, see get_grouped_iterator() it will require a new end point
 in srv/code.py
 
