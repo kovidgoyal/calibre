@@ -452,15 +452,19 @@ def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=Non
         mode_wrap, mode_sel = create_select(
             _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
             details_list=_('Detailed list'), custom_list=_('Custom list'))
+        mode_sel.dataset.currentMode = current_mode
         mode_sel.addEventListener('change', def(ev):
-            m = mode_sel.value
-            if m and m is not get_view_mode():
-                get_session_data().set('view_mode', m)
+            requested_mode = mode_sel.value
+            current_mode = mode_sel.dataset.currentMode
+            if requested_mode and requested_mode is not current_mode:
+                get_session_data().set('view_mode', requested_mode)
                 if on_view_mode_change:
-                    m = on_view_mode_change(m) or m
+                    current_mode = on_view_mode_change(requested_mode) or requested_mode
                 else:
-                    m = apply_view_mode(m) or m
-                sync_cover_grid_size_control(cover_grid_size_control, m)
+                    current_mode = apply_view_mode(requested_mode) or requested_mode
+                mode_sel.dataset.currentMode = current_mode
+                mode_sel.value = current_mode
+                sync_cover_grid_size_control(cover_grid_size_control, current_mode)
         )
         toolbar_el.appendChild(mode_wrap)
         toolbar_el.appendChild(cover_grid_size_control)
