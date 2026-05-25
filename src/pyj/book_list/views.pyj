@@ -774,30 +774,6 @@ def create_mode_panel(container_id):
 
 # }}}
 
-# More actions {{{
-
-def create_more_actions_panel(container_id):
-    container = document.getElementById(container_id)
-    create_top_bar(container, title=_('More actions…'), action=back, icon='close')
-    items = [
-        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed'), action=def():
-                    show_panel('book_list^choose_mode', replace=True)
-        ),
-        create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
-                    query = {'book_id':'0'}
-                    show_panel('book_details', query=query, replace=True)
-        ),
-    ]
-    vls = all_virtual_libraries()
-    if vls and Object.keys(vls).length > 0:
-        items.insert(1, create_item(_('Choose Virtual library'), subtitle=_('Browse books in a Virtual library'), action=def():
-                     show_panel('book_list^vl', replace=True)
-        ))
-    container.appendChild(E.div())
-    create_item_list(container.lastChild, items)
-    enable_escape_key(container, back)
-# }}}
-
 # Adding books {{{
 def create_add_panel(container_id):
     if not library_data.sortable_fields:
@@ -815,4 +791,3 @@ set_panel_handler('book_list^vl', create_vl_panel)
 set_panel_handler('book_list^search', init_search_panel)
 set_panel_handler('book_list^choose_mode', create_mode_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
-set_panel_handler('book_list^more_actions', create_more_actions_panel)
