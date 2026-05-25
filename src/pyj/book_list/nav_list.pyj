@@ -1010,7 +1010,7 @@ def create_nav_list_panel(container_id):
                 return def(ev):
                     if ev:
                         ev.preventDefault()
-                    show_panel('book_list', query=search_query, replace=True)
+                    show_panel('book_list', query=search_query, replace=False)
 
             for it in items.slice(0, shown):
                 if not it or not it.name:
@@ -1059,7 +1059,7 @@ def create_nav_list_panel(container_id):
             return def(ev):
                 if ev:
                     ev.preventDefault()
-                show_panel('book_list', query=search_query, replace=True)
+                show_panel('book_list', query=search_query, replace=False)
 
         for it in items.slice(offset, offset + num):
             if not it or not it.name:
