@@ -2,8 +2,6 @@ cover grid/local books move cover size control into list view header rather than
 
 Remove the weird changes to the top bar done in the original PR
 
-Clicking back after browsing books in a category does not take us to nav_list page
-
 New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
