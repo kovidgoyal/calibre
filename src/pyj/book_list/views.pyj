@@ -34,7 +34,7 @@ from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
-from book_list.top_bar import create_top_bar, set_title_tooltip
+from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
 from book_list.custom_category_icon_picker import create_custom_category_icon_picker
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
@@ -136,6 +136,19 @@ def save_scroll_position():
 def show_subsequent_panel(name, query=None, replace=False):
     save_scroll_position()
     show_panel(name, query, replace)
+
+
+def show_add_books():
+    show_subsequent_panel('book_list^add')
+
+
+def show_random_book():
+    show_subsequent_panel('book_details', {'book_id': '0'})
+
+
+def add_book_list_top_bar_buttons(container):
+    add_button(container, 'plus', show_add_books, _('Add books to the library'))
+    add_button(container, 'random', show_random_book, _('Choose a random book from the library'))
 
 
 def on_book_click(book_id, evt):
@@ -639,6 +652,7 @@ def init(container_id):
     title = interface_data.library_map[lid]
     update_window_title(title)
     create_top_bar(container, title=title, action=def(): save_scroll_position(), home();, icon='home')
+    add_book_list_top_bar_buttons(container)
 
     inner = E.div(class_=CLASS_NAME)
     container.appendChild(inner)
