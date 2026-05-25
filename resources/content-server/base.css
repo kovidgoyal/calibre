@@ -449,13 +449,6 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     touch-action: pan-y pinch-zoom;
 }
 
-/* Reserve one row for cover-grid size dock (toolbar at bottom of book list / local books). */
-:root.cs-cover-grid-dock-visible #BOOK_LIST_CONTAINER_ID,
-:root.cs-cover-grid-dock-visible .local-books-list {
-    padding-bottom: calc(var(--cs-cover-grid-dock-height, 3.25rem) + 0.85rem + env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-}
-
 /* Custom category dialog */
 .cs-custom-category-dialog {
     width: 100%;
