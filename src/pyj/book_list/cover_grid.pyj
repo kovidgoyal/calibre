@@ -145,6 +145,34 @@ def on_cover_grid_size_input(ev):
     apply_cover_grid_pct_css()
 
 
+def sync_cover_grid_size_control(control, mode):
+    if not control:
+        return
+    r = control.querySelector('.cs-cover-grid-size-range')
+    if r:
+        r.value = str(get_cover_grid_pct())
+    if mode is 'cover_grid':
+        ensure_cover_grid_resize_listener()
+        apply_cover_grid_pct_css()
+        set_css(control, display='inline-flex')
+    else:
+        set_css(control, display='none')
+
+
+def create_cover_grid_size_control(mode):
+    lab = E.span(class_='cs-cover-grid-size-label')
+    lab.textContent = _('Cover size')
+    r = E.input(type='range', class_='cs-cover-grid-size-range', min=str(COVER_GRID_PCT_MIN), max=str(COVER_GRID_PCT_MAX), step='0.025')
+    r.value = str(get_cover_grid_pct())
+    r.title = _('Adjust cover grid tile size')
+    r.addEventListener('input', on_cover_grid_size_input)
+    control = E.div(lab, r, class_='cs-cover-grid-size-control')
+    control.setAttribute('role', 'group')
+    control.setAttribute('aria-label', _('Cover grid size'))
+    sync_cover_grid_size_control(control, mode)
+    return control
+
+
 def build_cover_grid_size_dock():
     lab = E.span(class_='cs-cover-grid-size-label')
     lab.textContent = _('Cover size')
@@ -343,6 +371,27 @@ def cover_grid_css():
         min_width='3rem',
         width='auto',
         max_width='32rem',
+        margin='0',
+    )
+    ans += build_rule('.cs-cover-grid-size-control',
+        display='inline-flex',
+        align_items='center',
+        gap='0.65rem',
+        flex='1 1 15rem',
+        min_width='min(100%, 13rem)',
+        max_width='24rem',
+        box_sizing='border-box',
+    )
+    ans += build_rule('.cs-cover-grid-size-control .cs-cover-grid-size-label',
+        font_size='0.88rem',
+        font_weight='600',
+        opacity='0.88',
+        white_space='nowrap',
+        flex_shrink='0',
+    )
+    ans += build_rule('.cs-cover-grid-size-control .cs-cover-grid-size-range',
+        flex='1 1 auto',
+        min_width='3rem',
         margin='0',
     )
     return ans
