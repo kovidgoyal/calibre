@@ -1,5 +1,3 @@
-cover grid/local books move cover size control into list view header rather than global footer dock
-
 Remove the weird changes to the top bar done in the original PR
 
 New category is confusingly named. From what I can tell its basically
