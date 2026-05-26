@@ -10,6 +10,10 @@ from gettext import gettext as _
 from book_list.router import home
 from book_list.globals import get_session_data
 from book_list.ui import show_panel
+from book_list.custom_categories import (
+    add_custom_category, custom_category_item, custom_category_nav_initial,
+    get_custom_categories, remove_custom_category_at, set_custom_category_at
+)
 from book_list.custom_category_icon_picker import create_custom_category_icon_picker, normalize_custom_category_icon
 from widgets import create_button
 
@@ -163,22 +167,6 @@ def create_sidebar():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
-    def custom_category_nav_initial(name):
-        s = ((name or '') + '').strip()
-        if not s:
-            return '·'
-        return s[0]
-
-    def get_custom_categories():
-        sd = get_session_data()
-        categories = sd.get('custom_categories', v'[]') or v'[]'
-        if not Array.isArray(categories):
-            categories = v'[]'
-        return categories
-
-    def set_custom_categories(categories):
-        get_session_data().set('custom_categories', categories or v'[]')
-
     def edit_custom_category(index):
         categories = get_custom_categories()
         item = categories[index] or v'{}'
@@ -205,24 +193,15 @@ def create_sidebar():
                 use_icon_help.style.display = 'none' if on else 'block'
 
             def save_changes(ev=None):
-                name = (name_input.value or '').strip()
-                filter_expr = (filter_input.value or '').strip()
-                if not name or not filter_expr:
+                item = custom_category_item(name_input.value, filter_input.value, icon_picker.get_value(), use_icon_cb.checked)
+                if not set_custom_category_at(index, item):
                     return
-                categories = get_custom_categories()
-                if index < 0 or index >= categories.length:
-                    return
-                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked}
-                set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
 
             def delete_item(ev=None):
-                categories = get_custom_categories()
-                if index < 0 or index >= categories.length:
+                if not remove_custom_category_at(index):
                     return
-                categories.splice(index, 1)
-                set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
 
@@ -277,13 +256,9 @@ def create_sidebar():
                 use_icon_help.style.display = 'none' if on else 'block'
 
             def create_item(ev=None):
-                name = (name_input.value or '').strip()
-                filter_expr = (filter_input.value or '').strip()
-                if not name or not filter_expr:
+                item = custom_category_item(name_input.value, filter_input.value, icon_picker.get_value(), use_icon_cb.checked)
+                if not add_custom_category(item):
                     return
-                categories = get_custom_categories()
-                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked})
-                set_custom_categories(categories)
                 close_modal()
                 render_custom_categories()
 
