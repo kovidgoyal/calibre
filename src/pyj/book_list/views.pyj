@@ -18,7 +18,8 @@ from book_list.custom_list import (
     custom_list_css, description as CUSTOM_LIST_DESCRIPTION,
     init as init_custom_list
 )
-from book_list.custom_categories import custom_category_item, save_custom_category
+from book_list.custom_categories import save_custom_category
+from book_list.custom_category_dialog import show_custom_category_dialog
 from book_list.details_list import (
     append_item as details_list_append_item, create_item as create_details_list_item,
     description as DETAILS_LIST_DESCRIPTION, details_list_css,
@@ -36,10 +37,9 @@ from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
 from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
-from book_list.custom_category_icon_picker import create_custom_category_icon_picker
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
-from modals import create_custom_dialog, error_dialog
+from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
 from widgets import create_button, create_pager_widget, create_spinner, enable_escape_key, create_select
@@ -341,56 +341,20 @@ def fts():
 def save_to_custom_category():
     current_filter = (library_data.search_result?.query or '') + ''
 
-    create_custom_dialog(_('Save to custom Category'), def(parent, close_modal):
-        name_input = E.input(type='text', placeholder=_('Category name'))
-        filter_input = E.input(type='text', placeholder=_('Filter expression'), value=current_filter)
-        icon_picker = create_custom_category_icon_picker('folder')
-        use_icon_cb = E.input(type='checkbox')
-        use_icon_cb.checked = True
-        icon_section = E.div(class_='cc-icon-section',
-            E.div(style='margin:0.8rem 0 0.6rem 0', _('Icon')),
-            icon_picker.root,
-        )
-        use_icon_help = E.div(style='opacity:0.75;font-size:0.9em;margin-bottom:0.6rem', _('When disabled, only the first character of the name is shown while the navigation is collapsed.'))
+    def do_save(item):
+        if not save_custom_category(item):
+            return False
+        try:
+            cb = window.cs_refresh_custom_categories
+        except Exception:
+            cb = None
+        if cb:
+            cb()
+        return True
 
-        def sync_icon_section_visibility(ev=None):
-            on = use_icon_cb.checked
-            icon_section.style.display = 'block' if on else 'none'
-            use_icon_help.style.display = 'none' if on else 'block'
-
-        def do_save(ev=None):
-            item = custom_category_item(name_input.value, filter_input.value, icon_picker.get_value(), use_icon_cb.checked)
-            if not save_custom_category(item):
-                return
-            close_modal()
-            try:
-                cb = window.cs_refresh_custom_categories
-            except Exception:
-                cb = None
-            if cb:
-                cb()
-
-        parent.appendChild(E.div(class_='cs-custom-category-dialog',
-            E.div(style='margin-bottom:0.6rem', _('Category name')),
-            name_input,
-            E.div(style='margin:0.8rem 0 0.6rem 0', _('Filter condition')),
-            filter_input,
-            E.div(style='display:flex;align-items:center;margin:0.8rem 0 0.35rem 0',
-                use_icon_cb,
-                E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
-            ),
-            use_icon_help,
-            icon_section,
-            E.div(class_='cc-actions-save-cancel cc-actions-save-cancel--toprule',
-                create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
-                create_button(_('Save'), 'check', do_save, highlight=True),
-            )
-        ))
-        use_icon_cb.addEventListener('change', sync_icon_section_visibility)
-        sync_icon_section_visibility()
-        setTimeout(def():
-            name_input.focus()
-        , 10)
+    show_custom_category_dialog(
+        _('Save to custom Category'), _('Save'), do_save,
+        initial_filter=current_filter,
     )
 
 
