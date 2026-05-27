@@ -14,3 +14,7 @@ The scrollbars in dark mode have very low contrast
 Viewer UI needs to be re styled to match overall server UI
 
 Review appearance of all pages in light and dark mode
+
+In the nav list for series with cover view there is a ton of white space around
+each cover, not sure why that is, to leave space for multi-cover rendering?
+Investigate and see if the amount of wasted space can be reduced.
