@@ -24,7 +24,7 @@ THUMBNAIL_MAX_HEIGHT = int(THUMBNAIL_MAX_WIDTH * 3 / 2)
 THUMBNAIL_MIN_WIDTH = 3 * 16
 THUMBNAIL_MIN_HEIGHT = int(THUMBNAIL_MIN_WIDTH * 3 / 2)
 BORDER_RADIUS = 10
-# Row gap (vertical). Column gap is computed per width so tile width stays at slider size;
+# Row gap (vertical). Column gap is computed per width so tile width stays at slider size
 # column gap is clamped to [ROW_GAP, tile_width].
 COVER_GRID_ROW_GAP = 10
 
