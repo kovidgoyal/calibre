@@ -11,7 +11,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}, 'browse_fields': v'[]'}
 
 
 def current_library_id():
@@ -83,7 +83,7 @@ def update_library_data(data):
     if library_data.for_library is not current_library_id():
         library_data.field_names = {}
     library_data.for_library = current_library_id()
-    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes categories_using_hierarchy'.split(' '):
+    for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields browse_fields bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes categories_using_hierarchy'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
     if sr:
@@ -92,6 +92,22 @@ def update_library_data(data):
     else:
         last_virtual_library_for.library_id = None
         last_virtual_library_for.vl = None
+    try:
+        refresh_browse_fields = window.cs_refresh_browse_fields
+    except Exception:
+        refresh_browse_fields = None
+    if refresh_browse_fields:
+        refresh_browse_fields()
+
+
+def browse_fields():
+    return library_data.browse_fields or v'[]'
+
+
+def browse_field_for(field):
+    for f in browse_fields():
+        if f.key is field:
+            return f
 
 
 def add_more_books(data):

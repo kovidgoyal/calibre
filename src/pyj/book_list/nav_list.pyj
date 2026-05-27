@@ -7,14 +7,14 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
-from book_list.library_data import field_names_for
+from book_list.library_data import browse_field_for
 from book_list.library_data import cover_url, current_library_id
 from book_list.router import back
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler, show_panel
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, svgicon
-from ajax import ajax, ajax_send
+from ajax import ajax
 from utils import parse_url_params
 from widgets import create_pager_widget, create_button
 
@@ -57,43 +57,12 @@ def sync_cs_list_row_heights(list_root):
 
 
 def title_for_field(field):
-    field = field or ''
-    # Reuse existing msgids so labels are localized across calibre translations
-    def label_prefix(x):
-        x = (x or '').toString()
-        if '：' in x:
-            return x.partition('：')[0]
-        if ':' in x:
-            return x.partition(':')[0]
-        return x
-    publisher_label = label_prefix(_('Publisher: {publisher}') or 'Publisher')
-    pubdate_label = label_prefix(_('Published: {pubdate}') or 'Published')
-    tags_label = (_('Tags') or 'Tags')
-    tag_label = 'Tag' if tags_label is 'Tags' else tags_label
-    m = {
-        'series': _('Series'),
-        'authors': _('Authors'),
-        'publisher': publisher_label,
-        'tags': tag_label,
-        'formats': _('Formats'),
-        'rating': _('Rating'),
-        'pubdate': pubdate_label,
-    }
-    return m[field] or field
+    info = browse_field_for(field)
+    return info?.name or field or ''
 
 
 def subtitle_for_field(field):
-    field = field or ''
-    m = {
-        'series': _('Browse all series'),
-        'authors': _('Browse all authors'),
-        'publisher': _('Browse all publishers'),
-        'tags': _('Browse all tags'),
-        'formats': _('Browse all formats'),
-        'rating': _('Browse by rating'),
-        'pubdate': _('Browse by published date'),
-    }
-    return m[field] or ''
+    return browse_field_for(field)?.description or ''
 
 
 def rating_search_query_from_display_name(label):
@@ -168,6 +137,7 @@ def tags_cache_key():
     return '|'.join([
         current_library_id() or '',
         q.vl or '',
+        q.search or '',
         sd.get('sort_tags_by') + '',
         sd.get('partition_method') + '',
         sd.get('collapse_at') + '',
@@ -179,8 +149,6 @@ def tags_cache_key():
 cached_names = {}
 series_cover_cache = {}
 series_cover_inflight = {}
-pubdate_group_cache = {}
-tag_browser_cache = {}
 
 add_extra_css(def():
     sel = '.cs-nav-list '
@@ -577,10 +545,9 @@ def update_nav_list_url(field, offset, num, query_text=None, replace=True, g=Non
     q = {'field': field, 'offset': str(offset), 'num': str(num)}
     if query_text:
         q.q = query_text
-    if field is 'pubdate':
-        g = g or parse_url_params().g
-        if g:
-            q.g = g
+    g = g or parse_url_params().g
+    if g:
+        q.g = g
     show_panel('nav_list', q, replace=replace)
 
 
@@ -589,11 +556,12 @@ def create_nav_list_panel(container_id):
     clear(container)
     q = parse_url_params()
     field = q.field or ''
+    field_info = browse_field_for(field) or {'kind': 'category'}
     num = clamp(parse_int(q.num, 15), 5, 100)
     offset = max(0, parse_int(q.offset, 0))
     query_text = (q.q or '').toString()
-    group_mode = (q.g or 'y').toString()  # for pubdate: 'y' (year) or 'ym' (year-month)
-    if field is 'pubdate':
+    group_mode = (q.g or 'y').toString()
+    if field_info.kind is 'date':
         query_text = ''
     # Tags panel: render all tags progressively on one page (no paging)
     visible_tags = 50
@@ -614,7 +582,7 @@ def create_nav_list_panel(container_id):
     )
     body.appendChild(E.div(top_pager_widget.container, style='margin: 0 0.75rem'))
     status = top_pager_widget.count_msg
-    if field is not 'pubdate':
+    if field_info.kind is not 'date':
         search_inp = E.input(
             type='search',
             placeholder=_('Filter…'),
@@ -635,8 +603,7 @@ def create_nav_list_panel(container_id):
         top_pager_widget.middle_row.appendChild(apply_btn)
 
 
-    if field is 'pubdate':
-        # Grouping toggle for Published date panel
+    if field_info.kind is 'date':
         group_toggle = E.div(style='display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap')
         group_toggle.appendChild(E.span(_('Group:'), style='opacity:0.75'))
         seg = E.div(class_='cs-toggle')
@@ -699,127 +666,7 @@ def create_nav_list_panel(container_id):
                 ans.push(x)
         return ans
 
-    def to_ymd(val):
-        # Accept ISO-ish strings, return 'YYYY-MM-DD' or ''
-        if not val:
-            return ''
-        s = (val + '').strip()
-        if s.length >= 10 and s[4] is '-' and s[7] is '-':
-            return s.slice(0, 10)
-        # Some values might be 'YYYY-MM' or 'YYYY'
-        if s.length >= 7 and s[4] is '-' and s.length == 7:
-            return s + '-01'
-        if s.length == 4:
-            return s + '-01-01'
-        return ''
-
-    def aggregate_pubdate_groups_from_metadata(meta_map, counts_y, counts_ym):
-        # meta_map: {book_id: metadata}
-        if not meta_map:
-            return
-        for bid in Object.keys(meta_map):
-            mi = meta_map[bid]
-            if not mi:
-                continue
-            ymd = to_ymd(mi.pubdate)
-            if not ymd:
-                continue
-            y = ymd.slice(0, 4)
-            ym = ymd.slice(0, 7)
-            counts_y[y] = (counts_y[y] or 0) + 1
-            counts_ym[ym] = (counts_ym[ym] or 0) + 1
-
-
-    def fetch_pubdate_groups(proceed):
-        # Use interface-data/more-books to iterate through all matching books and
-        # aggregate pubdate groups client-side. Works with the shipped Calibre.app backend.
-        ck = (current_library_id() or '') + '|' + (parse_url_params().vl or '') + '|' + (parse_url_params().search or '')
-        cached = pubdate_group_cache[ck]
-        if cached:
-            proceed(True, cached)
-            return
-
-        counts_y = {}
-        counts_ym = {}
-        offset0 = 0
-        page_size = 200
-        total = None
-
-        # Build a query payload similar to book list pagination
-        q = parse_url_params()
-        searchq = q.search or ''
-        vlq = q.vl or ''
-        # We don't care about sort for aggregation, but backend expects it
-        sort_field = 'timestamp'
-        sort_order = 'desc'
-
-        def step():
-            nonlocal offset0, total
-            payload = {
-                'query': searchq,
-                'sort': sort_field,
-                'sort_order': sort_order,
-                'vl': vlq,
-                'offset': offset0,
-            }
-            def done(end_type, xhr, ev):
-                nonlocal offset0, total
-                if end_type is not 'load':
-                    if end_type is not 'abort':
-                        proceed(False, xhr.error_html)
-                    return
-                try:
-                    data = JSON.parse(xhr.responseText)
-                except Exception:
-                    proceed(False, 'Invalid JSON from server')
-                    return
-                sr = data.search_result or v'{}'
-                if total is None:
-                    total = sr.total_num or 0
-                aggregate_pubdate_groups_from_metadata(data.metadata, counts_y, counts_ym)
-                got = (sr.book_ids.length or 0) if sr.book_ids else 0
-                offset0 += got
-                if got <= 0 or offset0 >= total:
-                    labels_y = Object.keys(counts_y).sort().reverse()
-                    labels_ym = Object.keys(counts_ym).sort().reverse()
-                    res = {'y': {'labels': labels_y, 'counts': counts_y}, 'ym': {'labels': labels_ym, 'counts': counts_ym}}
-                    pubdate_group_cache[ck] = res
-                    proceed(True, res)
-                else:
-                    step()
-
-            ajax_send('interface-data/more-books', payload, done,
-                      query={'library_id': current_library_id(), 'num': str(page_size)} )
-        step()
-
-    def next_month(y, m):
-        y = int(y); m = int(m)
-        m += 1
-        if m > 12:
-            m = 1
-            y += 1
-        mm = ('0' + str(m)) if m < 10 else str(m)
-        return str(y), mm
-
-    def pubdate_query_for(label):
-        # label is either 'YYYY' or 'YYYY-MM'
-        s = label or ''
-        if s.length == 4:
-            y = int(s)
-            start = s + '-01-01'
-            end = str(y + 1) + '-01-01'
-        else:
-            y = s.slice(0, 4)
-            m = s.slice(5, 7)
-            start = y + '-' + m + '-01'
-            ny, nm = next_month(y, m)
-            end = ny + '-' + nm + '-01'
-        # Use a range query so it works even if stored as full dates
-        return {'search': f'pubdate:>={start} and pubdate:<{end}'}
-
     series_cover_targets = {}
-
-    TAG_BROWSER_FIELDS = v"['tags', 'series', 'authors', 'publisher', 'formats', 'rating']"
 
     def nav_list_rating_count_parts(count, avg_rating):
         sd = get_session_data()
@@ -851,15 +698,15 @@ def create_nav_list_panel(container_id):
                 parts.push(info.text )
         return ' · '.join(parts)
 
-    def fetch_from_tag_browser(field, proceed):
-        ck = tags_cache_key() + '|' + field
-        cached = tag_browser_cache[ck]
-        if cached:
-            proceed(True, cached)
-            return
+    def browse_cache_key():
+        return tags_cache_key() + '|' + field + '|' + group_mode
+
+    def fetch_browse_items(proceed):
         q = parse_url_params()
         sd = get_session_data()
-        query = {'library_id': current_library_id(), 'vl': q.vl or ''}
+        query = {'library_id': current_library_id(), 'vl': q.vl or '', 'date_group': group_mode}
+        if q.search:
+            query.search = q.search
         for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
             query[k] = sd.get(k) + ''
 
@@ -872,38 +719,9 @@ def create_nav_list_panel(container_id):
             except Exception:
                 proceed(False, 'Invalid JSON from server')
                 return
-            root = data.root or v'{}'
-            item_map = data.item_map or v'{}'
-            category_node = None
-            for child in (root.children or v'[]'):
-                item = item_map[child.id] or v'{}'
-                if item.is_category and item.category is field:
-                    category_node = child
-                    break
-            if not category_node:
-                tag_browser_cache[ck] = v'[]'
-                proceed(True, v'[]')
-                return
+            proceed(True, data.items or v'[]')
 
-            items = []
-            seen = {}
-
-            def walk(node):
-                for ch in (node.children or v'[]'):
-                    item = item_map[ch.id] or v'{}'
-                    name = (item.name or '') + ''
-                    if (not item.is_category) and name and (not seen[name]):
-                        seen[name] = True
-                        search_name = (item.original_name or name) + ''
-                        items.push({'name': name, 'count': item.count, 'avg_rating': item.avg_rating, 'search_name': search_name})
-                    if ch.children and ch.children.length:
-                        walk(ch)
-
-            walk(category_node)
-            tag_browser_cache[ck] = items
-            proceed(True, items)
-
-        ajax('interface-data/tag-browser', done, query=query, bypass_cache=False).send()
+        ajax(f'interface-data/browse-field/{encodeURIComponent(field)}', done, query=query, bypass_cache=False).send()
 
     def ensure_series_covers(series_name, target_div):
         if not series_name:
@@ -974,22 +792,6 @@ def create_nav_list_panel(container_id):
     def render_page(data):
         set_loading(False)
         raw = data or v'[]'
-        # Special handling for Published date: derive group labels from raw date values
-        if field is 'pubdate':
-            yset = {}
-            ymset = {}
-            for v in raw:
-                ymd = to_ymd(v)
-                if not ymd:
-                    continue
-                y = ymd.slice(0, 4)
-                ym = ymd.slice(0, 7)
-                yset[y] = True
-                ymset[ym] = True
-            labels = Object.keys(ymset) if group_mode is 'ym' else Object.keys(yset)
-            # Sort descending so newest first
-            labels.sort().reverse()
-            raw = labels
         items = [to_item(x) for x in raw]
         items = filtered(items)
         total = items.length or 0
@@ -1020,10 +822,11 @@ def create_nav_list_panel(container_id):
                 inner = E.span(label)
                 if meta:
                     inner = E.span(E.span(label), E.span(' ' + meta, class_='cs-tag-meta'))
+                search_query = {'search': it.search or make_search(field, it.search_name or label).search}
                 bubbles.appendChild(E.a(
                     href='#',
                     class_='cs-tag-bubble',
-                    onclick=make_action(make_search(field, it.search_name or label)),
+                    onclick=make_action(search_query),
                     title=label,
                     inner
                 ))
@@ -1066,32 +869,26 @@ def create_nav_list_panel(container_id):
                 continue
             label = it.name + ''
             search_val = it.search_name or label
+            search_query = {'search': it.search or make_search(field, search_val).search}
             meta = nav_list_rating_count_parts(it.count, it.avg_rating)
             if field is 'series':
                 series_mode = body.dataset.seriesDisplay or 'stack'
                 if series_mode is 'list':
-                    list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+                    list_items.push(create_item(label, action=make_action(search_query), nav_list_meta=meta))
                 else:
                     covers = E.div(class_='cs-series-stack-covers')
                     row = E.div(class_='cs-series-stack-row', E.div(covers), E.div(label, class_='cs-series-stack-name'))
                     row.dataset.seriesName = label
-                    list_items.push(create_item(row, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+                    list_items.push(create_item(row, action=make_action(search_query), nav_list_meta=meta))
             elif field is 'rating':
                 # Use server-provided display name (tag-browser item.name); do not parse as int — names are localized.
-                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
-            elif field is 'pubdate':
-                # label is 'YYYY' or 'YYYY-MM'
-                list_items.push(create_item(label, action=make_action(pubdate_query_for(label))))
+                list_items.push(create_item(label, action=make_action(search_query), nav_list_meta=meta))
             else:
-                list_items.push(create_item(label, action=make_action(make_search(field, search_val)), nav_list_meta=meta))
+                list_items.push(create_item(label, action=make_action(search_query), nav_list_meta=meta))
         subtitle = subtitle_for_field(field)
-        if field is 'authors' or field is 'publisher' or field is 'series' or field is 'formats' or field is 'rating' or field is 'pubdate':
-            nav_subtitle.textContent = subtitle or ''
-            nav_subtitle.style.display = 'block' if subtitle else 'none'
-            create_item_list(list_container, list_items)
-        else:
-            nav_subtitle.style.display = 'none'
-            create_item_list(list_container, list_items, subtitle)
+        nav_subtitle.textContent = subtitle or ''
+        nav_subtitle.style.display = 'block' if subtitle else 'none'
+        create_item_list(list_container, list_items)
 
         def flush_row_heights():
             sync_cs_list_row_heights(list_container)
@@ -1122,7 +919,7 @@ def create_nav_list_panel(container_id):
         bottom_pager.appendChild(bot_widget.container)
         bottom_pager.style.display = ''
 
-    def render(ok, fieldname, payload):
+    def render(ok, payload):
         set_loading(False)
         if not ok:
             clear(list_container)
@@ -1131,31 +928,14 @@ def create_nav_list_panel(container_id):
             return
         # Update without flashing: create_item_list will clear content itself
         names = payload or v'[]'
-        cached_names[field] = names
+        cached_names[browse_cache_key()] = names
         render_page(names)
 
-    if field is 'pubdate':
-        set_loading(True)
-        fetch_pubdate_groups(def(ok, data):
-            if not ok:
-                render(False, field, data)
-                return
-            grp = data[group_mode] or v'{}'
-            render_page(grp.labels or v'[]')
-        )
+    cached = cached_names[browse_cache_key()]
+    if cached:
+        render_page(cached)
     else:
-        if field in TAG_BROWSER_FIELDS:
-            if cached_names[field]:
-                render_page(cached_names[field])
-            else:
-                set_loading(True)
-                fetch_from_tag_browser(field, def(ok, payload):
-                    render(ok, field, payload)
-                )
-        elif cached_names[field]:
-            render_page(cached_names[field])
-        else:
-            set_loading(True)
-            field_names_for(field, render)
+        set_loading(True)
+        fetch_browse_items(render)
 
 set_panel_handler('nav_list', create_nav_list_panel)
