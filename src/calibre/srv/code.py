@@ -634,11 +634,6 @@ def browse_field(ctx, rd, field):
     Optional: ?library_id=<default library>&vl=&date_group=y
     '''
     db = get_library_data(ctx, rd)[0]
-    if field.startswith('_'):
-        try:
-            field = db.field_metadata.label_to_key(field[1:], prefer_custom=True)
-        except ValueError:
-            raise HTTPNotFound(f'{field} is not a browse field')
     fields = browse_field_map(db)
     field_data = fields.get(field)
     if field_data is None:
