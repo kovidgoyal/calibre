@@ -3,15 +3,18 @@
 
 from dom import clear, svgicon
 from elementmaker import E
-from modals import create_custom_dialog
 from utils import parse_url_params
 from gettext import gettext as _
 
 from book_list.router import home
 from book_list.globals import get_session_data
 from book_list.ui import show_panel
-from book_list.custom_category_icon_picker import create_custom_category_icon_picker, normalize_custom_category_icon
-from widgets import create_button
+from book_list.custom_categories import (
+    add_custom_category, custom_category_nav_initial, get_custom_categories,
+    remove_custom_category_at, set_custom_category_at
+)
+from book_list.custom_category_dialog import show_custom_category_dialog
+from book_list.custom_category_icon_picker import normalize_custom_category_icon
 
 
 def create_sidebar():
@@ -163,156 +166,39 @@ def create_sidebar():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
-    def custom_category_nav_initial(name):
-        s = ((name or '') + '').strip()
-        if not s:
-            return '·'
-        return s[0]
-
-    def get_custom_categories():
-        sd = get_session_data()
-        categories = sd.get('custom_categories', v'[]') or v'[]'
-        if not Array.isArray(categories):
-            categories = v'[]'
-        return categories
-
-    def set_custom_categories(categories):
-        get_session_data().set('custom_categories', categories or v'[]')
-
     def edit_custom_category(index):
         categories = get_custom_categories()
         item = categories[index] or v'{}'
-        initial_name = (item.name or '') + ''
-        initial_filter = (item.filter or '') + ''
 
-        create_custom_dialog(_('Edit custom Category'), def(parent, close_modal):
-            name_input = E.input(type='text', value=initial_name, placeholder=_('Category name'))
-            filter_input = E.input(type='text', value=initial_filter, placeholder=_('Filter condition'))
-            icon_picker = create_custom_category_icon_picker((item.icon or 'folder') + '')
-            use_icon_cb = E.input(type='checkbox')
-            use_icon_cb.checked = item.use_icon is not False
-            icon_section = E.div(class_='cc-icon-section',
-                E.div(class_='cc-row',
-                    E.label(_('Icon'), class_='cc-label'),
-                    icon_picker.root
-                ),
-            )
-            use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
+        def save_changes(updated_item):
+            if not set_custom_category_at(index, updated_item):
+                return False
+            render_custom_categories()
+            return True
 
-            def sync_icon_section_visibility(ev=None):
-                on = use_icon_cb.checked
-                icon_section.style.display = 'block' if on else 'none'
-                use_icon_help.style.display = 'none' if on else 'block'
+        def delete_item():
+            if not remove_custom_category_at(index):
+                return False
+            render_custom_categories()
+            return True
 
-            def save_changes(ev=None):
-                name = (name_input.value or '').strip()
-                filter_expr = (filter_input.value or '').strip()
-                if not name or not filter_expr:
-                    return
-                categories = get_custom_categories()
-                if index < 0 or index >= categories.length:
-                    return
-                categories[index] = {'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked}
-                set_custom_categories(categories)
-                close_modal()
-                render_custom_categories()
-
-            def delete_item(ev=None):
-                categories = get_custom_categories()
-                if index < 0 or index >= categories.length:
-                    return
-                categories.splice(index, 1)
-                set_custom_categories(categories)
-                close_modal()
-                render_custom_categories()
-
-            parent.appendChild(E.div(class_='cs-custom-category-dialog',
-                E.div(class_='cc-row',
-                    E.label(_('Category name'), class_='cc-label'),
-                    name_input
-                ),
-                E.div(class_='cc-row',
-                    E.label(_('Filter condition'), class_='cc-label'),
-                    filter_input
-                ),
-                E.div(class_='cc-checkbox-row',
-                    use_icon_cb,
-                    E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
-                ),
-                use_icon_help,
-                icon_section,
-                E.div(class_='cc-actions-delete',
-                    create_button(_('Delete'), 'trash', delete_item),
-                ),
-                E.div(class_='cc-actions-save-cancel',
-                    create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
-                    create_button(_('Save'), 'check', save_changes, highlight=True),
-                )
-            ))
-            use_icon_cb.addEventListener('change', sync_icon_section_visibility)
-            sync_icon_section_visibility()
-            setTimeout(def():
-                name_input.focus()
-            , 10)
+        show_custom_category_dialog(
+            _('Edit custom Category'), _('Save'), save_changes,
+            initial_name=(item.name or '') + '',
+            initial_filter=(item.filter or '') + '',
+            initial_icon=(item.icon or 'folder') + '',
+            initial_use_icon=item.use_icon is not False,
+            on_delete=delete_item,
         )
 
     def create_custom_category():
-        create_custom_dialog(_('New Category'), def(parent, close_modal):
-            name_input = E.input(type='text', placeholder=_('Category name'))
-            filter_input = E.input(type='text', placeholder=_('Filter condition'))
-            icon_picker = create_custom_category_icon_picker('folder')
-            use_icon_cb = E.input(type='checkbox')
-            use_icon_cb.checked = True
-            icon_section = E.div(class_='cc-icon-section',
-                E.div(class_='cc-row',
-                    E.label(_('Icon'), class_='cc-label'),
-                    icon_picker.root
-                ),
-            )
-            use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
+        def create_item(item):
+            if not add_custom_category(item):
+                return False
+            render_custom_categories()
+            return True
 
-            def sync_icon_section_visibility(ev=None):
-                on = use_icon_cb.checked
-                icon_section.style.display = 'block' if on else 'none'
-                use_icon_help.style.display = 'none' if on else 'block'
-
-            def create_item(ev=None):
-                name = (name_input.value or '').strip()
-                filter_expr = (filter_input.value or '').strip()
-                if not name or not filter_expr:
-                    return
-                categories = get_custom_categories()
-                categories.push({'name': name, 'filter': filter_expr, 'icon': (icon_picker.get_value() or '📁'), 'use_icon': use_icon_cb.checked})
-                set_custom_categories(categories)
-                close_modal()
-                render_custom_categories()
-
-            parent.appendChild(E.div(class_='cs-custom-category-dialog',
-                E.div(class_='cc-row',
-                    E.label(_('Category name'), class_='cc-label'),
-                    name_input
-                ),
-                E.div(class_='cc-row',
-                    E.label(_('Filter condition'), class_='cc-label'),
-                    filter_input
-                ),
-                E.div(class_='cc-checkbox-row',
-                    use_icon_cb,
-                    E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
-                ),
-                use_icon_help,
-                icon_section,
-                E.div(class_='cc-actions-save-cancel cc-actions-save-cancel--toprule',
-                    create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
-                    create_button(_('Create'), 'plus', create_item, highlight=True),
-                )
-            ))
-            use_icon_cb.addEventListener('change', sync_icon_section_visibility)
-            sync_icon_section_visibility()
-            setTimeout(def():
-                name_input.focus()
-            , 10)
-        )
+        show_custom_category_dialog(_('New Category'), _('Create'), create_item, save_icon='plus')
 
     def render_custom_categories():
         clear(g_custom)

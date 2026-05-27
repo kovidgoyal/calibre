@@ -1,0 +1,82 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.custom_categories import custom_category_item
+from book_list.custom_category_icon_picker import create_custom_category_icon_picker
+from modals import create_custom_dialog
+from widgets import create_button
+
+
+def show_custom_category_dialog(
+        title, save_label, on_save, initial_name='', initial_filter='',
+        initial_icon='folder', initial_use_icon=True, on_delete=None, save_icon='check'):
+    create_custom_dialog(title, def(parent, close_modal):
+        name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Category name'))
+        filter_input = E.input(type='text', value=((initial_filter or '') + ''), placeholder=_('Filter condition'))
+        icon_picker = create_custom_category_icon_picker((initial_icon or 'folder') + '')
+        use_icon_cb = E.input(type='checkbox')
+        use_icon_cb.checked = initial_use_icon is not False
+        icon_section = E.div(class_='cc-icon-section',
+            E.div(class_='cc-row',
+                E.label(_('Icon'), class_='cc-label'),
+                icon_picker.root
+            ),
+        )
+        use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
+
+        def sync_icon_section_visibility(ev=None):
+            on = use_icon_cb.checked
+            icon_section.style.display = 'block' if on else 'none'
+            use_icon_help.style.display = 'none' if on else 'block'
+
+        def save_item(ev=None):
+            item = custom_category_item(name_input.value, filter_input.value, icon_picker.get_value(), use_icon_cb.checked)
+            if not item:
+                return
+            if on_save(item) is False:
+                return
+            close_modal()
+
+        def delete_item(ev=None):
+            if on_delete and on_delete() is False:
+                return
+            close_modal()
+
+        dialog = E.div(class_='cs-custom-category-dialog',
+            E.div(class_='cc-row',
+                E.label(_('Category name'), class_='cc-label'),
+                name_input
+            ),
+            E.div(class_='cc-row',
+                E.label(_('Filter condition'), class_='cc-label'),
+                filter_input
+            ),
+            E.div(class_='cc-checkbox-row',
+                use_icon_cb,
+                E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
+            ),
+            use_icon_help,
+            icon_section,
+        )
+        actions_class = 'cc-actions-save-cancel'
+        if on_delete:
+            dialog.appendChild(E.div(class_='cc-actions-delete',
+                create_button(_('Delete'), 'trash', delete_item),
+            ))
+        else:
+            actions_class += ' cc-actions-save-cancel--toprule'
+        dialog.appendChild(E.div(class_=actions_class,
+            create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+            create_button(save_label, save_icon, save_item, highlight=True),
+        ))
+        parent.appendChild(dialog)
+        use_icon_cb.addEventListener('change', sync_icon_section_visibility)
+        sync_icon_section_visibility()
+        setTimeout(def():
+            name_input.focus()
+        , 10)
+    )
