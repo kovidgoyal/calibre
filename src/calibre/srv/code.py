@@ -230,8 +230,6 @@ BROWSE_FIELD_DESCRIPTIONS = {
     'pubdate': _('Browse by published date'),
 }
 BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
-
-
 def browse_field_kind(key, metadata):
     if metadata is None or metadata.get('kind') != 'field':
         return ''
@@ -390,7 +388,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
-        ans['browse_fields'] = get_browse_fields(db)
+        ans['browse_field_options'] = ans['browse_fields'] = get_browse_fields(db)
         ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
         ans['fields_that_support_notes'] = tuple(db._field_supports_notes())
