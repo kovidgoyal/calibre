@@ -20,8 +20,7 @@ from calibre.srv.ajax import search_result
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect, HTTPTempRedirect
 from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import (
-    book_as_json, categories_as_json, categories_settings, category_item_as_json,
-    get_gpref, icon_map, web_search_link
+    book_as_json, categories_as_json, categories_settings, get_gpref, icon_map, web_search_link
 )
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
@@ -286,19 +285,49 @@ def escape_search_value(x):
 
 
 def category_browse_search_expression(field, item):
-    return item.search_expression or f'{field}:"{escape_search_value(item.original_name)}"'
+    search = item.get('search_expression')
+    if search:
+        return search
+    search_name = item.get('original_name') or item.get('name') or ''
+    if field == 'rating':
+        stars = str(search_name).count('★')
+        if 1 <= stars <= 5:
+            return f'rating:{stars}'
+    return f'{field}:"{escape_search_value(search_name)}"'
 
 
 def category_browse_items(ctx, rd, db, field, vl):
     opts = categories_settings(rd.query, db, gst_container=tuple)
-    categories = ctx.get_categories(
-        rd, db, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter', vl=vl)
-    ans = []
-    for item in categories.get(field, ()):
-        data = category_item_as_json(item)
-        data['search'] = category_browse_search_expression(field, item)
-        data['search_name'] = item.original_name
-        ans.append(data)
+    categories = json_loads(categories_as_json(ctx, rd, db, opts, vl))
+    root = categories.get('root') or {}
+    item_map = categories.get('item_map') or {}
+    category_node = None
+    for child in root.get('children', ()):
+        item = item_map.get(child.get('id')) or {}
+        if item.get('is_category') and item.get('category') == field:
+            category_node = child
+            break
+    if category_node is None:
+        return ()
+    ans, seen = [], set()
+
+    def walk(node):
+        for child in node.get('children', ()):
+            item = item_map.get(child.get('id')) or {}
+            name = item.get('name') or ''
+            if name and not item.get('is_category') and name not in seen:
+                seen.add(name)
+                search_name = item.get('original_name') or name
+                ans.append({
+                    'name': name,
+                    'count': item.get('count'),
+                    'avg_rating': item.get('avg_rating'),
+                    'search_name': search_name,
+                    'search': category_browse_search_expression(field, item),
+                })
+            walk(child)
+
+    walk(category_node)
     return tuple(ans)
 
 
