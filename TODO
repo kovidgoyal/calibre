@@ -3,11 +3,9 @@ a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
 it is.
 
-There appears to be no way to add custom columns (user created
-columns) to the browse section. This should be added in settings.
-You can see code for how to implement this in
-bookshelf_view.py, see get_grouped_iterator() it will require a new end point
-in srv/code.py
+There should be a way to select which items appear under browse in the sidebar.
+A tab in settings and maybe long tap/right click (contextmenuevent)
+on the category in the side bar to have an option to hide it.
 
 The scrollbars in dark mode have very low contrast
 
