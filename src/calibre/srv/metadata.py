@@ -188,7 +188,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db
     def name_for_icon(node):
         return node.get('original_name', node.get('name'))
 
-    value_icons = get_gpref('tags_browser_value_icons')
+    value_icons = get_gpref('tags_browser_value_icons') or {}
     val_icon, for_children = value_icons.get(category, {}).get(name_for_icon(node), (None, False))
     if val_icon is None:
         # No specific icon. Walk up the hierarchy checking parents.
