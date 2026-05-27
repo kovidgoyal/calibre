@@ -3,10 +3,6 @@ a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
 it is.
 
-There should be a way to select which items appear under browse in the sidebar.
-A tab in settings and maybe long tap/right click (contextmenuevent)
-on the category in the side bar to have an option to hide it.
-
 The scrollbars in dark mode have very low contrast
 
 Viewer UI needs to be re styled to match overall server UI
