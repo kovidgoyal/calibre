@@ -167,10 +167,16 @@ class ContentTest(LibraryBaseTest):
             fields = {x['key']: x for x in data['browse_fields']}
             for key in 'series authors publisher tags formats rating pubdate'.split():
                 self.assertIn(key, fields)
+            options = {x['key']: x for x in data['browse_field_options']}
+            self.ae(options['#enum']['name'], 'Enum')
+            self.ae(options['#enum']['kind'], 'category')
             self.ae(fields['#enum']['name'], 'Enum')
             self.ae(fields['#enum']['kind'], 'category')
+            self.ae(options['#date']['name'], 'My Date')
+            self.ae(options['#date']['kind'], 'date')
             self.ae(fields['#date']['name'], 'My Date')
             self.ae(fields['#date']['kind'], 'date')
+            self.ae(fields, options)
 
             r, data = request('/interface-data/browse-field/' + quote('#enum', safe=''))
             self.ae(r.status, OK)
