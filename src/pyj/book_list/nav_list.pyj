@@ -602,21 +602,20 @@ def create_nav_list_panel(container_id):
         top_pager_widget.middle_row.appendChild(search_inp)
         top_pager_widget.middle_row.appendChild(apply_btn)
 
+    def toggle_btn(label, mode):
+        a = E.a(href='#', class_='cs-toggle-btn')
+        a.setAttribute('aria-pressed', 'true' if group_mode is mode else 'false')
+        a.appendChild(E.span(label))
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            update_nav_list_url(field, 0, num, None, replace=True, g=mode)
+        )
+        return a
 
     if field_info.kind is 'date':
         group_toggle = E.div(style='display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap')
         group_toggle.appendChild(E.span(_('Group:'), style='opacity:0.75'))
         seg = E.div(class_='cs-toggle')
-
-        def toggle_btn(label, mode):
-            a = E.a(href='#', class_='cs-toggle-btn')
-            a.setAttribute('aria-pressed', 'true' if group_mode is mode else 'false')
-            a.appendChild(E.span(label))
-            a.addEventListener('click', def(evt):
-                evt.preventDefault()
-                update_nav_list_url(field, 0, num, None, replace=True, g=mode)
-            )
-            return a
 
         seg.appendChild(toggle_btn(_('Year'), 'y'))
         seg.appendChild(toggle_btn(_('Year & Month'), 'ym'))
@@ -795,6 +794,13 @@ def create_nav_list_panel(container_id):
         items = [to_item(x) for x in raw]
         items = filtered(items)
         total = items.length or 0
+
+        def make_action(search_query):
+            return def(ev):
+                if ev:
+                    ev.preventDefault()
+                show_panel('book_list', query=search_query, replace=False)
+
         if field is 'tags':
             shown = min(total, visible_tags)
             status.textContent = _('{0} of {1}').format(shown, total)
@@ -807,12 +813,6 @@ def create_nav_list_panel(container_id):
 
             bubbles = E.div(class_='cs-tag-bubbles')
             list_container.appendChild(bubbles)
-
-            def make_action(search_query):
-                return def(ev):
-                    if ev:
-                        ev.preventDefault()
-                    show_panel('book_list', query=search_query, replace=False)
 
             for it in items.slice(0, shown):
                 if not it or not it.name:
@@ -900,12 +900,12 @@ def create_nav_list_panel(container_id):
 
         if field is 'series':
             # After rendering, lazily fetch covers for visible series
-            for row in list_container.querySelectorAll('[data-series-name]'):
-                li = row.closest('li')
+            for srow in list_container.querySelectorAll('[data-series-name]'):
+                li = srow.closest('li')
                 if li:
                     li.classList.add('cs-series-stack-item')
-                sname = row.dataset.seriesName
-                cdiv = row.querySelector('.cs-series-stack-covers')
+                sname = srow.dataset.seriesName
+                cdiv = srow.querySelector('.cs-series-stack-covers')
                 if cdiv:
                     ensure_series_covers(sname, cdiv)
 
