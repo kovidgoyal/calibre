@@ -101,10 +101,10 @@ def install_data_and_init_ui(raw_data):
     data = JSON.parse(raw_data)
     update_interface_data(data)
     update_recently_read_by_user(data.recently_read_by_user)
-    update_library_data(data)
     interface_data = get_interface_data()
     sd = UserSessionData(interface_data.username, interface_data.user_session_data)
     set_session_data(sd)
+    update_library_data(data)
     if data.translations?:
         get_translations(data.translations)
     init_ui()
