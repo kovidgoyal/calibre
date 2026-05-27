@@ -177,6 +177,8 @@ class ContentTest(LibraryBaseTest):
             enum_items = {x['name']: x for x in data['items']}
             self.ae(set(enum_items), {'One', 'Two'})
             self.ae(enum_items['One']['search'], '#enum:"One"')
+            r, data = request('/interface-data/browse-field/_enum')
+            self.ae(r.status, NOT_FOUND)
 
             r, data = request('/interface-data/browse-field/rating')
             self.ae(r.status, OK)
