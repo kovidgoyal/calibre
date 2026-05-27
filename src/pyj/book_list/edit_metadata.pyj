@@ -808,10 +808,8 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
     footer.appendChild(create_button(_('Save'), icon='check', action=def(ev):
         if pending.remove:
             draft_changes.cover = '--remove--'
-            has_changes = True
         elif pending.file:
             draft_changes.cover = pending.file
-            has_changes = True
         if object_url:
             try:
                 window.URL.revokeObjectURL(object_url)
@@ -1306,20 +1304,22 @@ def show_book(container_id, book_id):
         ))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
+
+    def save_action(ev=None):
+        nonlocal changes, draft_changes, has_changes
+        changes = draft_changes
+        draft_changes = {}
+        has_changes = False
+        submit_changes(container_id, book_id)
+
+    def cancel_action(ev=None):
+        nonlocal draft_changes, has_changes
+        draft_changes = {}
+        has_changes = False
+        show_book(container_id, book_id)
+
+
     if has_changes:
-        def save_action(ev=None):
-            nonlocal changes, draft_changes, has_changes
-            changes = draft_changes
-            draft_changes = {}
-            has_changes = False
-            submit_changes(container_id, book_id)
-
-        def cancel_action(ev=None):
-            nonlocal draft_changes, has_changes
-            draft_changes = {}
-            has_changes = False
-            show_book(container_id, book_id)
-
         div.appendChild(E.div(class_='edit-metadata-footer', style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem',
             create_button(_('Save'), None, save_action, highlight=True),
             create_button(_('Cancel'), None, cancel_action),

@@ -163,6 +163,13 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
     except Exception:
         is_home = False
 
+    def on_back_click(event):
+        event.preventDefault()
+        if callable(back_action):
+            back_action(event)
+        else:
+            back.bind(event)()
+
     for i, bar in enumerate(bars):
         left = bar.firstChild
         clear(left)
@@ -191,13 +198,6 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 btns = left.getElementsByTagName('a')
                 idx = 0
                 if not is_home:
-                    def on_back_click(event):
-                        event.preventDefault()
-                        if callable(back_action):
-                            back_action(event)
-                        else:
-                            back.bind(event)()
-
                     btns[idx].addEventListener('click', on_back_click)
                     idx += 1
                 btns[idx].addEventListener('click', def(event):
