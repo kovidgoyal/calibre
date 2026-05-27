@@ -8,6 +8,7 @@ from gettext import gettext as _
 
 from book_list.router import home
 from book_list.globals import get_session_data
+from book_list.library_data import browse_fields
 from book_list.ui import show_panel
 from book_list.custom_categories import (
     add_custom_category, custom_category_nav_initial, get_custom_categories,
@@ -116,36 +117,26 @@ def create_sidebar():
         return t
 
     section_elems = {}
-    section_elems.series = nav_section(_('Series'), 'series', _('Browse all series'), icon='book')
-    section_elems.authors = nav_section(_('Authors'), 'authors', _('Browse all authors'), icon='user')
-    # Reuse existing msgids so labels are localized across calibre translations.
-    # Some translations use full-width colon '：' and include placeholders, so
-    # we take only the prefix before the colon.
-    def label_prefix(x):
-        x = (x or '').toString()
-        if '：' in x:
-            return x.partition('：')[0]
-        if ':' in x:
-            return x.partition(':')[0]
-        return x
 
-    publisher_label = label_prefix(_('Publisher: {publisher}') or 'Publisher')
-    pubdate_label = label_prefix(_('Published: {pubdate}') or 'Published')
-    tags_label = (_('Tags') or 'Tags')
-    tag_label = 'Tag' if tags_label is 'Tags' else tags_label
+    def render_browse_fields():
+        clear(g2)
+        for k in Object.keys(section_elems):
+            v'delete section_elems[k]'
+        for field in browse_fields():
+            key = (field.key or '') + ''
+            if not key:
+                continue
+            section_elems[key] = nav_section(field.name or key, key, field.description or '', icon=field.icon or 'toc')
+            g2.appendChild(section_elems[key])
+        try:
+            update_active = window.cs_update_sidebar_active
+        except Exception:
+            update_active = None
+        if update_active:
+            update_active()
 
-    section_elems.publisher = nav_section(publisher_label, 'publisher', _('Browse all publishers'), icon='library')
-    section_elems.tags = nav_section(tag_label, 'tags', _('Browse all tags'), icon='tags')
-    section_elems.formats = nav_section(_('Formats'), 'formats', _('Browse all formats'), icon='convert')
-    section_elems.rating = nav_section(_('Rating'), 'rating', _('Browse by rating'), icon='star')
-    section_elems.pubdate = nav_section(pubdate_label, 'pubdate', _('Browse by published date'), icon='date')
-    g2.appendChild(section_elems.series)
-    g2.appendChild(section_elems.authors)
-    g2.appendChild(section_elems.publisher)
-    g2.appendChild(section_elems.tags)
-    g2.appendChild(section_elems.formats)
-    g2.appendChild(section_elems.rating)
-    g2.appendChild(section_elems.pubdate)
+    render_browse_fields()
+    window.cs_refresh_browse_fields = render_browse_fields
     left.appendChild(g2)
 
     left.appendChild(E.div(class_='cs-nav-divider'))
@@ -245,7 +236,7 @@ def create_sidebar():
         clear_active(search_link)
         clear_active(reader_link)
         clear_active(settings_link)
-        for k in ('series', 'authors', 'publisher', 'tags', 'formats', 'rating', 'pubdate'):
+        for k in Object.keys(section_elems):
             clear_active(section_elems[k])
         if active_panel is 'book_list^search':
             search_link.dataset.active = '1'
