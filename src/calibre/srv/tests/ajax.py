@@ -158,6 +158,7 @@ class ContentTest(LibraryBaseTest):
     def test_interface_data_browse_fields(self):  # {{{
         'Test /interface-data browse field data'
         with self.create_server() as server:
+            db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
             request = partial(make_request, conn, prefix='')
 
@@ -177,6 +178,11 @@ class ContentTest(LibraryBaseTest):
             self.ae(set(enum_items), {'One', 'Two'})
             self.ae(enum_items['One']['search'], '#enum:"One"')
 
+            r, data = request('/interface-data/browse-field/rating')
+            self.ae(r.status, OK)
+            rating_items = {x['name']: x for x in data['items']}
+            self.ae(rating_items['★★']['search'], 'rating:2')
+
             r, data = request('/interface-data/browse-field/' + quote('#date', safe='') + '?date_group=ym')
             self.ae(r.status, OK)
             self.ae(data['items'], [{
@@ -185,6 +191,15 @@ class ContentTest(LibraryBaseTest):
                 'avg_rating': None,
                 'search': '#date:>=2011-09-01 and #date:<2011-10-01',
             }])
+
+            db.set_pref('categories_using_hierarchy', ['tags'])
+            db.set_field('tags', {1: ['Fiction.Mystery'], 2: ['Fiction.Romance']})
+            r, data = request('/interface-data/browse-field/tags?partition_method=disable')
+            self.ae(r.status, OK)
+            tag_items = {x['name']: x for x in data['items']}
+            self.ae(set(tag_items), {'Fiction', 'Mystery', 'Romance'})
+            self.ae(tag_items['Mystery']['search_name'], 'Fiction.Mystery')
+            self.ae(tag_items['Mystery']['search'], 'tags:"Fiction.Mystery"')
     # }}}
 
     def test_srv_restrictions(self):  # {{{
