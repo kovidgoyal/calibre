@@ -19,7 +19,10 @@ from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect, HTTPTempRedirect
 from calibre.srv.last_read import last_read_cache
-from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, get_gpref, icon_map, web_search_link
+from calibre.srv.metadata import (
+    book_as_json, categories_as_json, categories_settings, category_item_as_json,
+    get_gpref, icon_map, web_search_link
+)
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
@@ -210,6 +213,132 @@ def get_field_list(db):
     return [f for f, d in fieldlist if d and f in available]
 
 
+BROWSE_FIELD_ORDER = ('series', 'authors', 'publisher', 'tags', 'formats', 'rating', 'pubdate')
+BROWSE_FIELD_ICONS = {
+    'series': 'book',
+    'authors': 'user',
+    'publisher': 'library',
+    'tags': 'tags',
+    'formats': 'convert',
+    'rating': 'star',
+    'pubdate': 'date',
+}
+BROWSE_FIELD_DESCRIPTIONS = {
+    'series': _('Browse all series'),
+    'authors': _('Browse all authors'),
+    'publisher': _('Browse all publishers'),
+    'tags': _('Browse all tags'),
+    'formats': _('Browse all formats'),
+    'rating': _('Browse by rating'),
+    'pubdate': _('Browse by published date'),
+}
+BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
+
+
+def browse_field_kind(key, metadata):
+    if metadata is None or metadata.get('kind') != 'field':
+        return ''
+    if key == 'pubdate' or (metadata.get('is_custom') and metadata.get('datatype') == 'datetime'):
+        return 'date'
+    if metadata.get('is_category') and key not in BROWSE_IGNORED_CATEGORIES:
+        return 'category'
+    return ''
+
+
+def browse_field_entry(key, metadata, kind):
+    name = metadata.get('name') or key
+    return {
+        'key': key,
+        'name': name,
+        'description': BROWSE_FIELD_DESCRIPTIONS.get(key) or _('Browse {0}').format(name),
+        'kind': kind,
+        'icon': BROWSE_FIELD_ICONS.get(key) or ('date' if kind == 'date' else 'tags'),
+        'is_custom': bool(metadata.get('is_custom')),
+        'datatype': metadata.get('datatype') or '',
+    }
+
+
+def browse_field_map(db):
+    fm = db.field_metadata
+    ans = {}
+    for key in BROWSE_FIELD_ORDER:
+        metadata = fm.get(key)
+        kind = browse_field_kind(key, metadata)
+        if kind:
+            ans[key] = browse_field_entry(key, metadata, kind)
+    custom_fields = []
+    for key, metadata in fm.custom_field_metadata(include_composites=False).items():
+        kind = browse_field_kind(key, metadata)
+        if kind and key not in ans:
+            custom_fields.append((sort_key(metadata.get('name') or key), key, metadata, kind))
+    for unused_sort_key, key, metadata, kind in sorted(custom_fields):
+        ans[key] = browse_field_entry(key, metadata, kind)
+    return ans
+
+
+def get_browse_fields(db):
+    fields = browse_field_map(db)
+    return tuple(fields[key] for key in fields)
+
+
+def escape_search_value(x):
+    return str(x or '').replace('\\', '\\\\').replace('"', '\\"')
+
+
+def category_browse_search_expression(field, item):
+    return item.search_expression or f'{field}:"{escape_search_value(item.original_name)}"'
+
+
+def category_browse_items(ctx, rd, db, field, vl):
+    opts = categories_settings(rd.query, db, gst_container=tuple)
+    categories = ctx.get_categories(
+        rd, db, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter', vl=vl)
+    ans = []
+    for item in categories.get(field, ()):
+        data = category_item_as_json(item)
+        data['search'] = category_browse_search_expression(field, item)
+        data['search_name'] = item.original_name
+        ans.append(data)
+    return tuple(ans)
+
+
+def next_month(year, month):
+    month += 1
+    if month > 12:
+        return year + 1, 1
+    return year, month
+
+
+def date_browse_items(ctx, rd, db, field, vl):
+    from calibre.db.search import TemplatesNotAllowed
+
+    try:
+        book_ids, parse_error = ctx.search(
+            rd, db, rd.query.get('search') or '', vl=vl, report_restriction_errors=True)
+    except TemplatesNotAllowed:
+        raise HTTPBadRequest(_('templates are not allowed in search expressions'))
+    if parse_error is not None:
+        raise HTTPBadRequest(str(parse_error))
+    group = rd.query.get('date_group') or 'y'
+    if group == 'ym':
+        groups = db.books_by_month(field=field, restrict_to_books=book_ids)
+        items = sorted(groups, reverse=True)
+        return tuple({
+            'name': f'{year:04d}-{month:02d}',
+            'count': len(groups[year, month]),
+            'avg_rating': None,
+            'search': '{}:>={:04d}-{:02d}-01 and {}:<{:04d}-{:02d}-01'.format(
+                field, year, month, field, *next_month(year, month)),
+        } for year, month in items if groups[year, month])
+    groups = db.books_by_year(field=field, restrict_to_books=book_ids)
+    return tuple({
+        'name': f'{year:04d}',
+        'count': len(groups[year]),
+        'avg_rating': None,
+        'search': f'{field}:>={year:04d}-01-01 and {field}:<{year + 1:04d}-01-01',
+    } for year in sorted(groups, reverse=True) if groups[year])
+
+
 def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
     ans = {}
     with db.safe_read_lock:
@@ -234,6 +363,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
+        ans['browse_fields'] = get_browse_fields(db)
         ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
         ans['fields_that_support_notes'] = tuple(db._field_supports_notes())
@@ -466,6 +596,30 @@ def tag_browser(ctx, rd):
         return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db, opts, vl))
 
     return rd.etagged_dynamic_response(etag, generate)
+
+
+@endpoint('/interface-data/browse-field/{field}', postprocess=json)
+def browse_field(ctx, rd, field):
+    '''
+    Get browse-list items for the specified metadata field.
+    Optional: ?library_id=<default library>&vl=&date_group=y
+    '''
+    db = get_library_data(ctx, rd)[0]
+    if field.startswith('_'):
+        try:
+            field = db.field_metadata.label_to_key(field[1:], prefer_custom=True)
+        except ValueError:
+            raise HTTPNotFound(f'{field} is not a browse field')
+    fields = browse_field_map(db)
+    field_data = fields.get(field)
+    if field_data is None:
+        raise HTTPNotFound(f'{field} is not a browse field')
+    vl = rd.query.get('vl') or ''
+    if field_data['kind'] == 'date':
+        items = date_browse_items(ctx, rd, db, field, vl)
+    else:
+        items = category_browse_items(ctx, rd, db, field, vl)
+    return {'field': field, 'items': items}
 
 
 def all_lang_names():

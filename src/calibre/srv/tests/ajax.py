@@ -155,6 +155,38 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, 400)
     # }}}
 
+    def test_interface_data_browse_fields(self):  # {{{
+        'Test /interface-data browse field data'
+        with self.create_server() as server:
+            conn = server.connect()
+            request = partial(make_request, conn, prefix='')
+
+            r, data = request('/interface-data/books-init?num=1')
+            self.ae(r.status, OK)
+            fields = {x['key']: x for x in data['browse_fields']}
+            for key in 'series authors publisher tags formats rating pubdate'.split():
+                self.assertIn(key, fields)
+            self.ae(fields['#enum']['name'], 'Enum')
+            self.ae(fields['#enum']['kind'], 'category')
+            self.ae(fields['#date']['name'], 'My Date')
+            self.ae(fields['#date']['kind'], 'date')
+
+            r, data = request('/interface-data/browse-field/' + quote('#enum', safe=''))
+            self.ae(r.status, OK)
+            enum_items = {x['name']: x for x in data['items']}
+            self.ae(set(enum_items), {'One', 'Two'})
+            self.ae(enum_items['One']['search'], '#enum:"One"')
+
+            r, data = request('/interface-data/browse-field/' + quote('#date', safe='') + '?date_group=ym')
+            self.ae(r.status, OK)
+            self.ae(data['items'], [{
+                'name': '2011-09',
+                'count': 2,
+                'avg_rating': None,
+                'search': '#date:>=2011-09-01 and #date:<2011-10-01',
+            }])
+    # }}}
+
     def test_srv_restrictions(self):  # {{{
         ' Test that virtual lib. + search restriction works on all end points'
         with self.create_server(auth=True, auth_mode='basic') as server:
