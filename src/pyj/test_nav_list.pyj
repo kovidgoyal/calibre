@@ -1,0 +1,55 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.nav_list import render_series_stack_covers, series_cover_key, series_stack_cover_count, series_stack_cover_urls, set_series_stack_cover_count
+from elementmaker import E
+from testing import assert_equal, assert_false, assert_true, test
+
+
+@test
+def series_stack_cover_count_contract():
+    assert_equal(series_stack_cover_count(None), 0)
+    assert_equal(series_stack_cover_count(0), 0)
+    assert_equal(series_stack_cover_count(1), 1)
+    assert_equal(series_stack_cover_count(2), 1)
+    assert_equal(series_stack_cover_count(3), 3)
+    assert_equal(series_stack_cover_count('4'), 3)
+    assert_equal(series_stack_cover_count(5), 5)
+    assert_equal(series_stack_cover_count(6), 5)
+
+
+@test
+def series_cover_key_contract():
+    assert_equal(series_cover_key('library', 'Series'), '["library","Series"]')
+    assert_false(series_cover_key('library-a', 'Series') is series_cover_key('library-b', 'Series'))
+    assert_false(series_cover_key('a', 'bc') is series_cover_key('ab', 'c'))
+
+
+@test
+def series_stack_cover_url_contract():
+    assert_equal(series_stack_cover_urls(None), [])
+    assert_equal(series_stack_cover_urls(['a']), ['a'])
+    assert_equal(series_stack_cover_urls(['a', '', None, 'b', 'c', 'd']), ['a', 'b', 'c'])
+    assert_equal(series_stack_cover_urls(['a', 'b', 'c', 'd', 'e', 'f']), ['a', 'b', 'c', 'd', 'e'])
+
+
+@test
+def series_stack_cover_class_contract():
+    div = E.div(class_='covers-2 covers-5')
+    assert_equal(set_series_stack_cover_count(div, '4'), 3)
+    assert_false(div.classList.contains('covers-2'))
+    assert_false(div.classList.contains('covers-5'))
+    assert_true(div.classList.contains('covers-3'))
+
+
+@test
+def render_series_stack_cover_contract():
+    div = E.div(class_='covers-5')
+    one_px = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+    assert_equal(render_series_stack_covers(div, [one_px + '#a', '', one_px + '#b', one_px + '#c', one_px + '#d']), 3)
+    assert_false(div.classList.contains('covers-5'))
+    assert_true(div.classList.contains('covers-3'))
+    assert_equal(div.children.length, 3)
+    assert_true(div.children[0].classList.contains('cover-0'))
+    assert_true(div.children[2].classList.contains('cover-2'))
