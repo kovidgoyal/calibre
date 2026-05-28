@@ -14,6 +14,7 @@ from threading import Lock
 from calibre import as_unicode
 from calibre.constants import in_develop_mode
 from calibre.customize.ui import available_input_formats
+from calibre.db.categories import category_display_order
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
@@ -230,6 +231,8 @@ BROWSE_FIELD_DESCRIPTIONS = {
     'pubdate': _('Browse by published date'),
 }
 BROWSE_IGNORED_CATEGORIES = frozenset({'identifiers', 'news', 'search'})
+
+
 def browse_field_kind(key, metadata):
     if metadata is None or metadata.get('kind') != 'field':
         return ''
@@ -240,7 +243,7 @@ def browse_field_kind(key, metadata):
     return ''
 
 
-def browse_field_entry(key, metadata, kind):
+def browse_field_entry(key, metadata, kind, hidden_categories):
     name = metadata.get('name') or key
     return {
         'key': key,
@@ -250,30 +253,32 @@ def browse_field_entry(key, metadata, kind):
         'icon': BROWSE_FIELD_ICONS.get(key) or ('date' if kind == 'date' else 'tags'),
         'is_custom': bool(metadata.get('is_custom')),
         'datatype': metadata.get('datatype') or '',
+        'default_visible': key not in hidden_categories,
     }
 
 
 def browse_field_map(db):
     fm = db.field_metadata
+    hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     ans = {}
     for key in BROWSE_FIELD_ORDER:
         metadata = fm.get(key)
         kind = browse_field_kind(key, metadata)
         if kind:
-            ans[key] = browse_field_entry(key, metadata, kind)
+            ans[key] = browse_field_entry(key, metadata, kind, hidden_categories)
     custom_fields = []
     for key, metadata in fm.custom_field_metadata(include_composites=False).items():
         kind = browse_field_kind(key, metadata)
         if kind and key not in ans:
             custom_fields.append((sort_key(metadata.get('name') or key), key, metadata, kind))
     for unused_sort_key, key, metadata, kind in sorted(custom_fields):
-        ans[key] = browse_field_entry(key, metadata, kind)
+        ans[key] = browse_field_entry(key, metadata, kind, hidden_categories)
     return ans
 
 
 def get_browse_fields(db):
     fields = browse_field_map(db)
-    return tuple(fields[key] for key in fields)
+    return tuple(fields[key] for key in category_display_order(db.pref('tag_browser_category_order', ()), tuple(fields)))
 
 
 def escape_search_value(x):
@@ -388,7 +393,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
-        ans['browse_field_options'] = ans['browse_fields'] = get_browse_fields(db)
+        ans['browse_fields'] = get_browse_fields(db)
         ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
         ans['fields_that_support_notes'] = tuple(db._field_supports_notes())
