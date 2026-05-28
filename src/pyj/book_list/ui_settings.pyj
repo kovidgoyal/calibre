@@ -65,6 +65,11 @@ add_extra_css(def():
     # Prefer shared cs-prefs spacing; keep help a little softer.
     style += build_rule(sel + '.help', opacity='0.75')
     style += build_rule('.cs-ui-settings.cs-prefs .help', display='block')
+    style += build_rule(sel + '.browse-intro',
+        margin='0 0 0.85rem 0',
+        opacity='0.8',
+        overflow_wrap='anywhere',
+    )
     # Tabs widget
     style += build_rule(sel + '.cs-tabs',
         width='100%',
@@ -226,11 +231,19 @@ def save_browse_fields(container, ev):
 
 
 def create_browse_fields_widget(container):
+    def refresh():
+        if container.isConnected:
+            create_browse_fields_widget(container)
+        else:
+            window.cs_refresh_browse_field_settings = None
+
+    window.cs_refresh_browse_field_settings = refresh
     clear(container)
     try:
         container.classList.add('cs-prefs')
     except Exception:
         pass
+    container.appendChild(E.div(_('Control which categories are visible in the sidebar.'), class_='browse-intro'))
     outer = E.div(class_='list')
     container.appendChild(outer)
 
@@ -238,10 +251,8 @@ def create_browse_fields_widget(container):
     for field in browse_field_settings():
         found = True
         div = E.div(
-            title=field.description,
             class_='item',
             E.div(class_='item-main'),
-            E.div(field.description or '', class_='help')
         )
         control = E.label(
             style='cursor: pointer',
