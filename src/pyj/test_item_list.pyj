@@ -1,0 +1,20 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.item_list import create_item, create_item_list
+from elementmaker import E
+from testing import assert_true, test
+
+
+@test
+def item_list_class_contract():
+    container = E.div()
+    create_item_list(container, [create_item(
+        'Title', li_class='item-test-class item-test-extra', row_class='row-test-class row-test-extra'
+    )])
+    li = container.querySelector('li')
+    assert_true(li.classList.contains('item-test-class'))
+    assert_true(li.classList.contains('item-test-extra'))
+    assert_true(li.firstChild.classList.contains('row-test-class'))
+    assert_true(li.firstChild.classList.contains('row-test-extra'))

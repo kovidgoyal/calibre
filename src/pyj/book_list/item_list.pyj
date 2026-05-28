@@ -78,6 +78,12 @@ def side_action(action, ev):
         action(li)
 
 
+def add_classes(elem, class_names):
+    for cls in (class_names or '').toString().split(/\s+/):
+        if cls:
+            elem.classList.add(cls)
+
+
 def build_list(container, items, subtitle):
     c = container
     clear(c)
@@ -105,6 +111,7 @@ def build_list(container, items, subtitle):
         else:
             title_body.appendChild(tit)
         row = E.div(class_='item-first-row')
+        add_classes(row, item.row_class)
         row.appendChild(title_body)
         nm = item.nav_list_meta
         if nm and (nm.rating or nm.count):
@@ -117,6 +124,7 @@ def build_list(container, items, subtitle):
         elif item.subtitle:
             row.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
         li = E.li(row)
+        add_classes(li, item.li_class)
         ul.appendChild(li)
         if item.action:
             li.addEventListener('click', item.action)
@@ -144,8 +152,12 @@ def create_side_action(icon, action=None, tooltip=None):
     return {'icon':icon, 'action': action, 'tooltip': tooltip}
 
 
-def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon, 'data': data, 'side_actions': side_actions or v'[]', 'nav_list_meta': nav_list_meta}
+def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None, li_class=None, row_class=None):
+    return {
+        'title': title, 'action': action, 'subtitle': subtitle, 'icon': icon, 'data': data,
+        'side_actions': side_actions or v'[]', 'nav_list_meta': nav_list_meta,
+        'li_class': li_class, 'row_class': row_class,
+    }
 
 
 def create_item_list(container, items, subtitle=None):
