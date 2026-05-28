@@ -66,7 +66,7 @@ add_extra_css(def():
         # No frosted glass effects (restore original, flat styling)
     )
     style += build_rule(sel + '.item:hover',
-        border='1px solid var(--calibre-border-style)',
+        border='var(--calibre-border-style)',
         box_shadow='0 16px 44px rgba(0,0,0,0.10)'
     )
     style += build_rule(sel + '.item-main',

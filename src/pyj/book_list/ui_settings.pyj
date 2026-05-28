@@ -83,7 +83,7 @@ add_extra_css(def():
         border_bottom='var(--calibre-border-style)',
         margin_bottom='1rem',
         max_width='100%',
-        overflow_x='auto',
+        overflow_x='auto', overflow_y='hidden',
     )
     style += build_rule(sel + '[role="tab"]',
         background='none',
