@@ -159,11 +159,15 @@ class ContentTest(LibraryBaseTest):
         'Test /interface-data browse field data'
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
+            db.set_pref('tag_browser_category_order', ['tags', 'authors', '#date', 'series', '#enum'])
+            db.set_pref('tag_browser_hidden_categories', ['authors', '#date'])
             conn = server.connect()
             request = partial(make_request, conn, prefix='')
 
             r, data = request('/interface-data/books-init?num=1')
             self.ae(r.status, OK)
+            self.assertNotIn('browse_field_options', data)
+            self.ae([x['key'] for x in data['browse_fields'][:5]], ['tags', 'authors', '#date', 'series', '#enum'])
             fields = {x['key']: x for x in data['browse_fields']}
             for key in 'series authors publisher tags formats rating pubdate'.split():
                 self.assertIn(key, fields)
@@ -171,6 +175,10 @@ class ContentTest(LibraryBaseTest):
             self.ae(fields['#enum']['kind'], 'category')
             self.ae(fields['#date']['name'], 'My Date')
             self.ae(fields['#date']['kind'], 'date')
+            self.ae(fields['authors']['default_visible'], False)
+            self.ae(fields['#date']['default_visible'], False)
+            self.ae(fields['tags']['default_visible'], True)
+            self.ae(fields['#enum']['default_visible'], True)
 
             r, data = request('/interface-data/browse-field/' + quote('#enum', safe=''))
             self.ae(r.status, OK)
