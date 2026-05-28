@@ -30,8 +30,8 @@ sp_counter = 0
 CLASS_NAME = 'book-search-panel'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
-    card_bg = 'var(--cs-surface-1)'
-    card_border = '1px solid var(--cs-surface-border)'
+    card_bg = 'var(--calibre-surface-1)'
+    card_border = 'var(--calibre-border-style-subtle)'
 
     style = build_rule(sel,
         padding='0.75rem 1rem 1rem 1rem',
@@ -77,13 +77,13 @@ add_extra_css(def():
         cursor='pointer',
         padding='0.15rem 0.5rem',
         border_radius='999px',
-        border='1px solid var(--cs-surface-border)',
-        background='var(--cs-surface-3)',
+        border='var(--calibre-border-style-subtle)',
+        background='var(--calibre-color-surface-3)',
         font_size='0.92em',
     )
     style += build_rule(sel + ' ul.search-items > li:hover',
         background='var(--cs-accent-weak)',
-        border_color='var(--cs-surface-border-strong)',
+        border_color='var(--calibre-color-border)',
     )
     style += build_rule(sel + ' ul.search-items > li:active',
         background='var(--cs-accent-weak-2)',
@@ -99,8 +99,8 @@ add_extra_css(def():
         box_shadow='none',
     )
     style += build_rule(sel + ' .cs-search-breadcrumbs.calibre-breadcrumbs',
-        background='var(--cs-surface-2)',
-        border='1px solid var(--cs-surface-border)',
+        background='var(--calibre-color-surface-2)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='14px',
         margin='0 0 0.85rem 0',
         padding='0.25rem 0',
@@ -121,9 +121,9 @@ add_extra_css(def():
         display='flex',
         align_items='stretch',
         max_width='100%',
-        border='1px solid var(--cs-surface-border)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='14px',
-        background='var(--cs-surface-2)',
+        background='var(--calibre-color-surface-2)',
         box_shadow='none',
         cursor='pointer',
         overflow='hidden',
@@ -132,7 +132,7 @@ add_extra_css(def():
     )
     style += build_rule(sel + ' .cs-search-tag-row:hover',
         background_color='var(--cs-accent-weak)',
-        border_color='var(--cs-surface-border-strong)',
+        border_color='var(--calibre-color-border)',
         box_shadow='none',
     )
     style += build_rule(sel + ' .cs-search-tag-row:active',
@@ -140,7 +140,7 @@ add_extra_css(def():
         transform='translateY(0.5px)',
     )
     style += build_rule(sel + ' .cs-search-tag-row .tag-name',
-        border_right='1px solid var(--cs-surface-border)',
+        border_right='var(--calibre-border-style-subtle)',
         padding='0.65rem 0.85rem',
         display='flex',
         align_items='center',
@@ -152,7 +152,7 @@ add_extra_css(def():
         display='flex',
         align_items='center',
         flex='0 0 auto',
-        background='var(--cs-surface-3)',
+        background='var(--calibre-color-surface-3)',
     )
 
     style += build_rule(sel + ' .cs-search-loading',
