@@ -29,7 +29,7 @@ from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
     add_more_books, all_virtual_libraries, book_metadata, current_book_ids,
-    current_sorted_field, ensure_current_library_data, library_data, load_status,
+    current_library_id, current_sorted_field, ensure_current_library_data, library_data, load_status,
     loaded_books_query, thumbnail_cache, url_books_query
 )
 from book_list.router import back, home, push_state, update_window_title
@@ -339,7 +339,10 @@ def fts():
 
 
 def save_to_saved_virtual_library():
-    current_search = (library_data.search_result?.query or '') + ''
+    current_query = loaded_books_query()
+    current_search = (current_query.search or '') + ''
+    library_id = current_query.library_id or current_library_id()
+    virtual_library = (current_query.vl or '') + ''
 
     def do_save(item):
         if not save_saved_virtual_library(item):
@@ -354,6 +357,8 @@ def save_to_saved_virtual_library():
 
     show_saved_virtual_library_dialog(
         _('Save as virtual library'), _('Save'), do_save,
+        library_id,
+        virtual_library,
         initial_search=current_search,
     )
 
