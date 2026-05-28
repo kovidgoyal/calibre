@@ -149,6 +149,51 @@ def tags_cache_key():
 cached_names = {}
 series_cover_cache = {}
 series_cover_inflight = {}
+SERIES_COVER_CLASSES = v'["covers-0","covers-1","covers-2","covers-3","covers-4","covers-5"]'
+
+
+def series_cover_key(library_id, series_name):
+    return JSON.stringify([(library_id or '') + '', (series_name or '') + ''])
+
+
+def series_stack_cover_count(total):
+    try:
+        n = int(total)
+    except Exception:
+        return 0
+    if n < 1:
+        return 0
+    n = min(5, n)
+    if n > 1 and n % 2 == 0:
+        n -= 1
+    return n
+
+
+def set_series_stack_cover_count(div, total):
+    count = series_stack_cover_count(total)
+    for cls in SERIES_COVER_CLASSES:
+        div.classList.remove(cls)
+    div.classList.add('covers-' + str(count))
+    return count
+
+
+def series_stack_cover_urls(urls):
+    actual = []
+    for u in urls or v'[]':
+        if u:
+            actual.push(u)
+    return actual.slice(0, series_stack_cover_count(actual.length))
+
+
+def render_series_stack_covers(div, urls):
+    actual = series_stack_cover_urls(urls)
+    while div.firstChild:
+        div.removeChild(div.firstChild)
+    count = set_series_stack_cover_count(div, actual.length)
+    for i, u in enumerate(actual):
+        img = E.img(src=u, class_='cover-img cover-' + str(i))
+        div.appendChild(img)
+    return count
 
 add_extra_css(def():
     sel = '.cs-nav-list '
@@ -273,10 +318,9 @@ add_extra_css(def():
     style += build_rule(
         '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers',
         position='relative',
-        width='min(100%, 260px)',
-        height='252px',
+        width='min(100%, var(--cs-series-stack-width, 220px))',
+        height='var(--cs-series-stack-height, 204px)',
         box_sizing='border-box',
-        padding_top='36px',
         margin_left='auto',
         margin_right='auto',
         flex='0 0 auto',
@@ -300,13 +344,25 @@ add_extra_css(def():
         box_shadow='0 26px 64px rgba(0,0,0,0.22)'
     )
 
-    # Per-count positioning: only odd stacks (1 / 3 / 5); tighter offsets than before
+    # Per-count sizing/positioning: odd stacks only (1 / 3 / 5).
     style += r'''
+.cs-nav-list .cs-series-stack-covers.covers-0 {
+  display: none;
+}
+
+.cs-nav-list .cs-series-stack-covers.covers-1 {
+  --cs-series-stack-width: 132px;
+  --cs-series-stack-height: 188px;
+}
 .cs-nav-list .cs-series-stack-covers.covers-1 .cover-0 {
   transform: translate(-50%, 0) rotate(0deg) scale(1);
   z-index: 3;
 }
 
+.cs-nav-list .cs-series-stack-covers.covers-3 {
+  --cs-series-stack-width: 192px;
+  --cs-series-stack-height: 200px;
+}
 .cs-nav-list .cs-series-stack-covers.covers-3 .cover-0 {
   transform: translate(calc(-50% - 28px), -12px) rotate(-6deg) scale(0.90);
   z-index: 1;
@@ -320,6 +376,10 @@ add_extra_css(def():
   z-index: 3;
 }
 
+.cs-nav-list .cs-series-stack-covers.covers-5 {
+  --cs-series-stack-width: 220px;
+  --cs-series-stack-height: 204px;
+}
 .cs-nav-list .cs-series-stack-covers.covers-5 .cover-0 {
   transform: translate(calc(-50% - 42px), -14px) rotate(-7deg) scale(0.84);
   z-index: 1;
@@ -451,6 +511,9 @@ add_extra_css(def():
     # Keep series stack fully inside the card; no overflow outside list item.
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item',
         overflow='hidden')
+    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list .cs-series-stack-item-row',
+        flex_direction='column',
+        align_items='stretch')
 
     # Disable hover "lift" animation for series items (prevents cover zoom feel)
     style += build_rule('.generic-items-list li.cs-series-stack-item:hover', transform='none')
@@ -488,23 +551,28 @@ add_extra_css(def():
        max_height='100%',
        width='max-content',
     )
+    style += build_rule(sel + 'input.cs-filter',
+        flex='1 1 auto',
+        width='0',
+        min_width='9em'
+    )
     style += r'''
-  .cs-nav-list input.cs-filter {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 9em;
-    width: 0;
-  }
-}
 @media (max-width: 420px) {
   .cs-nav-list[data-field="series"] .generic-items-list ul {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.55rem;
   }
   .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
-    width: min(100%, 200px);
-    height: 214px;
-    padding-top: 30px;
+    --cs-series-stack-width: 190px;
+    --cs-series-stack-height: 168px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers.covers-1 {
+    --cs-series-stack-width: 108px;
+    --cs-series-stack-height: 150px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers.covers-3 {
+    --cs-series-stack-width: 160px;
+    --cs-series-stack-height: 162px;
   }
   .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
     width: 88px;
@@ -514,9 +582,16 @@ add_extra_css(def():
 }
 @media (max-width: 360px) {
   .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers {
-    width: min(100%, 180px);
-    height: 198px;
-    padding-top: 28px;
+    --cs-series-stack-width: 170px;
+    --cs-series-stack-height: 152px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers.covers-1 {
+    --cs-series-stack-width: 98px;
+    --cs-series-stack-height: 137px;
+  }
+  .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers.covers-3 {
+    --cs-series-stack-width: 148px;
+    --cs-series-stack-height: 149px;
   }
   .cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img {
     width: 80px;
@@ -725,16 +800,17 @@ def create_nav_list_panel(container_id):
     def ensure_series_covers(series_name, target_div):
         if not series_name:
             return
-        series_cover_targets[series_name] = (series_cover_targets[series_name] or v'[]')
-        series_cover_targets[series_name].push(target_div)
-        cached = series_cover_cache[series_name]
-        if cached:
-            apply_series_covers(series_name, cached)
-            return
-        if series_cover_inflight[series_name]:
-            return
-        series_cover_inflight[series_name] = True
         lid = current_library_id()
+        key = series_cover_key(lid, series_name)
+        series_cover_targets[key] = (series_cover_targets[key] or v'[]')
+        series_cover_targets[key].push(target_div)
+        cached = series_cover_cache[key]
+        if cached:
+            apply_series_covers(key, cached)
+            return
+        if series_cover_inflight[key]:
+            return
+        series_cover_inflight[key] = True
         query = {
             'library_id': lid,
             'num': '5',
@@ -742,7 +818,7 @@ def create_nav_list_panel(container_id):
         }
 
         def done(end_type, xhr, ev):
-            series_cover_inflight[series_name] = False
+            series_cover_inflight[key] = False
             if end_type is not 'load':
                 return
             try:
@@ -753,43 +829,20 @@ def create_nav_list_panel(container_id):
             urls = []
             for bid in ids.slice(0, 5):
                 urls.push(cover_url(bid))
-            series_cover_cache[series_name] = urls
-            apply_series_covers(series_name, urls)
+            series_cover_cache[key] = urls
+            apply_series_covers(key, urls)
 
         ajax('interface-data/get-books', done, query=query).send()
 
-    def apply_series_covers(series_name, urls):
-        targets = series_cover_targets[series_name] or v'[]'
+    def apply_series_covers(key, urls):
+        targets = series_cover_targets[key] or v'[]'
         for div in targets:
-            # Build exactly as many images as we have URLs
-            while div.firstChild:
-                div.removeChild(div.firstChild)
-            if urls:
-                # Odd stacks only (1 / 3 / 5); cap at 5; drop trailing when count is even (>1).
-                actual = []
-                for u in urls:
-                    if u:
-                        actual.push(u)
-                while actual.length > 5:
-                    actual.pop()
-                while actual.length > 1 and (actual.length % 2 == 0):
-                    actual.pop()
-                n = actual.length or 0
-                if n < 1:
-                    continue
-                # Structure like reference implementation: container gets covers-N,
-                # images get cover-i classes. Positioning is done in CSS.
-                # Clear any previous covers-* classes (include legacy even counts)
-                cover_classes = v'["covers-1","covers-2","covers-3","covers-4","covers-5"]'
-                for cls in cover_classes:
-                    div.classList.remove(cls)
-                div.classList.add('covers-' + str(n))
-                for i, u in enumerate(actual):
-                    img = E.img(src=u, class_='cover-img cover-' + str(i))
-                    div.appendChild(img)
+            render_series_stack_covers(div, urls)
 
     def render_page(data):
+        nonlocal series_cover_targets
         set_loading(False)
+        series_cover_targets = {}
         raw = data or v'[]'
         items = [to_item(x) for x in raw]
         items = filtered(items)
@@ -877,9 +930,13 @@ def create_nav_list_panel(container_id):
                     list_items.push(create_item(label, action=make_action(search_query), nav_list_meta=meta))
                 else:
                     covers = E.div(class_='cs-series-stack-covers')
-                    row = E.div(class_='cs-series-stack-row', E.div(covers), E.div(label, class_='cs-series-stack-name'))
-                    row.dataset.seriesName = label
-                    list_items.push(create_item(row, action=make_action(search_query), nav_list_meta=meta))
+                    set_series_stack_cover_count(covers, it.count)
+                    stack = E.div(class_='cs-series-stack-row', covers, E.div(label, class_='cs-series-stack-name'))
+                    stack.dataset.seriesName = label
+                    list_items.push(create_item(
+                        stack, action=make_action(search_query), nav_list_meta=meta,
+                        li_class='cs-series-stack-item', row_class='cs-series-stack-item-row'
+                    ))
             elif field is 'rating':
                 # Use server-provided display name (tag-browser item.name); do not parse as int — names are localized.
                 list_items.push(create_item(label, action=make_action(search_query), nav_list_meta=meta))
@@ -901,9 +958,6 @@ def create_nav_list_panel(container_id):
         if field is 'series':
             # After rendering, lazily fetch covers for visible series
             for srow in list_container.querySelectorAll('[data-series-name]'):
-                li = srow.closest('li')
-                if li:
-                    li.classList.add('cs-series-stack-item')
                 sname = srow.dataset.seriesName
                 cdiv = srow.querySelector('.cs-series-stack-covers')
                 if cdiv:
