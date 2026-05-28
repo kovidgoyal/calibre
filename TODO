@@ -3,9 +3,6 @@ a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
 it is.
 
-The sidebar custom category items should display the custom icon for that
-category if the user has set an icon for the category.
-
 The scrollbars in dark mode have very low contrast
 
 Viewer UI needs to be re styled to match overall server UI
