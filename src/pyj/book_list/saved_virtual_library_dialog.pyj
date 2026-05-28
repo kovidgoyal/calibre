@@ -5,24 +5,24 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.custom_categories import custom_category_item
-from book_list.custom_category_icon_picker import create_custom_category_icon_picker
+from book_list.saved_virtual_libraries import saved_virtual_library_item
+from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from modals import create_custom_dialog
 from widgets import create_button
 
 
-def show_custom_category_dialog(
-        title, save_label, on_save, initial_name='', initial_filter='',
+def show_saved_virtual_library_dialog(
+        title, save_label, on_save, initial_name='', initial_search='',
         initial_icon='folder', initial_use_icon=True, on_delete=None, save_icon='check'):
     create_custom_dialog(title, def(parent, close_modal):
-        name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Category name'))
-        filter_input = E.input(type='text', value=((initial_filter or '') + ''), placeholder=_('Filter condition'))
-        icon_picker = create_custom_category_icon_picker((initial_icon or 'folder') + '')
+        name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Virtual library name'))
+        search_input = E.input(type='text', value=((initial_search or '') + ''), placeholder=_('Search expression'))
+        icon_picker = create_saved_virtual_library_icon_picker((initial_icon or 'folder') + '')
         use_icon_cb = E.input(type='checkbox')
         use_icon_cb.checked = initial_use_icon is not False
-        icon_section = E.div(class_='cc-icon-section',
-            E.div(class_='cc-row',
-                E.label(_('Icon'), class_='cc-label'),
+        icon_section = E.div(class_='vl-icon-section',
+            E.div(class_='vl-row',
+                E.label(_('Icon'), class_='vl-label'),
                 icon_picker.root
             ),
         )
@@ -34,7 +34,7 @@ def show_custom_category_dialog(
             use_icon_help.style.display = 'none' if on else 'block'
 
         def save_item(ev=None):
-            item = custom_category_item(name_input.value, filter_input.value, icon_picker.get_value(), use_icon_cb.checked)
+            item = saved_virtual_library_item(name_input.value, search_input.value, icon_picker.get_value(), use_icon_cb.checked)
             if not item:
                 return
             if on_save(item) is False:
@@ -46,29 +46,29 @@ def show_custom_category_dialog(
                 return
             close_modal()
 
-        dialog = E.div(class_='cs-custom-category-dialog',
-            E.div(class_='cc-row',
-                E.label(_('Category name'), class_='cc-label'),
+        dialog = E.div(class_='cs-virtual-library-dialog',
+            E.div(class_='vl-row',
+                E.label(_('Virtual library name'), class_='vl-label'),
                 name_input
             ),
-            E.div(class_='cc-row',
-                E.label(_('Filter condition'), class_='cc-label'),
-                filter_input
+            E.div(class_='vl-row',
+                E.label(_('Search expression'), class_='vl-label'),
+                search_input
             ),
-            E.div(class_='cc-checkbox-row',
+            E.div(class_='vl-checkbox-row',
                 use_icon_cb,
                 E.span(_('Show icon in sidebar'), style='margin-left:0.45rem'),
             ),
             use_icon_help,
             icon_section,
         )
-        actions_class = 'cc-actions-save-cancel'
+        actions_class = 'vl-actions-save-cancel'
         if on_delete:
-            dialog.appendChild(E.div(class_='cc-actions-delete',
+            dialog.appendChild(E.div(class_='vl-actions-delete',
                 create_button(_('Delete'), 'trash', delete_item),
             ))
         else:
-            actions_class += ' cc-actions-save-cancel--toprule'
+            actions_class += ' vl-actions-save-cancel--toprule'
         dialog.appendChild(E.div(class_=actions_class,
             create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
             create_button(save_label, save_icon, save_item, highlight=True),
