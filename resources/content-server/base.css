@@ -288,6 +288,8 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     line-height: 1;
     width: 1.6rem;
     text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .cs-left-nav a .cs-nav-icon-image {
