@@ -52,8 +52,8 @@ def details_list_css():
         gap='1rem',
         padding='0.85rem 1rem',
         border_radius='18px',
-        border='1px solid var(--cs-surface-border)',
-        background='var(--cs-surface-1)',
+        border='var(--calibre-border-style-subtle)',
+        background='var(--calibre-surface-1)',
         box_shadow='0 16px 44px rgba(0,0,0,0.10)',
         text_decoration='none',
         min_width='0',
@@ -65,7 +65,7 @@ def details_list_css():
     # No hover zoom; use highlight instead
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover',
         background_color='var(--cs-accent-weak)',
-        border_color='var(--cs-surface-border-strong)',
+        border_color='var(--calibre-color-border)',
         box_shadow='0 20px 56px rgba(0,0,0,0.12), 0 0 0 4px var(--primary-light)'
     )
     ans += build_rule(f'{sel} .{ITEM_CLASS}:active',
@@ -88,7 +88,7 @@ def details_list_css():
         height=f'{THUMBNAIL_MAX_HEIGHT}px',
         display='block',
         object_fit='cover',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         transition='box-shadow 160ms ease'
     )
     s = sel + ' .details-list-right'
@@ -180,8 +180,8 @@ def details_list_css():
         gap='0.25rem',
         padding='0.15rem 0.45rem',
         border_radius='999px',
-        border='1px solid var(--cs-surface-border)',
-        background='var(--cs-surface-3)',
+        border='var(--calibre-border-style-subtle)',
+        background='var(--calibre-color-surface-3)',
         max_width='100%',
         white_space='nowrap',
         overflow='hidden',

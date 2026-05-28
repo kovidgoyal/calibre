@@ -220,13 +220,13 @@ def cover_grid_css():
         overflow='hidden',
         border_radius=BORDER_RADIUS+'px',
         box_shadow='0 clamp(10px, 1.8vh, 14px) clamp(26px, 4.2vh, 48px) rgba(0,0,0,0.18)',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.02)',
         transition='box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease'
     )
     ans += build_rule(f'{item_sel}:hover > .cs-cover-frame',
         background_color='var(--cs-accent-weak)',
-        border_color='var(--cs-surface-border-strong)',
+        border_color='var(--calibre-color-border)',
         box_shadow='0 clamp(14px, 2.6vh, 18px) clamp(34px, 5.2vh, 62px) rgba(0,0,0,0.24), 0 0 0 4px var(--primary-light)'
     )
 
