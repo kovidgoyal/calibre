@@ -6,7 +6,7 @@ from dom import add_extra_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.library_data import browse_field_options, set_browse_fields
+from book_list.library_data import browse_field_settings, set_browse_fields
 from book_list.prefs import create_prefs_widget
 from book_list.search import get_prefs as get_tb_prefs
 from book_list.theme import apply_book_list_theme
@@ -235,7 +235,7 @@ def create_browse_fields_widget(container):
     container.appendChild(outer)
 
     found = False
-    for field in browse_field_options():
+    for field in browse_field_settings():
         found = True
         div = E.div(
             title=field.description,
