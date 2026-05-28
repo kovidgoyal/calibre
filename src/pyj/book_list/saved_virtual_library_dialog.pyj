@@ -5,19 +5,19 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.saved_virtual_libraries import saved_virtual_library_item
+from book_list.saved_virtual_libraries import DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, saved_virtual_library_item
 from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from modals import create_custom_dialog
 from widgets import create_button
 
 
 def show_saved_virtual_library_dialog(
-        title, save_label, on_save, initial_name='', initial_search='',
-        initial_icon='folder', initial_use_icon=True, on_delete=None, save_icon='check'):
+        title, save_label, on_save, library_id, virtual_library='', initial_name='', initial_search='',
+        initial_icon=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, initial_use_icon=True, on_delete=None, save_icon='check'):
     create_custom_dialog(title, def(parent, close_modal):
         name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Virtual library name'))
         search_input = E.input(type='text', value=((initial_search or '') + ''), placeholder=_('Search expression'))
-        icon_picker = create_saved_virtual_library_icon_picker((initial_icon or 'folder') + '')
+        icon_picker = create_saved_virtual_library_icon_picker((initial_icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + '')
         use_icon_cb = E.input(type='checkbox')
         use_icon_cb.checked = initial_use_icon is not False
         icon_section = E.div(class_='vl-icon-section',
@@ -34,7 +34,7 @@ def show_saved_virtual_library_dialog(
             use_icon_help.style.display = 'none' if on else 'block'
 
         def save_item(ev=None):
-            item = saved_virtual_library_item(name_input.value, search_input.value, icon_picker.get_value(), use_icon_cb.checked)
+            item = saved_virtual_library_item(library_id, name_input.value, search_input.value, virtual_library, icon_picker.get_value(), use_icon_cb.checked)
             if not item:
                 return
             if on_save(item) is False:

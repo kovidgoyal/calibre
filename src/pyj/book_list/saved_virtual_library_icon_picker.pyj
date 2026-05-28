@@ -5,62 +5,11 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.saved_virtual_libraries import (
+    DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, normalize_saved_virtual_library_icon
+)
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, unique_id
-
-# Older sessions stored content-server SVG sprite ids; map to emoji for display and picker.
-LEGACY_ICON_TO_EMOJI = {
-    'folder': '📁',
-    'bookmark': '🔖',
-    'book': '📖',
-    'library': '📚',
-    'user': '👤',
-    'star': '⭐',
-    'star-half': '🌟',
-    'heart': '❤️',
-    'home': '🏠',
-    'plus': '➕',
-    'pencil': '✏️',
-    'image': '🖼️',
-    'link': '🔗',
-    'external-link': '🔭',
-    'insert-link': '🔗',
-    'search': '🔍',
-    'ai': '🤖',
-    'random': '🎲',
-    'check': '✅',
-    'highlight': '✨',
-    'warning': '⚠️',
-    'help': '❓',
-    'print': '🖨️',
-    'play': '▶️',
-    'pause': '⏸️',
-    'copy': '📋',
-    'send': '📤',
-    'hourglass': '⌛',
-    'refresh': '🔄',
-    'trash': '🗑️',
-    'remove': '➖',
-    'close': '❌',
-    'bullhorn': '📣',
-    'full-screen': '⛶',
-    'auto-scroll': '📜',
-    'arrows-h': '↔️',
-    'arrow-right': '➡️',
-    'arrow-left': '⬅️',
-    'chevron-down': '🔽',
-    'angle-down': '🔻',
-    'sort-amount-asc': '⬆️',
-    'sort-amount-desc': '⬇️',
-    'cog': '⚙️',
-}
-
-
-def normalize_saved_virtual_library_icon(stored):
-    s = (stored or '') + ''
-    if s in LEGACY_ICON_TO_EMOJI:
-        return LEGACY_ICON_TO_EMOJI[s]
-    return s if s else '📁'
 
 
 # (emoji stored in session, short description for picker tooltip / a11y)
@@ -187,7 +136,7 @@ add_extra_css(def():
 )
 
 
-def create_saved_virtual_library_icon_picker(initial_icon='folder'):
+def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON):
     state = {'icon': normalize_saved_virtual_library_icon(initial_icon) + ''}
     grid = E.div(class_='cs-vl-icon-grid', role='radiogroup', aria_label=_('Icon presets'))
 
@@ -207,10 +156,10 @@ def create_saved_virtual_library_icon_picker(initial_icon='folder'):
         raw = (custom_inp.value or '') + ''
         trimmed = raw.strip()
         if trimmed:
-            state.icon = trimmed
+            state.icon = normalize_saved_virtual_library_icon(trimmed)
         else:
-            state.icon = '📁'
-            custom_inp.value = '📁'
+            state.icon = DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
+        custom_inp.value = state.icon
         sync_grid_only()
 
     def make_handler(stored_emoji):
@@ -238,7 +187,6 @@ def create_saved_virtual_library_icon_picker(initial_icon='folder'):
         type='text',
         id=inp_id,
         class_='cs-vl-icon-custom-input',
-        maxlength='16',
         placeholder=_('e.g. emoji or a few characters'),
         aria_label=_('Custom icon'),
     )
@@ -268,7 +216,7 @@ def create_saved_virtual_library_icon_picker(initial_icon='folder'):
         raw = (custom_inp.value or '') + ''
         trimmed = raw.strip()
         if trimmed:
-            return trimmed
-        return state.icon or '📁'
+            return normalize_saved_virtual_library_icon(trimmed)
+        return state.icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
 
     return {'root': root, 'get_value': get_value}
