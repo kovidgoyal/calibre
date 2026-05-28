@@ -18,7 +18,7 @@ all_settings = {
     'ui_highlight_color': {'default': '#437000', 'category': 'book_list', 'is_local': False},
     'show_sidebar_in_viewer': {'default': False, 'category': 'book_list'},
     'series_nav_display_mode': {'default': 'stack', 'category': 'book_list', 'is_local': False},
-    'custom_categories': {'default': v'[]', 'category': 'book_list', 'is_local': False},
+    'saved_virtual_libraries': {'default': v'[]', 'category': 'book_list', 'is_local': False},
     'browse_visible_fields': {'default': {}, 'category': 'book_list', 'is_local': False},
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},

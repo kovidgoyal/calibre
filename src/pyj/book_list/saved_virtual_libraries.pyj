@@ -1,0 +1,72 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.globals import get_session_data
+
+
+SAVED_VIRTUAL_LIBRARIES_SETTING = 'saved_virtual_libraries'
+
+
+def get_saved_virtual_libraries():
+    virtual_libraries = get_session_data().get(SAVED_VIRTUAL_LIBRARIES_SETTING, v'[]') or v'[]'
+    if not Array.isArray(virtual_libraries):
+        return v'[]'
+    return virtual_libraries
+
+
+def set_saved_virtual_libraries(virtual_libraries):
+    get_session_data().set(SAVED_VIRTUAL_LIBRARIES_SETTING, virtual_libraries or v'[]')
+
+
+def saved_virtual_library_item(name, search_expr, icon='folder', use_icon=True):
+    name = ((name or '') + '').strip()
+    search_expr = ((search_expr or '') + '').strip()
+    if not name or not search_expr:
+        return None
+    return {'name': name, 'search': search_expr, 'icon': ((icon or 'folder') + ''), 'use_icon': use_icon is not False}
+
+
+def saved_virtual_library_nav_initial(name):
+    s = ((name or '') + '').strip()
+    if not s:
+        return '·'
+    return s[0]
+
+
+def add_saved_virtual_library(item):
+    if not item:
+        return False
+    virtual_libraries = get_saved_virtual_libraries()
+    virtual_libraries.push(item)
+    set_saved_virtual_libraries(virtual_libraries)
+    return True
+
+
+def set_saved_virtual_library_at(index, item):
+    if not item:
+        return False
+    virtual_libraries = get_saved_virtual_libraries()
+    if index < 0 or index >= virtual_libraries.length:
+        return False
+    virtual_libraries[index] = item
+    set_saved_virtual_libraries(virtual_libraries)
+    return True
+
+
+def remove_saved_virtual_library_at(index):
+    virtual_libraries = get_saved_virtual_libraries()
+    if index < 0 or index >= virtual_libraries.length:
+        return False
+    virtual_libraries.splice(index, 1)
+    set_saved_virtual_libraries(virtual_libraries)
+    return True
+
+
+def save_saved_virtual_library(item):
+    if not item:
+        return False
+    virtual_libraries = [x for x in get_saved_virtual_libraries() if ((x.name or '') + '') is not item.name]
+    virtual_libraries.unshift(item)
+    set_saved_virtual_libraries(virtual_libraries)
+    return True
