@@ -11,7 +11,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}, 'browse_field_options': v'[]', 'browse_fields': v'[]'}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}, 'available_browse_fields': v'[]', 'browse_fields': v'[]'}
 BROWSE_VISIBLE_FIELDS_SETTING = 'browse_visible_fields'
 
 
@@ -86,7 +86,7 @@ def update_library_data(data):
     library_data.for_library = current_library_id()
     for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes categories_using_hierarchy'.split(' '):
         library_data[key] = data[key]
-    library_data.browse_field_options = data.browse_field_options or data.browse_fields or v'[]'
+    library_data.available_browse_fields = data.browse_fields or v'[]'
     update_visible_browse_fields()
     sr = library_data.search_result
     if sr:
@@ -114,9 +114,12 @@ def configured_browse_field_map():
 
 
 def update_visible_browse_fields():
-    options = library_data.browse_field_options or v'[]'
+    fields = library_data.available_browse_fields or v'[]'
     selected = configured_browse_field_map()
-    library_data.browse_fields = options if selected is None else [field for field in options if selected[field.key]]
+    if selected is None:
+        library_data.browse_fields = [field for field in fields if field.default_visible is not False]
+    else:
+        library_data.browse_fields = [field for field in fields if selected[field.key]]
 
 
 def set_browse_fields(field_keys):
@@ -136,12 +139,12 @@ def refresh_browse_fields():
         refresh()
 
 
-def browse_field_options():
+def browse_field_settings():
     ans = v'[]'
     selected = configured_browse_field_map()
-    for field in library_data.browse_field_options or v'[]':
+    for field in library_data.available_browse_fields or v'[]':
         f = Object.assign({}, field)
-        f.enabled = selected is None or bool(selected[f.key])
+        f.enabled = (field.default_visible is not False) if selected is None else bool(selected[f.key])
         ans.push(f)
     return ans
 
