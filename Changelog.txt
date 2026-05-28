@@ -23,6 +23,52 @@
 # - title by author
 # }}}
 
+{{{ 9.9.0 2026-05-27
+
+:: new features
+
+- [2151262] A new option to keep the current search when switching Virtual libraries under Preferences->Searching
+
+- Pages column: Add support for accurate page counting of fixed layout EPUB files
+
+- [2150806] Add from ISBN: Ignore space around the colon used to separate identifier type from value
+
+- Get books: Update and improve the WolneLektury store
+
+:: bug fixes
+
+- [2152227] E-book viewer: Fix incorrect search match offsets in normal search mode when the text contains non-BMP Unicode characters
+
+- [2152879] Content server: Apply null metadata when serving book files. Matches behavior of save to disk
+
+- Linux: Fix SSL certificate loading not working on Fedora 44
+
+- Bulk metadata dialog: Fix backspace key not working in number input boxes when set to Undefined
+
+:: improved recipes
+- Indian Express
+- Business Standard
+- BBC
+- New Criterion
+- Associated Press
+- Pro Publica
+- LA Times
+- Washington Post
+- New Yorker
+- TLS Magazine
+- Asian Review of Books
+- VOX
+- The Conversation
+- Chicago Tribune
+- New Republic Magazine
+- Indian Express
+- TIME Magazine
+
+:: new recipes
+- Various Hungarian and Czech news sources by bubak
+- SuperInteressante by Pedro Henrique Souza
+}}}
+
 {{{ 9.8.0 2026-05-01
 
 :: new features
