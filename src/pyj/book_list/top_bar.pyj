@@ -12,6 +12,7 @@ from book_list.router import home
 from book_list.router import back
 from utils import parse_url_params
 
+bar_counter = 0
 CLASS_NAME = 'main-top-bar'
 SPACING = '0.5em'
 VSPACING = '0.55ex'
@@ -88,23 +89,73 @@ def create_markup(container):
     target = top_bar_target_container(container)
     if target and target.id is cs_top_bar_host_id:
         clear(target)
-    if not target:
+        try:
+            if target.dataset and target.dataset.csTopBarSpacerSync:
+                v'delete target.dataset.csTopBarSpacerSync'
+        except Exception:
+            pass
+    for i in range(2):
+        bar = E.div(
+            class_=CLASS_NAME,
+            E.div(class_='main-top-bar-left'),
+            E.div(class_='main-top-bar-right')
+        )
+        if i is 0:
+            set_css(bar, position='fixed', left='0', top='0', z_index='1', width='100%')
+        else:
+            set_css(bar, margin_left='0', width='100%')
+            # But it should not be visible (prevents duplicate titles/buttons).
+            set_css(bar, visibility='hidden', pointer_events='none')
+        set_css(bar,
+            display='flex', flex_direction='row', flex_wrap='nowrap', justify_content='flex-start', align_items='center',
+            gap='0.45rem',
+            overflow='hidden',
+            font_size=get_font_size('title'), user_select='none',
+            color=get_color('window-foreground'), background_color=get_color('window-background'),
+            border_bottom='1px solid rgba(0,0,0,0.10)',
+            box_shadow='0 1px 0 rgba(0,0,0,0.03)'
+        )
+        target.appendChild(bar)
+    # Fixed bar #0 often grows taller than spacer #1 (extra controls are only appended to bar #0),
+    # so in-flow spacer would be too short and content (e.g. cs-book-pager) sits under the fixed bar.
+    install_top_bar_spacer_sync(target)
+    install_right_slot_auto_collapse(target)
+
+
+def _sync_top_bar_spacer_height(container):
+    bars = get_bars(container)
+    if bars.length < 2:
         return
-    bar = E.div(
-        class_=CLASS_NAME,
-        E.div(class_='main-top-bar-left'),
-        E.div(class_='main-top-bar-right')
-    )
-    set_css(bar,
-        width='100%', display='flex', flex_direction='row', flex_wrap='nowrap', justify_content='flex-start', align_items='center',
-        gap='0.45rem',
-        overflow='hidden',
-        font_size=get_font_size('title'), user_select='none',
-        color=get_color('window-foreground'), background_color=get_color('window-background'),
-        border_bottom='1px solid rgba(0,0,0,0.10)',
-        box_shadow='0 1px 0 rgba(0,0,0,0.03)'
-    )
-    target.appendChild(bar)
+    fixed = bars[0]
+    spacer = bars[1]
+    h = fixed.offsetHeight
+    if h:
+        spacer.style.minHeight = h + 'px'
+
+
+def install_top_bar_spacer_sync(container):
+    try:
+        if container.dataset and container.dataset.csTopBarSpacerSync:
+            return
+        if container.dataset:
+            container.dataset.csTopBarSpacerSync = '1'
+    except Exception:
+        pass
+    _sync_top_bar_spacer_height(container)
+    bars = get_bars(container)
+    if bars.length < 2:
+        return
+    fixed = bars[0]
+
+    def on_resize_or_layout():
+        _sync_top_bar_spacer_height(container)
+
+    RO = window.ResizeObserver
+    if RO:
+        obs = new RO(def(entries): on_resize_or_layout();)
+        obs.observe(fixed)
+    else:
+        window.addEventListener('resize', on_resize_or_layout)
 
 
 def _has_visible_right_child(right):
@@ -127,7 +178,7 @@ def _has_visible_right_child(right):
     return False
 
 
-def sync_right_slot_visibility(container):
+def _sync_right_slot_visibility(container):
     for bar in get_bars(container):
         right = bar.firstChild.nextSibling if bar?.firstChild else None
         if not right:
@@ -141,6 +192,21 @@ def sync_right_slot_visibility(container):
             right.style.display = 'none'
             right.style.marginLeft = '0'
             right.style.paddingRight = '0'
+
+
+def install_right_slot_auto_collapse(container):
+    _sync_right_slot_visibility(container)
+    MO = window.MutationObserver
+    if not MO:
+        return
+    for bar in get_bars(container):
+        right = bar.firstChild.nextSibling if bar?.firstChild else None
+        if not right:
+            continue
+        obs = new MO(def(mutations):
+            _sync_right_slot_visibility(container)
+        )
+        obs.observe(right, {'childList': True, 'subtree': True, 'attributes': True, 'attributeFilter': v'["style", "class", "hidden"]'})
 
 
 def get_bars(container):
@@ -257,14 +323,14 @@ def add_button(container, icon, action=None, tooltip=''):
                 right.lastChild.addEventListener('click', def(event):
                     event.preventDefault(), action()
                 )
-    sync_right_slot_visibility(container)
+    _sync_right_slot_visibility(container)
 
 def clear_buttons(container):
     bars = get_bars(container)
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         clear(right)
-    sync_right_slot_visibility(container)
+    _sync_right_slot_visibility(container)
 
 
 def set_button_visibility(container, icon, visible):
@@ -273,4 +339,4 @@ def set_button_visibility(container, icon, visible):
         elem = right.querySelector(f'[data-button-icon="{icon}"]')
         if elem:
             elem.style.display = 'inline-block' if visible else 'none'
-    sync_right_slot_visibility(container)
+    _sync_right_slot_visibility(container)

@@ -1,3 +1,5 @@
+Remove the weird changes to the top bar done in the original PR
+
 New category is confusingly named. From what I can tell its basically
 a virtual library used to filter the shown books. Calling it Virtual
 library will mean calibre users will be more likely to understand what
