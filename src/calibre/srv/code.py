@@ -243,7 +243,15 @@ def browse_field_kind(key, metadata):
     return ''
 
 
-def browse_field_entry(key, metadata, kind, hidden_categories):
+def browse_field_custom_icon_url(ctx, key):
+    icon = icon_map().get(key)
+    if icon and icon.startswith('_'):
+        # icon_map() returns custom icon names with the leading _ already URL quoted.
+        return ctx.url_for('/icon', which='') + '/' + icon
+    return ''
+
+
+def browse_field_entry(ctx, key, metadata, kind, hidden_categories):
     name = metadata.get('name') or key
     return {
         'key': key,
@@ -251,13 +259,14 @@ def browse_field_entry(key, metadata, kind, hidden_categories):
         'description': BROWSE_FIELD_DESCRIPTIONS.get(key) or _('Browse {0}').format(name),
         'kind': kind,
         'icon': BROWSE_FIELD_ICONS.get(key) or ('date' if kind == 'date' else 'tags'),
+        'custom_icon_url': browse_field_custom_icon_url(ctx, key),
         'is_custom': bool(metadata.get('is_custom')),
         'datatype': metadata.get('datatype') or '',
         'default_visible': key not in hidden_categories,
     }
 
 
-def browse_field_map(db):
+def browse_field_map(ctx, db):
     fm = db.field_metadata
     hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     ans = {}
@@ -265,19 +274,19 @@ def browse_field_map(db):
         metadata = fm.get(key)
         kind = browse_field_kind(key, metadata)
         if kind:
-            ans[key] = browse_field_entry(key, metadata, kind, hidden_categories)
+            ans[key] = browse_field_entry(ctx, key, metadata, kind, hidden_categories)
     custom_fields = []
     for key, metadata in fm.custom_field_metadata(include_composites=False).items():
         kind = browse_field_kind(key, metadata)
         if kind and key not in ans:
             custom_fields.append((sort_key(metadata.get('name') or key), key, metadata, kind))
     for unused_sort_key, key, metadata, kind in sorted(custom_fields):
-        ans[key] = browse_field_entry(key, metadata, kind, hidden_categories)
+        ans[key] = browse_field_entry(ctx, key, metadata, kind, hidden_categories)
     return ans
 
 
-def get_browse_fields(db):
-    fields = browse_field_map(db)
+def get_browse_fields(ctx, db):
+    fields = browse_field_map(ctx, db)
     return tuple(fields[key] for key in category_display_order(db.pref('tag_browser_category_order', ()), tuple(fields)))
 
 
@@ -393,7 +402,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
         ans['bools_are_tristate'] = db._pref('bools_are_tristate', True)
         ans['book_display_fields'] = get_field_list(db)
-        ans['browse_fields'] = get_browse_fields(db)
+        ans['browse_fields'] = get_browse_fields(ctx, db)
         ans['fts_enabled'] = db.is_fts_enabled()
         ans['book_details_vertical_categories'] = db._pref('book_details_vertical_categories', ())
         ans['fields_that_support_notes'] = tuple(db._field_supports_notes())
@@ -635,7 +644,7 @@ def browse_field(ctx, rd, field):
     Optional: ?library_id=<default library>&vl=&date_group=y
     '''
     db = get_library_data(ctx, rd)[0]
-    fields = browse_field_map(db)
+    fields = browse_field_map(ctx, db)
     field_data = fields.get(field)
     if field_data is None:
         raise HTTPNotFound(f'{field} is not a browse field')
