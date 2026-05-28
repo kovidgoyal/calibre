@@ -290,6 +290,12 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     text-align: center;
 }
 
+.cs-left-nav a .cs-nav-icon-image {
+    height: 1.35rem;
+    max-width: 1.6rem;
+    object-fit: contain;
+}
+
 .cs-left-nav a .cs-nav-collapsed-initial {
     display: none !important;
     font-size: 1.15rem;

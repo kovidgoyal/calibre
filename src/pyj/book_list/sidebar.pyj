@@ -23,16 +23,29 @@ def create_sidebar():
     sidebar_width = '240px'
     document.documentElement.style.setProperty('--cs-sidebar-width', sidebar_width)
 
-    def nav_link(label, action, title='', icon=None, icon_emoji=None, chevron=False, collapsed_initial=None):
+    def nav_svg_icon(icon):
+        if icon:
+            return E.span(svgicon(icon), class_='cs-nav-icon')
+        return E.span('', class_='cs-nav-icon')
+
+    def nav_image_icon(icon_url, fallback_icon):
+        img = E.img(src=icon_url, alt='', class_='cs-nav-icon cs-nav-icon-image')
+        img.onerror = def():
+            img.onerror = None
+            if img.parentNode:
+                img.parentNode.replaceChild(nav_svg_icon(fallback_icon), img)
+        return img
+
+    def nav_link(label, action, title='', icon=None, icon_url=None, icon_emoji=None, chevron=False, collapsed_initial=None):
         left = E.span(class_='cs-nav-left')
-        if icon_emoji is not None and (icon_emoji + ''):
+        if icon_url is not None and (icon_url + ''):
+            left.appendChild(nav_image_icon(icon_url, icon))
+        elif icon_emoji is not None and (icon_emoji + ''):
             left.appendChild(E.span(icon_emoji + '', class_='cs-nav-icon cs-nav-icon-emoji'))
         elif collapsed_initial is not None and (collapsed_initial + ''):
             left.appendChild(E.span(collapsed_initial + '', class_='cs-nav-icon cs-nav-collapsed-initial'))
-        elif icon:
-            left.appendChild(E.span(svgicon(icon), class_='cs-nav-icon'))
         else:
-            left.appendChild(E.span('', class_='cs-nav-icon'))
+            left.appendChild(nav_svg_icon(icon))
         left.appendChild(E.span(label, class_='cs-nav-label'))
         a = E.a(left, href='#', title=title)
         if chevron:
@@ -110,10 +123,10 @@ def create_sidebar():
     left.appendChild(E.div(svgicon('toc'), E.span(_('Browse')), class_='cs-nav-group-title'))
     g2 = E.div(class_='cs-nav-group')
 
-    def nav_section(label, field, tooltip='', icon='toc'):
+    def nav_section(label, field, tooltip='', icon='toc', icon_url=''):
         action = def():
             show_panel('nav_list', {'field': field})
-        t = nav_link(label, action, tooltip, icon=icon, chevron=True)
+        t = nav_link(label, action, tooltip, icon=icon, icon_url=icon_url, chevron=True)
         return t
 
     section_elems = {}
@@ -126,7 +139,7 @@ def create_sidebar():
             key = (field.key or '') + ''
             if not key:
                 continue
-            section_elems[key] = nav_section(field.name or key, key, field.description or '', icon=field.icon or 'toc')
+            section_elems[key] = nav_section(field.name or key, key, field.description or '', icon=field.icon or 'toc', icon_url=field.custom_icon_url or '')
             g2.appendChild(section_elems[key])
         try:
             update_active = window.cs_update_sidebar_active
