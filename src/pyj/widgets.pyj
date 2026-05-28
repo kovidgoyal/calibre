@@ -68,6 +68,9 @@ def create_pager_widget(on_prev, on_next):
         class_='calibre-pager-widget calibre-group-box',
     )
 
+    def update_container_visibility():
+        container.style.display = 'none' if buttons_container.classList.contains('hidden') and top_row.classList.contains('hidden') and middle_row.classList.contains('hidden') else ''
+
     def set_enabled(has_prev, has_next):
         prev_btn.setAttribute('aria-disabled', 'false' if has_prev else 'true')
         next_btn.setAttribute('aria-disabled', 'false' if has_next else 'true')
@@ -75,12 +78,14 @@ def create_pager_widget(on_prev, on_next):
             buttons_container.classList.remove('hidden')
         else:
             buttons_container.classList.add('hidden')
+        update_container_visibility()
 
     def set_visible(which, visible):
         if visible:
             which.classList.remove('hidden')
         else:
             which.classList.add('hidden')
+        update_container_visibility()
 
     return {
         'container': container, 'count_msg': buttons_container.firstChild.nextSibling,
