@@ -13,9 +13,11 @@ from http.client import FORBIDDEN, NOT_FOUND, OK
 from io import BytesIO
 from urllib.parse import quote, urlencode
 
+from calibre.constants import config_dir
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.localization import _
+from calibre.utils.resources import get_image_path as I
 from polyglot.binary import as_base64_bytes
 
 
@@ -158,58 +160,83 @@ class ContentTest(LibraryBaseTest):
     def test_interface_data_browse_fields(self):  # {{{
         'Test /interface-data browse field data'
         with self.create_server() as server:
+            from calibre.gui2 import gprefs
+            from calibre.srv import metadata as srv_metadata
             db = server.handler.router.ctx.library_broker.get(None)
             db.set_pref('tag_browser_category_order', ['tags', 'authors', '#date', 'series', '#enum'])
             db.set_pref('tag_browser_hidden_categories', ['authors', '#date'])
-            conn = server.connect()
-            request = partial(make_request, conn, prefix='')
+            icon_name = 'webui browse field test icon.png'
+            icon_dir = os.path.join(config_dir, 'tb_icons')
+            icon_path = os.path.join(icon_dir, icon_name)
+            old_category_icons = dict(gprefs.get('tags_browser_category_icons', {}))
+            try:
+                os.makedirs(icon_dir, exist_ok=True)
+                with open(I('lt.png'), 'rb') as src, open(icon_path, 'wb') as f:
+                    f.write(src.read())
+                category_icons = dict(old_category_icons)
+                category_icons['#enum'] = icon_name
+                gprefs['tags_browser_category_icons'] = category_icons
+                srv_metadata._icon_map = None
+                conn = server.connect()
+                request = partial(make_request, conn, prefix='')
+                r, data = request('/interface-data/books-init?num=1')
+                self.ae(r.status, OK)
+                self.assertNotIn('browse_field_options', data)
+                self.ae([x['key'] for x in data['browse_fields'][:5]], ['tags', 'authors', '#date', 'series', '#enum'])
+                fields = {x['key']: x for x in data['browse_fields']}
+                for key in 'series authors publisher tags formats rating pubdate'.split():
+                    self.assertIn(key, fields)
+                self.ae(fields['#enum']['name'], 'Enum')
+                self.ae(fields['#enum']['kind'], 'category')
+                self.ae(fields['#enum']['custom_icon_url'], f'/icon/_{quote(icon_name)}')
+                r, icon_data = request(fields['#enum']['custom_icon_url'])
+                self.ae(r.status, OK)
+                self.assertTrue(icon_data)
+                self.ae(fields['#date']['name'], 'My Date')
+                self.ae(fields['#date']['kind'], 'date')
+                self.ae(fields['#date']['custom_icon_url'], '')
+                self.ae(fields['authors']['default_visible'], False)
+                self.ae(fields['#date']['default_visible'], False)
+                self.ae(fields['tags']['default_visible'], True)
+                self.ae(fields['#enum']['default_visible'], True)
 
-            r, data = request('/interface-data/books-init?num=1')
-            self.ae(r.status, OK)
-            self.assertNotIn('browse_field_options', data)
-            self.ae([x['key'] for x in data['browse_fields'][:5]], ['tags', 'authors', '#date', 'series', '#enum'])
-            fields = {x['key']: x for x in data['browse_fields']}
-            for key in 'series authors publisher tags formats rating pubdate'.split():
-                self.assertIn(key, fields)
-            self.ae(fields['#enum']['name'], 'Enum')
-            self.ae(fields['#enum']['kind'], 'category')
-            self.ae(fields['#date']['name'], 'My Date')
-            self.ae(fields['#date']['kind'], 'date')
-            self.ae(fields['authors']['default_visible'], False)
-            self.ae(fields['#date']['default_visible'], False)
-            self.ae(fields['tags']['default_visible'], True)
-            self.ae(fields['#enum']['default_visible'], True)
+                r, data = request('/interface-data/browse-field/' + quote('#enum', safe=''))
+                self.ae(r.status, OK)
+                enum_items = {x['name']: x for x in data['items']}
+                self.ae(set(enum_items), {'One', 'Two'})
+                self.ae(enum_items['One']['search'], '#enum:"One"')
+                r, data = request('/interface-data/browse-field/_enum')
+                self.ae(r.status, NOT_FOUND)
 
-            r, data = request('/interface-data/browse-field/' + quote('#enum', safe=''))
-            self.ae(r.status, OK)
-            enum_items = {x['name']: x for x in data['items']}
-            self.ae(set(enum_items), {'One', 'Two'})
-            self.ae(enum_items['One']['search'], '#enum:"One"')
-            r, data = request('/interface-data/browse-field/_enum')
-            self.ae(r.status, NOT_FOUND)
+                r, data = request('/interface-data/browse-field/rating')
+                self.ae(r.status, OK)
+                rating_items = {x['name']: x for x in data['items']}
+                self.ae(rating_items['★★']['search'], 'rating:2')
 
-            r, data = request('/interface-data/browse-field/rating')
-            self.ae(r.status, OK)
-            rating_items = {x['name']: x for x in data['items']}
-            self.ae(rating_items['★★']['search'], 'rating:2')
+                r, data = request('/interface-data/browse-field/' + quote('#date', safe='') + '?date_group=ym')
+                self.ae(r.status, OK)
+                self.ae(data['items'], [{
+                    'name': '2011-09',
+                    'count': 2,
+                    'avg_rating': None,
+                    'search': '#date:>=2011-09-01 and #date:<2011-10-01',
+                }])
 
-            r, data = request('/interface-data/browse-field/' + quote('#date', safe='') + '?date_group=ym')
-            self.ae(r.status, OK)
-            self.ae(data['items'], [{
-                'name': '2011-09',
-                'count': 2,
-                'avg_rating': None,
-                'search': '#date:>=2011-09-01 and #date:<2011-10-01',
-            }])
-
-            db.set_pref('categories_using_hierarchy', ['tags'])
-            db.set_field('tags', {1: ['Fiction.Mystery'], 2: ['Fiction.Romance']})
-            r, data = request('/interface-data/browse-field/tags?partition_method=disable')
-            self.ae(r.status, OK)
-            tag_items = {x['name']: x for x in data['items']}
-            self.ae(set(tag_items), {'Fiction', 'Mystery', 'Romance'})
-            self.ae(tag_items['Mystery']['search_name'], 'Fiction.Mystery')
-            self.ae(tag_items['Mystery']['search'], 'tags:"Fiction.Mystery"')
+                db.set_pref('categories_using_hierarchy', ['tags'])
+                db.set_field('tags', {1: ['Fiction.Mystery'], 2: ['Fiction.Romance']})
+                r, data = request('/interface-data/browse-field/tags?partition_method=disable')
+                self.ae(r.status, OK)
+                tag_items = {x['name']: x for x in data['items']}
+                self.ae(set(tag_items), {'Fiction', 'Mystery', 'Romance'})
+                self.ae(tag_items['Mystery']['search_name'], 'Fiction.Mystery')
+                self.ae(tag_items['Mystery']['search'], 'tags:"Fiction.Mystery"')
+            finally:
+                gprefs['tags_browser_category_icons'] = old_category_icons
+                srv_metadata._icon_map = None
+                try:
+                    os.remove(icon_path)
+                except OSError:
+                    pass
     # }}}
 
     def test_srv_restrictions(self):  # {{{
