@@ -10,12 +10,12 @@ from book_list.router import home
 from book_list.globals import get_session_data
 from book_list.library_data import browse_fields
 from book_list.ui import show_panel
-from book_list.custom_categories import (
-    add_custom_category, custom_category_nav_initial, get_custom_categories,
-    remove_custom_category_at, set_custom_category_at
+from book_list.saved_virtual_libraries import (
+    add_saved_virtual_library, get_saved_virtual_libraries, remove_saved_virtual_library_at,
+    saved_virtual_library_nav_initial, set_saved_virtual_library_at
 )
-from book_list.custom_category_dialog import show_custom_category_dialog
-from book_list.custom_category_icon_picker import normalize_custom_category_icon
+from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
+from book_list.saved_virtual_library_icon_picker import normalize_saved_virtual_library_icon
 
 
 def create_sidebar():
@@ -154,10 +154,10 @@ def create_sidebar():
 
     left.appendChild(E.div(class_='cs-nav-divider'))
 
-    # Group: custom category
-    left.appendChild(E.div(svgicon('star'), E.span(_('Custom Category')), class_='cs-nav-group-title'))
-    g_custom = E.div(class_='cs-nav-group')
-    left.appendChild(g_custom)
+    # Group: saved virtual libraries
+    left.appendChild(E.div(svgicon('star'), E.span(_('Virtual libraries')), class_='cs-nav-group-title'))
+    saved_virtual_libraries_group = E.div(class_='cs-nav-group')
+    left.appendChild(saved_virtual_libraries_group)
 
     left.appendChild(E.div(class_='cs-nav-divider'))
 
@@ -170,45 +170,45 @@ def create_sidebar():
         if elem and elem.dataset and elem.dataset.active:
             elem.dataset.active = ''
 
-    def edit_custom_category(index):
-        categories = get_custom_categories()
-        item = categories[index] or v'{}'
+    def edit_saved_virtual_library(index):
+        virtual_libraries = get_saved_virtual_libraries()
+        item = virtual_libraries[index] or v'{}'
 
         def save_changes(updated_item):
-            if not set_custom_category_at(index, updated_item):
+            if not set_saved_virtual_library_at(index, updated_item):
                 return False
-            render_custom_categories()
+            render_saved_virtual_libraries()
             return True
 
         def delete_item():
-            if not remove_custom_category_at(index):
+            if not remove_saved_virtual_library_at(index):
                 return False
-            render_custom_categories()
+            render_saved_virtual_libraries()
             return True
 
-        show_custom_category_dialog(
-            _('Edit custom Category'), _('Save'), save_changes,
+        show_saved_virtual_library_dialog(
+            _('Edit virtual library'), _('Save'), save_changes,
             initial_name=(item.name or '') + '',
-            initial_filter=(item.filter or '') + '',
+            initial_search=(item.search or '') + '',
             initial_icon=(item.icon or 'folder') + '',
             initial_use_icon=item.use_icon is not False,
             on_delete=delete_item,
         )
 
-    def create_custom_category():
+    def create_saved_virtual_library():
         def create_item(item):
-            if not add_custom_category(item):
+            if not add_saved_virtual_library(item):
                 return False
-            render_custom_categories()
+            render_saved_virtual_libraries()
             return True
 
-        show_custom_category_dialog(_('New Category'), _('Create'), create_item, save_icon='plus')
+        show_saved_virtual_library_dialog(_('New virtual library'), _('Create'), create_item, save_icon='plus')
 
-    def render_custom_categories():
-        clear(g_custom)
-        for i, item in enumerate(get_custom_categories()):
+    def render_saved_virtual_libraries():
+        clear(saved_virtual_libraries_group)
+        for i, item in enumerate(get_saved_virtual_libraries()):
             name = (item.name or '') + ''
-            search_expr = (item.filter or '') + ''
+            search_expr = (item.search or '') + ''
             icon_name = (item.icon or 'folder') + ''
             if not name or not search_expr:
                 continue
@@ -217,22 +217,22 @@ def create_sidebar():
             row = E.div(style='display:flex; align-items:center; gap:0.35rem; margin:0 0.35rem;')
             show_icon = item.use_icon is not False
             if show_icon:
-                link = nav_link(name, action, search_expr, icon_emoji=normalize_custom_category_icon(icon_name), chevron=True)
+                link = nav_link(name, action, search_expr, icon_emoji=normalize_saved_virtual_library_icon(icon_name), chevron=True)
             else:
-                link = nav_link(name, action, search_expr, collapsed_initial=custom_category_nav_initial(name), chevron=True)
+                link = nav_link(name, action, search_expr, collapsed_initial=saved_virtual_library_nav_initial(name), chevron=True)
             link.style.margin = '0'
             link.style.flex = '1 1 auto'
-            cfg = E.a(svgicon('cog'), href='#', title=_('Configure custom Category'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
+            cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
             cfg.addEventListener('click', def(ev, idx=i):
                 ev.preventDefault()
                 ev.stopPropagation()
-                edit_custom_category(idx)
+                edit_saved_virtual_library(idx)
             )
             row.appendChild(link)
             row.appendChild(cfg)
-            g_custom.appendChild(row)
-        add_link = nav_link(_('New Category'), create_custom_category, _('Create a new custom category'), icon='plus')
-        g_custom.appendChild(add_link)
+            saved_virtual_libraries_group.appendChild(row)
+        add_link = nav_link(_('New virtual library'), create_saved_virtual_library, _('Create a new virtual library'), icon='plus')
+        saved_virtual_libraries_group.appendChild(add_link)
 
     def update_sidebar_visibility(current):
         sd = get_session_data()
@@ -263,7 +263,7 @@ def create_sidebar():
             home_link.dataset.active = '1'
 
     window.cs_update_sidebar_active = update_sidebar_active
-    window.cs_refresh_custom_categories = render_custom_categories
-    render_custom_categories()
+    window.cs_refresh_saved_virtual_libraries = render_saved_virtual_libraries
+    render_saved_virtual_libraries()
     update_sidebar_active()
     return root, left

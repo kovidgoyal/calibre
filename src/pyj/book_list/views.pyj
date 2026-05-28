@@ -18,8 +18,8 @@ from book_list.custom_list import (
     custom_list_css, description as CUSTOM_LIST_DESCRIPTION,
     init as init_custom_list
 )
-from book_list.custom_categories import save_custom_category
-from book_list.custom_category_dialog import show_custom_category_dialog
+from book_list.saved_virtual_libraries import save_saved_virtual_library
+from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
 from book_list.details_list import (
     append_item as details_list_append_item, create_item as create_details_list_item,
     description as DETAILS_LIST_DESCRIPTION, details_list_css,
@@ -338,23 +338,23 @@ def fts():
     show_panel('fts', q)
 
 
-def save_to_custom_category():
-    current_filter = (library_data.search_result?.query or '') + ''
+def save_to_saved_virtual_library():
+    current_search = (library_data.search_result?.query or '') + ''
 
     def do_save(item):
-        if not save_custom_category(item):
+        if not save_saved_virtual_library(item):
             return False
         try:
-            cb = window.cs_refresh_custom_categories
+            cb = window.cs_refresh_saved_virtual_libraries
         except Exception:
             cb = None
         if cb:
             cb()
         return True
 
-    show_custom_category_dialog(
-        _('Save to custom Category'), _('Save'), do_save,
-        initial_filter=current_filter,
+    show_saved_virtual_library_dialog(
+        _('Save as virtual library'), _('Save'), do_save,
+        initial_search=current_search,
     )
 
 
@@ -397,7 +397,7 @@ def show_top_message(container):
             ))
             buttons = E.div(style='margin-left: auto; display: inline-flex')
             buttons.appendChild(E.span(' ', icon_action('close', _('Clear search'), def(): search();)))
-            buttons.appendChild(E.span(' ', icon_action('plus', _('Save to custom Category'), save_to_custom_category)))
+            buttons.appendChild(E.span(' ', icon_action('plus', _('Save as virtual library'), save_to_saved_virtual_library)))
             c.appendChild(buttons)
             if library_data.fts_enabled:
                 buttons.appendChild(E.span(' ', icon_action('search', _('Search the text of these books'), fts)))

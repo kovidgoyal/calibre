@@ -448,28 +448,28 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     touch-action: pan-y pinch-zoom;
 }
 
-/* Custom category dialog */
-.cs-custom-category-dialog {
+/* Virtual library dialog */
+.cs-virtual-library-dialog {
     width: 100%;
     min-width: 0;
     max-width: min(42rem, calc(100vw - 2rem));
     box-sizing: border-box;
 }
-.cs-custom-category-dialog .cc-row {
+.cs-virtual-library-dialog .vl-row {
     margin-bottom: 0.75rem;
 }
-.cs-custom-category-dialog .cc-checkbox-row {
+.cs-virtual-library-dialog .vl-checkbox-row {
     display: flex;
     align-items: center;
     margin-bottom: 0.35rem;
 }
-.cs-custom-category-dialog .cc-label {
+.cs-virtual-library-dialog .vl-label {
     display: block;
     margin: 0 0 0.45rem 0;
     font-weight: 700;
     opacity: 0.9;
 }
-.cs-custom-category-dialog input[type="text"] {
+.cs-virtual-library-dialog input[type="text"] {
     width: 100%;
     box-sizing: border-box;
     padding: 0.62rem 0.8rem;
@@ -478,12 +478,12 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     background: rgba(0,0,0,0.02);
     color: inherit;
 }
-.cs-custom-category-dialog .cc-actions-delete {
+.cs-virtual-library-dialog .vl-actions-delete {
     margin-top: 0.35rem;
     padding-top: 0.6rem;
     border-top: 1px solid rgba(0,0,0,0.10);
 }
-.cs-custom-category-dialog .cc-actions-save-cancel {
+.cs-virtual-library-dialog .vl-actions-save-cancel {
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
@@ -491,12 +491,12 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     gap: 0.5rem;
     margin-top: 0.65rem;
 }
-.cs-custom-category-dialog .cc-actions-save-cancel > a.calibre-push-button {
+.cs-virtual-library-dialog .vl-actions-save-cancel > a.calibre-push-button {
     flex: 1 1 0;
     min-width: 0;
     justify-content: center;
 }
-.cs-custom-category-dialog .cc-actions-save-cancel--toprule {
+.cs-virtual-library-dialog .vl-actions-save-cancel--toprule {
     margin-top: 0.35rem;
     padding-top: 0.6rem;
     border-top: 1px solid rgba(0,0,0,0.10);
