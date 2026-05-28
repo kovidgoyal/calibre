@@ -6,11 +6,10 @@
  */
 
 :root {
-    --cs-radius-sm: 10px;
-    --cs-radius: 14px;
-    --cs-radius-lg: 18px;
-    --cs-border: rgba(0,0,0,0.12);
-    --cs-border-2: rgba(0,0,0,0.08);
+    --calibre-radius-small: 10px;
+    --calibre-radius: 14px;
+    --calibre-border-style: 1px solid var(--calibre-color-border);
+    --calibre-border-style-subtle: 1px solid var(--calibre-color-border-subtle);
     --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
     --cs-shadow: 0 10px 30px rgba(0,0,0,0.10);
     --cs-shadow-lg: 0 24px 64px rgba(0,0,0,0.16);
@@ -31,12 +30,6 @@
     --cs-accent-weak: var(--primary-light);
     --cs-accent-weak-2: var(--primary-light-2);
     --cs-focus-ring: 0 0 0 3px var(--primary-light-2);
-    /* Surface hierarchy (computed at runtime; fallback values here) */
-    --cs-surface-1: rgba(255,255,255,0.08);
-    --cs-surface-2: rgba(255,255,255,0.04);
-    --cs-surface-3: rgba(255,255,255,0.02);
-    --cs-surface-border: rgba(0,0,0,0.10);
-    --cs-surface-border-strong: rgba(0,0,0,0.14);
 }
 
 html, body { height: 100%; }
@@ -48,9 +41,9 @@ body {
     background: var(--calibre-color-window-background);
 }
 
-.cs-surface-1 { background: var(--cs-surface-1); border: 1px solid var(--cs-surface-border); }
-.cs-surface-2 { background: var(--cs-surface-2); border: 1px solid var(--cs-surface-border); }
-.cs-surface-3 { background: var(--cs-surface-3); border: 1px solid var(--cs-surface-border-strong); }
+.calibre-surface-1 { background: var(--calibre-color-surface-1); border: var(--calibre-border-style-subtle); }
+.calibre-surface-2 { background: var(--calibre-color-surface-2); border: var(--calibre-border-style-subtle); }
+.calibre-surface-3 { background: var(--calibre-color-surface-3); border: var(--calibre-border-style); }
 
 /* Link styling: clear, modern, consistent */
 a {
@@ -69,7 +62,7 @@ a.calibre-icon-button {
     align-items: center;
     justify-content: center;
     width: 1.9em; height: 1.9em;
-    border: 1px solid var(--cs-surface-border);
+    border: var(--calibre-border-style-subtle);
     border-radius: 999px;
     color: currentColor;
 
@@ -98,7 +91,7 @@ a.calibre-push-button {
     gap: 0.35em;
     padding: 0.55ex 0.95em;
     border-radius: 999px;
-    border: 1px solid var(--cs-surface-border);
+    border: var(--calibre-border-style-subtle);
     cursor: pointer;
     font-size: inherit;
     font-weight: 600;
@@ -146,7 +139,7 @@ a.calibre-push-button {
 
 hr {
     height: 1px;
-    background-color: rgba(0,0,0,0.12);
+    background-color: var(--calibre-color-border);
     border-radius: 999px;
     margin: 0;
     border-width: 0;
@@ -177,12 +170,12 @@ input[type="checkbox"], input[type="radio"] {
 input[type="text"], input[type="number"], input[type="search"] {
     padding: 0.55em 0.75em;
     border-radius: 999px;
-    border: solid 1px var(--cs-surface-border);
-    background-color: var(--cs-surface-3);
+    border: var(--calibre-border-style-subtle);
+    background-color: var(--calibre-color-surface-3);
     color: var(--calibre-color-window-foreground);
     box-sizing: border-box;
     &:hover {
-        border-color: var(--cs-surface-border-strong);
+        border: var(--calibre-border-style);
         background-color: var(--primary-light);
     }
 }
@@ -207,9 +200,9 @@ input, textarea {
 div.calibre-group-box {
     padding: 0.75rem 1rem;
     margin-top: 0.75em; margin-bottom: 0.75em;
-    border: solid 1px var(--cs-surface-border);
+    border: var(--calibre-border-style-subtle);
     border-radius: 14px;
-    background-color: var(--cs-surface-1);
+    background-color: var(--calibre-color-surface-1);
 
     @media (max-width: 720px) { padding: 0.75rem; }
 }
@@ -267,7 +260,7 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
     color: inherit;
     /* Reserve left gutter for active indicator to keep alignment */
     padding: 0.55rem 0.65rem 0.55rem calc(0.65rem + 10px);
-    border-radius: var(--cs-radius-sm);
+    border-radius: var(--calibre-radius-small);
     text-decoration: none;
     cursor: pointer;
     user-select: none;
@@ -343,9 +336,9 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
 .cs-left-nav .cs-nav-section-contents {
     overflow: auto;
     padding: 0.25rem 0.25rem 0.75rem 0.25rem;
-    border-radius: var(--cs-radius);
-    border: 1px solid var(--cs-surface-border);
-    background: linear-gradient(135deg, var(--cs-surface-2) 0%, var(--cs-surface-3) 100%);
+    border-radius: var(--calibre-radius);
+    border: var(--calibre-border-style-subtle);
+    background: linear-gradient(135deg, var(--calibre-color-surface-2) 0%, var(--calibre-color-surface-3) 100%);
 }
 .cs-left-nav .cs-nav-item { padding-left: 0.9rem; }
 .cs-left-nav .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }

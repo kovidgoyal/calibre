@@ -573,7 +573,7 @@ add_extra_css(def():
     style += build_rule(sel + '.cs-bd-initial-loading-card',
         width='min(820px, 100%)',
         padding='1.1rem 1.1rem',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='18px',
         background_color='rgba(0,0,0,0.02)',
         box_shadow='0 10px 30px rgba(0,0,0,0.06)'
@@ -597,7 +597,7 @@ add_extra_css(def():
         gap='1.25rem',
         align_items='start',
         padding='1rem',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='18px',
         background_color='rgba(0,0,0,0.02)',
         box_shadow='0 10px 30px rgba(0,0,0,0.06)'
@@ -612,7 +612,7 @@ add_extra_css(def():
         display='block',
         border_radius='18px',
         box_shadow='0 18px 48px rgba(0,0,0,0.18)',
-        border='1px solid rgba(0,0,0,0.10)'
+        border='var(--calibre-border-style-subtle)'
     )
     # Prev/next navigation is rendered below the details.
     style += build_rule(sel + '.cs-bd-nav',
@@ -661,7 +661,7 @@ add_extra_css(def():
         gap='0.25rem',
         padding='0.15rem 0.45rem',
         border_radius='999px',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         background='rgba(0,0,0,0.02)',
         max_width='100%',
         white_space='nowrap',
@@ -677,7 +677,7 @@ add_extra_css(def():
     style += build_rule(sel + '.cs-bd-details',
         margin_top='1rem',
         padding='1rem',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='18px',
         background_color=get_color('window-background'),
         box_shadow='0 1px 2px rgba(0,0,0,0.06)',

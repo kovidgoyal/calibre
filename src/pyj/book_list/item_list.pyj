@@ -16,7 +16,7 @@ add_extra_css(def():
     style += build_rule(sel + ' > p',
         margin='0 0 0.75rem 0',
         padding='0.6rem 0.75rem',
-        border='1px solid rgba(0,0,0,0.08)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='12px',
         background_color='rgba(0,0,0,0.02)',
         font_style='normal',
@@ -25,7 +25,7 @@ add_extra_css(def():
     style += build_rule(sel + ' ul', list_style='none', margin='0', padding='0', display='flex', flex_direction='column', gap='0.5rem')
     style += build_rule(sel + 'li',
         padding='0',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='14px',
         background_color=get_color('window-background'),
         box_shadow='0 1px 2px rgba(0,0,0,0.06)',

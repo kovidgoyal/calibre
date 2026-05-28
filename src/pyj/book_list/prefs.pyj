@@ -57,8 +57,8 @@ add_extra_css(def():
     style += build_rule(sel + '.item',
         padding='0.85rem 1rem',
         border_radius='16px',
-        border='1px solid var(--cs-surface-border)',
-        background='linear-gradient(135deg, var(--cs-surface-1) 0%, var(--cs-surface-2) 100%)',
+        border='var(--calibre-border-style-subtle)',
+        background='linear-gradient(135deg, var(--calibre-color-surface-1) 0%, var(--calibre-color-surface-2) 100%)',
         box_shadow='0 12px 32px rgba(0,0,0,0.08)',
         min_width='0',
         max_width='100%',
@@ -66,7 +66,7 @@ add_extra_css(def():
         # No frosted glass effects (restore original, flat styling)
     )
     style += build_rule(sel + '.item:hover',
-        border='1px solid var(--cs-surface-border-strong)',
+        border='1px solid var(--calibre-border-style)',
         box_shadow='0 16px 44px rgba(0,0,0,0.10)'
     )
     style += build_rule(sel + '.item-main',
@@ -108,7 +108,7 @@ add_extra_css(def():
     style += build_rule(sel + '.help',
         margin_top='0.65rem',
         padding_top='0.65rem',
-        border_top='1px solid rgba(0,0,0,0.08)',
+        border_top='var(--calibre-border-style-subtle)',
         font_size='0.85rem',
         font_weight='700',
         opacity='0.75',
