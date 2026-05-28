@@ -96,6 +96,7 @@ def update_library_data(data):
         last_virtual_library_for.library_id = None
         last_virtual_library_for.vl = None
     refresh_browse_fields()
+    refresh_browse_field_settings()
 
 
 def configured_browse_fields():
@@ -133,6 +134,15 @@ def set_browse_fields(field_keys):
 def refresh_browse_fields():
     try:
         refresh = window.cs_refresh_browse_fields
+    except Exception:
+        refresh = None
+    if refresh:
+        refresh()
+
+
+def refresh_browse_field_settings():
+    try:
+        refresh = window.cs_refresh_browse_field_settings
     except Exception:
         refresh = None
     if refresh:
