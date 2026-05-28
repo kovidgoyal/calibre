@@ -48,7 +48,7 @@ add_extra_css(def():
         padding_top='0.65rem', padding_bottom='0.65rem',
         padding_left='0.75rem', padding_right='0.75rem',
         cursor='pointer',
-        border_bottom='1px solid rgba(0,0,0,0.06)'
+        border_bottom='var(--calibre-border-style-subtle)'
     )
     style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='600')
     style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--cs-accent-weak)')
@@ -58,14 +58,14 @@ add_extra_css(def():
     style += build_rule(sel + '.completions > div',
         margin='0',
         padding='0.45ex 0.75rem',
-        border='solid 1px rgba(0,0,0,0.12)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='999px',
         cursor='pointer',
         user_select='none'
     )
     style += build_rule(sel + '.completions > div:hover',
         background_color='var(--cs-accent-weak)',
-        border='solid 1px rgba(0,0,0,0.18)'
+        border='var(--calibre-border-style)'
     )
 
     style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
@@ -83,7 +83,7 @@ add_extra_css(def():
         overflow='auto',
         z_index='1001',
         background_color=get_color('window-background'),
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='16px',
         box_shadow='0 24px 64px rgba(0,0,0,0.18)',
         padding='1rem'
@@ -106,7 +106,7 @@ add_extra_css(def():
         box_sizing='border-box',
         padding='0.6rem 0.75rem',
         border_radius='12px',
-        border='1px solid rgba(0,0,0,0.12)',
+        border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.02)'
     )
     style += build_rule(sel + 'div[data-ctype="edit"] textarea',
@@ -128,7 +128,7 @@ add_extra_css(def():
         aspect_ratio='2 / 3',
         border_radius='14px',
         overflow='hidden',
-        border='1px solid rgba(0,0,0,0.12)',
+        border='var(--calibre-border-style-subtle)',
         background='rgba(0,0,0,0.04)',
         box_shadow='0 10px 24px rgba(0,0,0,0.12)'
     )
@@ -898,7 +898,7 @@ def switch_to_edit_panel(container):
     d.style.overflow = 'auto'
     d.style.zIndex = '1001'
     d.style.backgroundColor = 'var(--calibre-color-window-background)'
-    d.style.border = '1px solid rgba(0,0,0,0.10)'
+    d.style.border = 'var(--calibre-border-style-subtle)'
     d.style.borderRadius = '16px'
     d.style.boxShadow = '0 24px 64px rgba(0,0,0,0.18)'
     d.style.padding = '1rem'

@@ -152,7 +152,7 @@ class ModalContainer:
             color=get_color('dialog-foreground'),
             background_image=get_color('dialog-background-image'),
             box_shadow='0 12px 40px rgba(0,0,0,0.2)',
-            border='1px solid rgba(0,0,0,0.1)',
+            border='var(--calibre-border-style)',
         )
 
         # Close button style

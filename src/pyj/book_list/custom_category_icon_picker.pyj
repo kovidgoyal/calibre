@@ -124,7 +124,7 @@ add_extra_css(def():
         padding='0',
         margin='0',
         box_sizing='border-box',
-        border='1px solid rgba(0,0,0,0.16)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='10px',
         background_color='rgba(0,0,0,0.02)',
         color=get_color('window-foreground'),
@@ -140,7 +140,7 @@ add_extra_css(def():
     )
     ans += build_rule(sel + 'button.cs-cc-icon-btn:hover',
         background_color='var(--cs-accent-weak)',
-        border_color='rgba(0,0,0,0.22)',
+        border_color='var(--calibre-color-border)',
     )
     ans += build_rule(sel + 'button.cs-cc-icon-btn:focus',
         outline='none',
@@ -148,7 +148,7 @@ add_extra_css(def():
     )
     ans += build_rule(sel + 'button.cs-cc-icon-btn-selected',
         background_color='var(--cs-accent-weak-2)',
-        border_color='rgba(0,0,0,0.32)',
+        border_color='var(--calibre-color-border)',
         font_weight='600',
     )
     ans += build_rule(sel + '.cs-cc-icon-custom-wrap',
@@ -171,7 +171,7 @@ add_extra_css(def():
         box_sizing='border-box',
         padding='0.5rem 0.65rem',
         border_radius='10px',
-        border='1px solid rgba(0,0,0,0.14)',
+        border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.02)',
         color=get_color('window-foreground'),
         font_size='1.1rem',

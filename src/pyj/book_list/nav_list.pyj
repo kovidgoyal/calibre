@@ -183,7 +183,7 @@ add_extra_css(def():
         max_width='100%',
         padding='0.45rem 0.75rem',
         border_radius='999px',
-        border='1px solid rgba(0,0,0,0.12)',
+        border='var(--calibre-border-style-subtle)',
         background_color=get_color('window-background'),
         color=get_color('window-foreground'),
         text_decoration='none',
@@ -208,7 +208,7 @@ add_extra_css(def():
         gap='0.35rem',
         padding='0.55rem 0.9rem',
         border_radius='999px',
-        border='1px solid rgba(0,0,0,0.12)',
+        border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.02)',
         color=get_color('window-foreground'),
         text_decoration='none',
@@ -241,7 +241,7 @@ add_extra_css(def():
     style += build_rule(sel + '.cs-toggle',
         display='inline-flex',
         align_items='stretch',
-        border='1px solid var(--cs-surface-border)',
+        border='var(--calibre-border-style-subtle)',
         border_radius='999px',
         overflow='hidden',
     )
@@ -250,7 +250,7 @@ add_extra_css(def():
         padding='0.45rem 0.7rem',
         color=get_color('window-foreground'),
         cursor='pointer', user_select='none', text_decoration='none',
-        border_right='1px solid rgba(0,0,0,0.08)'
+        border_right='var(--calibre-border-style-subtle)'
     )
     style += build_rule(sel + 'a.cs-toggle-btn:last-child', border_right='none')
     style += build_rule(sel + 'a.cs-toggle-btn[aria-pressed="true"]',
@@ -291,7 +291,7 @@ add_extra_css(def():
         height='168px',
         object_fit='cover',
         border_radius='12px',
-        border='1px solid rgba(0,0,0,0.10)',
+        border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.05)',
         box_shadow='0 12px 32px rgba(0,0,0,0.16)',
         transition='transform 200ms ease, box-shadow 200ms ease'

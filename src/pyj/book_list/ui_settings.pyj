@@ -74,7 +74,7 @@ add_extra_css(def():
         display='flex',
         flex_direction='row',
         gap='0',
-        border_bottom='1px solid var(--cs-border)',
+        border_bottom='var(--calibre-border-style)',
         margin_bottom='1rem',
     )
     style += build_rule(sel + '[role="tab"]',

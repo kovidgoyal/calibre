@@ -47,6 +47,11 @@ def parse_hex_color(s):
         return None
 
 
+def hex_as_rgba(s, opacity='1'):
+    v = parse_hex_color(s)
+    return f'rgba({v[0]},{v[1]},{v[2]},{opacity})'
+
+
 def get_theme_primary_rgb():
     de = document.documentElement
     raw = (de.style.getPropertyValue('--primary-color') or '').strip()
@@ -126,6 +131,11 @@ DEFAULT_COLORS = {
     'window-hover-foreground': c('red', '#C40233'),
     'link-foreground': c('blue', '#6cb4ee'),
     'faded-text': c('#666', '#7f7f7f'),
+    'border': c('rgba(0,0,0,0.12)', 'rgba(255,255,255,0.12)'),
+    'border-subtle': c('rgba(0,0,0,0.08)', 'rgba(255,255,255,0.08)'),
+    'surface-1': c(hex_as_rgba(LIGHT, '0.08'), hex_as_rgba(DT_DARK, '0.08')),
+    'surface-2': c(hex_as_rgba(LIGHT, '0.04'), hex_as_rgba(DT_DARK, '0.04')),
+    'surface-3': c(hex_as_rgba(LIGHT, '0.02'), hex_as_rgba(DT_DARK, '0.02')),
 
     # Top bar specific colors
     'bar-background': c(DARK, DT_DARK_LIGHTER),
@@ -226,17 +236,6 @@ def apply_book_list_theme():
     set_ui_colors(is_dark)
     if not is_dark:
         apply_light_mode_primary_tinted_backgrounds()
-    try:
-        wb = get_color_as_rgba('window-background')
-        wf = get_color_as_rgba('window-foreground')
-        de = document.documentElement.style
-        de.setProperty('--cs-surface-1', f'rgba({wb[0]},{wb[1]},{wb[2]},0.08)')
-        de.setProperty('--cs-surface-2', f'rgba({wb[0]},{wb[1]},{wb[2]},0.04)')
-        de.setProperty('--cs-surface-3', f'rgba({wb[0]},{wb[1]},{wb[2]},0.02)')
-        de.setProperty('--cs-surface-border', f'rgba({wf[0]},{wf[1]},{wf[2]},0.10)')
-        de.setProperty('--cs-surface-border-strong', f'rgba({wf[0]},{wf[1]},{wf[2]},0.14)')
-    except Exception:
-        pass
     try:
         set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     except Exception:

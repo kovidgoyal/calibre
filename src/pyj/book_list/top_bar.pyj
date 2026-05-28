@@ -101,7 +101,7 @@ def create_markup(container):
         overflow='hidden',
         font_size=get_font_size('title'), user_select='none',
         color=get_color('window-foreground'), background_color=get_color('window-background'),
-        border_bottom='1px solid rgba(0,0,0,0.10)',
+        border_bottom='var(--calibre-border-style-subtle)',
         box_shadow='0 1px 0 rgba(0,0,0,0.03)'
     )
     target.appendChild(bar)
