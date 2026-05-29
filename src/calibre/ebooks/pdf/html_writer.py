@@ -1213,11 +1213,21 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     if opts.pdf_odd_even_offset:
         for page_num in range(1, pdf_doc.page_count() + 1):
             margins = page_margins_map[page_num - 1]
-            mult = -1 if page_num % 2 else 1
-            val = opts.pdf_odd_even_offset
-            if abs(val) < min(margins.left, margins.right):
+            val = abs(opts.pdf_odd_even_offset)
+            if val < min(margins.left, margins.right):
+                mbox = list(pdf_doc.get_page_box('MediaBox', page_num))
                 box = list(pdf_doc.get_page_box('CropBox', page_num))
-                box[0] += val * mult
+                # Expand MediaBox to the right by val
+                mbox[2] += val
+                pdf_doc.set_page_box('MediaBox', page_num, *mbox)
+                # Odd pages: CropBox at left side of expanded MediaBox
+                # Even pages: CropBox at right side of expanded MediaBox
+                if page_num % 2:  # odd
+                    box[0] = mbox[0]
+                    box[2] = mbox[2] - val
+                else:  # even
+                    box[0] = mbox[0] + val
+                    box[2] = mbox[2]
                 pdf_doc.set_page_box('CropBox', page_num, *box)
 
     if cover_data:
