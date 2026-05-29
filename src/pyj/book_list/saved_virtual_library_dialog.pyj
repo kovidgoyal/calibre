@@ -121,7 +121,8 @@ def show_saved_virtual_library_dialog(
             create_button(save_label, save_icon, save_item, highlight=True),
         ))
         if on_delete:
-            dialog.lastChild.insertBefore(create_button(_('Delete'), 'trash', delete_item, _('Delete this Virtual library')), dialog.lastChild.firstChild)
+            dialog.lastChild.insertBefore(create_button(
+                _('Delete'), 'trash', delete_item, _('Delete this Virtual library')), dialog.lastChild.firstChild)
         parent.appendChild(dialog)
         use_icon_cb.addEventListener('change', sync_icon_section_visibility)
         sync_icon_section_visibility()
