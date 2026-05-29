@@ -11,6 +11,7 @@ from qt.core import (
     QAbstractItemView,
     QApplication,
     QCheckBox,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -263,11 +264,37 @@ class CompressImages(Dialog):
         dp.setChecked(tprefs.get('compress_images_disable_png', False))
         dp.toggled.connect(self.save_disable_png)
         l.addWidget(dp)
+
+        l.addSpacing(10)
+        self.png_conv_la = pcla = QLabel(_('Convert &PNG images to:'))
+        pcla.setWordWrap(True)
+        l.addWidget(pcla)
+        self.png_conv = pc = QComboBox(self)
+        pc.addItem(_('No conversion'), '')
+        pc.addItem(_('JPEG'), 'jpeg')
+        pc.addItem(_('WEBP (lossy)'), 'webp')
+        pc.addItem(_('WEBP Lossless'), 'webp-lossless')
+        pc.setToolTip(_(
+            'Optionally convert PNG images to a different format before compression.'
+            ' JPEG and WEBP (lossy) reduce file size at the expense of image quality.'
+            ' WEBP Lossless produces smaller files than PNG with no quality loss.'
+            ' When enabled, conversion is performed before all other image optimisation.'
+        ))
+        saved = tprefs.get('compress_images_png_to_format', '')
+        idx = pc.findData(saved)
+        if idx >= 0:
+            pc.setCurrentIndex(idx)
+        pc.currentIndexChanged.connect(self.save_png_to_format)
+        pcla.setBuddy(pc)
+        l.addWidget(pc)
         l.addStretch(10)
         l.addWidget(self.bb)
 
     def save_disable_png(self):
         tprefs.set('compress_images_disable_png', self.disable_png.isChecked())
+
+    def save_png_to_format(self):
+        tprefs.set('compress_images_png_to_format', self.png_conv.currentData())
 
     @property
     def names(self):
@@ -289,16 +316,21 @@ class CompressImages(Dialog):
     def compress_png(self):
         return not self.disable_png.isChecked()
 
+    @property
+    def png_to_format(self):
+        return self.png_conv.currentData() or None
+
 
 class CompressImagesProgress(Dialog):
 
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
-    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, parent=None):
+    def __init__(self, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, png_to_format=None, parent=None):
         self.names, self.jpeg_quality = names, jpeg_quality
         self.webp_quality = webp_quality
         self.compress_png = compress_png
+        self.png_to_format = png_to_format
         self.keep_going = True
         self.result = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
@@ -316,6 +348,7 @@ class CompressImagesProgress(Dialog):
             self.result = (compress_images(
                 current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality,
                 webp_quality=self.webp_quality, compress_png=self.compress_png,
+                png_to_format=self.png_to_format,
                 progress_callback=self.progress_callback
             )[0], report)
         except Exception:

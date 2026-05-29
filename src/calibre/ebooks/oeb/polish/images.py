@@ -76,10 +76,83 @@ def get_compressible_images(container):
     return images
 
 
-def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, compress_png=True, progress_callback=lambda n, t, name:True):
+def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75, report=None):
+    '''Convert a PNG image in the container to JPEG or WEBP format.
+
+    :param fmt: ``'jpeg'``, ``'webp'`` (lossy), or ``'webp-lossless'``
+    :returns: The new item name after conversion, or the original name if conversion was skipped.
+    '''
+    from calibre.ebooks.oeb.polish.replace import rename_files
+    from calibre.utils.img import image_from_data, image_to_data
+
+    if fmt == 'jpeg':
+        new_ext = 'jpg'
+        new_mt = 'image/jpeg'
+        img_fmt = 'JPEG'
+        quality = jpeg_quality
+    elif fmt == 'webp':
+        new_ext = 'webp'
+        new_mt = 'image/webp'
+        img_fmt = 'WEBP'
+        quality = webp_quality
+    elif fmt == 'webp-lossless':
+        new_ext = 'webp'
+        new_mt = 'image/webp'
+        img_fmt = 'WEBP'
+        quality = 100  # quality=100 means lossless for WEBP in image_to_data
+    else:
+        return name
+
+    base = name.rpartition('.')[0] if '.' in name else name
+    new_name = f'{base}.{new_ext}'
+
+    if new_name != name and container.exists(new_name):
+        if report:
+            report(_('Skipping conversion of {0} as {1} already exists').format(name, new_name))
+        return name
+
+    path = container.get_file_path_for_processing(name)
+    with open(path, 'rb') as f:
+        original_data = f.read()
+
+    img = image_from_data(original_data)
+    new_data = image_to_data(img, compression_quality=quality, fmt=img_fmt)
+
+    with open(path, 'wb') as f:
+        f.write(new_data)
+
+    if new_name != name:
+        rename_files(container, {name: new_name})
+        container.mime_map[new_name] = new_mt
+        for itemid, q in container.manifest_id_map.items():
+            if q == new_name:
+                for item in container.opf_xpath(f'//opf:manifest/opf:item[@href and @id="{itemid}"]'):
+                    item.set('media-type', new_mt)
+        container.dirty(container.opf_name)
+
+    return new_name
+
+
+def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, compress_png=True,
+                    png_to_format=None, progress_callback=lambda n, t, name:True):
     images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
+
+    # Convert PNG images to the target format before any other compression
+    if png_to_format:
+        png_images = sorted(name for name in images if container.mime_map.get(name) == 'image/png')
+        j_quality = jpeg_quality if jpeg_quality is not None else 75
+        w_quality = webp_quality if webp_quality is not None else 75
+        for name in png_images:
+            new_name = convert_png_to_format(
+                container, name, png_to_format,
+                jpeg_quality=j_quality, webp_quality=w_quality,
+                report=report)
+            if new_name != name:
+                images.discard(name)
+                images.add(new_name)
+
     if not compress_png:
         images = {name for name in images if container.mime_map.get(name) != 'image/png'}
     results = {}
