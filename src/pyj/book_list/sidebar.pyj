@@ -218,7 +218,7 @@ def create_sidebar():
                 continue
             action = def(saved_item=item):
                 show_panel('book_list', saved_virtual_library_query(saved_item), replace=True)
-            row = E.div(style='display:flex; align-items:center; gap:0.35rem; margin:0 0.35rem;')
+            row = E.div(class_='cs-vl-row')
             show_icon = item.use_icon is not False
             if show_icon:
                 link = nav_link(name, action, search_expr, icon_emoji=normalize_saved_virtual_library_icon(icon_name), chevron=True)
