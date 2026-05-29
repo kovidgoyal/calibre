@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from dom import add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 
@@ -9,6 +10,65 @@ from book_list.saved_virtual_libraries import DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
 from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from modals import create_custom_dialog
 from widgets import create_button
+
+
+add_extra_css(def(): return '''
+
+.cs-virtual-library-dialog {
+    width: 100%;
+    min-width: 0;
+    max-width: min(42rem, calc(100vw - 2rem));
+    box-sizing: border-box;
+
+    & .vl-row {
+        margin-bottom: 0.75rem;
+    }
+    & .vl-checkbox-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.35rem;
+    }
+    & .vl-label {
+        display: block;
+        margin: 0 0 0.45rem 0;
+        font-weight: 700;
+        opacity: 0.9;
+    }
+    & input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.62rem 0.8rem;
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.18);
+        background: rgba(0,0,0,0.02);
+        color: inherit;
+    }
+    & .vl-actions-delete {
+        margin-top: 0.35rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(0,0,0,0.10);
+    }
+    & .vl-actions-save-cancel {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 0.65rem;
+    }
+    & .vl-actions-save-cancel > a.calibre-push-button {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+    }
+    & .vl-actions-save-cancel--toprule {
+        margin-top: 0.35rem;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(0,0,0,0.10);
+    }
+}
+'''
+)
 
 
 def show_saved_virtual_library_dialog(
