@@ -37,16 +37,7 @@ add_extra_css(def(): return '''
     & input[type="text"] {
         width: 100%;
         box-sizing: border-box;
-        padding: 0.62rem 0.8rem;
-        border-radius: 12px;
-        border: 1px solid rgba(0,0,0,0.18);
-        background: rgba(0,0,0,0.02);
         color: inherit;
-    }
-    & .vl-actions-delete {
-        margin-top: 0.35rem;
-        padding-top: 0.6rem;
-        border-top: 1px solid rgba(0,0,0,0.10);
     }
     & .vl-actions-save-cancel {
         display: flex;
@@ -64,7 +55,7 @@ add_extra_css(def(): return '''
     & .vl-actions-save-cancel--toprule {
         margin-top: 0.35rem;
         padding-top: 0.6rem;
-        border-top: 1px solid rgba(0,0,0,0.10);
+        border-top: var(--calibre-border-style-subtle);
     }
 }
 '''
@@ -123,16 +114,14 @@ def show_saved_virtual_library_dialog(
             icon_section,
         )
         actions_class = 'vl-actions-save-cancel'
-        if on_delete:
-            dialog.appendChild(E.div(class_='vl-actions-delete',
-                create_button(_('Delete'), 'trash', delete_item),
-            ))
-        else:
+        if not on_delete:
             actions_class += ' vl-actions-save-cancel--toprule'
         dialog.appendChild(E.div(class_=actions_class,
             create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
             create_button(save_label, save_icon, save_item, highlight=True),
         ))
+        if on_delete:
+            dialog.lastChild.insertBefore(create_button(_('Delete'), 'trash', delete_item, _('Delete this Virtual library')), dialog.lastChild.firstChild)
         parent.appendChild(dialog)
         use_icon_cb.addEventListener('change', sync_icon_section_visibility)
         sync_icon_section_visibility()
