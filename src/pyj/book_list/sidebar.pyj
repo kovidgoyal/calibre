@@ -343,8 +343,8 @@ def create_sidebar():
 
     left.appendChild(E.div(class_='cs-nav-divider'))
 
-    # Group: saved virtual libraries
-    left.appendChild(E.div(svgicon('star'), E.span(_('Saved virtual libraries')), class_='cs-nav-group-title'))
+    # Group: virtual libraries
+    left.appendChild(E.div(svgicon('star'), E.span(_('Virtual libraries')), class_='cs-nav-group-title'))
     saved_virtual_libraries_group = E.div(class_='cs-nav-group')
     left.appendChild(saved_virtual_libraries_group)
 
@@ -375,7 +375,7 @@ def create_sidebar():
             return True
 
         show_saved_virtual_library_dialog(
-            _('Edit saved virtual library'), _('Save'), save_changes,
+            _('Edit virtual library'), _('Save'), save_changes,
             (item.library_id or '') + '',
             (item.vl or '') + '',
             initial_name=(item.name or '') + '',
@@ -393,7 +393,7 @@ def create_sidebar():
             return True
 
         show_saved_virtual_library_dialog(
-            _('New saved virtual library'), _('Create'), create_item,
+            _('New virtual library'), _('Create'), create_item,
             current_library_id(), current_virtual_library(), save_icon='plus'
         )
 
@@ -415,7 +415,7 @@ def create_sidebar():
                 link = nav_link(name, action, search_expr, collapsed_initial=saved_virtual_library_nav_initial(name), chevron=True)
             link.style.margin = '0'
             link.style.flex = '1 1 auto'
-            cfg = E.a(svgicon('cog'), href='#', title=_('Configure saved virtual library'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
+            cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
             cfg.addEventListener('click', def(ev, saved_item=item):
                 ev.preventDefault()
                 ev.stopPropagation()
@@ -424,7 +424,7 @@ def create_sidebar():
             row.appendChild(link)
             row.appendChild(cfg)
             saved_virtual_libraries_group.appendChild(row)
-        add_link = nav_link(_('New saved virtual library'), create_saved_virtual_library, _('Create a new saved virtual library'), icon='plus')
+        add_link = nav_link(_('New virtual library'), create_saved_virtual_library, _('Create a new virtual library'), icon='plus')
         saved_virtual_libraries_group.appendChild(add_link)
 
     def update_sidebar_visibility(current):
