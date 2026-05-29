@@ -3,6 +3,7 @@
 
 
 import os
+import tempfile
 from functools import partial
 from queue import Empty, Queue
 from threading import Event, Thread
@@ -103,7 +104,7 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     else:
         return name
 
-    base = name.rpartition('.')[0] if '.' in name else name
+    base = name.rsplit('.', 1)[0] if '.' in name else name
     new_name = f'{base}.{new_ext}'
 
     if new_name != name and container.exists(new_name):
@@ -118,8 +119,19 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     img = image_from_data(original_data)
     new_data = image_to_data(img, compression_quality=quality, fmt=img_fmt)
 
-    with open(path, 'wb') as f:
-        f.write(new_data)
+    # Write to a temp file in the same directory, then atomically replace the original
+    path_dir = os.path.dirname(path)
+    fd, tmp_path = tempfile.mkstemp(dir=path_dir)
+    try:
+        with os.fdopen(fd, 'wb') as f:
+            f.write(new_data)
+        os.replace(tmp_path, path)
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
     if new_name != name:
         rename_files(container, {name: new_name})
