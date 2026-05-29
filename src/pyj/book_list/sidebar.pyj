@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import clear, svgicon
+from dom import add_extra_css, clear, svgicon
 from elementmaker import E
 from utils import parse_url_params
 from gettext import gettext as _
@@ -16,6 +16,195 @@ from book_list.saved_virtual_libraries import (
     saved_virtual_library_query, save_saved_virtual_library
 )
 from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
+
+
+add_extra_css(def():
+    return '''
+    .cs-left-nav {
+        width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
+        box-sizing: border-box;
+        background: var(--calibre-color-window-background);
+        color: var(--calibre-color-window-foreground);
+        padding: 0.9rem 0.65rem;
+        border-right: var(--calibre-border-style-subtle);
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        transition: width var(--cs-dur-3) var(--cs-ease), flex-basis var(--cs-dur-3) var(--cs-ease), padding var(--cs-dur-2) var(--cs-ease-soft);
+
+        /* Sidebar title removed to avoid duplicate header */
+        & a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: inherit;
+            /* Reserve left gutter for active indicator to keep alignment */
+            padding: 0.55rem 0.65rem 0.55rem calc(0.65rem + 10px);
+            border-radius: var(--calibre-radius-small);
+            text-decoration: none;
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--cs-transition), transform var(--cs-transition), opacity var(--cs-transition);
+
+            & .cs-nav-left {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.55rem;
+                min-width: 0;
+            }
+
+            & .cs-nav-icon {
+                opacity: 0.9;
+                flex: 0 0 auto;
+                width: 1.6rem;
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            & .cs-nav-icon-emoji {
+                text-align: center;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            & .cs-nav-icon-image {
+                height: 1.35rem;
+                max-width: 1.6rem;
+                object-fit: contain;
+            }
+
+            & .cs-nav-collapsed-initial {
+                display: none !important;
+                font-size: 1.15rem;
+                line-height: 1;
+                font-weight: 700;
+                width: 1.6rem;
+                text-align: center;
+            }
+
+            & .cs-nav-label {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            &:hover { background: var(--cs-accent-weak); }
+            &:active { transform: none; opacity: 0.92; }
+            &:focus { outline: none; box-shadow: var(--cs-focus-ring); }
+            &.cs-nav-item:hover { background: var(--cs-accent-weak-2); }
+            &[data-active="1"] {
+                background: var(--cs-accent-weak-2);
+                position: relative;
+                font-weight: 600;
+            }
+            &[data-active="1"]::before {
+                content: "";
+                position: absolute;
+                left: 10px;
+                top: 8px;
+                bottom: 8px;
+                width: 3px;
+                border-radius: 999px;
+                background: var(--cs-accent);
+                opacity: 0.95;
+            }
+        }
+
+        & .cs-vl-row {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin: 0 0.35rem;
+        }
+
+        & .cs-nav-chevron { opacity: 0.7; margin-left: 0.75rem; flex: 0 0 auto; }
+        & .cs-nav-section-contents {
+            overflow: auto;
+            padding: 0.25rem 0.25rem 0.75rem 0.25rem;
+            border-radius: var(--calibre-radius);
+            border: var(--calibre-border-style-subtle);
+            background: linear-gradient(135deg, var(--calibre-color-surface-2) 0%, var(--calibre-color-surface-3) 100%);
+        }
+        & .cs-nav-item { padding-left: 0.9rem; }
+        & .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        & .cs-nav-group > a { margin: 0 0.35rem; }
+        /* Active state should not shift layout (no padding changes) */
+        & .cs-nav-bottom { margin-top: auto; padding-top: 0.25rem; }
+        & .cs-nav-divider {
+            height: 1px;
+            background: var(--cs-border);
+            margin: 0.75rem 0.65rem;
+            border-radius: 999px;
+            opacity: 0.9;
+        }
+        & .cs-nav-group-title {
+            margin: 0.75rem 0.65rem 0.25rem 0.65rem;
+            font-size: 0.85em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.65;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        & .cs-nav-group-title svg { opacity: 0.8; }
+        & .cs-sidebar-toggle {
+            margin: 0 0.35rem 0.25rem 0.35rem;
+        }
+        & .cs-sidebar-toggle-expand {
+            display: none;
+        }
+        & .cs-hamburger {
+            font-size: 1.25rem;
+            line-height: 1;
+            letter-spacing: -0.06em;
+        }
+    }
+
+    /* Collapsed sidebar */
+    :root.cs-sidebar-collapsed .cs-left-nav {
+        padding-left: 0.35rem; padding-right: 0.35rem;
+
+        & .cs-sidebar-toggle-expand { display: inline }
+        & .cs-sidebar-toggle-collapse { display: none }
+        & a {
+            justify-content: center;
+            padding: 0.55rem 0.5rem;
+        }
+        & a .cs-nav-left {
+            width: 100%;
+            justify-content: center;
+        }
+        & a[data-active="1"]::before {
+            display: none;
+        }
+        & .cs-nav-chevron,
+        & .cs-nav-label {
+            display: none !important;
+        }
+        & .cs-nav-group-title > span {
+            display: none !important;
+        }
+        & .cs-nav-group-title svg {
+            display: none !important;
+        }
+        & .cs-nav-group-title {
+            justify-content: center;
+        }
+        & a .cs-nav-collapsed-initial {
+            display: inline-flex !important;
+            justify-content: center;
+            align-items: center;
+        }
+        & .cs-vl-row {
+            margin: 0;
+        }
+    }
+    '''
+)
 
 
 def create_sidebar():
