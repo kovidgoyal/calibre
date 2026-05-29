@@ -135,6 +135,9 @@ a.calibre-push-button {
         opacity: 0.5;
         pointer-events: none;
     }
+    &.calibre-primary-button {
+        border-color: var(--primary-color);
+    }
 }
 
 hr {
