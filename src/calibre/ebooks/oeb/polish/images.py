@@ -81,7 +81,9 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     '''Convert a PNG image in the container to JPEG or WEBP format.
 
     :param fmt: ``'jpeg'``, ``'webp'`` (lossy), or ``'webp-lossless'``
-    :returns: The new item name after conversion, or the original name if conversion was skipped.
+    :returns: ``(new_name, before, after)`` where *before* and *after* are the
+        file sizes in bytes before and after conversion, or ``(name, 0, 0)`` if
+        conversion was skipped.
     '''
     from calibre.ebooks.oeb.polish.replace import rename_files
     from calibre.utils.img import image_from_data, image_to_data
@@ -102,7 +104,7 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
         img_fmt = 'WEBP'
         quality = 100  # quality=100 means lossless for WEBP in image_to_data
     else:
-        return name
+        return name, 0, 0
 
     base = name.rsplit('.', 1)[0] if '.' in name else name
     new_name = f'{base}.{new_ext}'
@@ -110,14 +112,16 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
     if new_name != name and container.exists(new_name):
         if report:
             report(_('Skipping conversion of {0} as {1} already exists').format(name, new_name))
-        return name
+        return name, 0, 0
 
     path = container.get_file_path_for_processing(name)
+    before = os.path.getsize(path)
     with open(path, 'rb') as f:
         original_data = f.read()
 
     img = image_from_data(original_data)
     new_data = image_to_data(img, compression_quality=quality, fmt=img_fmt)
+    after = len(new_data)
 
     # Write to a temp file in the same directory, then atomically replace the original
     path_dir = os.path.dirname(path)
@@ -142,7 +146,14 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
                     item.set('media-type', new_mt)
         container.dirty(container.opf_name)
 
-    return new_name
+    if report:
+        if before != after:
+            report(_('{0} converted to {1} [{2} → {3}, {4:.1%} reduction]').format(
+                name, new_name, human_readable(before), human_readable(after), (before - after) / before))
+        else:
+            report(_('{0} converted to {1} [no size change]').format(name, new_name))
+
+    return new_name, before, after
 
 
 def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, compress_png=True,
@@ -152,18 +163,23 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
         images &= set(names)
 
     # Convert PNG images to the target format before any other compression
+    conv_before_total = conv_after_total = conv_num = 0
     if png_to_format:
         png_images = sorted(name for name in images if container.mime_map.get(name) == 'image/png')
         j_quality = jpeg_quality if jpeg_quality is not None else 75
         w_quality = webp_quality if webp_quality is not None else 75
         for name in png_images:
-            new_name = convert_png_to_format(
+            new_name, before, after = convert_png_to_format(
                 container, name, png_to_format,
                 jpeg_quality=j_quality, webp_quality=w_quality,
                 report=report)
             if new_name != name:
                 images.discard(name)
                 images.add(new_name)
+            if before:
+                conv_num += 1
+                conv_before_total += before
+                conv_after_total += after
 
     if not compress_png:
         images = {name for name in images if container.mime_map.get(name) != 'image/png'}
@@ -189,7 +205,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
     queue.join()
     before_total = after_total = 0
     processed_num = 0
-    changed = False
+    changed = conv_num > 0
     for name, (ok, res) in results.items():
         name = force_unicode(name, filesystem_encoding)
         if ok:
@@ -209,11 +225,27 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
             report(_('Failed to process {0} with error:').format(name))
             report(res)
     if report:
-        if changed:
+        if conv_num:
             report('')
-            report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
-                human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total, processed_num))
-        else:
+            if conv_before_total != conv_after_total:
+                report(ngettext(
+                    'PNG conversion: {0} file converted, total size changed from {1} to {2} [{3:.1%} reduction]',
+                    'PNG conversion: {0} files converted, total size changed from {1} to {2} [{3:.1%} reduction]',
+                    conv_num).format(conv_num, human_readable(conv_before_total), human_readable(conv_after_total),
+                                     (conv_before_total - conv_after_total) / conv_before_total))
+            else:
+                report(ngettext(
+                    'PNG conversion: {0} file converted, no size change',
+                    'PNG conversion: {0} files converted, no size change',
+                    conv_num).format(conv_num))
+        if results:
+            if processed_num:
+                report('')
+                report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
+                    human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total, processed_num))
+            elif not conv_num:
+                report(_('Images are already fully optimized'))
+        elif not conv_num:
             report(_('Images are already fully optimized'))
     return changed, results
 
