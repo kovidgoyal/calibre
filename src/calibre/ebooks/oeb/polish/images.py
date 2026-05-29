@@ -227,7 +227,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
     if report:
         if conv_num:
             report('')
-            if conv_before_total != conv_after_total:
+            if conv_before_total and conv_before_total != conv_after_total:
                 report(ngettext(
                     'PNG conversion: {0} file converted, total size changed from {1} to {2} [{3:.1%} reduction]',
                     'PNG conversion: {0} files converted, total size changed from {1} to {2} [{3:.1%} reduction]',
@@ -239,7 +239,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
                     'PNG conversion: {0} files converted, no size change',
                     conv_num).format(conv_num))
         if results:
-            if processed_num:
+            if processed_num and before_total:
                 report('')
                 report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
                     human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total, processed_num))
