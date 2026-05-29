@@ -1217,17 +1217,12 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
             if val < min(margins.left, margins.right):
                 mbox = list(pdf_doc.get_page_box('MediaBox', page_num))
                 box = list(pdf_doc.get_page_box('CropBox', page_num))
-                # Expand MediaBox to the right by val
-                mbox[2] += val
+                mbox[2] += val  # always expand MediaBox to the right
+                if page_num % 2 == 0:  # even: shift CropBox right
+                    box[0] += val
+                    box[2] += val
+                # odd: CropBox stays put, content appears shifted left
                 pdf_doc.set_page_box('MediaBox', page_num, *mbox)
-                # Odd pages: CropBox at left side of expanded MediaBox
-                # Even pages: CropBox at right side of expanded MediaBox
-                if page_num % 2:  # odd
-                    box[0] = mbox[0]
-                    box[2] = mbox[2] - val
-                else:  # even
-                    box[0] = mbox[0] + val
-                    box[2] = mbox[2]
                 pdf_doc.set_page_box('CropBox', page_num, *box)
 
     if cover_data:
