@@ -238,14 +238,14 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
                     'PNG conversion: {0} file converted, no size change',
                     'PNG conversion: {0} files converted, no size change',
                     conv_num).format(conv_num))
-        if results:
-            if processed_num and before_total:
-                report('')
-                report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
-                    human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total, processed_num))
-            elif not conv_num:
-                report(_('Images are already fully optimized'))
-        elif not conv_num:
+        grand_before = before_total + conv_before_total
+        grand_after = after_total + conv_after_total
+        grand_changed = processed_num + conv_num
+        if grand_before and grand_changed:
+            report('')
+            report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
+                human_readable(grand_before), human_readable(grand_after), (grand_before - grand_after)/grand_before, grand_changed))
+        elif not grand_changed:
             report(_('Images are already fully optimized'))
     return changed, results
 
