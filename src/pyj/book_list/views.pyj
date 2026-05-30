@@ -30,7 +30,7 @@ from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
     add_more_books, all_virtual_libraries, book_metadata, current_book_ids,
     current_library_id, current_sorted_field, ensure_current_library_data, library_data, load_status,
-    loaded_books_query, thumbnail_cache, url_books_query
+    loaded_books_query, refresh_sidebar_navigation, thumbnail_cache, url_books_query
 )
 from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
@@ -347,12 +347,7 @@ def save_to_saved_virtual_library():
     def do_save(item):
         if not save_saved_virtual_library(item):
             return False
-        try:
-            cb = window.cs_refresh_saved_virtual_libraries
-        except Exception:
-            cb = None
-        if cb:
-            cb()
+        refresh_sidebar_navigation()
         return True
 
     show_saved_virtual_library_dialog(
