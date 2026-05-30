@@ -1,0 +1,91 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.library_data import refresh_sidebar_navigation, update_library_data
+from book_list.saved_virtual_libraries import save_saved_virtual_library, saved_virtual_library_item
+from book_list.sidebar import create_sidebar
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+from utils import parse_url_params
+
+
+def empty_library_data(library_id='lib-a'):
+    return {
+        'search_result': {'library_id': library_id, 'vl': '', 'query': '', 'sort': '', 'sort_order': ''},
+        'sortable_fields': v'[]',
+        'field_metadata': {},
+        'metadata': {},
+        'virtual_libraries': {},
+        'book_display_fields': v'[]',
+        'bools_are_tristate': True,
+        'book_details_vertical_categories': v'[]',
+        'fts_enabled': False,
+        'fields_that_support_notes': v'[]',
+        'categories_using_hierarchy': v'[]',
+        'browse_fields': v'[]',
+    }
+
+
+@test
+def sidebar_navigation_refresh_contract():
+    calls = {'count': 0}
+    previous = window.cs_refresh_sidebar_navigation
+
+    def refresh():
+        calls.count += 1
+
+    try:
+        window.cs_refresh_sidebar_navigation = refresh
+        refresh_sidebar_navigation()
+        assert_equal(calls.count, 1)
+    finally:
+        window.cs_refresh_sidebar_navigation = previous
+
+
+@test
+def update_library_data_refreshes_sidebar_navigation():
+    def run(sd):
+        calls = {'count': 0}
+        previous = window.cs_refresh_sidebar_navigation
+
+        def refresh():
+            calls.count += 1
+
+        try:
+            window.cs_refresh_sidebar_navigation = refresh
+            update_library_data(empty_library_data())
+            assert_equal(calls.count, 1)
+        finally:
+            window.cs_refresh_sidebar_navigation = previous
+
+    with_empty_session(run)
+
+
+@test
+def sidebar_refreshes_saved_virtual_libraries_on_url_library_change():
+    def run(sd):
+        save_saved_virtual_library(saved_virtual_library_item('lib-a', 'Library A', 'tags:a'))
+        save_saved_virtual_library(saved_virtual_library_item('lib-b', 'Library B', 'tags:b'))
+        previous_url = window.location.href
+        previous_update_active = window.cs_update_sidebar_active
+        previous_refresh = window.cs_refresh_sidebar_navigation
+        try:
+            window.history.replaceState(None, '', '#library_id=lib-a')
+            parse_url_params.cache = {}
+            root, left = create_sidebar()
+            assert_true(left.textContent.indexOf('Library A') > -1)
+            assert_false(left.textContent.indexOf('Library B') > -1)
+
+            window.history.replaceState(None, '', '#library_id=lib-b')
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active()
+            assert_true(left.textContent.indexOf('Library B') > -1)
+            assert_false(left.textContent.indexOf('Library A') > -1)
+        finally:
+            window.history.replaceState(None, '', previous_url)
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active = previous_update_active
+            window.cs_refresh_sidebar_navigation = previous_refresh
+
+    with_empty_session(run)
