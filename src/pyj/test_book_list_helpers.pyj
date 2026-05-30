@@ -1,0 +1,30 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.globals import get_session_data, set_session_data
+
+
+class FakeSessionData:
+
+    def __init__(self):
+        self.data = {}
+
+    def get(self, key, defval=None):
+        if Object.prototype.hasOwnProperty.call(self.data, key):
+            return self.data[key]
+        return defval
+
+    def set(self, key, value):
+        self.data[key] = value
+        return True
+
+
+def with_empty_session(proceed):
+    previous = get_session_data()
+    sd = FakeSessionData()
+    set_session_data(sd)
+    try:
+        return proceed(sd)
+    finally:
+        set_session_data(previous)
