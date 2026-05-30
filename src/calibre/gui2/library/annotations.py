@@ -777,6 +777,7 @@ class Restrictions(QWidget):
     def __init__(self, parent, group_by):
         self.restrict_to_book_ids = frozenset()
         self.icon_size = 12
+        self.annotation_style_cache = {}
         QWidget.__init__(self, parent)
         v = QVBoxLayout(self)
         v.setContentsMargins(0, 0, 0, 0)
@@ -867,7 +868,9 @@ class Restrictions(QWidget):
             is_dark = is_dark_theme()
             model = tb.model()
             highlight_color_row = 1
-            all_styles = db.all_annotation_styles()
+            all_styles = self.annotation_style_cache.get(db.library_id)
+            if all_styles is None:
+                all_styles = self.annotation_style_cache[db.library_id] = db.all_annotation_styles()
             translate = _
             for style_name, style in all_styles.items():
                 # Custom styles store their display name in friendly_name;
