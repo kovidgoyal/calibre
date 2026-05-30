@@ -2638,10 +2638,30 @@ class DB:
     def all_annotation_styles(self):
         all_styles = [{'kind': 'color', 'which': style} for style in builtin_colors_light.keys()] + \
             [{'kind': 'decoration', 'which': style} for style in builtin_decorations.keys()]
-        # In the future, we could merge in custom styles from the DB.
-        # Under the current schema, this would require scanning all annotations,
-        # so it's excluded for performance at this time.
-        return {style['which']: style for style in all_styles}
+        ans = {style['which']: style for style in all_styles}
+        # Merge in custom highlight styles found in the database.  Custom
+        # styles are stored as JSON inside the annot_data column with
+        # 'type': 'custom' and a 'friendly_name' key.  We scan the DB to
+        # discover them, since they are not part of the built-in set.
+        try:
+            for (raw_annot_data,) in self.execute(
+                "SELECT annot_data FROM annotations"
+                " WHERE json_extract(annot_data, '$.style.type') = 'custom'"
+                " AND json_extract(annot_data, '$.removed') IS NULL"
+            ):
+                try:
+                    style = json.loads(raw_annot_data).get('style')
+                except Exception:
+                    continue
+                if style is not None and isinstance(style, dict):
+                    name = style.get('friendly_name') or style.get('which')
+                    if name and name not in ans:
+                        ans[name] = style
+        except Exception:
+            # Best-effort: if the query fails (e.g. schema mismatch) just
+            # return the built-in styles.
+            pass
+        return ans
 
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         try:

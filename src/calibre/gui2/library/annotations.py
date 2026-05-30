@@ -870,7 +870,13 @@ class Restrictions(QWidget):
             all_styles = db.all_annotation_styles()
             translate = _
             for style_name, style in all_styles.items():
-                item = QStandardItem(translate(annotation_title(style_name)))
+                # Custom styles store their display name in friendly_name;
+                # built-in styles use annotation_title on the style name.
+                if style.get('type') == 'custom':
+                    label = style.get('friendly_name', style_name)
+                else:
+                    label = annotation_title(style_name)
+                item = QStandardItem(translate(label))
                 item.setData({'type': 'highlight', 'style': style}, Qt.ItemDataRole.UserRole)
                 dec = decoration_for_style(self.palette(), style, self.icon_size, dpr, is_dark)
                 if dec:
