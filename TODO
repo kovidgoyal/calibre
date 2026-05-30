@@ -1,7 +1,3 @@
-Switching between libraries does not repopulate the virtual library section of
-the sidebar. A refresh is needed for that. The virtual libraries should be
-repopulated just like the Browse section.
-
 The scrollbars in dark mode have very low contrast
 
 Viewer UI needs to be re styled to match overall server UI
