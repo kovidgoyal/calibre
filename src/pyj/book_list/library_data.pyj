@@ -95,7 +95,7 @@ def update_library_data(data):
     else:
         last_virtual_library_for.library_id = None
         last_virtual_library_for.vl = None
-    refresh_browse_fields()
+    refresh_sidebar_navigation()
     refresh_browse_field_settings()
 
 
@@ -128,12 +128,12 @@ def set_browse_fields(field_keys):
     by_library[current_library_id()] = field_keys
     get_session_data().set(BROWSE_VISIBLE_FIELDS_SETTING, by_library)
     update_visible_browse_fields()
-    refresh_browse_fields()
+    refresh_sidebar_navigation()
 
 
-def refresh_browse_fields():
+def refresh_sidebar_navigation():
     try:
-        refresh = window.cs_refresh_browse_fields
+        refresh = window.cs_refresh_sidebar_navigation
     except Exception:
         refresh = None
     if refresh:
