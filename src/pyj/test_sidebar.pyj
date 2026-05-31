@@ -1,0 +1,50 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.sidebar import create_sidebar
+from book_list.ui_settings import get_ui_prefs
+from session import session_defaults
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_false, assert_true, test
+from utils import parse_url_params
+
+
+@test
+def viewer_sidebar_setting_contract():
+    names = [x.name for x in get_ui_prefs()]
+    assert_true(names.indexOf('show_sidebar_in_book_viewer') > -1)
+    assert_equal(names.indexOf('show_sidebar_in_viewer'), -1)
+    assert_equal(session_defaults().show_sidebar_in_book_viewer, False)
+    assert_false(Object.prototype.hasOwnProperty.call(session_defaults(), 'show_sidebar_in_viewer'))
+
+
+@test
+def viewer_sidebar_setting_controls_reader_visibility():
+    def run(sd):
+        previous_url = window.location.href
+        previous_update_active = window.cs_update_sidebar_active
+        previous_refresh = window.cs_refresh_sidebar_navigation
+        try:
+            sd.set('show_sidebar_in_book_viewer', False)
+            window.history.replaceState(None, '', '#mode=read_book')
+            parse_url_params.cache = {}
+            root, left = create_sidebar()
+            assert_equal(left.style.display, 'none')
+
+            sd.set('show_sidebar_in_book_viewer', True)
+            window.cs_update_sidebar_active()
+            assert_equal(left.style.display, 'flex')
+
+            sd.set('show_sidebar_in_book_viewer', False)
+            window.history.replaceState(None, '', '#mode=book_list')
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active()
+            assert_equal(left.style.display, 'flex')
+        finally:
+            window.history.replaceState(None, '', previous_url)
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active = previous_update_active
+            window.cs_refresh_sidebar_navigation = previous_refresh
+
+    with_empty_session(run)
