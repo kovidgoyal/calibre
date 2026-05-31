@@ -133,6 +133,8 @@ DEFAULT_COLORS = {
     'faded-text': c('#666', '#7f7f7f'),
     'border': c('rgba(0,0,0,0.12)', 'rgba(255,255,255,0.12)'),
     'border-subtle': c('rgba(0,0,0,0.08)', 'rgba(255,255,255,0.08)'),
+    'scrollbar-thumb': c('rgba(0,0,0,0.26)', 'rgba(255,255,255,0.34)'),
+    'scrollbar-thumb-hover': c('rgba(0,0,0,0.38)', 'rgba(255,255,255,0.48)'),
     'surface-1': c(hex_as_rgba(LIGHT, '0.08'), hex_as_rgba(DT_DARK, '0.08')),
     'surface-2': c(hex_as_rgba(LIGHT, '0.04'), hex_as_rgba(DT_DARK, '0.04')),
     'surface-3': c(hex_as_rgba(LIGHT, '0.02'), hex_as_rgba(DT_DARK, '0.02')),
