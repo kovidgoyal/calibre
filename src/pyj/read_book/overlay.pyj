@@ -367,9 +367,7 @@ class MainOverlay:  # {{{
                 return '{}:{}'.format(date.getHours(), date.getMinutes())
             }
 
-    def show(self, container):
-        self.container_id = container.getAttribute('id')
-        sd = get_session_data()
+    def create_actions(self, sd):
         ac = create_main_overlay_action
         text_ac = create_main_overlay_text_action
 
@@ -532,17 +530,21 @@ class MainOverlay:  # {{{
             if copy_actions.childNodes.length:
                 actions_div.appendChild(copy_actions)
 
-        container.appendChild(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
+        return actions_div
+
+    def create_top_section(self, actions_div):
+        return E.div(class_=MAIN_OVERLAY_TS_CLASS,
             onclick=def (evt):evt.stopPropagation();,
 
-            E.div(  # top row
+            E.div(
                 E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), class_=MAIN_OVERLAY_TITLE_CLASS),
                 E.div(time_formatter.format(Date()), id=timer_id(), class_=MAIN_OVERLAY_TIMER_CLASS),
                 class_=MAIN_OVERLAY_TOP_ROW_CLASS,
             ),
             actions_div,
-        ))
+        )
 
+    def create_footer(self):
         def close_viewer_controls(ev):
             ev.stopPropagation()
             self.overlay.hide_current_panel(ev)
@@ -553,8 +555,14 @@ class MainOverlay:  # {{{
             self.overlay.hide_current_panel(ev)
 
         footer_parts = create_main_overlay_footer(close_viewer_controls, show_viewer_help)
-        container.appendChild(footer_parts.footer)
         render_main_overlay_footer_templates(footer_parts, self.overlay.view.create_template_renderer())
+        return footer_parts.footer
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        sd = get_session_data()
+        container.appendChild(self.create_top_section(self.create_actions(sd)))
+        container.appendChild(self.create_footer())
 
         self.on_hide()
         self.timer = setInterval(self.update_time, 1000)
