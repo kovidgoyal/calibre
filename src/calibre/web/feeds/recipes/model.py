@@ -333,13 +333,13 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         query = query.strip().lower()
         if not query:
             return self.universal_set()
+
         # Normalize various apostrophe/quote characters to the ASCII apostrophe
         # so that e.g. searching for Harper's finds Harper\u2019s Magazine
-        query = query.replace('\u2018', "'").replace('\u2019', "'").replace('\u02bc', "'")
-
         def normalize_quotes(text):
             return text.replace('\u2018', "'").replace('\u2019', "'").replace('\u02bc', "'")
 
+        query = normalize_quotes(query)
         results = set()
         for urn in self.universal_set():
             recipe = self.recipe_from_urn(urn)
