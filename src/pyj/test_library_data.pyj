@@ -5,6 +5,8 @@ from __python__ import hash_literals
 from book_list.library_data import refresh_sidebar_navigation, update_library_data
 from book_list.saved_virtual_libraries import save_saved_virtual_library, saved_virtual_library_item
 from book_list.sidebar import create_sidebar
+from book_list.ui_settings import get_ui_prefs
+from session import session_defaults
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_false, assert_true, test
 from utils import parse_url_params
@@ -58,6 +60,46 @@ def update_library_data_refreshes_sidebar_navigation():
             assert_equal(calls.count, 1)
         finally:
             window.cs_refresh_sidebar_navigation = previous
+
+    with_empty_session(run)
+
+
+@test
+def viewer_sidebar_setting_contract():
+    names = [x.name for x in get_ui_prefs()]
+    assert_true(names.indexOf('show_sidebar_in_book_viewer') > -1)
+    assert_equal(names.indexOf('show_sidebar_in_viewer'), -1)
+    assert_equal(session_defaults().show_sidebar_in_book_viewer, False)
+    assert_false(Object.prototype.hasOwnProperty.call(session_defaults(), 'show_sidebar_in_viewer'))
+
+
+@test
+def viewer_sidebar_setting_controls_reader_visibility():
+    def run(sd):
+        previous_url = window.location.href
+        previous_update_active = window.cs_update_sidebar_active
+        previous_refresh = window.cs_refresh_sidebar_navigation
+        try:
+            sd.set('show_sidebar_in_book_viewer', False)
+            window.history.replaceState(None, '', '#mode=read_book')
+            parse_url_params.cache = {}
+            root, left = create_sidebar()
+            assert_equal(left.style.display, 'none')
+
+            sd.set('show_sidebar_in_book_viewer', True)
+            window.cs_update_sidebar_active()
+            assert_equal(left.style.display, 'flex')
+
+            sd.set('show_sidebar_in_book_viewer', False)
+            window.history.replaceState(None, '', '#mode=book_list')
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active()
+            assert_equal(left.style.display, 'flex')
+        finally:
+            window.history.replaceState(None, '', previous_url)
+            parse_url_params.cache = {}
+            window.cs_update_sidebar_active = previous_update_active
+            window.cs_refresh_sidebar_navigation = previous_refresh
 
     with_empty_session(run)
 
