@@ -12,6 +12,7 @@ import test_local_books  # noqa: unused-import
 import test_nav_list  # noqa: unused-import
 import test_saved_virtual_libraries  # noqa: unused-import
 import test_library_data  # noqa: unused-import
+import test_sidebar  # noqa: unused-import
 import read_book.test_cfi  # noqa: unused-import
 import test_annotations  # noqa: unused-import
 
