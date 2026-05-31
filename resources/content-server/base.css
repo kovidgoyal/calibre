@@ -24,8 +24,6 @@
     --primary-color: #437000;
     --primary-light: rgba(67,112,0,0.18);
     --primary-light-2: rgba(67,112,0,0.28);
-    --calibre-color-scrollbar-thumb: rgba(128,128,128,0.70);
-    --calibre-color-scrollbar-thumb-hover: rgba(128,128,128,0.90);
 
     /* Backwards-compatible aliases used across existing CSS */
     --cs-accent: var(--primary-color);
