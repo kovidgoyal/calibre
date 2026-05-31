@@ -493,6 +493,7 @@ class Metadata:
             return
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
+        formatter.allow_python_templates = False
         for op in ops:
             try:
                 src = op[0]
