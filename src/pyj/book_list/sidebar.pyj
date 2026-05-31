@@ -429,7 +429,7 @@ def create_sidebar():
 
     def update_sidebar_visibility(current):
         sd = get_session_data()
-        show_in_viewer = sd.get('show_sidebar_in_book_viewer', True)
+        show_in_viewer = sd.get('show_sidebar_in_book_viewer')
         mode = (current.mode or 'book_list') if current else 'book_list'
         left.style.display = 'flex' if (mode is not 'read_book' or show_in_viewer) else 'none'
 

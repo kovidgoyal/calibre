@@ -293,7 +293,7 @@ def get_ui_prefs():
             'onchange': apply_book_list_theme,
         },
         {
-            'name': 'show_sidebar_in_viewer',
+            'name': 'show_sidebar_in_book_viewer',
             'text': _('Show sidebar when reading'),
             'tooltip': _('Show the left navigation sidebar when reading books'),
         },
