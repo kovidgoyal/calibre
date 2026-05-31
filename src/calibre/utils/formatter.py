@@ -1760,6 +1760,7 @@ class TemplateFormatter(string.Formatter):
         self._caller = None
         self.python_context_object = None
         self.database = None
+        self.allow_python_templates = None
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -1877,9 +1878,12 @@ class TemplateFormatter(string.Formatter):
         return rslt
 
     def compile_python_template(self, template):
-        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
-            raise ValueError(_('Python templates disallowed by the {} environment variable'
-                               ).format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
+        if self.allow_python_templates is None:
+            if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
+                raise ValueError(_('Python templates disallowed by the {} environment variable'
+                                ).format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
+        elif not self.allow_python_templates:
+            raise ValueError(_('Python templates disallowed by policy for this formatter'))
 
         def replace_func(mo):
             return mo.group().replace('\t', '    ')
