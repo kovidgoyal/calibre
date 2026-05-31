@@ -221,6 +221,16 @@ class SyncBook:  # {{{
 # CSS {{{
 MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
 MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
+MAIN_OVERLAY_ACTION_ICON_CLASS = 'read-book-main-overlay-action-icon'
+MAIN_OVERLAY_TEXT_ICON_CLASS = 'read-book-main-overlay-text-icon'
+MAIN_OVERLAY_TOP_ROW_CLASS = 'read-book-main-overlay-top-row'
+MAIN_OVERLAY_TITLE_CLASS = 'read-book-main-overlay-title'
+MAIN_OVERLAY_TIMER_CLASS = 'read-book-main-overlay-timer'
+MAIN_OVERLAY_BUTTON_CLASS = 'main-overlay-button'
+MAIN_OVERLAY_FOOTER_CLASS = 'read-book-main-overlay-footer'
+MAIN_OVERLAY_FOOTER_ACTIONS_CLASS = 'read-book-main-overlay-footer-actions'
+MAIN_OVERLAY_FOOTER_SLOT_CLASS = 'read-book-main-overlay-footer-slot'
+MAIN_OVERLAY_ICON_SIZE = '3.5ex'
 
 
 def timer_id():
@@ -231,6 +241,26 @@ def timer_id():
 
 add_extra_css(def():
     style = ''
+    style += build_rule('.' + MAIN_OVERLAY_TS_CLASS,
+                        user_select='none', background_color=get_color('window-background'))
+    style += build_rule('.' + MAIN_OVERLAY_TOP_ROW_CLASS,
+                        display='flex', justify_content='space-between', align_items='baseline',
+                        font_size='smaller', padding='0.5ex 1ex', border_bottom='solid 1px currentColor')
+    style += build_rule('.' + MAIN_OVERLAY_TITLE_CLASS,
+                        max_width='90%', text_overflow='ellipsis', font_weight='bold',
+                        white_space='nowrap', overflow='hidden')
+    style += build_rule('.' + MAIN_OVERLAY_TIMER_CLASS,
+                        max_width='9%', white_space='nowrap', overflow='hidden')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_CLASS,
+                        position='fixed', width='100%', bottom='0', display='flex',
+                        justify_content='space-between', align_items='center',
+                        user_select='none', background_color=get_color('window-background'))
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTIONS_CLASS,
+                        display='flex', justify_content='space-between', align_items='center')
+    style += build_rule('.' + MAIN_OVERLAY_BUTTON_CLASS,
+                        display='flex', align_items='center', cursor='pointer', padding='0.5ex 1rem')
+    style += build_rule('.' + MAIN_OVERLAY_BUTTON_CLASS + ' > svg:first-child', margin_right='0.5ex')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_SLOT_CLASS, padding='0.5ex 1rem')
     sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
     style += build_rule(sel, overflow='hidden')
     sel += '> ul '
@@ -238,13 +268,24 @@ add_extra_css(def():
     sel += '> li'
     style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', flex_wrap='wrap', align_items='center', cursor='pointer')
     style += build_rule(sel + ':last-child', border_right_style='none')
-    style += build_rule(sel + ':hover > *:first-child, .main-overlay-button:hover > *:first-child',
+    style += build_rule(sel + ' > .' + MAIN_OVERLAY_ACTION_ICON_CLASS + ':first-child', margin_right='0.5ex')
+    style += build_rule('.' + MAIN_OVERLAY_TEXT_ICON_CLASS, font_size='175%', font_weight='bold')
+    style += build_rule(sel + ':hover > *:first-child, .' + MAIN_OVERLAY_BUTTON_CLASS + ':hover > *:first-child',
                         color=get_color('window-hover-foreground'))
-    style += build_rule(sel + ':active > *:first-child, .main-overlay-button:active > *:first-child', transform='scale(1.8)')
+    style += build_rule(sel + ':active > *:first-child, .' + MAIN_OVERLAY_BUTTON_CLASS + ':active > *:first-child', transform='scale(1.8)')
     style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
     return style
 )
 # }}}
+
+def create_main_overlay_action(text, tooltip, action, icon, is_text_button=False):
+    if is_text_button:
+        icon_elem = E.span(icon, class_=MAIN_OVERLAY_TEXT_ICON_CLASS)
+    else:
+        icon_elem = svgicon(icon, MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_ICON_SIZE)
+    icon_elem.classList.add(MAIN_OVERLAY_ACTION_ICON_CLASS)
+    return E.li(icon_elem, text, onclick=action, title=tooltip)
+
 
 def simple_overlay_title(title, overlay, container, close_action):
     container.style.backgroundColor = get_color('window-background')
@@ -271,17 +312,8 @@ class MainOverlay:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        icon_size = '3.5ex'
         sd = get_session_data()
-
-        def ac(text, tooltip, action, icon, is_text_button):
-            if is_text_button:
-                icon = E.span(icon, style='font-size: 175%; font-weight: bold')
-            else:
-                icon = svgicon(icon, icon_size, icon_size) if icon else ''
-            icon.style.marginRight = '0.5ex'
-
-            return E.li(icon, text, onclick=action, title=tooltip)
+        ac = create_main_overlay_action
 
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         if ui_operations.has_unsynced_changes and ui_operations.has_unsynced_changes():
@@ -441,36 +473,35 @@ class MainOverlay:  # {{{
             if copy_actions.childNodes.length:
                 actions_div.appendChild(copy_actions)
 
-        container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
+        container.appendChild(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 
-            set_css(E.div(  # top row
-                E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap; overflow: hidden'),
-                E.div(time_formatter.format(Date()), id=timer_id(), style='max-width: 9%; white-space: nowrap; overflow: hidden'),
-                ),
-                display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1ex', border_bottom='solid 1px currentColor'
+            E.div(  # top row
+                E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), class_=MAIN_OVERLAY_TITLE_CLASS),
+                E.div(time_formatter.format(Date()), id=timer_id(), class_=MAIN_OVERLAY_TIMER_CLASS),
+                class_=MAIN_OVERLAY_TOP_ROW_CLASS,
             ),
             actions_div,
-        ), user_select='none', background_color=get_color('window-background')))
+        ))
 
         container.appendChild(
             E.div( # bottom bar
-                  style='position: fixed; width: 100%; bottom: 0; display: flex; justify-content: space-between; align-items: center;'
-                        'user-select: none; background-color: {}'.format(get_color('window-background')),
+                class_=MAIN_OVERLAY_FOOTER_CLASS,
                 E.div(
-                    style='display: flex; justify-content: space-between; align-items: center;',
+                    class_=MAIN_OVERLAY_FOOTER_ACTIONS_CLASS,
                     E.div(
-                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
+                        class_=MAIN_OVERLAY_BUTTON_CLASS,
                         title=_('Close the viewer controls'),
-                        svgicon('close', icon_size, icon_size), '\xa0', _('Close')
+                        svgicon('close', MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_ICON_SIZE), _('Close')
                     ),
                     E.div(
-                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
-                        svgicon('help', icon_size, icon_size), '\xa0', _('Help'), onclick=def(ev):
+                        class_=MAIN_OVERLAY_BUTTON_CLASS,
+                        svgicon('help', MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_ICON_SIZE), _('Help'), onclick=def(ev):
                             ui_operations.show_help('viewer')
                     )
                 ),
-                E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
+                E.div(class_=MAIN_OVERLAY_FOOTER_SLOT_CLASS, '\xa0'),
+                E.div(class_=MAIN_OVERLAY_FOOTER_SLOT_CLASS, '\xa0'),
             ),
         )
         renderer = self.overlay.view.create_template_renderer()
