@@ -13,9 +13,7 @@ from book_list.router import home
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
-from dom import (
-    add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
-)
+from dom import clear, ensure_id, set_css, svgicon
 from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from read_book.bookmarks import create_bookmarks_panel
@@ -23,6 +21,15 @@ from read_book.chrome import apply_viewer_chrome_colors, viewer_chrome_colors
 from read_book.globals import is_dark_theme, runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay, create_page_list_overlay
 from read_book.highlights import builtin_color, create_highlights_panel
+from read_book.main_overlay_style import (
+    MAIN_OVERLAY_ACTION_CONTROL_CLASS, MAIN_OVERLAY_ACTION_ICON_CLASS,
+    MAIN_OVERLAY_ACTIONS_CLASS, MAIN_OVERLAY_FOOTER_ACTION_CLASS,
+    MAIN_OVERLAY_FOOTER_ACTIONS_CLASS, MAIN_OVERLAY_FOOTER_CLASS,
+    MAIN_OVERLAY_FOOTER_MIDDLE_SLOT_CLASS, MAIN_OVERLAY_FOOTER_RIGHT_SLOT_CLASS,
+    MAIN_OVERLAY_FOOTER_SLOT_CLASS, MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_TEXT_ICON_CLASS,
+    MAIN_OVERLAY_TIMER_CLASS, MAIN_OVERLAY_TITLE_CLASS, MAIN_OVERLAY_TOP_ROW_CLASS,
+    MAIN_OVERLAY_TS_CLASS, timer_id
+)
 from read_book.profiles import create_profiles_panel
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
@@ -217,84 +224,6 @@ class SyncBook:  # {{{
             self.overlay.view.sync_data_received(cfi, new_annotations_map)
 
 
-# }}}
-
-# CSS {{{
-MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
-MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
-MAIN_OVERLAY_ACTION_CONTROL_CLASS = 'read-book-main-overlay-action-control'
-MAIN_OVERLAY_ACTION_ICON_CLASS = 'read-book-main-overlay-action-icon'
-MAIN_OVERLAY_TEXT_ICON_CLASS = 'read-book-main-overlay-text-icon'
-MAIN_OVERLAY_TOP_ROW_CLASS = 'read-book-main-overlay-top-row'
-MAIN_OVERLAY_TITLE_CLASS = 'read-book-main-overlay-title'
-MAIN_OVERLAY_TIMER_CLASS = 'read-book-main-overlay-timer'
-MAIN_OVERLAY_FOOTER_ACTION_CLASS = 'read-book-main-overlay-footer-action'
-MAIN_OVERLAY_FOOTER_CLASS = 'read-book-main-overlay-footer'
-MAIN_OVERLAY_FOOTER_ACTIONS_CLASS = 'read-book-main-overlay-footer-actions'
-MAIN_OVERLAY_FOOTER_SLOT_CLASS = 'read-book-main-overlay-footer-slot'
-MAIN_OVERLAY_FOOTER_MIDDLE_SLOT_CLASS = 'read-book-main-overlay-footer-middle-slot'
-MAIN_OVERLAY_FOOTER_RIGHT_SLOT_CLASS = 'read-book-main-overlay-footer-right-slot'
-MAIN_OVERLAY_ICON_SIZE = '3.5ex'
-
-
-def timer_id():
-    if not timer_id.ans:
-        timer_id.ans = unique_id()
-    return timer_id.ans
-
-
-add_extra_css(def():
-    style = ''
-    border_style = 'var(--calibre-border-style-subtle)'
-    hover_bg = 'var(--cs-accent-weak)'
-    active_bg = 'var(--cs-accent-weak-2)'
-    style += build_rule('.' + MAIN_OVERLAY_TS_CLASS,
-                        user_select='none', background_color=get_color('window-background'))
-    style += build_rule('.' + MAIN_OVERLAY_TOP_ROW_CLASS,
-                        display='flex', justify_content='space-between', align_items='baseline',
-                        font_size='smaller', padding='0.5ex 1ex', border_bottom=border_style)
-    style += build_rule('.' + MAIN_OVERLAY_TITLE_CLASS,
-                        max_width='90%', text_overflow='ellipsis', font_weight='bold',
-                        white_space='nowrap', overflow='hidden')
-    style += build_rule('.' + MAIN_OVERLAY_TIMER_CLASS,
-                        max_width='9%', white_space='nowrap', overflow='hidden')
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_CLASS,
-                        position='fixed', width='100%', bottom='0', display='flex',
-                        justify_content='space-between', align_items='center',
-                        user_select='none', background_color=get_color('window-background'))
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTIONS_CLASS,
-                        display='flex', justify_content='space-between', align_items='center')
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS,
-                        display='flex', align_items='center', cursor='pointer', padding='0.5ex 1rem',
-                        appearance='none', margin='0', border='0', color='inherit',
-                        background='transparent', font='inherit')
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':focus',
-                        outline='1px solid ' + get_color('input-focus-outline-color'))
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ' > svg:first-child', margin_right='0.5ex')
-    style += build_rule('.' + MAIN_OVERLAY_FOOTER_SLOT_CLASS, padding='0.5ex 1rem')
-    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
-    style += build_rule(sel, overflow='hidden')
-    sel += '> ul '
-    style += build_rule(sel, display='flex', list_style='none', margin='0', padding='0', border_bottom=border_style)
-    sel += '> li'
-    style += build_rule(sel, border_right=border_style, display='flex')
-    style += build_rule(sel + ':last-child', border_right_style='none')
-    action_sel = sel + ' > .' + MAIN_OVERLAY_ACTION_CONTROL_CLASS
-    style += build_rule(action_sel,
-                        display='flex', flex_wrap='wrap', align_items='center', cursor='pointer',
-                        appearance='none', margin='0', padding='0.5em 1ex', border='0',
-                        color='inherit', background='transparent', font='inherit', text_align='left')
-    style += build_rule(action_sel + ':focus',
-                        outline='1px solid ' + get_color('input-focus-outline-color'))
-    style += build_rule(action_sel + ' > .' + MAIN_OVERLAY_ACTION_ICON_CLASS + ':first-child', margin_right='0.5ex')
-    style += build_rule('.' + MAIN_OVERLAY_TEXT_ICON_CLASS, font_size='175%', font_weight='bold')
-    style += build_rule(action_sel + ':hover, .' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':hover',
-                        background_color=hover_bg)
-    style += build_rule(action_sel + ':active, .' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':active',
-                        background_color=active_bg)
-    style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
-    return style
-)
 # }}}
 
 def create_main_overlay_action_with_icon(text, tooltip, action, icon_elem, icon_color=None):
