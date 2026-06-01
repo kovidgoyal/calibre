@@ -967,6 +967,8 @@ class GridView(MomentumScrollMixin, QListView):
         self.delegate.cover_cache.rendered.connect(self.re_render)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
+        self._texture_pixmap = None
+        self.viewport().installEventFilter(self)
         self.set_color()
         QApplication.instance().palette_changed.connect(self.set_color)
         self.ignore_render_requests = Event()
@@ -1046,6 +1048,7 @@ class GridView(MomentumScrollMixin, QListView):
         bgcol = QColor(r, g, b)
         pal.setColor(QPalette.ColorRole.Base, bgcol)
         pal.setColor(QPalette.ColorRole.WindowText, bgcol)  # frame color
+        self._texture_pixmap = None
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
@@ -1054,13 +1057,28 @@ class GridView(MomentumScrollMixin, QListView):
                 if not pm.isNull():
                     val = pm.scaled(1, 1).toImage().pixel(0, 0)
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
-                    pal.setBrush(QPalette.ColorRole.Base, QBrush(pm))
+                    self._texture_pixmap = pm
         dark = max(r, g, b) < 115
         p = dark_palette() if dark else light_palette()
         col = p.color(QPalette.ColorRole.Text)
         pal.setColor(QPalette.ColorRole.Text, col)
         self.setPalette(pal)
         self.delegate.highlight_color = col
+        # When a texture is active we paint the background manually in
+        # eventFilter to avoid a Qt bug where JPEG-based palette brushes are
+        # not tiled correctly when the view is scrolled.
+        self.viewport().setAutoFillBackground(self._texture_pixmap is None)
+        self.viewport().update()
+
+    def eventFilter(self, obj, event):
+        if obj is self.viewport() and event.type() == QEvent.Type.Paint:
+            pm = getattr(self, '_texture_pixmap', None)
+            if pm is not None:
+                with QPainter(self.viewport()) as painter:
+                    painter.fillRect(self.viewport().rect(), QBrush(pm))
+                # Return False so the normal paint event (items) runs on top
+                return False
+        return super().eventFilter(obj, event)
 
     def refresh_settings(self):
         size_changed = (
