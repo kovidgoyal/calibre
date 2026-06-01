@@ -1074,9 +1074,8 @@ class GridView(MomentumScrollMixin, QListView):
         if obj is self.viewport() and event.type() == QEvent.Type.Paint:
             pm = getattr(self, '_texture_pixmap', None)
             if pm is not None:
-                painter = QPainter(self.viewport())
-                painter.fillRect(self.viewport().rect(), QBrush(pm))
-                painter.end()
+                with QPainter(self.viewport()) as painter:
+                    painter.fillRect(self.viewport().rect(), QBrush(pm))
                 # Return False so the normal paint event (items) runs on top
                 return False
         return super().eventFilter(obj, event)
