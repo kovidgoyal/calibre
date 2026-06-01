@@ -19,6 +19,7 @@ from dom import (
 from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from read_book.bookmarks import create_bookmarks_panel
+from read_book.chrome import apply_viewer_chrome_colors, viewer_chrome_colors
 from read_book.globals import is_dark_theme, runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay, create_page_list_overlay
 from read_book.highlights import builtin_color, create_highlights_panel
@@ -79,7 +80,7 @@ class DeleteBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, background_color=get_color('window-background'))
+        apply_viewer_chrome_colors(container)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             tabindex='0',
@@ -148,7 +149,7 @@ class SyncBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, background_color=get_color('window-background'))
+        apply_viewer_chrome_colors(container)
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
         view = self.overlay.view
@@ -345,7 +346,7 @@ def render_main_overlay_footer_templates(footer_parts, renderer):
 
 
 def simple_overlay_title(title, overlay, container, close_action):
-    container.style.backgroundColor = get_color('window-background')
+    apply_viewer_chrome_colors(container)
     def action():
         event = this
         event.stopPropagation()
@@ -651,7 +652,7 @@ class PrefsOverlay: # {{{
 
     def show(self, container):
         self.changes_occurred = False
-        container.style.backgroundColor = get_color('window-background')
+        apply_viewer_chrome_colors(container)
         self.prefs = self.create_panel_impl(container)
 
     def on_change(self):
@@ -936,9 +937,10 @@ class Overlay:
 
     def clear_container(self):
         c = self.container
+        colors = viewer_chrome_colors()
         clear(c)
         c.style.backgroundColor = 'transparent'
-        c.style.color = get_color('window-foreground')
+        c.style.color = colors.foreground
         if c.style.display is not 'block':
             c.style.display = 'block'
         return c
