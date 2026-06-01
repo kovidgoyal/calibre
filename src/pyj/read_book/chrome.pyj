@@ -1,0 +1,18 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.theme import get_color
+from dom import set_css
+
+
+def viewer_chrome_colors():
+    return {
+        'background': get_color('window-background'),
+        'foreground': get_color('window-foreground'),
+    }
+
+
+def apply_viewer_chrome_colors(elem):
+    colors = viewer_chrome_colors()
+    set_css(elem, background_color=colors.background, color=colors.foreground)
