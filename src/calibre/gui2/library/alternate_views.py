@@ -1075,7 +1075,19 @@ class GridView(MomentumScrollMixin, QListView):
             pm = getattr(self, '_texture_pixmap', None)
             if pm is not None:
                 with QPainter(self.viewport()) as painter:
-                    painter.fillRect(self.viewport().rect(), QBrush(pm))
+                    pm.setDevicePixelRatio(self.devicePixelRatioF())
+                    r = self.viewport().rect()
+                    sz = pm.deviceIndependentSize()
+                    if sz.height() > r.height() or sz.width() > r.width():
+                        sm = getattr(self, '_scaled_texture_pixmap', QPixmap())
+                        sz = sm.deviceIndependentSize()
+                        if sz.width() != r.width() and sz.height() != r.height():
+                            sm = pm.scaled(
+                                r.size() * pm.devicePixelRatioF(), Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                                Qt.TransformationMode.SmoothTransformation)
+                            setattr(self, '_scaled_texture_pixmap', sm)
+                        pm = sm
+                    painter.fillRect(r, QBrush(pm))
                 # Return False so the normal paint event (items) runs on top
                 return False
         return super().eventFilter(obj, event)
