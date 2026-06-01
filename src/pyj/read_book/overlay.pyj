@@ -244,9 +244,9 @@ def timer_id():
 
 add_extra_css(def():
     style = ''
-    border_style = 'var(--calibre-border-style-subtle, 1px solid ' + get_color('border-subtle') + ')'
-    hover_bg = 'var(--cs-accent-weak, ' + get_color('list-hover-background') + ')'
-    active_bg = 'var(--cs-accent-weak-2, ' + get_color('window-background2') + ')'
+    border_style = 'var(--calibre-border-style-subtle)'
+    hover_bg = 'var(--cs-accent-weak)'
+    active_bg = 'var(--cs-accent-weak-2)'
     style += build_rule('.' + MAIN_OVERLAY_TS_CLASS,
                         user_select='none', background_color=get_color('window-background'))
     style += build_rule('.' + MAIN_OVERLAY_TOP_ROW_CLASS,
@@ -274,7 +274,7 @@ add_extra_css(def():
     sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
     style += build_rule(sel, overflow='hidden')
     sel += '> ul '
-    style += build_rule(sel, display='flex', list_style='none', border_bottom=border_style)
+    style += build_rule(sel, display='flex', list_style='none', margin='0', padding='0', border_bottom=border_style)
     sel += '> li'
     style += build_rule(sel, border_right=border_style, display='flex')
     style += build_rule(sel + ':last-child', border_right_style='none')
