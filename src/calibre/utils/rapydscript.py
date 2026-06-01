@@ -476,7 +476,9 @@ def compile_viewer():
     icons = g['merge']()
     with open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read().decode('utf-8')
-    html = f'<!DOCTYPE html>\n<html><head><style>{reset}</style></head><body>{icons}</body></html>'
+    with open(os.path.join(base, 'resources', 'content-server', 'base.css'), 'rb') as f:
+        reset = f.read().decode('utf-8')
+    html = f'<!DOCTYPE html>\n<html><head><style>{reset}\n\n{base}</style></head><body>{icons}</body></html>'
 
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')

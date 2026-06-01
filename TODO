@@ -1,3 +1,6 @@
-Viewer UI needs to be re styled to match overall server UI
+Viewer UI needs to be re styled to match overall server UI. After adding
+base.css to the standalone viewer, need to fix all resulting styling issues and
+port relevant code from theme.pyj into the standalone viewer-main.pyj so that
+all needed CSS variables etc. are set for both light and dark mode.
 
 Review appearance of all pages in light and dark mode
