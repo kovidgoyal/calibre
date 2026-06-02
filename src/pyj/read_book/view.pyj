@@ -45,7 +45,7 @@ from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes, get_current_pagelist_items
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
-from session import get_device_uuid, get_interface_data
+from session import get_device_uuid, get_interface_data, all_settings
 from utils import (
     default_context_menu_should_be_allowed, html_escape, parse_url_params,
     safe_set_inner_html, username_key
@@ -325,7 +325,7 @@ class View:
         self.current_color_scheme = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
-            set_ui_colors(self.current_color_scheme.is_dark_theme)
+            set_ui_colors(self.current_color_scheme.is_dark_theme, all_settings.ui_highlight_color.default)
         is_dark_theme(self.current_color_scheme.is_dark_theme)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
@@ -848,7 +848,7 @@ class View:
         self.current_color_scheme = ans = resolve_color_scheme()
         iframe = self.iframe
         if runtime.is_standalone_viewer:
-            set_ui_colors(self.current_color_scheme.is_dark_theme)
+            set_ui_colors(self.current_color_scheme.is_dark_theme, all_settings.ui_highlight_color.default)
         else:
             iframe.style.colorScheme = 'dark' if self.current_color_scheme.is_dark_theme else 'light'
 
