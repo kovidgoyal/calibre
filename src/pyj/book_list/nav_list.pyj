@@ -238,9 +238,9 @@ add_extra_css(def():
         overflow='hidden',
         text_overflow='ellipsis',
     )
-    style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-tag-bubble:hover', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'a.cs-tag-bubble:active', transform='scale(0.99)')
-    style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--cs-focus-ring)')
+    style += build_rule(sel + 'a.cs-tag-bubble:focus', outline='none', box_shadow='var(--calibre-focus-ring)')
     style += build_rule(sel + 'a.cs-tag-bubble .cs-tag-meta', font_size='0.85em', opacity='0.78')
     style += build_rule(sel + '.cs-show-more-wrap',
         padding='0.25rem 1rem 1rem 1rem',
@@ -260,7 +260,7 @@ add_extra_css(def():
         cursor='pointer',
         user_select='none'
     )
-    style += build_rule(sel + 'a.cs-show-more:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-show-more:hover', background_color='var(--calibre-color-primary-light)')
     # Fractional rating stars (5 base stars + themed fill overlay)
     style += build_rule(sel + '.cs-rating-stars',
         position='relative',
@@ -279,7 +279,7 @@ add_extra_css(def():
         top='0',
         overflow='hidden',
         white_space='nowrap',
-        color='var(--primary-color)',
+        color='var(--calibre-color-primary)',
         pointer_events='none'
     )
     # Toggle (segmented) control
@@ -299,10 +299,10 @@ add_extra_css(def():
     )
     style += build_rule(sel + 'a.cs-toggle-btn:last-child', border_right='none')
     style += build_rule(sel + 'a.cs-toggle-btn[aria-pressed="true"]',
-        background_color='var(--cs-accent-weak-2)',
+        background_color='var(--calibre-color-primary-light-2)',
         font_weight='700'
     )
-    style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'a.cs-toggle-btn:hover', background_color='var(--calibre-color-primary-light)')
     # Series stack-cover mode: isolated classes to avoid conflicts with list mode selectors.
     style += build_rule(
         '.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-row',

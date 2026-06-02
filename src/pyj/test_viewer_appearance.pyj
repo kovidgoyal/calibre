@@ -24,6 +24,6 @@ def main_overlay_style_uses_viewer_chrome():
     assert_true(css.indexOf('color:var(--calibre-color-window-foreground);') > -1)
     assert_true(css.indexOf('border-bottom:var(--calibre-border-style-subtle);') > -1)
     assert_true(css.indexOf('outline:1px solid var(--calibre-color-input-focus-outline-color);') > -1)
-    assert_true(css.indexOf('background-color:var(--cs-accent-weak);') > -1)
-    assert_true(css.indexOf('background-color:var(--cs-accent-weak-2);') > -1)
+    assert_true(css.indexOf('background-color:var(--calibre-color-primary-light);') > -1)
+    assert_true(css.indexOf('background-color:var(--calibre-color-primary-light-2);') > -1)
     assert_true(get_widget_css().indexOf('.' + MAIN_OVERLAY_TS_CLASS) > -1)

@@ -33,7 +33,7 @@ add_extra_css(def():
         overflow='hidden'
     )
     style += build_rule(sel + 'li:hover',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         box_shadow='0 8px 20px rgba(0,0,0,0.10)',
         transform='translateY(-1px)'
     )

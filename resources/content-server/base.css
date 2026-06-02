@@ -10,9 +10,8 @@
     --calibre-radius: 14px;
     --calibre-border-style: 1px solid var(--calibre-color-border);
     --calibre-border-style-subtle: 1px solid var(--calibre-color-border-subtle);
-    --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
-    --cs-shadow: 0 10px 30px rgba(0,0,0,0.10);
-    --cs-shadow-lg: 0 24px 64px rgba(0,0,0,0.16);
+    --calibre-focus-ring: 0 0 0 3px var(--calibre-color-primary-light-2);
+
     /* Motion system */
     --cs-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
     --cs-ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -20,16 +19,6 @@
     --cs-dur-2: 220ms;
     --cs-dur-3: 360ms;
     --cs-transition: var(--cs-dur-2) var(--cs-ease);
-    /* Theme color system */
-    --primary-color: #437000;
-    --primary-light: rgba(67,112,0,0.18);
-    --primary-light-2: rgba(67,112,0,0.28);
-
-    /* Backwards-compatible aliases used across existing CSS */
-    --cs-accent: var(--primary-color);
-    --cs-accent-weak: var(--primary-light);
-    --cs-accent-weak-2: var(--primary-light-2);
-    --cs-focus-ring: 0 0 0 3px var(--primary-light-2);
 }
 
 html, body { height: 100%; }
@@ -47,14 +36,14 @@ body {
 
 /* Link styling: clear, modern, consistent */
 a {
-    color: var(--primary-color);
+    color: var(--calibre-color-primary);
     text-decoration: none;
     text-underline-offset: 0.18em;
     text-decoration-thickness: 0.08em;
 
-    &:visited { color: var(--primary-color); opacity: 0.92; }
+    &:visited { color: var(--calibre-color-primary); opacity: 0.92; }
     &:hover { text-decoration: underline; }
-    &:focus { outline: none; box-shadow: var(--cs-focus-ring); border-radius: 8px; }
+    &:focus { outline: none; box-shadow: var(--calibre-focus-ring); border-radius: 8px; }
 }
 
 a.calibre-icon-button {
@@ -70,12 +59,12 @@ a.calibre-icon-button {
         opacity: 1; color: var(--calibre-color-window-foreground);
     }
     &:hover {
-        background-color: var(--primary-light);
+        background-color: var(--calibre-color-primary-light);
         box-shadow: 0 8px 20px rgba(0,0,0,0.10);
         text-decoration: none;
     }
     &:active {
-        background-color: var(--primary-light-2);
+        background-color: var(--calibre-color-primary-light-2);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
     &[aria-disabled="true"] {
@@ -123,12 +112,12 @@ a.calibre-push-button {
         opacity: 1; color: var(--calibre-color-window-foreground);
     }
     &:hover {
-        background-color: var(--primary-light);
+        background-color: var(--calibre-color-primary-light);
         box-shadow: 0 8px 20px rgba(0,0,0,0.10);
         text-decoration: none;
     }
     &:active {
-        background-color: var(--primary-light-2);
+        background-color: var(--calibre-color-primary-light-2);
         box-shadow: 0 8px 20px rgba(0,0,0,0.12);
     }
     &[aria-disabled="true"] {
@@ -136,7 +125,7 @@ a.calibre-push-button {
         pointer-events: none;
     }
     &.calibre-primary-button {
-        border-color: var(--primary-color);
+        border-color: var(--calibre-color-primary);
     }
 }
 
@@ -151,7 +140,7 @@ hr {
 /* Do not underline button-like links */
 .cs-left-nav a:hover, .main-top-bar a:hover, .cs-book-list-toolbar a:hover { text-decoration: none; }
 
-::selection { background: var(--primary-light-2); }
+::selection { background: var(--calibre-color-primary-light-2); }
 
 /* Inputs: theme focus border */
 input[type="text"], input[type="search"], input[type="url"], input[type="number"], input[type="password"], textarea, select {
@@ -160,13 +149,13 @@ input[type="text"], input[type="search"], input[type="url"], input[type="number"
 
 input[type="text"]:focus, input[type="search"]:focus, input[type="url"]:focus, input[type="number"]:focus, input[type="password"]:focus,
 textarea:focus, select:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px var(--primary-light-2) !important;
+    border-color: var(--calibre-color-primary) !important;
+    box-shadow: 0 0 0 3px var(--calibre-color-primary-light-2) !important;
 }
 
 /* Checkbox/Radio: selected state */
 input[type="checkbox"], input[type="radio"] {
-    accent-color: var(--primary-color);
+    accent-color: var(--calibre-color-primary);
     width: 1.2em; height: 1.2em;
 }
 
@@ -179,7 +168,7 @@ input[type="text"], input[type="number"], input[type="search"], input[type="url"
     box-sizing: border-box;
     &:hover {
         border: var(--calibre-border-style);
-        background-color: var(--primary-light);
+        background-color: var(--calibre-color-primary-light);
     }
 }
 
@@ -189,7 +178,7 @@ select, ::picker(select) {
 
 ::picker(select) {
   background-color: var(--calibre-color-window-background);
-  border: 2px solid var(--primary-light-2);
+  border: 2px solid var(--calibre-color-primary-light-2);
   border-radius: 6px;
   padding: 5px;
 }
@@ -211,14 +200,14 @@ div.calibre-group-box {
 }
 
 /* Progress bars */
-progress { accent-color: var(--primary-color); }
-progress::-webkit-progress-value { background-color: var(--primary-color); }
-progress::-moz-progress-bar { background-color: var(--primary-color); }
+progress { accent-color: var(--calibre-color-primary); }
+progress::-webkit-progress-value { background-color: var(--calibre-color-primary); }
+progress::-moz-progress-bar { background-color: var(--calibre-color-primary); }
 
 /* Tabs (generic) */
-[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--primary-color); opacity: 1; }
-[role="tablist"] { --tab-indicator: var(--primary-color); }
-[role="tab"][aria-selected="true"] { border-bottom: 2px solid var(--primary-color); }
+[role="tablist"] [role="tab"][aria-selected="true"] { color: var(--calibre-color-primary); opacity: 1; }
+[role="tablist"] { --tab-indicator: var(--calibre-color-primary); }
+[role="tab"][aria-selected="true"] { border-bottom: 2px solid var(--calibre-color-primary); }
 
 /* Subtle scrollbars */
 * { scrollbar-width: thin; scrollbar-color: var(--calibre-color-scrollbar-thumb) transparent; }
@@ -228,8 +217,8 @@ progress::-moz-progress-bar { background-color: var(--primary-color); }
 *::-webkit-scrollbar-track { background: transparent; }
 
 /* Remove hover zoom; prefer highlight feedback */
-.main-top-bar a:hover, .cs-book-list-toolbar a:hover { transform: none !important; background: var(--cs-accent-weak); border-radius: 999px; }
-.main-top-bar a:active, .cs-book-list-toolbar a:active { transform: none !important; background: var(--cs-accent-weak-2); border-radius: 999px; }
+.main-top-bar a:hover, .cs-book-list-toolbar a:hover { transform: none !important; background: var(--calibre-color-primary-light); border-radius: 999px; }
+.main-top-bar a:active, .cs-book-list-toolbar a:active { transform: none !important; background: var(--calibre-color-primary-light-2); border-radius: 999px; }
 
 .cs-app-root {
     display: flex; flex-direction: column;

@@ -34,8 +34,8 @@ def custom_list_css():
         overflow='hidden',
     )
     # No hover zoom; use highlight instead
-    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)', border_radius='14px')
-    ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
+    ans += build_rule(f'{sel}:hover', background_color='var(--calibre-color-primary-light)', border_radius='14px')
+    ans += build_rule(f'{sel}:active', background_color='var(--calibre-color-primary-light-2)')
     ans += build_rule(f'{sel}:hover .custom-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')
     s = sel + ' .custom-list-left'
     ans += build_rule(s, margin_right='1em')
