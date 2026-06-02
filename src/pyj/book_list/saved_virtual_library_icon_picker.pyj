@@ -88,15 +88,15 @@ add_extra_css(def():
         pointer_events='none',
     )
     ans += build_rule(sel + 'button.cs-vl-icon-btn:hover',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
     )
     ans += build_rule(sel + 'button.cs-vl-icon-btn:focus',
         outline='none',
-        box_shadow='var(--cs-focus-ring)',
+        box_shadow='var(--calibre-focus-ring)',
     )
     ans += build_rule(sel + 'button.cs-vl-icon-btn-selected',
-        background_color='var(--cs-accent-weak-2)',
+        background_color='var(--calibre-color-primary-light-2)',
         border_color='var(--calibre-color-border)',
         font_weight='600',
     )

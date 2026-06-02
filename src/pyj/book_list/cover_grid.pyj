@@ -210,8 +210,8 @@ def cover_grid_css():
         transition='background-color 160ms ease, width 0.2s ease',
     )
     # No hover zoom; use highlight instead
-    ans += build_rule(f'{sel}:hover', background_color='var(--cs-accent-weak)')
-    ans += build_rule(f'{sel}:active', background_color='var(--cs-accent-weak-2)')
+    ans += build_rule(f'{sel}:hover', background_color='var(--calibre-color-primary-light)')
+    ans += build_rule(f'{sel}:active', background_color='var(--calibre-color-primary-light-2)')
     # Inner frame defines the real cover bounds (shadow + radius + mask alignment)
     ans += build_rule(f'{item_sel} > .cs-cover-frame',
         position='relative',
@@ -225,9 +225,9 @@ def cover_grid_css():
         transition='box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease'
     )
     ans += build_rule(f'{item_sel}:hover > .cs-cover-frame',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
-        box_shadow='0 clamp(14px, 2.6vh, 18px) clamp(34px, 5.2vh, 62px) rgba(0,0,0,0.24), 0 0 0 4px var(--primary-light)'
+        box_shadow='0 clamp(14px, 2.6vh, 18px) clamp(34px, 5.2vh, 62px) rgba(0,0,0,0.24), 0 0 0 4px var(--calibre-color-primary-light)'
     )
 
     # Cover overlay (title + author)

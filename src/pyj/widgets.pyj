@@ -214,7 +214,7 @@ div[data-component=select] {
         box-sizing: border-box;
 
         &:hover {
-            background-color: var(--primary-light);
+            background-color: var(--calibre-color-primary-light);
             border: var(--calibre-border-style);
         }
         &:focus {
@@ -225,10 +225,10 @@ div[data-component=select] {
         & > option {
             background-color: var(--calibre-color-window-background);
             color: var(--calibre-color-input-foreground);
-            &:checked { outline-color: var(--primary-color); }
+            &:checked { outline-color: var(--calibre-color-primary); }
             &:hover {
                 background-color: var(--calibre-color-window-background);
-                color: var(--primary-color);
+                color: var(--calibre-color-primary);
             }
         }
     }
@@ -431,7 +431,7 @@ add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
     # Use theme primary color for all "blue-link" links.
-    ans += '.blue-link { cursor: pointer; color: var(--primary-color) } .blue-link:visited { color: var(--primary-color)} .blue-link:hover { color: var(--primary-color) } .blue-link:active { transform: scale(1.5) }\n'
+    ans += '.blue-link { cursor: pointer; color: var(--calibre-color-primary) } .blue-link:visited { color: var(--calibre-color-primary)} .blue-link:hover { color: var(--calibre-color-primary) } .blue-link:active { transform: scale(1.5) }\n'
     ans += create_button.style + '\n'
     ans += create_pager_widget.style + '\n'
     ans += create_spinner.style + '\n'

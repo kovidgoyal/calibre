@@ -121,11 +121,11 @@ add_extra_css(def():
         transition='box-shadow 160ms ease, filter 160ms ease',
     )
     ans += build_rule(f'{img_sel}:hover',
-        box_shadow='0 16px 44px rgba(0,0,0,0.18), 0 0 0 4px var(--primary-light)',
+        box_shadow='0 16px 44px rgba(0,0,0,0.18), 0 0 0 4px var(--calibre-color-primary-light)',
         filter='brightness(1.03)'
     )
     ans += build_rule(f'{img_sel}:active',
-        box_shadow='0 12px 34px rgba(0,0,0,0.18), 0 0 0 4px var(--primary-light-2)',
+        box_shadow='0 12px 34px rgba(0,0,0,0.18), 0 0 0 4px var(--calibre-color-primary-light-2)',
         filter='brightness(1.01)'
     )
     return ans

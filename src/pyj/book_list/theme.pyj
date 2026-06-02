@@ -15,7 +15,6 @@ DT_DARK_LIGHTER = '#777'
 DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
 
-# Fallback when --primary-color is missing (matches main.pyj / ui_settings default).
 DEFAULT_PRIMARY_HEX = '#437000'
 
 
@@ -54,16 +53,10 @@ def hex_as_rgba(s, opacity='1'):
 
 def get_theme_primary_rgb():
     de = document.documentElement
-    raw = (de.style.getPropertyValue('--primary-color') or '').strip()
+    raw = (de.style.getPropertyValue('--calibre-color-primary') or '').strip()
     if not raw:
-        try:
-            raw = (window.getComputedStyle(de).getPropertyValue('--primary-color') or '').strip()
-        except Exception:
-            raw = ''
-    rgb = parse_hex_color(raw)
-    if rgb:
-        return rgb
-    return parse_hex_color(DEFAULT_PRIMARY_HEX) or [67, 112, 0]
+        raw = (window.getComputedStyle(de).getPropertyValue('--calibre-color-primary') or '').strip()
+    return parse_hex_color(raw)
 
 
 def mix_rgb_channel(a, b, t):
@@ -188,14 +181,15 @@ def apply_primary_color(hexval):
     v = hexval or ''
     if not (v + '').startswith('#'):
         v = '#' + v
-    de.style.setProperty('--primary-color', v)
-    de.style.setProperty('--primary-light', f'rgba({r},{g},{b},0.18)')
-    de.style.setProperty('--primary-light-2', f'rgba({r},{g},{b},0.28)')
+    de.style.setProperty('--calibre-color-primary', v)
+    de.style.setProperty('--calibre-color-primary-light', f'rgba({r},{g},{b},0.18)')
+    de.style.setProperty('--calibre-color-primary-light-2', f'rgba({r},{g},{b},0.28)')
 
 
-def set_ui_colors(is_dark_theme):
+def set_ui_colors(is_dark_theme, primary_color):
     attr = 'dark' if is_dark_theme else 'light'
     s = document.documentElement.style
+    apply_primary_color(primary_color)
     for k in DEFAULT_COLORS:
         val = DEFAULT_COLORS[k][attr]
         s.setProperty('--calibre-color-' + k, val)
@@ -232,10 +226,9 @@ def apply_book_list_theme():
         primary_color = all_settings.book_list_color_scheme.default
     else:
         primary_color = sd.get('ui_highlight_color')
-    apply_primary_color(primary_color)
 
     is_dark = effective_book_list_is_dark()
-    set_ui_colors(is_dark)
+    set_ui_colors(is_dark, primary_color)
     if not is_dark:
         apply_light_mode_primary_tinted_backgrounds()
     try:

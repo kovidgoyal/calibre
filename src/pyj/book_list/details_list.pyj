@@ -64,12 +64,12 @@ def details_list_css():
     )
     # No hover zoom; use highlight instead
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
-        box_shadow='0 20px 56px rgba(0,0,0,0.12), 0 0 0 4px var(--primary-light)'
+        box_shadow='0 20px 56px rgba(0,0,0,0.12), 0 0 0 4px var(--calibre-color-primary-light)'
     )
     ans += build_rule(f'{sel} .{ITEM_CLASS}:active',
-        background_color='var(--cs-accent-weak-2)',
+        background_color='var(--calibre-color-primary-light-2)',
         transform='translateY(0.5px)'
     )
     ans += build_rule(f'{sel} .{ITEM_CLASS}:hover .details-list-left > img', box_shadow='0 10px 24px rgba(0,0,0,0.14)')

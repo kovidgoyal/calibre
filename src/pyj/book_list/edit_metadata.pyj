@@ -51,7 +51,7 @@ add_extra_css(def():
         border_bottom='var(--calibre-border-style-subtle)'
     )
     style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='600')
-    style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'table.metadata tr:active td', transform='translateY(0.5px)')
 
     style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex', gap='0.4rem')
@@ -64,7 +64,7 @@ add_extra_css(def():
         user_select='none'
     )
     style += build_rule(sel + '.completions > div:hover',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         border='var(--calibre-border-style)'
     )
 

@@ -54,8 +54,8 @@ add_extra_css(def():
     style += build_rule(sel + ' .cs-search-body', margin_top='0', display='flex', flex_direction='column', gap='0.95rem')
 
     style += build_rule(sel + ' div.tag-name > span', word_break='break-all', hyphens='auto', padding_left='1ex')
-    style += build_rule(sel + ' div.tag-name:hover', color='inherit', background_color='var(--cs-accent-weak)')
-    style += build_rule(sel + ' div.tag-menu:hover', color='inherit', background_color='var(--cs-accent-weak)')
+    style += build_rule(sel + ' div.tag-name:hover', color='inherit', background_color='var(--calibre-color-primary-light)')
+    style += build_rule(sel + ' div.tag-menu:hover', color='inherit', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + ' div.tag-name:active', transform='none', opacity='0.92')
     style += build_rule(sel + ' div.tag-menu:active', transform='none', opacity='0.92')
 
@@ -82,11 +82,11 @@ add_extra_css(def():
         font_size='0.92em',
     )
     style += build_rule(sel + ' ul.search-items > li:hover',
-        background='var(--cs-accent-weak)',
+        background='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
     )
     style += build_rule(sel + ' ul.search-items > li:active',
-        background='var(--cs-accent-weak-2)',
+        background='var(--calibre-color-primary-light-2)',
         transform='none',
     )
 
@@ -131,12 +131,12 @@ add_extra_css(def():
         transition='background-color 160ms ease, border-color 160ms ease',
     )
     style += build_rule(sel + ' .cs-search-tag-row:hover',
-        background_color='var(--cs-accent-weak)',
+        background_color='var(--calibre-color-primary-light)',
         border_color='var(--calibre-color-border)',
         box_shadow='none',
     )
     style += build_rule(sel + ' .cs-search-tag-row:active',
-        background_color='var(--cs-accent-weak-2)',
+        background_color='var(--calibre-color-primary-light-2)',
         transform='translateY(0.5px)',
     )
     style += build_rule(sel + ' .cs-search-tag-row .tag-name',
