@@ -355,7 +355,7 @@ def create_tree(root, populate_data, onclick):
                         E.span('\xa0'),
                         E.a(
                             href='javascript: void(0)',
-                            class_='simple-link tree-item-title',
+                            class_='tree-item-title',
                             onclick=def (event):
                                 if onclick:
                                     if event.button is 0:
@@ -430,6 +430,17 @@ def scroll_tree_item_into_view(item):
 add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
+    ans += '''
+        a.tree-item-title {
+            color: currentColor;
+            cursor: pointer;
+            text-decoration: none;
+            &:hover, &:active {
+                color: var(--calibre-color-primary);
+                text-decoration: none;
+            }
+        }
+    '''
     # Use theme primary color for all "blue-link" links.
     ans += '.blue-link { cursor: pointer; color: var(--calibre-color-primary) } .blue-link:visited { color: var(--calibre-color-primary)} .blue-link:hover { color: var(--calibre-color-primary) } .blue-link:active { transform: scale(1.5) }\n'
     ans += create_button.style + '\n'
