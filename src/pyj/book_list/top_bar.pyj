@@ -176,12 +176,15 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
         title_elem = 'a' if callable(title_action) else 'span'
         # Show Back + Home buttons on all pages except the home page.
         # Keep the special donate heart behavior intact.
-        if icon is not 'heart':
+        # Use a plain close button when icon='close' (e.g. viewer overlay panels).
+        if icon is 'heart':
+            left.appendChild(E.a(title=tooltip, svgicon(icon)))
+        elif icon is 'close':
+            left.appendChild(E.a(title=tooltip or _('Close'), svgicon('close')))
+        else:
             if not is_home:
                 left.appendChild(E.a(title=_('Back'), svgicon('arrow-left')))
             left.appendChild(E.a(title=_('Go to the home page'), svgicon('home')))
-        else:
-            left.appendChild(E.a(title=tooltip, svgicon(icon)))
         left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
             style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
         if i is 0:
@@ -194,7 +197,18 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 set_css(a.firstChild, color=get_color('heart'))
                 a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
-            if icon is not 'heart':
+                if action is not None:
+                    a.addEventListener('click', def(event):
+                        event.preventDefault()
+                        action.bind(event)()
+                    )
+            elif icon is 'close':
+                if action is not None:
+                    a.addEventListener('click', def(event):
+                        event.preventDefault()
+                        action.bind(event)()
+                    )
+            else:
                 btns = left.getElementsByTagName('a')
                 idx = 0
                 if not is_home:
@@ -204,12 +218,6 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                     event.preventDefault()
                     home.bind(event)()
                 )
-            else:
-                if action is not None:
-                    a.addEventListener('click', def(event):
-                        event.preventDefault()
-                        action.bind(event)()
-                    )
 
             if callable(title_action):
                 # If we injected Back/Home buttons, title is further to the right
