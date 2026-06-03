@@ -32,25 +32,26 @@ def create_goto_list(onclick, current_position_data, page_list, show_sub_panel=N
         items.push(create_item(_('Previous section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
     items.push(create_item(_('Book start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
     items.push(create_item(_('Book end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
-    if show_sub_panel:
-        items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=def(): show_sub_panel('metadata')))
-    else:
-        items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view):
-            view.overlay.show_metadata()
-        )))
+
+    def panel_action(name, fallback_fn):
+        # Use show_sub_panel when available so the goto panel stays in the
+        # stack and closing the sub-panel returns here; otherwise fall back
+        # to the regular onclick which closes the overlay first.
+        if show_sub_panel:
+            return def(): show_sub_panel(name)
+        return onclick.bind(None, fallback_fn)
+
+    items.push(create_item(_('Metadata'), subtitle=_('Details about this book'),
+        action=panel_action('metadata', def(view): view.overlay.show_metadata())))
     if not runtime.is_standalone_viewer:
         items.push(create_item(_('Book page in library'), subtitle=_('The page for this book in the calibre library'), action=onclick.bind(None, def(view):
             view.open_book_page()
         )))
-    if show_sub_panel:
-        items.push(create_item(_('Location'), subtitle=location_text, action=def(): show_sub_panel('location')))
-    else:
-        items.push(create_item(_('Location'), subtitle=location_text, action=onclick.bind(None, def(view): view.overlay.show_ask_for_location();)))
+    items.push(create_item(_('Location'), subtitle=location_text,
+        action=panel_action('location', def(view): view.overlay.show_ask_for_location())))
     if page_list and page_list.length > 0:
-        if show_sub_panel:
-            items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'), action=def(): show_sub_panel('page_list')))
-        else:
-            items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'), action=onclick.bind(None, def(view): view.overlay.show_page_list(page_list);)))
+        items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'),
+            action=panel_action('page_list', def(view): view.overlay.show_page_list(page_list))))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
