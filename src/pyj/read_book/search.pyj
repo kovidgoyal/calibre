@@ -16,7 +16,7 @@ from read_book.search_worker import (
     CONNECT_FAILED, DB_ERROR, GET_SPINE_FAILED, UNHANDLED_ERROR, worker_main
 )
 from read_book.shortcuts import shortcut_for_key_event
-from widgets import create_button, create_spinner
+from widgets import create_button, create_spinner, create_select
 from worker import start_worker
 
 
@@ -96,28 +96,22 @@ class SearchOverlay:
         c.lastChild.firstChild.style.flexGrow = '100'
         sd = get_session_data()
         mode = sd.get('book_search_mode')
+        ssc, ss = create_select(_('''Type of search:
+
+Contains: Search for the entered text anywhere
+
+Whole words: Search for whole words that equal the entered text
+
+Regex: Interpret the entered text as a regular expression'''),
+        mode, contains=_('Contains'), word=_('Whole words'), regex=_('Regex'))
+        ss.setAttribute('name', 'mode')
+        ss.addEventListener('change', def(ev):
+            get_session_data().set('book_search_mode', ev.target.value)
+        )
 
         c.appendChild(E.div(
             style='display: flex; padding: 1rem; padding-top: 0.5rem; padding-bottom: 0; align-items: center; overflow: hidden',
-            E.label(
-                _('Search type:') + '\xa0',
-                E.select(
-                    name='mode',
-                    title=_('''Type of search:
-
-                    Contains: Search for the entered text anywhere
-
-                    Whole words: Search for whole words that equal the entered text
-
-                    Regex: Interpret the entered text as a regular expression
-                    '''),
-                    E.option(_('Contains'), value='contains', selected=mode=='contains'),
-                    E.option(_('Whole words'), value='word', selected=mode=='word'),
-                    E.option(_('Regex'), value='regex', selected=mode=='regex'),
-                    onchange=def(event):
-                        get_session_data().set('book_search_mode', event.target.value)
-                ),
-            ),
+            E.label(_('Search type:') + '\xa0', ssc),
             E.div('\xa0\xa0'),
             E.label(E.input(
                 type='checkbox', name='case_sensitive', checked=bool(sd.get('book_search_case_sensitive'))),
@@ -435,8 +429,8 @@ add_extra_css(def():
     css += build_rule(sel + '.collapsed > ul', display='none')
     css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
     css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0', cursor='pointer')
-    css += build_rule(sel + ' li.current', border_left='solid 2px ' + get_color('link-foreground'), padding_left='2px')
-    css += build_rule(sel + ' li strong', color=get_color('link-foreground'), font_style='italic')
+    css += build_rule(sel + ' li.current', border_left='solid 2px var(--calibre-color-primary)', padding_left='2px')
+    css += build_rule(sel + ' li strong', color='var(--calibre-color-primary)', font_style='italic')
     return css
 )
 
