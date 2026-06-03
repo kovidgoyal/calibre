@@ -553,6 +553,45 @@ class TOCOverlay(SimpleOverlay): # {{{
             self.overlay.view.goto_named_destination(dest, frag)
 # }}}
 
+class GotoOverlay:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click
+
+    def show(self, container):
+        container.appendChild(E.div())
+        inner = container.firstChild
+        simple_overlay_title(_('Go to\u2026'), self.overlay, inner)
+        create_goto_panel(self.overlay.view.current_position_data, self.overlay.view.book, inner, self.handle_navigate, self.show_sub_panel)
+
+    def handle_navigate(self, dest, frag):
+        self.overlay.hide()
+        if jstype(dest) is 'function':
+            dest(self.overlay.view, frag)
+        else:
+            self.overlay.view.goto_named_destination(dest, frag)
+
+    def show_sub_panel(self, name):
+        # Push the sub-panel on top of the goto panel (keep goto in stack so
+        # closing the sub-panel returns to goto rather than to reading).
+        if name is 'location':
+            self.overlay.panels.push(SimpleOverlay(
+                self.overlay,
+                create_location_overlay.bind(None, self.overlay.view.current_position_data, self.overlay.view.book),
+                _('Go to location, position or reference\u2026')))
+        elif name is 'metadata':
+            self.overlay.panels.push(self.overlay._build_metadata_panel())
+        elif name is 'page_list':
+            self.overlay.panels.push(SimpleOverlay(
+                self.overlay,
+                create_page_list_overlay.bind(None, self.overlay.view.book),
+                _('Go to page')))
+        self.overlay.show_current_panel()
+# }}}
+
 class WordActionsOverlay:  # {{{
 
     def __init__(self, word, overlay):
@@ -1004,11 +1043,10 @@ class Overlay:
 
     def show_goto(self):
         self.hide_current_panel()
-        self.panels.push(TOCOverlay(self, create_goto_panel.bind(None, self.view.current_position_data), _('Go to…')))
+        self.panels.push(GotoOverlay(self))
         self.show_current_panel()
 
-    def show_metadata(self):
-        self.hide_current_panel()
+    def _build_metadata_panel(self):
         from_read_book = short_uuid()
 
         def show_metadata_overlay(mi, pathtoebook, calibre_book_in_library_url, lname, book_id, overlay, container):
@@ -1084,7 +1122,11 @@ class Overlay:
         book_id = int(book_id or 0)
         panel = SimpleOverlay(self, show_metadata_overlay.bind(None, book.metadata, book.manifest.pathtoebook, book.calibre_book_in_library_url, lname, book_id), self.view.book.metadata.title)
         panel.from_read_book = from_read_book
-        self.panels.push(panel)
+        return panel
+
+    def show_metadata(self):
+        self.hide_current_panel()
+        self.panels.push(self._build_metadata_panel())
         self.show_current_panel()
 
     def show_ask_for_location(self):
