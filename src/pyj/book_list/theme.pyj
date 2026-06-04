@@ -51,14 +51,6 @@ def hex_as_rgba(s, opacity='1'):
     return f'rgba({v[0]},{v[1]},{v[2]},{opacity})'
 
 
-def get_theme_primary_rgb():
-    de = document.documentElement
-    raw = (de.style.getPropertyValue('--calibre-color-primary') or '').strip()
-    if not raw:
-        raw = (window.getComputedStyle(de).getPropertyValue('--calibre-color-primary') or '').strip()
-    return parse_hex_color(raw)
-
-
 def mix_rgb_channel(a, b, t):
     return _byte(Math.round(a * (1 - t) + b * t))
 
@@ -84,33 +76,39 @@ def rgb_to_hex(rgb):
     return '#' + h(r) + h(g) + h(b)
 
 
-def apply_light_mode_primary_tinted_backgrounds():
-    P = get_theme_primary_rgb()
+def light_mode_primary_tints(primary_rgb):
     W = [255, 255, 255]
-    s = document.documentElement.style
-    wb = rgb_to_hex(mix_rgb(W, P, 0.055))
-    wb2 = rgb_to_hex(mix_rgb(W, P, 0.115))
-    tree = rgb_to_hex(mix_rgb(W, P, 0.095))
+    wb = rgb_to_hex(mix_rgb(W, primary_rgb, 0.055))
+    wb2 = rgb_to_hex(mix_rgb(W, primary_rgb, 0.115))
+    tree = rgb_to_hex(mix_rgb(W, primary_rgb, 0.095))
     dlg = wb
-    lh_bg = rgb_to_hex(mix_rgb(W, P, 0.168))
-    inp = rgb_to_hex(mix_rgb(W, P, 0.068))
-    bar_bg = rgb_to_hex(mix_rgb(W, P, 0.052))
+    lh_bg = rgb_to_hex(mix_rgb(W, primary_rgb, 0.168))
+    inp = rgb_to_hex(mix_rgb(W, primary_rgb, 0.068))
+    bar_bg = rgb_to_hex(mix_rgb(W, primary_rgb, 0.052))
     # Controls: keep contrast but hue-lock to primary.
     btn_base = [36, 38, 40]
     btn_base2 = [52, 54, 58]
-    btn_s = rgb_to_hex(mix_rgb(btn_base, P, 0.4))
-    btn_e = rgb_to_hex(mix_rgb(btn_base2, P, 0.36))
-    s.setProperty('--calibre-color-window-background', wb)
-    s.setProperty('--calibre-color-window-background2', wb2)
-    s.setProperty('--calibre-color-tree-highlight-item', tree)
-    s.setProperty('--calibre-color-dialog-background', dlg)
-    s.setProperty('--calibre-color-list-hover-background', lh_bg)
-    s.setProperty('--calibre-color-list-hover-foreground', DARK)
-    s.setProperty('--calibre-color-input-background', inp)
-    s.setProperty('--calibre-color-bar-background', bar_bg)
-    s.setProperty('--calibre-color-bar-foreground', DARK)
-    s.setProperty('--calibre-color-button-start', btn_s)
-    s.setProperty('--calibre-color-button-end', btn_e)
+    btn_s = rgb_to_hex(mix_rgb(btn_base, primary_rgb, 0.4))
+    btn_e = rgb_to_hex(mix_rgb(btn_base2, primary_rgb, 0.36))
+    return {
+        '--calibre-color-window-background': wb,
+        '--calibre-color-window-background2': wb2,
+        '--calibre-color-tree-highlight-item': tree,
+        '--calibre-color-dialog-background': dlg,
+        '--calibre-color-list-hover-background': lh_bg,
+        '--calibre-color-list-hover-foreground': DARK,
+        '--calibre-color-input-background': inp,
+        '--calibre-color-bar-background': bar_bg,
+        '--calibre-color-bar-foreground': DARK,
+        '--calibre-color-button-start': btn_s,
+        '--calibre-color-button-end': btn_e,
+    }
+
+
+def apply_theme_variables(variables):
+    s = document.documentElement.style
+    for k in Object.keys(variables):
+        s.setProperty(k, variables[k])
     get_color_as_rgba.cache = {}
     cached_color_to_rgba.cache = {}
 
@@ -172,32 +170,37 @@ DEFAULT_FONTS = {
 }
 
 
-def get_primary_colors(hexval):
-    rgb = parse_hex_color(hexval)
-    r, g, b = rgb
-    v = hexval or ''
+def normalized_primary_color(hexval):
+    v = ((hexval or DEFAULT_PRIMARY_HEX) + '').strip()
+    rgb = parse_hex_color(v)
+    if not rgb:
+        v = DEFAULT_PRIMARY_HEX
+        rgb = parse_hex_color(v)
     if not (v + '').startswith('#'):
         v = '#' + v
-    return v, f'rgba({r},{g},{b},0.18)', f'rgba({r},{g},{b},0.28)'
+    return v, rgb
 
 
-def apply_primary_color(hexval):
-    p, l, l2 = get_primary_colors(hexval)
-    s = document.documentElement.style
-    s.setProperty('--calibre-color-primary', p)
-    s.setProperty('--calibre-color-primary-light', l)
-    s.setProperty('--calibre-color-primary-light-2', l2)
+def theme_variables(is_dark_theme, primary_color):
+    attr = 'dark' if is_dark_theme else 'light'
+    p, rgb = normalized_primary_color(primary_color)
+    r, g, b = rgb
+    ans = {
+        '--calibre-color-primary': p,
+        '--calibre-color-primary-light': f'rgba({r},{g},{b},0.18)',
+        '--calibre-color-primary-light-2': f'rgba({r},{g},{b},0.28)',
+    }
+    for k in DEFAULT_COLORS:
+        ans['--calibre-color-' + k] = DEFAULT_COLORS[k][attr]
+    if not is_dark_theme:
+        tints = light_mode_primary_tints(rgb)
+        for k in Object.keys(tints):
+            ans[k] = tints[k]
+    return ans
 
 
 def set_ui_colors(is_dark_theme, primary_color):
-    attr = 'dark' if is_dark_theme else 'light'
-    s = document.documentElement.style
-    apply_primary_color(primary_color)
-    for k in DEFAULT_COLORS:
-        val = DEFAULT_COLORS[k][attr]
-        s.setProperty('--calibre-color-' + k, val)
-    get_color_as_rgba.cache = {}
-    cached_color_to_rgba.cache = {}
+    apply_theme_variables(theme_variables(is_dark_theme, primary_color))
     document.documentElement.style.colorScheme = 'dark' if is_dark_theme else 'light'
 
 
@@ -237,8 +240,6 @@ def get_saved_color_settings():
 def apply_book_list_theme():
     s = get_saved_color_settings()
     set_ui_colors(s.is_dark, s.primary_color)
-    if not s.is_dark:
-        apply_light_mode_primary_tinted_backgrounds()
     try:
         set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     except Exception:
@@ -276,13 +277,9 @@ def css_for_variables():
     s = get_saved_color_settings()
     attr = 'dark' if s.is_dark else 'light'
     ans = v'[]'
-    for k in DEFAULT_COLORS:
-        val = DEFAULT_COLORS[k][attr]
-        ans.push(f'--calibre-color-{k}: {val};')
-    p, l, l2 = get_primary_colors(s.primary_color)
-    ans.push(f'--calibre-color-primary: {p};')
-    ans.push(f'--calibre-color-primary-light: {l};')
-    ans.push(f'--calibre-color-primary-light-2: {l2};')
+    variables = theme_variables(s.is_dark, s.primary_color)
+    for k in Object.keys(variables):
+        ans.push(f'{k}: {variables[k]};')
     return f':root {{ color-scheme: {attr}; ' + ans.join('\n') + '}\n\n'
 
 
