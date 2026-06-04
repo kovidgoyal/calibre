@@ -1,0 +1,27 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.theme import css_for_variables, set_ui_colors, theme_variables
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_true, test
+
+
+def assert_css_and_dom_use_variables(variables, css, style):
+    for name in Object.keys(variables):
+        assert_true(css.indexOf(name + ': ' + variables[name] + ';') > -1)
+        assert_equal(style.getPropertyValue(name), variables[name])
+
+
+@test
+def light_theme_css_uses_shared_variables():
+    def run(sd):
+        sd.set('book_list_color_scheme', 'light')
+        sd.set('ui_highlight_color', '#437000')
+        variables = theme_variables(False, '#437000')
+        css = css_for_variables()
+        set_ui_colors(False, '#437000')
+        style = document.documentElement.style
+        assert_css_and_dom_use_variables(variables, css, style)
+        assert_equal(style.colorScheme, 'light')
+    with_empty_session(run)
