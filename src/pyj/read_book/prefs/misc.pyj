@@ -41,7 +41,7 @@ def create_misc_panel(container, apply_func, cancel_func):
         ans.checked = settings[name] if jstype(settings[name]) is 'boolean' else DEFAULTS[name]
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
-    sai = E.input(name='sync_annots_user', title=_(
+    sai = E.input(name='sync_annots_user', type='text', title=_(
         'The username of a Content server user that you want all annotations synced with.'
         ' Use the special value * to sync with anonymous users'
     ))
