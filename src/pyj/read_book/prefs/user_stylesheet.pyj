@@ -78,7 +78,7 @@ def background_fade_widget(sd):
         _('Background image fade (%)') + ':\xa0',
         E.input(
             name='background_image_fade', type='number', max='100', min='0', step='1',
-            value='' + sd.get('background_image_fade'),
+            value='' + sd.get('background_image_fade'), style='min-width: 8ch',
             title=_('Fading of the background image is done by blending it with the background color')
         ),
     ))
