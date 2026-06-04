@@ -259,7 +259,10 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
     fields = library_data.book_display_fields
     vertical_categories = {x: True for x in (library_data.book_details_vertical_categories or v'[]')}
     if not fields or not fields.length or get_session_data().get('show_all_metadata'):
-        fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+        if field_metadata:
+            fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+        else:
+            fields = filter(allowed_fields, fields)
     else:
         fields = filter(allowed_fields, fields)
     comments = v'[]'
