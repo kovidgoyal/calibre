@@ -208,6 +208,7 @@ def cover_grid_css():
         overflow='visible',
         box_sizing='border-box',
         transition='background-color 160ms ease, width 0.2s ease',
+        container_type='inline-size',
     )
     # No hover zoom; use highlight instead
     ans += build_rule(f'{sel}:hover', background_color='var(--calibre-color-primary-light)')
@@ -245,6 +246,11 @@ def cover_grid_css():
         text_shadow='0 2px 10px rgba(0,0,0,0.65)',
         pointer_events='none'
     )
+    # hide the overlay when the cover is too narrow since it is useless
+    ans += '''\n@container (max-width: 10ch) {
+                .cs-cover-mask { display: none !important; }
+            }
+            '''
     ans += build_rule(f'{item_sel} .cs-cover-frame > .cs-cover-mask .cs-cover-mask-title',
         font_size='0.95rem', font_weight='800',
         width='100%',
