@@ -97,22 +97,17 @@ def create_profiles_panel(container, hide_panel, on_change):
     c.addEventListener('settings_changed', def(): on_change();, False)
     container_id = c.id
     a = E.div(
-        style='display:flex',
-        E.div(
-            E.label(_('Save current settings as profile:') + ' '), E.input(
-                name='profile_name', placeholder=_('Name of profile'), onkeydown=def(e):
-                    if e.key is 'Enter':
-                        save_profile(container_id, hide_panel)
+        style='display:flex; flex-wrap: wrap; align-items: center; gap: 0.65rem',
+        E.label(_('Save current settings as profile:') + ' '), E.input(
+            name='profile_name', type='text', placeholder=_('Name of profile'), onkeydown=def(e):
+                if e.key is 'Enter':
+                    save_profile(container_id, hide_panel)
         ),
-        ),
-        E.div('\xa0'),
-        E.div(
-            create_button(_('Save'), 'bookmark', save_profile.bind(None, container_id, hide_panel))
-        )
+        create_button(_('Save'), 'bookmark', save_profile.bind(None, container_id, hide_panel))
     )
     container.appendChild(c)
     c.appendChild(a)
     c.appendChild(E.div(class_='saved_msg'))
-    c.appendChild(E.hr())
+    c.appendChild(E.hr(style='margin-top: 1ex; margin-bottom: 1ex'))
     c.appendChild(E.div(class_='profiles_list_container'))
     load_profiles(container_id)
