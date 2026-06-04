@@ -8,7 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from complete import create_search_bar
 from book_list.item_list import create_item, create_item_list
-from dom import clear, svgicon, unique_id
+from dom import clear, unique_id
 from read_book.shortcuts import (
     key_as_text, keyevent_as_shortcut, shortcut_differs, shortcuts_definition,
     shortcuts_group_desc
@@ -55,12 +55,10 @@ def remove_key(evt):
 
 
 def key_widget(key):
-    icon = svgicon('remove')
-    icon.style.verticalAlign = 'baseline'
     return E.tr(
         data_shortcut=JSON.stringify(keyevent_as_shortcut(key)),
-        E.td(style="padding: 0.5rem; border-right: solid 1px; margin-right: 0.5rem; margin-top: 0.5rem", key_as_text(key)),
-        E.td(style="padding: 0.5rem; margin-top: 0.5rem; vertical-align: bottom", E.a(class_='simple-link', '\xa0', icon, ' ', _('Remove'), onclick=remove_key)),
+        E.td(style="padding: 0.5rem; border-right: solid 1px; margin-right: 0.5rem; margin-top: 0.5rem; vertical-align: middle", key_as_text(key)),
+        E.td(style="padding: 0.5rem; margin-top: 0.5rem; vertical-align: bottom", create_button(_('Remove'), 'remove', action=remove_key)),
     )
 
 
