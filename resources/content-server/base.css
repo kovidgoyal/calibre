@@ -147,6 +147,8 @@ input[type="text"], input[type="search"], input[type="url"], input[type="number"
     outline: none;
 }
 
+input[type="number"] { field-sizing: content; }
+
 input[type="text"]:focus, input[type="search"]:focus, input[type="url"]:focus, input[type="number"]:focus, input[type="password"]:focus,
 textarea:focus, select:focus {
     border-color: var(--calibre-color-primary) !important;

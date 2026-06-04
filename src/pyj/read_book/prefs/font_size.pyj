@@ -17,10 +17,8 @@ MIN_FONT_SIZE = 8
 MAX_FONT_SIZE = 80
 
 add_extra_css(def():
-    style = rule(CONTAINER, 'option.current', background_color=get_color('window-background2'))
-    style += rule(CONTAINER, 'option:hover', background_color=get_color('window-background2'))
-    style += rule(CONTAINER, 'a:hover', color=get_color('window-hover-foreground'))
-    style += rule(CONTAINER, 'a.calibre-push-button:hover', color=get_color('button-text'))
+    style = rule(CONTAINER, 'option.current', background_color='var(--calibre-color-primary-light)')
+    style += rule(CONTAINER, 'option:hover', background_color='var(--calibre-color-primary-light)')
     return style
 )
 
@@ -119,7 +117,7 @@ def create_font_size_panel(container, close):
 
         E.span('\xa0', E.input(
             value=f'{cfs}', oninput=set_size, type='number', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '',
-            step='1', style='width: 3em',
+            step='1',
         ), '\xa0px')
     ))
 
