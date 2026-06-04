@@ -86,7 +86,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
             ),
     ))
 
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
     container.appendChild(E.div(style='margin-top:1ex', _('Control how smooth scrolling works in flow mode')))
     container.appendChild(E.div(style='margin-left: 1rem'))
     container.lastChild.appendChild(cb(
@@ -128,7 +128,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         )
     )
 
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
     container.appendChild(E.div(style='margin-top:1ex', _('Miscellaneous')))
     container.appendChild(E.div(style='margin-left: 1rem'))
     container.lastChild.appendChild(cb('book_scrollbar', _('Show a scrollbar')))

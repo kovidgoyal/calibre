@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from dom import svgicon
 from elementmaker import E
 
 from book_list.globals import get_session_data
@@ -78,11 +79,11 @@ def create_touch_panel(container, apply_func, cancel_func):
     def on_select_change(ev):
         select = ev.target
         ad = action_descriptions[select.value]
-        span = select.parentNode.querySelector('span')
+        span = select.parentNode.parentNode.querySelector('.help-text')
         span.textContent = ad.long
 
     def make_setting(gesture_type, allowed_actions):
-        ans = E.div(style='margin-top: 1ex')
+        ans = E.div(style='margin-top: 1ex; display: flex; flex-direction: column')
         title = GESTURE_NAMES()[gesture_type]
         sid = unique_id(gesture_type)
         ans.appendChild(E.h4(E.label(title, 'for'=sid)))
@@ -91,7 +92,8 @@ def create_touch_panel(container, apply_func, cancel_func):
             ad = action_descriptions[action]
             select.appendChild(E.option(ad.short, value=action))
         select.addEventListener('change', on_select_change)
-        ans.appendChild(E.div(select, '\xa0', E.span(style='font-size: smaller; font-style: italic')))
+        c = E.div(select, E.span(svgicon('angle-down')), data_component='select')
+        ans.appendChild(E.div(c, E.span(class_='help-text', style='font-size: smaller; font-style: italic'), style='display: flex; flex-wrap: wrap; gap: 1ex; align-items: center'))
         on_select_change({'target': select})
         return ans
 
@@ -106,7 +108,7 @@ def create_touch_panel(container, apply_func, cancel_func):
     c.appendChild(make_setting(GESTURE.forward_zone_tap, aat))
     c.appendChild(make_setting(GESTURE.back_zone_tap, aat))
     c.appendChild(make_setting(GESTURE.long_tap, aat))
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
 
     container.appendChild(E.h2(_('Two finger gestures')))
     c = E.div('data-group'='two_finger')
@@ -115,7 +117,7 @@ def create_touch_panel(container, apply_func, cancel_func):
     c.appendChild(make_setting(GESTURE.two_finger_tap, aat))
     c.appendChild(make_setting(GESTURE.pinch_in, aat))
     c.appendChild(make_setting(GESTURE.pinch_out, aat))
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
 
 
     container.appendChild(E.h2(_('Swiping')))
@@ -136,7 +138,7 @@ def create_touch_panel(container, apply_func, cancel_func):
     c.appendChild(make_setting(GESTURE.swipe_inline_backward_hold, aap))
     c.appendChild(make_setting(GESTURE.swipe_block_forward_hold, aap))
     c.appendChild(make_setting(GESTURE.swipe_block_backward_hold, aap))
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
     container.appendChild(E.h3(_('Swiping in flow mode'), style='padding-top: 1ex'))
     c = E.div('data-group'='flow_swipe')
     container.appendChild(c)
@@ -153,7 +155,7 @@ def create_touch_panel(container, apply_func, cancel_func):
     c.appendChild(make_setting(GESTURE.swipe_block_backward_in_progress, aaf))
     c.appendChild(make_setting(GESTURE.swipe_block_forward_in_progress, aaf))
 
-    container.appendChild(E.hr())
+    container.appendChild(E.hr(style='margin-top:1ex; margin-bottom: 1ex'))
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
     apply_settings_to_ui(overrides)
 
