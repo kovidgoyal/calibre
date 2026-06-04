@@ -42,16 +42,16 @@ def create_goto_list(onclick, current_position_data, page_list, show_sub_panel=N
         return onclick.bind(None, fallback_fn)
 
     items.push(create_item(_('Metadata'), subtitle=_('Details about this book'),
-        action=panel_action('metadata', def(view): view.overlay.show_metadata())))
+        action=panel_action('metadata', def(view): view.overlay.show_metadata();)))
     if not runtime.is_standalone_viewer:
         items.push(create_item(_('Book page in library'), subtitle=_('The page for this book in the calibre library'), action=onclick.bind(None, def(view):
             view.open_book_page()
         )))
     items.push(create_item(_('Location'), subtitle=location_text,
-        action=panel_action('location', def(view): view.overlay.show_ask_for_location())))
+        action=panel_action('location', def(view): view.overlay.show_ask_for_location();)))
     if page_list and page_list.length > 0:
         items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'),
-            action=panel_action('page_list', def(view): view.overlay.show_page_list(page_list))))
+            action=panel_action('page_list', def(view): view.overlay.show_page_list(page_list);)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
@@ -195,7 +195,7 @@ def create_location_overlay(current_position_data, book, overlay, container):
         E.div(
             style='display: flex; align-items: baseline; flex-wrap: wrap',
             E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newpos', type='text', min='0', max=str(current_position_data.book_length), step='0.1', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
+            E.input(name='newpos', type='text', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
                     if ev.key is 'Enter':
                         goto_pos()
             ), E.span(' '),
