@@ -304,6 +304,7 @@ class Economist(BasicNewsRecipe):
             return []
         data = json.loads(script_tag.string)
         # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+
         self.description = safe_dict(
             data, 'props', 'pageProps', 'content', 'headline'
         )
@@ -323,29 +324,31 @@ class Economist(BasicNewsRecipe):
         self.log('Got cover:', self.cover_url)
 
         feeds = []
-
-        for part in safe_dict(
-            data, 'props', 'pageProps', 'content', 'headerSections'
-        ) + safe_dict(data, 'props', 'pageProps', 'content', 'sections'):
-            section = safe_dict(part, 'name') or ''
-            if not section:
-                continue
-            self.log(section)
-
-            articles = []
-
-            for ar in part['articles']:
-                title = safe_dict(ar, 'headline') or ''
-                url = process_url(safe_dict(ar, 'url') or '')
-                if not title or not url:
+        seen = set()
+        for component in safe_dict(data, 'props', 'pageProps', 'content', 'components'):
+            match component.get('type'):
+                case 'AD':
                     continue
-                desc = safe_dict(ar, 'rubric') or ''
-                sub = safe_dict(ar, 'flyTitle') or ''
-                if sub and section != sub:
-                    desc = sub + ' :: ' + desc
-                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                articles.append({'title': title, 'url': url, 'description': desc})
-            feeds.append((section, articles))
+                case 'COLLECTION':
+                    articles = []
+                    section = component['name']
+                    self.log(section)
+                    for article in component['articles']:
+                        for article in component['articles']:
+                            if article['id'] in seen:
+                                continue
+                            seen.add(article['id'])
+                            title = article['headline']
+                            url = process_url(article['url'])
+                            sub = article.get('flyTitle') or ''
+                            desc = article.get('rubric') or ''
+                            if sub and section != sub:
+                                desc = sub + ' :: ' + desc
+                            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                            articles.append({'title': title, 'url': url, 'description': desc})
+                    if articles:
+                        feeds.append((section, articles))
+
         d = self.recipe_specific_options.get('de')
         if d and isinstance(d, str):
             if d.lower().strip() == 'yes':
