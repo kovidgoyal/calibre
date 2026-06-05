@@ -7,12 +7,12 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
-from book_list.library_data import browse_field_for
-from book_list.library_data import cover_url, current_library_id
-from book_list.router import back
+from book_list.library_data import browse_field_for, url_books_query, cover_url, current_library_id
+from book_list.router import back, update_window_title
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler, show_panel
 from book_list.theme import get_color
+from session import get_interface_data
 from dom import add_extra_css, build_rule, clear, svgicon
 from ajax import ajax
 from utils import parse_url_params
@@ -627,6 +627,10 @@ def update_nav_list_url(field, offset, num, query_text=None, replace=True, g=Non
 
 
 def create_nav_list_panel(container_id):
+    interface_data = get_interface_data()
+    lid = url_books_query().library_id
+    title = interface_data.library_map[lid]
+    update_window_title(title)
     container = document.getElementById(container_id)
     clear(container)
     q = parse_url_params()
