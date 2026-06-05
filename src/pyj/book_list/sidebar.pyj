@@ -115,8 +115,7 @@ add_extra_css(def():
         & .cs-vl-row {
             display: flex;
             align-items: center;
-            gap: 0.35rem;
-            margin: 0 0.35rem;
+            margin: 0;
         }
 
         & .cs-nav-chevron { opacity: 0.7; margin-left: 0.75rem; flex: 0 0 auto; }
@@ -129,7 +128,7 @@ add_extra_css(def():
         }
         & .cs-nav-item { padding-left: 0.9rem; }
         & .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }
-        & .cs-nav-group > a { margin: 0 0.35rem; }
+        & .cs-nav-group > a { margin: 0; }
         /* Active state should not shift layout (no padding changes) */
         & .cs-nav-bottom { margin-top: auto; padding-top: 0.25rem; }
         & .cs-nav-divider {
@@ -152,7 +151,7 @@ add_extra_css(def():
         }
         & .cs-nav-group-title svg { opacity: 0.8; }
         & .cs-sidebar-toggle {
-            margin: 0 0.35rem 0.25rem 0.35rem;
+            margin: 0 0 0.25rem 0;
         }
         & .cs-sidebar-toggle-expand {
             display: none;
@@ -201,6 +200,7 @@ add_extra_css(def():
         }
         & .cs-vl-row {
             margin: 0;
+            & a:last-of-type { display: none; }
         }
     }
     '''
@@ -411,7 +411,8 @@ def create_sidebar():
                 link = nav_link(name, action, search_expr, collapsed_initial=saved_virtual_library_nav_initial(name), chevron=True)
             link.style.margin = '0'
             link.style.flex = '1 1 auto'
-            cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding:0.45rem 0.5rem; border-radius:10px; flex:0 0 auto;')
+            link.style.minWidth = '0'
+            cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding: 0.2rem; border-radius:10px; flex:0 0 auto;')
             cfg.addEventListener('click', def(ev, saved_item=item):
                 ev.preventDefault()
                 ev.stopPropagation()
