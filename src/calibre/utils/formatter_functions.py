@@ -3282,6 +3282,7 @@ The ``output_fmt`` parameter controls the format of the text returned by this fu
 [LIST]
 [*] ``page_count`` - the default, outputs ``pages read / total pages``. If page counting is not enabled outputs percent read instead.
 [*] ``percent`` - outputs percent read
+[*] ``percent_number`` - outputs percent read as a number without the trailing percent sign, useful for sorting.
 [*] ``pos_frac`` - outputs a fraction between zero and one.
 [/LIST]
 
@@ -3331,6 +3332,8 @@ Some examples:
             match output_fmt:
                 case 'percent':
                     return f'{pos_frac:.0%}'
+                case 'percent_number':
+                    return str(round(pos_frac * 100))
                 case 'page_count':
                     page_count = 0
                     if pages := db._get_pages(book_id):
