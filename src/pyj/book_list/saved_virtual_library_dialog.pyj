@@ -6,6 +6,7 @@ from dom import add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.library_data import all_virtual_libraries
 from book_list.saved_virtual_libraries import DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, saved_virtual_library_item
 from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from modals import create_custom_dialog
@@ -58,8 +59,146 @@ add_extra_css(def(): return '''
         border-top: var(--calibre-border-style-subtle);
     }
 }
+
+.cs-vl-import-dialog {
+    width: 100%;
+    min-width: 0;
+    max-width: min(42rem, calc(100vw - 2rem));
+    box-sizing: border-box;
+
+    & .vl-import-empty {
+        opacity: 0.7;
+        padding: 0.5rem 0;
+    }
+    & .vl-import-list {
+        max-height: 60vh;
+        overflow-y: auto;
+        margin-bottom: 0.5rem;
+        border: var(--calibre-border-style-subtle);
+        border-radius: 6px;
+        padding: 0.25rem 0;
+    }
+    & .vl-import-row {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.45rem 0.65rem;
+    }
+    & .vl-import-row:not(:last-child) {
+        border-bottom: var(--calibre-border-style-subtle);
+    }
+    & .vl-import-row input[type="checkbox"] {
+        flex-shrink: 0;
+        width: 1.1rem;
+        height: 1.1rem;
+        cursor: pointer;
+    }
+    & .vl-import-name {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    & .vl-import-icon-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        flex-shrink: 0;
+    }
+    & .vl-import-icon-label {
+        font-size: 0.8rem;
+        opacity: 0.75;
+        white-space: nowrap;
+    }
+    & .vl-import-icon-input {
+        width: 3.5rem;
+        text-align: center;
+        font-size: 1.1rem;
+        padding: 0.15rem 0.3rem;
+        box-sizing: border-box;
+        color: inherit;
+        border: var(--calibre-border-style-subtle);
+        border-radius: 6px;
+        background: transparent;
+    }
+    & .vl-actions-save-cancel {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 0.65rem;
+    }
+    & .vl-actions-save-cancel > a.calibre-push-button {
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: center;
+    }
+    & .vl-actions-save-cancel--toprule {
+        margin-top: 0.35rem;
+        padding-top: 0.6rem;
+        border-top: var(--calibre-border-style-subtle);
+    }
+}
 '''
 )
+
+
+def show_import_virtual_libraries_dialog(library_id, on_save):
+    create_custom_dialog(_('Import Virtual Libraries'), def(parent, close_modal):
+        vls = all_virtual_libraries()
+        vl_names = sorted(Object.keys(vls))
+
+        if not vl_names.length:
+            parent.appendChild(E.div(class_='cs-vl-import-dialog',
+                E.div(_('No virtual libraries found in calibre settings.'), class_='vl-import-empty'),
+                E.div(class_='vl-actions-save-cancel vl-actions-save-cancel--toprule',
+                    create_button(_('Close'), 'close', def(ev=None): close_modal();),
+                ),
+            ))
+            return
+
+        rows = v'[]'
+        list_div = E.div(class_='vl-import-list')
+        for vl_name in vl_names:
+            search = vls[vl_name]
+            cb = E.input(type='checkbox')
+            cb.checked = True
+            icon_input = E.input(
+                type='text',
+                class_='vl-import-icon-input',
+                value=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON,
+                placeholder=_('icon'),
+                title=_('Icon for this virtual library'),
+            )
+            rows.push({'name': vl_name, 'search': search, 'checkbox': cb, 'icon_input': icon_input})
+            list_div.appendChild(E.div(class_='vl-import-row',
+                cb,
+                E.span(vl_name, class_='vl-import-name', title=vl_name),
+                E.div(class_='vl-import-icon-wrap',
+                    E.span(_('Icon:'), class_='vl-import-icon-label'),
+                    icon_input,
+                ),
+            ))
+
+        def do_import(ev=None):
+            for row in rows:
+                if row.checkbox.checked:
+                    icon = ((row.icon_input.value or '') + '').strip() or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
+                    item = saved_virtual_library_item(library_id, row.name, row.search, '', icon, True)
+                    if item:
+                        on_save(item)
+            close_modal()
+
+        parent.appendChild(E.div(class_='cs-vl-import-dialog',
+            list_div,
+            E.div(class_='vl-actions-save-cancel vl-actions-save-cancel--toprule',
+                create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                create_button(_('Import selected'), 'plus', do_import, highlight=True),
+            ),
+        ))
+    )
 
 
 def show_saved_virtual_library_dialog(
@@ -97,6 +236,10 @@ def show_saved_virtual_library_dialog(
                 return
             close_modal()
 
+        def open_import(ev=None):
+            close_modal()
+            show_import_virtual_libraries_dialog(library_id, on_save)
+
         dialog = E.div(class_='cs-virtual-library-dialog',
             E.div(class_='vl-row',
                 E.label(_('Virtual library name'), class_='vl-label'),
@@ -123,6 +266,10 @@ def show_saved_virtual_library_dialog(
         if on_delete:
             dialog.lastChild.insertBefore(create_button(
                 _('Delete'), 'trash', delete_item, _('Delete this Virtual library')), dialog.lastChild.firstChild)
+        else:
+            dialog.lastChild.insertBefore(
+                create_button(_('Import'), 'arrow-down', open_import, _('Import virtual libraries from calibre settings')),
+                dialog.lastChild.firstChild)
         parent.appendChild(dialog)
         use_icon_cb.addEventListener('change', sync_icon_section_visibility)
         sync_icon_section_visibility()
