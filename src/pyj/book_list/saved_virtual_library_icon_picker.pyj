@@ -206,7 +206,6 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
     )
     custom_wrap.appendChild(help_span)
 
-    print(11111111111, state.icon)
     if not sync_grid_only():
         custom_inp.value = state.icon + ''
     root = E.div(class_='cs-vl-icon-picker', grid, custom_wrap)
