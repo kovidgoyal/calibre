@@ -143,23 +143,21 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
     inp_id = unique_id('cs-vl-icon-custom')
 
     def sync_grid_only():
+        found = False
         for btn in grid.querySelectorAll('button.cs-vl-icon-btn'):
             nm = btn.dataset.vlIcon
             on = nm is state.icon
             if on:
+                found = True
                 btn.classList.add('cs-vl-icon-btn-selected')
             else:
                 btn.classList.remove('cs-vl-icon-btn-selected')
             btn.setAttribute('aria-checked', 'true' if on else 'false')
+        return found
 
     def sync_from_input():
         raw = (custom_inp.value or '') + ''
-        trimmed = raw.strip()
-        if trimmed:
-            state.icon = normalize_saved_virtual_library_icon(trimmed)
-        else:
-            state.icon = DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
-        custom_inp.value = state.icon
+        state.icon = normalize_saved_virtual_library_icon(raw)
         sync_grid_only()
 
     def make_handler(stored_emoji):
@@ -190,7 +188,6 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
         placeholder=_('e.g. emoji or a few characters'),
         aria_label=_('Custom icon'),
     )
-    custom_inp.value = state.icon
     custom_inp.addEventListener('input', def(ev):
         sync_from_input()
     )
@@ -209,7 +206,9 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
     )
     custom_wrap.appendChild(help_span)
 
-    sync_grid_only()
+    print(11111111111, state.icon)
+    if not sync_grid_only():
+        custom_inp.value = state.icon + ''
     root = E.div(class_='cs-vl-icon-picker', grid, custom_wrap)
 
     def get_value():
