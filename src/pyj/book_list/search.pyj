@@ -688,7 +688,7 @@ def init(container_id):
     container = document.getElementById(container_id)
     container.setAttribute('tabindex', '0')
     container.addEventListener('keydown', onkeydown.bind(None, container_id, back), {'passive': False, 'capture': True})
-    create_top_bar(container, title=_('Search for books'), action=back, icon='close')
+    create_top_bar(container, title=_('Search for books'), icon='back')
     container.appendChild(E.div(class_=CLASS_NAME))
     create_search_panel(container.lastChild)
     container.focus()

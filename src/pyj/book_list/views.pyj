@@ -687,7 +687,7 @@ def create_vl_panel(container_id):
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Choose Virtual library…'), action=back, icon='close')
+    create_top_bar(container, title=_('Choose Virtual library…'), icon='back')
     items = []
     vls = all_virtual_libraries()
     vl_names = Object.keys(vls).sort(def (a, b): return a.toLowerCase().localeCompare(b.toLowerCase());)
@@ -711,7 +711,7 @@ def create_mode_panel(container_id):
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Choose book list mode…'), action=back, icon='close')
+    create_top_bar(container, title=_('Choose book list mode…'), icon='back')
     items = []
     current_mode = get_view_mode()
 

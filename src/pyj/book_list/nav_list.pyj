@@ -641,7 +641,7 @@ def create_nav_list_panel(container_id):
     # Tags panel: render all tags progressively on one page (no paging)
     visible_tags = 50
     title = title_for_field(field)
-    create_top_bar(container, title=title, action=back, icon='close')
+    create_top_bar(container, title=title, action=back, icon='back')
     container.appendChild(E.div())
     body = container.lastChild
     body.classList.add('cs-nav-list')

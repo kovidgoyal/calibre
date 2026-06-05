@@ -1244,7 +1244,7 @@ def convert_book():
 def create_more_actions_panel(container_id):
     container = document.getElementById(container_id)
     clear(container)
-    create_top_bar(container, title=_('More actions…'), action=back, icon='close')
+    create_top_bar(container, title=_('More actions…'), icon='back')
     if get_session_data().get('show_all_metadata'):
         title, subtitle = _('Show important metadata'), _('Show only the important metadata fields in the book details')
     else:
@@ -1394,7 +1394,7 @@ def upload_data_file(container_id):
     book_id = render_book.book_id
     container = document.getElementById(container_id)
     clear(container)
-    create_top_bar(container, title=_('Upload data files'), action=back, icon='close')
+    create_top_bar(container, title=_('Upload data files'), icon='back')
     div = E.div(id=unique_id())
     container.appendChild(div)
     upload_files_widget(div, files_added.bind(None, True, container_id, book_id), _(
@@ -1473,7 +1473,7 @@ def data_files(container_id):
 
     container = document.getElementById(container_id)
     clear(container)
-    create_top_bar(container, title=_('Manage data files'), action=back, icon='close')
+    create_top_bar(container, title=_('Manage data files'), icon='back')
     container.appendChild(E.div(class_=DATA_FILES_CLASS))
     container = container.lastChild
     container.appendChild(E.div(data_component='data-files-list-container'))
@@ -1485,7 +1485,7 @@ def search_internet(container_id):
         return return_to_book_details()
     container = document.getElementById(container_id)
     clear(container)
-    create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
+    create_top_bar(container, title=_('Search the internet'), icon='back')
     mi = book_metadata(render_book.book_id)
     data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
     interface_data = get_interface_data()
@@ -1620,7 +1620,7 @@ def copy_to_library(container_id):
         return return_to_book_details()
     container = document.getElementById(container_id)
     clear(container)
-    create_top_bar(container, title=_('Copy to library'), action=back, icon='close')
+    create_top_bar(container, title=_('Copy to library'), icon='back')
     libraries = all_libraries()
     container.appendChild(E.div(class_=COPY_TO_LIBRARY_CLASS))
     container = container.lastChild

@@ -153,22 +153,25 @@ def get_bars(container):
 
 def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None, back_action=None):
     bars = get_bars(container)
-    if icon is 'heart':
-        if not tooltip:
-            tooltip = _('Donate to support calibre development')
-    interface_data = get_interface_data()
-    # Determine if we are on the home page (no panel)
-    try:
-        is_home = not (parse_url_params().panel or '')
-    except Exception:
-        is_home = False
-
     def on_back_click(event):
         event.preventDefault()
         if callable(back_action):
             back_action(event)
         else:
             back.bind(event)()
+
+    if icon is 'heart':
+        if not tooltip:
+            tooltip = _('Donate to support calibre development')
+    elif icon is 'back':
+        if action is None:
+            action = on_back_click
+    interface_data = get_interface_data()
+    # Determine if we are on the home page (no panel)
+    try:
+        is_home = not (parse_url_params().panel or '')
+    except Exception:
+        is_home = False
 
     for i, bar in enumerate(bars):
         left = bar.firstChild

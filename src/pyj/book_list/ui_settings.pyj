@@ -310,7 +310,7 @@ def init(container_id):
     container = document.getElementById(container_id)
     container.appendChild(E.div(class_='cs-prefs ' + CLASS_NAME))
     root = container.lastChild
-    create_top_bar(container, title=_('Settings'), icon='close')
+    create_top_bar(container, title=_('Settings'), icon='back')
     panel_interface, panel_browse, panel_tagbrowser = create_tabs_widget(root)
     # --- Interface tab content ---
     create_prefs_widget(panel_interface, get_ui_prefs())
