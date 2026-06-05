@@ -224,7 +224,7 @@ progress::-moz-progress-bar { background-color: var(--calibre-color-primary); }
 
 .cs-app-root {
     display: flex; flex-direction: column;
-    height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1;
+    height: 100dvh; width: 100dvw; overflow: hidden; position: relative; z-index: 1;
 }
 
 .cs-shell-top { flex: 0 0 auto; width: 100%; min-height: 0; position: relative; z-index: 2; }
