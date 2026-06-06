@@ -621,7 +621,8 @@ def import_layout(in_widget, model=None):
 
 def reset_layout(in_widget, model=None):
     model.initialize(use_defaults=True)
-    in_widget.changed_signal.emit()
+    if hasattr(in_widget, 'changed_signal'):
+        in_widget.changed_signal.emit()
 
 
 def move_field_up(widget, model, *args, use_kbd_modifiers=True):
