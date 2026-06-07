@@ -16,6 +16,7 @@ DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
 
 DEFAULT_PRIMARY_HEX = '#437000'
+DEFAULT_PRIMARY_DARK_HEX = '#6cb4ee'
 
 
 def c(light, dark):
@@ -224,17 +225,23 @@ def effective_book_list_is_dark():
 
 
 def get_saved_color_settings():
+    is_dark = effective_book_list_is_dark()
     try:
         sd = get_session_data()
     except Exception:
         sd = None
     if not sd:
-        primary_color = all_settings.ui_highlight_color.default
+        colors = all_settings.ui_highlight_colors.default
     else:
-        primary_color = sd.get('ui_highlight_color')
+        colors = sd.get('ui_highlight_colors')
+    if colors and jstype(colors) is 'object':
+        primary_color = colors.dark if is_dark else colors.light
+    else:
+        default_colors = all_settings.ui_highlight_colors.default
+        primary_color = default_colors.dark if is_dark else default_colors.light
     return {
         'primary_color': primary_color,
-        'is_dark': effective_book_list_is_dark(),
+        'is_dark': is_dark,
     }
 
 def apply_book_list_theme():

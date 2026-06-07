@@ -22,7 +22,7 @@ def assert_variables_have_values(variables, expected):
 def invalid_primary_color_uses_default_theme_contract():
     def run(sd):
         sd.set('book_list_color_scheme', 'light')
-        sd.set('ui_highlight_color', 'not-a-color')
+        sd.set('ui_highlight_colors', {'light': 'not-a-color', 'dark': 'not-a-color'})
         variables = theme_variables(False, 'not-a-color')
         default_variables = theme_variables(False, DEFAULT_PRIMARY_HEX)
         assert_equal(Object.keys(variables).length, Object.keys(default_variables).length)
@@ -38,7 +38,7 @@ def invalid_primary_color_uses_default_theme_contract():
 def light_theme_css_uses_shared_variables():
     def run(sd):
         sd.set('book_list_color_scheme', 'light')
-        sd.set('ui_highlight_color', '#437000')
+        sd.set('ui_highlight_colors', {'light': '#437000', 'dark': '#437000'})
         variables = theme_variables(False, '#437000')
         css = css_for_variables()
         set_ui_colors(False, '#437000')
@@ -68,7 +68,7 @@ def light_theme_css_uses_shared_variables():
 def dark_theme_css_uses_shared_variables():
     def run(sd):
         sd.set('book_list_color_scheme', 'dark')
-        sd.set('ui_highlight_color', '#437000')
+        sd.set('ui_highlight_colors', {'light': '#437000', 'dark': '#437000'})
         variables = theme_variables(True, '#437000')
         css = css_for_variables()
         set_ui_colors(True, '#437000')
