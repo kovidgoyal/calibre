@@ -240,15 +240,13 @@ def _highlight_dark_from_storage(val):
 
 
 def _highlight_light_to_storage(color):
-    current = get_session_data().get('ui_highlight_colors') or {}
-    current.light = color
-    return current
+    existing = get_session_data().get('ui_highlight_colors') or {}
+    return {'light': color, 'dark': existing.dark or DEFAULT_PRIMARY_DARK_HEX}
 
 
 def _highlight_dark_to_storage(color):
-    current = get_session_data().get('ui_highlight_colors') or {}
-    current.dark = color
-    return current
+    existing = get_session_data().get('ui_highlight_colors') or {}
+    return {'light': existing.light or DEFAULT_PRIMARY_HEX, 'dark': color}
 
 
 def create_browse_fields_widget(container):
