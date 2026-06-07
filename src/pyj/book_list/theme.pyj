@@ -15,10 +15,6 @@ DT_DARK_LIGHTER = '#777'
 DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
 
-DEFAULT_PRIMARY_HEX = '#437000'
-DEFAULT_PRIMARY_DARK_HEX = '#6cb4ee'
-
-
 def c(light, dark):
     return {'light': light, 'dark': dark or light}
 
@@ -171,23 +167,20 @@ DEFAULT_FONTS = {
 }
 
 
-def normalized_primary_color(hexval):
-    v = ((hexval or DEFAULT_PRIMARY_HEX) + '').strip()
-    rgb = parse_hex_color(v)
-    if not rgb:
-        v = DEFAULT_PRIMARY_HEX
-        rgb = parse_hex_color(v)
-    if not (v + '').startswith('#'):
-        v = '#' + v
-    return v, rgb
-
-
 def theme_variables(is_dark_theme, primary_color):
     attr = 'dark' if is_dark_theme else 'light'
-    p, rgb = normalized_primary_color(primary_color)
+    default_colors = all_settings.ui_highlight_colors.default
+    if not primary_color:
+        primary_color = default_colors.dark if is_dark_theme else default_colors.light
+    if not primary_color.startswith('#'):
+        primary_color = '#' + primary_color
+    rgb = parse_hex_color(primary_color)
+    if not rgb:
+        primary_color = default_colors.dark if is_dark_theme else default_colors.light
+        rgb = parse_hex_color(primary_color)
     r, g, b = rgb
     ans = {
-        '--calibre-color-primary': p,
+        '--calibre-color-primary': primary_color,
         '--calibre-color-primary-light': f'rgba({r},{g},{b},0.18)',
         '--calibre-color-primary-light-2': f'rgba({r},{g},{b},0.28)',
     }
@@ -230,13 +223,9 @@ def get_saved_color_settings():
         sd = get_session_data()
     except Exception:
         sd = None
-    if not sd:
-        colors = all_settings.ui_highlight_colors.default
-    else:
-        colors = sd.get('ui_highlight_colors')
-    if colors and jstype(colors) is 'object':
-        primary_color = colors.dark if is_dark else colors.light
-    else:
+    colors = sd.get('ui_highlight_colors') if sd else all_settings.ui_highlight_colors.default
+    primary_color = (colors?.dark) if is_dark else (colors?.light)
+    if not primary_color:
         default_colors = all_settings.ui_highlight_colors.default
         primary_color = default_colors.dark if is_dark else default_colors.light
     return {

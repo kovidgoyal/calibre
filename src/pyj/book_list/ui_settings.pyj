@@ -5,17 +5,20 @@ from __python__ import hash_literals, bound_methods
 from dom import add_extra_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
+from session import all_settings
 
 from book_list.library_data import browse_field_settings, set_browse_fields
 from book_list.prefs import create_prefs_widget
 from book_list.search import get_prefs as get_tb_prefs
 from book_list.globals import get_session_data
-from book_list.theme import apply_book_list_theme, DEFAULT_PRIMARY_HEX, DEFAULT_PRIMARY_DARK_HEX
+from book_list.theme import apply_book_list_theme
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
 
 
 CLASS_NAME = 'cs-ui-settings'
+DEFAULT_PRIMARY_HEX = all_settings.ui_highlight_colors.default.light
+DEFAULT_PRIMARY_DARK_HEX = all_settings.ui_highlight_colors.default.dark
 
 
 add_extra_css(def():
