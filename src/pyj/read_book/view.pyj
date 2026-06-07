@@ -325,7 +325,8 @@ class View:
         self.current_color_scheme = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
-            set_ui_colors(self.current_color_scheme.is_dark_theme, all_settings.ui_highlight_color.default)
+            _hl_colors = all_settings.ui_highlight_colors.default
+            set_ui_colors(self.current_color_scheme.is_dark_theme, _hl_colors.dark if self.current_color_scheme.is_dark_theme else _hl_colors.light)
         is_dark_theme(self.current_color_scheme.is_dark_theme)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
@@ -848,7 +849,8 @@ class View:
         self.current_color_scheme = ans = resolve_color_scheme()
         iframe = self.iframe
         if runtime.is_standalone_viewer:
-            set_ui_colors(self.current_color_scheme.is_dark_theme, all_settings.ui_highlight_color.default)
+            _hl_colors = all_settings.ui_highlight_colors.default
+            set_ui_colors(self.current_color_scheme.is_dark_theme, _hl_colors.dark if self.current_color_scheme.is_dark_theme else _hl_colors.light)
         else:
             iframe.style.colorScheme = 'dark' if self.current_color_scheme.is_dark_theme else 'light'
 

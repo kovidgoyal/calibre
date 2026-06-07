@@ -15,7 +15,7 @@ all_settings = {
     'show_sidebar_in_book_viewer': {'default': False, 'category': 'book_list', 'is_local': False},
     # auto = follow OS; dark/light = force content-server chrome (book list, sidebar, modals).
     'book_list_color_scheme': {'default': 'auto', 'category': 'book_list', 'is_local': False},
-    'ui_highlight_color': {'default': '#437000', 'category': 'book_list', 'is_local': False},
+    'ui_highlight_colors': {'default': {'light': '#437000', 'dark': '#6cb4ee'}, 'category': 'book_list', 'is_local': False},
     'series_nav_display_mode': {'default': 'stack', 'category': 'book_list', 'is_local': False},
     'saved_virtual_libraries': {'default': v'[]', 'category': 'book_list', 'is_local': False},
     'browse_visible_fields': {'default': {}, 'category': 'book_list', 'is_local': False},
