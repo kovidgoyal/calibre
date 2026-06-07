@@ -320,9 +320,7 @@ class ColorEdit(ConfigItem):
         return self.control.value or ''
 
 
-state = {}
-
-def onfocus(name):
+def onfocus(state, name):
     return def(ev):
         c = document.getElementById(state.container_id)
         div = c.querySelector('div[data-name="{}"]'.format(name))
@@ -331,7 +329,6 @@ def onfocus(name):
 
 
 def create_prefs_widget(container, prefs_data):
-    nonlocal state
     state = {}
     state.container_id = ensure_id(container)
     state.widgets = []
@@ -366,14 +363,14 @@ def create_prefs_widget(container, prefs_data):
             cls = SpinBox
         else:
             cls = LineEdit
-        state.widgets.push((new cls(item, div.firstChild, onfocus(item.name))).initialize())
+        state.widgets.push((new cls(item, div.firstChild, onfocus(state, item.name))).initialize())
     if state.widgets.length:
         container.appendChild(E.div(class_='footer',
-            create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
+            create_button(_('Restore default settings'), 'refresh', reset_to_defaults.bind(None, state))
         ))
 
 
-def reset_to_defaults():
+def reset_to_defaults(state):
     for w in state.widgets:
         w.reset_to_default()
 
