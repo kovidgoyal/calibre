@@ -11,7 +11,7 @@ dependencies = [
 	"lxml == 6.1.0",
 	"pychm == 0.8.6",
 	"html5-parser == 0.4.12",
-	"css-parser == 1.0.10",
+	"css-parser == 1.1.1",
 	"python-dateutil == 2.9.0",
 	"jeepney == 0.9.0",
 	"dnspython == 2.8.0",
