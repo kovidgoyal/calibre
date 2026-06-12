@@ -650,10 +650,8 @@ class SearchesModel(QAbstractListModel):
         self.filtered_searches = []
         filter_keywords = text.split()
         for i, search in enumerate(self.searches):
-            name = search['name']
-            name_keywords = name.split()
             if not filter_keywords or all(
-                any(primary_contains(fk, nk) for nk in name_keywords)
+                any(primary_contains(fk, nk) for nk in search['name'].split())
                 for fk in filter_keywords
             ):
                 self.filtered_searches.append(i)
