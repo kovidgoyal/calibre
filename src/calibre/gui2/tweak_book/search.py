@@ -648,8 +648,12 @@ class SearchesModel(QAbstractListModel):
         text = str(text)
         self.beginResetModel()
         self.filtered_searches = []
+        filter_keywords = text.split()
         for i, search in enumerate(self.searches):
-            if primary_contains(text, search['name']):
+            if not filter_keywords or all(
+                any(primary_contains(fk, nk) for nk in search['name'].split())
+                for fk in filter_keywords
+            ):
                 self.filtered_searches.append(i)
         self.endResetModel()
 
