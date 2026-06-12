@@ -365,11 +365,13 @@ class ConverseWidget(QWidget):
         self, conversation_history: ConversationHistory, current_api_call_number: int, ai_plugin: AIProviderPlugin
     ) -> None:
         try:
+            error_occurred = False
             for res in ai_plugin.text_chat(conversation_history.items, conversation_history.model_used):
+                error_occurred = res.exception is not None
                 if sip.isdeleted(self):
                     return
                 self.response_received.emit(current_api_call_number, res)
-            if not sip.isdeleted(self):
+            if not sip.isdeleted(self) and not error_occurred:
                 self.response_received.emit(current_api_call_number, None)
         except RuntimeError:
             pass  # when self gets deleted between call to sip.isdeleted and next statement
