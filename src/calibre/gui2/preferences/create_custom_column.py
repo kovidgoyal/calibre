@@ -421,7 +421,13 @@ class CreateCustomColumn(QDialog):
         cb.setToolTip(_('Field template. Uses the same syntax as save templates.'))
         cdl.setToolTip(_('Similar to save templates. For example, %s') % '{title} {isbn}')
         h = QHBoxLayout()
-        h.addWidget(cb), h.addWidget(cdl)
+        h.addWidget(cb)
+        self.composite_template_toolbutton = ctb = QToolButton()
+        ctb.setIcon(QIcon.ic('edit_input.png'))
+        ctb.setToolTip(_('Open the template editor'))
+        ctb.clicked.connect(self.composite_template_button_clicked)
+        h.addWidget(ctb)
+        h.addWidget(cdl)
         self.composite_label = add_row(_('&Template:'), h)
 
         # Comments properties
@@ -572,6 +578,20 @@ class CreateCustomColumn(QDialog):
         self.resize(self.sizeHint())
     # }}}
 
+    def composite_template_button_clicked(self):
+        db = self.gui.current_db.new_api
+        lv = self.gui.library_view
+        rows = lv.selectionModel().selectedRows()
+        if rows:
+            mi = [db.get_metadata(lv.model().id(row)) for row in rows[:10]]
+        else:
+            mi = None
+        d = TemplateDialog(parent=self, text=self.composite_box.text(),
+                           mi=mi, fm=db.field_metadata)
+        d.setWindowTitle(_('Edit template'))
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.composite_box.setText(d.rule[1])
+
     def cws_template_button_clicked(self):
         db = self.gui.current_db.new_api
         lv = self.gui.library_view
@@ -680,7 +700,7 @@ class CreateCustomColumn(QDialog):
         for x in ('in_comments_box', 'heading_position', 'heading_position_label',):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
-                  'make_category', 'contains_html'):
+                  'make_category', 'contains_html', 'template_toolbutton'):
             getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
         self.composite_heading_position.setEnabled(False)
         self.store_template_value_in_opf.setVisible(col_type == 'composite')
