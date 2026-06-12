@@ -304,9 +304,29 @@ class Export(ExportBase):
                 'type': 'calibre_highlights',
                 'highlights': self.annotations,
             }, ensure_ascii=False, sort_keys=True, indent=2)
+
+        link_prefix = link_prefix_for_location_links()
+        
+        def _generate_markdown():
+            lines = []
+            root = ChapterGroup()
+            for a in self.annotations:
+                root.add_annot(a)
+            root.render_as_text(lines, True, link_prefix)
+            return '\n'.join(lines).strip()
+
+        if fmt == 'html':
+            from calibre.gui2.library.annotations import format_annotations_to_html
+            json_data = json.dumps({
+                'version': 1,
+                'type': 'calibre_highlights',
+                'highlights': self.annotations,
+            })
+            md_data = _generate_markdown()
+            return format_annotations_to_html(json_data, md_data)
+
         lines = []
         as_markdown = fmt == 'md'
-        link_prefix = link_prefix_for_location_links()
         root = ChapterGroup()
         for a in self.annotations:
             root.add_annot(a)
