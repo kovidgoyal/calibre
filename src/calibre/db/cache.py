@@ -123,13 +123,16 @@ def _add_default_custom_column_values(mi, fm):
     cols = fm.custom_field_metadata(include_composites=False)
     for cc,col in cols.items():
         dv = col['display'].get('default_value', None)
+        if dv is None:
+            continue
         try:
-            if dv is not None:
-                if not mi.get_user_metadata(cc, make_copy=False):
-                    mi.set_user_metadata(cc, col)
-                dt = col['datatype']
-                if dt == 'datetime' and icu_lower(dv) == 'now':
-                    dv = nowf()
+            if not mi.get_user_metadata(cc, make_copy=False):
+                mi.set_user_metadata(cc, col)
+            dt = col['datatype']
+            if dt == 'datetime' and icu_lower(dv) == 'now':
+                dv = nowf()
+            current_val = mi.get(cc, default=mi)
+            if current_val is mi:
                 mi.set(cc, dv)
         except Exception:
             traceback.print_exc()
