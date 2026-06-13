@@ -119,7 +119,21 @@ def attach_cover_grid_resize_observer(grid):
         return
 
     def on_observed(entries):
-        sync_cover_grid_tile_px()
+        # Throttle to one sync per animation frame (the sidebar CSS transition fires many
+        # resize notifications); reuse the same flag as append_item for consistency.
+        if window.cs_cover_grid_tile_sync_scheduled:
+            return
+        window.cs_cover_grid_tile_sync_scheduled = True
+
+        def flush():
+            window.cs_cover_grid_tile_sync_scheduled = False
+            sync_cover_grid_tile_px()
+
+        raf = window.requestAnimationFrame
+        if raf:
+            raf(flush)
+        else:
+            window.setTimeout(flush, 0)
 
     obs = window.ResizeObserver(on_observed)
     obs.observe(grid)
