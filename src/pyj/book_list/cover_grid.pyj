@@ -135,7 +135,7 @@ def attach_cover_grid_resize_observer(grid):
         else:
             window.setTimeout(flush, 0)
 
-    obs = window.ResizeObserver(on_observed)
+    obs = new window.ResizeObserver(on_observed)
     obs.observe(grid)
     window.cs_cover_grid_resize_observer = obs
 
