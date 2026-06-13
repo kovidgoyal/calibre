@@ -110,6 +110,22 @@ def ensure_cover_grid_resize_listener():
     window.addEventListener('resize', on_resize, False)
 
 
+def attach_cover_grid_resize_observer(grid):
+    # Disconnect any previous observer so we don't accumulate observers across init() calls.
+    if window.cs_cover_grid_resize_observer:
+        window.cs_cover_grid_resize_observer.disconnect()
+        window.cs_cover_grid_resize_observer = None
+    if not window.ResizeObserver:
+        return
+
+    def on_observed(entries):
+        sync_cover_grid_tile_px()
+
+    obs = window.ResizeObserver(on_observed)
+    obs.observe(grid)
+    window.cs_cover_grid_resize_observer = obs
+
+
 def on_cover_grid_size_input(ev):
     v = parseFloat(ev.target.value)
     if v != v:
@@ -315,6 +331,7 @@ def init(container):
     for i in range(12):
         container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
     ensure_cover_grid_resize_listener()
+    attach_cover_grid_resize_observer(container.lastChild)
     apply_cover_grid_pct_css()
 
 def on_img_load(img, load_type):
