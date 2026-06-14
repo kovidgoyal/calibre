@@ -544,21 +544,31 @@ set_thread_name(PyObject *self, PyObject *const *args, Py_ssize_t nargs) {
 #endif
 }
 
-#define char_is_ignored(ch) (ch <= 32)
-
-typedef struct udata {
-    void *data; int kind; Py_ssize_t len;
-} udata;
-
 static size_t
-count_chars_in(udata *text) {
-	size_t ans = text->len;
-	for (Py_ssize_t i = 0; i < text->len; i++) if (char_is_ignored(PyUnicode_READ(text->kind, text->data, i))) ans--;
-	return ans;
+count_chars_in_str(PyObject *str) {
+    /* Count the number of significant (non-whitespace) characters in str.
+     * Uses PyUnicode_AsUTF8AndSize to avoid the deprecated PyUnicode_KIND/
+     * PyUnicode_DATA/PyUnicode_READ API that was removed in Python 3.14.
+     * In UTF-8, code points > 32 are either single ASCII bytes (0x21-0x7F)
+     * or multi-byte sequences whose lead bytes are >= 0xC0. Continuation
+     * bytes (0x80-0xBF) are never > 32 but we skip them so each multi-byte
+     * code point is counted exactly once. */
+    if (!str || !PyUnicode_Check(str)) return 0;
+    Py_ssize_t utf8_len;
+    const char *utf8 = PyUnicode_AsUTF8AndSize(str, &utf8_len);
+    if (!utf8) { PyErr_Clear(); return 0; }
+    size_t ans = 0;
+    for (Py_ssize_t i = 0; i < utf8_len; i++) {
+        unsigned char c = (unsigned char)utf8[i];
+        /* Count ASCII chars > 32, and lead bytes of multi-byte sequences
+         * (>= 0xC0). Skip continuation bytes (0x80-0xBF) and ignored chars. */
+        if (c > 32 && (c < 0x80 || c >= 0xC0)) ans++;
+    }
+    return ans;
 }
 
 static size_t
-count_chars(const char *tag_name, Py_ssize_t tag_len, udata *text, udata *tail) {
+count_chars(const char *tag_name, Py_ssize_t tag_len, PyObject *text, PyObject *tail) {
 	size_t ans = 0;
     int is_ignored_tag = 0;
     char ltagname[16];
@@ -594,8 +604,8 @@ count_chars(const char *tag_name, Py_ssize_t tag_len, udata *text, udata *tail) 
         }
     }
 #undef EQ
-	ans += count_chars_in(tail);
-	if (!is_ignored_tag) ans += count_chars_in(text);
+	ans += count_chars_in_str(tail);
+	if (!is_ignored_tag) ans += count_chars_in_str(text);
     return ans;
 }
 
@@ -604,23 +614,15 @@ get_num_of_significant_chars(PyObject *self, PyObject *elem) {
 	(void)(self);
 	const char *tag_name = NULL;
     Py_ssize_t tag_len = 0;
-    PyObject *ptn = PyObject_GetAttrString(elem, "tag"), *text = NULL;
+    PyObject *ptn = PyObject_GetAttrString(elem, "tag"), *text = NULL, *tail = NULL;
     if (ptn && PyUnicode_Check(ptn)) tag_name = PyUnicode_AsUTF8AndSize(ptn, &tag_len);
-    udata xdata = {0}, tdata = {0};
     if (tag_name) {
         text = PyObject_GetAttrString(elem, "text");
-        if (text && PyUnicode_Check(text)) {
-            xdata.len = PyUnicode_GET_LENGTH(text); xdata.kind = PyUnicode_KIND(text); xdata.data = PyUnicode_DATA(text);
-        }
+        if (!text) PyErr_Clear();
     }
-    PyObject *tail = PyObject_GetAttrString(elem, "tail");
-    if (tail && PyUnicode_Check(tail)) {
-        tdata.len = PyUnicode_GET_LENGTH(tail); tdata.kind = PyUnicode_KIND(tail); tdata.data = PyUnicode_DATA(tail);
-    }
-    size_t ans;
-    Py_BEGIN_ALLOW_THREADS
-        ans = count_chars(tag_name, tag_len, &xdata, &tdata);
-    Py_END_ALLOW_THREADS;
+    tail = PyObject_GetAttrString(elem, "tail");
+    if (!tail) PyErr_Clear();
+    size_t ans = count_chars(tag_name, tag_len, text, tail);
     Py_XDECREF(ptn); Py_XDECREF(text); Py_XDECREF(tail);
 	return PyLong_FromSize_t(ans);
 }
