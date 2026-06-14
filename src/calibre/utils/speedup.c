@@ -619,9 +619,11 @@ get_num_of_significant_chars(PyObject *self, PyObject *elem) {
     if (tag_name) {
         text = PyObject_GetAttrString(elem, "text");
         if (!text) PyErr_Clear();
+        else if (!PyUnicode_Check(text)) { Py_DECREF(text); text = NULL; }
     }
     tail = PyObject_GetAttrString(elem, "tail");
     if (!tail) PyErr_Clear();
+    else if (!PyUnicode_Check(tail)) { Py_DECREF(tail); tail = NULL; }
     size_t ans = count_chars(tag_name, tag_len, text, tail);
     Py_XDECREF(ptn); Py_XDECREF(text); Py_XDECREF(tail);
 	return PyLong_FromSize_t(ans);
