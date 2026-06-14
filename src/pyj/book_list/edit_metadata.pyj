@@ -783,7 +783,7 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
             img.src = cover_url(book_id)
         preview.appendChild(img)
 
-    def on_cover_selected(files):
+    def on_cover_selected(container_id, files):
         f = files and files[0]
         if not f:
             return
