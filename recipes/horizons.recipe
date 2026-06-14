@@ -26,12 +26,9 @@ class horizons(BasicNewsRecipe):
     extra_css = 'em{color:#202020;}'
     simultaneous_downloads = 1
 
-    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
-    remove_tags = [
-        classes('back-link'),
-        dict(name='div', attrs={'class': 'single-post-footer'}),
-    ]
-
+    remove_tags_before = [dict(name='div', **classes('e-con-boxed'))]
+    remove_tags_after = [dict(name='div', **classes('e-con-boxed'))]
+    
     recipe_specific_options = {
         'issue_url': {
             'short': 'The issue URL ',
@@ -39,11 +36,16 @@ class horizons(BasicNewsRecipe):
         }
     }
 
+    def preprocess_html(self, soup):
+        div = soup.find('div', **classes('e-con-boxed'))
+        child = div.find('div', **classes('e-child'))
+        if child:
+            soup.body.clear()
+            soup.body.append(child)
+        return soup
+
     def preprocess_raw_html(self, raw, *a):
         return raw.replace('<p>&nbsp;</p>', '').replace('<p dir="ltr">&nbsp;</p>', '')
-
-    def get_browser(self):
-        return BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
 
     def parse_index(self):
         d = self.recipe_specific_options.get('issue_url')
@@ -51,30 +53,32 @@ class horizons(BasicNewsRecipe):
             url = d
         else:
             soup = self.index_to_soup('https://www.cirsd.org/en/horizons')
-            a = soup.find('a', href=True, attrs={'class':'horizon-gallery-box'})
-            url = a['href']
-            if url.startswith('/'):
-                url = 'https://www.cirsd.org' + url
-            self.cover_url = a.find('img')['src']
-            self.log(self.cover_url)
-        self.title = url.split('/')[-1].replace('-', ' ').title()
+            div = soup.find('div', **classes('horizon-issue'))
+            for a in div.findAll('a', href=True):
+                if a.find('img'):
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'https://www.cirsd.org' + url
+                    self.cover_url = a.find('img')['src']
+                    self.log(url, '\n', self.cover_url)
+        self.title = url.split('/')[-2].replace('-', ' ').title()
         self.log('Downloading Issue: ', self.title)
+        
         soup = self.index_to_soup(url)
-
+        toc = soup.find('div', attrs={'class':'horizon-toc'})
         feeds = []
-        for section in soup.findAll('h2', attrs={'class': 'mt-3'}):
-            secname = self.tag_to_string(section).strip()
+        for section in toc.findAll('div', attrs={'class':'horizon-section'}):
+            secname = self.tag_to_string(section.h3).strip()
             self.log(secname)
             articles = []
-            div = section.findNext('div', attrs={'class': 'mb-3'})
-            for li in div.findAll('li', attrs={'class': 'mb-2'}):
-                a = li.find('a', href=True)
+            ul = section.find('ul', attrs={'class': 'horizon-articles-list'})
+            for a in ul.findAll('a', href=True):
                 url = a['href']
                 if url.startswith('/'):
                     url = 'https://www.cirsd.org' + url
                 title = self.tag_to_string(a)
-                span = li.find('span', attrs={'class': 'section-author'})
                 desc = ''
+                span = a.find_next_sibling('span', attrs={'class': 'article-author'})
                 if span:
                     desc = self.tag_to_string(span).strip()
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
