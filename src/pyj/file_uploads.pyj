@@ -14,8 +14,8 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
 
     def files_selected():
         files = this.files
-        container = document.getElementById(container_id)
-        container.removeChild(container.lastChild)
+        if c.parentNode:
+            c.parentNode.removeChild(c)
         if callable(proceed) and files.length:
             proceed(container_id, files)
 

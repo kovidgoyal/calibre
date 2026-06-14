@@ -125,7 +125,6 @@ add_extra_css(def():
     )
     style += build_rule(sel + 'div[data-ctype="edit"] .cover-edit-preview',
         width='min(260px, 45vw)',
-        max_height='min(390px, 50vh)',
         aspect_ratio='2 / 3',
         border_radius='14px',
         overflow='hidden',
