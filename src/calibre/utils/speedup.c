@@ -605,7 +605,8 @@ get_num_of_significant_chars(PyObject *self, PyObject *elem) {
 	const char *tag_name = NULL;
     Py_ssize_t tag_len = 0;
     PyObject *ptn = PyObject_GetAttrString(elem, "tag"), *text = NULL;
-    if (ptn && PyUnicode_Check(ptn)) tag_name = PyUnicode_AsUTF8AndSize(ptn, &tag_len);
+    if (!ptn) PyErr_Clear();
+    else if (PyUnicode_Check(ptn)) tag_name = PyUnicode_AsUTF8AndSize(ptn, &tag_len);
     udata xdata = {0}, tdata = {0};
     if (tag_name) {
         text = PyObject_GetAttrString(elem, "text");
