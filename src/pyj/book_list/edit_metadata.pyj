@@ -847,17 +847,18 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
                 except Exception:
                     pass
 
+        def on_file_read(evt):
+            nonlocal has_changes
+            draft_changes.cover = evt.target.result
+            has_changes = True
+            on_close(container_id)
+
         if pending.remove:
             draft_changes.cover = '--remove--'
             has_changes = True
             revoke()
             on_close(container_id)
         elif pending.file:
-            def on_file_read(evt):
-                nonlocal has_changes
-                draft_changes.cover = evt.target.result
-                has_changes = True
-                on_close(container_id)
             r = FileReader()
             r.onload = on_file_read
             revoke()
