@@ -78,6 +78,9 @@ class scoped_com_initializer {  // {{{
 		explicit operator bool() const noexcept { return m_succeded; }
 
 		bool succeeded() const noexcept { return m_succeded; }
+        // Returns true when COM is usable: either we initialised it ourselves
+        // (succeeded) or it was already running in multithreaded mode (MTA).
+        bool is_available() const noexcept { return m_succeded || hr == RPC_E_CHANGED_MODE; }
 
         PyObject* set_python_error() const noexcept {
             if (hr == RPC_E_CHANGED_MODE) {

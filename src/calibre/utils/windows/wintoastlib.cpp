@@ -23,6 +23,7 @@
 
 #include "wintoastlib.h"
 
+#include <mutex>
 #include <memory>
 #include <assert.h>
 #include <unordered_map>
@@ -759,7 +760,10 @@ INT64 WinToast::showToast(_In_ WinToastTemplate const& toast, _In_ IWinToastHand
 
                                 if (SUCCEEDED(hr)) {
                                     if (SUCCEEDED(hr)) {
-                                        _buffer.emplace(id, NotifyData(notification, activatedToken, dismissedToken, failedToken));
+                                        {
+                                            std::lock_guard<std::mutex> lock(_bufferMutex);
+                                            _buffer.emplace(id, NotifyData(notification, activatedToken, dismissedToken, failedToken));
+                                        }
                                         DEBUG_MSG("xml: " << Util::AsString(xmlDocument));
                                         hr = notifier->Show(notification.Get());
                                         if (FAILED(hr)) {
@@ -790,6 +794,7 @@ ComPtr<IToastNotifier> WinToast::notifier(_In_ bool* succeded) const {
 }
 
 void WinToast::markAsReadyForDeletion(_In_ INT64 id) {
+    std::lock_guard<std::mutex> lock(_bufferMutex);
     // Flush the buffer by removing all the toasts that are ready for deletion
     for (auto it = _buffer.begin(); it != _buffer.end();) {
         if (it->second.isReadyForDeletion()) {
@@ -813,6 +818,7 @@ bool WinToast::hideToast(_In_ INT64 id) {
         return false;
     }
 
+    std::lock_guard<std::mutex> lock(_bufferMutex);
     auto iter = _buffer.find(id);
     if (iter == _buffer.end()) {
         return false;
@@ -843,6 +849,7 @@ void WinToast::clear() {
         return;
     }
 
+    std::lock_guard<std::mutex> lock(_bufferMutex);
     for (auto& data : _buffer) {
         auto& notifyData = data.second;
         notify->Hide(notifyData.notification());

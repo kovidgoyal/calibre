@@ -48,6 +48,17 @@ public:
 
 static PyObject*
 initialize_toast(PyObject *self, PyObject *args) {
+    // Keep COM initialized for the lifetime of this module so that WinRT
+    // notification callback objects (registered via add_Activated / add_Dismissed
+    // / add_Failed) remain in a valid COM apartment.  Without this, the
+    // per-call scoped_com_initializer in notify() would call CoUninitialize()
+    // while callbacks are still registered, causing an access violation inside
+    // wpnapps.dll when Windows later tries to invoke those callbacks.
+    static scoped_com_initializer com;
+    if (!com.is_available()) {
+        // COM failed to initialise (not a mode-change error, which is harmless).
+        return com.set_python_error();
+    }
     wchar_raii appname, app_user_model_id;
     int sp = WinToast::SHORTCUT_POLICY_IGNORE;
     if (!PyArg_ParseTuple(args, "O&O&|i", py_to_wchar_no_none, &appname, py_to_wchar_no_none, &app_user_model_id, &sp)) return NULL;
@@ -65,8 +76,10 @@ static PyObject*
 notify(PyObject *self, PyObject *args) {
     wchar_raii title, message, icon_path;
     if (!PyArg_ParseTuple(args, "O&O&O&", py_to_wchar_no_none, &title, py_to_wchar_no_none, &message, py_to_wchar_no_none, &icon_path)) return NULL;
-	scoped_com_initializer com;
-	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+    // COM is already initialized by initialize_toast() for the module's lifetime.
+    // Do NOT initialize/uninitialize COM here: doing so would call CoUninitialize()
+    // while WinRT notification callback objects are still alive, which is the root
+    // cause of the wpnapps.dll access violations.
     WinToastTemplate templ = WinToastTemplate(WinToastTemplate::ImageAndText02);
     templ.setImagePath(icon_path.ptr(), WinToastTemplate::CropHint::Square);
     templ.setFirstLine(title.ptr());
