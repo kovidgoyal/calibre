@@ -66,11 +66,13 @@ def manifest_json(ctx, rd):
         'short_name': 'calibre',
         'start_url': ctx.url_for(None),
         'display': 'standalone',
+        'display_override': ['window-controls-overlay'],
         'icons': [
             {
                 'src': ctx.url_for('/favicon.svg'),
                 'sizes': 'any',
                 'type': 'image/svg+xml',
+                'purpose': 'any',
             },
             {
                 'src': ctx.url_for('/favicon-192.png'),
