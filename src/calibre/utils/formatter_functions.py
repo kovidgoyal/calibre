@@ -3033,8 +3033,8 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
-``has_extra_files([pattern])`` -- returns the count of extra files, otherwise ''
-(the empty string).[/] If the optional parameter ``pattern`` (a regular expression)
+``has_extra_files([pattern])`` -- returns the count of extra files, otherwise
+the empty string. [/] If the optional parameter ``pattern`` (a regular expression)
 is supplied then the list is filtered to files that match ``pattern`` before the
 files are counted. The pattern match is case insensitive. See also the functions
 :ref:`extra_file_names`, :ref:`extra_file_size` and :ref:`extra_file_modtime`.
