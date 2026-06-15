@@ -175,20 +175,20 @@ edit-metadata-panel[data-modal="1"]::before{
 
 
 def resolved_metadata(mi, field):
-    if Object.prototype.hasOwnProperty.call(changes, field):
-        return changes[field]
+    if Object.prototype.hasOwnProperty.call(draft_changes, field):
+        return draft_changes[field]
     return mi[field]
 
 
 def resolved_formats(val):
     val = list(val or v'[]')
-    if changes.added_formats:
-        for data in changes.added_formats:
+    if draft_changes.added_formats:
+        for data in draft_changes.added_formats:
             ext = data.ext.toUpperCase()
             if ext and ext not in val:
                 val.push(ext)
-    if changes.removed_formats:
-        for fmt in changes.removed_formats:
+    if draft_changes.removed_formats:
+        for fmt in draft_changes.removed_formats:
             fmt = fmt.toUpperCase()
             if fmt in val:
                 val.remove(fmt)
@@ -805,18 +805,41 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
     panel.appendChild(actions)
 
     footer = E.div(class_='edit-form-button-container')
-    footer.appendChild(create_button(_('Save'), icon='check', action=def(ev):
+
+    def do_save(ev):
+        nonlocal has_changes
         if pending.remove:
             draft_changes.cover = '--remove--'
+            has_changes = True
+            if object_url:
+                try:
+                    window.URL.revokeObjectURL(object_url)
+                except Exception:
+                    pass
+            on_close(container_id)
         elif pending.file:
-            draft_changes.cover = pending.file
-        if object_url:
-            try:
-                window.URL.revokeObjectURL(object_url)
-            except Exception:
-                pass
-        on_close(container_id)
-    , highlight=True))
+            def on_file_read(evt):
+                nonlocal has_changes
+                draft_changes.cover = evt.target.result
+                has_changes = True
+                on_close(container_id)
+            r = FileReader()
+            r.onload = on_file_read
+            if object_url:
+                try:
+                    window.URL.revokeObjectURL(object_url)
+                except Exception:
+                    pass
+            r.readAsDataURL(pending.file)
+        else:
+            if object_url:
+                try:
+                    window.URL.revokeObjectURL(object_url)
+                except Exception:
+                    pass
+            on_close(container_id)
+
+    footer.appendChild(create_button(_('Save'), icon='check', action=do_save, highlight=True))
     footer.appendChild(E.span('\xa0'))
     footer.appendChild(create_button(_('Cancel'), icon='close', action=def(ev):
         if object_url:
@@ -1170,17 +1193,11 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     img = E.img(
         style='max-width: 100%; max-height: 400px',
     )
-    if changes.cover:
-        if changes.cover is '--remove--':
+    if draft_changes.cover:
+        if draft_changes.cover is '--remove--':
             img.removeAttribute('src')
-            changes.cover = None
-        elif jstype(changes.cover) is not 'string':
-            r = FileReader()
-            r.onload = def(evt):
-                img.src = evt.target.result
-                changes.cover = evt.target.result
-            r.readAsDataURL(changes.cover)
-            v'delete changes.cover'
+        else:
+            img.src = draft_changes.cover
     else:
         img.src = cover_url(book_id)
     table.lastChild.lastChild.appendChild(img)
