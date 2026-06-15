@@ -182,8 +182,9 @@ def build_c_extensions(ext_dir, args):
     ]
     if args.build_only:
         cmd.extend(('--only', args.build_only))
-    if run(*cmd, COMPILER_CWD=bdir) != 0:
-        print('Building of calibre C extensions failed', file=sys.stderr)
+    rc = run(*cmd, COMPILER_CWD=bdir)
+    if rc != 0:
+        print('Building of calibre C extensions failed, returncode:', rc, 'Failing cmd:', cmd, file=sys.stderr)
         os.chdir(CALIBRE_DIR)
         run_shell()
         raise SystemExit('Building of calibre C extensions failed')
