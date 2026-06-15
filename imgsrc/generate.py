@@ -11,7 +11,7 @@ import subprocess
 
 duplicates = {
     'character-set': ['languages'],
-    'calibre': ['library', 'lt'],
+    'calibre': ['library', 'lt', 'favicon-192', 'favicon-512'],
     'format-text-color': ['lookfeel'],
     'books_in_series': ['series'],
     'plugins.svg': ['plugins/plugin_upgrade_ok'],
@@ -23,6 +23,8 @@ sizes = {
     'default_cover': 'original',
     'viewer': '256',
     'tweak': '256',
+    'favicon-192': '192',
+    'favicon-512': '512',
 }
 
 skip = {'calibre'}
@@ -58,7 +60,8 @@ def rsvg(src, size, dest):
     if size != 'original':
         cmd += ['--width', size, '--height', size]
     subprocess.check_call(cmd + ['-o', dest, src])
-    subprocess.check_call(['optipng', '-o7', '-quiet', '-strip', 'all', dest])
+    cmd = 'zopflipng -m -y --lossy_8bit --lossy_transparent'.split()
+    subprocess.check_call(cmd + [dest, dest])
 
 
 def render(src, output_files):

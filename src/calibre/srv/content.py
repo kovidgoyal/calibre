@@ -248,7 +248,7 @@ def static(ctx, rd, what):
 
 @endpoint('/favicon.png', auth_required=False, cache_control=24)
 def favicon(ctx, rd):
-    return share_open(I('lt.png'), 'rb')
+    return share_open(I('favicon-512.png'), 'rb')
 
 
 @endpoint('/favicon.svg', auth_required=False, cache_control=24)
