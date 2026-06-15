@@ -808,14 +808,18 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
 
     def do_save(ev):
         nonlocal has_changes
-        if pending.remove:
-            draft_changes.cover = '--remove--'
-            has_changes = True
+
+        def revoke():
             if object_url:
                 try:
                     window.URL.revokeObjectURL(object_url)
                 except Exception:
                     pass
+
+        if pending.remove:
+            draft_changes.cover = '--remove--'
+            has_changes = True
+            revoke()
             on_close(container_id)
         elif pending.file:
             def on_file_read(evt):
@@ -825,18 +829,10 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
                 on_close(container_id)
             r = FileReader()
             r.onload = on_file_read
-            if object_url:
-                try:
-                    window.URL.revokeObjectURL(object_url)
-                except Exception:
-                    pass
+            revoke()
             r.readAsDataURL(pending.file)
         else:
-            if object_url:
-                try:
-                    window.URL.revokeObjectURL(object_url)
-                except Exception:
-                    pass
+            revoke()
             on_close(container_id)
 
     footer.appendChild(create_button(_('Save'), icon='check', action=do_save, highlight=True))
