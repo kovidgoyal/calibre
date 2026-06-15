@@ -69,7 +69,7 @@ class ContentTest(LibraryBaseTest):
                 self.ae(b'', r.read())
 
             test('content-server/empty.html', '/static/empty.html')
-            test('images/lt.png', '/favicon.png')
+            test('images/favicon-512.png', '/favicon.png')
             test('images/lt.png', '/icon/lt.png?sz=full')
             test('images/lt.png', '/icon/lt.png', sz=48)
             test('images/lt.png', '/icon/lt.png?sz=16', sz=16)
