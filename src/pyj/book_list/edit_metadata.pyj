@@ -812,11 +812,12 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
         pending.remove = False
         refresh_preview()
 
-    file_input.addEventListener('change', def(): handle_files(file_input.files);, False)
-    dropzone.addEventListener('click', def(ev): file_input.click();, False)
+    file_input.addEventListener('change', def(): handle_files(file_input.files), False)
+    dropzone.addEventListener('click', def(ev): file_input.click(), False)
 
     def stop(e):
-        e.stopPropagation(), e.preventDefault()
+        e.stopPropagation()
+        e.preventDefault()
 
     def drop(e):
         stop(e)
