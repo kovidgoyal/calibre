@@ -6,6 +6,7 @@ import glob
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 
 duplicates = {
@@ -78,6 +79,7 @@ def main():
         render(src, ofiles)
     with open(hash_path, 'w') as f:
         json.dump(hashes, f, indent=2, sort_keys=True)
+    shutil.copy(os.path.join(base, 'calibre.svg'), output_base)
 
 
 if __name__ == '__main__':
