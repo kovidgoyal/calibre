@@ -772,6 +772,14 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
     panel.appendChild(E.div(_('Changes apply only after pressing Save.'), class_='cover-edit-help'))
 
     preview = E.div(class_='cover-edit-preview')
+    file_input = E.input(type='file', style='display:none', accept='.png, .jpeg, .jpg')
+    dropzone = E.div(
+        class_='cs-upload-dropzone',
+        preview,
+        E.span(_('Click anywhere on the cover to select a new cover or drag and drop a cover image.'), class_='cs-upload-dropzone-msg'),
+        file_input,
+    )
+    panel.appendChild(dropzone)
 
     def refresh_preview():
         nonlocal object_url
@@ -796,7 +804,7 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
             img.src = cover_url(book_id)
         preview.appendChild(img)
 
-    def on_cover_selected(container_id, files):
+    def handle_files(files):
         f = files and files[0]
         if not f:
             return
@@ -804,11 +812,19 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
         pending.remove = False
         refresh_preview()
 
-    dropzone = upload_files_widget(panel, on_cover_selected, _(
-        'Click or drag and drop to change the cover. <a>Select the cover image</a>.'),
-        single_file=True, accept_extensions='png jpeg jpg'
-    )
-    dropzone.insertBefore(preview, dropzone.firstChild)
+    file_input.addEventListener('change', def(): handle_files(file_input.files);, False)
+    dropzone.addEventListener('click', def(ev): file_input.click();, False)
+
+    def stop(e):
+        e.stopPropagation(), e.preventDefault()
+
+    def drop(e):
+        stop(e)
+        handle_files(e.dataTransfer.files)
+
+    dropzone.addEventListener('dragenter', stop, False)
+    dropzone.addEventListener('dragover', stop, False)
+    dropzone.addEventListener('drop', drop, False)
 
     actions = E.div(class_='cover-edit-actions')
     actions.appendChild(create_button(_('Remove existing cover'), action=def(ev):
