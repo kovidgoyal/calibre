@@ -256,6 +256,11 @@ def favicon_svg(ctx, rd):
     return share_open(I('calibre.svg'), 'rb')
 
 
+@endpoint('/favicon-192.png', auth_required=False, cache_control=24)
+def favicon_192(ctx, rd):
+    return share_open(I('favicon-192.png'), 'rb')
+
+
 @endpoint('/apple-touch-icon.png', auth_required=False, cache_control=24)
 def apple_touch_icon(ctx, rd):
     return share_open(I('apple-touch-icon.png'), 'rb')

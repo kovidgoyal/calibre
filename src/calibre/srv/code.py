@@ -58,6 +58,35 @@ def service_worker_js(ctx, rd):
     return open(P('content-server/service_worker.js', allow_user_override=False), 'rb')
 
 
+@endpoint('/manifest.json', auth_required=False, cache_control='no-cache')
+def manifest_json(ctx, rd):
+    rd.outheaders['Content-Type'] = 'application/manifest+json; charset=UTF-8'
+    manifest = {
+        'name': 'calibre Content Server',
+        'short_name': 'calibre',
+        'start_url': ctx.url_for(None),
+        'display': 'standalone',
+        'icons': [
+            {
+                'src': ctx.url_for('/favicon.svg'),
+                'sizes': 'any',
+                'type': 'image/svg+xml',
+            },
+            {
+                'src': ctx.url_for('/favicon-192.png'),
+                'sizes': '192x192',
+                'type': 'image/png',
+            },
+            {
+                'src': ctx.url_for('/favicon.png'),
+                'sizes': '512x512',
+                'type': 'image/png',
+            },
+        ],
+    }
+    return json_dumps(manifest)
+
+
 # auth_required=True needed for Chrome: https://bugs.launchpad.net/calibre/+bug/1982060
 @endpoint('/ajax-setup', auth_required=True, cache_control='no-cache', postprocess=json)
 def ajax_setup(ctx, rd):
