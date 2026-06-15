@@ -609,12 +609,14 @@ get_num_of_significant_chars(PyObject *self, PyObject *elem) {
     udata xdata = {0}, tdata = {0};
     if (tag_name) {
         text = PyObject_GetAttrString(elem, "text");
-        if (text && PyUnicode_Check(text)) {
+        if (!text) PyErr_Clear();
+        else if (PyUnicode_Check(text)) {
             xdata.len = PyUnicode_GET_LENGTH(text); xdata.kind = PyUnicode_KIND(text); xdata.data = PyUnicode_DATA(text);
         }
     }
     PyObject *tail = PyObject_GetAttrString(elem, "tail");
-    if (tail && PyUnicode_Check(tail)) {
+    if (!tail) PyErr_Clear();
+    else if (PyUnicode_Check(tail)) {
         tdata.len = PyUnicode_GET_LENGTH(tail); tdata.kind = PyUnicode_KIND(tail); tdata.data = PyUnicode_DATA(tail);
     }
     size_t ans;
