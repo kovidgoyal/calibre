@@ -3278,7 +3278,7 @@ output format.[/]The ``user`` parameter defaults to match any user. Use the valu
 the calibre e-book viewer. Use ``_`` to match reading progress for anonymous users of the Content server viewer.
 Any other value matches the corresponding username as used in the Content server.
 
-The ``output_fmt`` parameter controls the format of the text returned by this function. It takes three values:
+The ``output_fmt`` parameter controls the format of the text returned by this function. It takes any of the following values:
 [LIST]
 [*] ``page_count`` - the default, outputs ``pages read / total pages``. If page counting is not enabled outputs percent read instead.
 [*] ``percent`` - outputs percent read
@@ -3305,7 +3305,7 @@ Some examples:
 {id:reading_progress(,percent)} -- same as above, but as a percentage
 {id:reading_progress(,pos_frac,furthest)} -- same as above, but as a fraction and using the
                                              furthest progress on this book.
-{id:reading_progress(bob,pos_frac,furthest,EPUB)} -- for the user "bob" and the "EPUB format
+{id:reading_progress(bob,pos_frac,furthest,EPUB)} -- for the user "bob" and the "EPUB" format.
 [/CODE]
 ''')
 
