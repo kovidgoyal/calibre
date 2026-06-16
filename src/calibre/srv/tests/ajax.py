@@ -204,7 +204,7 @@ class ContentTest(LibraryBaseTest):
                 self.ae(r.status, OK)
                 enum_items = {x['name']: x for x in data['items']}
                 self.ae(set(enum_items), {'One', 'Two'})
-                self.ae(enum_items['One']['search'], '#enum:"One"')
+                self.ae(enum_items['One']['search'], '#enum:"=One"')
                 r, data = request('/interface-data/browse-field/_enum')
                 self.ae(r.status, NOT_FOUND)
 
@@ -229,7 +229,7 @@ class ContentTest(LibraryBaseTest):
                 tag_items = {x['name']: x for x in data['items']}
                 self.ae(set(tag_items), {'Fiction', 'Mystery', 'Romance'})
                 self.ae(tag_items['Mystery']['search_name'], 'Fiction.Mystery')
-                self.ae(tag_items['Mystery']['search'], 'tags:"Fiction.Mystery"')
+                self.ae(tag_items['Mystery']['search'], 'tags:"=.Fiction.Mystery"')
             finally:
                 gprefs['tags_browser_category_icons'] = old_category_icons
                 srv_metadata._icon_map = None
