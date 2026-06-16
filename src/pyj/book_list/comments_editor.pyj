@@ -23,7 +23,7 @@ add_extra_css(def():
     style += build_rule(sel, display='flex', flex_wrap='wrap', padding_top='0.25ex', padding_bottom='0.25ex')
     sel += ' > div'
     style += build_rule(sel, padding='0.5ex', margin_right='0.5ex', cursor='pointer')
-    style += build_rule(sel + ':hover', color='red')
+    style += build_rule(sel + ':hover', color='var(--calibre-color-primary)')
     style += build_rule(sel + '.activated', color=get_color('window-background'), background=get_color('window-foreground'))
     sel += '.sep'
     style += build_rule(sel, border_left='solid 2px currentColor', cursor='auto')
