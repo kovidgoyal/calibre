@@ -91,7 +91,7 @@ def make_search(field, label):
     if field is 'rating':
         n = rating_search_query_from_display_name(label)
         return {'search': 'rating:' + str(n)}
-    return {'search': f'{field}:"{escape_for_search(label)}"'}
+    return {'search': f'{field}:"={escape_for_search(label)}"'}
 
 
 def stars_for_rating(label):
@@ -818,7 +818,7 @@ def create_nav_list_panel(container_id):
         query = {
             'library_id': lid,
             'num': '5',
-            'search': f'series:"{escape_for_search(series_name)}"'
+            'search': f'series:"={escape_for_search(series_name)}"'
         }
 
         def done(end_type, xhr, ev):

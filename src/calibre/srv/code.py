@@ -334,7 +334,13 @@ def category_browse_search_expression(field, item):
         stars = str(search_name).count('★')
         if 1 <= stars <= 5:
             return f'rating:{stars}'
-    return f'{field}:"{escape_search_value(search_name)}"'
+    if item.get('is_hierarchical'):
+        # Use prefix match so an intermediate node (e.g. "History") matches both
+        # "History" and its children such as "History.Military".
+        return f'{field}:"=.{escape_search_value(search_name)}"'
+    # Use exact (=) match to avoid a CONTAINS match where one series/tag name
+    # is a prefix of another (e.g. "Awakening" matching "Awakening Lands").
+    return f'{field}:"={escape_search_value(search_name)}"'
 
 
 def category_browse_items(ctx, rd, db, field, vl):
