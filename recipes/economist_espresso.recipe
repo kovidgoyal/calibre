@@ -30,50 +30,110 @@ class Espresso(BasicNewsRecipe):
         'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
     )
     no_stylesheets = True
-    remove_attributes = ['height', 'width', 'style']
+    remove_attributes = ['height', 'width']
     use_embedded_content = False
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
     browser_type = 'webengine'
 
     extra_css = '''
         h1 { text-align:center; }
-        ._main-image, ._description, .sub, .calibre-nuked-tag-figcaption { text-align:center; font-size:small; }
+        figcaption, figcaption span { text-align:center; font-size:small; color:#606060; }
         blockquote { font-size:x-large; font-style:italic; color:#202020; }
+        figure { text-align:center; }
+        img { display:block; margin:0 auto; max-width:100%; }
     '''
 
     keep_only_tags = [dict(name='main', attrs={'id': 'content'})]
 
     remove_tags = [
-        classes('_podcast-promo _newsletter-promo-container _time-last-updated'),
+        dict(attrs={'data-testid': 'twib-page-navigation-bar'}),
+        dict(attrs={'class': lambda c: c and 'adComponent' in
+                    (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'teaser' in
+                    (' '.join(c) if isinstance(c, list) else c)}),
+        dict(name='time'),
+        dict(attrs={'data-testid': 'progress-bar'}),
+        dict(attrs={'data-testid': 'rule-standard'}),
     ]
 
     def parse_index(self):
-        return [
-            (
-                'Espresso',
-                [
-                    {
-                        'title': 'The World in Brief',
-                        'url': 'https://www.economist.com/the-world-in-brief',
-                        'description': 'Catch up quickly on the global stories that matter',
-                    },
-                ],
-            ),
-        ]
+        soup = self.index_to_soup('https://www.economist.com/the-world-in-brief')
+        articles = []
+
+        main_title = 'The World in Brief'
+        title_tag = soup.find('title', attrs={'data-next-head': True})
+        if title_tag:
+            main_title = self.tag_to_string(title_tag).strip()
+
+        articles.append({
+            'title': main_title,
+            'url': 'https://www.economist.com/the-world-in-brief',
+            'description': 'Catch up quickly on the global stories that matter',
+        })
+
+        visited = {'https://www.economist.com/the-world-in-brief'}
+        current_soup = soup
+
+        for _ in range(20):
+            next_link = current_soup.find('a', attrs={'aria-label': 'Go to next page'})
+            if not next_link or not next_link.get('href'):
+                break
+            next_url = 'https://www.economist.com' + next_link['href']
+            if next_url in visited:
+                break
+            visited.add(next_url)
+
+            try:
+                next_soup = self.index_to_soup(next_url)
+            except Exception:
+                break
+
+            title = next_url
+            title_tag = next_soup.find('title', attrs={'data-next-head': True})
+            if title_tag:
+                title = self.tag_to_string(title_tag).strip()
+
+            articles.append({'title': title, 'url': next_url})
+            current_soup = next_soup
+
+        return [('Espresso', articles)]
 
     def preprocess_html(self, soup):
-        if h1 := soup.find('h1'):
-            if p := h1.find_next_sibling('p'):
-                p['class'] = 'sub'
-        for hr in soup.findAll(attrs={'class': ['_gobbet', '_article']}):
-            nt = new_tag(soup, 'hr')
-            hr.append(nt)
+        for style in soup.findAll('style'):
+            style.decompose()
+
+        for figcaption in soup.findAll('figcaption'):
+            text = figcaption.get_text(separator=' ', strip=True)
+            figcaption.clear()
+            figcaption['style'] = 'text-align:center; font-size:small; color:#606060;'
+            figcaption.append(text)
+
+        for tag in soup.findAll(True):
+            if tag.name not in ('figcaption', 'figure', 'img') and tag.get('style'):
+                del tag['style']
+
         for img in soup.findAll('img', src=True):
             img['src'] = re.sub(r'width=\d+', 'width=600', img['src'])
-        if aud := soup.find(attrs={'data-test-id': 'twib-audio-player'}):
-            if div := aud.find_next_sibling('div'):
-                div.extract()
-            aud.extract()
+            img['style'] = 'display:block; margin:0 auto; max-width:100%;'
+            figure = img.find_parent('figure')
+            if figure:
+                figure['style'] = 'text-align:center;'
+
+        for p in soup.findAll('p', attrs={'data-component': 'paragraph'}):
+            if p.find('a', href=lambda h: h and 'newsletter' in h):
+                p.decompose()
+
+        for audio in soup.findAll('audio'):
+            parent = audio.find_parent('figure')
+            if parent:
+                grandparent = parent.find_parent('div')
+                if grandparent:
+                    grandparent.decompose()
+                else:
+                    parent.decompose()
+            else:
+                audio.decompose()
+
         return soup
 
     def get_browser(self, *args, **kwargs):
