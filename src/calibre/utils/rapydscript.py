@@ -437,6 +437,8 @@ def run_rapydscript_tests():
 
 def set_data(src, **kw):
     from calibre.db.constants import NO_SEARCH_LINK
+    from calibre.ebooks.oeb.polish.main import SUPPORTED
+    from calibre.library.page_count import CHARS_PER_PAGE
     for k, v in {
         '__SPECIAL_TITLE__': SPECIAL_TITLE_FOR_WEBENGINE_COMMS,
         '__FAKE_PROTOCOL__': FAKE_PROTOCOL,
@@ -447,6 +449,8 @@ def set_data(src, **kw):
         '__BUILTIN_COLORS_DARK__': json.dumps(builtin_colors_dark),
         '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations),
         '__NO_SEARCH_LINK__': NO_SEARCH_LINK,
+        '__CHARS_PER_PAGE__': str(CHARS_PER_PAGE),
+        '__EDITABLE_FORMATS__': json.dumps(sorted(SUPPORTED)),
     }.items():
         src = src.replace(k, v, 1)
     for k, v in kw.items():
@@ -472,7 +476,9 @@ def compile_viewer():
     icons = g['merge']()
     with open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
         reset = f.read().decode('utf-8')
-    html = f'<!DOCTYPE html>\n<html><head><style>{reset}</style></head><body>{icons}</body></html>'
+    with open(os.path.join(base, 'resources', 'content-server', 'base.css'), 'rb') as f:
+        base_css = f.read().decode('utf-8')
+    html = f'<!DOCTYPE html>\n<html><head><style>{reset}</style><style>{base_css}</style></head><body>{icons}</body></html>'
 
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
@@ -489,8 +495,18 @@ def compile_srv():
     g = {'__file__': iconf}
     exec_path(iconf, g)
     icons = g['merge']().encode('utf-8')
-    with open(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+    with open(os.path.join(base, 'resources', 'content-server', 'reset.css')) as f:
         reset = f.read()
+    with open(os.path.join(base, 'resources', 'content-server', 'base.css')) as f:
+        base_css = f.read()
+    with open(os.path.join(base, 'src', 'pyj', 'book_list', 'constants.pyj')) as f:
+        constants = f.read()
+    cs_top_bar_host_id = re.search(r"^cs_top_bar_host_id = '(.+?)'", constants, flags=re.M).group(1)
+    book_list_container_id = re.search(r"^book_list_container_id = '(.+?)'", constants, flags=re.M).group(1)
+    read_book_container_id = re.search(r"^read_book_container_id = '(.+?)'", constants, flags=re.M).group(1)
+    base_css = base_css.replace('CS_TOP_BAR_HOST_ID', cs_top_bar_host_id)
+    base_css = base_css.replace('BOOK_LIST_CONTAINER_ID', book_list_container_id)
+    base_css = base_css.replace('READ_BOOK_CONTAINER_ID', read_book_container_id)
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with open(rb, 'rb') as f:
@@ -505,7 +521,11 @@ def compile_srv():
             __MATHJAX_VERSION__=mathjax_version
         ).encode('utf-8')
     with open(os.path.join(base, 'index.html'), 'rb') as f:
-        html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
+        html = f.read().replace(
+                b'RESET_STYLES', reset.encode(), 1).replace(
+                b'ICONS', icons, 1).replace(
+                b'MAIN_JS', js, 1).replace(
+                b'BASE_STYLES', base_css.encode(), 1)
 
     atomic_write(base, 'index-generated.html', html)
 

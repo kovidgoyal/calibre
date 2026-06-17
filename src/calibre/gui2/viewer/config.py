@@ -86,6 +86,17 @@ def load_reading_rates(key):
     return existing.get(key)
 
 
+def delete_all_reading_rates():
+    path = reading_rates_path()
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
+    except OSError:
+        import traceback
+        traceback.print_exc()
+
+
 def expand_profile_user_names(user_names):
     user_names = set(user_names)
     sau = get_session_pref('sync_annots_user', default='')

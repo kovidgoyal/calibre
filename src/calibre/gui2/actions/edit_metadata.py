@@ -598,7 +598,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         from calibre.gui2.dialogs.confirm_merge import confirm_merge
         if self.gui.current_view() is not self.gui.library_view:
             return
-        rows = self.gui.library_view.indices_for_merge()
+        rows = self.gui.library_view.rows_for_merge()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot merge books'),
                                 _('No books selected'), show=True)
@@ -659,9 +659,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             self.merge_data_files(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
-            dest_row = rows[0].row()
+            dest_row = rows[0]
             for row in rows:
-                if row.row() < rows[0].row():
+                if row < rows[0]:
                     dest_row -= 1
             self.gui.library_view.set_current_row(dest_row)
         cr = self.gui.library_view.currentIndex().row()
@@ -809,7 +809,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 old_tags = db.tags(book_id, index_is_id=True)
                 if old_tags:
                     tags = [x.strip() for x in old_tags.split(',')] + (
-                            mi.tags if mi.tags else [])
+                            mi.tags or [])
                     mi.tags = list(set(tags))
             if self._am_merge_comments:
                 old_comments = db.new_api.field_for('comments', book_id)

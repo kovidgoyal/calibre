@@ -36,9 +36,10 @@ subprocess.check_call([sys.executable, j(icons, 'make_ico_files.py'), 'only-logo
 shutil.copy2(j(icons, 'library.ico'), j(srv, 'common', 'favicon.ico'))
 shutil.copy2(j(icons, 'library.ico'), j(srv, 'main/static/resources/img', 'favicon.ico'))
 shutil.copy2(j(icons, 'library.ico'), j(srv, 'open-books/drmfree/static/img', 'favicon.ico'))
-subprocess.check_call([sys.executable, j(icons, 'icns', 'make_iconsets.py'), 'only-logo'])
 
 os.chdir(srv)
 subprocess.check_call(['git', 'commit', '-am', 'Update calibre favicons'])
 for s in 'main code open-books dl1'.split():
     subprocess.check_call(['./publish', s, 'update'])
+
+subprocess.check_call([sys.executable, j(icons, 'icns', 'make_iconsets.py')])

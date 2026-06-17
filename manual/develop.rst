@@ -22,7 +22,7 @@ bugs in calibre very easy, resulting in a frenetic pace of development. Because 
 comprehensive command line interface for all its functions, documented in :doc:`generated/en/cli-index`.
 
 The modular design of calibre is expressed via ``Plugins``. There is a :ref:`tutorial <customize>` on writing calibre plugins.
-For example, adding support for a new device to calibre typically involves writing less than a 100 lines of code in the form of
+For example, adding support for a new device to calibre typically involves writing fewer than 100 lines of code in the form of
 a device driver plugin. You can browse the
 `built-in drivers <https://github.com/kovidgoyal/calibre/tree/master/src/calibre/devices>`_. Similarly, adding support
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for

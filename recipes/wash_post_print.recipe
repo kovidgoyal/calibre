@@ -94,13 +94,13 @@ class wapoprint(BasicNewsRecipe):
         text = data.get('label', {}).get('basic', {}).get('text', '')
         label = f'<p class="time">{text}</p>' if text else ''
         title = '<h1>' + data['headlines']['basic'] + '</h1>'
-        subhead = '<p class="subt">' + data['description'].get('basic', '') + '</h3>'
+        subhead = '<h3 class="subhead">' + data['description'].get('basic', '') + '</h3>'
 
         promo_img = ''
         if data.get('promo_items', {}).get('basic', {}).get('type', '') == 'image':
             pi = data['promo_items']['basic']
             promo_img = (
-                '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                '<p><div class="img"><img src="{}"><div class="caption">{}</div></div></p>'.format(
                     pi['url'], pi['credits_caption_display']
                 )
             )
@@ -122,12 +122,12 @@ class wapoprint(BasicNewsRecipe):
                 body += '<p>' + x['content'] + '</p>'
             elif x['type'] == 'video':
                 if 'promo_image' in x:
-                    body += '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                    body += '<p><div class="img"><img src="{}"><div class="caption">{}</div></div></p>'.format(
                         x['promo_image']['url'], x['description'].get('basic', '')
                     )
             elif x['type'] == 'image':
                 img_ = (
-                    '<p><div class="img"><img src="{}"><div>{}</div></div></p>'.format(
+                    '<p><div class="img"><img src="{}"><div class="caption">{}</div></div></p>'.format(
                         x['url'], x['credits_caption_display']
                     )
                 )

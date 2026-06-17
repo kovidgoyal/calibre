@@ -97,7 +97,13 @@ class TXTMLizer:
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
             toc.append('{}\n\n'.format(_('Table of Contents:')))
+            unihandecoder = None
+            if getattr(self.opts, 'asciiize', False):
+                from calibre.utils.localization import get_udc
+                unihandecoder = get_udc()
             for item in self.toc_titles:
+                if unihandecoder is not None:
+                    item = unihandecoder.decode(item)
                 toc.append(f'* {item}\n\n')
         return ''.join(toc)
 
@@ -236,6 +242,8 @@ class TXTMLizer:
         except Exception:
             pass
 
+        if self.opts.use_alt_text_for_images and tag == 'img' and (alt := elem.get('alt')):
+            text.append(_('[Image: {}]').format(alt))
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             text.append(elem.text)

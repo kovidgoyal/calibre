@@ -31,7 +31,7 @@ from qt.core import (
     QWidget,
 )
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
@@ -259,15 +259,22 @@ class CreateCustomColumn(QDialog):
             'rating': _('My Rating'),
             'people': _('People'),
             'text': _('My Title'),
+            'read_progress': _('Read progress'),
         }[which])
         self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
-            self.composite_box.setText(
-                {
-                    'isbn': '{identifiers:select(isbn)}',
-                    'formats': "{:'re(approximate_formats(), ',', ', ')'}",
-                    }[which])
+            self.composite_box.setText({
+                'isbn': '{identifiers:select(isbn)}',
+                'formats': "{:'re(approximate_formats(), ',', ', ')'}",
+                'read_progress': '{id:reading_progress()}',
+            }[which])
             self.composite_sort_by.setCurrentIndex(0)
+            if which == 'read_progress':
+                self.composite_sort_by.setCurrentIndex(1)
+                self.store_template_value_in_opf.setChecked(False)
+                self.description_box.setText(_(
+                    'To customize this, read the help for the {0} template function in the calibre User Manual').format(
+                        'reading_progress()'))
         if which == 'text':
             self.comments_heading_position.setCurrentIndex(self.comments_heading_position.findData('side'))
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
@@ -286,7 +293,8 @@ class CreateCustomColumn(QDialog):
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', ngettext('Series', 'Series', 1)), ('rating',
-                    _('Rating')), ('people', _('Names')), ('text', _('Short text'))]:
+                    _('Rating')), ('people', _('Names')), ('text', _('Short text')),
+                          ('read_progress', _('Read progress'))]:
             text += f' <a href="col:{col}">{name}</a>,'
         text = text[:-1]
         s.setText(text)
@@ -413,7 +421,13 @@ class CreateCustomColumn(QDialog):
         cb.setToolTip(_('Field template. Uses the same syntax as save templates.'))
         cdl.setToolTip(_('Similar to save templates. For example, %s') % '{title} {isbn}')
         h = QHBoxLayout()
-        h.addWidget(cb), h.addWidget(cdl)
+        h.addWidget(cb)
+        self.composite_template_toolbutton = ctb = QToolButton()
+        ctb.setIcon(QIcon.ic('edit_input.png'))
+        ctb.setToolTip(_('Open the template editor'))
+        ctb.clicked.connect(self.composite_template_button_clicked)
+        h.addWidget(ctb)
+        h.addWidget(cdl)
         self.composite_label = add_row(_('&Template:'), h)
 
         # Comments properties
@@ -464,7 +478,7 @@ class CreateCustomColumn(QDialog):
 
         # Composite display properties
         l = QHBoxLayout()
-        self.composite_sort_by_label = la = QLabel(_('&Sort/search column by'))
+        self.composite_sort_by_label = la = QLabel(_('&Sort/search column by') + ':')
         self.composite_sort_by = csb = QComboBox(self)
         la.setBuddy(csb), csb.setToolTip(_('How this column should handled in the GUI when sorting and searching'))
         l.addWidget(la), l.addWidget(csb)
@@ -476,15 +490,16 @@ class CreateCustomColumn(QDialog):
             'If checked, this column will be displayed as HTML in '
             'Book details and the Content server. This can be used to '
             'construct links with the template language. For example, '
-            'the template '
-            '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
-            '{series:| [|}{series_index:| [|]]}</pre>'
+            'the template {0} '
             'will create a field displaying the title in bold large '
             'characters, along with the series, for example <br>"<big><b>'
-            'An Oblique Approach</b></big> [Belisarius [1]]". The template '
-            '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
-            ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-            'will generate a link to the book on the Beam e-books site.') + '</p>')
+            'An Oblique Approach</b></big> [Belisarius [1]]". The template {1} '
+            'will generate a link to the book on the Beam e-books site.').format(
+                '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
+                '{series:| [|}{series_index:| [|]]}</pre>',
+                '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
+                ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
+        ) + '</p>')
         l.addWidget(cch)
         l.addStretch()
         add_row(None, l)
@@ -562,6 +577,20 @@ class CreateCustomColumn(QDialog):
 
         self.resize(self.sizeHint())
     # }}}
+
+    def composite_template_button_clicked(self):
+        db = self.gui.current_db.new_api
+        lv = self.gui.library_view
+        rows = lv.selectionModel().selectedRows()
+        if rows:
+            mi = [db.get_metadata(lv.model().id(row)) for row in rows[:10]]
+        else:
+            mi = None
+        d = TemplateDialog(parent=self, text=self.composite_box.text(),
+                           mi=mi, fm=db.field_metadata)
+        d.setWindowTitle(_('Edit template'))
+        if d.exec() == QDialog.DialogCode.Accepted:
+            self.composite_box.setText(d.rule[1])
 
     def cws_template_button_clicked(self):
         db = self.gui.current_db.new_api
@@ -653,7 +682,7 @@ class CreateCustomColumn(QDialog):
             else:
                 l, dl = _('&Format for numbers:'), (
                     '<p>' + _('Default: Not formatted. For format language details see'
-                    ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the Python documentation</a>'))
+                    ' <a href="{}">the Python documentation</a>').format('https://docs.python.org/library/string.html#format-string-syntax'))
                 if col_type == 'int':
                     self.format_box.setToolTip('<p>' + _(
                         'Examples: The format <code>{0:0>4d}</code> '
@@ -671,7 +700,7 @@ class CreateCustomColumn(QDialog):
         for x in ('in_comments_box', 'heading_position', 'heading_position_label',):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
-                  'make_category', 'contains_html'):
+                  'make_category', 'contains_html', 'template_toolbutton'):
             getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
         self.composite_heading_position.setEnabled(False)
         self.store_template_value_in_opf.setVisible(col_type == 'composite')
@@ -738,7 +767,13 @@ class CreateCustomColumn(QDialog):
             if self.standard_colheads[t] == col_heading:
                 bad_head = True
         if bad_head:
-            return self.simple_error('', _('The heading %s is already used')%col_heading)
+            if not question_dialog(self, _('Are you sure?'),
+                _('The heading {} is already used by another column.'
+                ' Creating a second column with the same heading can be confusing.'
+                ' Are you sure?').format(col_heading),
+                skip_dialog_name='create_custom_column_shared_heading',
+                default_yes=False, override_icon='dialog_warning.png'):
+                return
 
         display_dict = {}
 

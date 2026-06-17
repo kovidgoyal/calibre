@@ -12,7 +12,7 @@ from functools import lru_cache
 from polyglot.builtins import environ_item, hasenv
 
 __appname__   = 'calibre'
-numeric_version = (8, 99, 2)
+numeric_version = (9, 9, 104)
 __version__   = '.'.join(map(str, numeric_version))
 git_version   = None
 __author__    = 'Kovid Goyal <kovid@kovidgoyal.net>'
@@ -30,7 +30,7 @@ isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
 isdragonflybsd = 'dragonfly' in _plat
 isbsd = isfreebsd or isnetbsd or isdragonflybsd
-ishaiku = 'haiku1' in _plat
+ishaiku = 'haiku' in _plat
 islinux   = not (iswindows or ismacos or isbsd or ishaiku)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = ismacos or islinux or ishaiku
@@ -261,6 +261,7 @@ class ExtensionsImporter:
             'piper',
             'html_as_json',
             'fast_css_transform',
+            'translator',
             'fast_html_entities',
             'unicode_names',
             'html_syntax_highlighter',
@@ -521,12 +522,12 @@ def sanitize_env_vars():
     elif iswindows:
         env_vars = {'OPENSSL_MODULES': None, 'QTWEBENGINE_DISABLE_SANDBOX': None}
         if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
-            env_vars['SSL_CERT_FILE'] = None
+            env_vars['SSL_CERT_DIR'] = None
     elif ismacos:
         env_vars = {k:None for k in (
                     'FONTCONFIG_FILE FONTCONFIG_PATH OPENSSL_ENGINES OPENSSL_MODULES').split()}
         if os.environ.get('CALIBRE_USE_SYSTEM_CERTIFICATES', '') != '1':
-            env_vars['SSL_CERT_FILE'] = None
+            env_vars['SSL_CERT_DIR'] = None
     else:
         env_vars = {}
 

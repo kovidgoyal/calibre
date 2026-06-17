@@ -592,7 +592,7 @@ class TagBrowserMixin:  # {{{
             return category not in cats
         else:
             raise ValueError(_('change_tb_category_visibility: invalid operation %s') % operation)
-        self.library_view.model().db.new_api.set_pref('tag_browser_hidden_categories', list(cats))
+        self.library_view.model().db.new_api.set_pref('tag_browser_hidden_categories', sorted(cats))
         self.tags_view.recount()
 
 # }}}

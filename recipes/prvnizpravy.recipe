@@ -1,0 +1,32 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class prvnizpravyRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'první zprávy.cz'
+    publisher = u''
+    description = ''
+    oldest_article = 1
+    max_articles_per_feed = 40
+
+    feeds = [
+            (u'Všechny zprávy.cz', u'http://www.prvnizpravy.cz/repository/rss/zpravy_all_cs.xml')
+            ]
+
+    language = 'cs'
+    cover_url = 'http://www.prvnizpravy.cz/repository/layout/2013/logo_prvnizpravy.png'
+    remove_javascript = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_attributes = []
+    keep_only_tags = [dict(name='div', attrs={'class': 'zpravy_full'})]
+    remove_tags = [dict(name='div', attrs={'class':['zpravy_full_bottom']})]
+    preprocess_regexps = [(re.compile(r'Velikost textu:.*?</div>', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                          (re.compile(r'Tisk str.nky.*', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                          (re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    def get_browser(self, *a, **kw):
+        kw['verify_ssl_certificates'] = False
+        return super().get_browser(*a, **kw)

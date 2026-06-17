@@ -42,7 +42,7 @@ raw_options = (
     None,
 
     _('Time (in seconds) to wait for a response from the server when making queries'),
-    'ajax_timeout', 60.0,
+    'ajax_timeout', 300.0,
     None,
 
     _('Total time in seconds to wait for clean shutdown'),
@@ -151,7 +151,8 @@ raw_options = (
       ' if you want to run the server without authentication but still'
       ' use calibredb to make changes to your calibre libraries. Note that'
       ' turning on this option means any program running on the computer'
-      ' can make changes to your calibre libraries.'),
+      ' can make changes to your calibre libraries. In particular, the Firefox web browser'
+      ' allows arbitrary websites to do so as well.'),
 
     _('Allow un-authenticated connections from specific IP addresses to make changes'),
     'trusted_ips', None,

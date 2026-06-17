@@ -17,6 +17,7 @@ class NytMag(BasicNewsRecipe):
     resolve_internal_links = True
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'https://static01.nytimes.com/newsgraphics/2015-12-23-masthead-2016/b15c3d81d3d7b59065fff9a3f3afe85aa2e2dff5/_assets/nyt-logo.png'
+    browser_type = 'webengine'
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.nytimes.com/section/magazine')
@@ -107,7 +108,7 @@ class NytMag(BasicNewsRecipe):
         return self.nyt_parser.extract_html(self.index_to_soup(raw_html), url)
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
+        # kwargs['user_agent'] = 'User-Agent: Mozilla/5.0 (compatible; archive.org_bot; Wayback Machine Live Record; +http://archive.org/details/archive.org_bot)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 

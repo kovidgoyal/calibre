@@ -5,12 +5,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+import re
 import textwrap
 import unicodedata
 from collections import OrderedDict
 from math import ceil
 
 from qt.core import (
+    QAbstractItemView,
     QAbstractListModel,
     QApplication,
     QCheckBox,
@@ -24,16 +26,19 @@ from qt.core import (
     QGroupBox,
     QHBoxLayout,
     QIcon,
+    QInputDialog,
     QItemSelectionModel,
     QLabel,
     QLineEdit,
     QListView,
+    QMenu,
     QModelIndex,
     QPainter,
     QPalette,
     QPixmap,
     QPlainTextEdit,
     QPoint,
+    QPushButton,
     QRect,
     QSize,
     QSizePolicy,
@@ -46,6 +51,8 @@ from qt.core import (
     QTextDocument,
     QTextOption,
     QToolButton,
+    QTreeWidget,
+    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -105,6 +112,155 @@ class InsertTag(Dialog):  # {{{
         d = cls()
         if d.exec() == QDialog.DialogCode.Accepted:
             print(d.tag)
+
+# }}}
+
+
+class ManageTagList(Dialog):  # {{{
+
+    _tag_re = re.compile(r'[a-zA-Z0-9:-]+')
+
+    def __init__(self, parent=None):
+        self._entries = list(tprefs['insert_tag_mru'])
+        self._collapsed_tags = set(tprefs.get('manage_tag_list_collapsed_tags', []))
+        Dialog.__init__(self, _('Manage tag list'), 'manage-insert-tag-listx', parent=parent)
+
+    def open_menu(self, position):
+        menu = QMenu(self)
+        expand_action = menu.addAction('Expand All')
+        expand_action.triggered.connect(self.tree.expandAll)
+        collapse_action = menu.addAction('Collapse All')
+        collapse_action.triggered.connect(self.tree.collapseAll)
+        menu.exec(self.tree.viewport().mapToGlobal(position))
+
+    def sizeHint(self):
+        return QSize(400, 500)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+
+        self.tree = t = QTreeWidget(self)
+        t.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        t.customContextMenuRequested.connect(self.open_menu)
+        t.setHeaderHidden(True)
+        t.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        l.addWidget(t)
+
+        bh = QHBoxLayout()
+        self.add_button = ab = QPushButton(QIcon.ic('plus.png'), _('&Add'))
+        ab.clicked.connect(self._add_entry)
+        bh.addWidget(ab)
+
+        self.edit_button = eb = QPushButton(QIcon.ic('modified.png'), _('&Edit'))
+        eb.clicked.connect(self._edit_entry)
+        bh.addWidget(eb)
+
+        self.remove_button = rb = QPushButton(QIcon.ic('minus.png'), _('&Remove'))
+        rb.clicked.connect(self._remove_entry)
+        bh.addWidget(rb)
+
+        bh.addStretch()
+        l.addLayout(bh)
+        l.addWidget(self.bb)
+
+        t.itemSelectionChanged.connect(self._update_button_states)
+        self._populate_tree()
+        self._update_button_states()
+
+    def _tag_name(self, entry):
+        m = self._tag_re.match(entry)
+        return m.group() if m else entry
+
+    def _populate_tree(self):
+        self._save_expanded_state()
+        self.tree.clear()
+        groups = {}
+        for entry in self._entries:
+            tag_name = self._tag_name(entry)
+            groups.setdefault(tag_name, []).append(entry)
+        for tag_name in sorted(groups, key=primary_sort_key):
+            parent_item = QTreeWidgetItem([tag_name])
+            parent_item.setFlags(parent_item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
+            for entry in sorted(groups[tag_name], key=primary_sort_key):
+                child = QTreeWidgetItem([entry])
+                child.setData(0, Qt.ItemDataRole.UserRole, entry)
+                parent_item.addChild(child)
+            self.tree.addTopLevelItem(parent_item)
+            parent_item.setExpanded(tag_name not in self._collapsed_tags)
+        self._update_button_states()
+
+    def _current_entry(self):
+        item = self.tree.currentItem()
+        if item is None:
+            return None
+        return item.data(0, Qt.ItemDataRole.UserRole)
+
+    def _update_button_states(self):
+        has_entry = self._current_entry() is not None
+        self.edit_button.setEnabled(has_entry)
+        self.remove_button.setEnabled(has_entry)
+
+    def _add_entry(self):
+        name, ok = QInputDialog.getText(
+            self, _('Add tag'),
+            _('Enter the tag to add (may include attributes, for example: div class="chapter"):'))
+        if ok:
+            name = name.strip()
+            if not name:
+                return
+            if name in self._entries:
+                error_dialog(self, _('Already exists'),
+                    _('The entry {!r} already exists in the list.').format(name), show=True)
+                return
+            self._entries.insert(0, name)
+            self._populate_tree()
+
+    def _edit_entry(self):
+        old_entry = self._current_entry()
+        if old_entry is None:
+            return
+        name, ok = QInputDialog.getText(
+            self, _('Edit tag'), _('Edit the tag:'), text=old_entry)
+        if ok:
+            name = name.strip()
+            if not name or name == old_entry:
+                return
+            if name in self._entries:
+                error_dialog(self, _('Already exists'),
+                    _('The entry {!r} already exists in the list.').format(name), show=True)
+                return
+            idx = self._entries.index(old_entry)
+            self._entries[idx] = name
+            self._populate_tree()
+
+    def _remove_entry(self):
+        entry = self._current_entry()
+        if entry is None:
+            return
+        try:
+            self._entries.remove(entry)
+        except ValueError:
+            pass
+        self._populate_tree()
+
+    def _save_expanded_state(self):
+        root = self.tree.invisibleRootItem()
+        for i in range(root.childCount()):
+            item = root.child(i)
+            if item.isExpanded():
+                self._collapsed_tags.discard(item.text(0))
+            else:
+                self._collapsed_tags.add(item.text(0))
+        tprefs['manage_tag_list_collapsed_tags'] = list(self._collapsed_tags)
+
+    def accept(self):
+        self._save_expanded_state()
+        tprefs['insert_tag_mru'] = self._entries
+        super().accept()
+
+    def reject(self):
+        self._save_expanded_state()
+        super().reject()
 
 # }}}
 
@@ -1284,6 +1440,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
                 val = bytes(ans.data(format)).decode()
                 val = unicodedata.normalize('NFC', val.replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
                 ans.setData(format, val.encode())
+        ans.setText(self.selected_text)  # to workaround Qt converting nbsp to plain space and other infelicities
         return ans
 
     def show_tooltip(self, ev):

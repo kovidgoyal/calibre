@@ -1446,11 +1446,8 @@ class PDFDocument:
             self.font_map[self.fonts[-1].id] = self.fonts[-1]
 
         self.pages = []
-        # self.page_map = {}
-
         for page in self.root.xpath('//page'):
             page = Page(page, self.font_map, opts, log, idc)
-            # self.page_map[page.id] = page
             self.pages.append(page)
 
         self.tops = {}
@@ -1493,6 +1490,29 @@ class PDFDocument:
 
         # self.linearize()
         self.render()
+        self.generate_toc()
+
+    def generate_toc(self):
+        from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
+        root_toc_node = TOC()
+        count = [0]
+
+        def process_node(node, toc):
+            for child in node.iterchildren('*'):
+                if child.tag == 'outline':
+                    parent = toc.children[-1] if toc.children else toc
+                    process_node(child, parent)
+                elif child.text:
+                    page = child.get('page', '1')
+                    toc.add(child.text, 'index.html', f'page_{page}')
+                    count[0] += 1
+
+        for outline in self.root.xpath('./outline'):
+            process_node(outline, root_toc_node)
+        if count[0] > 2:
+            root = create_ncx(root_toc_node, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
+            with open('toc.ncx', 'wb') as f:
+                f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
     def collect_font_statistics(self):
         self.font_size_stats = {}

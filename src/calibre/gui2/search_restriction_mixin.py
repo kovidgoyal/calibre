@@ -625,9 +625,9 @@ class SearchRestrictionMixin:
             self.search_restriction.addItem(name)
             txt = self._trim_restriction_name(last)
             if compare_fix_amps(name, current_restriction):
-                a = current_menu.addAction(self.checked, txt if txt else self.no_restriction)
+                a = current_menu.addAction(self.checked, txt or self.no_restriction)
             else:
-                a = current_menu.addAction(txt if txt else self.no_restriction)
+                a = current_menu.addAction(txt or self.no_restriction)
             a.triggered.connect(partial(self.search_restriction_triggered, action=a, index=dex))
             dex += 1
             return a
@@ -698,10 +698,13 @@ class SearchRestrictionMixin:
         # the book count.
         self.library_view.model().db.data.set_search_restriction(restriction)
         self.library_view.model().db.data.set_search_restriction_name(name)
-        self.search.clear(emit_search=True)
+        if gprefs.get('keep_search_when_switching_vl') and self.search.current_text:
+            self.search.do_search()
+        else:
+            self.search.clear(emit_search=True)
         self.tags_view.recount()
         self.set_number_of_books_shown()
-        self.current_view().setFocus(Qt.FocusReason.OtherFocusReason)
+        self.focus_current_view()
         self.set_window_title()
         v = self.current_view()
         if not v.currentIndex().isValid():

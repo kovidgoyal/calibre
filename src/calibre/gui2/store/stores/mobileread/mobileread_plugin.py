@@ -42,7 +42,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else url))
+            open_url(QUrl(detail_item or url))
         elif detail_item:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)

@@ -1,63 +1,37 @@
-##########################################################################
-# Description:    http://hvg.hu/ RSS channel
-# Author:     Bigpapa (bigpapabig@hotmail.com)
-# Date:   2011.12.20. - V1.1
-##########################################################################
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class hvg(BasicNewsRecipe):
     title = u'HVG'
-    __author__ = 'Bigpapa'
+    __author__ = 'bubak'
     language = 'hu'
-    oldest_article = 5      # Hany napos legyen a legregebbi cikk amit leszedjen.
-    # Az adott e-bookban tarolt cikkek feedenkenti maximalis szamat adja meg.
-    max_articles_per_feed = 5
+    oldest_article = 1
+    max_articles_per_feed = 20
     no_stylesheets = True
-    encoding = 'utf8'
-    extra_css = ' h2 { font:bold 28px} '
 
-    remove_attributes = ['style', 'font', 'href']
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': ['pg-content']})
-    ]
+    remove_tags_before = dict(name='h1', attrs={'class':['title']})
 
     remove_tags = [
-        dict(name='div', attrs={'class': [
-             'box articlemenu', 'bannergoogle468', 'boxcontainer left', 'boxcontainer', 'commentbox']}),
-        dict(name='table', attrs={'class': ['banner2', 'monocle']}),
-        dict(name='div', attrs={
-             'id': ['connect_widget_4cf63ca849ddf4577922632', 'sharetip', 'upprev_box']}),
-        dict(name='div', attrs={
-             'style': ['float: right; margin-bottom: 5px;', 'display: none;']}),
-        dict(name='h3', attrs={'class': ['hthree']}),
-        dict(name='ul', attrs={'class': ['defaultul']}),
-        dict(name='form', attrs={'id': ['commentForm']}),
-        dict(name='h6', attrs={'class': ['hthree']}),
-        dict(name='h6', attrs={'class': ['more2']}),
-        dict(name='img', attrs={'class': ['framed']}),
-        dict(name='td', attrs={'class': [
-             'greyboxbody', 'embedvideobody', 'embedvideofooter', 'embedvideobottom']}),
-
-
-
+        dict(name='div', attrs={'class':re.compile(
+            r'hide-on-mobile|hide-on-tablet|hide-on-desktop|election-popup', re.IGNORECASE)})
+        ,dict(name='section', attrs={'class':re.compile(r'card-section|container-narrow', re.IGNORECASE)})
+        ,dict(name='div', attrs={'class':['Desktop-responsive-display', 'ad-container-wrapper']})
+        ,dict(name='ul', attrs={'class':['tags', 'author-list']})
+        ,dict(name='blockquote', attrs={'class':['embedly-card']})
+        ,dict(name='footer')
+        ,dict(name='iframe')
     ]
 
     feeds = [
         (u'Itthon', 'http://hvg.hu/rss/itthon'),
-        (u'Vil\xe1g', 'http://hvg.hu/rss/vilag'),
-        (u'Gazdas\xe1g', 'http://hvg.hu/rss/gazdasag'),
-        (u'Tudom\xe1ny', 'http://hvg.hu/rss/tudomany'),
-        (u'Panor\xe1ma', 'http://hvg.hu/rss/panorama'),
-        (u'Karrier', 'http://hvg.hu/rss/karrier'),
-        (u'Gasztron\xf3mia', 'http://hvg.hu/rss/gasztronomia'),
-        (u'Helyi \xe9rt\xe9k', 'http://hvg.hu/rss/helyiertek'),
-        (u'Kult\xfara', 'http://hvg.hu/rss/kultura'),
-        (u'C\xe9gaut\xf3', 'http://hvg.hu/rss/cegauto'),
-        (u'V\xe1llalkoz\xf3 szellem', 'http://hvg.hu/rss/kkv'),
-        (u'Eg\xe9szs\xe9g', 'http://hvg.hu/rss/egeszseg'),
-        (u'V\xe9lem\xe9ny', 'http://hvg.hu/rss/velemeny'),
-        (u'Sport', 'http://hvg.hu/rss/sport')
+        (u'Világ', 'http://hvg.hu/rss/vilag'),
+        (u'Gazdaság', 'http://hvg.hu/rss/gazdasag'),
+        (u'Vélemény', 'http://hvg.hu/rss/velemeny'),
+        (u'Tudomány', 'http://hvg.hu/rss/tudomany'),
+        (u'Panoráma', 'http://hvg.hu/rss/panorama'),
+        (u'Helyi érték', 'http://hvg.hu/rss/helyiertek'),
+        (u'Kultúra', 'http://hvg.hu/rss/kultura'),
+        (u'Egészség', 'http://hvg.hu/rss/egeszseg')
     ]

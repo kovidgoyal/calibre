@@ -178,7 +178,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.current_font = None
         if ofont is not None:
             self.changed_signal.emit()
-            self.main_interface_tab.update_font_display()
+            self.update_font_display()
         self.opt_gui_layout.setCurrentIndex(0)
         self.changed_signal.emit()
 

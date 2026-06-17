@@ -16,11 +16,15 @@ from qt.core import (
     QCursor,
     QDockWidget,
     QEvent,
+    QImage,
     QMainWindow,
     QMenu,
     QMimeData,
     QModelIndex,
+    QPainter,
     QPixmap,
+    QSizeF,
+    QSvgRenderer,
     Qt,
     QTimer,
     QToolBar,
@@ -42,7 +46,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer import get_boss, get_current_book_data, performance_monitor
 from calibre.gui2.viewer.annotations import AnnotationsSaveWorker, annotations_dir, parse_annotations
 from calibre.gui2.viewer.bookmarks import BookmarkManager
-from calibre.gui2.viewer.config import get_session_pref, load_reading_rates, save_reading_rates, vprefs
+from calibre.gui2.viewer.config import delete_all_reading_rates, get_session_pref, load_reading_rates, save_reading_rates, vprefs
 from calibre.gui2.viewer.convert_book import prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel, style_definition_for_name
 from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
@@ -54,6 +58,7 @@ from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_pa
 from calibre.live import async_stop_worker
 from calibre.startup import connect_lambda
 from calibre.utils.date import utcnow
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.localization import _
@@ -99,6 +104,7 @@ class EbookViewer(MainWindow):
         get_boss(self)
 
         self.annotations_saver = None
+        self.last_read_pos_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
         self.shutting_down = self.close_forced = self.shutdown_done = False
         self.force_reload = force_reload
@@ -107,7 +113,7 @@ class EbookViewer(MainWindow):
         self.maximized_at_last_fullscreen = False
         self.save_pos_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(3000), t.setTimerType(Qt.TimerType.VeryCoarseTimer)
-        connect_lambda(t.timeout, self, lambda self: self.save_annotations(in_book_file=False))
+        t.timeout.connect(self._on_save_pos_timer)
         self.pending_open_at = open_at
         self.pending_search = None
         self.base_window_title = _('E-book viewer')
@@ -176,6 +182,7 @@ class EbookViewer(MainWindow):
 
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
+        self.web_view.update_last_read_position.connect(self._on_last_read_pos_data)
         self.web_view.reload_book.connect(self.reload_book)
         self.web_view.toggle_toc.connect(self.toggle_toc)
         self.web_view.show_search.connect(self.show_search)
@@ -206,6 +213,7 @@ class EbookViewer(MainWindow):
         self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.web_view.highlights_changed.connect(self.highlights_changed)
         self.web_view.update_reading_rates.connect(self.update_reading_rates)
+        self.web_view.reset_reading_rates.connect(self.reset_reading_rates)
         self.web_view.edit_book.connect(self.edit_book)
         self.web_view.content_file_changed.connect(self.content_file_changed)
 
@@ -234,6 +242,7 @@ class EbookViewer(MainWindow):
         self.actions_toolbar.set_tooltips(rmap)
         if hasattr(self, 'highlights_widget'):
             self.highlights_widget.set_tooltips(rmap)
+        self.search_widget.set_tooltips(rmap)
 
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
@@ -332,11 +341,11 @@ class EbookViewer(MainWindow):
     def show_search_result(self, sr):
         self.web_view.show_search_result(sr)
 
-    def show_search(self, text, trigger=False, search_type=None, case_sensitive=None):
+    def show_search(self, text, trigger=False, search_type=None, case_sensitive=None, no_history=False):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
         self.search_dock.raise_and_focus()
-        self.search_widget.focus_input(text, search_type, case_sensitive)
+        self.search_widget.focus_input(text, search_type, case_sensitive, no_history=no_history)
         if trigger:
             self.search_widget.trigger()
 
@@ -419,13 +428,35 @@ class EbookViewer(MainWindow):
     def view_image(self, name):
         path = get_path_for_name(name)
         if path:
-            pmap = QPixmap()
-            if pmap.load(path):
+            from calibre.utils.imghdr import what
+            with open(make_long_path_useable(path), 'rb') as f:
+                fmt = what(f)
+            if fmt == 'svg':
+                r = QSvgRenderer(path)
+                if not r.isValid():
+                    return error_dialog(self, _('Invalid image'), _('Failed to load the image {}').format(name), show=True)
+                dpr = self.devicePixelRatioF()
+                sz = (QSizeF(r.defaultSize()) * dpr).toSize()
+                img = QImage(sz, QImage.Format.Format_ARGB32_Premultiplied)
+                img.fill(Qt.GlobalColor.transparent)
+                p = QPainter(img)
+                r.render(p)
+                p.end()
+                img.setDevicePixelRatio(dpr)
+                pmap = QPixmap.fromImage(img)
                 self.image_popup.current_img = pmap
                 self.image_popup.current_url = QUrl.fromLocalFile(path)
+                self.image_popup.current_image_is_svg = True
                 self.image_popup()
             else:
-                error_dialog(self, _('Invalid image'), _('Failed to load the image {}').format(name), show=True)
+                pmap = QPixmap()
+                if pmap.load(path):
+                    self.image_popup.current_img = pmap
+                    self.image_popup.current_url = QUrl.fromLocalFile(path)
+                    self.image_popup.current_image_is_svg = False
+                    self.image_popup()
+                else:
+                    error_dialog(self, _('Invalid image'), _('Failed to load the image {}').format(name), show=True)
         else:
             error_dialog(self, _('Image not found'), _('Failed to find the image {}').format(name), show=True)
 
@@ -464,7 +495,7 @@ class EbookViewer(MainWindow):
     def content_file_changed(self, fname):
         if self.pending_search:
             search, self.pending_search = self.pending_search, None
-            self.show_search(text=search['query'], trigger=True, search_type=search['type'], case_sensitive=search['case_sensitive'])
+            self.show_search(text=search['query'], trigger=True, search_type=search['type'], case_sensitive=search['case_sensitive'], no_history=True)
 
     def show_error(self, title, msg, details):
         self.loading_overlay.hide()
@@ -704,6 +735,15 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['annotations_map']['last-read'] = [{'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow().isoformat()}]
         self.save_pos_timer.start()
+
+    def _on_save_pos_timer(self):
+        self.save_annotations(in_book_file=False)
+
+    def _on_last_read_pos_data(self, cfi, pos_frac):
+        if not self.current_book_data:
+            return
+        self.current_book_data['pos_frac'] = pos_frac or 0.0
+        self.save_pos_timer.start()
     # }}}
 
     # State serialization {{{
@@ -724,6 +764,11 @@ class EbookViewer(MainWindow):
             return
         self.current_book_data['reading_rates'] = rates
         self.save_reading_rates()
+
+    def reset_reading_rates(self):
+        if self.current_book_data:
+            self.current_book_data.pop('reading_rates', None)
+        delete_all_reading_rates()
 
     def save_reading_rates(self):
         if not self.current_book_data:
@@ -815,6 +860,9 @@ class EbookViewer(MainWindow):
             if self.annotations_saver is not None:
                 self.annotations_saver.shutdown()
                 self.annotations_saver = None
+            if self.last_read_pos_saver is not None:
+                self.last_read_pos_saver.shutdown()
+                self.last_read_pos_saver = None
         except Exception:
             import traceback
             traceback.print_exc()

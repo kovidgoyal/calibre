@@ -93,16 +93,27 @@ class LibraryViewMixin:  # {{{
 
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
+    def context_menu_action_hovered(self, ac):
+        ac.showStatusText(self)
+
     def build_context_menus(self):
         from calibre.gui2.bars import populate_menu
+        def connect_hovered(menu):
+            menu.hovered.connect(self.context_menu_action_hovered)
+            for action in menu.actions():
+                if m := action.menu():
+                    connect_hovered(m)
         lm = QMenu(self)
         populate_menu(lm, gprefs['action-layout-context-menu'], self.iactions)
+        connect_hovered(lm)
         dm = QMenu(self)
         populate_menu(dm, gprefs['action-layout-context-menu-device'], self.iactions)
+        connect_hovered(dm)
         ec = self.iactions['Edit Collections'].qaction
         self.library_view.set_context_menu(lm, ec)
         sm = QMenu(self)
         populate_menu(sm, gprefs['action-layout-context-menu-split'], self.iactions)
+        connect_hovered(sm)
         self.library_view.pin_view.set_context_menu(sm)
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
@@ -111,6 +122,7 @@ class LibraryViewMixin:  # {{{
             cm = QMenu(self.cover_flow)
             populate_menu(cm,
                     gprefs['action-layout-context-menu-cover-browser'], self.iactions)
+            connect_hovered(cm)
             self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):
@@ -247,6 +259,7 @@ class AlternateViewsButtons(LayoutButton):  # {{{
 
     buttons = set()
     ignore_toggles = False
+    needs_group_by = False
 
     def __init__(self, name: str, icon: str, label: str, view_name: str, gui: CentralContainer, shortcut=None, config_key=None):
         super().__init__(name, icon, label, gui, shortcut=shortcut)
@@ -297,7 +310,8 @@ class AlternateViewsButtons(LayoutButton):  # {{{
             if btn.isChecked():
                 btn.update_state(False)
         self.gui.library_view.alternate_views.show_view(self.view_name if show else None)
-        self.gui.sort_button.setVisible(show)
+        self.gui.show_sort_button_for_alternate_view(show)
+        self.gui.group_by_button.setVisible(self.needs_group_by and show)
         AlternateViewsButtons.ignore_toggles = False
 # }}}
 
@@ -317,6 +331,7 @@ class GridViewButton(AlternateViewsButtons):  # {{{
 
 
 class BookshelfViewButton(AlternateViewsButtons):  # {{{
+    needs_group_by = True
     def __init__(self, gui):
         super().__init__(
             'bookshelf_view',
@@ -383,12 +398,12 @@ class VLTabs(QTabBar):  # {{{
         a.triggered.connect(partial(self.next_tab, delta=-1)), self.gui.addAction(a)
         self.gui.keyboard.register_shortcut(
             'virtual-library-tab-bar-next', _('Next Virtual library'), action=self.next_action,
-            default_keys=('Ctrl+Right',), group=_('Virtual library'),
+            default_keys=('Ctrl+Tab',), group=_('Virtual library'),
             description=_('Switch to the next Virtual library in the Virtual library tab bar')
         )
         self.gui.keyboard.register_shortcut(
             'virtual-library-tab-bar-previous', _('Previous Virtual library'), action=self.previous_action,
-            default_keys=('Ctrl+Left',), group=_('Virtual library'),
+            default_keys=('Ctrl+Shift+Tab',), group=_('Virtual library'),
             description=_('Switch to the previous Virtual library in the Virtual library tab bar')
         )
 
@@ -860,6 +875,11 @@ class LayoutMixin:  # {{{
     def update_status_bar(self, *args):
         v = self.current_view()
         selected = len(v.selectionModel().selectedRows())
-        library_total, total, current = v.model().counts()
+        try:
+            library_total, total, current = v.model().counts()
+        except AttributeError:  # happens during shutdown
+            if self.shutting_down:
+                return
+            raise
         self.status_bar.update_state(library_total, total, current, selected)
 # }}}

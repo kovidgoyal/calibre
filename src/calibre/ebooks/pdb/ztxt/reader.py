@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import io
 import struct
-import zlib
+from compression import zlib
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ztxt import zTXTError

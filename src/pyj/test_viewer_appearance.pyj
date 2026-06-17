@@ -1,0 +1,29 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from dom import get_widget_css
+from read_book.chrome import apply_viewer_chrome_colors
+from read_book.main_overlay_style import MAIN_OVERLAY_TS_CLASS, main_overlay_css
+from testing import assert_equal, assert_true, test
+
+
+@test
+def viewer_chrome_colors_apply_to_element():
+    elem = document.createElement('div')
+    apply_viewer_chrome_colors(elem)
+    assert_equal(elem.style.backgroundColor, 'var(--calibre-color-window-background)')
+    assert_equal(elem.style.color, 'var(--calibre-color-window-foreground)')
+
+
+@test
+def main_overlay_style_uses_viewer_chrome():
+    css = main_overlay_css()
+    assert_true(css.indexOf('.' + MAIN_OVERLAY_TS_CLASS) > -1)
+    assert_true(css.indexOf('background-color:var(--calibre-color-window-background);') > -1)
+    assert_true(css.indexOf('color:var(--calibre-color-window-foreground);') > -1)
+    assert_true(css.indexOf('border-bottom:var(--calibre-border-style-subtle);') > -1)
+    assert_true(css.indexOf('outline:1px solid var(--calibre-color-input-focus-outline-color);') > -1)
+    assert_true(css.indexOf('background-color:var(--calibre-color-primary-light);') > -1)
+    assert_true(css.indexOf('background-color:var(--calibre-color-primary-light-2);') > -1)
+    assert_true(get_widget_css().indexOf('.' + MAIN_OVERLAY_TS_CLASS) > -1)

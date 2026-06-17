@@ -58,7 +58,7 @@ class ThePrint(BasicNewsRecipe):
                 ans[current_section].append({'title': title, 'url': url, 'description': desc})
         ret = []
         for sec in secs:
-            if sec in ('On Camera',):
+            if sec == 'On Camera':
                 continue
             arts = ans[sec]
             if arts:

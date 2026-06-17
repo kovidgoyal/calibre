@@ -89,10 +89,8 @@ class BookmarksMixin:
         if not no_copy_to_file and self.copy_bookmarks_to_file and os.path.splitext(
                 self.pathtoebook)[1].lower() == '.epub' and os.access(self.pathtoebook, os.W_OK):
             try:
-                with open(self.pathtoebook, 'r+b') as zf:
-                    safe_replace(zf, 'META-INF/calibre_bookmarks.txt',
-                            BytesIO(dat.encode('utf-8')),
-                            add_missing=True)
+                safe_replace(self.pathtoebook, 'META-INF/calibre_bookmarks.txt', BytesIO(dat.encode('utf-8')),
+                        add_missing=True)
             except OSError:
                 return
 

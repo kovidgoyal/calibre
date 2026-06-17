@@ -33,7 +33,7 @@ class Color(QWidget):
 
     changed = pyqtSignal()
 
-    def __init__(self, key: str, desc: str, parent: 'PaletteColors', palette: QPalette, default_palette: QPalette, mode_name: str, group=''):
+    def __init__(self, key: str, desc: str, parent: PaletteColors, palette: QPalette, default_palette: QPalette, mode_name: str, group=''):
         super().__init__(parent)
         self.key = key
         self.setting_key = (key + '-' + group) if group else key

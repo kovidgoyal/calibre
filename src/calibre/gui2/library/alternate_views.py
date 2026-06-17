@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import itertools
+import math
 import os
 import weakref
 from collections import namedtuple
@@ -18,6 +19,7 @@ from qt.core import (
     QAbstractItemModel,
     QAbstractItemView,
     QApplication,
+    QBrush,
     QBuffer,
     QByteArray,
     QColor,
@@ -25,6 +27,7 @@ from qt.core import (
     QEasingCurve,
     QEvent,
     QFont,
+    QFrame,
     QHelpEvent,
     QIcon,
     QImage,
@@ -58,13 +61,14 @@ from qt.core import (
 
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
-from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
 from calibre.gui2.library.models import themed_icon_name
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
+from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils.config import prefs, tweaks
 
@@ -111,6 +115,18 @@ class ClickStartData(NamedTuple):
     row: int
     min_row: int
     max_row: int
+
+
+def double_click_action(index: QModelIndex) -> None:
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    tval = tweaks['doubleclick_on_library_view']
+    if tval == 'open_viewer':
+        gui.iactions['View'].view_triggered(index)
+    elif tval in {'edit_metadata', 'edit_cell'}:
+        gui.iactions['Edit Metadata'].edit_metadata(False, False)
+    elif tval in {'show_book_details', 'show_locked_book_details'}:
+        gui.iactions['Show Book Details'].show_book_info(locked=tval == 'show_locked_book_details')
 
 
 def handle_selection_drag(
@@ -181,8 +197,11 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.AltModifier or
             mods & Qt.KeyboardModifier.ShiftModifier or mods & Qt.KeyboardModifier.MetaModifier
         ):
-            return
-        if self.state() != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
+            return False
+        s = QAbstractItemView.State.NoState
+        if callable(getattr(self, 'state', None)):
+            s = self.state()
+        if s != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
             ev.ignore()
             tweak = tweaks['enter_key_behavior']
@@ -206,6 +225,44 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
                 gui.iactions['View'].view_triggered(self.currentIndex())
             gui.enter_key_pressed_in_book_list.emit(self)
             return True
+    return False
+
+
+def render_emblem(book_id, rule, rule_index, cache, mi, db, formatter, template_cache, column_name='cover_grid'):
+    ans = cache[book_id].get(rule, False)
+    if ans is not False:
+        return ans, mi
+    ans = None
+    if mi is None:
+        mi = db.get_proxy_metadata(book_id)
+    ans = formatter.safe_format(rule, mi, '', mi, column_name=f'{column_name}{rule_index}', template_cache=template_cache) or None
+    cache[book_id][rule] = ans
+    return ans, mi
+
+
+def cached_emblem(sz: int, cache: dict[str, QPixmap | QIcon], name: str, raw_icon=None):
+    ans = cache.get(name, False)
+    if ans is not False:
+        return ans
+    ans = None
+    if raw_icon is not None:
+        ans = raw_icon
+    elif name == ':ondevice':
+        ans = QIcon.cached_icon('ok.png')
+    elif name:
+        d = themed_icon_name(os.path.join(config_dir, 'cc_icons'), name)
+        if d is not None:
+            ans = QIcon(d)
+        if ans is None:
+            ans = QIcon(os.path.join(config_dir, 'cc_icons', name))
+    if ans is not None and not ans.is_ok():
+        ans = None
+    if ans is not None and sz:
+        ans = ans.pixmap(sz, sz)
+        if ans.isNull():
+            ans = None
+    cache[name] = ans
+    return ans
 
 
 def image_to_data(image):  # {{{
@@ -415,9 +472,12 @@ def setup_dnd_interface(cls_or_self):
         self = cls_or_self
         self.drag_allowed = True
         self.drag_start_pos = None
-        self.setDragEnabled(True)
-        self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
+        if isinstance(self, QAbstractItemView):
+            self.setDragEnabled(True)
+            self.setDragDropOverwriteMode(False)
+            self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
+        else:
+            self.setAcceptDrops(True)
 # }}}
 
 
@@ -556,10 +616,11 @@ class CoverDelegate(QStyledItemDelegate):
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
-        self.original_show_emblems = gprefs['show_emblems']
+        self.original_flush_bottom = self.flush_bottom = gprefs['cover_grid_text_flush_bottom']
+        self.original_emblem_style = gprefs['emblem_style']
         self.orginal_emblem_size = gprefs['emblem_size']
         self.orginal_emblem_position = gprefs['emblem_position']
-        self.emblem_size = gprefs['emblem_size'] if self.original_show_emblems else 0
+        self.emblem_size = gprefs['emblem_size'] if self.original_emblem_style != 'none' else 0
         try:
             self.gutter_position = getattr(self, self.orginal_emblem_position.upper())
         except Exception:
@@ -583,7 +644,7 @@ class CoverDelegate(QStyledItemDelegate):
                 sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
             self.title_height = int(max(25, sz + 10))
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
-        if self.emblem_size > 0:
+        if self.emblem_size > 0 and self.original_emblem_style == 'gutter':
             extra = self.emblem_size + self.MARGIN
             self.item_size += QSize(extra, 0) if self.gutter_position in (self.LEFT, self.RIGHT) else QSize(0, extra)
         self.calculate_spacing()
@@ -628,39 +689,6 @@ class CoverDelegate(QStyledItemDelegate):
                 traceback.print_exc()
         return '', is_stars
 
-    def render_emblem(self, book_id, rule, rule_index, cache, mi, db, formatter, template_cache):
-        ans = cache[book_id].get(rule, False)
-        if ans is not False:
-            return ans, mi
-        ans = None
-        if mi is None:
-            mi = db.get_proxy_metadata(book_id)
-        ans = formatter.safe_format(rule, mi, '', mi, column_name=f'cover_grid{rule_index}', template_cache=template_cache) or None
-        cache[book_id][rule] = ans
-        return ans, mi
-
-    def cached_emblem(self, cache, name, raw_icon=None):
-        ans = cache.get(name, False)
-        if ans is not False:
-            return ans
-        sz = self.emblem_size
-        ans = None
-        if raw_icon is not None:
-            ans = raw_icon.pixmap(sz, sz)
-        elif name == ':ondevice':
-            ans = QIcon.ic('ok.png').pixmap(sz, sz)
-        elif name:
-            pmap = None
-            d = themed_icon_name(os.path.join(config_dir, 'cc_icons'), name)
-            if d is not None:
-                pmap = QIcon(d).pixmap(sz, sz)
-            if pmap is None:
-                pmap = QIcon(os.path.join(config_dir, 'cc_icons', name)).pixmap(sz, sz)
-            if not pmap.isNull():
-                ans = pmap
-        cache[name] = ans
-        return ans
-
     def paint(self, painter, option, index):
         with clip_border_radius(painter, option.rect):
             QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
@@ -691,23 +719,23 @@ class CoverDelegate(QStyledItemDelegate):
         if self.emblem_size > 0:
             mi = None
             for i, (kind, column, rule) in enumerate(emblem_rules):
-                icon_name, mi = self.render_emblem(book_id, rule, i, m.cover_grid_emblem_cache, mi, db, m.formatter, m.cover_grid_template_cache)
+                icon_name, mi = render_emblem(book_id, rule, i, m.cover_grid_emblem_cache, mi, db, m.formatter, m.cover_grid_template_cache)
                 if icon_name is not None:
                     for one_icon in filter(None, (i.strip() for i in icon_name.split(':'))):
-                        pixmap = self.cached_emblem(m.cover_grid_bitmap_cache, one_icon)
+                        pixmap = cached_emblem(self.emblem_size, m.cover_grid_bitmap_cache, one_icon)
                         if pixmap is not None:
                             emblems.append(pixmap)
             if marked:
-                emblems.insert(0, self.cached_emblem(m.cover_grid_bitmap_cache, ':marked', m.marked_icon))
+                emblems.insert(0, cached_emblem(self.emblem_size, m.cover_grid_bitmap_cache, ':marked', m.marked_icon))
             if on_device:
-                emblems.insert(0, self.cached_emblem(m.cover_grid_bitmap_cache, ':ondevice'))
+                emblems.insert(0, cached_emblem(self.emblem_size, m.cover_grid_bitmap_cache, ':ondevice'))
 
         painter.save()
         right_adjust = 0
         try:
             rect = option.rect
             rect.adjust(self.MARGIN, self.MARGIN, -self.MARGIN, -self.MARGIN)
-            if self.emblem_size > 0:
+            if self.emblem_size > 0 and self.original_emblem_style == 'gutter':
                 self.paint_emblems(painter, rect, emblems)
             orect = QRect(rect)
             trect = QRect(rect)
@@ -716,7 +744,7 @@ class CoverDelegate(QStyledItemDelegate):
                 trect.setTop(trect.bottom() - self.title_height + 5)
             if cover.isNull():
                 title = db.field_for('title', book_id, default_value='')
-                authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
+                authors = authors_to_string(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
                 if self.title_height != 0:
@@ -724,15 +752,21 @@ class CoverDelegate(QStyledItemDelegate):
             else:
                 if self.animating is not None and self.animating.row() == index.row():
                     cover = cover.scaled(cover.size() * self._animated_size)
-                dpr = cover.devicePixelRatio()
-                cw, ch = int(cover.width() / dpr), int(cover.height() / dpr)
-                dx = max(0, int((rect.width() - cw)/2.0))
-                dy = max(0, int((rect.height() - ch)/2.0))
+                cover = QPixmap(cover)
+                cover.setDevicePixelRatio(painter.device().devicePixelRatioF())
+                sz = cover.deviceIndependentSize()
+                dx = max(0, int((rect.width() - sz.width())/2.0))
+                dy = max(0, int((rect.height() - sz.height())/2.0))
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
                 if self.title_height != 0:
-                    self.paint_title(painter, trect, db, book_id)
+                    if self.flush_bottom:
+                        trect.setTop(rect.bottom() + 5)
+                    self.paint_title(painter, trect, db, book_id, align_top=self.flush_bottom)
+            if self.original_emblem_style == 'emboss' and emblems:
+                self.paint_emblems_on_cover(painter, rect, emblems)
+                return
             if self.emblem_size > 0:
                 # We don't draw embossed emblems as the ondevice/marked emblems are drawn in the gutter
                 return
@@ -756,15 +790,20 @@ class CoverDelegate(QStyledItemDelegate):
         with clip_border_radius(painter, rect):
             painter.drawPixmap(rect, pixmap)
 
-    def paint_title(self, painter, rect, db, book_id):
+    def paint_title(self, painter, rect, db, book_id, align_top: bool = False):
         painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         title, is_stars = self.render_field(db, book_id)
         if is_stars:
             painter.setFont(self.rating_font)
         metrics = painter.fontMetrics()
         painter.setPen(self.highlight_color)
-        painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextSingleLine,
-                            metrics.elidedText(title, Qt.TextElideMode.ElideRight, rect.width()))
+        text = metrics.elidedText(title, Qt.TextElideMode.ElideRight, rect.width())
+        align = Qt.TextFlag.TextSingleLine
+        if align_top:
+            align |= Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter
+        else:
+            align |= Qt.AlignmentFlag.AlignCenter
+        painter.drawText(rect, align, text)
 
     def paint_emblems(self, painter, rect, emblems):
         gutter = self.emblem_size + self.MARGIN
@@ -792,6 +831,41 @@ class CoverDelegate(QStyledItemDelegate):
                 rect = QRect(grect)
                 rect.setWidth(int(emblem.width() / emblem.devicePixelRatio())), rect.setHeight(int(emblem.height() / emblem.devicePixelRatio()))
                 painter.drawPixmap(rect, emblem)
+        finally:
+            painter.restore()
+
+    def paint_emblems_on_cover(self, painter, rect, emblems):
+        if not (esz := self.emblem_size):
+            return
+        r = gprefs['cover_corner_radius']
+        if r > 0:
+            if gprefs['cover_corner_radius_unit'] == '%':
+                corner_inset = int(r / 100 * min(rect.width(), rect.height()))
+            else:
+                corner_inset = int(r)
+        else:
+            corner_inset = 0
+        margin = self.MARGIN
+        rect = rect.adjusted(corner_inset, corner_inset, -corner_inset, -corner_inset - margin)
+        available_height = rect.height()
+        sz_with_margin = esz + margin
+        max_per_edge = max(1, available_height // sz_with_margin)
+        painter.save()
+        try:
+            painter.setClipRect(rect)
+            for i, emblem in enumerate(emblems):
+                if i < max_per_edge:
+                    x = rect.left()
+                    y = rect.top() + i * sz_with_margin
+                else:
+                    j = i - max_per_edge
+                    if j >= max_per_edge:
+                        break
+                    x = rect.right() - esz
+                    y = rect.top() + j * sz_with_margin
+                ew = int(emblem.width() / emblem.devicePixelRatio())
+                eh = int(emblem.height() / emblem.devicePixelRatio())
+                painter.drawPixmap(QRect(x, y, ew, eh), emblem)
         finally:
             painter.restore()
 
@@ -870,6 +944,9 @@ class GridView(MomentumScrollMixin, QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
+        self.setFrameShape(QFrame.Shape.Box)
+        self.setFrameShadow(QFrame.Shadow.Plain)
+        self.setLineWidth(1)
         self.accumulated_scroll_degrees = 0
         self.dbref = lambda: None
         self._ncols = None
@@ -890,6 +967,8 @@ class GridView(MomentumScrollMixin, QListView):
         self.delegate.cover_cache.rendered.connect(self.re_render)
         self.setItemDelegate(self.delegate)
         self.setSpacing(self.delegate.spacing)
+        self._texture_pixmap = None
+        self.viewport().installEventFilter(self)
         self.set_color()
         QApplication.instance().palette_changed.connect(self.set_color)
         self.ignore_render_requests = Event()
@@ -950,13 +1029,7 @@ class GridView(MomentumScrollMixin, QListView):
 
     def double_clicked(self, index):
         self.start_view_animation(index)
-        tval = tweaks['doubleclick_on_library_view']
-        if tval == 'open_viewer':
-            self.gui.iactions['View'].view_triggered(index)
-        elif tval in {'edit_metadata', 'edit_cell'}:
-            self.gui.iactions['Edit Metadata'].edit_metadata(False, False)
-        elif tval == 'show_book_details':
-            self.gui.iactions['Show Book Details'].show_book_info()
+        double_click_action(index)
 
     def animation_value_changed(self, value):
         if self.delegate.animating is not None:
@@ -974,24 +1047,50 @@ class GridView(MomentumScrollMixin, QListView):
         pal = self.palette()
         bgcol = QColor(r, g, b)
         pal.setColor(QPalette.ColorRole.Base, bgcol)
-        self.setPalette(pal)
-        ss = f'background-color: {bgcol.name()}; border: 0px solid {bgcol.name()};'
+        pal.setColor(QPalette.ColorRole.WindowText, bgcol)  # frame color
+        self._texture_pixmap = None
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
             if path:
-                path = os.path.abspath(path).replace(os.sep, '/')
-                ss += f'background-image: url({path});'
-                ss += 'background-attachment: fixed;'
-                pm = QPixmap(path)
+                pm = QPixmap(os.path.abspath(path))
                 if not pm.isNull():
                     val = pm.scaled(1, 1).toImage().pixel(0, 0)
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
+                    self._texture_pixmap = pm
         dark = max(r, g, b) < 115
-        col = '#eee' if dark else '#111'
-        ss += f'color: {col};'
-        self.delegate.highlight_color = QColor(col)
-        self.setStyleSheet(f'QListView {{ {ss} }}')
+        p = dark_palette() if dark else light_palette()
+        col = p.color(QPalette.ColorRole.Text)
+        pal.setColor(QPalette.ColorRole.Text, col)
+        self.setPalette(pal)
+        self.delegate.highlight_color = col
+        # When a texture is active we paint the background manually in
+        # eventFilter to avoid a Qt bug where JPEG-based palette brushes are
+        # not tiled correctly when the view is scrolled.
+        self.viewport().setAutoFillBackground(self._texture_pixmap is None)
+        self.viewport().update()
+
+    def eventFilter(self, obj, event):
+        if obj is self.viewport() and event.type() == QEvent.Type.Paint:
+            pm = getattr(self, '_texture_pixmap', None)
+            if pm is not None:
+                with QPainter(self.viewport()) as painter:
+                    pm.setDevicePixelRatio(self.devicePixelRatioF())
+                    r = self.viewport().rect()
+                    sz = pm.deviceIndependentSize()
+                    if sz.height() > r.height() or sz.width() > r.width():
+                        sm = getattr(self, '_scaled_texture_pixmap', QPixmap())
+                        sz = sm.deviceIndependentSize()
+                        if sz.width() != r.width() and sz.height() != r.height():
+                            sm = pm.scaled(
+                                r.size() * pm.devicePixelRatioF(), Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                                Qt.TransformationMode.SmoothTransformation)
+                            setattr(self, '_scaled_texture_pixmap', sm)
+                        pm = sm
+                    painter.fillRect(r, QBrush(pm))
+                # Return False so the normal paint event (items) runs on top
+                return False
+        return super().eventFilter(obj, event)
 
     def refresh_settings(self):
         size_changed = (
@@ -999,9 +1098,10 @@ class GridView(MomentumScrollMixin, QListView):
         )
         if (size_changed or gprefs[
             'cover_grid_show_title'] != self.delegate.original_show_title or gprefs[
-                'show_emblems'] != self.delegate.original_show_emblems or gprefs[
+                'emblem_style'] != self.delegate.original_emblem_style or gprefs[
                     'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
-                        'emblem_position'] != self.delegate.orginal_emblem_position):
+                        'emblem_position'] != self.delegate.orginal_emblem_position or gprefs[
+                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:
@@ -1101,8 +1201,15 @@ class GridView(MomentumScrollMixin, QListView):
             return super().mousePressEvent(ev)
         self.shift_click_start_data = handle_selection_click(self, self.indexAt(ev.pos()))
 
-    def indices_for_merge(self, resolved=True):
-        return self.selectionModel().selectedIndexes()
+    def rows_for_merge(self, resolved=True):
+        ans = []
+        seen = set()
+        for idx in self.selectionModel().selectedIndexes():
+            row = idx.row()
+            if row not in seen:
+                seen.add(row)
+                ans.append(row)
+        return ans
 
     def number_of_columns(self):
         # Number of columns currently visible in the grid
@@ -1121,6 +1228,22 @@ class GridView(MomentumScrollMixin, QListView):
                                 self._ncols = j.row() - i.row() + 1
                                 return self._ncols
         return self._ncols
+
+    def default_wheel_event_handler(self, ev):
+        if ev.phase() not in (Qt.ScrollPhase.ScrollUpdate, Qt.ScrollPhase.NoScrollPhase, Qt.ScrollPhase.ScrollMomentum):
+            return
+        number_of_pixels = ev.pixelDelta()
+        number_of_degrees = ev.angleDelta() / 8.0
+        b = self.verticalScrollBar()
+        if number_of_pixels.isNull() or islinux:
+            # pixelDelta() is broken on linux with wheel mice
+            dy = number_of_degrees.y() / 15.0
+            # Scroll by approximately half a row
+            dy = math.ceil((dy) * b.singleStep() / 2.0)
+        else:
+            dy = number_of_pixels.y()
+        if abs(dy) > 0:
+            b.setValue(b.value() - dy)
 
     def keyPressEvent(self, ev):
         if handle_enter_press(self, ev, self.start_view_animation, False):

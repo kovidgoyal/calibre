@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import itertools
 import operator
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from functools import partial
 
 from qt.core import (
@@ -371,7 +371,7 @@ class BooksView(TableView):  # {{{
             else:
                 wv.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
             if tweaks['vertical_scrolling_per_row']:
-                wv.update_momentum_scroll_settings(enable_x=False)
+                wv.update_momentum_scroll_settings(enable_y=False)
             else:
                 wv.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
@@ -661,9 +661,11 @@ class BooksView(TableView):  # {{{
             m.setIcon(QIcon.ic('plus.png'))
             hcols = [(hcol, str(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
                      for hcol, hidx in hidden_cols.items()]
+            name_counts = Counter(hname for _, hname in hcols)
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
-                m.addAction(hname.replace('&', '&&'), partial(handler, action='show', column=hcol))
+                display = f'{hname} [{hcol}]' if name_counts[hname] > 1 else hname
+                m.addAction(display.replace('&', '&&'), partial(handler, action='show', column=hcol))
         ans.addSeparator()
         if col == 'ondevice':
             ans.addAction(_('Remember On Device column width'),
@@ -693,7 +695,7 @@ class BooksView(TableView):  # {{{
             book_id_col = db.field_metadata['id']['rec_index']
             book_id = db.data[row][book_id_col]
             m = menu.addAction(_('Toggle mark for book'), lambda: db.data.toggle_marked_ids({book_id,}))
-            ic = QIcon.ic('marked.png')
+            ic = QIcon.cached_icon('marked.png')
             m.setIcon(ic)
             from calibre.gui2.actions.mark_books import mark_books_with_text
             m = menu.addAction(_('Mark book with text label'), partial(mark_books_with_text, {book_id,}))
@@ -1285,10 +1287,17 @@ class BooksView(TableView):  # {{{
             return True
         return False
 
-    def indices_for_merge(self, resolved=False):
+    def rows_for_merge(self, resolved=False):
         if not resolved:
-            return self.alternate_views.current_view.indices_for_merge(resolved=True)
-        return self.selectionModel().selectedRows()
+            return self.alternate_views.current_view.rows_for_merge(resolved=True)
+        ans = []
+        seen = set()
+        for idx in self.selectionModel().selectedRows():
+            row = idx.row()
+            if row not in seen:
+                seen.add(row)
+                ans.append(row)
+        return ans
 
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling
@@ -1441,9 +1450,14 @@ class BooksView(TableView):  # {{{
         return index
 
     def selectionCommand(self, index, event):
-        if event and event.type() == QEvent.Type.KeyPress and event.key() in (
-                Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
+        if event and event.type() == QEvent.Type.KeyPress:
+            key = event.key()
+            mods = event.modifiers() & (
+                Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
+            if key in (Qt.Key.Key_Home, Qt.Key.Key_End) and mods == Qt.KeyboardModifier.ControlModifier:
+                return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
+            if key in (Qt.Key.Key_Up, Qt.Key.Key_Down) and mods == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier:
+                return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super().selectionCommand(index, event)
 
     def ids_to_rows(self, ids):

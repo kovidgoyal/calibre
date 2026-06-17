@@ -37,7 +37,7 @@ from calibre import fit_image, human_readable, isbytestring, prepare_string_for_
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
-from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, is_dark_theme, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
@@ -50,6 +50,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from calibre_extensions.imageops import load_from_data_without_gil
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -259,14 +260,14 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.buffer_size = buffer
         self.metadata_backup = None
         icon_height = (parent.fontMetrics() if hasattr(parent, 'fontMetrics') else QFontMetrics(QApplication.font())).lineSpacing()
-        self.bool_yes_icon = QIcon.ic('ok.png').pixmap(icon_height)
-        self.bool_no_icon = QIcon.ic('list_remove.png').pixmap(icon_height)
-        self.bool_blank_icon = QIcon.ic('blank.png').pixmap(icon_height)
+        self.bool_yes_icon = QIcon.cached_icon('ok.png').pixmap(icon_height)
+        self.bool_no_icon = QIcon.cached_icon('list_remove.png').pixmap(icon_height)
+        self.bool_blank_icon = QIcon.cached_icon('blank.png').pixmap(icon_height)
         # Qt auto-scales marked icon correctly, so we don't need to do it (and
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
-        self.marked_icon = QIcon.ic('marked.png')
-        self.bool_blank_icon_as_icon = QIcon(self.bool_blank_icon)
+        self.marked_icon = QIcon.cached_icon('marked.png')
+        self.bool_blank_icon_as_icon = QIcon.cached_icon('blank.png')
         self.row_decoration = None
         self.device_connected = False
         self.ids_to_highlight = []
@@ -314,11 +315,14 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.icon_cache = defaultdict(dict)
         self.icon_bitmap_cache = {}
         self.cover_grid_emblem_cache = defaultdict(dict)
+        self.bookshelf_emblem_cache = defaultdict(dict)
         self.cover_grid_bitmap_cache = {}
+        self.bookshelf_bitmap_cache = {}
         self.color_row_fmt_cache = None
         self.color_template_cache = {}
         self.icon_template_cache = {}
         self.cover_grid_template_cache = {}
+        self.bookshelf_template_cache = {}
 
     def set_row_height(self, height):
         self.row_height = height
@@ -396,7 +400,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 return 100000
             return self.db.field_metadata[name]['rec_index']
 
-        self.column_map.sort(key=lambda x: col_idx(x))
+        self.column_map.sort(key=col_idx)
         for col in self.column_map:
             if col in self.orig_headers:
                 self.headers[col] = self.orig_headers[col]
@@ -736,8 +740,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         for id in rows:
             mi = self.db.get_metadata(id, index_is_id=True)
             _full_metadata.append(mi)
-            au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
-            tags = mi.tags if mi.tags else []
+            au = authors_to_string(mi.authors or [_('Unknown')])
+            tags = mi.tags or []
             if mi.series is not None:
                 tags.append(mi.series)
             info = {
@@ -882,10 +886,8 @@ class BooksModel(QAbstractTableModel):  # {{{
         if not data:
             return self.default_image
         img = QImage()
-        img.loadFromData(data)
-        if img.isNull():
-            img = self.default_image
-        return img
+        load_from_data_without_gil(img, data)
+        return self.default_image if img.isNull() else img
 
     def build_data_convertors(self):
         rating_fields = {}
@@ -1306,7 +1308,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         s_index = None
         if typ in ('text', 'comments'):
             val = str(value or '').strip()
-            val = val if val else None
+            val = val or None
         elif typ == 'enumeration':
             val = str(value or '').strip()
             if not val:
@@ -1442,6 +1444,10 @@ class BooksModel(QAbstractTableModel):  # {{{
                     val = authors_to_string(string_to_authors(val))
                 books_to_refresh |= self.db.set(row, column, val,
                                                 allow_case_change=True)
+                if column == 'title':
+                    if (lang := self.db.languages(row)) is not None:
+                        lang = lang.partition(',')[0]
+                    self.db.set(row, 'sort', title_sort(val, lang=lang), allow_case_change=True)
             self.refresh_ids(list(books_to_refresh), row)
         self.dataChanged.emit(index, index)
         return True
@@ -1586,7 +1592,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.search_engine = OnDeviceSearch(self)
         self.editable = ['title', 'authors', 'collections']
         self.book_in_library = None
-        self.sync_icon = QIcon.ic('sync.png')
+        self.sync_icon = QIcon.cached_icon('sync.png')
 
     def counts(self):
         return Counts(len(self.db), len(self.db), len(self.map))
@@ -1787,9 +1793,9 @@ class DeviceBooksModel(BooksModel):  # {{{
                 img.load(cdata.image_path)
             elif cdata:
                 if isinstance(cdata, (tuple, list)):
-                    img.loadFromData(cdata[-1])
+                    load_from_data_without_gil(img, cdata[-1])
                 else:
-                    img.loadFromData(cdata)
+                    load_from_data_without_gil(img, cdata)
         if img.isNull():
             img = self.default_image
         return img
@@ -1813,7 +1819,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         if ext:
             fmt = ext[1:].lower()
         mi.formats = [fmt]
-        mi.path = (item.path if item.path else None)
+        mi.path = (item.path or None)
         dt = dt_factory(item.datetime, assume_utc=True)
         mi.timestamp = dt
         mi.device_collections = list(item.device_collections)

@@ -85,6 +85,20 @@ def serialize_contributor(contributor):
         yield '<div>' + prepare_string_for_xml(contributor['subtitle']) + '</div>'
 
 
+def extract_text_block_plaintext(text_block):
+    # Pull the plain text out of a nested {type: text, model: {blocks: [...]}}
+    # block. Used to recover a headline string from the 'headline' / 'topper'
+    # block types that BBC Sport articles now use in place of the top-level
+    # article['headline'] field.
+    chunks = []
+    for x in text_block.get('model', {}).get('blocks', []):
+        if x.get('type') == 'paragraph':
+            for f in x.get('model', {}).get('blocks', []):
+                if f.get('type') == 'fragment':
+                    chunks.append(f.get('model', {}).get('text', ''))
+    return ''.join(chunks)
+
+
 def parse_article_json(root, abort_article):
     data = root['data']
     has_media_experience = False
@@ -102,14 +116,35 @@ def parse_article_json(root, abort_article):
     lines = []
     if article.get('headline'):
         lines.append('<h1>{}</h1>'.format(prepare_string_for_xml(article['headline'])))
+    elif article.get('metadata', {}).get('seoHeadline'):
+        # BBC Sport articles no longer populate the top-level 'headline' field;
+        # the visible headline is on metadata.seoHeadline (and is plain text).
+        lines.append('<h1>{}</h1>'.format(prepare_string_for_xml(article['metadata']['seoHeadline'])))
     if article.get('contributor'):
         lines.extend(serialize_contributor(article['contributor']))
+    headline_emitted = bool(lines and lines[0].startswith('<h1>'))
     for block in article['content']['model']['blocks']:
         bt = block.get('type')
         if bt == 'image':
             lines.extend(serialize_image(block))
         elif bt == 'text':
             lines.extend(serialize_text(block))
+        elif bt == 'headline' and not headline_emitted:
+            # New BBC Sport block-type containing the headline as a nested text block.
+            inner = block.get('model', {}).get('blocks') or [{}]
+            text = extract_text_block_plaintext(inner[0])
+            if text:
+                lines.insert(0, '<h1>{}</h1>'.format(prepare_string_for_xml(text)))
+                headline_emitted = True
+        elif bt == 'topper' and not headline_emitted:
+            # 'high-impact' BBC Sport article variant: headline lives under
+            # block.model.heading.blocks[0] rather than block.model.blocks[0].
+            heading = block.get('model', {}).get('heading') or {}
+            inner = heading.get('blocks') or [{}]
+            text = extract_text_block_plaintext(inner[0])
+            if text:
+                lines.insert(0, '<h1>{}</h1>'.format(prepare_string_for_xml(text)))
+                headline_emitted = True
     return '<html><body id="main-content"><article>' + '\n'.join(lines) + '</article></body></html>'
 
 
@@ -202,7 +237,6 @@ class BBC(BasicNewsRecipe):
         ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
         ('Entertainment/Arts',
          'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
-        ('Magazine', 'https://feeds.bbci.co.uk/news/magazine/rss.xml'),
         ('Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
         ('Politics', 'https://feeds.bbci.co.uk/news/politics/rss.xml'),
         ('Health', 'https://feeds.bbci.co.uk/news/health/rss.xml'),

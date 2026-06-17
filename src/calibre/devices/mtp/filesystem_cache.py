@@ -35,7 +35,7 @@ def convert_timestamp(md):
 
 class ListEntry:
 
-    def __init__(self, entry: 'FileOrFolder'):
+    def __init__(self, entry: FileOrFolder):
         self.is_dir = entry.is_folder
         self.is_readonly = not entry.can_delete
         self.path = '/'.join(entry.full_path)
@@ -46,7 +46,7 @@ class ListEntry:
 
 class FileOrFolder:
 
-    def __init__(self, entry, fs_cache: 'FilesystemCache', is_storage: bool = False):
+    def __init__(self, entry, fs_cache: FilesystemCache, is_storage: bool = False):
         self.object_id = entry['id']
         self.is_storage = is_storage
         self.is_folder = entry['is_folder']
@@ -126,7 +126,7 @@ class FileOrFolder:
         return not self.files and not self.folders
 
     @property
-    def id_map(self) -> dict[int, 'FileOrFolder']:
+    def id_map(self) -> dict[int, FileOrFolder]:
         return self.fs_cache().id_maps[self.storage_id]
 
     @property

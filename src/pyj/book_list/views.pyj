@@ -11,13 +11,15 @@ from book_list.add import add_books_panel
 from book_list.cover_grid import (
     append_item as cover_grid_append_item, cover_grid_css,
     create_item as create_cover_grid_item, description as COVER_GRID_DESCRIPTION,
-    init as init_cover_grid
+    init as init_cover_grid, create_cover_grid_size_control, sync_cover_grid_size_control
 )
 from book_list.custom_list import (
     append_item as custom_list_append_item, create_item as create_custom_list_item,
     custom_list_css, description as CUSTOM_LIST_DESCRIPTION,
     init as init_custom_list
 )
+from book_list.saved_virtual_libraries import save_saved_virtual_library
+from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
 from book_list.details_list import (
     append_item as details_list_append_item, create_item as create_details_list_item,
     description as DETAILS_LIST_DESCRIPTION, details_list_css,
@@ -27,8 +29,8 @@ from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
     add_more_books, all_virtual_libraries, book_metadata, current_book_ids,
-    current_sorted_field, ensure_current_library_data, library_data, load_status,
-    loaded_books_query, thumbnail_cache, url_books_query
+    current_library_id, current_sorted_field, ensure_current_library_data, library_data, load_status,
+    loaded_books_query, refresh_sidebar_navigation, thumbnail_cache, url_books_query
 )
 from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
@@ -36,11 +38,11 @@ from book_list.search import (
 )
 from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
 from book_list.ui import query_as_href, set_panel_handler, show_panel
-from dom import add_extra_css, build_rule, clear, ensure_id, set_css
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css, svgicon
 from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
-from widgets import create_button, create_spinner, enable_escape_key
+from widgets import create_button, create_pager_widget, create_spinner, enable_escape_key, create_select
 
 CLASS_NAME = 'book-list-container'
 ITEM_CLASS_NAME = 'book-list-item'
@@ -49,7 +51,28 @@ DEFAULT_MODE = 'cover_grid'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
-    ans = build_rule(sel + '[data-component="top_message"]', margin='1ex 1em')
+    # Unified page gutter for all first-level children
+    ans = sel + r'''{
+        padding-left: 1rem; padding-right: 1rem;
+        @media (max-width: 720px) {
+            padding-left: 0.75rem; padding-right: 0.75rem;
+        }
+    }
+    .calibre-showing-label {
+        & > span:last-of-type { display: none; }
+        @media (max-width: 420px) {
+            & > span:last-of-type { display: inline; }
+            & > span:first-of-type { display: none; }
+        }
+    }
+    [data-component="book_list"] a { color: currentColor; }
+    [data-component="book_list"] a:visited { color: currentColor; }
+    '''
+    ans += build_rule(sel + '.' + ITEM_CLASS_NAME,
+        min_width='0',
+        max_width='100%',
+        box_sizing='border-box',
+    )
     ans += cover_grid_css()
     ans += details_list_css()
     ans += custom_list_css()
@@ -60,17 +83,32 @@ book_list_data = {
     'container_id': None, 'shown_book_ids': set(), 'mode': None, 'fetching_more_books': None,
 }
 
+def parse_int(x, default_value):
+    try:
+        x = int(x)
+    except Exception:
+        x = default_value
+    return x
+
+
+def clamp(n, lo, hi):
+    return max(lo, min(hi, n))
+
 def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
 
 def clear_grid():
-    container = document.getElementById(book_list_data.container_id)
-    # We replace the div entirely so that any styles associated with it are also removed
+    # We replace the div entirely so that any styles associated with it are also removed.
     e = component('book_list')
+    if not e:
+        return
+    parent = e.parentNode
+    if not parent:
+        return
     bl = E.div(data_component='book_list')
-    container.insertBefore(bl, e)
-    container.removeChild(e)
+    parent.insertBefore(bl, e)
+    parent.removeChild(e)
     book_list_data.init_grid(bl)
 
 
@@ -99,6 +137,19 @@ def save_scroll_position():
 def show_subsequent_panel(name, query=None, replace=False):
     save_scroll_position()
     show_panel(name, query, replace)
+
+
+def show_add_books():
+    show_subsequent_panel('book_list^add')
+
+
+def show_random_book():
+    show_subsequent_panel('book_details', {'book_id': '0'})
+
+
+def add_book_list_top_bar_buttons(container):
+    add_button(container, 'plus', show_add_books, _('Add books to the library'))
+    add_button(container, 'random', show_random_book, _('Choose a random book from the library'))
 
 
 def on_book_click(book_id, evt):
@@ -159,11 +210,14 @@ def setup_view_mode(mode, book_list_data):
 
 
 def apply_view_mode(mode=DEFAULT_MODE):
-    if book_list_data.mode is mode:
-        return
-    setup_view_mode(mode, book_list_data)
-    clear_grid()
-    render_ids()
+    if book_list_data.mode is not mode:
+        setup_view_mode(mode, book_list_data)
+        # We are switching the renderer, so the current DOM needs a full re-render.
+        # Reset shown ids so render_ids() actually repopulates the new grid/list.
+        book_list_data.shown_book_ids = set()
+        clear_grid()
+        render_ids()
+    return mode
 
 
 # More button {{{
@@ -236,51 +290,260 @@ def create_more_button(more):
 
 # }}}
 
+
+def replace_books_page(data):
+    # Replace the current page (do not accumulate)
+    for key in data.metadata:
+        library_data.metadata[key] = data.metadata[key]
+    library_data.previous_book_ids = v'[]'
+    library_data.search_result = data.search_result
+    book_list_data.shown_book_ids = set()
+    clear_grid()
+    render_ids(data.search_result.book_ids)
+
+
+def fetch_books_page(new_offset, page_size, on_done):
+    sr = library_data.search_result
+    if not sr:
+        if on_done:
+            on_done(False)
+        return
+    abort_get_more_books(True)
+    payload = {'offset': new_offset}
+    for key in 'query', 'sort', 'sort_order', 'vl':
+        payload[key] = sr[key]
+    book_list_data.fetching_more_books = ajax_send(
+        'interface-data/more-books', payload, def(end_type, xhr, event):
+            book_list_data.fetching_more_books = None
+            if end_type is 'load':
+                try:
+                    data = JSON.parse(xhr.responseText)
+                    if not data.search_result.book_ids:
+                        raise Exception('No books ids object in search result from server')
+                    replace_books_page(data)
+                    if on_done:
+                        on_done(True)
+                except Exception:
+                    if on_done:
+                        on_done(False)
+            elif end_type is not 'abort':
+                if on_done:
+                    on_done(False)
+        ,
+        query={'library_id': loaded_books_query().library_id, 'num': str(page_size)}
+    )
+
 def fts():
     q = {'restricted': 'y', 'restriction': library_data.search_result.query}
     show_panel('fts', q)
 
 
-def show_top_message():
-    container = component('top_message')
+def save_to_saved_virtual_library():
+    current_query = loaded_books_query()
+    current_search = (current_query.search or '') + ''
+    library_id = current_query.library_id or current_library_id()
+    virtual_library = (current_query.vl or '') + ''
+
+    def do_save(item):
+        if not save_saved_virtual_library(item):
+            return False
+        refresh_sidebar_navigation()
+        return True
+
+    show_saved_virtual_library_dialog(
+        _('Save as virtual library'), _('Save'), do_save,
+        library_id,
+        virtual_library,
+        initial_search=current_search,
+    )
+
+
+def icon_action(icon_name, tooltip, action):
+    return E.a(
+        svgicon(icon_name),
+        class_='calibre-icon-button',
+        style='margin-left: 0.4em',
+        href='javascript:void(0)',
+        title=tooltip,
+        onclick=def(evt):
+            evt.preventDefault()
+            action()
+    )
+
+
+def show_top_message(container):
     q = loaded_books_query()
     if not q.search and not q.vl:
-        container.style.display = 'none'
-        return
+        return False
     if q.vl:
         container.appendChild(E.span(
-            E.span(_('Showing Virtual library: {} ').format(q.vl)),
-            create_button(_('Close'), 'close', def(): show_vl();, _('Show all books in library'))
-        ))
+            E.span(E.span(_('Showing Virtual library: {}').format(q.vl)), E.span(_('Virt. lib: {}').format(q.vl)),
+            create_button(_('Close'), 'close', def(): show_vl();, _('Show all books in library')),
+            class_='calibre-showing-label',
+        )))
         if q.search:
             container.appendChild(E.br())
     if q.search:
         c = E.span()
         if library_data.search_result.total_num:
-            c.appendChild(E.span(_('Showing books matching:'), ' ', E.i(library_data.search_result.query), ' ', _('(total matches: {}) ').format(library_data.search_result.total_num)))
-            c.appendChild(E.span(' ', E.a(_('Clear search'), class_='blue-link', onclick=def(): search();)))
+            c.style.display = 'inline-flex'
+            c.style.flexWrap = 'wrap'
+            c.style.alignItems = 'center'
+            c.style.justifyContent = 'space-between'
+            c.style.width = '100%'
+            c.appendChild(E.span(
+                E.span(_('Showing books matching:')), E.span(_('Matching:')), ' ', E.i(library_data.search_result.query),
+                class_='calibre-showing-label',
+            ))
+            buttons = E.div(style='margin-left: auto; display: inline-flex')
+            buttons.appendChild(E.span(' ', icon_action('close', _('Clear search'), def(): search();)))
+            buttons.appendChild(E.span(' ', icon_action('plus', _('Save as virtual library'), save_to_saved_virtual_library)))
+            c.appendChild(buttons)
             if library_data.fts_enabled:
-                c.appendChild(E.span(_(' or '), E.a(_('Search the text of these books'), class_='blue-link', onclick=def(): fts();)))
+                buttons.appendChild(E.span(' ', icon_action('search', _('Search the text of these books'), fts)))
         else:
             c.appendChild(E.span(_('No books matching:'), ' ', E.i(library_data.search_result.query)))
 
         container.appendChild(c)
+    return True
+
+
+def clear_book_list_inner(inner):
+    if inner:
+        clear(inner)
+
+
+def create_optional_cover_grid_size_control(mode):
+    try:
+        return create_cover_grid_size_control(mode)
+    except Exception as err:
+        console.warn('Failed to create cover grid size toolbar control')
+        console.warn(err)
+
+
+def populate_book_list_toolbar(toolbar_el, include_sort, on_view_mode_change=None, initial_mode=None):
+    if not toolbar_el:
+        return
+    clear(toolbar_el)
+    cover_grid_size_control = None
+    current_mode = initial_mode or get_view_mode()
+    mode_wrap, mode_sel = create_select(
+        _('Change book list mode'), current_mode, cover_grid=_('Cover grid'),
+        details_list=_('Detailed list'), custom_list=_('Custom list'))
+    mode_sel.dataset.currentMode = current_mode
+    mode_sel.addEventListener('change', def(ev):
+        requested_mode = mode_sel.value
+        current_mode = mode_sel.dataset.currentMode
+        if requested_mode and requested_mode is not current_mode:
+            get_session_data().set('view_mode', requested_mode)
+            if on_view_mode_change:
+                current_mode = on_view_mode_change(requested_mode) or requested_mode
+            else:
+                current_mode = apply_view_mode(requested_mode) or requested_mode
+            mode_sel.dataset.currentMode = current_mode
+            mode_sel.value = current_mode
+            if cover_grid_size_control:
+                sync_cover_grid_size_control(cover_grid_size_control, current_mode)
+    )
+    toolbar_el.appendChild(mode_wrap)
+    cover_grid_size_control = create_optional_cover_grid_size_control(current_mode)
+    if cover_grid_size_control:
+        toolbar_el.appendChild(cover_grid_size_control)
+    if not include_sort:
+        return
+    def toggle_sort_order(ev=None):
+        _csf, _csfo = current_sorted_field()
+        if _csf is 'date':
+            _csf = 'timestamp'
+        new_order = 'desc' if _csfo is 'asc' else 'asc'
+        if _csf:
+            change_sort(_csf, new_order)
+
+
+    try:
+        if not library_data.sortable_fields:
+            return
+        csf, csfo = current_sorted_field()
+        if csf is 'date':
+            csf = 'timestamp'
+        found = False
+        options = {}
+        for field, name in library_data.sortable_fields:
+            options[field] = name
+            if field is csf:
+                found = True
+        if not found and library_data.sortable_fields?.length:
+            value = library_data.sortable_fields[0][0]
+        else:
+            value = csf
+        sort_wrap, sort_field_sel = create_select(_('Change how the list is sorted'), value, **options)
+        sort_field_sel.addEventListener('change', def(ev):
+            f = sort_field_sel.value or ''
+            if f:
+                change_sort(f, None)
+        )
+        toolbar_el.appendChild(sort_wrap)
+
+        icon_name = 'sort-amount-asc' if (csfo or 'asc') is 'asc' else 'sort-amount-desc'
+        toolbar_el.appendChild(create_button('', icon=icon_name, action=toggle_sort_order, tooltip=_('Toggle sort order'), class_='cs-sort-order-btn'))
+    except Exception:
+        pass
+
 
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
     book_list_data.shown_book_ids = set()
     book_list_data.mode = None
     abort_get_more_books(True)
-    container.appendChild(E.div(data_component='top_message'))
-    container.appendChild(E.div(data_component='book_list'))
-    container.appendChild(E.div(data_component='more_button'))
-    show_top_message()
+    pager = E.div(data_component='pager')
+    book_list_div = E.div(data_component='book_list')
+    bottom_pager_el = E.div(style='margin-bottom:1.5rem')
+    container.appendChild(pager)
+    container.appendChild(book_list_div)
+    container.appendChild(bottom_pager_el)
+    top_widget = create_pager_widget(
+        def(): go_to_offset((library_data.search_result.offset or 0) - page_size);,
+        def(): go_to_offset((library_data.search_result.offset or 0) + page_size);,
+    )
+    bottom_widget = create_pager_widget(
+        def(): go_to_offset((library_data.search_result.offset or 0) - page_size);,
+        def(): go_to_offset((library_data.search_result.offset or 0) + page_size);,
+    )
+    bottom_pager_el.appendChild(bottom_widget.container)
+
+    top_widget.set_top_row_visibility(show_top_message(top_widget.top_row))
     apply_view_mode(get_view_mode())
-    create_more_button(container.lastChild)
-    add_button(container.parentNode, icon='plus', action=show_subsequent_panel.bind(None, 'book_list^add'), tooltip=_('Add books'))
-    add_button(container.parentNode, icon='sort-amount-desc', action=show_subsequent_panel.bind(None, 'book_list^sort'), tooltip=_('Sort books'))
-    add_button(container.parentNode, icon='search', action=show_subsequent_panel.bind(None, 'book_list^search'), tooltip=_('Search for books'))
-    add_button(container.parentNode, icon='ellipsis-v', action=show_subsequent_panel.bind(None, 'book_list^more_actions'), tooltip=_('More actions'))
+
+    q = parse_url_params()
+    page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
+
+    def go_to_offset(new_offset):
+        new_offset = max(0, new_offset)
+        qq = parse_url_params()
+        qq.offset = str(new_offset)
+        qq.num = str(page_size)
+        push_state(qq, replace=True, call_handler=False)
+        fetch_books_page(new_offset, page_size, def(ok):
+            if not ok:
+                error_dialog(_('Could not load books'), _('Failed to load the requested page'))
+            update_pager()
+        )
+
+
+    def update_pager():
+        sr = library_data.search_result
+        total = sr.total_num or 0
+        offset = sr.offset or 0
+        end = min(total, offset + page_size)
+        top_widget.count_msg.textContent = _('{0}–{1} of {2}').format((offset + 1) if total else 0, end, total)
+        top_widget.set_enabled(offset > 0, end < total)
+        bottom_widget.set_enabled(offset > 0, end < total)
+
+    update_pager()
+    pager.appendChild(top_widget.container)
+    populate_book_list_toolbar(top_widget.middle_row, True)
+    top_widget.set_middle_row_visibility(top_widget.middle_row.children.length > 0)
+
     q = parse_url_params()
     scrolled = False
     if q.book_id:
@@ -294,8 +557,7 @@ def create_books_list(container):
         window.scrollTo(0, 0)
     q = loaded_books_query()
     if not q.search and library_data.search_result.total_num < 1:
-        div = component('book_list')
-        div.appendChild(E.div(_('No books found'), style='margin: 1ex 1em'))
+        book_list_div.appendChild(E.div(_('No books found'), style='margin: 1ex 0'))
 
 
 def check_for_books_loaded():
@@ -305,8 +567,8 @@ def check_for_books_loaded():
         conditional_timeout(container_id, 5, check_for_books_loaded)
         return
     container = container.lastChild
-    clear(container)
     if not load_status.ok:
+        clear(container)
         if load_status.http_error_code is 401:
             # Unauthorized, keep retrying until the user provides a
             # username/password
@@ -326,7 +588,16 @@ def check_for_books_loaded():
             ),
         )
         return
+    clear_book_list_inner(container)
     create_books_list(container)
+    # If the URL specifies an offset, show that page
+    q = parse_url_params()
+    desired_offset = max(0, parse_int(q.offset, 0))
+    if desired_offset:
+        page_size = clamp(parse_int(q.num, library_data.search_result?.num or 50), 10, 200)
+        fetch_books_page(desired_offset, page_size, def(ok):
+            pass
+        )
     if library_data.search_result and jstype(library_data.search_result.num_books_without_search) is 'number':
         set_title_tooltip(this, _('Total number of books: {}').format(library_data.search_result.num_books_without_search))
 
@@ -339,8 +610,11 @@ def init(container_id):
     title = interface_data.library_map[lid]
     update_window_title(title)
     create_top_bar(container, title=title, action=def(): save_scroll_position(), home();, icon='home')
-    container.appendChild(E.div(class_=CLASS_NAME))
-    container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
+    add_book_list_top_bar_buttons(container)
+
+    inner = E.div(class_=CLASS_NAME)
+    container.appendChild(inner)
+    inner.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
@@ -413,7 +687,7 @@ def create_vl_panel(container_id):
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Choose Virtual library…'), action=back, icon='close')
+    create_top_bar(container, title=_('Choose Virtual library…'), icon='back')
     items = []
     vls = all_virtual_libraries()
     vl_names = Object.keys(vls).sort(def (a, b): return a.toLowerCase().localeCompare(b.toLowerCase());)
@@ -437,7 +711,7 @@ def create_mode_panel(container_id):
         show_panel('book_list', replace=True)
         return
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Choose book list mode…'), action=back, icon='close')
+    create_top_bar(container, title=_('Choose book list mode…'), icon='back')
     items = []
     current_mode = get_view_mode()
 
@@ -458,30 +732,6 @@ def create_mode_panel(container_id):
 
 # }}}
 
-# More actions {{{
-
-def create_more_actions_panel(container_id):
-    container = document.getElementById(container_id)
-    create_top_bar(container, title=_('More actions…'), action=back, icon='close')
-    items = [
-        create_item(_('Book list mode'), subtitle=_('Change how the list of books is displayed'), action=def():
-                    show_panel('book_list^choose_mode', replace=True)
-        ),
-        create_item(_('A random book'), subtitle=_('Choose a random book from the library'), action=def():
-                    query = {'book_id':'0'}
-                    show_panel('book_details', query=query, replace=True)
-        ),
-    ]
-    vls = all_virtual_libraries()
-    if vls and Object.keys(vls).length > 0:
-        items.insert(1, create_item(_('Choose Virtual library'), subtitle=_('Browse books in a Virtual library'), action=def():
-                     show_panel('book_list^vl', replace=True)
-        ))
-    container.appendChild(E.div())
-    create_item_list(container.lastChild, items)
-    enable_escape_key(container, back)
-# }}}
-
 # Adding books {{{
 def create_add_panel(container_id):
     if not library_data.sortable_fields:
@@ -499,4 +749,3 @@ set_panel_handler('book_list^vl', create_vl_panel)
 set_panel_handler('book_list^search', init_search_panel)
 set_panel_handler('book_list^choose_mode', create_mode_panel)
 set_panel_handler('book_list^search^prefs', tb_config_panel_handler())
-set_panel_handler('book_list^more_actions', create_more_actions_panel)

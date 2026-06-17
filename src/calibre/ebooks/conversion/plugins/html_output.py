@@ -27,13 +27,13 @@ class HTMLOutput(OutputFormatPlugin):
 
     options = {
         OptionRecommendation(name='template_css',
-            help=_('CSS file used for the output instead of the default file')),
+            help=_('CSS file used for the output instead of the default CSS.')),
 
         OptionRecommendation(name='template_html_index',
-            help=_('Template used for generation of the HTML index file instead of the default file')),
+            help=_('Template used for generation of the HTML index file instead of the default template. In Mustache format.')),
 
         OptionRecommendation(name='template_html',
-            help=_('Template used for the generation of the HTML contents of the book instead of the default file')),
+            help=_('Template used for the generation of the HTML contents of the book instead of the default template. In Mustache format.')),
 
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated ZIP file to the '
@@ -85,10 +85,11 @@ class HTMLOutput(OutputFormatPlugin):
                 xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        import pystache
         from lxml import etree
-        from templite import Templite
 
         from calibre.ebooks.html.meta import EasyMeta
+        from calibre.ebooks.metadata import authors_to_string
         from calibre.utils import zipfile
         from polyglot.urllib import unquote
 
@@ -97,13 +98,13 @@ class HTMLOutput(OutputFormatPlugin):
             with open(opts.template_html_index, 'rb') as f:
                 template_html_index_data = f.read()
         else:
-            template_html_index_data = P('templates/html_export_default_index.tmpl', data=True)
+            template_html_index_data = P('templates/html_export_default_index.mustache', data=True)
 
         if opts.template_html is not None:
             with open(opts.template_html, 'rb') as f:
                 template_html_data = f.read()
         else:
-            template_html_data = P('templates/html_export_default.tmpl', data=True)
+            template_html_data = P('templates/html_export_default.mustache', data=True)
 
         if opts.template_css is not None:
             with open(opts.template_css, 'rb') as f:
@@ -111,9 +112,10 @@ class HTMLOutput(OutputFormatPlugin):
         else:
             template_css_data = P('templates/html_export_default.css', data=True)
 
-        template_html_index_data = template_html_index_data.decode('utf-8')
-        template_html_data = template_html_data.decode('utf-8')
+        template_html_index = pystache.parse(template_html_index_data.decode('utf-8'))
+        template_html = pystache.parse(template_html_data.decode('utf-8'))
         template_css_data = template_css_data.decode('utf-8')
+        has_toc = bool(oeb_book.toc.count())
 
         self.log  = log
         self.opts = opts
@@ -130,18 +132,31 @@ class HTMLOutput(OutputFormatPlugin):
         css_path = output_dir+os.sep+'calibreHtmlOutBasicCss.css'
         with open(css_path, 'wb') as f:
             f.write(template_css_data.encode('utf-8'))
+        meta_dict = {
+            'titles': [{'title': x, 'is_first': i == 0} for i, x in enumerate(meta.titles())],
+            'creators': authors_to_string(tuple(meta.creators())),
+            'items': list(meta),
+        }
+        meta_dict['first_title'] = meta_dict['titles'][0]['title'] if meta_dict['titles'] else ''
+        basic_template_vars = {
+                'meta': meta_dict, 'has_toc': has_toc,
+                'table_of_contents':  _('Table of contents'), 'no_toc': _('No table of contents present'),
+                'begin_to_read': _('begin to read'), 'start': _('start'),
+                'prev_page': _('previous page'), 'next_page': _('next page'),
+        }
 
         with open(output_file, 'wb') as f:
-            html_toc = self.generate_html_toc(oeb_book, output_file, output_dir)
-            templite = Templite(template_html_index_data)
             nextLink = oeb_book.spine[0].href
             nextLink = relpath(output_dir+os.sep+nextLink, dirname(output_file))
             cssLink = relpath(abspath(css_path), dirname(output_file))
             tocUrl = relpath(output_file, dirname(output_file))
-            t = templite.render(has_toc=bool(oeb_book.toc.count()),
-                    toc=html_toc, meta=meta, nextLink=nextLink,
-                    tocUrl=tocUrl, cssLink=cssLink,
-                    firstContentPageLink=nextLink)
+            toc_as_html = self.generate_html_toc(oeb_book, output_file, output_dir) if has_toc else ''
+            v = basic_template_vars.copy()
+            v.update({
+                'toc': toc_as_html, 'css_link': cssLink, 'toc_url': tocUrl, 'next_link': nextLink,
+                'first_content_page_link': nextLink,
+            })
+            t = pystache.render(template_html_index, v)
             if isinstance(t, str):
                 t = t.encode('utf-8')
             f.write(t)
@@ -197,17 +212,18 @@ class HTMLOutput(OutputFormatPlugin):
                 firstContentPageLink = oeb_book.spine[0].href
 
                 # render template
-                templite = Templite(template_html_data)
-
                 def toc():
-                    return self.generate_html_toc(oeb_book, path, output_dir)
-                t = templite.render(ebookContent=ebook_content,
-                        prevLink=prevLink, nextLink=nextLink,
-                        has_toc=bool(oeb_book.toc.count()), toc=toc,
-                        tocUrl=tocUrl, head_content=head_content,
-                        meta=meta, cssLink=cssLink,
-                        firstContentPageLink=firstContentPageLink)
-
+                    return
+                toc_as_html = self.generate_html_toc(oeb_book, path, output_dir) if has_toc else ''
+                v = basic_template_vars.copy()
+                v.update({
+                    'has_link': prevLink or nextLink,
+                    'prev_link': prevLink, 'next_link': nextLink, 'toc_url': tocUrl,
+                    'head_content': head_content, 'ebook_content': ebook_content,
+                    'css_link': cssLink, 'toc': toc_as_html,
+                    'first_content_page_link': firstContentPageLink,
+                })
+                t = pystache.render(template_html, v)
                 # write html to file
                 with open(path, 'wb') as f:
                     f.write(t.encode('utf-8'))

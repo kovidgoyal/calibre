@@ -123,6 +123,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="opt_use_alt_text_for_images">
+        <property name="text">
+         <string>Replace images by their &amp;alt attribute text</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="opt_keep_color">
         <property name="text">
          <string>Keep text &amp;color, when possible</string>

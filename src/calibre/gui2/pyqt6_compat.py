@@ -74,7 +74,7 @@ def set_menu(self, menu):
 
 
 QAction.setMenu = set_menu
-QAction.menu = lambda self: progress_indicator.menu_for_action(self)
+QAction.menu = lambda self: progress_indicator.menu_for_action(self)  # noqa: PLW0108
 
 
 # Restore QModelIndex::child

@@ -40,7 +40,7 @@ from calibre.utils.short_uuid import uuid4
 
 KOBO_CSS_ID = 'kobostylehacks'  # kepubify uses class, actual books from Kobo use id
 EXTRA_CSS_ID = 'kepubify-extra-css'
-EXTRA_KOBO_CSS_IDS = ('koboSpanStyle',)  # these are present in some kepub files from kobo such as dark forest by cixin liu
+KOBO_SPAN_STYLE_ID = 'koboSpanStyle'
 KOBO_JS_NAME = 'kobo.js'
 KOBO_CSS_NAME = 'kobo.css'
 OUTER_DIV_ID = 'book-columns'
@@ -56,6 +56,8 @@ BLOCK_TAGS = frozenset((
     'p', 'ol', 'ul', 'table', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
 ))
 KOBO_CSS = 'div#book-inner { margin-top: 0; margin-bottom: 0; }'
+# Needed for Kobo renderer: https://bugs.launchpad.net/calibre/+bug/2138855
+KOBO_SPAN_CSS = '.koboSpan { -webkit-text-combine: inherit; }'
 
 
 @lru_cache(2)
@@ -92,6 +94,10 @@ def add_style_and_script(root, kobo_js_href: str, opts: Options) -> bool:
         e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_CSS_ID)
         e.text = KOBO_CSS
         insert_self_closing(parent, e)
+        e = parent.makeelement(XHTML('style'), type='text/css', id=KOBO_SPAN_STYLE_ID)
+        e.text = KOBO_SPAN_CSS
+        insert_self_closing(parent, e)
+        e.text += (e.tail or '')
         extra_css = (opts.hyphenation_css + '\n\n' + opts.extra_css).strip()
         if extra_css:
             e = parent.makeelement(XHTML('style'), type='text/css', id=EXTRA_CSS_ID)
@@ -115,7 +121,7 @@ def is_href_to_fname(href: str | None, fname: str) -> bool:
 
 
 def remove_kobo_styles_and_scripts(root):
-    ids_to_remove = EXTRA_KOBO_CSS_IDS + (KOBO_CSS_ID, EXTRA_CSS_ID,)
+    ids_to_remove = (KOBO_CSS_ID, EXTRA_CSS_ID, KOBO_SPAN_STYLE_ID)
     for style in XPath('//h:style')(root):
         if style.get('id') in ids_to_remove:
             extract(style)
@@ -222,7 +228,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
             parent.insert(at, s)
             at += 1
 
-    def wrap_child(child: etree.Element) -> etree.Element:
+    def wrap_child(child: etree.Element, keep_text=False) -> etree.Element:
         nonlocal increment_next_para, paranum, segnum
         increment_next_para = False
         paranum += 1
@@ -233,7 +239,9 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
         node[idx] = w
         w.append(child)
         w.tail = child.tail
-        child.tail = child.text = None
+        child.tail = None
+        if not keep_text:
+            child.text = None
         return w
 
     while stack:
@@ -263,7 +271,7 @@ def unwrap(span: etree.Element) -> None:
     if len(span):
         p.insert(idx, span[0])
     else:
-        text = span.text + (span.tail or '')
+        text = (span.text or '') + (span.tail or '')
         if idx > 0:
             prev = p[idx-1]
             prev.tail = (prev.tail or '') + text
@@ -413,6 +421,9 @@ def add_dummy_title_page(container: Container, cover_image_name: str, mi, kobo_j
         <style type="text/css" id="{KOBO_CSS_ID}">
         {KOBO_CSS}
         </style>
+        <style type="text/css" id="{KOBO_SPAN_STYLE_ID}">
+        {KOBO_SPAN_CSS}
+        </style>
         <script type="text/javascript" src="{kobo_js_href}"/>
     </head>
     <body><div id="{OUTER_DIV_ID}"><div id="{INNER_DIV_ID}">
@@ -522,12 +533,21 @@ def uniqify_name(container: Container, fname: str) -> str:
     return q
 
 
+def find_cover_image_omf(container):
+    ' "Open" Media format files '
+    images = ('image/jpeg', 'image/webp', 'image/png')
+    for name, is_linear in container.spine_names:
+        if container.mime_map.get(name, '') in images:
+            return name
+        break
+
+
 def kepubify_container(container: Container, opts: Options, max_workers: int = 0) -> None:
     remove_dummy_title_page(container)
     remove_dummy_cover_image(container)
     remove_kobo_files(container)
     metadata_lang = container.mi.language
-    cover_image_name = find_cover_image(container) or find_cover_image3(container)
+    cover_image_name = find_cover_image(container) or find_cover_image3(container) or find_cover_image_omf(container)
     mi = container.mi
     if not cover_image_name:
         from calibre.ebooks.covers import generate_cover

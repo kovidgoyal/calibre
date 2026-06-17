@@ -1,0 +1,87 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, unique_id
+from read_book.chrome import viewer_chrome_colors
+
+MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
+MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
+MAIN_OVERLAY_ACTION_CONTROL_CLASS = 'read-book-main-overlay-action-control'
+MAIN_OVERLAY_ACTION_ICON_CLASS = 'read-book-main-overlay-action-icon'
+MAIN_OVERLAY_TEXT_ICON_CLASS = 'read-book-main-overlay-text-icon'
+MAIN_OVERLAY_TOP_ROW_CLASS = 'read-book-main-overlay-top-row'
+MAIN_OVERLAY_TITLE_CLASS = 'read-book-main-overlay-title'
+MAIN_OVERLAY_TIMER_CLASS = 'read-book-main-overlay-timer'
+MAIN_OVERLAY_FOOTER_ACTION_CLASS = 'read-book-main-overlay-footer-action'
+MAIN_OVERLAY_FOOTER_CLASS = 'read-book-main-overlay-footer'
+MAIN_OVERLAY_FOOTER_ACTIONS_CLASS = 'read-book-main-overlay-footer-actions'
+MAIN_OVERLAY_FOOTER_SLOT_CLASS = 'read-book-main-overlay-footer-slot'
+MAIN_OVERLAY_FOOTER_MIDDLE_SLOT_CLASS = 'read-book-main-overlay-footer-middle-slot'
+MAIN_OVERLAY_FOOTER_RIGHT_SLOT_CLASS = 'read-book-main-overlay-footer-right-slot'
+MAIN_OVERLAY_ICON_SIZE = '3.5ex'
+
+
+def timer_id():
+    if not timer_id.ans:
+        timer_id.ans = unique_id()
+    return timer_id.ans
+
+
+def main_overlay_css():
+    style = ''
+    colors = viewer_chrome_colors()
+    border = 'var(--calibre-border-style-subtle)'
+    hover_background = 'var(--calibre-color-primary-light)'
+    active_background = 'var(--calibre-color-primary-light-2)'
+    focus_outline = '1px solid ' + get_color('input-focus-outline-color')
+    style += build_rule('.' + MAIN_OVERLAY_TS_CLASS,
+                        user_select='none', background_color=colors.background, color=colors.foreground)
+    style += build_rule('.' + MAIN_OVERLAY_TOP_ROW_CLASS,
+                        display='flex', justify_content='space-between', align_items='baseline',
+                        font_size='smaller', padding='0.5ex 1ex', border_bottom=border)
+    style += build_rule('.' + MAIN_OVERLAY_TITLE_CLASS,
+                        max_width='90%', text_overflow='ellipsis', font_weight='bold',
+                        white_space='nowrap', overflow='hidden')
+    style += build_rule('.' + MAIN_OVERLAY_TIMER_CLASS,
+                        max_width='9%', white_space='nowrap', overflow='hidden')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_CLASS,
+                        position='fixed', width='100%', bottom='0', display='flex',
+                        justify_content='space-between', align_items='center',
+                        user_select='none', background_color=colors.background, color=colors.foreground)
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTIONS_CLASS,
+                        display='flex', justify_content='space-between', align_items='center')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS,
+                        display='flex', align_items='center', cursor='pointer', padding='0.5ex 1rem',
+                        appearance='none', margin='0', border='0', color='inherit',
+                        background='transparent', font='inherit')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':focus',
+                        outline=focus_outline)
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ' > svg:first-child', margin_right='0.5ex')
+    style += build_rule('.' + MAIN_OVERLAY_FOOTER_SLOT_CLASS, padding='0.5ex 1rem')
+    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
+    style += build_rule(sel, overflow='hidden')
+    sel += '> ul '
+    style += build_rule(sel, display='flex', list_style='none', margin='0', padding='0', border_bottom=border)
+    sel += '> li'
+    style += build_rule(sel, border_right=border, display='flex')
+    style += build_rule(sel + ':last-child', border_right_style='none')
+    action_sel = sel + ' > .' + MAIN_OVERLAY_ACTION_CONTROL_CLASS
+    style += build_rule(action_sel,
+                        display='flex', flex_wrap='wrap', align_items='center', cursor='pointer',
+                        appearance='none', margin='0', padding='0.5em 1ex', border='0',
+                        color='inherit', background='transparent', font='inherit', text_align='left')
+    style += build_rule(action_sel + ':focus',
+                        outline=focus_outline)
+    style += build_rule(action_sel + ' > .' + MAIN_OVERLAY_ACTION_ICON_CLASS + ':first-child', margin_right='0.5ex')
+    style += build_rule('.' + MAIN_OVERLAY_TEXT_ICON_CLASS, font_size='175%', font_weight='bold')
+    style += build_rule(action_sel + ':hover, .' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':hover',
+                        background_color=hover_background)
+    style += build_rule(action_sel + ':active, .' + MAIN_OVERLAY_FOOTER_ACTION_CLASS + ':active',
+                        background_color=active_background)
+    style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
+    return style
+
+
+add_extra_css(main_overlay_css)

@@ -123,13 +123,16 @@ def _add_default_custom_column_values(mi, fm):
     cols = fm.custom_field_metadata(include_composites=False)
     for cc,col in cols.items():
         dv = col['display'].get('default_value', None)
+        if dv is None:
+            continue
         try:
-            if dv is not None:
-                if not mi.get_user_metadata(cc, make_copy=False):
-                    mi.set_user_metadata(cc, col)
-                dt = col['datatype']
-                if dt == 'datetime' and icu_lower(dv) == 'now':
-                    dv = nowf()
+            if not mi.get_user_metadata(cc, make_copy=False):
+                mi.set_user_metadata(cc, col)
+            dt = col['datatype']
+            if dt == 'datetime' and icu_lower(dv) == 'now':
+                dv = nowf()
+            current_val = mi.get(cc, default=mi)
+            if current_val is mi:
                 mi.set(cc, dv)
         except Exception:
             traceback.print_exc()
@@ -465,6 +468,8 @@ class Cache:
                     field.author_sort_field = self.fields['author_sort']
                 elif name == 'title':
                     field.title_sort_field = self.fields['sort']
+            if self.backend.prefs.get('full_page_scan_requested'):
+                self._queue_pages_scan(by_user=False)
         if self.backend.prefs['update_all_last_mod_dates_on_start']:
             self.update_last_modified(self.all_book_ids())
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
@@ -1048,7 +1053,7 @@ class Cache:
     def get_book_path(self, book_id, sep=os.sep, unsafe=False):
         '''
         Return the relative book path for the given id.
-        Prefer this because you can choose the directory separator, default use the os one.
+        Prefer this because you can choose the directory separator, default use the OS one.
         If unsafe is True, allow to return None if the book_id is not in the library.
         '''
         rslt = self._field_for('path', book_id)
@@ -1072,6 +1077,20 @@ class Cache:
         if author_ids is None:
             return {aid:af.author_data(aid) for aid in af.table.id_map}
         return {aid:af.author_data(aid) for aid in author_ids if aid in af.table.id_map}
+
+    @read_api
+    def author_sorts(self, author_ids=None) -> dict[int, str]:
+        '''
+        Return author sorts for specified authors.
+
+        If no authors with the specified ids are found an empty dictionary is
+        returned. If author_ids is None, data for all authors is returned.
+        '''
+        af = self.fields['authors']
+        m = af.table.asort_map
+        if author_ids is None:
+            return m.copy()
+        return {aid:m[aid] for aid in author_ids if aid in m}
 
     @read_api
     def format_hash(self, book_id, fmt):
@@ -1136,11 +1155,14 @@ class Cache:
         return field.format_size(book_id, fmt)
 
     @read_api
-    def pref(self, name, default=None, namespace=None):
+    def pref(self, name, default=None, namespace=None, get_default_from_defaults=False):
         ' Return the value for the specified preference or the value specified as ``default`` if the preference is not set. '
+        p = self.backend.prefs
+        if get_default_from_defaults:
+            default = p.defaults.get(name, default)
         if namespace is not None:
-            return self.backend.prefs.get_namespaced(namespace, name, default)
-        return self.backend.prefs.get(name, default)
+            return p.get_namespaced(namespace, name, default)
+        return p.get(name, default)
 
     @write_api
     def set_pref(self, name, val, namespace=None):
@@ -1603,7 +1625,7 @@ class Cache:
         return sorted(ids_to_sort, key=SortKey)
 
     @read_api
-    def search(self, query, restriction='', virtual_fields=None, book_ids=None):
+    def search(self, query, restriction='', virtual_fields=None, book_ids=None, allow_templates=True):
         '''
         Search the database for the specified query, returning a set of matched book ids.
 
@@ -1615,7 +1637,7 @@ class Cache:
         :param book_ids: If not None, a set of book ids for which books will
             be searched instead of searching all books.
         '''
-        return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
+        return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids, allow_templates=allow_templates)
 
     @read_api
     def books_in_virtual_library(self, vl, search_restriction=None, virtual_fields=None):
@@ -1756,9 +1778,11 @@ class Cache:
             return Pages(int(pages), int(algorithm), str(format), int(format_size),
                          parse_iso8601(timestamp, assume_utc=True))
     @read_api
-    def pages_needs_scan(self, books: Iterable[int]) -> set[int]:
-        ' Return the subset of books that are marked as needing a scan to update page count '
+    def pages_needs_scan(self, books: Iterable[int] = ()) -> set[int]:
+        ' Return the subset of books (or all books if empty) that are marked as needing a scan to update page count '
         books = tuple(books)
+        if not books:
+            return {r[0] for r in self.backend.execute('SELECT book FROM books_pages_link WHERE needs_scan=1')}
         ans = set()
         BATCH_SIZE = self.backend.max_number_of_variables
         for i in range(0, len(books), BATCH_SIZE):
@@ -1785,7 +1809,7 @@ class Cache:
             self.backend.execute('UPDATE books_pages_link SET needs_scan=1')
 
     @write_api
-    def queue_pages_scan(self, book_id: int = 0, force: bool = False) -> None:
+    def queue_pages_scan(self, book_id: int = 0, force: bool = False, by_user: bool = True) -> None:
         '''
         Start a scan updating page counts for all books that need a scan.
         If book_id is specified, then only that book is scanned and it is always scanned.
@@ -1799,6 +1823,8 @@ class Cache:
                 self.fields['pages'].table.book_col_map.clear()
             if len(self.fields['pages'].table.book_col_map) < len(self.fields['uuid'].table.book_col_map):
                 self.backend.execute('INSERT OR IGNORE INTO books_pages_link(book,needs_scan) SELECT id,1 FROM books')
+            if by_user:
+                self._set_pref('full_page_scan_requested', True)
         elif force:
             self.backend.execute(f'DELETE FROM books_pages_link WHERE book={book_id}')
             self.fields['pages'].table.book_col_map.pop(book_id, None)
@@ -2225,6 +2251,8 @@ class Cache:
                 run_plugins_on_postdelete(self, book_id, fmt)
 
         self._update_last_modified(tuple(formats_map))
+        for book_id in formats_map:
+            self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.formats_removed, formats_map)
         return removed_map
 
@@ -2974,10 +3002,10 @@ class Cache:
         return self.backend.dump_and_restore(callback=callback, sql=sql)
 
     @write_api
-    def vacuum(self, include_fts_db=False, include_notes_db=True):
+    def vacuum(self, include_fts_db=False, include_notes_db=True, rebuild_annotations_fts=False):
         self.is_doing_rebuild_or_vacuum = True
         try:
-            self.backend.vacuum(include_fts_db, include_notes_db)
+            self.backend.vacuum(include_fts_db, include_notes_db, rebuild_annotations_fts)
         finally:
             self.is_doing_rebuild_or_vacuum = False
 
@@ -3070,6 +3098,7 @@ class Cache:
         self.format_metadata_cache.pop(book_id, None)
         max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
         self.fields['size'].table.update_sizes({book_id: max_size})
+        self._queue_pages_scan(book_id)
         self.event_dispatcher(EventType.format_added, book_id, fmt)
         self.backend.remove_trash_formats_dir_if_empty(book_id)
 
@@ -3099,6 +3128,7 @@ class Cache:
             self._set_field('cover', {book_id:1})
         if annotations:
             self._restore_annotations(book_id, annotations)
+        self._queue_pages_scan(book_id)
 
     @write_api
     def delete_trash_entry(self, book_id, category):
@@ -3125,6 +3155,7 @@ class Cache:
         self.fields['path'].table.set_path(book_id, path, self.backend)
         if annotations:
             self._restore_annotations(book_id, annotations)
+        self._queue_pages_scan(book_id)
 
     @read_api
     def virtual_libraries_for_books(self, book_ids, virtual_fields=None):
@@ -3272,30 +3303,27 @@ class Cache:
                 report_progress(i+1, len(book_ids), mi)
 
     @read_api
-    def get_last_read_positions(self, book_id, fmt, user):
-        fmt = fmt.upper()
-        ans = []
-        for device, cfi, epoch, pos_frac in self.backend.execute(
-                'SELECT device,cfi,epoch,pos_frac FROM last_read_positions WHERE book=? AND format=? AND user=?',
-                (book_id, fmt, user)):
-            ans.append({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac})
-        return ans
+    def get_last_read_positions(self, book_id, fmt='', user='', order_by='', limit=0):
+        q = 'SELECT device,cfi,epoch,pos_frac,format,user FROM last_read_positions WHERE book=?'
+        bindings = [book_id]
+        if fmt:
+            q += ' AND format=?'
+            bindings.append(fmt.upper())
+        if user:
+            q += ' AND user=?'
+            bindings.append(user)
+        if order_by in ('pos_frac', 'epoch'):
+            q += f' ORDER BY {order_by} DESC'
+        if limit:
+            q += f' LIMIT {int(limit)}'
+        return tuple({'device':device, 'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac, 'format': format, 'user': user}
+            for device, cfi, epoch, pos_frac, format, user in self.backend.execute(q, tuple(bindings)))
 
     @write_api
     def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
-        fmt = fmt.upper()
-        device = device or '_'
-        user = user or '_'
-        if not cfi:
-            self.backend.execute(
-                'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
-                (book_id, fmt, user, device))
-        else:
-            self.backend.execute(
-                'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
-                (book_id, fmt, user, device, cfi, epoch or time(), pos_frac))
+        self.backend.set_last_read_position(book_id, fmt, user, device, cfi, epoch, pos_frac)
 
-    @read_api
+    @write_api  # doesn't need write access but sqlite does require only a single thread to access the db during backup
     def export_library(self, library_key, exporter, progress=None, abort=None):
         from polyglot.binary import as_hex_unicode
         key_prefix = as_hex_unicode(library_key)
@@ -3420,13 +3448,23 @@ class Cache:
         return tuple(self.backend.all_annotation_types())
 
     @read_api
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False, restrict_to_book_ids=None):
+    def all_annotations(
+        self, restrict_to_user=None, limit=None, annotation_type=None, annotation_style=None,
+        ignore_removed=False, restrict_to_book_ids=None,
+    ):
         '''
         Return a tuple of all annotations matching the specified criteria.
-        `ignore_removed` controls whether removed (deleted) annotations are also returned. Removed annotations are just a skeleton
-        used for merging of annotations.
+        `ignore_removed` controls whether removed (deleted) annotations are also returned.
+        Removed annotations are just a skeleton used for merging of annotations.
         '''
-        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type, ignore_removed, restrict_to_book_ids))
+        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type, annotation_style, ignore_removed, restrict_to_book_ids))
+
+    @read_api
+    def all_annotation_styles(self):
+        '''
+        Return a tuple of all built-in annotation styles.
+        '''
+        return self.backend.all_annotation_styles()
 
     @read_api
     def search_annotations(
@@ -3439,7 +3477,8 @@ class Cache:
         annotation_type=None,
         restrict_to_book_ids=None,
         restrict_to_user=None,
-        ignore_removed=False
+        ignore_removed=False,
+        annotation_style=None,
     ):
         '''
         Return of a tuple of annotations matching the specified Full-text query.
@@ -3447,7 +3486,7 @@ class Cache:
         return tuple(self.backend.search_annotations(
             fts_engine_query, use_stemming, highlight_start, highlight_end,
             snippet_size, annotation_type, restrict_to_book_ids, restrict_to_user,
-            ignore_removed
+            ignore_removed, annotation_style,
         ))
 
     @write_api
@@ -3756,30 +3795,30 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
         raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
-
-    format_data = {int(book_id):data for book_id, data in metadata['format_data'].items()}
-    extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
-    for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
-        if abort is not None and abort.is_set():
-            return
-        title = cache._field_for('title', book_id)
-        if progress is not None:
-            progress(title, i + poff, total)
-        cache._update_path((book_id,), mark_as_dirtied=False)
-        for fmt, fmtkey in fmt_key_map.items():
-            if fmt == '.cover':
-                with importer.start_file(fmtkey, _('Cover for %s') % title) as stream:
+    with cache.write_lock:
+        format_data = {int(book_id):data for book_id, data in metadata['format_data'].items()}
+        extra_files = {int(book_id):data for book_id, data in metadata.get('extra_files', {}).items()}
+        for i, (book_id, fmt_key_map) in enumerate(format_data.items()):
+            if abort is not None and abort.is_set():
+                return
+            title = cache._field_for('title', book_id)
+            if progress is not None:
+                progress(title, i + poff, total)
+            cache._update_path((book_id,), mark_as_dirtied=False)
+            for fmt, fmtkey in fmt_key_map.items():
+                if fmt == '.cover':
+                    with importer.start_file(fmtkey, _('Cover for %s') % title) as stream:
+                        path = cache._get_book_path(book_id)
+                        cache.backend.set_cover(book_id, path, stream, no_processing=True)
+                else:
+                    with importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title)) as stream:
+                        size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
+                        cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
+            for relpath, efkey in extra_files.get(book_id, {}).items():
+                with importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title)) as stream:
                     path = cache._get_book_path(book_id)
-                    cache.backend.set_cover(book_id, path, stream, no_processing=True)
-            else:
-                with importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title)) as stream:
-                    size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
-                    cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
-        for relpath, efkey in extra_files.get(book_id, {}).items():
-            with importer.start_file(efkey, _('Extra file {0} for book {1}').format(relpath, title)) as stream:
-                path = cache._get_book_path(book_id)
-                cache.backend.add_extra_file(relpath, stream, path)
-        cache.dump_metadata({book_id})
+                    cache.backend.add_extra_file(relpath, stream, path)
+            cache.dump_metadata({book_id})
     if importer.corrupted_files:
         raise ValueError('Corrupted files:\n' + '\n'.join(importer.corrupted_files))
     if progress is not None:

@@ -69,7 +69,7 @@ class Veintitres(BasicNewsRecipe):
             self.report_progress(
                 0,
                 _('Fetching feed') + ' %s...' %
-                (feedtitle if feedtitle else feedurl)
+                (feedtitle or feedurl)
             )
             articles = []
             soup = self.index_to_soup(feedurl)

@@ -268,6 +268,7 @@ def clone_menu(menu):
     def clone_one_menu(m):
         m.aboutToShow.emit()
         ans = QMenu(m.parent())
+        ans.hovered.connect(m.hovered.emit)
         for ac in m.actions():
             cac = clone_action(ac, ans)
             ans.addAction(cac)

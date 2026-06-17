@@ -197,7 +197,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             cc = self.field_metadata[key]
             original_key = key
-        print(1111111, key, cc)
 
         self.opt_columns.setSortingEnabled(False)
         item = QTableWidgetItem()
@@ -226,6 +225,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         item.setFlags(flags)
         if self.is_custom_key(key):
             item.setData(Qt.ItemDataRole.DecorationRole, (QIcon.ic('column.png')))
+        else:
+            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon.ic('blank.png')))
         self.opt_columns.setItem(row, self.HEADER_COLUMN, item)
 
         item = QTableWidgetItem(key)

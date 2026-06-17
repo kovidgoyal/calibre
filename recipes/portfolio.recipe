@@ -1,0 +1,53 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1348146838(BasicNewsRecipe):
+    title          = u'Portfolio.hu'
+    __author__ = 'bubak'
+    oldest_article = 1
+    language = 'hu'
+
+    author = 'bubak'
+    simultaneous_downloads= 1
+    max_articles_per_feed = 50
+
+    feeds          = [
+                        (u'Összes hír', u'https://www.portfolio.hu/rss/all.xml')
+                        ,(u'Globál hírek', u'https://www.portfolio.hu/rss/global.xml')
+                        ,(u'Uniós források hírek', u'https://www.portfolio.hu/rss/unios-forrasok.xml')
+                        ,(u'Gazdaság', u'http://www.portfolio.hu/rss/cikkek/gazdasag.xml')
+                        ,(u'Ingatlan', u'http://www.portfolio.hu/rss/cikkek/ingatlan.xml')
+                        ,(u'Pénzcentrum', u'http://www.penzcentrum.hu/rss/all.xml')
+                        ,(u'All news', u'https://www.portfolio.hu/en/rss/all.xml')
+                        ]
+
+    remove_tags = [dict(name='div', attrs={'id':['prevent-box']})
+                    ,dict(name='div', attrs={'class':re.compile(r'conf-short', re.IGNORECASE)})
+                    ,dict(name='img', attrs={'src':re.compile(r'\.(jpg|svg|gif)', re.IGNORECASE)})
+                    ,dict(name='div', attrs={'class':re.compile(r'event.*linked|hidden|blogger-block|grid-block', re.IGNORECASE)})
+                    ,dict(name='article', attrs={'class':re.compile(r'article-list-item', re.IGNORECASE)})
+                    ,dict(name='section', attrs={'class':re.compile(r'pfblogger-block|recentnews|pfforum-box|newslettersubs|ai-summary', re.IGNORECASE)})
+                    ,dict(name='section', attrs={'id':['BlockPodcast', 'BlockCimlaprol', 'BlockTrader', 'BlockCalendar',
+                        'BlockIngatlan']})
+                    ,dict(name='ul', attrs={'class':'tags'})
+                    ,dict(name='div', attrs={'class':['event-share', 'trc_rbox_container', 'related', 'author-name']})
+                    ,dict(name='span', attrs={'class':'footer-wrapper'})
+    ]
+    remove_tags_before  = dict(name='h1')
+
+    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    visited_urls = {}
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url in self.visited_urls:
+            self.log.debug('Ignoring duplicate: ' + url)
+            return None
+        else:
+            self.visited_urls[url] = True
+            self.log.debug('Accepting: ' + url)
+            return url

@@ -14,12 +14,12 @@ from lxml import etree
 
 from calibre import detect_ncpus
 from calibre.constants import iswindows
-from calibre.ebooks.oeb.base import XHTML
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.parsing import decode_xml, parse
 from calibre.ebooks.oeb.polish.pretty import NON_NAMESPACED_BLOCK_TAGS
 from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.utils import fixed_layout_data
 from calibre.ptempfile import TemporaryDirectory, override_base_dir
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
@@ -39,7 +39,17 @@ class SimpleContainer(ContainerBase):
 
 def count_pages_pdf(pathtoebook: str) -> int:
     from calibre.utils.podofo import get_page_count
-    return get_page_count(pathtoebook)
+    try:
+        return get_page_count(pathtoebook)
+    except Exception:
+        from calibre.ebooks.metadata.pdf import get_tools
+        from calibre.ebooks.pdf.pdftohtml import creationflags
+        pdfinfo = get_tools()[0]
+        with open(pathtoebook, 'rb') as f:
+            for line in subprocess.check_output([pdfinfo, '-'], stdin=f, creationflags=creationflags).decode().splitlines():
+                field, rest = line.partition(':')[::2]
+                if field == 'Pages':
+                    return int(rest.strip())
 
 
 def fname_ok_cb(fname):
@@ -66,13 +76,9 @@ def count_pages_cb7(pathtoebook: str) -> int:
         return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
-def get_length(root):
-    ans = 0
-    for body in root.iterchildren(XHTML('body')):
-        ans += get_num_of_significant_chars(body)
-        for elem in body.iterdescendants():
-            ans += get_num_of_significant_chars(elem)
-    return ans
+def get_length(root: etree.Element) -> int:
+    ' Used for position/length display in the viewer '
+    return max(CHARS_PER_PAGE, get_line_count(root) * CHARS_PER_LINE)
 
 
 CHARS_PER_LINE = 70
@@ -125,7 +131,7 @@ def get_line_count(document_root: etree.Element) -> int:
 
 
 def get_page_count(root: etree.Element) -> int:
-    return max(1, get_line_count(root) // LINES_PER_PAGE)
+    return max(1, ceil(get_line_count(root) / LINES_PER_PAGE))
 
 
 def calculate_number_of_workers(names, in_process_container, max_workers):
@@ -158,12 +164,14 @@ def count_pages_oeb(pathtoebook: str, tdir: str, executor: Executor | None = Non
     nulllog = DevNull()
     book_fmt, opfpath, input_fmt = extract_book(pathtoebook, tdir, log=nulllog, only_input_plugin=True)
     container = SimpleContainer(tdir, opfpath, nulllog)
+    spine = {name for name, is_linear in container.spine_names}
+    if fixed_layout_data(container):
+        return len(spine)
     tocobj = get_toc(container, verify_destinations=False)
     if page_list := getattr(tocobj, 'page_list', ()):
         uniq_page_numbers = frozenset(map(itemgetter('pagenum'), page_list))
         if len(uniq_page_numbers) > 50:
             return len(uniq_page_numbers)
-    spine = {name for name, is_linear in container.spine_names}
     paths = {container.get_file_path_for_processing(name, allow_modification=False) for name in spine}
     paths = {p for p in paths if os.path.isfile(p)}
 
@@ -178,7 +186,7 @@ def count_pages_txt(pathtoebook: str) -> int:
         text = f.read().decode('utf-8', 'replace')
     e = etree.Element('r')
     e.tail = clean_xml_chars(text)
-    return get_num_of_significant_chars(e) // CHARS_PER_PAGE
+    return ceil(get_num_of_significant_chars(e) / CHARS_PER_PAGE)
 
 
 def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
@@ -201,7 +209,7 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 class Server:
 
-    ALGORITHM = 3
+    ALGORITHM = 4
 
     def __init__(self, max_jobs_per_worker: int = 2048):
         self.worker: subprocess.Popen | None = None
@@ -217,7 +225,8 @@ class Server:
         with write_pipe:
             cmd = f'from calibre.library.page_count import worker_main; worker_main({write_pipe.fileno()})'
             from calibre.utils.ipc.simple_worker import start_pipe_worker
-            self.worker = start_pipe_worker(cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL)
+            self.worker = start_pipe_worker(
+                cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.tasks_run_by_worker = 0
 
     def shutdown_worker(self) -> None:
@@ -241,7 +250,7 @@ class Server:
             self.shutdown_worker()
             raise
 
-    def __enter__(self) -> 'Server':
+    def __enter__(self) -> Server:
         return self
 
     def __exit__(self, *a) -> None:

@@ -94,7 +94,7 @@ def compile_icon_dir_as_themes(
             base, ext = os.path.splitext(image_name)
             theme_dir = theme_name
             dest_name = image_name
-            if ext.lower() not in ('.png',):
+            if ext.lower() != '.png':
                 if image_name == 'metadata.json':
                     dest = theme_dir, dest_name
                     safe_link(image_path, os.path.join(tdir, *dest))

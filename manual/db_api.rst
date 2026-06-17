@@ -4,7 +4,7 @@ API documentation for the database interface
 ======================================================
 
 .. module:: calibre.db.cache
-    :synopsis: The API accessing and manipulating a calibre library. 
+    :synopsis: The API for accessing and manipulating a calibre library. 
     
 This API is thread safe (it uses a multiple reader, single writer locking scheme).  You can access this API like this::
 

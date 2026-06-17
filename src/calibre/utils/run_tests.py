@@ -178,7 +178,7 @@ class TestImports(unittest.TestCase):
     def test_import_of_all_python_modules(self):
         from calibre.constants import isbsd, islinux, ismacos, iswindows
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
-        exclude_modules = set()
+        exclude_modules = {'calibre.web.automate.browser'}
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
             exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
@@ -261,6 +261,8 @@ def find_tests(which_tests=None, exclude_tests=None):
     if ok('scraper'):
         from calibre.scraper.test_fetch_backend import find_tests
         a(find_tests())
+        from calibre.web.automate.test_worker import find_tests
+        a(find_tests())
     if ok('icu'):
         from calibre.utils.icu_test import find_tests
         a(find_tests())
@@ -268,6 +270,10 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.utils.smartypants import run_tests
         a(run_tests(return_tests=True))
     if ok('ebooks'):
+        from calibre.ebooks.conversion.plugins.archive_input import find_tests
+        a(find_tests())
+        from calibre.ebooks.conversion.plugins.txt_input import find_tests
+        a(find_tests())
         from calibre.ebooks.metadata.rtf import find_tests
         a(find_tests())
         from calibre.ebooks.metadata.html import find_tests
@@ -275,6 +281,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.utils.xml_parse import find_tests
         a(find_tests())
         from calibre.gui2.viewer.annotations import find_tests
+        a(find_tests())
+        from calibre.gui2.library.test_annotations import find_tests
         a(find_tests())
         from calibre.ebooks.html_entities import find_tests
         a(find_tests())
@@ -322,6 +330,12 @@ def find_tests(which_tests=None, exclude_tests=None):
             from calibre.utils.windows.wintest import find_tests
             a(find_tests())
         a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
+        from calibre.utils.translator.test_translator import find_tests
+        a(find_tests())
+        from calibre.utils.config_base import find_tests
+        a(find_tests())
+        from calibre.utils.zipfile import find_tests
+        a(find_tests())
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
         a(find_tests())

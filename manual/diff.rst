@@ -32,7 +32,7 @@ glance only what was changed inside a large document like a book.
 Added text is shown with a green background, removed text with a red background 
 and changed text with a blue background.
 
-The line numbers of all changed text are show at the sides, making it easy to
+The line numbers of all changed text are shown at the sides, making it easy to
 go to a particular change in the editor. When you open the comparison tool from
 within the editor, you can also double click on a line in the right panel to
 go to that line in the editor automatically.

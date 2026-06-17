@@ -11,10 +11,10 @@ from qt.core import QKeySequence
 from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, set_help_tips
-from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_Form
+from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_cover_browser_tab
 
 
-class CoverView(LazyConfigWidgetBase, Ui_Form):
+class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
 
     def genesis(self, gui):
         self.gui = gui
@@ -24,6 +24,7 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         r('books_autoscroll_time', gprefs)
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
+        r('cover_browser_max_font_size', gprefs)
         r('cover_browser_narrow_view_position', gprefs,
                             choices=[(_('Automatic'), 'automatic'),  # Automatic must be first
                                      (_('On top'), 'on_top'),
@@ -66,5 +67,6 @@ class CoverView(LazyConfigWidgetBase, Ui_Form):
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])
+        gui.cover_flow.setMaxFontSize(gprefs['cover_browser_max_font_size'])
         gui.update_cover_flow_subtitle_font()
         gui.db_images.template_inited = False

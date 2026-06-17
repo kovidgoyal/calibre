@@ -125,9 +125,10 @@ class DatabaseImages(pictureflow.FlowImages):
         return self.model.count()
 
     def render_template(self, template, index, db):
+        from calibre.utils.formatter import TEMPLATE_ERROR
         book_id = self.model.id(index)
         mi = db.get_proxy_metadata(book_id)
-        return mi.formatter.safe_format(template, mi, _('TEMPLATE ERROR'), mi, template_cache=self.template_cache)
+        return mi.formatter.safe_format(template, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
 
     def caption(self, index):
         if self.ignore_image_requests:
@@ -223,6 +224,7 @@ class CoverFlow(pictureflow.PictureFlow):
             self.setShowReflections(False)
         if gprefs['cb_double_click_to_activate']:
             self.setActivateOnDoubleClick(True)
+        self.setMaxFontSize(gprefs['cover_browser_max_font_size'])
 
     def one_auto_scroll(self):
         if self.currentSlide() >= self.count() - 1:

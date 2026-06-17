@@ -346,6 +346,9 @@ public:
   bool showReflections() const;
   void setShowReflections(bool show);
 
+  int maxFontSize() const;
+  void setMaxFontSize(int val);
+
   int getTarget() const;
 
   void showPrevious();
@@ -385,6 +388,7 @@ private:
   int slideWidth;
   int slideHeight;
   int fontSize;
+  int max_font_size;
   int queueLength;
   bool doReflections;
 
@@ -424,7 +428,8 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
 
   slideWidth = 200;
   slideHeight = 200;
-  fontSize = 10;
+  fontSize = 12;
+  max_font_size = 11;
   doReflections = true;
   preserveAspectRatio = false;
   activateOnDoubleClick = false;
@@ -516,6 +521,16 @@ void PictureFlowPrivate::setShowReflections(bool show) {
     triggerRender(100);
 }
 
+int PictureFlowPrivate::maxFontSize() const {
+    return max_font_size;
+}
+
+void PictureFlowPrivate::setMaxFontSize(int val) {
+    max_font_size = val;
+    triggerRender(100);
+}
+
+
 void PictureFlowPrivate::showPrevious()
 {
   if(step >= 0)
@@ -567,6 +582,7 @@ void PictureFlowPrivate::resize(int w, int h)
   slideWidth = int(float(slideHeight) * 3./4.);
   //qDebug() << slideHeight << "x" << slideWidth;
   fontSize = MAX(int(h/15.), 12);
+  if (max_font_size > 11) fontSize = MIN(fontSize, max_font_size);
   recalc(w, h);
   resetSlides();
   triggerRender(100);
@@ -1281,6 +1297,16 @@ bool PictureFlow::showReflections() const {
 
 void PictureFlow::setShowReflections(bool show) {
     d->setShowReflections(show);
+}
+
+int PictureFlow::maxFontSize() const {
+    return d->maxFontSize();
+}
+
+void PictureFlow::setMaxFontSize(int val) {
+    d->setMaxFontSize(val);
+    last_device_pixel_ratio = device_pixel_ratio();
+    d->resize((int)(width() * last_device_pixel_ratio), (int)(height() * last_device_pixel_ratio));
 }
 
 void PictureFlow::setImages(FlowImages *images)

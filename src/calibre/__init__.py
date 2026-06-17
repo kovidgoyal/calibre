@@ -475,10 +475,8 @@ def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={})
     specified by various actual entities.
     '''
     from calibre.ebooks.html_entities import entity_to_unicode_in_python
-    try:
-        from calibre_extensions.fast_html_entities import replace_all_entities
-    except ImportError:  # Running from source without updated binaries
-        return entity_to_unicode_in_python(match, exceptions, encoding, result_exceptions)
+    from calibre_extensions.fast_html_entities import replace_all_entities
+
     if not encoding and not exceptions and (not result_exceptions or result_exceptions is XML_ENTITIES):
         return replace_all_entities(match.group(), result_exceptions is XML_ENTITIES)
     return entity_to_unicode_in_python(match, exceptions, encoding, result_exceptions)

@@ -29,6 +29,7 @@ from qt.core import (
     QPlainTextEdit,
     QSize,
     QSplitter,
+    QStandardItem,
     Qt,
     QTextBrowser,
     QTimer,
@@ -43,13 +44,16 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
-from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
+from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.library.bookshelf_view import all_groupings, iter_all_groups
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog, RightClickButton
 from calibre.startup import connect_lambda
+from calibre.utils.date import qt_from_dt
+from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import ngettext, pgettext
 
 
@@ -203,8 +207,8 @@ def friendly_username(user_type, user):
 
 def annotation_title(atype, singular=False):
     if singular:
-        return {'bookmark': _('Bookmark'), 'highlight': pgettext('type of annotation', 'Highlight')}.get(atype, atype)
-    return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
+        return {'bookmark': _('Bookmark'), 'highlight': pgettext('type of annotation', 'Highlight')}.get(atype, atype.title())
+    return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype.title())
 
 
 class AnnotsResultsDelegate(ResultsDelegate):
@@ -376,8 +380,194 @@ def current_db():
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
 
 
-class ResultsList(QTreeWidget):
+def annotation_only_groupings() -> dict[str, str]:
+    '''
+    Return annotation-specific field names that can be used for grouping but are
+    not present in the book field metadata (and therefore not in iter_all_groups).
 
+    The key 'annot_timestamp' is a virtual field name used to group by the
+    annotation's own creation date, as distinct from the book's Date Added
+    field ('timestamp') which comes from the database.
+    '''
+    return {
+        'user': _('User'),
+        'annot_timestamp': _('Annotation date'),
+    }
+
+
+BROWSE_ANNOTS_GROUP_BY_PREF = 'browse_annots_group_by'
+
+
+def get_annotation_value(annotation, bid, field, db):
+    '''
+    Get the value for a field from an annotation result, checking
+    annotation-level fields first and falling back to book metadata.
+    '''
+    val = annotation.get(field)
+    if val is None:
+        val = annotation.get('annotation', {}).get(field)
+    if val is None:
+        val = db.field_for(field, bid)
+    return val
+
+
+def get_group_key(result, field, db):
+    '''
+    Return (sort_key, display_label) for an annotation result grouped by field.
+
+    field is a string naming a field in the annotation row (e.g. 'format',
+    'annot_type', 'user', 'annot_timestamp') or a book metadata field
+    accessible via db.field_for (e.g. 'title', 'authors', 'tags').
+
+    sort_key is a tuple suitable for use as a dict key and for natural ordering.
+    display_label is a localized human-readable string for the group header.
+    '''
+    fm = db.field_metadata
+    dt = fm.get(field, {}).get('datatype')
+    bid = result['book_id']
+
+    match field:
+        case 'title':
+            title = db.field_for('title', bid)
+            return (primary_sort_key(title), bid), title
+        case 'authors':
+            authors = db.field_for('authors', bid)
+            sort_key = primary_sort_key(authors_to_sort_string(authors))
+            text = authors_to_string(authors)
+            return (sort_key, text), text or _('Unknown author')
+        case 'user':
+            user = friendly_username(result['user_type'], result['user'])
+            return (primary_sort_key(user), user), user
+        case 'annot_timestamp':
+            ts = result.get('annotation', {}).get('timestamp', '')
+            df = 'dd MMM yyyy'
+            if 'd' in df:
+                qdt = QDateTime.fromString(ts, Qt.DateFormat.ISODate)
+                if qdt.isValid():
+                    qdt = qdt.toLocalTime()
+                    qdate = qdt.date()
+                    jd = qdate.toJulianDay()
+                else:
+                    qdate = QDateTime.currentDateTime().date()
+                    jd = qdate.toJulianDay()
+                today = QDateTime.currentDateTime().toLocalTime().date()
+                days_past = today.toJulianDay() - jd
+                loc = QLocale.system()
+                label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat))
+                if not label:
+                    label = _('Unknown date')
+                return (days_past, label), label
+            else:  # Assume it's a year
+                year = QDateTime.fromString(ts, Qt.DateFormat.ISODate).date().year()
+                current_year = QDateTime.currentDateTime().date().year()
+                years_past = current_year - year
+                label = str(year) if year > 0 else _('Unknown year')
+                return (years_past, label), label
+        case field if dt == 'datetime':
+            ts = db.field_for(field, bid)
+            df = fm[field].get('display', {}).get('date_format') or 'dd MMM yyyy'
+            qdt = qt_from_dt(ts) if ts else UNDEFINED_QDATETIME
+            if 'd' in df:
+                if qdt.isValid():
+                    # Bucket the timestamps by discrete day, using the system's local timezone
+                    qdt = qdt.toLocalTime()
+                    qdate = qdt.date()
+                    jd = qdate.toJulianDay()
+                else:
+                    qdate = QDateTime.currentDateTime().date()
+                    jd = qdate.toJulianDay()
+                # Store the number of days in the past so we get the natural sort order
+                today = QDateTime.currentDateTime().toLocalTime().date()
+                days_past = today.toJulianDay() - jd
+                loc = QLocale.system()
+                label = loc.toString(qdate, loc.dateFormat(QLocale.FormatType.ShortFormat)) or _('Unknown date')
+                return (days_past, label), label
+            else:  # Assume it's a year
+                year = qdt.date().year()
+                current_year = QDateTime.currentDateTime().date().year()
+                years_past = current_year - year
+                label = str(year) if year > 0 else _('Unknown year')
+                return (years_past, label), label
+
+    # Generic fallback
+    val = get_annotation_value(result, bid, field, db)
+    if dt == 'rating':
+        # rating val is an int 0–10 (0 and None both mean unrated)
+        ival = int(val or 0)
+        if not ival:
+            unrated = _('Unrated')
+            return (0, unrated), unrated
+        allow_half = fm.get(field, {}).get('display', {}).get('allow_half_stars', False)
+        label = rating_to_stars(ival, allow_half)
+        return (ival, label), label
+    if not val:
+        # Use a type-compatible sentinel so that missing-value groups sort
+        # correctly alongside non-missing groups.  The non-missing path uses
+        # primary_sort_key(val) for text fields (bytes) and val directly for
+        # everything else, so the sentinel must match that type.
+        if dt == 'text':
+            missing_sk = primary_sort_key('')
+        elif dt == 'int':
+            missing_sk = -1
+        elif dt == 'float':
+            missing_sk = -1.0
+        elif dt == 'bool':
+            missing_sk = False
+        else:
+            # series, enumeration, comments, composite, or unknown – all
+            # treated as string-like by the non-missing path below.
+            missing_sk = ''
+        return (missing_sk,), _('Unknown')
+    label = str(val)
+    sort_key = primary_sort_key(val) if dt == 'text' else val
+    return (sort_key, label), label
+
+
+def get_group_keys_list(result, field, db):
+    '''
+    Return a list of (sort_key, display_label) pairs for an annotation result
+    grouped by field.
+
+    For multi-valued fields (e.g. tags, languages) the list contains one entry
+    per value so that the result appears under every applicable group.  For
+    single-valued fields the list always contains exactly one entry.
+    '''
+    if field in ('title', 'user', 'annot_timestamp'):
+        key, label = get_group_key(result, field, db)
+        return [(key, label)]
+
+    bid = result['book_id']
+    fm = db.field_metadata
+    fm_entry = fm.get(field, {})
+    is_multiple = bool(fm_entry.get('is_multiple'))
+
+    if not is_multiple:
+        key, label = get_group_key(result, field, db)
+        return [(key, label)]
+
+    # Multi-valued field: yield one entry per value
+    vals = db.field_for(field, bid)
+    if not vals:
+        ungrouped = all_groupings().get(field) or _('Unknown')
+        if field == 'authors':
+            ungrouped = _('Unknown author')
+        return [((primary_sort_key(''),), ungrouped)]
+
+    dt = fm_entry.get('datatype')
+    entries = []
+    for v in vals:
+        v_str = str(v)
+        if field == 'authors':
+            sk = primary_sort_key(authors_to_sort_string((v,)))
+        elif dt == 'text':
+            sk = primary_sort_key(v_str)
+        else:
+            sk = v
+        entries.append(((sk, v_str), v_str))
+    return entries
+
+
+class ResultsList(QTreeWidget):
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
@@ -441,40 +631,40 @@ class ResultsList(QTreeWidget):
         if isinstance(r, dict):
             self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
 
-    def set_results(self, results, emphasize_text):
-        from calibre.gui2.viewer.highlights import decoration_for_style
-        is_dark = is_dark_theme()
-        dpr = self.devicePixelRatioF()
+    def set_results(self, results, emphasize_text, group_order=('title',)):
         self.clear()
         self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
         self.item_map = []
-        book_id_map = {}
+
+        # Ensure deepest level is always the book title
+        if not group_order:
+            group_order = ('title',)
+        if group_order[-1] != 'title':
+            group_order = tuple(group_order) + ('title',)
+
         db = current_db()
+
+        tree = {}
+
+        def insert_result(result, fields, node):
+            if not fields:
+                return
+            field = fields[0]
+            rest = fields[1:]
+            # Multi-valued fields expand the result into multiple groups
+            for key, label in get_group_keys_list(result, field, db):
+                if key not in node:
+                    node[key] = {'label': label, 'children': {}, 'results': []}
+                if rest:
+                    insert_result(result, rest, node[key]['children'])
+                else:
+                    node[key]['results'].append(result)
+
         for result in results:
-            book_id = result['book_id']
-            if book_id not in book_id_map:
-                book_id_map[book_id] = {'title': db.field_for('title', book_id), 'matches': []}
-            book_id_map[book_id]['matches'].append(result)
-        for book_id, entry in book_id_map.items():
-            section = QTreeWidgetItem([entry['title']], 1)
-            section.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            section.setFont(0, self.section_font)
-            section.setData(0, Qt.ItemDataRole.UserRole, book_id)
-            self.addTopLevelItem(section)
-            section.setExpanded(True)
-            for result in sorted_items(entry['matches']):
-                item = QTreeWidgetItem(section, [' '], 2)
-                self.item_map.append(item)
-                item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
-                item.setData(0, Qt.ItemDataRole.UserRole, result)
-                item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
-                self.number_of_results += 1
-                a = result.get('annotation')
-                if a and (s := a.get('style')):
-                    dec = decoration_for_style(self.palette(), s, self.icon_size, dpr, is_dark)
-                    if dec:
-                        item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
+            insert_result(result, group_order, tree)
+
+        self.add_children(None, tree)
         if self.item_map:
             self.setCurrentItem(self.item_map[0])
 
@@ -494,6 +684,38 @@ class ResultsList(QTreeWidget):
         i += -1 if backwards else 1
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
+
+    def add_children(self, parent_item, children):
+        '''
+        Create child items under a parent of the annotations tree.
+        '''
+        from calibre.gui2.viewer.highlights import decoration_for_style
+        is_dark = is_dark_theme()
+        dpr = self.devicePixelRatioF()
+        for key, entry in sorted(children.items(), key=lambda kv: kv[0]):
+            item = QTreeWidgetItem([entry['label']], 1)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            item.setFont(0, self.section_font)
+            item.setData(0, Qt.ItemDataRole.UserRole, key)
+            if parent_item is None:
+                self.addTopLevelItem(item)
+            else:
+                parent_item.addChild(item)
+            item.setExpanded(True)
+            if entry['children']:
+                self.add_children(item, entry['children'])
+            for result in sorted_items(entry['results']):
+                res_item = QTreeWidgetItem(item, [' '], 2)
+                self.item_map.append(res_item)
+                res_item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
+                res_item.setData(0, Qt.ItemDataRole.UserRole, result)
+                res_item.setData(0, Qt.ItemDataRole.UserRole + 1, self.number_of_results)
+                self.number_of_results += 1
+                a = result.get('annotation')
+                if a and (s := a.get('style')):
+                    dec = decoration_for_style(self.palette(), s, self.icon_size, dpr, is_dark)
+                    if dec:
+                        res_item.setData(0, Qt.ItemDataRole.DecorationRole, dec)
 
     @property
     def selected_annot_ids(self):
@@ -552,8 +774,10 @@ class Restrictions(QWidget):
 
     restrictions_changed = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent, group_by):
         self.restrict_to_book_ids = frozenset()
+        self.icon_size = 12
+        self.annotation_style_cache = {}
         QWidget.__init__(self, parent)
         v = QVBoxLayout(self)
         v.setContentsMargins(0, 0, 0, 0)
@@ -570,6 +794,8 @@ class Restrictions(QWidget):
         connect_lambda(tb.currentIndexChanged, tb, lambda tb: gprefs.set('browse_annots_restrict_to_type', tb.currentData()))
         la.setBuddy(tb)
         tb.setToolTip(_('Show only annotations of the specified type'))
+        tb.setMinimumContentsLength(16)
+        tb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         h.addWidget(tb)
         la = QLabel(_('User:'))
         h.addWidget(la)
@@ -588,6 +814,8 @@ class Restrictions(QWidget):
         cb.setChecked(bool(gprefs.get('show_annots_from_selected_books_only', False)))
         cb.stateChanged.connect(self.show_only_selected_changed)
         h.addWidget(cb)
+        h.addStretch(10)
+        h.addWidget(group_by)
         v.addLayout(h)
 
     def update_book_restrictions_text(self):
@@ -623,13 +851,42 @@ class Restrictions(QWidget):
             before = gprefs['browse_annots_restrict_to_type']
         tb.blockSignals(True)
         tb.clear()
-        tb.addItem(' ', ' ')
-        for atype in db.all_annotation_types():
-            tb.addItem(annotation_title(atype), atype)
+        tb.addItem(' ', {})
+        annotation_types = db.all_annotation_types()
+        for atype in annotation_types:
+            tb.addItem(annotation_title(atype), {'type': atype})
         if before:
             row = tb.findData(before)
             if row > -1:
                 tb.setCurrentIndex(row)
+
+        # Append highlight colors after the 'highlight' entry, if it exists
+        highlight_row = tb.findData({'type': 'highlight'})
+        if highlight_row > -1:
+            from calibre.gui2.viewer.highlights import decoration_for_style
+            dpr = self.devicePixelRatioF()
+            is_dark = is_dark_theme()
+            model = tb.model()
+            highlight_color_row = 1
+            all_styles = self.annotation_style_cache.get(db.library_id)
+            if all_styles is None:
+                all_styles = self.annotation_style_cache[db.library_id] = db.all_annotation_styles()
+            translate = _
+            for style_name, style in all_styles.items():
+                # Custom styles store their display name in friendly_name;
+                # built-in styles use annotation_title on the style name.
+                if style.get('type') == 'custom':
+                    label = style.get('friendly_name', style_name)
+                else:
+                    label = annotation_title(style_name)
+                item = QStandardItem(translate(label))
+                item.setData({'type': 'highlight', 'style': style}, Qt.ItemDataRole.UserRole)
+                dec = decoration_for_style(self.palette(), style, self.icon_size, dpr, is_dark)
+                if dec:
+                    item.setData(dec, Qt.ItemDataRole.DecorationRole)
+                model.insertRow(highlight_row + highlight_color_row, item)
+                highlight_color_row += 1
+
         tb.blockSignals(False)
         tb_is_visible = tb.count() > 2
         tb.setVisible(tb_is_visible), tb.la.setVisible(tb_is_visible)
@@ -652,6 +909,70 @@ class Restrictions(QWidget):
         tb.setVisible(ub_is_visible), tb.la.setVisible(ub_is_visible)
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
+
+
+def _save_annots_group_by_pref(gb):
+    field = gb.currentData()
+    if field:
+        current_db().set_pref(BROWSE_ANNOTS_GROUP_BY_PREF, field)
+
+
+class GroupOptions(QWidget):
+    grouping_changed = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        la = QLabel(_('&Group by:'))
+        h.addWidget(la)
+        self.group_box = gb = QComboBox(self)
+        gb.currentIndexChanged.connect(self.grouping_changed)
+        connect_lambda(gb.currentIndexChanged, gb, _save_annots_group_by_pref)
+        la.setBuddy(gb)
+        gb.setToolTip(_('Display annotations grouped by this value'))
+        gb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        h.addWidget(gb)
+
+    @property
+    def selected_field(self):
+        '''Return the currently selected grouping field name (string).'''
+        return self.group_box.currentData() or 'title'
+
+    @property
+    def group_order(self):
+        field = self.selected_field
+        if field == 'title':
+            return ('title',)
+        return (field, 'title')
+
+    def re_initialize(self, db):
+        gb = self.group_box
+        before = gb.currentData() or db.pref(BROWSE_ANNOTS_GROUP_BY_PREF, 'title')
+        gb.blockSignals(True)
+        gb.clear()
+        font = QFont()
+        font.setItalic(True)
+        font.setBold(True)
+        def add(label, field):
+            gb.addItem(label, field)
+            if before == field:
+                gb.setItemData(gb.count()-1, font, Qt.ItemDataRole.FontRole)
+        # Title grouping
+        add(_('Title'), 'title')
+        # Annotation-specific fields first
+        for field, display_name in annotation_only_groupings().items():
+            add(display_name, field)
+        gb.insertSeparator(gb.count())
+        # All groupable DB fields
+        fm = db.field_metadata
+        for field, display_name in iter_all_groups(fm):
+            add(display_name, field)
+        if before:
+            row = gb.findData(before)
+            if row > -1:
+                gb.setCurrentIndex(row)
+        gb.blockSignals(False)
 
 
 class BrowsePanel(QWidget):
@@ -692,7 +1013,9 @@ class BrowsePanel(QWidget):
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
-        self.restrictions = rs = Restrictions(self)
+        self.group_options = grp = GroupOptions(self)
+        grp.grouping_changed.connect(self.grouping_changed)
+        self.restrictions = rs = Restrictions(self, grp)
         rs.restrictions_changed.connect(self.effective_query_changed)
         self.use_stemmer.stateChanged.connect(self.effective_query_changed)
         l.addWidget(rs)
@@ -710,11 +1033,15 @@ class BrowsePanel(QWidget):
         db = current_db()
         self.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
         self.restrictions.re_initialize(db, restrict_to_book_ids or set())
+        self.group_options.re_initialize(db)
         self.current_query = None
         self.results_list.clear()
 
     def selection_changed(self, restrict_to_book_ids):
         self.restrictions.selection_changed(restrict_to_book_ids)
+
+    def grouping_changed(self):
+        self.refresh()
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -728,10 +1055,15 @@ class BrowsePanel(QWidget):
     @property
     def effective_query(self):
         text = self.search_box.lineEdit().text().strip()
-        atype = self.restrictions.types_box.currentData()
+        data = self.restrictions.types_box.currentData()
+        atype, style = '', None
+        if isinstance(data, dict):
+            atype = data.get('type') or ''
+            style = data.get('style')
         return {
             'fts_engine_query': text,
-            'annotation_type': (atype or '').strip(),
+            'annotation_type': atype.strip(),
+            'annotation_style': style,
             'restrict_to_user': self.restrict_to_user,
             'use_stemming': bool(self.use_stemmer.isChecked()),
             'restrict_to_book_ids': self.restrictions.effective_restrict_to_book_ids,
@@ -752,6 +1084,7 @@ class BrowsePanel(QWidget):
                 if not q['fts_engine_query']:
                     results = db.all_annotations(
                         restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'],
+                        annotation_style=q['annotation_style'],
                         ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
                     )
                 else:
@@ -761,7 +1094,8 @@ class BrowsePanel(QWidget):
                         highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
                         ignore_removed=True, **q2
                     )
-                self.results_list.set_results(results, bool(q['fts_engine_query']))
+                group_order = getattr(self.group_options, 'group_order', ('title',))
+                self.results_list.set_results(results, bool(q['fts_engine_query']), group_order=group_order)
                 self.current_query = q
         except FTSQueryError as err:
             return error_dialog(self, _('Invalid search expression'), '<p>' + _(

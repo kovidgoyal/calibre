@@ -32,10 +32,11 @@
 /resources/content-server/locales.zip
 /resources/mathjax
 /resources/fonts/liberation
-/resources/mozilla-ca-certs.pem
+/resources/mozilla-ca-certs
 /resources/user-agent-data.json
 /resources/piper-voices.json
-/icons/icns/*.iconset
+/icons/icns/*.icns
+/icons/icns/*.car
 /setup/installer/windows/calibre/build.log
 /setup/pyqt_enums
 /tags
@@ -52,6 +53,7 @@
 /calibre_plugins/
 /.metadata/
 /.idea
+/.vscode
 /*env*/
 /cmake-build-*
 /bypy/b

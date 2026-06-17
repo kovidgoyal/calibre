@@ -74,8 +74,7 @@ class DetectStructure:
             regexp = re.compile(opts.toc_filter)
             for node in list(self.oeb.toc.iter()):
                 if not node.title or regexp.search(node.title) is not None:
-                    self.log('Filtering', node.title if node.title else
-                            'empty node', 'from TOC')
+                    self.log('Filtering', node.title or 'empty node', 'from TOC')
                     self.oeb.toc.remove(node)
 
         if opts.page_breaks_before is not None:

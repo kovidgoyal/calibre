@@ -2,6 +2,7 @@
 
 import re
 from collections import defaultdict
+from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -72,7 +73,14 @@ class LATimes(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://www.latimes.com/'
-        pat = r'^https://www\.latimes\.com/[^/]+?/story/20\d{2}-\d{2}-\d{2}/\S+'
+        # Constrain the date path-segment to today+yesterday so the section
+        # indexes don't pull in arbitrary older articles. Same idea as
+        # chicago_tribune.recipe's inline tdy/yest filter (just expressed as
+        # a regex alternation since latimes uses re.compile).
+        tdy = date.today().strftime('%Y-%m-%d')
+        yest = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        pat = (r'^https://www\.latimes\.com/[^/]+?/story/('
+               + tdy + '|' + yest + r')/\S+')
         articles = self.find_articles(index, pat)
         for collection in DIR_COLLECTIONS:
             if self.test:
@@ -98,6 +106,31 @@ class LATimes(BasicNewsRecipe):
                 img.parent.extract()
             else:
                 img['src'] = img['data-src']
+        # Strip <picture> wrappers and viewport sizing hints. <source srcset>
+        # URLs are remote and never load in an EPUB (no network at read
+        # time), and sizes="100vw" on the <img> tells the reader to render
+        # at full viewport width — combined with the image's natural aspect
+        # ratio that overflows pages for portrait photos. Drop <source>,
+        # unwrap <picture> so the <img> rises to its parent, and remove the
+        # sizes/fetchpriority hints so the reader respects the image's
+        # embedded dimensions.
+        for src in soup.findAll('source'):
+            src.decompose()
+        for picture in soup.findAll('picture'):
+            picture.unwrap()
+        for img in soup.findAll('img'):
+            for attr in ('sizes', 'fetchpriority'):
+                if attr in img.attrs:
+                    del img[attr]
+        # Drop the Twitter "Follow" link from each byline. The anchor wraps
+        # an SVG <use> sprite reference that points at a <shape> in a
+        # sibling <svg> elsewhere in the source document; that cross-
+        # document reference can't resolve in the converted EPUB, so the
+        # anchor renders as an empty icon slot followed by the orphan word
+        # "Follow" next to the byline. The "Staff Writer" <span> sibling
+        # is not a descendant of the anchor, so the rubric stays in place.
+        for a in soup.findAll('a', attrs={'data-social-trigger': 'enhancedByline'}):
+            a.decompose()
         return soup
 
     def find_articles(self, index, pattern):
@@ -116,5 +149,29 @@ class LATimes(BasicNewsRecipe):
             a.contents) == 1 and a.find(text=True, recursive=False)]
         articles = [
             {'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
+        # Populate `description` from each article page's
+        cache = getattr(self, '_og_desc_cache', None)
+        if cache is None:
+            cache = self._og_desc_cache = {}
+        for art in articles:
+            url = art.get('url')
+            if not url:
+                continue
+            if url not in cache:
+                cache[url] = self._fetch_og_description(url)
+            desc = cache[url]
+            if desc and len(desc) >= 20:
+                art['description'] = desc
         self.log('Found: ', len(articles), ' articles.\n')
         return articles
+
+    def _fetch_og_description(self, url):
+        try:
+            soup = self.index_to_soup(url)
+        except Exception as e:
+            self.log.warn('LAT og:description fetch failed for', url, ':', e)
+            return None
+        meta = soup.find('meta', attrs={'property': 'og:description'})
+        if meta and meta.get('content'):
+            return meta['content'].strip() or None
+        return None

@@ -1,0 +1,88 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.saved_virtual_libraries import (
+    all_saved_virtual_libraries, get_saved_virtual_libraries,
+    remove_saved_virtual_library, replace_saved_virtual_library,
+    saved_virtual_library_item, saved_virtual_library_query,
+    save_saved_virtual_library
+)
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, test
+
+
+@test
+def saved_virtual_library_item_contract():
+    item = saved_virtual_library_item(' lib ', ' Name ', ' tags:true ', ' Fiction ', 'abcdmore', True)
+    assert_equal(item.library_id, 'lib')
+    assert_equal(item.name, 'Name')
+    assert_equal(item.search, 'tags:true')
+    assert_equal(item.vl, 'Fiction')
+    assert_equal(item.icon, 'abcdmore')
+    assert_equal(saved_virtual_library_item('', 'Name', 'tags:true'), None)
+    assert_equal(saved_virtual_library_item('lib', '', 'tags:true'), None)
+    assert_equal(saved_virtual_library_item('lib', 'Name', ''), None)
+
+
+@test
+def saved_virtual_library_library_scope_and_upsert():
+    def run(sd):
+        save_saved_virtual_library(saved_virtual_library_item('lib-a', 'Favorites', 'tags:true'))
+        save_saved_virtual_library(saved_virtual_library_item('lib-b', 'Favorites', 'authors:true'))
+        save_saved_virtual_library(saved_virtual_library_item('lib-a', 'Unread', 'read:false'))
+        save_saved_virtual_library(saved_virtual_library_item('lib-a', 'Favorites', 'rating:>=4'))
+
+        lib_a = get_saved_virtual_libraries('lib-a')
+        lib_b = get_saved_virtual_libraries('lib-b')
+        assert_equal(lib_a.length, 2)
+        assert_equal(lib_a[0].name, 'Favorites')
+        assert_equal(lib_a[0].search, 'rating:>=4')
+        assert_equal(lib_a[1].name, 'Unread')
+        assert_equal(lib_b.length, 1)
+        assert_equal(lib_b[0].search, 'authors:true')
+        assert_equal(all_saved_virtual_libraries().length, 3)
+
+    with_empty_session(run)
+
+
+@test
+def saved_virtual_library_edit_removes_duplicate_name():
+    def run(sd):
+        save_saved_virtual_library(saved_virtual_library_item('lib-a', 'Favorites', 'tags:true'))
+        original = saved_virtual_library_item('lib-a', 'Unread', 'read:false')
+        save_saved_virtual_library(original)
+
+        replacement = saved_virtual_library_item('lib-a', 'Favorites', 'rating:>=4')
+        assert_equal(replace_saved_virtual_library(original, replacement), True)
+
+        entries = get_saved_virtual_libraries('lib-a')
+        assert_equal(entries.length, 1)
+        assert_equal(entries[0].name, 'Favorites')
+        assert_equal(entries[0].search, 'rating:>=4')
+
+    with_empty_session(run)
+
+
+@test
+def saved_virtual_library_remove_uses_item_key():
+    def run(sd):
+        target = saved_virtual_library_item('lib-a', 'Favorites', 'tags:true')
+        save_saved_virtual_library(target)
+        save_saved_virtual_library(saved_virtual_library_item('lib-b', 'Favorites', 'authors:true'))
+        assert_equal(remove_saved_virtual_library(target), True)
+        assert_equal(remove_saved_virtual_library(target), False)
+        assert_equal(get_saved_virtual_libraries('lib-a').length, 0)
+        assert_equal(get_saved_virtual_libraries('lib-b').length, 1)
+
+    with_empty_session(run)
+
+
+@test
+def saved_virtual_library_query_contract():
+    with_vl = saved_virtual_library_query(saved_virtual_library_item('lib-a', 'Fiction', 'tags:true', 'Fiction VL'))
+    without_vl = saved_virtual_library_query(saved_virtual_library_item('lib-a', 'All fiction', 'tags:true'))
+    assert_equal(with_vl.library_id, 'lib-a')
+    assert_equal(with_vl.search, 'tags:true')
+    assert_equal(with_vl.vl, 'Fiction VL')
+    assert_equal(without_vl.vl, None)

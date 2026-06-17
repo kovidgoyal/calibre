@@ -16,7 +16,7 @@ from calibre.ai.prefs import decode_secret, pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, get_cached_resource, read_streaming_response
 from calibre.constants import cache_dir
 
-module_version = 1  # needed for live updates
+module_version = 2  # needed for live updates
 MODELS_URL = 'https://openrouter.ai/api/v1/models'
 
 
@@ -25,7 +25,7 @@ def pref(key: str, defval: Any = None) -> Any:
 
 
 @lru_cache(2)
-def get_available_models() -> dict[str, 'Model']:
+def get_available_models() -> dict[str, Model]:
     cache_loc = os.path.join(cache_dir(), 'ai', f'{OpenRouterAI.name}-models-v1.json')
     data = get_cached_resource(cache_loc, MODELS_URL)
     return parse_models_list(json.loads(data))
@@ -49,7 +49,7 @@ class Pricing(NamedTuple):
     input_cache_write: float  = 0  # cost per cached input token write
 
     @classmethod
-    def from_dict(cls, x: dict[str, str]) -> 'Pricing':
+    def from_dict(cls, x: dict[str, str]) -> Pricing:
         return Pricing(
             input_token=float(x['prompt']), output_token=float(x['completion']), request=float(x.get('request', 0)),
             image=float(x.get('image', 0)), web_search=float(x.get('web_search', 0)),
@@ -95,7 +95,7 @@ class Model(NamedTuple):
         return re.sub(r' \(free\)$', '', self.name.partition(':')[-1].strip()).strip()
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> 'Model':
+    def from_dict(cls, x: dict[str, object]) -> Model:
         arch = x['architecture']
         capabilities = AICapabilities.none
         if 'text' in arch['input_modalities']:
@@ -105,7 +105,7 @@ class Model(NamedTuple):
                 capabilities |= AICapabilities.text_to_image
 
         return Model(
-            name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.timezone.utc),
+            name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC),
             description=x['description'], context_length=x['context_length'], slug=x['canonical_slug'],
             parameters=tuple(x['supported_parameters']), pricing=Pricing.from_dict(x['pricing']),
             is_moderated=x['top_provider']['is_moderated'], tokenizer=arch['tokenizer'],
@@ -255,6 +255,8 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
     match s:
         case 'low' | 'medium' | 'high':
             data['reasoning']['effort'] = s
+        case 'auto':
+            pass
         case _:
             data['reasoning']['enabled'] = False
     add_websearch_if_desired(data, models)

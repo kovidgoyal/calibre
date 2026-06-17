@@ -1,133 +1,98 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Recette Calibre — Le Canard Enchaîné
+# Auteur : Kabonix
+# Le contenu premium est dans le HTML (CSS paywall) — pas besoin de login
+
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LeCanardEnchaine(BasicNewsRecipe):
-    title = 'Le Canard Enchaîné'
-    author = 'Kabonix'
-    description = 'Articles du Canard Enchaîné'
-    language = 'fr'
-    no_stylesheets = True
+    title       = 'Le Canard Enchaîné'
+    __author__  = 'Kabonix'
+    description = 'Articles du Canard Enchaîné (sans login — CSS paywall)'
+    language    = 'fr'
+    no_stylesheets   = True
+    auto_cleanup      = False
     remove_javascript = True
+    max_image_width  = 600
+    max_image_height = 800
 
-    # Ajout des préférences pour les identifiants
-    needs_subscription = True
+    # Spoofer le referer Google pour contourner le paywall CSS
+    # Googlebot spoof — le Canard sert le contenu complet aux robots Google (pour indexation)
+    browser_user_agent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         br.set_handle_robots(False)
-
-        if self.username and self.password:
-            br.open('https://www.lecanardenchaine.fr/coin/identification?u=/')
-            br.select_form(nr=13)
-            br['_username'] = self.username
-            br['_password'] = self.password
-            br.submit()
-        else:
-            raise Exception('Les identifiants de connexion sont requis. Veuillez les configurer dans les préférences de la recette.')
-
+        br.addheaders = [
+            ('User-Agent', self.browser_user_agent),
+            ('Referer',         'https://www.google.fr/'),
+            ('X-Forwarded-For', '66.249.66.1'),  # IP officielle Googlebot
+            ('Accept-Language', 'fr-FR,fr;q=0.9'),
+        ]
         return br
 
-    # Le reste du code reste identique
+    # ------------------------------------------------------------------ #
+    #  Couverture — scraping page boutique                                #
+    # ------------------------------------------------------------------ #
+    def get_cover_url(self):
+        try:
+            br   = self.get_browser()
+            soup = self.index_to_soup(
+                br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read()
+            )
+            li = soup.find('li', {'class': 'list-item'})
+            if li:
+                img = li.find('img')
+                if img and img.get('srcset'):
+                    return 'https://boutique.lecanardenchaine.fr' + img['srcset'].split()[0]
+                if img and img.get('src'):
+                    return 'https://boutique.lecanardenchaine.fr' + img['src']
+        except Exception:
+            pass
+        return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
+
+    # ------------------------------------------------------------------ #
+    #  Sélection du contenu                                               #
+    # ------------------------------------------------------------------ #
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['editorial', 'article__core']}),
-        dict(name='div', attrs={'class': ['non-paywall', 'paywall']})
+        dict(name='div', attrs={'class': 'article__heading'}),
+        dict(name='div', attrs={'class': 'editorial'}),
     ]
 
     remove_tags = [
-        dict(name=['script', 'style', 'nav', 'header', 'footer']),
-        dict(name='div', attrs={'class': ['social-share', 'comments', 'share-mobile', 'article__author', 'article__tags']})
+        dict(name=['script', 'style', 'nav', 'header', 'footer', 'button', 'form']),
+        dict(name='div', attrs={'class': [
+            'share-mobile', 'share-sticky', 'article__author',
+            'article__tags', 'list-breadcrumb', 'modal',
+        ]}),
     ]
 
     extra_css = '''
-    body, p, div, h1, h2, h3,
-    .article__subtitle, .article__chapeau, .chapeau {
-        font-size: 1em !important;
-        line-height: 1.5 !important;
-    }
+        h1, h2 { font-size: 1.2em !important; font-weight: bold; }
+        .editorial__chapo { font-style: italic; margin-bottom: 1em; }
+        p { line-height: 1.5; }
+        a { color: black !important; text-decoration: none !important; }
+        .zoom { border-left: 3px solid #ccc; padding-left: 1em; margin: 1em 0; }
     '''
 
-    def get_cover_url(self):
-        '''Récupère dynamiquement l'URL de la dernière une'''
-        br = self.get_browser()
-        try:
-            soup = self.index_to_soup(br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read())
-
-            list_item = soup.find('li', {'class': 'list-item'})
-            if list_item:
-                img = list_item.find('img')
-                if img and img.get('srcset'):
-                    return 'https://boutique.lecanardenchaine.fr' + img['srcset'].split()[0]
-                elif img and img.get('src'):
-                    return 'https://boutique.lecanardenchaine.fr' + img['src']
-
-            self.log.info("Aucune couverture trouvée, utilisation de l'image par défaut")
-            return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
-        except Exception:
-            self.log.exception('Erreur lors de la récupération de la couverture')
-            return 'https://image.ausha.co/2x1H3rkhwjmSwAa8KzIFfcN0G9GxfJWY83UafXn8_400x400.jpeg'
-
-    SECTIONS = {
-        'Politique': '/politique/',
-        'Économie': '/economie/',
-        'International': '/international/',
-        'Défense': '/defense/',
-        'Société': '/societe/',
-        'Police-Justice': '/police-justice/',
-        'Santé': '/sante/',
-        'Éducation': '/education/',
-        'Environnement': '/environnement/',
-        'Technologie-Sciences': '/technologie-sciences/',
-        'Culture-Idées': '/culture-idees/',
-        'Médias': '/medias/',
-        'Sport': '/sport/',
-        'Social': '/social/',
-        'Brèves': '/breves/'
-    }
-
-    def parse_index(self):
-        br = self.get_browser()
-        feeds = []
-
-        for section_title, section_url in self.SECTIONS.items():
-            print(f'Exploration de la rubrique : {section_title}')
-            articles = []
-            try:
-                url = 'https://www.lecanardenchaine.fr' + section_url
-                raw = br.open(url).read()
-                soup = self.index_to_soup(raw)
-
-                for link in soup.findAll('a', href=True):
-                    href = link.get('href', '')
-                    if section_url[1:-1] in href and href.count('/') == 2:
-                        title = link.get_text().strip()
-                        if title:
-                            if not href.startswith('http'):
-                                href = 'https://www.lecanardenchaine.fr' + href
-                            articles.append({
-                                'title': title,
-                                'url': href,
-                                'description': ''
-                            })
-
-                seen_urls = set()
-                unique_articles = []
-                for article in articles:
-                    if article['url'] not in seen_urls:
-                        seen_urls.add(article['url'])
-                        unique_articles.append(article)
-
-                if unique_articles:
-                    feeds.append((section_title, unique_articles))
-                    print(f'  {len(unique_articles)} articles trouvés')
-
-            except Exception as e:
-                print(f'Erreur sur {section_title}: {e}')
-
-        return feeds
-
+    # ------------------------------------------------------------------ #
+    #  Le bypass CSS paywall : on vire juste la classe paywall            #
+    #  Le contenu est déjà dans le HTML — c'est un CSS paywall pur       #
+    # ------------------------------------------------------------------ #
     def preprocess_html(self, soup):
-        for div in soup.findAll('div', attrs={'class': ['unlocked', 'paywall']}):
+        # Déverrouiller le contenu caché par CSS
+        for div in soup.findAll('div', attrs={'id': 'paywall'}):
+            div['class'] = ''
+            div['id']    = ''
+        for div in soup.findAll('div', attrs={'class': 'paywall'}):
+            div['class'] = ''
+        # Nettoyer les overlays de paywall
+        for div in soup.findAll('div', attrs={'class': 'non-paywall'}):
             div['class'] = ''
         return soup
 
@@ -137,3 +102,74 @@ class LeCanardEnchaine(BasicNewsRecipe):
                 if attr not in ['href', 'src', 'class']:
                     del tag[attr]
         return soup
+
+    # ------------------------------------------------------------------ #
+    #  Index des sections                                                  #
+    # ------------------------------------------------------------------ #
+    SECTIONS = {
+        'Politique':             '/politique/',
+        'Économie':              '/economie/',
+        'International':         '/international/',
+        'Défense':               '/defense/',
+        'Société':               '/societe/',
+        'Police-Justice':        '/police-justice/',
+        'Santé':                 '/sante/',
+        'Éducation':             '/education/',
+        'Environnement':         '/environnement/',
+        'Technologie-Sciences':  '/technologie-sciences/',
+        'Culture-Idées':         '/culture-idees/',
+        'Médias':                '/medias/',
+        'Sport':                 '/sport/',
+        'Social':                '/social/',
+        'Brèves':                '/breves/',
+    }
+
+    def parse_index(self):
+        br      = self.get_browser()
+        feeds   = []
+        today   = datetime.now(ZoneInfo('Europe/Paris'))
+        week_ago = today - timedelta(days=7)
+
+        for section_title, section_url in self.SECTIONS.items():
+            articles = []
+            try:
+                url  = 'https://www.lecanardenchaine.fr' + section_url
+                soup = self.index_to_soup(br.open(url).read())
+
+                for article in soup.findAll('article', {'class': 'article-item'}):
+                    link     = article.find('a', href=True)
+                    date_div = article.find('div', {'class': 'article-item__date'})
+
+                    if not (link and date_div):
+                        continue
+
+                    href         = link['href']
+                    title        = link.get_text(separator=' ').strip()
+                    time_element = date_div.find('time')
+
+                    if not (time_element and time_element.get('datetime')):
+                        continue
+
+                    article_date = datetime.fromisoformat(time_element['datetime'])
+                    if article_date.date() <= week_ago.date():
+                        continue
+
+                    if not href.startswith('http'):
+                        href = 'https://www.lecanardenchaine.fr' + href
+
+                    articles.append({
+                        'title':       title,
+                        'url':         href,
+                        'description': f"Publié le {article_date.strftime('%d/%m/%Y')}",
+                        'date':        article_date.strftime('%a, %d %b %Y %H:%M:%S %z'),
+                    })
+
+            except Exception as e:
+                self.log.warning(f'Erreur sur {section_title}: {e}')
+
+            if articles:
+                feeds.append((section_title, articles))
+
+        if not feeds:
+            raise ValueError('Aucun article trouvé')
+        return feeds

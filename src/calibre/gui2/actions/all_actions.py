@@ -190,7 +190,7 @@ class AllGUIActions(InterfaceAction):
         # context menu, the action menu is displayed there without using this
         # method. If not it is displayed underneath a toolbar or menu button. If
         # neither is true then the menu is displayed in the upper left corner.
-        menu = QMenu()
+        menu = QMenu(self.gui)  # QMenu needs a parent otherwise it fails to show on Wayland
         menu.addSection(name)
         action.qaction.menu().aboutToShow.emit()
         for m in action.qaction.menu().actions():

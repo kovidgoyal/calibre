@@ -266,7 +266,7 @@ class Stylizer:
                 log=logging.getLogger('calibre.css'))
         for elem in style_tags:
             if (elem.tag in (XHTML('style'), SVG('style')) and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
-                text = elem.text if elem.text else ''
+                text = elem.text or ''
                 for x in elem:
                     t = getattr(x, 'text', None)
                     if t:
@@ -614,7 +614,7 @@ class Style:
                 self._bgcolor = False
             else:
                 self._bgcolor = col
-        return self._bgcolor if self._bgcolor else None
+        return self._bgcolor or None
 
     @property
     def fontSize(self):

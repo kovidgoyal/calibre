@@ -190,8 +190,7 @@ class Browser(QScrollArea):  # {{{
                 category_map[plugin.category] = plugin.category_order
             category_map[plugin.category] = max(category_map[plugin.category], plugin.category_order)
             if plugin.category not in category_names:
-                category_names[plugin.category] = (plugin.gui_category if
-                    plugin.gui_category else plugin.category)
+                category_names[plugin.category] = (plugin.gui_category or plugin.category)
 
         self.category_names = category_names
 

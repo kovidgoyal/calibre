@@ -4,10 +4,11 @@
 from __python__ import hash_literals
 
 import initialize  # noqa: unused-import
-from ajax import ajax, console_print, set_default_timeout
+from ajax import ajax, console_print, set_default_timeout, absolute_path
 from autoreload import create_auto_reload_watcher
 from book_list.globals import main_js
 from book_list.main import main
+from read_book.globals import runtime
 
 autoreload_enabled = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
@@ -38,10 +39,11 @@ def toplevel_main():
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
     script = undefined
-    # We wait for all page elements to load, since this is a single page app
-    # with a largely empty starting document, we can use this to preload any resources
-    # we know are going to be needed immediately.
-    window.addEventListener('load', main)
+    if window.navigator.serviceWorker:
+        window.navigator.serviceWorker.register(absolute_path('service_worker.js')).catch(
+            def(err):
+                console.error('Service worker registration failed:', err)
+        )
 
     ajax('ajax-setup', def(end_type, xhr, event):
         nonlocal autoreload_enabled, print
@@ -59,6 +61,12 @@ def toplevel_main():
                 create_auto_reload_watcher(port)
             if data.allow_console_print:
                 print = console_print
+            if data.in_develop_mode:
+                runtime.in_develop_mode = True
+        # we dont care about failure here, we assume defaults. We need this to
+        # load once so that browser does http auth and caches the credentials
+        # for future ajax requests
+        main()
     ).send()  # We must bypass cache as otherwise we could get stale info
 
 if document?:

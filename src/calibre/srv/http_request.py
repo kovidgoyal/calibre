@@ -13,7 +13,7 @@ from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import READ, WRITE, Connection
-from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict
+from calibre.srv.utils import HTTP1, HTTP11, Accumulator, MultiDict, connection_header_tokens
 from polyglot.builtins import error_message
 from polyglot.urllib import unquote
 
@@ -200,6 +200,26 @@ def read_headers(readline):
 # }}}
 
 
+def parse_content_length(values):
+    ans = None
+    for value in values:
+        try:
+            if isinstance(value, bytes):
+                raw = value.strip()
+            else:
+                raw = value.strip().encode('ascii')
+        except UnicodeEncodeError:
+            raise ValueError('Content-Length is not a valid decimal integer')
+        if not raw.isdigit():
+            raise ValueError('Content-Length is not a valid decimal integer')
+        val = int(raw)
+        if ans is None:
+            ans = val
+        elif val != ans:
+            raise ValueError('Conflicting Content-Length headers')
+    return 0 if ans is None else ans
+
+
 class HTTPRequest(Connection):
 
     request_handler = None
@@ -308,17 +328,17 @@ class HTTPRequest(Connection):
             self.finalize_headers(parser.hdict)
 
     def finalize_headers(self, inheaders):
-        request_content_length = int(inheaders.get('Content-Length', 0))
-        if request_content_length > self.max_request_body_size:
-            return self.simple_response(http.client.REQUEST_ENTITY_TOO_LARGE,
-                f'The entity sent with the request exceeds the maximum allowed bytes ({self.max_request_body_size}).')
+        content_length_values = inheaders.get('Content-Length', all=True)
+        try:
+            request_content_length = parse_content_length(content_length_values)
+        except ValueError as e:
+            return self.simple_response(http.client.BAD_REQUEST, str(e))
         # Persistent connection support
-        if self.response_protocol is HTTP11:
-            # Both server and client are HTTP/1.1
-            if inheaders.get('Connection', '') == 'close':
-                self.close_after_response = True
+        connection = connection_header_tokens(inheaders.get('Connection', ''))
+        if 'close' in connection:
+            self.close_after_response = True
         # Either the server or client (or both) are HTTP/1.0
-        elif inheaders.get('Connection', '') != 'Keep-Alive':
+        elif self.response_protocol is not HTTP11 and 'keep-alive' not in connection:
             self.close_after_response = True
 
         # Transfer-Encoding support
@@ -329,6 +349,8 @@ class HTTPRequest(Connection):
                 te = [x.strip().lower() for x in rte.split(',') if x.strip()]
         chunked_read = False
         if te:
+            if content_length_values:
+                return self.simple_response(http.client.BAD_REQUEST, 'Cannot specify both Transfer-Encoding and Content-Length')
             for enc in te:
                 if enc == 'chunked':
                     chunked_read = True
@@ -336,6 +358,10 @@ class HTTPRequest(Connection):
                     # Note that, even if we see "chunked", we must reject
                     # if there is an extension we don't recognize.
                     return self.simple_response(http.client.NOT_IMPLEMENTED, f'Unknown transfer encoding: {enc!r}')
+
+        if request_content_length > self.max_request_body_size:
+            return self.simple_response(http.client.REQUEST_ENTITY_TOO_LARGE,
+                f'The entity sent with the request exceeds the maximum allowed bytes ({self.max_request_body_size}).')
 
         if inheaders.get('Expect', '').lower() == '100-continue':
             buf = BytesIO((HTTP11 + ' 100 Continue\r\n\r\n').encode('ascii'))

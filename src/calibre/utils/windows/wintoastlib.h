@@ -43,6 +43,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <mutex>
 
 using namespace Microsoft::WRL;
 using namespace ABI::Windows::Data::Xml::Dom;
@@ -288,6 +289,7 @@ namespace WinToastLib {
         std::wstring _appName{};
         std::wstring _aumi{};
         std::map<INT64, NotifyData> _buffer{};
+        std::mutex _bufferMutex{};
 
         void markAsReadyForDeletion(_In_ INT64 id);
         HRESULT validateShellLinkHelper(_Out_ bool& wasChanged);

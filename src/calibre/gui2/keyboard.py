@@ -59,8 +59,9 @@ class NameConflict(ValueError):
     pass
 
 
-def keysequence_from_event(ev):  # {{{
-    k, mods = ev.keyCombination().key(), ev.modifiers()
+def keysequence_from_event(ev: QKeyEvent):  # {{{
+    kc = ev.keyCombination()
+    k, mods = kc.key(), kc.keyboardModifiers()
     if k in (
             0, Qt.Key.Key_unknown, Qt.Key.Key_Shift, Qt.Key.Key_Control, Qt.Key.Key_Alt,
             Qt.Key.Key_Meta, Qt.Key.Key_AltGr, Qt.Key.Key_CapsLock, Qt.Key.Key_NumLock,
@@ -165,7 +166,7 @@ class Manager(QObject):  # {{{
                 'default_keys':tuple(default_keys),
                 'persist_shortcut':persist_shortcut}
         self.shortcuts[unique_name] = shortcut
-        group = group if group else pgettext('keyboard shortcuts', _('Miscellaneous'))
+        group = group or pgettext('keyboard shortcuts', 'Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
     def unregister_shortcut(self, unique_name):

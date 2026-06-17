@@ -10,7 +10,7 @@ import subprocess
 
 duplicates = {
     'character-set': ['languages'],
-    'calibre': ['library', 'lt'],
+    'calibre': ['library', 'lt', 'favicon-192', 'favicon-512'],
     'format-text-color': ['lookfeel'],
     'books_in_series': ['series'],
     'plugins.svg': ['plugins/plugin_upgrade_ok'],
@@ -22,6 +22,8 @@ sizes = {
     'default_cover': 'original',
     'viewer': '256',
     'tweak': '256',
+    'favicon-192': '192',
+    'favicon-512': '512',
 }
 
 skip = {'calibre'}
@@ -57,7 +59,8 @@ def rsvg(src, size, dest):
     if size != 'original':
         cmd += ['--width', size, '--height', size]
     subprocess.check_call(cmd + ['-o', dest, src])
-    subprocess.check_call(['optipng', '-o7', '-quiet', '-strip', 'all', dest])
+    cmd = 'zopflipng -m -y --lossy_8bit --lossy_transparent'.split()
+    subprocess.check_call(cmd + [dest, dest])
 
 
 def render(src, output_files):
@@ -78,6 +81,9 @@ def main():
         render(src, ofiles)
     with open(hash_path, 'w') as f:
         json.dump(hashes, f, indent=2, sort_keys=True)
+    subprocess.check_call(['inkscape', os.path.join(base, 'calibre.svg'),
+                           '--export-type=svg', '--export-plain-svg', '--export-filename',
+                           os.path.join(output_base, 'calibre.svg')])
 
 
 if __name__ == '__main__':

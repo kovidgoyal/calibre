@@ -367,6 +367,10 @@ def viewer_font_size_changed():
     if view:
         view.viewer_font_size_changed()
 
+@from_python
+def native_gesture(gesture):
+    if view:
+        view.native_gesture(gesture)
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
@@ -428,6 +432,8 @@ if window is window.top:
         to_python.toggle_inspector()
     ui_operations.content_file_changed = def(name):
         to_python.content_file_changed(name)
+    ui_operations.update_last_read_position = def(cfi, pos_frac):
+        to_python.update_last_read_position(cfi, pos_frac)
     ui_operations.show_search = def(text, trigger):
         to_python.show_search(text, v'!!trigger')
     ui_operations.find_next = def(previous):
@@ -513,6 +519,8 @@ if window is window.top:
         to_python.on_iframe_ready()
     ui_operations.update_reading_rates = def(rates):
         to_python.update_reading_rates(rates)
+    ui_operations.reset_reading_rates = def():
+        to_python.reset_reading_rates()
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()

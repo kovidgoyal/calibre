@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+{{{head_content}}}
+
+<link href="{{css_link}}" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  {{#meta.titles}}
+	{{#is_first}}
+		<h1><a href="{{toc_url}}">{{title}}</a> </h1>
+	{{/is_first}}
+	{{^is_first}}
+		<div class="calibreMetaSubtitle">{{title}}</div>
+	{{/is_first}}
+  {{/meta.titles}}
+  </div>
+  <div class="calibreMetaAuthor">{{meta.creators}}</div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    {{#has_link}}
+      <div class="calibreEbNavTop">
+	    {{#prev_link}}
+          <a href="{{prev_link}}" class="calibreAPrev">{{prev_page}}</a>
+		{{/prev_link}}
+        {{^prev_link}}
+          <a href="{{toc_url}}" class="calibreAPrev">{{prev_page}}</a>
+		{{/prev_link}}
+		{{#next_link}}
+          <a href="{{next_link}}" class="calibreANext">{{next_page}}</a>
+		{{/next_link}}
+      </div>
+	{{/has_link}}
+
+	{{{ebook_content}}}
+  </div>
+
+  {{#has_toc}}
+  <div class="calibreToc">
+    <h2><a href="{{toc_url}}">{{table_of_contents}}</a></h2>
+	{{{toc}}}
+  </div>
+  {{/has_toc}}
+
+  <div class="calibreEbNav">
+	{{#prev_link}}
+		<a href="{{prev_link}}" class="calibreAPrev">{{prev_page}}</a>
+	{{/prev_link}}
+	{{^prev_link}}
+		<a href="{{toc_url}}" class="calibreAPrev">{{prev_page}}</a>
+	{{/prev_link}}
+
+    <a href="{{toc_url}}" class="calibreAHome">{{start}}</a>
+
+	{{#next_link}}
+		<a href="{{next_link}}" class="calibreANext">{{next_page}}</a>
+	{{/next_link}}
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -94,6 +94,7 @@ class Split:
 
     def find_page_breaks(self, item):
         if self.page_break_selectors is None:
+            ignored = {'avoid', 'auto', 'inherit', 'never'}
             self.page_break_selectors = set()
             stylesheets = [x.data for x in self.oeb.manifest if x.media_type in
                     OEB_STYLES]
@@ -103,23 +104,23 @@ class Split:
                 after  = force_unicode(getattr(rule.style.getPropertyCSSValue(
                     'page-break-after'), 'cssText', '').strip().lower())
                 try:
-                    if before and before not in {'avoid', 'auto', 'inherit'}:
+                    if before and before not in ignored:
                         self.page_break_selectors.add((rule.selectorText, True))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-before')
                 except Exception:
                     pass
                 try:
-                    if after and after not in {'avoid', 'auto', 'inherit'}:
+                    if after and after not in ignored:
                         self.page_break_selectors.add((rule.selectorText, False))
                         if self.remove_css_pagebreaks:
                             rule.style.removeProperty('page-break-after')
                 except Exception:
                     pass
-        page_breaks = set()
-        select = Select(item.data)
         if not self.page_break_selectors:
             return [], []
+        page_breaks = set()
+        select = Select(item.data)
         body = item.data.xpath('//h:body', namespaces=NAMESPACES)
         if not body:
             return [], []
@@ -200,7 +201,7 @@ class Split:
             return url
         if href in self.map:
             anchor_map = self.map[href]
-            nhref = anchor_map[frag if frag else None]
+            nhref = anchor_map[frag or None]
             nhref = self.current_item.relhref(nhref)
             if frag:
                 nhref = '#'.join((unquote(nhref), frag))
@@ -478,7 +479,7 @@ class FlowSplitter:
             for ref in self.oeb.guide.values():
                 href, frag = urldefrag(ref.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     ref.href = nhref
@@ -487,7 +488,7 @@ class FlowSplitter:
             if toc.href:
                 href, frag = urldefrag(toc.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     toc.href = nhref
@@ -501,7 +502,7 @@ class FlowSplitter:
             for page in self.oeb.pages:
                 href, frag = urldefrag(page.href)
                 if href == self.item.href:
-                    nhref = self.anchor_map[frag if frag else None]
+                    nhref = self.anchor_map[frag or None]
                     if frag:
                         nhref = '#'.join((nhref, frag))
                     page.href = nhref

@@ -521,9 +521,8 @@ OptionRecommendation(name='insert_metadata',
 OptionRecommendation(name='smarten_punctuation',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Convert plain quotes, dashes and ellipsis to their '
-            'typographically correct equivalents. For details, see '
-            'https://daringfireball.net/projects/smartypants.'
-            )
+            'typographically correct equivalents. For details, see: {}').format(
+            'https://daringfireball.net/projects/smartypants.')
         ),
 
 OptionRecommendation(name='unsmarten_punctuation',

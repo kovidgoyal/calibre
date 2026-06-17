@@ -95,7 +95,7 @@ class ConfirmDialog(QDialog):
         b.setIcon(QIcon.ic('default_cover.png'))
         b = self.b = self.bb.addButton(_('&Configure download'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon.ic('config.png'))
-        connect_lambda(b.clicked, self, lambda self: show_config(self))
+        connect_lambda(b.clicked, self, lambda self: show_config(self))  # noqa: PLW0108
         l.addWidget(self.bb, 1, 0, 1, 2)
         b = self.bb.addButton(_('Download &both'),
                 QDialogButtonBox.ButtonRole.AcceptRole)

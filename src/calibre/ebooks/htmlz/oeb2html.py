@@ -274,7 +274,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         attribs = elem.attrib
 
         style_a = f'{style}'
-        style_a = style_a if style_a else ''
+        style_a = style_a or ''
         if tag == 'body':
             # Change the body to a div so we can merge multiple files.
             tag = 'div'

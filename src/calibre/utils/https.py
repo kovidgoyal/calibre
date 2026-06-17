@@ -26,8 +26,11 @@ class HTTPSConnection(http.client.HTTPSConnection):
 
     def __init__(self, *args, **kwargs):
         cafile = kwargs.pop('cert_file', None)
-        if cafile is None:
+        capath = kwargs.pop('cadir', None)
+        if cafile is None and capath is None:
             kwargs['context'] = ssl._create_unverified_context()
+        elif capath:  # prefer capath as it performs better
+            kwargs['context'] = ssl.create_default_context(capath=capath)
         else:
             kwargs['context'] = ssl.create_default_context(cafile=cafile)
         if kwargs.pop('disable_x509_strict_checking', False):
@@ -40,7 +43,10 @@ class HTTPSConnection(http.client.HTTPSConnection):
 
 
 def get_https_resource_securely(
-    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None, headers=None, get_response=False):
+    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5,
+    ssl_version=None, headers=None, get_response=False,
+    cadir='',
+):
     '''
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
@@ -72,7 +78,7 @@ def get_https_resource_securely(
                 # Invalid proxy, ignore
                 pass
 
-    c = HTTPSConnection(hostname, port, cert_file=cert_file, timeout=timeout, disable_x509_strict_checking=disable_x509_strict_checking)
+    c = HTTPSConnection(hostname, port, cert_file=cert_file, timeout=timeout, disable_x509_strict_checking=disable_x509_strict_checking, cadir=cadir)
     if has_proxy:
         c.set_tunnel(p.hostname, p.port)
 

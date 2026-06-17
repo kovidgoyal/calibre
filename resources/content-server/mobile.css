@@ -1,5 +1,10 @@
 /* CSS for the mobile version of the content server webpage */
 
+body {
+    font-family: sans-serif;
+    background-color: #f6f3e9;
+}
+
 .body {
     font-family: sans-serif;
 }
@@ -16,10 +21,10 @@
     padding: 0.5em;
     font-size: larger;
     border: 1px solid black;
-    text-color: black;
+    color: #f6f3e9;
     text-decoration: none;
     margin-right: 0.5em;
-    background-color: #ddd;
+    background-color: #39322b;
     border-top: 1px solid ThreeDLightShadow;
     border-right: 1px solid ButtonShadow;
     border-bottom: 1px solid ButtonShadow;

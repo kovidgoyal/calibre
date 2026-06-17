@@ -4,6 +4,7 @@
 
 from calibre.customize import AIProviderPlugin
 
+
 class LMStudioAI(AIProviderPlugin):
     DEFAULT_URL = 'http://localhost:1234'
     name = 'LMStudio'

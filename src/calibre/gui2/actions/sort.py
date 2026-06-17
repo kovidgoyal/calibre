@@ -4,6 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from collections import Counter
 from contextlib import suppress
 from functools import partial
 
@@ -28,6 +29,18 @@ from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import primary_sort_key
 
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
+
+
+def hidden_fields(db):
+    return frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+
+
+def get_sorted_fields(db):
+    fm = db.field_metadata
+    name_map = [(v,k) for k, v in fm.ui_sortable_field_keys().items()]
+    counts = Counter(name for name, _ in name_map)
+    name_map = [(f'{name} [{key}]' if counts[name] > 1 else name, key) for name, key in name_map]
+    return sorted(name_map, key=lambda x: primary_sort_key(x[0]))
 
 
 class SortAction(QAction):
@@ -107,6 +120,9 @@ class SortByAction(InterfaceAction):
     def initialization_complete(self):
         self.update_menu()
 
+    def get_sorted_fields(self):
+        return get_sorted_fields(self.gui.current_db)
+
     def update_menu(self, menu=None):
         menu = menu or self.qaction.menu()
         for action in menu.actions():
@@ -143,13 +159,9 @@ class SortByAction(InterfaceAction):
         menu.addSeparator()
 
         # Add the columns to the menu
-        fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().items()}
-        all_names = sorted(name_map, key=primary_sort_key)
-        hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+        hidden = hidden_fields(self.gui.current_db)
 
-        for name in all_names:
-            key = name_map[name]
+        for name, key in self.get_sorted_fields():
             if key == 'ondevice' and self.gui.device_connected is None:
                 continue
             if key in hidden:
@@ -162,14 +174,10 @@ class SortByAction(InterfaceAction):
 
     def select_sortable_columns(self):
         db = self.gui.current_db
-        fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().items()}
-        hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
-        all_names = sorted(name_map, key=primary_sort_key)
+        hidden = hidden_fields(db)
         items = QListWidget()
         items.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
-        for display_name in all_names:
-            key = name_map[display_name]
+        for display_name, key in self.get_sorted_fields():
             i = QListWidgetItem(display_name, items)
             i.setData(Qt.ItemDataRole.UserRole, key)
             i.setSelected(key not in hidden)

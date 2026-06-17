@@ -436,7 +436,7 @@ class MainTab(QWidget):  # {{{
             is_running = gui.content_server is not None and gui.content_server.is_running
             self.ip_info.setVisible(is_running)
             self.update_ip_info()
-            self.start_server_button.setEnabled(not is_running)
+            self.start_server_button.setText(_('Re&start server') if is_running else _('&Start server'))
             self.stop_server_button.setEnabled(is_running)
             self.test_server_button.setEnabled(is_running)
 
@@ -1234,6 +1234,7 @@ class ConfigWidget(ConfigWidgetBase):
     def __init__(self, *args, **kw):
         ConfigWidgetBase.__init__(self, *args, **kw)
         self.l = l = QVBoxLayout(self)
+        self.restart_server_after_stop = False
         l.setContentsMargins(0, 0, 0, 0)
         self.tabs_widget = t = QTabWidget(self)
         l.addWidget(t)
@@ -1294,6 +1295,10 @@ class ConfigWidget(ConfigWidgetBase):
     def start_server(self):
         if not self.save_changes():
             return
+        if self.server and self.server.is_running:
+            self.restart_server_after_stop = True
+            self.stop_server()
+            return
         self.setCursor(Qt.CursorShape.BusyCursor)
         try:
             self.gui.start_content_server(check_started=False)
@@ -1330,6 +1335,9 @@ class ConfigWidget(ConfigWidgetBase):
         self.gui.content_server = None
         self.main_tab.update_button_state()
         self.stopping_msg.accept()
+        if self.restart_server_after_stop:
+            self.restart_server_after_stop = False
+            self.start_server()
 
     def test_server(self):
         from calibre.utils.network import format_addr_for_url, get_fallback_server_addr

@@ -197,7 +197,7 @@ def use_implicit_styling_for_a(a, style_map):
 def merge_contiguous_links(root):
     all_hrefs = set(root.xpath('//a/@href'))
     for href in all_hrefs:
-        tags = root.xpath(f'//a[@href="{href}"]')
+        tags = root.xpath('//a[@href=$h]', h=href)
         processed = set()
 
         def insert_tag(parent, child):
@@ -894,7 +894,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 if data_dir:
                     path = os.path.relpath(path, base).replace(os.sep, '/')
                     d.url.setText(path)
-        b.clicked.connect(lambda: cf())
+        b.clicked.connect(cf)
         d.brdf = b = QPushButton(_('&Data file'))
         b.clicked.connect(lambda: cf(True))
         b.setToolTip(_('A relative link to a data file associated with this book'))

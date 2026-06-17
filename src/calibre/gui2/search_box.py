@@ -442,7 +442,7 @@ class SearchBoxMixin:  # {{{
         self.focus_to_library()
 
     def focus_to_library(self):
-        self.current_view().setFocus(Qt.FocusReason.OtherFocusReason)
+        self.focus_current_view()
 
     # }}}
 
@@ -526,7 +526,7 @@ class SavedSearchBoxMixin:  # {{{
     def get_saved_search_text(self, search_name=None):
         db = self.current_db
         try:
-            current_search = search_name if search_name else self.search.currentText()
+            current_search = search_name or self.search.currentText()
             if not current_search.startswith('search:'):
                 raise ValueError()
             # This strange expression accounts for the four ways a search can be written:

@@ -48,7 +48,7 @@ class DownloadRequest(QObject):
     aborted_on_timeout: bool = False
     response_received = pyqtSignal(object)
 
-    def __init__(self, url: str, output_path: str, timeout: float, req_id: int, parent: 'FetchBackend'):
+    def __init__(self, url: str, output_path: str, timeout: float, req_id: int, parent: FetchBackend):
         super().__init__(parent)
         self.url, self.filename = url, os.path.basename(output_path)
         self.output_path = output_path

@@ -25,6 +25,11 @@ def setup_openssl_environment():
     if 'SSL_CERT_FILE' not in os.environ and 'SSL_CERT_DIR' not in os.environ:
         if os.access('/etc/pki/tls/certs/ca-bundle.crt', os.R_OK):
             os.environ['SSL_CERT_FILE'] = '/etc/pki/tls/certs/ca-bundle.crt'
+        # morons in Fedora removed the bundle file in Fedora 44.
+        # https://fedoraproject.org/wiki/Changes/droppingOfCertPemFile
+        # Hopefully there does not exist another distro that uses this dir for something else.
+        elif os.path.isdir('/etc/pki/tls/certs'):
+            os.environ['SSL_CERT_DIR'] = '/etc/pki/tls/certs'
         elif os.path.isdir('/etc/ssl/certs'):
             os.environ['SSL_CERT_DIR'] = '/etc/ssl/certs'
 

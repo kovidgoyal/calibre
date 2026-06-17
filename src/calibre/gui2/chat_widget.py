@@ -5,8 +5,27 @@ from html import escape
 from math import ceil
 from typing import NamedTuple
 
-from qt.core import QFrame, QHBoxLayout, QIcon, QPalette, QSize, QSizePolicy, Qt, QTextBrowser, QTextEdit, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
+from qt.core import (
+    QFont,
+    QFontInfo,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QPalette,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QTextBrowser,
+    QTextEdit,
+    QToolButton,
+    QUrl,
+    QVBoxLayout,
+    QWidget,
+    pyqtSignal,
+)
 
+from calibre.utils.config_base import tweaks
 from calibre.utils.logging import INFO, WARN
 from calibre.utils.resources import get_image_path
 
@@ -21,6 +40,10 @@ class Browser(QTextBrowser):
         self.setContentsMargins(0, 0, 0, 0)
         self.document().setDocumentMargin(0)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        if tweaks['change_ai_chat_font_size_by']:
+            font = QFont(self.font())
+            font.setPixelSize(QFontInfo(font).pixelSize() + tweaks['change_ai_chat_font_size_by'])
+            self.setFont(font)
 
     def sizeHint(self) -> QSize:
         return QSize(600, 500)
@@ -153,16 +176,26 @@ class ChatWidget(QWidget):
         self.browser = b = Browser(self)
         b.anchorClicked.connect(self.link_clicked)
         l.addWidget(b)
-        self.input = iw = Input(parent=self, placeholder_text=placeholder_text)
-        iw.send_requested.connect(self.on_input)
-        l.addWidget(iw)
         self.blocks: list[str] = []
         self.current_message = ''
         pal = self.palette()
         self.response_color = pal.color(QPalette.ColorRole.Window).name()
         self.base_color = pal.color(QPalette.ColorRole.Base).name()
+        self.disclaimer_label = dl = QLabel(self.disclaimer_text, self)
+        dl.setWordWrap(True)
+        dl.setTextFormat(Qt.TextFormat.PlainText)
+        dl.setMargin(2)
+        font = QFont(dl.font())
+        font.setItalic(True)
+        dl.setFont(font)
+        dl.setStyleSheet(f'background-color: {self.base_color};')
+        l.addWidget(dl)
+        self.input = iw = Input(parent=self, placeholder_text=placeholder_text)
+        iw.send_requested.connect(self.on_input)
+        l.addWidget(iw)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.line_spacing = self.browser.fontMetrics().lineSpacing()
+        self.disclaimer_label.setVisible(False)
 
     def setFocus(self, reason) -> None:
         self.input.setFocus(reason)
@@ -181,13 +214,9 @@ class ChatWidget(QWidget):
         bg = self.response_color if is_response else self.base_color
         self.blocks.append(self.wrap_content_in_padding_table(html, bg))
 
-    def replace_last_block(self, body_html: str, header: Header = Header(), is_response: bool = False) -> None:
-        if self.blocks:
-            del self.blocks[-1]
-        self.add_block(body_html, header, is_response)
-
-    def show_message(self, msg_html: str, details: str = '', level: int = INFO) -> None:
-        self.blocks = []
+    def show_message(self, msg_html: str, details: str = '', level: int = INFO, clear_conversation: bool = True) -> None:
+        if clear_conversation:
+            self.blocks = []
         style = ''
         if level == WARN:
             style += 'color: orange;'
@@ -216,11 +245,11 @@ class ChatWidget(QWidget):
         self.input.set_max_height(ceil(self.height() * 0.25))
 
     def re_render(self) -> None:
+        self.disclaimer_label.setVisible(not self.current_message and bool(self.blocks))
         if self.current_message:
             self.browser.setHtml(self.current_message)
         else:
             html = '\n\n'.join(self.blocks)
-            html += self.wrap_content_in_padding_table(f'<p><i>{escape(self.disclaimer_text)}</i></p>')
             self.browser.setHtml(html)
 
     def on_input(self) -> None:

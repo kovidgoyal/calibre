@@ -166,8 +166,9 @@ def get_func(name):
 
 def main():
     if '__multiprocessing__' in sys.argv:
-        payload = sys.argv[-1]
-        sys.argv = [sys.argv[0], '--multiprocessing-fork']
+        idx = sys.argv.index('__multiprocessing__')
+        payload = sys.argv[idx+1]
+        sys.argv = [sys.argv[0], '--multiprocessing-fork'] + sys.argv[idx + 2:]
         exec(payload)
         return 0
     if ismacos and 'CALIBRE_WORKER_FD' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:

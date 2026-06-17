@@ -109,11 +109,12 @@ class RelaySetup(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
+        fields = dict(service)
+        fields['link_markup'] = '<a href="https://{url}">{url}</a>'.format(**fields)
         self.tl = QLabel(('<p>'+_('Setup sending email using') +
                 ' <b>{name}</b><p>' +
             _("If you don't have an account, you can sign up for a free {name} email "
-            'account at <a href="https://{url}">{url}</a>. {extra}')).format(
-                **service))
+            'account at {link_markup}. {extra}')).format(**fields))
         l.addWidget(self.tl, 0, 0, 3, 0)
         self.tl.setWordWrap(True)
         self.tl.setOpenExternalLinks(True)
@@ -271,7 +272,7 @@ class SendEmail(QWidget, Ui_Form):
                         ' show you more ads. They are trying to claim that SMTP is insecure,'
                         ' that is incorrect and simply an excuse. To use a Gmail account'
                         ' you will need to "allow less secure apps" as described'
-                        ' <a href="https://support.google.com/accounts/answer/6010255">here</a>.'),
+                        ' <a href="{}">here</a>.').format('https://support.google.com/accounts/answer/6010255'),
                     'at_in_username': True,
                 },
                 'hotmail': {
@@ -322,9 +323,9 @@ class SendEmail(QWidget, Ui_Form):
                 return False
         conf = smtp_prefs()
         conf.set('from_', from_)
-        conf.set('relay_host', host if host else None)
+        conf.set('relay_host', host or None)
         conf.set('relay_port', self.relay_port.value())
-        conf.set('relay_username', username if username else None)
+        conf.set('relay_username', username or None)
         conf.set('relay_password', as_hex_unicode(password))
         conf.set('encryption', enc_method)
         return True

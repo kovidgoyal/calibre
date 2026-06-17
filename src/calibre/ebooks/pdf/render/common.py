@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import codecs
 import numbers
-import zlib
+from compression import zlib
 from datetime import datetime
 from io import BytesIO
 

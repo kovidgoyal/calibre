@@ -676,7 +676,6 @@ def show_export_dialog(annotations_manager, book_metadata):
                     x.select()
                     document.execCommand('copy')
                 ),
-                '\xa0',
                 create_button(_('Download'), 'cloud-download', def (ev):
                     nonlocal fmt
                     text = document.getElementById(ta_id).textContent
@@ -753,7 +752,7 @@ add_extra_css(def():
     qsel = sel + ' .highlight'
     ans += build_rule(qsel, margin_top='1ex', border_top='solid 1px', padding_top='1ex', cursor='pointer')
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
-    ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between')
+    ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between', flex_wrap='wrap', gap='0.65rem')
     ans += build_rule(qsel + ' .title', display='flex', align_items='center')
     ans += build_rule(qsel + ' .title-row', display='flex', align_items='center', justify_content='space-between')
     current = qsel + '.current'
@@ -866,7 +865,7 @@ def all_selected_entries():
 def item_select_toggled():
     entries = all_selected_entries()
     for e in document.querySelectorAll(f'#{get_container_id()} .sel-button'):
-        e.style.display = 'block' if entries.length else 'none'
+        e.style.display = 'inline-flex' if entries.length else 'none'
 
 
 def clear_selection():
@@ -903,9 +902,6 @@ def highlight_entry(h, onclick, view, hide_panel):
         ev.stopPropagation(), ev.preventDefault()
         onclick(func)
 
-    def button(text, func):
-        return E.a(text, class_='blue-link', onclick=func)
-
     hs = HighlightStyle(h.style)
     swatch = E.div()
     hs.make_swatch(swatch, is_dark_theme())
@@ -926,11 +922,11 @@ def highlight_entry(h, onclick, view, hide_panel):
         ),
         E.div(
             class_='actions',
-            button(_('Show in book'), action.bind(None, show_in_text.bind(None, h.uuid))),
+            create_button(_('Show in book'), 'book', action.bind(None, show_in_text.bind(None, h.uuid))),
             E.span('\xa0'),
-            button(_('Edit notes'), edit_notes.bind(None, h.uuid, h.notes, view)),
+            create_button(_('Edit notes'), 'edit', edit_notes.bind(None, h.uuid, h.notes, view)),
             E.span('\xa0'),
-            button(_('Remove highlight'), remove_highlight.bind(None, h.uuid, view)),
+            create_button(_('Remove highlight'), 'trash', remove_highlight.bind(None, h.uuid, view)),
         ),
         E.div(class_='notes')
     )
@@ -941,10 +937,15 @@ def highlight_entry(h, onclick, view, hide_panel):
     return ans
 
 
+def create_icon_button(icon, title, action):
+    return E.a(svgicon(icon), class_='calibre-icon-button ac-button', title=title, onclick=def(ev):
+                ev.preventDefault()
+                action()
+            , onmousedown=def(e): e.preventDefault();)
+
 def create_highlights_panel(annotations_manager, hide_panel, book, container, onclick):
-    next_button = E.div(class_='simple-link ac-button', svgicon('chevron-down'), title=_('Next match'))
-    prev_button = E.div(class_='simple-link ac-button', svgicon('chevron-up'), title=_('Previous match'))
-    prev_button.addEventListener('click', def(ev): find_previous();)
+    next_button = create_icon_button('chevron-down', _('Next match'), find_next)
+    prev_button = create_icon_button('chevron-up', _('Previous match'), find_previous)
     sb = create_search_bar(find_next, 'search-in-highlights', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button])
     sb.style.flexGrow = '10'
     sb.classList.add('ac-button')

@@ -1,0 +1,60 @@
+'''
+Fetch Blikk
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class blikk(BasicNewsRecipe):
+    title = u'Blikk'
+    description = ''
+    __author__ = 'bubak'
+    use_embedded_content   = False
+    oldest_article = 2
+    max_articles_per_feed = 40
+    no_stylesheets = True
+    language = 'hu'
+    simultaneous_downloads = 5
+
+    remove_javascript = True
+    cover_url = 'http://imagestore1.btl.hu/57_10_2465_576f066aec514d35e7fee2081dde5ffe_07ce26_701.jpg'
+
+    feeds = [
+             (u'Blikk.hu hírek', u'http://blikk.hu/rss')
+             ]
+
+    extra_css = '''
+                    '''
+
+    preprocess_regexps = [(re.compile(r'href="[^"]*["]', re.DOTALL|re.IGNORECASE), lambda match: '')]
+
+    remove_tags = [dict(name='span', attrs={'class':['hirdetes']})
+                   ,dict(name='div', attrs={'class':['cikkFejlec']})
+                   ,dict(name='div', attrs={'id':re.compile(r'div-gpt-ad|adoceanindex', re.IGNORECASE)})
+                   ,dict(name='a', attrs={'class':re.compile(r'gap-2', re.IGNORECASE)})
+                   ,dict(name='p', attrs={'class':re.compile(r'py-2', re.IGNORECASE)})
+                   ,dict(name='div', attrs={'id':['subscription-box-container', 'articleOfferFlag']})
+                   ,dict(name='div', attrs={'data-tagrecommendation':'/next-topmodel-hungary'})
+                   ,dict(name='div', attrs={'data-blockIndex'})
+                   ,dict(name='header', attrs={'id':['header']})
+                   ,dict(name='section', attrs={'class':re.compile(r'rightside|google-news|breadcrumb|pb-3', re.IGNORECASE)})
+                   ,dict(name='section', attrs={'class': lambda x: x and 'rightSide' in x.split()})
+                   ,dict(name='section', attrs={'id': 'articleEnd'})
+                   ,dict(name='img', attrs={'alt': 'Szólj hozzá!'})
+                    ]
+
+    remove_tags_after = dict(name='section', attrs={'id':'articleEnd'})
+
+    def skip_ad_pages(self, soup):
+        # ads have fewer links
+        self.log.debug('Number of links: ', len(soup.findAll('a')))
+        self.log.debug('Links: ', soup.findAll('a'))
+        if (len(soup.findAll('a')) < 20):
+            a = soup.find('a', text=re.compile(r'^click here')).findParents('a')
+            href = a[0]['href']
+            self.log.debug('Skipping to: ' + href)
+            new = self.browser.open(href).read().decode('utf-8', 'ignore')
+            self.log.debug('Finished: ' + href)
+            return new
+        return None

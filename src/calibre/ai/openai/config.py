@@ -21,9 +21,9 @@ class ConfigWidget(QWidget):
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         la = QLabel('<p>'+_(
             'You have to create an account at {0}, then generate an <i>API key</i>.'
-            ' Then, buy some credits. Finally, <a href="https://platform.openai.com/settings/organization/general">{1}</a>'
+            ' Then, buy some credits. Finally, <a href="{1}">{1}</a>'
             '. OpenAI models cannot be used free of charge via this plugin.'
-            ' OpenAI <a href="{1}">claims not to store prompts</a> and other data and not use it'
+            ' OpenAI <a href="{2}">claims not to store prompts</a> and other data and not use it'
             ' for training except for a small period of retention to prevent abuse and misuse.'
         ).format(
             '<a href="https://platform.openai.com">OpenAI</a>',

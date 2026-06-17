@@ -262,7 +262,7 @@ class MetadataUpdater:
         new_record0.write(exth)
         if self.encryption_type != 0:
             new_record0.write(self.drm_block)
-        new_record0.write(new_title if new_title else title_in_file)
+        new_record0.write(new_title or title_in_file)
 
         # Pad to a 4-byte boundary
         trail = len(new_record0.getvalue()) % 4

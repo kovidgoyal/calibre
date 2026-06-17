@@ -41,6 +41,21 @@ set_error(const char *where) {
     return set_error_with_detail(where, NULL);
 }
 
+static PyObject*
+set_openssl_error(PyObject *err_class, const char *msg) {
+    BIO *bio = BIO_new(BIO_s_mem());
+    ERR_print_errors(bio);
+    char *data = NULL;
+    long len = BIO_get_mem_data(bio, &data);
+    PyObject *s = NULL;
+    if (len > 0 && data != NULL) s = PyUnicode_FromStringAndSize(data, len);
+    PyObject *m = PyUnicode_FromString(msg);
+    PyErr_Format(err_class, "%V: %V", m, s);
+    Py_XDECREF(m); Py_XDECREF(s);
+    BIO_free(bio);
+    return NULL;
+}
+
 static void free_rsa_keypair(PyObject *capsule) {
     EVP_PKEY *pkey= PyCapsule_GetPointer(capsule, NULL);
     EVP_PKEY_free(pkey);
@@ -407,6 +422,39 @@ verify_cert(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+create_CA_dir(PyObject *self, PyObject *args) {
+    const char *pem_bundle; Py_ssize_t bundle_sz; const char *output_path;
+    if (!PyArg_ParseTuple(args, "s#s", &pem_bundle, &bundle_sz, &output_path)) return NULL;
+    BIO *mem_in = BIO_new_mem_buf(pem_bundle, bundle_sz);
+    if (!mem_in) return PyErr_NoMemory();
+    X509 *x = NULL; char path[4096];
+    // Iterate through the certificates in memory
+    while ((x = PEM_read_bio_X509(mem_in, NULL, NULL, NULL))) {
+        unsigned long hash = X509_subject_name_hash(x);
+        int suffix = 0;
+
+        // Collision handling: check if .0, .1, etc exists
+        while(1) {
+            snprintf(path, sizeof(path), "%s/%08lx.%d", output_path, hash, suffix);
+            struct stat buffer;
+            if (stat(path, &buffer) != 0) break; // File doesn't exist, we can use this name
+            suffix++;
+        };
+
+        // Write the individual PEM file
+        BIO *out = BIO_new_file(path, "w");
+        int ok = 0;
+        if (out) ok = PEM_write_bio_X509(out, x);
+        if (out) BIO_free(out);
+        X509_free(x);
+        if (!ok) { set_openssl_error(PyExc_ValueError, "failed to write inidividual PEM certificate"); break; }
+    }
+    BIO_free(mem_in);
+    if (PyErr_Occurred()) return NULL;
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef certgen_methods[] = {
     {"create_rsa_keypair", create_rsa_keypair, METH_VARARGS,
         "create_rsa_keypair(size)\n\nCreate a RSA keypair of the specified size"
@@ -433,7 +481,11 @@ static PyMethodDef certgen_methods[] = {
     },
 
     {"verify_cert", verify_cert, METH_VARARGS,
-        "verify_cert(cacert, cert)\n\nVerift cert against CA cert"
+        "verify_cert(cacert, cert)\n\nVerify cert against CA cert"
+    },
+
+    {"create_CA_dir", create_CA_dir, METH_VARARGS,
+        "create_CA_dir(cacerts_as_pem_bundle_string, output_path)\n\nCreate an OpenSSL CA certificate lookup directory. output_path must be an empty directory."
     },
 
     {NULL, NULL, 0, NULL}

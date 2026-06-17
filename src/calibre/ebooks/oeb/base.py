@@ -583,6 +583,15 @@ class DirContainer:
                     self.opfname = path
                     return
 
+    @property
+    def rootdir(self) -> str:
+        return self._rootdir
+
+    @rootdir.setter
+    def rootdir(self, val: str) -> None:
+        self._rootdir = os.path.abspath(val)
+        self._in_root_dir_check = self._rootdir + os.sep
+
     def _unquote(self, path):
         # unquote must run on a bytestring and will return a bytestring
         # If it runs on a unicode object, it returns a double encoded unicode
@@ -595,15 +604,18 @@ class DirContainer:
     def read(self, path):
         if path is None:
             path = self.opfname
-        path = os.path.join(self.rootdir, self._unquote(path))
+        path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
+        if not path.startswith(self._in_root_dir_check):
+            raise ValueError(f'Path {path!r} is not inside {self.rootdir!r}')
         with open(path, 'rb') as f:
             return f.read()
 
     def write(self, path, data):
-        path = os.path.join(self.rootdir, self._unquote(path))
+        path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
+        if not path.startswith(self._in_root_dir_check):
+            raise ValueError(f'Path {path!r} is not inside {self.rootdir!r}')
         dir = os.path.dirname(path)
-        if not os.path.isdir(dir):
-            os.makedirs(dir)
+        os.makedirs(dir, exist_ok=True)
         with open(path, 'wb') as f:
             return f.write(data)
 
@@ -611,8 +623,10 @@ class DirContainer:
         if not path:
             return False
         try:
-            path = os.path.join(self.rootdir, self._unquote(path))
+            path = os.path.abspath(os.path.join(self.rootdir, self._unquote(path)))
         except ValueError:  # Happens if path contains quoted special chars
+            return False
+        if not path.startswith(self._in_root_dir_check):
             return False
         try:
             return os.path.isfile(path)

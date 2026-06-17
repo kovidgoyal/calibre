@@ -229,11 +229,13 @@ def parse_identifier(ident, val, refines):
     scheme = None
     lval = val.lower()
 
-    def finalize(scheme, val):
+    def finalize(scheme, val, scheme_from_val=False):
         if not scheme or not val:
             return None, None
         scheme = scheme.lower()
         if scheme in ('http', 'https'):
+            if scheme_from_val:
+                return 'url', scheme + ':' + val
             return None, None
         if scheme.startswith('isbn'):
             scheme = 'isbn'
@@ -261,7 +263,7 @@ def parse_identifier(ident, val, refines):
         val = val[4:]
 
     prefix, rest = val.partition(':')[::2]
-    return finalize(prefix, rest)
+    return finalize(prefix, rest, scheme_from_val=True)
 
 
 def read_identifiers(root, prefixes, refines):
@@ -976,12 +978,17 @@ def read_raster_cover(root, prefixes, refines):
         if href:
             return href
 
+    id_map = {item.get('id', ''):item for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root)}
+
     for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
-        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
-            if item.get('id') == item_id:
-                href = get_href(item)
-                if href:
-                    return href
+        if (item := id_map.get(item_id)) is not None and (href := get_href(item)):
+            return href
+
+    images = ('image/jpeg', 'image/webp', 'image/png')
+    for item_id in XPath('./opf:spine/opf:itemref/@idref')(root):
+        if (item := id_map.get(item_id)) is not None and item.get('media-type') in images and (href := get_href(item)):
+            return href
+        break
 
 
 def set_unique_property(property_name, root, prefixes, href):

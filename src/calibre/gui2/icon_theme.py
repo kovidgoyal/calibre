@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import bz2
 import errno
 import http.client
 import importlib
@@ -13,6 +11,7 @@ import math
 import os
 import sys
 import tempfile
+from compression import bz2
 from contextlib import suppress
 from functools import lru_cache
 from io import BytesIO
@@ -459,7 +458,7 @@ def create_themeball(report, theme_metadata, progress=None, abort=None):
         return None, None, None
     if progress is not None:
         progress(next(num), _('Compressing theme file'))
-    import lzma
+    from compression import lzma
     compressed = lzma.compress(icon_zip_data.getvalue(), format=lzma.FORMAT_XZ, preset=9)
     buf = BytesIO()
     prefix = report.name

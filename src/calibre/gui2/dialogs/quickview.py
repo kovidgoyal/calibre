@@ -312,7 +312,7 @@ class Quickview(QDialog, Ui_Quickview):
         if not self.is_pane:
             if toggle_shortcut and self.close_button.shortcut() != toggle_shortcut:
                 toggle_sc = QShortcut(toggle_shortcut, self.close_button)
-                toggle_sc.activated.connect(lambda: self.close_button_clicked())
+                toggle_sc.activated.connect(self.close_button_clicked)
                 toggle_sc.setEnabled(True)
                 self.close_button.setToolTip(_('Alternate shortcut: ') +
                                              toggle_shortcut.toString())

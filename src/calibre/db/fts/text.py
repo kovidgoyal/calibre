@@ -5,6 +5,7 @@
 import contextlib
 import os
 import re
+import sys
 import unicodedata
 
 from calibre.customize.ui import plugin_for_input_format
@@ -132,3 +133,7 @@ def main(pathtoebook):
     text = extract_text(pathtoebook)
     with open(pathtoebook + '.txt', 'wb') as f:
         f.write(text.encode('utf-8'))
+
+
+if __name__ == '__main__':
+    main(sys.argv[-1])

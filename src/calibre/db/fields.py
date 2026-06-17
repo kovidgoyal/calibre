@@ -17,6 +17,7 @@ from calibre.db.write import Writer
 from calibre.ebooks.metadata import author_to_author_sort, rating_to_stars, title_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
+from calibre.utils.formatter import TEMPLATE_ERROR
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
 
@@ -299,7 +300,7 @@ class CompositeField(OneToOneField):
         ' INTERNAL USE ONLY. DO NOT USE THIS OUTSIDE THIS CLASS! '
         db = self.db_weakref()
         ans = formatter.safe_format(
-            self.metadata['display']['composite_template'], mi, _('TEMPLATE ERROR'),
+            self.metadata['display']['composite_template'], mi, TEMPLATE_ERROR,
             mi, column_name=self._composite_name, template_cache=template_cache,
             template_functions=self.get_template_functions(),
             global_vars={rendering_composite_name:'1'}, database=db).strip()

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import io
 import re
 import struct
-import zlib
+from compression import zlib
 
 from PIL import Image
 

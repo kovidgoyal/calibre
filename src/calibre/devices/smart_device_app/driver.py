@@ -14,13 +14,12 @@ import random
 import select
 import socket
 import sys
-import threading
 import time
 import traceback
 from collections import defaultdict
 from errno import EAGAIN, EINTR
 from functools import wraps
-from threading import Thread
+from threading import Event, RLock, Thread
 
 from calibre import prints
 from calibre.constants import DEBUG, cache_dir, numeric_version
@@ -46,6 +45,8 @@ from calibre.utils.mdns import unpublish as unpublish_zeroconf
 from calibre.utils.socket_inheritance import set_socket_inherit
 from polyglot.builtins import as_bytes
 
+wireless_driver_connected = False
+
 
 def synchronous(tlockname):
     '''A decorator to place an instance based lock around a method '''
@@ -62,14 +63,13 @@ def synchronous(tlockname):
 class ConnectionListener(Thread):
 
     def __init__(self, driver):
-        Thread.__init__(self)
-        self.daemon = True
+        super().__init__(name='SmartDeviceConnectionListener', daemon=True)
         self.driver = driver
-        self.keep_running = True
+        self.shutdown_event = Event()
         self.all_ip_addresses = {}
 
     def stop(self):
-        self.keep_running = False
+        self.shutdown_event.set()
 
     def _close_socket(self, the_socket):
         try:
@@ -83,14 +83,14 @@ class ConnectionListener(Thread):
         device_socket = None
         get_all_ips(reinitialize=True)
 
-        while self.keep_running:
+        while not self.shutdown_event.is_set():
             try:
-                time.sleep(1)
+                self.shutdown_event.wait(1)
             except Exception:
                 # Happens during interpreter shutdown
                 break
 
-            if not self.keep_running:
+            if self.shutdown_event.is_set():
                 break
 
             if not self.all_ip_addresses:
@@ -145,9 +145,8 @@ class ConnectionListener(Thread):
                     try:
                         self.driver._debug('attempt to open device socket')
                         device_socket = None
-                        self.driver.listen_socket.settimeout(0.100)
-                        device_socket, ign = eintr_retry_call(
-                                self.driver.listen_socket.accept)
+                        self.driver.listen_socket.settimeout(0.1)
+                        device_socket, ign = eintr_retry_call(self.driver.listen_socket.accept)
                         set_socket_inherit(device_socket, False)
                         self.driver.listen_socket.settimeout(None)
                         device_socket.settimeout(None)
@@ -384,7 +383,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     }
 
     def __init__(self, path):
-        self.sync_lock = threading.RLock()
+        self.sync_lock = RLock()
         self.noop_counter = 0
         self.noop_time = time.monotonic()
         self.debug_start_time = time.time()
@@ -620,7 +619,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     self._close_device_socket()
                     raise
-                time.sleep(0.1)  # lets not hammer the OS too hard
             except Exception:
                 self._close_device_socket()
                 raise
@@ -988,10 +986,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self if self.is_connected else None
 
         if getattr(self, 'listen_socket', None) is not None:
+            global wireless_driver_connected
             try:
                 ans = self.connection_queue.get_nowait()
                 self.device_socket = ans
                 self.is_connected = True
+                wireless_driver_connected = True
                 try:
                     peer = self.device_socket.getpeername()[0]
                     attempts = self.connection_attempts.get(peer, 0)
@@ -1998,6 +1998,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         with self.sync_lock:
             if getattr(self, 'listen_socket', None) is not None:
                 self.connection_listener.stop()
+                self.connection_listener.join()
                 try:
                     unpublish_zeroconf('calibre smart device client',
                                        '_calibresmartdeviceapp._tcp', self.port, {})
@@ -2016,6 +2017,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         return self._startup_on_demand()
 
     def stop_plugin(self):
+        try:
+            if self.is_connected:
+                self.eject()
+        except Exception:
+            import traceback
+            traceback.print_exc()
         self._shutdown()
 
     def get_option(self, opt_string, default=None):

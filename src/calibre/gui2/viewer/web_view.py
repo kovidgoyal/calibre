@@ -24,7 +24,6 @@ from qt.core import (
     QUrl,
     QWidget,
     pyqtSignal,
-    sip,
 )
 from qt.webengine import (
     QWebEnginePage,
@@ -44,9 +43,8 @@ from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
 from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
-from calibre.gui2.webengine import RestartingWebEngineView
 from calibre.srv.code import get_translations_data
-from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.filenames import make_long_path_useable, path_from_root
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
@@ -76,9 +74,10 @@ def get_path_for_name(name):
     bdir = getattr(set_book_path, 'path', None)
     if bdir is None:
         return
-    path = os.path.abspath(os.path.join(bdir, name))
-    if path.startswith(bdir):
-        return path
+    try:
+        return path_from_root(bdir, name)
+    except ValueError:
+        pass
 
 
 def get_data(name):
@@ -105,24 +104,16 @@ def background_image(encoded_fname=''):
             return mt, data
         except FileNotFoundError:
             return 'image/jpeg', b''
-    fname = bytes.fromhex(encoded_fname).decode()
-    img_path = os.path.join(viewer_config_dir, 'background-images', fname)
+    try:
+        fname = bytes.fromhex(encoded_fname).decode('utf-8')
+        img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=iswindows)
+    except (ValueError, UnicodeDecodeError):
+        return 'image/jpeg', b''
     mt = guess_type(fname)[0] or 'image/jpeg'
     try:
         with open(make_long_path_useable(img_path), 'rb') as f:
             return mt, f.read()
     except FileNotFoundError:
-        if fname.startswith(('https://', 'http://')):
-            from calibre import browser
-            br = browser()
-            try:
-                with br.open(fname) as src:
-                    data = src.read()
-            except Exception:
-                return mt, b''
-            with open(make_long_path_useable(img_path), 'wb') as dest:
-                dest.write(data)
-            return mt, data
         return mt, b''
 
 
@@ -133,8 +124,12 @@ def get_mathjax_dir():
 
 def handle_mathjax_request(rq, name):
     mathjax_dir = get_mathjax_dir()
-    path = os.path.abspath(os.path.join(mathjax_dir, '..', name))
-    if path.startswith(mathjax_dir):
+    mathjax_name = name.partition('/')[2]
+    try:
+        path = path_from_root(mathjax_dir, mathjax_name)
+    except ValueError:
+        pass
+    else:
         mt = guess_type(name)
         try:
             with open(path, 'rb') as f:
@@ -146,9 +141,9 @@ def handle_mathjax_request(rq, name):
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
-    else:
-        prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
-        rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
+        return
+    prints(f'Failed to get mathjax file: {name} outside mathjax directory', file=sys.stderr)
+    rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
@@ -250,6 +245,7 @@ class ViewerBridge(Bridge):
     view_created = from_js(object)
     on_iframe_ready = from_js()
     content_file_changed = from_js(object)
+    update_last_read_position = from_js(object, object)
     set_session_data = from_js(object, object)
     set_local_storage = from_js(object, object)
     reload_book = from_js()
@@ -294,6 +290,7 @@ class ViewerBridge(Bridge):
     show_book_folder = from_js()
     show_help = from_js(object)
     update_reading_rates = from_js(object)
+    reset_reading_rates = from_js()
     profile_op = from_js(object, object, object)
 
     create_view = to_js()
@@ -311,6 +308,7 @@ class ViewerBridge(Bridge):
     highlight_action = to_js()
     generic_action = to_js()
     show_search_result = to_js()
+    native_gesture = to_js()
     prepare_for_close = to_js()
     repair_after_fullscreen_switch = to_js()
     viewer_font_size_changed = to_js()
@@ -465,7 +463,7 @@ def system_colors():
     return ans
 
 
-class WebView(RestartingWebEngineView):
+class WebView(QWebEngineView):
 
     cfi_changed = pyqtSignal(object)
     reload_book = pyqtSignal()
@@ -499,12 +497,14 @@ class WebView(RestartingWebEngineView):
     close_prep_finished = pyqtSignal(object)
     highlights_changed = pyqtSignal(object)
     update_reading_rates = pyqtSignal(object)
+    reset_reading_rates = pyqtSignal()
     edit_book = pyqtSignal(object, object, object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)
     view_created = pyqtSignal(object)
     content_file_changed = pyqtSignal(str)
+    update_last_read_position = pyqtSignal(object, object)
     change_toolbar_actions = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -512,13 +512,13 @@ class WebView(RestartingWebEngineView):
         self.callback_id_counter = count()
         self.callback_map = {}
         self.current_cfi = self.current_content_file = None
-        RestartingWebEngineView.__init__(self, parent)
+        super().__init__(parent)
         self.tts = TTS(self)
         self.tts.settings_changed.connect(self.tts_settings_changed)
         self.tts.event_received.connect(self.tts_event_received)
         self.tts.configured.connect(self.redraw_tts_bar)
         self.dead_renderer_error_shown = False
-        self.render_process_failed.connect(self.render_process_died)
+        self.renderProcessTerminated.connect(self.render_process_died)
         w = self.screen().availableSize().width()
         QApplication.instance().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
@@ -530,6 +530,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.on_iframe_ready.connect(self.on_iframe_ready)
         self.bridge.view_created.connect(self.on_view_created)
         self.bridge.content_file_changed.connect(self.on_content_file_changed)
+        self.bridge.update_last_read_position.connect(self.update_last_read_position)
         self.bridge.set_session_data.connect(self.set_session_data)
         self.bridge.set_local_storage.connect(self.set_local_storage)
         self.bridge.reload_book.connect(self.reload_book)
@@ -565,6 +566,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.update_reading_rates.connect(self.update_reading_rates)
+        self.bridge.reset_reading_rates.connect(self.reset_reading_rates)
         self.bridge.profile_op.connect(self.profile_op)
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
@@ -584,6 +586,22 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+        self.focusProxy().installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        match event.type():
+            case QEvent.Type.NativeGesture:
+                match event.gestureType():
+                    case Qt.NativeGestureType.BeginNativeGesture:
+                        self.pinch_accumulated_value = 0
+                    case Qt.NativeGestureType.ZoomNativeGesture:
+                        self.pinch_accumulated_value += event.value()
+                        return True
+                    case Qt.NativeGestureType.EndNativeGesture:
+                        if abs(self.pinch_accumulated_value) > 0.05:
+                            out = self.pinch_accumulated_value > 0
+                            self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
+        return super().eventFilter(obj, event)
 
     def profile_op(self, which, profile_name, settings):
         if which == 'all-profiles':
@@ -623,12 +641,6 @@ class WebView(RestartingWebEngineView):
                     self.current_cfi = cfi
                     self.cfi_changed.emit(cfi)
 
-    @property
-    def host_widget(self):
-        ans = self._host_widget
-        if ans is not None and not sip.isdeleted(ans):
-            return ans
-
     def render_process_died(self):
         if self.dead_renderer_error_shown:
             return
@@ -636,14 +648,6 @@ class WebView(RestartingWebEngineView):
         error_dialog(self, _('Render process crashed'), _(
             'The Qt WebEngine Render process has crashed.'
             ' You should try restarting the viewer.'), show=True)
-
-    def event(self, event):
-        if event.type() == QEvent.Type.ChildPolished:
-            child = event.child()
-            if 'HostView' in child.metaObject().className():
-                self._host_widget = child
-                self._host_widget.setFocus(Qt.FocusReason.OtherFocusReason)
-        return QWebEngineView.event(self, event)
 
     def sizeHint(self):
         return self._size_hint
@@ -710,6 +714,20 @@ class WebView(RestartingWebEngineView):
 
     def notify_full_screen_state_change(self, in_fullscreen_mode):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
+
+    def adjust_font_size_by_fraction(self, frac):
+        sd = vprefs['session_data']
+        fs = sd.get('standalone_font_settings', {})
+        if (mfs := fs.get('minimum_font_size')) is None:
+            mfs = 8
+        bfs = sd.get('base_font_size')
+        nbfs = max(mfs, min(round(frac * bfs), 72))
+        if nbfs != bfs:
+            sd['base_font_size'] = nbfs
+            vprefs['session_data'] = sd
+            apply_font_settings(self)
+            return True
+        return False
 
     def set_session_data(self, key, val):
         fonts_changed = paged_mode_changed = standalone_misc_settings_changed = update_vprefs = False

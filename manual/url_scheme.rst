@@ -132,7 +132,7 @@ Open the notes associated with an author/series/etc.
 
 The URL syntax is::
 
-    calibre://book-details/Library_Name/Field_Name/id_Item_Id
+    calibre://show-note/Library_Name/Field_Name/id_Item_Id
 
 This opens a window showing the notes of the specified item.
 The easiest way to create such URLs is to show the notes you want

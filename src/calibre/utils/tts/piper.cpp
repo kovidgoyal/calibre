@@ -253,6 +253,13 @@ set_voice(PyObject *self, PyObject *args) {
     Py_CLEAR(map);
     if (PyErr_Occurred()) return NULL;
 
+#ifdef _WIN32
+    wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
+    if (!model_path) return NULL;
+#else
+    const char *model_path = PyUnicode_AsUTF8(pymp);
+#endif
+
     // Load onnx model
     Py_BEGIN_ALLOW_THREADS;
     Ort::SessionOptions opts;
@@ -268,29 +275,20 @@ set_voice(PyObject *self, PyObject *args) {
     session.reset();
     long long st;
     if (PRINT_TIMING_INFORMATION) st = now();
-#ifdef _WIN32
-    wchar_t *model_path = PyUnicode_AsWideCharString(pymp, NULL);
-    if (!model_path) return NULL;
     session = std::make_unique<Ort::Session>(Ort::Session(ort_env, model_path, opts));
-    PyMem_Free(model_path);
-#else
-    session = std::make_unique<Ort::Session>(Ort::Session(ort_env, PyUnicode_AsUTF8(pymp), opts));
-#endif
     if (PRINT_TIMING_INFORMATION) { printf("model loading time: %f\n", (now()-st) / 1e9); fflush(stdout); }
     Py_END_ALLOW_THREADS;
 
-
+#ifdef _WIN32
+    PyMem_Free(model_path);
+#endif
     Py_RETURN_NONE;
 }
 
 static PyObject*
 normalize(const char *text) {
     PyObject *t = PyUnicode_FromString(text);
-    if (!t) return NULL;
-    if (PyTuple_SetItem(normalize_data.args, 1, t) != 0) {
-        Py_DECREF(t);
-        return NULL;
-    }
+    if (!t || PyTuple_SetItem(normalize_data.args, 1, t) != 0) return NULL;
     return PyObject_CallObject(normalize_data.func, normalize_data.args);
 }
 

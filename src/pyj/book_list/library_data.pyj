@@ -11,7 +11,8 @@ from session import get_interface_data
 from utils import parse_url_params
 
 load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False, 'bools_are_tristate': True, 'field_names': {}, 'available_browse_fields': v'[]', 'browse_fields': v'[]'}
+BROWSE_VISIBLE_FIELDS_SETTING = 'browse_visible_fields'
 
 
 def current_library_id():
@@ -85,6 +86,8 @@ def update_library_data(data):
     library_data.for_library = current_library_id()
     for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields bools_are_tristate book_details_vertical_categories fts_enabled fields_that_support_notes categories_using_hierarchy'.split(' '):
         library_data[key] = data[key]
+    library_data.available_browse_fields = data.browse_fields or v'[]'
+    update_visible_browse_fields()
     sr = library_data.search_result
     if sr:
         last_virtual_library_for.library_id = sr.library_id
@@ -92,6 +95,78 @@ def update_library_data(data):
     else:
         last_virtual_library_for.library_id = None
         last_virtual_library_for.vl = None
+    refresh_sidebar_navigation()
+    refresh_browse_field_settings()
+
+
+def configured_browse_fields():
+    by_library = get_session_data().get(BROWSE_VISIBLE_FIELDS_SETTING) or {}
+    return by_library[current_library_id()]
+
+
+def configured_browse_field_map():
+    configured = configured_browse_fields()
+    if not Array.isArray(configured):
+        return None
+    ans = {}
+    for key in configured:
+        ans[key] = True
+    return ans
+
+
+def update_visible_browse_fields():
+    fields = library_data.available_browse_fields or v'[]'
+    selected = configured_browse_field_map()
+    if selected is None:
+        library_data.browse_fields = [field for field in fields if field.default_visible is not False]
+    else:
+        library_data.browse_fields = [field for field in fields if selected[field.key]]
+
+
+def set_browse_fields(field_keys):
+    by_library = get_session_data().get(BROWSE_VISIBLE_FIELDS_SETTING) or {}
+    by_library[current_library_id()] = field_keys
+    get_session_data().set(BROWSE_VISIBLE_FIELDS_SETTING, by_library)
+    update_visible_browse_fields()
+    refresh_sidebar_navigation()
+
+
+def refresh_sidebar_navigation():
+    try:
+        refresh = window.cs_refresh_sidebar_navigation
+    except Exception:
+        refresh = None
+    if refresh:
+        refresh()
+
+
+def refresh_browse_field_settings():
+    try:
+        refresh = window.cs_refresh_browse_field_settings
+    except Exception:
+        refresh = None
+    if refresh:
+        refresh()
+
+
+def browse_field_settings():
+    ans = v'[]'
+    selected = configured_browse_field_map()
+    for field in library_data.available_browse_fields or v'[]':
+        f = Object.assign({}, field)
+        f.enabled = (field.default_visible is not False) if selected is None else bool(selected[f.key])
+        ans.push(f)
+    return ans
+
+
+def browse_fields():
+    return library_data.browse_fields or v'[]'
+
+
+def browse_field_for(field):
+    for f in browse_fields():
+        if f.key is field:
+            return f
 
 
 def add_more_books(data):
@@ -192,6 +267,8 @@ def field_names_received(library_id, field, proceed, end_type, xhr, event):
 
 
 def field_names_for(field, proceed):
+    if not library_data.field_names:
+        library_data.field_names = {}
     if library_data.field_names[field] and library_data.field_names[field].loaded:
         proceed(True, field, library_data.field_names[field].names)
     if not library_data.field_names[field] or (not library_data.field_names[field].loading and Date.now() - library_data.field_names[field].last_updated_at > 3600 * 1000):

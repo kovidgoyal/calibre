@@ -36,7 +36,7 @@ class NoAutoReload(EnvironmentError):
 
 class WatcherBase:
 
-    EXTENSIONS_TO_WATCH = frozenset('py pyj svg'.split())
+    EXTENSIONS_TO_WATCH = frozenset('py pyj svg js css'.split())
     BOUNCE_INTERVAL = 2  # seconds
 
     def __init__(self, worker, log):
@@ -220,7 +220,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
         srv = d(fpath)
         add(srv)
         base = d(d(d(srv)))
-        add(os.path.join(base, 'resources', 'server'))
+        add(os.path.join(base, 'resources', 'content-server'))
         add(os.path.join(base, 'src', 'calibre', 'db'))
         add(os.path.join(base, 'src', 'pyj'))
         add(os.path.join(base, 'imgsrc', 'srv'))

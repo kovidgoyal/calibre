@@ -40,6 +40,7 @@ from calibre.customize.ui import (
     BLACKLISTED_PLUGINS,
     NameConflict,
     add_plugin,
+    can_be_disabled,
     disable_plugin,
     enable_plugin,
     has_external_plugins,
@@ -129,8 +130,8 @@ def filter_not_installed_plugins(display_plugin):
 
 
 def read_available_plugins(raise_error=False):
-    import bz2
     import json
+    from compression import bz2
     display_plugins = []
     try:
         raw = get_https_resource_securely(INDEX_URL)
@@ -953,7 +954,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
     def _toggle_enabled_clicked(self):
         display_plugin = self._selected_display_plugin()
         plugin = display_plugin.plugin
-        if not plugin.can_be_disabled:
+        if not can_be_disabled(plugin):
             return error_dialog(self, _('Plugin cannot be disabled'),
                          _('The plugin: %s cannot be disabled')%plugin.name, show=True)
         if is_disabled(plugin):

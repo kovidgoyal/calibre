@@ -4,7 +4,7 @@
 
 import glob
 import io
-import json
+import lzma
 import os
 import shlex
 import subprocess
@@ -12,7 +12,7 @@ import sys
 import tarfile
 import time
 from tempfile import NamedTemporaryFile
-from urllib.request import Request
+from urllib.request import Request, urlopen
 
 _plat = sys.platform.lower()
 ismacos = 'darwin' in _plat
@@ -23,19 +23,21 @@ def setenv(key, val):
     os.environ[key] = os.path.expandvars(val)
 
 
-def download_with_retry(url, count=5):
-    from urllib.request import urlopen
-    while count > 0:
-        count -= 1
+def download_with_retry(url: str | Request, count: int = 5) -> bytes:
+    for i in range(count):
         try:
-            print('Downloading', url, flush=True)
+            print('Downloading', getattr(url, 'full_url', url), flush=True)
             with urlopen(url) as f:
-                return f.read()
-        except Exception:
-            if count <= 0:
+                ans: bytes = f.read()
+            return ans
+        except Exception as err:
+            if getattr(err, 'code', -1) == 403:
                 raise
-            print('Download failed retrying...')
+            if i >= count - 1:
+                raise
+            print(f'Download failed with error {err} retrying...', file=sys.stderr)
             time.sleep(1)
+    return b''
 
 
 if ismacos:
@@ -165,48 +167,58 @@ def get_tx():
         tf.extract('tx', filter='fully_trusted')
 
 
-def install_grype() -> str:
-    dest = '/tmp'
-    rq = Request('https://api.github.com/repos/anchore/grype/releases/latest', headers={
-        'Accept': 'application/vnd.github.v3+json',
-    })
-    m = json.loads(download_with_retry(rq))
-    for asset in m['assets']:
-        if asset['name'].endswith('_linux_amd64.tar.gz'):
-            url = asset['browser_download_url']
-            break
-    else:
-        raise ValueError('Could not find linux binary for grype')
-    os.makedirs(dest, exist_ok=True)
-    data = download_with_retry(url)
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r') as tf:
-        tf.extract('grype', path=dest, filter='fully_trusted')
-    exe = os.path.join(dest, 'grype')
+def install_grype(exe: str = '/tmp/grype') -> str:
+    raw = download_with_retry('https://download.calibre-ebook.com/ci/grype.xz')
+    raw = lzma.decompress(raw)
+    with open(exe, 'wb') as f:
+        f.write(raw)
+        os.fchmod(f.fileno(), 0o755)
     subprocess.check_call([exe, 'db', 'update'])
     return exe
 
 
 IGNORED_DEPENDENCY_CVES = [
-    # Python stdlib
-    'CVE-2025-8194',   # DoS in tarfile
-    'CVE-2025-6069',   # DoS in HTMLParser
-    'CVE-2025-13836',  # DoS in http client reading from malicious server
-    # glib
-    'CVE-2025-4056',  # Only affects Windows, on which we dont use glib
+    # python stdlib all these are erroneously marked as fixed in python 3.15
+    # when it hasnt even been released. Sigh.
+    'CVE-2026-1299',
+    'CVE-2026-0865',
+    'CVE-2026-0672',
+    'CVE-2025-15282',
+    'CVE-2025-15366',
+    'CVE-2025-15367',
+    'CVE-2025-12781',
+    'CVE-2025-11468',
+    'CVE-2026-2297',
+    'CVE-2026-3644',
+    'CVE-2026-1502',
+    'CVE-2026-4224',  # expat parser unused
+    'CVE-2026-4519',  # webbrowser() unused
+    'CVE-2026-7210',  # DoS in unused XML parser
+    'CVE-2026-3276',  # DoS in unicodedata.normalize()
+    'CVE-2026-7774',  # tarfile.data_filter path traversal bypass
+    # nodejs used only at build time CVEs are irrelevant
+    'CVE-2026-21710',
+    'CVE-2026-21717',
+    'CVE-2026-21714',
+    'CVE-2026-21713',
+    'CVE-2026-21715',
+    'CVE-2026-21716',
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
     'CVE-2017-1000376',  # false match in the database
     # espeak
     'CVE-2023-4990',  # false match because we currently build with a specific commit pending release of espeak 1.53
-    # Qt
-    'CVE-2025-5683',  # we dont use the ICNS image format
     # ffmpeg cannot be updated till Qt starts using FFMPEG 8 and these CVEs are
     # anyway for file types we dont use or support
     'CVE-2025-59733', 'CVE-2025-59731', 'CVE-2025-59732',  # OpenEXR image files, not supported by calibre
     'CVE-2025-59730', 'CVE-2025-59734',  # SANM decoding unused by calibre
     'CVE-2025-59729',  # DHAV files unused by calibre ad negligible security impact: https://issuetracker.google.com/issues/433513232
-    'CVE-2025-11579',  # Go rardecode package probably from grype's own dependencies calibre does not use Go code
+    'CVE-2025-25469', 'CVE-2025-25468',  # memory leak, not a security issue
+    'CVE-2025-12343', 'CVE-2025-10256',  # DoS in video decoder unused in calibre
+    'CVE-2026-40962',  # overflow in video decoder not used by calibre
+
+    'CVE-2026-2673',  # openssl fix not released
 ]
 
 
@@ -246,7 +258,7 @@ def check_dependencies() -> None:
     print('Testing against the SBOM', flush=True)
     import runpy
     orig = sys.argv, sys.stdout
-    sys.argv = ['bypy', 'sbom', 'calibre', '1.0.0']
+    sys.argv = ['bypy', 'sbom', 'kovidgoyal/calibre', '1.0.0']
     buf = io.StringIO()
     sys.stdout = buf
     runpy.run_path('bypy-src')
@@ -307,8 +319,8 @@ username = api
         os.environ['OPENSSL_MODULES'] = os.path.join(SW, 'lib', 'ossl-modules')
         os.environ['PIPER_TTS_DIR'] = os.path.join(SW, 'piper')
         if ismacos:
-            os.environ['SSL_CERT_FILE'] = os.path.abspath(
-                'resources/mozilla-ca-certs.pem')
+            os.environ['SSL_CERT_DIR'] = os.path.abspath(
+                'resources/mozilla-ca-certs')
             # needed to ensure correct libxml2 is loaded
             os.environ['DYLD_INSERT_LIBRARIES'] = ':'.join(os.path.join(SW, 'lib', x) for x in 'libxml2.dylib libxslt.dylib libexslt.dylib'.split())
             os.environ['OPENSSL_ENGINES'] = os.path.join(SW, 'lib', 'engines-3')

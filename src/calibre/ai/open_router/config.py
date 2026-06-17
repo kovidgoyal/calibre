@@ -170,7 +170,7 @@ class ModelDetails(QTextBrowser):
         <p>{_('Another criterion to look for is if the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
         ''')
 
-    def show_model_details(self, m: 'AIModel'):
+    def show_model_details(self, m: AIModel):
         if m.pricing.is_free:
             price = f"<b>{_('Free')}</b>"
         else:
@@ -234,7 +234,7 @@ class SortLoc(QComboBox):
             case 'oldest':
                 return lambda x: x.created
             case 'newest':
-                now = datetime.datetime.now(datetime.timezone.utc)
+                now = datetime.datetime.now(datetime.UTC)
                 return lambda x: now - x.created
             case 'cheapest':
                 return lambda x: x.pricing.output_token

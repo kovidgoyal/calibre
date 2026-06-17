@@ -16,7 +16,7 @@ The language is built around the notion of a `template`, which specifies which b
 Basic templates
 ---------------
 
-A basic template consists one or more ``template expressions``. A ``template expression`` consists of text and names in curly brackets (``{}``) that is replaced by the corresponding metadata from the book being processed. For example, the default template in calibre used for saving books to device has 4 ``template expressions``::
+A basic template consists of one or more ``template expressions``. A ``template expression`` consists of text and names in curly brackets (``{}``) that is replaced by the corresponding metadata from the book being processed. For example, the default template in calibre used for saving books to device has 4 ``template expressions``::
 
     {author_sort}/{title}/{title} - {authors}
 
@@ -83,7 +83,7 @@ The hyphens will be included only if the book has a series index, which it has o
 Notes:
 
 * You must include the colon after the ``lookup name`` if you are using a prefix or a suffix.
-* You must either use either no or both ``|`` characters. Using one, as in ``{field:| - }``, is not allowed.
+* You must use either no or both ``|`` characters. Using one, as in ``{field:| - }``, is not allowed.
 * It is OK to provide no text for either the prefix or the suffix, such as in ``{series:|| - }``. The template ``{title:||}`` is the same as ``{title}``.
 
 **Formatting**
@@ -180,7 +180,7 @@ You see that the function requires two arguments, ``value`` and ``text_if_empty`
 
   {tags:ifempty(No tags on this book)}
 
-shows the tags for a book, if any. If it has no tags then it show `No tags on this book`.
+shows the tags for a book, if any. If it has no tags then it shows `No tags on this book`.
 
 The following functions are usable in Single Function Mode because their first parameter is ``value``.
 
@@ -386,7 +386,7 @@ Note: the last line in the template, ``new_tags``, isn't strictly necessary in t
 
 The ``with`` expression:
 
-#. changes the current book to the book with calibre book id (an integer) produced by valuating the ``top_expression``.
+#. changes the current book to the book with calibre book id (an integer) produced by evaluating the ``top_expression``.
 #. runs the ``expression_list``.
 #. then resets the current book back to what it was.
 

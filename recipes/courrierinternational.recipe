@@ -3,11 +3,13 @@
 
 __license__ = 'GPL v3'
 __copyright__ = ('2009, Mathieu Godlewski <mathieu at godlewski.fr>, '
-                 '2015, Rémi Vanicat <vanicat at debian.org')
+                 '2015, Rémi Vanicat <vanicat at debian.org>, '
+                 '2026, Kabonix')
 '''
-Courrier International
+Courrier International Premium Unlocked
 '''
 
+import json
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -15,83 +17,129 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class CourrierInternational(BasicNewsRecipe):
     title = 'Courrier International'
-    __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
-    description = 'Global news in french from international newspapers'
+    __author__ = 'Mathieu Godlewski, Kabonix'
+    description = 'Global news in french - Edition intégrale via API Mobile Bypass'
     oldest_article = 7
     language = 'fr'
+    encoding = 'utf-8'
 
-    recipe_specific_options = {
-        'days': {
-            'short': 'Oldest article to download from this news source. In days ',
-            'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
-        }
-    }
+    # --- CONFIGURATION DU BYPASS PREMIUM ---
+    # On utilise l'identité de l'application Android 3.5.4
+    browser_user_agent = 'CourrierInternational/3.5.4 (Android; 14)'
 
-    def __init__(self, *args, **kwargs):
-        BasicNewsRecipe.__init__(self, *args, **kwargs)
-        d = self.recipe_specific_options.get('days')
-        if d and isinstance(d, str):
-            self.oldest_article = float(d)
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        # On injecte le Token universel du groupe Le Monde
+        br.addheaders = [
+            ('User-Agent', self.browser_user_agent),
+            ('X-Lmd-Token', 'TWPLMOLMO'),
+            ('Accept', 'application/json')
+        ]
+        return br
+
+    # --- NOUVEAU : GESTION DE LA COUVERTURE ---
+    def get_cover_url(self):
+        cover_url = None
+        try:
+            self.log('🔍 Recherche de la couverture du dernier numéro...')
+            # On charge la page kiosque
+            soup = self.index_to_soup('https://www.courrierinternational.com/magazine')
+
+            # On cherche le premier article de type "magazine" dans la liste
+            # Le sélecteur correspond au HTML que tu as fourni
+            first_mag = soup.find('div', class_='magazines-list').find('article', class_='item')
+
+            if first_mag:
+                img = first_mag.find('img')
+                if img and img.has_attr('src'):
+                    url = img['src']
+                    # L'URL est en 320x0 (ex: .../320x0/2026/...)
+                    # On la passe en HD (1280x0) pour la liseuse
+                    cover_url = url.replace('/320x0/', '/1280x0/')
+                    self.log(f'✅ Couverture trouvée et améliorée : {cover_url}')
+
+            if not cover_url:
+                self.log('⚠️ Aucune couverture trouvée.')
+
+        except Exception as e:
+            self.log(f'❌ Erreur lors de la récupération de la couverture : {e}')
+
+        return cover_url
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        # On extrait l'ID à la fin de l'URL (ex: ..._240469)
+        match = re.search(r'_(\d+)$', url)
+        if match:
+            article_id = match.group(1)
+            # On redirige Calibre vers l'API mobile Premium
+            return f'https://apps.courrierinternational.com/cri/v1/premium-android-phone/article?id={article_id}'
+        return url
+
+    def preprocess_raw_html(self, raw_html, url):
+        # Si on est sur l'API, on décode le JSON pour extraire le HTML intégral
+        if '/cri/v1/' in url:
+            try:
+                data = json.loads(raw_html)
+                # Le texte est dans templates -> raw_content -> content
+                content = data['templates']['raw_content']['content']
+
+                # Fix des images (placeholders {{width}})
+                content = content.replace('{{width}}', '1200').replace('{{height}}', '800')
+                content = content.replace('%7B%7Bwidth%7D%7D', '1200')
+
+                return f'<html><body>{content}</body></html>'
+            except Exception as e:
+                self.log(f'Erreur de décodage pour {url}: {e!s}')
+                return raw_html
+        return raw_html
+    # ---------------------------------------
 
     max_articles_per_feed = 50
     ignore_duplicate_articles = {'title'}
     no_stylesheets = True
 
-    html2lrf_options = ['--base-font-size', '10']
-
-    keep_only_tags = dict(name='article')
+    keep_only_tags = [
+        dict(name='article'),
+        dict(name='span', attrs={'class': 'strapline'}),
+        dict(name='h1', attrs={'class': 'article-title'}),
+        dict(name='p', attrs={'class': 'article-lede'}),
+        dict(name='div', attrs={'class': 'article-text'})
+    ]
 
     remove_tags = [
-        dict(attrs={'class': ['asset-read-more', 'article-secondary', 'article-aside', 'item', 'source-logo', 'source-lang', 'info-time']})
+        dict(attrs={'class': [
+            'asset-read-more', 'article-secondary', 'article-aside', 'item',
+            'source-logo', 'source-lang', 'info-time', 'article-paywall',
+            'article-readmore', 'article-outbrain', 'ci-services', 'article-tools'
+        ]})
     ]
 
     extra_css = '''
-        .article-lede {
-            margin-bottom: 1em;
-        }
-
-        .caption, .credit {
-            font-size: 0.9em;
-            font-style: italic;
-        }
-
-        .info-date, .info-reserved {
-            font-style: italic;
-            font-size: 0.9em;
-            display: block;
-        }
-
-        .strapline {
-            font-size: 1.17em;
-            font-weight: bold;
-            margin: 0.67em 0;
-            line-height: 1.2;
-        }
+        .strapline { color: #cc0000; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .article-title { font-size: 1.6em; font-weight: bold; }
+        .article-lede { font-weight: bold; margin-bottom: 1em; color: #333; }
+        .article-text { line-height: 1.5; }
+        .caption, .credit { font-size: 0.8em; font-style: italic; color: #666; }
+        p { margin-bottom: 1em; }
+        img { display: block; margin: 1em auto; max-width: 100%; }
     '''
 
-    needs_subscription = 'optional'
-    login_url = 'http://www.courrierinternational.com/login'
-
-    def get_browser(self):
-        def is_form_login(form):
-            return 'id' in form.attrs and form.attrs['id'] == 'user-login-form'
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username:
-            br.open(self.login_url)
-            br.select_form(predicate=is_form_login)
-            br['name'] = self.username
-            br['pass'] = self.password
-            br.submit()
-        return br
-
     def preprocess_html(self, soup):
+        # Gestion des images via srcset
+        for img in soup.find_all('img'):
+            if img.has_attr('srcset'):
+                best_link = img['srcset'].split(',')[-1].strip().split(' ')[0]
+                img['src'] = best_link
+            # Fix des liens relatifs
+            if img.has_attr('src') and img['src'].startswith('/'):
+                img['src'] = 'https://www.courrierinternational.com' + img['src']
+
         for link in soup.findAll('a', href=re.compile(r'^/')):
-            link['href'] = 'http://www.courrierinternational.com' + link['href']
+            link['href'] = 'https://www.courrierinternational.com' + link['href']
         return soup
 
     feeds = [
-        # Some articles requiring subscription fails on download.
         ('France', 'https://www.courrierinternational.com/feed/rubrique/france/rss.xml'),
         ('Geopolitique', 'https://www.courrierinternational.com/feed/rubrique/geopolitique/rss.xml'),
         ('Economie', 'https://www.courrierinternational.com/feed/rubrique/economie/rss.xml'),
@@ -100,5 +148,5 @@ class CourrierInternational(BasicNewsRecipe):
         ('Sciences & Environnement', 'https://www.courrierinternational.com/feed/rubrique/science-environnement/rss.xml'),
         ('Culture', 'https://www.courrierinternational.com/feed/rubrique/culture/rss.xml'),
         ('Expat', 'https://www.courrierinternational.com/feed/rubrique/expat/rss.xml'),
-        ('Autres', 'http://www.courrierinternational.com/feed/all/rss.xml'),
+        ('Autres', 'https://www.courrierinternational.com/feed/all/rss.xml'),
     ]

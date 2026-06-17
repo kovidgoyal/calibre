@@ -12,7 +12,7 @@ from collections import OrderedDict
 from collections.abc import Iterable, Iterator, MutableMapping
 from functools import partial
 from queue import Empty, LifoQueue, Queue, ShutDown
-from threading import Event, Lock, Thread, current_thread
+from threading import Event, RLock, Thread, current_thread
 from time import monotonic
 from typing import TypeVar
 
@@ -21,6 +21,7 @@ from qt.core import QBuffer, QByteArray, QColor, QImage, QImageWriter, QIODevice
 from calibre.db.utils import ThumbnailCache as TC
 from calibre.utils import join_with_timeout
 from calibre.utils.img import resize_to_fit
+from calibre_extensions.imageops import load_from_data_without_gil
 
 
 class ThumbnailCache(TC):
@@ -46,7 +47,7 @@ class RAMCache(MutableMapping[int, T]):
 
     def __init__(self, limit=100):
         self.items = OrderedDict[int, T]()
-        self.lock = Lock()
+        self.lock = RLock()
         self.limit = limit
         self.pixmap_staging: list[T] = []
         self.gui_thread = current_thread()
@@ -129,7 +130,7 @@ class Thumbnailer:
         if not cover_as_bytes:
             return self.thumbnail_class(), b''
         cover: QImage = self.thumbnail_class()
-        if not cover.loadFromData(cover_as_bytes):
+        if not load_from_data_without_gil(cover, cover_as_bytes):
             return cover, b''
         cover = self.resize_to_fit(cover, width, height)
         serialized = self.serialize(cover)

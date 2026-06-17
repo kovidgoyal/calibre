@@ -29,5 +29,6 @@ class RestartingWebEngineView(QWebEngineView):
             prints('The Qt WebEngine Render process crashed too often')
         else:
             self._last_reload_at = monotonic()
+            self.reload()
             self.render_process_restarted.emit()
             prints('Restarting Qt WebEngine')

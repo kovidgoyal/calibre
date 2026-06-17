@@ -1,0 +1,468 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+
+from dom import add_extra_css, clear, svgicon
+from elementmaker import E
+from utils import parse_url_params
+from gettext import gettext as _
+
+from book_list.router import home
+from book_list.globals import get_session_data
+from book_list.library_data import browse_fields, current_library_id, current_virtual_library
+from book_list.ui import show_panel
+from book_list.saved_virtual_libraries import (
+    DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, get_saved_virtual_libraries, normalize_saved_virtual_library_icon,
+    remove_saved_virtual_library, replace_saved_virtual_library, saved_virtual_library_nav_initial,
+    saved_virtual_library_query, save_saved_virtual_library
+)
+from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
+
+
+add_extra_css(def():
+    return '''
+    .cs-left-nav {
+        width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
+        box-sizing: border-box;
+        background: var(--calibre-color-window-background);
+        color: var(--calibre-color-window-foreground);
+        padding: 0.9rem 0.65rem;
+        border-right: var(--calibre-border-style-subtle);
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        transition: width var(--cs-dur-3) var(--cs-ease), flex-basis var(--cs-dur-3) var(--cs-ease), padding var(--cs-dur-2) var(--cs-ease-soft);
+
+        /* Sidebar title removed to avoid duplicate header */
+        & a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: inherit;
+            /* Reserve left gutter for active indicator to keep alignment */
+            padding: 0.55rem 0.65rem 0.55rem calc(0.65rem + 10px);
+            border-radius: var(--calibre-radius-small);
+            text-decoration: none;
+            cursor: pointer;
+            user-select: none;
+            transition: background var(--cs-transition), transform var(--cs-transition), opacity var(--cs-transition);
+
+            & .cs-nav-left {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.55rem;
+                min-width: 0;
+            }
+
+            & .cs-nav-icon {
+                opacity: 0.9;
+                flex: 0 0 auto;
+                width: 1.6rem;
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            & .cs-nav-icon-emoji {
+                text-align: center;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            & .cs-nav-icon-image {
+                height: 1.35rem;
+                max-width: 1.6rem;
+                object-fit: contain;
+            }
+
+            & .cs-nav-collapsed-initial {
+                display: none !important;
+                font-size: 1.15rem;
+                line-height: 1;
+                font-weight: 700;
+                width: 1.6rem;
+                text-align: center;
+            }
+
+            & .cs-nav-label {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            &:hover { background: var(--calibre-color-primary-light); }
+            &:active { transform: none; opacity: 0.92; }
+            &:focus { outline: none; box-shadow: var(--calibre-focus-ring); }
+            &.cs-nav-item:hover { background: var(--calibre-color-primary-light-2); }
+            &[data-active="1"] {
+                background: var(--calibre-color-primary-light-2);
+                position: relative;
+                font-weight: 600;
+            }
+            &[data-active="1"]::before {
+                content: "";
+                position: absolute;
+                left: 10px;
+                top: 8px;
+                bottom: 8px;
+                width: 3px;
+                border-radius: 999px;
+                background: var(--calibre-color-primary);
+                opacity: 0.95;
+            }
+        }
+
+        & .cs-vl-row {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        & .cs-nav-chevron { opacity: 0.7; margin-left: 0.75rem; flex: 0 0 auto; }
+        & .cs-nav-section-contents {
+            overflow: auto;
+            padding: 0.25rem 0.25rem 0.75rem 0.25rem;
+            border-radius: var(--calibre-radius);
+            border: var(--calibre-border-style-subtle);
+            background: linear-gradient(135deg, var(--calibre-color-surface-2) 0%, var(--calibre-color-surface-3) 100%);
+        }
+        & .cs-nav-item { padding-left: 0.9rem; }
+        & .cs-nav-group { display: flex; flex-direction: column; gap: 0.25rem; }
+        & .cs-nav-group > a { margin: 0; }
+        /* Active state should not shift layout (no padding changes) */
+        & .cs-nav-bottom { margin-top: auto; padding-top: 0.25rem; }
+        & .cs-nav-divider {
+            height: 1px;
+            background: var(--cs-border);
+            margin: 0.75rem 0.65rem;
+            border-radius: 999px;
+            opacity: 0.9;
+        }
+        & .cs-nav-group-title {
+            margin: 0.75rem 0.65rem 0.25rem 0.65rem;
+            font-size: 0.85em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.65;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        & .cs-nav-group-title svg { opacity: 0.8; }
+        & .cs-sidebar-toggle {
+            margin: 0 0 0.25rem 0;
+        }
+        & .cs-sidebar-toggle-expand {
+            display: none;
+        }
+        & .cs-hamburger {
+            font-size: 1.25rem;
+            line-height: 1;
+            letter-spacing: -0.06em;
+        }
+    }
+
+    /* Collapsed sidebar */
+    :root.cs-sidebar-collapsed .cs-left-nav {
+        padding-left: 0.35rem; padding-right: 0.35rem;
+
+        & .cs-sidebar-toggle-expand { display: inline }
+        & .cs-sidebar-toggle-collapse { display: none }
+        & a {
+            justify-content: center;
+            padding: 0.55rem 0.5rem;
+        }
+        & a .cs-nav-left {
+            width: 100%;
+            justify-content: center;
+        }
+        & a[data-active="1"]::before {
+            display: none;
+        }
+        & .cs-nav-chevron,
+        & .cs-nav-label {
+            display: none !important;
+        }
+        & .cs-nav-group-title > span {
+            display: none !important;
+        }
+        & .cs-nav-group-title svg {
+            display: none !important;
+        }
+        & .cs-nav-group-title {
+            justify-content: center;
+        }
+        & a .cs-nav-collapsed-initial {
+            display: inline-flex !important;
+            justify-content: center;
+            align-items: center;
+        }
+        & .cs-vl-row {
+            margin: 0;
+            & a:last-of-type { display: none; }
+        }
+    }
+    '''
+)
+
+
+def create_sidebar():
+    # Left navigation bar (content server)
+    sidebar_width = '240px'
+    document.documentElement.style.setProperty('--cs-sidebar-width', sidebar_width)
+
+    def nav_svg_icon(icon):
+        if icon:
+            return E.span(svgicon(icon), class_='cs-nav-icon')
+        return E.span('', class_='cs-nav-icon')
+
+    def nav_image_icon(icon_url, fallback_icon):
+        img = E.img(src=icon_url, alt='', class_='cs-nav-icon cs-nav-icon-image')
+        img.onerror = def():
+            img.onerror = None
+            if img.parentNode:
+                img.parentNode.replaceChild(nav_svg_icon(fallback_icon), img)
+        return img
+
+    def nav_link(label, action, title='', icon=None, icon_url=None, icon_emoji=None, chevron=False, collapsed_initial=None):
+        left = E.span(class_='cs-nav-left')
+        if icon_url is not None and (icon_url + ''):
+            left.appendChild(nav_image_icon(icon_url, icon))
+        elif icon_emoji is not None and (icon_emoji + ''):
+            left.appendChild(E.span(icon_emoji + '', class_='cs-nav-icon cs-nav-icon-emoji'))
+        elif collapsed_initial is not None and (collapsed_initial + ''):
+            left.appendChild(E.span(collapsed_initial + '', class_='cs-nav-icon cs-nav-collapsed-initial'))
+        else:
+            left.appendChild(nav_svg_icon(icon))
+        left.appendChild(E.span(label, class_='cs-nav-label'))
+        a = E.a(left, href='#', title=title)
+        if chevron:
+            a.appendChild(E.span('›', class_='cs-nav-chevron'))
+        a.addEventListener('click', def(evt):
+            evt.preventDefault()
+            action()
+        )
+        return a
+
+    root = E.div(class_='cs-app-root')
+    left = E.nav(class_='cs-left-nav')
+    # Sidebar collapse/expand state
+    collapsed_width = '64px'
+    expanded_width = sidebar_width
+
+    def apply_sidebar_state(collapsed):
+        de = document.documentElement
+        if collapsed:
+            de.classList.add('cs-sidebar-collapsed')
+            de.style.setProperty('--cs-sidebar-width', collapsed_width)
+        else:
+            de.classList.remove('cs-sidebar-collapsed')
+            de.style.setProperty('--cs-sidebar-width', expanded_width)
+        try:
+            window.localStorage.setItem('cs_sidebar_collapsed', '1' if collapsed else '0')
+        except Exception:
+            pass
+
+    def toggle_sidebar():
+        de = document.documentElement
+        apply_sidebar_state(not de.classList.contains('cs-sidebar-collapsed'))
+
+    # Restore previous state, default to collapsed on small screens
+    try:
+        stored = window.localStorage.getItem('cs_sidebar_collapsed')
+    except Exception:
+        stored = None
+    if stored is None or stored is '':
+        # No user preference yet
+        try:
+            small = window.matchMedia('(max-width: 720px)').matches
+        except Exception:
+            small = False
+        apply_sidebar_state(bool(small))
+    else:
+        apply_sidebar_state(stored is '1')
+
+    collapse = nav_link(_('Collapse'), toggle_sidebar, _('Toggle sidebar'), icon='chevron-left')
+    collapse.classList.add('cs-sidebar-toggle', 'cs-sidebar-toggle-collapse')
+    expand = nav_link('', toggle_sidebar, _('Toggle sidebar'), icon='chevron-right')
+    expand.classList.add('cs-sidebar-toggle', 'cs-sidebar-toggle-expand')
+    left.appendChild(collapse)
+    left.appendChild(expand)
+
+    # Group 1: primary navigation
+    left.appendChild(E.div(svgicon('home'), E.span(_('Navigation')), class_='cs-nav-group-title'))
+    g1 = E.div(class_='cs-nav-group')
+
+    home_link = nav_link(_('Home'), home, _('Go to Home'), icon='home')
+    g1.appendChild(home_link)
+    go_search = def():
+        show_panel('book_list^search')
+    search_link = nav_link(_('Search'), go_search, _('Search for books'), icon='search')
+    g1.appendChild(search_link)
+    go_reader = def():
+        show_panel('local_books')
+    reader_link = nav_link(_('Downloaded books'), go_reader, _('Read previously downloaded books'), icon='cloud-download')
+    g1.appendChild(reader_link)
+    left.appendChild(g1)
+
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Group 2: browse lists
+    left.appendChild(E.div(svgicon('toc'), E.span(_('Browse')), class_='cs-nav-group-title'))
+    g2 = E.div(class_='cs-nav-group')
+
+    def nav_section(label, field, tooltip='', icon='toc', icon_url=''):
+        action = def():
+            show_panel('nav_list', {'field': field})
+        t = nav_link(label, action, tooltip, icon=icon, icon_url=icon_url, chevron=True)
+        return t
+
+    section_elems = {}
+
+    def render_browse_fields():
+        clear(g2)
+        for k in Object.keys(section_elems):
+            v'delete section_elems[k]'
+        for field in browse_fields():
+            key = (field.key or '') + ''
+            if not key:
+                continue
+            section_elems[key] = nav_section(field.name or key, key, field.description or '', icon=field.icon or 'toc', icon_url=field.custom_icon_url or '')
+            g2.appendChild(section_elems[key])
+
+    left.appendChild(g2)
+
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Group: virtual libraries
+    left.appendChild(E.div(svgicon('star'), E.span(_('Virtual libraries')), class_='cs-nav-group-title'))
+    saved_virtual_libraries_group = E.div(class_='cs-nav-group')
+    saved_virtual_libraries_library_id = None
+    left.appendChild(saved_virtual_libraries_group)
+
+    left.appendChild(E.div(class_='cs-nav-divider'))
+
+    # Bottom: settings
+    settings_link = nav_link(_('Settings'), def(): show_panel('book_list^prefs');, _('Configure web interface'), icon='cog')
+    settings_link.classList.add('cs-sidebar-toggle')
+    left.appendChild(settings_link)
+
+    def clear_active(elem):
+        if elem and elem.dataset and elem.dataset.active:
+            elem.dataset.active = ''
+
+    def edit_saved_virtual_library(item):
+        item = item or v'{}'
+
+        def save_changes(updated_item):
+            if not replace_saved_virtual_library(item, updated_item):
+                return False
+            render_saved_virtual_libraries()
+            return True
+
+        def delete_item():
+            if not remove_saved_virtual_library(item):
+                return False
+            render_saved_virtual_libraries()
+            return True
+
+        show_saved_virtual_library_dialog(
+            _('Edit virtual library'), _('Save'), save_changes,
+            (item.library_id or '') + '',
+            (item.vl or '') + '',
+            initial_name=(item.name or '') + '',
+            initial_search=(item.search or '') + '',
+            initial_icon=(item.icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + '',
+            initial_use_icon=item.use_icon is not False,
+            on_delete=delete_item,
+        )
+
+    def create_saved_virtual_library():
+        def create_item(item):
+            if not save_saved_virtual_library(item):
+                return False
+            render_saved_virtual_libraries()
+            return True
+
+        show_saved_virtual_library_dialog(
+            _('New virtual library'), _('Create'), create_item,
+            current_library_id(), current_virtual_library(), save_icon='plus'
+        )
+
+    def render_saved_virtual_libraries():
+        nonlocal saved_virtual_libraries_library_id
+        library_id = (current_library_id() or '') + ''
+        saved_virtual_libraries_library_id = library_id
+        clear(saved_virtual_libraries_group)
+        for item in get_saved_virtual_libraries(library_id):
+            name = (item.name or '') + ''
+            search_expr = (item.search or '') + ''
+            icon_name = (item.icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + ''
+            if not name or not search_expr:
+                continue
+            action = def(saved_item=item):
+                show_panel('book_list', saved_virtual_library_query(saved_item), replace=True)
+            row = E.div(class_='cs-vl-row')
+            show_icon = item.use_icon is not False
+            if show_icon:
+                link = nav_link(name, action, search_expr, icon_emoji=normalize_saved_virtual_library_icon(icon_name), chevron=True)
+            else:
+                link = nav_link(name, action, search_expr, collapsed_initial=saved_virtual_library_nav_initial(name), chevron=True)
+            link.style.margin = '0'
+            link.style.flex = '1 1 auto'
+            link.style.minWidth = '0'
+            cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding: 0.2rem; border-radius:10px; flex:0 0 auto;')
+            cfg.addEventListener('click', def(ev, saved_item=item):
+                ev.preventDefault()
+                ev.stopPropagation()
+                edit_saved_virtual_library(saved_item)
+            )
+            row.appendChild(link)
+            row.appendChild(cfg)
+            saved_virtual_libraries_group.appendChild(row)
+        add_link = nav_link(_('New virtual library'), create_saved_virtual_library, _('Create a new virtual library'), icon='plus')
+        saved_virtual_libraries_group.appendChild(add_link)
+
+    def sync_saved_virtual_libraries():
+        if saved_virtual_libraries_library_id is not ((current_library_id() or '') + ''):
+            render_saved_virtual_libraries()
+
+    def update_sidebar_visibility(current):
+        sd = get_session_data()
+        show_in_viewer = sd.get('show_sidebar_in_book_viewer')
+        mode = (current.mode or 'book_list') if current else 'book_list'
+        left.style.display = 'flex' if (mode is not 'read_book' or show_in_viewer) else 'none'
+
+    def update_sidebar_active():
+        current = parse_url_params()
+        update_sidebar_visibility(current)
+        sync_saved_virtual_libraries()
+        active_panel = current.panel or ''
+        active_field = current.field or ''
+        clear_active(home_link)
+        clear_active(search_link)
+        clear_active(reader_link)
+        clear_active(settings_link)
+        for k in Object.keys(section_elems):
+            clear_active(section_elems[k])
+        if active_panel is 'book_list^search':
+            search_link.dataset.active = '1'
+        elif active_panel is 'local_books':
+            reader_link.dataset.active = '1'
+        elif active_panel is 'book_list^prefs':
+            settings_link.dataset.active = '1'
+        elif active_panel is 'nav_list' and active_field and section_elems[active_field]:
+            section_elems[active_field].dataset.active = '1'
+        elif not active_panel:
+            home_link.dataset.active = '1'
+
+    def render_sidebar_navigation():
+        render_browse_fields()
+        render_saved_virtual_libraries()
+        update_sidebar_active()
+
+    window.cs_update_sidebar_active = update_sidebar_active
+    window.cs_refresh_sidebar_navigation = render_sidebar_navigation
+    render_sidebar_navigation()
+    return root, left

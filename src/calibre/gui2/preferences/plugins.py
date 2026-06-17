@@ -13,7 +13,17 @@ from qt.core import QAbstractItemModel, QAbstractItemView, QBrush, QDialog, QIco
 
 from calibre.constants import iswindows
 from calibre.customize import PluginInstallationType
-from calibre.customize.ui import NameConflict, add_plugin, disable_plugin, enable_plugin, initialized_plugins, is_disabled, plugin_customization, remove_plugin
+from calibre.customize.ui import (
+    NameConflict,
+    add_plugin,
+    can_be_disabled,
+    disable_plugin,
+    enable_plugin,
+    initialized_plugins,
+    is_disabled,
+    plugin_customization,
+    remove_plugin,
+)
 from calibre.gui2 import choose_files, error_dialog, gprefs, info_dialog, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -229,7 +239,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._plugin_model = PluginModel(self.user_installed_plugins.isChecked())
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
-                'QTreeView::item { padding-bottom: 10px;}')
+                'QTreeView::item { padding-bottom: 5px; padding-top: 5px; }')
         self.plugin_view.doubleClicked.connect(self.double_clicked)
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
@@ -349,16 +359,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
-                if not plugin.can_be_disabled:
+                if not can_be_disabled(plugin):
                     info_dialog(self, _('Plugin cannot be disabled'),
                                  _('Disabling the plugin %s is not allowed')%plugin.name, show=True, show_copy_button=False)
                     return
+                msg = _('Plugin <b>{0}</b> successfully removed. You will have'
+                        ' to restart calibre for it to be completely removed.').format(plugin.name)
                 if is_disabled(plugin):
                     enable_plugin(plugin)
+                    msg = _('Plugin <b>{0}</b> successfully enabled. You will have'
+                            ' to restart calibre for it to be fully active.').format(plugin.name)
                 else:
                     disable_plugin(plugin)
+                    msg = _('Plugin <b>{0}</b> successfully disabled. You will have'
+                            ' to restart calibre for it to be fully inactive.').format(plugin.name)
                 self._plugin_model.refresh_plugin(plugin)
                 self.changed_signal.emit()
+                info_dialog(self, _('Success'), msg, show=True, show_copy_button=False)
             if op == 'customize':
                 if not plugin.is_customizable():
                     info_dialog(self, _('Plugin not customizable'),

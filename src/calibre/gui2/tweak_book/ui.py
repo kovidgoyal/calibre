@@ -491,6 +491,9 @@ class Main(MainWindow):
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
+        self.action_remove_unused_images = treg(
+            'edit-clear.png', _('Remove unused &images'), partial(
+                self.boss.polish, 'remove_unused_images', _('Remove unused images')), 'remove-unused-images', (), _('Remove unused images'))
         self.action_upgrade_book_internals = treg(
             'arrow-up.png', _('&Upgrade book internals'), partial(
                 self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
@@ -632,7 +635,7 @@ class Main(MainWindow):
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
-        tm = e.addMenu(_('Table of Contents'))
+        tm = e.addMenu(QIcon.ic('toc.png'), _('Table of Contents'))
         tm.addAction(self.action_toc)
         tm.addAction(self.action_inline_toc)
         e.addAction(self.action_manage_fonts)
@@ -640,9 +643,12 @@ class Main(MainWindow):
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
-        e.addAction(self.action_remove_unused_css)
-        e.addAction(self.action_transform_styles)
-        e.addAction(self.action_transform_html)
+        ru = e.addMenu(QIcon.ic('edit-clear.png'), _('Remove &unused…'))
+        ru.addAction(self.action_remove_unused_css)
+        ru.addAction(self.action_remove_unused_images)
+        ts = e.addMenu(QIcon.ic('wizard.png'), _('Transform markup/styles'))
+        ts.addAction(self.action_transform_styles)
+        ts.addAction(self.action_transform_html)
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_embed_tts)
         e.addAction(self.action_pretty_all)
@@ -651,7 +657,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
-        er = e.addMenu(_('External &links'))
+        er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)

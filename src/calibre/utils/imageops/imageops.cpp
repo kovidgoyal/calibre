@@ -308,9 +308,9 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     float sigmaPI2 = 2.0*M_PI*sigma*sigma;
 
     int half = matrix_size/2;
-    int x, y, i=0, j=half;
+    int x, y, i=0;
     float normalize=0.0;
-    for(y=(-half); y <= half; ++y, --j){
+    for(y=(-half); y <= half; ++y){
         for(x=(-half); x <= half; ++x, ++i){
             alpha = std::exp(-((float)x*x+y*y)/sigma2);
             matrix[i] = alpha/sigmaPI2;
@@ -640,7 +640,10 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 
 QColor dominant_color(const QImage &image) { // {{{
     if (image.isNull()) return QColor();
-    QImage img(image);
+    QImage img;
+    // Resize the image to a thumbnail for improved performance
+    int max_dim = std::max(image.width(), image.height());
+    img = max_dim <= 100 ? QImage(image) : image.scaled(image.size() * (100. / max_dim), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     ENSURE32(img);
     QHash<QRgb, int> colorCounts;
     const uchar* bits = img.constBits();
@@ -1000,4 +1003,8 @@ QImage texture_image(const QImage &image, const QImage &texturei) {  // {{{
         y += th;
     }
     return canvas;
+} // }}}
+
+bool load_from_data_without_gil(QImage &image, const char *data, size_t len) {  // {{{
+    return image.loadFromData((const uchar*)data, len, NULL);
 } // }}}

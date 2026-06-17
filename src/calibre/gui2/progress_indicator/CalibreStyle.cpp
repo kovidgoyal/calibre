@@ -301,6 +301,12 @@ void CalibreStyle::drawComplexControl(ComplexControl control, const QStyleOption
     return QProxyStyle::drawComplexControl(control, option, painter, widget);
 }
 
+QSize CalibreStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &contentsSize, const QWidget *widget) const {
+    QSize ans = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
+    if (type == CT_SpinBox) ans += QSize(0, 3);  // fusion style reduces spinbox height by 3 for some reason, undo that
+    return ans;
+}
+
 void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const {
     const QStyleOptionViewItem *vopt = NULL;
     switch (element) {
@@ -314,23 +320,22 @@ void CalibreStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * 
             }
             break; // }}}
 
-        case PE_IndicatorCheckBox: // {{{
-            // Fix color used to draw checkbox outline in dark mode
-            if (is_color_dark(option->palette.color(QPalette::Window))) {
-                baseStyle()->drawPrimitive(element, option, painter, widget);
-                painter->save();
-                painter->translate(0.5, 0.5);
-                QRect rect = option->rect;
-                rect = rect.adjusted(0, 0, -1, -1);
+        case PE_IndicatorCheckBox: { // {{{
+            // Fix color used to draw checkbox outline
+            baseStyle()->drawPrimitive(element, option, painter, widget);
+            painter->save();
+            painter->translate(0.5, 0.5);
+            QRect rect = option->rect;
+            rect = rect.adjusted(0, 0, -1, -1);
 
+            if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange)
+                painter->setPen(QPen(is_color_dark(option->palette.color(QPalette::Window)) ? Qt::white : Qt::black));
+            else
                 painter->setPen(QPen(option->palette.color(QPalette::WindowText)));
-                if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange)
-                    painter->setPen(QPen(Qt::white));
-                painter->drawRect(rect);
-                painter->restore();
-                return;
-            }
-            break; // }}}
+            painter->drawRect(rect);
+            painter->restore();
+            return;
+        } // }}}
 
         case PE_IndicatorRadioButton: // {{{
             // Fix color used to draw radiobutton outline in dark mode

@@ -160,6 +160,43 @@ class FilesystemTest(BaseTest):
         self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}), set())
         self.assertEqual(cache.rename_extra_files(1, {'B': 'data/c'}, replace=True), {'B'})
 
+    def test_extra_file_paths_are_confined_to_book_dir(self):
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        bookdir = os.path.dirname(cache.format_abspath(1, 'FMT1'))
+        sibling = bookdir + ' sibling'
+        os.makedirs(sibling)
+        bad_relpath = '../' + os.path.basename(sibling) + '/victim'
+        victim = os.path.join(sibling, 'victim')
+        with open(victim, 'wb') as f:
+            f.write(b'outside')
+
+        self.assertEqual(cache.add_extra_files(1, {bad_relpath: BytesIO(b'bad')}), {bad_relpath: False})
+        self.assertEqual(read(victim, 'rb'), b'outside')
+
+        buf = BytesIO()
+        with self.assertRaises(FileNotFoundError):
+            cache.copy_extra_file_to(1, bad_relpath, buf)
+        self.assertEqual(buf.getvalue(), b'')
+
+        cache.add_extra_files(1, {'safe': BytesIO(b'safe'), 'data/inside': BytesIO(b'inside')})
+        self.assertEqual(cache.rename_extra_files(1, {bad_relpath: 'moved'}), set())
+        self.assertEqual(cache.rename_extra_files(1, {'safe': bad_relpath}), set())
+        self.assertEqual(read(victim, 'rb'), b'outside')
+
+        def listed(pattern):
+            return {e.relpath for e in cache.list_extra_files(1, use_cache=False, pattern=pattern)}
+
+        self.assertEqual(listed('data/**/*'), {'data/inside'})
+        sibling_pattern = '../' + os.path.basename(sibling) + '/*'
+        for pattern in (sibling_pattern, 'data/../../' + os.path.basename(sibling) + '/*',
+                        sibling_pattern.replace('/', '\\'), os.path.join(sibling, '*')):
+            self.assertEqual(listed(pattern), set())
+        self.assertEqual({e.relpath for e in cache.list_extra_files(1)}, {'safe', 'data/inside'})
+
+        self.assertEqual(cache.remove_extra_files(1, [bad_relpath], permanent=True), {})
+        self.assertEqual(read(victim, 'rb'), b'outside')
+
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):
         'Test book file open in another process when changing metadata'

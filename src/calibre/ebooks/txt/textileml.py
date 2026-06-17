@@ -362,6 +362,13 @@ class TextileMLizer(OEB2HTML):
                     if txt != '':
                         text.append('(' + txt + ')')
                 tags.append('!')
+            elif self.opts.use_alt_text_for_images:
+                if alt := attribs.get('alt'):
+                    txt = '!' + self.check_halign(style)
+                    txt += self.check_valign(style)
+                    txt += '(' + alt + ')'
+                    text.append(txt)
+                    tags.append('!')
         elif tag in ('ol', 'ul'):
             self.list.append({'name': tag, 'num': 0})
             text.append('')

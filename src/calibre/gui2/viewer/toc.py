@@ -201,6 +201,8 @@ class TOCItem(QStandardItem):
 
     def __init__(self, toc, depth, all_items, normal_font, emphasis_font, depths, parent=None):
         text = toc.get('title') or ''
+        if text == '--pipe-worker':
+            text = _('Untitled')
         self.href = (toc.get('dest') or '')
         if toc.get('frag'):
             self.href += '#' + toc['frag']

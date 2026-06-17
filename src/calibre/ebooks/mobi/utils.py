@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os
 import string
 import struct
-import zlib
 from collections import OrderedDict
+from compression import zlib
 from io import BytesIO
 
 from tinycss.color3 import parse_color_string

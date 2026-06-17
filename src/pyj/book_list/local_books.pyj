@@ -10,27 +10,97 @@ from book_list.router import home, open_book
 from book_list.top_bar import add_button, create_top_bar
 from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
-from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode
+from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
 from utils import conditional_timeout, safe_set_inner_html
-from widgets import create_button, enable_escape_key
+from widgets import create_button, enable_escape_key, create_pager_widget, create_search_widget
 
+# Same as book_list.views CLASS_NAME (library list root), for shared CSS
+BOOK_LIST_CONTAINER_CLASS = 'book-list-container'
 CLASS_NAME = 'local-books-list'
 
 book_list_data = {}
+LOCAL_SEARCH_METADATA_FIELDS = [
+    'title', 'authors', 'author_sort', 'publisher', 'series', 'tags',
+    'formats', 'identifiers', 'languages', 'lang_names'
+]
 
 def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
 
 
+def add_search_text(parts, value):
+    if value is None or value is undefined:
+        return
+    if Array.isArray(value):
+        for x in value:
+            add_search_text(parts, x)
+    elif jstype(value) is 'object':
+        for key in Object.keys(value):
+            add_search_text(parts, value[key])
+    else:
+        parts.push(str(value))
+
+
+def add_search_mapping_text(parts, value, include_keys=False):
+    if value is None or value is undefined:
+        return
+    if jstype(value) is 'object' and not Array.isArray(value):
+        for key in Object.keys(value):
+            if include_keys:
+                parts.push(key)
+            add_search_text(parts, value[key])
+    else:
+        add_search_text(parts, value)
+
+
+def metadata_search_text(metadata):
+    parts = v'[]'
+    if metadata:
+        for key in LOCAL_SEARCH_METADATA_FIELDS:
+            if key is 'identifiers':
+                add_search_mapping_text(parts, metadata[key], include_keys=True)
+            elif key is 'lang_names':
+                add_search_mapping_text(parts, metadata[key])
+            else:
+                add_search_text(parts, metadata[key])
+    return parts.join('\n').toLowerCase()
+
+
+def normalize_local_search_query(query):
+    return (query or '').toLowerCase().replace(/\s+/g, ' ').trim()
+
+
+def matching_book_indices_for_query(book_data, book_indices, query):
+    tokens = [x for x in normalize_local_search_query(query).split(' ') if x]
+    if not tokens.length:
+        return list(book_indices)
+    ans = []
+    for book_idx in book_indices:
+        book = book_data[book_idx]
+        text = book._local_books_search_text
+        if text is undefined:
+            text = book._local_books_search_text = metadata_search_text(book.metadata)
+        matched = True
+        for token in tokens:
+            if text.indexOf(token) < 0:
+                matched = False
+                break
+        if matched:
+            ans.append(book_idx)
+    return ans
+
+
 def clear_grid():
-    container = document.getElementById(book_list_data.container_id)
-    # We replace the div entirely so that any styles associated with it are also removed
+    # Book list lives inside .cs-book-list-wrap (same as library view); replace in-place.
     e = component('book_list')
+    if not e or not e.parentNode:
+        return
+    parent = e.parentNode
     bl = E.div(data_component='book_list')
-    container.insertBefore(bl, e)
-    container.removeChild(e)
+    parent.insertBefore(bl, e)
+    parent.removeChild(e)
     book_list_data.init_grid(bl)
 
 
@@ -45,13 +115,13 @@ def delete_book(book, book_idx):
         if err_string:
             error_dialog(_('Failed to delete book'), err_string)
             return
-        books = [book_list_data.book_data[i] for i in book_list_data.books if i is not book_idx]
-        show_recent_stage2.call(book_list_data.container_id, books)
+        books = [book_list_data.book_data[i] for i in book_list_data.all_books if i is not book_idx]
+        show_recent_stage2.call(book_list_data.container_id, books, book_list_data.search_query)
     )
 
 
 def confirm_delete_all():
-    num_of_books = book_list_data.books?.length
+    num_of_books = book_list_data.all_books?.length
     if not num_of_books:
         return
     create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
@@ -72,9 +142,8 @@ def confirm_delete_all():
         parent.appendChild(E.div(
             m,
             E.div(class_='button-box',
-                create_button(_('OK'), None, action.bind(None, True)),
-                '\xa0',
-                create_button(_('Cancel'), None, action.bind(None, False), highlight=True),
+                create_button(_('Cancel'), None, action.bind(None, False)),
+                create_button(_('OK'), None, action.bind(None, True), highlight=True),
             )
         ))
     )
@@ -83,10 +152,10 @@ def confirm_delete_all():
 
 def delete_all(msg_parent, close_modal):
     db = get_db()
-    books = list(book_list_data.books)
+    books = list(book_list_data.all_books)
 
     def refresh():
-        show_recent_stage2.call(book_list_data.container_id, [book_list_data.book_data[i] for i in books])
+        show_recent_stage2.call(book_list_data.container_id, [book_list_data.book_data[i] for i in books], book_list_data.search_query)
 
     def delete_one():
         if not books.length:
@@ -125,7 +194,6 @@ def on_select(book, book_idx):
             E.div(_('What would you like to do with this book?')),
             E.div(class_='button-box',
                 create_button(_('Read'), 'book', action.bind(None, read_book)),
-                '\xa0',
                 create_button(_('Delete'), 'trash', action.bind(None, delete_book)),
             )
         ))
@@ -167,54 +235,108 @@ def render_book(book_idx):
 
 def render_books(books):
     div = component('book_list')
-    books = books or book_list_data.books
+    if books is None or books is undefined:
+        books = book_list_data.books
     for book_idx in books:
         child = render_book(book_idx)
         if child is not None:
             book_list_data.append_item(div, child)
 
 
+def update_empty_message():
+    msg = component('empty_message')
+    if not msg:
+        return
+    if book_list_data.books.length:
+        msg.style.display = 'none'
+        return
+    msg.style.display = 'block'
+    msg.textContent = (
+        _('No downloaded books match your search') if normalize_local_search_query(book_list_data.search_query) else
+        _('No downloaded books present')
+    )
+
+
+def apply_search(query):
+    book_list_data.search_query = query or ''
+    book_list_data.books = matching_book_indices_for_query(book_list_data.book_data, book_list_data.all_books, query)
+    clear_grid()
+    render_books()
+    update_empty_message()
+
+
 def apply_view_mode(mode):
     mode = mode or DEFAULT_MODE
+    # custom_list requires field_metadata from the server; fall back to the
+    # default grid when offline so downloaded books are still visible.
+    if mode is 'custom_list' and not library_data.field_metadata:
+        mode = DEFAULT_MODE
     if book_list_data.mode is mode:
-        return
+        return mode
     setup_view_mode(mode, book_list_data)
     clear_grid()
     render_books()
+    update_empty_message()
+    return mode
 
 
-def create_books_list(container, books):
+def create_search_box():
+    return create_search_widget(
+        apply_search, value=book_list_data.search_query, placeholder=_('Search downloaded books'), live_searching=True)
+
+
+def create_books_list(container, books, search_query=None):
     clear(container)
     book_list_data.container_id = ensure_id(container)
     book_list_data.book_data = {i:book for i, book in enumerate(books)}
-    book_list_data.books = list(range(books.length))
+    book_list_data.all_books = list(range(books.length))
+    book_list_data.search_query = search_query or ''
+    book_list_data.books = matching_book_indices_for_query(book_list_data.book_data, book_list_data.all_books, search_query)
     book_list_data.mode = None
     book_list_data.thumbnail_cache = {}
+    container.classList.add(BOOK_LIST_CONTAINER_CLASS)
     if not books.length:
         container.appendChild(E.div(
-            style='margin: 1rem 1rem',
+            data_component='empty_message',
+            style='margin: 1rem 0',
             _('No downloaded books present')
         ))
-    else:
-        container.appendChild(E.div(data_component='book_list'))
-        apply_view_mode(get_view_mode())
+        return
+
+    pw = create_pager_widget()
+    pw.top_row.appendChild(create_search_box())
+    pw.set_top_row_visibility(True)
+    mode = get_view_mode()
+    if mode is 'custom_list' and not library_data.field_metadata:
+        mode = DEFAULT_MODE
+    populate_book_list_toolbar(pw.middle_row, False, apply_view_mode, mode)
+    pw.set_middle_row_visibility(True)
+    pw.set_enabled(False, False)
+
+    container.appendChild(pw.container)
+    container.appendChild(E.div(data_component='empty_message', style='display: none; margin: 1rem 0'))
+    container.appendChild(E.div(data_component='book_list'))
+    apply_view_mode(mode)
 
 
-def show_recent_stage2(books):
+def show_recent_stage2(books, search_query=None):
     container = document.getElementById(this)
     if not container:
         return
-    create_books_list(container, books)
+    create_books_list(container, books, search_query)
 
 
 def show_recent():
     container = this
     db = get_db()
-    if not db.initialized or not library_data.field_metadata:
+    # Because we want this to work in offline mode via service worker, we cant
+    # wait for library_data.field_metadata instead use a display mode that does
+    # not require it.
+    if not db.initialized:
         conditional_timeout(container.id, 5, show_recent)
         return
     if db.is_ok:
-        db.get_recently_read_books(show_recent_stage2.bind(container.id), 200)
+        db.get_downloaded_books(show_recent_stage2.bind(container.id))
     else:
         error_dialog(_('Database not initialized'),
             db.initialize_error_msg)
@@ -226,11 +348,11 @@ def init(container_id):
     create_top_bar(container, title=_('Downloaded books'), action=on_close, icon='home')
     add_button(container, 'trash', confirm_delete_all, _('Delete all downloaded books'))
     # book list
-    recent = E.div(class_=CLASS_NAME)
+    recent = E.div(class_=CLASS_NAME + ' ' + BOOK_LIST_CONTAINER_CLASS)
     recent_container_id = ensure_id(recent)
     container.appendChild(recent)
     recent.appendChild(E.div(
-        style='margin: 1rem 1rem',
+        style='margin: 1rem 0',
         _('Loading downloaded books from local storage, please wait...')
     ))
     conditional_timeout(recent_container_id, 5, show_recent)

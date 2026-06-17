@@ -73,9 +73,21 @@ class Notes:
             os.makedirs(self.notes_dir, exist_ok=True)
             if iswindows:
                 winutil.set_file_attributes(self.notes_dir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
-        os.makedirs(self.resources_dir, exist_ok=True)
-        os.makedirs(self.backup_dir, exist_ok=True)
-        os.makedirs(self.retired_dir, exist_ok=True)
+        try:
+            os.makedirs(self.resources_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.resources_dir)
+            os.makedirs(self.resources_dir, exist_ok=True)
+        try:
+            os.makedirs(self.backup_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.backup_dir)
+            os.makedirs(self.backup_dir, exist_ok=True)
+        try:
+            os.makedirs(self.retired_dir, exist_ok=True)
+        except FileExistsError:
+            os.remove(self.retired_dir)
+            os.makedirs(self.retired_dir, exist_ok=True)
         self.reopen(backend)
         for cat in backend.deleted_fields:
             self.delete_field(conn, cat)
@@ -98,6 +110,13 @@ class Notes:
             )
         self.allowed_fields = frozenset(self.allowed_fields)
         SchemaUpgrade(conn, '\n'.join(triggers))
+
+    def rename_field(self, conn, old_field_name, new_field_name):
+        conn.execute('UPDATE notes_db.notes SET colname=? WHERE colname=?', (new_field_name, old_field_name))
+        old_backup = make_long_path_useable(os.path.join(self.backup_dir, old_field_name))
+        new_backup = make_long_path_useable(os.path.join(self.backup_dir, new_field_name))
+        if os.path.exists(old_backup) and not os.path.exists(new_backup):
+            os.rename(old_backup, new_backup)
 
     def delete_field(self, conn, field_name):
         note_ids = conn.get('SELECT id from notes_db.notes WHERE colname=?', (field_name,))

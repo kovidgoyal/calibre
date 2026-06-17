@@ -1,6 +1,6 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-    <Package Name="{app}{x64}" UpgradeCode="{upgrade_code}" Language="1033" Codepage="1252" Version="{version}" Manufacturer="Kovid Goyal" InstallerVersion="300" Scope="perMachine">
+<Package Name="{app}{x64}" UpgradeCode="{upgrade_code}" Language="1033" Codepage="1252" Version="{version}" Manufacturer="Kovid Goyal" InstallerVersion="300" Scope="perMachine">
 
     <SummaryInformation Keywords="Installer" Description="{app} Installer" Manufacturer="Kovid Goyal" />
 
@@ -39,7 +39,18 @@
         <RegistrySearch Id="calibreInstDir" Type="raw" Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" />
     </Property>
 
-
+    <util:CloseApplication Id="CheckRunningCalibre" Target="calibre.exe" PromptToContinue="yes" RebootPrompt="no"
+        Description="calibre is currently running, close it first and then click Retry. If you click Ignore, you will have to reboot after installation."
+    />
+    <util:CloseApplication Id="CheckRunningViewer" Target="ebook-viewer.exe" PromptToContinue="yes" RebootPrompt="no"
+        Description="The calibre viewer is currently running, close it first and then click Retry. If you click Ignore, you will have to reboot after installation."
+    />
+    <util:CloseApplication Id="CheckRunningEditor" Target="ebook-edit.exe" PromptToContinue="yes" RebootPrompt="no"
+        Description="The calibre editor is currently running, close it first and then click Retry. If you click Ignore, you will have to reboot after installation."
+    />
+    <util:CloseApplication Id="CheckRunningCalibreP" Target="calibre-parallel.exe" PromptToContinue="yes" RebootPrompt="no"
+        Description="calibre or one of its components is currently running, close it first and then click Retry. If you click Ignore, you will have to reboot after installation. You may need to open Task Manager and kill any calibre processes you see."
+    />
 
     <Icon Id="main_icon" SourceFile="{main_icon}" />
     <!-- <Icon Id="viewer_icon" SourceFile="{viewer_icon}"/> -->
@@ -137,6 +148,7 @@
     <!-- See https://en.wikipedia.org/wiki/Windows_10_version_history for build numbers -->
 
     <Launch Condition="Installed OR (WINDOWSBUILDNUMBER &gt;= 10240)" Message="calibre requires Windows 10 or newer." />
+
     <!-- On 64 bit installers there is a bug in WiX that causes the
         WixSetDefaultPerMachineFolder action to incorrectly set
         APPLICATIONFOLDER to the x86 value, so we override it. See
@@ -181,5 +193,5 @@
     <WixVariable Id="WixUIBannerBmp" Value="{banner}" />
     <WixVariable Id="WixUIDialogBmp" Value="{dialog}" />
 
-    </Package>
+</Package>
 </Wix>

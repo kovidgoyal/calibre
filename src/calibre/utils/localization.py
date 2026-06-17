@@ -6,9 +6,9 @@ import io
 import locale
 import os
 import re
-from gettext import GNUTranslations, NullTranslations
 
 from calibre.utils.resources import get_path as P
+from calibre_extensions.translator import Translator
 
 _available_translations = None
 
@@ -145,8 +145,8 @@ def get_all_translators():
         for lang in available_translations():
             mpath = get_lc_messages_path(lang)
             if mpath is not None:
-                buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
-                yield lang, GNUTranslations(buf)
+                buf = zf.read(mpath + '/messages.mo')
+                yield lang, Translator(buf)
 
 
 def get_single_translator(mpath, which='messages'):
@@ -154,9 +154,9 @@ def get_single_translator(mpath, which='messages'):
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
         path = f'{mpath}/{which}.mo'
         data = zf.read(path)
-        buf = io.BytesIO(data)
+        buf = data
         try:
-            return GNUTranslations(buf)
+            return Translator(buf)
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -181,7 +181,7 @@ def get_translator(bcp_47_code):
     available = available_translations()
     found = True
     if lang == 'en' or lang.startswith('en_'):
-        return found, lang, NullTranslations()
+        return found, lang, Translator()
     if lang not in available:
         lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
         if lang not in available:
@@ -190,7 +190,7 @@ def get_translator(bcp_47_code):
                 lang = 'en'
             found = False
     if lang == 'en':
-        return True, lang, NullTranslations()
+        return True, lang, Translator()
     return found, lang, get_single_translator(lang)
 
 
@@ -217,10 +217,8 @@ def load_po(path):
         make(path, buf)
     except Exception:
         print(f'Failed to compile translations file: {path}, ignoring')
-        buf = None
-    else:
-        buf = io.BytesIO(buf.getvalue())
-    return buf
+        return
+    return buf.getvalue()
 
 
 def translator_for_lang(lang):
@@ -234,20 +232,19 @@ def translator_for_lang(lang):
 
     if mpath is not None:
         from zipfile import ZipFile
-        with ZipFile(P('localization/locales.zip',
-            allow_user_override=False), 'r') as zf:
+        with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
             if buf is None:
-                buf = io.BytesIO(zf.read(mpath + '/messages.mo'))
+                buf = zf.read(mpath + '/messages.mo')
             if mpath == 'nds':
                 mpath = 'de'
             isof = mpath + '/iso639.mo'
             try:
-                iso639 = io.BytesIO(zf.read(isof))
+                iso639 = zf.read(isof)
             except Exception:
                 pass  # No iso639 translations for this lang
             isof = mpath + '/iso3166.mo'
             try:
-                iso3166 = io.BytesIO(zf.read(isof))
+                iso3166 = zf.read(isof)
             except Exception:
                 pass  # No iso3166 translations for this lang
             if buf is not None:
@@ -259,14 +256,14 @@ def translator_for_lang(lang):
 
     if buf is not None:
         try:
-            t = GNUTranslations(buf)
+            t = Translator(buf)
         except Exception:
             import traceback
             traceback.print_exc()
             t = None
         if iso639 is not None:
             try:
-                iso639 = GNUTranslations(iso639)
+                iso639 = Translator(iso639)
             except Exception:
                 iso639 = None
             else:
@@ -274,7 +271,7 @@ def translator_for_lang(lang):
                     t.add_fallback(iso639)
         if iso3166 is not None:
             try:
-                iso3166 = GNUTranslations(iso3166)
+                iso3166 = Translator(iso3166)
             except Exception:
                 iso3166 = None
             else:
@@ -282,12 +279,12 @@ def translator_for_lang(lang):
                     t.add_fallback(iso3166)
 
     if t is None:
-        t = NullTranslations()
+        t = Translator()
 
     return {'translator': t, 'iso639_translator': iso639, 'iso3166_translator': iso3166, 'lcdata': lcdata}
 
 
-default_translator = NullTranslations()
+default_translator = Translator()
 
 
 def _(x: str) -> str:
@@ -320,7 +317,7 @@ def set_translators():
         if q['lcdata']:
             lcdata = q['lcdata']
     else:
-        default_translator = NullTranslations()
+        default_translator = Translator()
     try:
         set_translators.lang = default_translator.info().get('language')
     except Exception:
@@ -621,3 +618,8 @@ def is_rtl_lang(lang):
     lang = canonicalize_lang(lang)
     # Aramaic, Arabic, Azeri, Hebrew, Dhivehi, Sorani, Urdu, Farsi
     return lang and lang in ('ara', 'heb', 'aze', 'div', 'arc', 'syc', 'myz', 'ckb', 'urd', 'fas')
+
+
+def install_qt_translator() -> None:
+    from calibre_extensions.progress_indicator import install_qt_translator as install
+    install(default_translator.set_as_qt_translator())

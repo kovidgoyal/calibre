@@ -14,7 +14,7 @@ class PiperVoices(ReVendor):
     NAME = 'piper_voices'
     TAR_NAME = 'piper voice list'
     VERSION = 'main'
-    DOWNLOAD_URL = f'https://huggingface.co/rhasspy/piper-voices/raw/{VERSION}/voices.json'
+    DOWNLOAD_URL = 'https://download.calibre-ebook.com/piper-voices.json'
     CAN_USE_SYSTEM_VERSION = False
 
     @property

@@ -8,6 +8,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import numbers
+import os
 import re
 import string
 import sys
@@ -23,6 +24,8 @@ from calibre.utils.formatter_functions import StoredObjectType, formatter_functi
 from calibre.utils.icu import strcmp
 from calibre.utils.localization import _
 from polyglot.builtins import error_message
+
+TEMPLATE_ERROR = _('TEMPLATE ERROR')
 
 
 def default_template_error_reporter(e: Exception, fmt, kwargs, book, column_name: str | None):
@@ -749,22 +752,16 @@ class _Parser:
                              lambda ln, args: RawFieldNode(ln, *args)),
         'test':             (lambda args: len(args) == 3,
                              lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
-        'first_non_empty':  (lambda args: len(args) >= 1,
-                             lambda ln, args: FirstNonEmptyNode(ln, args)),
-        'switch':           (lambda args: len(args) >= 3 and (len(args) %2) == 0,
-                             lambda ln, args: SwitchNode(ln, args)),
-        'switch_if':        (lambda args: len(args) > 0 and (len(args) %2) == 1,
-                             lambda ln, args: SwitchIfNode(ln, args)),
+        'first_non_empty':  (lambda args: len(args) >= 1, FirstNonEmptyNode),
+        'switch':           (lambda args: len(args) >= 3 and (len(args) %2) == 0, SwitchNode),
+        'switch_if':        (lambda args: len(args) > 0 and (len(args) %2) == 1, SwitchIfNode),
         'assign':           (lambda args: len(args) == 2 and len(args[0]) == 1 and args[0][0].node_type == Node.NODE_RVALUE,
                              lambda ln, args: AssignNode(ln, args[0][0].name, args[1])),
-        'contains':         (lambda args: len(args) == 4,
-                             lambda ln, args: ContainsNode(ln, args)),
+        'contains':         (lambda args: len(args) == 4, ContainsNode),
         'character':        (lambda args: len(args) == 1,
                              lambda ln, args: CharacterNode(ln, args[0])),
-        'print':            (lambda _: True,
-                             lambda ln, args: PrintNode(ln, args)),
-        'strcat':           (lambda _: True,
-                             lambda ln, args: StrcatNode(ln, args)),
+        'print':            (lambda _: True, PrintNode),
+        'strcat':           (lambda _: True, StrcatNode),
         'list_count_field': (lambda args: len(args) == 1,
                              lambda ln, args: ListCountFieldNode(ln, args[0])),
         'f_string':         (lambda args: len(args) == 1,
@@ -1053,8 +1050,7 @@ class _Interpreter:
 
     def call_break_reporter(self, txt, val, line_number):
         self.real_break_reporter(txt, val, self.locals,
-                                 self.override_line_number if self.override_line_number
-                                     else line_number)
+                                 self.override_line_number or line_number)
 
     def expression_list(self, prog):
         val = ''
@@ -1228,8 +1224,7 @@ class _Interpreter:
         if (self.break_reporter):
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number if self.override_line_number
-                                         else prog.line_number)
+            self.override_line_number = (self.override_line_number or prog.line_number)
         else:
             saved_line_number = None
         try:
@@ -1273,8 +1268,7 @@ class _Interpreter:
         if (self.break_reporter):
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number if self.override_line_number
-                                         else line_number)
+            self.override_line_number = (self.override_line_number or line_number)
         else:
             saved_line_number = None
         try:
@@ -1766,6 +1760,7 @@ class TemplateFormatter(string.Formatter):
         self._caller = None
         self.python_context_object = None
         self.database = None
+        self.allow_python_templates = None
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -1883,6 +1878,13 @@ class TemplateFormatter(string.Formatter):
         return rslt
 
     def compile_python_template(self, template):
+        if self.allow_python_templates is None:
+            if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
+                raise ValueError(_('Python templates disallowed by the {} environment variable'
+                                ).format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
+        elif not self.allow_python_templates:
+            raise ValueError(_('Python templates disallowed by policy for this formatter'))
+
         def replace_func(mo):
             return mo.group().replace('\t', '    ')
 

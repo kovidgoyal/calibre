@@ -134,6 +134,7 @@ class ImageView(QDialog):
         QDialog.__init__(self)
         self.prefs = prefs
         self.current_image_name = ''
+        self.current_image_is_svg = False
         self.maximized_at_last_fullscreen = False
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint)
@@ -286,13 +287,18 @@ class ImageView(QDialog):
         self.adjust_image(0.8)
 
     def save_image(self):
-        filters=[('Images', ['png', 'jpeg', 'jpg'])]
+        is_svg = self.current_image_is_svg and hasattr(self, 'current_url') and self.current_url.isLocalFile()
+        filters=[('Images', ['svg'] if is_svg else ['png', 'jpeg', 'jpg'])]
         f = choose_save_file(self, 'viewer image view save dialog',
                 _('Choose a file to save to'), filters=filters,
                 all_files=False, initial_filename=self.current_image_name or None)
         if f:
-            from calibre.utils.img import save_image
-            save_image(self.current_img.toImage(), f)
+            if is_svg:
+                import shutil
+                shutil.copyfile(self.current_url.toLocalFile(), f)
+            else:
+                from calibre.utils.img import save_image
+                save_image(self.current_img.toImage(), f)
 
     def copy_image(self):
         if self.current_img and not self.current_img.isNull():
@@ -384,6 +390,7 @@ class ImagePopup:
     def __init__(self, parent, prefs=gprefs):
         self.current_img = QPixmap()
         self.current_url = QUrl()
+        self.current_image_is_svg = False
         self.parent = parent
         self.dialogs = []
         self.prefs = prefs
@@ -392,6 +399,7 @@ class ImagePopup:
         if self.current_img.isNull():
             return
         d = ImageView(self.parent, self.current_img, self.current_url, prefs=self.prefs)
+        d.current_image_is_svg = self.current_image_is_svg
         self.dialogs.append(d)
         d.finished.connect(self.cleanup, type=Qt.ConnectionType.QueuedConnection)
         d()

@@ -317,3 +317,26 @@ def insert_self_closing(parent, item, index=None):
         item.tail = parent[idx-1].tail
         if idx == len(parent)-1:
             parent[idx-1].tail = parent.text
+
+
+def fixed_layout_data(container):
+    '''
+    Return a dict of the various data for a fixed-layout rendering.
+    Return None if not supported.
+    '''
+    if not container.opf_version:
+        return None
+    if container.opf_version_parsed < (3, 0):
+        return None
+    if not container.opf_xpath('//opf:metadata/opf:meta[@name="fixed-layout" and @content="true"]'):
+        return None
+    rslt = {
+        'fixed-layout': True,
+        'rendition': {},
+        'original-resolution': None,
+    }
+    for rendition in container.opf_xpath('//opf:metadata/opf:meta[starts-with(@property,"rendition:")]'):
+        rslt['rendition'][rendition.attrib['property'].split(':', 1)[1]] = rendition.text
+    for item in container.opf_xpath('//opf:metadata/opf:meta[@name="original-resolution" and @content]'):
+        rslt['original-resolution'] = item.attrib['content']
+    return rslt

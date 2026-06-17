@@ -120,8 +120,7 @@ def initialize_calibre():
 
     def wrapped_orig_spawn_fds(args, passfds):
         # as of python 3.11 util.spawnv_passfds expects bytes args
-        if sys.version_info >= (3, 11):
-            args = [x.encode('utf-8') if isinstance(x, str) else x for x in args]
+        args = [x.encode('utf-8') if isinstance(x, str) else x for x in args]
         return orig_spawn_passfds(args[0], args, passfds)
 
     def spawnv_passfds(path, args, passfds):

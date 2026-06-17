@@ -189,9 +189,9 @@ class Widget(QWidget):
         elif isinstance(g, QCheckBox):
             return bool(g.isChecked())
         elif isinstance(g, XPathEdit):
-            return g.xpath if g.xpath else None
+            return g.xpath or None
         elif isinstance(g, RegexEdit):
-            return g.regex if g.regex else None
+            return g.regex or None
         else:
             raise Exception(f"Can't get value from {type(g)}")
 
@@ -261,7 +261,7 @@ class Widget(QWidget):
         elif isinstance(g, QCheckBox):
             g.setCheckState(Qt.CheckState.Checked if bool(val) else Qt.CheckState.Unchecked)
         elif isinstance(g, (XPathEdit, RegexEdit)):
-            g.edit.setText(val if val else '')
+            g.edit.setText(val or '')
         else:
             raise Exception(f"Can't set value {val!r} in {g.objectName()!s}")
         self.post_set_value(g, val)

@@ -16,6 +16,7 @@ from qt.core import (
     QFont,
     QHBoxLayout,
     QIcon,
+    QKeySequence,
     QLabel,
     QMenu,
     Qt,
@@ -576,9 +577,11 @@ class SearchInput(QWidget):  # {{{
     def find_previous(self):
         self.emit_search(backwards=True)
 
-    def focus_input(self, text=None, search_type=None, case_sensitive=None):
+    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False):
         if text and hasattr(text, 'rstrip'):
             self.search_box.setText(text)
+            if no_history:
+                self.search_box.suppress_history = True
         if search_type is not None:
             idx = self.query_type.findData(search_type)
             if idx < 0:
@@ -590,6 +593,17 @@ class SearchInput(QWidget):  # {{{
         le = self.search_box.lineEdit()
         le.end(False)
         le.selectAll()
+
+    def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
+        from calibre.gui2.viewer.shortcuts import index_to_key_sequence
+        def as_text(prefix, action):
+            ans = prefix
+            if idx := key_map.get(action):
+                x = _(' or ').join(index_to_key_sequence(x).toString(QKeySequence.SequenceFormat.NativeText) for x in idx)
+                ans += f' [{x}]'
+            return ans
+        self.next_button.setToolTip(as_text(_('Find next match'), 'next_match'))
+        self.prev_button.setToolTip(as_text(_('Find previous match'), 'previous_match'))
 # }}}
 
 
@@ -758,6 +772,7 @@ class Results(QTreeWidget):  # {{{
         item = self.currentItem()
         if item is not None:
             self.scrollToItem(item)
+
 # }}}
 
 
@@ -807,8 +822,8 @@ class SearchPanel(QWidget):  # {{{
     def update_hidden_message(self):
         self.hidden_message.setVisible(self.results.current_result_is_hidden)
 
-    def focus_input(self, text=None, search_type=None, case_sensitive=None):
-        self.search_input.focus_input(text, search_type, case_sensitive)
+    def focus_input(self, text=None, search_type=None, case_sensitive=None, no_history=False):
+        self.search_input.focus_input(text, search_type, case_sensitive, no_history=no_history)
 
     def search_cleared(self):
         self.results.clear_all_results()
@@ -934,4 +949,8 @@ class SearchPanel(QWidget):  # {{{
             ev.accept()
             return
         return QWidget.keyPressEvent(self, ev)
+
+    def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
+        self.search_input.set_tooltips(key_map)
+
 # }}}

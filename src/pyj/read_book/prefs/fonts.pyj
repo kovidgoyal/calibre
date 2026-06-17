@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from dom import svgicon
 from elementmaker import E
 from gettext import gettext as _
 
@@ -34,7 +35,7 @@ def font_select(name, settings):
             ans.appendChild(E.option(family))
             if family is current_val:
                 ans.lastChild.setAttribute('selected', 'selected')
-    return ans
+    return E.div(ans, E.span(svgicon('angle-down')), data_component='select')
 
 
 def standard_font(settings):
@@ -44,7 +45,7 @@ def standard_font(settings):
     ans.appendChild(E.option(_('Monospace'), value='mono'))
     sf = settings.standard_font or DEFAULT_STANDARD_FONT
     ans.querySelector(f'[value={sf}]').setAttribute('selected', 'selected')
-    return ans
+    return E.div(ans, E.span(svgicon('angle-down')), data_component='select')
 
 
 def minimum_font_size(settings):

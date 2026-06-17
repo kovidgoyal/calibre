@@ -661,7 +661,6 @@ class InterfaceActionBase(Plugin):  # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
     type = _('User interface action')
-    can_be_disabled = False
 
     actual_plugin = None
 
@@ -696,7 +695,6 @@ class PreferencesPlugin(Plugin):  # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
     type = _('Preferences')
-    can_be_disabled = False
 
     #: Import path to module that contains a class named ConfigWidget
     #: which implements the ConfigWidgetInterface. Used by
@@ -879,7 +877,7 @@ class AIProviderPlugin(Plugin):  # {{{
             return self.builtin_live_module.save_settings(config_widget)
         raise NotImplementedError()
 
-    def text_chat(self, messages: 'Iterable[ChatMessage]', use_model: str = '') -> 'Iterator[ChatResponse]':
+    def text_chat(self, messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
         '''
         Send the specified chat messages to the AI and return an iterable over its streaming responses.
         The :code:`use_model` parameter will cause the plugin to use a specific model, useful when having

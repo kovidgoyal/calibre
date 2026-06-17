@@ -92,9 +92,10 @@ class POT(Command):  # {{{
 
     def get_ffml_docs(self):
         from calibre.gui2.dialogs.template_general_info import ffml_doc, general_doc
-        from calibre.utils.formatter_functions import _formatter_builtins as b
+        from calibre.utils.formatter_functions import formatter_functions
+        all_funcs = formatter_functions().get_builtins()
         ans = []
-        for ff in b:
+        for ff in all_funcs.values():
             lnum = inspect.getsourcelines(ff.__doc__getter__)[1]
             text = ff.__doc__getter__().msgid
             ans.append(f'#: src/calibre/utils/formatter_function.py:{lnum}\n' + serialize_msgid(text) + '\nmsgstr ""\n\n')
@@ -553,7 +554,7 @@ class Translations(POT):  # {{{
                         continue
                     l = f.partition('.')[0]
                     pf = l.split('_')[0]
-                    if pf in {'en'}:
+                    if pf == 'en':
                         continue
                     d = os.path.join(tdir, l + '.mo')
                     f = os.path.join(srcbase, f)
@@ -653,7 +654,7 @@ class GetTranslations(Translations):  # {{{
 
     def add_options(self, parser):
         parser.add_option('-e', '--check-for-errors', default=False, action='store_true',
-                          help='Check for errors in .po files')
+                          help='Only check for errors in .po files')
 
     def run(self, opts):
         require_git_master()
@@ -726,6 +727,10 @@ class GetTranslations(Translations):  # {{{
 
     def check_group(self, group):
         files = glob.glob(os.path.join(self.TRANSLATIONS, group, '*.po'))
+        SKIP_BAD_LANGUAGES = (
+            'ko',  # too many errors in the translations
+        ) if group == 'website' else ()
+        files = [x for x in files if os.path.basename(x).rpartition('.')[0] not in SKIP_BAD_LANGUAGES]
         cmd = ['msgfmt', '-o', os.devnull, '--check-format']
         # Disabled because too many such errors, and not that critical anyway
         # if group == 'calibre':

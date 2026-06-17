@@ -44,9 +44,9 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="demo_label">
      <property name="text">
-      <string>&lt;h2&gt;Demo videos&lt;/h2&gt;Videos demonstrating the various features of calibre are available &lt;a href=&quot;https://calibre-ebook.com/demo&quot;&gt;online&lt;/a&gt;.</string>
+     <string>&lt;h2&gt;Demo videos&lt;/h2&gt;Videos demonstrating the various features of calibre are available &lt;a href=&quot;{}&quot;&gt;online&lt;/a&gt;.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

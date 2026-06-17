@@ -733,6 +733,7 @@ def txt_output(container):
     g = g.lastChild
     g.appendChild(checkbox('keep_links', _('Do not remove links (<a> tags) before processing')))
     g.appendChild(checkbox('keep_image_references', _('Do not remove image &references before processing')))
+    g.appendChild(checkbox('use_alt_text_for_images', _('Replace images with their alt attribute text')))
     g.appendChild(checkbox('keep_color', _('Keep text &color, when possible')))
 
 @ep

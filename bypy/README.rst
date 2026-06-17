@@ -5,7 +5,7 @@ This folder contains code to automate the process of building calibre,
 including all its dependencies, from scratch, for all platforms that calibre
 supports.
 
-In general builds proceed in two steps, first build all the dependencies, then
+In general, builds proceed in two steps: first build all the dependencies, then
 build the calibre installer itself.
 
 Requirements
@@ -29,7 +29,7 @@ page for details). Once the dependencies are installed, run::
 All building is done inside QEMU VMs. Linux VMs are auto-created as needed,
 Windows and macOS VMs must be created manually. Instructions on
 creating the VMs are in the bypy repo under :file:`virtual_machine/README.rst`.
-Required software for the VMs are listed in :file:`bypy/windows.conf` and
+Required software for the VMs is listed in :file:`bypy/windows.conf` and
 :file:`bypy/macos.conf`.
 
 Linux
@@ -77,7 +77,7 @@ To build the dependencies for calibre, run::
     ./setup.py build_dep windows
 
 The output (after a very long time) will be in :literal:`bypy/b/windows/64`.
-Now you can build the calibre windows installers with::
+Now you can build the calibre Windows installers with::
 
     ./setup.py win64 --dont-sign
 

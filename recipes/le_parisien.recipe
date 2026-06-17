@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+__license__   = 'GPL v3'
+__copyright__ = '2026, Kabonix'
+
+import json
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LeParisienPremium(BasicNewsRecipe):
+    title = 'Le Parisien'
+    __author__ = 'Kabonix'
+    description = 'Édition complète via API Gateway - Cover Dynamique Kiosque'
+    publisher = 'Le Parisien'
+    language = 'fr'
+    encoding = 'utf-8'
+
+    oldest_article = 2
+    max_articles_per_feed = 50
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    scale_news_images = None
+
+    # --- CONFIGURATION IDENTITÉ APK ---
+    headers = {
+        'User-Agent': 'LeParisien/11.0.1 (Android 14)',
+        'Accept': 'application/json',
+    }
+
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        for name, val in self.headers.items():
+            br.addheaders.append((name, val))
+        return br
+
+    # --- COUVERTURE DYNAMIQUE (Ta demande Kiosque) ---
+    def get_cover_url(self):
+        cover_url = None
+        try:
+            self.log('🔍 Recherche de la Une du jour sur le kiosque...')
+            soup = self.index_to_soup('https://www.kiosque.leparisien.fr/')
+
+            # On cherche l'image avec la classe 'main-image'
+            img = soup.find('img', class_=re.compile(r'main-image', re.I))
+
+            if img and img.has_attr('src'):
+                url = img['src']
+                # On ajoute le protocole si manquant (// -> https://)
+                if url.startswith('//'):
+                    url = 'https:' + url
+
+                # OPTIMISATION : On tente de passer de MEDIUM à LARGE pour la HD
+                # On remplace 'MEDIUM' par 'LARGE' dans l'URL Twipe
+                cover_url = url.replace('-MEDIUM-', '-LARGE-')
+                self.log(f'✅ Une trouvée : {cover_url}')
+            else:
+                self.log('⚠️ Image de Une non trouvée sur la page.')
+        except Exception as e:
+            self.log(f'❌ Erreur cover : {e}')
+
+        return cover_url
+
+    # --- BYPASS API ---
+    def get_article_url(self, article):
+        url = article.get('link', article.get('url', ''))
+        # Extraction de l'ID Arc Publishing (ex: 5KHO7QK6GVHD5HNF5B735ENVJI)
+        match = re.search(r'-([A-Z0-9]{20,})\.php$', url)
+        if match:
+            article_id = match.group(1)
+            return f'https://gateway-api.leparisien.fr/v1/contents/articles/{article_id}'
+        return url
+
+    # --- EXTRACTION JSON ---
+    def preprocess_raw_html(self, raw_html, url):
+        if '/v1/contents/articles/' in url:
+            try:
+                data = json.loads(raw_html)
+                story = data.get('story', {})
+
+                title = story.get('headlines', {}).get('basic', 'Le Parisien')
+                lead = story.get('subheadlines', {}).get('basic', '')
+                main_img = story.get('promo_items', {}).get('basic', {}).get('url', '')
+                content = story.get('bodyContent', '')
+
+                html = f'<html><head><title>{title}</title></head><body>'
+                html += f'<h1 id="main-title" style="text-align:center">{title}</h1>'
+                if lead:
+                    html += f'<p style="font-weight:bold; font-style:italic">{lead}</p>'
+                if main_img:
+                    html += f'<div style="text-align:center"><img src="{main_img}"></div>'
+
+                html += content
+                html += '</body></html>'
+                return html
+            except Exception as e:
+                self.log(f'Erreur JSON : {e}')
+                return raw_html
+        return raw_html
+
+    # --- NETTOYAGE ---
+    def preprocess_html(self, soup):
+        # 1. Virer les titres en double (on garde notre h1 id="main-title")
+        for h1 in soup.find_all('h1'):
+            if h1.get('id') != 'main-title':
+                h1.decompose()
+
+        # 2. Virer les parasites (À lire aussi, Vidéos, etc.)
+        for tag in soup.find_all(['p', 'div', 'span', 'b']):
+            text = tag.get_text().strip()
+            if re.match(r'^(À lire aussi|Vidéo|PODCAST\.|Direct|Inédit|Replay)', text, re.IGNORECASE):
+                tag.decompose()
+            # Virer les puces isolées
+            if text in ['•', '·']:
+                tag.decompose()
+
+        # 3. Supprimer tous les liens (Unwrap)
+        for a in soup.find_all('a'):
+            a.unwrap()
+
+        # 4. Virer iframes et scripts résiduels
+        for tag in soup.find_all(['iframe', 'script', 'noscript']):
+            tag.decompose()
+
+        return soup
+
+    # --- FEEDS ---
+    feeds = [
+        ('À la une', 'https://feeds.leparisien.fr/leparisien/rss'),
+        ('Politique', 'https://feeds.leparisien.fr/leparisien/rss/politique'),
+        ('Société', 'https://feeds.leparisien.fr/leparisien/rss/societe'),
+        ('International', 'https://feeds.leparisien.fr/leparisien/rss/international'),
+        ('Économie', 'https://feeds.leparisien.fr/leparisien/rss/economie'),
+        ('Faits divers', 'https://feeds.leparisien.fr/leparisien/rss/faits-divers'),
+    ]
+
+    extra_css = '''
+        h1 { font-family: "Georgia", serif; font-size: 1.4em; margin-bottom: 20px; color: #111; }
+        p.paragraph { text-align: justify; line-height: 1.5; margin-bottom: 15px; }
+        img { display: block; margin: 10px auto; max-width: 100%; height: auto; }
+    '''

@@ -1,0 +1,114 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.globals import get_session_data
+
+
+SAVED_VIRTUAL_LIBRARIES_SETTING = 'saved_virtual_libraries'
+DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON = '📁'
+
+
+def all_saved_virtual_libraries():
+    virtual_libraries = get_session_data().get(SAVED_VIRTUAL_LIBRARIES_SETTING, v'[]') or v'[]'
+    if not Array.isArray(virtual_libraries):
+        return v'[]'
+    return virtual_libraries
+
+
+def get_saved_virtual_libraries(library_id):
+    library_id = ((library_id or '') + '')
+    ans = v'[]'
+    for item in all_saved_virtual_libraries():
+        if ((item.library_id or '') + '') is library_id:
+            ans.push(item)
+    return ans
+
+
+def set_saved_virtual_libraries(virtual_libraries):
+    get_session_data().set(SAVED_VIRTUAL_LIBRARIES_SETTING, virtual_libraries or v'[]')
+
+
+def normalize_saved_virtual_library_icon(stored):
+    s = ((stored or '') + '').strip()
+    if not s:
+        return DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
+    return s
+
+
+def saved_virtual_library_item(library_id, name, search_expr, virtual_library='', icon=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, use_icon=True):
+    library_id = ((library_id or '') + '').strip()
+    name = ((name or '') + '').strip()
+    search_expr = ((search_expr or '') + '').strip()
+    virtual_library = ((virtual_library or '') + '').strip()
+    if not library_id or not name or not search_expr:
+        return None
+    return {
+        'library_id': library_id,
+        'name': name,
+        'search': search_expr,
+        'vl': virtual_library,
+        'icon': normalize_saved_virtual_library_icon(icon),
+        'use_icon': use_icon is not False,
+    }
+
+
+def saved_virtual_library_query(item):
+    q = {'library_id': (item.library_id or '') + '', 'search': (item.search or '') + ''}
+    vl = (item.vl or '') + ''
+    q.vl = vl if vl else None
+    return q
+
+
+def saved_virtual_library_nav_initial(name):
+    s = ((name or '') + '').strip()
+    if not s:
+        return '·'
+    return s[0]
+
+
+def saved_virtual_library_matches(left, right):
+    if not left or not right:
+        return False
+    return (
+        ((left.library_id or '') + '') is ((right.library_id or '') + '') and
+        ((left.name or '') + '') is ((right.name or '') + '')
+    )
+
+
+def replace_saved_virtual_library(original, item):
+    if not item:
+        return False
+    virtual_libraries = all_saved_virtual_libraries()
+    updated = v'[]'
+    found = False
+    for existing in virtual_libraries:
+        if not found and saved_virtual_library_matches(existing, original):
+            updated.push(item)
+            found = True
+        elif not saved_virtual_library_matches(existing, item):
+            updated.push(existing)
+    if not found:
+        return False
+    set_saved_virtual_libraries(updated)
+    return True
+
+
+def remove_saved_virtual_library(item):
+    if not item:
+        return False
+    virtual_libraries = all_saved_virtual_libraries()
+    updated = [x for x in virtual_libraries if not saved_virtual_library_matches(x, item)]
+    if updated.length is virtual_libraries.length:
+        return False
+    set_saved_virtual_libraries(updated)
+    return True
+
+
+def save_saved_virtual_library(item):
+    if not item:
+        return False
+    virtual_libraries = [x for x in all_saved_virtual_libraries() if not saved_virtual_library_matches(x, item)]
+    virtual_libraries.unshift(item)
+    set_saved_virtual_libraries(virtual_libraries)
+    return True

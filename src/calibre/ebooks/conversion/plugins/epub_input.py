@@ -44,6 +44,8 @@ class EPUBInput(InputFormatPlugin):
         import uuid
 
         from lxml import etree
+
+        from calibre.utils.filenames import is_existing_subpath
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
             idpf_key = re.sub(r'[ \t\r\n]', '', idpf_key)
@@ -66,15 +68,17 @@ class EPUBInput(InputFormatPlugin):
 
         try:
             root = etree.parse(encfile)
+            base = os.path.dirname(encfile)
+            container_base = os.path.dirname(base)
             for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                 algorithm = em.get('Algorithm', '')
                 if algorithm not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
                     return False
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
-                path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
+                path = os.path.abspath(os.path.join(base, '..', *uri.split('/')))
                 tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
-                if (tkey and os.path.exists(path)):
+                if (tkey and is_existing_subpath(path, container_base)):
                     self._encrypted_font_uris.append(uri)
                     decrypt_font(tkey, path, algorithm)
             return True

@@ -19,7 +19,7 @@ from io import BytesIO
 from queue import Empty, Queue
 
 import apsw
-from qt.core import QAction, QApplication, QDialog, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
+from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
 
 from calibre import detect_ncpus, force_unicode, prints, timed_print
 from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
@@ -238,6 +238,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.jobs_button = JobsButton(parent=self)
         self.jobs_button.initialize(self.jobs_dialog, self.job_manager)
+        self.job_manager.job_done.connect(self._jobs_auto_close)
         # }}}
 
         LayoutMixin.init_layout_mixin(self)
@@ -878,7 +879,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         elif msg.startswith('save-annotations:'):
             from calibre.gui2.viewer.integration import save_annotations_in_gui
             try:
-                if not save_annotations_in_gui(self.library_broker, msg[len('save-annotations:'):]):
+                library_id, book_id = save_annotations_in_gui(self.library_broker, msg[len('save-annotations:'):])
+                if library_id:
+                    if self.current_db.new_api.library_id == library_id:
+                        lv = self.library_view
+                        current_row = -1
+                        if lv.current_id == book_id:
+                            current_row = lv.currentIndex().row()
+                        self.library_view.model().refresh_ids((book_id,), current_row)
+                else:
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
                 import traceback
@@ -896,6 +905,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
                     db.reindex_fts_book(book_id, fmt)
                     db.update_last_modified((book_id,))
+                    db.queue_pages_scan(book_id)
                     m.refresh_ids((book_id,))
                     db.event_dispatcher(db.EventType.book_edited, book_id, fmt)
             except Exception:
@@ -1210,6 +1220,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.setVisible(False)
         QApplication.instance().exit()
 
+    def _jobs_auto_close(self, nnum):
+        if nnum == 0 and self.jobs_dialog.auto_close_calibre.isChecked():
+            self.jobs_dialog.auto_close_calibre.setChecked(False)
+            if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
+                self.show_windows()
+            from calibre.gui2.dialogs.message_box import AutoCloseNotification
+            app = QApplication.instance()
+            parent = app.focusWidget() or self
+            parent.raise_()
+            parent.activateWindow()
+            if AutoCloseNotification(parent=parent).exec() == QDialog.DialogCode.Accepted:
+                self.quit(confirm_quit=False)
+
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
         open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
@@ -1223,7 +1246,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                       Quitting may cause corruption on the device.<br>
                       Are you sure you want to quit?''')+'</p>'
 
-            if not question_dialog(self, _('Active jobs'), msg):
+            d = warning_dialog(self, _('Active jobs'), msg, show_copy_button=False)
+            b = d.bb.addButton(_('Quit after jobs &finish'), QDialogButtonBox.ButtonRole.RejectRole)
+            b.setIcon(QIcon.ic('jobs.png'))
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('Quit anyway'))
+            d.bb.addButton(_('&Cancel'), QDialogButtonBox.ButtonRole.RejectRole)
+            d.after_jobs_finish = False
+            def jf():
+                d.after_jobs_finish = True
+            b.clicked.connect(jf)
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(False)
+            d.bb.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon.ic('dialog_warning.png'))
+            b.setDefault(True)
+            if d.exec() != QDialog.DialogCode.Accepted:
+                if d.after_jobs_finish:
+                    self.jobs_dialog.auto_close_calibre.setChecked(True)
                 return False
 
         if self.proceed_question.questions:
@@ -1235,12 +1272,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def shutdown(self, write_settings=True):
         from time import monotonic
+
+        from calibre.utils.mdns import stop_server_with_joinable
+        wait_for_mdns_server_to_shutdown = stop_server_with_joinable()
         st = monotonic()
         timed_print('Shutdown starting...')
         self.shutting_down = True
+        if (dm := self.device_manager).is_running('smartdevice'):
+            dm.stop_plugin('smartdevice')
         if hasattr(self.library_view, 'connect_to_book_display_timer'):
             self.library_view.connect_to_book_display_timer.stop()
         self.shutdown_started.emit()
+        self.device_manager.shutdown_event.set()
         self.show_shutdown_message()
         timed_print('Shutdown message shown...')
         self.server_change_notification_timer.stop()
@@ -1282,7 +1325,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.listener.close()
         self.job_manager.server.close()
         self.job_manager.threaded_server.close()
-        self.device_manager.keep_going = False
         self.auto_adder.stop()
         timed_print('Various services shutdown')
         # Do not report any errors that happen after the shutdown
@@ -1328,12 +1370,22 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         wait_for_cleanup = cleanup_overseers()
         from calibre.live import async_stop_worker
         wait_for_stop = async_stop_worker()
-        timed_print('Waiting for overseers and live to shutdown')
+        timed_print('Waiting for overseers, mdns, and live to shutdown')
         self.istores.join()
         wait_for_cleanup()
         wait_for_stop()
+        wait_for_mdns_server_to_shutdown()
+        timed_print('Waiting for device manager to shutdown')
+        self.device_manager.join()
         self.shutdown_completed.emit()
         timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
+        if DEBUG:
+            import threading
+            threads = list(threading.enumerate())
+            if len(threads) > 1:
+                for thread in threads:
+                    if thread is not threading.main_thread():
+                        timed_print('Thread still alive:', thread)
         try:
             sys.stdout.flush()  # Make sure any buffered prints are written for debug mode
         except Exception:

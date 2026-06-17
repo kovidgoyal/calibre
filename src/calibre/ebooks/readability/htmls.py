@@ -1,15 +1,15 @@
 import re
 
-import lxml.html
 from lxml.html import tostring
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.readability.cleaners import clean_attributes, normalize_spaces
+from calibre.utils.xml_parse import document_fromstring
 
 
 def build_doc(page):
     page_unicode = xml_to_unicode(page, strip_encoding_pats=True)[0]
-    doc = lxml.html.document_fromstring(page_unicode)
+    doc = document_fromstring(page_unicode)
     return doc
 
 

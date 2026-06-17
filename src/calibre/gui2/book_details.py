@@ -8,6 +8,7 @@ from collections import namedtuple
 from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
+from time import monotonic
 
 from qt.core import (
     QAction,
@@ -40,7 +41,7 @@ from qt.core import (
 )
 
 from calibre import fit_image, sanitize_file_name
-from calibre.constants import DEBUG, config_dir, iswindows
+from calibre.constants import DEBUG, config_dir, ismacos, iswindows
 from calibre.db.constants import DATA_DIR_NAME, DATA_FILE_PATTERN, NO_SEARCH_LINK, RESOURCE_URL_SCHEME
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
@@ -989,6 +990,8 @@ class CoverView(QWidget):  # {{{
             pmap = cb.pixmap()
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
+            if ismacos:  # Without this there is a crash when Qt tries to save this pixmap as JPEG data
+                pmap = pmap.copy()
         if not pmap.isNull():
             self.update_cover(pmap)
 
@@ -1233,6 +1236,21 @@ class BookInfo(HTMLDisplay):
         for fmt in db.formats(book_id) or ():
             db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
         db.queue_pages_scan(book_id)
+        QTimer.singleShot(100, partial(self.check_for_recount, monotonic(), db.library_id, book_id))
+
+    def check_for_recount(self, start_time: float, library_id: str, book_id: int) -> None:
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db.new_api
+        if db.library_id != library_id or monotonic() - start_time > 10:
+            return
+        if db.pages_needs_scan((book_id,)):
+            QTimer.singleShot(100, partial(self.check_for_recount, start_time, db.library_id, book_id))
+            return
+        lv = get_gui().library_view
+        current_row = lv.currentIndex().row()
+        if lv.current_id != book_id:
+            current_row = -1
+        lv.model().refresh_ids((book_id,), current_row)
 # }}}
 
 

@@ -676,6 +676,7 @@ class KEPUBOutput(OutputFormatPlugin):
         opts.extract_to = et
         opts.flow_size = fs
         opts.epub_max_image_size = opts.kepub_max_image_size
+        opts.preserve_cover_aspect_ratio = True
         epub_output.container_callback = kepubify
         try:
             epub_output.convert(oeb, output_path, input_plugin, opts, log)

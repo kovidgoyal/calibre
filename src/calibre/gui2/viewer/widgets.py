@@ -116,6 +116,7 @@ class SearchBox(HistoryComboBox):  # {{{
 
     def __init__(self, parent=None):
         HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
+        self.suppress_history = False
         self.lineEdit().setPlaceholderText(_('Search'))
         self.lineEdit().setClearButtonEnabled(True)
         ac = self.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
@@ -123,6 +124,9 @@ class SearchBox(HistoryComboBox):  # {{{
             ac.triggered.connect(self.cleared)
 
     def save_history(self):
+        if self.suppress_history:
+            self.suppress_history = False
+            return
         ret = HistoryComboBox.save_history(self)
         self.history_saved.emit(self.text(), self.history)
         return ret

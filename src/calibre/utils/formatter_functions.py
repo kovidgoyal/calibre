@@ -295,8 +295,8 @@ class FormatterFunction:
 
 class BuiltinFormatterFunction(FormatterFunction):
 
-    def __init__(self):
-        formatter_functions().register_builtin(self)
+    def __init_subclass__(cls):
+        formatter_functions().register_builtin(cls())
 
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
@@ -1617,7 +1617,7 @@ contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
             elif format_string.startswith('from_number'):
                 val = datetime.fromtimestamp(float(val))
                 f = format_string[12:]
-                s = format_date(val, f if f else 'iso')
+                s = format_date(val, f or 'iso')
             else:
                 s = format_date(parse_date(val), format_string)
             return s
@@ -1660,7 +1660,7 @@ format_date_field('#date_read', 'MMM dd, yyyy')
             elif format_string.startswith('from_number'):
                 val = datetime.fromtimestamp(float(val))
                 f = format_string[12:]
-                s = format_date(val, f if f else 'iso')
+                s = format_date(val, f or 'iso')
             else:
                 s = format_date(val, format_string)
             return s
@@ -1802,7 +1802,7 @@ not marked. This function works only in the GUI.
 
     def evaluate(self, formatter, kwargs, mi, locals):
         c = self.get_database(mi, formatter=formatter).data.get_marked(mi.id)
-        return c if c else ''
+        return c or ''
 
 
 class BuiltinSeriesSort(BuiltinFormatterFunction):
@@ -2314,7 +2314,7 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
                             'date_arithmetic', calc_spec))
                 d += self.calc_ops[mo[2]](int(mo[1]))
                 calc_spec = calc_spec[len(mo[0]):]
-            return format_date(d, fmt if fmt else 'iso')
+            return format_date(d, fmt or 'iso')
         except ValueError as e:
             raise e
         except Exception as e:
@@ -3033,8 +3033,8 @@ class BuiltinHasExtraFiles(BuiltinFormatterFunction):
     category = DB_FUNCS
     def __doc__getter__(self): return translate_ffml(
 r'''
-``has_extra_files([pattern])`` -- returns the count of extra files, otherwise ''
-(the empty string).[/] If the optional parameter ``pattern`` (a regular expression)
+``has_extra_files([pattern])`` -- returns the count of extra files, otherwise
+the empty string. [/] If the optional parameter ``pattern`` (a regular expression)
 is supplied then the list is filtered to files that match ``pattern`` before the
 files are counted. The pattern match is case insensitive. See also the functions
 :ref:`extra_file_names`, :ref:`extra_file_size` and :ref:`extra_file_modtime`.
@@ -3265,6 +3265,84 @@ This function works only in the GUI and the content server.
         except Exception as e:
             traceback.print_exc()
             raise ValueError(str(e))
+
+
+class BuiltinReadingProgress(BuiltinFormatterFunction):
+    name = 'reading_progress'
+    arg_count = -1
+    category = DB_FUNCS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``reading_progress(book_id, [user, output_fmt, which, fmt])`` -- returns the reading progress, in the specified
+output format.[/]The ``user`` parameter defaults to match any user. Use the value ``local`` to match reading progress in
+the calibre e-book viewer. Use ``_`` to match reading progress for anonymous users of the Content server viewer.
+Any other value matches the corresponding username as used in the Content server.
+
+The ``output_fmt`` parameter controls the format of the text returned by this function. It takes any of the following values:
+[LIST]
+[*] ``page_count`` - the default, outputs ``pages read / total pages``. If page counting is not enabled outputs percent read instead.
+[*] ``percent`` - outputs percent read
+[*] ``percent_number`` - outputs percent read as a number without the trailing percent sign, useful for sorting.
+[*] ``pos_frac`` - outputs a fraction between zero and one.
+[/LIST]
+
+The ``which`` parameter controls how the specific reading progress record for the specified ``user`` is selected.
+There can be more than one record if no user is specified or if the book has been read in multiple formats
+or on multiple devices.
+It accepts two values:
+[LIST]
+[*] ``most_recent`` - the progress of the most recent reader of the book (the default value)
+[*] ``furthest`` - the furthest progress of all matching records
+[/LIST]
+
+The ``fmt`` parameter controls which book format is used. The default is to return records for all formats, the specific
+record is then selected by the ``which`` parameter.
+
+Some examples:
+[CODE]
+{id:reading_progress()} -- the reading progress as pages read / total pages
+                           for the most recent reading session of this book
+{id:reading_progress(,percent)} -- same as above, but as a percentage
+{id:reading_progress(,pos_frac,furthest)} -- same as above, but as a fraction and using the
+                                             furthest progress on this book.
+{id:reading_progress(bob,pos_frac,furthest,EPUB)} -- for the user "bob" and the "EPUB" format.
+[/CODE]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, book_id, *args):
+        if len(args) > 4:
+            raise ValueError(_('Incorrect number of arguments for function {0}').format('reading_progress'))
+        book_id = int(book_id)
+        for_user, output_fmt, which, fmt = '', 'page_count', 'most_recent', ''
+        match len(args):
+            case 4:
+                for_user, output_fmt, which, fmt = args
+            case 3:
+                for_user, output_fmt, which = args
+            case 2:
+                for_user, output_fmt = args
+            case 1:
+                for_user = args[0]
+        order_by = 'pos_frac' if which in ('furthest', 'farthest') else 'epoch'
+        pos_frac = 0
+        with (db := self.get_database(mi, formatter=formatter).new_api).safe_read_lock:
+            if records := db._get_last_read_positions(book_id, fmt=fmt, user=for_user, order_by=order_by, limit=1):
+                pos_frac = records[0]['pos_frac']
+                fmt = records[0]['format']
+            match output_fmt:
+                case 'percent':
+                    return f'{pos_frac:.0%}'
+                case 'percent_number':
+                    return str(round(pos_frac * 100))
+                case 'page_count':
+                    page_count = 0
+                    if pages := db._get_pages(book_id):
+                        page_count = pages.pages
+                    if page_count > 0:
+                        return f'{int(pos_frac * page_count)} / {page_count}'
+                    return f'{pos_frac:.0%}'
+                case _:
+                    return str(pos_frac)
 
 
 class BuiltinIsDarkMode(BuiltinFormatterFunction):
@@ -3723,6 +3801,46 @@ This function can be used only in the GUI.
         return ''
 
 
+class BuiltinWidthFromPages(BuiltinFormatterFunction):
+    name = 'width_from_pages'
+    arg_count = -1
+    category = GUI_FUNCTIONS
+    def __doc__getter__(self): return translate_ffml(
+r'''
+``width_from_pages(value [, num_of_pages_for_max_width, logarithmic_factor, default_width])`` -- return
+the width of the book spine as a fraction between ``'0'`` and ``'1'`` given a number of pages.
+This is used to calculate the width of the spine in the Bookshelf view, from a page count. The optional
+arguments control how the width is calculated.
+
+[LIST]
+[*] ``num_of_pages_for_max_width`` -- controls the widest books, any book with at least the specified number of pages is given width 1. Defaults to ``1500``.
+[*] ``logarithmic_factor`` --  controls how quickly width varies as pages range from 0 to the maximum. Defaults to ``2``.
+[*] ``default_width`` -- is the width for books with an invalid number of pages.
+[/LIST]
+''')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+        from calibre.gui2.library.bookshelf_view import width_from_pages
+        num_of_pages_for_max_width = 1500
+        logarithmic_factor = 2
+        default_width = '0.3'
+        match len(args):
+            case 1:
+                if args[0]:
+                    num_of_pages_for_max_width = int(args[0])
+            case 2:
+                num_of_pages_for_max_width, logarithmic_factor = int(args[0]), float(args[1])
+            case 3:
+                num_of_pages_for_max_width, logarithmic_factor, default_width = int(args[0]), float(args[1]), args[2]
+        try:
+            pages = int(val)
+        except Exception:
+            return default_width
+        if pages < 0:
+            return default_width
+        return str(width_from_pages(pages, num_of_pages_for_max_width, logarithmic_factor))
+
+
 class BuiltinShowDialog(BuiltinFormatterFunction):
     name = 'show_dialog'
     arg_count = 1
@@ -3801,47 +3919,6 @@ returns `Foo, book 3 of 5`
 
     def evaluate(self, formatter, kwargs, mi, locals, fstring):
         raise ValueError(_('This function cannot be called directly. It is built into the formatter'))
-
-
-_formatter_builtins = [
-    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
-    BuiltinAssign(),
-    BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBookCount(),
-    BuiltinBookValues(), BuiltinBooksize(),
-    BuiltinCapitalize(), BuiltinCharacter(), BuiltinCheckYesNo(), BuiltinCeiling(),
-    BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
-    BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
-    BuiltinCurrentVirtualLibraryName(), BuiltinDateArithmetic(),
-    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEncodeForURL(), BuiltinEval(),
-    BuiltinExtraFileNames(), BuiltinExtraFileSize(), BuiltinExtraFileModtime(),
-    BuiltinFieldListCount(), BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFieldExists(),
-    BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
-    BuiltinFormatDate(), BuiltinFormatDateField(), BuiltinFormatDuration(), BuiltinFormatNumber(),
-    BuiltinFormatsModtimes(),BuiltinFormatsPaths(), BuiltinFormatsPathSegments(),
-    BuiltinFormatsSizes(), BuiltinFractionalPart(),BuiltinFString(), BuiltinGetLink(),
-    BuiltinGetNote(), BuiltinGlobals(), BuiltinHasCover(), BuiltinHasExtraFiles(),
-    BuiltinHasNote(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinIsDarkMode(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
-    BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
-    BuiltinListDifference(), BuiltinListEquals(), BuiltinListIntersection(),
-    BuiltinListitem(), BuiltinListJoin(), BuiltinListRe(),
-    BuiltinListReGroup(), BuiltinListRemoveDuplicates(), BuiltinListSort(),
-    BuiltinListSplit(), BuiltinListUnion(),BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMakeUrl(), BuiltinMakeUrlExtended(), BuiltinMod(),
-    BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
-    BuiltinOr(), BuiltinPrint(), BuiltinQueryString(), BuiltinRatingToStars(),
-    BuiltinRange(), BuiltinRawField(), BuiltinRawList(),
-    BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(),
-    BuiltinSelectedBooks(), BuiltinSelectedColumn(), BuiltinSeriesSort(),
-    BuiltinSetGlobals(), BuiltinShorten(), BuiltinShowDialog(), BuiltinSortBookIds(),
-    BuiltinStrcat(), BuiltinStrcatMax(),
-    BuiltinStrcmp(), BuiltinStrcmpcase(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
-    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
-    BuiltinSwapAroundComma(), BuiltinSwitch(), BuiltinSwitchIf(),
-    BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(), BuiltinToday(),
-    BuiltinToHex(), BuiltinTransliterate(), BuiltinUppercase(), BuiltinUrlsFromIdentifiers(),
-    BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
-]
 
 
 class FormatterUserFunction(FormatterFunction):

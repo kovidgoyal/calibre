@@ -22,7 +22,7 @@ from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
-from calibre.utils.localization import _, localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link, localize_website_link
 
 # Devices {{{
 
@@ -521,6 +521,8 @@ class KindlePage(QWizardPage, KindleUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
+        with suppress(Exception):
+            self.email_title_label.setText(self.email_title_label.text().format('https://gmx.com'))
 
     def initializePage(self):
         opts = smtp_prefs().parse()
@@ -879,10 +881,9 @@ class FinishPage(QWizardPage, FinishUI):
     def __init__(self):
         QWizardPage.__init__(self)
         self.setupUi(self)
-        try:
+        with suppress(Exception):  # link already localized
+            self.demo_label.setText(self.demo_label.text().format(localize_website_link('https://calibre-ebook.com/demo')))
             self.um_label.setText(self.um_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com'))
-        except TypeError:
-            pass  # link already localized
 
     def nextId(self):
         return -1

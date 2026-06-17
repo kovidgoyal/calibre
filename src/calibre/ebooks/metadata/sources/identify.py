@@ -181,7 +181,7 @@ class ISBNMerge:
         # First title/author
         groups = {}
         for result in self.results:
-            title = lower(result.title if result.title else '')
+            title = lower(result.title or '')
             key = (title, tuple(lower(x) for x in result.authors))
             if key not in groups:
                 groups[key] = []

@@ -1114,7 +1114,7 @@ class DiffView(QWidget):  # {{{
                 d = -1
         elif key in (Qt.Key.Key_PageUp, Qt.Key.Key_PageDown):
             amount = self.scrollbar.pageStep()
-            if key in (Qt.Key.Key_PageUp,):
+            if key == Qt.Key.Key_PageUp:
                 d = -1
         elif key in (Qt.Key.Key_Home, Qt.Key.Key_End):
             self.scrollbar.setValue(0 if key == Qt.Key.Key_Home else self.scrollbar.maximum())

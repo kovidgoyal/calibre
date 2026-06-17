@@ -348,7 +348,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return False
 
     def create_button_clicked(self, use_name=None, need_error_checks=True):
-        name = use_name if use_name else str(self.function_name.currentText())
+        name = use_name or str(self.function_name.currentText())
         name = name.split(' -- ')[0]
         if need_error_checks and self.check_errors_before_save(name, for_replace=False):
             return
@@ -526,7 +526,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def st_create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
-        name = use_name if use_name else str(self.te_name.currentText())
+        name = use_name or str(self.te_name.currentText())
         for k,v in formatter_functions().get_functions().items():
             if k == name and v.object_type is StoredObjectType.PythonFunction:
                 error_dialog(self.gui, _('Stored templates'),

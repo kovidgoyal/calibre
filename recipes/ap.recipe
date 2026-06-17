@@ -4,6 +4,8 @@
 https://apnews.com
 '''
 
+from datetime import datetime, timezone
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -22,6 +24,7 @@ class AssociatedPress(BasicNewsRecipe):
     remove_empty_feeds = False
     remove_attributes = ['style', 'height', 'width']
     simultaneous_downloads = 1
+    oldest_article = 1  # days; AP publishes constantly
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Associated_Press_logo_2012.svg/662px-Associated_Press_logo_2012.svg.png'
 
     keep_only_tags = [
@@ -59,9 +62,48 @@ class AssociatedPress(BasicNewsRecipe):
         ):
             url = a['href']
             title = self.tag_to_string(a)
-            self.log(title, '\n\t', url)
-            feeds.append({'title': title, 'url': url})
+            pub = self._fetch_published_time(url)
+            if pub is None:
+                self.log.warn('Skipping (no published_time):', url)
+                continue
+            self.log(title, '\n\t', url, '\n\t', pub.isoformat())
+            feeds.append({
+                'title': title,
+                'url': url,
+                'date': pub.strftime('%Y-%m-%d %H:%M:%S'),
+                'timestamp': pub.timestamp(),
+            })
         return [('Articles', feeds)]
+
+    def _fetch_published_time(self, url):
+        # AP has no RSS feeds, so parse_index can't filter by date without
+        # fetching each candidate article. Read <meta property="article:
+        # published_time"> from the article HTML so oldest_article applies.
+        cache = getattr(self, '_pub_time_cache', None)
+        if cache is None:
+            cache = self._pub_time_cache = {}
+        if url in cache:
+            return cache[url]
+        try:
+            soup = self.index_to_soup(url)
+        except Exception as e:
+            self.log.warn('AP published_time fetch failed for', url, ':', e)
+            cache[url] = None
+            return None
+        meta = soup.find('meta', attrs={'property': 'article:published_time'})
+        if not meta or not meta.get('content'):
+            cache[url] = None
+            return None
+        try:
+            pub = datetime.fromisoformat(meta['content'])
+        except Exception as e:
+            self.log.warn('AP bad published_time on', url, ':', e)
+            cache[url] = None
+            return None
+        if pub.tzinfo is None:
+            pub = pub.replace(tzinfo=timezone.utc)
+        cache[url] = pub
+        return pub
 
     def preprocess_html(self, soup):
         for v in soup.findAll('bsp-jw-player', attrs={'poster': True}):

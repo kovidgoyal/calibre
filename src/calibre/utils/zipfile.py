@@ -9,8 +9,9 @@ import shutil
 import stat
 import struct
 import sys
+import tempfile
 import time
-import zlib
+from compression import zlib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing, suppress
 from threading import Lock
@@ -20,12 +21,8 @@ from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre_extensions.speedup import pread_all
 from polyglot.builtins import as_bytes
-
-try:
-    from calibre_extensions.speedup import pread_all
-except ImportError:
-    pread_all = None  # running from source
 
 __all__ = [
     'ZIP_DEFLATED',
@@ -799,15 +796,14 @@ class ZipFile:
             self.fp = file
             self.filename = getattr(file, 'name', None)
         self.pread_fd = -1
-        if pread_all is not None:
-            try:
-                fd = self.fp.fileno()
-            except Exception:
-                fd = -1
-            if fd > -1:
-                with suppress(Exception):
-                    pread_all(fd, 1, 0)
-                    self.pread_fd = fd
+        try:
+            fd = self.fp.fileno()
+        except Exception:
+            fd = -1
+        if fd > -1:
+            with suppress(Exception):
+                pread_all(fd, 1, 0)
+                self.pread_fd = fd
 
         if key == 'r':
             self._GetContents()
@@ -1537,27 +1533,10 @@ class ZipFile:
         self.fp = None
 
 
-def safe_replace(zipstream, name, datastream, extra_replacements={},
-        add_missing=False):
-    '''
-    Replace a file in a zip file in a safe manner. This proceeds by extracting
-    and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
-    sometimes created corrupted zip files.
-
-
-    :param zipstream:  Stream from a zip file
-    :param name:       The name of the file to replace
-    :param datastream: The data to replace the file with.
-    :param extra_replacements: Extra replacements. Mapping of name to file-like
-                               objects
-    :param add_missing: If a replacement does not exist in the zip file, it is
-                        added. Use with care as currently parent directories
-                        are not created.
-
-    '''
-    z = ZipFile(zipstream, 'r')
-    replacements = {name:datastream}
-    replacements.update(extra_replacements)
+def do_replace(src_zip_file, output_stream, name, replacement_data_stream, extra_replacements=None, add_missing=False):
+    z = src_zip_file
+    replacements = {name:replacement_data_stream}
+    replacements.update(extra_replacements or {})
     names = frozenset(replacements.keys())
     found = set()
 
@@ -1567,8 +1546,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
             r = r.read()
         return r
 
-    with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
-        ztemp = ZipFile(temp, 'w')
+    with ZipFile(output_stream, 'w') as ztemp:
         for obj in z.infolist():
             if isinstance(obj.filename, str):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
@@ -1580,13 +1558,49 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
         if add_missing:
             for name in names - found:
                 ztemp.writestr(name, rbytes(name))
-        ztemp.close()
-        z.close()
-        temp.seek(0)
-        zipstream.seek(0)
-        zipstream.truncate()
-        shutil.copyfileobj(temp, zipstream)
-        zipstream.flush()
+
+
+def safe_replace(zipstream_or_path, name, datastream, extra_replacements=None, add_missing=False):
+    '''
+    Replace a file in a zip file in a safe manner. This proceeds by extracting
+    and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
+    sometimes created corrupted zip files.
+
+
+    :param zipstream:  Stream from a zip file or path to a zip file
+    :param name:       The name of the file to replace
+    :param datastream: The data to replace the file with.
+    :param extra_replacements: Extra replacements. Mapping of name to file-like
+                               objects
+    :param add_missing: If a replacement does not exist in the zip file, it is
+                        added. Use with care as currently parent directories
+                        are not created.
+
+    '''
+    if isinstance(zipstream_or_path, str):
+        from calibre.utils.filenames import clone_file_metadata
+        path = os.path.abspath(zipstream_or_path)
+        parent_dir = os.path.dirname(path)
+        prefix = '_' if os.sep == '\\' else '.'
+        with ZipFile(zipstream_or_path, 'r') as z, tempfile.NamedTemporaryFile(
+                prefix=prefix, dir=parent_dir, delete=False) as temp:
+            clone_file_metadata(z.fp.fileno(), temp.fileno(), temp.name)
+            do_replace(z, temp, name, datastream, extra_replacements, add_missing)
+        try:
+            os.replace(temp.name, path)
+        except OSError:
+            os.remove(temp.name)
+            raise
+    else:
+        zipstream = zipstream_or_path
+        with ZipFile(zipstream, 'r') as z, SpooledTemporaryFile(max_size=100*1024*1024) as temp:
+            do_replace(z, temp, name, datastream, extra_replacements, add_missing)
+            z.close()
+            temp.seek(0)
+            zipstream.seek(0)
+            zipstream.truncate()
+            shutil.copyfileobj(temp, zipstream)
+            zipstream.flush()
 
 
 class PyZipFile(ZipFile):
@@ -1753,6 +1767,141 @@ def main(args=None):
             addToZip(zf, src, os.path.basename(src))
 
         zf.close()
+
+
+def find_tests():
+    import unittest
+
+    class TestZipFileSafeReplace(unittest.TestCase):
+
+        def setUp(self):
+            import shutil
+            self.tdir = tempfile.mkdtemp()
+            self._cleanup = shutil.rmtree
+
+        def tearDown(self):
+            self._cleanup(self.tdir, ignore_errors=True)
+
+        def _make_zip(self, path, entries):
+            # entries: list of (name, data) tuples
+            with ZipFile(path, 'w') as z:
+                for name, data in entries:
+                    z.writestr(name, data)
+
+        def _read_zip_entry(self, path_or_stream, name):
+            if isinstance(path_or_stream, str):
+                with ZipFile(path_or_stream, 'r') as z:
+                    return z.read(name)
+            else:
+                path_or_stream.seek(0)
+                with ZipFile(path_or_stream, 'r') as z:
+                    return z.read(name)
+
+        def _zip_names(self, path_or_stream):
+            if isinstance(path_or_stream, str):
+                with ZipFile(path_or_stream, 'r') as z:
+                    return set(z.namelist())
+            else:
+                path_or_stream.seek(0)
+                with ZipFile(path_or_stream, 'r') as z:
+                    return set(z.namelist())
+
+        # ------------------------------------------------------------------ #
+        # Path-based branch
+        # ------------------------------------------------------------------ #
+
+        def test_safe_replace_path_replaces_content(self):
+            zpath = os.path.join(self.tdir, 'test.zip')
+            self._make_zip(zpath, [('a.txt', b'original'), ('b.txt', b'other')])
+            safe_replace(zpath, 'a.txt', io.BytesIO(b'replaced'))
+            self.assertEqual(self._read_zip_entry(zpath, 'a.txt'), b'replaced')
+            # unrelated entry must be preserved
+            self.assertEqual(self._read_zip_entry(zpath, 'b.txt'), b'other')
+
+        def test_safe_replace_path_preserves_all_entries(self):
+            zpath = os.path.join(self.tdir, 'test.zip')
+            entries = [('one.txt', b'1'), ('two.txt', b'2'), ('three.txt', b'3')]
+            self._make_zip(zpath, entries)
+            safe_replace(zpath, 'two.txt', io.BytesIO(b'TWO'))
+            self.assertEqual(self._zip_names(zpath), {'one.txt', 'two.txt', 'three.txt'})
+            self.assertEqual(self._read_zip_entry(zpath, 'two.txt'), b'TWO')
+
+        def test_safe_replace_path_extra_replacements(self):
+            zpath = os.path.join(self.tdir, 'test.zip')
+            self._make_zip(zpath, [('a.txt', b'a'), ('b.txt', b'b')])
+            safe_replace(zpath, 'a.txt', io.BytesIO(b'A'),
+                         extra_replacements={'b.txt': io.BytesIO(b'B')})
+            self.assertEqual(self._read_zip_entry(zpath, 'a.txt'), b'A')
+            self.assertEqual(self._read_zip_entry(zpath, 'b.txt'), b'B')
+
+        def test_safe_replace_path_add_missing(self):
+            zpath = os.path.join(self.tdir, 'test.zip')
+            self._make_zip(zpath, [('a.txt', b'a')])
+            safe_replace(zpath, 'new.txt', io.BytesIO(b'new'), add_missing=True)
+            self.assertIn('new.txt', self._zip_names(zpath))
+            self.assertEqual(self._read_zip_entry(zpath, 'new.txt'), b'new')
+
+        @unittest.skipIf(sys.platform == 'win32', 'POSIX-only attribute preservation test')
+        def test_safe_replace_path_preserves_file_attributes(self):
+            zpath = os.path.join(self.tdir, 'test.zip')
+            self._make_zip(zpath, [('a.txt', b'original')])
+            # set specific permissions on the zip file
+            desired_mode = 0o640
+            os.chmod(zpath, desired_mode)
+            original_stat = os.stat(zpath)
+            safe_replace(zpath, 'a.txt', io.BytesIO(b'replaced'))
+            new_stat = os.stat(zpath)
+            # permissions (lower 12 bits) must be preserved
+            self.assertEqual(
+                stat.S_IMODE(new_stat.st_mode),
+                stat.S_IMODE(original_stat.st_mode),
+                'File permissions not preserved after safe_replace with path'
+            )
+            # uid/gid must be preserved
+            self.assertEqual(new_stat.st_uid, original_stat.st_uid,
+                             'File owner (uid) not preserved after safe_replace with path')
+            self.assertEqual(new_stat.st_gid, original_stat.st_gid,
+                             'File group (gid) not preserved after safe_replace with path')
+
+        # ------------------------------------------------------------------ #
+        # Stream-based branch
+        # ------------------------------------------------------------------ #
+
+        def test_safe_replace_stream_replaces_content(self):
+            buf = io.BytesIO()
+            self._make_zip(buf, [('a.txt', b'original'), ('b.txt', b'other')])
+            buf.seek(0)
+            safe_replace(buf, 'a.txt', io.BytesIO(b'replaced'))
+            self.assertEqual(self._read_zip_entry(buf, 'a.txt'), b'replaced')
+            self.assertEqual(self._read_zip_entry(buf, 'b.txt'), b'other')
+
+        def test_safe_replace_stream_preserves_all_entries(self):
+            buf = io.BytesIO()
+            entries = [('one.txt', b'1'), ('two.txt', b'2'), ('three.txt', b'3')]
+            self._make_zip(buf, entries)
+            buf.seek(0)
+            safe_replace(buf, 'two.txt', io.BytesIO(b'TWO'))
+            self.assertEqual(self._zip_names(buf), {'one.txt', 'two.txt', 'three.txt'})
+            self.assertEqual(self._read_zip_entry(buf, 'two.txt'), b'TWO')
+
+        def test_safe_replace_stream_extra_replacements(self):
+            buf = io.BytesIO()
+            self._make_zip(buf, [('a.txt', b'a'), ('b.txt', b'b')])
+            buf.seek(0)
+            safe_replace(buf, 'a.txt', io.BytesIO(b'A'),
+                         extra_replacements={'b.txt': io.BytesIO(b'B')})
+            self.assertEqual(self._read_zip_entry(buf, 'a.txt'), b'A')
+            self.assertEqual(self._read_zip_entry(buf, 'b.txt'), b'B')
+
+        def test_safe_replace_stream_add_missing(self):
+            buf = io.BytesIO()
+            self._make_zip(buf, [('a.txt', b'a')])
+            buf.seek(0)
+            safe_replace(buf, 'new.txt', io.BytesIO(b'new'), add_missing=True)
+            self.assertIn('new.txt', self._zip_names(buf))
+            self.assertEqual(self._read_zip_entry(buf, 'new.txt'), b'new')
+
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestZipFileSafeReplace)
 
 
 if __name__ == '__main__':

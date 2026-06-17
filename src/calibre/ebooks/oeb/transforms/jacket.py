@@ -312,9 +312,9 @@ def render_jacket(mi, output_profile,
 
     rating = get_rating(mi.rating, output_profile.ratings_char, output_profile.empty_ratings_char)
 
-    tags = Tags((mi.tags if mi.tags else alt_tags), output_profile)
+    tags = Tags((mi.tags or alt_tags), output_profile)
 
-    comments = mi.comments if mi.comments else alt_comments
+    comments = mi.comments or alt_comments
     comments = comments.strip()
     if comments:
         comments = comments_to_html(comments)

@@ -3,17 +3,17 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from encodings import hexlify
+from gettext import gettext as _
 
 from ajax import absolute_path
 from book_list.globals import get_session_data
 from dom import ensure_id, unique_id
-from encodings import hexlify
-from gettext import gettext as _
 from read_book.globals import runtime, ui_operations
 from read_book.prefs.utils import create_button_box
 from session import session_defaults
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL
-from widgets import create_button
+from widgets import create_button, create_select
 
 BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
@@ -67,15 +67,10 @@ def background_widget(sd):
 
 
 def background_style_widget(sd):
-    ans = E.div(style='margin-bottom: 1ex', E.label(
-        _('Background image style') + ':\xa0',
-        E.select(name='background_image_style',
-            E.option(_('Scaled'), value='scaled'),
-            E.option(_('Tiled'), value='tiled'),
-        ),
-    ))
-    ans.querySelector('select').value = sd.get('background_image_style')
-    return ans
+    title = _('Background image style')
+    c, s = create_select(title, sd.get('background_image_style'), scaled=_('Scaled'), tiled=_('Tiled'))
+    s.setAttribute('name', 'background_image_style')
+    return E.div(style='margin-bottom: 1ex', E.label(title + ':\xa0', c))
 
 
 def background_fade_widget(sd):
@@ -83,7 +78,7 @@ def background_fade_widget(sd):
         _('Background image fade (%)') + ':\xa0',
         E.input(
             name='background_image_fade', type='number', max='100', min='0', step='1',
-            value='' + sd.get('background_image_fade'),
+            value='' + sd.get('background_image_fade'), style='min-width: 8ch',
             title=_('Fading of the background image is done by blending it with the background color')
         ),
     ))

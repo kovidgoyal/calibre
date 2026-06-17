@@ -172,6 +172,7 @@ class IframeBoss:
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'gesture_from_margin': self.gesture_from_margin,
+            'native_gesture': self.native_gesture,
             'get_current_cfi': self.get_current_cfi,
             'initialize':self.initialize,
             'modify_selection': self.modify_selection,
@@ -374,6 +375,9 @@ class IframeBoss:
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
 
+    def native_gesture(self, data):
+        self.handle_gesture(data.gesture)
+
     def fake_wheel_event(self, data):
         # these are wheel events from margin or selection mode
         self.onwheel(data.evt)
@@ -449,6 +453,7 @@ class IframeBoss:
     def change_color_scheme(self, data):
         if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
             opts.color_scheme = data.color_scheme
+            opts.is_dark_theme = v'!!data.color_scheme.is_dark_theme'
             apply_colors()
             set_color_scheme_class()
 

@@ -658,7 +658,7 @@ class XMLCache:
             record.set('size', clean(str(os.stat(path).st_size)))
         except Exception:
             record.set('size', '0')
-        title = book.title if book.title else _('Unknown')
+        title = book.title or _('Unknown')
         record_set('title', title)
         ts = book.title_sort
         if not ts:

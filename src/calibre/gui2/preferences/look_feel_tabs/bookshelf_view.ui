@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>607</width>
-    <height>423</height>
+    <width>626</width>
+    <height>521</height>
    </rect>
   </property>
   <property name="currentIndex">
@@ -17,36 +17,11 @@
    <attribute name="title">
     <string>&amp;Layout</string>
    </attribute>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_shadow">
-        <property name="text">
-         <string>Show &amp;shadow for hovered cover</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_variable_height">
-        <property name="text">
-         <string>Variable book &amp;height</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
-        <property name="toolTip">
-         <string>Control whether the text shown on book spines goes upwards or downwards</string>
-        </property>
-        <property name="text">
-         <string>Spine text &amp;downwards</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="1" column="0">
+   <layout class="QFormLayout" name="formLayout_3">
+    <property name="fieldGrowthPolicy">
+     <enum>QFormLayout::ExpandingFieldsGrow</enum>
+    </property>
+    <item row="2" column="0">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Shelf &amp;height:</string>
@@ -56,7 +31,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_height">
       <property name="toolTip">
        <string>Control the height of the book shelves, in pixels. The default is to choose a height automatically based on the size of the screen. Note that if you change the height, the cover thumbnail cache will need to be re-populated so scrolling might be a little slow to start with.</string>
@@ -75,121 +50,34 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_bookshelf_thumbnail">
-      <property name="text">
-       <string>Cover &amp;thumbnail on the spines:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_thumbnail</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QComboBox" name="opt_bookshelf_thumbnail"/>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_title">
-      <property name="text">
-       <string>Template for spine &amp;title:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_title_template</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLineEdit" name="opt_bookshelf_title_template">
-        <property name="toolTip">
-         <string>&lt;p&gt;The template used to generate the main text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="template_title_button">
-        <property name="text">
-         <string>Template &amp;editor</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
     <item row="4" column="0">
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="label_variable_height">
       <property name="text">
-       <string>Template for spine a&amp;uthor:</string>
+       <string>Book &amp;height variation:</string>
       </property>
       <property name="buddy">
-       <cstring>opt_bookshelf_author_template</cstring>
+       <cstring>opt_bookshelf_variable_height</cstring>
       </property>
      </widget>
     </item>
     <item row="4" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
-      <item>
-       <widget class="QLineEdit" name="opt_bookshelf_author_template">
-        <property name="toolTip">
-         <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For very narrow books, this will be skipped when there isnt space for a second line. For example, use the value {author_sort} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="template_author_button">
-        <property name="text">
-         <string>Template &amp;editor</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="label_pages">
-      <property name="text">
-       <string>Template for spine &amp;width:</string>
-      </property>
-      <property name="buddy">
-       <cstring>opt_bookshelf_spine_size_template</cstring>
+     <widget class="QComboBox" name="opt_bookshelf_variable_height">
+      <property name="toolTip">
+       <string>Control how the height of book spines varies on the shelf. "Constant" makes all books the same height. "Constant per group" makes all books in the same group the same height. "Variable" gives each book a unique height.</string>
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
-        <property name="toolTip">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="template_pages_button">
-        <property name="text">
-         <string>Template &amp;editor</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="6" column="1">
-     <widget class="QPushButton" name="use_pages_button">
-      <property name="text">
-       <string>Use a custom &amp;pages column</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label_fade_time">
       <property name="text">
-       <string>Duration of hover &amp;animation</string>
+       <string>Duration of hover &amp;animation:</string>
       </property>
       <property name="buddy">
        <cstring>opt_bookshelf_fade_time</cstring>
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="3" column="1">
      <widget class="QSpinBox" name="opt_bookshelf_fade_time">
       <property name="specialValueText">
        <string>Disable</string>
@@ -208,7 +96,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="label_hover_interact">
       <property name="text">
        <string>&amp;Expand the hovered cover:</string>
@@ -218,14 +106,100 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
-     <widget class="QComboBox" name="opt_bookshelf_hover">
-      <property name="toolTip">
-       <string>Control what happens when the mouse hovers over the spine of a book.</string>
+    <item row="5" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QComboBox" name="opt_bookshelf_hover">
+        <property name="toolTip">
+         <string>Control what happens when the mouse hovers over the spine of a book.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_shadow">
+        <property name="text">
+         <string>Show &amp;shadow for hovered cover</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Group divider &amp;style:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_divider_style</cstring>
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="7" column="1">
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QComboBox" name="opt_bookshelf_divider_style">
+        <property name="toolTip">
+         <string>Control the style to use for the group divider</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_divider_text_right">
+        <property name="toolTip">
+         <string>Control whether the text of the group divider is aligned to the right or left</string>
+        </property>
+        <property name="text">
+         <string>Text &amp;aligned to the right</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_bookshelf_start_with_divider">
+        <property name="toolTip">
+         <string>When grouping books and a group extends to more than one shelf, place a group divider at the beginning of the additional shelves</string>
+        </property>
+        <property name="text">
+         <string>&amp;Start shelves with divider</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="9" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QPushButton" name="recount_button">
+        <property name="toolTip">
+         <string>Have calibre re-count the pages in all books in the current library.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Recount pages</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="show_log_button">
+        <property name="text">
+         <string>Show count &amp;failure log</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item row="10" column="0">
      <spacer name="vertical_spacer_1">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -238,24 +212,469 @@
       </property>
      </spacer>
     </item>
-    <item row="9" column="0" colspan="2">
-     <widget class="QPushButton" name="recount_button">
-      <property name="toolTip">
-       <string>Have calibre re-count the pages in all books in the current library.</string>
+    <item row="1" column="0" colspan="2">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Book spine</string>
       </property>
-      <property name="text">
-       <string>&amp;Recount pages</string>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="0" colspan="2">
-     <widget class="QPushButton" name="show_log_button">
-      <property name="text">
-       <string>Show count &amp;failure log</string>
-      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_bookshelf_thumbnail">
+         <property name="text">
+          <string>Show &amp;cover:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_thumbnail</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="QComboBox" name="opt_bookshelf_thumbnail">
+           <property name="toolTip">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>&amp;Opacity:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_thumbnail_opacity</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="opt_bookshelf_thumbnail_opacity">
+           <property name="toolTip">
+            <string>&lt;p&gt;How much to blend the cover into the spine. Higher values decrease blending.</string>
+           </property>
+           <property name="suffix">
+            <string> %</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_title">
+         <property name="text">
+          <string>Template for &amp;first line:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_title_template</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="opt_bookshelf_title_template">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>10</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;The template used to generate the main text on the spine. This template uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.
+&lt;p&gt;For example, if you want the first line to be the book title in upper case, you can use the template: &lt;code&gt;{title:uppercase()}&lt;/code&gt;</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="template_title_button">
+           <property name="text">
+            <string>Template &amp;editor</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Template for &amp;second line:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_author_template</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLineEdit" name="opt_bookshelf_author_template">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>10</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>&lt;p&gt;The template used to generate an optional second line of text on the spine. This template uses the same syntax as save templates. Defaults to no second line. For example, use the value {authors} to show the book authors. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.&lt;/p&gt;</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="template_author_button">
+           <property name="text">
+            <string>Template &amp;editor</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_pages">
+         <property name="text">
+          <string>Template for &amp;width:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_spine_size_template</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLineEdit" name="opt_bookshelf_spine_size_template">
+           <property name="toolTip">
+            <string/>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="template_pages_button">
+           <property name="text">
+            <string>Template &amp;editor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="use_pages_button">
+           <property name="text">
+            <string>Use a custom &amp;pages column</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>&amp;Font:</string>
+         </property>
+         <property name="buddy">
+          <cstring>bookshelf_font_display</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>&amp;Font size:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_bookshelf_min_font_multiplier</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>&amp;Minimum:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_min_font_multiplier</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_bookshelf_min_font_multiplier">
+           <property name="toolTip">
+            <string>The minimum font size for text on the spine. It is a fraction of the base font size.</string>
+           </property>
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="minimum">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Ma&amp;ximum:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_max_font_multiplier</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_bookshelf_max_font_multiplier">
+           <property name="toolTip">
+            <string>The maximum font size for text on the spine. It is a multiple of the base font size.</string>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>&amp;Outline</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_bookshelf_outline_width</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDoubleSpinBox" name="opt_bookshelf_outline_width">
+           <property name="toolTip">
+            <string>&lt;p&gt;Set the thickness, in pixels, of the outline (border) around text on the spine. A value of zero means no outline. An outline helps the text standout against the spine, especially when the spine has a colorful cover.</string>
+           </property>
+           <property name="specialValueText">
+            <string>none</string>
+           </property>
+           <property name="suffix">
+            <string> px</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <double>3.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QCheckBox" name="opt_bookshelf_up_to_down">
+           <property name="toolTip">
+            <string>Control whether the text shown on book spines goes upwards or downwards</string>
+           </property>
+           <property name="text">
+            <string>Spine text &amp;downwards</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_bookshelf_make_space_for_second_line">
+           <property name="toolTip">
+            <string>&lt;p&gt;When showing a second line in the spine, for very narrow books, artificially widen the book to make space for the second line. Without this, the second line will not be displayed for narrow books, with it, narrow books will appear artificially wider than they really are.</string>
+           </property>
+           <property name="text">
+            <string>Make &amp;space for second line</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
+         <item>
+          <widget class="QLineEdit" name="bookshelf_font_display">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>Use default font</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="change_font_button">
+           <property name="text">
+            <string>&amp;Change</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="restore_default_font_button">
+           <property name="text">
+            <string>Restore &amp;default</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
+  </widget>
+  <widget class="QWidget" name="tab">
+   <attribute name="title">
+    <string>&amp;Colors</string>
+   </attribute>
+   <layout class="QFormLayout" name="formLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>&amp;Dark/light:</string>
+      </property>
+      <property name="buddy">
+       <cstring>opt_bookshelf_theme_override</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="opt_bookshelf_theme_override">
+      <property name="toolTip">
+       <string>Control the color theme to use for the bookshelf view</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QCheckBox" name="opt_bookshelf_use_custom_background">
+      <property name="toolTip">
+       <string>Use a custom background, either color or image</string>
+      </property>
+      <property name="text">
+       <string>Use a custom &amp;background</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <widget class="BackgroundConfig" name="background_box" native="true"/>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QGroupBox" name="opt_bookshelf_use_custom_colors">
+      <property name="title">
+       <string>Use customs &amp;colors</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QTabWidget" name="bookshelf_tab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <widget class="QWidget" name="widget_1">
+          <attribute name="title">
+           <string>&amp;Light mode</string>
+          </attribute>
+          <layout class="QFormLayout" name="custom_colors_light_layout"/>
+         </widget>
+         <widget class="QWidget" name="widget_2">
+          <attribute name="title">
+           <string>&amp;Dark mode</string>
+          </attribute>
+          <layout class="QFormLayout" name="custom_colors_dark_layout"/>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QPushButton" name="restore_defaults_colors_button">
+           <property name="text">
+            <string>Restore &amp;defaults</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="EditRulesWidget" name="opt_bookshelf_icon_rules">
+   <attribute name="title">
+    <string>&amp;Emblems</string>
+   </attribute>
   </widget>
   <widget class="CoverCacheConfig" name="config_cache">
    <attribute name="title">
@@ -267,6 +686,16 @@
   <customwidget>
    <class>ConfigWidgetBase</class>
    <extends>QWidget</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>EditRulesWidget</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/preferences/look_feel_tabs.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BackgroundConfig</class>
+   <extends>ConfigWidgetBase</extends>
    <header>calibre/gui2/preferences/look_feel_tabs.h</header>
   </customwidget>
   <customwidget>

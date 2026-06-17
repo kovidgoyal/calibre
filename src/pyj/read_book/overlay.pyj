@@ -13,19 +13,27 @@ from book_list.router import home
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
-from dom import (
-    add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
-)
+from dom import clear, ensure_id, set_css, svgicon
 from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from read_book.bookmarks import create_bookmarks_panel
-from read_book.globals import runtime, ui_operations
+from read_book.chrome import apply_viewer_chrome_colors, viewer_chrome_colors
+from read_book.globals import is_dark_theme, runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay, create_page_list_overlay
-from read_book.highlights import create_highlights_panel
+from read_book.highlights import builtin_color, create_highlights_panel
+from read_book.main_overlay_style import (
+    MAIN_OVERLAY_ACTION_CONTROL_CLASS, MAIN_OVERLAY_ACTION_ICON_CLASS,
+    MAIN_OVERLAY_ACTIONS_CLASS, MAIN_OVERLAY_FOOTER_ACTION_CLASS,
+    MAIN_OVERLAY_FOOTER_ACTIONS_CLASS, MAIN_OVERLAY_FOOTER_CLASS,
+    MAIN_OVERLAY_FOOTER_MIDDLE_SLOT_CLASS, MAIN_OVERLAY_FOOTER_RIGHT_SLOT_CLASS,
+    MAIN_OVERLAY_FOOTER_SLOT_CLASS, MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_TEXT_ICON_CLASS,
+    MAIN_OVERLAY_TIMER_CLASS, MAIN_OVERLAY_TITLE_CLASS, MAIN_OVERLAY_TOP_ROW_CLASS,
+    MAIN_OVERLAY_TS_CLASS, timer_id
+)
 from read_book.profiles import create_profiles_panel
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
-from read_book.prefs.head_foot import time_formatter
+from read_book.prefs.head_foot import time_formatter, format_time_left
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
@@ -79,7 +87,7 @@ class DeleteBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, background_color=get_color('window-background'))
+        apply_viewer_chrome_colors(container)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             tabindex='0',
@@ -148,11 +156,24 @@ class SyncBook:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        set_css(container, background_color=get_color('window-background'))
+        apply_viewer_chrome_colors(container)
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
-        self.overlay.view.annotations_manager.sync_annots_to_server()
-        sync_library_books(book.key[0], to_sync, self.sync_data_received)
+        view = self.overlay.view
+
+        def start_download():
+            sync_library_books(book.key[0], to_sync, self.sync_data_received)
+
+        def after_position_upload(success):
+            start_download()
+
+        def after_annot_upload(success):
+            view.upload_current_position(after_position_upload)
+
+        if ui_operations.upload_pending_annotations:
+            ui_operations.upload_pending_annotations(after_annot_upload)
+        else:
+            after_annot_upload(True)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             E.div(style='margin:1ex 1em; max-width: 80vw',
@@ -205,36 +226,56 @@ class SyncBook:  # {{{
 
 # }}}
 
-# CSS {{{
-MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
-MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
+def create_main_overlay_action_with_icon(text, tooltip, action, icon_elem, icon_color=None):
+    if icon_color:
+        icon_elem.style.color = icon_color
+    icon_elem.classList.add(MAIN_OVERLAY_ACTION_ICON_CLASS)
+    return E.li(E.button(
+        class_=MAIN_OVERLAY_ACTION_CONTROL_CLASS, title=tooltip, type='button', onclick=action,
+        icon_elem, text
+    ))
 
 
-def timer_id():
-    if not timer_id.ans:
-        timer_id.ans = unique_id()
-    return timer_id.ans
+def create_main_overlay_action(text, tooltip, action, icon, icon_color=None):
+    return create_main_overlay_action_with_icon(text, tooltip, action, svgicon(icon, MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_ICON_SIZE), icon_color)
 
 
-add_extra_css(def():
-    style = ''
-    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
-    style += build_rule(sel, overflow='hidden')
-    sel += '> ul '
-    style += build_rule(sel, display='flex', list_style='none', border_bottom='1px solid currentColor')
-    sel += '> li'
-    style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', flex_wrap='wrap', align_items='center', cursor='pointer')
-    style += build_rule(sel + ':last-child', border_right_style='none')
-    style += build_rule(sel + ':hover > *:first-child, .main-overlay-button:hover > *:first-child',
-                        color=get_color('window-hover-foreground'))
-    style += build_rule(sel + ':active > *:first-child, .main-overlay-button:active > *:first-child', transform='scale(1.8)')
-    style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
-    return style
-)
-# }}}
+def create_main_overlay_text_action(text, tooltip, action, icon_text):
+    return create_main_overlay_action_with_icon(text, tooltip, action, E.span(icon_text, class_=MAIN_OVERLAY_TEXT_ICON_CLASS))
+
+
+def create_main_overlay_footer_action(icon, text, tooltip, action):
+    return E.button(
+        class_=MAIN_OVERLAY_FOOTER_ACTION_CLASS, title=tooltip, type='button', onclick=action,
+        svgicon(icon, MAIN_OVERLAY_ICON_SIZE, MAIN_OVERLAY_ICON_SIZE), text
+    )
+
+
+def create_main_overlay_footer(close_action, help_action):
+    middle = E.div(class_=' '.join([MAIN_OVERLAY_FOOTER_SLOT_CLASS, MAIN_OVERLAY_FOOTER_MIDDLE_SLOT_CLASS]), '\xa0')
+    right = E.div(class_=' '.join([MAIN_OVERLAY_FOOTER_SLOT_CLASS, MAIN_OVERLAY_FOOTER_RIGHT_SLOT_CLASS]), '\xa0')
+    footer = E.div(
+        class_=MAIN_OVERLAY_FOOTER_CLASS,
+        E.div(
+            class_=MAIN_OVERLAY_FOOTER_ACTIONS_CLASS,
+            create_main_overlay_footer_action('close', _('Close'), _('Close the viewer controls'), close_action),
+            create_main_overlay_footer_action('help', _('Help'), _('Show viewer help'), help_action)
+        ),
+        middle,
+        right,
+    )
+    return {'footer': footer, 'middle_slot': middle, 'right_slot': right}
+
+
+def render_main_overlay_footer_templates(footer_parts, renderer):
+    if not renderer:
+        return
+    renderer(footer_parts.middle_slot, 'controls_footer', 'middle', '')
+    renderer(footer_parts.right_slot, 'controls_footer', 'right', '')
+
 
 def simple_overlay_title(title, overlay, container, close_action):
-    container.style.backgroundColor = get_color('window-background')
+    apply_viewer_chrome_colors(container)
     def action():
         event = this
         event.stopPropagation()
@@ -256,21 +297,14 @@ class MainOverlay:  # {{{
                 return '{}:{}'.format(date.getHours(), date.getMinutes())
             }
 
-    def show(self, container):
-        self.container_id = container.getAttribute('id')
-        icon_size = '3.5ex'
-        sd = get_session_data()
+    def create_actions(self, sd):
+        ac = create_main_overlay_action
+        text_ac = create_main_overlay_text_action
 
-        def ac(text, tooltip, action, icon, is_text_button):
-            if is_text_button:
-                icon = E.span(icon, style='font-size: 175%; font-weight: bold')
-            else:
-                icon = svgicon(icon, icon_size, icon_size) if icon else ''
-            icon.style.marginRight = '0.5ex'
-
-            return E.li(icon, text, onclick=action, title=tooltip)
-
-        sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
+        sync_icon_color = None
+        if ui_operations.has_unsynced_changes and ui_operations.has_unsynced_changes():
+            sync_icon_color = builtin_color('yellow', is_dark_theme())
+        sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download', sync_icon_color)
         delete_action = ac(_('Delete'), _('Delete this book from local storage'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
         back_action = ac(_('Back'), _('Go back'), self.back, 'arrow-left')
@@ -281,6 +315,10 @@ class MainOverlay:  # {{{
                 ac(_('Open book'), _('Open a book'), self.overlay.open_book, 'book'),
                 reload_action
             )
+            editable_formats = v'''__EDITABLE_FORMATS__'''
+            fmt = self.overlay.view?.book?.manifest.book_format or ''
+            if fmt.toUpperCase() in editable_formats:
+                reload_actions.appendChild(ac(_('Edit book'), _('Edit this book'), self.overlay.view.edit_book, 'edit'))
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
 
@@ -289,6 +327,9 @@ class MainOverlay:  # {{{
             _('Highlights'), _('Browse all highlights'), def():
                 self.overlay.show_highlights()
             , 'image')
+        reading_stats_action = ac(_('Reading statistics'), _('Show reading statistics for this book'), def():
+            self.overlay.show_reading_stats()
+        , 'hourglass')
 
         toc_actions = E.ul(ac(_('Table of Contents'), _('Browse the Table of Contents'), self.overlay.show_toc, 'toc'))
         toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, 'reference-mode'))
@@ -305,10 +346,10 @@ class MainOverlay:  # {{{
 
             toc_actions,
 
-            E.ul(highlights_action, bookmarks_action),
+            E.ul(highlights_action, bookmarks_action, reading_stats_action),
 
             E.ul(
-                ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
+                text_ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa'),
                 ac(_('Preferences'), _('Configure the E-book viewer'), self.overlay.show_prefs, 'cogs'),
             ),
 
@@ -419,44 +460,39 @@ class MainOverlay:  # {{{
             if copy_actions.childNodes.length:
                 actions_div.appendChild(copy_actions)
 
-        container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
+        return actions_div
+
+    def create_top_section(self, actions_div):
+        return E.div(class_=MAIN_OVERLAY_TS_CLASS,
             onclick=def (evt):evt.stopPropagation();,
 
-            set_css(E.div(  # top row
-                E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap; overflow: hidden'),
-                E.div(time_formatter.format(Date()), id=timer_id(), style='max-width: 9%; white-space: nowrap; overflow: hidden'),
-                ),
-                display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1ex', border_bottom='solid 1px currentColor'
+            E.div(
+                E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), class_=MAIN_OVERLAY_TITLE_CLASS),
+                E.div(time_formatter.format(Date()), id=timer_id(), class_=MAIN_OVERLAY_TIMER_CLASS),
+                class_=MAIN_OVERLAY_TOP_ROW_CLASS,
             ),
             actions_div,
-        ), user_select='none', background_color=get_color('window-background')))
-
-        container.appendChild(
-            E.div( # bottom bar
-                  style='position: fixed; width: 100%; bottom: 0; display: flex; justify-content: space-between; align-items: center;'
-                        'user-select: none; background-color: {}'.format(get_color('window-background')),
-                E.div(
-                    style='display: flex; justify-content: space-between; align-items: center;',
-                    E.div(
-                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
-                        title=_('Close the viewer controls'),
-                        svgicon('close', icon_size, icon_size), '\xa0', _('Close')
-                    ),
-                    E.div(
-                        style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
-                        svgicon('help', icon_size, icon_size), '\xa0', _('Help'), onclick=def(ev):
-                            ui_operations.show_help('viewer')
-                    )
-                ),
-                E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
-            ),
         )
-        renderer = self.overlay.view.create_template_renderer()
-        if renderer:
-            c = container.lastChild.lastChild
-            b = c.previousSibling
-            renderer(b, 'controls_footer', 'middle', '')
-            renderer(c, 'controls_footer', 'right', '')
+
+    def create_footer(self):
+        def close_viewer_controls(ev):
+            ev.stopPropagation()
+            self.overlay.hide_current_panel(ev)
+
+        def show_viewer_help(ev):
+            ev.stopPropagation()
+            ui_operations.show_help('viewer')
+            self.overlay.hide_current_panel(ev)
+
+        footer_parts = create_main_overlay_footer(close_viewer_controls, show_viewer_help)
+        render_main_overlay_footer_templates(footer_parts, self.overlay.view.create_template_renderer())
+        return footer_parts.footer
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        sd = get_session_data()
+        container.appendChild(self.create_top_section(self.create_actions(sd)))
+        container.appendChild(self.create_footer())
 
         self.on_hide()
         self.timer = setInterval(self.update_time, 1000)
@@ -517,6 +553,45 @@ class TOCOverlay(SimpleOverlay): # {{{
             self.overlay.view.goto_named_destination(dest, frag)
 # }}}
 
+class GotoOverlay:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click
+
+    def show(self, container):
+        container.appendChild(E.div())
+        inner = container.firstChild
+        simple_overlay_title(_('Go to\u2026'), self.overlay, inner)
+        create_goto_panel(self.overlay.view.current_position_data, self.overlay.view.book, inner, self.handle_navigate, self.show_sub_panel)
+
+    def handle_navigate(self, dest, frag):
+        self.overlay.hide()
+        if jstype(dest) is 'function':
+            dest(self.overlay.view, frag)
+        else:
+            self.overlay.view.goto_named_destination(dest, frag)
+
+    def show_sub_panel(self, name):
+        # Push the sub-panel on top of the goto panel (keep goto in stack so
+        # closing the sub-panel returns to goto rather than to reading).
+        if name is 'location':
+            self.overlay.panels.push(SimpleOverlay(
+                self.overlay,
+                create_location_overlay.bind(None, self.overlay.view.current_position_data, self.overlay.view.book),
+                _('Go to location, position or reference\u2026')))
+        elif name is 'metadata':
+            self.overlay.panels.push(self.overlay._build_metadata_panel())
+        elif name is 'page_list':
+            self.overlay.panels.push(SimpleOverlay(
+                self.overlay,
+                create_page_list_overlay.bind(None, self.overlay.view.book),
+                _('Go to page')))
+        self.overlay.show_current_panel()
+# }}}
+
 class WordActionsOverlay:  # {{{
 
     def __init__(self, word, overlay):
@@ -545,7 +620,7 @@ class PrefsOverlay: # {{{
 
     def show(self, container):
         self.changes_occurred = False
-        container.style.backgroundColor = get_color('window-background')
+        apply_viewer_chrome_colors(container)
         self.prefs = self.create_panel_impl(container)
 
     def on_change(self):
@@ -607,6 +682,208 @@ class OpenBook: # {{{
 # }}}
 
 
+class ReadingStatsOverlay:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Don't allow panel to be closed by a click
+
+    def reset_stats(self):
+        question_dialog(
+            _('Reset reading statistics'),
+            _('Are you sure you want to delete all reading statistics? This will remove all saved reading rate data.'),
+            def(yes):
+                if yes:
+                    self.do_reset()
+        )
+
+    def do_reset(self):
+        view = self.overlay.view
+        if view.timers:
+            view.timers.rates = v'[]'
+            view.timers.chapter_times = v'{}'
+            view.timers.average = view.timers.stddev = 0
+        if ui_operations.reset_reading_rates:
+            ui_operations.reset_reading_rates()
+        self.overlay.hide_current_panel()
+
+    def show(self, container):
+        simple_overlay_title(_('Reading statistics'), self.overlay, container)
+        view = self.overlay.view
+        book = view.book
+        if not book or not book.manifest:
+            container.appendChild(E.div(_('No book open'), style='padding: 1ex 1em'))
+            return
+
+        spine = book.manifest.spine
+        current_name = view.currently_showing.name
+        current_idx = spine.indexOf(current_name)
+        file_progress = view.current_file_progress_frac
+        chapter_length = book.manifest.files[current_name]?.length or 0
+        remaining_chars = chapter_length * max(0, 1 - file_progress)
+        chapter_remaining_time = view.timers.time_for(remaining_chars)
+        chapter_done_pct = Math.round(file_progress * 100)
+        total_chapters = spine.length
+
+        next_idx = current_idx + 1
+        next_name = spine[next_idx] if next_idx < spine.length else None
+        next_chapter_time = None
+        if next_name:
+            next_length = book.manifest.files[next_name]?.length or 0
+            next_chapter_time = view.timers.time_for(next_length)
+
+        book_remaining_chars = remaining_chars
+        for spine_idx in range(next_idx, spine.length):
+            book_remaining_chars += book.manifest.files[spine[spine_idx]]?.length or 0
+        book_remaining_time = view.timers.time_for(book_remaining_chars)
+
+        content = E.div(style='padding: 1ex 1em')
+        if current_idx >= 0:
+            content.appendChild(E.p(
+                _('Chapter {current} of {total}: {pct}% complete').format(
+                    current=current_idx + 1, total=total_chapters, pct=chapter_done_pct),
+                style='margin: 0.5ex 0; font-weight: bold'))
+
+        if chapter_remaining_time is not None:
+            content.appendChild(E.p(
+                _('Time remaining in chapter: {}').format(format_time_left(chapter_remaining_time)),
+                style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(
+                _('Time remaining in chapter: {}').format(_('Calculating…')),
+                style='margin: 0.5ex 0'))
+
+        if book_remaining_time is not None:
+            content.appendChild(E.p(
+                _('Time remaining in book: {}').format(format_time_left(book_remaining_time)),
+                style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(
+                _('Time remaining in book: {}').format(_('Calculating…')),
+                style='margin: 0.5ex 0'))
+
+        if next_name:
+            if next_chapter_time is not None:
+                content.appendChild(E.p(
+                    _('Time to read next chapter: {}').format(format_time_left(next_chapter_time)),
+                    style='margin: 0.5ex 0'))
+            else:
+                content.appendChild(E.p(
+                    _('Time to read next chapter: {}').format(_('Calculating…')),
+                    style='margin: 0.5ex 0'))
+        else:
+            content.appendChild(E.p(_('This is the last chapter'), style='margin: 0.5ex 0'))
+
+        container.appendChild(content)
+
+        # Build bar graph of chapter reading times
+        chapter_times = view.timers.chapter_times
+        bar_data = v'[]'
+        max_time = 0
+        for i in range(spine.length):
+            name = spine[i]
+            length = book.manifest.files[name]?.length or 0
+            is_current = i == current_idx
+            if is_current:
+                actual_t = chapter_times[name] or 0
+                rem = view.timers.time_for(remaining_chars)
+                t = actual_t + rem if rem is not None else view.timers.time_for(length)
+                is_actual = actual_t > 0
+            elif i < current_idx:
+                actual_t = chapter_times[name]
+                if actual_t and actual_t > 0:
+                    t = actual_t
+                    is_actual = True
+                else:
+                    t = view.timers.time_for(length)
+                    is_actual = False
+            else:
+                t = view.timers.time_for(length)
+                is_actual = False
+            if t is not None and t > 0:
+                max_time = Math.max(max_time, t)
+            bar_data.push({'t': t, 'is_actual': is_actual, 'is_current': is_current, 'past': i < current_idx})
+
+        BAR_H = 120
+        BAR_W = 22
+        BAR_GAP = 3
+        COLOR_ACTUAL = '#27ae60'
+        COLOR_CURRENT = '#e67e22'
+        COLOR_ESTIMATED = '#7fb3d3'
+        COLOR_PAST_EST = '#95a5a6'
+
+        graph_section = E.div(style='padding: 0 1em 1em 1em')
+        graph_section.appendChild(E.div(
+            _('Chapter reading times'),
+            style='font-size: smaller; font-weight: bold; margin-bottom: 0.5ex'))
+
+        if max_time > 0:
+            bars_row = E.div(
+                style='display: flex; align-items: flex-end; overflow-x: auto; '
+                    + f'border-bottom: 1px solid currentColor; min-height: {BAR_H + 4}px; padding-top: 4px')
+            for i in range(bar_data.length):
+                bd = bar_data[i]
+                t = bd.t
+                if t is not None and t > 0:
+                    h = max(2, Math.round(t / max_time * BAR_H))
+                else:
+                    h = 2
+                if bd.is_current:
+                    color = COLOR_CURRENT
+                elif bd.is_actual:
+                    color = COLOR_ACTUAL
+                elif bd.past:
+                    color = COLOR_PAST_EST
+                else:
+                    color = COLOR_ESTIMATED
+                outline = 'outline: 2px solid currentColor; outline-offset: 1px; ' if bd.is_current else ''
+                label = str(i + 1)
+                tip = _('Chapter {}').format(i + 1)
+                if t and t > 0:
+                    tip += ': ' + format_time_left(t)
+                elif bd.is_current or bd.past:
+                    tip += ' (' + _('no data') + ')'
+                else:
+                    tip += ' (' + _('Calculating…') + ')'
+                bar = E.div(
+                    style='display: inline-flex; flex-direction: column; align-items: center; '
+                        + f'width: {BAR_W}px; flex-shrink: 0; margin-right: {BAR_GAP}px; cursor: default',
+                    title=tip,
+                    E.div(style=f'width: {BAR_W}px; height: {h}px; background-color: {color}; {outline}'),
+                    E.div(label, style=f'font-size: 9px; text-align: center; width: {BAR_W}px; margin-top: 2px; overflow: hidden')
+                )
+                bars_row.appendChild(bar)
+            graph_section.appendChild(bars_row)
+            if current_idx >= 0:
+                scroll_offset = max(0, current_idx * (BAR_W + BAR_GAP) - 80)
+                window.setTimeout(def(): bars_row.scrollLeft = scroll_offset;, 0)
+        else:
+            graph_section.appendChild(E.div(
+                _('Start reading to see chapter time statistics'),
+                style='color: {}; font-style: italic'.format(get_color('faded-text'))))
+
+        legend = E.div(
+            style='display: flex; gap: 1em; margin-top: 0.5ex; font-size: smaller; flex-wrap: wrap',
+            E.span(E.span('■ ', style=f'color: {COLOR_ACTUAL}'), _('Actual time')),
+            E.span(E.span('■ ', style=f'color: {COLOR_CURRENT}'), _('Current chapter')),
+            E.span(E.span('■ ', style=f'color: {COLOR_ESTIMATED}'), _('Estimated')),
+            E.span(E.span('■ ', style=f'color: {COLOR_PAST_EST}'), _('Previous (estimated)')),
+        )
+        graph_section.appendChild(legend)
+        container.appendChild(graph_section)
+        container.appendChild(E.div(_(
+            'For reading stats, a "chapter" is a single internal file inside the larger book. If you'
+            ' see very few "chapters" above, then try converting your book to EPUB in calibre, that'
+            ' will often automatically split up the book into per chapter files.'),
+            style='padding: 0 1em 1em 1em; font-size: smaller'))
+        container.appendChild(E.div(
+            style='padding: 0 1em 1em 1em; display: flex; justify-content: flex-end',
+            create_button(_('Reset statistics'), 'trash', action=self.reset_stats)
+        ))
+# }}}
+
 
 class Overlay:
 
@@ -628,9 +905,10 @@ class Overlay:
 
     def clear_container(self):
         c = self.container
+        colors = viewer_chrome_colors()
         clear(c)
         c.style.backgroundColor = 'transparent'
-        c.style.color = get_color('window-foreground')
+        c.style.color = colors.foreground
         if c.style.display is not 'block':
             c.style.display = 'block'
         return c
@@ -765,11 +1043,10 @@ class Overlay:
 
     def show_goto(self):
         self.hide_current_panel()
-        self.panels.push(TOCOverlay(self, create_goto_panel.bind(None, self.view.current_position_data), _('Go to…')))
+        self.panels.push(GotoOverlay(self))
         self.show_current_panel()
 
-    def show_metadata(self):
-        self.hide_current_panel()
+    def _build_metadata_panel(self):
         from_read_book = short_uuid()
 
         def show_metadata_overlay(mi, pathtoebook, calibre_book_in_library_url, lname, book_id, overlay, container):
@@ -816,6 +1093,8 @@ class Overlay:
                 a.removeAttribute('href')
                 a.removeAttribute('title')
                 a.classList.remove('blue-link')
+                a.style.color = 'currentColor'
+                a.style.textDecorationLine = 'none'
             if pathtoebook:
                 container.lastChild.appendChild(E.div(
                     style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px',
@@ -845,7 +1124,11 @@ class Overlay:
         book_id = int(book_id or 0)
         panel = SimpleOverlay(self, show_metadata_overlay.bind(None, book.metadata, book.manifest.pathtoebook, book.calibre_book_in_library_url, lname, book_id), self.view.book.metadata.title)
         panel.from_read_book = from_read_book
-        self.panels.push(panel)
+        return panel
+
+    def show_metadata(self):
+        self.hide_current_panel()
+        self.panels.push(self._build_metadata_panel())
         self.show_current_panel()
 
     def show_ask_for_location(self):
@@ -863,6 +1146,11 @@ class Overlay:
     def show_search(self):
         self.hide()
         self.view.show_search()
+
+    def show_reading_stats(self):
+        self.hide_current_panel()
+        self.panels.push(ReadingStatsOverlay(self))
+        self.show_current_panel()
 
     def show_prefs(self):
         self.hide_current_panel()

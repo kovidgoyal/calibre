@@ -879,7 +879,7 @@ class ResultCache(SearchQueryParser):  # {{{
             return restriction
 
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False, use_virtual_library=True, sort_results=True):
+                           set_restriction_count=False, use_virtual_library=True, sort_results=True, allow_templates=True):
         if use_virtual_library:
             search_restriction = self._build_restriction_string(search_restriction)
         q = ''

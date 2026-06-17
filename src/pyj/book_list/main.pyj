@@ -5,17 +5,18 @@ from __python__ import hash_literals, bound_methods
 import traceback
 from elementmaker import E
 from ajax import ajax
-from dom import set_css, get_widget_css
+from dom import get_widget_css
 from modals import create_modal_container, error_dialog
 from session import get_interface_data, UserSessionData, update_interface_data, get_translations
 from gettext import gettext as _, install
 from popups import install_event_filters
 from utils import safe_set_inner_html
 
-from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
+from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id, INIT_ENDPOINT
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
-from book_list.theme import get_color, get_font_family, css_for_variables
+from book_list.sidebar import create_sidebar
+from book_list.theme import get_color, get_font_family, css_for_variables, apply_book_list_theme, bind_book_list_color_scheme_listener
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
 from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler
@@ -30,6 +31,8 @@ import book_list.edit_metadata # noqa: unused-import
 import book_list.convert_book # noqa: unused-import
 import book_list.fts # noqa: unused-import
 import book_list.show_note # noqa: unused-import
+import book_list.nav_list # noqa: unused-import
+import book_list.ui_settings # noqa: unused-import
 
 
 def remove_initial_progress_bar():
@@ -70,10 +73,22 @@ def init_ui():
     install(translations)
     remove_initial_progress_bar()
     document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
-    set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-    document.body.appendChild(E.div())
-    document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
-    document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
+    apply_book_list_theme()
+    bind_book_list_color_scheme_listener()
+    root, left = create_sidebar()
+
+    shell_top = E.div(class_='cs-shell-top')
+    shell_top.appendChild(E.div(id=cs_top_bar_host_id))
+    main_row = E.div(class_='cs-main')
+    main_body = E.div(class_='cs-main-body')
+    main_body.appendChild(E.div(id=book_list_container_id, style='display: none'))
+    main_body.appendChild(E.div(id=read_book_container_id, style='display: none'))
+    main_row.appendChild(left)
+    main_row.appendChild(main_body)
+    root.appendChild(shell_top)
+    root.appendChild(main_row)
+    document.body.appendChild(root)
+
     create_modal_container()
     update_window_title()
     read_ui = ReadUI()
@@ -86,10 +101,10 @@ def install_data_and_init_ui(raw_data):
     data = JSON.parse(raw_data)
     update_interface_data(data)
     update_recently_read_by_user(data.recently_read_by_user)
-    update_library_data(data)
     interface_data = get_interface_data()
     sd = UserSessionData(interface_data.username, interface_data.user_session_data)
     set_session_data(sd)
+    update_library_data(data)
     if data.translations?:
         get_translations(data.translations)
     init_ui()

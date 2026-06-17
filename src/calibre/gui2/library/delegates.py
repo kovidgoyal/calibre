@@ -376,10 +376,17 @@ class TextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegat
             editor = EnLineEdit(parent)
         return editor
 
+    def setEditorData(self, editor, index):
+        super().setEditorData(editor, index)
+        with suppress(Exception):
+            editor.original_data_value = editor.text()
+
     def setModelData(self, editor, model, index):
-        if isinstance(editor, EditWithComplete):
-            val = editor.lineEdit().text()
-            model.setData(index, (val), Qt.ItemDataRole.EditRole)
+        if isinstance(editor, (EditWithComplete, EnLineEdit)):
+            val = editor.text()
+            # Only set the data if it changed, see https://bugs.launchpad.net/bugs/2144489
+            if (oval := getattr(editor, 'original_data_value', editor)) is editor or oval != val:
+                model.setData(index, (val), Qt.ItemDataRole.EditRole)
         else:
             StyledItemDelegate.setModelData(self, editor, model, index)
 

@@ -45,11 +45,12 @@ from read_book.smil import get_smil_audio_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes, get_current_pagelist_items
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
-from session import get_device_uuid, get_interface_data
+from session import get_device_uuid, get_interface_data, all_settings
 from utils import (
     default_context_menu_should_be_allowed, html_escape, parse_url_params,
     safe_set_inner_html, username_key
 )
+from viewer.constants import CHARS_PER_PAGE
 
 add_extra_css(def():
     sel = '.book-side-margin'
@@ -212,12 +213,15 @@ def side_margin_elem(self, sd, which, icon):
 class View:
 
     def __init__(self, container):
+        self.container = container
         self.timers = Timers()
         self.reference_mode_enabled = False
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
         self.current_status_message = ''
+        self.unsynced_message = ''
+        self.last_position_data = None
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.current_toc_families = v'[]'
         self.report_cfi_callbacks = {}
@@ -286,20 +290,20 @@ class View:
         iframe_kw = {
             'id': iframe_id, 'seamless': True,
             'sandbox': 'allow-popups allow-scripts allow-popups-to-escape-sandbox',
-            'style': 'flex-grow: 2', 'allowfullscreen': 'true',
+            'style': 'flex-grow: 2; width: 100%; max-width: 100%; min-width: 0; overflow: hidden;', 'allowfullscreen': 'true',
         }
         iframe, self.iframe_wrapper = create_wrapped_iframe(handlers, _('Bootstrapping book reader...'), entry_point, iframe_kw)
         container.appendChild(
-            E.div(style='max-height: 100dvh; width: 100dvw; height: 100dvh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+            E.div(style='max-height: 100dvh; width: 100%; max-width: 100%; height: 100dvh; overflow: hidden; overflow-x: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                 oncontextmenu=def (ev):
                     if not default_context_menu_should_be_allowed(ev):
                         ev.preventDefault()
                 ,
 
-                E.div(style='max-height: 100dvh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='max-height: 100dvh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                E.div(style='max-height: 100dvh; min-width: 0; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='position: relative; max-height: 100dvh; min-width: 0; flex-grow: 2; display:flex; align-items: stretch; overflow: hidden',  # container for iframe and its overlay
                         left_margin,
-                        E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
+                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden', # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
                             iframe,
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
@@ -321,7 +325,8 @@ class View:
         self.current_color_scheme = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
-            set_ui_colors(self.current_color_scheme.is_dark_theme)
+            _hl_colors = all_settings.ui_highlight_colors.default
+            set_ui_colors(self.current_color_scheme.is_dark_theme, _hl_colors.dark if self.current_color_scheme.is_dark_theme else _hl_colors.light)
         is_dark_theme(self.current_color_scheme.is_dark_theme)
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
@@ -426,6 +431,9 @@ class View:
 
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
+
+    def native_gesture(self, gesture):
+        self.iframe_wrapper.send_message('native_gesture', gesture=gesture)
 
     def iframe_size(self):
         iframe = self.iframe
@@ -567,7 +575,7 @@ class View:
         elif data.name is 'metadata':
             self.overlay.show_metadata()
         elif data.name is 'edit_book':
-            ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
+            self.edit_book()
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
         elif data.name is 'select_all':
@@ -596,6 +604,9 @@ class View:
             self.iframe_wrapper.send_message('change_number_of_columns', delta=0)
         else:
             self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
+
+    def edit_book(self):
+        ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
 
     def on_selection_change(self, data):
         self.currently_showing.selection = {
@@ -772,14 +783,18 @@ class View:
         margin_right = 0 if no_margins else sd.get('margin_right')
         margin_top = 0 if no_margins else sd.get('margin_top')
         margin_bottom = 0 if no_margins else sd.get('margin_bottom')
+        # Use reader container size (not window size) so side nav/top bars
+        # do not skew overlay/control positioning.
+        container_width = self.container.clientWidth or window.innerWidth
+        container_height = self.container.clientHeight or window.innerHeight
         max_text_height = sd.get('max_text_height')
-        th = window.innerHeight - margin_top - margin_bottom
+        th = container_height - margin_top - margin_bottom
         if not no_margins and max_text_height > 100 and th > max_text_height:
             extra = (th - max_text_height) // 2
             margin_top += extra
             margin_bottom += extra
         max_text_width = sd.get('max_text_width')
-        tw = window.innerWidth - margin_left - margin_right
+        tw = container_width - margin_left - margin_right
         if not no_margins and max_text_width > 100 and tw > max_text_width:
             extra = (tw - max_text_width) // 2
             margin_left += extra
@@ -792,8 +807,8 @@ class View:
                 # Explicitly set the width of the central panel. This is needed
                 # on small screens with chrome, without it sometimes the right
                 # margin/scrollbar goes off the screen.
-                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(
-                    margin_left + margin_right + self.book_scrollbar.effective_width)
+                usable_width = max(0, container_width - margin_left - margin_right - self.book_scrollbar.effective_width)
+                m.nextSibling.style.maxWidth = usable_width + 'px'
             set_css(m, width=val + 'px')
             val = min(val, 25)
             s = m.querySelector('.arrow').style
@@ -834,7 +849,8 @@ class View:
         self.current_color_scheme = ans = resolve_color_scheme()
         iframe = self.iframe
         if runtime.is_standalone_viewer:
-            set_ui_colors(self.current_color_scheme.is_dark_theme)
+            _hl_colors = all_settings.ui_highlight_colors.default
+            set_ui_colors(self.current_color_scheme.is_dark_theme, _hl_colors.dark if self.current_color_scheme.is_dark_theme else _hl_colors.light)
         else:
             iframe.style.colorScheme = 'dark' if self.current_color_scheme.is_dark_theme else 'light'
 
@@ -1072,6 +1088,7 @@ class View:
             'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
             'loading':True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
         }
+        self.timers.set_chapter(name)
         self.show_loading()
         set_current_spine_item(name)
         if idx > -1:
@@ -1118,7 +1135,8 @@ class View:
             self.show_name(chapter_name, initial_position={'type':'frac', 'frac':chapter_frac, 'replace_history':True})
 
     def goto_book_position(self, bpos):
-        val = max(0, min(1000 * float(bpos) / self.current_position_data.book_length, 1))
+        pages = Math.ceil(self.current_position_data.book_length / CHARS_PER_PAGE)
+        val = max(0, min(float(bpos) / pages, 1))
         return self.goto_frac(val)
 
     def goto_pagelist_item(self, item):
@@ -1248,6 +1266,8 @@ class View:
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
     def update_cfi_data(self, data):
+        if ui_operations.update_last_read_position:
+            ui_operations.update_last_read_position(data.cfi, data.progress_frac)
         username = get_interface_data().username
         if self.book:
             self.currently_showing.bookpos = data.cfi
@@ -1292,6 +1312,7 @@ class View:
         if username:
             key = self.book.key
             lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+            self.last_position_data = lrd
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
                 library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
                     if end_type is not 'load':
@@ -1324,6 +1345,21 @@ class View:
                 timeout = 10000
             window.setTimeout(def(): self.show_status_message();, timeout)
 
+    def upload_current_position(self, callback):
+        if not self.last_position_data or not self.book:
+            callback(True)
+            return
+        key = self.book.key
+        ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
+            library_id=key[0], book_id=key[1], fmt=key[2]),
+            self.last_position_data, def(end_type, xhr, ev):
+                callback(end_type is 'load')
+        )
+
+    def show_unsynced_indicator(self, visible):
+        self.unsynced_message = _('Unsynced changes') if visible else ''
+        self.update_header_footer()
+
     def create_template_renderer(self):
         if not self.book:
             return
@@ -1354,7 +1390,7 @@ class View:
             b = c.previousSibling
             a = b.previousSibling
             if sd.get(f'margin_{edge}', 20) > 5:
-                override = self.current_status_message if edge is 'bottom' else ''
+                override = (self.current_status_message or self.unsynced_message) if edge is 'bottom' else ''
                 hca = renderer(a, name, 'left', override)
                 hcb = renderer(b, name, 'middle', '')
                 hcc = renderer(c, name, 'right', '')

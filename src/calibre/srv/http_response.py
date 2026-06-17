@@ -13,9 +13,10 @@ import struct
 import time
 import uuid
 from collections import namedtuple
+from compression import zlib
 from functools import wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
-from itertools import chain, repeat
+from itertools import chain, repeat, zip_longest
 from operator import itemgetter
 
 from calibre import force_unicode, guess_type
@@ -33,8 +34,6 @@ MULTIPART_SEPARATOR = uuid.uuid4().hex
 if isinstance(MULTIPART_SEPARATOR, bytes):
     MULTIPART_SEPARATOR = MULTIPART_SEPARATOR.decode('ascii')
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
-import zlib
-from itertools import zip_longest
 
 
 def file_metadata(fileobj):

@@ -13,7 +13,7 @@ import shutil
 import tempfile
 import time
 import unittest
-from functools import partial
+from functools import partial, wraps
 from io import BytesIO
 from threading import Thread
 
@@ -22,6 +22,24 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
+is_ci = os.environ.get('CI', '').lower() == 'true'
+
+
+def retry(max_attempts=3, delay=0):
+    def decorator(test_func):
+        @wraps(test_func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return test_func(*args, **kwargs)
+                except AssertionError as e:
+                    if attempt < max_attempts - 1:
+                        print(f'Retry ({attempt + 1}/{max_attempts-1}) on {test_func} failure with error: {e}')
+                        time.sleep(delay)
+                    else:
+                        raise
+        return wrapper
+    return decorator
 
 
 class SimpleTest(unittest.TestCase):

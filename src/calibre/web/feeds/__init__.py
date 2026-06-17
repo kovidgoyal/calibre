@@ -144,7 +144,7 @@ class Feed:
 
     def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
                            max_articles_per_feed=100):
-        self.title      = str(title if title else _('Unknown feed'))
+        self.title      = str(title or _('Unknown feed'))
         self.description = ''
         self.image_url  = None
         self.articles   = []
@@ -260,8 +260,8 @@ class Feed:
         length = 0
         for a in self:
             if a.content or a.summary:
-                length += max(len(a.content if a.content else ''),
-                              len(a.summary if a.summary else ''))
+                length += max(len(a.content or ''),
+                              len(a.summary or ''))
 
         return length > 2000 * len(self)
 

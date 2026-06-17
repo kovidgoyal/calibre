@@ -18,6 +18,8 @@ BOOK_ID_PATH_TEMPLATE = ' ({})'
 RESOURCE_URL_SCHEME = 'calres'
 TEMPLATE_ICON_INDICATOR = ' template '  # Item values cannot start or end with space
 NO_SEARCH_LINK = '__no_link__'
+EBOOK_VIEWER_DEVICE = 'calibre-desktop-viewer'
+EBOOK_VIEWER_USER = 'local'
 
 
 @dataclass

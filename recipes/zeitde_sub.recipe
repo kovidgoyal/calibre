@@ -26,17 +26,19 @@ except ImportError:
     from urlparse import urlparse
 from contextlib import closing
 
+from mechanize import Cookie
+
 from calibre.utils.magick.draw import save_cover_data_to
 
 
 class ZeitEPUBAbo(BasicNewsRecipe):
 
     title = u'Die Zeit'
-    description = u'Das EPUB Abo der Zeit (needs subscription)'
+    description = u'Das EPUB Abo der Zeit (needs subscription - use session-cookie as password)'
     language = 'de'
     lang = 'de-DE'
 
-    __author__ = 'Steffen Siebert, revised by Tobias Isenberg (with some code by Kovid Goyal), updated by Henning Losert'
+    __author__ = 'Steffen Siebert, revised by Tobias Isenberg (with some code by Kovid Goyal), updated by Henning Losert and Fabian Schuller'
     needs_subscription = True
 
     conversion_options = {
@@ -184,20 +186,25 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     ]
 
     def build_index(self):
-        url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
+        url = 'https://epaper.zeit.de/abo/diezeit'
         browser = self.get_browser()
 
-        # new login process
+        c = Cookie(
+            version=0,
+            name='zeit_sso_201501',
+            value=self.password,
+            port=None, port_specified=False,
+            domain='.zeit.de', domain_specified=True, domain_initial_dot=True,
+            path='/', path_specified=True,
+            secure=True,
+            expires=None,
+            discard=True,
+            comment=None,
+            comment_url=None,
+            rest={}
+        )
+        browser.cookiejar.set_cookie(c)
         browser.open(url)
-        browser.select_form(nr=0)
-        browser.form['email'] = self.username
-        browser.form['pass'] = self.password
-        browser.submit()
-        # change into abo section - not needed between late 2016 and May 2017, and again starting from March 2020
-        # browser.open(url)
-        # abolink = browser.find_link(text_regex=re.compile(
-        #    '.*E-Paper.*'))  # used to be '.*Abo-Bereich.*'
-        # browser.follow_link(abolink)
         # find page for latest issue
         latestlink = browser.find_link(text_regex=re.compile(r'.*ZUR AKTUELLEN AUSGABE.*'))
         browser.follow_link(latestlink)
@@ -248,15 +255,26 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.log.warning('Downloading cover')
         try:
             self.log.warning('Trying PDF-based cover')
-            url = 'https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit'
+            url = 'https://epaper.zeit.de/abo/diezeit'
             browser = self.get_browser()
 
-            # new login process
+            c = Cookie(
+                version=0,
+                name='zeit_sso_201501',
+                value=self.password,
+                port=None, port_specified=False,
+                domain='.zeit.de', domain_specified=True, domain_initial_dot=True,
+                path='/', path_specified=True,
+                secure=True,
+                expires=None,
+                discard=True,
+                comment=None,
+                comment_url=None,
+                rest={}
+            )
+            browser.cookiejar.set_cookie(c)
             browser.open(url)
-            browser.select_form(nr=0)
-            browser.form['email'] = self.username
-            browser.form['pass'] = self.password
-            browser.submit()
+
             # change into abo section - not needed at the moment
             # browser.open(url)
             # abolink = browser.find_link(text_regex=re.compile(

@@ -25,7 +25,7 @@ class Thenation(BasicNewsRecipe):
     language = 'en'
     use_embedded_content = False
     delay = 1
-    login_url = 'http://www.thenation.com/user?destination=%3Cfront%3E'
+    login_url = 'https://www.thenation.com/login/'
     publication_type = 'magazine'
     needs_subscription = 'optional'
     exra_css              = '''
@@ -54,10 +54,11 @@ class Thenation(BasicNewsRecipe):
         br.open('http://www.thenation.com/')
         if self.username is not None and self.password is not None:
             br.open(self.login_url)
-            br.select_form(nr=1)
-            br['name'] = self.username
-            br['pass'] = self.password
-            br.submit()
+            br.select_form(predicate=lambda form: form.attrs.get('id') == 'lightboxform')
+            br['e_mail'] = self.username
+            br['pwd'] = self.password
+            # The form uses reCaptcha and JS so no go
+            # br.submit()
         return br
 
     def get_cover_url(self):

@@ -633,7 +633,10 @@ class TagsView(QTreeView):  # {{{
             if has_focus and gprefs['tag_browser_allow_keyboard_focus']:
                 # Reset the focus to the TB. Use the singleshot in case
                 # some of searching is done using queued signals.
-                QTimer.singleShot(0, lambda: self.setFocus())
+                QTimer.singleShot(0, self.set_focus)
+
+    def set_focus(self):
+        self.setFocus()
 
     def conditional_clear(self, search_string):
         if search_string != self.search_string:
@@ -912,7 +915,7 @@ class TagsView(QTreeView):  # {{{
             elif action == 'edit_enum':
                 self.edit_enum_values.emit(self, self.db, key)
                 return
-            self.db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
+            self.db.new_api.set_pref('tag_browser_hidden_categories', sorted(self.hidden_categories))
             if reset_filter_categories:
                 self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()

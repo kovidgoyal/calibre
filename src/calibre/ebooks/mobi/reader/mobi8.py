@@ -173,7 +173,7 @@ class Mobi8Reader:
         raw_ml = self.mobi6_reader.mobi_html
         self.flows = []
         self.flowinfo = []
-        ft = self.flow_table if self.flow_table else [(0, len(raw_ml))]
+        ft = self.flow_table or [(0, len(raw_ml))]
 
         # now split the raw_ml into its flow pieces
         for start, end in ft:
@@ -434,8 +434,7 @@ class Mobi8Reader:
                         if font['headers']:
                             self.log.debug('Font record headers: {}'.format(font['headers']))
                     with open(href.replace('/', os.sep), 'wb') as f:
-                        f.write(font['font_data'] if font['font_data'] else
-                                font['raw_data'])
+                        f.write(font['font_data'] or font['raw_data'])
                     if font['encrypted']:
                         self.encrypted_fonts.append(href)
                 elif typ == b'CONT':

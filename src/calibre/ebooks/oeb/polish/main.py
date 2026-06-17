@@ -17,7 +17,7 @@ from calibre.ebooks.oeb.polish.css import remove_unused_css
 from calibre.ebooks.oeb.polish.download import download_external_resources, get_external_resources, replace_resources
 from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.hyphenation import add_soft_hyphens, remove_soft_hyphens
-from calibre.ebooks.oeb.polish.images import compress_images
+from calibre.ebooks.oeb.polish.images import compress_images, remove_unused_images
 from calibre.ebooks.oeb.polish.jacket import add_or_replace_jacket, find_existing_jacket, remove_jacket, replace_jacket
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.stats import StatsCollector
@@ -35,6 +35,7 @@ ALL_OPTS = {
     'remove_jacket':False,
     'smarten_punctuation':False,
     'remove_unused_css':False,
+    'remove_unused_images':False,
     'compress_images': False,
     'upgrade_book': False,
     'add_soft_hyphens': False,
@@ -275,6 +276,12 @@ def polish_one(ebook, opts, report, customization=None):
             merge_rules_with_identical_properties=customization['merge_rules_with_identical_properties'],
             remove_unreferenced_sheets=customization['remove_unreferenced_sheets']
         ):
+            changed = True
+        report('')
+
+    if opts.remove_unused_images:
+        rt(_('Removing unused images'))
+        if remove_unused_images(ebook, report):
             changed = True
         report('')
 

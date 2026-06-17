@@ -5,11 +5,7 @@ __copyright__ = '2010, sengian <sengian1 @ gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-
-try:
-    from collections import UserDict
-except ImportError:
-    from UserDict import UserDict
+from collections import UserDict
 
 
 class MReplace(UserDict):

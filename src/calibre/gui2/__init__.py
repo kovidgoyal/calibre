@@ -49,7 +49,8 @@ from qt.core import (
     Qt,
     QThread,
     QTimer,
-    QTranslator,
+    QToolBar,
+    QToolButton,
     QUrl,
     QWidget,
     pyqtSignal,
@@ -70,8 +71,8 @@ from calibre.constants import (
     islinux,
     ismacos,
     iswindows,
+    isworker,
     isxp,
-    numeric_version,
     plugins_loc,
     sanitize_env_vars,
 )
@@ -87,10 +88,11 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.img import set_image_allocation_limit
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import get_lang, install_qt_translator
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.resources import user_dir
+from calibre_extensions.progress_indicator import icon_from_name, icon_from_paths, set_icon_theme
 
 del pqc, geometry_for_restore_as_dict
 timed_print  # for plugin compat
@@ -107,7 +109,6 @@ class IconResourceManager:
         self.light_theme_name = self.default_light_theme_name = 'calibre-default-light'
         self.user_any_theme_name = self.user_dark_theme_name = self.user_light_theme_name = None
         self.registered_user_resource_files = ()
-        self.color_palette = 'light'
         self.icon_cache = {}
 
     def user_theme_resource_file(self, which):
@@ -138,6 +139,7 @@ class IconResourceManager:
         any_light = (self.user_any_theme_name + '-light') if self.user_any_theme_name else ''
         self.dark_theme_name = self.user_dark_theme_name or any_dark or self.default_dark_theme_name
         self.light_theme_name = self.user_light_theme_name or any_light or self.default_light_theme_name
+        # self.dump_available_icon_resource_names()
 
     @lru_cache(maxsize=4)
     def user_icon_theme_metadata(self, which):
@@ -172,14 +174,20 @@ class IconResourceManager:
     def user_theme_name(self):
         return self.active_user_theme_metadata.get('name', 'default')
 
+    def dump_available_icon_resource_names(self):
+        from qt.core import QDirIterator
+        it = QDirIterator(':', QDirIterator.IteratorFlag.Subdirectories)
+        while it.hasNext():
+            val = it.next()
+            if val.startswith(':/icons/calibre-'):
+                print(val)
+
     def initialize(self):
         if self.initialized:
             return
         self.icon_cache = {}
         self.initialized = True
         QResource.registerResource(P('icons.rcc', allow_user_override=False))
-        QIcon.setFallbackSearchPaths([])
-        QIcon.setThemeSearchPaths([':/icons'])
         self.override_icon_path = None
         q = os.path.join(user_dir, 'images')
         items = []
@@ -214,14 +222,18 @@ class IconResourceManager:
             else:
                 os.remove(q)
 
-    def overriden_icon_path(self, name):
+    def overriden_icon_paths(self, name: str) -> tuple[str, str, str]:
+        either = light = dark = ''
         parts = name.replace(os.sep, '/').split('/')
-        ans = os.path.join(self.override_icon_path, name)
+        sq = os.path.join(self.override_icon_path, name)
         if len(parts) == 1:
-            sq, ext = os.path.splitext(parts[0])
-            sq = f'{sq}-for-{self.color_palette}-theme{ext}'
-            if sq in self.override_items['']:
-                ans = os.path.join(self.override_icon_path, sq)
+            base, ext = os.path.splitext(parts[0])
+            if os.path.basename(sq) in self.override_items['']:
+                either = sq
+            if (sq := f'{base}-for-light-theme{ext}') in self.override_items['']:
+                light = os.path.join(self.override_icon_path, sq)
+            if (sq := f'{base}-for-dark-theme{ext}') in self.override_items['']:
+                dark = os.path.join(self.override_icon_path, sq)
         else:
             subfolder = '/'.join(parts[:-1])
             entries = self.override_items.get(subfolder)
@@ -231,11 +243,14 @@ class IconResourceManager:
                 except OSError:
                     self.override_items[subfolder] = entries = frozenset()
             if entries:
-                sq, ext = os.path.splitext(parts[-1])
-                sq = f'{sq}-for-{self.color_palette}-theme{ext}'
-                if sq in entries:
-                    ans = os.path.join(self.override_icon_path, subfolder, sq)
-        return ans
+                if os.path.basename(sq) in entries:
+                    either = sq
+                base, ext = os.path.splitext(parts[-1])
+                if (sq := f'{base}-for-light-theme{ext}') in entries:
+                    light = os.path.join(self.override_icon_path, subfolder, sq)
+                if (sq := f'{base}-for-dark-theme{ext}') in entries:
+                    dark = os.path.join(self.override_icon_path, subfolder, sq)
+        return either, light, dark
 
     def cached_icon(self, name=''):
         '''
@@ -250,7 +265,7 @@ class IconResourceManager:
             icon = self.icon_cache[name] = self(name)
         return icon
 
-    def __call__(self, name):
+    def __call__(self, name: str, fallback: bytes = b'') -> QIcon:
         if isinstance(name, QIcon):
             return name
         if not name:
@@ -258,16 +273,11 @@ class IconResourceManager:
         if os.path.isabs(name):
             return QIcon(name)
         if self.override_icon_path:
-            qi = QIcon(self.overriden_icon_path(name))
-            if qi.is_ok():
-                return qi
-        icon_name = os.path.splitext(name.replace('\\', '__').replace('/', '__'))[0]
-        ans = QIcon.fromTheme(icon_name)
-        if not ans.is_ok():
-            if 'user-any' in QIcon.themeName():
-                q = QIcon(f':/icons/calibre-default-{self.color_palette}/images/{name}')
-                if q.is_ok():
-                    ans = q
+            either, light, dark = self.overriden_icon_paths(name)
+            if either or light or dark:
+                return icon_from_paths(either, light, dark)
+        icon_name = name.replace('\\', '__').replace('/', '__')
+        ans = icon_from_name(icon_name, fallback)
         return ans
 
     def icon_as_png(self, name, as_bytearray=False, compression_level=0):
@@ -286,15 +296,8 @@ class IconResourceManager:
 
     def set_theme(self):
         self.icon_cache = {}
-        current = QIcon.themeName()
         is_dark = QApplication.instance().is_dark_theme
-        self.color_palette = 'dark' if is_dark else 'light'
-        new = self.dark_theme_name if is_dark else self.light_theme_name
-        if current == new and current not in (self.default_dark_theme_name, self.default_light_theme_name):
-            # force reload of user icons by first changing theme to default and
-            # then to user
-            QIcon.setThemeName(self.default_dark_theme_name if QApplication.instance().is_dark_theme else self.default_light_theme_name)
-        QIcon.setThemeName(new)
+        set_icon_theme(is_dark, bool(self.user_dark_theme_name), bool(self.user_light_theme_name), bool(self.user_any_theme_name))
 
 
 icon_resource_manager = IconResourceManager()
@@ -302,6 +305,17 @@ QIcon.ic = icon_resource_manager
 QIcon.icon_as_png = icon_resource_manager.icon_as_png
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
 QIcon.cached_icon = icon_resource_manager.cached_icon
+qtb_init = QToolBar.__init__
+
+
+def configure_toolbar_extension_button(self, parent=None):
+    qtb_init(self, parent)
+    if teb := self.findChild(QToolButton, name='qt_toolbar_ext_button'):
+        teb.setToolTip(_('Show more buttons'))
+
+
+QToolBar.__init__ = configure_toolbar_extension_button
+
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
@@ -422,6 +436,7 @@ def create_defs():
     defs['tags_browser_category_icons'] = {}
     defs['tags_browser_value_icons'] = {}
     defs['cover_browser_reflections'] = True
+    defs['cover_browser_max_font_size'] = 11
     defs['book_list_extra_row_spacing'] = 0
     defs['refresh_book_list_on_bulk_edit'] = True
     defs['cover_grid_width'] = 0
@@ -432,6 +447,7 @@ def create_defs():
     defs['cover_grid_cache_size_multiple'] = 5
     defs['cover_grid_disk_cache_size'] = 2500
     defs['cover_grid_show_title'] = False
+    defs['cover_grid_text_flush_bottom'] = False
     defs['cover_corner_radius'] = 0
     defs['cover_corner_radius_unit'] = 'px'
     defs['show_vl_tabs'] = False
@@ -441,9 +457,9 @@ def create_defs():
     defs['cb_preserve_aspect_ratio'] = False
     defs['cb_double_click_to_activate'] = False
     defs['gpm_template_editor_font_size'] = 10
-    defs['show_emblems'] = False
     defs['emblem_size'] = 32
     defs['emblem_position'] = 'left'
+    defs['emblem_style'] = 'none'
     defs['metadata_diff_mark_rejected'] = False
     defs['tag_browser_show_counts'] = True
     defs['tag_browser_show_tooltips'] = True
@@ -463,8 +479,11 @@ def create_defs():
     defs['browse_annots_restrict_to_type'] = None
     defs['browse_annots_use_stemmer'] = True
     defs['browse_notes_use_stemmer'] = True
+    defs['browse_annots_group_by'] = None
     defs['fts_library_use_stemmer'] = True
     defs['fts_library_restrict_books'] = False
+    defs['fts_visualisation'] = 'cards'
+    defs['fts_sort_order'] = 'relevance'
     defs['annots_export_format'] = 'txt'
     defs['books_autoscroll_time'] = 2.0
     defs['edit_metadata_single_use_2_cols_for_custom_fields'] = True
@@ -477,6 +496,7 @@ def create_defs():
     defs['tb_search_order'] = {'0': 1, '1': 2, '2': 3, '3': 4, '4': 0}
     defs['search_tool_bar_shows_text'] = True
     defs['allow_keyboard_search_in_library_views'] = True
+    defs['keep_search_when_switching_vl'] = False
     defs['show_links_in_tag_browser'] = False
     defs['show_notes_in_tag_browser'] = False
     defs['icons_on_right_in_tag_browser'] = True
@@ -491,36 +511,64 @@ def create_defs():
     defs['tag_browser_show_value_icons'] = True
     defs['template_editor_run_as_you_type'] = True
     defs['template_editor_show_all_selected_books'] = True
-    defs['bookshelf_disk_cache_size'] = 2000
+    defs['bookshelf_disk_cache_size'] = 3000
     defs['bookshelf_cache_size_multiple'] = 5
     defs['bookshelf_shadow'] = True
     defs['bookshelf_thumbnail'] = 'crops'
-    defs['bookshelf_variable_height'] = True
+    defs['bookshelf_thumbnail_opacity'] = 30
+    defs['bookshelf_variable_height'] = 'variable'
     defs['bookshelf_fade_time'] = 400
     defs['bookshelf_hover'] = 'shift'
     defs['bookshelf_up_to_down'] = False
     defs['bookshelf_height'] = 119
+    defs['bookshelf_make_space_for_second_line'] = False
+    defs['bookshelf_emblem_position'] = 'auto'
+    defs['bookshelf_divider_text_right'] = False
+    defs['bookshelf_start_with_divider'] = False
+    defs['bookshelf_divider_style'] = 'text'
+    defs['bookshelf_theme_override'] = 'none'
+    defs['bookshelf_use_custom_background'] = False
+    defs['bookshelf_custom_background'] = {
+        'light': (255, 255, 255), 'dark': (64, 64, 64), 'light_texture': None, 'dark_texture': None
+    }
+    defs['bookshelf_min_font_multiplier'] = 0.75
+    defs['bookshelf_max_font_multiplier'] = 1.3
+    defs['bookshelf_outline_width'] = 0
+    defs['bookshelf_font'] = {'family': None, 'style': None}
+    defs['bookshelf_use_custom_colors'] = False
+    defs['bookshelf_custom_colors'] = {
+        'light': {}, 'dark': {},
+    }
 
-    # Migrate beta bookshelf_thumbnail
-    if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
-        gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
+    with gprefs:
+        # Migrate beta bookshelf_thumbnail
+        if isinstance(btv := gprefs.get('bookshelf_thumbnail'), bool):
+            gprefs['bookshelf_thumbnail'] = 'full' if btv else 'none'
 
-    def migrate_tweak(tweak_name, pref_name):
-        # If the tweak has been changed then leave the tweak in the file so
-        # that the user can bounce between versions with and without the
-        # migration. For versions before the migration the tweak wins. For
-        # versions after the migration any changes win.
-        v = tweaks.get(tweak_name, None)
-        migrated_tweak_name = pref_name + '_tweak_migrated'
-        m = gprefs.get(migrated_tweak_name, None)
-        if m is None and v is not None:
-            gprefs[pref_name] = v
-            gprefs[migrated_tweak_name] = True
-    migrate_tweak('metadata_edit_elide_labels', 'edit_metadata_elide_labels')
-    migrate_tweak('metadata_edit_elision_point', 'edit_metadata_elision_point')
-    migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
-    migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
-    migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
+        # Migrate bookshelf_variable_height from bool to enum
+        if isinstance(vhv := gprefs.get('bookshelf_variable_height'), bool):
+            gprefs['bookshelf_variable_height'] = 'variable' if vhv else 'constant'
+
+        def migrate_tweak(tweak_name, pref_name):
+            # If the tweak has been changed then leave the tweak in the file so
+            # that the user can bounce between versions with and without the
+            # migration. For versions before the migration the tweak wins. For
+            # versions after the migration any changes win.
+            v = tweaks.get(tweak_name, None)
+            migrated_tweak_name = pref_name + '_tweak_migrated'
+            m = gprefs.get(migrated_tweak_name, None)
+            if m is None and v is not None:
+                gprefs[pref_name] = v
+                gprefs[migrated_tweak_name] = True
+        migrate_tweak('metadata_edit_elide_labels', 'edit_metadata_elide_labels')
+        migrate_tweak('metadata_edit_elision_point', 'edit_metadata_elision_point')
+        migrate_tweak('metadata_edit_bulk_cc_label_length', 'edit_metadata_bulk_cc_label_length')
+        migrate_tweak('metadata_edit_single_cc_label_length', 'edit_metadata_single_cc_label_length')
+        migrate_tweak('metadata_single_use_2_cols_for_custom_fields', 'edit_metadata_single_use_2_cols_for_custom_fields')
+
+        if gprefs.get('show_emblems'):
+            gprefs['emblem_style'] = 'gutter'
+            gprefs.pop('show_emblems', None)
 
 
 create_defs()
@@ -842,6 +890,10 @@ class FunctionDispatcher(QObject):
 
         QObject.__init__(self, parent)
         self.func = func
+        try:
+            self.func_name = func.__name__
+        except Exception:
+            self.func_name = 'unnamed_function'
         typ = Qt.ConnectionType.QueuedConnection
         if not queued:
             typ = Qt.ConnectionType.AutoConnection if queued is None else Qt.ConnectionType.DirectConnection
@@ -858,10 +910,14 @@ class FunctionDispatcher(QObject):
         return res
 
     def dispatch(self, q, args, kwargs):
-        try:
-            res = self.func(*args, **kwargs)
-        except Exception:
-            res = None
+        res = None
+        if (f := self.func) is not None:
+            try:
+                res = f(*args, **kwargs)
+            except Exception:
+                print(f'Failed dispatching call to function: {self.func_name}', file=sys.stderr)
+                import traceback
+                traceback.print_exc()
         q.put(res)
 
 
@@ -1089,22 +1145,6 @@ class ResizableDialog(QDialog):
         self.resize(nw, nh)
 
 
-class Translator(QTranslator):
-    '''
-    Translator to load translations for strings in Qt from the calibre
-    translations. Does not support advanced features of Qt like disambiguation
-    and plural forms.
-    '''
-
-    def translate(self, *args, **kwargs):
-        try:
-            src = str(args[1])
-        except Exception:
-            return ''
-        t = _
-        return t(src)
-
-
 gui_thread = None
 qt_app = None
 
@@ -1178,16 +1218,11 @@ def setup_unix_signals(self):
 def setup_to_run_webengine():
     # Allow import of webengine after construction of QApplication on new enough PyQt
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-    try:
-        # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
-        from qt.core import QOpenGLWidget
-        del QOpenGLWidget
-        from qt.core import QQuickWindow, QSGRendererInterface
-        QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
-    except ImportError:
-        # for people running from source
-        if numeric_version >= (6, 3):
-            raise
+    # this import is needed to have Qt call qt_registerDefaultPlatformBackingStoreOpenGLSupport
+    from qt.core import QOpenGLWidget
+    del QOpenGLWidget
+    from qt.core import QQuickWindow, QSGRendererInterface
+    QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGL)
 
 
 class Application(QApplication):
@@ -1221,7 +1256,8 @@ class Application(QApplication):
             args.extend(self.palette_manager.args_to_qt)
         # We disable GPU acceleration as it causes crashes/black screen in some Windows systems and
         # isnt really needed for performance for our use cases.
-        args += ['--webEngineArgs', '--disable-gpu']
+        if not tweaks['qt_webengine_uses_gpu']:
+            args.extend(('--webEngineArgs', '--disable-gpu'))
         self.headless = headless
         from calibre_extensions import progress_indicator
         self.pi = progress_indicator
@@ -1288,7 +1324,6 @@ class Application(QApplication):
             QLocale.setDefault(dl)
         global gui_thread, qt_app
         gui_thread = QThread.currentThread()
-        self._translator = None
         self.load_translations()
         qt_app = self
 
@@ -1420,10 +1455,7 @@ class Application(QApplication):
         return ans
 
     def load_translations(self):
-        if self._translator is not None:
-            self.removeTranslator(self._translator)
-        self._translator = Translator(self)
-        self.installTranslator(self._translator)
+        install_qt_translator()
 
     def event(self, e):
         etype = e.type()
@@ -1692,7 +1724,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     return str(text)
 
 
-if is_running_from_develop:
+if is_running_from_develop and not isworker:
     from calibre.build_forms import build_forms
     build_forms(os.path.abspath(os.environ['CALIBRE_DEVELOP_FROM']), check_for_migration=True)
 
@@ -1740,7 +1772,7 @@ def make_view_use_window_background(view):
     return view
 
 
-def local_path_for_resource(qurl: QUrl, base_qurl: 'QUrl | None' = None) -> str:
+def local_path_for_resource(qurl: QUrl, base_qurl: QUrl | None = None) -> str:
     if base_qurl and qurl.isRelative():
         qurl = base_qurl.resolved(qurl)
 
@@ -1808,3 +1840,7 @@ def resolve_custom_background(name: str ,which='color', for_dark: bool | None = 
 
 def resolve_grid_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
     return resolve_custom_background('cover_grid_background', which=which, for_dark=for_dark, use_defaults=use_defaults)
+
+
+def resolve_bookshelf_color(which='color', for_dark: bool | None = None, use_defaults: bool = False):
+    return resolve_custom_background('bookshelf_custom_background', which=which, for_dark=for_dark, use_defaults=use_defaults)

@@ -1,10 +1,7 @@
 # strip out a set of nuisance html attributes that can mess up rendering in RSS feeds
 import re
 
-try:
-    from lxml_html_clean import Cleaner
-except ImportError:
-    from lxml.html.clean import Cleaner
+from lxml_html_clean import Cleaner
 
 bad_attrs = ['width', 'height', 'style', '[-a-z]*color', 'background[-a-z]*', 'on*']
 single_quoted = "'[^']+'"

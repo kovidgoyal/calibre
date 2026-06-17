@@ -70,8 +70,7 @@ class Table:
             # Legacy
             self.unserialize = lambda x: x.replace('|', ',') if x else ''
             self.serialize = lambda x: x.replace(',', '|')
-        self.link_table = (link_table if link_table else
-                'books_{}_link'.format(self.metadata['table']))
+        self.link_table = (link_table or 'books_{}_link'.format(self.metadata['table']))
         if self.supports_notes and dt == 'rating':  # custom ratings table
             self.supports_notes = False
 

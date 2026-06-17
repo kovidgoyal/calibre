@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+<link rel="schema.DCTERMS" href="http://purl.org/dc/terms/" />
+
+<title>{{meta.creators}} - {{meta.first_title}}</title>
+
+{{#meta.items}}
+  <meta name="DC.{{name}}" content="{{value}}" />
+{{/meta.items}}
+
+<link href="{{css_link}}" type="text/css" rel="stylesheet" />
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  {{#meta.titles}}
+	{{#is_first}}
+		<h1><a href="{{toc_url}}">{{title}}</a> </h1>
+	{{/is_first}}
+	{{^is_first}}
+		<div class="calibreMetaSubtitle">{{title}}</div>
+	{{/is_first}}
+  {{/meta.titles}}
+  </div>
+  <div class="calibreMetaAuthor">{{meta.creators}}</div>
+</div>
+
+<div class="calibreMain">
+  <div class="calibreEbookContent">
+    {{#has_toc}}
+      <div class="calibreTocIndex">
+        <h2>{{table_of_contents}}</h2>
+		{{{toc}}}
+      </div>
+    {{/has_toc}}
+    {{^has_toc}}
+        <h2>{{no_toc}}</h2>
+        <div><strong><a href="{{next_link}}">{{begin_to_read}}</a></strong></div>
+    {{/has_toc}}
+  </div>
+
+  <div class="calibreEbNav">
+    {{#next_link}}
+      <a href="{{next_link}}" class="calibreANext">{{next_page}}</a>
+    {{/next_link}}
+  </div>
+</div>
+
+</body>
+</html>

@@ -107,6 +107,7 @@ class CalibreStyle : public QProxyStyle {
         virtual void drawComplexControl(ComplexControl control, const QStyleOptionComplex * option, QPainter * painter, const QWidget * widget = 0) const;
         virtual void drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget = 0) const;
         virtual void drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const;
+        virtual QSize sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &size, const QWidget *widget) const;
 };
 
 /*!
@@ -169,3 +170,8 @@ int get_image_allocation_limit();
 QImage image_from_hicon(void* hicon);
 QImage image_from_hbitmap(void* hbitmap);
 double contrast_ratio(const QColor & c1, const QColor & c2);
+void install_translator(void *v);
+QString utf16_slice(const QString &src, qsizetype pos, qsizetype n=-1);
+void set_icon_theme(bool is_dark, bool has_dark_user_theme, bool has_light_user_theme, bool has_any_user_theme);
+QIcon icon_from_name(QString name, const QByteArray fallback_data);
+QIcon icon_from_paths(QString any_path, QString light_path, QString dark_path);

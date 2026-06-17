@@ -116,7 +116,7 @@ Using additional restrictions
 -------------------------------
 
 You can further restrict the books shown in a Virtual library by using
-:guilabel:`Additional restrictions`. An additional restriction is saved search
+:guilabel:`Additional restrictions`. An additional restriction is a saved search
 you previously created that can be applied to the current Virtual library to
 further restrict the books shown in a Virtual library. For example, say you
 have a Virtual library for books tagged as :guilabel:`Historical Fiction` and a

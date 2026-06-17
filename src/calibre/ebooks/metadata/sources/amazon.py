@@ -115,7 +115,7 @@ def parse_details_page(url, log, timeout, browser, domain):
                 log.error('URL not found: %r' % url)
                 raise UrlNotFound(url)
             attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
+            attr = attr or [None]
             if isinstance(attr[0], socket.timeout):
                 msg = 'Details page timed out. Try again later.'
                 log.error(msg)
@@ -328,7 +328,8 @@ class Worker(Thread):  # Get details {{{
             '''
         self.pubdate_xpath = '''
             descendant::*[starts-with(text(), "Publication Date:") or \
-                    starts-with(text(), "Audible.com Release Date:")]
+                starts-with(text(), "Audible.com Release Date:") or \
+                starts-with(text(), "発売日:")]
         '''
         self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare', 'Herausgeber',
                                 'Editore', 'Editeur', 'Éditeur', 'Editor', 'Editora', '出版社'}
@@ -432,8 +433,10 @@ class Worker(Thread):  # Get details {{{
         if self.testing:
             import tempfile
             import uuid
+
+            from calibre.ptempfile import get_default_tempdir
             with tempfile.NamedTemporaryFile(prefix=(asin or type('')(uuid.uuid4())) + '_',
-                                             suffix='.html', delete=False) as f:
+                                             suffix='.html', delete=False, dir=get_default_tempdir()) as f:
                 f.write(raw)
             print('Downloaded HTML for', asin, 'saved in', f.name)
 
@@ -508,7 +511,13 @@ class Worker(Thread):  # Get details {{{
                     'Failed to parse new-style book details section')
         elif feature_and_detail_bullets:
             self.parse_detail_bullets(root, mi, feature_and_detail_bullets[0], ul_selector='ul')
-
+        elif root.xpath('//*[@data-rpi-attribute-name="book_details-publication_date"]'):
+            # New Amazon "rich_product_information" carousel (RPI)
+            node = root.xpath('//*[@data-rpi-attribute-name="book_details-publication_date"]')[0]
+            label = node.xpath('.//*[contains(@class,"rpi-attribute-label")]//span')
+            value = node.xpath('.//*[contains(@class,"rpi-attribute-value")]//span')
+            if label and value:
+                self.parse_detail_cells(mi, label[0], value[0])
         else:
             pd = root.xpath(self.pd_xpath)
             if pd:
@@ -817,16 +826,25 @@ class Worker(Thread):  # Get details {{{
                     idxinfo, series_name = texts
                     idxinfo = idxinfo.strip()
 
-                    # Try Japanese pattern like: "全5巻中第1巻", "全3巻中第2巻"
+                    # Try Japanese pattern like: "全5巻中第1巻", "全3冊中第2冊"
                     m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中第\s*([0-9.]+)\s*(?:巻|冊)', idxinfo)
                     if m is not None:
-                        ans = (series_name, float(m.group(1)))
-                        return ans
+                        return (series_name, float(m.group(1)))
 
-                    # Fallback: original behaviour (first number), used for EN/etc
-                    m = re.search(r'[0-9.]+', idxinfo)
+                    # Newer JP pattern: "全24冊中4番目の本" (no 第 / no 冊 after index)
+                    m = re.search(r'全\s*[0-9.]+\s*(?:巻|冊)中\s*([0-9.]+)\s*番目', idxinfo)
                     if m is not None:
-                        ans = (series_name, float(m.group()))
+                        return (series_name, float(m.group(1)))
+
+                    # Book X of Y
+                    m = re.search(r'([0-9.]+)\s+of\s+([0-9.]+)', idxinfo)
+                    if m is not None:
+                        return (series_name, float(m.group(1)))
+
+                    # Safer fallback: if there are multiple numbers, the FIRST one is usually the index
+                    nums = re.findall(r'[0-9.]+', idxinfo)
+                    if nums:
+                        ans = (series_name, float(nums[0]))
                         return ans
 
         # This is found on the paperback/hardback pages for books on amazon.com
@@ -1030,18 +1048,19 @@ class Worker(Thread):  # Get details {{{
             pub = val.partition(';')[0].partition('(')[0].strip()
             if pub:
                 mi.publisher = pub
-            date = val.rpartition('(')[-1].replace(')', '').strip()
-            try:
-                from calibre.utils.date import parse_only_date
-                date = self.delocalize_datestr(date)
-                mi.pubdate = parse_only_date(date, assume_utc=True)
-            except Exception:
-                self.log.exception('Failed to parse pubdate: %s' % val)
+            if '(' in val:
+                date = val.rpartition('(')[-1].replace(')', '').strip()
+                try:
+                    from calibre.utils.date import parse_only_date
+                    date = self.delocalize_datestr(date)
+                    mi.pubdate = parse_only_date(date, assume_utc=True)
+                except Exception:
+                    self.log.exception('Failed to parse pubdate: %s' % val)
         elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
             ans = check_isbn(val)
             if ans:
                 self.isbn = mi.isbn = ans
-        elif name in {'Publication date'}:
+        elif name in {'Publication date', '発売日'}:
             from calibre.utils.date import parse_only_date
             date = self.delocalize_datestr(val)
             mi.pubdate = parse_only_date(date, assume_utc=True)
@@ -1100,7 +1119,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 3, 15)
+    version = (1, 3, 18)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1525,7 +1544,7 @@ class Amazon(Source):
                 log.error('Query malformed: %r' % query)
                 raise SearchFailed()
             attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
+            attr = attr or [None]
             if isinstance(attr[0], socket.timeout):
                 msg = _('Amazon timed out. Try again later.')
                 log.error(msg)
@@ -1783,6 +1802,11 @@ def manual_tests(domain, **kw):  # {{{
     from calibre.ebooks.metadata.sources.test import authors_test, comments_test, isbn_test, series_test, test_identify_plugin, title_test
     all_tests = {}
     all_tests['com'] = [  # {{{
+        (   # Paperback with series
+            {'identifiers': {'amazon': 'B082D76DHS'}},
+            [title_test('Lost Coast: A Post-Apocalyptic Zombie Thriller', exact=False), series_test('Undead Ultra', 3)]
+        ),
+
         (  # in title
             {'title': 'Expert C# 2008 Business Objects',
              'authors': ['Lhotka']},

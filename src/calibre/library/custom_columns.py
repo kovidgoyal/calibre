@@ -230,7 +230,7 @@ class CustomColumns:
         if num is not None:
             data = self.custom_column_num_map[num]
         # add future datatypes with an extra column here
-        if data['datatype'] not in ['series']:
+        if data['datatype'] != 'series':
             return None
         ign,lt = self.custom_table_names(data['num'])
         idx = idx if index_is_id else self.id(idx)
@@ -689,7 +689,7 @@ class CustomColumns:
             dt = 'INT'
         elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
             dt = 'TEXT'
-        elif datatype in ('float',):
+        elif datatype == 'float':
             dt = 'REAL'
         elif datatype == 'datetime':
             dt = 'timestamp'

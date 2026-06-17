@@ -1,0 +1,178 @@
+import http.cookiejar
+import json
+import re
+import urllib.parse
+import urllib.request
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LHumanite(BasicNewsRecipe):
+    title                   = "L'Humanité"
+    __author__              = 'Kabonix'
+    language                = 'fr'
+    oldest_article          = 7
+    max_articles_per_feed   = 50
+    no_stylesheets          = True
+    remove_javascript       = True
+    auto_cleanup            = False
+
+    feeds = [
+        ('À la une',   'https://www.humanite.fr/feed'),
+        ('Révélations', 'https://www.humanite.fr/mot-cle/revelations-humanite/feed'),
+    ]
+
+    keep_only_tags = [
+        dict(id='article-reconstructed'),
+    ]
+
+    # --- Couverture dynamique ---
+    def _get_cover_url(self):
+        """
+        Interroge l'API Immanens pour récupérer le doc-id
+        du dernier numéro de L'Humanité (pub-id=3182).
+        """
+        api_url = (
+            'https://docimg-cdn.immanens.com/phnxc1/publications'
+            '/logistic-code/PVN1/l-pub-id/3182/issues/last'
+        )
+        try:
+            req = urllib.request.Request(api_url, headers={
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json',
+            })
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                doc_id = data.get('docId') or data.get('id') or data.get('doc_id')
+                if doc_id:
+                    self.log(f'📰 Cover doc-id trouvé : {doc_id}')
+                    return (
+                        f'https://docimg-cdn.immanens.com/phnxc1/getcover'
+                        f'/logistic-code/PVN1/l-pub-id/3182/l-doc-id/{doc_id}'
+                        f'/doc-version/1/profile/cover-large.jpg'
+                    )
+        except Exception as e:
+            self.log(f'⚠️ API Immanens échouée : {e}')
+
+        # Fallback : scraper la page kiosque pour trouver l'URL de cover
+        try:
+            kiosque_url = 'https://kiosque.humanite.fr/home/publication/shelf'
+            req = urllib.request.Request(kiosque_url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as resp:
+                html = resp.read().decode('utf-8', errors='ignore')
+            # Cherche l'URL d'image Immanens dans le HTML initial (SSR partiel)
+            m = re.search(
+                r'https://docimg-cdn\.immanens\.com/phnxc1/getcover'
+                r'/logistic-code/PVN1/l-pub-id/3182/l-doc-id/(\d+)'
+                r'/doc-version/\d+/profile/cover-(?:medium|large)\.jpg',
+                html
+            )
+            if m:
+                self.log(f'📰 Cover trouvée via scraping : {m.group(0)}')
+                return m.group(0)
+        except Exception as e:
+            self.log(f'⚠️ Scraping kiosque échoué : {e}')
+
+        # Fallback absolu : URL connue hardcodée en dernier recours
+        self.log('⚠️ Utilisation cover fallback hardcodée')
+        return (
+            'https://docimg-cdn.immanens.com/phnxc1/getcover'
+            '/logistic-code/PVN1/l-pub-id/3182/l-doc-id/433987'
+            '/doc-version/4/profile/cover-large.jpg'
+        )
+
+    def get_cover_url(self):
+        return self._get_cover_url()
+
+    # --- Bypass paywall ---
+    def _fetch_full_content(self, url):
+        cj     = http.cookiejar.CookieJar()
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+
+        base_headers = {
+            'User-Agent': (
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/124.0.0.0 Safari/537.36'
+            ),
+            'Accept':   'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Referer':  'https://www.humanite.fr/',
+            'Accept-Language': 'fr-FR,fr;q=0.9',
+        }
+
+        req = urllib.request.Request(url, headers=base_headers)
+        with opener.open(req) as resp:
+            raw_html = resp.read().decode('utf-8', errors='ignore')
+
+        title_match = re.search(r'<h1[^>]*class="[^"]*t-article-h1[^"]*"[^>]*>(.*?)</h1>', raw_html, re.DOTALL)
+        title_html  = title_match.group(0) if title_match else '<h1>Sans titre</h1>'
+
+        chapo_match = re.search(r'<p[^>]*class="chapo"[^>]*>(.*?)</p>', raw_html, re.DOTALL)
+        chapo_html  = f'<p><strong>{chapo_match.group(1)}</strong></p>' if chapo_match else ''
+
+        img_match = re.search(r'<div class="single__thumbnail.*?</div>\s*</div>', raw_html, re.DOTALL)
+        if img_match:
+            img_html = img_match.group(0)
+        else:
+            og_match = re.search(r'<meta property="og:image" content="([^"]+)"', raw_html)
+            img_html = f'<img src="{og_match.group(1)}" alt=""/>' if og_match else ''
+
+        pid_match   = re.search(r'["\']?postId["\']?\s*[=:]\s*["\']?(\d+)', raw_html)
+        nonce_match = re.search(r'["\']?ajaxNonce["\']?\s*[=:]\s*["\']([a-zA-Z0-9]+)["\']', raw_html)
+
+        if not (pid_match and nonce_match):
+            self.log(f'⚠️  Clés introuvables pour {url}')
+            return None, title_html, chapo_html, img_html
+
+        post_id = pid_match.group(1)
+        nonce   = nonce_match.group(1)
+
+        ajax_headers = base_headers.copy()
+        ajax_headers.update({
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type':     'application/x-www-form-urlencoded; charset=UTF-8',
+            'Origin':           'https://www.humanite.fr',
+            'Referer':          url,
+            'Accept':           'application/json, text/javascript, */*; q=0.01',
+        })
+
+        data = urllib.parse.urlencode({
+            'action':   'unlock-post-content',
+            'security': nonce,
+            'post_id':  post_id,
+        }).encode('utf-8')
+
+        ajax_req = urllib.request.Request(
+            'https://www.humanite.fr/wp-admin/admin-ajax.php',
+            data=data, headers=ajax_headers,
+        )
+        with opener.open(ajax_req) as api_resp:
+            payload = json.loads(api_resp.read().decode('utf-8', errors='ignore'))
+
+        if payload.get('success'):
+            return payload.get('data', ''), title_html, chapo_html, img_html
+
+        return None, title_html, chapo_html, img_html
+
+    def preprocess_raw_html(self, raw_html, url):
+        try:
+            full_content, title_html, chapo_html, img_html = self._fetch_full_content(url)
+
+            return f'''
+            <html>
+              <head><meta charset="UTF-8"></head>
+              <body>
+                <div id="article-reconstructed">
+                  {title_html}
+                  {chapo_html}
+                  {img_html}
+                  <div id="post-content">
+                    {full_content or ''}
+                  </div>
+                </div>
+              </body>
+            </html>
+            '''
+        except Exception as e:
+            self.log(f'❌ Erreur sur {url} : {e}')
+        return raw_html

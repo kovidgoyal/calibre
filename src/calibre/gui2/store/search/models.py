@@ -202,8 +202,8 @@ class Matches(QAbstractItemModel):
         result = self.matches[row]
         if role == Qt.ItemDataRole.DisplayRole:
             if col == 1:
-                t = result.title if result.title else _('Unknown')
-                a = result.author if result.author else ''
+                t = result.title or _('Unknown')
+                a = result.author or ''
                 return (f'<b>{t}</b><br><i>{a}</i>')
             elif col == 2:
                 return (result.price)

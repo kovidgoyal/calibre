@@ -234,6 +234,13 @@ class View:
             return self._real_map_filtered_id_to_row[book_id]
         except KeyError:
             raise ValueError(f'No such book_id {book_id} in current view')
+
+    def safe_id_to_index(self, book_id):
+        try:
+            return self._real_map_filtered_id_to_row[book_id]
+        except Exception:
+            return -1
+
     row = index_to_id
 
     def index(self, book_id, cache=False):
@@ -334,7 +341,7 @@ class View:
             return restriction
 
     def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False, use_virtual_library=True, sort_results=True):
+                           set_restriction_count=False, use_virtual_library=True, sort_results=True, allow_templates=True):
         if use_virtual_library:
             search_restriction = self._build_restriction_string(search_restriction)
         q = ''
@@ -354,8 +361,10 @@ class View:
                 self.full_map_is_sorted = True
             return rv
         matches = self.cache.search(
-            query, search_restriction, virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
-                                           'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
+            query, search_restriction, virtual_fields={
+                'marked':MarkedVirtualField(self.marked_ids),
+                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)
+            }, allow_templates=allow_templates)
         if len(matches) == len(self._map):
             rv = list(self._map)
         else:

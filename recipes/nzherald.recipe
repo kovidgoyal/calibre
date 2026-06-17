@@ -23,11 +23,10 @@ class NewZealandHerald(BasicNewsRecipe):
     remove_empty_feeds = True
 
     def get_cover_url(self):
-        soup = self.index_to_soup('https://www.frontpages.com/the-new-zealand-herald/')
-        return (
-            'https://www.frontpages.com'
-            + soup.find('img', attrs={'id': 'giornale-img'})['src']
-        )
+        soup = self.index_to_soup('https://www.frontpages.com/new-zealand-newspapers/')
+        for img in soup.findAll('img', src=True):
+            if 'new-zealand-herald' in img['src']:
+                return 'https://www.frontpages.com' + img['src']
 
     extra_css = '''
         [data-test-ui="author--text--body"], .article-media__caption {font-size: small;}

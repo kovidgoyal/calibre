@@ -178,12 +178,12 @@ class ResultsModel(QAbstractTableModel):  # {{{
         if col == 0:
             return str(book.gui_rank+1)
         if col == 1:
-            t = book.title if book.title else _('Unknown')
+            t = book.title or _('Unknown')
             a = authors_to_string(book.authors) if book.authors else ''
             return f'<b>{t}</b><br><i>{a}</i>'
         if col == 2:
             d = format_date(book.pubdate, 'yyyy') if book.pubdate else _('Unknown')
-            p = book.publisher if book.publisher else ''
+            p = book.publisher or ''
             return f'<b>{d}</b><br><i>{p}</i>'
 
     def data(self, index, role):

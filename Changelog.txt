@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 8.x.0 2026-xx-xx
+# {{{ 9.x.0 2026-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,397 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 9.9.0 2026-05-28
+
+:: new features
+
+- [2151262] A new option to keep the current search when switching Virtual libraries under Preferences->Searching
+
+- Pages column: Add support for accurate page counting of fixed layout EPUB files
+
+- [2150806] Add from ISBN: Ignore space around the colon used to separate identifier type from value
+
+- Get books: Update and improve the WolneLektury store
+
+:: bug fixes
+
+- [2152227] E-book viewer: Fix incorrect search match offsets in normal search mode when the text contains non-BMP Unicode characters
+
+- [2152879] Content server: Apply null metadata when serving book files. Matches behavior of save to disk
+
+- Linux: Fix SSL certificate loading not working on Fedora 44
+
+- Bulk metadata dialog: Fix backspace key not working in number input boxes when set to Undefined
+
+:: improved recipes
+- Indian Express
+- Business Standard
+- BBC
+- New Criterion
+- Associated Press
+- Pro Publica
+- LA Times
+- Washington Post
+- New Yorker
+- TLS Magazine
+- Asian Review of Books
+- VOX
+- The Conversation
+- Chicago Tribune
+- New Republic Magazine
+- Indian Express
+- TIME Magazine
+
+:: new recipes
+- Various Hungarian and Czech news sources by bubak
+- SuperInteressante by Pedro Henrique Souza
+}}}
+
+{{{ 9.8.0 2026-05-01
+
+:: new features
+
+- Content server: In the /mobile view allow clicking on book titles/covers to see book details
+
+- Edit book: Allow reset of zoom to 100% by right clicking in the preview panel
+
+- macOS Tahoe: Have the calibre app icon automatically use a dark look when the system is in dark mode
+
+- AI: Support for arbitrary local providers that export an OpenAI compatible interface
+
+- Allow auto closing calibre after running jobs complete when an attempt to close calibre is made while there are running jobs
+
+:: bug fixes
+
+- Native TTS engine: Normalize text to NFKC so that word tracking works when the native engine reports spoken word with different normal form
+
+- [2148533] When converting GIF images to PNG workaround bug in PIL causing exception when checking if the GIF is animated
+
+- Preserve existing conversation with AI when there is an error talking to it
+
+:: improved recipes
+- Hacker News
+- The Atlantic
+- Scientific American
+- Mediapart
+- Hindu
+}}}
+
+{{{ 9.7.0 2026-04-10
+
+:: new features
+
+- Annotations browser: Allow grouping results by any field
+
+- E-book viewer: Handle native pinch to zoom gesture on touchpads the same as the pinch to zoom on touchscreens. Default action is to change font size.
+
+- Content server: Implement full offline mode when using HTTPS connections to the content server
+
+:: bug fixes
+
+- [2146912] E-book viewer: Fix a regression in the previous release that caused annotations/last read information to not be saved in e-book files
+
+- [2147495] AI: Make the GitHub backend a bit more robust
+
+- [2147008] AI: OpenRouter backend: Fix reasoning level "auto" disabling all reasoning
+
+- [2147261] Content server: Read book: Fix regression causing error during searching
+
+- [2146829] Content server: Fix opening results from full text search not working
+
+- Fix a couple of minor regress in the new Full text search view introduced in the previous release
+
+- MTP driver: Linux: Fix a rare crash when connecting devices with large collections
+
+- Fix cover not being set when adding files to existing book records with no cover
+
+:: improved recipes
+- The Week
+- The Age
+- Financial Times
+- Mint
+
+:: new recipes
+- Cenital by Rodrigo Pazos
+}}}
+
+{{{ 9.6.0 2026-03-27
+
+:: new features
+
+- [major] Full text search: A new cards based view of full text search results with book covers
+
+  To perform a full text search, click the "FT" button on the left of the search bar. The old compact
+  result view can be re-activated by clicking the button to the left of the search bar
+  in the Full text search window.
+
+- [2144422] A new "word-prefix" completion mode that shows matches that have any word starting with the typed in letters
+
+- Bookshelves: Add option to have the height of books be constant per group
+
+- Edit book: File list: Allow using Ctrl+Shift+Left/Right to move an item to top/bottom of the list
+
+:: bug fixes
+
+- [2146404] Fix notes being lost when changing the lookup name of custom column
+
+- E-book viewer: Fix using the slower/faster buttons causing a chapter skip when using the Piper neural speech backend
+
+- Content server viewer: Fix annotations being not synced to the server in some Android devices when using the Firefox browser
+
+- Windows: Force kill calibre.exe on quit to workaround hang in interpreter shutdown on some systems
+
+- TXT Output: Fix asciiize option not applying to generated inline Table of Contents
+
+- E-book viewer: Disallow background images from the internet. This was an unused feature anyway (CVE-2026-33205)
+
+- TXT Input: Ensure resource files are read only from book contents (CVE-2026-33206)
+
+- [2144489] Only apply changes to text fields in the book list when the new value is different from the old
+
+- [2144486] Completions: Update list of completion suggestions when cursor is moved
+
+:: improved recipes
+- BusinessLine
+- Naked Capitalism
+- Le Canard Enchaine
+- Le Monde
+- Courrier International
+- L'Equipe by Kabonix
+
+:: new recipes
+- L'Humanite by Kabonix
+- Telerama by Kabonix
+- Le Parisien by Kabonix
+}}}
+
+{{{ 9.5.0 2026-03-13
+
+:: new features
+
+- [2142135] Allow creating a column to display reading progress
+
+  Reading progress comes from the calibre E-book viewer. To create the
+  column, go to Preferences->Add your own columns, click the plus
+  button and finally click on the "Read progress" link.
+
+- Annotations browser: Allow filtering by highlight style
+
+- [2142728] E-book viewer: Add an option to display the pages from the paper book page list (when available) while also showing the last page number
+
+- Edit book: Add a tool to remove unused images, similar to the tool to remove unused CSS
+
+- Tolino driver: support new firmware version
+
+- E-book viewer: Add a reset button to the reading stats panel
+
+:: bug fixes
+
+- [2143063] Fix overridden icons from config directory not switching between dark/light variants on theme change
+
+- Fix: Use MOBI fallback for KFX format when downloading news periodicals
+
+- Edit book: Restore focus to editor after showing search count popup message
+
+- Fix a bug in KEPUB markup removal when there are empty kobo spans
+
+- RB Input: Ensure files are extracted within container dir (CVE-2026-30853)
+
+- Book list: Fix ctrl+shift+arrow key not moving the currently selected book. Fixes #2142950
+
+:: improved recipes
+- Naked Capitalism
+
+:: new recipes
+- Truthout by PaulB223
+}}}
+
+{{{ 9.4.0 2026-02-27
+
+:: new features
+
+- [2142715] E-book viewer: Add "reading stats" to show reading progress
+
+- Edit book: Nicer UI for changing the entries in the insert tag menu
+
+- Cover grid: Option to draw emblems on top of cover in Preferences->Look & feel->Cover grid->Emblems
+
+- Cover grid: Add option to draw text flush with bottom of rendered cover
+
+:: bug fixes
+
+- [2142611] DOCX Input: Fix paragraph/list margins in documents created by LibreOffice that do not have Word 2007 compatibility
+
+- [2142345] ODT Input: Fix a regression in the previous release that broke conversion of images
+
+- Content server: When banning IPs for repeated login is enabled, only use the IP address not any HTTP headers as the ban key (CVE-2026-27824)
+
+- Content server: Sanitize content disposition received as query parameter (CVE-2026-27810)
+
+:: improved recipes
+- WIRED Daily
+- TOI Print Edition
+}}}
+
+{{{ 9.3.1 2026-02-20
+
+:: new features
+
+- Windows installer: Detect running calibre processes and ask user to shutdown calibre before proceeding with installation to avoid reboots post installation
+
+- Improve Preferences->Tweaks getting rid of the need for double apply
+
+- [2141251] KEPUB Output: When converting to KEPUB preserve cover aspect ratio regardless of the setting for it in the EPUB Output to match the behavior of KEPUB files from Kobo
+
+:: bug fixes
+
+- [2141151] Make the new pages column value available in save to disk/send to device templates
+
+- [2141625] Hanvon N10 device driver: Fix calibre unable to put its metadata files onto the device
+
+- Amazon metadata download plugin: Fix incorrect series index from amazon.com
+
+- [2142195] Fix a regression in calibre 9.0 that broke output to PDB/TCR/zTXT files
+
+- [2141994] Windows: Fix calibre not exiting on quit when the wireless device driver is used in calibre 9
+
+- Fix error in page counting when using the calibredb command to add a book
+
+- [2141170] Completion: When sorting completion matches in contains mode ensure matches are sorted first by distance from beginning and then sub-sorted alphabetically
+
+- [2141766] Windows: Fix a regression in calibre 9 that caused tooltips to not follow the color scheme
+
+- [2141197] PDF Input: Fix PDF Outline not being converted to Table of Contents in output document when using the calibre engine
+
+- ODT Input: Ensure images are extracted within container (CVE-2026-26064)
+
+- PDB Input: Ensure extracted images are within the container (CVE-2026-26065)
+
+- Fix a regression in calibre 9.0 that caused a spurious large books merge warning when merging books in the cover grid view
+
+- Windows: Fix harmless error popup if user tries to launch calibre multiple times in quick succession
+
+- [2142318 212296] Version 9.3.1 fixes a regression in the previous release that caused a spurious error message to show when merging books and a regression in calibre 9.0 that broke using textures as the Cover grid background when using the system theme on Windows
+
+:: improved recipes
+- Financial Times
+- The Asahi Shimbun
+- Todoist
+}}}
+
+{{{ 9.2.1 2026-02-06
+
+:: new features
+
+- ZIP Output: Change the template engine used for HTML templating from templite to Mustache, for greater safety and performance. Note that this is a breaking change if you use custom templates with ZIP output (CVE-2026-25731)
+
+- [2139555] Check library: Add an option to rebuild the annotations search index
+
+:: bug fixes
+
+- CHM Input: Ignore internal files that have paths that end up outside the container. Prevents path traversal attacks with malicious CHM files (CVE-2026-25635)
+
+- EPUB Input: Ensure font obfuscation processing happens only on files from the EPUB, preventing path traversal attacks from malicious EPUB files (CVE-2026-25636)
+
+- [2139521] Windows: Workaround for bug in Qt 6.10 causing Read Aloud in the E-book viewer to crash when stopped and restarted
+
+- [2139529] Fix drag and drop of books into bookshelf view not working
+
+- [2139403] Bookshelf: Fix bookshelf view blank on some macOS systems
+
+- [2139576] E-book viewer: Fix a regression in calibre 9.0 that broke the Go to page function
+
+- [2140541] E-book viewer: Fix google dictionary lookup results not legible
+
+- E-book viewer: Fix PageUp/PageDown keys needing to be pressed repeatedly at internal HTML file boundaries in flow mode
+
+- Bookshelf: Avoid rendering during initial show while the view is still being resized
+
+- Fix a regression in calibre 9.0 that caused mouse wheel to scroll a full row at a time in the Cover grid
+
+- News download: Fix a regression in 8.11 that broke automatic cleanup of downloaded HTML
+
+- [2140769] Version 9.2.1 prevents the Content server from using template based searches since this is insecure when the content server is used with un-authenticated users
+
+}}}
+
+{{{ 9.1.0 2026-01-31
+
+:: new features
+
+- This is a pure bugfix release fixing various regressions in calibre 9.0
+
+:: bug fixes
+
+- [2139397] macOS: Fix crash when pasting cover image
+
+- [2139455] Fix restore database not working
+
+- [2139399] Windows: Fix the Read Aloud feature in the E-book viewer not working when using the Piper engine
+
+- [2139454] Fix using icon themes in "For dark and light" mode not working
+
+- Fix covers in the Cover grid slightly stretched on high DPI screens
+
+- [2139414] Amazon metadata download: Fix publication date not being retrieved from amazon.co.jp
+
+:: improved recipes
+- Economist
+
+}}}
+
+{{{ 9.0.0 2026-01-30
+
+:: new features
+
+- [major] A new Bookshelf view with your books arranged on shelves showing their spines
+
+  Click the Layout button in the bottom right corner of the calibre window to switch to
+  Bookshelf view.
+
+- [major] Viewer: Add an "Edit book" button to the viewer controls to edit the current book
+
+  The button is visible when the current book is in an editable format such as EPUB, AZW3 or KEPUB. It opens the editor at the approximate location that is currently being viewed.
+
+- Linux: Add momentum based scrolling for the book list when using high resolution scroll devices like touchpads
+
+- [2137504] TXT Output: Add an option to replace images by their alt attribute text
+
+- EPUB: Support reading cover images from so called "Open Manga Format" non-conformant EPUB files produced by some Japanese publishers.
+
+- [2138862] Add a tweak to change the font size of the AI chat widget
+
+- E-book viewer: Allow typing in a page number to go to instead of forcing the user to scroll through existing page numbers
+
+- Kobo driver: Support for updated firmware
+
+- A new tweak to hide all AI features from the user interface in Preferences->Tweaks
+
+:: bug fixes
+
+- KEPUB Output: Add some CSS to fix rendering of tate-chu-yoko text on Kobo devices
+
+- [2138770] Only show the Sort button on the search bar if the Sort By action has not been added to the search bar by the user
+
+- [2137122] EPUB3 metadata: Handle identifiers that use HTTP URLs without the url: prefix
+
+- Edit book: Check book: Fix spurious unreferenced warnings for SMIL media overlay audio files
+
+- [2138179] Edit book: Reports: Have pressing enter do the same action as double clicking the current entry
+
+- E-book viewer: Improve export of SVG images
+
+- Disable GPU acceleration for Qt WebEngine by default to prevent crashes on some older systems. Can be re-enabled via Preferences->Tweaks
+
+- Speedup calibre shutdown time by a couple of seconds
+
+:: improved recipes
+- Times Literary Supplement
+- Private Eye
+- New Yorker
+
+}}}
 
 {{{ 8.16.2 2025-12-04
 

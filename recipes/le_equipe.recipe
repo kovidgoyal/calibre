@@ -1,0 +1,339 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Recette Calibre — L'Équipe Premium
+# Auteur : Kabonix
+# Auth : eqn:EQN2014 (Basic ZXFuOkVRTjIwMTQ=) — extrait des DEX natifs de LEquipe v10.58.2
+# API  : https://dwh.lequipe.fr/api/v1/efr/news/{id}
+# Cover: scraping https://www.lequipe.fr/abonnement/kiosque/ → Twipe (id journal = 1627)
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import datetime
+import json
+import re
+import urllib.request
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class LEquipePremium(BasicNewsRecipe):
+    title                = "L'Équipe"
+    __author__           = 'Kabonix'
+    description          = "Articles abonnés L'Équipe avec notes de matchs complètes"
+    publisher            = "L'Équipe"
+    publication_type     = 'newspaper'
+    language             = 'fr'
+    encoding             = 'utf-8'
+
+    oldest_article       = 1
+    no_stylesheets       = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds   = True
+    auto_cleanup         = False
+    delay                = 1
+
+    # ------------------------------------------------------------------ #
+    #  Auth — hardcodé dans les DEX natifs de l'APK                       #
+    # ------------------------------------------------------------------ #
+    browser_user_agent = 'MOBILE-LEQUIPE/android/phone/10.58.2/premium/wifi/test'
+    auth_header        = 'Basic ZXFuOkVRTjIwMTQ='   # eqn:EQN2014
+
+    # ------------------------------------------------------------------ #
+    #  Couverture dynamique — scraping page kiosque Twipe                 #
+    #  ID fixe du titre "L'Équipe journal" chez Twipe : 1627              #
+    # ------------------------------------------------------------------ #
+    def get_cover_url(self):
+        try:
+            req = urllib.request.Request(
+                'https://www.lequipe.fr/abonnement/kiosque/',
+                headers={'User-Agent': 'Mozilla/5.0'}
+            )
+            html = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
+            m = re.search(
+                r'https://eqp-eqp-webreader-production\.twipemobile\.com'
+                r'/data/1627/covers/Preview-MEDIUM-\d+\.jpg[^"&]*',
+                html
+            )
+            if m:
+                return m.group(0)
+        except Exception:
+            pass
+        # Fallback : miniature journal par date
+        today = datetime.datetime.now().strftime('%Y%m%d')
+        return f'https://www.lequipe.fr/thumbnail/journal/{today}/1000/1490'
+
+    # ------------------------------------------------------------------ #
+    #  Browser avec headers d'auth                                         #
+    # ------------------------------------------------------------------ #
+    def get_browser(self, *args, **kwargs):
+        br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
+        br.addheaders = [
+            ('User-Agent',    self.browser_user_agent),
+            ('Authorization', self.auth_header),
+            ('Accept',        'application/json'),
+        ]
+        return br
+
+    # ------------------------------------------------------------------ #
+    #  Filtre RSS → URL API                                                #
+    #  Seuls les /Article/ sont premium ; /Actualites/ = brèves gratuites #
+    # ------------------------------------------------------------------ #
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if not url:
+            return None
+        # Supprimer le fragment #at_medium=RSS_feeds
+        url = url.split('#')[0]
+        if '/Article/' not in url:
+            return None
+        m = re.search(r'/(\d+)$', url)
+        if m:
+            return f'https://dwh.lequipe.fr/api/v1/efr/news/{m.group(1)}'
+        return None
+
+    # ------------------------------------------------------------------ #
+    #  Bloc notes de match                                                 #
+    #  data_url → JSON Twipe avec titulaires, remplaçants, notes          #
+    # ------------------------------------------------------------------ #
+    def parse_playing_field(self, data_url):
+        try:
+            req = urllib.request.Request(
+                data_url,
+                headers={'User-Agent': self.browser_user_agent}
+            )
+            raw  = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
+            d    = json.loads(raw)
+        except Exception:
+            return ''
+
+        html    = '<hr style="margin:1em 0;"/>'
+        equipes = d.get('equipes', [])
+
+        # --- Score et note globale des équipes ---
+        if len(equipes) == 2:
+            e1, e2 = equipes[0], equipes[1]
+            html += (
+                f'<table width="100%" style="margin-bottom:8px;border-collapse:collapse;">'
+                f'<tr>'
+                f'<td style="background:{e1["couleur"]};color:{e1["couleur_texte"]};'
+                f'padding:6px;text-align:center;width:42%;font-weight:bold;">{e1["nom"]}</td>'
+                f'<td style="text-align:center;padding:6px;width:16%;font-size:1.3em;font-weight:bold;">'
+                f'{e1["score"]} – {e2["score"]}</td>'
+                f'<td style="background:{e2["couleur"]};color:{e2["couleur_texte"]};'
+                f'padding:6px;text-align:center;width:42%;font-weight:bold;">{e2["nom"]}</td>'
+                f'</tr>'
+                f'<tr>'
+                f'<td style="text-align:center;color:{e1["couleur"]};font-weight:bold;">Note : {e1["note"]}</td>'
+                f'<td></td>'
+                f'<td style="text-align:center;color:{e2["couleur"]};font-weight:bold;">Note : {e2["note"]}</td>'
+                f'</tr>'
+                f'</table>'
+            )
+
+        # --- Titulaires et remplaçants par équipe ---
+        banc = d.get('banc', [])
+        for idx, equipe in enumerate(equipes):
+            couleur       = equipe['couleur']
+            couleur_texte = equipe['couleur_texte']
+            nom_equipe    = equipe['nom']
+
+            titulaires  = [j for j in d.get('titulaires', []) if j.get('couleur') == couleur]
+            banc_equipe = banc[idx] if idx < len(banc) else {}
+            remplacants = banc_equipe.get('remplacants', [])
+            entraineur  = banc_equipe.get('entraineur', {})
+
+            html += (
+                f'<h3 style="background:{couleur};color:{couleur_texte};'
+                f'padding:4px 8px;margin-top:1em;">{nom_equipe}</h3>'
+                f'<table width="100%" cellspacing="1" style="font-size:0.9em;">'
+                f'<tr style="background:#ddd;">'
+                f'<th style="text-align:left;padding:3px;">Joueur</th>'
+                f'<th style="text-align:center;padding:3px;">Note</th>'
+                f'<th style="padding:3px;"></th>'
+                f'</tr>'
+            )
+
+            for j in titulaires:
+                note    = j.get('note', '-')
+                nom     = j.get('nom', '')
+                buts    = ' ⚽' * len(j.get('buts', []))
+                sortie  = f"↓{j['min_sortie']}'" if j.get('min_sortie') else ''
+                html += (
+                    f'<tr>'
+                    f'<td style="padding:3px;">{nom}{buts}</td>'
+                    f'<td style="text-align:center;padding:3px;font-weight:bold;">{note}</td>'
+                    f'<td style="color:gray;font-size:0.85em;padding:3px;">{sortie}</td>'
+                    f'</tr>'
+                )
+
+            # Remplaçants notés uniquement
+            for j in remplacants:
+                note = j.get('note', '/')
+                if note and note not in ('/', ''):
+                    nom     = j.get('nom', '')
+                    entree  = f"↑{j['min_entree']}'" if j.get('min_entree') else ''
+                    remplace = j.get('remplace', '')
+                    buts    = ' ⚽' * len(j.get('buts', []))
+                    html += (
+                        f'<tr style="color:#555;">'
+                        f'<td style="padding:3px;font-style:italic;">'
+                        f'{nom}{buts} <span style="font-size:0.8em;">(rempl. {remplace})</span>'
+                        f'</td>'
+                        f'<td style="text-align:center;padding:3px;">{note}</td>'
+                        f'<td style="font-size:0.85em;padding:3px;">{entree}</td>'
+                        f'</tr>'
+                    )
+
+            # Entraîneur
+            if entraineur:
+                html += (
+                    f'<tr style="background:#f0f0f0;">'
+                    f'<td style="padding:3px;"><b>Entr. {entraineur.get("nom","")}</b></td>'
+                    f'<td style="text-align:center;padding:3px;font-weight:bold;">'
+                    f'{entraineur.get("note","-")}</td>'
+                    f'<td></td>'
+                    f'</tr>'
+                )
+
+            html += '</table>'
+
+        # Arbitre
+        arbitre = d.get('arbitre', {})
+        if arbitre:
+            html += (
+                f'<p style="color:gray;font-size:0.85em;margin-top:4px;">'
+                f'Arbitre : {arbitre.get("nom","")} — Note : {arbitre.get("note","-")}'
+                f'</p>'
+            )
+
+        html += '<hr style="margin:1em 0;"/>'
+        return html
+
+    # ------------------------------------------------------------------ #
+    #  Conversion JSON API → HTML lisible                                  #
+    # ------------------------------------------------------------------ #
+    def strip_links(self, html):
+        '''Supprime les balises <a> en gardant le texte'''
+        return re.sub(r'<a[^>]*>(.*?)</a>', r'\1', html, flags=re.DOTALL)
+
+    def preprocess_raw_html(self, raw_html, url):
+        if '/api/v1/efr/news/' not in url:
+            return raw_html
+
+        try:
+            data = json.loads(raw_html)
+        except Exception:
+            return '<html><body><p>Erreur JSON</p></body></html>'
+
+        title      = ''
+        image_html = ''
+        body       = ''
+
+        for item in data.get('items', []):
+            obj      = item.get('objet', {})
+            obj_type = obj.get('__type', '')
+
+            # --- En-tête article (titre + image) ---
+            if obj_type == 'article_feature':
+                title = obj.get('long_title', obj.get('title', ''))
+
+                media = obj.get('media', {})
+                img_url = media.get('url', '')
+                if img_url:
+                    img_url = (img_url
+                               .replace('{width}',   '800')
+                               .replace('{height}',  '600')
+                               .replace('{quality}', '85'))
+                    legende = media.get('legende', '')
+                    image_html = (
+                        f'<figure style="margin:0 0 1em 0;">'
+                        f'<img src="{img_url}" style="max-width:100%;"/>'
+                        f'<figcaption style="font-size:0.8em;color:#666;">{legende}</figcaption>'
+                        f'</figure>'
+                    )
+
+            # --- Corps de l'article ---
+            elif obj_type == 'article_body':
+                for p in obj.get('paragraphs', []):
+                    layout  = p.get('layout', '')
+                    content = p.get('content', '')
+                    ptitle  = p.get('title', '')
+
+                    if layout == 'chapo':
+                        body += f'<p style="font-size:1.1em;font-style:italic;">{self.strip_links(content)}</p>'
+
+                    elif layout == 'text':
+                        if ptitle:
+                            body += f'<h2>{ptitle}</h2>'
+                        body += f'<p>{self.strip_links(content)}</p>'
+
+                    elif layout == 'note':
+                        note_obj = p.get('note')
+                        if note_obj and note_obj.get('layout') == 'team':
+                            # Titre de section équipe (ex : "Chelsea — Note : 3,8")
+                            label  = note_obj.get('label', '')
+                            rating = note_obj.get('rating_label', note_obj.get('rating', ''))
+                            color  = note_obj.get('background_color', '#333')
+                            tcolor = note_obj.get('text_color', '#fff')
+                            body += (
+                                f'<h2 style="background:{color};color:{tcolor};'
+                                f'padding:4px 8px;margin-top:1.2em;">'
+                                f'{label} — Note : {rating}</h2>'
+                            )
+                        elif content:
+                            # Note individuelle joueur avec photo optionnelle
+                            img_obj = p.get('image', {})
+                            img_url = img_obj.get('url', '') if img_obj else ''
+                            if img_url:
+                                img_url = (img_url
+                                           .replace('{width}',   '120')
+                                           .replace('{height}',  '120')
+                                           .replace('{quality}', '80'))
+                                body += (
+                                    f'<table style="margin:0.5em 0;width:100%;">'
+                                    f'<tr>'
+                                    f'<td style="width:120px;vertical-align:top;">'
+                                    f'<img src="{img_url}" style="width:110px;"/>'
+                                    f'</td>'
+                                    f'<td style="vertical-align:top;padding-left:8px;">'
+                                    f'{self.strip_links(content)}</td>'
+                                    f'</tr></table>'
+                                )
+                            else:
+                                body += f'<p>{self.strip_links(content)}</p>'
+
+                    elif layout == 'playing_field':
+                        data_url = p.get('data', '')
+                        if data_url:
+                            body += self.parse_playing_field(data_url)
+
+                    elif layout == 'link':
+                        pass  # on ignore les "lire aussi"
+
+                    # on ignore aussi layout_DFP / pub_DFP / pub
+
+        return (
+            f'<html>'
+            f'<head><meta charset="utf-8"><title>{title}</title></head>'
+            f'<body>'
+            f'{image_html}'
+            f'<h1>{title}</h1>'
+            f'{body}'
+            f'</body>'
+            f'</html>'
+        )
+
+    # ------------------------------------------------------------------ #
+    #  Flux RSS                                                            #
+    # ------------------------------------------------------------------ #
+    feeds = [
+        ('À la une',     'https://dwh.lequipe.fr/api/edito/rss?path=/'),
+        ('Football',     'https://dwh.lequipe.fr/api/edito/rss?path=/Football'),
+        ('Tennis',       'https://dwh.lequipe.fr/api/edito/rss?path=/Tennis'),
+        ('Cyclisme',     'https://dwh.lequipe.fr/api/edito/rss?path=/Cyclisme-sur-route'),
+        ('Rugby',        'https://dwh.lequipe.fr/api/edito/rss?path=/Rugby'),
+        ('Basket',       'https://dwh.lequipe.fr/api/edito/rss?path=/Basket'),
+        ('Formule 1',    'https://dwh.lequipe.fr/api/edito/rss?path=/Formule-1'),
+        ('Athlétisme',   'https://dwh.lequipe.fr/api/edito/rss?path=/Athletisme'),
+        ('Handball',     'https://dwh.lequipe.fr/api/edito/rss?path=/Handball'),
+    ]

@@ -157,11 +157,11 @@ class UpgradeSourceCode(Command):
         files = []
         for f in os.listdir(os.path.dirname(os.path.abspath(__file__))):
             q = os.path.join('setup', f)
-            if f.endswith('.py') and f not in ('linux-installer.py',) and not os.path.isdir(q):
+            if f.endswith('.py') and f != 'linux-installer.py' and not os.path.isdir(q):
                 files.append(q)
         for path in checkable_python_files(self.SRC):
             q = path.replace(os.sep, '/')
             if '/metadata/sources/' in q or '/store/stores/' in q:
                 continue
             files.append(q)
-        subprocess.call(['pyupgrade', '--py310-plus'] + files)
+        subprocess.call(['pyupgrade', '--py314-plus'] + files)

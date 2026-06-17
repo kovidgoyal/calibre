@@ -11,6 +11,7 @@ from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2.store.stores.mobileread.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
+from calibre.utils.localization import localize_user_manual_link
 
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
@@ -18,6 +19,8 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        self.search_interface_label.setText(self.search_interface_label.text().format(localize_user_manual_link(
+            'https://manual.calibre-ebook.com/gui.html#the-search-interface')))
 
         self.buttonBox.accepted.connect(self.advanced_search_button_pushed)
         self.tab_2_button_box.accepted.connect(self.accept)

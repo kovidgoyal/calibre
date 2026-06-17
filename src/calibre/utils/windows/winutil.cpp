@@ -1587,6 +1587,7 @@ exec_module(PyObject *m) {
     A(ERROR_BROKEN_PIPE);
     A(ERROR_PIPE_BUSY);
     A(ERROR_DIR_NOT_EMPTY);
+    A(ERROR_ACCESS_DENIED);
     A(NormalHandle);
     A(ModuleHandle);
     A(IconHandle);

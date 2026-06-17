@@ -742,10 +742,13 @@ class WritingTest(BaseTest):
         cache.set_sort_for_authors({cache.get_item_id('authors', 'Author One'):'meow'})
         test_invalidate()
         cache.remove_formats({1:{'FMT1'}})
+        cache.maintain_page_counts.tick_event.wait()
         test_invalidate()
-        cache.add_format(1, 'ADD', BytesIO(b'xxxx'))
+        cache.maintain_page_counts.tick_event.clear()
+        cache.add_format(1, 'TXT', BytesIO(b'xxxx'))
+        cache.maintain_page_counts.tick_event.wait()
         test_invalidate()
-        cache.set_pages(1, 13)
+        cache.set_pages(1, 17)
         test_invalidate()
         cache.set_field('pages', {1:11})
         test_invalidate()
@@ -786,6 +789,8 @@ class WritingTest(BaseTest):
                          'Setting the author link to the same value as before, incorrectly marked some books as dirty')
         sdata = {aid:f'{aid}, changed' for aid in adata}
         self.assertEqual({1,2,3}, cache.set_sort_for_authors(sdata))
+        self.assertEqual(sdata, cache.author_sorts())
+        self.assertEqual(sdata, cache.author_sorts(sdata))
         for bid in (1, 2, 3):
             self.assertIn(', changed', cache.field_for('author_sort', bid))
         sdata = {aid:f'{aid*2 if aid == max(adata) else aid}, changed' for aid in adata}

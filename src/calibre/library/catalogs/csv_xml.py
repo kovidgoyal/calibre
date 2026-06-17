@@ -118,13 +118,13 @@ class CSV_XML(CatalogPlugin):
             for entry in data:
                 outstr = []
                 for field in fields:
+                    m = fm.get(field, {})
+                    disp = m.get('display', {})
                     if field.startswith('#'):
                         item = db.get_field(entry['id'], field, index_is_id=True)
                         if isinstance(item, (list, tuple)):
-                            if fm.get(field, {}).get('display', {}).get('is_names', False):
-                                item = ' & '.join(item)
-                            else:
-                                item = ', '.join(item)
+                            sep = ' & ' if disp.get('is_names', False) else ', '
+                            item = sep.join(item)
                     elif field == 'library_name':
                         item = current_library
                     elif field == 'title_sort':
@@ -149,9 +149,6 @@ class CSV_XML(CatalogPlugin):
                         item = '{}'.format(re.sub(r'[^\dX-]', '', item))
                     elif fm.get(field, {}).get('datatype') == 'datetime':
                         item = isoformat(item, as_utc=False)
-                    elif field == 'comments':
-                        item = item.replace('\r\n', ' ')
-                        item = item.replace('\n', ' ')
                     elif fm.get(field, {}).get('datatype', None) == 'rating' and item:
                         item = f'{item/2:.2g}'
 
@@ -162,6 +159,8 @@ class CSV_XML(CatalogPlugin):
                             closing_tag = re.search(rf'</{opening_tag.group(1)}>$', item)
                             if closing_tag:
                                 item = html2text(item)
+                        item = item.replace('\r\n', ' ')
+                        item = item.replace('\n', ' ')
 
                     outstr.append('"{}"'.format(str(item).replace('"', '""')))
 

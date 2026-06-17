@@ -99,8 +99,7 @@ class Server(Thread):
 
     def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
             limit=sys.maxsize, enforce_cpu_limit=True):
-        Thread.__init__(self)
-        self.daemon = True
+        Thread.__init__(self, name='IPCServer', daemon=True)
         self.id = next(server_counter) + 1
 
         if enforce_cpu_limit:

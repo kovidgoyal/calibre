@@ -157,7 +157,7 @@ User interface actions
 --------------------------
 
 If you are adding your own plugin in a ZIP file, you should subclass both InterfaceActionBase and InterfaceAction. The
-:meth:`load_actual_plugin` method of your InterfaceActionBase subclass must return an instantiated object of your InterfaceBase subclass.
+:meth:`load_actual_plugin` method of your InterfaceActionBase subclass must return an instantiated object of your InterfaceAction subclass.
 
 
 .. autoclass:: calibre.gui2.actions.InterfaceAction

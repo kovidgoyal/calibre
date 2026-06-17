@@ -25,6 +25,7 @@ from qt.core import (
     Qt,
     QTextBrowser,
     QTextDocument,
+    QTimer,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -375,6 +376,49 @@ class ErrorNotification(MessageBox):  # {{{
         self.finished.disconnect()
         self.vlb.clicked.disconnect()
         _proceed_memory.remove(self)
+# }}}
+
+
+class AutoCloseNotification(MessageBox):  # {{{
+
+    def __init__(self, timeout=30, parent=None):
+        super().__init__(
+            MessageBox.QUESTION,
+            _('calibre is about to quit'),
+            _('calibre is about to quit. Proceed or abort?'),
+            parent=parent,
+            show_copy_button=False,
+            q_icon='dialog_warning.png',
+            default_yes=True,
+            yes_text=None,
+            no_text=_('Abort'),
+        )
+        self.timeout = timeout
+        self.timer = QTimer(self)
+        self.timer.setInterval(self.timeout * 1000)
+        self.timer.timeout.connect(self.accept)
+        self.timer.setSingleShot(True)
+        self.updater = QTimer(self)
+        self.updater.setInterval(1000)
+        self.updater.timeout.connect(self.update_texts)
+        self.updater.setSingleShot(False)
+        self.timer.start()
+        self.updater.start()
+        self.update_texts()
+
+    def reject(self):
+        self.timer.stop()
+        self.updater.stop()
+        return super().reject()
+
+    def accept(self):
+        self.timer.stop()
+        self.updater.stop()
+        return super().accept()
+
+    def update_texts(self):
+        time = self.timer.remainingTime() // 1000
+        self.bb.button(QDialogButtonBox.StandardButton.Yes).setText(_('Close now ({}s)').format(time))
 # }}}
 
 

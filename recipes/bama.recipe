@@ -1,0 +1,80 @@
+'''
+Fetch Bama
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class bama(BasicNewsRecipe):
+    title = u'Bama'
+    description = ''
+    __author__ = 'bubak'
+    oldest_article = 1
+    max_articles_per_feed = 30
+    no_stylesheets = True
+    language = 'hu'
+
+    remove_javascript = True
+    cover_url = 'https://www.bama.hu/wp-content/themes/megyeilapok2017/images/bama_footer_red.svg'
+
+    sections = [
+                    (u'Ország - világ', u'https://www.bama.hu/rovat/orszag-vilag', 1)
+                    ,(u'Pécs', u'https://www.bama.hu/regio/pecs/', 1)
+                    ,(u'Közélet', u'https://www.bama.hu/rovat/kozelet', 1)
+                    ,(u'Gazdaság', u'https://www.bama.hu/rovat/gazdasag', 1)
+                    ,(u'Kultúra', u'https://www.bama.hu/rovat/kultura/', 1)
+                    ,(u'Kék hírek', u'https://www.bama.hu/rovat/kek-hirek', 1)
+            ]
+
+    keep_only_tags = [dict(name='section', attrs={'class':'article'})]
+    remove_tags_after  = dict(name='app-newsletter')
+    remove_tags = [
+                       dict(name='div', attrs={'class':['info', 'article-info', 'article-tags-share-block', 'content-block']})
+                       ,dict(name='app-google-news')
+                    ]
+    preprocess_regexps = [
+            (re.compile(r'<script.*?</script>', re.DOTALL), lambda match: '')
+            ,(re.compile(r'<div id="fb-root".*', re.DOTALL), lambda match: '</body>')
+            ,(re.compile(r'<div class="ad .*?</div>', re.DOTALL), lambda match: '')
+            ,(re.compile(r'<div class="cikkshare cf.*?Mik ezek.*?id="miertjo".*?</form>.*?</div>', re.DOTALL), lambda match: '')
+    ]
+
+    def get_browser(self, *a, **kw):
+        kw['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/119.0'
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        self.log.debug('entry User-Agent: ')
+        return br
+
+    def parse_index(self):
+        res = []
+        seen_titles = set()
+        for section in self.sections:
+            self.log('\tTrying section ' + section[0])
+            self.log('\tTrying url ' + section[1])
+            articles = []
+            soup = self.index_to_soup(section[1])
+            if section[2] == 0:
+                content = soup.findAll('div', attrs={'class':re.compile(r'enews-article-offerer-content-container', re.IGNORECASE)})
+            elif section[2] == 1:
+                content = soup.findAll('div', attrs={'class':'article-data'})
+            else:
+                content = soup.findAll('div', attrs={'class':'article-data'})
+            if content is None:
+                raise ValueError('Could not find category content')
+            for c in content:
+                article = c.find('a', text=re.compile(r'.'))
+                if article and article.get('href'):
+                    url = article['href']
+                    # title = re.sub(r'^\s*(\S.*\S)\s*$', r'\1', article.text)
+                    title = article.text
+                    if url.startswith('/'):
+                        url = 'https://www.bama.hu'+url
+                    if title in seen_titles:
+                        self.log('\tAlready seen: ', title)
+                        continue
+                    seen_titles.add(title)
+                    self.log('\tFound article:', title, 'at', url)
+                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            res.append((section[0], articles))
+        return res

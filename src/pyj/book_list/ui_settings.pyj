@@ -1,0 +1,356 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026
+from __python__ import hash_literals, bound_methods
+
+from dom import add_extra_css, build_rule, clear
+from elementmaker import E
+from gettext import gettext as _
+from session import all_settings
+
+from book_list.library_data import browse_field_settings, set_browse_fields
+from book_list.prefs import create_prefs_widget
+from book_list.search import get_prefs as get_tb_prefs
+from book_list.globals import get_session_data
+from book_list.theme import apply_book_list_theme
+from book_list.top_bar import create_top_bar
+from book_list.ui import set_panel_handler
+
+
+CLASS_NAME = 'cs-ui-settings'
+DEFAULT_PRIMARY_HEX = all_settings.ui_highlight_colors.default.light
+DEFAULT_PRIMARY_DARK_HEX = all_settings.ui_highlight_colors.default.dark
+
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = ''
+    # Reuse cs-prefs layout/classes; keep UI-settings-specific overrides only.
+    style += build_rule(sel + 'input[type="color"]',
+        flex='0 0 auto',
+        width='72px',
+        height='44px',
+        padding='0',
+        box_sizing='border-box',
+        border='none',
+        border_radius='10px',
+        background_color='transparent',
+        cursor='pointer'
+    )
+    # Make the internal color swatch fill the rounded input
+    style += r'''
+.cs-ui-settings input[type="color"]{
+  appearance: none;
+  overflow: hidden;
+  padding: 0;
+  background: transparent;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.cs-ui-settings input[type="color"]::-webkit-color-swatch-wrapper{
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.cs-ui-settings input[type="color"]::-webkit-color-swatch{
+  border: 0;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.cs-ui-settings input[type="color"]::-moz-color-swatch{
+  border: 0;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+}
+'''
+    # Prefer shared cs-prefs spacing; keep help a little softer.
+    style += build_rule(sel + '.help', opacity='0.75')
+    style += build_rule('.cs-ui-settings.cs-prefs .help', display='block')
+    style += build_rule(sel + '.browse-intro',
+        margin='0 0 0.85rem 0',
+        opacity='0.8',
+        overflow_wrap='anywhere',
+    )
+    # Tabs widget
+    style += build_rule(sel + '.cs-tabs',
+        width='100%',
+        min_width='0',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '[role="tablist"]',
+        display='flex',
+        flex_direction='row',
+        gap='0',
+        border_bottom='var(--calibre-border-style)',
+        margin_bottom='1rem',
+        max_width='100%',
+        overflow_x='auto', overflow_y='hidden',
+    )
+    style += build_rule(sel + '[role="tab"]',
+        background='none',
+        border='none',
+        border_bottom='2px solid transparent',
+        padding='0.6rem 1.1rem',
+        font_size='0.97rem',
+        font_weight='600',
+        color='var(--calibre-color-window-foreground)',
+        opacity='0.65',
+        cursor='pointer',
+        border_radius='0',
+        margin_bottom='-1px',
+        transition='color var(--cs-dur-2) var(--cs-ease), border-color var(--cs-dur-2) var(--cs-ease), opacity var(--cs-dur-2) var(--cs-ease)',
+        outline='none',
+        user_select='none',
+        white_space='nowrap',
+    )
+    style += r'''
+@media (max-width: 520px) {
+  .cs-ui-settings [role="tab"] {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+'''
+    style += build_rule(sel + '[role="tabpanel"]',
+        min_width='0',
+        width='100%',
+        box_sizing='border-box',
+    )
+    style += build_rule(sel + '[role="tabpanel"][hidden]',
+        display='none',
+    )
+    return style
+)
+
+
+def create_tabs_widget(root):
+    # --- Tabs widget ---
+    tab_interface_id = 'cs-ui-tab-panel-interface'
+    tab_browse_id = 'cs-ui-tab-panel-browse'
+    tab_tagbrowser_id = 'cs-ui-tab-panel-tagbrowser'
+
+    tab_interface_btn = E.button(
+        _('Interface'),
+        role='tab',
+        aria_selected='true',
+        aria_controls=tab_interface_id,
+        tabindex='0',
+        title=_('Customise the look & feel of the interface'),
+    )
+    tab_tagbrowser_btn = E.button(
+        _('Tag browser'),
+        role='tab',
+        aria_selected='false',
+        aria_controls=tab_tagbrowser_id,
+        tabindex='-1',
+        title=_('Customise how the Tag browser (accessible via the search button) behaves'),
+    )
+    tab_browse_btn = E.button(
+        _('Browse'),
+        role='tab',
+        aria_selected='false',
+        aria_controls=tab_browse_id,
+        tabindex='-1',
+        title=_('Choose fields to show in the Browse section'),
+    )
+
+    tablist = E.div(role='tablist', aria_label=_('Settings sections'))
+    tablist.appendChild(tab_interface_btn)
+    tablist.appendChild(tab_browse_btn)
+    tablist.appendChild(tab_tagbrowser_btn)
+
+    panel_interface = E.div(
+        id=tab_interface_id,
+        role='tabpanel',
+    )
+    panel_browse = E.div(
+        id=tab_browse_id,
+        role='tabpanel',
+    )
+    panel_tagbrowser = E.div(
+        id=tab_tagbrowser_id,
+        role='tabpanel',
+    )
+    panel_browse.setAttribute('hidden', '')
+    panel_tagbrowser.setAttribute('hidden', '')
+
+    tabs_widget = E.div(class_='cs-tabs')
+    tabs_widget.appendChild(tablist)
+    tabs_widget.appendChild(panel_interface)
+    tabs_widget.appendChild(panel_browse)
+    tabs_widget.appendChild(panel_tagbrowser)
+    root.appendChild(tabs_widget)
+
+    def select_tab(btn, panel):
+        for tb in tablist.querySelectorAll('[role="tab"]'):
+            tb.setAttribute('aria-selected', 'false')
+            tb.setAttribute('tabindex', '-1')
+        btn.setAttribute('aria-selected', 'true')
+        btn.setAttribute('tabindex', '0')
+        for p in tabs_widget.querySelectorAll('[role="tabpanel"]'):
+            p.setAttribute('hidden', '')
+        panel.removeAttribute('hidden')
+
+    tab_interface_btn.addEventListener('click', def(ev): select_tab(tab_interface_btn, panel_interface);)
+    tab_browse_btn.addEventListener('click', def(ev): select_tab(tab_browse_btn, panel_browse);)
+    tab_tagbrowser_btn.addEventListener('click', def(ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser);)
+
+    def on_tablist_keydown(ev):
+        tabs = tablist.querySelectorAll('[role="tab"]')
+        idx = -1
+        for i in range(tabs.length):
+            if tabs[i] is ev.target:
+                idx = i
+                break
+        if idx < 0:
+            return
+        if ev.key is 'ArrowRight':
+            ev.preventDefault()
+            next_idx = (idx + 1) % tabs.length
+            tabs[next_idx].focus()
+            tabs[next_idx].click()
+        elif ev.key is 'ArrowLeft':
+            ev.preventDefault()
+            next_idx = (idx - 1 + tabs.length) % tabs.length
+            tabs[next_idx].focus()
+            tabs[next_idx].click()
+
+    tablist.addEventListener('keydown', on_tablist_keydown)
+    return panel_interface, panel_browse, panel_tagbrowser
+
+
+def selected_browse_fields(container):
+    ans = v'[]'
+    for checkbox in container.querySelectorAll('input[data-field-key]'):
+        if checkbox.checked:
+            ans.push(checkbox.getAttribute('data-field-key'))
+    return ans
+
+
+def save_browse_fields(container, ev):
+    set_browse_fields(selected_browse_fields(container))
+
+
+def _highlight_light_from_storage(val):
+    return (val.light if val and jstype(val) is 'object' else None) or DEFAULT_PRIMARY_HEX
+
+
+def _highlight_dark_from_storage(val):
+    return (val.dark if val and jstype(val) is 'object' else None) or DEFAULT_PRIMARY_DARK_HEX
+
+
+def _highlight_light_to_storage(color):
+    existing = get_session_data().get('ui_highlight_colors') or {}
+    return {'light': color, 'dark': existing.dark or DEFAULT_PRIMARY_DARK_HEX}
+
+
+def _highlight_dark_to_storage(color):
+    existing = get_session_data().get('ui_highlight_colors') or {}
+    return {'light': existing.light or DEFAULT_PRIMARY_HEX, 'dark': color}
+
+
+def create_browse_fields_widget(container):
+    def refresh():
+        if container.isConnected:
+            create_browse_fields_widget(container)
+        else:
+            window.cs_refresh_browse_field_settings = None
+
+    window.cs_refresh_browse_field_settings = refresh
+    clear(container)
+    try:
+        container.classList.add('cs-prefs')
+    except Exception:
+        pass
+    container.appendChild(E.div(_('Control which categories are visible in the sidebar.'), class_='browse-intro'))
+    outer = E.div(class_='list')
+    container.appendChild(outer)
+
+    found = False
+    for field in browse_field_settings():
+        found = True
+        div = E.div(
+            class_='item',
+            E.div(class_='item-main'),
+        )
+        control = E.label(
+            style='cursor: pointer',
+            E.input(type='checkbox', data_field_key=field.key),
+            E.span(field.name or field.key, class_='label'),
+        )
+        control.classList.add('control')
+        div.firstChild.appendChild(control)
+        checkbox = control.firstChild
+        checkbox.checked = bool(field.enabled)
+        checkbox.addEventListener('change', save_browse_fields.bind(None, container))
+        outer.appendChild(div)
+
+    if not found:
+        outer.appendChild(E.div(
+            class_='item',
+            E.div(
+                class_='item-main',
+                E.div(class_='control', E.span(_('No browse fields available'), class_='label'))
+            )
+        ))
+
+
+def get_ui_prefs():
+    return [
+        {
+            'name': 'book_list_color_scheme',
+            'text': _('Color scheme'),
+            'tooltip': _('Light or dark styling for the interface. Automatic follows your device or browser'),
+            'choices': [('auto', _('Automatic')), ('dark', _('Dark')), ('light', _('Light'))],
+            'onchange': apply_book_list_theme,
+        },
+        {
+            'name': 'ui_highlight_colors',
+            'text': _('Highlight color (light theme)'),
+            'tooltip': _('Used for primary buttons, links, focus rings, et cetera in the light theme'),
+            'type': 'color',
+            'from_storage': _highlight_light_from_storage,
+            'to_storage': _highlight_light_to_storage,
+            'onchange': apply_book_list_theme,
+        },
+        {
+            'name': 'ui_highlight_colors',
+            'text': _('Highlight color (dark theme)'),
+            'tooltip': _('Used for primary buttons, links, focus rings, et cetera in the dark theme'),
+            'type': 'color',
+            'from_storage': _highlight_dark_from_storage,
+            'to_storage': _highlight_dark_to_storage,
+            'onchange': apply_book_list_theme,
+        },
+        {
+            'name': 'show_sidebar_in_book_viewer',
+            'text': _('Show sidebar when reading'),
+            'tooltip': _('Show the left navigation sidebar when reading books'),
+        },
+        {
+            'name': 'series_nav_display_mode',
+            'text': _('Series display mode'),
+            'tooltip': _('Choose how series are displayed in the Series navigation panel'),
+            'choices': [('stack', _('Stacked covers')), ('list', _('List')),],
+        },
+    ]
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    container.appendChild(E.div(class_='cs-prefs ' + CLASS_NAME))
+    root = container.lastChild
+    create_top_bar(container, title=_('Settings'), icon='back')
+    panel_interface, panel_browse, panel_tagbrowser = create_tabs_widget(root)
+    # --- Interface tab content ---
+    create_prefs_widget(panel_interface, get_ui_prefs())
+    # --- Browse tab content ---
+    create_browse_fields_widget(panel_browse)
+    # --- Tag browser tab content ---
+    create_prefs_widget(panel_tagbrowser, get_tb_prefs())
+
+
+set_panel_handler('book_list^prefs', init)

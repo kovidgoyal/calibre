@@ -117,10 +117,7 @@ class ScientificAmerican(BasicNewsRecipe):
         for section in issue_info.get('article_previews', {}):
             for article in issue_info.get('article_previews', {}).get(section, []):
                 self.log('\t', article['title'])
-                if section.startswith('featur'):
-                    feed_name = section.capitalize()
-                else:
-                    feed_name = article['category']
+                feed_name = article['column']
                 if feed_name not in feeds:
                     feeds[feed_name] = []
                 feeds[feed_name].append(
@@ -131,7 +128,9 @@ class ScientificAmerican(BasicNewsRecipe):
                             article['slug'],
                         ),
                         'description': article['summary'],
+                        'page_number': int(article['page_number'])
                     }
                 )
-        sorted_feeds = dict(sorted(feeds.items(), key=lambda x: (not x[0].startswith('Featur'), x[0])))
+        # articles are already sorted by page number within a feed, but feeds are not in order
+        sorted_feeds = dict(sorted(feeds.items(), key=lambda x: x[1][0]['page_number']))
         return sorted_feeds.items()

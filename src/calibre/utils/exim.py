@@ -549,7 +549,7 @@ def run_exporter(export_dir=None, args=None, check_known_libraries=True):
             libraries = {os.path.normcase(os.path.abspath(os.path.expanduser(path))) for path in args[1:]}
         if check_known_libraries and libraries - set(all_libraries):
             raise SystemExit('Unknown library: ' + tuple(libraries - set(all_libraries))[0])
-        libraries = {p: all_libraries[p] for p in libraries}
+        libraries = {p: all_libraries.get(p, 1) for p in libraries}
         print('Exporting libraries:', ', '.join(sorted(libraries)), 'to:', export_dir)
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=libraries)
         return

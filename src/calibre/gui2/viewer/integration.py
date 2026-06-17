@@ -3,6 +3,9 @@
 
 import os
 import re
+from datetime import datetime
+
+from calibre.db.constants import EBOOK_VIEWER_DEVICE, EBOOK_VIEWER_USER
 
 
 def get_book_library_details(absolute_path_to_ebook):
@@ -52,7 +55,7 @@ def load_annotations_map_from_library(book_library_details, user_type='local', u
     return ans
 
 
-def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt) -> bool:
+def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt, last_read_data) -> bool:
     import json
 
     from calibre.gui2.listener import send_message_in_process
@@ -63,6 +66,7 @@ def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt) 
         'library_id': library_id,
         'book_id': book_id,
         'book_fmt': book_fmt,
+        'last_read_data': last_read_data,
     })
     msg = 'save-annotations:' + packet
     try:
@@ -72,28 +76,35 @@ def send_msg_to_calibre(alist, sync_annots_user, library_id, book_id, book_fmt) 
         return False
 
 
-def save_annotations_in_gui(library_broker, msg) -> bool:
+def save_annotations_in_gui(library_broker, msg) -> tuple[str, int]:
     import json
     data = json.loads(msg)
     db = library_broker.get(data['library_id'])
+    lid, book_id = '', 0
     if db:
         db = db.new_api
+        book_id, fmt = int(data['book_id']), data['book_fmt'].upper()
         with db.write_lock:
-            if db._has_format(data['book_id'], data['book_fmt']):
-                db._save_annotations_list(int(data['book_id']), data['book_fmt'].upper(), data['sync_annots_user'], data['alist'])
-                return True
-    return False
+            if db._has_format(book_id, fmt):
+                lid = db.library_id
+                db._save_annotations_list(book_id, fmt, data['sync_annots_user'], data['alist'])
+                if lrd := data.get('last_read_data'):
+                    epoch = datetime.fromisoformat(lrd['timestamp']).timestamp()
+                    db._set_last_read_position(
+                        book_id, fmt, user=EBOOK_VIEWER_USER, device=EBOOK_VIEWER_DEVICE,
+                        cfi=lrd['cfi'], pos_frac=lrd['pos_frac'], epoch=epoch)
+    return lid, book_id
 
 
-def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None):
+def save_annotations_list_to_library(book_library_details, alist, sync_annots_user='', calibre_data=None, last_read_data=None):
     calibre_data = calibre_data or {}
-    if calibre_data.get('library_id') and calibre_data.get('book_id') and send_msg_to_calibre(
-            alist, sync_annots_user, calibre_data['library_id'], calibre_data['book_id'], calibre_data['book_fmt']):
+    if (lid := calibre_data.get('library_id')) and (bid := calibre_data.get('book_id')) and send_msg_to_calibre(
+            alist, sync_annots_user, lid, bid, calibre_data['book_fmt'], last_read_data):
         return
 
     import apsw
 
-    from calibre.db.backend import Connection, save_annotations_list_to_cursor
+    from calibre.db.backend import Connection, save_annotations_list_to_cursor, save_last_read_position_to_cursor
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)
@@ -104,6 +115,12 @@ def save_annotations_list_to_library(book_library_details, alist, sync_annots_us
         if not database_has_annotations_support(conn.cursor()):
             return
         with conn:
-            save_annotations_list_to_cursor(conn.cursor(), alist, sync_annots_user, book_library_details['book_id'], book_library_details['fmt'])
+            save_annotations_list_to_cursor(
+                conn.cursor(), alist, sync_annots_user, book_library_details['book_id'], book_library_details['fmt'])
+            if last_read_data:
+                epoch = datetime.fromisoformat(last_read_data['timestamp']).timestamp()
+                save_last_read_position_to_cursor(
+                    conn.cursor(), book_library_details['book_id'], book_library_details['fmt'], EBOOK_VIEWER_USER,
+                    EBOOK_VIEWER_DEVICE, last_read_data['cfi'], epoch=epoch, pos_frac=last_read_data['pos_frac'])
     finally:
         conn.close()

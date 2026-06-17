@@ -19,6 +19,8 @@ import zipfile
 from functools import partial, reduce
 from itertools import repeat
 
+import icnsutil
+
 from bypy.constants import OUTPUT_DIR, PREFIX, PYTHON, python_major_minor_version
 from bypy.constants import SRC as CALIBRE_DIR
 from bypy.freeze import extract_extension_modules, fix_pycryptodome, freeze_python, is_package_dir, path_to_freeze_dir
@@ -38,7 +40,7 @@ QT_FRAMEWORKS = [x.replace(f'{QT_MAJOR}', '') for x in QT_DLLS]
 ENV = dict(
     FONTCONFIG_PATH='@executable_path/../Resources/fonts',
     FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-    SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
+    SSL_CERT_DIR='@executable_path/../Resources/resources/mozilla-ca-certs',
     OPENSSL_ENGINES='@executable_path/../Frameworks/engines-3',
     OPENSSL_MODULES='@executable_path/../Frameworks/ossl-modules',
 )
@@ -46,7 +48,21 @@ APPNAME, VERSION = calibre_constants['appname'], calibre_constants['version']
 basenames, main_modules, main_functions = calibre_constants['basenames'], calibre_constants['modules'], calibre_constants['functions']
 ARCH_FLAGS = '-arch x86_64 -arch arm64'.split()
 EXPECTED_ARCHES = {'x86_64', 'arm64'}
-MINIMUM_SYSTEM_VERSION = '13.3.0'
+MINIMUM_SYSTEM_VERSION = '14.0.0'
+
+
+def generate_icns(light_iconset: str, dark_iconset: str, output_path: str) -> None:
+    def add_iconset(icns, path):
+        for img in sorted(os.listdir(path)):
+            if img.endswith('.png'):
+                icns.add_media(file=os.path.join(path, img))
+    dark_icns = icnsutil.IcnsFile()
+    add_iconset(dark_icns, dark_iconset)
+    dark_icns.write(output_path)
+    light_icns = icnsutil.IcnsFile()
+    add_iconset(light_icns, light_iconset)
+    light_icns.add_media(icnsutil.IcnsType.key_from_readable('dark'), file=output_path)
+    light_icns.write(output_path)
 
 
 def compile_launcher_lib(contents_dir, base, pyver, inc_dir):
@@ -223,6 +239,7 @@ class Freeze:
 
     @flush
     def run_tests(self):
+        print('Running tests...', flush=True)
         self.test_runner(join(self.contents_dir, 'MacOS', 'calibre-debug'), self.contents_dir)
 
     @flush
@@ -370,16 +387,14 @@ class Freeze:
 
     @flush
     def create_skeleton(self):
+        print('Creating skeleton')
         c = join(self.build_dir, 'Contents')
         for x in ('Frameworks', 'MacOS', 'Resources'):
             os.makedirs(join(c, x))
-        icons = glob.glob(join(CALIBRE_DIR, 'icons', 'icns', '*.iconset'))
-        if not icons:
-            raise SystemExit('Failed to find icns format icons')
-        for x in icons:
-            subprocess.check_call([
-                'iconutil', '-c', 'icns', x, '-o', join(
-                    self.resources_dir, basename(x).partition('.')[0] + '.icns')])
+        icns_dir = join(CALIBRE_DIR, 'icons', 'icns')
+        shutil.copy(join(icns_dir, 'Assets.car'), self.resources_dir)
+        for x in glob.glob(join(icns_dir, '*.icns')):
+            shutil.copy(x, self.resources_dir)
         for helpers in (self.helpers_dir,):
             os.makedirs(helpers)
             cdir = dirname(helpers)
@@ -403,7 +418,8 @@ class Freeze:
                 LSMinimumSystemVersion=MINIMUM_SYSTEM_VERSION,
                 LSRequiresNativeExecution=True,
                 NSAppleScriptEnabled=False,
-                CFBundleIconFile='',
+                CFBundleIconFile='book.icns',
+                CFBundleIconName='book',
             )
             with open(join(cdir, 'Info.plist'), 'wb') as p:
                 plistlib.dump(pl, p)
@@ -457,6 +473,7 @@ class Freeze:
             NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
             CFBundleGetInfoString=('calibre, an E-book management '
                                    'application. Visit https://calibre-ebook.com for details.'),
+            CFBundleIconName='calibre',
             CFBundleIconFile='calibre.icns',
             NSHighResolutionCapable=True,
             LSApplicationCategoryType='public.app-category.productivity',
@@ -760,6 +777,7 @@ class Freeze:
             }[launcher]
             plist['CFBundleExecutable'] = launcher
             plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
+            plist['CFBundleIconName'] = launcher
             plist['CFBundleIconFile'] = launcher + '.icns'
             e = plist['CFBundleDocumentTypes'][0]
             e['CFBundleTypeExtensions'] = [x.lower() for x in formats]

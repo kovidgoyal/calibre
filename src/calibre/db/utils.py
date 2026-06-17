@@ -9,15 +9,26 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 from collections import OrderedDict, namedtuple
 from contextlib import suppress
 from locale import localeconv
-from threading import Lock
+from threading import RLock
 
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import canonicalize_lang, ngettext
+
+
+def atomic_write(path: str, data: str | bytes) -> None:
+    mode = 'w' if isinstance(data, str) else 'wb'
+    dpath = make_long_path_useable(os.path.dirname(path))
+    os.makedirs(dpath, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode, delete=False, dir=dpath) as f:
+        f.write(data)
+    os.replace(make_long_path_useable(f.name), make_long_path_useable(path))
 
 
 def force_to_bool(val):
@@ -125,7 +136,7 @@ class ThumbnailCache:
         self.group_id = 'group'
         self.thumbnail_size = thumbnail_size
         self.size_changed = False
-        self.lock = Lock()
+        self.lock = RLock()
         self.min_disk_cache = min_disk_cache
         if test_mode:
             self.log = self.fail_on_error

@@ -6,6 +6,8 @@ from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 
+source_removal_actions = frozenset({'add', 'automerge'})
+
 
 def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, format_map, extra_file_map):
     seen_fmts = set()
@@ -20,6 +22,8 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
                 at_least_one_format_added = True
         if at_least_one_format_added and extra_file_map:
             newdb.add_extra_files(identical_book, extra_file_map, replace=False, auto_rename=True)
+        if mi.cover_data and mi.cover_data[1] and not newdb.field_for('cover', identical_book):
+            newdb.set_cover({identical_book: mi.cover_data[1]})
 
     if automerge_action == 'new record':
         incoming_fmts = {fmt.upper() for fmt in format_map}

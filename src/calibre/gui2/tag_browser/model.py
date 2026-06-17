@@ -84,7 +84,7 @@ class TagTreeItem:  # {{{
             self.tag = Tag(data, category=category_key,
                    is_editable=category_key not in
                             ['news', 'search', 'identifiers', 'languages'],
-                   is_searchable=category_key not in ['search'])
+                   is_searchable=category_key != 'search')
         elif self.type == self.TAG:
             self.tag = data
             self.cached_average_rating = None
@@ -515,7 +515,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in hidden_cats:
             if cat in db.field_metadata:
                 self.hidden_categories.add(cat)
-        db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
+        db.new_api.set_pref('tag_browser_hidden_categories', sorted(self.hidden_categories))
         if hidden_categories is not None:
             self.hidden_categories = hidden_categories
 
@@ -746,7 +746,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 last_idx = 0
                 for idx,tag in enumerate(data[key]):
                     # Deal with items that don't have sorts, such as formats
-                    t = tag.sort if tag.sort else tag.name
+                    t = tag.sort or tag.name
                     c = icu_upper(t) if t else ' '
                     ordnum, ordlen = collation_order_for_partitioning(c)
                     if last_ordnum != ordnum:

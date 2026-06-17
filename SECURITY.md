@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-There are no security specific releases of calibre. Security bugs are fixed
+There are no security-specific releases of calibre. Security bugs are fixed
 and released just like all other bugs.
 
 ## Reporting a vulnerability
@@ -17,5 +17,5 @@ Note that I will generally respond to security communication within 72 hours. On
 the bug is confirmed, it will be fixed or at least mitigated within another 72
 hours, at which time the fix will typically be committed to master and hence be
 public. That timeline might be extended based on the severity of the issue and the
-current state of master in terms of making a new release, if so, it will be
+current state of master in terms of making a new release. If so, it will be
 done in consultation with the issue reporter.

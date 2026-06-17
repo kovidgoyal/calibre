@@ -110,7 +110,7 @@ will be expanded to::
 
     <a href="filename">whatever text you selected</a>
 
-Inserting a HTML image tag [<i]
+Inserting an HTML image tag [<i]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is very similar to inserting an HTML link, as we saw above. It allows you
@@ -137,7 +137,7 @@ Type the tag name, for example: ``span`` and press |ct|, that will result in::
 
 You will note that the closing tag has been automatically filled with ``span``.
 This is achieved with yet another feature of placeholders, *mirroring*.
-Mirroring simply means that if you specify the sample placeholder more than
+Mirroring simply means that if you specify the same placeholder more than
 once in a template, the second and all later positions will be automatically
 filled in with whatever you type in the first position, when you press |ct|.
 The definition for this snippet is::

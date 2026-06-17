@@ -420,11 +420,17 @@ class Adder(QObject):
         seen_fmts = set()
         replace = gprefs['automerge'] == 'overwrite'
         cover_removed = False
+        cdata = None
         for identical_book_id in identical_book_ids:
             ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
             self.add_formats(identical_book_id, paths, mi, replace=replace)
             self.merged_formats_added_to.add(identical_book_id)
+            if cover_path and not self.db.field_for('cover', identical_book_id):
+                if cdata is None:
+                    with open(cover_path, 'rb') as f:
+                        cdata = f.read()
+                self.db.set_cover({identical_book_id: cdata})
         if gprefs['automerge'] == 'new record':
             incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
             if incoming_fmts.intersection(seen_fmts):

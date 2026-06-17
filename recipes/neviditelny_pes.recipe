@@ -1,0 +1,46 @@
+import re
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class pesRecipe(BasicNewsRecipe):
+    __author__  = 'bubak'
+    title = u'Neviditelný pes'
+    publisher = u''
+    description = u'Neviditelný pes'
+    oldest_article = 1
+    max_articles_per_feed = 20
+    use_embedded_content = False
+    remove_empty_feeds = True
+
+    feeds = [
+            (u'Neviditelný pes', u'https://neviditelnypes.lidovky.cz/rss.aspx')
+            ]
+
+    language = 'cs'
+    cover_url = 'http://g.zpravy.cz/o/pes/logo_pes.jpg'
+    remove_javascript = True
+    no_stylesheets = True
+    extra_css             = '''
+                            '''
+
+    remove_tags = [dict(name='ul', attrs={'id':'main-nav'})
+                 ,dict(name='div', attrs={'class':['psi-hlava', 'list-art', 'links', 'col-b', 'footer', 'pes-tag-cloud']})
+                 ,dict(name='div', attrs={'id':'portal-g0'})
+    ]
+    remove_tags_before = dict(name='div', attrs={'id':'art-full'})
+    remove_tags_after = dict(name='div', attrs={'class':'authors'})
+
+    # move the author forward
+    preprocess_regexps = [(re.compile(
+        r'(<h1 class.*?</h1>)(.*?)(<(?:span|a) class="name".*?>)(.*?)<', re.DOTALL|re.IGNORECASE),
+                           lambda m: m.group(1) + '<b>' + m.group(4) + '</b>' + m.group(2) + m.group(3) + m.group(4) + '<'),
+                          # remove links
+                          (re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+
+    def image_url_processor(self, baseurl, url):
+        if url.startswith('//'):
+            return 'http:' + url
+        if url.startswith('file://'):
+            return url.replace('file://', 'http://')
+        return url

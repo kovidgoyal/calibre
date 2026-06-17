@@ -9,7 +9,7 @@ import codecs
 import io
 import os
 import struct
-import zlib
+from compression import zlib
 
 from .pylrfopt import tagListOptimizer
 

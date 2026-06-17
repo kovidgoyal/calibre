@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class AdvancedUserRecipe1716097549(BasicNewsRecipe):
@@ -19,6 +19,22 @@ class AdvancedUserRecipe1716097549(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     scale_news_images = 600, 800
     compress_news_images = True
+
+    use_embedded_content = False
+    auto_cleanup = False
+
+    keep_only_tags = [
+        # Lede block: section breadcrumb (e.g. "Future Perfect"), h1
+        # title, dek, byline, publication timestamp, and hero image.
+        classes('duet--article--lede'),
+        # Article body container.
+        classes('duet--layout--entry-body'),
+    ]
+
+    remove_tags = [
+        # Social share row appended after the byline.
+        classes('duet--article--share-buttons'),
+    ]
 
     feeds          = [
         ('All Articles', 'https://www.vox.com/rss/index.xml'),

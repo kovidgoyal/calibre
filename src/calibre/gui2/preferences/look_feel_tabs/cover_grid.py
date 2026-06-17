@@ -10,12 +10,13 @@ from qt.core import QTabWidget, pyqtSignal
 from calibre.gui2 import gprefs
 from calibre.gui2.library.alternate_views import CM_TO_INCH, auto_height
 from calibre.gui2.preferences import LazyConfigWidgetBase
-from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_Form
+from calibre.gui2.preferences.look_feel_tabs import RulesSetting
+from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_cover_grid_tab
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 
 
-class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
+class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
 
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
@@ -28,16 +29,18 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         db = self.gui.library_view.model().db
         r = self.register
 
+        r('cover_grid_icon_rules', {}, setting=RulesSetting)
         r('cover_grid_width', gprefs)
         r('cover_grid_height', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)
+        r('cover_grid_text_flush_bottom', gprefs)
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
 
         fm = db.field_metadata
-        choices = sorted(((fm[k]['name'], k) for k in fm.displayable_field_keys() if fm[k]['name']),
+        choices = sorted((('{} ({})'.format(fm[k]['name'], k), k) for k in fm.displayable_field_keys() if fm[k]['name']),
                          key=lambda x:sort_key(x[0]))
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 

@@ -139,7 +139,7 @@ class Model(NamedTuple):
     pricing: Pricing | None
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> 'Model':
+    def from_dict(cls, x: dict[str, object]) -> Model:
         caps = AICapabilities.text_to_text
         mid = x['name']
         if 'embedContent' in x['supportedGenerationMethods']:
@@ -183,7 +183,7 @@ def parse_models_list(entries: list[dict[str, Any]]) -> dict[str, Model]:
 
 
 @lru_cache(2)
-def get_available_models() -> dict[str, 'Model']:
+def get_available_models() -> dict[str, Model]:
     api_key = decoded_api_key()
     cache_loc = os.path.join(cache_dir(), 'ai', f'{GoogleAI.name}-models-v1.json')
     data = get_cached_resource(cache_loc, MODELS_URL, headers=(('X-goog-api-key', api_key),))

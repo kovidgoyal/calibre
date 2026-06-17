@@ -43,7 +43,7 @@ class BookforumMagazine(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup(
-            _issue_url if _issue_url else 'https://www.bookforum.com/print'
+            _issue_url or 'https://www.bookforum.com/print'
         )
         meta_ele = soup.find('meta', property='og:title')
         if meta_ele:

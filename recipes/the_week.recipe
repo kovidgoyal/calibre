@@ -6,10 +6,11 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class TheWeek(BasicNewsRecipe):
-    title = u'The Week'
+    title = 'The Week'
     description = (
         'The Week is the best selling general interest English news magazine. The magazine covers politics, entertainment,'
-        ' social issues, trends, technology, lifestyle and everything else you should be knowing. Best downloaded on Mondays.')
+        ' social issues, trends, technology, lifestyle and everything else you should be knowing. Best downloaded on Mondays.'
+    )
     language = 'en_IN'
     __author__ = 'unkn0wn'
     encoding = 'utf-8'
@@ -34,7 +35,7 @@ class TheWeek(BasicNewsRecipe):
     recipe_specific_options = {
         'date': {
             'short': 'The date of the edition to download (YYYY.MM.DD format)',
-            'long': 'For example, 2024.06.30'
+            'long': 'For example, 2024.06.30',
         }
     }
 
@@ -44,7 +45,9 @@ class TheWeek(BasicNewsRecipe):
             soup = self.index_to_soup(
                 'https://www.magzter.com/IN/Malayala_Manorama/THE_WEEK/Business/'
             )
-            return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
+            return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())[
+                'src'
+            ]
 
     def parse_index(self):
         issue = 'https://www.theweek.in/theweek.html'
@@ -70,6 +73,21 @@ class TheWeek(BasicNewsRecipe):
         return [('Articles', ans)]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src-web': True}):
-            img['src'] = img['data-src-web']
+        for pic in soup.findAll('picture'):
+            if src := pic.find('source'):
+                if img := pic.find('img'):
+                    img['src'] = src['srcset'].split('.jpg')[0] + '.jpg'
+            for src in pic.findAll('source'):
+                src.extract()
+        for img in soup.findAll('img'):
+            src = img.get('data-src-mobile') or img.get('data-src-web')
+            if src:
+                img['src'] = src
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        h1 = soup.find('h1')
+        if h1:
+            p = h1.findNext('p')
+            if p:
+                article.text_summary = article.summary = self.tag_to_string(p)

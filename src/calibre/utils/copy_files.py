@@ -102,7 +102,7 @@ class WindowsFileCopier:
         self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path))
         self.folders.append(path)
 
-    def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> 'winutil.Handle':
+    def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> winutil.Handle:
         flags = winutil.FILE_FLAG_BACKUP_SEMANTICS if is_folder else winutil.FILE_FLAG_SEQUENTIAL_SCAN
         # Do not open symbolic link target to prevent unwanted delete_on_close
         flags |= getattr(winutil, 'FILE_FLAG_OPEN_REPARSE_POINT', 0x00200000)
@@ -183,7 +183,7 @@ class WindowsFileCopier:
 
     def rename_all(self) -> None:
         for src_path, dest_path in self.copy_map.items():
-            winutil.move_file(make_long_path_useable(src_path), make_long_path_useable(dest_path))
+            os.replace(make_long_path_useable(src_path), make_long_path_useable(dest_path))
 
 
 def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFileCopier:

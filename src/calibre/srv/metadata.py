@@ -76,12 +76,14 @@ def book_as_json(db, book_id):
         fmts = db._formats(book_id, verify_formats=False)
         ans = []
         fm = {}
+        mtimes = {}
         for fmt in fmts:
             m = db.format_metadata(book_id, fmt)
             if m and m.get('size', 0) > 0:
                 ans.append(fmt)
                 fm[fmt] = m['size']
-        ans = {'formats': ans, 'format_sizes': fm}
+                mtimes[fmt] = encode_datetime(m['mtime'])
+        ans = {'formats': ans, 'format_sizes': fm, 'format_mtimes': mtimes}
         if not ans['formats'] and not db.has_id(book_id):
             return None
         fm = db.field_metadata
@@ -188,7 +190,7 @@ def get_icon_for_node(node, parent, node_to_tag_map, tag_map, eval_formatter, db
     def name_for_icon(node):
         return node.get('original_name', node.get('name'))
 
-    value_icons = get_gpref('tags_browser_value_icons')
+    value_icons = get_gpref('tags_browser_value_icons') or {}
     val_icon, for_children = value_icons.get(category, {}).get(name_for_icon(node), (None, False))
     if val_icon is None:
         # No specific icon. Walk up the hierarchy checking parents.

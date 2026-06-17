@@ -254,8 +254,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             a(r'^program:', 'keymode')
             a('|'.join([rf'\b{keyword}\b' for keyword in self.KEYWORDS_GPM]), 'keyword')
             a('|'.join([rf'\b{builtin}\b' for builtin in
-                            (builtin_functions if builtin_functions else
-                                                formatter_functions().get_builtins())]),
+                            (builtin_functions or formatter_functions().get_builtins())]),
                 'builtin')
             a(r'''(?<!:)'[^']*'|"[^"]*\"''', 'string')
         else:
@@ -577,9 +576,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         self.setup_saved_template_editor(not dialog_is_st_editor, dialog_is_st_editor)
 
-        self.all_functions = all_functions if all_functions else formatter_functions().get_functions()
-        self.builtins = (builtin_functions if builtin_functions else
-                         formatter_functions().get_builtins_and_aliases())
+        self.all_functions = all_functions or formatter_functions().get_functions()
+        self.builtins = (builtin_functions or formatter_functions().get_builtins_and_aliases())
 
         # Set up the breakpoint bar
         run_as_you_type = gprefs.get('template_editor_run_as_you_type')

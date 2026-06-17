@@ -16,7 +16,7 @@ from threading import Lock
 from calibre import as_unicode
 from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.loop import RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
-from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
+from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE, connection_header_tokens
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre_extensions.speedup import utf8_decode
 from calibre_extensions.speedup import websocket_mask as fast_mask
@@ -274,7 +274,7 @@ class WebSocketConnection(HTTPConnection):
     def finalize_headers(self, inheaders):
         upgrade = inheaders.get('Upgrade', '')
         key = inheaders.get('Sec-WebSocket-Key', None)
-        conn = {x.strip().lower() for x in inheaders.get('Connection', '').split(',')}
+        conn = connection_header_tokens(inheaders.get('Connection', ''))
         if key is None or upgrade.lower() != 'websocket' or 'upgrade' not in conn:
             return HTTPConnection.finalize_headers(self, inheaders)
         ver = inheaders.get('Sec-WebSocket-Version', 'Unknown')

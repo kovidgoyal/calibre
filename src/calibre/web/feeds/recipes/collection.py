@@ -234,7 +234,7 @@ def get_builtin_recipe_titles():
 
 
 def download_builtin_recipe(urn):
-    import bz2
+    from compression import bz2
 
     from calibre.utils.config_base import prefs
     from calibre.utils.https import get_https_resource_securely

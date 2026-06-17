@@ -45,7 +45,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
                 u'&art=' + quote(detail_item)
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_url or url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
@@ -123,7 +123,10 @@ def format_price_in_RUR(price):
 def ungzipResponse(r, b):
     headers = r.info()
     if headers.get('Content-Encoding', '')=='gzip':
-        import gzip
+        try:
+            from compression import gzip
+        except ImportError:
+            import gzip
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()
         gz.close()

@@ -9,7 +9,7 @@ https://manual.calibre-ebook.com/develop.html
 
 On Linux, there are two kinds of installation from source possible. Note that
 both kinds require lots of dependencies as well as a full development
-environment (compilers, headers files, etc.)
+environment (compilers, header files, etc.)
 
 All installation related functions are accessed by the command::
 
@@ -41,7 +41,7 @@ In order to install calibre, you will need:
 
     For anyone familiar with autotools builds, this is somewhat similar to the
     difference between configure.ac in git and the dist tarball after
-    autoreconf is run. i.e. users are generally expected to use the latter.
+    autoreconf is run, i.e., users are generally expected to use the latter.
 
 Build
 =====

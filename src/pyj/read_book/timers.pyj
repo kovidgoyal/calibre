@@ -14,13 +14,22 @@ class Timers:
         self.reset_read_timer()
         self.rates = v'[]'
         self.average = self.stddev = 0
+        self.chapter_times = v'{}'
+        self.current_chapter = None
 
     def start_book(self, book):
         self.reset_read_timer()
         self.rates = v'[]'
+        self.chapter_times = v'{}'
+        self.current_chapter = None
         if book?.saved_reading_rates?.rates:
             self.rates = book.saved_reading_rates.rates.slice(0)
             self.calculate()
+        if book?.saved_reading_rates?.chapter_times:
+            self.chapter_times = Object.assign(v'{}', book.saved_reading_rates.chapter_times)
+
+    def set_chapter(self, name):
+        self.current_chapter = name
 
     def reset_read_timer(self):
         self.last_scroll_at = None
@@ -50,6 +59,8 @@ class Timers:
         time_since_last_scroll = (now - last_scroll_at) / 1000
         if time_since_last_scroll <= 0 or time_since_last_scroll >= 300:
             return
+        if self.current_chapter:
+            self.chapter_times[self.current_chapter] = (self.chapter_times[self.current_chapter] or 0) + time_since_last_scroll
         if time_since_last_scroll < 2:
             return
         rate = amt_scrolled / time_since_last_scroll
@@ -60,7 +71,7 @@ class Timers:
         self.rates.push(rate)
         self.calculate()
         if ui_operations.update_reading_rates:
-            ui_operations.update_reading_rates({'rates': self.rates.slice(0)})
+            ui_operations.update_reading_rates({'rates': self.rates.slice(0), 'chapter_times': Object.assign(v'{}', self.chapter_times)})
 
     def time_for(self, length):
         if length >= 0 and self.rates.length >= THRESHOLD and self.average > 0:

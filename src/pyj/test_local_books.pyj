@@ -1,0 +1,65 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Hassan Raza <raihassanraza10 at gmail.com>
+from __python__ import hash_literals
+
+from book_list.local_books import (
+    matching_book_indices_for_query, metadata_search_text,
+    normalize_local_search_query
+)
+from testing import assert_equal, test
+
+
+def sample_books():
+    return {
+        0: {'metadata': {
+            'title': 'Dune Messiah',
+            'authors': ['Frank Herbert'],
+            'tags': ['Science Fiction', 'Arrakis'],
+            'formats': ['EPUB'],
+            'identifiers': {'isbn': '9780593098233'},
+        }},
+        1: {'metadata': {
+            'title': 'The Left Hand of Darkness',
+            'authors': ['Ursula K. Le Guin'],
+            'publisher': 'Ace Books',
+            'series': 'Hainish Cycle',
+            'formats': ['AZW3'],
+        }},
+    }
+
+
+@test
+def local_book_search_query_normalization():
+    assert_equal(normalize_local_search_query('  Dune   Messiah  '), 'dune messiah')
+    assert_equal(normalize_local_search_query(None), '')
+
+
+@test
+def local_book_search_metadata_text():
+    text = metadata_search_text({
+        'title': 'Title',
+        'authors': ['Author'],
+        'identifiers': {'isbn': '123'},
+        'lang_names': {'eng': 'English'},
+        'comments': 'not searchable',
+        'unknown_field': 'hidden value',
+    })
+    assert_equal(text.indexOf('title') >= 0, True)
+    assert_equal(text.indexOf('author') >= 0, True)
+    assert_equal(text.indexOf('isbn') >= 0, True)
+    assert_equal(text.indexOf('123') >= 0, True)
+    assert_equal(text.indexOf('english') >= 0, True)
+    assert_equal(text.indexOf('authors'), -1)
+    assert_equal(text.indexOf('not searchable'), -1)
+    assert_equal(text.indexOf('hidden value'), -1)
+
+
+@test
+def local_book_search_matches_all_terms():
+    books = sample_books()
+    indices = [0, 1]
+    assert_equal(matching_book_indices_for_query(books, indices, ''), indices)
+    assert_equal(matching_book_indices_for_query(books, indices, 'dune frank'), [0])
+    assert_equal(matching_book_indices_for_query(books, indices, 'science epub'), [0])
+    assert_equal(matching_book_indices_for_query(books, indices, 'ursula hainish'), [1])
+    assert_equal(matching_book_indices_for_query(books, indices, 'missing'), [])

@@ -204,7 +204,7 @@ class WMF:
         self.bitmaps.append(bmp)
 
     def to_png(self):
-        bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
+        bmps = list(sorted(self.bitmaps, key=len))
         bmp = bmps[-1]
         return to_png(bmp)
 

@@ -120,7 +120,7 @@ class LayoutButton(QToolButton):
 
     on_action_trigger = pyqtSignal(bool)
 
-    def __init__(self, name: str, icon: str, label: str, central: 'CentralContainer', shortcut=None):
+    def __init__(self, name: str, icon: str, label: str, central: CentralContainer, shortcut=None):
         super().__init__(central)
         self.central = central
         self.label = label
@@ -185,7 +185,7 @@ class LayoutButton(QToolButton):
             tab_name = {
                 'book_details':'book_details',
                 'cover_grid':'cover_grid',
-                'bookshelf_view':'bookshelf_view',
+                'bookshelf_view':'bookshelf',
                 'cover_browser':'cover_browser',
                 'tag_browser':'tag_browser',
                 'quick_view':'quickview',

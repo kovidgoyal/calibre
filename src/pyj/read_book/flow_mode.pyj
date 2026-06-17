@@ -74,7 +74,7 @@ def report_human_scroll(amt):
 last_change_spine_item_request = {}
 
 
-def _check_for_scroll_end(func, obj, args, report):
+def _check_for_scroll_end(func, obj, args, report, apply_mouse_boundary_delay):
     before = scroll_viewport.block_pos()
     should_flip_progression_direction = func.apply(obj, args)
 
@@ -87,8 +87,8 @@ def _check_for_scroll_end(func, obj, args, report):
         if last_change_spine_item_request.name is csi.name and now - last_change_spine_item_request.at < 2000:
             return False
         ## delay change on boundaries
-        if opts.scroll_mouse_boundary_delay > 0 :
-            if last_change_spine_item_request.denied is None :
+        if apply_mouse_boundary_delay and opts.scroll_mouse_boundary_delay > 0:
+            if last_change_spine_item_request.denied is None:
                 last_change_spine_item_request.denied = now
             if now - last_change_spine_item_request.denied < opts.scroll_mouse_boundary_delay * 1000 :
                 return False
@@ -97,7 +97,7 @@ def _check_for_scroll_end(func, obj, args, report):
         last_change_spine_item_request.name = csi.name
         last_change_spine_item_request.at = now
         go_to_previous_page = args[0] < 0
-        if (should_flip_progression_direction):
+        if should_flip_progression_direction:
             go_to_previous_page = not go_to_previous_page
         get_boss().send_message('next_spine_item', previous=go_to_previous_page)
         return False
@@ -109,12 +109,16 @@ def _check_for_scroll_end(func, obj, args, report):
 
 def check_for_scroll_end(func):
     return def ():
-        return _check_for_scroll_end(func, this, arguments, False)
+        return _check_for_scroll_end(func, this, arguments, False, True)
 
 
 def check_for_scroll_end_and_report(func):
     return def ():
-        return _check_for_scroll_end(func, this, arguments, True)
+        return _check_for_scroll_end(func, this, arguments, True, True)
+
+def check_for_scroll_end_and_report_no_delay(func):
+    return def ():
+        return _check_for_scroll_end(func, this, arguments, True, False)
 
 
 @check_for_scroll_end_and_report
@@ -171,14 +175,23 @@ def goto_boundary(dir):
     return False
 
 
-@check_for_scroll_end_and_report
-def scroll_by_page(direction, flip_if_rtl_page_progression):
+def _scroll_by_page(direction, flip_if_rtl_page_progression):
     b = scroll_viewport.block_size() - 10
     scroll_viewport.scroll_by_in_block_direction(b * direction)
 
     # Let check_for_scroll_end_and_report know whether or not it should flip
     # the progression direction.
     return flip_if_rtl_page_progression and rtl_page_progression()
+
+
+@check_for_scroll_end_and_report
+def scroll_by_page(direction, flip_if_rtl_page_progression):
+    _scroll_by_page(direction, flip_if_rtl_page_progression)
+
+
+@check_for_scroll_end_and_report_no_delay
+def scroll_by_page_no_delay(direction, flip_if_rtl_page_progression):
+    _scroll_by_page(direction, flip_if_rtl_page_progression)
 
 
 def scroll_to_extend_annotation(backward, horizontal, by_page):
@@ -238,10 +251,10 @@ def handle_shortcut(sc_name, evt):
         get_boss().send_message('goto_doc_boundary', start=False)
         return True
     if sc_name is 'pageup':
-        scroll_by_page(-1, False)
+        scroll_by_page_no_delay(-1, False)
         return True
     if sc_name is 'pagedown':
-        scroll_by_page(1, False)
+        scroll_by_page_no_delay(1, False)
         return True
     if sc_name is 'toggle_autoscroll':
         toggle_autoscroll()

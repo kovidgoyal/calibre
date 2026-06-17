@@ -570,7 +570,7 @@ class Container(ContainerBase):  # {{{
         return False
 
     def relpath(self, path, base=None):
-        '''Convert an absolute path (with os separators) to a path relative to
+        '''Convert an absolute path (with OS separators) to a path relative to
         base (defaults to self.root). The relative path is *not* a name. Use
         :meth:`abspath_to_name` for that.'''
         return relpath(path, base or self.root)

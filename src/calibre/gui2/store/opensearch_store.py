@@ -88,7 +88,7 @@ class OpenSearchOPDSStore(StorePlugin):
             return
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else self.web_url))
+            open_url(QUrl(detail_item or self.web_url))
         else:
             d = WebStoreDialog(self.gui, self.web_url, parent, detail_item, create_browser=self.create_browser)
             d.setWindowTitle(self.name)

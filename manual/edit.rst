@@ -44,7 +44,7 @@ the changes you have made look, click the :guilabel:`Save` button or use
 One useful feature is :guilabel:`Checkpoints`. Before you embark on some
 ambitious set of edits, you can create a checkpoint. The checkpoint
 will preserve the current state of your book, then if in the future you decide
-you don't like the changes you have made to you can go back to the state when
+you don't like the changes you have made, you can go back to the state when
 you created the checkpoint. To create a checkpoint, use :guilabel:`Edit->Create
 checkpoint`. Checkpoints will also be automatically created for you whenever you
 run any automated tool like global search and replace. The checkpointing
@@ -150,7 +150,7 @@ E-books typically have a cover image. This image is indicated in the
 you want to designate some other image as the cover, you can do so by right
 clicking on the file and choosing :guilabel:`Mark as cover`.
 
-In addition, EPUB files has the concept of a *titlepage*. A title page is a
+In addition, EPUB files have the concept of a *titlepage*. A title page is a
 HTML file that acts as the title page/cover for the book. You can mark an HTML
 file as the titlepage when editing EPUBs by right-clicking. Be careful that the
 file you mark contains only the cover information. If it contains other
@@ -278,7 +278,7 @@ Search ignoring HTML tags
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There is also a dedicated tool for searching for text, ignoring any HTML tags
-in between. For example, if the book has the HTML ``Empahisis on a
+in between. For example, if the book has the HTML ``Emphasis on a
 <i>word</i>.`` you can search for ``on a word`` and it will be found even
 though there is an ``<i>`` tag in the middle. Use this
 tool via the :guilabel:`Search->Search ignoring HTML markup` menu item.
@@ -538,7 +538,6 @@ The Live preview panel
     :alt: The Live preview panel showing a rendering of the current file
     :class: float-left-img
 
-The :guilabel:`File preview` gives you an overview of the various files inside
 The live preview panel shows you the changes you are making live (with a second
 or two of delay). As you edit HTML or CSS files, the preview panel is updated
 automatically to reflect your changes. As you move the cursor around in the
@@ -554,7 +553,7 @@ panel only happens when you are not actively typing in the editor, so as not to
 be distracting or slow you down, waiting for the preview to render.
 
 The preview panel shows you how the text will look when viewed. However, the
-preview panel is not a substitute for actually testing your book an actual
+preview panel is not a substitute for actually testing your book on an actual
 reader device. It is both more, and less capable than an actual reader. It will
 tolerate errors and sloppy markup much better than most reader devices. It will
 also not show you page margins, page breaks and embedded fonts that use font
@@ -793,7 +792,7 @@ shows summaries of the files, images, links, words, characters and styles used
 in the book. Every line in the report is hot-linked. Double clicking a line
 jumps to the place in the book where that item is used or defined (as
 appropriate). For example, in the :guilabel:`Links` view, you can double click
-entries the :guilabel:`Source` column to jump to where the link is defined and
+entries in the :guilabel:`Source` column to jump to where the link is defined and
 entries in the :guilabel:`Target` column to jump to where the link points.
 
 .. image:: images/reports-ss.png

@@ -351,10 +351,11 @@ class EPUB_MOBI(CatalogPlugin):
             log.error(f"coercing thumb_width from '{opts.thumb_width}' to '{self.THUMB_SMALLEST}'")
             opts.thumb_width = '1.0'
 
-        # eval prefix_rules if passed from command line
+        # parse prefix_rules if passed from command line
         if type(opts.prefix_rules) is not tuple:
             try:
-                opts.prefix_rules = eval(opts.prefix_rules)
+                import ast
+                opts.prefix_rules = ast.literal_eval(opts.prefix_rules)
             except Exception:
                 log.error(f'malformed --prefix-rules: {opts.prefix_rules}')
                 raise
@@ -362,10 +363,11 @@ class EPUB_MOBI(CatalogPlugin):
                 if len(rule) != 4:
                     log.error(f'incorrect number of args for --prefix-rules: {rule!r}')
 
-        # eval exclusion_rules if passed from command line
+        # parse exclusion_rules if passed from command line
         if type(opts.exclusion_rules) is not tuple:
             try:
-                opts.exclusion_rules = eval(opts.exclusion_rules)
+                import ast
+                opts.exclusion_rules = ast.literal_eval(opts.exclusion_rules)
             except Exception:
                 log.error(f'malformed --exclusion-rules: {opts.exclusion_rules}')
                 raise

@@ -18,6 +18,8 @@
         } catch (...) { PyErr_SetString(PyExc_RuntimeError, "unknown error"); return NULL;}
 %End
 
+bool load_from_data_without_gil(QImage &image, const char *data /Array/, size_t len /ArraySize/) /ReleaseGIL/;
+
 QImage* remove_borders(const QImage &image, double fuzz);
 %MethodCode
         IMAGEOPS_PREFIX
@@ -74,12 +76,7 @@ QImage oil_paint(const QImage &image, const float radius=-1, const bool high_qua
         IMAGEOPS_SUFFIX
 %End
 
-QColor dominant_color(const QImage &image);
-%MethodCode
-        IMAGEOPS_PREFIX
-			sipRes = new QColor(dominant_color(*a0));
-        IMAGEOPS_SUFFIX
-%End
+QColor dominant_color(const QImage &image) /ReleaseGIL/;
 
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QList<QRgb> &palette);
 %MethodCode

@@ -1,0 +1,96 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from book_list.theme import css_for_variables, set_ui_colors, theme_variables
+from test_book_list_helpers import with_empty_session
+from testing import assert_equal, assert_true, test
+from session import all_settings
+
+DEFAULT_PRIMARY_HEX = all_settings.ui_highlight_colors.default.light
+
+def assert_css_and_dom_use_variables(variables, css, style):
+    for name in Object.keys(variables):
+        assert_true(css.indexOf(name + ': ' + variables[name] + ';') > -1)
+        assert_equal(style.getPropertyValue(name), variables[name])
+
+
+def assert_variables_have_values(variables, expected):
+    for name in Object.keys(expected):
+        assert_equal(variables[name], expected[name])
+
+
+@test
+def invalid_primary_color_uses_default_theme_contract():
+    def run(sd):
+        sd.set('book_list_color_scheme', 'light')
+        sd.set('ui_highlight_colors', {'light': 'not-a-color', 'dark': 'not-a-color'})
+        variables = theme_variables(False, 'not-a-color')
+        default_variables = theme_variables(False, DEFAULT_PRIMARY_HEX)
+        assert_equal(Object.keys(variables).length, Object.keys(default_variables).length)
+        for name in Object.keys(default_variables):
+            assert_equal(variables[name], default_variables[name])
+        css = css_for_variables()
+        set_ui_colors(False, 'not-a-color')
+        assert_css_and_dom_use_variables(default_variables, css, document.documentElement.style)
+    with_empty_session(run)
+
+
+@test
+def light_theme_css_uses_shared_variables():
+    def run(sd):
+        sd.set('book_list_color_scheme', 'light')
+        sd.set('ui_highlight_colors', {'light': '#437000', 'dark': '#437000'})
+        variables = theme_variables(False, '#437000')
+        css = css_for_variables()
+        set_ui_colors(False, '#437000')
+        style = document.documentElement.style
+        assert_variables_have_values(variables, {
+            '--calibre-color-primary': '#437000',
+            '--calibre-color-primary-light': 'rgba(67,112,0,0.18)',
+            '--calibre-color-primary-light-2': 'rgba(67,112,0,0.28)',
+            '--calibre-color-window-background': '#f5f7f1',
+            '--calibre-color-window-background2': '#e9efe2',
+            '--calibre-color-tree-highlight-item': '#edf1e7',
+            '--calibre-color-dialog-background': '#f5f7f1',
+            '--calibre-color-list-hover-background': '#dfe7d4',
+            '--calibre-color-list-hover-foreground': '#39322B',
+            '--calibre-color-input-background': '#f2f5ee',
+            '--calibre-color-bar-background': '#f5f8f2',
+            '--calibre-color-bar-foreground': '#39322B',
+            '--calibre-color-button-start': '#304418',
+            '--calibre-color-button-end': '#394b25',
+        })
+        assert_css_and_dom_use_variables(variables, css, style)
+        assert_equal(style.colorScheme, 'light')
+    with_empty_session(run)
+
+
+@test
+def dark_theme_css_uses_shared_variables():
+    def run(sd):
+        sd.set('book_list_color_scheme', 'dark')
+        sd.set('ui_highlight_colors', {'light': '#437000', 'dark': '#437000'})
+        variables = theme_variables(True, '#437000')
+        css = css_for_variables()
+        set_ui_colors(True, '#437000')
+        style = document.documentElement.style
+        assert_variables_have_values(variables, {
+            '--calibre-color-primary': '#437000',
+            '--calibre-color-primary-light': 'rgba(67,112,0,0.18)',
+            '--calibre-color-primary-light-2': 'rgba(67,112,0,0.28)',
+            '--calibre-color-window-background': '#2d2d2d',
+            '--calibre-color-window-background2': '#777',
+            '--calibre-color-tree-highlight-item': '#777',
+            '--calibre-color-dialog-background': '#2d2d2d',
+            '--calibre-color-list-hover-background': '#777',
+            '--calibre-color-list-hover-foreground': '#1d1d1d',
+            '--calibre-color-input-background': 'black',
+            '--calibre-color-bar-background': '#777',
+            '--calibre-color-bar-foreground': '#1d1d1d',
+            '--calibre-color-button-start': '#ddd',
+            '--calibre-color-button-end': '#666',
+        })
+        assert_css_and_dom_use_variables(variables, css, style)
+        assert_equal(style.colorScheme, 'dark')
+    with_empty_session(run)

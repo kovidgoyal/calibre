@@ -246,6 +246,8 @@ class Chunker:
                 try:
                     elem = nroot.makeelement(tn, attrib=attrib)
                 except ValueError:
+                    if ':' in tn:
+                        tn = tn.replace(':', '-')
                     attrib = {k:v for k, v in attrib.items() if ':' not in k}
                     elem = nroot.makeelement(tn, attrib=attrib)
                 elem.text = tag.text

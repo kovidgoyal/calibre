@@ -648,8 +648,12 @@ class SearchesModel(QAbstractListModel):
         text = str(text)
         self.beginResetModel()
         self.filtered_searches = []
+        filter_keywords = text.split()
         for i, search in enumerate(self.searches):
-            if primary_contains(text, search['name']):
+            if not filter_keywords or all(
+                any(primary_contains(fk, nk) for nk in search['name'].split())
+                for fk in filter_keywords
+            ):
                 self.filtered_searches.append(i)
         self.endResetModel()
 
@@ -1245,7 +1249,7 @@ class SavedSearches(QWidget):
             def err():
                 error_dialog(self, _('Invalid data'), _(
                     'The file %s does not contain valid saved searches') % path, show=True)
-            if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] not in (1,):
+            if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] != 1:
                 return err()
             searches = []
             for item in obj['searches']:
@@ -1522,6 +1526,8 @@ def run_search(
                     show_current_diff(allow_revert=True)
             else:
                 info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True, det_msg=det_msg)
+                if hasattr(editor, 'editor'):
+                    QTimer.singleShot(0, lambda: editor.editor.setFocus(Qt.FocusReason.OtherFocusReason))
 
     def do_all(replace=True):
         count = 0

@@ -27,7 +27,7 @@ def empty(db, notify_changes, is_remote, args):
     ids, duplicates = db.add_books([(mi, {})])
     if is_remote:
         notify_changes(books_added(ids))
-    db.dump_metadata()
+    db.dump_metadata(book_ids=ids)
     return ids, bool(duplicates)
 
 
@@ -43,6 +43,9 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
     identical_book_list, added_ids, updated_ids = set(), set(), set()
     duplicates = []
     identical_books_data = None
+    if is_remote and ('recipe' in format_map or 'original_recipe' in format_map):
+        raise ValueError(
+            'Cannot use the add interface to add recipe files, as they allow code execution')
 
     def add_format(book_id, fmt):
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)
@@ -101,7 +104,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
         notify_changes(books_added(added_ids))
         if updated_ids:
             notify_changes(formats_added({book_id: tuple(format_map) for book_id in updated_ids}))
-    db.dump_metadata()
+    db.dump_metadata(book_ids=added_ids | updated_ids)
     return added_ids, updated_ids, duplicates
 
 

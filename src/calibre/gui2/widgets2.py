@@ -141,9 +141,10 @@ class ColorButton(QPushButton):
 
     color_changed = pyqtSignal(object)
 
-    def __init__(self, initial_color=None, parent=None, choose_text=None):
+    def __init__(self, initial_color=None, parent=None, choose_text=None, special_default_color=None):
         QPushButton.__init__(self, parent)
         self._color = None
+        self.special_default_color = special_default_color
         self.choose_text = choose_text or _('Choose &color')
         self.color = initial_color
         self.clicked.connect(self.choose_color)
@@ -157,21 +158,29 @@ class ColorButton(QPushButton):
         val = str(val or '')
         col = QColor(val)
         orig = self._color
-        if col.isValid():
-            self._color = val
-            self.setText(val)
+
+        def color_icon(col):
             p = QPixmap(self.iconSize())
             p.fill(col)
             self.setIcon(QIcon(p))
+
+        if col.isValid():
+            self._color = val
+            self.setText(val)
+            color_icon(col)
         else:
             self._color = None
-            self.setText(self.choose_text)
-            self.setIcon(QIcon())
+            if self.special_default_color:
+                self.setText(_('default: {}').format(self.special_default_color))
+                color_icon(QColor(self.special_default_color))
+            else:
+                self.setText(self.choose_text)
+                self.setIcon(QIcon())
         if orig != col:
             self.color_changed.emit(self._color)
 
     def choose_color(self):
-        col = QColorDialog.getColor(QColor(self._color or Qt.GlobalColor.white), self, _('Choose a color'))
+        col = QColorDialog.getColor(QColor(self._color or self.special_default_color or Qt.GlobalColor.white), self, _('Choose a color'))
         if col.isValid():
             self.color = str(col.name())
 

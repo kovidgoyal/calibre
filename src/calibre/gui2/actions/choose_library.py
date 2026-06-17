@@ -553,10 +553,10 @@ class ChooseLibraryAction(InterfaceAction):
         restrictions.insert(0, '')
         for vl in restrictions:
             if vl == vl_at_startup:
-                self.vl_to_apply_menu.addAction(QIcon.ic('ok.png'), vl if vl else _('No Virtual library'),
+                self.vl_to_apply_menu.addAction(QIcon.ic('ok.png'), vl or _('No Virtual library'),
                                                 Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
             else:
-                self.vl_to_apply_menu.addAction(vl if vl else _('No Virtual library'),
+                self.vl_to_apply_menu.addAction(vl or _('No Virtual library'),
                                                 Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
         # Allow the cloned actions in the OS X global menubar to update
         for a in (self.qaction, self.menuless_qaction):

@@ -93,7 +93,11 @@ class AnimatedGIF(ValueError):
 def gif_data_to_png_data(data, discard_animation=False):
     from PIL import Image
     img = Image.open(BytesIO(data))
-    if img.is_animated and not discard_animation:
+    try:
+        is_animated = img.is_animated
+    except Exception:
+        is_animated = False
+    if is_animated and not discard_animation:
         raise AnimatedGIF()
     buf = BytesIO()
     img.save(buf, 'png')
@@ -120,11 +124,18 @@ def image_from_data(data):
         return data
     set_image_allocation_limit()
     i = QImage()
-    if not i.loadFromData(data):
+    if not imageops.load_from_data_without_gil(i, data):
         q = what(None, data)
         if q == 'jxr':
             return load_jxr_data(data)
-        raise NotImage(f'Not a valid image (detected type: {q})')
+        ba = QByteArray(data)
+        buf = QBuffer(ba)
+        buf.open(QIODevice.OpenModeFlag.ReadOnly)
+        r = QImageReader(buf)
+        i = r.read()
+        buf.close()
+        if i.isNull():
+            raise NotImage(f'Not a valid image (detected type: {q}). Error: {r.errorString()}')
     return i
 
 

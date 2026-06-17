@@ -332,13 +332,16 @@ class MomentumScrollMixin:
         if self._momentum_scroller is None:
             self._momentum_scroller = MomentumScroller(self, self._momentum_settings or MomentumSettings())
 
+    def default_wheel_event_handler(self, event: QWheelEvent):
+        super().wheelEvent(event)
+
     def wheelEvent(self, event: QWheelEvent):
         self._ensure_momentum_scroller()
         if (not self._momentum_scroller.settings.enable_x and event.angleDelta().x() != 0) or (
                 not self._momentum_scroller.settings.enable_y and event.angleDelta().y() != 0):
-            return super().wheelEvent(event)
+            return self.default_wheel_event_handler(event)
         if not self._momentum_scroller.handle_wheel_event(event):
-            return super().wheelEvent(event)
+            return self.default_wheel_event_handler(event)
         event.accept()
 
     def stopMomentumScroll(self):

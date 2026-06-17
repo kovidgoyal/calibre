@@ -610,7 +610,7 @@ class RecursiveFetcher:
         return res
 
 
-def option_parser(usage=_('%prog URL\n\nWhere URL is for example https://google.com')):
+def option_parser(usage=_('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')):
     parser = OptionParser(usage=usage)
     parser.add_option('-d', '--base-dir',
                       help=_('Base folder into which URL is saved. Default is %default'),

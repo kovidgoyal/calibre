@@ -147,13 +147,21 @@ class Metadata:
             d = _data['user_metadata'][field]
             val = d['#value#']
             if val is None and d['datatype'] == 'composite':
+                from calibre.utils.formatter import TEMPLATE_ERROR
                 d['#value#'] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
-                val = d['#value#'] = self.formatter.safe_format(
+                # Python templates must be disallowed as they can come from
+                # untrusted sources (book metadata)
+                orig = self.formatter.allow_python_templates
+                self.formatter.allow_python_templates = False
+                try:
+                    val = d['#value#'] = self.formatter.safe_format(
                                             d['display']['composite_template'],
                                             self,
-                                            _('TEMPLATE ERROR'),
+                                            TEMPLATE_ERROR,
                                             self, column_name=field,
                                             template_cache=self.template_cache).strip()
+                finally:
+                    self.formatter.allow_python_templates = orig
             return val
         if field.startswith('#') and field.endswith('_index'):
             try:
@@ -485,6 +493,7 @@ class Metadata:
             return
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()
+        formatter.allow_python_templates = False
         for op in ops:
             try:
                 src = op[0]

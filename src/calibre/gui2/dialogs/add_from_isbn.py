@@ -113,6 +113,7 @@ class AddFromISBN(QDialog):
                 continue
             if ':' in parts[0]:
                 prefix, val = parts[0].partition(':')[::2]
+                prefix, val = prefix.strip(), val.strip()
             else:
                 prefix, val = 'isbn', parts[0]
             path = None

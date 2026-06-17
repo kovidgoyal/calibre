@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import datetime
 import os
+import unittest
 from io import BytesIO
 from time import time
 
@@ -644,7 +645,7 @@ class ReadingTest(BaseTest):
                     except Exception:
                         pass
                     return x
-                if field not in {'#series_index'}:
+                if field != '#series_index':
                     v = pmi.get_standard_metadata(field)
                     self.assertTrue(v is None or isinstance(v, dict))
                     self.assertEqual(f(mi.get_standard_metadata(field, False)), f(v),
@@ -812,7 +813,8 @@ class ReadingTest(BaseTest):
         epoch = time()
         cache.set_last_read_position(1, 'EPUB', 'user', 'device', 'cFi', epoch, 0.3)
         self.assertFalse(cache.get_last_read_positions(1, 'x', 'u'))
-        self.assertEqual(cache.get_last_read_positions(1, 'ePuB', 'user'), [{'epoch':epoch, 'device':'device', 'cfi':'cFi', 'pos_frac':0.3}])
+        self.assertEqual(cache.get_last_read_positions(1, 'ePuB', 'user'), ({
+            'epoch':epoch, 'device':'device', 'cfi':'cFi', 'pos_frac':0.3, 'format': 'EPUB', 'user': 'user'},))
         cache.set_last_read_position(1, 'EPUB', 'user', 'device')
         self.assertFalse(cache.get_last_read_positions(1, 'ePuB', 'user'))
     # }}}
@@ -834,14 +836,45 @@ class ReadingTest(BaseTest):
 
         db = self.init_cache(self.library_path)
         db.create_custom_column('mult', 'CC1', 'composite', True, display={'composite_template': 'b,a,c'})
-
-        # need an empty metadata object to pass to the formatter
-        db = self.init_legacy(self.library_path)
-        mi = db.get_metadata(1)
+        db.create_custom_column('pages', 'Pages', 'int', False)
+        db.set_pages(2, 100, format='FMT1')
+        db.set_pages(2, 100, format='FMT2')
+        db.set_last_read_position(2, 'FMT1', pos_frac=0.25, cfi='epubcfi(/2)', epoch=2)
+        db.set_last_read_position(2, 'FMT2', pos_frac=0.35, cfi='epubcfi(/2)', epoch=1)
+        db.close()
+        db = self.init_cache(self.library_path)
+        db.set_field('#pages', {1: '11', 2: '22', 3: '33'})
+        mi = db.get_metadata(2)
+        # test reading_progress
+        def trp(expected, args=''):
+            self.assertEqual(expected, formatter.safe_format(f'{{id:reading_progress({args})}}', {}, 'TEMPLATE ERROR', mi))
+        trp('25 / 100')
+        trp('25%', ',percent')
+        trp('25%', '_,percent')
+        trp('0.35', ',pos_frac,furthest')
+        trp('0.25', ',pos_frac,furthest,fmt1')
+        # test width_from_pages
+        v = formatter.safe_format('{#pages:width_from_pages(2,2,0.5)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(v, '1.0')
+        v = formatter.safe_format('{#pages:width_from_pages()}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500,2)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
+        v = formatter.safe_format('{#pages:width_from_pages(1500,2,11)}', {}, 'TEMPLATE ERROR', mi)
+        self.assertEqual(int(float(v) * 1000), 26)
 
         # test counting books matching the search
         v = formatter.safe_format('program: book_count("series:true", 0)', {}, 'TEMPLATE ERROR', mi)
         self.assertEqual(v, '2')
+
+        # test python templates
+        v = formatter.safe_format('python:\ndef evaluate(book, ctx): return "x"', {}, 'TEMPLATE ERROR', mi)
+        if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') == '1':
+            self.assertEqual(v, 'x')
+        else:
+            self.assertTrue(v.startswith('TEMPLATE ERROR'))
 
         # test counting books when none match the search
         v = formatter.safe_format('program: book_count("series:afafaf", 0)', {}, 'TEMPLATE ERROR', mi)
@@ -888,6 +921,7 @@ class ReadingTest(BaseTest):
         self.assertEqual(set(v.split(',')), {'4', '6'})
     # }}}
 
+    @unittest.skipIf(os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1', 'Python templates disallowed')
     def test_python_templates(self):  # {{{
         from calibre.ebooks.metadata.book.formatter import SafeFormat
         formatter = SafeFormat()

@@ -26,7 +26,7 @@ def create_parser(recover: bool, encoding: str | None = None) -> etree.XMLParser
 
 
 def create_html_parser(recover: bool, encoding: str | None = None) -> etree.HTMLParser:
-    parser = etree.HTMLParser(recover=recover, no_network=True, encoding=encoding)
+    parser = html.HTMLParser(recover=recover, no_network=True, encoding=encoding)
     parser.resolvers.add(Resolver())
     return parser
 
@@ -57,9 +57,9 @@ def fragment_fromstring(string_or_bytes: str | bytes) -> etree.Element:
     return html.fragment_fromstring(raw, parser=create_html_parser(True, encoding=encoding))
 
 
-def document_fromstring(string_or_bytes: str | bytes) -> etree.Element:
+def document_fromstring(string_or_bytes: str | bytes, ensure_head_body: bool = False) -> etree.Element:
     raw, encoding = prepare_for_parsing(string_or_bytes)
-    return html.document_fromstring(raw, parser=create_html_parser(True, encoding=encoding))
+    return html.document_fromstring(raw, parser=create_html_parser(True, encoding=encoding), ensure_head_body=ensure_head_body)
 
 
 def unsafe_xml_fromstring(string_or_bytes):

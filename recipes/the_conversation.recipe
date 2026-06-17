@@ -10,7 +10,28 @@ class TheConversation(BasicNewsRecipe):
     use_embedded_content = False
 
     no_stylesheets = True
-    auto_cleanup = True
+    auto_cleanup = False
+
+    keep_only_tags = [
+        # Hero image + figcaption + h1 title + publication date — nested
+        # inside <figure class="magazine"> on theconversation.com.
+        dict(name='figure', attrs={'class': 'magazine'}),
+        # Byline: author name, institutional affiliation, photo.
+        dict(name='section', attrs={'class': 'content-authors'}),
+        # Article body.
+        dict(attrs={'itemprop': 'articleBody'}),
+        # Disclosure statement ("X does not work for, consult, ..." etc).
+        dict(name='section', attrs={'class': 'content-disclosure-statement'}),
+    ]
+
+    remove_tags = [
+        # Mobile-only collapsed byline summary that duplicates author info.
+        dict(attrs={'class': 'content-authors-synopsis'}),
+        dict(attrs={'class': 'content-authors-toggle'}),
+        # JS-injected promo placeholders interspersed in the body.
+        dict(attrs={'class': 'slot'}),
+        dict(attrs={'class': 'inline-promos-skeleton'}),
+    ]
 
     feeds = [
         ('All Articles', 'https://theconversation.com/au/articles.atom'),

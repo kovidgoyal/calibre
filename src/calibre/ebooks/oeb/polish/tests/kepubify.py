@@ -53,8 +53,10 @@ class KepubifyTests(BaseTest):
 
     def test_kepubify_html(self):
         prefix = f'''<?xml version='1.0' encoding='utf-8'?>
-<html xmlns="http://www.w3.org/1999/xhtml"><head><style type="text/css" id="kobostylehacks">\
-div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/javascript" src="{KOBO_JS_NAME}"/></head>\
+<html xmlns="http://www.w3.org/1999/xhtml"><head>\
+<style type="text/css" id="kobostylehacks">div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style>\
+<style type="text/css" id="koboSpanStyle">.koboSpan {{ -webkit-text-combine: inherit; }}</style>\
+<script type="text/javascript" src="{KOBO_JS_NAME}"/></head>\
 <body><div id="book-columns"><div id="book-inner">'''
         suffix =  '</div></div></body></html>'
 
@@ -142,7 +144,7 @@ div#book-inner {{ margin-top: 0; margin-bottom: 0; }}</style><script type="text/
             '<div><style>@page {\n  margin: 13px;\n}\ndiv {\n  widows: 12;\n  color: red;\n}</style>Some</div>':
             f'<div><style>/* {CSS_COMMENT_COOKIE}: @page {{\n  margin: 13px;\n}} */\n'
             f'div {{\n  -{CSS_COMMENT_COOKIE}-widows: 12;\n  color: red;\n}}</style>'
-            '<span class="koboSpan" id="kobo.1.1">Some</span></div>'
+            '<span class="koboSpan" id="kobo.1.1">Some</span></div>',
         }.items():
             if isinstance(expected, str):
                 expected = expected, expected

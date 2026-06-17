@@ -86,6 +86,9 @@ class TheAtlantic(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf-8'
 
+    compress_news_images = True
+    scale_news_images_to_device = True
+
     keep_only_tags = [
         dict(itemprop=['headline']),
         classes(

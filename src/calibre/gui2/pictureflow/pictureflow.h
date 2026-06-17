@@ -141,6 +141,9 @@ public:
   void setShowReflections(bool show);
   bool showReflections() const;
 
+  int maxFontSize() const;
+  void setMaxFontSize(int val);
+
   /*!
     Returns the font used to render subtitles
   */

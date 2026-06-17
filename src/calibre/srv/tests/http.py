@@ -6,20 +6,17 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import hashlib
 import http.client
-import os
 import string
 import time
-import zlib
+from compression import zlib
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
-from calibre.srv.tests.base import BaseTest, TestServer
+from calibre.srv.tests.base import BaseTest, TestServer, is_ci
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_path as P
-
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 class TestHTTP(BaseTest):
@@ -237,6 +234,24 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http.client.OK)
             self.ae(r.read(), b'testbody')
 
+            def bad_request(raw, msg):
+                conn = server.connect()
+                r = raw_send(conn, raw)
+                self.ae(r.status, http.client.BAD_REQUEST)
+                self.assertIn(msg, r.read())
+
+            # Identical Content-Length headers are harmless, conflicting or
+            # malformed ones are rejected before the body is read.
+            r = raw_send(server.connect(), b'POST /test HTTP/1.1\r\nContent-Length: 4\r\nContent-Length: 4\r\n\r\nbody')
+            self.ae(r.status, http.client.OK)
+            self.ae(r.read(), b'testbody')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: -1\r\n\r\nbody', b'Content-Length is not a valid decimal integer')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: abc\r\n\r\nbody', b'Content-Length is not a valid decimal integer')
+            bad_request(b'POST /test HTTP/1.1\r\nContent-Length: 4\r\nContent-Length: 5\r\n\r\nbodyx', b'Conflicting Content-Length headers')
+            bad_request(
+                b'POST /test HTTP/1.1\r\nTransfer-Encoding: chunked\r\nContent-Length: 200\r\n\r\n4\r\nbody\r\n0\r\n\r\n',
+                b'Cannot specify both Transfer-Encoding and Content-Length')
+
             # Test POST with chunked transfer encoding
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'4\r\nbody\r\na\r\n1234567890\r\n0\r\n\r\n')
@@ -285,16 +300,33 @@ class TestHTTP(BaseTest):
 
             # Test closing
             server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
-            conn.request('GET', '/close', headers={'Connection':'close'})
+            def assert_no_active_connections():
+                server.loop.wakeup()
+                num = 10
+                while num and server.loop.num_active_connections != 0:
+                    time.sleep(0.01)
+                    num -= 1
+                self.ae(server.loop.num_active_connections, 0)
+
+            conn.request('GET', '/close', headers={'Connection':'Close, Upgrade'})
             r = conn.getresponse()
             self.ae(r.status, 200), self.ae(r.read(), b'close')
-            server.loop.wakeup()
-            num = 10
-            while num and server.loop.num_active_connections != 0:
-                time.sleep(0.01)
-                num -= 1
-            self.ae(server.loop.num_active_connections, 0)
+            assert_no_active_connections()
             self.assertIsNone(conn.sock)
+
+            conn = server.connect()
+            r = raw_send(conn, b'GET /close HTTP/1.0\r\nConnection: keep-alive, close\r\n\r\n')
+            self.ae(r.status, 200), self.ae(r.read(), b'close')
+            self.assertIsNone(r.getheader('Connection'))
+            assert_no_active_connections()
+            conn.close()
+
+            conn = server.connect()
+            r = raw_send(conn, b'GET /keep-alive HTTP/1.0\r\nConnection: keep-alive, upgrade\r\n\r\n')
+            self.ae(r.status, 200), self.ae(r.read(), b'keep-alive')
+            self.ae(r.getheader('Connection'), 'Keep-Alive')
+            self.assertIsNotNone(conn.sock)
+            conn.close()
 
             # Test timeout
             server.loop.opts.timeout = 0.1

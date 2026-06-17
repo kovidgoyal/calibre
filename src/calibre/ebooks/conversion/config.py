@@ -324,7 +324,7 @@ OPTIONS = {
             'snb_hide_chapter_name','snb_full_screen'),
 
         'txt': (
-            'newline', 'max_line_length', 'force_max_line_length',
+            'newline', 'max_line_length', 'force_max_line_length', 'use_alt_text_for_images',
             'inline_toc', 'txt_output_formatting', 'keep_links', 'keep_image_references',
             'keep_color', 'txt_output_encoding'),
     },

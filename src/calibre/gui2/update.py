@@ -18,6 +18,7 @@ from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 
 URL = 'https://code.calibre-ebook.com/latest'
+FALLBACK_URL = 'https://calibre-ebook.com/latest-version'
 # URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = (0, 0, 0)
 
@@ -43,11 +44,9 @@ def get_newest_version():
     except ssl.SSLError as err:
         if getattr(err, 'reason', None) != 'CERTIFICATE_VERIFY_FAILED':
             raise
-        # certificate verification failed, since the version check contains no
-        # critical information, ignore and proceed
-        # We have to do this as if the calibre CA certificate ever
-        # needs to be revoked, then we won't be able to do version checks
-        version = get_https_resource_securely(URL, headers=headers, cacerts=None)
+        from urllib.request import urlopen
+        # certificate verification failed, use fallback
+        version = urlopen(FALLBACK_URL).read()
     try:
         version = version.decode('utf-8').strip()
     except UnicodeDecodeError:
