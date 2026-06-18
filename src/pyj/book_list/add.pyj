@@ -183,7 +183,7 @@ def get_job_container(container_id, job_id):
 
 def on_progress(container_id, job_id, loaded, total, xhr):
     container = get_job_container(container_id, job_id)
-    if container is None:
+    if not container:
         return
     if total:
         update_status_widget(container, loaded, total)
@@ -255,7 +255,7 @@ def on_complete(container_id, job_id, end_type, xhr, ev):
     if idx > -1:
         state.transfers.splice(idx, 1)
     container = get_job_container(container_id, job_id)
-    if container is None:
+    if not container:
         return
     clear(container)
     if end_type is 'load':
