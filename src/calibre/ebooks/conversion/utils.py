@@ -33,9 +33,9 @@ class HeuristicProcessor:
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
         self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
         self.line_open = (
-            r'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*'
-            r'(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*')
-        self.line_close = r'(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>'
+            r'<(?P<outer>p|div)[^>]*>(\s*<(?P<inner1>font|span|[ibu])[^>]*>)?'
+            r'(\s*<(?P<inner2>font|span|[ibu])[^>]*>)?(\s*<(?P<inner3>font|span|[ibu])[^>]*>)?\s*')
+        self.line_close = r'\s*(</(?P=inner3)>\s*)?(</(?P=inner2)>\s*)?(</(?P=inner1)>\s*)?</(?P=outer)>'
         self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
         self.common_in_text_endings = r'["\'—’”,\.!\?\…\)„\w]'
@@ -365,8 +365,8 @@ class HeuristicProcessor:
         lookahead = '(?<=.{'+str(length)+r'}([a-zა-ჰäëïöüàèìòùáćéíĺóŕńśúýźâêîôûçąężłıãõñæøþðßěľščťžňďřůёђєіїјљњћўџѣа-я,:)\\IAß]|(?<!\&\w{4});))'
         em_en_lookahead = '(?<=.{'+str(length)+'}[\u2013\u2014])'
         soft_hyphen = '\xad'
-        line_ending = r'\s*(?P<style_close></(span|[iub])>)?\s*(</(p|div)>)?'
-        blanklines = r'\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}\s*'
+        line_ending = r'\s*(?P<style_close></(span|[iub])>)?(\s*</(p|div)>)?'
+        blanklines = r'\s*(?P<up2threeblanks><(p|span|div)[^>]*>\s*(<(p|span|div)[^>]*>\s*</(span|p|div)>\s*)</(span|p|div)>\s*){0,3}'
         line_opening = r'<(p|div)[^>]*>\s*(?P<style_open><(span|[iub])[^>]*>)?\s*'
         txt_line_wrap = '((\u0020|\u0009)*' + r'\n){1,4}'
 
@@ -552,9 +552,9 @@ class HeuristicProcessor:
         return html
 
     def detect_soft_breaks(self, html):
-        line = '(?P<initline>'+self.line_open+r'\s*(?P<init_content>.*?)'+self.line_close+')'
+        line = '(?P<initline>'+self.line_open+r'(?P<init_content>.*?)'+self.line_close+')'
         line_two = '(?P<line_two>'+re.sub(r'(ou|in|cha)', 'linetwo_', self.line_open)+ \
-                     r'\s*(?P<line_two_content>.*?)'+re.sub(r'(ou|in|cha)', 'linetwo_', self.line_close)+')'
+                     r'(?P<line_two_content>.*?)'+re.sub(r'(ou|in|cha)', 'linetwo_', self.line_close)+')'
         div_break_candidate_pattern = line+r'\s*<div[^>]*>\s*</div>\s*'+line_two
         div_break_candidate = re.compile(rf'{div_break_candidate_pattern}', re.IGNORECASE|re.UNICODE)
 
