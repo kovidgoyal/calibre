@@ -107,7 +107,8 @@ class SNBFile:
         for i in range(fileCount):
             f = FileStream()
             (f.attr, f.fileNameOffset, f.fileSize) = struct.unpack('>iii', vfat[i * 12 : (i+1)*12])
-            f.fileName = fileNames[i]
+            # Decode to str so lookups against str keys match (see GetFileStream)
+            f.fileName = fileNames[i].decode('utf-8', 'replace')
             self.files.append(f)
 
     def ParseTail(self, vtail, fileCount):
@@ -159,8 +160,6 @@ class SNBFile:
         with open(os.path.join(tdir, fileName), 'rb') as data:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
-        if isinstance(f.fileName, str):
-            f.fileName = f.fileName.encode('ascii', 'ignore')
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -170,8 +169,6 @@ class SNBFile:
         with open(os.path.join(tdir, fileName), 'rb') as data:
             f.fileBody = data.read()
         f.fileName = fileName.replace(os.sep, '/')
-        if isinstance(f.fileName, str):
-            f.fileName = f.fileName.encode('ascii', 'ignore')
         self.files.append(f)
 
     def GetFileStream(self, fileName):
@@ -208,7 +205,7 @@ class SNBFile:
         binStream = b''
         for f in self.files:
             vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize)
-            fileNameTable += (f.fileName + b'\0')
+            fileNameTable += f.fileName.encode('ascii', 'ignore') + b'\0'
 
             if f.attr & 0x41000000 == 0x41000000:
                 # Plain Files
