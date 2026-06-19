@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 import traceback
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from ajax import ajax_send
 from book_list.add import add_books_panel
@@ -498,7 +498,9 @@ def create_books_list(container):
     pager = E.div(data_component='pager')
     book_list_div = E.div(data_component='book_list')
     bottom_pager_el = E.div(style='margin-bottom:1.5rem')
+    single_page_count_el = E.div(style='margin: 0.5ex 0')
     container.appendChild(pager)
+    container.appendChild(single_page_count_el)
     container.appendChild(book_list_div)
     container.appendChild(bottom_pager_el)
     top_widget = create_pager_widget(
@@ -536,8 +538,14 @@ def create_books_list(container):
         offset = sr.offset or 0
         end = min(total, offset + page_size)
         top_widget.count_msg.textContent = _('{0}–{1} of {2}').format((offset + 1) if total else 0, end, total)
-        top_widget.set_enabled(offset > 0, end < total)
-        bottom_widget.set_enabled(offset > 0, end < total)
+        has_prev = offset > 0
+        has_next = end < total
+        top_widget.set_enabled(has_prev, has_next)
+        bottom_widget.set_enabled(has_prev, has_next)
+        if not has_prev and not has_next and total and loaded_books_query().search:
+            single_page_count_el.textContent = ngettext('{} book found', '{} books found', total).format(total)
+        else:
+            single_page_count_el.textContent = ''
 
     update_pager()
     pager.appendChild(top_widget.container)
