@@ -1,15 +1,24 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+import re
+from calibre.ebooks.BeautifulSoup import Comment
 from datetime import datetime
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
-class TheWeek(BasicNewsRecipe):
+def build_absolute_url(url: str) -> str:
+    # Ensure relative URLs are converted to absolute URLs for The Week site
+    if url.startswith('/'):
+        return 'https://www.theweek.in' + url
+    return url
+
+
+class TheWeekRecipe(BasicNewsRecipe):
     title = 'The Week'
     description = (
-        'The Week is the best selling general interest English news magazine. The magazine covers politics, entertainment,'
-        ' social issues, trends, technology, lifestyle and everything else you should be knowing. Best downloaded on Mondays.'
+        'The Week is a best-selling general interest English news magazine. '
+        'It covers politics, entertainment, social issues, trends, technology, '
+        'lifestyle, and more. Best downloaded on Mondays.'
     )
     language = 'en_IN'
     __author__ = 'unkn0wn'
@@ -18,76 +27,117 @@ class TheWeek(BasicNewsRecipe):
     use_embedded_content = False
     ignore_duplicate_articles = {'url', 'title'}
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = 'https://www.theweek.in/content/dam/week/logo/The-Week-Logo-Big.png'
+    masthead_url = 'https://www.theweek.in/content/dam/revamp-week/logo/THE-WEEK-LOGO.jpg'
 
-    keep_only_tags = [classes('article-post section-heading element11-page-content')]
+    keep_only_tags = [classes('articlecontent')]
 
-    remove_tags = [classes('article-highlights sharebar')]
-
-    remove_tags_after = [classes('articlecontentbody')]
+    remove_tags = [
+        dict(name='source'),
+        dict(attrs={'class': lambda cls: cls and 'ad_slot' in cls}),
+        dict(attrs={'class': lambda cls: cls and 'article-header__action-block' in cls}),
+        classes(
+            'article-header__author-social cmp-social-media__nav advt-pos-wrap '
+            'list-container-wrapper mmtagblock vuuklecomments article-header__author-image'
+        ),
+    ]
 
     extra_css = '''
         em, blockquote { color: #202020; }
-        .article-image, .article-imgbox { text-align:center; font-size:small; }
-        .article-info { font-size:small; }
+        .calibre-nuked-tag-figcaption, .mmtagblock { text-align:center; font-size:small; }
+        .article-header__author-block { font-size:small; }
+        img { display:block; margin:0 auto; }
     '''
 
     recipe_specific_options = {
         'date': {
-            'short': 'The date of the edition to download (YYYY.MM.DD format)',
-            'long': 'For example, 2024.06.30',
+            'short': 'Edition date to download (YYYY/MM/DD format)',
+            'long': 'For example, 2026/06/21',
         }
     }
 
-    def get_cover_url(self):
-        d = self.recipe_specific_options.get('date')
-        if not (d and isinstance(d, str)):
+    def get_cover_url(self) -> str:
+        # Fetch the cover image URL for the magazine issue
+        edition_date = self.recipe_specific_options.get('date')
+        if not (edition_date and isinstance(edition_date, str)):
             soup = self.index_to_soup(
                 'https://www.magzter.com/IN/Malayala_Manorama/THE_WEEK/Business/'
             )
-            return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())[
-                'src'
-            ]
+            cover_img = soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())
+            return cover_img['src']
 
     def parse_index(self):
-        issue = 'https://www.theweek.in/theweek.html'
+        # Parse the index page to collect article feeds
+        edition_date = self.recipe_specific_options.get('date')
+        if edition_date and isinstance(edition_date, str):
+            issue_url = f'https://www.theweek.in/theweek/{edition_date}.html'
+        else:
+            archive_soup = self.index_to_soup('https://www.theweek.in/magazine-archives.html')
+            issue_url = build_absolute_url(
+                archive_soup.find('a', **classes('cmp-story-list__image-link'))['href']
+            )
+        self.log(issue_url)
 
-        d = self.recipe_specific_options.get('date')
-        if d and isinstance(d, str):
-            issue = 'https://www.theweek.in/theweek.' + d + '.html'
+        soup = self.index_to_soup(issue_url)
+        feeds = []
 
-        soup = self.index_to_soup(issue)
-        ans = []
-        d = datetime.today()
+        for list_container in soup.findAll(**classes('listcontainer')):
+            comment_node = list_container.find(string=lambda text: isinstance(text, Comment))
+            if comment_node:
+                match = re.search(r'path:\s*(\S+),', comment_node)
+                if match:
+                    list_url = match.group(1)
+                    feeds.append(self.parse_section_index(list_url))
 
-        for a in soup.findAll(
-            'a', href=lambda x: x and '/' + d.strftime('%Y') + '/' in x
-        ):
-            url = a['href']
-            title = self.tag_to_string(a).strip()
-            if not url or not title:
-                continue
-            self.log('\t', title)
-            self.log('\t\t', url)
-            ans.append({'title': title, 'url': url})
-        return [('Articles', ans)]
+        return self.reorder_feeds(feeds)
+
+    def parse_section_index(self, list_url: str):
+        # Parse a section index page and extract articles
+        soup = self.index_to_soup(list_url)
+        for section in soup.findAll(**classes('story-list-block')):
+            section_title = self.tag_to_string(section.find('h3', **classes('cmp-section-title')))
+            self.log(section_title)
+            articles = []
+
+            for item in section.findAll(**classes('cmp-story-list__item')):
+                title_tag = item.find(**classes('cmp-story-list__title-link'))
+                title = self.tag_to_string(title_tag)
+                link_tag = item.find('a', **classes('cmp-story-list__title-link'))
+                url = build_absolute_url(link_tag['href'])
+
+                description = ''
+                if item.find(**classes('cmp-story-list__dispn')):
+                    description = self.tag_to_string(item.find(**classes('cmp-story-list__dispn')))
+                elif item.find(**classes('cmp-live-label')):
+                    description = self.tag_to_string(item.find(**classes('cmp-live-label')))
+
+                self.log('\t', title, '\n\t', description, '\n\t\t', url)
+                articles.append({'title': title, 'description': description, 'url': url})
+
+            if articles:
+                return (section_title, articles)
+
+    def reorder_feeds(self, feeds):
+        editor_articles = []
+        other_sections = []
+
+        for section_title, articles in feeds:
+            # Split out articles with description "LETTER FROM THE EDITOR"
+            editor = [a for a in articles if a.get('description', '').strip().upper() == 'LETTER FROM THE EDITOR']
+            non_editor = [a for a in articles if a not in editor]
+
+            if editor:
+                editor_articles.extend(editor)
+
+            if non_editor:
+                other_sections.append((section_title.strip(), non_editor))
+
+        # Build new feed list with editor section first
+        if editor_articles:
+            return [('Letter from the Editor', editor_articles)] + other_sections
+        return other_sections
 
     def preprocess_html(self, soup):
-        for pic in soup.findAll('picture'):
-            if src := pic.find('source'):
-                if img := pic.find('img'):
-                    img['src'] = src['srcset'].split('.jpg')[0] + '.jpg'
-            for src in pic.findAll('source'):
-                src.extract()
-        for img in soup.findAll('img'):
-            src = img.get('data-src-mobile') or img.get('data-src-web')
-            if src:
-                img['src'] = src
+        # Replace lazy-loaded image sources with actual URLs
+        for img in soup.findAll('img', attrs={'data-websrc': True}):
+            img['src'] = img['data-websrc']
         return soup
-
-    def populate_article_metadata(self, article, soup, first):
-        h1 = soup.find('h1')
-        if h1:
-            p = h1.findNext('p')
-            if p:
-                article.text_summary = article.summary = self.tag_to_string(p)
