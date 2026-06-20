@@ -800,6 +800,9 @@ class BooksView(TableView):  # {{{
     def sort_by_named_field(self, field, order, reset=True):
         if isinstance(order, Qt.SortOrder):
             order = order == Qt.SortOrder.AscendingOrder
+        if field == 'title' or field == 'series':
+            self._sort_title_natord(field, order, reset)
+            return
         if field in self.column_map:
             idx = self.column_map.index(field)
             self.sort_by_column_and_order(idx, order)
@@ -807,6 +810,40 @@ class BooksView(TableView):  # {{{
             with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
                 self._model.sort_by_named_field(field, order, reset)
             self.set_sort_indicator(-1, True)
+
+    def _sort_title_natord(self, field, ascending, reset):
+        from calibre.utils.icu import natord_sort_key
+
+        model = self._model
+        db_data = model.db.data
+        cache = model.db.new_api
+        all_ids = list(db_data._map)
+        filtered_fids = frozenset(db_data._map_filtered)
+        sort_field = cache.fields[field if field in cache.fields else 'sort'].table.book_col_map
+        key = natord_sort_key()
+
+        def sk(bid):
+            val = sort_field.get(bid, b'')
+            return key(val.decode('utf-8', errors='replace') if isinstance(val, bytes) else (val or ''))
+
+        sorted_ids = sorted(all_ids, key=sk, reverse=not ascending)
+
+        db_data._map = tuple(sorted_ids)
+        db_data._map_filtered = tuple(i for i in sorted_ids if i in filtered_fids)
+        db_data.full_map_is_sorted = True
+        db_data.add_to_sort_history([(field, ascending)])
+
+        model.sorted_on = (field, ascending)
+        model.sort_history.insert(0, model.sorted_on)
+
+        if reset:
+            model.about_to_be_sorted.emit(model.db.id)
+            model.beginResetModel()
+            model.endResetModel()
+            model.sorting_done.emit(model.db.index)
+
+        idx = self.column_map.index(field)
+        self.set_sort_indicator(idx, ascending)
 
     def multisort(self, fields, reset=True, only_if_different=False):
         if len(fields) == 0:
