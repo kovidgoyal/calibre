@@ -289,6 +289,7 @@ class ViewerBridge(Bridge):
     edit_book = from_js(object, object, object)
     show_book_folder = from_js()
     show_help = from_js(object)
+    html_input_focusin = from_js()
     update_reading_rates = from_js(object)
     reset_reading_rates = from_js()
     profile_op = from_js(object, object, object)
@@ -571,6 +572,7 @@ class WebView(QWebEngineView):
         self.bridge.edit_book.connect(self.edit_book)
         self.bridge.show_book_folder.connect(self.show_book_folder)
         self.bridge.show_help.connect(self.show_help)
+        self.bridge.html_input_focusin.connect(self.html_input_focusin)
         self.bridge.open_url.connect(safe_open_url)
         self.bridge.speak_simple_text.connect(self.tts.speak_simple_text)
         self.bridge.tts.connect(self.tts.action)
@@ -602,6 +604,14 @@ class WebView(QWebEngineView):
                             out = self.pinch_accumulated_value > 0
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
         return super().eventFilter(obj, event)
+
+    def html_input_focusin(self):
+        # Programmatic focus of HTML editors in Qt WebEngine can leave the
+        # native input method state stale until the next real mouse action.
+        im = QApplication.inputMethod()
+        if im is not None:
+            im.reset()
+            im.update(Qt.InputMethodQuery.ImQueryAll)
 
     def profile_op(self, which, profile_name, settings):
         if which == 'all-profiles':

@@ -521,6 +521,11 @@ if window is window.top:
         to_python.update_reading_rates(rates)
     ui_operations.reset_reading_rates = def():
         to_python.reset_reading_rates()
+    document.addEventListener('focusin', def(ev):
+        elem = ev.target
+        if elem and (elem.isContentEditable or (elem.nodeName is 'TEXTAREA' or elem.nodeName is 'INPUT')):
+            to_python.html_input_focusin()
+    , True)
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()
