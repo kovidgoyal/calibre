@@ -150,7 +150,7 @@ user categories, and other information from the old to the new library</string>
    <item row="4" column="0" colspan="4">
     <widget class="QLabel" name="nas_warning">
      <property name="text">
-      <string>Note that putting the calibre library on a Networked drive &lt;a href=&quot;{}&quot;&gt;is not safe&lt;/a&gt;.</string>
+     <string>&lt;span style=&quot;color: red&quot;&gt;WARNING&lt;/span&gt;: Putting the library on a network or in a cloud synced location &lt;a href=&quot;{}&quot;&gt;is not safe&lt;/a&gt;.</string>
      </property>
     </widget>
    </item>
