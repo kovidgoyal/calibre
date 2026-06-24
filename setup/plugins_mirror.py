@@ -273,7 +273,8 @@ def parse_metadata(raw, namelist, zf):
                 plugin_import_found |= inames
             else:
                 all_imports.append((mod, [n.name for n in names]))
-                imported_names[names[-1].asname or names[-1].name] = mod
+                for alias in names:
+                    imported_names[alias.asname or alias.name] = mod
     if not plugin_import_found:
         return all_imports
 
@@ -675,6 +676,7 @@ def test_parse_metadata():  # {{{
     raw = b'''\
 import os
 from calibre.customize import FileTypePlugin
+# import_placeholder
 
 MV = (0, 7, 53)
 
@@ -701,6 +703,14 @@ class HelloWorld(FileTypePlugin):
         zf.writestr('very/ver.py', b'MV = (0, 7, 53)')
         zf.writestr('__init__.py', b'from xxx import yyy\nfrom very.lovely import HelloWorld')
     assert get_plugin_info(buf.getvalue()) == vals
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w') as zf:
+        zf.writestr('very/ver.py', b'NAME = "name"\nVERSION = (1,2,3)')
+        zf.writestr('__init__.py', raw.replace(b"_('name')", b'NAME').replace(b"{1:'a', 'b':2}", b'VERSION').replace(
+            b'# import_placeholder', b'from very.ver import NAME, VERSION'))
+    vals['version'] = (1,2,3)
+    assert get_plugin_info(buf.getvalue()) == vals
+
 # }}}
 
 
