@@ -88,14 +88,14 @@ def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
 
 
 def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
-    """Render a bookmark as text.
+    '''Render a bookmark as text.
 
     Args:
         b (dict): The bookmark data.
         lines (list): The list to which the text lines will be appended.
         as_markdown (bool): Whether to render as markdown.
         link_prefix (str): The prefix for location links.
-    """
+    '''
     lines.append(b['title'])
     date = render_timestamp(b['timestamp'])
     if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
@@ -111,19 +111,19 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
 
 
 def sanitize_color(color):
-    """
+    '''
     Extract the hex code from a hexadecimal color
     Args:
         color: A hexadecimal color string (e.g., "#rrggbb").
 
     Returns:
         The hexadecimal color string with the #.
-    """
+    '''
     return re.sub(r'[^a-zA-Z0-9-]', '', color)
 
 
 def color_contrasting(hex_color):
-    """
+    '''
     Generates a contrasting hexadecimal color.
 
     Args:
@@ -131,11 +131,11 @@ def color_contrasting(hex_color):
 
     Returns:
         A contrasting hexadecimal color string.
-    """
-    hex_color = hex_color.lstrip("#")
+    '''
+    hex_color = hex_color.lstrip('#')
     rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
     contrasting_rgb = tuple(255 - c for c in rgb)
-    return "#{:02x}{:02x}{:02x}".format(*contrasting_rgb)
+    return '#{:02x}{:02x}{:02x}'.format(*contrasting_rgb)
 
 
 class ChapterGroup:
@@ -188,7 +188,7 @@ def url_pat():
     return re.compile(url_pattern, flags=re.I)
 
 
-closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', "'": "'"}
+closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', '\'': '\''}
 
 
 def url(text: str, s: int, e: int):
@@ -233,15 +233,15 @@ def render_notes(notes, tag='p'):
 
 
 def slugify(text: str, max_length: int = 60) -> str:
-    """
+    '''
     Convert header text into a URL-safe slug suitable for element IDs.
     - Lowercase
     - Replace non-alphanumeric runs with hyphens
     - Trim leading/trailing hyphens
     - Truncate to `max_length`
-    """
+    '''
     if not text:
-        return "untitled"
+        return 'untitled'
     s = text.strip().lower()
     # replace HTML tags if present
     s = re.sub(r'<[^>]+>', '', s)
@@ -249,14 +249,14 @@ def slugify(text: str, max_length: int = 60) -> str:
     s = re.sub(r'[^a-z0-9]+', '-', s)
     s = s.strip('-')
     if not s:
-        return "untitled"
+        return 'untitled'
     if len(s) > max_length:
         s = s[:max_length].rstrip('-')
     return s
 
 
 def get_unique_id(base: str, counts: dict) -> str:
-    """Return a unique id by using and updating `counts` for collisions."""
+    '''Return a unique id by using and updating `counts` for collisions.'''
     if base not in counts:
         counts[base] = 1
         return base
@@ -265,12 +265,12 @@ def get_unique_id(base: str, counts: dict) -> str:
 
 
 def generate_outline_html(headings: list) -> str:
-    """Generate nested HTML outline (<nav><ul>...) from a flat list of headings.
+    '''Generate nested HTML outline (<nav><ul>...) from a flat list of headings.
 
     Each heading is a dict: {'level': int, 'text': str, 'id': str}
-    """
+    '''
     if not headings:
-        return ""
+        return ''
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
     out.append('<ul class="calibre-outline-list">')
     stack_level = 1
@@ -297,7 +297,7 @@ def generate_outline_html(headings: list) -> str:
 
 
 def format_annotations_to_html(json_annotations_string: str, markdown_string: str) -> str:
-    """
+    '''
     Formats Markdown text by wrapping Calibre annotations with styled HTML blockquotes.
 
     This function processes Calibre annotations by replacing the Markdown version of a highlight
@@ -313,9 +313,9 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     
     Raises:
         ValueError: If JSON parsing fails or the JSON structure is invalid.
-    """
+    '''
     if not json_annotations_string.strip():
-        raise ValueError("Invalid input: Resolved JSON annotations string is empty.")
+        raise ValueError('Invalid input: Resolved JSON annotations string is empty.')
     
     try:
         data = json.loads(json_annotations_string)
@@ -323,9 +323,9 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
         snippet = json_annotations_string[:100]
         raise ValueError(f"Invalid JSON data: {e}. Problem near: \"{snippet}...\"") from e
 
-    json_annotation_list = data.get("annotations")
+    json_annotation_list = data.get('annotations')
     if not isinstance(json_annotation_list, list):
-        json_annotation_list = data.get("highlights")
+        json_annotation_list = data.get('highlights')
     if not isinstance(json_annotation_list, list):
         raise ValueError('Invalid JSON structure: "annotations" array not found.')
 
@@ -337,21 +337,21 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     heading_id_counts = {}
 
     for ann in json_annotation_list:
-        if ann.get("start_cfi") and isinstance(ann.get("spine_index"), int):
+        if ann.get('start_cfi') and isinstance(ann.get('spine_index'), int):
             # The CFI key is constructed as it appears in the decoded Calibre link.
             cfi_key = f"/{ (ann['spine_index'] * 2) + 2 }{ ann['start_cfi'] }"
             cfi_to_annotation_map[cfi_key] = ann
             
-            style = ann.get("style", {})
-            stype = style.get("type")
-            skind = style.get("kind")
+            style = ann.get('style', {})
+            stype = style.get('type')
+            skind = style.get('kind')
             
-            if stype == "builtin" and skind != "decoration":
-                color = style.get("which", "yellow")
+            if stype == 'builtin' and skind != 'decoration':
+                color = style.get('which', 'yellow')
                 used_colors.add(color)
-            elif stype == "custom" and skind == "color":
-                custom_dict = style.get("custom", {})
-                color = custom_dict.get("light") or style.get("light") or "default"
+            elif stype == 'custom' and skind == 'color':
+                custom_dict = style.get('custom', {})
+                color = custom_dict.get('light') or style.get('light') or 'default'
                 used_colors.add(color)
 
     # Split markdown by '---' delimiter, keeping the delimiter for reconstruction
@@ -387,34 +387,34 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
             new_markdown_parts.append(part)
             continue
 
-        style = json_annotation.get("style", {})
-        stype = style.get("type")
-        skind = style.get("kind")
+        style = json_annotation.get('style', {})
+        stype = style.get('type')
+        skind = style.get('kind')
         
         color = None
         fname = None
         is_decoration = False
         
-        if stype == "builtin" and skind != "decoration":
-            color = style.get("which", "yellow")
-        elif stype == "builtin" and skind == "decoration":
-            fname = style.get("which", "wavy")
+        if stype == 'builtin' and skind != 'decoration':
+            color = style.get('which', 'yellow')
+        elif stype == 'builtin' and skind == 'decoration':
+            fname = style.get('which', 'wavy')
             if fname:
                 is_decoration = True
-        elif stype == "custom" and skind == "color":
-            custom_dict = style.get("custom", {})
-            color = custom_dict.get("light") or style.get("light") or "default"
-        elif stype == "custom" and skind == "decoration":
-            fname = style.get("friendly_name")
+        elif stype == 'custom' and skind == 'color':
+            custom_dict = style.get('custom', {})
+            color = custom_dict.get('light') or style.get('light') or 'default'
+        elif stype == 'custom' and skind == 'decoration':
+            fname = style.get('friendly_name')
             if fname:
                 is_decoration = True
         else:
-            color = "default"
+            color = 'default'
         
         # --- Annotation found, now reconstruct the content ---
         
         # 1. Separate headers from the main content and convert Markdown headers to HTML
-        prefix_content = ""
+        prefix_content = ''
         annotation_content_to_replace = part
         lines = part.split('\n')
         first_non_header_line_idx = 0
@@ -432,17 +432,17 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
                     prefix_content += f"<h{header_level} id=\"{hdr_id}\">{header_text}</h{header_level}>\n"
                     outline_headings.append({'level': header_level, 'text': header_text, 'id': hdr_id})
                 first_non_header_line_idx = i + 1
-            elif line_trimmed == "" and prefix_content:
+            elif line_trimmed == '' and prefix_content:
                 prefix_content += '\n'
                 first_non_header_line_idx = i + 1
-            elif line_trimmed != "":
+            elif line_trimmed != '':
                 break # First non-empty, non-header line
             else: # Empty line before any real content
                 prefix_content += '\n'
                 first_non_header_line_idx = i + 1
         
         annotation_content_to_replace = '\n'.join(lines[first_non_header_line_idx:])
-        json_highlighted_text = json_annotation.get("highlighted_text", "")
+        json_highlighted_text = json_annotation.get('highlighted_text', '')
         
         # Convert Markdown link to HTML <a> tag
         link_text = link_match.group(1)
@@ -450,18 +450,18 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
         html_link = f'<a href="{link_url}">{link_text}</a>'
         
         # Process note
-        note_for_blockquote = ""
+        note_for_blockquote = ''
         original_md_link_str = link_match.group(0)
         note_section_in_md = annotation_content_to_replace.split(original_md_link_str, 1)[-1]
         
         leading_ws_match = re.match(r'^\s*', note_section_in_md)
-        leading_ws_for_note = leading_ws_match.group(0) if leading_ws_match else ""
+        leading_ws_for_note = leading_ws_match.group(0) if leading_ws_match else ''
         actual_md_note_text = note_section_in_md.lstrip()
         
-        json_note = json_annotation.get("notes", "")
-        if json_note and json_note.strip() != "" and actual_md_note_text.strip() != "":
+        json_note = json_annotation.get('notes', '')
+        if json_note and json_note.strip() != '' and actual_md_note_text.strip() != '':
             note_for_blockquote = f"{leading_ws_for_note}<br><em>Note: </em>{actual_md_note_text}"
-        elif actual_md_note_text.strip() != "":
+        elif actual_md_note_text.strip() != '':
             note_for_blockquote = note_section_in_md
 
         # Assemble content
@@ -473,24 +473,24 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
             tag = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
             html_element = f'<{tag} class="calibre-annotation decor-{tag}">\n{inner_content}\n</{tag}>'
         else:
-            safe_color = sanitize_color(color) if color else "default"
+            safe_color = sanitize_color(color) if color else 'default'
             html_element = f'<blockquote class="calibre-annotation bq-{safe_color}">\n{inner_content}\n</blockquote>'
         
         # Add the prefix (headers) and the new element
         new_markdown_parts.append(prefix_content.rstrip() + ('\n\n' if prefix_content.strip() else '') + html_element)
 
-    final_markdown = "".join(new_markdown_parts)
+    final_markdown = ''.join(new_markdown_parts)
 
     # Prepend CSS styles
-    style_lines = ["<style>", "/* Calibre Annotation Styles */"]
+    style_lines = ['<style>', '/* Calibre Annotation Styles */']
     
     style_lines.extend([
-        ".calibre-annotations-container { font-family: sans-serif; }",
-        ".calibre-filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }",
-        ".calibre-filter-label { padding: 5px 15px; border-radius: 20px; cursor: pointer; border: 2px solid #ccc; background: #f9f9f9; color: #333; font-size: 14px; font-weight: bold; }",
-        ".calibre-filter-label:hover { opacity: 0.8; }",
-        "input.calibre-filter-cb:checked + label { background-color: #e0e0e0; }",
-        "input.calibre-filter-cb:checked ~ .calibre-annotation { display: none !important; }"
+        '.calibre-annotations-container { font-family: sans-serif; }',
+        '.calibre-filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
+        '.calibre-filter-label { padding: 5px 15px; border-radius: 20px; cursor: pointer; border: 2px solid #ccc; background: #f9f9f9; color: #333; font-size: 14px; font-weight: bold; }',
+        '.calibre-filter-label:hover { opacity: 0.8; }',
+        'input.calibre-filter-cb:checked + label { background-color: #e0e0e0; }',
+        'input.calibre-filter-cb:checked ~ .calibre-annotation { display: none !important; }'
     ])
     ids = []
     filter_inputs = []
@@ -500,17 +500,17 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     filter_labels.append('<button type="reset" class="calibre-filter-label" style="background:#ddd;">Show All</button>')
     
     if not used_colors and cfi_to_annotation_map:
-        used_colors.add("default")
+        used_colors.add('default')
         
     for color in sorted(list(used_colors)): # Sort for consistent output
         sanitized_color = sanitize_color(color)
         if not sanitized_color: continue
         
-        border_color = color if sanitized_color != "default" else "#cccccc"
-        if color == "yellow": border_color = "#ffeb3b"
-        elif color == "blue": border_color = "#2196f3"
-        elif color == "green": border_color = "#4caf50"
-        elif color == "red": border_color = "#f44336"
+        border_color = color if sanitized_color != 'default' else '#cccccc'
+        if color == 'yellow': border_color = '#ffeb3b'
+        elif color == 'blue': border_color = '#2196f3'
+        elif color == 'green': border_color = '#4caf50'
+        elif color == 'red': border_color = '#f44336'
         
         # Pill styling for label
         filter_inputs.append(f'<input type="checkbox" id="filter-color-{sanitized_color}" class="calibre-filter-cb" style="display:none;">')
@@ -519,14 +519,14 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
         # Filter logic overrides the generic hide rule
         style_lines.append(f"input#filter-color-{sanitized_color}:checked ~ .bq-{sanitized_color} {{ display: block !important; }}")
         
-        link_colors = {"yellow": "#795548", "blue": "#0d47a1", "green": "#1b5e20", "red": "#b71c1c", "default": "#333333"}
+        link_colors = {'yellow': '#795548', 'blue': '#0d47a1', 'green': '#1b5e20', 'red': '#b71c1c', 'default': '#333333'}
         link_color = link_colors.get(sanitized_color)
         if link_color == None:
             try:
                 link_color = color_contrasting(sanitized_color)
             except Exception as e:
-                print(f"Error computing contrasting color for '{sanitized_color}': {e}")
-                link_color = "#333333"
+                print(f'Error computing contrasting color for \'{sanitized_color}\': {e}')
+                link_color = '#333333'
         
         style_lines.extend([
             f".bq-{sanitized_color} {{",
@@ -548,28 +548,28 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     # Handle decorations in styles
     used_decorations = {}
     for ann in json_annotation_list:
-        if ann.get("start_cfi") and isinstance(ann.get("spine_index"), int):
-            style = ann.get("style", {})
-            stype = style.get("type")
-            skind = style.get("kind")
-            if stype == "custom" and skind == "decoration":
-                fname = style.get("friendly_name")
+        if ann.get('start_cfi') and isinstance(ann.get('spine_index'), int):
+            style = ann.get('style', {})
+            stype = style.get('type')
+            skind = style.get('kind')
+            if stype == 'custom' and skind == 'decoration':
+                fname = style.get('friendly_name')
                 if fname:
                     used_decorations[fname] = style
-            elif stype == "builtin" and skind == "decoration":
-                fname = style.get("which")
+            elif stype == 'builtin' and skind == 'decoration':
+                fname = style.get('which')
                 if fname:
                     used_decorations[fname] = {
-                        "text-decoration-color": "#000000",
-                        "text-decoration-line": "underline",
-                        "text-decoration-style": fname
+                        'text-decoration-color': '#000000',
+                        'text-decoration-line': 'underline',
+                        'text-decoration-style': fname
                     }
 
     for fname, dec_style in used_decorations.items():
         safe_fname = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
-        dec_color = dec_style.get("text-decoration-color", "#000")
-        dec_line = dec_style.get("text-decoration-line", "underline")
-        dec_style_type = dec_style.get("text-decoration-style", "solid")
+        dec_color = dec_style.get('text-decoration-color', '#000')
+        dec_line = dec_style.get('text-decoration-line', 'underline')
+        dec_style_type = dec_style.get('text-decoration-style', 'solid')
         
         filter_inputs.append(f'<input type="checkbox" id="filter-decor-{safe_fname}" class="calibre-filter-cb" style="display:none;">')
         filter_labels.append(f'<label for="filter-decor-{safe_fname}" class="calibre-filter-label" style="text-decoration: {dec_line} {dec_style_type} {dec_color};">{fname}</label>')
@@ -590,7 +590,7 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     for i, id in enumerate(ids):
         ids[i] = f'form.calibre-annotations-container:has(#{id}:checked) label[for="{id}"]'
     
-    style_lines.extend([f'\n{", ".join(ids)} {{\n    /* The inner bevel effect */\n',
+    style_lines.extend([f'\n{', '.join(ids)} {{\n    /* The inner bevel effect */\n',
     '    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),\n',
     '    inset -1px -1px 2px rgba(255, 255, 255, 0.5);\n\n',
     '    /* Optional: slightly darken the background to enhance the \"pressed\" look */\n',
@@ -601,42 +601,42 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     '}\n'])
     # Styles for the generated outline sidebar and main content
     style_lines.extend([
-        ".calibre-wrapper { display: flex; min-height: 100vh; }",
-        ".calibre-outline { width: 280px; position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; background: #fafafa; border-right: 1px solid #eee; padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }",
-        ".calibre-main { margin-left: 280px; padding: 2em 3em; box-sizing: border-box; width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }",
-        ".calibre-toggle { position: fixed; left: 295px; top: 20px; z-index: 200; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; border: 1px solid #e2e8f0; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, transform 0.2s; font-size: 1.25em; color: #4a5568; }",
-        ".calibre-toggle:hover { background: #f7fafc; color: #1a202c; transform: scale(1.05); }",
-        ".calibre-wrapper.sidebar-collapsed .calibre-outline { transform: translateX(-100%); }",
-        ".calibre-wrapper.sidebar-collapsed .calibre-main { margin-left: 0; padding-left: 5em; }",
-        ".calibre-wrapper.sidebar-collapsed .calibre-toggle { left: 20px; }",
-        ".calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }",
-        ".calibre-outline-list ul { list-style: none; padding-left: 1.2em; margin: 0.25em 0; border-left: 1px solid #edf2f7; }",
-        ".calibre-outline-item { margin: 0.4em 0; }",
-        ".calibre-outline a { color: #4a5568; text-decoration: none; font-size: 0.9em; transition: color 0.15s ease; display: inline-block; padding: 2px 0; }",
-        ".calibre-outline a:hover { color: #3182ce; }",
-        ".calibre-outline a.active { font-weight: 600; color: #2b6cb0; }",
-        "@media (max-width: 900px) {",
-        "  .calibre-outline { transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }",
-        "  .calibre-main { margin-left: 0; padding: 1.5em; padding-top: 5em; }",
-        "  .calibre-toggle { left: 20px !important; top: 20px; }",
-        "  .calibre-wrapper.sidebar-open .calibre-outline { transform: translateX(0); }",
-        "  .calibre-sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0; transition: opacity 0.3s ease; }",
-        "  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay { display: block; opacity: 1; }",
-        "}"
+        '.calibre-wrapper { display: flex; min-height: 100vh; }',
+        '.calibre-outline { width: 280px; position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; background: #fafafa; border-right: 1px solid #eee; padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
+        '.calibre-main { margin-left: 280px; padding: 2em 3em; box-sizing: border-box; width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
+        '.calibre-toggle { position: fixed; left: 295px; top: 20px; z-index: 200; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; border: 1px solid #e2e8f0; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, transform 0.2s; font-size: 1.25em; color: #4a5568; }',
+        '.calibre-toggle:hover { background: #f7fafc; color: #1a202c; transform: scale(1.05); }',
+        '.calibre-wrapper.sidebar-collapsed .calibre-outline { transform: translateX(-100%); }',
+        '.calibre-wrapper.sidebar-collapsed .calibre-main { margin-left: 0; padding-left: 5em; }',
+        '.calibre-wrapper.sidebar-collapsed .calibre-toggle { left: 20px; }',
+        '.calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }',
+        '.calibre-outline-list ul { list-style: none; padding-left: 1.2em; margin: 0.25em 0; border-left: 1px solid #edf2f7; }',
+        '.calibre-outline-item { margin: 0.4em 0; }',
+        '.calibre-outline a { color: #4a5568; text-decoration: none; font-size: 0.9em; transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
+        '.calibre-outline a:hover { color: #3182ce; }',
+        '.calibre-outline a.active { font-weight: 600; color: #2b6cb0; }',
+        '@media (max-width: 900px) {',
+        '  .calibre-outline { transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }',
+        '  .calibre-main { margin-left: 0; padding: 1.5em; padding-top: 5em; }',
+        '  .calibre-toggle { left: 20px !important; top: 20px; }',
+        '  .calibre-wrapper.sidebar-open .calibre-outline { transform: translateX(0); }',
+        '  .calibre-sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0; transition: opacity 0.3s ease; }',
+        '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay { display: block; opacity: 1; }',
+        '}'
     ])
 
-    style_lines.append("</style>\n")
+    style_lines.append('</style>\n')
     
     # Build outline HTML from collected headings
     outline_html = generate_outline_html(outline_headings)
 
-    html_output = "\n".join(style_lines) + "\n\n"
+    html_output = '\n'.join(style_lines) + '\n\n'
     html_output += '<div class="calibre-wrapper">\n'
-    html_output += outline_html + "\n"
+    html_output += outline_html + '\n'
     html_output += '<main class="calibre-main">\n'
     html_output += '<form class="calibre-annotations-container">\n'
-    html_output += "\n".join(filter_inputs) + "\n"
-    html_output += '<div class="calibre-filter-controls">\n' + "\n".join(filter_labels) + '\n</div>\n\n'
+    html_output += '\n'.join(filter_inputs) + '\n'
+    html_output += '<div class="calibre-filter-controls">\n' + '\n'.join(filter_labels) + '\n</div>\n\n'
     html_output += final_markdown
     html_output += '\n</form>\n'
     html_output += '</main>\n</div>\n'
@@ -719,7 +719,7 @@ def format_annotations_to_html(json_annotations_string: str, markdown_string: st
     
     final_output_string = html_output
     # Replace all lines matching `rgx_split_delim` with <hr> tags
-    final_output_string = re.sub(rgx_split_delim, "\n<hr>\n", final_output_string)
+    final_output_string = re.sub(rgx_split_delim, '\n<hr>\n', final_output_string)
 
     return final_output_string
 
