@@ -30,6 +30,7 @@ def viewer_sidebar_setting_controls_reader_visibility():
             window.history.replaceState(None, '', '#mode=read_book')
             parse_url_params.cache = {}
             root, left = create_sidebar()
+            root
             assert_equal(left.style.display, 'none')
 
             sd.set('show_sidebar_in_book_viewer', True)

@@ -28,7 +28,7 @@ class horizons(BasicNewsRecipe):
 
     remove_tags_before = [dict(name='div', **classes('e-con-boxed'))]
     remove_tags_after = [dict(name='div', **classes('e-con-boxed'))]
-    
+
     recipe_specific_options = {
         'issue_url': {
             'short': 'The issue URL ',
@@ -63,7 +63,7 @@ class horizons(BasicNewsRecipe):
                     self.log(url, '\n', self.cover_url)
         self.title = url.split('/')[-2].replace('-', ' ').title()
         self.log('Downloading Issue: ', self.title)
-        
+
         soup = self.index_to_soup(url)
         toc = soup.find('div', attrs={'class':'horizon-toc'})
         feeds = []

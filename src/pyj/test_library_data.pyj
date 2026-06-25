@@ -74,6 +74,7 @@ def sidebar_refreshes_saved_virtual_libraries_on_url_library_change():
             window.history.replaceState(None, '', '#library_id=lib-a')
             parse_url_params.cache = {}
             root, left = create_sidebar()
+            root
             assert_true(left.textContent.indexOf('Library A') > -1)
             assert_false(left.textContent.indexOf('Library B') > -1)
 

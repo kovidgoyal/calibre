@@ -6,7 +6,7 @@ https://www.economist.com/the-world-in-brief
 import re
 
 from calibre.ebooks.BeautifulSoup import Tag
-from calibre.web.feeds.news import BasicNewsRecipe, classes
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def new_tag(soup, name, attrs=()):
