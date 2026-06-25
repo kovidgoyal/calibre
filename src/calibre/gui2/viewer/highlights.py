@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+from calibre.gui2.dialogs import template_general_info
 import json
 import math
 from collections import defaultdict
@@ -298,15 +299,8 @@ class Export(ExportBase):
 
     def exported_data(self):
         fmt = self.export_format.currentData()
-        if fmt == 'calibre_highlights':
-            return json.dumps({
-                'version': 1,
-                'type': 'calibre_highlights',
-                'highlights': self.annotations,
-            }, ensure_ascii=False, sort_keys=True, indent=2)
-
         link_prefix = link_prefix_for_location_links()
-        
+
         def _generate_markdown():
             lines = []
             root = ChapterGroup()
@@ -314,6 +308,13 @@ class Export(ExportBase):
                 root.add_annot(a)
             root.render_as_text(lines, True, link_prefix)
             return '\n'.join(lines).strip()
+
+        if fmt == 'calibre_highlights':
+            return json.dumps({
+                'version': 1,
+                'type': 'calibre_highlights',
+                'highlights': self.annotations,
+            }, ensure_ascii=False, sort_keys=True, indent=2)
 
         if fmt == 'html':
             from calibre.gui2.library.annotations import format_annotations_to_html
@@ -325,13 +326,8 @@ class Export(ExportBase):
             md_data = _generate_markdown()
             return format_annotations_to_html(json_data, md_data)
 
-        lines = []
-        as_markdown = fmt == 'md'
-        root = ChapterGroup()
-        for a in self.annotations:
-            root.add_annot(a)
-        root.render_as_text(lines, as_markdown, link_prefix)
-        return '\n'.join(lines).strip()
+        if fmt == 'md':
+            return _generate_markdown()
 
 
 class Highlights(QTreeWidget):
