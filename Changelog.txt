@@ -63,9 +63,6 @@
 - The Week
 - Economist Espresso
 - Horizons
-
-:: new recipes
-- title by author
 }}}
 
 {{{ 9.9.0 2026-05-28
