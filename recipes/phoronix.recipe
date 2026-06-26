@@ -2,18 +2,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 
-'''
-Fetch phoronix.com
-'''
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class cdnet(BasicNewsRecipe):
+class Phoronix(BasicNewsRecipe):
 
     title = 'Phoronix'
     __author__ = 'calibre'
-    description = 'Actualités Phoronix'
+    description = 'Linux hardware reviews, performance benchmarks and open-source news'
     encoding = 'utf-8'
     publisher = 'Phoronix.com'
     category = 'news, IT, linux'
@@ -21,23 +17,33 @@ class cdnet(BasicNewsRecipe):
 
     use_embedded_content = False
     timefmt = ' [%d %b %Y]'
-    max_articles_per_feed = 25
+    max_articles_per_feed = 40
     no_stylesheets = True
     remove_empty_feeds = True
     filterDuplicates = True
+    delay = 1
+
+    feeds = [('Phoronix', 'https://www.phoronix.com/rss.php')]
+
+    keep_only_tags = [dict(name='article', attrs={'class': 'full'})]
+    browser_type = 'webengine'
+
+    remove_tags = [
+        dict(attrs={'id': lambda x: x and 'leaderboard' in x}),
+        dict(attrs={'id': 'sharebar'}),
+        dict(attrs={'id': 'about-author'}),
+        dict(attrs={'class': 'foot'}),
+        dict(attrs={'class': 'article-box'}),
+        dict(attrs={'class': 'after-article'}),
+        dict(attrs={'class': 'comments-label'}),
+        dict(attrs={'class': 'pagination'}),
+    ]
 
     extra_css = '''
-                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
-                    h2 {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .KonaBody {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
-                '''
-
-    remove_tags = []
-
-    remove_tags_before = dict(id='phxcms_content_phx')
-    remove_tags_after = dict(name='div', attrs={'class': 'KonaBody'})
-
-    feeds = [('Phoronix', 'http://feeds.feedburner.com/Phoronix')]
+        h1 { font-size: xx-large; font-family: Arial, Helvetica, sans-serif; }
+        .author { font-size: small; color: #555; font-family: Arial, Helvetica, sans-serif; }
+        .content { font-size: medium; font-family: Arial, Helvetica, sans-serif; }
+    '''
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
