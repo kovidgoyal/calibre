@@ -23,6 +23,51 @@
 # - title by author
 # }}}
 
+{{{ 9.10.0 2026-06-25
+
+:: new features
+
+- [major] Content server: A new "modern" interface with a sidebar to ease navigation
+
+- Content server: When used with HTTPS allow installation as a PWA (Progressive Web App)
+
+- [2156386] Edit book: Saved searches: When filtering the list of saved searches match by keywords
+
+- [2156213] CSS parsing: Add support for CSS Level 4 selectors
+
+- [2154669] Cover grid: When using an image larger than the viewport as a texture scale it to fit the viewport
+
+- [2154593] Annotations browser: Allow restricting displayed annotations by custom annotation styles as well
+
+- Edit book: Compress images: Add option to convert PNG images to JPEG or WEBP
+
+:: bug fixes
+
+- [2049604] E-book viewer: Fix IME on Windows not working when typing in notes for highlights
+
+- Conversion: Heuristics: Improve performance in some pathological cases
+
+- SNB Input: Fix error on some input files
+
+- Windows: fix rare crash when too many notifications are displayed at once
+
+- [2103999] Fix duplicating of books not duplicating value from enumerated columns when the column has a default value defined
+
+- Fix a regression in 9.8 that caused errors from AI plugin providers to be silently swallowed and not displayed to user
+
+- [2155175] Fix CSV export invalid when exporting comments field
+
+- Disallow Python templates when reading book metadata (CVE-2026-53511)
+
+:: improved recipes
+- The Week
+- Economist Espresso
+- Horizons
+
+:: new recipes
+- title by author
+}}}
+
 {{{ 9.9.0 2026-05-28
 
 :: new features
