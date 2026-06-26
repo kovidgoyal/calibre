@@ -209,7 +209,7 @@ class Economist(BasicNewsRecipe):
     __author__ = 'Kovid Goyal, unkn0wn'
     description = (
         'Global news and current affairs from a European'
-        ' perspective. Best downloaded on Friday mornings (GMT)'
+        ' perspective. Best downloaded away from Friday to avoid being blocked.'
     )
     extra_css = '''
         em { color:#202020; }
