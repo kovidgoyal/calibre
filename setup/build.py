@@ -305,6 +305,9 @@ def init_env(debug=False, sanitize=False, compiling_for='native'):
         ldflags.extend('-bundle -undefined dynamic_lookup'.split())
         cflags.extend(['-fno-common', '-dynamic'])
         cflags.extend('-I' + x for x in get_python_include_paths())
+        # Qt headers use __yield() without including <arm_acle.h>, suppress the
+        # resulting error from newer clang versions
+        base_cxxflags.append('-Wno-implicit-function-declaration')
 
     if iswindows or compiling_for == 'windows':
         platform_name = 'windows'
