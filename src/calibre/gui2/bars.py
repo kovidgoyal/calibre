@@ -20,6 +20,7 @@ from qt.core import (
     QPalette,
     QPropertyAnimation,
     QSize,
+    QSizePolicy,
     Qt,
     QTimer,
     QToolBar,
@@ -121,12 +122,27 @@ def rewrap_button(w):
         w.setText(wrap_button_text(w.defaultAction().text()))
 
 
+def set_toolbar_button_width(w, width=None):
+    # Keep toolbar buttons aligned without changing the user selected icon size.
+    if width is None:
+        w.setMinimumWidth(0)
+        w.setMaximumWidth(16777215)
+        w.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
+    else:
+        w.setFixedWidth(width)
+        w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+
+
 def wrap_all_button_texts(all_buttons):
     if not all_buttons:
         return
     for w in all_buttons:
         if hasattr(w, 'defaultAction'):
             ac = w.defaultAction()
+            # The Donate button is a custom ThrobbingButton with no default action.
+            # It still participates in width alignment, but has no text to wrap.
+            if ac is None:
+                continue
             text = ac.text()
             key = id(w), id(ac)
             if key not in connected_pairs:
@@ -162,6 +178,7 @@ class ToolBar(QToolBar):  # {{{
         self.donate_action = donate_action
         self.donate_button = None
         self.added_actions = []
+        self.all_widgets = []
 
         self.location_manager = location_manager
         self.setAcceptDrops(True)
@@ -184,6 +201,10 @@ class ToolBar(QToolBar):  # {{{
             elif p == 'auto' and self.preferred_width > self.width()+15:
                 style = Qt.ToolButtonStyle.ToolButtonIconOnly
         return style
+
+    def setToolButtonStyle(self, style):
+        QToolBar.setToolButtonStyle(self, style)
+        self.update_button_widths()
 
     def contextMenuEvent(self, ev):
         ac = self.actionAt(ev.pos())
@@ -226,6 +247,7 @@ class ToolBar(QToolBar):  # {{{
                 self.addWidget(self.donate_button)
                 self.donate_button.setIconSize(self.iconSize())
                 self.donate_button.setToolButtonStyle(self.toolButtonStyle())
+                self.all_widgets.append(self.donate_button)
                 self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
@@ -234,8 +256,19 @@ class ToolBar(QToolBar):  # {{{
                 self.setup_tool_button(self, action.qaction, action.popup_type)
         if gprefs['wrap_toolbar_text']:
             wrap_all_button_texts(self.all_widgets)
+        self.update_button_widths()
         self.preferred_width = self.sizeHint().width()
-        self.all_widgets = []
+
+    def update_button_widths(self):
+        # Use the widest current button as the shared width, preserving IconOnly mode.
+        widgets = tuple(w for w in self.all_widgets if not sip.isdeleted(w))
+        for w in widgets:
+            set_toolbar_button_width(w)
+        width = None
+        if self.toolButtonStyle() != Qt.ToolButtonStyle.ToolButtonIconOnly and widgets:
+            width = max(w.sizeHint().width() for w in widgets)
+        for w in widgets:
+            set_toolbar_button_width(w, width)
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         ch = bar.widgetForAction(ac)
