@@ -24,18 +24,19 @@ class ScientificAmerican(BasicNewsRecipe):
         'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
     )
     extra_css = '''
-        [class^="article_dek-"] { font-style:italic; color:#202020; }
+        [class^="default_dek-"], [class^="short_dek-"] { font-style:italic; color:#202020; }
         [class^="article_authors-"] {font-size:small; color:#202020; }
-        [class^="article__image-"], [class^="lead_image-"], .calibre-nuked-tag-figcaption { font-size:small; }
+        [class^="lead_image_"], .calibre-nuked-tag-figcaption { font-size:small; text-align:center; }
         [class^="bio-"] { font-size:small; color:#404040; }
         em, blockquote { color:#202020; }
+        img {display:block; margin:0 auto; }
     '''
 
     needs_subscription = 'optional'
 
     keep_only_tags = [
         prefixed_classes(
-            'article_hed- article_dek- article_authors- lead_image- article__body- bio-'
+            'default_hed- default_dek- short_hed- short_dek- article_authors- lead_image_ article__body- bio-'
         ),
     ]
     remove_tags = [
@@ -43,6 +44,15 @@ class ScientificAmerican(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
+        for a in soup.findAll('a', href=lambda h: h and 'getsciam' in h):
+            p = a.find_parent('p')
+            if not p:
+                continue
+            prev_h2 = p.find_previous_sibling('h2')
+            if prev_h2 and 'supporting science journalism' in prev_h2.get_text().lower():
+                for tag in [p.find_previous_sibling('hr'), prev_h2, p.find_next_sibling('hr'), p]:
+                    if tag:
+                        tag.decompose()
         for h2 in soup.findAll(['h2', 'h3']):
             h2.name = 'h4'
         for fig in soup.findAll('figcaption'):
