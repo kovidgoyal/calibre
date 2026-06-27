@@ -126,13 +126,12 @@ def _add_default_custom_column_values(mi, fm):
         if dv is None:
             continue
         try:
-            had_meta = mi.get_user_metadata(cc, make_copy=False)
-            if not had_meta:
+            if not (had_meta := mi.get_user_metadata(cc, make_copy=False)):
                 mi.set_user_metadata(cc, col)
             dt = col['datatype']
             if dt == 'datetime' and icu_lower(dv) == 'now':
                 dv = nowf()
-            if not had_meta or mi.get(cc, default=mi) is mi:
+            if not had_meta or mi.get(cc) is None:
                 mi.set(cc, dv)
         except Exception:
             traceback.print_exc()

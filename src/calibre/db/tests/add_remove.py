@@ -504,11 +504,14 @@ class AddRemoveTest(BaseTest):
 
         # Test the regression fix: adding a book without a value for the custom
         # column should apply the default value to the new record
-        mi = Metadata('Test Default Book', authors=('Author One',))
-        book_id = cache.create_book_entry(mi)
-        self.assertIsNotNone(book_id)
-        self.assertEqual(cache.field_for('#status', book_id), 'new',
-            'Default value not applied to new book entry')
+        mi_without_fm = Metadata('Test Default Book', authors=('Author One',))
+        mi_with_fm = Metadata('Test Default Book', authors=('Author One',))
+        mi_with_fm.set_user_metadata('#status', cache.field_metadata.custom_field_metadata()['#status'])
+        for mi in (mi_without_fm, mi_with_fm):
+            book_id = cache.create_book_entry(mi)
+            self.assertIsNotNone(book_id)
+            self.assertEqual(cache.field_for('#status', book_id), 'new',
+                'Default value not applied to new book entry')
 
         # Test the original bug fix: duplicating a book that already has a value
         # for the custom column should preserve that value, not override with the default
