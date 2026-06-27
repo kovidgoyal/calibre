@@ -490,3 +490,33 @@ class AddRemoveTest(BaseTest):
             'three': '3:three', 'merge conflict 1/one': '3:one', 'sub/merge conflict 1/one': '3:sub/one',
         })
     # }}}
+
+    def test_custom_column_defaults(self):  # {{{
+        'Test that custom column defaults are applied correctly when adding books'
+        from calibre.ebooks.metadata.book.base import Metadata
+
+        cache = self.init_cache()
+        # Create an enumeration column with a default value
+        cache.create_custom_column('status', 'Status', 'enumeration', False,
+            display={'enum_values': ['new', 'in-progress', 'done'], 'default_value': 'new'})
+        cache.close()
+        cache = self.init_cache()
+
+        # Test the regression fix: adding a book without a value for the custom
+        # column should apply the default value to the new record
+        mi = Metadata('Test Default Book', authors=('Author One',))
+        book_id = cache.create_book_entry(mi)
+        self.assertIsNotNone(book_id)
+        self.assertEqual(cache.field_for('#status', book_id), 'new',
+            'Default value not applied to new book entry')
+
+        # Test the original bug fix: duplicating a book that already has a value
+        # for the custom column should preserve that value, not override with the default
+        cache.set_field('#status', {book_id: 'done'})
+        self.assertEqual(cache.field_for('#status', book_id), 'done')
+        mi = cache.get_metadata(book_id)
+        dup_book_id = cache.create_book_entry(mi)
+        self.assertIsNotNone(dup_book_id)
+        self.assertEqual(cache.field_for('#status', dup_book_id), 'done',
+            'Duplicated book value was overridden by column default value')
+    # }}}
