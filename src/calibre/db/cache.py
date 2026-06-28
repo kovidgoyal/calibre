@@ -348,7 +348,8 @@ class Cache:
         return self.backend.field_metadata
 
     def _get_metadata(self, book_id, get_user_categories=True):  # {{{
-        mi = Metadata(None, template_cache=self.formatter_template_cache)
+        from calibre.ebooks.metadata.book.formatter import SafeFormat
+        mi = Metadata(None, template_cache=self.formatter_template_cache, formatter=SafeFormat())
 
         mi._proxy_metadata = ProxyMetadata(self, book_id, formatter=mi.formatter)
 
