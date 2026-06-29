@@ -92,8 +92,21 @@ class LLMPanel(ConverseWidget):
         authors = metadata.get('authors', [])
         self.book_authors = authors_to_string(authors)
 
+    def add_selected_text_reference(self, prompt: str) -> str:
+        selected_text = self.latched_conversation_text
+        if selected_text:
+            prompt += prompt_sep + _('Quoted text from the current selection:') + '\n\n' + selected_text
+        return prompt
+
     def activate_action(self, action: Action) -> None:
         self.start_api_call(self.prompt_text_for_action(action), uses_selected_text=action.uses_selected_text)
+
+    def run_custom_prompt(self, prompt: str) -> None:
+        if prompt := prompt.strip():
+            starts_new_conversation = not self.conversation_history
+            if starts_new_conversation:
+                prompt = self.add_selected_text_reference(prompt)
+            self.start_api_call(prompt, uses_selected_text=starts_new_conversation and bool(self.latched_conversation_text))
 
     def settings_dialog(self) -> QDialog:
         return LLMSettingsDialog(self)
