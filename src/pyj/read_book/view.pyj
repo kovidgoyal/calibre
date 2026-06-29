@@ -803,12 +803,6 @@ class View:
         set_css(document.getElementById('book-bottom-margin'), height=margin_bottom + 'px', font_size=header_footer_font_size(margin_bottom) + 'px')
         def side_margin(which, val):
             m = document.getElementById('book-{}-margin'.format(which))
-            if which is 'left':
-                # Explicitly set the width of the central panel. This is needed
-                # on small screens with chrome, without it sometimes the right
-                # margin/scrollbar goes off the screen.
-                usable_width = max(0, container_width - margin_left - margin_right - self.book_scrollbar.effective_width)
-                m.nextSibling.style.maxWidth = usable_width + 'px'
             set_css(m, width=val + 'px')
             val = min(val, 25)
             s = m.querySelector('.arrow').style
