@@ -182,9 +182,9 @@ class LLMPanel(ConverseWidget):
             msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
             msg += self.quick_actions_as_html(current_actions())
             msg += '<p>' + _(
-                'Or, type a question to the AI below. Use {0} to include the selected text, for example:'
-            ).format('<b>{selected}</b>') + '<br>'
-            msg += '<i>Summarize {selected}</i>'
+                'Or, type a question to the AI below. Use <b>{0}</b> to include the selected text, for example:'
+                '<br><i>Explain {0}</i>'
+            ).format('{selected}')
         return msg
 
     def prompt_text_for_action(self, action) -> str:
