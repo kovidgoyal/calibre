@@ -19,6 +19,38 @@ from calibre.utils.localization import ui_language_as_english
 from polyglot.binary import from_hex_unicode
 
 
+def selected_text_for_prompt(selected_text: str) -> str:
+    if not selected_text:
+        return ''
+    probably_has_multiple_words = len(selected_text) > 20 or ' ' in selected_text
+    what = 'Text to analyze: ' if probably_has_multiple_words else 'Word to analyze: '
+    return prompt_sep + what + selected_text
+
+
+def uses_field(template: str, field_name: str) -> bool:
+    try:
+        for _, fname, _, _ in string.Formatter().parse(template):
+            if fname == field_name:
+                return True
+    except ValueError:
+        pass
+    return False
+
+
+class SafeFormatDict(dict):
+
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+
+def format_prompt_template(template: str, **kwargs: str) -> str:
+    vals = SafeFormatDict(language=ui_language_as_english(), **kwargs)
+    try:
+        return template.format_map(vals)
+    except ValueError:
+        return template
+
+
 class Action(ActionData):
 
     @property
@@ -31,7 +63,6 @@ class Action(ActionData):
     def prompt_text(self, selected_text: str = '') -> str:
         probably_has_multiple_words = len(selected_text) > 20 or ' ' in selected_text
         pt = self.prompt_template
-        what = 'Text to analyze: ' if probably_has_multiple_words else 'Word to analyze: '
         if not probably_has_multiple_words:
             match self.name:
                 case 'explain':
@@ -41,8 +72,7 @@ class Action(ActionData):
                 case 'translate':
                     pt = 'Translate the following word into the language {language}. {selected}'
 
-        selected_text = (prompt_sep + what + selected_text) if selected_text else ''
-        return pt.format(selected=selected_text, language=ui_language_as_english()).strip()
+        return format_prompt_template(pt, selected=selected_text_for_prompt(selected_text)).strip()
 
 
 @lru_cache(2)
@@ -95,6 +125,12 @@ class LLMPanel(ConverseWidget):
     def activate_action(self, action: Action) -> None:
         self.start_api_call(self.prompt_text_for_action(action), uses_selected_text=action.uses_selected_text)
 
+    def run_custom_prompt(self, prompt: str) -> None:
+        if prompt := prompt.strip():
+            uses_selected_text = uses_field(prompt, 'selected')
+            prompt = format_prompt_template(prompt, selected=selected_text_for_prompt(self.latched_conversation_text))
+            self.start_api_call(prompt, uses_selected_text=uses_selected_text)
+
     def settings_dialog(self) -> QDialog:
         return LLMSettingsDialog(self)
 
@@ -145,8 +181,10 @@ class LLMPanel(ConverseWidget):
                 st = st[:200] + '…'
             msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
             msg += self.quick_actions_as_html(current_actions())
-            msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
-            msg += '<i>Summarize this book.</i>'
+            msg += '<p>' + _(
+                'Or, type a question to the AI below. Use {0} to include the selected text, for example:'
+            ).format('<b>{selected}</b>') + '<br>'
+            msg += '<i>Summarize {selected}</i>'
         return msg
 
     def prompt_text_for_action(self, action) -> str:
