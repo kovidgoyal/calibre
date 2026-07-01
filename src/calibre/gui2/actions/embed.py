@@ -17,7 +17,7 @@ from calibre.utils.localization import ngettext
 class EmbedAction(InterfaceActionWithLibraryDrop):
 
     name = 'Embed Metadata'
-    action_spec = (_('Embed metadata'), 'modified.png', _('Embed metadata into book files'), None)
+    action_spec = (_('Embed metadata'), 'modified.png', _('Embed metadata into book files'), ())
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Embed metadata into book files')
