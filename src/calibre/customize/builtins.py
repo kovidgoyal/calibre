@@ -1819,17 +1819,6 @@ class StoreMobileReadStore(StoreBase):
     formats = ['EPUB', 'IMP', 'LRF', 'LIT', 'MOBI', 'PDF']
 
 
-class StoreNextoStore(StoreBase):
-    name = 'Nexto'
-    author = 'Tomasz Długosz'
-    description = 'Największy w Polsce sklep internetowy z audiobookami mp3, ebookami pdf oraz prasą do pobrania on-line.'
-    actual_plugin = 'calibre.gui2.store.stores.nexto_plugin:NextoStore'
-
-    headquarters = 'PL'
-    formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = True
-
-
 class StoreOzonRUStore(StoreBase):
     name = 'OZON.ru'
     description = 'e-books from OZON.ru'
@@ -1972,7 +1961,6 @@ plugins += [
     StoreManyBooksStore,
     StoreMillsBoonUKStore,
     StoreMobileReadStore,
-    StoreNextoStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StorePublioStore,
