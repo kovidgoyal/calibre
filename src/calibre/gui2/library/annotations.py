@@ -283,25 +283,73 @@ class ChapterGroup:
 
         # Build CSS
         style_lines = ['<style>', '/* Calibre Annotation Styles */']
+        dark_vars = (
+            '  --ca-bg: #1a202c; --ca-text: #e2e8f0; --ca-sidebar-bg: #171e2a;'
+            '  --ca-sidebar-border: #2d3748; --ca-toggle-bg: #2d3748;'
+            '  --ca-toggle-border: #4a5568; --ca-toggle-color: #a0aec0;'
+            '  --ca-toggle-hover-bg: #374151; --ca-toggle-hover-color: #e2e8f0;'
+            '  --ca-outline-link: #a0aec0; --ca-outline-link-hover: #63b3ed;'
+            '  --ca-outline-link-active: #90cdf4; --ca-outline-nested-border: #2d3748;'
+            '  --ca-search-input-bg: #2d3748; --ca-search-input-color: #e2e8f0;'
+            '  --ca-search-input-border: #4a5568; --ca-search-btn-bg: #2d3748;'
+            '  --ca-search-btn-color: #a0aec0; --ca-search-btn-border: #4a5568;'
+            '  --ca-search-btn-hover-bg: #2c4a6e; --ca-search-btn-hover-color: #90cdf4;'
+            '  --ca-search-count-color: #a0aec0;'
+            '  --ca-filter-label-bg: #2d3748; --ca-filter-label-color: #e2e8f0;'
+            '  --ca-filter-label-border: #4a5568; --ca-filter-active-bg: #4299e1;'
+            '  --ca-filter-active-color: #ffffff; --ca-show-all-bg: #4a5568;'
+            '  --ca-search-match-bg: #4a3000; --ca-search-match-color: #fde68a;'
+            '  --ca-search-match-current-bg: #6b4400; --ca-search-match-current-outline: #f6ad55;'
+        )
         style_lines.extend([
+            # Light theme variables (default)
+            ':root {',
+            '  --ca-bg: #ffffff; --ca-text: #2d3748; --ca-sidebar-bg: #fafafa;',
+            '  --ca-sidebar-border: #eee; --ca-toggle-bg: #ffffff;',
+            '  --ca-toggle-border: #e2e8f0; --ca-toggle-color: #4a5568;',
+            '  --ca-toggle-hover-bg: #f7fafc; --ca-toggle-hover-color: #1a202c;',
+            '  --ca-outline-link: #4a5568; --ca-outline-link-hover: #3182ce;',
+            '  --ca-outline-link-active: #2b6cb0; --ca-outline-nested-border: #edf2f7;',
+            '  --ca-search-input-bg: #fff; --ca-search-input-color: #2d3748;',
+            '  --ca-search-input-border: #cbd5e0; --ca-search-btn-bg: #f7fafc;',
+            '  --ca-search-btn-color: #4a5568; --ca-search-btn-border: #cbd5e0;',
+            '  --ca-search-btn-hover-bg: #ebf4ff; --ca-search-btn-hover-color: #2b6cb0;',
+            '  --ca-search-count-color: #718096;',
+            '  --ca-filter-label-bg: #f9f9f9; --ca-filter-label-color: #333;',
+            '  --ca-filter-label-border: #ccc; --ca-filter-active-bg: #2b6cb0;',
+            '  --ca-filter-active-color: #ffffff; --ca-show-all-bg: #ddd;',
+            '  --ca-search-match-bg: #fde68a; --ca-search-match-color: #111;',
+            '  --ca-search-match-current-bg: #f6ad55; --ca-search-match-current-outline: #ed8936;',
+            '}',
+            # Dark theme via explicit attribute (JS-driven)
+            f'[data-theme="dark"] {{{dark_vars}}}',
+            # Dark theme via system preference (fallback when no JS or before JS init)
+            '@media (prefers-color-scheme: dark) {',
+            f'  html:not([data-theme="light"]) {{{dark_vars}}}',
+            '}',
+            'body { background: var(--ca-bg); color: var(--ca-text); margin: 0; }',
             '.calibre-annotations-container { font-family: sans-serif; }',
             '.calibre-filter-controls {'
             ' margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
             '.calibre-filter-label {'
             ' padding: 5px 15px; border-radius: 20px; cursor: pointer;'
-            ' border: 2px solid #ccc; background: #f9f9f9; color: #333;'
+            ' border: 2px solid var(--ca-filter-label-border);'
+            ' background: var(--ca-filter-label-bg); color: var(--ca-filter-label-color);'
             ' font-size: 14px; font-weight: bold; }',
             '.calibre-filter-label:hover { opacity: 0.8; }',
-            'input.calibre-filter-cb:checked + label { background-color: #e0e0e0; }',
+            '.calibre-show-all { background: var(--ca-show-all-bg) !important; }',
             'input.calibre-filter-cb:checked ~ .calibre-annotation'
+            ' { display: none !important; }',
+            'input.calibre-filter-cb:checked ~ .calibre-annotation + hr'
             ' { display: none !important; }',
         ])
         ids = []
         filter_inputs = []
         filter_labels = []
         filter_labels.append(
-            '<button type="reset" class="calibre-filter-label"'
-            ' style="background:#ddd;">Show All</button>')
+            f'<button type="reset" class="calibre-filter-label calibre-show-all"'
+            f' title="{prepare_string_for_xml(_("Remove filter and show all annotations"), attribute=True)}"'
+            f'>{prepare_string_for_xml(_("Show All"))}</button>')
 
         if not used_colors and self.annotations:
             used_colors.add('default')
@@ -327,12 +375,16 @@ class ChapterGroup:
             filter_labels.append(
                 f'<label for="filter-color-{sanitized_color}"'
                 f' class="calibre-filter-label"'
+                f' title="{prepare_string_for_xml(_("Show only {color} highlights").format(color=color), attribute=True)}"'
                 f' style="border-color:{border_color};">'
                 f'{prepare_string_for_xml(color)}</label>')
             ids.append(f'filter-color-{sanitized_color}')
             style_lines.append(
                 f'input#filter-color-{sanitized_color}:checked'
                 f' ~ .bq-{sanitized_color} {{ display: block !important; }}')
+            style_lines.append(
+                f'input#filter-color-{sanitized_color}:checked'
+                f' ~ .bq-{sanitized_color} + hr {{ display: block !important; }}')
             link_color = link_colors.get(sanitized_color)
             if link_color is None:
                 try:
@@ -361,6 +413,7 @@ class ChapterGroup:
             filter_labels.append(
                 f'<label for="filter-decor-{safe_fname}"'
                 f' class="calibre-filter-label"'
+                f' title="{prepare_string_for_xml(_("Show only {name} style annotations").format(name=fname), attribute=True)}"'
                 f' style="text-decoration: {dec_line} {dec_style_type} {dec_color};">'
                 f'{prepare_string_for_xml(fname)}</label>')
             ids.append(f'filter-decor-{safe_fname}')
@@ -368,6 +421,9 @@ class ChapterGroup:
             style_lines.append(
                 f'input#filter-decor-{safe_fname}:checked'
                 f' ~ .decor-{safe_fname} {{ display: block !important; }}')
+            style_lines.append(
+                f'input#filter-decor-{safe_fname}:checked'
+                f' ~ .decor-{safe_fname} + hr {{ display: block !important; }}')
             style_lines.extend([
                 f'.decor-{safe_fname} {{',
                 f'  text-decoration-color: {dec_color};',
@@ -378,43 +434,45 @@ class ChapterGroup:
                 '}',
             ])
 
-        # Add CSS bevel to indicate selected pills
+        # Add CSS active state to indicate selected pills
         if ids:
             bevel_selectors = ', '.join(
                 f'form.calibre-annotations-container:has(#{i}:checked) label[for="{i}"]'
                 for i in ids)
             style_lines.append(
                 f'{bevel_selectors} {{'
-                f' box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3),'
-                f' inset -1px -1px 2px rgba(255,255,255,0.5);'
-                f' background-color: #ebebeb;'
-                f' padding-top: 6px; padding-bottom: 4px; }}')
+                f' background: var(--ca-filter-active-bg) !important;'
+                f' color: var(--ca-filter-active-color) !important;'
+                f' border-color: var(--ca-filter-active-bg) !important; }}')
 
         # Styles for the generated outline sidebar and main content
         style_lines.extend([
             '.calibre-wrapper { display: flex; min-height: 100vh; }',
             '.calibre-outline {'
             ' width: 280px; position: fixed; left: 0; top: 0; bottom: 0;'
-            ' overflow-y: auto; background: #fafafa; border-right: 1px solid #eee;'
+            ' overflow-y: auto; background: var(--ca-sidebar-bg);'
+            ' border-right: 1px solid var(--ca-sidebar-border);'
             ' padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100;'
             ' font-family: sans-serif;'
             ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
             ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
             '.calibre-main {'
-            ' margin-left: 280px; padding: 2em 3em; box-sizing: border-box;'
+            ' margin-left: 280px; padding: 2em 3em 2em 5em; box-sizing: border-box;'
             ' width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
             '.calibre-toggle {'
             ' position: fixed; left: 295px; top: 20px; z-index: 200;'
             ' width: 40px; height: 40px; display: flex; align-items: center;'
             ' justify-content: center; cursor: pointer; border-radius: 50%;'
-            ' border: 1px solid #e2e8f0; background: #ffffff;'
+            ' border: 1px solid var(--ca-toggle-border); background: var(--ca-toggle-bg);'
             ' box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),'
             ' 0 2px 4px -1px rgba(0,0,0,0.06);'
             ' transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),'
             ' background-color 0.2s, color 0.2s, transform 0.2s;'
-            ' font-size: 1.25em; color: #4a5568; }',
+            ' font-size: 1.25em; color: var(--ca-toggle-color); }',
             '.calibre-toggle:hover'
-            ' { background: #f7fafc; color: #1a202c; transform: scale(1.05); }',
+            ' { background: var(--ca-toggle-hover-bg);'
+            ' color: var(--ca-toggle-hover-color); transform: scale(1.05); }',
+            '#theme-toggle { top: 70px; }',
             '.calibre-wrapper.sidebar-collapsed .calibre-outline'
             ' { transform: translateX(-100%); }',
             '.calibre-wrapper.sidebar-collapsed .calibre-main'
@@ -423,33 +481,42 @@ class ChapterGroup:
             '.calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }',
             '.calibre-outline-list ul {'
             ' list-style: none; padding-left: 1.2em;'
-            ' margin: 0.25em 0; border-left: 1px solid #edf2f7; }',
+            ' margin: 0.25em 0; border-left: 1px solid var(--ca-outline-nested-border); }',
             '.calibre-outline-item { margin: 0.4em 0; }',
             '.calibre-outline a {'
-            ' color: #4a5568; text-decoration: none; font-size: 0.9em;'
+            ' color: var(--ca-outline-link); text-decoration: none; font-size: 0.9em;'
             ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
-            '.calibre-outline a:hover { color: #3182ce; }',
-            '.calibre-outline a.active { font-weight: 600; color: #2b6cb0; }',
+            '.calibre-outline a:hover { color: var(--ca-outline-link-hover); }',
+            '.calibre-outline a.active'
+            ' { font-weight: 600; color: var(--ca-outline-link-active); }',
             '.calibre-search-box {'
             ' margin-bottom: 1em; display: flex; flex-direction: column; gap: 4px; }',
             '#calibre-search-input {'
-            ' width: 100%; padding: 5px 8px; border: 1px solid #cbd5e0;'
+            ' width: 100%; padding: 5px 8px;'
+            ' border: 1px solid var(--ca-search-input-border);'
             ' border-radius: 4px; font-size: 0.85em; font-family: sans-serif;'
-            ' box-sizing: border-box; outline: none; background: #fff; color: #2d3748; }',
+            ' box-sizing: border-box; outline: none;'
+            ' background: var(--ca-search-input-bg); color: var(--ca-search-input-color); }',
             '#calibre-search-input:focus { border-color: #3182ce;'
             ' box-shadow: 0 0 0 2px rgba(49,130,206,0.2); }',
             '.calibre-search-nav {'
             ' display: flex; align-items: center; gap: 4px; }',
             '.calibre-search-nav button {'
-            ' padding: 2px 7px; border: 1px solid #cbd5e0; background: #f7fafc;'
-            ' border-radius: 3px; cursor: pointer; font-size: 0.85em; color: #4a5568; }',
-            '.calibre-search-nav button:hover { background: #ebf4ff; color: #2b6cb0; }',
+            ' padding: 2px 7px; border: 1px solid var(--ca-search-btn-border);'
+            ' background: var(--ca-search-btn-bg);'
+            ' border-radius: 3px; cursor: pointer; font-size: 0.85em;'
+            ' color: var(--ca-search-btn-color); }',
+            '.calibre-search-nav button:hover {'
+            ' background: var(--ca-search-btn-hover-bg);'
+            ' color: var(--ca-search-btn-hover-color); }',
             '#calibre-search-count {'
-            ' font-size: 0.8em; color: #718096; margin-left: 2px; }',
+            ' font-size: 0.8em; color: var(--ca-search-count-color); margin-left: 2px; }',
             'mark.calibre-search-match {'
-            ' background: #fde68a; color: inherit; padding: 0; border-radius: 2px; }',
+            ' background: var(--ca-search-match-bg); color: var(--ca-search-match-color);'
+            ' padding: 0; border-radius: 2px; }',
             'mark.calibre-search-match.current {'
-            ' background: #f6ad55; outline: 2px solid #ed8936; }',
+            ' background: var(--ca-search-match-current-bg);'
+            ' outline: 2px solid var(--ca-search-match-current-outline); }',
             '@media (max-width: 900px) {',
             '  .calibre-outline'
             ' { transform: translateX(-100%);'
@@ -474,7 +541,15 @@ class ChapterGroup:
             + '\n'.join(filter_labels)
             + '\n</div>')
 
-        html_output = '\n'.join(style_lines) + '\n\n'
+        html_output = (
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+            '<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            '<meta name="color-scheme" content="light dark">\n'
+            '<title>Calibre Annotations</title>\n'
+        )
+        html_output += '\n'.join(style_lines) + '\n'
+        html_output += '</head>\n<body>\n'
         html_output += '<div class="calibre-wrapper">\n'
         html_output += outline_html + '\n'
         html_output += '<main class="calibre-main">\n'
@@ -503,6 +578,37 @@ class ChapterGroup:
     btn.setAttribute('aria-label', 'Toggle sidebar outline');
     btn.innerHTML = '\u2630';
     wrapper.insertBefore(btn, wrapper.firstChild);
+
+    // Dark/light theme toggle button
+    var html = document.documentElement;
+    var themeBtn = document.createElement('button');
+    themeBtn.id = 'theme-toggle';
+    themeBtn.className = 'calibre-toggle';
+    themeBtn.setAttribute('aria-label', 'Toggle light/dark theme');
+    function updateThemeBtnLabel() {
+        themeBtn.innerHTML = html.getAttribute('data-theme') === 'dark' ? '\u2600' : '\u263d';
+        themeBtn.title = html.getAttribute('data-theme') === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    }
+    (function initTheme() {
+        var stored = null;
+        try { stored = localStorage.getItem('calibre-annotations-theme'); } catch(e) {}
+        if (stored === 'dark' || stored === 'light') {
+            html.setAttribute('data-theme', stored);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.setAttribute('data-theme', 'dark');
+        } else {
+            html.setAttribute('data-theme', 'light');
+        }
+        updateThemeBtnLabel();
+    })();
+    themeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        try { localStorage.setItem('calibre-annotations-theme', next); } catch(e) {}
+        updateThemeBtnLabel();
+    });
+    wrapper.insertBefore(themeBtn, wrapper.firstChild);
 
     btn.addEventListener('click', function(e){
         e.stopPropagation();
@@ -556,12 +662,41 @@ class ChapterGroup:
 
     // Search functionality
     var SEARCH_DEBOUNCE_MS = 220;
+    var SEARCH_HISTORY_KEY = 'calibre-annotations-search-history';
+    var SEARCH_HISTORY_MAX = 50;
     var searchInput = document.getElementById('calibre-search-input');
     var searchPrev = document.getElementById('calibre-search-prev');
     var searchNext = document.getElementById('calibre-search-next');
     var searchCount = document.getElementById('calibre-search-count');
+    var searchHistoryList = document.getElementById('calibre-search-history');
     var searchMatches = [];
     var searchCurrent = -1;
+
+    function loadSearchHistory() {
+        if (!searchHistoryList) return;
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch(e) {}
+        searchHistoryList.innerHTML = '';
+        history.forEach(function(term) {
+            var opt = document.createElement('option');
+            opt.value = term;
+            searchHistoryList.appendChild(opt);
+        });
+    }
+
+    function saveSearchTerm(term) {
+        if (!term) return;
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch(e) {}
+        var idx = history.indexOf(term);
+        if (idx !== -1) history.splice(idx, 1);
+        history.unshift(term);
+        if (history.length > SEARCH_HISTORY_MAX) history.length = SEARCH_HISTORY_MAX;
+        try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history)); } catch(e) {}
+        loadSearchHistory();
+    }
+
+    loadSearchHistory();
 
     function clearSearchHighlights() {
         var marks = Array.prototype.slice.call(
@@ -595,9 +730,10 @@ class ChapterGroup:
         updateSearchCount();
     }
 
-    function doSearch(term) {
+    function doSearch(term, save) {
         clearSearchHighlights();
         if (!term) return;
+        if (save) saveSearchTerm(term);
         var termLower = term.toLowerCase();
         var container = document.querySelector('.calibre-main');
         if (!container) return;
@@ -646,12 +782,19 @@ class ChapterGroup:
         var searchTimer;
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, SEARCH_DEBOUNCE_MS);
+            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim(), false); }, SEARCH_DEBOUNCE_MS);
         });
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                if (!searchMatches.length) return;
+                clearTimeout(searchTimer);
+                var term = searchInput.value.trim();
+                if (!term) return;
+                if (!searchMatches.length) {
+                    doSearch(term, true);
+                    return;
+                }
+                saveSearchTerm(term);
                 searchCurrent = e.shiftKey
                     ? (searchCurrent - 1 + searchMatches.length) % searchMatches.length
                     : (searchCurrent + 1) % searchMatches.length;
@@ -673,7 +816,9 @@ class ChapterGroup:
         scrollToSearchMatch(searchCurrent);
     });
 })();
-</script>'''
+</script>
+</body>
+</html>'''
 
         return html_output
 
@@ -767,8 +912,10 @@ def generate_outline_html(headings: list) -> str:
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
     out.append(
         '<div class="calibre-search-box">'
+        '<datalist id="calibre-search-history"></datalist>'
         '<input type="search" id="calibre-search-input"'
-        ' placeholder="Search annotations\u2026" autocomplete="off">'
+        ' placeholder="Search annotations\u2026" autocomplete="on"'
+        ' list="calibre-search-history">'
         '<div class="calibre-search-nav">'
         '<button id="calibre-search-prev" title="Previous match">\u2191</button>'
         '<span id="calibre-search-count"></span>'
