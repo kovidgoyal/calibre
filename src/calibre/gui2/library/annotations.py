@@ -298,6 +298,8 @@ class ChapterGroup:
             '  --ca-filter-label-bg: #2d3748; --ca-filter-label-color: #e2e8f0;'
             '  --ca-filter-label-border: #4a5568; --ca-filter-checked-bg: #374151;'
             '  --ca-filter-bevel-bg: #374151; --ca-show-all-bg: #4a5568;'
+            '  --ca-search-match-bg: #4a3000; --ca-search-match-color: #fde68a;'
+            '  --ca-search-match-current-bg: #6b4400; --ca-search-match-current-outline: #f6ad55;'
         )
         style_lines.extend([
             # Light theme variables (default)
@@ -316,6 +318,8 @@ class ChapterGroup:
             '  --ca-filter-label-bg: #f9f9f9; --ca-filter-label-color: #333;',
             '  --ca-filter-label-border: #ccc; --ca-filter-checked-bg: #e0e0e0;',
             '  --ca-filter-bevel-bg: #ebebeb; --ca-show-all-bg: #ddd;',
+            '  --ca-search-match-bg: #fde68a; --ca-search-match-color: #111;',
+            '  --ca-search-match-current-bg: #f6ad55; --ca-search-match-current-outline: #ed8936;',
             '}',
             # Dark theme via explicit attribute (JS-driven)
             f'[data-theme="dark"] {{{dark_vars}}}',
@@ -500,9 +504,11 @@ class ChapterGroup:
             '#calibre-search-count {'
             ' font-size: 0.8em; color: var(--ca-search-count-color); margin-left: 2px; }',
             'mark.calibre-search-match {'
-            ' background: #fde68a; color: inherit; padding: 0; border-radius: 2px; }',
+            ' background: var(--ca-search-match-bg); color: var(--ca-search-match-color);'
+            ' padding: 0; border-radius: 2px; }',
             'mark.calibre-search-match.current {'
-            ' background: #f6ad55; outline: 2px solid #ed8936; }',
+            ' background: var(--ca-search-match-current-bg);'
+            ' outline: 2px solid var(--ca-search-match-current-outline); }',
             '@media (max-width: 900px) {',
             '  .calibre-outline'
             ' { transform: translateX(-100%);'
@@ -648,12 +654,41 @@ class ChapterGroup:
 
     // Search functionality
     var SEARCH_DEBOUNCE_MS = 220;
+    var SEARCH_HISTORY_KEY = 'calibre-annotations-search-history';
+    var SEARCH_HISTORY_MAX = 50;
     var searchInput = document.getElementById('calibre-search-input');
     var searchPrev = document.getElementById('calibre-search-prev');
     var searchNext = document.getElementById('calibre-search-next');
     var searchCount = document.getElementById('calibre-search-count');
+    var searchHistoryList = document.getElementById('calibre-search-history');
     var searchMatches = [];
     var searchCurrent = -1;
+
+    function loadSearchHistory() {
+        if (!searchHistoryList) return;
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch(e) {}
+        searchHistoryList.innerHTML = '';
+        history.forEach(function(term) {
+            var opt = document.createElement('option');
+            opt.value = term;
+            searchHistoryList.appendChild(opt);
+        });
+    }
+
+    function saveSearchTerm(term) {
+        if (!term) return;
+        var history = [];
+        try { history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); } catch(e) {}
+        var idx = history.indexOf(term);
+        if (idx !== -1) history.splice(idx, 1);
+        history.unshift(term);
+        if (history.length > SEARCH_HISTORY_MAX) history.length = SEARCH_HISTORY_MAX;
+        try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history)); } catch(e) {}
+        loadSearchHistory();
+    }
+
+    loadSearchHistory();
 
     function clearSearchHighlights() {
         var marks = Array.prototype.slice.call(
@@ -687,9 +722,10 @@ class ChapterGroup:
         updateSearchCount();
     }
 
-    function doSearch(term) {
+    function doSearch(term, save) {
         clearSearchHighlights();
         if (!term) return;
+        if (save) saveSearchTerm(term);
         var termLower = term.toLowerCase();
         var container = document.querySelector('.calibre-main');
         if (!container) return;
@@ -738,12 +774,19 @@ class ChapterGroup:
         var searchTimer;
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, SEARCH_DEBOUNCE_MS);
+            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim(), false); }, SEARCH_DEBOUNCE_MS);
         });
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
+                clearTimeout(searchTimer);
+                var term = searchInput.value.trim();
+                if (term && !searchMatches.length) {
+                    doSearch(term, true);
+                    return;
+                }
                 if (!searchMatches.length) return;
+                saveSearchTerm(term);
                 searchCurrent = e.shiftKey
                     ? (searchCurrent - 1 + searchMatches.length) % searchMatches.length
                     : (searchCurrent + 1) % searchMatches.length;
@@ -861,8 +904,10 @@ def generate_outline_html(headings: list) -> str:
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
     out.append(
         '<div class="calibre-search-box">'
+        '<datalist id="calibre-search-history"></datalist>'
         '<input type="search" id="calibre-search-input"'
-        ' placeholder="Search annotations\u2026" autocomplete="off">'
+        ' placeholder="Search annotations\u2026" autocomplete="on"'
+        ' list="calibre-search-history">'
         '<div class="calibre-search-nav">'
         '<button id="calibre-search-prev" title="Previous match">\u2191</button>'
         '<span id="calibre-search-count"></span>'
