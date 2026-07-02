@@ -593,13 +593,7 @@ def render_notes(notes, tag='p'):
 
 
 def slugify(text: str, max_length: int = 60) -> str:
-    '''
-    Convert header text into a URL-safe slug suitable for element IDs.
-    - Lowercase
-    - Replace non-alphanumeric runs with hyphens
-    - Trim leading/trailing hyphens
-    - Truncate to `max_length`
-    '''
+    ''' Convert header text into a URL-safe slug suitable for element IDs. '''
     if not text:
         return 'untitled'
     s = text.strip().lower()
@@ -616,7 +610,7 @@ def slugify(text: str, max_length: int = 60) -> str:
 
 
 def get_unique_id(base: str, counts: dict) -> str:
-    '''Return a unique id by using and updating `counts` for collisions.'''
+    ''' Return base unchanged on first use; append -1, -2, ... for duplicates. Mutates counts. '''
     if base not in counts:
         counts[base] = 1
         return base
@@ -625,10 +619,7 @@ def get_unique_id(base: str, counts: dict) -> str:
 
 
 def generate_outline_html(headings: list) -> str:
-    '''Generate nested HTML outline (<nav><ul>...) from a flat list of headings.
-
-    Each heading is a dict: {'level': int, 'text': str, 'id': str}
-    '''
+    ''' Generate a nested HTML outline nav from a flat list of heading dicts. '''
     if not headings:
         return ''
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
