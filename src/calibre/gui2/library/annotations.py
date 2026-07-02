@@ -397,6 +397,7 @@ class ChapterGroup:
             ' width: 280px; position: fixed; left: 0; top: 0; bottom: 0;'
             ' overflow-y: auto; background: #fafafa; border-right: 1px solid #eee;'
             ' padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100;'
+            ' font-family: sans-serif;'
             ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
             ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
             '.calibre-main {'
@@ -429,6 +430,26 @@ class ChapterGroup:
             ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
             '.calibre-outline a:hover { color: #3182ce; }',
             '.calibre-outline a.active { font-weight: 600; color: #2b6cb0; }',
+            '.calibre-search-box {'
+            ' margin-bottom: 1em; display: flex; flex-direction: column; gap: 4px; }',
+            '#calibre-search-input {'
+            ' width: 100%; padding: 5px 8px; border: 1px solid #cbd5e0;'
+            ' border-radius: 4px; font-size: 0.85em; font-family: sans-serif;'
+            ' box-sizing: border-box; outline: none; background: #fff; color: #2d3748; }',
+            '#calibre-search-input:focus { border-color: #3182ce;'
+            ' box-shadow: 0 0 0 2px rgba(49,130,206,0.2); }',
+            '.calibre-search-nav {'
+            ' display: flex; align-items: center; gap: 4px; }',
+            '.calibre-search-nav button {'
+            ' padding: 2px 7px; border: 1px solid #cbd5e0; background: #f7fafc;'
+            ' border-radius: 3px; cursor: pointer; font-size: 0.85em; color: #4a5568; }',
+            '.calibre-search-nav button:hover { background: #ebf4ff; color: #2b6cb0; }',
+            '#calibre-search-count {'
+            ' font-size: 0.8em; color: #718096; margin-left: 2px; }',
+            'mark.calibre-search-match {'
+            ' background: #fde68a; color: inherit; padding: 0; border-radius: 2px; }',
+            'mark.calibre-search-match.current {'
+            ' background: #f6ad55; outline: 2px solid #ed8936; }',
             '@media (max-width: 900px) {',
             '  .calibre-outline'
             ' { transform: translateX(-100%);'
@@ -532,6 +553,124 @@ class ChapterGroup:
     }
     window.addEventListener('scroll', onScroll, {passive:true});
     onScroll();
+
+    // Search functionality
+    var searchInput = document.getElementById('calibre-search-input');
+    var searchPrev = document.getElementById('calibre-search-prev');
+    var searchNext = document.getElementById('calibre-search-next');
+    var searchCount = document.getElementById('calibre-search-count');
+    var searchMatches = [];
+    var searchCurrent = -1;
+
+    function clearSearchHighlights() {
+        var marks = Array.prototype.slice.call(
+            document.querySelectorAll('mark.calibre-search-match'));
+        marks.forEach(function(m) {
+            var parent = m.parentNode;
+            while (m.firstChild) parent.insertBefore(m.firstChild, m);
+            parent.removeChild(m);
+            parent.normalize();
+        });
+        searchMatches = [];
+        searchCurrent = -1;
+        if (searchCount) searchCount.textContent = '';
+    }
+
+    function updateSearchCount() {
+        if (!searchCount) return;
+        if (searchMatches.length === 0) {
+            searchCount.textContent = searchInput && searchInput.value ? '0' : '';
+        } else {
+            searchCount.textContent = (searchCurrent + 1) + '\u202f/\u202f' + searchMatches.length;
+        }
+    }
+
+    function scrollToSearchMatch(idx) {
+        searchMatches.forEach(function(m) { m.classList.remove('current'); });
+        if (idx >= 0 && idx < searchMatches.length) {
+            searchMatches[idx].classList.add('current');
+            searchMatches[idx].scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        updateSearchCount();
+    }
+
+    function doSearch(term) {
+        clearSearchHighlights();
+        if (!term) return;
+        var termLower = term.toLowerCase();
+        var container = document.querySelector('.calibre-main');
+        if (!container) return;
+        var walker = document.createTreeWalker(
+            container, NodeFilter.SHOW_TEXT, {
+                acceptNode: function(node) {
+                    var p = node.parentNode;
+                    while (p && p !== container) {
+                        var tn = p.tagName;
+                        if (tn === 'SCRIPT' || tn === 'STYLE') return NodeFilter.FILTER_REJECT;
+                        p = p.parentNode;
+                    }
+                    return node.nodeValue.toLowerCase().indexOf(termLower) !== -1
+                        ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+                }
+            });
+        var textNodes = [];
+        var node;
+        while ((node = walker.nextNode())) textNodes.push(node);
+        textNodes.forEach(function(tn) {
+            var text = tn.nodeValue;
+            var textLower = text.toLowerCase();
+            var frag = document.createDocumentFragment();
+            var idx = 0, pos;
+            while ((pos = textLower.indexOf(termLower, idx)) !== -1) {
+                if (pos > idx) frag.appendChild(document.createTextNode(text.slice(idx, pos)));
+                var mark = document.createElement('mark');
+                mark.className = 'calibre-search-match';
+                mark.textContent = text.slice(pos, pos + term.length);
+                frag.appendChild(mark);
+                searchMatches.push(mark);
+                idx = pos + term.length;
+            }
+            if (idx < text.length) frag.appendChild(document.createTextNode(text.slice(idx)));
+            tn.parentNode.replaceChild(frag, tn);
+        });
+        if (searchMatches.length > 0) {
+            searchCurrent = 0;
+            scrollToSearchMatch(0);
+        } else {
+            updateSearchCount();
+        }
+    }
+
+    if (searchInput) {
+        var searchTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, 220);
+        });
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!searchMatches.length) return;
+                searchCurrent = e.shiftKey
+                    ? (searchCurrent - 1 + searchMatches.length) % searchMatches.length
+                    : (searchCurrent + 1) % searchMatches.length;
+                scrollToSearchMatch(searchCurrent);
+            } else if (e.key === 'Escape') {
+                searchInput.value = '';
+                clearSearchHighlights();
+            }
+        });
+    }
+    if (searchPrev) searchPrev.addEventListener('click', function() {
+        if (!searchMatches.length) return;
+        searchCurrent = (searchCurrent - 1 + searchMatches.length) % searchMatches.length;
+        scrollToSearchMatch(searchCurrent);
+    });
+    if (searchNext) searchNext.addEventListener('click', function() {
+        if (!searchMatches.length) return;
+        searchCurrent = (searchCurrent + 1) % searchMatches.length;
+        scrollToSearchMatch(searchCurrent);
+    });
 })();
 </script>'''
 
@@ -624,31 +763,41 @@ def get_unique_id(base: str, counts: dict) -> str:
 
 def generate_outline_html(headings: list) -> str:
     ''' Generate a nested HTML outline nav from a flat list of heading dicts. '''
-    if not headings:
-        return ''
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
-    out.append('<ul class="calibre-outline-list">')
-    stack_level = 1
-    for h in headings:
-        lvl = max(1, min(6, int(h.get('level', 1))))
-        # open nested lists as needed
-        while lvl > stack_level:
-            out.append('<ul>')
-            stack_level += 1
-        # close lists as needed
-        while lvl < stack_level:
+    out.append(
+        '<div class="calibre-search-box">'
+        '<input type="search" id="calibre-search-input"'
+        ' placeholder="Search annotations\u2026" autocomplete="off">'
+        '<div class="calibre-search-nav">'
+        '<button id="calibre-search-prev" title="Previous match">\u2191</button>'
+        '<span id="calibre-search-count"></span>'
+        '<button id="calibre-search-next" title="Next match">\u2193</button>'
+        '</div>'
+        '</div>'
+    )
+    if headings:
+        out.append('<ul class="calibre-outline-list">')
+        stack_level = 1
+        for h in headings:
+            lvl = max(1, min(6, int(h.get('level', 1))))
+            # open nested lists as needed
+            while lvl > stack_level:
+                out.append('<ul>')
+                stack_level += 1
+            # close lists as needed
+            while lvl < stack_level:
+                out.append('</ul>')
+                stack_level -= 1
+            text = h.get('text', '').strip() or 'Untitled'
+            hid = h.get('id')
+            out.append(
+                f'<li class="calibre-outline-item lvl-{lvl}">'
+                f'<a href="#{hid}">{prepare_string_for_xml(text)}</a></li>')
+        # close remaining open lists
+        while stack_level > 1:
             out.append('</ul>')
             stack_level -= 1
-        text = h.get('text', '').strip() or 'Untitled'
-        hid = h.get('id')
-        out.append(
-            f'<li class="calibre-outline-item lvl-{lvl}">'
-            f'<a href="#{hid}">{prepare_string_for_xml(text)}</a></li>')
-    # close remaining open lists
-    while stack_level > 1:
         out.append('</ul>')
-        stack_level -= 1
-    out.append('</ul>')
     out.append('</nav>')
     return '\n'.join(out)
 
