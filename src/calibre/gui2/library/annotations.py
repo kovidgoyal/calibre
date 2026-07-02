@@ -555,6 +555,7 @@ class ChapterGroup:
     onScroll();
 
     // Search functionality
+    var SEARCH_DEBOUNCE_MS = 220;
     var searchInput = document.getElementById('calibre-search-input');
     var searchPrev = document.getElementById('calibre-search-prev');
     var searchNext = document.getElementById('calibre-search-next');
@@ -625,10 +626,10 @@ class ChapterGroup:
                 if (pos > idx) frag.appendChild(document.createTextNode(text.slice(idx, pos)));
                 var mark = document.createElement('mark');
                 mark.className = 'calibre-search-match';
-                mark.textContent = text.slice(pos, pos + term.length);
+                mark.textContent = text.slice(pos, pos + termLower.length);
                 frag.appendChild(mark);
                 searchMatches.push(mark);
-                idx = pos + term.length;
+                idx = pos + termLower.length;
             }
             if (idx < text.length) frag.appendChild(document.createTextNode(text.slice(idx)));
             tn.parentNode.replaceChild(frag, tn);
@@ -645,7 +646,7 @@ class ChapterGroup:
         var searchTimer;
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimer);
-            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, 220);
+            searchTimer = setTimeout(function() { doSearch(searchInput.value.trim()); }, SEARCH_DEBOUNCE_MS);
         });
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
