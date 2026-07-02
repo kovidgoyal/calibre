@@ -317,14 +317,10 @@ class Export(ExportBase):
             }, ensure_ascii=False, sort_keys=True, indent=2)
 
         if fmt == 'html':
-            from calibre.gui2.library.annotations import format_annotations_to_html
-            json_data = json.dumps({
-                'version': 1,
-                'type': 'calibre_highlights',
-                'highlights': self.annotations,
-            })
-            md_data = _generate_markdown()
-            return format_annotations_to_html(json_data, md_data)
+            root = ChapterGroup()
+            for a in self.annotations:
+                root.add_annot(a)
+            return root.render_as_html(link_prefix)
 
         if fmt == 'md':
             return _generate_markdown()
