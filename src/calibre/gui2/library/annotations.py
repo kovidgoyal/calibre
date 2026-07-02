@@ -781,11 +781,11 @@ class ChapterGroup:
                 e.preventDefault();
                 clearTimeout(searchTimer);
                 var term = searchInput.value.trim();
-                if (term && !searchMatches.length) {
+                if (!term) return;
+                if (!searchMatches.length) {
                     doSearch(term, true);
                     return;
                 }
-                if (!searchMatches.length) return;
                 saveSearchTerm(term);
                 searchCurrent = e.shiftKey
                     ? (searchCurrent - 1 + searchMatches.length) % searchMatches.length
