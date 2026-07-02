@@ -297,7 +297,7 @@ class ChapterGroup:
             '  --ca-search-count-color: #a0aec0;'
             '  --ca-filter-label-bg: #2d3748; --ca-filter-label-color: #e2e8f0;'
             '  --ca-filter-label-border: #4a5568; --ca-filter-checked-bg: #374151;'
-            '  --ca-filter-bevel-bg: #374151;'
+            '  --ca-filter-bevel-bg: #374151; --ca-show-all-bg: #4a5568;'
         )
         style_lines.extend([
             # Light theme variables (default)
@@ -315,7 +315,7 @@ class ChapterGroup:
             '  --ca-search-count-color: #718096;',
             '  --ca-filter-label-bg: #f9f9f9; --ca-filter-label-color: #333;',
             '  --ca-filter-label-border: #ccc; --ca-filter-checked-bg: #e0e0e0;',
-            '  --ca-filter-bevel-bg: #ebebeb;',
+            '  --ca-filter-bevel-bg: #ebebeb; --ca-show-all-bg: #ddd;',
             '}',
             # Dark theme via explicit attribute (JS-driven)
             f'[data-theme="dark"] {{{dark_vars}}}',
@@ -333,6 +333,7 @@ class ChapterGroup:
             ' background: var(--ca-filter-label-bg); color: var(--ca-filter-label-color);'
             ' font-size: 14px; font-weight: bold; }',
             '.calibre-filter-label:hover { opacity: 0.8; }',
+            '.calibre-show-all { background: var(--ca-show-all-bg) !important; }',
             'input.calibre-filter-cb:checked + label'
             ' { background-color: var(--ca-filter-checked-bg); }',
             'input.calibre-filter-cb:checked ~ .calibre-annotation'
@@ -342,8 +343,8 @@ class ChapterGroup:
         filter_inputs = []
         filter_labels = []
         filter_labels.append(
-            '<button type="reset" class="calibre-filter-label"'
-            ' style="background:#ddd;">Show All</button>')
+            '<button type="reset" class="calibre-filter-label calibre-show-all"'
+            '>Show All</button>')
 
         if not used_colors and self.annotations:
             used_colors.add('default')
@@ -444,7 +445,7 @@ class ChapterGroup:
             ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
             ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
             '.calibre-main {'
-            ' margin-left: 280px; padding: 2em 3em; box-sizing: border-box;'
+            ' margin-left: 280px; padding: 2em 3em 2em 5em; box-sizing: border-box;'
             ' width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
             '.calibre-toggle {'
             ' position: fixed; left: 295px; top: 20px; z-index: 200;'
