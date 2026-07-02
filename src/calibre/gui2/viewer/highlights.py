@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.gui2.dialogs import template_general_info
 import json
 import math
 from collections import defaultdict
@@ -324,6 +323,14 @@ class Export(ExportBase):
 
         if fmt == 'md':
             return _generate_markdown()
+
+        # plain text
+        lines = []
+        root = ChapterGroup()
+        for a in self.annotations:
+            root.add_annot(a)
+        root.render_as_text(lines, False, link_prefix)
+        return '\n'.join(lines).strip()
 
 
 class Highlights(QTreeWidget):

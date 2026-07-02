@@ -6,7 +6,7 @@ import json
 import os
 import re
 from functools import lru_cache, partial
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
 from qt.core import (
     QAbstractItemView,
@@ -111,8 +111,8 @@ def get_annotation_style_classes(style):
         color = 'default'
 
     if is_decoration:
-        tag = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
-        return tag, f"decor-{tag}"
+        safe = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
+        return 'span', f'decor-{safe}'
     else:
         safe_color = sanitize_color(color) if color else 'default'
         return 'blockquote', f"bq-{safe_color}"
@@ -120,36 +120,23 @@ def get_annotation_style_classes(style):
 def render_highlight_as_html(hl, lines, link_prefix=None):
     tag, css_class = get_annotation_style_classes(hl.get('style', {}))
     lines.append(f'<{tag} class="calibre-annotation {css_class}">')
-    
-    lines.append(hl.get('highlighted_text', ''))
-    
+    lines.append(prepare_string_for_xml(hl.get('highlighted_text', '')))
     date = render_timestamp(hl['timestamp'])
     if link_prefix:
         cfi = hl['start_cfi']
         spine_index = (1 + hl['spine_index']) * 2
         link = (link_prefix + quote(f'epubcfi(/{spine_index}{cfi})')).replace(')', '%29')
-        date_link = f'<a href="{link}">{date}</a>'
+        date_link = f'<a href="{link}">{prepare_string_for_xml(date)}</a>'
     else:
-        date_link = f'<strong>{date}</strong>'
-
+        date_link = f'<strong>{prepare_string_for_xml(date)}</strong>'
     lines.append(date_link)
-
     json_note = hl.get('notes')
     if json_note and json_note.strip():
-        lines.append(f"<br><em>Note: </em>{json_note}")
-
+        lines.append(f'<br><em>Note: </em>{prepare_string_for_xml(json_note)}')
     lines.append(f'</{tag}>')
     lines.append('<hr>')
 
 def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
-    '''Render a bookmark as text.
-
-    Args:
-        b (dict): The bookmark data.
-        lines (list): The list to which the text lines will be appended.
-        as_markdown (bool): Whether to render as markdown.
-        link_prefix (str): The prefix for location links.
-    '''
     lines.append(b['title'])
     date = render_timestamp(b['timestamp'])
     if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
@@ -164,49 +151,24 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append('')
 
 def render_bookmark_as_html(b, lines, link_prefix=None):
-    '''Render a bookmark as HTML.
-
-    Args:
-        b (dict): The bookmark data.
-        lines (list): The list to which the text lines will be appended.
-        link_prefix (str): The prefix for location links.
-    '''
-    # We will use a div for bookmarks to separate them from highlights
     lines.append('<div class="calibre-annotation calibre-bookmark">')
-    lines.append(f'<strong>{b.get("title", "")}</strong><br>')
+    lines.append(f'<strong>{prepare_string_for_xml(b.get("title", ""))}</strong><br>')
     date = render_timestamp(b['timestamp'])
     if link_prefix and b.get('pos_type') == 'epubcfi':
         link = (link_prefix + quote(b['pos'])).replace(')', '%29')
-        date = f'<a href="{link}">{date}</a>'
+        date = f'<a href="{link}">{prepare_string_for_xml(date)}</a>'
     else:
-        date = f'<span>{date}</span>'
+        date = f'<span>{prepare_string_for_xml(date)}</span>'
     lines.append(date)
     lines.append('</div>')
     lines.append('<hr>')
 
 
 def sanitize_color(color):
-    '''
-    Extract the hex code from a hexadecimal color
-    Args:
-        color: A hexadecimal color string (e.g., "#rrggbb").
-
-    Returns:
-        The hexadecimal color string with the #.
-    '''
     return re.sub(r'[^a-zA-Z0-9-]', '', color)
 
 
 def color_contrasting(hex_color):
-    '''
-    Generates a contrasting hexadecimal color.
-
-    Args:
-        hex_color: A hexadecimal color string (e.g., "#rrggbb").
-
-    Returns:
-        A contrasting hexadecimal color string.
-    '''
     hex_color = hex_color.lstrip('#')
     rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
     contrasting_rgb = tuple(255 - c for c in rgb)
@@ -287,13 +249,16 @@ class ChapterGroup:
     def _render_nodes(self, lines, link_prefix):
         if self.title:
             level = min(self.level, 6)
-            lines.append(f'<h{level} id="{getattr(self, "html_id", "")}">{self.title}</h{level}>')
+            hid = prepare_string_for_xml(getattr(self, 'html_id', ''), attribute=True)
+            lines.append(
+                f'<h{level} id="{hid}">{prepare_string_for_xml(self.title)}</h{level}>')
         for hl in self.annotations:
             atype = hl.get('type', 'highlight')
+            hl_prefix = hl.get('_link_prefix', link_prefix)
             if atype == 'bookmark':
-                render_bookmark_as_html(hl, lines, link_prefix=link_prefix)
+                render_bookmark_as_html(hl, lines, link_prefix=hl_prefix)
             else:
-                render_highlight_as_html(hl, lines, link_prefix=link_prefix)
+                render_highlight_as_html(hl, lines, link_prefix=hl_prefix)
         for sg in self.subgroups.values():
             sg._render_nodes(lines, link_prefix)
 
@@ -302,74 +267,83 @@ class ChapterGroup:
         heading_id_counts = {}
         used_colors = set()
         used_decorations = {}
-        
+
         # Traverse the tree to populate outline, colors, and decorations
-        self._collect_outline_and_colors(outline_headings, heading_id_counts, used_colors, used_decorations)
-        
+        self._collect_outline_and_colors(
+            outline_headings, heading_id_counts, used_colors, used_decorations)
+
         # Render the HTML content
         content_lines = []
         self._render_nodes(content_lines, link_prefix)
-        final_markdown = '\n'.join(content_lines)
+        content_html = '\n'.join(content_lines)
 
-        # Prepend CSS styles
+        # Build CSS
         style_lines = ['<style>', '/* Calibre Annotation Styles */']
-        
         style_lines.extend([
             '.calibre-annotations-container { font-family: sans-serif; }',
-            '.calibre-filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
-            '.calibre-filter-label { padding: 5px 15px; border-radius: 20px; cursor: pointer; border: 2px solid #ccc; background: #f9f9f9; color: #333; font-size: 14px; font-weight: bold; }',
+            '.calibre-filter-controls {'
+            ' margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
+            '.calibre-filter-label {'
+            ' padding: 5px 15px; border-radius: 20px; cursor: pointer;'
+            ' border: 2px solid #ccc; background: #f9f9f9; color: #333;'
+            ' font-size: 14px; font-weight: bold; }',
             '.calibre-filter-label:hover { opacity: 0.8; }',
             'input.calibre-filter-cb:checked + label { background-color: #e0e0e0; }',
-            'input.calibre-filter-cb:checked ~ .calibre-annotation { display: none !important; }'
+            'input.calibre-filter-cb:checked ~ .calibre-annotation'
+            ' { display: none !important; }',
         ])
         ids = []
         filter_inputs = []
         filter_labels = []
-        
-        filter_labels.append('<button type="reset" class="calibre-filter-label" style="background:#ddd;">Show All</button>')
-        
-        if not used_colors and len(self.annotations) > 0:
+        filter_labels.append(
+            '<button type="reset" class="calibre-filter-label"'
+            ' style="background:#ddd;">Show All</button>')
+
+        if not used_colors and self.annotations:
             used_colors.add('default')
-            
-        for color in sorted(list(used_colors)): 
+
+        link_colors = {
+            'yellow': '#795548', 'blue': '#0d47a1',
+            'green': '#1b5e20', 'red': '#b71c1c', 'default': '#333333',
+        }
+        builtin_border = {
+            'yellow': '#ffeb3b', 'blue': '#2196f3',
+            'green': '#4caf50', 'red': '#f44336',
+        }
+        for color in sorted(used_colors):
             sanitized_color = sanitize_color(color)
-            if not sanitized_color: continue
-            
-            border_color = color if sanitized_color != 'default' else '#cccccc'
-            if color == 'yellow': border_color = '#ffeb3b'
-            elif color == 'blue': border_color = '#2196f3'
-            elif color == 'green': border_color = '#4caf50'
-            elif color == 'red': border_color = '#f44336'
-            
-            filter_inputs.append(f'<input type="checkbox" id="filter-color-{sanitized_color}" class="calibre-filter-cb" style="display:none;">')
-            filter_labels.append(f'<label for="filter-color-{sanitized_color}" class="calibre-filter-label" style="border-color:{border_color};">{color}</label>')
-            ids.append(f"filter-color-{sanitized_color}")
-            style_lines.append(f"input#filter-color-{sanitized_color}:checked ~ .bq-{sanitized_color} {{ display: block !important; }}")
-            
-            link_colors = {'yellow': '#795548', 'blue': '#0d47a1', 'green': '#1b5e20', 'red': '#b71c1c', 'default': '#333333'}
+            if not sanitized_color:
+                continue
+            border_color = (
+                builtin_border.get(color)
+                or (color if sanitized_color != 'default' else '#cccccc'))
+            filter_inputs.append(
+                f'<input type="checkbox" id="filter-color-{sanitized_color}"'
+                f' class="calibre-filter-cb" style="display:none;">')
+            filter_labels.append(
+                f'<label for="filter-color-{sanitized_color}"'
+                f' class="calibre-filter-label"'
+                f' style="border-color:{border_color};">'
+                f'{prepare_string_for_xml(color)}</label>')
+            ids.append(f'filter-color-{sanitized_color}')
+            style_lines.append(
+                f'input#filter-color-{sanitized_color}:checked'
+                f' ~ .bq-{sanitized_color} {{ display: block !important; }}')
             link_color = link_colors.get(sanitized_color)
-            if link_color == None:
+            if link_color is None:
                 try:
                     link_color = color_contrasting(sanitized_color)
-                except Exception as e:
-                    print(f"Error computing contrasting color for '{sanitized_color}': {e}")
+                except Exception:
                     link_color = '#333333'
-            
             style_lines.extend([
-                f".bq-{sanitized_color} {{",
-                f"  border-left: 3px solid {border_color} !important;",
-                f"  padding: 0.5em 10px;",
-                f"  margin: 1em 0;",
-                f"}}",
-                f".bq-{sanitized_color} a {{",
-                f"  color: {link_color};",
-                f"  font-weight: bold;",
-                f"}}",
-                f".bq-{sanitized_color} em {{",
-                f"  font-style: italic;",
-                f"  font-weight: bold;",
-                f"  color: {link_color};",
-                f"}}"
+                f'.bq-{sanitized_color} {{',
+                f'  border-left: 3px solid {border_color} !important;',
+                f'  padding: 0.5em 10px;',
+                f'  margin: 1em 0;',
+                f'}}',
+                f'.bq-{sanitized_color} a {{ color: {link_color}; font-weight: bold; }}',
+                f'.bq-{sanitized_color} em {{'
+                f' font-style: italic; font-weight: bold; color: {link_color}; }}',
             ])
 
         for fname, dec_style in used_decorations.items():
@@ -377,122 +351,153 @@ class ChapterGroup:
             dec_color = dec_style.get('text-decoration-color', '#000')
             dec_line = dec_style.get('text-decoration-line', 'underline')
             dec_style_type = dec_style.get('text-decoration-style', 'solid')
-            
-            filter_inputs.append(f'<input type="checkbox" id="filter-decor-{safe_fname}" class="calibre-filter-cb" style="display:none;">')
-            filter_labels.append(f'<label for="filter-decor-{safe_fname}" class="calibre-filter-label" style="text-decoration: {dec_line} {dec_style_type} {dec_color};">{fname}</label>')
-            ids.append(f"filter-decor-{safe_fname}")
-        # Filter logic overrides the generic hide rule
-            style_lines.append(f"input#filter-decor-{safe_fname}:checked ~ .decor-{safe_fname} {{ display: block !important; }}")
-            
+            filter_inputs.append(
+                f'<input type="checkbox" id="filter-decor-{safe_fname}"'
+                f' class="calibre-filter-cb" style="display:none;">')
+            filter_labels.append(
+                f'<label for="filter-decor-{safe_fname}"'
+                f' class="calibre-filter-label"'
+                f' style="text-decoration: {dec_line} {dec_style_type} {dec_color};">'
+                f'{prepare_string_for_xml(fname)}</label>')
+            ids.append(f'filter-decor-{safe_fname}')
+            # Filter logic overrides the generic hide rule
+            style_lines.append(
+                f'input#filter-decor-{safe_fname}:checked'
+                f' ~ .decor-{safe_fname} {{ display: block !important; }}')
             style_lines.extend([
-                f".decor-{safe_fname} {{",
-                f"  text-decoration-color: {dec_color};",
-                f"  text-decoration-line: {dec_line};",
-                f"  text-decoration-style: {dec_style_type};",
-                f"  display: block;",
-                f"  margin: 1em 0;",
-                f"}}"
+                f'.decor-{safe_fname} {{',
+                f'  text-decoration-color: {dec_color};',
+                f'  text-decoration-line: {dec_line};',
+                f'  text-decoration-style: {dec_style_type};',
+                f'  display: block;',
+                f'  margin: 1em 0;',
+                f'}}',
             ])
-    # Add CSS Bevel to indicate selected Pills
-        for i, id in enumerate(ids):
-            ids[i] = f'form.calibre-annotations-container:has(#{id}:checked) label[for="{id}"]'
-        
-        style_lines.extend([f'\n{", ".join(ids)} {{\n    /* The inner bevel effect */\n',
-        '    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),\n',
-        '    inset -1px -1px 2px rgba(255, 255, 255, 0.5);\n\n',
-        '    /* Optional: slightly darken the background to enhance the "pressed" look */\n',
-        '    background-color: #ebebeb;\n\n',
-        '    /* Optional: move the text slightly down to mimic a physical button press */\n',
-        '    padding-top: 6px;\n',
-        '    padding-bottom: 4px;\n',
-        '}\n'])
-    # Styles for the generated outline sidebar and main content
+
+        # Add CSS bevel to indicate selected pills
+        if ids:
+            bevel_selectors = ', '.join(
+                f'form.calibre-annotations-container:has(#{i}:checked) label[for="{i}"]'
+                for i in ids)
+            style_lines.append(
+                f'{bevel_selectors} {{'
+                f' box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3),'
+                f' inset -1px -1px 2px rgba(255,255,255,0.5);'
+                f' background-color: #ebebeb;'
+                f' padding-top: 6px; padding-bottom: 4px; }}')
+
+        # Styles for the generated outline sidebar and main content
         style_lines.extend([
             '.calibre-wrapper { display: flex; min-height: 100vh; }',
-            '.calibre-outline { width: 280px; position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; background: #fafafa; border-right: 1px solid #eee; padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
-            '.calibre-main { margin-left: 280px; padding: 2em 3em; box-sizing: border-box; width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
-            '.calibre-toggle { position: fixed; left: 295px; top: 20px; z-index: 200; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; border: 1px solid #e2e8f0; background: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, transform 0.2s; font-size: 1.25em; color: #4a5568; }',
-            '.calibre-toggle:hover { background: #f7fafc; color: #1a202c; transform: scale(1.05); }',
-            '.calibre-wrapper.sidebar-collapsed .calibre-outline { transform: translateX(-100%); }',
-            '.calibre-wrapper.sidebar-collapsed .calibre-main { margin-left: 0; padding-left: 5em; }',
+            '.calibre-outline {'
+            ' width: 280px; position: fixed; left: 0; top: 0; bottom: 0;'
+            ' overflow-y: auto; background: #fafafa; border-right: 1px solid #eee;'
+            ' padding: 2em 1.5em 1.5em 1.5em; box-sizing: border-box; z-index: 100;'
+            ' transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);'
+            ' box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03); }',
+            '.calibre-main {'
+            ' margin-left: 280px; padding: 2em 3em; box-sizing: border-box;'
+            ' width: 100%; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
+            '.calibre-toggle {'
+            ' position: fixed; left: 295px; top: 20px; z-index: 200;'
+            ' width: 40px; height: 40px; display: flex; align-items: center;'
+            ' justify-content: center; cursor: pointer; border-radius: 50%;'
+            ' border: 1px solid #e2e8f0; background: #ffffff;'
+            ' box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),'
+            ' 0 2px 4px -1px rgba(0,0,0,0.06);'
+            ' transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),'
+            ' background-color 0.2s, color 0.2s, transform 0.2s;'
+            ' font-size: 1.25em; color: #4a5568; }',
+            '.calibre-toggle:hover'
+            ' { background: #f7fafc; color: #1a202c; transform: scale(1.05); }',
+            '.calibre-wrapper.sidebar-collapsed .calibre-outline'
+            ' { transform: translateX(-100%); }',
+            '.calibre-wrapper.sidebar-collapsed .calibre-main'
+            ' { margin-left: 0; padding-left: 5em; }',
             '.calibre-wrapper.sidebar-collapsed .calibre-toggle { left: 20px; }',
             '.calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }',
-            '.calibre-outline-list ul { list-style: none; padding-left: 1.2em; margin: 0.25em 0; border-left: 1px solid #edf2f7; }',
+            '.calibre-outline-list ul {'
+            ' list-style: none; padding-left: 1.2em;'
+            ' margin: 0.25em 0; border-left: 1px solid #edf2f7; }',
             '.calibre-outline-item { margin: 0.4em 0; }',
-            '.calibre-outline a { color: #4a5568; text-decoration: none; font-size: 0.9em; transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
+            '.calibre-outline a {'
+            ' color: #4a5568; text-decoration: none; font-size: 0.9em;'
+            ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
             '.calibre-outline a:hover { color: #3182ce; }',
             '.calibre-outline a.active { font-weight: 600; color: #2b6cb0; }',
             '@media (max-width: 900px) {',
-            '  .calibre-outline { transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }',
+            '  .calibre-outline'
+            ' { transform: translateX(-100%);'
+            ' box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }',
             '  .calibre-main { margin-left: 0; padding: 1.5em; padding-top: 5em; }',
             '  .calibre-toggle { left: 20px !important; top: 20px; }',
-            '  .calibre-wrapper.sidebar-open .calibre-outline { transform: translateX(0); }',
-            '  .calibre-sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0; transition: opacity 0.3s ease; }',
-            '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay { display: block; opacity: 1; }',
-            '}'
+            '  .calibre-wrapper.sidebar-open .calibre-outline'
+            ' { transform: translateX(0); }',
+            '  .calibre-sidebar-overlay {'
+            ' display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;'
+            ' background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0;'
+            ' transition: opacity 0.3s ease; }',
+            '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay'
+            ' { display: block; opacity: 1; }',
+            '}',
         ])
+        style_lines.append('</style>')
 
-        style_lines.append('</style>\n')
-        
-    # Build outline HTML from collected headings
         outline_html = generate_outline_html(outline_headings)
+        filter_controls = (
+            '<div class="calibre-filter-controls">\n'
+            + '\n'.join(filter_labels)
+            + '\n</div>')
 
         html_output = '\n'.join(style_lines) + '\n\n'
         html_output += '<div class="calibre-wrapper">\n'
         html_output += outline_html + '\n'
         html_output += '<main class="calibre-main">\n'
         html_output += '<form class="calibre-annotations-container">\n'
-        html_output += '\n'.join(filter_inputs) + '\n'
-        html_output += '<div class="calibre-filter-controls">\n' + '\n'.join(filter_labels) + '\n</div>\n\n'
-        html_output += final_markdown
+        if filter_inputs:
+            html_output += '\n'.join(filter_inputs) + '\n'
+        html_output += filter_controls + '\n\n'
+        html_output += content_html
         html_output += '\n</form>\n'
         html_output += '</main>\n</div>\n'
 
-    # Inline JS for toggle, smooth scroll, and active-heading highlighting
+        # Inline JS: sidebar toggle, smooth scroll, active-heading tracking
         html_output += '''<script>
 (function(){
     var wrapper = document.querySelector('.calibre-wrapper');
     var nav = document.querySelector('.calibre-outline');
     if(!wrapper || !nav) return;
 
-    // Create backdrop overlay for mobile
     var overlay = document.createElement('div');
     overlay.className = 'calibre-sidebar-overlay';
     wrapper.appendChild(overlay);
 
-    // Create toggle button
     var btn = document.createElement('button');
     btn.id = 'outline-toggle';
     btn.className = 'calibre-toggle';
     btn.setAttribute('aria-label', 'Toggle sidebar outline');
-    btn.innerHTML = '☰';
+    btn.innerHTML = '\u2630';
     wrapper.insertBefore(btn, wrapper.firstChild);
 
-    // Toggle click handler
     btn.addEventListener('click', function(e){
         e.stopPropagation();
-        var isMobile = window.innerWidth <= 900;
-        if (isMobile) {
+        if (window.innerWidth <= 900) {
             wrapper.classList.toggle('sidebar-open');
         } else {
             wrapper.classList.toggle('sidebar-collapsed');
         }
     });
 
-    // Close mobile sidebar when clicking overlay
     overlay.addEventListener('click', function(){
         wrapper.classList.remove('sidebar-open');
     });
 
-    // Handle outline link clicks
     nav.addEventListener('click', function(e){
         var a = e.target.closest('a');
         if(!a) return;
-        
         if (window.innerWidth <= 900) {
             wrapper.classList.remove('sidebar-open');
         }
-
         var href = a.getAttribute('href');
         if(href && href.charAt(0) === '#'){
             var id = href.slice(1);
@@ -505,7 +510,9 @@ class ChapterGroup:
         }
     });
 
-    var headings = Array.prototype.slice.call(document.querySelectorAll('.calibre-main h1, .calibre-main h2, .calibre-main h3, .calibre-main h4, .calibre-main h5, .calibre-main h6'));
+    var headings = Array.prototype.slice.call(document.querySelectorAll(
+        '.calibre-main h1, .calibre-main h2, .calibre-main h3,'
+        + ' .calibre-main h4, .calibre-main h5, .calibre-main h6'));
     var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
     function onScroll(){
         var fromTop = window.scrollY + 10;
@@ -639,7 +646,9 @@ def generate_outline_html(headings: list) -> str:
             stack_level -= 1
         text = h.get('text', '').strip() or 'Untitled'
         hid = h.get('id')
-        out.append(f'<li class="calibre-outline-item lvl-{lvl}"><a href="#{hid}">{text}</a></li>')
+        out.append(
+            f'<li class="calibre-outline-item lvl-{lvl}">'
+            f'<a href="#{hid}">{prepare_string_for_xml(text)}</a></li>')
     # close remaining open lists
     while stack_level > 1:
         out.append('</ul>')
@@ -831,13 +840,20 @@ class Export(Dialog):  # {{{
             return '\n'.join(lines).strip()
 
         if fmt == 'html':
-            json_data = json.dumps({
-                'version': 1,
-                'type': 'calibre_annotation_collection',
-                'annotations': self.annotations,
-            })
-            md_data = _generate_markdown()
-            return format_annotations_to_html(json_data, md_data)
+            # Build one ChapterGroup with per-book subgroups so we can render
+            # a single self-contained HTML page.  Each annotation carries its
+            # own _link_prefix so that viewer links are correct per-book.
+            bid_groups = {}
+            for a in self.annotations:
+                bid_groups.setdefault(a['book_id'], []).append(a)
+            root = ChapterGroup(level=0)
+            for book_id, group in bid_groups.items():
+                lp = link_prefix_func(book_id, group[-1]['format'], group[-1]) or None
+                book_title = db.field_for('title', book_id)
+                book_group = root.group_for_title(book_title)
+                for a in group:
+                    book_group.add_annot(dict(a, _link_prefix=lp))
+            return root.render_as_html()
 
         lines = []
         bid_groups = {}
