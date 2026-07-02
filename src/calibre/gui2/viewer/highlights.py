@@ -298,19 +298,38 @@ class Export(ExportBase):
 
     def exported_data(self):
         fmt = self.export_format.currentData()
+        link_prefix = link_prefix_for_location_links()
+
+        def _generate_markdown():
+            lines = []
+            root = ChapterGroup()
+            for a in self.annotations:
+                root.add_annot(a)
+            root.render_as_text(lines, True, link_prefix)
+            return '\n'.join(lines).strip()
+
         if fmt == 'calibre_highlights':
             return json.dumps({
                 'version': 1,
                 'type': 'calibre_highlights',
                 'highlights': self.annotations,
             }, ensure_ascii=False, sort_keys=True, indent=2)
+
+        if fmt == 'html':
+            root = ChapterGroup()
+            for a in self.annotations:
+                root.add_annot(a)
+            return root.render_as_html(link_prefix)
+
+        if fmt == 'md':
+            return _generate_markdown()
+
+        # plain text
         lines = []
-        as_markdown = fmt == 'md'
-        link_prefix = link_prefix_for_location_links()
         root = ChapterGroup()
         for a in self.annotations:
             root.add_annot(a)
-        root.render_as_text(lines, as_markdown, link_prefix)
+        root.render_as_text(lines, False, link_prefix)
         return '\n'.join(lines).strip()
 
 
