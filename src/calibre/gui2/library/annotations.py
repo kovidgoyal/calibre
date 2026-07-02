@@ -86,14 +86,15 @@ def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
         lines.append('───')
     lines.append('')
 
+
 def get_annotation_style_classes(style):
     stype = style.get('type')
     skind = style.get('kind')
-    
+
     color = None
     fname = None
     is_decoration = False
-    
+
     if stype == 'builtin' and skind != 'decoration':
         color = style.get('which', 'yellow')
     elif stype == 'builtin' and skind == 'decoration':
@@ -115,7 +116,8 @@ def get_annotation_style_classes(style):
         return 'span', f'decor-{safe}'
     else:
         safe_color = sanitize_color(color) if color else 'default'
-        return 'blockquote', f"bq-{safe_color}"
+        return 'blockquote', f'bq-{safe_color}'
+
 
 def render_highlight_as_html(hl, lines, link_prefix=None):
     tag, css_class = get_annotation_style_classes(hl.get('style', {}))
@@ -136,6 +138,7 @@ def render_highlight_as_html(hl, lines, link_prefix=None):
     lines.append(f'</{tag}>')
     lines.append('<hr>')
 
+
 def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append(b['title'])
     date = render_timestamp(b['timestamp'])
@@ -149,6 +152,7 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     else:
         lines.append('───')
     lines.append('')
+
 
 def render_bookmark_as_html(b, lines, link_prefix=None):
     lines.append('<div class="calibre-annotation calibre-bookmark">')
@@ -214,15 +218,15 @@ class ChapterGroup:
         if self.title:
             level = min(self.level, 6)
             base = slugify(self.title)
-            hdr_id = get_unique_id(f"outline-{base}", heading_id_counts)
+            hdr_id = get_unique_id(f'outline-{base}', heading_id_counts)
             self.html_id = hdr_id
             outline_headings.append({'level': level, 'text': self.title, 'id': hdr_id})
-        
+
         for hl in self.annotations:
             style = hl.get('style', {})
             stype = style.get('type')
             skind = style.get('kind')
-            
+
             if stype == 'builtin' and skind != 'decoration':
                 color = style.get('which', 'yellow')
                 used_colors.add(color)
@@ -242,7 +246,7 @@ class ChapterGroup:
                         'text-decoration-line': 'underline',
                         'text-decoration-style': fname
                     }
-                    
+
         for sg in self.subgroups.values():
             sg._collect_outline_and_colors(outline_headings, heading_id_counts, used_colors, used_decorations)
 
@@ -338,9 +342,9 @@ class ChapterGroup:
             style_lines.extend([
                 f'.bq-{sanitized_color} {{',
                 f'  border-left: 3px solid {border_color} !important;',
-                f'  padding: 0.5em 10px;',
-                f'  margin: 1em 0;',
-                f'}}',
+                '  padding: 0.5em 10px;',
+                '  margin: 1em 0;',
+                '}',
                 f'.bq-{sanitized_color} a {{ color: {link_color}; font-weight: bold; }}',
                 f'.bq-{sanitized_color} em {{'
                 f' font-style: italic; font-weight: bold; color: {link_color}; }}',
@@ -369,9 +373,9 @@ class ChapterGroup:
                 f'  text-decoration-color: {dec_color};',
                 f'  text-decoration-line: {dec_line};',
                 f'  text-decoration-style: {dec_style_type};',
-                f'  display: block;',
-                f'  margin: 1em 0;',
-                f'}}',
+                '  display: block;',
+                '  margin: 1em 0;',
+                '}',
             ])
 
         # Add CSS bevel to indicate selected pills
@@ -548,7 +552,7 @@ def url_pat():
     return re.compile(url_pattern, flags=re.I)
 
 
-closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', '\'': '\''}
+closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', "'": "'"}
 
 
 def url(text: str, s: int, e: int):
@@ -615,7 +619,7 @@ def get_unique_id(base: str, counts: dict) -> str:
         counts[base] = 1
         return base
     counts[base] += 1
-    return f"{base}-{counts[base]-1}"
+    return f'{base}-{counts[base]-1}'
 
 
 def generate_outline_html(headings: list) -> str:
