@@ -196,6 +196,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-7210',  # DoS in unused XML parser
     'CVE-2026-3276',  # DoS in unicodedata.normalize()
     'CVE-2026-7774',  # tarfile.data_filter path traversal bypass
+    'CVE-2026-12003',  # bug in release builds irrelevant to us
     # nodejs used only at build time CVEs are irrelevant
     'CVE-2026-21710',
     'CVE-2026-21717',
@@ -205,6 +206,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-21716',
     'CVE-2026-48937',
     'CVE-2026-48617',
+    'CVE-2026-48931',
     # libtiff
     'CVE-2025-8851',  # this is erroneously marked as fixed in the database but no release of libtiff has been made with the fix
     # hyphen
