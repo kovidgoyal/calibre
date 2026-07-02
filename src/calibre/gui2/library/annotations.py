@@ -318,10 +318,10 @@ class ChapterGroup:
             '  --ca-filter-bevel-bg: #ebebeb;',
             '}',
             # Dark theme via explicit attribute (JS-driven)
-            '[data-theme="dark"] {' + dark_vars + '}',
+            f'[data-theme="dark"] {{{dark_vars}}}',
             # Dark theme via system preference (fallback when no JS or before JS init)
             '@media (prefers-color-scheme: dark) {',
-            '  html:not([data-theme="light"]) {' + dark_vars + '}',
+            f'  html:not([data-theme="light"]) {{{dark_vars}}}',
             '}',
             'body { background: var(--ca-bg); color: var(--ca-text); margin: 0; }',
             '.calibre-annotations-container { font-family: sans-serif; }',
@@ -566,13 +566,13 @@ class ChapterGroup:
 
     // Dark/light theme toggle button
     var html = document.documentElement;
-    var darkBtn = document.createElement('button');
-    darkBtn.id = 'theme-toggle';
-    darkBtn.className = 'calibre-toggle';
-    darkBtn.setAttribute('aria-label', 'Toggle light/dark theme');
-    function updateDarkBtnLabel() {
-        darkBtn.innerHTML = html.getAttribute('data-theme') === 'dark' ? '\u2600' : '\u263d';
-        darkBtn.title = html.getAttribute('data-theme') === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    var themeBtn = document.createElement('button');
+    themeBtn.id = 'theme-toggle';
+    themeBtn.className = 'calibre-toggle';
+    themeBtn.setAttribute('aria-label', 'Toggle light/dark theme');
+    function updateThemeBtnLabel() {
+        themeBtn.innerHTML = html.getAttribute('data-theme') === 'dark' ? '\u2600' : '\u263d';
+        themeBtn.title = html.getAttribute('data-theme') === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
     }
     (function initTheme() {
         var stored = null;
@@ -584,16 +584,16 @@ class ChapterGroup:
         } else {
             html.setAttribute('data-theme', 'light');
         }
-        updateDarkBtnLabel();
+        updateThemeBtnLabel();
     })();
-    darkBtn.addEventListener('click', function(e) {
+    themeBtn.addEventListener('click', function(e) {
         e.stopPropagation();
         var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
         try { localStorage.setItem('calibre-annotations-theme', next); } catch(e) {}
-        updateDarkBtnLabel();
+        updateThemeBtnLabel();
     });
-    wrapper.insertBefore(darkBtn, wrapper.firstChild);
+    wrapper.insertBefore(themeBtn, wrapper.firstChild);
 
     btn.addEventListener('click', function(e){
         e.stopPropagation();
