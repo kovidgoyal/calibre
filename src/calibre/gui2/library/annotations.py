@@ -296,8 +296,8 @@ class ChapterGroup:
             '  --ca-search-btn-hover-bg: #2c4a6e; --ca-search-btn-hover-color: #90cdf4;'
             '  --ca-search-count-color: #a0aec0;'
             '  --ca-filter-label-bg: #2d3748; --ca-filter-label-color: #e2e8f0;'
-            '  --ca-filter-label-border: #4a5568; --ca-filter-checked-bg: #374151;'
-            '  --ca-filter-bevel-bg: #374151; --ca-show-all-bg: #4a5568;'
+            '  --ca-filter-label-border: #4a5568; --ca-filter-active-bg: #4299e1;'
+            '  --ca-filter-active-color: #ffffff; --ca-show-all-bg: #4a5568;'
             '  --ca-search-match-bg: #4a3000; --ca-search-match-color: #fde68a;'
             '  --ca-search-match-current-bg: #6b4400; --ca-search-match-current-outline: #f6ad55;'
         )
@@ -316,8 +316,8 @@ class ChapterGroup:
             '  --ca-search-btn-hover-bg: #ebf4ff; --ca-search-btn-hover-color: #2b6cb0;',
             '  --ca-search-count-color: #718096;',
             '  --ca-filter-label-bg: #f9f9f9; --ca-filter-label-color: #333;',
-            '  --ca-filter-label-border: #ccc; --ca-filter-checked-bg: #e0e0e0;',
-            '  --ca-filter-bevel-bg: #ebebeb; --ca-show-all-bg: #ddd;',
+            '  --ca-filter-label-border: #ccc; --ca-filter-active-bg: #2b6cb0;',
+            '  --ca-filter-active-color: #ffffff; --ca-show-all-bg: #ddd;',
             '  --ca-search-match-bg: #fde68a; --ca-search-match-color: #111;',
             '  --ca-search-match-current-bg: #f6ad55; --ca-search-match-current-outline: #ed8936;',
             '}',
@@ -338,17 +338,18 @@ class ChapterGroup:
             ' font-size: 14px; font-weight: bold; }',
             '.calibre-filter-label:hover { opacity: 0.8; }',
             '.calibre-show-all { background: var(--ca-show-all-bg) !important; }',
-            'input.calibre-filter-cb:checked + label'
-            ' { background-color: var(--ca-filter-checked-bg); }',
             'input.calibre-filter-cb:checked ~ .calibre-annotation'
+            ' { display: none !important; }',
+            'input.calibre-filter-cb:checked ~ .calibre-annotation + hr'
             ' { display: none !important; }',
         ])
         ids = []
         filter_inputs = []
         filter_labels = []
         filter_labels.append(
-            '<button type="reset" class="calibre-filter-label calibre-show-all"'
-            '>Show All</button>')
+            f'<button type="reset" class="calibre-filter-label calibre-show-all"'
+            f' title="{prepare_string_for_xml(_("Remove filter and show all annotations"), attribute=True)}"'
+            f'>{prepare_string_for_xml(_("Show All"))}</button>')
 
         if not used_colors and self.annotations:
             used_colors.add('default')
@@ -374,12 +375,16 @@ class ChapterGroup:
             filter_labels.append(
                 f'<label for="filter-color-{sanitized_color}"'
                 f' class="calibre-filter-label"'
+                f' title="{prepare_string_for_xml(_("Show only {color} highlights").format(color=color), attribute=True)}"'
                 f' style="border-color:{border_color};">'
                 f'{prepare_string_for_xml(color)}</label>')
             ids.append(f'filter-color-{sanitized_color}')
             style_lines.append(
                 f'input#filter-color-{sanitized_color}:checked'
                 f' ~ .bq-{sanitized_color} {{ display: block !important; }}')
+            style_lines.append(
+                f'input#filter-color-{sanitized_color}:checked'
+                f' ~ .bq-{sanitized_color} + hr {{ display: block !important; }}')
             link_color = link_colors.get(sanitized_color)
             if link_color is None:
                 try:
@@ -408,6 +413,7 @@ class ChapterGroup:
             filter_labels.append(
                 f'<label for="filter-decor-{safe_fname}"'
                 f' class="calibre-filter-label"'
+                f' title="{prepare_string_for_xml(_("Show only {name} style annotations").format(name=fname), attribute=True)}"'
                 f' style="text-decoration: {dec_line} {dec_style_type} {dec_color};">'
                 f'{prepare_string_for_xml(fname)}</label>')
             ids.append(f'filter-decor-{safe_fname}')
@@ -415,6 +421,9 @@ class ChapterGroup:
             style_lines.append(
                 f'input#filter-decor-{safe_fname}:checked'
                 f' ~ .decor-{safe_fname} {{ display: block !important; }}')
+            style_lines.append(
+                f'input#filter-decor-{safe_fname}:checked'
+                f' ~ .decor-{safe_fname} + hr {{ display: block !important; }}')
             style_lines.extend([
                 f'.decor-{safe_fname} {{',
                 f'  text-decoration-color: {dec_color};',
@@ -425,17 +434,16 @@ class ChapterGroup:
                 '}',
             ])
 
-        # Add CSS bevel to indicate selected pills
+        # Add CSS active state to indicate selected pills
         if ids:
             bevel_selectors = ', '.join(
                 f'form.calibre-annotations-container:has(#{i}:checked) label[for="{i}"]'
                 for i in ids)
             style_lines.append(
                 f'{bevel_selectors} {{'
-                f' box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3),'
-                f' inset -1px -1px 2px rgba(255,255,255,0.5);'
-                f' background-color: var(--ca-filter-bevel-bg);'
-                f' padding-top: 6px; padding-bottom: 4px; }}')
+                f' background: var(--ca-filter-active-bg) !important;'
+                f' color: var(--ca-filter-active-color) !important;'
+                f' border-color: var(--ca-filter-active-bg) !important; }}')
 
         # Styles for the generated outline sidebar and main content
         style_lines.extend([
