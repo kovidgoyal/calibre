@@ -23,6 +23,28 @@
 # - title by author
 # }}}
 
+{{{ 9.11.0 2026-07-02
+
+:: new features
+
+- [major] Allow exporting annotations in the HTML format as a standalone web page that can be viewed in any browser with support for light/dark themes, searching and filtering by highlight style
+
+- E-book viewer: Ask AI: Allow using the {selected} placeholder when typing free form queries to the AI as well
+
+:: bug fixes
+
+- E-book viewer: Fix text area not always resizing correctly when window is resized when the scrollbar is enabled
+
+- Fix a regression in the previous release that broke python templates in the book details panel
+
+- Fix a regression in the previous release that caused default values for custom columns to not be used when adding new books
+
+:: improved recipes
+- Scientific American
+- Phoronix
+
+}}}
+
 {{{ 9.10.0 2026-06-25
 
 :: new features
