@@ -682,11 +682,11 @@ MV = (0, 7, 53)
 
 class HelloWorld(FileTypePlugin):
 
-    name                = _('name') # Name of the plugin
+    name: str           = _('name') # Name of the plugin
     description         = {1, 2}
     supported_platforms = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
     author              = 'Acme Inc.' # The author of this plugin
-    version             = {1:'a', 'b':2}
+    version: dict[str, int]       = {1:'a', 'b':2}
     file_types          = set(['epub', 'mobi']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
     minimum_calibre_version = MV
@@ -715,7 +715,8 @@ class HelloWorld(FileTypePlugin):
 
 
 if __name__ == '__main__':
-    # test_parse_metadata()
+    # Run test_parse_metadata() with:
+    # python -c 'import runpy; runpy.run_path("setup/plugins_mirror.py")["test_parse_metadata"]()'
     # import pprint
     # pprint.pprint(get_plugin_info(open(sys.argv[-1], 'rb').read()))
 
