@@ -84,11 +84,20 @@ def _download_securely(url):
     url_hash = hashlib.sha1(url.encode('utf-8')).hexdigest()
     cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.cache', 'download', url_hash)
     os.makedirs(cache_dir, exist_ok=True)
-    subprocess.check_call(
-        ['curl', '-fsSL', '--etag-compare', 'etag.txt', '--etag-save', 'etag.txt', '-o', 'data.bin', url],
-        cwd=cache_dir
-    )
-    with open(os.path.join(cache_dir, 'data.bin'), 'rb') as f:
+    staging = os.path.join(cache_dir, 'data.bin.staging')
+    etag = os.path.join(cache_dir, 'etag.txt')
+    try:
+        subprocess.check_call(['curl', '-fsSL', '--etag-compare', etag, '--etag-save', etag, '-o', staging, url])
+    except Exception:
+        if os.path.exists(staging):
+            os.remove(staging)
+        if os.path.exists(etag):
+            os.remove(etag)
+        raise
+    final = os.path.join(cache_dir, 'data.bin')
+    if os.path.exists(staging):
+        os.replace(staging, final)
+    with open(final, 'rb') as f:
         return f.read()
 
 
