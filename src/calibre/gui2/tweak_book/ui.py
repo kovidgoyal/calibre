@@ -643,7 +643,7 @@ class Main(MainWindow):
         e.addAction(self.action_subset_fonts)
         e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
-        ru = e.addMenu(QIcon.ic('edit-clear.png'), _('Remove &unused…'))
+        ru = e.addMenu(QIcon.ic('edit-clear.png'), _('Remove &unused') + '…')
         ru.addAction(self.action_remove_unused_css)
         ru.addAction(self.action_remove_unused_images)
         ts = e.addMenu(QIcon.ic('wizard.png'), _('Transform markup/styles'))

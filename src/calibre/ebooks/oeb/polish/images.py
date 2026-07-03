@@ -148,8 +148,8 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
 
     if report:
         if before != after:
-            report(_('{0} converted to {1} [{2} → {3}, {4:.1%} reduction]').format(
-                name, new_name, human_readable(before), human_readable(after), (before - after) / before))
+            report(_('{0} converted to {1} [{2} {5} {3}, {4:.1%} reduction]').format(
+                name, new_name, human_readable(before), human_readable(after), (before - after) / before), '→')
         else:
             report(_('{0} converted to {1} [no size change]').format(name, new_name))
 
