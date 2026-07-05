@@ -47,13 +47,14 @@ class TestHTTP(BaseTest):
              b'accept-Encoding: two',
              b'\r\n', accept_encoding='one, two')
 
+        test('Empty values', b'Connection\r\n', b'\r\n', connection='')
         def parse(*lines):
             lines = list(lines)
             lines.append(b'\r\n')
-            self.assertRaises(ValueError, HTTPHeaderParser().push, *lines)
+            with self.assertRaises(ValueError, msg=str(lines)):
+                HTTPHeaderParser().push(*lines)
 
         parse('Connection:mūs\r\n'.encode('utf-16'))
-        parse(b'Connection\r\n')
         parse(b'Connection:a\r\n', b'\r\n')
         parse(b' Connection:a\n')
         parse(b':a\n')
@@ -147,12 +148,12 @@ class TestHTTP(BaseTest):
         from calibre.srv.errors import HTTPNotFound, HTTPRedirect
         body = 'Requested resource not found'
 
-        def handler(data):
+        def handler(_data):
             raise HTTPNotFound(body)
 
         def raw_send(conn, raw):
             conn.send(raw)
-            conn._HTTPConnection__state = http.client._CS_REQ_SENT
+            conn._HTTPConnection__state = http.client._CS_REQ_SENT  # type: ignore
             return conn.getresponse()
 
         base_timeout = 0.5 if is_ci else 0.1
@@ -196,14 +197,14 @@ class TestHTTP(BaseTest):
             self.ae(r.read(), b'Requested resource not found')
 
             # Test 500
-            server.change_handler(lambda data:1/0)
+            server.change_handler(lambda _data:1/0)
             conn = server.connect()
             conn.request('GET', '/test/')
             r = conn.getresponse()
             self.ae(r.status, http.client.INTERNAL_SERVER_ERROR)
 
             # Test 301
-            def handler(data):
+            def handler(_data):
                 raise HTTPRedirect('/somewhere-else')
             server.change_handler(handler)
             conn = server.connect()
@@ -362,7 +363,7 @@ class TestHTTP(BaseTest):
 
             # Test gzip
             raw = b'a'*20000
-            server.change_handler(lambda conn: raw)
+            server.change_handler(lambda _conn: raw)
             conn = server.connect()
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
@@ -391,7 +392,7 @@ class TestHTTP(BaseTest):
 
             # Test getting a filesystem file
             for use_sendfile in (True, False):
-                server.change_handler(lambda conn: f)
+                server.change_handler(lambda _conn: f)
                 server.loop.opts.use_sendfile = use_sendfile
                 conn = server.connect()
                 conn.request('GET', '/test')
@@ -444,7 +445,7 @@ class TestHTTP(BaseTest):
                 start_time = monotonic()
                 lf.seek(0)
                 data = lf.read()
-                server.change_handler(lambda conn: lf)
+                server.change_handler(lambda _conn: lf)
                 conn = server.connect(timeout=1)
                 conn.request('GET', '/test')
                 r = conn.getresponse()
@@ -469,7 +470,7 @@ class TestHTTP(BaseTest):
             conn.request('GET', '/an_etagged_path')
             r = conn.getresponse()
             data = r.read()
-            for i in range(5):
+            for _ in range(5):
                 conn.request('GET', '/an_etagged_path')
                 r = conn.getresponse()
                 self.assertEqual(data, r.read())
