@@ -5,6 +5,7 @@
 import os
 import tempfile
 from functools import partial
+from gettext import gettext as _
 from queue import Empty, Queue
 from threading import Event, Thread
 
@@ -221,7 +222,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
                         name, human_readable(before), human_readable(after), (before - after)/before))
                 else:
                     report(_('{0} could not be further compressed').format(name))
-        else:
+        elif report:
             report(_('Failed to process {0} with error:').format(name))
             report(res)
     if report:
@@ -281,7 +282,7 @@ def remove_unused_images(container, report=None):
     for source_name in relevant_sources:
         if not container.exists(source_name):
             continue
-        for href, line_number, offset in container.iterlinks(source_name):
+        for href, _line_number, _offset in container.iterlinks(source_name):
             target = safe_href_to_name(container, href, source_name)
             if target and container.exists(target):
                 mt = container.mime_map.get(target, '')

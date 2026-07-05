@@ -280,6 +280,3 @@ exclude = [
     "src/polyglot/",
     "src/tinycss/",
 ]
-
-[tool.pylsp-mypy]
-enabled = false
