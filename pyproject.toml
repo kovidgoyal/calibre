@@ -280,3 +280,6 @@ exclude = [
     "src/polyglot/",
     "src/tinycss/",
 ]
+
+[tool.ty.environment]
+root = ['./src', './stubs', './setup', './recipes']
