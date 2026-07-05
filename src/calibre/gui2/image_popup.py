@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import (
     QAction,
-    QApplication,
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -31,7 +30,7 @@ from qt.core import (
 )
 
 from calibre import fit_image
-from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
+from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height, qapplication_or_fail
 from calibre.gui2.palette import dark_palette
 from calibre.utils.localization import _
 
@@ -168,7 +167,7 @@ class ImageView(QDialog):
         self.scrollarea = sa = ScrollArea()
         pal = sa.palette()
         pal.setColor(QPalette.ColorRole.Dark,
-                     dark_palette().color(QPalette.ColorRole.Base) if QApplication.instance().is_dark_theme else Qt.GlobalColor.darkGray)
+                     dark_palette().color(QPalette.ColorRole.Base) if qapplication_or_fail().is_dark_theme else Qt.GlobalColor.darkGray)
         sa.setPalette(pal)
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
@@ -303,7 +302,7 @@ class ImageView(QDialog):
 
     def copy_image(self):
         if self.current_img and not self.current_img.isNull():
-            QApplication.instance().clipboard().setPixmap(self.current_img)
+            qapplication_or_fail().clipboard().setPixmap(self.current_img)
 
     def fit_changed(self):
         fitted = bool(self.fit_image.isChecked())

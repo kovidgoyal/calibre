@@ -62,7 +62,17 @@ from calibre import detect_ncpus as cpu_count
 from calibre import fit_image, human_readable, walk
 from calibre.constants import cache_dir
 from calibre.customize.ui import interface_actions
-from calibre.gui2 import choose_dir, choose_save_file, empty_index, error_dialog, gprefs, icon_resource_manager, must_use_qt, safe_open_url
+from calibre.gui2 import (
+    choose_dir,
+    choose_save_file,
+    empty_index,
+    error_dialog,
+    gprefs,
+    icon_resource_manager,
+    must_use_qt,
+    qapplication_or_fail,
+    safe_open_url,
+)
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
@@ -612,7 +622,7 @@ class Delegate(QStyledItemDelegate):
             rect = option.rect.adjusted(0, self.SPACING, COVER_SIZE[0] - option.rect.width(), - self.SPACING)
             painter.drawPixmap(rect, pixmap)
         if option.state & QStyle.StateFlag.State_Selected:
-            painter.setPen(QPen(QApplication.instance().palette().highlightedText().color()))
+            painter.setPen(QPen(qapplication_or_fail().palette().highlightedText().color()))
         bottom = option.rect.bottom() - 2
         painter.drawLine(0, bottom, option.rect.right(), bottom)
         visit = _('Right click to visit theme homepage') if theme.get('url') else ''
@@ -972,7 +982,7 @@ class ChooseTheme(Dialog):
 
     @property
     def new_theme_title(self):
-        if QApplication.instance().is_dark_theme:
+        if qapplication_or_fail().is_dark_theme:
             order = 'dark', 'any', 'light'
         else:
             order = 'light', 'any', 'dark'

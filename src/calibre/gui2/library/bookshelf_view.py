@@ -20,7 +20,6 @@ from typing import NamedTuple
 from qt.core import (
     QAbstractItemView,
     QAbstractScrollArea,
-    QApplication,
     QBrush,
     QBuffer,
     QColor,
@@ -72,7 +71,7 @@ from xxhash import xxh3_64_intdigest
 from calibre import fit_image
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
-from calibre.gui2 import config, gprefs, resolve_bookshelf_color
+from calibre.gui2 import config, gprefs, qapplication_or_fail, resolve_bookshelf_color
 from calibre.gui2.library.alternate_views import (
     ClickStartData,
     cached_emblem,
@@ -1551,7 +1550,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        QApplication.instance().palette_changed.connect(self.palette_changed)
+        qapplication_or_fail().palette_changed.connect(self.palette_changed)
 
         # Ensure viewport receives mouse events
         self.viewport().setMouseTracking(True)
@@ -1596,7 +1595,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         lc = self.layout_constraints
         if (h := gprefs['bookshelf_height']) < 120 or h > 1200:
             screen_height = 0
-            for screen in QApplication.instance().screens():
+            for screen in qapplication_or_fail().screens():
                 if screen.availableSize().height() > screen.availableSize().width() * 1.5:
                     screen_height = max(screen_height, screen.availableSize().width())
                 else:

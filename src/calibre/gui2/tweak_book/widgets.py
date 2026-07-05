@@ -64,7 +64,7 @@ from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.toc import ensure_container_has_nav, get_guide_landmarks, get_nav_landmarks, set_landmarks
 from calibre.ebooks.oeb.polish.upgrade import guide_epubtype_map
 from calibre.ebooks.oeb.polish.utils import guess_type, lead_text
-from calibre.gui2 import choose_files, choose_images, choose_save_file, error_dialog, info_dialog
+from calibre.gui2 import choose_files, choose_images, choose_save_file, error_dialog, info_dialog, qapplication_or_fail
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.widgets2 import PARAGRAPH_SEPARATOR, HistoryComboBox, to_plain_text
@@ -461,7 +461,7 @@ def make_highlighted_text(emph, text, positions):
 
 
 def emphasis_style():
-    pal = QApplication.instance().palette()
+    pal = qapplication_or_fail().palette()
     return f'color: {pal.color(QPalette.ColorRole.Link).name()}; font-weight: bold'
 
 

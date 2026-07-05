@@ -10,7 +10,6 @@ from typing import Any, NamedTuple
 
 from qt.core import (
     QAbstractItemView,
-    QApplication,
     QCheckBox,
     QDateTime,
     QDialog,
@@ -46,7 +45,7 @@ from calibre.ai.prefs import plugin_for_purpose
 from calibre.ai.prefs import prefs as aiprefs
 from calibre.ai.utils import ContentType, StreamedResponseAccumulator, response_to_html
 from calibre.customize import AIProviderPlugin
-from calibre.gui2 import error_dialog, safe_open_url
+from calibre.gui2 import error_dialog, qapplication_or_fail, safe_open_url
 from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
@@ -447,12 +446,12 @@ class ConverseWidget(QWidget):
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         text = history_for_record.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            QApplication.instance().clipboard().setText(text)
+            qapplication_or_fail().clipboard().setText(text)
 
     def copy_to_clipboard(self) -> None:
         text = self.conversation_history.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            QApplication.instance().clipboard().setText(text)
+            qapplication_or_fail().clipboard().setText(text)
 
     def on_chat_link_clicked(self, qurl: QUrl):
         if qurl.scheme() not in ('http', 'https'):

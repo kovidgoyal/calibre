@@ -25,7 +25,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
@@ -64,7 +64,7 @@ class TOCView(QTreeView):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.context_menu = None
         self.customContextMenuRequested.connect(self.show_context_menu)
-        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
+        qapplication_or_fail().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
 
@@ -103,7 +103,7 @@ class TOCView(QTreeView):
                 padding-bottom:0.5ex;
             }
 
-        ''' + QApplication.instance().palette_manager.tree_view_hover_style())
+        ''' + qapplication_or_fail().palette_manager.tree_view_hover_style())
         self.setProperty('hovered_item_is_highlighted', True)
 
     def mouseMoveEvent(self, ev):
@@ -186,7 +186,7 @@ class TOCSearch(QWidget):
     def do_search(self, text):
         if not text or not text.strip():
             return
-        delta = -1 if QApplication.instance().keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier else 1
+        delta = -1 if qapplication_or_fail().keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier else 1
         index = self.toc_view.model().search(text, delta=delta)
         if index.isValid():
             self.toc_view.scrollTo(index)
@@ -262,7 +262,7 @@ class TOC(QStandardItemModel):
         QStandardItemModel.__init__(self)
         self.current_query = {'text':'', 'index':-1, 'items':()}
         self.all_items = depth_first = []
-        normal_font = QApplication.instance().font()
+        normal_font = qapplication_or_fail().font()
         emphasis_font = QFont(normal_font)
         emphasis_font.setBold(True), emphasis_font.setItalic(True)
         self.depths = {0}

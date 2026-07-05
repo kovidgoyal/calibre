@@ -55,6 +55,7 @@ from calibre.gui2 import (
     default_author_link,
     gprefs,
     pixmap_to_data,
+    qapplication_or_fail,
     question_dialog,
     rating_font,
     safe_open_url,
@@ -110,7 +111,7 @@ def css(reset=False):
 
 
 def resolve_colors(css):
-    app = QApplication.instance()
+    app = qapplication_or_fail()
     col = app.palette().color(QPalette.ColorRole.PlaceholderText).name() if app.is_dark_theme else '#666'
     return css.replace('palette(placeholder-text)', col)
 
@@ -497,7 +498,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     dt = data['type']
 
     def add_copy_action(name):
-        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(name), lambda: QApplication.instance().clipboard().setText(name))
+        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(name), lambda: qapplication_or_fail().clipboard().setText(name))
 
     if dt == 'format':
         add_format_entries(menu, data, book_info, copy_menu, search_menu)
@@ -581,7 +582,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             else:
                 v = data.get('original_value') or data.get('value')
                 copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
-                                        lambda: QApplication.instance().clipboard().setText(v))
+                                        lambda: qapplication_or_fail().clipboard().setText(v))
             if field not in ('size', 'id', 'last_modified', 'sort', 'series_sort', 'uuid', 'author_sort', 'pages'):
                 fm = get_gui().current_db.new_api.field_metadata.get(field) or {}
                 if fm.get('datatype') != 'composite':
@@ -598,7 +599,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             v = data.get('original_value') or data.get('value')
             if v:
                 copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
-                                        lambda: QApplication.instance().clipboard().setText(v))
+                                        lambda: qapplication_or_fail().clipboard().setText(v))
     return search_internet_added
 
 
@@ -613,7 +614,7 @@ def create_copy_links(menu, data=None):
 
     def copy_to_clipboard_action(menu_text, value_text, before_action=None):
         def doit():
-            QApplication.instance().clipboard().setText(value_text)
+            qapplication_or_fail().clipboard().setText(value_text)
         if before_action is not None:
             action = QWidget(menu).addAction(QIcon.ic('edit-copy.png'), menu_text, doit)
             menu.insertAction(before_action, action)
@@ -813,7 +814,7 @@ class CoverView(QWidget):  # {{{
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
 
-        self.default_pixmap = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
+        self.default_pixmap = qapplication_or_fail().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
         self.data = {}
@@ -924,7 +925,7 @@ class CoverView(QWidget):  # {{{
             cm.tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim).setEnabled(self.last_trim_id == book_id)
             cm.addMenu(cm.tc)
             cm.addSeparator()
-        if not QApplication.instance().clipboard().mimeData().hasImage():
+        if not qapplication_or_fail().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
@@ -982,11 +983,11 @@ class CoverView(QWidget):  # {{{
             self.open_with(entry)
 
     def copy_to_clipboard(self):
-        QApplication.instance().clipboard().setPixmap(self.pixmap)
+        qapplication_or_fail().clipboard().setPixmap(self.pixmap)
 
     def paste_from_clipboard(self, pmap=None):
         if not isinstance(pmap, QPixmap):
-            cb = QApplication.instance().clipboard()
+            cb = qapplication_or_fail().clipboard()
             pmap = cb.pixmap()
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
@@ -1120,7 +1121,7 @@ class BookInfo(HTMLDisplay):
         ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
-        if iswindows and not QApplication.instance().using_calibre_style:
+        if iswindows and not qapplication_or_fail().using_calibre_style:
             # workaround Qt bug that causes selected text to be invisible on
             # windows when using system theme
             bg = self.palette().color(QPalette.ColorRole.Highlight).name()
@@ -1506,7 +1507,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
         def search_term(field, val):
             append = ''
-            mods = QApplication.instance().keyboardModifiers()
+            mods = qapplication_or_fail().keyboardModifiers()
             if mods & Qt.KeyboardModifier.ControlModifier:
                 append = 'AND' if mods & Qt.KeyboardModifier.ShiftModifier else 'OR'
 

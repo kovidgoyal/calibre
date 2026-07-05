@@ -33,7 +33,7 @@ from qt.core import (
 )
 
 from calibre.ebooks.metadata import title_sort
-from calibre.gui2 import UNDEFINED_QDATETIME, elided_text, error_dialog, gprefs
+from calibre.gui2 import UNDEFINED_QDATETIME, elided_text, error_dialog, gprefs, qapplication_or_fail
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -947,7 +947,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     elide_pos = gprefs['edit_metadata_elision_point']
     elide_pos = elide_pos if elide_pos in {'left', 'middle', 'right'} else 'right'
     # make room on the right side for the scrollbar
-    sb_width = QApplication.instance().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
+    sb_width = qapplication_or_fail().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
     layout.setContentsMargins(0, 0, sb_width, 0)
     for key in cols:
         if not fm[key]['is_editable']:

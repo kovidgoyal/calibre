@@ -39,7 +39,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import error_dialog, is_dark_theme, simple_excepthook
+from calibre.gui2 import error_dialog, is_dark_theme, qapplication_or_fail, simple_excepthook
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.library.coloring import color_row_key
 from calibre.library.save_to_disk import find_plugboard
@@ -61,7 +61,7 @@ ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.A
 
 
 def render_pin(color=None, save_to=None):
-    app = QApplication.instance()
+    app = qapplication_or_fail()
     if color is None:
         color = '#00b000' if app.is_dark_theme else 'green'
     svg = P('pin-template.svg', data=True).replace(b'fill:#f39509', ('fill:' + color).encode('utf-8'))
@@ -132,7 +132,7 @@ class ColumnIcon:  # {{{
         self.mi = None
         self.formatter = formatter
         self.model = model
-        self.dpr = QApplication.instance().devicePixelRatio()
+        self.dpr = qapplication_or_fail().devicePixelRatio()
 
     def __call__(self, id_, fmts, cache_index, db, icon_cache, icon_bitmap_cache,
              template_cache):
@@ -211,7 +211,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
-        base_font = parent.font() if parent else QApplication.instance().font()
+        base_font = parent.font() if parent else qapplication_or_fail().font()
         self.zero_page_cache = {}
         self.update_page_count_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(1000), t.timeout.connect(self.update_zero_page_values)
@@ -289,7 +289,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             if qlabel not in used_labels:
                 del self.marked_text_icons[qlabel]
         used_colors = {x[0] for x in self.marked_text_icons.values()}
-        if QApplication.instance().is_dark_theme:
+        if qapplication_or_fail().is_dark_theme:
             all_colors = {dark_link_color, 'lightgreen', 'red', 'maroon', 'cyan', 'pink'}
         else:
             all_colors = {'blue', 'green', 'red', 'maroon', 'cyan', 'pink'}
@@ -308,7 +308,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         dpr = gui.devicePixelRatio() if gui else 0
-        return QApplication.instance().cached_qimage('default_cover.png', device_pixel_ratio=dpr)
+        return qapplication_or_fail().cached_qimage('default_cover.png', device_pixel_ratio=dpr)
 
     def _clear_caches(self):
         self.color_cache = defaultdict(dict)
@@ -1152,7 +1152,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.ItemDataRole.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QColor('#027524') if QApplication.instance().is_dark_theme else QColor('#b4ecb4')
+                return QColor('#027524') if qapplication_or_fail().is_dark_theme else QColor('#b4ecb4')
         elif role == Qt.ItemDataRole.ForegroundRole:
             key = self.column_map[col]
             id_ = self.id(index)

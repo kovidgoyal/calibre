@@ -8,7 +8,6 @@ import sys
 
 from css_selectors import SelectorError, parse
 from qt.core import (
-    QApplication,
     QColor,
     QIcon,
     QLabel,
@@ -29,6 +28,7 @@ from qt.core import (
 )
 
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
+from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.tweak_book import actions, editors, tprefs
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
@@ -376,12 +376,12 @@ class Box(QWidget):
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
         m = QMenu(self)
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: QApplication.instance().clipboard().setText(block))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: qapplication_or_fail().clipboard().setText(block))
         all_lines = []
         for w in self.widgets:
             all_lines += w.lines_for_copy
         all_text = '\n'.join(all_lines).replace('\xa0', ' ')
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: QApplication.instance().clipboard().setText(all_text))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: qapplication_or_fail().clipboard().setText(all_text))
         m.exec(ev.globalPos())
 
 

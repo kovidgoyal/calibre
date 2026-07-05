@@ -10,7 +10,6 @@ import textwrap
 import time
 
 from qt.core import (
-    QApplication,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -43,7 +42,7 @@ from qt.core import (
 
 from calibre import as_unicode
 from calibre.constants import isportable, iswindows
-from calibre.gui2 import choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog, open_url, warning_dialog
+from calibre.gui2 import choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog, open_url, qapplication_or_fail, warning_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.srv.code import custom_list_template as default_custom_list_template
@@ -715,7 +714,7 @@ class ChangeRestriction(QDialog):
             else:
                 m = _('{} is allowed access to all libraries, <b>except</b> those'
                       ' whose names match one of the names specified below.')
-                sheet += f'QWidget#libraries {{ background-color: {QApplication.instance().emphasis_window_background_color} }}'
+                sheet += f'QWidget#libraries {{ background-color: {qapplication_or_fail().emphasis_window_background_color} }}'
             self.libraries.setEnabled(True), self.la.setEnabled(True)
             self.items = self.items
         self.msg.setText(m.format(self.username))

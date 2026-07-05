@@ -9,13 +9,23 @@ import os
 from collections import defaultdict
 from functools import partial
 
-from qt.core import QApplication, QDialog, QPixmap, QTimer
+from qt.core import QDialog, QPixmap, QTimer
 
 from calibre import as_unicode, guess_type, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import MetaInformation, normalize_isbn
-from calibre.gui2 import choose_dir, choose_files, choose_files_and_remember_all_files, error_dialog, gprefs, info_dialog, question_dialog, warning_dialog
+from calibre.gui2 import (
+    choose_dir,
+    choose_files,
+    choose_files_and_remember_all_files,
+    error_dialog,
+    gprefs,
+    info_dialog,
+    qapplication_or_fail,
+    question_dialog,
+    warning_dialog,
+)
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -102,7 +112,7 @@ class AddAction(InterfaceAction):
         ids = self._check_add_formats_ok()
         if not ids:
             return
-        md = QApplication.instance().clipboard().mimeData()
+        md = qapplication_or_fail().clipboard().mimeData()
         files_to_add = []
         images = []
         if md.hasUrls():

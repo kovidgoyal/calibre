@@ -8,7 +8,6 @@ from enum import IntEnum
 
 from qt.core import (
     QAction,
-    QApplication,
     QBrush,
     QCheckBox,
     QDialog,
@@ -38,7 +37,7 @@ from qt.core import (
 from calibre import fit_image
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.db.listeners import EventType
-from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, NO_URL_FORMATTING, gprefs
+from calibre.gui2 import BOOK_DETAILS_DISPLAY_DEBOUNCE_DELAY, NO_URL_FORMATTING, gprefs, qapplication_or_fail
 from calibre.gui2.book_details import DropMixin, create_open_cover_with_menu, details_context_menu_event, render_html, resolved_css, set_html
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
@@ -79,7 +78,7 @@ class Cover(CoverView):
 
     def set_marked(self, marked):
         if marked:
-            marked_brush = QBrush(Qt.GlobalColor.darkGray if QApplication.instance().is_dark_theme else Qt.GlobalColor.lightGray)
+            marked_brush = QBrush(Qt.GlobalColor.darkGray if qapplication_or_fail().is_dark_theme else Qt.GlobalColor.lightGray)
             self.set_background(marked_brush)
         else:
             self.set_background()
@@ -474,7 +473,7 @@ class BookInfo(QDialog, DropMixin):
 
     def copy_cover_to_clipboard(self):
         if self.cover_pixmap is not None:
-            QApplication.instance().clipboard().setPixmap(self.cover_pixmap)
+            qapplication_or_fail().clipboard().setPixmap(self.cover_pixmap)
 
     def download_cover(self):
         from calibre.gui2.book_details import download_cover

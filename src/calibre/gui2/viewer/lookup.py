@@ -37,7 +37,7 @@ from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QW
 
 from calibre import prints, random_user_agent
 from calibre.ebooks.metadata.sources.search_engines import google_consent_cookies
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.gui2.viewer.web_view import apply_font_settings, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import tweaks
@@ -321,7 +321,7 @@ def set_sync_override(allowed):
 def blank_html():
     msg = _("Double click on a word in the book's text to look it up.")
     html = '<p>' + msg
-    app = QApplication.instance()
+    app = qapplication_or_fail()
     if app.is_dark_theme:
         pal = app.palette()
         bg = pal.color(QPalette.ColorRole.Base).name()

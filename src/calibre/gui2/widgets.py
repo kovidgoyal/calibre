@@ -44,7 +44,7 @@ from qt.core import (
 from calibre import fit_image, force_unicode, strftime
 from calibre.constants import ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.gui2 import clip_border_radius, error_dialog, gprefs, pixmap_to_data, warning_dialog
+from calibre.gui2 import clip_border_radius, error_dialog, gprefs, pixmap_to_data, qapplication_or_fail, warning_dialog
 from calibre.gui2.dnd import DownloadDialog, dnd_get_files, dnd_get_image, dnd_get_local_image_and_pixmap, dnd_has_extension, dnd_has_image, image_extensions
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
@@ -304,7 +304,7 @@ class ImageDropMixin:  # {{{
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
-        if not QApplication.instance().clipboard().mimeData().hasImage():
+        if not qapplication_or_fail().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
@@ -314,10 +314,10 @@ class ImageDropMixin:  # {{{
         self.build_context_menu().exec(ev.globalPos())
 
     def copy_to_clipboard(self):
-        QApplication.instance().clipboard().setPixmap(self.get_pixmap())
+        qapplication_or_fail().clipboard().setPixmap(self.get_pixmap())
 
     def paste_from_clipboard(self):
-        cb = QApplication.instance().clipboard()
+        cb = qapplication_or_fail().clipboard()
         pmap = cb.pixmap()
         if pmap.isNull() and cb.supportsSelection():
             pmap = cb.pixmap(QClipboard.Mode.Selection)
@@ -981,8 +981,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
     def initializeFormats(cls):
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamilies(['monospace'])
-        p = QApplication.instance().palette()
-        is_dark = QApplication.instance().is_dark_theme
+        p = qapplication_or_fail().palette()
+        is_dark = qapplication_or_fail().is_dark_theme
         for name, color, bold, italic in (
                 ('normal', None, False, False),
                 ('keyword', p.color(QPalette.ColorRole.Link).name(), True, False),

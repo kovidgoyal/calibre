@@ -9,7 +9,6 @@ from threading import Thread
 
 from qt.core import (
     QAbstractItemView,
-    QApplication,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -36,7 +35,7 @@ from qt.core import (
 
 from calibre import fit_image, force_unicode, human_readable
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
-from calibre.gui2 import empty_index, question_dialog
+from calibre.gui2 import empty_index, qapplication_or_fail, question_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.startup import connect_lambda
@@ -151,7 +150,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     def copy_report():
         text = re.sub(r'</.+?>', '\n', report)
         text = re.sub(r'<.+?>', '', text)
-        cp = QApplication.instance().clipboard()
+        cp = qapplication_or_fail().clipboard()
         cp.setText(text)
 
     b.clicked.connect(copy_report)

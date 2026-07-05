@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 
-from qt.core import QApplication, QPixmap
+from qt.core import QPixmap
 
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, title_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.gui2 import choose_images, error_dialog
+from calibre.gui2 import choose_images, error_dialog, qapplication_or_fail
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.metadata_ui import Ui_Form
 from calibre.library.comments import comments_to_html
@@ -117,7 +117,7 @@ class MetadataWidget(Widget, Ui_Form):
                 self.cover_data = cover
                 self.set_cover_tooltip(pm)
         else:
-            pm = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
+            pm = qapplication_or_fail().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
             self.cover.setPixmap(pm)
             self.cover.setToolTip(_('This book has no cover'))
         for x in ('author', 'series', 'publisher'):

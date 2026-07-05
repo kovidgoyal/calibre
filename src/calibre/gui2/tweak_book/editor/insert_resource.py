@@ -42,7 +42,7 @@ from qt.core import (
 from calibre import fit_image
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import choose_files, empty_index, error_dialog, pixmap_to_data
+from calibre.gui2 import choose_files, empty_index, error_dialog, pixmap_to_data, qapplication_or_fail
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.file_list import name_is_ok
@@ -337,7 +337,7 @@ class InsertImage(Dialog):
         self.model.beginResetModel(), self.model.endResetModel()
 
     def paste_image(self):
-        c = QApplication.instance().clipboard()
+        c = qapplication_or_fail().clipboard()
         img = c.image()
         if img.isNull():
             img = c.image(QClipboard.Mode.Selection)

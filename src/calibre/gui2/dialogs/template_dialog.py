@@ -46,7 +46,7 @@ from calibre import sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.ebooks.metadata.book.base import get_model_metadata_instance
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, pixmap_to_data, question_dialog, safe_open_url
+from calibre.gui2 import choose_files, choose_save_file, error_dialog, gprefs, info_dialog, pixmap_to_data, qapplication_or_fail, question_dialog, safe_open_url
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -291,8 +291,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
             font_name = font.family()
         config = self.Config = {}
         config['fontfamily'] = font_name
-        app_palette = QApplication.instance().palette()
-        is_dark = QApplication.instance().is_dark_theme
+        app_palette = qapplication_or_fail().palette()
+        is_dark = qapplication_or_fail().is_dark_theme
 
         all_formats = (
             # name, color, bold, italic
@@ -1051,12 +1051,12 @@ def evaluate(book, context):
             self.icon_files.setItemIcon(i+1, icon)
 
     def color_to_clipboard(self):
-        app = QApplication.instance()
+        app = qapplication_or_fail()
         c = app.clipboard()
         c.setText(str(self.color_name.color))
 
     def icon_to_clipboard(self):
-        app = QApplication.instance()
+        app = qapplication_or_fail()
         c = app.clipboard()
         c.setText(str(self.icon_files.currentText()))
 

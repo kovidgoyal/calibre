@@ -62,7 +62,7 @@ from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-from calibre.gui2 import choose_save_file, error_dialog, gprefs, rating_font
+from calibre.gui2 import choose_save_file, error_dialog, gprefs, qapplication_or_fail, rating_font
 from calibre.gui2.progress_indicator import SpinAnimator
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import comments_to_html
@@ -662,7 +662,7 @@ class CoversModel(QAbstractListModel):  # {{{
         if current_cover is None:
             ic = QIcon.ic('default_cover.png')
             current_cover = ic.pixmap(ic.availableSizes()[0])
-        current_cover.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
+        current_cover.setDevicePixelRatio(qapplication_or_fail().devicePixelRatio())
 
         self.blank = QIcon.ic('blank.png').pixmap(*CoverDelegate.ICON_SIZE)
         self.cc = current_cover
@@ -751,7 +751,7 @@ class CoversModel(QAbstractListModel):  # {{{
     def load_pixmap(self, data):
         pmap = QPixmap()
         pmap.loadFromData(data)
-        pmap.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
+        pmap.setDevicePixelRatio(qapplication_or_fail().devicePixelRatio())
         return pmap
 
     def update_result(self, plugin_name, width, height, data):

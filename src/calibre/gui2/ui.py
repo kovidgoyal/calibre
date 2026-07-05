@@ -26,7 +26,19 @@ from calibre.constants import DEBUG, __appname__, config_dir, filesystem_encodin
 from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.gui2 import Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog, max_available_height, open_url, question_dialog, warning_dialog
+from calibre.gui2 import (
+    Dispatcher,
+    GetMetadata,
+    config,
+    error_dialog,
+    gprefs,
+    info_dialog,
+    max_available_height,
+    open_url,
+    qapplication_or_fail,
+    question_dialog,
+    warning_dialog,
+)
 from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -113,7 +125,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.setVisible(False)
         if not ismacos:
-            self.setWindowIcon(QApplication.instance().windowIcon())
+            self.setWindowIcon(qapplication_or_fail().windowIcon())
         self.extra_files_watcher = ExtraFilesWatcher(self)
         self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
@@ -432,7 +444,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.listener = Listener(parent=self)
         self.listener.message_received.connect(self.message_from_another_instance)
 
-        QApplication.instance().shutdown_signal_received.connect(self.quit)
+        qapplication_or_fail().shutdown_signal_received.connect(self.quit)
         if show_gui and self.gui_debug is not None:
             QTimer.singleShot(10, self.show_gui_debug_msg)
 
@@ -1219,7 +1231,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.system_tray_icon is not None and self.restart_after_quit:
             # Needed on windows to prevent multiple systray icons
             self.system_tray_icon.setVisible(False)
-        QApplication.instance().exit()
+        qapplication_or_fail().exit()
 
     def _jobs_auto_close(self, nnum):
         if nnum == 0 and self.jobs_dialog.auto_close_calibre.isChecked():
@@ -1227,7 +1239,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
                 self.show_windows()
             from calibre.gui2.dialogs.message_box import AutoCloseNotification
-            app = QApplication.instance()
+            app = qapplication_or_fail()
             parent = app.focusWidget() or self
             parent.raise_()
             parent.activateWindow()
@@ -1401,7 +1413,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 self.shutdown(write_settings=False)
             except Exception:
                 pass
-            QApplication.instance().quit()
+            qapplication_or_fail().quit()
 
     def closeEvent(self, e):
         if self.shutting_down:

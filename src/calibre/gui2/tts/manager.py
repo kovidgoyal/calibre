@@ -6,9 +6,9 @@ from collections import deque
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, NamedTuple
 
-from qt.core import QApplication, QDialog, QObject, QTextToSpeech, pyqtSignal
+from qt.core import QDialog, QObject, QTextToSpeech, pyqtSignal
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.localization import _
 
@@ -219,11 +219,11 @@ class TTSManager(QObject):
 
     def faster(self) -> None:
         if not self.change_rate(1):
-            QApplication.instance().beep()
+            qapplication_or_fail().beep()
 
     def slower(self) -> None:
         if not self.change_rate(-1):
-            QApplication.instance().beep()
+            qapplication_or_fail().beep()
 
     def configure(self) -> None:
         from calibre.gui2.tts.config import ConfigDialog

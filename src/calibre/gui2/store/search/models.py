@@ -6,10 +6,10 @@ import re
 import string
 from operator import attrgetter
 
-from qt.core import QAbstractItemModel, QApplication, QIcon, QModelIndex, QPixmap, QSize, Qt, pyqtSignal
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QPixmap, QSize, Qt, pyqtSignal
 
 from calibre import force_unicode
-from calibre.gui2 import FunctionDispatcher
+from calibre.gui2 import FunctionDispatcher, qapplication_or_fail
 from calibre.gui2.store.search.download_thread import CoverThreadPool, DetailsThreadPool
 from calibre.gui2.store.search_result import SearchResult
 from calibre.utils.icu import lower as icu_lower
@@ -214,7 +214,7 @@ class Matches(QAbstractItemModel):
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
-                p.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
+                p.setDevicePixelRatio(qapplication_or_fail().devicePixelRatio())
                 return p
             if col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:

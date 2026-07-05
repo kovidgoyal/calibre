@@ -5,11 +5,11 @@ import re
 import ssl
 from threading import Event, Thread
 
-from qt.core import QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl, pyqtSignal
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl, pyqtSignal
 
 from calibre import as_unicode, prints
 from calibre.constants import __appname__, __version__, ismacos, isportable, iswindows, numeric_version
-from calibre.gui2 import config, dynamic, icon_resource_manager, open_url
+from calibre.gui2 import config, dynamic, icon_resource_manager, open_url, qapplication_or_fail
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.config import prefs
 from calibre.utils.https import get_https_resource_securely
@@ -211,7 +211,7 @@ class UpdateMixin:
             plt = ''
             if has_plugin_updates:
                 plt = ngettext(' and one plugin update', ' and {} plugin updates', number_of_plugin_updates).format(number_of_plugin_updates)
-            green = 'darkgreen' if QApplication.instance().is_dark_theme else 'green'
+            green = 'darkgreen' if qapplication_or_fail().is_dark_theme else 'green'
             msg = ('<span style="color:{}; font-weight: bold">{}: '
                     '<a href="update:{}">{}{}</a></span>').format(
                             green, _('Update available'), version_url, calibre_version, plt)

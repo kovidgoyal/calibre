@@ -45,7 +45,18 @@ from qt.core import (
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import FunctionDispatcher, choose_files, config, empty_index, gprefs, pixmap_to_data, question_dialog, rating_font, safe_open_url
+from calibre.gui2 import (
+    FunctionDispatcher,
+    choose_files,
+    config,
+    empty_index,
+    gprefs,
+    pixmap_to_data,
+    qapplication_or_fail,
+    question_dialog,
+    rating_font,
+    safe_open_url,
+)
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
@@ -101,7 +112,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
     def text_color(self, hover, palette) -> QColor:
-        if QApplication.instance().is_dark_theme and hover:
+        if qapplication_or_fail().is_dark_theme and hover:
             return QColor(Qt.GlobalColor.black)
         return palette.color(QPalette.ColorRole.WindowText)
 
@@ -326,7 +337,7 @@ class TagsView(QTreeView):  # {{{
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
         self._model.convert_requested.connect(self.convert_requested)
         self.set_look_and_feel(first=True)
-        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
+        qapplication_or_fail().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
         self.marked_change_listener = FunctionDispatcher(self.recount_on_mark_change)
 
     def convert_requested(self, book_ids, to_fmt):
@@ -349,7 +360,7 @@ class TagsView(QTreeView):  # {{{
                 }
 
         '''.replace('PAD', str(gprefs['tag_browser_item_padding'])) + (
-            '' if gprefs['tag_browser_old_look'] else stylish_tb) + QApplication.instance().palette_manager.tree_view_hover_style()
+            '' if gprefs['tag_browser_old_look'] else stylish_tb) + qapplication_or_fail().palette_manager.tree_view_hover_style()
         )
         self.setProperty('hovered_item_is_highlighted', True)
 

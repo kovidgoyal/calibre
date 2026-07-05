@@ -6,11 +6,10 @@ import sys
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 
-from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
+from qt.core import QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
 from calibre.constants import DEBUG, ismacos, iswindows
 from calibre.constants import dark_link_color as dlc
-from calibre.gui2 import qapplication_or_fail
 from calibre.utils.localization import _
 
 dark_link_color = QColor(dlc)
@@ -24,6 +23,7 @@ light_link_color = QColor(0, 0, 255)
 class UseCalibreIcons(QProxyStyle):
 
     def standardIcon(self, standardIcon, option=None, widget=None):
+        from calibre.gui2 import qapplication_or_fail
         ic = qapplication_or_fail().get_qt_standard_icon(standardIcon)
         if ic.isNull():
             return super().standardIcon(standardIcon, option, widget)
@@ -248,7 +248,8 @@ class PaletteManager(QObject):
             set_appearance(self.color_palette)
 
     def initialize(self):
-        app = QApplication.instance()
+        from calibre.gui2 import qapplication_or_fail
+        app = qapplication_or_fail()
         self.setParent(app)
         if not self.using_calibre_style and app.style().objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
@@ -256,23 +257,25 @@ class PaletteManager(QObject):
 
     @property
     def use_dark_palette(self):
-        app = QApplication.instance()
+        from calibre.gui2 import qapplication_or_fail
+        app = qapplication_or_fail()
         system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
         return self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
 
     def setup_styles(self):
+        from calibre.gui2 import qapplication_or_fail
         if self.using_calibre_style:
-            app = QApplication.instance()
+            app = qapplication_or_fail()
             app.styleHints().colorSchemeChanged.connect(self.color_scheme_changed)
             self.set_dark_mode_palette() if self.use_dark_palette else self.set_light_mode_palette()
-            QApplication.instance().setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
+            app.setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
 
         if DEBUG:
             print('Using calibre Qt style:', self.using_calibre_style, file=sys.stderr)
         if self.using_calibre_style:
             self.load_calibre_style()
         else:
-            app = QApplication.instance()
+            app = qapplication_or_fail()
             self.native_proxy_style = UseCalibreIcons(app.style())
             app.setStyle(self.native_proxy_style)
         self.on_palette_change()
@@ -286,6 +289,7 @@ class PaletteManager(QObject):
         return QIcon.ic(val)
 
     def load_calibre_style(self):
+        from calibre.gui2 import qapplication_or_fail
         ts = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
@@ -297,7 +301,8 @@ class PaletteManager(QObject):
         app.setStyle(style)
 
     def on_palette_change(self):
-        app = QApplication.instance()
+        from calibre.gui2 import qapplication_or_fail
+        app = qapplication_or_fail()
         app.cached_qimage.cache_clear()
         app.cached_qpixmap.cache_clear()
         self.is_dark_theme = app.palette().is_dark_theme()
@@ -372,8 +377,9 @@ QTabBar::tab:only-one {
             self.ignore_palette_changes = orig
 
     def set_palette(self, pal):
+        from calibre.gui2 import qapplication_or_fail
         with self.changing_palette():
-            QApplication.instance().setPalette(pal)
+            qapplication_or_fail().setPalette(pal)
             # Setting the tooltip palette is needed on Windows with Qt 6.10
             # when using the calibre style otherwise the tooltip colors are not
             # changed to reflect the new palette
@@ -387,20 +393,21 @@ QTabBar::tab:only-one {
             if DEBUG:
                 print('ApplicationPaletteChange event received', file=sys.stderr)
             if self.using_calibre_style:
+                from calibre.gui2 import qapplication_or_fail
                 pal = dark_palette() if self.use_dark_palette else light_palette()
-                if QApplication.instance().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
+                if qapplication_or_fail().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
                     if DEBUG:
                         print('Detected a spontaneous palette change by Qt, reverting it', file=sys.stderr)
                     self.set_palette(pal)
             self.on_palette_change()
 
     def refresh_palette(self):
-        from calibre.gui2 import gprefs
+        from calibre.gui2 import gprefs, qapplication_or_fail
         self.color_palette = gprefs['color_palette']
         if ismacos:
             from calibre_extensions.cocoa import set_appearance
             set_appearance(self.color_palette)
-        system_is_dark = QApplication.instance().styleHints().colorScheme() == Qt.ColorScheme.Dark
+        system_is_dark = qapplication_or_fail().styleHints().colorScheme() == Qt.ColorScheme.Dark
         is_dark = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
         pal = dark_palette() if is_dark else light_palette()
         self.set_palette(pal)
@@ -410,7 +417,8 @@ QTabBar::tab:only-one {
         g1, g2 = '#e7effd', '#cbdaf1'
         border_size = '1px'
         if self.is_dark_theme:
-            c = QApplication.instance().palette().color(QPalette.ColorRole.Highlight)
+            from calibre.gui2 import qapplication_or_fail
+            c = qapplication_or_fail().palette().color(QPalette.ColorRole.Highlight)
             c = c.lighter(180)
             g1 = g2 = c.name()
             border_size = '0px'

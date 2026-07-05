@@ -62,7 +62,7 @@ from qt.core import (
 from calibre import human_readable, prepare_string_for_xml
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
-from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, rating_font, resolve_grid_color
+from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, qapplication_or_fail, rating_font, resolve_grid_color
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
@@ -971,7 +971,7 @@ class GridView(MomentumScrollMixin, QListView):
         self._texture_pixmap = None
         self.viewport().installEventFilter(self)
         self.set_color()
-        QApplication.instance().palette_changed.connect(self.set_color)
+        qapplication_or_fail().palette_changed.connect(self.set_color)
         self.ignore_render_requests = Event()
         self.doubleClicked.connect(self.double_clicked)
         self.setCursor(Qt.CursorShape.PointingHandCursor)

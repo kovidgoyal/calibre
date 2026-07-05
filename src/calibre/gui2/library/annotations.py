@@ -10,7 +10,6 @@ from urllib.parse import quote
 
 from qt.core import (
     QAbstractItemView,
-    QApplication,
     QCheckBox,
     QComboBox,
     QDateTime,
@@ -45,7 +44,7 @@ from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
-from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, safe_open_url
+from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, qapplication_or_fail, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.bookshelf_view import all_groupings, iter_all_groups
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -1081,7 +1080,7 @@ class Export(Dialog):  # {{{
         self.prefs[self.pref_name] = self.export_format.currentData()
 
     def copy_to_clipboard(self):
-        QApplication.instance().clipboard().setText(self.exported_data())
+        qapplication_or_fail().clipboard().setText(self.exported_data())
         self.accept()
 
     def save_to_file(self):

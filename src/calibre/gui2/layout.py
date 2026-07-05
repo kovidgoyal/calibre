@@ -10,7 +10,6 @@ from functools import partial
 from qt.core import (
     QAction,
     QActionGroup,
-    QApplication,
     QCoreApplication,
     QFrame,
     QHBoxLayout,
@@ -29,6 +28,7 @@ from qt.core import (
 
 from calibre import human_readable
 from calibre.constants import __appname__
+from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
@@ -390,7 +390,7 @@ class MainWindowMixin:  # {{{
     def show_shutdown_message(self, message=''):
         smw = self.shutdown_message_widget
         bg, fg = 200, 'black'
-        if QApplication.instance().is_dark_theme:
+        if qapplication_or_fail().is_dark_theme:
             bg, fg = 30, 'lightgray'
         smw.setStyleSheet(f'QLabel {{ background-color: rgba({bg}, {bg}, {bg}, 200); color: {fg} }}')
         smw.setGeometry(0, 0, self.width(), self.height())

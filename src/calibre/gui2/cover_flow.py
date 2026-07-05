@@ -33,7 +33,7 @@ from qt.core import (
 
 from calibre.constants import islinux
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
-from calibre.gui2 import config, gprefs, rating_font
+from calibre.gui2 import config, gprefs, qapplication_or_fail, rating_font
 from calibre.utils.localization import _
 from calibre_extensions import pictureflow
 
@@ -338,7 +338,7 @@ class CBDialog(QDialog):
     def show_normal(self):
         self.showNormal()
         if self.pre_fs_geom is not None:
-            QApplication.instance().safe_restore_geometry(self, self.pre_fs_geom)
+            qapplication_or_fail().safe_restore_geometry(self, self.pre_fs_geom)
             self.pre_fs_geom = None
 
     def show_fullscreen(self):

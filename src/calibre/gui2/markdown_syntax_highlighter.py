@@ -4,9 +4,10 @@
 
 import re
 
-from qt.core import QApplication, QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
+from qt.core import QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
 
 from calibre.ebooks.oeb.base import ENTITY_RE
+from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.palette import dark_link_color, light_link_color
 
 
@@ -94,7 +95,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def __init__(self, parent):
         super().__init__(parent)
-        theme = self.dark_theme if QApplication.instance().is_dark_theme else self.light_theme
+        theme = self.dark_theme if qapplication_or_fail().is_dark_theme else self.light_theme
         self.setTheme(theme)
 
     def setTheme(self, theme):

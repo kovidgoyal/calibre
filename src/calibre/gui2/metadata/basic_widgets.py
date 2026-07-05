@@ -50,7 +50,7 @@ from calibre.db import SPOOL_SIZE
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, check_isbn, string_to_authors, title_sort
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import choose_files_and_remember_all_files, choose_images, error_dialog, file_icon_provider, gprefs
+from calibre.gui2 import choose_files_and_remember_all_files, choose_images, error_dialog, file_icon_provider, gprefs, qapplication_or_fail
 from calibre.gui2.comments_editor import Editor
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -1401,7 +1401,7 @@ class Cover(ImageView):  # {{{
         if cdata:
             pm.loadFromData(cdata)
         if pm.isNull():
-            pm = QApplication.instance().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
+            pm = qapplication_or_fail().cached_qpixmap('default_cover.png', device_pixel_ratio=self.devicePixelRatio())
         else:
             self._cdata = cdata
         pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())

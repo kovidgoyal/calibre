@@ -30,7 +30,7 @@ from qt.core import (
 
 from calibre.constants import get_appname_for_display, get_version, ismacos
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import config, error_dialog, gprefs, open_local_file, open_url
+from calibre.gui2 import config, error_dialog, gprefs, open_local_file, open_url, qapplication_or_fail
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
@@ -803,7 +803,7 @@ class LayoutMixin:  # {{{
                     open_local_file(cpath)
                 else:
                     from calibre.gui2.image_popup import ImageView
-                    iv = ImageView(QApplication.instance().focusWindow(), pm, QUrl.fromLocalFile(cpath), geom_name='book_details_image_view')
+                    iv = ImageView(qapplication_or_fail().focusWindow(), pm, QUrl.fromLocalFile(cpath), geom_name='book_details_image_view')
                     iv(use_exec=True)
                 return
             from calibre.gui2.open_with import run_program

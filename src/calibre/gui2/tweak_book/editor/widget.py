@@ -30,7 +30,7 @@ from qt.core import (
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2 import error_dialog, open_url
+from calibre.gui2 import error_dialog, open_url, qapplication_or_fail
 from calibre.gui2.tweak_book import actions, current_container, dictionaries, editor_name, editor_toolbar_actions, editors, tprefs, update_mark_text_action
 from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY, TAG_NAME_PROPERTY
 from calibre.gui2.tweak_book.editor.help import help_url
@@ -42,7 +42,7 @@ from calibre.utils.localization import _
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     if isinstance(fill, (str, bytes)):
         fill = QColor(fill)
-    sz = sz or math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio())
+    sz = sz or math.ceil(tprefs['toolbar_icon_size'] * qapplication_or_fail().devicePixelRatio())
     if palette is None:
         palette = QApplication.palette()
     img = QImage(sz, sz, QImage.Format.Format_ARGB32)

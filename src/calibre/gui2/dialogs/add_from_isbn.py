@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from qt.core import QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QLineEdit, QPlainTextEdit, QPushButton, Qt, QVBoxLayout
 
 from calibre.constants import iswindows
 from calibre.ebooks.metadata import check_isbn, normalize_isbn
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre.gui2 import error_dialog, gprefs, qapplication_or_fail, question_dialog
 from calibre.utils.localization import _
 
 
@@ -77,7 +77,7 @@ class AddFromISBN(QDialog):
         l.addStretch(10)
 
     def paste(self, *args):
-        app = QApplication.instance()
+        app = qapplication_or_fail()
         c = app.clipboard()
         txt = str(c.text()).strip()
         if txt:

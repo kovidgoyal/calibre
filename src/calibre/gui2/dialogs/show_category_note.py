@@ -3,12 +3,12 @@
 
 import os
 
-from qt.core import QApplication, QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
+from qt.core import QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
 
 from calibre import prepare_string_for_xml
 from calibre.db.constants import RESOURCE_URL_SCHEME
 from calibre.ebooks.metadata.book.render import render_author_link
-from calibre.gui2 import Application, default_author_link, safe_open_url
+from calibre.gui2 import Application, default_author_link, qapplication_or_fail, safe_open_url
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.ui import get_gui
@@ -117,7 +117,7 @@ class ShowNoteDialog(Dialog):
         if f.startswith('#'):
             f = '_' + f[1:]
         url = f'calibre://show-note/{self.db.server_library_id}/{f}/id_{self.item_id}'
-        cb = QApplication.instance().clipboard()
+        cb = qapplication_or_fail().clipboard()
         md = QMimeData()
         md.setText(url)
         md.setUrls([QUrl(url)])

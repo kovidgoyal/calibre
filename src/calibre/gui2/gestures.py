@@ -7,6 +7,7 @@ from functools import lru_cache
 
 from qt.core import QApplication, QEvent, QInputDevice, QMouseEvent, QObject, QPointF, QScroller, Qt, pyqtSignal
 
+from calibre.gui2 import qapplication_or_fail
 from calibre.startup import connect_lambda
 from calibre.utils.monotonic import monotonic
 
@@ -211,7 +212,7 @@ class GestureManager(QObject):
         last_tap_at, self.last_tap_at = self.last_tap_at, monotonic()
         if self.close_open_menu():
             return
-        interval = QApplication.instance().doubleClickInterval() / 1000
+        interval = qapplication_or_fail().doubleClickInterval() / 1000
         double_tap = self.last_tap_at - last_tap_at < interval
         send_click(self.parent(), tp.start_position, double_click=double_tap)
 

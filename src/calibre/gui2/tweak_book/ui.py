@@ -10,7 +10,6 @@ from itertools import product
 
 from qt.core import (
     QAction,
-    QApplication,
     QDockWidget,
     QEvent,
     QHBoxLayout,
@@ -32,7 +31,7 @@ from qt.core import (
 from calibre import prints
 from calibre.constants import DEBUG, __appname__, get_version, ismacos
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import elided_text, open_url
+from calibre.gui2 import elided_text, open_url, qapplication_or_fail
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton
@@ -286,7 +285,7 @@ class Main(MainWindow):
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
         if not ismacos:
-            self.setWindowIcon(QApplication.instance().windowIcon())
+            self.setWindowIcon(qapplication_or_fail().windowIcon())
         self.opts = opts
         self.path_to_ebook = None
         self.container = None

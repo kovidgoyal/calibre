@@ -6,7 +6,6 @@ import weakref
 from functools import lru_cache
 
 from qt.core import (
-    QApplication,
     QBrush,
     QByteArray,
     QCalendarWidget,
@@ -61,7 +60,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, local_path_for_resource, rating_font
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, local_path_for_resource, qapplication_or_fail, rating_font
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
@@ -328,7 +327,7 @@ class RatingItemDelegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
         QStyledItemDelegate.initStyleOption(self, option, index)
-        option.font = QApplication.instance().font() if index.row() <= 0 else self.parent().rating_font
+        option.font = qapplication_or_fail().font() if index.row() <= 0 else self.parent().rating_font
         option.fontMetrics = QFontMetrics(option.font)
 
 
@@ -362,7 +361,7 @@ class RatingEditor(QComboBox):
 
     def update_font(self):
         if self.currentIndex() == 0:
-            self.setFont(QApplication.instance().font())
+            self.setFont(qapplication_or_fail().font())
         else:
             self.setFont(self.rating_font)
 
@@ -569,7 +568,7 @@ class Separator(QWidget):  # {{{
         The height of the separator is computed using this widget,
         '''
         QWidget.__init__(self, parent)
-        self.bcol = QApplication.instance().palette().color(QPalette.ColorRole.Text)
+        self.bcol = qapplication_or_fail().palette().color(QPalette.ColorRole.Text)
         self.update_brush()
         self.widget_for_height = widget_for_height
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
@@ -606,7 +605,7 @@ class HTMLDisplay(QTextBrowser):
         self.save_resources_in_document = save_resources_in_document
         self.last_set_html = ''
         self.default_css = self.external_css = ''
-        app = QApplication.instance()
+        app = qapplication_or_fail()
         app.palette_changed.connect(self.palette_changed)
         self.palette_changed()
         font = self.font()
@@ -636,7 +635,7 @@ class HTMLDisplay(QTextBrowser):
         self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
 
     def palette_changed(self):
-        app = QApplication.instance()
+        app = qapplication_or_fail()
         if app.is_dark_theme:
             pal = app.palette()
             col = pal.color(QPalette.ColorRole.Link)
@@ -810,15 +809,15 @@ class DateTimeEdit(QDateTimeEdit):
         return md
 
     def copy(self):
-        QApplication.instance().clipboard().setMimeData(self.mime_data_for_copy)
+        qapplication_or_fail().clipboard().setMimeData(self.mime_data_for_copy)
 
     def cut(self):
         md = self.mime_data_for_copy
         self.lineEdit().cut()
-        QApplication.instance().clipboard().setMimeData(md)
+        qapplication_or_fail().clipboard().setMimeData(md)
 
     def paste(self):
-        md = QApplication.instance().clipboard().mimeData()
+        md = qapplication_or_fail().clipboard().mimeData()
         if md.hasFormat(self.MIME_TYPE):
             self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.DateFormat.ISODate))
         else:
@@ -873,7 +872,7 @@ class MessagePopup(QLabel):
         QLabel.__init__(self, parent)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.undo_data = None
-        if QApplication.instance().is_dark_theme:
+        if qapplication_or_fail().is_dark_theme:
             c = builtin_colors_dark['green']
         else:
             c = builtin_colors_light['green']

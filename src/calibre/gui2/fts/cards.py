@@ -9,7 +9,6 @@ from threading import Thread
 from typing import NamedTuple
 
 from qt.core import (
-    QApplication,
     QCursor,
     QFontMetricsF,
     QIcon,
@@ -37,7 +36,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import config
+from calibre.gui2 import config, qapplication_or_fail
 from calibre.gui2.fts.utils import get_db, help_panel, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
@@ -58,7 +57,7 @@ class Layout(NamedTuple):
 
 @lru_cache(maxsize=2)
 def layout() -> Layout:
-    app = QApplication.instance()
+    app = qapplication_or_fail()
     fm = QFontMetricsF(app.font())
     return Layout(min_card_width=int(60 * fm.averageCharWidth()))
 
@@ -81,7 +80,7 @@ def icon_resource_provider(qurl: QUrl) -> QVariant:
     if qurl.scheme() == 'calibre-icon':
         ic = QIcon.cached_icon(qurl.path().lstrip('/'))
         if ic.is_ok():
-            dpr = QApplication.instance().devicePixelRatio()
+            dpr = qapplication_or_fail().devicePixelRatio()
             pmap = ic.pixmap(ic.availableSizes()[0])
             sz = QSizeF(16 * dpr, 16 * dpr).toSize()
             pmap = pmap.scaled(sz, transformMode=Qt.TransformationMode.SmoothTransformation)
@@ -188,7 +187,7 @@ class CardData:
                 ftxt = '\xa0'.join(fmts)
                 results.append(f'<br>{ftxt} {text}')
 
-        pal = QApplication.instance().palette()
+        pal = qapplication_or_fail().palette()
         accent = pal.color(QPalette.ColorRole.Accent).name()
         html = f'''
 <img src="card://thumb" width="{sz.width()}" height="{sz.height()}" align="left" /><div style="margin: 0">

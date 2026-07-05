@@ -19,7 +19,7 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.gui2 import Dispatcher, error_dialog, gprefs, question_dialog
+from calibre.gui2 import Dispatcher, error_dialog, gprefs, qapplication_or_fail, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -120,7 +120,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     def _copy_links(self, lines):
         urls = QUrl.fromStringList(lines)
-        cb = QApplication.instance().clipboard()
+        cb = qapplication_or_fail().clipboard()
         md = QMimeData()
         md.setText('\n'.join(lines))
         md.setUrls(urls)

@@ -7,7 +7,6 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import namedtuple
 
 from qt.core import (
-    QApplication,
     QBrush,
     QCheckBox,
     QColor,
@@ -35,7 +34,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor import syntax_text_char_format
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -49,7 +48,7 @@ _default_theme = None
 def default_theme():
     global _default_theme
     if _default_theme is None:
-        isdark = QApplication.instance().palette().color(QPalette.ColorRole.WindowText).lightness() > 128
+        isdark = qapplication_or_fail().palette().color(QPalette.ColorRole.WindowText).lightness() > 128
         _default_theme = 'wombat-dark' if isdark else 'pyte-light'
     return _default_theme
 

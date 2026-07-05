@@ -12,7 +12,6 @@ from hashlib import sha256
 from threading import Thread
 
 from qt.core import (
-    QApplication,
     QCursor,
     QDockWidget,
     QEvent,
@@ -39,7 +38,7 @@ from calibre import prints
 from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, sanitize_env_vars
+from calibre.gui2 import add_to_recent_docs, choose_files, error_dialog, qapplication_or_fail, sanitize_env_vars
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
@@ -472,7 +471,7 @@ class EbookViewer(MainWindow):
         md = QMimeData()
         md.setImageData(img)
         md.setUrls([url])
-        QApplication.instance().clipboard().setMimeData(md)
+        qapplication_or_fail().clipboard().setMimeData(md)
 
     def dock_visibility_changed(self):
         vmap = {dock.objectName().partition('-')[0]: dock.toggleViewAction().isChecked() for dock in self.dock_widgets}
@@ -814,7 +813,7 @@ class EbookViewer(MainWindow):
     def restore_state(self):
         state = vprefs['main_window_state']
         if not get_session_pref('remember_window_geometry', default=False) or not self.restore_geometry(vprefs, 'main_window_geometry'):
-            QApplication.instance().ensure_window_on_screen(self)
+            qapplication_or_fail().ensure_window_on_screen(self)
         if state:
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
             self.inspector_dock.setVisible(False)
@@ -873,7 +872,7 @@ class EbookViewer(MainWindow):
 
     # Auto-hide mouse cursor {{{
     def setup_mouse_auto_hide(self):
-        QApplication.instance().installEventFilter(self)
+        qapplication_or_fail().installEventFilter(self)
         self.cursor_hidden = False
         self.hide_cursor_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(3000)
@@ -885,7 +884,7 @@ class EbookViewer(MainWindow):
         if et == QEvent.Type.MouseMove:
             if self.cursor_hidden:
                 self.cursor_hidden = False
-                QApplication.instance().restoreOverrideCursor()
+                qapplication_or_fail().restoreOverrideCursor()
             self.hide_cursor_timer.start()
         elif et == QEvent.Type.FocusIn:
             if iswindows and obj and obj.objectName() == 'EbookViewerClassWindow' and self.isFullScreen():
@@ -895,7 +894,7 @@ class EbookViewer(MainWindow):
     def hide_cursor(self):
         if get_session_pref('auto_hide_mouse', True):
             self.cursor_hidden = True
-            QApplication.instance().setOverrideCursor(Qt.CursorShape.BlankCursor)
+            qapplication_or_fail().setOverrideCursor(Qt.CursorShape.BlankCursor)
     # }}}
 
     def highlights_changed(self, changed_annotations: list):

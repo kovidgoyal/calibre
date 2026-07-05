@@ -8,7 +8,6 @@ import shutil
 
 from qt.core import (
     QAbstractListModel,
-    QApplication,
     QGridLayout,
     QIcon,
     QItemSelectionModel,
@@ -21,7 +20,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.utils.localization import _
 
 ROOT = QModelIndex()
@@ -59,7 +58,7 @@ class GlobalUndoHistory(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             return self.label_for_row(index.row())
         if role == Qt.ItemDataRole.FontRole and index.row() == self.pos:
-            f = QApplication.instance().font()
+            f = qapplication_or_fail().font()
             f.setBold(True)
             return f
         if role == Qt.ItemDataRole.UserRole:

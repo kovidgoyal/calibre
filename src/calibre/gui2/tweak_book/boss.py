@@ -51,6 +51,7 @@ from calibre.gui2 import (
     error_dialog,
     info_dialog,
     open_url,
+    qapplication_or_fail,
     question_dialog,
     sanitize_env_vars,
     warning_dialog,
@@ -1614,11 +1615,11 @@ class Boss(QObject):
         md.setData(FILE_COPY_MIME, as_bytes(json.dumps({
             name: (url_map[name], container.mime_map.get(name)) for name in names
         })))
-        QApplication.instance().clipboard().setMimeData(md)
+        qapplication_or_fail().clipboard().setMimeData(md)
 
     @in_thread_job
     def paste_files_from_clipboard(self):
-        md = QApplication.instance().clipboard().mimeData()
+        md = qapplication_or_fail().clipboard().mimeData()
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
             self.commit_all_editors_to_container()
@@ -1984,7 +1985,7 @@ class Boss(QObject):
         if not self.confirm_quit():
             return False
         self.shutdown()
-        QApplication.instance().exit()
+        qapplication_or_fail().exit()
         return True
 
     def confirm_quit(self):
@@ -2037,7 +2038,7 @@ class Boss(QObject):
     def check_terminal_save(self):
         if self.doing_terminal_save and not self.save_manager.has_tasks:  # terminal save could have been aborted
             self.shutdown()
-            QApplication.instance().exit()
+            qapplication_or_fail().exit()
 
     def shutdown(self):
         self.save_state()

@@ -11,7 +11,6 @@ from functools import lru_cache, partial
 
 from qt.core import (
     QAbstractItemView,
-    QApplication,
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -51,7 +50,16 @@ from calibre.ebooks.oeb.polish.cover import get_cover_page_name, get_raster_cove
 from calibre.ebooks.oeb.polish.css import add_stylesheet_links
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders, get_spine_order_for_all_files
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, guess_type
-from calibre.gui2 import choose_dir, choose_files, choose_save_file, elided_text, error_dialog, make_view_use_window_background, question_dialog
+from calibre.gui2 import (
+    choose_dir,
+    choose_files,
+    choose_save_file,
+    elided_text,
+    error_dialog,
+    make_view_use_window_background,
+    qapplication_or_fail,
+    question_dialog,
+)
 from calibre.gui2.tweak_book import CONTAINER_DND_MIMETYPE, current_container, editors, tprefs
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
@@ -743,7 +751,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 '&Copy the selected file to another editor instance',
                 '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
             m.addSeparator()
-        md = QApplication.instance().clipboard().mimeData()
+        md = qapplication_or_fail().clipboard().mimeData()
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))

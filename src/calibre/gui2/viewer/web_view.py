@@ -39,7 +39,7 @@ from calibre import as_unicode, prints
 from calibre.constants import DEBUG, FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop, ismacos, iswindows
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
-from calibre.gui2 import choose_images, config, error_dialog, safe_open_url
+from calibre.gui2 import choose_images, config, error_dialog, qapplication_or_fail, safe_open_url
 from calibre.gui2.viewer import link_prefix_for_location_links, performance_monitor, url_for_book_in_library
 from calibre.gui2.viewer.config import get_session_pref, load_viewer_profiles, save_viewer_profile, viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
@@ -377,7 +377,7 @@ class WebPage(QWebEnginePage):
             md.setText(text)
             if html:
                 md.setHtml(html)
-            QApplication.instance().clipboard().setMimeData(md)
+            qapplication_or_fail().clipboard().setMimeData(md)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         prefix = {
@@ -449,7 +449,7 @@ class Inspector(QWidget):
 
 
 def system_colors():
-    app = QApplication.instance()
+    app = qapplication_or_fail()
     is_dark_theme = app.is_dark_theme
     pal = app.palette()
     ans = {
@@ -521,7 +521,7 @@ class WebView(QWebEngineView):
         self.dead_renderer_error_shown = False
         self.renderProcessTerminated.connect(self.render_process_died)
         w = self.screen().availableSize().width()
-        QApplication.instance().palette_changed.connect(self.palette_changed)
+        qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
@@ -670,7 +670,7 @@ class WebView(QWebEngineView):
         return self._page.bridge
 
     def on_bridge_ready(self):
-        f = QApplication.instance().font()
+        f = qapplication_or_fail().font()
         fi = QFontInfo(f)
         family = f.family()
         if family in ('.AppleSystemUIFont', 'MS Shell Dlg 2'):

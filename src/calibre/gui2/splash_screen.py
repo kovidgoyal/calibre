@@ -2,9 +2,10 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QApplication, QBrush, QColor, QFont, QFontMetrics, QPainter, QPen, QPixmap, QSplashScreen, Qt
+from qt.core import QBrush, QColor, QFont, QFontMetrics, QPainter, QPen, QPixmap, QSplashScreen, Qt
 
 from calibre.constants import __appname__, numeric_version
+from calibre.gui2 import qapplication_or_fail
 from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_image_path as I
@@ -37,7 +38,7 @@ class SplashScreen(QSplashScreen):
         self.footer_font = f = QFont()
         f.setPointSize(self.FOOTER_SIZE)
         f.setItalic(True)
-        self.dpr = QApplication.instance().devicePixelRatio()
+        self.dpr = qapplication_or_fail().devicePixelRatio()
         self.pmap = QPixmap(I('library.png', allow_user_override=False))
         self.pmap.setDevicePixelRatio(self.dpr)
         self.pmap = self.pmap.scaled(int(self.dpr * self.LOGO_SIZE), int(self.dpr * self.LOGO_SIZE), transformMode=Qt.TransformationMode.SmoothTransformation)
@@ -106,13 +107,13 @@ class SplashScreen(QSplashScreen):
         self.drawn_once = False
         st = monotonic()
         while not self.drawn_once and (monotonic() - st < 0.1):
-            QApplication.instance().processEvents()
+            qapplication_or_fail().processEvents()
 
     def keyPressEvent(self, ev):
         if not self.develop:
             return QSplashScreen.keyPressEvent(self, ev)
         ev.accept()
-        QApplication.instance().exit()
+        qapplication_or_fail().exit()
 
 
 def main():

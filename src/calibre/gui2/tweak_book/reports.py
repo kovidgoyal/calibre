@@ -21,7 +21,6 @@ from qt.core import (
     QAbstractItemModel,
     QAbstractItemView,
     QAbstractTableModel,
-    QApplication,
     QByteArray,
     QComboBox,
     QDialogButtonBox,
@@ -61,7 +60,7 @@ from qt.webengine import QWebEngineView
 from calibre import fit_image, human_readable
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import ClassElement, ClassEntry, ClassFileMatch, CSSEntry, CSSFileMatch, CSSRule, LinkLocation, MatchLocation, gather_data
-from calibre.gui2 import choose_save_file, error_dialog, open_url, question_dialog
+from calibre.gui2 import choose_save_file, error_dialog, open_url, qapplication_or_fail, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -422,7 +421,7 @@ class ImagesDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, *args)
 
     def sizeHint(self, option, index):
-        style = (option.styleObject or self.parent() or QApplication.instance()).style()
+        style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
         self.initStyleOption(option, index)
         ans = style.sizeFromContents(QStyle.ContentsType.CT_ItemViewItem, option, QSize(), option.styleObject or self.parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
@@ -438,7 +437,7 @@ class ImagesDelegate(QStyledItemDelegate):
         return QSize(max(width + m, ans.width()), height + m + self.MARGIN + ans.height())
 
     def paint(self, painter, option, index):
-        style = (option.styleObject or self.parent() or QApplication.instance()).style()
+        style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
         self.initStyleOption(option, index)
         option.text = ''
         style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.styleObject or self.parent())
