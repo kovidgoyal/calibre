@@ -34,7 +34,10 @@ class Substack(BasicNewsRecipe):
     use_embedded_content = False
     masthead_url = 'https://substack.com/img/substack_wordmark.png'
     cover_url = 'https://substack.com/img/substack.png'
-    extra_css = '.captioned-image-container, .image-container, .image-caption {font-size: small;}'
+    extra_css = '''
+        .captioned-image-container, .image-container, .image-caption {font-size: small;}
+        pre {font-family: inherit; white-space: pre-wrap;}
+    '''
     remove_empty_feeds = True
     remove_attributes = ['style', 'height', 'width']
     no_stylesheets = True
@@ -117,6 +120,12 @@ class Substack(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
+        # Substack's poetry/preformatted blocks contain a hidden editor tooltip
+        # ("Text within this block will maintain its original spacing when
+        # published") that becomes visible once site CSS is stripped.
+        for tooltip in soup.findAll(
+                string=lambda s: s and 'maintain its original spacing' in s):
+            tooltip.extract()
         res = '600'
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
