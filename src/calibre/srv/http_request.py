@@ -165,7 +165,7 @@ class HTTPHeaderParser:
             k, v = line.partition(b':')[::2]
             key = normalize_header_name(k.strip().decode('ascii'))
             val = safe_decode(key, v.strip())
-            if not key or not val:
+            if not key:
                 raise ValueError(f'Malformed header line: {reprlib.repr(line)}')
             if key in comma_separated_headers:
                 existing = self.hdict.pop(key)
