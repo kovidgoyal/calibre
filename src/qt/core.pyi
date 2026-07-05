@@ -767,3 +767,5 @@ QVideoWidget = PyQt6.QtMultimediaWidgets.QVideoWidget
 import PyQt6.QtTextToSpeech
 QTextToSpeech = PyQt6.QtTextToSpeech.QTextToSpeech
 QVoice = PyQt6.QtTextToSpeech.QVoice
+import PyQt6.sip
+sip = PyQt6.sip
