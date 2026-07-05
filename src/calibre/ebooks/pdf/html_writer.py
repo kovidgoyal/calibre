@@ -31,7 +31,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.pdf.image_writer import PDFMetadata, get_page_layout
-from calibre.gui2 import setup_unix_signals
+from calibre.gui2 import qapplication_or_fail, setup_unix_signals
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.errors import NoGlyphs
@@ -384,7 +384,7 @@ class RenderManager(QObject):
             os.read(read_fd, 1024)
         except OSError:
             return
-        QApplication.instance().exit(KILL_SIGNAL)
+        qapplication_or_fail().exit(KILL_SIGNAL)
 
     def block_signal_handlers(self):
         for sig in self.original_signal_handlers:
@@ -432,7 +432,7 @@ class RenderManager(QObject):
 
     def evaljs_callback(self, result):
         self.evaljs_result = result
-        QApplication.instance().exit(0)
+        qapplication_or_fail().exit(0)
 
     def assign_work(self):
         free_workers = [w for w in self.workers if not w.working]
@@ -461,7 +461,7 @@ class RenderManager(QObject):
             for w in self.workers:
                 if w.working:
                     return
-            QApplication.instance().exit(OK)
+            qapplication_or_fail().exit(OK)
 
 
 def resolve_margins(margins, page_layout):
