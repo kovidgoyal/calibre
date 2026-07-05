@@ -29,7 +29,7 @@ def is_ok():
 try:
     from calibre.utils.config import dynamic
 except ImportError:
-    dynamic = {}
+    dynamic = {}  # type: ignore
 
 
 def get_hwnd(widget=None):
@@ -177,7 +177,7 @@ def run_file_dialog(
 
         def __init__(self):
             QEventLoop.__init__(self)
-            self.dialog_closed.connect(self.exit, type=Qt.ConnectionType.QueuedConnection)
+            self.dialog_closed.connect(self.exit, type=Qt.ConnectionType.QueuedConnection)  # type: ignore
 
     loop = Loop()
     server = PipeServer(pipename)
@@ -261,7 +261,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 def choose_files(window, name, title,
                  filters=(), all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
-    file_types = list(filters)
+    file_types: list[tuple[str, list[str]]] = list(filters)
     if all_files:
         file_types.append((_('All files'), ['*']))
     ans = run_file_dialog(window, title, allow_multiple=not select_only_single_file, initial_folder=initial_folder, file_types=file_types)
@@ -320,6 +320,7 @@ class PipeServer(Thread):
 
     def run(self):
         from calibre_extensions import winutil
+        assert self.pipe_handle is not None
         try:
             try:
                 winutil.connect_named_pipe(self.pipe_handle)
@@ -332,7 +333,7 @@ class PipeServer(Thread):
                 try:
                     data = winutil.read_file(self.pipe_handle, 64 * 1024)
                 except OSError as err:
-                    if err.winerror == winutil.ERROR_BROKEN_PIPE:
+                    if getattr(err, 'winerror', None) == winutil.ERROR_BROKEN_PIPE:
                         break  # pipe was closed at the other end
                     self.err_msg = f'ReadFile on pipe failed: {err}'
                 if not data:
