@@ -197,6 +197,7 @@ class Command:
     SRC = SRC
     RESOURCES = os.path.join(os.path.dirname(SRC), 'resources')
     description = ''
+    usage_help = ''
     drop_privileges_for_subcommands = False
 
     sub_commands = []

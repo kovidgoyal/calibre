@@ -31,7 +31,8 @@ class BaseTest(Command):
 
 class Test(BaseTest):
 
-    description = 'Run the calibre test suite'
+    description = 'Run the calibre test suite.'
+    usage_help = 'To run specific tests, specify their names as command line arguments or use --test-name'
 
     def add_options(self, parser):
         super().add_options(parser)
@@ -63,12 +64,16 @@ class Test(BaseTest):
                 print(sys.libxml2_dylib, sys.libxslt_dylib, sys.libexslt_dylib, file=sys.stderr, flush=True)
             elif iswindows:
                 ffmpeg_dll_dir = os.path.join(SW, 'ffmpeg', 'bin')
-                os.add_dll_directory(ffmpeg_dll_dir)
+                os.add_dll_directory(ffmpeg_dll_dir)  # type: ignore
 
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
+        only = []
         if opts.test_name:
-            tests = filter_tests_by_name(tests, *opts.test_name)
+            only += list(opts.test_name)
+        if opts.cli_args:
+            only += list(opts.cli_args)
+        tests = filter_tests_by_name(tests, *only)
         if opts.exclude_test_name:
             tests = remove_tests_by_name(tests, *opts.exclude_test_name)
         run_cli(tests, verbosity=opts.test_verbosity, buffer=not opts.test_name)

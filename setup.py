@@ -20,6 +20,7 @@ def check_version_info():
     assert m is not None
     minver = m.group(1)
     m = re.match(r'(>=?)(\d+)\.(\d+)', minver)
+    assert m is not None
     q = int(m.group(2)), int(m.group(3))
     if m.group(1) == '>=':
         is_ok = sys.version_info >= q
@@ -92,8 +93,10 @@ def main(args=sys.argv):
 
     parser = option_parser()
     command.add_all_options(parser)
-    parser.set_usage(
-        f'Usage: python setup.py {args[1]} [options]\n\n' + command.description)
+    usage = f'Usage: python setup.py {args[1]} [options]\n\n' + command.description
+    if command.usage_help:
+        usage += '\n\n' + command.usage_help
+    parser.set_usage(usage)
 
     opts, args = parser.parse_args(args)
     opts.cli_args = args[2:]
