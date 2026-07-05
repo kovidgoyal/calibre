@@ -33,7 +33,7 @@ from qt.core import (
 
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class Icon(QWidget):

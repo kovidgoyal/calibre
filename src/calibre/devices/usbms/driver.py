@@ -20,6 +20,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):

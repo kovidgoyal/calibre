@@ -11,6 +11,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_contains, primary_sort_key, strcmp
+from calibre.utils.localization import _
 
 
 class TagCategories(QDialog, Ui_TagCategories):

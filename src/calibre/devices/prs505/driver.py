@@ -15,6 +15,7 @@ from calibre.devices.prs505 import CACHE_EXT, CACHE_THUMBNAIL, CACHE_XML, MEDIA_
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.driver import USBMS
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 
 
 class PRS505(USBMS):

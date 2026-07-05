@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.localization import _
 from calibre.web import get_download_filename_from_response
 from polyglot.builtins import as_unicode
 

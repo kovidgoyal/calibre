@@ -12,6 +12,7 @@ import struct
 from calibre.ebooks.metadata import MetaInformation, authors_to_string
 from calibre.ebooks.pdb.ereader.reader132 import HeaderRecord
 from calibre.ebooks.pdb.header import PdbHeaderBuilder, PdbHeaderReader
+from calibre.utils.localization import _
 
 
 def get_cover(pheader, eheader):

@@ -28,6 +28,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, editors, tprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 
 
 class ResizeDialog(QDialog):  # {{{

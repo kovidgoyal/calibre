@@ -24,6 +24,7 @@ from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import collation_order_for_partitioning, contains, lower, primary_contains, primary_strcmp, sort_key, strcmp
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
+from calibre.utils.localization import _
 from calibre.utils.serialize import json_dumps, json_loads
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
@@ -1706,7 +1707,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for cat in user_cats.keys():
             found_original = False
             found_new = False
-            for name,key,_ in user_cats[cat]:
+            for name,key,_x in user_cats[cat]:
                 if key == lookup_key:
                     if name == original_name:
                         found_original = True
@@ -1728,7 +1729,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         all_cats = {}
         for cat in user_cats.keys():
             new_cat = []
-            for val, key, _ in user_cats[cat]:
+            for val, key, _x in user_cats[cat]:
                 datatype = cache.field_metadata.get(key, {}).get('datatype')
                 # datatype can be None if a column used in user categories has
                 # been deleted. Remove it from the user categories

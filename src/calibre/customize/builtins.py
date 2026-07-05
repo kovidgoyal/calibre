@@ -14,6 +14,7 @@ from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
 from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
+from calibre.utils.localization import _
 
 plugins = []
 

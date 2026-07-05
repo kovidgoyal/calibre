@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, SC_COPYABLE_FIELDS
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects

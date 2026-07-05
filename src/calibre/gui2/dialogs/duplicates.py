@@ -12,7 +12,7 @@ from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import gprefs
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class DuplicatesQuestion(QDialog):

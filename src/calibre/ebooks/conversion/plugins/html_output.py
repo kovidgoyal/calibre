@@ -11,6 +11,7 @@ from os.path import relpath as _relpath
 from calibre import CurrentDir
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 

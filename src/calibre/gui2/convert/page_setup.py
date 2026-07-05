@@ -11,6 +11,7 @@ from calibre.customize.ui import input_profiles, output_profiles
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.page_setup_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class ProfileModel(QAbstractListModel):

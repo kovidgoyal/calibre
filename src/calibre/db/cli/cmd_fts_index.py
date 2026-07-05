@@ -4,6 +4,7 @@
 import sys
 
 from calibre.db.listeners import EventType
+from calibre.utils.localization import _
 
 version = 0  # change this if you change signature of implementation()
 

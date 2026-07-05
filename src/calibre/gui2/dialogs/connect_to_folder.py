@@ -23,6 +23,7 @@ from calibre.customize.ui import usbms_plugins
 from calibre.gui2 import Application, choose_dir, gprefs
 from calibre.gui2.widgets2 import Dialog, HistoryLineEdit2
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 class ChooseFolder(QWidget):

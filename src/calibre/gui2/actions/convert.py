@@ -15,7 +15,7 @@ from calibre.gui2 import Dispatcher, error_dialog, gprefs
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.tools import convert_bulk_ebook, convert_single_ebook
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class ConvertAction(InterfaceActionWithLibraryDrop):

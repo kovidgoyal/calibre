@@ -10,6 +10,7 @@ from calibre.ai.google import GoogleAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_strategy_config_widget, reasoning_strategy_config_widget
 from calibre.gui2 import error_dialog
+from calibre.utils.localization import _
 
 pref = partial(pref_for_provider, GoogleAI.name)
 

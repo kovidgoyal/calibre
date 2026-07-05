@@ -25,6 +25,7 @@ from calibre.devices.mtp.filesystem_cache import FileOrFolder, convert_timestamp
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import shorten_components_to
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 BASE = importlib.import_module('calibre.devices.mtp.{}.driver'.format('windows' if iswindows else 'unix')).MTP_DEVICE

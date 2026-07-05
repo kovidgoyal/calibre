@@ -21,7 +21,7 @@ from calibre.utils.config import from_json, to_json
 from calibre.utils.date import fix_only_date, is_date_undefined, isoformat, utcnow, w3cdtf
 from calibre.utils.date import parse_date as parse_date_
 from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 
 # Utils {{{
 _xpath_cache = {}

@@ -13,7 +13,7 @@ from qt.core import QAbstractItemView, QApplication, QCursor, QDialog, Qt, QTabl
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from calibre.utils.search_query_parser import ParseException
 
 

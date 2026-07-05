@@ -9,6 +9,8 @@ import string
 import time
 from functools import partial
 
+from calibre.utils.localization import _
+
 try:
     from queue import Empty, Queue
 except ImportError:

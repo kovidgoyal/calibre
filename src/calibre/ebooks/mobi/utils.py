@@ -17,6 +17,7 @@ from tinycss.color3 import parse_color_string
 from calibre.ebooks import normalize
 from calibre.utils.img import image_from_data, image_to_data, png_data_to_gif_data, resize_image, save_cover_data_to, scale_image
 from calibre.utils.imghdr import what
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024

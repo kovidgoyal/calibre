@@ -23,6 +23,7 @@ from calibre.utils.formatter_functions import (
     function_pref_name,
     load_user_template_functions,
 )
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 

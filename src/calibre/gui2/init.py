@@ -41,7 +41,7 @@ from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_website_link, ngettext
+from calibre.utils.localization import _, localize_website_link, ngettext
 
 _keep_refs = []
 

@@ -24,6 +24,7 @@ from shutil import copyfileobj
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.localization import _
 
 BYTE      = '<B'  #: Unsigned char little endian encoded in 1 byte
 WORD      = '<H'  #: Unsigned short little endian encoded in 2 bytes

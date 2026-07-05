@@ -43,6 +43,7 @@ from calibre.utils.img import (
     remove_borders_from_image,
 )
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 
 
 def painter(func):

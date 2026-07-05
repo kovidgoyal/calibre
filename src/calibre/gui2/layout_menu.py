@@ -19,6 +19,8 @@ from qt.core import (
     QWidget,
 )
 
+from calibre.utils.localization import _
+
 
 class LayoutItem(QWidget):
 

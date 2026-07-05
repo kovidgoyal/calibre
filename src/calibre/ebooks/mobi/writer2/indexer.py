@@ -12,6 +12,7 @@ from struct import pack
 
 from calibre.ebooks.mobi.utils import CNCX as CNCX_
 from calibre.ebooks.mobi.utils import RECORD_SIZE, align_block, encint, encode_number_as_hex, encode_tbs
+from calibre.utils.localization import _
 
 
 class CNCX(CNCX_):  # {{{

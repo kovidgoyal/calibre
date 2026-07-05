@@ -19,7 +19,7 @@ from qt.core import (
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.utils.icu import lower
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class CountTableWidgetItem(QTableWidgetItem):

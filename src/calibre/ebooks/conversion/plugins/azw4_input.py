@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.utils.localization import _
 
 
 class AZW4Input(InputFormatPlugin):

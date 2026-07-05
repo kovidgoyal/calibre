@@ -7,6 +7,7 @@ from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QList
 
 from calibre.gui2 import file_icon_provider
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 
 
 class ChooseFormatDialog(QDialog):

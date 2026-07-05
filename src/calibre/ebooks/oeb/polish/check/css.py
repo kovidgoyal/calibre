@@ -15,6 +15,7 @@ from calibre import detect_ncpus as cpu_count
 from calibre import prints
 from calibre.ebooks.oeb.polish.check.base import ERROR, WARN, BaseError
 from calibre.gui2 import must_use_qt
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from calibre.utils.webengine import secure_webengine, setup_profile
 

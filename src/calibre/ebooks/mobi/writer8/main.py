@@ -27,6 +27,7 @@ from calibre.ebooks.mobi.writer8.toc import TOCAdder
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, SVG_MIME, XHTML, XPath, extract, urlnormalize
 from calibre.ebooks.oeb.normalize_css import condense_sheet
 from calibre.ebooks.oeb.parse_utils import barename
+from calibre.utils.localization import _
 
 XML_DOCS = OEB_DOCS | {SVG_MIME}
 

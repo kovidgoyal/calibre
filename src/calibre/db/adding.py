@@ -16,6 +16,7 @@ from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 
 def splitext(path):

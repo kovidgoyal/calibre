@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.polish.container import OEB_DOCS, seconds_to_timestamp
 from calibre.ebooks.oeb.polish.errors import UnsupportedContainerType
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.spell.break_iterator import split_into_sentences_for_tts_embed
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 
 
 class Sentence(NamedTuple):

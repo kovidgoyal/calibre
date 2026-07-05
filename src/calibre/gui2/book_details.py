@@ -66,7 +66,7 @@ from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
-from calibre.utils.localization import is_rtl, langnames_to_langcodes
+from calibre.utils.localization import _, is_rtl, langnames_to_langcodes
 from calibre.utils.resources import get_path as P
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes

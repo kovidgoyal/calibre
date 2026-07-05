@@ -27,6 +27,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 
 class ItemDelegate(QStyledItemDelegate):

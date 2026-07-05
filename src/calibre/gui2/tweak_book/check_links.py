@@ -25,7 +25,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import current_container, editors, set_current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 def get_data(name):

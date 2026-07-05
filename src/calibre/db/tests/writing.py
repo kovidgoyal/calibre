@@ -17,6 +17,7 @@ from calibre.db.tests.base import IMG, BaseTest
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.localization import _
 
 
 class WritingTest(BaseTest):

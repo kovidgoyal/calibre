@@ -47,6 +47,7 @@ from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, get_move_cou
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.ui import get_gui
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.localization import _
 
 
 class DefaultAuthorLink(QWidget):

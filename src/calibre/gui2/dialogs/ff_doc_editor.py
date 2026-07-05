@@ -19,6 +19,7 @@ from calibre.gui2.dialogs.template_general_info import GeneralInformationDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.localization import _
 
 
 class FFDocEditor(Dialog):

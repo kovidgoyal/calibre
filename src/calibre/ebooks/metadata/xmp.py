@@ -19,7 +19,7 @@ from calibre.ebooks.metadata import check_doi, check_isbn, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
 from calibre.utils.date import isoformat, now, parse_date
-from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 _xml_declaration = re.compile(r'<\?xml[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE)

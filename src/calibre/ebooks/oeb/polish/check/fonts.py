@@ -14,6 +14,7 @@ from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.fonts.utils import UnsupportedFont, get_all_font_names, is_font_embeddable
+from calibre.utils.localization import _
 
 
 class InvalidFont(BaseError):

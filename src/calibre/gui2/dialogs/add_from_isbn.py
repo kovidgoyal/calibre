@@ -12,6 +12,7 @@ from qt.core import QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLay
 from calibre.constants import iswindows
 from calibre.ebooks.metadata import check_isbn, normalize_isbn
 from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre.utils.localization import _
 
 
 class AddFromISBN(QDialog):

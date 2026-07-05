@@ -8,6 +8,7 @@ from calibre.gui2 import error_dialog, safe_open_url
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
+from calibre.utils.localization import _
 
 
 def column_template_placeholder_text():

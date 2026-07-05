@@ -7,6 +7,7 @@ import shutil
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
+from calibre.utils.localization import _
 
 NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
 

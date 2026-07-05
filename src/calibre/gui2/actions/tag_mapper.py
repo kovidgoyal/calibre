@@ -5,7 +5,7 @@ from qt.core import QDialog
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class TagMapAction(InterfaceAction):

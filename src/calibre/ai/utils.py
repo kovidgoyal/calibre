@@ -21,6 +21,7 @@ from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, Citation, Web
 from calibre.constants import __version__
 from calibre.customize import AIProviderPlugin
 from calibre.customize.ui import available_ai_provider_plugins
+from calibre.utils.localization import _
 
 
 def atomic_write(path, data):

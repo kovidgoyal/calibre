@@ -4,6 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from calibre.gui2.convert.txt_output import PluginWidget as TXTPluginWidget
+from calibre.utils.localization import _
 
 
 class PluginWidget(TXTPluginWidget):

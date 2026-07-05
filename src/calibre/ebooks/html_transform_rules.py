@@ -12,6 +12,7 @@ from lxml import etree
 from calibre.ebooks.metadata.tag_mapper import uniq
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath
 from calibre.ebooks.oeb.parse_utils import XHTML
+from calibre.utils.localization import _
 
 
 def non_empty_validator(label, val):

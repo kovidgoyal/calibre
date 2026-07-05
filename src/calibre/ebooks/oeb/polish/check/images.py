@@ -11,6 +11,7 @@ from PIL import Image
 from calibre import as_unicode
 from calibre.ebooks.oeb.polish.check.base import WARN, BaseError
 from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
+from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
 

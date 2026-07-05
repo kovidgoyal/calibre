@@ -33,6 +33,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.icu import contains, primary_contains, primary_startswith, sort_key
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
+from calibre.utils.localization import _
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
@@ -548,7 +549,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         st = icu_lower(str(self.find_box.currentText()))
         if not st:
             return
-        for _ in range(self.table.rowCount()*2):
+        for _x in range(self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
             r = (self.start_find_pos//2) % self.table.rowCount()
             c = self.start_find_pos % 2

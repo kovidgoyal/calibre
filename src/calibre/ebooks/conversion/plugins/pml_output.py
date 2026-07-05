@@ -7,6 +7,7 @@ import os
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.localization import _
 
 
 class PMLOutput(OutputFormatPlugin):

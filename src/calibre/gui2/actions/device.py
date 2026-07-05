@@ -12,6 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 from calibre.utils.smtp import config as email_config
 
 

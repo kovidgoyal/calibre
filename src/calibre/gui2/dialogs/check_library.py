@@ -38,6 +38,7 @@ from calibre import as_unicode, prints
 from calibre.gui2 import open_local_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CHECKS, CheckLibrary
+from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file, delete_tree
 
 

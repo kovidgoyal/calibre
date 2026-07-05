@@ -21,6 +21,7 @@ from calibre.db.notes.schema_upgrade import SchemaUpgrade
 from calibre.utils.copy_files import WINDOWS_SLEEP_FOR_RETRY_TIME
 from calibre.utils.filenames import copyfile_using_links, make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 if iswindows:
     from calibre_extensions import winutil
@@ -209,7 +210,7 @@ class Notes:
             return note_id
         with open(os.path.join(srcdir, DOC_NAME), 'rb') as src:
             try:
-                a, b, _ = src.read().split(SEP, 2)
+                a, b, _x = src.read().split(SEP, 2)
             except Exception:
                 return note_id
             marked_up_text, searchable_text = a.decode('utf-8'), b.decode('utf-8')
@@ -471,7 +472,7 @@ class Notes:
     def export_non_db_data(self, zf):
         import zipfile
         def add_dir(which):
-            for dirpath, _, filenames in os.walk(make_long_path_useable(which)):
+            for dirpath, _x, filenames in os.walk(make_long_path_useable(which)):
                 for f in filenames:
                     path = os.path.join(dirpath, f)
                     with open(path, 'rb') as src:

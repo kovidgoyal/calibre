@@ -18,6 +18,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
+from calibre.utils.localization import _
 
 # If the specified screen has either dimension larger than this value, no image
 # rescaling is done (we assume that it is a tablet output profile)

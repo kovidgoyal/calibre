@@ -21,6 +21,7 @@ from calibre.gui2 import error_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
+from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
 

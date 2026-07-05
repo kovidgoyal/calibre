@@ -13,6 +13,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.metadata import MetaInformation, check_doi, check_isbn, string_to_authors
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from calibre.utils.localization import _
 
 
 def get_tools():

@@ -74,6 +74,7 @@ from calibre.utils.filenames import (
 from calibre.utils.formatter_functions import compile_user_template_functions, formatter_functions, load_user_template_functions, unload_user_template_functions
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import cmp, reraise
 

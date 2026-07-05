@@ -53,6 +53,7 @@ from calibre.ebooks.oeb.polish.utils import OEB_FONTS, CommentFinder, PositionFi
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.filenames import hardlink_file, make_long_path_useable, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile

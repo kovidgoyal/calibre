@@ -34,6 +34,7 @@ from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks.conversion.config import GuiRecommendations, load_defaults, load_specifics
 from calibre.ebooks.conversion.config import save_defaults as save_defaults_
 from calibre.gui2.font_family_chooser import FontFamilyChooser
+from calibre.utils.localization import _
 
 
 def config_widget_for_input_plugin(plugin):

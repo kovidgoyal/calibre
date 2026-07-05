@@ -8,6 +8,7 @@ from contextlib import suppress
 
 from calibre.devices.usbms.driver import USBMS, BookList
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.utils.localization import _
 
 # This class is added to the standard device plugin chain, so that it can
 # be configured. It has invalid vendor_id etc, so it will never match a

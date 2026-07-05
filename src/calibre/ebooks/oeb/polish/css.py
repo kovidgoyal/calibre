@@ -18,7 +18,7 @@ from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class SelectorStatus:

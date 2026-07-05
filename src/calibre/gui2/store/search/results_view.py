@@ -10,6 +10,7 @@ from calibre import fit_image
 from calibre.gui2 import empty_index
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.search.models import Matches
+from calibre.utils.localization import _
 
 
 class ImageDelegate(QStyledItemDelegate):

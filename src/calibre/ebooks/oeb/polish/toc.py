@@ -21,7 +21,7 @@ from calibre.ebooks.oeb.polish.opf import get_book_language, set_guide_item
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
 from calibre.ebooks.oeb.polish.utils import extract, guess_type
 from calibre.translations.dynamic import translate
-from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.resources import get_path as P
 
 ns = etree.FunctionNamespace('calibre_xpath_extensions')

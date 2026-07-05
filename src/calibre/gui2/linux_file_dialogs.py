@@ -13,6 +13,7 @@ from qt.core import QEventLoop
 from calibre import force_unicode
 from calibre.constants import DEBUG, filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
+from calibre.utils.localization import _
 from polyglot.builtins import reraise
 
 

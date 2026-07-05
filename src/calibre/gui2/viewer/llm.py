@@ -15,7 +15,7 @@ from calibre.gui2.chat_widget import Button
 from calibre.gui2.llm import ActionData, ConverseWidget, LLMActionsSettingsWidget, LLMSettingsDialogBase, LocalisedResults, prompt_sep
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.highlights import HighlightColorCombo
-from calibre.utils.localization import ui_language_as_english
+from calibre.utils.localization import _, ui_language_as_english
 from polyglot.binary import from_hex_unicode
 
 
@@ -55,7 +55,7 @@ class Action(ActionData):
 
     @property
     def uses_selected_text(self) -> bool:
-        for _, fname, _, _ in string.Formatter().parse(self.prompt_template):
+        for _x, fname, _x, _x in string.Formatter().parse(self.prompt_template):
             if fname == 'selected':
                 return True
         return False
@@ -202,8 +202,9 @@ class LLMPanel(ConverseWidget):
         if not self.current_selected_text:
             return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
-        self.add_note_requested.emit(
-            history_for_record.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))
+        if history_for_record is not None:
+            self.add_note_requested.emit(
+                history_for_record.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
     def handle_chat_link(self, qurl: QUrl) -> bool:
         match qurl.host():
@@ -257,7 +258,7 @@ class LLMSettingsWidget(LLMActionsSettingsWidget):
     def set_actions_in_prefs(self, s: dict[str, Any]) -> None:
         vprefs.set('llm_quick_actions', s)
 
-    def create_custom_widgets(self) -> Iterator[str, QWidget]:
+    def create_custom_widgets(self) -> Iterator[tuple[str, QWidget]]:
         yield _('&Highlight style:'), HighlightWidget(self)
         yield '', LocalisedResults()
 # }}}

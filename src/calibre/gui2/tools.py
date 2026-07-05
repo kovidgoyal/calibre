@@ -29,6 +29,7 @@ from calibre.gui2.convert.metadata import create_cover_file, create_opf_file
 from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.config import prefs
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 

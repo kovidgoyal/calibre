@@ -9,6 +9,7 @@ from calibre.gui2 import gprefs, safe_open_url
 from calibre.gui2.book_details import resolved_css
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.library.comments import markdown as get_markdown
+from calibre.utils.localization import _
 
 
 class Preview(HTMLDisplay):

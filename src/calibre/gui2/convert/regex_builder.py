@@ -16,6 +16,7 @@ from calibre.gui2.widgets2 import to_plain_text
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from calibre.utils.localization import _
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):

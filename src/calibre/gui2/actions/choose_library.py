@@ -49,7 +49,7 @@ from calibre.library import current_library_name
 from calibre.startup import connect_lambda
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 def db_class():

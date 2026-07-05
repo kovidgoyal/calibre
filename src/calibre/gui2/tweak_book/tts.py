@@ -12,6 +12,7 @@ from calibre.db.utils import human_readable_interval
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
+from calibre.utils.localization import _
 
 
 class EngineSettingsWidget(QWidget):

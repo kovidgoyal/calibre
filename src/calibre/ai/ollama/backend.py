@@ -16,6 +16,7 @@ from calibre.ai import ChatMessage, ChatMessageType, ChatResponse, ResultBlocked
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.prefs import pref_for_provider
 from calibre.ai.utils import chat_with_error_handler, develop_text_chat, download_data, opener
+from calibre.utils.localization import _
 
 module_version = 1  # needed for live updates
 

@@ -7,6 +7,7 @@ Device driver for the Nuut2
 '''
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class NUUT2(USBMS):

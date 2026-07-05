@@ -35,7 +35,7 @@ from calibre.ebooks.conversion.config import load_defaults
 from calibre.gui2 import error_dialog, gprefs, open_url, question_dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 from .catalog_epub_mobi_ui import Ui_Form
 

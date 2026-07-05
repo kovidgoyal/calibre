@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.utils.localization import _
 
 PAGE_SIZES = ['a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'b0', 'b1',
               'b2', 'b3', 'b4', 'b5', 'b6', 'legal', 'letter']

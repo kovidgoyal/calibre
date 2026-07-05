@@ -42,6 +42,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import config, ensure_app, load_builtin_fonts, pixmap_to_data
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import JSONConfig
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
 # Default settings {{{

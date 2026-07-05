@@ -35,7 +35,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH

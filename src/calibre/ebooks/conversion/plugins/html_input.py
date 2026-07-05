@@ -16,7 +16,7 @@ from calibre.constants import filesystem_encoding, isbsd, islinux
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename, case_ignoring_open_file, get_long_path_name
 from calibre.utils.imghdr import what
-from calibre.utils.localization import __, get_lang
+from calibre.utils.localization import _, __, get_lang
 from polyglot.builtins import as_unicode
 
 

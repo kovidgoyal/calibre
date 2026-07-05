@@ -16,6 +16,7 @@ from calibre.gui2 import Application, error_dialog, gprefs, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, get_move_count, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -288,7 +289,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def up_column(self, use_kbd_modifiers):
         count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
-        for _ in range(count):
+        for _x in range(count):
             row = self.opt_columns.currentRow()
             if row > 0:
                 self.opt_columns.setSortingEnabled(False)
@@ -305,7 +306,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def down_column(self, use_kbd_modifiers):
         count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
-        for _ in range(count):
+        for _x in range(count):
             row = self.opt_columns.currentRow()
             if row < self.opt_columns.rowCount()-1:
                 self.opt_columns.setSortingEnabled(False)

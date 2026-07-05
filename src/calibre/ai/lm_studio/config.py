@@ -12,6 +12,7 @@ from calibre.ai.prefs import pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, plugin_for_name
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets import BusyCursor
+from calibre.utils.localization import _
 
 pref = partial(pref_for_provider, LMStudioAI.name)
 

@@ -28,7 +28,7 @@ from calibre.translations.dynamic import translate
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.icu import title_case as icu_title
-from calibre.utils.localization import __, is_rtl_lang
+from calibre.utils.localization import _, __, is_rtl_lang
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote as urlunquote

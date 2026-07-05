@@ -3,6 +3,7 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.kindle.apnx import APNXBuilder
+from calibre.utils.localization import _
 
 '''
 Device driver for Amazon's Kindle

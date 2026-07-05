@@ -12,6 +12,7 @@ from calibre.gui2.fts.search import ResultsPanel
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import _
 
 
 class FTSDialog(Dialog):

@@ -9,6 +9,7 @@ from functools import lru_cache
 from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
 from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
+from calibre.utils.localization import _
 
 dark_link_color = QColor(dark_link_color)
 dark_color = QColor(45,45,45)

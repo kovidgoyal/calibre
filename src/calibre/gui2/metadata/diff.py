@@ -50,7 +50,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.startup import connect_lambda
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 Widgets = namedtuple('Widgets', 'new old label button')
 

@@ -13,6 +13,7 @@ from qt.core import Qt
 from calibre.gui2 import Dispatcher
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.tools import fetch_scheduled_recipe
+from calibre.utils.localization import _
 
 
 class FetchNewsAction(InterfaceAction):

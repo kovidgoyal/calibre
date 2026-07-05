@@ -10,6 +10,7 @@ import re
 
 from calibre import force_unicode
 from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.localization import _
 from polyglot.builtins import int_to_byte
 
 title_pat    = re.compile(br'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)

@@ -38,7 +38,7 @@ from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class TagBrowserMixin:  # {{{

@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import MetaInformation, authors_to_sort_string, str
 from calibre.ebooks.metadata.meta import get_metadata, set_metadata
 from calibre.utils.config import StringConfig
 from calibre.utils.date import parse_date
+from calibre.utils.localization import _
 
 USAGE=_('%prog ebook_file [options]\n') + \
 _('''

@@ -12,6 +12,7 @@ from calibre.gui2 import config, gprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import LazyConfigWidgetBase, set_help_tips
 from calibre.gui2.preferences.look_feel_tabs.cover_view_ui import Ui_cover_browser_tab
+from calibre.utils.localization import _
 
 
 class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):

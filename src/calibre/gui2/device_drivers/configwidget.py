@@ -10,6 +10,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.localization import _
 
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):

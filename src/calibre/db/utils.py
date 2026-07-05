@@ -19,7 +19,7 @@ from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows, preferred_encoding
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import canonicalize_lang, ngettext
+from calibre.utils.localization import _, canonicalize_lang, ngettext
 
 
 def atomic_write(path: str, data: str | bytes) -> None:

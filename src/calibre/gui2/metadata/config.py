@@ -12,6 +12,7 @@ from qt.core import QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class FieldsModel(FM):  # {{{

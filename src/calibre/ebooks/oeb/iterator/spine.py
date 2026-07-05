@@ -13,6 +13,7 @@ from operator import attrgetter
 
 from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.localization import _
 
 
 def character_count(html):

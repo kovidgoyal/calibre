@@ -11,6 +11,7 @@ import os
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile, safe_replace
 
 

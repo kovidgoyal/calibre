@@ -36,6 +36,7 @@ from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.gui2.progress_indicator import WaitLayout
 from calibre.libunzip import comic_exts
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.localization import _
 
 
 class CoverDelegate(QStyledItemDelegate):

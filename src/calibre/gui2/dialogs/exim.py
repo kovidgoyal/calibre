@@ -37,6 +37,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.exim import Importer, all_known_libraries, export, import_data
 from calibre.utils.icu import numeric_sort_key
+from calibre.utils.localization import _
 
 
 def disk_usage(path_to_dir, abort=None):

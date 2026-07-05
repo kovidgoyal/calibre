@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.date import utcnow
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 
 class BookList(BL):

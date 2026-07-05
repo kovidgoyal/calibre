@@ -38,6 +38,7 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import capitalize, contains, primary_contains, primary_startswith
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
+from calibre.utils.localization import _
 from calibre.utils.titlecase import titlecase
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
@@ -607,7 +608,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         find_text = str(self.search_box.currentText())
         if not find_text:
             return
-        for _ in range(self.table.rowCount()):
+        for _x in range(self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text, self.table.item(r, VALUE_COLUMN).text()) != inverted:
                 self.table.setCurrentItem(self.table.item(r, VALUE_COLUMN))

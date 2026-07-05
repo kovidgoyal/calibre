@@ -50,7 +50,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 

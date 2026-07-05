@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import MessagePopup
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 single_shot = partial(QTimer.singleShot, 10)
 

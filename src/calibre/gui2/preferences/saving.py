@@ -11,6 +11,7 @@ from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.saving_ui import Ui_Form
 from calibre.library.save_to_disk import config
 from calibre.utils.config import ConfigProxy
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

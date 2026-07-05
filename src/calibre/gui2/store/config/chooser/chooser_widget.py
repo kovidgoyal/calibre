@@ -6,6 +6,7 @@ from qt.core import QComboBox, QDialog, QIcon, QLineEdit, QWidget
 
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class StoreChooserWidget(QWidget, Ui_Form):

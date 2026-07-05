@@ -9,6 +9,7 @@ import os
 import sys
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
+from calibre.utils.localization import _
 
 
 class LRFOptions:

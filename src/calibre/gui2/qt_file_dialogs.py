@@ -7,6 +7,7 @@ import os
 from qt.core import QDialog, QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
+from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
 

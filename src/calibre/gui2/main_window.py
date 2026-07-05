@@ -13,6 +13,7 @@ from calibre import as_unicode, prepare_string_for_xml, prints
 from calibre.constants import iswindows
 from calibre.gui2 import error_dialog
 from calibre.utils.config import OptionParser
+from calibre.utils.localization import _
 from polyglot.io import PolyglotStringIO
 
 

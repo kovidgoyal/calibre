@@ -14,6 +14,7 @@ from calibre.library.caches import set_use_primary_find_in_search
 from calibre.utils.config import prefs
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

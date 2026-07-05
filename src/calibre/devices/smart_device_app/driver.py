@@ -39,6 +39,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize
 from calibre.utils.filenames import shorten_components_to
 from calibre.utils.ipc import eintr_retry_call
+from calibre.utils.localization import _
 from calibre.utils.mdns import get_all_ips
 from calibre.utils.mdns import publish as publish_zeroconf
 from calibre.utils.mdns import unpublish as unpublish_zeroconf

@@ -7,6 +7,7 @@ Device driver for BOEYE serial readers
 '''
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class BOEYE_BEX(USBMS):

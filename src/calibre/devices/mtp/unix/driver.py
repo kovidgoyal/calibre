@@ -17,6 +17,7 @@ from calibre.constants import islinux, ismacos
 from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenActionNeeded, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug, synchronous
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre.utils.localization import _
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')

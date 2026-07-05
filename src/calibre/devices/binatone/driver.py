@@ -7,6 +7,7 @@ Device driver for Bookeen's Cybook Gen 3
 '''
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class README(USBMS):

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 from calibre.constants import ismacos, iswindows, numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator

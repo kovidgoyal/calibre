@@ -32,6 +32,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
 )
 from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
 from calibre.utils.icu import utf16_length
+from calibre.utils.localization import _
 
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'

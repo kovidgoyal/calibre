@@ -68,7 +68,7 @@ from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.widgets2 import CenteredToolButton
 from calibre.library.comments import merge_comments as merge_two_comments
 from calibre.utils.date import local_tz
-from calibre.utils.localization import canonicalize_lang, ngettext
+from calibre.utils.localization import _, canonicalize_lang, ngettext
 
 BASE_TITLE = _('Edit metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',

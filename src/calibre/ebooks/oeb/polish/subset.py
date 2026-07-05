@@ -14,6 +14,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XPath, css_text
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
 from calibre.utils.fonts.subset import subset
 from calibre.utils.fonts.utils import get_font_names
+from calibre.utils.localization import _
 
 
 def remove_font_face_rules(container, sheet, remove_names, base):

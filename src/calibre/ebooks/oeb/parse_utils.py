@@ -12,6 +12,7 @@ from lxml import etree
 from calibre import force_unicode, xml_replace_entities
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
+from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_html_fromstring, safe_xml_fromstring
 from calibre_extensions.speedup import barename, namespace
 

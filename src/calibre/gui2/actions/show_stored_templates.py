@@ -3,6 +3,7 @@
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
+from calibre.utils.localization import _
 
 
 class ShowTemplateFunctionsAction(InterfaceAction):

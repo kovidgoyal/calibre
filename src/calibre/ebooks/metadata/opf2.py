@@ -35,7 +35,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.date import isoformat, parse_date
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.urllib import unquote
 

@@ -9,6 +9,7 @@ from qt.core import QApplication, QIcon, Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.plugin_updater import FILTER_ALL, FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
+from calibre.utils.localization import _
 
 
 class PluginUpdaterAction(InterfaceAction):

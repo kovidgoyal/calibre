@@ -85,6 +85,7 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
+from calibre.utils.localization import _
 
 # Cleanup Qt markup {{{
 

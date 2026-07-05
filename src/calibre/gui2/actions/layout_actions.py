@@ -10,6 +10,7 @@ from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.gui2.geometry import _restore_geometry, delete_geometry, save_geometry
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class Panel(Enum):

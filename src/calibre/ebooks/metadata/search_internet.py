@@ -4,6 +4,8 @@
 
 from urllib.parse import quote, quote_plus
 
+from calibre.utils.localization import _
+
 AUTHOR_SEARCHES = {
     'goodreads':
     'https://www.goodreads.com/book/author/{author}',

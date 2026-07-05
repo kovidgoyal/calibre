@@ -9,6 +9,7 @@ import os
 from urllib.parse import urlparse
 
 from calibre.ebooks.pdf.render.common import Array, Dictionary, Name, String, UTF16String, current_log
+from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
 

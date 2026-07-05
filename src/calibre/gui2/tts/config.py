@@ -39,6 +39,7 @@ from calibre.gui2.tts.types import (
     load_config,
 )
 from calibre.gui2.widgets2 import Dialog, QComboBox
+from calibre.utils.localization import _
 
 embedding_engine_name = 'piper'
 

@@ -19,6 +19,7 @@ from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
+from calibre.utils.localization import _
 from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_image_path as I

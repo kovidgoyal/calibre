@@ -47,7 +47,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import device_prefs, prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, dt_factory, is_date_undefined, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import calibre_langcode_to_name, ngettext
+from calibre.utils.localization import _, calibre_langcode_to_name, ngettext
 from calibre.utils.resources import get_path as P
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 from calibre_extensions.imageops import load_from_data_without_gil

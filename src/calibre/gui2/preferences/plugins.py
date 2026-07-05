@@ -29,6 +29,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.utils.icu import lower
+from calibre.utils.localization import _
 from calibre.utils.search_query_parser import SearchQueryParser
 
 

@@ -27,6 +27,7 @@ from calibre.library.save_to_disk import find_plugboard, get_path_components, pl
 from calibre.ptempfile import PersistentTemporaryDirectory, SpooledTemporaryFile
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
+from calibre.utils.localization import _
 
 BookId = namedtuple('BookId', 'title authors')
 

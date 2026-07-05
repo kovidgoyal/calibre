@@ -13,6 +13,7 @@ from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 

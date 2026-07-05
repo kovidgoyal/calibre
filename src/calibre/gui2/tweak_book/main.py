@@ -13,6 +13,7 @@ from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_p
 from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_parser
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
+from calibre.utils.localization import _
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'

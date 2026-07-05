@@ -19,6 +19,7 @@ from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGen
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.pdb.header import PdbHeaderReader
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from polyglot.builtins import as_bytes, as_unicode
 

@@ -9,6 +9,7 @@ import os
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class PALMPRE(USBMS):

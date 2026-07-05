@@ -7,6 +7,7 @@ from qt.core import QDialog, QDialogButtonBox, QLabel, QProgressBar, QSize, Qt, 
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding
 from calibre.gui2 import error_dialog, info_dialog, question_dialog, warning_dialog
+from calibre.utils.localization import _
 
 
 class DBRestore(QDialog):

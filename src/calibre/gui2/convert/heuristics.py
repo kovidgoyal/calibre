@@ -8,7 +8,7 @@ from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.heuristics_ui import Ui_Form
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class HeuristicsWidget(Widget, Ui_Form):

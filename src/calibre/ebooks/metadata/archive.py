@@ -10,7 +10,7 @@ from contextlib import closing
 from posixpath import basename
 
 from calibre.customize import FileTypePlugin
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 
 
 def is_comic(list_of_names):

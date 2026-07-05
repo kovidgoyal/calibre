@@ -17,6 +17,7 @@ from calibre.ebooks.docx.names import SVG_BLIP_URI, USE_LOCAL_DPI_URI
 from calibre.ebooks.oeb.base import urlquote, urlunquote
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
 Image = namedtuple('Image', 'rid fname width height fmt item')

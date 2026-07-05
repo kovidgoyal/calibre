@@ -3,6 +3,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.utils.config_base import Config, ConfigProxy
+from calibre.utils.localization import _
 
 
 class DeviceConfig:

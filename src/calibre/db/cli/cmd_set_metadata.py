@@ -9,6 +9,7 @@ from calibre.ebooks.metadata.book.base import field_from_string
 from calibre.ebooks.metadata.book.serialize import read_cover
 from calibre.ebooks.metadata.opf import get_metadata
 from calibre.srv.changes import metadata
+from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()

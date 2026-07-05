@@ -20,7 +20,7 @@ from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize, lower, swapcase, upper
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.resources import get_path as P
 from calibre.utils.titlecase import titlecase
 from polyglot.io import PolyglotStringIO

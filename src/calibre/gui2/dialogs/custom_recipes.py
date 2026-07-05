@@ -42,7 +42,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id
 from polyglot.builtins import as_bytes, as_unicode

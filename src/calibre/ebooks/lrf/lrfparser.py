@@ -15,6 +15,7 @@ from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import BookAttr, Font, PageTree, StyleObject, Text, TOCObject, get_object, ruby_tags
 from calibre.utils.config import OptionParser
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.localization import _
 
 
 class LRFDocument(LRFMetaFile):

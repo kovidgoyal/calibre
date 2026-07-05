@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.sources.covers import download_cover, run_download
 from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.date import as_utc
+from calibre.utils.localization import _
 from calibre.utils.logging import GUILog
 from polyglot.builtins import iteritems
 from polyglot.queue import Empty, Queue

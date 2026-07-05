@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.polish.check.main import fix_errors, run_checks
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.widgets import BusyCursor
+from calibre.utils.localization import _
 
 
 def icon_for_level(level):

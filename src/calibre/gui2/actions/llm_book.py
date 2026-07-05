@@ -6,6 +6,7 @@ from functools import partial
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.localization import _
 
 
 class LLMBookAction(InterfaceAction):

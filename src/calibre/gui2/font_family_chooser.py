@@ -41,6 +41,7 @@ from qt.core import (
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, empty_index, error_dialog, info_dialog
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 
 def add_fonts(parent):

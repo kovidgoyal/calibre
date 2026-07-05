@@ -12,6 +12,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, Formatter, get_component_metadata, preprocess_template
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.localization import _
 
 
 class SaveTemplate(QWidget, Ui_Form):

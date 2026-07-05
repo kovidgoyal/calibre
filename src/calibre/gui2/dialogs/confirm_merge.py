@@ -17,6 +17,7 @@ from calibre.gui2.widgets2 import Dialog, FlowLayout
 from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.date import format_date
+from calibre.utils.localization import _
 
 
 class Target(QTextBrowser):

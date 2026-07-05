@@ -16,6 +16,7 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.books import BookList, CollectionsBookList
 from calibre.devices.usbms.driver import USBMS
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 
 DBPATH = 'paladin/database/books.db'
 

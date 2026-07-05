@@ -14,6 +14,7 @@ from calibre.gui2.preferences.look_feel_tabs import RulesSetting
 from calibre.gui2.preferences.look_feel_tabs.cover_grid_ui import Ui_cover_grid_tab
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):

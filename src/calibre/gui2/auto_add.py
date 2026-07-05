@@ -15,6 +15,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.localization import _
 from calibre.utils.tdir_in_cache import tdir_in_cache
 
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}

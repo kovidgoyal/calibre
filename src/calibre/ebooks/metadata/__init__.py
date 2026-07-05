@@ -16,6 +16,7 @@ from urllib.parse import quote, urlparse
 
 from calibre import force_unicode, guess_type, prints, relpath
 from calibre.utils.config_base import tweaks
+from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
 from polyglot.urllib import unquote
 

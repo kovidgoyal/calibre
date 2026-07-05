@@ -10,6 +10,8 @@ import numbers
 
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QMessageBox, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
+from calibre.utils.localization import _
+
 
 def step_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)

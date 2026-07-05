@@ -16,7 +16,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.library.comments import comments_as_markdown
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from polyglot.binary import from_hex_unicode
 
 

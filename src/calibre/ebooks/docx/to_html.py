@@ -31,7 +31,7 @@ from calibre.ebooks.docx.tables import Tables
 from calibre.ebooks.docx.theme import Theme
 from calibre.ebooks.docx.toc import create_toc
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, lang_as_iso639_1
 
 NBSP = '\xa0'
 

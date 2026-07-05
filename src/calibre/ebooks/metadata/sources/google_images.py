@@ -10,6 +10,7 @@ from collections import OrderedDict
 
 from calibre import random_user_agent
 from calibre.ebooks.metadata.sources.base import Option, Source
+from calibre.utils.localization import _
 
 
 def parse_html(raw):

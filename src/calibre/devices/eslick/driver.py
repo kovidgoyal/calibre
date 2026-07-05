@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class ESLICK(USBMS):

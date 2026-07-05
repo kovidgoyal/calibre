@@ -14,6 +14,7 @@ from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QL
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 
 SUPPORTED = {'EPUB', 'AZW3'}

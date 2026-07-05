@@ -9,6 +9,7 @@ import shutil
 from calibre.ebooks.oeb.base import OEB_DOCS, OPF, XLINK, XPath, xml2text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders, replace_links
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 
 
 def set_azw3_cover(container, cover_path, report, options=None):

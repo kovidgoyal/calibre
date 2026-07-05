@@ -28,6 +28,7 @@ from qt.core import (
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
 

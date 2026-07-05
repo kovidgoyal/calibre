@@ -38,6 +38,7 @@ from qt.core import (
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
+from calibre.utils.localization import _
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '

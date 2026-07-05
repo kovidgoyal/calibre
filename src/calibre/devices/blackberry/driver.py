@@ -3,6 +3,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class BLACKBERRY(USBMS):

@@ -7,6 +7,7 @@ from typing import NamedTuple
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.customize import Plugin
+from calibre.utils.localization import _
 
 FAKE_DEVICE_SERIAL = '__fake_device_for_use_with_connect_to_folder__:'
 

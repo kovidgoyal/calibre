@@ -74,7 +74,7 @@ from calibre.utils.date import (
 )
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import sort_key, strcmp
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 def save_dialog(parent, title, msg, det_msg=''):

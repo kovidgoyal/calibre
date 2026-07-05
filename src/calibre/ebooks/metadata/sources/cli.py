@@ -19,6 +19,7 @@ from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.config import OptionParser
 from calibre.utils.img import save_cover_data_to
+from calibre.utils.localization import _
 
 
 def option_parser():

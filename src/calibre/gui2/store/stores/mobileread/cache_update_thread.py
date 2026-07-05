@@ -13,6 +13,7 @@ from qt.core import QObject, pyqtSignal
 
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult
+from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_html_fromstring
 
 

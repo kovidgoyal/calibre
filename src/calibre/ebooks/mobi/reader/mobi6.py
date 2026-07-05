@@ -27,6 +27,7 @@ from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data_to
 from calibre.utils.imghdr import what
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_html_fromstring
 

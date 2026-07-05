@@ -43,6 +43,7 @@ from calibre.gui2 import error_dialog, gprefs, safe_open_url
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 pref = partial(pref_for_provider, OpenRouterAI.name)
 

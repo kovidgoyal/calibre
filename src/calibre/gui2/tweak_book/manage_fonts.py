@@ -42,7 +42,7 @@ from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.fonts.scanner import NoFonts, font_scanner
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import primary_sort_key as sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 def rule_for_font(font_file, added_name):

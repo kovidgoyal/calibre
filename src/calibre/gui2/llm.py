@@ -51,7 +51,7 @@ from calibre.gui2.chat_widget import Button, ChatWidget, Header
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import ui_language_as_english
+from calibre.utils.localization import _, ui_language_as_english
 from calibre.utils.logging import ERROR, WARN
 from calibre.utils.short_uuid import uuid4
 from polyglot.binary import as_hex_unicode

@@ -39,6 +39,7 @@ from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.widgets import PythonHighlighter, stylesheet_for_lineedit
 from calibre.utils.config_base import default_tweaks_raw, normalize_tweak, parse_python_tweaks, read_custom_tweaks, write_custom_tweaks
 from calibre.utils.icu import lower
+from calibre.utils.localization import _
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
 ROOT = QModelIndex()

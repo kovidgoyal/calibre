@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QDialog
 
 from calibre.gui2.dialogs.drm_error_ui import Ui_Dialog
-from calibre.utils.localization import localize_website_link
+from calibre.utils.localization import _, localize_website_link
 
 
 class DRMErrorMessage(QDialog, Ui_Dialog):

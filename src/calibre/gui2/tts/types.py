@@ -12,7 +12,7 @@ from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidg
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.utils.config import JSONConfig
 from calibre.utils.config_base import tweaks
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 
 CONFIG_NAME = 'tts'
 TTS_EMBEDED_CONFIG = 'tts-embedded'

@@ -14,6 +14,7 @@ import re
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile
 
 

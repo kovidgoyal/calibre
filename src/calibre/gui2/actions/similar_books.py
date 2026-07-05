@@ -12,6 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.startup import connect_lambda
 from calibre.utils.config import tweaks
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 
 class SimilarBooksAction(InterfaceAction):

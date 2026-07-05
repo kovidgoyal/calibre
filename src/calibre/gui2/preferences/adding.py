@@ -15,6 +15,7 @@ from calibre.gui2.preferences import AbortCommit, CommaSeparatedList, ConfigWidg
 from calibre.gui2.preferences.adding_ui import Ui_Form
 from calibre.gui2.widgets import FilenamePattern
 from calibre.utils.config import prefs
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

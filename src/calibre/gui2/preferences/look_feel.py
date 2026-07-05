@@ -9,6 +9,7 @@ from qt.core import QKeySequence, QListWidgetItem, QMenu, QPoint, Qt
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

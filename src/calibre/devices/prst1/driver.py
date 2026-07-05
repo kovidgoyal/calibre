@@ -24,6 +24,7 @@ from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'

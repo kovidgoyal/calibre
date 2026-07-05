@@ -18,6 +18,7 @@ from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.oeb.base import css_text
 from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
 from calibre.ebooks.oeb.polish.utils import extract
+from calibre.utils.localization import _
 
 
 class LinkReplacer:

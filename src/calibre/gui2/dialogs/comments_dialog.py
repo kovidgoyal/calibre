@@ -11,6 +11,7 @@ from calibre.gui2 import Application, gprefs
 from calibre.gui2.comments_editor import Editor
 from calibre.gui2.widgets2 import Dialog
 from calibre.library.comments import comments_to_html
+from calibre.utils.localization import _
 
 
 class CommentsDialog(QDialog):

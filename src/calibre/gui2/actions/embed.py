@@ -11,7 +11,7 @@ from qt.core import QProgressDialog, Qt, QTimer
 from calibre import force_unicode
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class EmbedAction(InterfaceActionWithLibraryDrop):

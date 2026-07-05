@@ -13,6 +13,7 @@ from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
 from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 def sort_key_for_action(ac):

@@ -12,6 +12,7 @@ import shutil
 from calibre import CurrentDir
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 block_level_tags = (

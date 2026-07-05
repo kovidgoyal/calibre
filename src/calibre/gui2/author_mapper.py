@@ -14,6 +14,7 @@ from calibre.gui2.tag_mapper import Rules as RulesBase
 from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.gui2.tag_mapper import Tester as TesterBase
 from calibre.utils.config import JSONConfig
+from calibre.utils.localization import _
 
 author_maps = JSONConfig('author-mapping-rules')
 

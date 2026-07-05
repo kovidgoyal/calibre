@@ -12,6 +12,7 @@ from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, Qt, QVBoxLayou
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 
 
 class Choose(QDialog):

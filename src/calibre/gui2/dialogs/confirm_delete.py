@@ -10,6 +10,7 @@ from qt.core import QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QL
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.message_box import Icon
+from calibre.utils.localization import _
 
 
 class Dialog(QDialog):

@@ -33,6 +33,7 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from calibre.utils.resources import set_data
 
 

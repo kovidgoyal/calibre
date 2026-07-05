@@ -9,7 +9,7 @@ from qt.core import QUrl
 
 from calibre.gui2 import open_url
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class HelpAction(InterfaceAction):

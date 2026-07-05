@@ -25,6 +25,7 @@ from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML, rewrite_links, urldefrag, urlnormalize
 from calibre.ebooks.oeb.base import XPNSMAP as NAMESPACES
 from calibre.ebooks.oeb.polish.split import do_split
+from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)

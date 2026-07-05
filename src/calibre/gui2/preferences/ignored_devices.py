@@ -9,6 +9,7 @@ from qt.core import QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt
 from calibre.customize.ui import enable_plugin
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase):

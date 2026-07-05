@@ -9,6 +9,7 @@ Device driver for Hanlin
 import re
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class HANLINV3(USBMS):

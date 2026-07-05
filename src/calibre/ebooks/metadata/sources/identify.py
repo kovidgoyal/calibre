@@ -23,6 +23,7 @@ from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower, primary_sort_key
+from calibre.utils.localization import _
 from polyglot.builtins import as_unicode, iteritems, itervalues
 from polyglot.queue import Empty, Queue
 from polyglot.urllib import quote, urlparse

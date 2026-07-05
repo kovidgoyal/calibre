@@ -23,7 +23,7 @@ from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import iter_subsettable_fonts, subset_all_fonts
 from calibre.ebooks.oeb.polish.upgrade import upgrade_book
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from calibre.utils.logging import Log
 
 ALL_OPTS = {

@@ -12,6 +12,7 @@ from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.utils.config import prefs
+from calibre.utils.localization import _
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values

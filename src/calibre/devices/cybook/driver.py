@@ -13,6 +13,7 @@ from calibre import fsync
 from calibre.constants import isunix
 from calibre.devices.cybook import t2b, t4b
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class CYBOOK(USBMS):

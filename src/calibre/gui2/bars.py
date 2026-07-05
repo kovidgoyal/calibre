@@ -34,6 +34,7 @@ from calibre.constants import ismacos
 from calibre.gui2 import config, gprefs, native_menubar_defaults
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.widgets2 import RightClickButton
+from calibre.utils.localization import _
 
 
 class RevealBar(QWidget):  # {{{

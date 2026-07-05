@@ -12,6 +12,7 @@ from calibre.ebooks.oeb.parse_utils import ensure_namespace_prefixes
 from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS
+from calibre.utils.localization import _
 from calibre.utils.short_uuid import uuid4
 
 

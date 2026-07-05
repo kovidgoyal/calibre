@@ -5,6 +5,7 @@ __docformat__ = 'restructuredtext en'
 from io import BytesIO
 
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.utils.localization import _
 
 
 class TCRInput(InputFormatPlugin):

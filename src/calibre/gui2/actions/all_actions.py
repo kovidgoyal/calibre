@@ -9,6 +9,7 @@ from qt.core import QIcon, QMenu, Qt, QToolButton
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.gui2.preferences.toolbar import AllModel, CurrentModel
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class AllGUIActions(InterfaceAction):

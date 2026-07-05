@@ -15,6 +15,7 @@ Windows PNP strings:
 import re
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class EB600(USBMS):

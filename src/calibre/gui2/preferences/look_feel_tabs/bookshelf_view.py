@@ -19,6 +19,7 @@ from calibre.gui2.preferences.look_feel_tabs import RulesSetting
 from calibre.gui2.preferences.look_feel_tabs.bookshelf_view_ui import Ui_bookshelf_tab as Ui_Form
 from calibre.gui2.widgets2 import ColorButton
 from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.localization import _
 
 
 class LogViewer(QDialog):  # {{{

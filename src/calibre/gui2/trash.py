@@ -35,6 +35,7 @@ from calibre.gui2 import choose_dir, choose_save_file, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import _
 
 THUMBNAIL_SIZE = 60, 80
 MARGIN_SIZE = 8

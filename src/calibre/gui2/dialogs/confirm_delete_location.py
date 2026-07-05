@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QDialog, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout
 
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 
 
 class Dialog(QDialog):

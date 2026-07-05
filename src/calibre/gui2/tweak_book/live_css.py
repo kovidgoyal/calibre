@@ -32,6 +32,7 @@ from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
 from calibre.gui2.tweak_book import actions, editors, tprefs
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
+from calibre.utils.localization import _
 
 lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
 

@@ -6,6 +6,7 @@ import os
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
 from calibre.ebooks.pdb import ALL_FORMAT_WRITERS, PDBError, get_writer
+from calibre.utils.localization import _
 
 
 class PDBOutput(OutputFormatPlugin):

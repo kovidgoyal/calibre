@@ -10,6 +10,7 @@ from textwrap import TextWrapper
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 readonly = True

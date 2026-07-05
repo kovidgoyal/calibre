@@ -6,6 +6,7 @@ import os
 
 from calibre.customize.ui import available_catalog_formats, plugin_for_catalog_format
 from calibre.db.cli import integers_from_string
+from calibre.utils.localization import _
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

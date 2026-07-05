@@ -10,6 +10,7 @@ import re
 import sys
 
 from calibre.customize.ui import available_input_formats
+from calibre.utils.localization import _
 
 
 def is_supported(path):

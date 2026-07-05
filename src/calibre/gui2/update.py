@@ -13,7 +13,7 @@ from calibre.gui2 import config, dynamic, icon_resource_manager, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.config import prefs
 from calibre.utils.https import get_https_resource_securely
-from calibre.utils.localization import localize_website_link, ngettext
+from calibre.utils.localization import _, localize_website_link, ngettext
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
 

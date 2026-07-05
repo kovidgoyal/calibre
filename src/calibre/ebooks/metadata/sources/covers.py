@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.utils.img import image_from_data, image_to_data, remove_borders_from_image, save_cover_data_to
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 from polyglot.queue import Empty, Queue
 
 

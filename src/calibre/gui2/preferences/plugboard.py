@@ -20,6 +20,7 @@ from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.library.save_to_disk import find_plugboard, plugboard_any_device_value, plugboard_any_format_value, plugboard_save_to_disk_value
 from calibre.srv.content import plugboard_content_server_formats, plugboard_content_server_value
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):

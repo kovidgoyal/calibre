@@ -14,6 +14,7 @@ from calibre import isbytestring, prepare_string_for_xml
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.localization import _
 
 HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 

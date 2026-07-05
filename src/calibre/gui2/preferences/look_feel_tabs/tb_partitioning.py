@@ -12,6 +12,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.tb_partitioning_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class TBPartitionedFields(DisplayedFields):

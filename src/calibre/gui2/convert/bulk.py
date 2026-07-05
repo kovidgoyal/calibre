@@ -17,7 +17,7 @@ from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.utils.config import prefs
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from calibre.utils.logging import Log
 
 

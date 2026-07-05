@@ -35,7 +35,7 @@ from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import UNDEFINED_DATE, parse_date
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class CreateCustomColumn(QDialog):

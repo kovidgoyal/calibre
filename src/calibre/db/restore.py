@@ -23,6 +23,7 @@ from calibre.db.constants import METADATA_FILE_NAME, NOTES_DB_NAME, NOTES_DIR_NA
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp
+from calibre.utils.localization import _
 
 NON_EBOOK_EXTENSIONS = frozenset((
     'jpg', 'jpeg', 'gif', 'png', 'bmp',

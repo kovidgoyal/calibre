@@ -10,6 +10,7 @@ from functools import wraps
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
+from calibre.utils.localization import _
 
 
 def debug(*args, **kwargs):

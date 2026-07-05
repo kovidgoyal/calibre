@@ -12,6 +12,7 @@ from datetime import datetime
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.plucker.reader import DATATYPE_METADATA, MIBNUM_TO_NAME, SectionHeader
+from calibre.utils.localization import _
 
 
 def get_metadata(stream, extract_cover=True):

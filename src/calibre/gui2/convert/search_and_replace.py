@@ -14,7 +14,7 @@ from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, question_dialog
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class SearchAndReplaceWidget(Widget, Ui_Form):

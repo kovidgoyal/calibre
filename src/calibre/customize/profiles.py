@@ -3,6 +3,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.customize import Plugin as _Plugin
+from calibre.utils.localization import _
 
 FONT_SIZES = [('xx-small', 1),
               ('x-small',  None),

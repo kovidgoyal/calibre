@@ -19,6 +19,7 @@ from calibre.gui2.tweak_book import current_container, editors
 from calibre.gui2.tweak_book.completion.utils import DataError, control, data
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc import eintr_retry_call
+from calibre.utils.localization import _
 from calibre.utils.matcher import Matcher
 
 Request = namedtuple('Request', 'id type data query')

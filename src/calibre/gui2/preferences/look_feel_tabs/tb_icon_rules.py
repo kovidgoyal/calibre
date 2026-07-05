@@ -39,6 +39,7 @@ from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs.tb_icon_rules_ui import Ui_Form
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 DELETED_COLUMN = 0
 CATEGORY_COLUMN = 1

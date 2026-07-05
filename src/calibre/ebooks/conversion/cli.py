@@ -16,7 +16,7 @@ from calibre import patheq
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion import ConversionUserFeedBack
 from calibre.utils.config import OptionParser
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.logging import Log
 
 USAGE = '%prog ' + _('''\

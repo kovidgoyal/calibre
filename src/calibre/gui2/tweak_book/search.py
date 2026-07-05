@@ -61,6 +61,7 @@ from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_contains
+from calibre.utils.localization import _
 from polyglot.builtins import error_message
 
 # The search panel {{{

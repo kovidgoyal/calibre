@@ -39,7 +39,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.startup import connect_lambda
 from calibre.utils.config_base import tweaks
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class Polish(QDialog):  # {{{

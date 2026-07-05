@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.azw3_output_ui import Ui_Form
+from calibre.utils.localization import _
 
 font_family_model = None
 

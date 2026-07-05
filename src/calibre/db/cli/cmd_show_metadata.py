@@ -7,6 +7,7 @@ import sys
 
 from calibre import prints
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.utils.localization import _
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

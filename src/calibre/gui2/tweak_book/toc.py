@@ -31,6 +31,7 @@ from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import error_dialog, info_dialog, make_view_use_window_background
 from calibre.gui2.toc.main import ItemEdit, TOCView
 from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
+from calibre.utils.localization import _
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 

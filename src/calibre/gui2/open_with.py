@@ -38,6 +38,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
 ENTRY_ROLE = Qt.ItemDataRole.UserRole

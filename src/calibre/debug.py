@@ -15,6 +15,7 @@ from calibre import prints
 from calibre.constants import iswindows
 from calibre.startup import get_debug_executable
 from calibre.utils.config import OptionParser
+from calibre.utils.localization import _
 from polyglot.builtins import exec_path
 
 

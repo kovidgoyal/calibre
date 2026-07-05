@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from calibre.utils.localization import _
+
 store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'

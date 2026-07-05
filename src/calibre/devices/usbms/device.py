@@ -25,6 +25,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.interface import FAKE_DEVICE_SERIAL, DevicePlugin, ModelMetadata
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
+from calibre.utils.localization import _
 
 if ismacos:
     osx_sanitize_name_pat = re.compile(r'[.-]')

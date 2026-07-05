@@ -10,6 +10,7 @@ from calibre import prepare_string_for_xml
 from calibre.gui2 import safe_open_url
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import HTMLDisplay
+from calibre.utils.localization import _
 
 
 def get_db():

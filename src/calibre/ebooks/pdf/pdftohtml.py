@@ -14,6 +14,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.ipc import eintr_retry_call
+from calibre.utils.localization import _
 
 PDFTOHTML = 'pdftohtml' + ('.exe' if iswindows else '')
 creationflags = subprocess.DETACHED_PROCESS if iswindows else 0

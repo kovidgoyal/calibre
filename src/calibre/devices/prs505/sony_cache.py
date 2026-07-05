@@ -15,6 +15,7 @@ from calibre.devices.errors import DeviceError
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, title_sort
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 from polyglot.binary import from_base64_bytes
 
 '''

@@ -17,6 +17,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.reader.mobi6 import MobiReader
 from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
 from calibre.utils.ipc.simple_worker import fork_job
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 
 

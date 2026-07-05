@@ -19,7 +19,7 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
 from calibre.utils.formatter import TEMPLATE_ERROR
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.localization import _, calibre_langcode_to_name
 
 rendering_composite_name = '__rendering_composite__'
 

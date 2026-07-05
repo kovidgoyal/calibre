@@ -5,6 +5,7 @@ from qt.core import QDialog, QListWidgetItem, Qt
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
+from calibre.utils.localization import _
 
 
 class ListWidgetItem(QListWidgetItem):

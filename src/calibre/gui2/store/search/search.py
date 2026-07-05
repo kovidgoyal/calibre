@@ -17,6 +17,7 @@ from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import CacheUpdateThreadPool, SearchThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.localization import _
 
 
 def add_items_to_context_menu(self, menu):

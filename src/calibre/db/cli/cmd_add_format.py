@@ -6,6 +6,7 @@ import os
 from io import BytesIO
 
 from calibre.srv.changes import formats_added
+from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()

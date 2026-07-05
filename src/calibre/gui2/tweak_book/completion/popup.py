@@ -13,6 +13,7 @@ from calibre import prepare_string_for_xml, prints
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
+from calibre.utils.localization import _
 
 
 class ChoosePopupWidget(QWidget):

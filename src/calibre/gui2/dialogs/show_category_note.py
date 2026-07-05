@@ -13,6 +13,7 @@ from calibre.gui2.book_details import resolved_css
 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
+from calibre.utils.localization import _
 
 
 class Display(HTMLDisplay):

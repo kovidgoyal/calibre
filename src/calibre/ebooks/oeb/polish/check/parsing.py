@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, URL_SAFE, XHTML, XHTML_NS, urlquot
 from calibre.ebooks.oeb.polish.check.base import INFO, WARN, BaseError
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
+from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.builtins import error_message
 

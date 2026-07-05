@@ -18,6 +18,7 @@ from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import MainWindow
 from calibre.ptempfile import PersistentTemporaryDirectory, reset_base_dir
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 from calibre.utils.webengine import setup_profile
 from polyglot.binary import as_base64_bytes, from_base64_bytes
 

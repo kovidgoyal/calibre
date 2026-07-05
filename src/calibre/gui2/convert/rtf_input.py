@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.rtf_input_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):

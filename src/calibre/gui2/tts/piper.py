@@ -19,7 +19,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tts.types import TTS_EMBEDED_CONFIG, EngineSpecificSettings, Quality, TTSBackend, Voice, widget_parent
 from calibre.spell.break_iterator import PARAGRAPH_SEPARATOR, split_into_sentences_for_tts
 from calibre.utils.filenames import ascii_text
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre.utils.resources import get_path as P
 from calibre.utils.tts.piper import SynthesisResult, global_piper_instance, global_piper_instance_if_exists, play_pcm_data
 

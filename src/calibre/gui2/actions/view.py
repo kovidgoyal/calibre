@@ -19,6 +19,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 

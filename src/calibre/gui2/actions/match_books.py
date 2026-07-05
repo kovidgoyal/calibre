@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.match_books import MatchBooks
+from calibre.utils.localization import _
 
 
 class MatchBookAction(InterfaceAction):

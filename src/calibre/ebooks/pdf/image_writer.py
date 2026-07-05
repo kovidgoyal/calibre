@@ -9,6 +9,7 @@ from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
 from calibre.ebooks.pdf.render.serialize import PDFStream
 from calibre.utils.img import image_and_format_from_data
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
 
 

@@ -20,6 +20,7 @@ from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdate
 from calibre.gui2.store.stores.mobileread.models import SearchFilter
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+from calibre.utils.localization import _
 
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):

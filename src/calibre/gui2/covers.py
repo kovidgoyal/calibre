@@ -45,6 +45,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.date import now
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import primary_sort_key, sort_key
+from calibre.utils.localization import _
 
 
 class Preview(QLabel):

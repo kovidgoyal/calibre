@@ -30,6 +30,7 @@ from qt.core import (
 
 from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
+from calibre.utils.localization import _
 
 HIDE_THRESHOLD = 10
 SHOW_THRESHOLD = 50

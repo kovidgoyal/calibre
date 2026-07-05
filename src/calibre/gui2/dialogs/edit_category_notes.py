@@ -38,6 +38,7 @@ from calibre.gui2 import Application, choose_files, choose_images, choose_save_f
 from calibre.gui2.comments_editor import OBJECT_REPLACEMENT_CHAR, Editor, EditorWidget
 from calibre.gui2.widgets import ImageView
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.localization import _
 from calibre.utils.short_uuid import uuid4
 
 IMAGE_EXTENSIONS = 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'

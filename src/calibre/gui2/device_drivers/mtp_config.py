@@ -39,6 +39,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
+from calibre.utils.localization import _
 
 # We allow users to configure rules for sending audio book files as well
 BOOK_EXTENSIONS = frozenset(EBOOK_EXTENSIONS) | {'mp3', 'aac', 'aax', 'm4a', 'm4b'}

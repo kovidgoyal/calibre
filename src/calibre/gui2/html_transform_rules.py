@@ -14,6 +14,7 @@ from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase
 from calibre.gui2.tag_mapper import RuleItem as RuleItemBase
 from calibre.gui2.tag_mapper import Rules as RulesBase
 from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
+from calibre.utils.localization import _
 
 # Classes for rule edit widget {{{
 

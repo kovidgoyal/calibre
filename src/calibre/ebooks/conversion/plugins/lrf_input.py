@@ -9,6 +9,7 @@ import os
 import sys
 
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 

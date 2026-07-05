@@ -19,6 +19,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import is_date_undefined, parse_date
+from calibre.utils.localization import _
 
 
 def get_metadata(stream):

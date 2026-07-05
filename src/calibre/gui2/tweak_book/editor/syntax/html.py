@@ -27,6 +27,7 @@ from calibre.gui2.tweak_book.editor.syntax.css import create_formats as create_c
 from calibre.gui2.tweak_book.editor.syntax.css import state_map as css_state_map
 from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.spell.dictionary import parse_lang_code
+from calibre.utils.localization import _
 from calibre_extensions import html_syntax_highlighter as _speedup
 
 cdata_tags = frozenset(['title', 'textarea', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'noscript'])

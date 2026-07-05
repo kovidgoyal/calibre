@@ -33,6 +33,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.widgets2 import ColorButton
 from calibre.prints import debug_print
+from calibre.utils.localization import _
 
 
 def wrap_msg(msg):

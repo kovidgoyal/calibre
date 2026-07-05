@@ -10,6 +10,7 @@ from qt.core import QLineEdit
 
 from calibre import prints
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.utils.localization import _
 
 
 class TemplateLineEditor(QLineEdit):

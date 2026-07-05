@@ -14,7 +14,7 @@ from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.author_mapper import cap_author_token
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 from polyglot.builtins import cmp, iteritems
 
 

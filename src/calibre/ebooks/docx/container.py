@@ -16,7 +16,7 @@ from calibre.ebooks.docx.names import DOCXNamespace
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.zipfile import ZipFile

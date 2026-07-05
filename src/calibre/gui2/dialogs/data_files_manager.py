@@ -44,6 +44,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.open_with import choose_program, edit_programs, populate_menu, run_program
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 from calibre.utils.recycle_bin import delete_file
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 

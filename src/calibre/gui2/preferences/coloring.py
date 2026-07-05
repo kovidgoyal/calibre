@@ -55,7 +55,7 @@ from calibre.gui2.preferences import ListViewWithMoveByKeyPress, get_move_count
 from calibre.gui2.widgets2 import ColorButton, FlowLayout, Separator
 from calibre.library.coloring import Rule, color_row_key, conditionable_columns, displayable_columns, rule_from_template
 from calibre.utils.icu import lower, sort_key
-from calibre.utils.localization import lang_map, ngettext
+from calibre.utils.localization import _, lang_map, ngettext
 
 all_columns_string = _('All columns')
 
@@ -1334,7 +1334,7 @@ class EditRules(QWidget):  # {{{
 
     def move_rows(self, moving_up=True, use_kbd_modifiers=True):
         count = get_move_count(self.rules_view.model().rowCount()) if use_kbd_modifiers else 1
-        for _ in range(count):
+        for _x in range(count):
             sm = self.rules_view.selectionModel()
             rows = sorted(sm.selectedRows(), reverse=not moving_up)
             if rows:

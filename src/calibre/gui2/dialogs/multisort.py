@@ -9,6 +9,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions.sort import SORT_HIDDEN_PREF
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 ascending_symbol = '⏷'
 descending_symbol = '⏶'

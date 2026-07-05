@@ -26,6 +26,7 @@ from calibre.ebooks.conversion.archives import ARCHIVE_FMTS, unarchive
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
+from calibre.utils.localization import _
 from calibre.utils.zipfile import ZipFile
 
 DEBUG_README=b'''

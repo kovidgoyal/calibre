@@ -26,6 +26,7 @@ from qt.core import (
 )
 
 from calibre.utils.config_base import tweaks
+from calibre.utils.localization import _
 from calibre.utils.logging import INFO, WARN
 from calibre.utils.resources import get_image_path
 

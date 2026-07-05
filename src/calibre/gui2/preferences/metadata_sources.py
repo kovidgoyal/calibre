@@ -28,7 +28,7 @@ from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class SourcesModel(QAbstractTableModel):  # {{{

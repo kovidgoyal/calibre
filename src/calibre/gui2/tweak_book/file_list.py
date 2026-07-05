@@ -58,7 +58,7 @@ from calibre.gui2.tweak_book.templates import template_for
 from calibre.startup import connect_lambda
 from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.localization import ngettext, pgettext
+from calibre.utils.localization import _, ngettext, pgettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
 

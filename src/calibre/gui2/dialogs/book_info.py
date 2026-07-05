@@ -44,6 +44,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import CoverView
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 
 
 class Cover(CoverView):

@@ -11,6 +11,7 @@ import time
 from functools import partial
 
 from calibre.devices.errors import DeviceError, FreeSpaceError, WrongDestinationError
+from calibre.utils.localization import _
 
 
 def sanity_check(on_card, files, card_prefixes, free_space):

@@ -7,6 +7,7 @@ from qt.core import QDialog, QLineEdit, Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
+from calibre.utils.localization import _
 from calibre.utils.mdns import get_all_ips
 
 

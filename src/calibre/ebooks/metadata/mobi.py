@@ -13,7 +13,7 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.utils import rescale_image
 from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
-from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.localization import _, canonicalize_lang, lang_as_iso639_1
 
 '''
 Retrieve and modify in-place Mobipocket book metadata.

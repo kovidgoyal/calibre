@@ -25,6 +25,7 @@ from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, se
 from calibre.ai.utils import configure, plugin_for_name
 from calibre.gui2 import error_dialog
 from calibre.gui2.widgets import BusyCursor
+from calibre.utils.localization import _
 
 pref = partial(pref_for_provider, OpenAICompatible.name)
 

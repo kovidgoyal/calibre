@@ -16,7 +16,7 @@ from calibre.ebooks.mobi.langcodes import main_language, mobi2iana, sub_language
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_date
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 
 NULL_INDEX = 0xffffffff
 

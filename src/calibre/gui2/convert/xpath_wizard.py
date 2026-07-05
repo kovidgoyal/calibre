@@ -9,7 +9,7 @@ from qt.core import QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QL
 
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.widgets import HistoryLineEdit
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class WizardWidget(QWidget, Ui_Form):

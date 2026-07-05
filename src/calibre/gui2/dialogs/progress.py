@@ -9,6 +9,7 @@ from qt.core import QApplication, QDialog, QDialogButtonBox, QFont, QFontMetrics
 
 from calibre.gui2 import elided_text, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.utils.localization import _
 
 
 class ProgressDialog(QDialog):

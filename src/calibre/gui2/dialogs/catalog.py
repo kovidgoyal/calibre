@@ -16,6 +16,7 @@ from calibre.customize import PluginInstallationType
 from calibre.customize.ui import catalog_plugins, config
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
+from calibre.utils.localization import _
 
 
 class Catalog(QDialog, Ui_Dialog):

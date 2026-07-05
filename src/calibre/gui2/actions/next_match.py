@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.localization import _
 
 
 class NextMatchAction(InterfaceAction):

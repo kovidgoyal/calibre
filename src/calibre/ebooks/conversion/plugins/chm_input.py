@@ -8,6 +8,7 @@ import os
 from calibre.constants import filesystem_encoding
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 

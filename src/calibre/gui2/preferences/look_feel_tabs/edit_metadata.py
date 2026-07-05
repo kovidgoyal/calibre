@@ -13,6 +13,7 @@ from calibre.gui2.preferences import LazyConfigWidgetBase
 from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, export_layout, import_layout, move_field_down, move_field_up, reset_layout
 from calibre.gui2.preferences.look_feel_tabs.edit_metadata_ui import Ui_Form
 from calibre.gui2.widgets import BusyCursor
+from calibre.utils.localization import _
 
 
 class EMDisplayedFields(DisplayedFields):

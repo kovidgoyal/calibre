@@ -3,6 +3,7 @@
 
 
 from calibre.customize import AIProviderPlugin
+from calibre.utils.localization import _
 
 
 class OpenRouterAI(AIProviderPlugin):

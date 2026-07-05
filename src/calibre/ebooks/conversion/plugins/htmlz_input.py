@@ -7,6 +7,7 @@ import os
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
+from calibre.utils.localization import _
 
 
 class HTMLZInput(InputFormatPlugin):

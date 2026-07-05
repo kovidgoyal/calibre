@@ -12,6 +12,7 @@ from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
+from calibre.utils.localization import _
 
 
 class AddEmptyBookDialog(QDialog):

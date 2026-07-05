@@ -14,6 +14,7 @@ from calibre.customize import PluginInstallationType
 from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
+from calibre.utils.localization import _
 
 
 class Tool:

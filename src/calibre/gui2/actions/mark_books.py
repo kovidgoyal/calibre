@@ -13,6 +13,7 @@ from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.gui2.widgets2 import HistoryComboBox
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class MyHistoryComboBox(HistoryComboBox):

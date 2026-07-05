@@ -7,6 +7,7 @@ import os
 from calibre import patheq
 from calibre.constants import iswindows
 from calibre.db.legacy import LibraryDatabase
+from calibre.utils.localization import _
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

@@ -14,6 +14,7 @@ import textwrap
 from calibre import CurrentDir
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.localization import _
 
 
 class ComicInput(InputFormatPlugin):

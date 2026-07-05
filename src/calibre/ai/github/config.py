@@ -10,6 +10,7 @@ from calibre.ai.github import GitHubAI
 from calibre.ai.prefs import decode_secret, encode_secret, pref_for_provider, set_prefs_for_provider
 from calibre.ai.utils import configure, model_choice_strategy_config_widget, plugin_for_name
 from calibre.gui2 import error_dialog
+from calibre.utils.localization import _
 
 pref = partial(pref_for_provider, GitHubAI.name)
 

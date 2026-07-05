@@ -41,7 +41,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import get_text_before_cursor
 from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 def string_length(x):

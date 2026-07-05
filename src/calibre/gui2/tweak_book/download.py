@@ -26,7 +26,7 @@ from calibre.gui2.progress_indicator import WaitStack
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.startup import connect_lambda
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class ChooseResources(QWidget):

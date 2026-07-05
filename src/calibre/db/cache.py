@@ -54,7 +54,7 @@ from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
 from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 from polyglot.builtins import cmp
 
 
@@ -2635,7 +2635,7 @@ class Cache:
     @read_api
     def books_matching_device_book(self, lpath):
         ans = set()
-        for book_id, (_, _, _, _, lpaths) in self.fields['ondevice'].cache.items():
+        for book_id, (_x, _x, _x, _x, lpaths) in self.fields['ondevice'].cache.items():
             if lpath in lpaths:
                 ans.add(book_id)
         return ans

@@ -6,6 +6,7 @@ import os
 from io import BytesIO
 
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.utils.localization import _
 
 
 class DJVUInput(InputFormatPlugin):

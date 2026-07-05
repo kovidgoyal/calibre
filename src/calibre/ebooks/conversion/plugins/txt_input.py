@@ -7,6 +7,7 @@ import os
 from calibre import walk, xml_replace_entities
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.plugins.archive_input import archive_file_data
+from calibre.utils.localization import _
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),

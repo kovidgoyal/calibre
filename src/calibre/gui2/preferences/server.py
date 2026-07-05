@@ -53,7 +53,7 @@ from calibre.srv.loop import parse_trusted_ips
 from calibre.srv.opts import change_settings, options, server_config
 from calibre.srv.users import UserManager, create_user_data, validate_password, validate_username
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 from calibre.utils.shared_file import share_open
 from polyglot.builtins import as_bytes
 

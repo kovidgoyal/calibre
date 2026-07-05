@@ -18,6 +18,7 @@ from calibre.gui2.lrf_renderer.document import Document
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
+from calibre.utils.localization import _
 
 
 class RenderWorker(QThread):

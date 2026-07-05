@@ -8,6 +8,8 @@ __license__   = 'GPL v3'
 
 from qt.core import QAbstractItemView, QDialog, QDialogButtonBox, QLabel, QListWidget, QSizePolicy, QVBoxLayout
 
+from calibre.utils.localization import _
+
 
 class ChoosePluginToolbarsDialog(QDialog):
 

@@ -53,6 +53,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import upper as icu_upper
+from calibre.utils.localization import _
 from calibre.utils.logging import GUILog
 
 ICON_SIZE = 24
@@ -576,7 +577,7 @@ class TreeWidget(QTreeWidget):  # {{{
             new_index = new_parent.indexOfChild(old_parent) + 1
 
             # all former lower siblings become children of indented item
-            for _ in range(old_parent.childCount() - old_index - 1):
+            for _x in range(old_parent.childCount() - old_index - 1):
                 lower_sibling = old_parent.child(old_index+1)
                 old_parent.removeChild(lower_sibling)
                 item.addChild(lower_sibling)

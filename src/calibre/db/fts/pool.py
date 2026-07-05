@@ -13,6 +13,7 @@ from time import monotonic
 
 from calibre import detect_ncpus, human_readable
 from calibre.utils.ipc.simple_worker import start_pipe_worker
+from calibre.utils.localization import _
 
 check_for_work = object()
 quit = object()

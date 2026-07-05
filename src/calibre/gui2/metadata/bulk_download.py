@@ -17,7 +17,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.startup import connect_lambda
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 # Start download {{{
 

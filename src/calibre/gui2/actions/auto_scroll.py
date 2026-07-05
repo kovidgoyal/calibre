@@ -3,6 +3,7 @@
 
 
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.localization import _
 
 
 class AutoscrollBooksAction(InterfaceAction):

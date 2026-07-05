@@ -23,7 +23,7 @@ from calibre.gui2.tag_mapper import RulesDialog as RulesDialogBase
 from calibre.gui2.tag_mapper import SaveLoadMixin
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class RuleEdit(QWidget):  # {{{

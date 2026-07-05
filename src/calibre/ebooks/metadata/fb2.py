@@ -19,6 +19,7 @@ from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.utils.date import parse_only_date
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import identify
+from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
 

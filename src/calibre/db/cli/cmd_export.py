@@ -9,6 +9,7 @@ from calibre.db.constants import DATA_FILE_PATTERN
 from calibre.db.errors import NoSuchFormat
 from calibre.library.save_to_disk import config, do_save_book_to_disk, get_formats, sanitize_args
 from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.utils.localization import _
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

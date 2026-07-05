@@ -12,6 +12,7 @@ from qt.core import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWi
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
+from calibre.utils.localization import _
 
 
 def get_saved_field_data(name, all_fields):

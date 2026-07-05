@@ -57,7 +57,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HTMLDisplay
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 ROOT = QModelIndex()
 sanitize_text_pat = re.compile(r'\s+')

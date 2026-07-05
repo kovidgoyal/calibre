@@ -9,7 +9,7 @@ from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPCli
 from calibre import prepare_string_for_xml
 from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice
 from calibre.spell.break_iterator import split_into_words_and_positions
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import _, canonicalize_lang
 
 MARK_TEMPLATE = '<mark name="{}"/>'
 

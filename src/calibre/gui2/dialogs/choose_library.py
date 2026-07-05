@@ -16,7 +16,7 @@ from calibre.constants import filesystem_encoding, get_portable_base, iswindows
 from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2.dialogs.progress import ProgressDialog as PD
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 
 
 class ProgressDialog(PD):

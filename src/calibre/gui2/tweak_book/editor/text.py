@@ -46,6 +46,7 @@ from calibre.gui2.tweak_book.widgets import PARAGRAPH_SEPARATOR, PlainTextEdit
 from calibre.spell.break_iterator import index_of
 from calibre.utils.icu import capitalize, lower, safe_chr, string_length, swapcase, upper, utf16_length
 from calibre.utils.img import image_to_data
+from calibre.utils.localization import _
 from calibre.utils.titlecase import titlecase
 from polyglot.builtins import as_unicode
 

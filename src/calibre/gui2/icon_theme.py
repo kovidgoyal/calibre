@@ -71,6 +71,7 @@ from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.https import HTTPError, get_https_resource_securely
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import Canvas, image_from_data, optimize_jpeg, optimize_png
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile

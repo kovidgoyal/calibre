@@ -41,6 +41,7 @@ from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import gprefs, show_restart_warning
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.gui2.preferences import AbortCommit, AbortInitialize, get_plugin, init_gui
+from calibre.utils.localization import _
 
 ICON_SIZE = 32
 PREFERENCE_BUTTON_WIDTH = 112

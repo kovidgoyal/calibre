@@ -76,7 +76,7 @@ from calibre.spell.dictionary import (
 from calibre.spell.import_from import import_from_online, import_from_oxt
 from calibre.startup import connect_lambda
 from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key, upper
-from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
+from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
 from calibre.utils.resources import get_path as P
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 

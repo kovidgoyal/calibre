@@ -49,7 +49,7 @@ from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import lower, sort_key
-from calibre.utils.localization import pgettext
+from calibre.utils.localization import _, pgettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
 ROOT = QModelIndex()

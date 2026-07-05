@@ -7,6 +7,7 @@ import sys
 from textwrap import TextWrapper
 
 from calibre import prints
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 readonly = True

@@ -55,7 +55,7 @@ from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config import JSONConfig
 from calibre.utils.date import utcnow
-from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.localization import _, canonicalize_lang, get_lang
 from calibre.utils.network import internet_connected
 from calibre.web.feeds.recipes.model import RecipeModel
 

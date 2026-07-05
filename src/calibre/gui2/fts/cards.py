@@ -41,6 +41,7 @@ from calibre.gui2 import config
 from calibre.gui2.fts.utils import get_db, help_panel, markup_text
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.img import resize_to_fit
+from calibre.utils.localization import _
 
 
 class Layout(NamedTuple):

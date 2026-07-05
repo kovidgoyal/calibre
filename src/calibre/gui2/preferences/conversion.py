@@ -19,6 +19,7 @@ from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
+from calibre.utils.localization import _
 from calibre.utils.logging import Log
 
 

@@ -53,6 +53,7 @@ from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
 from calibre.utils.icu import lower as icu_lower
+from calibre.utils.localization import _
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = f'{SERVER}plugins.json.bz2'

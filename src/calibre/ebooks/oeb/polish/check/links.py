@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.utils import OEB_FONTS, actual_case_for_name, corrected_case_for_name, guess_type
+from calibre.utils.localization import _
 
 
 class BadLink(BaseError):

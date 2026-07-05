@@ -19,7 +19,7 @@ from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.date import format_date, is_date_undefined
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import calibre_langcode_to_name, ngettext
+from calibre.utils.localization import _, calibre_langcode_to_name, ngettext
 from calibre.utils.serialize import json_dumps
 from polyglot.binary import as_hex_unicode
 

@@ -14,6 +14,7 @@ from lxml import etree
 
 from calibre.ebooks import ConversionError
 from calibre.ebooks.oeb.base import TOC, XHTML, XPNSMAP, barename, xml2text
+from calibre.utils.localization import _
 
 
 def XPath(x):

@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.ereader import get_metadata as get_eReader
 from calibre.ebooks.metadata.haodoo import get_metadata as get_Haodoo
 from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 from calibre.ebooks.pdb.header import PdbHeaderReader
+from calibre.utils.localization import _
 
 MREADER = {
     'PNPdPPrs': get_eReader,

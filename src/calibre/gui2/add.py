@@ -35,7 +35,7 @@ from calibre.utils.config import prefs
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.ipc.pool import Failure, Pool
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 def validate_source(source, parent=None):  # {{{

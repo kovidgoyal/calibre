@@ -25,7 +25,7 @@ from qt.core import (
 
 from calibre import human_readable
 from calibre.gui2 import error_dialog
-from calibre.utils.localization import ngettext
+from calibre.utils.localization import _, ngettext
 
 
 class ProgressBar(QWidget):

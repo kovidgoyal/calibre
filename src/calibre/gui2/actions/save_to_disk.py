@@ -12,6 +12,7 @@ from functools import partial
 from calibre.gui2 import Dispatcher, choose_dir, error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.config import prefs
+from calibre.utils.localization import _
 
 
 class SaveToDiskAction(InterfaceAction):

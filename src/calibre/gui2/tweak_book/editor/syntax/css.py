@@ -11,6 +11,7 @@ from qt.core import QTextBlockUserData
 from calibre.gui2.tweak_book import verify_link
 from calibre.gui2.tweak_book.editor import CSS_PROPERTY, LINK_PROPERTY, syntax_text_char_format
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter
+from calibre.utils.localization import _
 
 space_pat = re.compile(r'[ \n\t\r\f]+')
 cdo_pat = re.compile(r'/\*')

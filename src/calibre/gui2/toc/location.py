@@ -40,6 +40,7 @@ from calibre.constants import FAKE_HOST, FAKE_PROTOCOL
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4

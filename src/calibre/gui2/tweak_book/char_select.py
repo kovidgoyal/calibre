@@ -43,6 +43,7 @@ from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets import BusyCursor
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.startup import connect_lambda
+from calibre.utils.localization import _
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 

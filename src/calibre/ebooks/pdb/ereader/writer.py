@@ -16,6 +16,7 @@ from PIL import Image
 from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pml.pmlml import PMLMLizer
+from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 IDENTITY = 'PNRdPPrs'

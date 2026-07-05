@@ -15,6 +15,7 @@ from calibre.constants import iswindows
 from calibre.gui2.widgets2 import Dialog, HTMLDisplay
 from calibre.utils.ffml_processor import FFMLProcessor
 from calibre.utils.formatter_functions import translate_ffml
+from calibre.utils.localization import _
 
 
 def general_doc():

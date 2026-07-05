@@ -12,6 +12,7 @@ import os
 from calibre import fsync, prints
 from calibre.constants import DEBUG
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 
 

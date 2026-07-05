@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
 from calibre.gui2.convert.comic_input_ui import Ui_Form
+from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):

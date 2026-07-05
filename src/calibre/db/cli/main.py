@@ -12,7 +12,7 @@ from calibre.constants import __appname__, __version__, iswindows
 from calibre.db.cli import module_for_cmd
 from calibre.db.legacy import LibraryDatabase
 from calibre.utils.config import OptionParser, prefs
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
 

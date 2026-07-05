@@ -6,6 +6,7 @@ import sys
 
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
+from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()

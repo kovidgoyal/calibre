@@ -13,6 +13,7 @@ from calibre.ebooks.pdb.formatwriter import FormatWriter
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ebooks.txt.txtml import TXTMLizer
+from calibre.utils.localization import _
 
 MAX_RECORD_SIZE = 8192
 

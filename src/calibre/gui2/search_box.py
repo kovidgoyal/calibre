@@ -16,7 +16,7 @@ from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import pgettext
+from calibre.utils.localization import _, pgettext
 
 
 class AsYouType(str):

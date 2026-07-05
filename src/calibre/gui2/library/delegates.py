@@ -55,6 +55,7 @@ from calibre.library.comments import markdown
 from calibre.utils.config import tweaks
 from calibre.utils.date import format_date, internal_iso_format_string, is_date_undefined, now, qt_from_dt, qt_to_dt
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 
 
 class UpdateEditorGeometry:

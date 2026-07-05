@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from calibre.ebooks.oeb.base import CSS_MIME, XHTML, XHTML_MIME, XHTML_NS, XML, XPath, element
-from calibre.utils.localization import __
+from calibre.utils.localization import _, __
 
 __all__ = ['HTMLTOCAdder']
 

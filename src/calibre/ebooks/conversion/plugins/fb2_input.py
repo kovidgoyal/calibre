@@ -8,6 +8,7 @@ import re
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 FB2NS  = 'http://www.gribuser.ru/xml/fictionbook/2.0'

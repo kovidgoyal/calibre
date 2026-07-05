@@ -53,6 +53,7 @@ from calibre.gui2.pin_columns import PinTableView, TableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
+from calibre.utils.localization import _
 
 
 def max_permitted_column_width(self, col):

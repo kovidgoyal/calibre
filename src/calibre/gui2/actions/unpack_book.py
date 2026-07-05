@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog, gprefs, open_local_file, question_dialog
 from calibre.gui2.actions import InterfaceActionWithLibraryDrop
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.localization import _
 
 
 class UnpackBook(QDialog):

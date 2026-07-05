@@ -12,6 +12,7 @@ from qt.core import QAbstractItemModel, QModelIndex, Qt, pyqtSignal
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import _
 from calibre.utils.search_query_parser import SearchQueryParser
 
 

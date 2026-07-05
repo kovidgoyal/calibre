@@ -7,6 +7,7 @@ Device driver for IRex Iliad
 '''
 
 from calibre.devices.usbms.driver import USBMS
+from calibre.utils.localization import _
 
 
 class ILIAD(USBMS):

@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
 from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.localization import _, lang_as_iso639_1
 from calibre.utils.logging import DevNull
 from calibre.utils.resources import get_path as P
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
