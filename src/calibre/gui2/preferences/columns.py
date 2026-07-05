@@ -46,7 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.column_up.clicked.connect(partial(self.up_column, use_kbd_modifiers=True))
         self.column_down.clicked.connect(partial(self.down_column, use_kbd_modifiers=True))
-        self.opt_columns.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.opt_columns.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.opt_columns.set_movement_functions(self.up_column, self.down_column)
         self.del_custcol_button.clicked.connect(self.del_custcol)
         self.add_custcol_button.clicked.connect(self.add_custcol)
