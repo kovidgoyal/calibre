@@ -12,6 +12,7 @@ from sphinx.util.console import bold
 from sphinx.util.logging import getLogger
 
 from calibre.linux import cli_index_strings, entry_points
+from calibre.utils.localization import _
 
 
 def info(*a):
@@ -19,7 +20,7 @@ def info(*a):
 
 
 def warn(*a):
-    getLogger(__name__).warn(*a)
+    getLogger(__name__).warning(*a)
 
 
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
@@ -173,7 +174,7 @@ are two ways to do that:
       :guilabel:`Preferences->Sharing over the net->Advanced`. Be careful though,
       because some browsers, primarily Firefox, allow arbitrary websites to also
       access local servers. If you use Firefox, it is better to setup username
-      and password, as described below. Local Network Access restriction has 
+      and password, as described below. Local Network Access restriction has
       still not been implemented as of Firefox v149.
 
     * If you want to enable access over the internet, then you should setup
@@ -408,7 +409,7 @@ def guilabel_role(typ, rawtext, text, *args, **kwargs):
 def setup_man_pages(app):
     documented_cmds = get_cli_docs()[0]
     man_pages = []
-    for cmd, option_parser in documented_cmds:
+    for cmd, _option_parser in documented_cmds:
         path = f'generated/{app.config.language}/{cmd}'
         man_pages.append((
             path, cmd, cmd, 'Kovid Goyal', 1
@@ -424,9 +425,4 @@ def setup(app):
     app.add_builder(EPUBHelpBuilder)
     app.connect('source-read', source_read_handler)
     app.connect('html-page-context', add_html_context)
-    app.connect('build-finished', finished)
     roles.register_local_role('guilabel', guilabel_role)
-
-
-def finished(app, exception):
-    pass
