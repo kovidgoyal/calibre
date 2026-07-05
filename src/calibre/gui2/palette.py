@@ -8,10 +8,12 @@ from functools import lru_cache
 
 from qt.core import QApplication, QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObject, QPalette, QProxyStyle, QStyle, Qt, QToolTip
 
-from calibre.constants import DEBUG, dark_link_color, ismacos, iswindows
+from calibre.constants import DEBUG, ismacos, iswindows
+from calibre.constants import dark_link_color as dlc
+from calibre.gui2 import qapplication_or_fail
 from calibre.utils.localization import _
 
-dark_link_color = QColor(dark_link_color)
+dark_link_color = QColor(dlc)
 dark_color = QColor(45,45,45)
 dark_text_color = QColor('#ddd')
 light_color = QColor(0xf0, 0xf0, 0xf0)
@@ -21,10 +23,10 @@ light_link_color = QColor(0, 0, 255)
 
 class UseCalibreIcons(QProxyStyle):
 
-    def standardIcon(self, standard_pixmap, option=None, widget=None):
-        ic = QApplication.instance().get_qt_standard_icon(standard_pixmap)
+    def standardIcon(self, standardIcon, option=None, widget=None):
+        ic = qapplication_or_fail().get_qt_standard_icon(standardIcon)
         if ic.isNull():
-            return super().standardIcon(standard_pixmap, option, widget)
+            return super().standardIcon(standardIcon, option, widget)
         return ic
 
 
@@ -284,13 +286,14 @@ class PaletteManager(QObject):
         return QIcon.ic(val)
 
     def load_calibre_style(self):
-        transient_scroller = 0
+        ts = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
-            transient_scroller = transient_scroller()
-        app = QApplication.instance()
+            ts = transient_scroller()
+        app = qapplication_or_fail()
+        assert app is not None
         from calibre_extensions.progress_indicator import CalibreStyle
-        self.calibre_style = style = CalibreStyle(transient_scroller)
+        self.calibre_style = style = CalibreStyle(ts)
         app.setStyle(style)
 
     def on_palette_change(self):

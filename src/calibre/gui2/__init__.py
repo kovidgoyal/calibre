@@ -12,6 +12,7 @@ import threading
 from contextlib import contextmanager, suppress
 from functools import lru_cache
 from threading import Lock, RLock
+from typing import cast
 
 from qt.core import (
     QApplication,
@@ -1656,6 +1657,13 @@ def ensure_app(headless=True):
             # override sys.excepthook with a proper error handler.
             sys.excepthook = simple_excepthook
     return _store_app
+
+
+def qapplication_or_fail() -> Application:
+    ans = QApplication.instance()
+    if ans is None:
+        raise RuntimeError('No QApplication has been constructed')
+    return cast(Application, ans)
 
 
 def destroy_app():
