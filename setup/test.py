@@ -73,7 +73,8 @@ class Test(BaseTest):
             only += list(opts.test_name)
         if opts.cli_args:
             only += list(opts.cli_args)
-        tests = filter_tests_by_name(tests, *only)
+        if only:
+            tests = filter_tests_by_name(tests, *only)
         if opts.exclude_test_name:
             tests = remove_tests_by_name(tests, *opts.exclude_test_name)
         run_cli(tests, verbosity=opts.test_verbosity, buffer=not opts.test_name)
