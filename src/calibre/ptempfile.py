@@ -6,6 +6,7 @@ being closed.
 '''
 import os
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 
 from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
@@ -96,9 +97,9 @@ def fix_tempfile_module():
     # want to call base_dir() now as it will possibly create a tempdir, do that
     # only on demand.
     global get_default_tempdir
-    if tempfile._gettempdir is not base_dir:
-        get_default_tempdir = tempfile._gettempdir
-        tempfile._gettempdir = base_dir
+    if tempfile._gettempdir is not base_dir:  # type: ignore
+        get_default_tempdir = tempfile._gettempdir  # type: ignore
+        tempfile._gettempdir = base_dir  # type: ignore
 
 
 def reset_base_dir():
@@ -107,7 +108,7 @@ def reset_base_dir():
 
 
 @contextmanager
-def override_base_dir(newval: str) -> None:
+def override_base_dir(newval: str) -> Iterator[None]:
     global _base_dir
     before, _base_dir = _base_dir, newval
     try:
