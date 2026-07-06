@@ -282,4 +282,5 @@ exclude = [
 ]
 
 [tool.ty.environment]
-root = ['./src', './stubs', './setup', './recipes']
+root = ['./src', './setup']
+extra-paths = ['./stubs']
