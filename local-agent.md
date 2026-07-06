@@ -1,4 +1,12 @@
-# Claude System Instructions & Project Context
+initialize_command: ./setup.py build
+initialize_command: ./setup.py gui
+copy_resource: .build-cache
+copy_resource: .cache
+copy_resource: .ruff_cache
+copy_resource: translations
+copy_resource: resources
+
+# System Instructions & Project Context
 
 ## Project Architecture & Stack
 This is a multi-language repository. Adhere strictly to the idiomatic styling, patterns, and type safety of each respective language ecosystem present in the codebase. Do not mix patterns across language boundaries.
@@ -33,6 +41,6 @@ To isolate testing to a specific test use, use the test name without the leading
 ## Verification Pipeline
 Before declaring a task complete, you must follow this exact verification lifecycle:
 1. Run the local **Build Command** to guarantee zero compilation or compilation-stage type errors.
-2. Run the local **Test Command** targeted at the modified module to prevent regressions.
-3. If errors occur, analyze the stdout logs completely before writing a fix. Do not guess.
+2. Run the local **Test Command** 
+3. If errors occur, analyze the output logs completely before writing a fix. Do not guess.
 4. Run `ruff check --fix` on yout changed python files to ensure your generated code is pep8 compliant
