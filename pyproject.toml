@@ -284,3 +284,6 @@ exclude = [
 [tool.ty.environment]
 root = ['./src', './setup']
 extra-paths = ['./stubs']
+
+[tool.ty.src]
+exclude = ['**/*_ui.py', '**/*_test.py']
