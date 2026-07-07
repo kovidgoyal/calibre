@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
+import shutil
 import subprocess
 
 from setup import Command, is_ci
@@ -22,12 +23,14 @@ class TypeCheck(Command):
     def ensure_venv(self):
         if not self.e(self.venv_dir):
             subprocess.check_call(['uv', 'venv'], cwd=self.project_root)
-        deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml'], cwd=self.project_root)
+        deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.project_root)
         subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.project_root)
+        raise SystemExit(1)
 
     def run(self, opts):
         if not is_ci:
             self.ensure_venv()
-        cp = subprocess.run(['ty', 'check'] + list(opts.cli_args), cwd=self.project_root)
+        ty = shutil.which('ty') or '.venv/bin/ty'
+        cp = subprocess.run([ty, 'check'] + list(opts.cli_args), cwd=self.project_root)
         if cp.returncode != 0:
             raise SystemExit(cp.returncode)
