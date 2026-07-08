@@ -67,6 +67,9 @@ jobs:
             - name: Bootstrap calibre
               run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
 
+            - name: Run linter
+              run: ./setup.py check
+
             - name: Test calibre
               env:
                 PYTHONWARNINGS: error
