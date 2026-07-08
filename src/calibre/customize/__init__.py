@@ -894,3 +894,23 @@ class AIProviderPlugin(Plugin):  # {{{
             return model_id
         return self.builtin_live_module.human_readable_model_name(model_id)
 # }}}
+
+
+class ContentServerPlugin(Plugin):  # {{{
+
+    type = _('Content server')
+    supported_platforms = ['windows', 'osx', 'linux']
+    # minimum version when support for this plugin type was added
+    minimum_calibre_version = (9, 12, 0)
+
+    def content_server_endpoints(self):
+        '''
+        Return endpoint functions decorated with @endpoint().
+        These are registered with the content server's router at startup.
+
+        The default returns an empty tuple. Override to provide routes.
+        Endpoints with auth_required=False will be publicly accessible.
+        Endpoints with a route matching an existing route will not be added.
+        '''
+        return ()
+# }}}

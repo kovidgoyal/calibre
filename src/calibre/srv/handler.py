@@ -205,9 +205,25 @@ class Handler:
         for module in SRV_MODULES:
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).values())
+        self._load_content_server_plugin_routes()
         self.router.finalize()
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch
+
+    def _load_content_server_plugin_routes(self):
+        from calibre.customize.ui import content_server_plugins
+        for plugin in content_server_plugins():
+            try:
+                endpoints = plugin.content_server_endpoints()
+            except Exception:
+                continue
+            for ep in endpoints:
+                try:
+                    self.router.add(ep)
+                except ValueError:
+                    # Route key already exists (built-in or another plugin).
+                    # Plugins do not override existing routes.
+                    pass
 
     def set_log(self, log):
         self.router.ctx.log = log
