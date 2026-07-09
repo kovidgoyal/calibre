@@ -14,6 +14,7 @@ from calibre.constants import DEBUG, ismacos, numeric_version, system_plugins_lo
 from calibre.customize import (
     AIProviderPlugin,
     CatalogPlugin,
+    ContentServerPlugin,
     EditBookToolPlugin,
     FileTypePlugin,
     InterfaceActionBase,
@@ -764,6 +765,16 @@ def all_edit_book_tool_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, EditBookToolPlugin):
             yield plugin
+# }}}
+
+
+# Content server plugins {{{
+
+def content_server_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ContentServerPlugin):
+            if not is_disabled(plugin):
+                yield plugin
 # }}}
 
 
