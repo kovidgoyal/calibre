@@ -3,6 +3,7 @@ initialize_command: ./setup.py gui
 copy_resource: .build-cache
 copy_resource: .cache
 copy_resource: .ruff_cache
+copy_resource: .venv
 copy_resource: translations
 copy_resource: resources
 

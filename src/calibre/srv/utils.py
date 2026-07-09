@@ -263,7 +263,7 @@ def encode_path(*components):
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
+        return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)  # type: ignore
 
 
 def custom_fields_to_display(db):
@@ -367,7 +367,7 @@ class HandleInterrupt:  # {{{
         if not iswindows:
             return  # Interrupts work fine on POSIX
         self.action = action
-        from ctypes import WINFUNCTYPE, windll
+        from ctypes import WINFUNCTYPE, windll  # type: ignore
         from ctypes.wintypes import BOOL, DWORD
 
         kernel32 = windll.LoadLibrary('kernel32')
@@ -392,13 +392,13 @@ class HandleInterrupt:  # {{{
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
                 import ctypes
-                raise ctypes.WinError()
+                raise ctypes.WinError()  # type: ignore
 
     def __exit__(self, *args):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
                 import ctypes
-                raise ctypes.WinError()
+                raise ctypes.WinError()  # type: ignore
 # }}}
 
 
