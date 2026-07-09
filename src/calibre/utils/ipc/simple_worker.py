@@ -9,8 +9,10 @@ import importlib
 import os
 import time
 import traceback
+from collections.abc import Iterable
 from multiprocessing import Pipe
 from threading import Thread
+from typing import Any
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
@@ -142,13 +144,13 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 def start_pipe_worker(command, env=None, priority='normal', **process_args):
     import subprocess
     w = Worker(env or {})
-    args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
+    args: dict[str, Any] = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
     args.update(process_args)
-    pass_fds = None
+    pass_fds: Iterable[int] | None = None
     try:
         if iswindows:
             args['creationflags'] = windows_creationflags_for_worker_process(priority)
-            pass_fds = args.pop('pass_fds', None)
+            pass_fds = args.pop('pass_fds', ())
             if pass_fds:
                 for fd in pass_fds:
                     os.set_handle_inheritable(fd, True)

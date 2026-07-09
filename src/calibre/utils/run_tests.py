@@ -371,9 +371,4 @@ def run_cli(suite, verbosity=4, buffer=True):
     init_env()
     result = r(verbosity=verbosity, buffer=buffer and not is_ci).run(suite)
     rc = 0 if result.wasSuccessful() else 1
-    if is_ci:
-        # for some reason interpreter shutdown hangs probably some non-daemonic
-        # thread
-        os._exit(rc)
-    else:
-        raise SystemExit(rc)
+    raise SystemExit(rc)

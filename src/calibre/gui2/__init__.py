@@ -1529,7 +1529,7 @@ class Application(QApplication):
         self.shutdown_signal_received.emit()
 
 
-_store_app = None
+_store_app: QApplication | None = None
 
 
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
@@ -1623,7 +1623,7 @@ def simple_excepthook(t, v, tb):
     return sys.__excepthook__(t, v, tb)
 
 
-def ensure_app(headless=True):
+def ensure_app(headless=True) -> QApplication:
     global _store_app
     with _ea_lock:
         if _store_app is None and QApplication.instance() is None:
@@ -1631,7 +1631,7 @@ def ensure_app(headless=True):
             if not headless:
                 _store_app = Application([])
                 sys.excepthook = simple_excepthook
-                return
+                return _store_app
             has_headless = ismacos or islinux or isbsd
             if headless and has_headless:
                 args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
@@ -1645,7 +1645,7 @@ def ensure_app(headless=True):
             _store_app = QApplication(args)
             set_image_allocation_limit()
             if headless and has_headless:
-                _store_app.headless = True
+                setattr(_store_app, 'headless', True)
 
             # This is needed because as of PyQt 5.4 if sys.execpthook ==
             # sys.__excepthook__ PyQt will abort the application on an
@@ -1656,6 +1656,7 @@ def ensure_app(headless=True):
             # unhandled exceptions ever occur. All the actual GUI apps already
             # override sys.excepthook with a proper error handler.
             sys.excepthook = simple_excepthook
+    assert _store_app is not None
     return _store_app
 
 
