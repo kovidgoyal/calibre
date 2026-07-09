@@ -96,7 +96,7 @@ dev = [
 [tool.ruff]
 line-length = 160
 builtins = ['_', 'I', 'P']
-include = ['*.py', '*.recipe']
+include = ['*.py', '*.pyi', '*.recipe']
 exclude = [
     "*_ui.py",
     "bypy/*",
