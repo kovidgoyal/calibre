@@ -12,12 +12,24 @@ from collections import defaultdict
 from contextlib import suppress
 from copy import deepcopy
 from functools import lru_cache, partial
+from types import TracebackType
+from typing import Any, Protocol
 
 from calibre.constants import CONFIG_DIR_MODE, config_dir, filesystem_encoding, get_umask, iswindows, preferred_encoding
 from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 
 plugin_dir = os.path.join(config_dir, 'plugins')
+
+
+class Prefs(Protocol):
+
+    def set(self, key: str, val: Any) -> None: ...
+    def get(self, key: str) -> Any: ...
+    def __getitem__(self, key: str, default: Any = None) -> Any: ...
+    def __setitem__(self, key: str, val: Any) -> None: ...
+    def __enter__(self) -> None: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None: ...
 
 
 def parse_old_style(src):
@@ -350,6 +362,9 @@ class ConfigInterface:
     def smart_update(self, opts1, opts2):
         self.option_set.smart_update(opts1, opts2)
 
+    def parse(self) -> OptionValues:
+        raise NotImplementedError()
+
 
 def retry_on_fail(func, *args, count=10, sleep_time=0.2):
     import time
@@ -363,7 +378,7 @@ def retry_on_fail(func, *args, count=10, sleep_time=0.2):
         except OSError as e:
             # Windows stupidly gives us an ACCESS_DENIED rather than a
             # ERROR_SHARING_VIOLATION if the file is open
-            if not iswindows or i > count - 2 or e.winerror not in (ERROR_SHARING_VIOLATION, ACCESS_DENIED):
+            if not iswindows or i > count - 2 or getattr(e, 'winerror', -1) not in (ERROR_SHARING_VIOLATION, ACCESS_DENIED):
                 raise
             # Try the operation repeatedly in case something like a virus
             # scanner has opened one of the files (I love windows)
