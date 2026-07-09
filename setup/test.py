@@ -51,9 +51,6 @@ class Test(BaseTest):
 
     def run(self, opts):
         super().run(opts)
-        # cgi is used by feedparser and possibly other dependencies
-        import warnings
-        warnings.filterwarnings('ignore', message="'cgi' is deprecated and slated for removal in Python 3.13")
 
         if is_ci and (SW := os.environ.get('SW')):
             if ismacos:
