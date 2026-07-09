@@ -293,7 +293,7 @@ extra-paths = ['./stubs']
 
 [tool.ty.src]
 exclude = [
-	'**/*_ui.py', '**/*_test.py',
+	'**/*_ui.py', '**/*_test.py', '**/test_*.py',
 	'setup/*.py', 'setup.py',
 	'**/tests/**',
 	'src/calibre/library/database2.py'
