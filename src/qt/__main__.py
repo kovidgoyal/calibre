@@ -32,6 +32,19 @@ module_lists = {
     ),
 }
 
+
+def qwidget_special_case(name: str = 'QWidget') -> str:
+    return f'''
+class {name}({QT_WRAPPER}.QtWidgets.{name}):
+
+    def save_geometry(self, prefs: Prefs, name: str) -> None: ...
+    def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
+    def saveGeometry(self) -> QByteArray: ...
+    def raise_and_focus(self) -> None: ...
+    def raise_without_focus(self) -> None: ...
+    '''
+
+
 special_case = {
     'QIcon': f'''
 class QIcon({QT_WRAPPER}.QtGui.QIcon):
@@ -48,15 +61,8 @@ class QIcon({QT_WRAPPER}.QtGui.QIcon):
     def is_ok(self) -> bool: ...
 ''',
 
-    'QWidget': f'''
-class QWidget({QT_WRAPPER}.QtWidgets.QWidget):
-
-    def save_geometry(self, prefs: Prefs, name: str) -> None: ...
-    def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
-    def saveGeometry(self) -> QByteArray: ...
-    def raise_and_focus(self) -> None: ...
-    def raise_without_focus(self) -> None: ...
-''',
+    'QWidget': qwidget_special_case(),
+    'QDialog': qwidget_special_case('QDialog'),
 
     'QByteArray': f'''
 class QByteArray({QT_WRAPPER}.QtCore.QByteArray):
