@@ -5,11 +5,12 @@
 import os
 import tempfile
 from functools import partial
+from gettext import gettext as _
 from queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre import detect_ncpus, filesystem_encoding, force_unicode, human_readable
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import ngettext
 
 
 class Worker(Thread):

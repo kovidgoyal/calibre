@@ -12,7 +12,6 @@ from sphinx.util.console import bold
 from sphinx.util.logging import getLogger
 
 from calibre.linux import cli_index_strings, entry_points
-from calibre.utils.localization import _
 
 
 def info(*a):
