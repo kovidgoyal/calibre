@@ -16,7 +16,7 @@ class ConversionOption:
     Class representing conversion options
     '''
 
-    def __init__(self, name=None, help=None, long_switch=None,
+    def __init__(self, name='', help=None, long_switch=None,
                  short_switch=None, choices=None):
         self.name = name
         self.help = help
@@ -310,7 +310,7 @@ class OutputFormatPlugin(Plugin):
 
     @property
     def description(self):
-        return _('Convert e-books to the %s format')%self.file_type.upper()
+        return _('Convert e-books to the %s format')%(self.file_type or '').upper()
 
     def __init__(self, *args):
         Plugin.__init__(self, *args)
@@ -332,6 +332,7 @@ class OutputFormatPlugin(Plugin):
         :param log: The logger. Print debug/info messages etc. using this.
 
         '''
+        self.oeb = oeb_book
         raise NotImplementedError()
 
     @property

@@ -18,17 +18,16 @@ FONT_SIZES = [('xx-small', 1),
 class Plugin(_Plugin):
 
     fbase  = 12
-    fsizes = [5, 7, 9, 12, 13.5, 17, 20, 22, 24]
+    font_sizes = (5, 7, 9, 12, 13.5, 17, 20, 22, 24)
     screen_size = (1600, 1200)
     dpi = 100
 
     def __init__(self, *args, **kwargs):
         _Plugin.__init__(self, *args, **kwargs)
         self.width, self.height = self.screen_size
-        fsizes = list(self.fsizes)
-        self.fkey = list(self.fsizes)
+        self.fkey = list(self.font_sizes)
         self.fsizes = []
-        for (name, num), size in zip(FONT_SIZES, fsizes):
+        for (name, num), size in zip(FONT_SIZES, self.fkey):
             self.fsizes.append((name, num, float(size)))
         self.fnames = {name: sz for name, _, sz in self.fsizes if name}
         self.fnums = {num: sz for _, num, sz in self.fsizes if num}
@@ -61,7 +60,7 @@ class SonyReaderInput(InputProfile):
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 12
-    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    font_sizes                    = (7.5, 9, 10, 12, 15.5, 20, 22, 24)
 
 
 class SonyReader300Input(SonyReaderInput):
@@ -92,7 +91,7 @@ class MSReaderInput(InputProfile):
     screen_size               = (480, 652)
     dpi                       = 96
     fbase                     = 13
-    fsizes                    = [10, 11, 13, 16, 18, 20, 22, 26]
+    font_sizes                    = (10, 11, 13, 16, 18, 20, 22, 26)
 
 
 class MobipocketInput(InputProfile):
@@ -106,7 +105,7 @@ class MobipocketInput(InputProfile):
     screen_size               = (600, 800)
     dpi                       = 96
     fbase                     = 18
-    fsizes                    = [14, 14, 16, 18, 20, 22, 24, 26]
+    font_sizes                    = (14, 14, 16, 18, 20, 22, 24, 26)
 
 
 class HanlinV3Input(InputProfile):
@@ -119,7 +118,7 @@ class HanlinV3Input(InputProfile):
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class HanlinV5Input(HanlinV3Input):
@@ -143,7 +142,7 @@ class CybookG3Input(InputProfile):
     screen_size               = (600, 800)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class CybookOpusInput(InputProfile):
@@ -157,7 +156,7 @@ class CybookOpusInput(InputProfile):
     screen_size               = (600, 800)
     dpi                       = 200
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class KindleInput(InputProfile):
@@ -170,7 +169,7 @@ class KindleInput(InputProfile):
     screen_size               = (525, 640)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class IlliadInput(InputProfile):
@@ -182,7 +181,7 @@ class IlliadInput(InputProfile):
     screen_size               = (760, 925)
     dpi                       = 160.0
     fbase                     = 12
-    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    font_sizes                    = (7.5, 9, 10, 12, 15.5, 20, 22, 24)
 
 
 class IRexDR1000Input(InputProfile):
@@ -196,7 +195,7 @@ class IRexDR1000Input(InputProfile):
     screen_size               = (1024, 1280)
     dpi                       = 160
     fbase                     = 16
-    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 14, 16, 18, 20, 22, 24)
 
 
 class IRexDR800Input(InputProfile):
@@ -209,7 +208,7 @@ class IRexDR800Input(InputProfile):
     screen_size               = (768, 1024)
     dpi                       = 160
     fbase                     = 16
-    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 14, 16, 18, 20, 22, 24)
 
 
 class NookInput(InputProfile):
@@ -223,7 +222,7 @@ class NookInput(InputProfile):
     screen_size               = (600, 800)
     dpi                       = 167
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
@@ -484,7 +483,7 @@ class SonyReaderOutput(OutputProfile):
     screen_size               = (590, 775)
     dpi                       = 168.451
     fbase                     = 12
-    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    font_sizes                    = (7.5, 9, 10, 12, 15.5, 20, 22, 24)
     unsupported_unicode_chars = ['\u201f', '\u201b']
 
     epub_periodical_format = 'sony'
@@ -502,7 +501,7 @@ class KoboReaderOutput(OutputProfile):
     comic_screen_size         = (536, 710)
     dpi                       = 168.451
     fbase                     = 12
-    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    font_sizes                    = (7.5, 9, 10, 12, 15.5, 20, 22, 24)
 
 
 class SonyReader300Output(SonyReaderOutput):
@@ -596,7 +595,7 @@ class MSReaderOutput(OutputProfile):
     screen_size               = (480, 652)
     dpi                       = 96
     fbase                     = 13
-    fsizes                    = [10, 11, 13, 16, 18, 20, 22, 26]
+    font_sizes                    = (10, 11, 13, 16, 18, 20, 22, 26)
 
 
 class MobipocketOutput(OutputProfile):
@@ -610,7 +609,7 @@ class MobipocketOutput(OutputProfile):
     screen_size               = (600, 800)
     dpi                       = 96
     fbase                     = 18
-    fsizes                    = [14, 14, 16, 18, 20, 22, 24, 26]
+    font_sizes                    = (14, 14, 16, 18, 20, 22, 24, 26)
 
 
 class HanlinV3Output(OutputProfile):
@@ -623,7 +622,7 @@ class HanlinV3Output(OutputProfile):
     screen_size               = (584, 754)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class HanlinV5Output(HanlinV3Output):
@@ -646,7 +645,7 @@ class CybookG3Output(OutputProfile):
     comic_screen_size         = (600, 757)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class CybookOpusOutput(SonyReaderOutput):
@@ -659,7 +658,7 @@ class CybookOpusOutput(SonyReaderOutput):
     # Screen size is a best guess
     dpi                       = 200
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
     epub_periodical_format = None
 
@@ -674,7 +673,7 @@ class KindleOutput(OutputProfile):
     screen_size               = (525, 640)
     dpi                       = 168.451
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
     supports_mobi_indexing = True
     periodical_date_in_title = False
 
@@ -784,7 +783,7 @@ class IlliadOutput(OutputProfile):
     comic_screen_size         = (760, 925)
     dpi                       = 160.0
     fbase                     = 12
-    fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
+    font_sizes                    = (7.5, 9, 10, 12, 15.5, 20, 22, 24)
 
 
 class IRexDR1000Output(OutputProfile):
@@ -799,7 +798,7 @@ class IRexDR1000Output(OutputProfile):
     comic_screen_size         = (996, 1241)
     dpi                       = 160
     fbase                     = 16
-    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 14, 16, 18, 20, 22, 24)
 
 
 class IRexDR800Output(OutputProfile):
@@ -814,7 +813,7 @@ class IRexDR800Output(OutputProfile):
     comic_screen_size         = (768, 1024)
     dpi                       = 160
     fbase                     = 16
-    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 14, 16, 18, 20, 22, 24)
 
 
 class NookOutput(OutputProfile):
@@ -829,7 +828,7 @@ class NookOutput(OutputProfile):
     comic_screen_size         = (584, 730)
     dpi                       = 167
     fbase                     = 16
-    fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    font_sizes                    = (12, 12, 14, 16, 18, 20, 22, 24)
 
 
 class NookColorOutput(NookOutput):

@@ -837,7 +837,7 @@ def initialize_plugins(perf=False):
     if perf:
         import time
         from collections import defaultdict
-        times = defaultdict(int)
+        times: defaultdict[str, int | float] = defaultdict(int)
 
     for zfp, installation_type in chain(
             zip_value(external_plugins.items(), PluginInstallationType.EXTERNAL),
@@ -866,7 +866,7 @@ def initialize_plugins(perf=False):
             _initialized_plugins.append(plugin)
         except Exception:
             print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
-            if DEBUG:
+            if DEBUG or True:
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks
     # ipython

@@ -15,6 +15,7 @@ import zipfile
 from collections import OrderedDict
 from collections.abc import Iterable
 from functools import lru_cache, partial
+from importlib.abc import Loader
 from importlib.machinery import ModuleSpec
 from importlib.util import decode_source
 
@@ -144,7 +145,7 @@ def load_translations(namespace, zfp):
     namespace['ngettext'] = trans.ngettext
 
 
-class CalibrePluginLoader:
+class CalibrePluginLoader(Loader):
 
     __slots__ = (
         '_is_package',
@@ -176,7 +177,7 @@ class CalibrePluginLoader:
         return self
 
     def __hash__(self):
-        return hash(self.name) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
+        return hash(self.__class__.__name__) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
 
     def create_module(self, spec):
         pass
@@ -271,7 +272,8 @@ class CalibrePluginFinder:
         parts = fullname.split('.')
         if parts[0] != 'calibre_plugins':
             return
-        plugin_name = fullname_in_plugin = zip_file_path = filename = None
+        plugin_name = zip_file_path = filename = None
+        fullname_in_plugin = ''
         all_names = frozenset()
         names = OrderedDict()
 
