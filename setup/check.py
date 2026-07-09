@@ -57,6 +57,8 @@ class Check(Command):
 
         yield from files_walker(self.j(self.d(self.SRC), 'recipes'), '.recipe')
 
+        yield from files_walker(self.j(self.d(self.SRC), 'stubs'), '.pyi')
+
         yield from files_walker(self.j(self.SRC, 'pyj'), '.pyj')
 
         if self.has_changelog_check:
@@ -85,7 +87,7 @@ class Check(Command):
 
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
-        if ext in {'.py', '.recipe'}:
+        if ext in {'.py', '.pyi', '.recipe'}:
             if self.auto_fix:
                 p = subprocess.Popen(['ruff', 'check', '-q', '--fix', f])
             else:
