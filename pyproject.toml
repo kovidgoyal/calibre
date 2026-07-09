@@ -288,8 +288,8 @@ exclude = [
 ]
 
 [tool.ty.environment]
-root = ['./src', '.']
+root = ['./src']
 extra-paths = ['./stubs']
 
 [tool.ty.src]
-exclude = ['**/*_ui.py', '**/*_test.py']
+exclude = ['**/*_ui.py', '**/*_test.py', 'setup/*.py', 'setup.py']
