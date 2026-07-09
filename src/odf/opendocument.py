@@ -368,15 +368,11 @@ class OpenDocument:
         self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
         return manifestfn
 
-    def addThumbnail(self, filecontent=None):
+    def addThumbnail(self, filecontent):
         ''' Add a fixed thumbnail
             The thumbnail in the library is big, so this is pretty useless.
         '''
-        if filecontent is None:
-            import thumbnail
-            self.thumbnail = thumbnail.thumbnail()
-        else:
-            self.thumbnail = filecontent
+        self.thumbnail = filecontent
 
     def addObject(self, document, objectname=None):
         ''' Adds an object (subdocument). The object must be an OpenDocument class
