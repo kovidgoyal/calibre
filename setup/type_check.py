@@ -25,7 +25,6 @@ class TypeCheck(Command):
             subprocess.check_call(['uv', 'venv'], cwd=self.project_root)
         deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.project_root)
         subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.project_root)
-        raise SystemExit(1)
 
     def run(self, opts):
         if not is_ci:
