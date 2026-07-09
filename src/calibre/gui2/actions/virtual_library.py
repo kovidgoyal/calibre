@@ -4,7 +4,6 @@
 from qt.core import QAction, Qt, QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.localization import _
 
 
 class VirtualLibraryAction(InterfaceAction):

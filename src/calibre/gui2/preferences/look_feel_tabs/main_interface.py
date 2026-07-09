@@ -13,7 +13,7 @@ from calibre.gui2.preferences import LazyConfigWidgetBase, Setting, set_help_tip
 from calibre.gui2.preferences.look_feel_tabs.main_interface_ui import Ui_main_interface_tab as Ui_Form
 from calibre.gui2.widgets import BusyCursor
 from calibre.utils.config import prefs
-from calibre.utils.localization import _, available_translations, get_lang, get_language
+from calibre.utils.localization import available_translations, get_lang, get_language
 
 
 class LanguageSetting(Setting):

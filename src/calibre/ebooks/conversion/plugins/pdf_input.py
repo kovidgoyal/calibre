@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
 ENGINES = 'calibre', 'pdftohtml'

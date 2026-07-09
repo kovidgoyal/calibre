@@ -1,7 +1,5 @@
 from qt.core import QDialog, QDialogButtonBox, QFontDatabase, QFontInfo, QHBoxLayout, QLabel, QListWidget, Qt, QVBoxLayout, QWidget, pyqtSignal
 
-from calibre.utils.localization import _
-
 
 class FontSelectionDialog(QDialog):
     fontSelected = pyqtSignal(str, str)  # family, style

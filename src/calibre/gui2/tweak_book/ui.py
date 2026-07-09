@@ -57,7 +57,7 @@ from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.widgets2 import MessagePopup
 from calibre.utils.icu import ord_string, sort_key
-from calibre.utils.localization import _, localize_user_manual_link, localize_website_link, pgettext
+from calibre.utils.localization import localize_user_manual_link, localize_website_link, pgettext
 from calibre.utils.unicode_names import character_name_from_code
 
 

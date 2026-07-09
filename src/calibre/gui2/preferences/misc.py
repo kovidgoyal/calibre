@@ -11,7 +11,6 @@ from calibre import get_proxies
 from calibre.gui2 import config, gprefs, open_local_file
 from calibre.gui2.preferences import ConfigWidgetBase, Setting, test_widget
 from calibre.gui2.preferences.misc_ui import Ui_Form
-from calibre.utils.localization import _
 
 
 class WorkersSetting(Setting):

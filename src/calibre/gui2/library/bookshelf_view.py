@@ -91,7 +91,7 @@ from calibre.utils.formatter import TEMPLATE_ERROR
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
 from calibre.utils.iso8601 import UNDEFINED_DATE
-from calibre.utils.localization import _, lang_map
+from calibre.utils.localization import lang_map
 from calibre_extensions.imageops import dominant_color
 from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 
@@ -532,7 +532,7 @@ class RenderCase:
         painter.save()
         painter.setClipRect(rect)
         r = random.Random(seed)
-        for _x in range(count):
+        for _ in range(count):
             knot_x = r.randint(rect.left() + 20, rect.right() - 20)
             knot_y = r.randint(rect.top() + 5, rect.bottom() - 5)
             knot_size = r.randint(3, 6)

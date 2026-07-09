@@ -21,7 +21,6 @@ from qt.core import (
 )
 
 from calibre.gui2 import error_dialog, qapplication_or_fail
-from calibre.utils.localization import _
 
 ROOT = QModelIndex()
 

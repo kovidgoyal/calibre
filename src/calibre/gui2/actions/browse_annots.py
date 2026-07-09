@@ -6,7 +6,6 @@ from qt.core import Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.localization import _
 
 
 class BrowseAnnotationsAction(InterfaceAction):

@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
-from calibre.utils.localization import _
 
 
 class TCROutput(OutputFormatPlugin):

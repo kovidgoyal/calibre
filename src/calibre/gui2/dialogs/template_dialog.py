@@ -57,7 +57,7 @@ from calibre.utils.formatter import PythonTemplateContext, StopException
 from calibre.utils.formatter_functions import StoredObjectType, formatter_functions
 from calibre.utils.icu import lower as icu_lower
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _, localize_user_manual_link
+from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.resources import get_path as P
 
 

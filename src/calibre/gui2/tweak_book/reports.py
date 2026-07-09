@@ -65,7 +65,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import current_container, dictionaries, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.icu import numeric_sort_key, primary_contains
-from calibre.utils.localization import _, calibre_langcode_to_name, canonicalize_lang, ngettext
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang, ngettext
 from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.webengine import secure_webengine
 from polyglot.builtins import as_bytes

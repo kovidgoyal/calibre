@@ -27,7 +27,6 @@ from qt.core import (
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import _
 
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
 

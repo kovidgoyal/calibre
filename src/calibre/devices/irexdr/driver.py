@@ -7,7 +7,6 @@ Device driver for IRex Digiatal Reader
 '''
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.localization import _
 
 
 class IREXDR1000(USBMS):

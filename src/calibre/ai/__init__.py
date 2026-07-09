@@ -5,8 +5,6 @@ from collections.abc import Sequence
 from enum import Enum, Flag, auto
 from typing import Any, NamedTuple
 
-from calibre.utils.localization import _
-
 
 class ChatMessageType(Enum):
     system = 'system'

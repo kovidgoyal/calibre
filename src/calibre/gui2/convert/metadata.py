@@ -20,7 +20,6 @@ from calibre.library.comments import comments_to_html
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _
 
 
 def create_opf_file(db, book_id, opf_file=None):

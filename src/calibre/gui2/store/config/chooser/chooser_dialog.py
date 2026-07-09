@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
-from calibre.utils.localization import _
 
 
 class StoreChooserDialog(QDialog):

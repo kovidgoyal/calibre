@@ -71,7 +71,6 @@ from calibre.gui2.tag_browser.model import (
 )
 from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _
 from calibre.utils.serialize import json_loads
 
 

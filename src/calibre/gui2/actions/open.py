@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.localization import _
 
 
 class OpenFolderAction(InterfaceAction):

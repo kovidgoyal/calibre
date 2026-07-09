@@ -34,7 +34,6 @@ from calibre.prints import debug_print
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory, better_mktemp
 from calibre.utils.config_base import prefs
 from calibre.utils.date import parse_date
-from calibre.utils.localization import _
 
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'

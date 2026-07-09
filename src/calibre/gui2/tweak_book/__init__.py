@@ -8,7 +8,6 @@ import string
 
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
 from calibre.utils.config import JSONConfig
-from calibre.utils.localization import _
 
 CONTAINER_DND_MIMETYPE = 'application/x-calibre-container-name-list'
 tprefs = JSONConfig('tweak_book_gui')

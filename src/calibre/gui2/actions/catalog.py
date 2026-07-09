@@ -15,7 +15,6 @@ from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
-from calibre.utils.localization import _
 
 
 class GenerateCatalogAction(InterfaceAction):

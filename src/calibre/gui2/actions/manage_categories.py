@@ -5,7 +5,6 @@
 from qt.core import QMenu, QToolButton
 
 from calibre.gui2.actions import InterfaceAction, show_menu_under_widget
-from calibre.utils.localization import _
 
 
 class ManageCategoriesAction(InterfaceAction):

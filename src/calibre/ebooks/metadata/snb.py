@@ -9,7 +9,6 @@ import os
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
-from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 

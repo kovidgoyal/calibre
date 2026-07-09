@@ -8,7 +8,6 @@ from numbers import Number
 
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS, TOP_LEVEL_IDENTIFIERS
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.localization import _
 
 
 class SafeFormat(TemplateFormatter):

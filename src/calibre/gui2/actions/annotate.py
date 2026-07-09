@@ -12,7 +12,6 @@ from calibre.devices.usbms.device import Device
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.utils.localization import _
 
 
 class Updater(QThread):  # {{{

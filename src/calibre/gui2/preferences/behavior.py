@@ -20,7 +20,6 @@ from calibre.gui2.preferences import ConfigWidgetBase, Setting, get_move_count, 
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _
 
 
 def input_order_drop_event(self, ev):
@@ -162,7 +161,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def up_input(self, use_kbd_modifiers, *args):
         count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
-        for _x in range(count):
+        for _ in range(count):
             idx = self.opt_input_order.currentRow()
             if idx > 0:
                 self.opt_input_order.insertItem(idx-1, self.opt_input_order.takeItem(idx))
@@ -171,7 +170,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def down_input(self, use_kbd_modifiers, *args):
         count = get_move_count(self.opt_input_order.count()) if use_kbd_modifiers else 1
-        for _x in range(count):
+        for _ in range(count):
             idx = self.opt_input_order.currentRow()
             if idx < self.opt_input_order.count()-1:
                 self.opt_input_order.insertItem(idx+1, self.opt_input_order.takeItem(idx))

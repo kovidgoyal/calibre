@@ -4,9 +4,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-from calibre.utils.localization import _
-
-
 def control(func):
     func.function_type = 'control'
     return func

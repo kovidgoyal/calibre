@@ -42,7 +42,6 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextStyle,
 )
 from calibre.utils.config import OptionParser
-from calibre.utils.localization import _
 
 
 class LrsParser:

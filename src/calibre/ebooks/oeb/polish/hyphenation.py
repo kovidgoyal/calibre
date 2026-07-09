@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import OEB_DOCS
-from calibre.utils.localization import _
 
 
 def add_soft_hyphens(container, report=None):

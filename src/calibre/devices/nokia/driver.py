@@ -7,7 +7,6 @@ Device driver for Nokia's internet tablet devices
 '''
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.localization import _
 
 
 class N770(USBMS):

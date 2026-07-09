@@ -88,7 +88,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import ngettext
 from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import as_bytes
 

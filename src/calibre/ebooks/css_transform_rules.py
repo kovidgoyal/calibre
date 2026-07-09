@@ -12,7 +12,6 @@ from css_parser.css import CSSRule, Property
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
-from calibre.utils.localization import _
 
 
 def compile_pat(pat):

@@ -7,7 +7,6 @@ Convert an ODT file into a Open Ebook
 '''
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.utils.localization import _
 
 
 class ODTInput(InputFormatPlugin):

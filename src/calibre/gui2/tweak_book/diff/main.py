@@ -45,7 +45,6 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.startup import connect_lambda
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.localization import _
 
 
 class BusyWidget(QWidget):  # {{{

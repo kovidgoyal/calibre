@@ -6,7 +6,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugin
-from calibre.utils.localization import _
 
 
 def remove_html_cover(oeb, log):

@@ -34,7 +34,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import ngettext
 
 
 def get_filters():

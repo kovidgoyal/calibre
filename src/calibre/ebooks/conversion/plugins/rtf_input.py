@@ -7,7 +7,6 @@ import re
 import textwrap
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.localization import _
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes
 

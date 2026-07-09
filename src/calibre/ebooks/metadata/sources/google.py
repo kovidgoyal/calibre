@@ -12,8 +12,6 @@ import time
 
 import regex
 
-from calibre.utils.localization import _
-
 try:
     from queue import Empty, Queue
 except ImportError:

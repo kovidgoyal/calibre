@@ -17,7 +17,6 @@ from calibre.constants import __appname__, isxp, numeric_version
 from calibre.devices.errors import BlacklistedDevice, DeviceError, OpenFailed
 from calibre.devices.mtp.base import MTPDeviceBase, debug
 from calibre.ptempfile import SpooledTemporaryFile
-from calibre.utils.localization import _
 
 null = object()
 

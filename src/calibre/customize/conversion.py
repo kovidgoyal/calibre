@@ -8,7 +8,6 @@ import shutil
 
 from calibre import CurrentDir
 from calibre.customize import Plugin
-from calibre.utils.localization import _
 
 
 class ConversionOption:

@@ -10,8 +10,6 @@ import re
 
 from lxml import etree
 
-from calibre.utils.localization import _
-
 BLOCK_TAGS = [
     'div',
     'p',

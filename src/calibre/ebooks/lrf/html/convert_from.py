@@ -44,7 +44,6 @@ from calibre.ebooks.lrf.pylrs.pylrs import (
     TextBlock,
 )
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
 '''

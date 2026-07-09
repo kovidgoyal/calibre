@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QAbstractItemView, QAbstractListModel, QDialog, QDialogButtonBox, QLabel, QListView, QSize, Qt, QVBoxLayout
 
 from calibre.gui2 import file_icon_provider, qapplication_or_fail
-from calibre.utils.localization import _
 
 
 class Formats(QAbstractListModel):

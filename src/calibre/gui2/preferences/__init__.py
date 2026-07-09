@@ -33,7 +33,6 @@ from calibre.customize.ui import preferences_plugins
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.utils.config import ConfigProxy
-from calibre.utils.localization import _
 
 
 class AbortCommit(Exception):

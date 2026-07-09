@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.localization import _
 
 
 class IRIVER_STORY(USBMS):

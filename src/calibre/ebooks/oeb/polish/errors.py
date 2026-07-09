@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 from contextlib import contextmanager
 
 from calibre.ebooks import DRMError as _DRMError
-from calibre.utils.localization import _
 
 
 class InvalidBook(ValueError):

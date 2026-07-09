@@ -28,7 +28,7 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import ngettext
 
 DATA_FILES_ICON_NAME = 'unpack-book.png'
 

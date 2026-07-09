@@ -26,7 +26,6 @@ from qt.core import (
 
 from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
-from calibre.utils.localization import _
 
 
 def reduce_to_ratio(w, h, r):

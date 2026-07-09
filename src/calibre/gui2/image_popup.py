@@ -32,7 +32,6 @@ from qt.core import (
 from calibre import fit_image
 from calibre.gui2 import NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height, qapplication_or_fail
 from calibre.gui2.palette import dark_palette
-from calibre.utils.localization import _
 
 
 def render_svg(widget, path):

@@ -32,7 +32,7 @@ from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
-from calibre.utils.localization import _, pgettext
+from calibre.utils.localization import pgettext
 
 
 class LocationManager(QObject):  # {{{

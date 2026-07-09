@@ -40,7 +40,6 @@ from calibre.gui2.tweak_book import current_container, set_current_container, tp
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.localization import _
 
 
 class Abort(Exception):

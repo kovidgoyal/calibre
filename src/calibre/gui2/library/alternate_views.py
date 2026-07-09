@@ -71,7 +71,6 @@ from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.localization import _
 
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'

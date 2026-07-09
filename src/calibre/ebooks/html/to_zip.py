@@ -11,7 +11,6 @@ import textwrap
 
 from calibre.constants import numeric_version
 from calibre.customize import FileTypePlugin
-from calibre.utils.localization import _
 
 
 class HTML2ZIP(FileTypePlugin):

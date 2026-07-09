@@ -6,7 +6,6 @@ from qt.core import QBrush, QColor, QFont, QFontMetrics, QPainter, QPen, QPixmap
 
 from calibre.constants import __appname__, numeric_version
 from calibre.gui2 import qapplication_or_fail
-from calibre.utils.localization import _
 from calibre.utils.monotonic import monotonic
 from calibre.utils.resources import get_image_path as I
 

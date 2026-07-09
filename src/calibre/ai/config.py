@@ -6,7 +6,6 @@ from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStacked
 from calibre.ai import AICapabilities
 from calibre.ai.prefs import plugin_for_purpose, plugins_for_purpose, prefs
 from calibre.gui2 import Application, error_dialog
-from calibre.utils.localization import _
 
 
 class ConfigureAI(QWidget):

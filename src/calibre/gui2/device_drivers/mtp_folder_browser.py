@@ -11,7 +11,6 @@ from qt.core import QDialog, QDialogButtonBox, QIcon, QLabel, QSize, Qt, QTabWid
 
 from calibre.gui2 import file_icon_provider
 from calibre.utils.icu import lower as icu_lower
-from calibre.utils.localization import _
 
 
 def browser_item(f, parent):

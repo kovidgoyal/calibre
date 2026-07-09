@@ -10,7 +10,6 @@ from qt.core import QByteArray, QColor, QDataStream, QIcon, QIODeviceBase, QObje
 
 from calibre.constants import DEBUG, ismacos, iswindows
 from calibre.constants import dark_link_color as dlc
-from calibre.utils.localization import _
 
 dark_link_color = QColor(dlc)
 dark_color = QColor(45,45,45)

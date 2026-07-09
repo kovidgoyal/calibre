@@ -10,7 +10,6 @@ from qt.core import QListWidgetItem, QWidget
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
-from calibre.utils.localization import _
 
 
 class PluginWidget(QWidget, Ui_Form):

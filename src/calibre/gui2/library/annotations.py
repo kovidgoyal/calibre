@@ -53,7 +53,7 @@ from calibre.gui2.widgets2 import Dialog, RightClickButton
 from calibre.startup import connect_lambda
 from calibre.utils.date import qt_from_dt
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.localization import _, ngettext, pgettext
+from calibre.utils.localization import ngettext, pgettext
 
 
 def render_timestamp(ts):

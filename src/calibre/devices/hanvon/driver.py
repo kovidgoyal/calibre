@@ -10,7 +10,6 @@ import re
 
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.localization import _
 
 
 def is_alex(device_info):

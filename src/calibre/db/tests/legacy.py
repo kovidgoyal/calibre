@@ -15,7 +15,6 @@ from operator import itemgetter
 from calibre.db.constants import NOTES_DIR_NAME
 from calibre.db.tests.base import BaseTest
 from calibre.library.field_metadata import fm_as_dict
-from calibre.utils.localization import _
 
 # Utils {{{
 

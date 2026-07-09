@@ -58,7 +58,7 @@ from calibre.startup import connect_lambda
 from calibre.utils.icu import lower
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
-from calibre.utils.localization import _, ngettext
+from calibre.utils.localization import ngettext
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
 
 

@@ -66,7 +66,6 @@ from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker, db_matches
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc.pool import Pool
-from calibre.utils.localization import _
 from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 

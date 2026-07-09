@@ -3,7 +3,6 @@
 # Based on code Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from calibre.customize import AIProviderPlugin
-from calibre.utils.localization import _
 
 
 class LMStudioAI(AIProviderPlugin):

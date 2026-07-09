@@ -36,7 +36,6 @@ from calibre.gui2.tweak_book.editor import CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERT
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import primary_sort_key, utf16_length
-from calibre.utils.localization import _
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):

@@ -10,7 +10,6 @@ import os
 from calibre import walk
 from calibre.constants import numeric_version
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.utils.localization import _
 
 
 class RecipeDisabled(Exception):

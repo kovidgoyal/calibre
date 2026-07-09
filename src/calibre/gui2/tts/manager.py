@@ -10,7 +10,6 @@ from qt.core import QDialog, QObject, QTextToSpeech, pyqtSignal
 
 from calibre.gui2 import error_dialog, qapplication_or_fail
 from calibre.gui2.widgets import BusyCursor
-from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from calibre.gui2.tts.types import TTSBackend

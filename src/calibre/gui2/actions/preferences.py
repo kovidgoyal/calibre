@@ -14,7 +14,6 @@ from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import error_dialog, show_restart_warning
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
-from calibre.utils.localization import _
 
 
 class PreferencesAction(InterfaceAction):

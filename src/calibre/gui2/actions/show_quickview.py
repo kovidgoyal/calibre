@@ -11,7 +11,6 @@ from qt.core import QAction, QTimer
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
-from calibre.utils.localization import _
 
 current_qv_action_pi = None
 

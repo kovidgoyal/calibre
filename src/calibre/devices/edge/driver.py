@@ -8,7 +8,6 @@ Device driver for Barns and Nobel's Nook
 
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.utils.localization import _
 
 
 class EDGE(USBMS):

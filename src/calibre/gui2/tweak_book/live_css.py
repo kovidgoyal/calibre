@@ -32,7 +32,6 @@ from calibre.gui2 import qapplication_or_fail
 from calibre.gui2.tweak_book import actions, editors, tprefs
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
-from calibre.utils.localization import _
 
 lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
 

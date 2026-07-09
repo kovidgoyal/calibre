@@ -18,7 +18,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
-from calibre.utils.localization import _
 
 
 def save_dir_container(container, path):

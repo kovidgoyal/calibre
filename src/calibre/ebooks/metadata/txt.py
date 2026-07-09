@@ -9,7 +9,6 @@ import os
 import re
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.localization import _
 
 
 def get_metadata(stream, extract_cover=True):

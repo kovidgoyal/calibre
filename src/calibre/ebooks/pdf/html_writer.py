@@ -37,7 +37,6 @@ from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.errors import NoGlyphs
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.fonts.sfnt.subset import pdf_subset
-from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation

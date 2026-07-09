@@ -12,7 +12,6 @@ import re
 from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
-from calibre.utils.localization import _
 
 
 class JETBOOK(USBMS):

@@ -10,7 +10,6 @@ from calibre.db.utils import IndexingProgress
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.fts.utils import get_db
 from calibre.gui2.ui import get_gui
-from calibre.utils.localization import _
 
 
 class ScanProgress(QWidget):

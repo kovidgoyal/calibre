@@ -12,7 +12,6 @@ from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayo
 
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
-from calibre.utils.localization import _
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 Group = namedtuple('Group', 'title feeds')

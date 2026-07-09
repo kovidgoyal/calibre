@@ -3,7 +3,6 @@
 
 
 from calibre import prints
-from calibre.utils.localization import _
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

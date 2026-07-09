@@ -5,7 +5,6 @@ import os
 import re
 
 from calibre import extract, filesystem_encoding, walk
-from calibre.utils.localization import _
 
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 

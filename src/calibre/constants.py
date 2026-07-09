@@ -442,7 +442,6 @@ def get_version():
 
 
 def get_appname_for_display():
-    from calibre.utils.localization import _
     ans = __appname__
     if isportable:
         ans = _('{} Portable').format(ans)
@@ -482,7 +481,6 @@ def get_windows_number_formats():
 
 
 def trash_name():
-    from calibre.utils.localization import _
     return _('Trash') if ismacos else _('Recycle Bin')
 
 

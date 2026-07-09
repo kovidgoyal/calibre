@@ -8,7 +8,6 @@ import shutil
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.localization import _
 
 
 class PMLInput(InputFormatPlugin):
