@@ -340,10 +340,11 @@ class BuildTest(unittest.TestCase):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         import subprocess
+
+        from calibre.utils.ipc.simple_worker import start_pipe_worker
         webengine_process = None
         if not (is_ci and (iswindows or ismacos)):
             # WebEngine is flaky in CI
-            from calibre.utils.ipc.simple_worker import start_pipe_worker
             webengine_process = start_pipe_worker('from calibre.test_build import *; test_webengine_worker_main()', stderr=subprocess.STDOUT)
         try:
             qt_process = start_pipe_worker('from calibre.test_build import *; test_qt_main()', stderr=subprocess.STDOUT)
