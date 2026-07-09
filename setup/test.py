@@ -8,7 +8,7 @@ import sys
 
 from setup import Command, is_ci, ismacos, iswindows
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
+TEST_MODULES = frozenset('ai fork scraper srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
 
 class BaseTest(Command):
