@@ -136,8 +136,8 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             except Exception:
                 continue
 
-    def eventFilter(self, obj, ev):
-        if ev.type() == QEvent.Type.MouseButtonPress and ev.button() == Qt.MouseButton.LeftButton:
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.MouseButtonPress and a1.button() == Qt.MouseButton.LeftButton:
             mods = QApplication.keyboardModifiers()
             if mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier:
                 self.show_marked()

@@ -135,7 +135,7 @@ class BulkConfig(Config):
         self._recommendations = recs
         QDialog.accept(self)
 
-    def done(self, r):
+    def done(self, a0):
         if self.isVisible():
             self.save_geometry(gprefs, 'convert_bulk_dialog_geom')
-        return QDialog.done(self, r)
+        return QDialog.done(self, a0)

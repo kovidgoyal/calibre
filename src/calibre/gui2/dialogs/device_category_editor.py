@@ -28,11 +28,11 @@ class ListWidgetItem(QListWidgetItem):
         else:
             return QListWidgetItem.data(self, role)
 
-    def setData(self, role, data):
+    def setData(self, role, value):
         if role == Qt.ItemDataRole.EditRole:
             self.previous_value = self.current_value
-            self.current_value = data
-        QListWidgetItem.setData(self, role, data)
+            self.current_value = value
+        QListWidgetItem.setData(self, role, value)
 
     def text(self):
         return self.current_value
@@ -43,9 +43,9 @@ class ListWidgetItem(QListWidgetItem):
     def previous_text(self):
         return self.previous_value
 
-    def setText(self, txt):
-        self.current_value = txt
-        QListWidgetItem.setText(txt)
+    def setText(self, atext):
+        self.current_value = atext
+        QListWidgetItem.setText(atext)
 
 
 class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):

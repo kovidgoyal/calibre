@@ -151,13 +151,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.stack.setCurrentIndex(1)
             self.renderer.start()
 
-    def find(self, search):
-        self.last_search = search
+    def find(self, a0):
+        self.last_search = a0
         try:
-            self.document.search(search)
+            self.document.a0(a0)
         except StopIteration:
-            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(search,)).exec()
-        self.search.search_done(True)
+            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the a0 phrase <i>%s</i> were found.')%(a0,)).exec()
+        self.a0.search_done(True)
 
     def parsed(self):
         if not self.renderer.aborted and self.renderer.lrf is not None:
@@ -236,18 +236,18 @@ class Main(MainWindow, Ui_MainWindow):
     def back(self, triggered):
         self.document.back()
 
-    def wheelEvent(self, ev):
-        d = ev.angleDelta().y()
+    def wheelEvent(self, a0):
+        d = a0.angleDelta().y()
         if d > 0:
             self.document.previous()
         elif d < 0:
             self.document.next()
 
-    def closeEvent(self, event):
+    def closeEvent(self, a0):
         if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()
             self.renderer.wait()
-        event.accept()
+        a0.accept()
 
 
 def file_renderer(stream, opts, parent=None, logger=None):

@@ -21,7 +21,7 @@ class Separator(QWidget):
         width = self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QStylePainter(self)
         p.drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option())
 
@@ -144,8 +144,8 @@ class FlowToolBar(QWidget):
     def hasHeightForWidth(self):
         return True
 
-    def heightForWidth(self, width):
-        return self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+    def heightForWidth(self, a0):
+        return self.do_layout(QRect(0, 0, a0, 0), apply_geometry=False)
 
     def minimumSize(self):
         size = QSize()
@@ -154,10 +154,10 @@ class FlowToolBar(QWidget):
         return size
     sizeHint = minimumSize
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.applied_geometry != self.rect():
             self.do_layout(self.rect(), apply_geometry=True)
-        super().paintEvent(ev)
+        super().paintEvent(a0)
 
     def do_layout(self, rect, apply_geometry=False):
         x, y = rect.x(), rect.y()

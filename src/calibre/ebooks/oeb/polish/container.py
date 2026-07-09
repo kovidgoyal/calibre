@@ -1240,9 +1240,9 @@ class EpubContainer(Container):
         ans['is_dir'] = self.is_dir
         return ans
 
-    def rename(self, old_name, new_name):
-        is_opf = old_name == self.opf_name
-        super().rename(old_name, new_name)
+    def rename(self, current_name, new_name):
+        is_opf = current_name == self.opf_name
+        super().rename(current_name, new_name)
         if is_opf:
             for elem in self.parsed('META-INF/container.xml').xpath((
                 r'child::ocf:rootfiles/ocf:rootfile'
@@ -1253,11 +1253,11 @@ class EpubContainer(Container):
                 # container.xml
                 elem.set('full-path', self.opf_name)
             self.dirty('META-INF/container.xml')
-        if old_name in self.obfuscated_fonts:
-            self.obfuscated_fonts[new_name] = self.obfuscated_fonts.pop(old_name)
+        if current_name in self.obfuscated_fonts:
+            self.obfuscated_fonts[new_name] = self.obfuscated_fonts.pop(current_name)
             enc = self.parsed('META-INF/encryption.xml')
             for cr in enc.xpath('//*[local-name()="CipherReference" and @URI]'):
-                if self.href_to_name(cr.get('URI')) == old_name:
+                if self.href_to_name(cr.get('URI')) == current_name:
                     cr.set('URI', self.name_to_href(new_name))
                     self.dirty('META-INF/encryption.xml')
 

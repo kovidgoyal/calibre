@@ -151,10 +151,10 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         else:
             return self.createIndex(row, column, 0)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    def parent(self, child):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
-        return self.createIndex(index.internalId()-1, 0, 0)
+        return self.createIndex(child.internalId()-1, 0, 0)
 
     def rowCount(self, parent):
         if not parent.isValid():
@@ -267,8 +267,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def show_user_installed_plugins(self, state):
         self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
 
-    def find(self, query):
-        idx = self._plugin_model.find(query)
+    def find(self, a0):
+        idx = self._plugin_model.find(a0)
         if not idx.isValid():
             return info_dialog(self, _('No matches'),
                     _('Could not find any matching plugins'), show=True,

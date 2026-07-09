@@ -126,23 +126,23 @@ class PictureFlow(QWidget):
         'Call this slot when the underlying FlowImages data has changed'
         pass
 
-    def paintEvent(self, event: QPaintEvent) -> None:
+    def paintEvent(self, a0: QPaintEvent) -> None:
         pass
 
-    def keyPressEvent(self, event: QKeyEvent) -> None:
+    def keyPressEvent(self, a0: QKeyEvent) -> None:
         pass
 
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+    def mouseMoveEvent(self, a0: QMouseEvent) -> None:
         pass
 
-    def mousePressEvent(self, event: QMouseEvent) -> None:
+    def mousePressEvent(self, a0: QMouseEvent) -> None:
         pass
 
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
         pass
 
-    def resizeEvent(self, event: QResizeEvent) -> None:
+    def resizeEvent(self, a0: QResizeEvent) -> None:
         pass
 
-    def timerEvent(self, event: QTimerEvent) -> None:
+    def timerEvent(self, a0: QTimerEvent) -> None:
         pass

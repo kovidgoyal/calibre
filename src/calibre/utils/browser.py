@@ -88,8 +88,8 @@ class Browser(B):
         B.set_cookiejar(self, *args, **kwargs)
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
 
-    def set_cookie(self, name, value, domain, path='/'):
-        return self.set_simple_cookie(name, value, domain, path=path)
+    def set_cookie(self, cookie_string, value, domain, path='/'):
+        return self.set_simple_cookie(cookie_string, value, domain, path=path)
 
     @property
     def cookiejar(self):

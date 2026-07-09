@@ -202,10 +202,10 @@ class DisplayedFields(QAbstractListModel):
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemFlag.ItemIsUserCheckable
 
-    def setData(self, index, val, role):
+    def setData(self, index, value, role):
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
-            self.fields[index.row()][1] = val in (Qt.CheckState.Checked, Qt.CheckState.Checked.value)
+            self.fields[index.row()][1] = value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value)
             self.changed = True
             ret = True
             self.dataChanged.emit(index, index)
@@ -290,9 +290,9 @@ class EditRulesWidget(QWidget):
         db = get_gui().current_db
         self.rules_editor.commit(db.prefs)
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         self.initialize()
-        super().showEvent(ev)
+        super().showEvent(a0)
 
 
 class EditRulesConfigWidgetBase(LazyConfigWidgetBase):
@@ -452,7 +452,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             s['dark_texture'] = self.btex_dark
             gprefs[self.config_name] = s
 
-        def paintEvent(self, ev):
+        def paintEvent(self, a0):
             painter = QPainter(self)
             r = self.rect()
             light = r.adjusted(0, 0, -r.width()//2, 0)
@@ -460,7 +460,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             painter.fillRect(light, self.light_brush)
             painter.fillRect(dark, self.dark_brush)
             painter.end()
-            super().paintEvent(ev)
+            super().paintEvent(a0)
 
     def __init__(self, parent=None):
         super().__init__(parent)

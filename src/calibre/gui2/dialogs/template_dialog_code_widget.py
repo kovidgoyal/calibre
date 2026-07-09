@@ -15,9 +15,9 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 
 class LineNumberArea(LineNumbers):
 
-    def mouseDoubleClickEvent(self, event):
-        super().mousePressEvent(event)
-        self.parent().line_area_doubleclick_event(event)
+    def mouseDoubleClickEvent(self, a0):
+        super().mousePressEvent(a0)
+        self.parent().line_area_doubleclick_event(a0)
 
 
 class CodeEditor(QPlainTextEdit):
@@ -75,8 +75,8 @@ class CodeEditor(QPlainTextEdit):
         if rect.contains(self.viewport().rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, ev):
-        QPlainTextEdit.resizeEvent(self, ev)
+    def resizeEvent(self, e):
+        QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         self.line_number_area.setGeometry(QRect(cr.left(), cr.top(),
                                                 self.line_number_area_width(), cr.height()))
@@ -134,12 +134,12 @@ class CodeEditor(QPlainTextEdit):
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Insert:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
-            ev.accept()
+            e.accept()
             return
-        key = ev.key()
+        key = e.key()
         if key in (Qt.Key_Tab, Qt.Key_Backtab):
             '''
             Handle indenting usingTab and Shift Tab. This is remarkably
@@ -190,9 +190,9 @@ class CodeEditor(QPlainTextEdit):
                         cursor.insertText(txt[1:])
                     cursor.setPosition(start_position-1)
                     self.setTextCursor(cursor)
-                    ev.accept()
+                    e.accept()
                 else:
-                    QPlainTextEdit.keyPressEvent(self, ev)
+                    QPlainTextEdit.keyPressEvent(self, e)
                 return
             # There is a selection so both Tab and Shift-Tab do indenting operations
             for bn in range(start_block, end_block+1):
@@ -212,6 +212,6 @@ class CodeEditor(QPlainTextEdit):
             cursor.setPosition(start_position)
             cursor.setPosition(end_position, QTextCursor.MoveMode.KeepAnchor)
             self.setTextCursor(cursor)
-            ev.accept()
+            e.accept()
             return
-        QPlainTextEdit.keyPressEvent(self, ev)
+        QPlainTextEdit.keyPressEvent(self, e)

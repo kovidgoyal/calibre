@@ -352,9 +352,9 @@ class FileList(QTreeWidget, OpenWithHandler):
         ans.append(CONTAINER_DND_MIMETYPE)
         return ans
 
-    def mimeData(self, indices):
-        ans = QTreeWidget.mimeData(self, indices)
-        names = (idx.data(0, NAME_ROLE) for idx in indices if idx.data(0, MIME_ROLE))
+    def mimeData(self, items):
+        ans = QTreeWidget.mimeData(self, items)
+        names = (idx.data(0, NAME_ROLE) for idx in items if idx.data(0, MIME_ROLE))
         ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join(filter(None, names)).encode('utf-8'))
         return ans
 
@@ -843,12 +843,12 @@ class FileList(QTreeWidget, OpenWithHandler):
     def mark_as_nav(self, name):
         self.mark_requested.emit(name, 'nav')
 
-    def keyPressEvent(self, ev):
-        k = ev.key()
-        mods = ev.modifiers() & (
+    def keyPressEvent(self, event):
+        k = event.key()
+        mods = event.modifiers() & (
             Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier)
         if k in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
-            ev.accept()
+            event.accept()
             self.request_delete()
         elif mods == (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier):
             m = self.categories['text'].childCount()
@@ -857,12 +857,12 @@ class FileList(QTreeWidget, OpenWithHandler):
                 Qt.Key.Key_Left: -m, Qt.Key.Key_Right: m
             }.get(k)
             if amt is not None:
-                ev.accept()
+                event.accept()
                 self.move_selected_text_items(amt)
             else:
-                return QTreeWidget.keyPressEvent(self, ev)
+                return QTreeWidget.keyPressEvent(self, event)
         else:
-            return QTreeWidget.keyPressEvent(self, ev)
+            return QTreeWidget.keyPressEvent(self, event)
 
     def request_rename_common(self):
         if not current_container().SUPPORTS_FILENAMES:

@@ -83,13 +83,13 @@ class BlockingJob(QWidget):
         self.stop()
         callback(job)
 
-    def paintEvent(self, ev):
-        br = ev.region().boundingRect()
+    def paintEvent(self, a0):
+        br = a0.region().boundingRect()
         p = QPainter(self)
         p.setOpacity(0.2)
         p.fillRect(br, QBrush(self.palette().text()))
         p.end()
-        QWidget.paintEvent(self, ev)
+        QWidget.paintEvent(self, a0)
         p = QPainter(self)
         p.setClipRect(br)
         f = p.font()

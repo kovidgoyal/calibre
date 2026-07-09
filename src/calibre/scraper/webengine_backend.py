@@ -99,14 +99,14 @@ class Worker(QWebEnginePage):
         super().__init__(profile, parent)
         self.messages_dispatch.connect(self.on_messages)
 
-    def javaScriptAlert(self, url, msg):
+    def javaScriptAlert(self, securityOrigin, msg):
         pass
 
-    def javaScriptConfirm(self, url, msg):
+    def javaScriptConfirm(self, securityOrigin, msg):
         return True
 
-    def javaScriptPrompt(self, url, msg, defval):
-        return True, defval
+    def javaScriptPrompt(self, securityOrigin, msg, defaultValue):
+        return True, defaultValue
 
     def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str, line_num: int, source_id: str) -> None:
         if source_id == 'userscript:scraper.js':

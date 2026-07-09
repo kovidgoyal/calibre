@@ -52,9 +52,9 @@ class ListView(QListView):
         self.setFlow(QListView.Flow.TopToBottom)
         self.setSpacing(10)
 
-    def currentChanged(self, cur, prev):
-        QListView.currentChanged(self, cur, prev)
-        self.current_changed.emit(cur, prev)
+    def currentChanged(self, current, previous):
+        QListView.currentChanged(self, current, previous)
+        self.current_changed.emit(current, previous)
 
 
 class Base(ConfigWidgetBase):

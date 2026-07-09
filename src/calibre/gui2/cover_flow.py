@@ -242,24 +242,24 @@ class CoverFlow(pictureflow.PictureFlow):
     def set_context_menu(self, cm):
         self.context_menu = cm
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, a0):
         if self.context_menu is not None:
             from calibre.gui2.main_window import clone_menu
             self.context_menu_requested.emit()
             m = clone_menu(self.context_menu) if islinux else self.context_menu
-            m.popup(event.globalPos())
-            event.accept()
+            m.popup(a0.globalPos())
+            a0.accept()
 
     def sizeHint(self):
         return self.minimumSize()
 
-    def wheelEvent(self, ev):
-        if abs(ev.angleDelta().x()) > abs(ev.angleDelta().y()):
-            d = ev.angleDelta().x()
+    def wheelEvent(self, a0):
+        if abs(a0.angleDelta().x()) > abs(a0.angleDelta().y()):
+            d = a0.angleDelta().x()
         else:
-            d = ev.angleDelta().y()
+            d = a0.angleDelta().y()
         if abs(d) > 0:
-            ev.accept()
+            a0.accept()
             (self.showNext if d < 0 else self.showPrevious)()
 
     def dataChanged(self):
@@ -268,8 +268,8 @@ class CoverFlow(pictureflow.PictureFlow):
     def _data_changed(self):
         pictureflow.PictureFlow.dataChanged(self)
 
-    def setCurrentSlide(self, num):
-        pictureflow.PictureFlow.setCurrentSlide(self, num)
+    def setCurrentSlide(self, index):
+        pictureflow.PictureFlow.setCurrentSlide(self, index)
 
 
 class CBDialog(QDialog):

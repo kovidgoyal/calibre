@@ -58,13 +58,13 @@ class Icon(QWidget):
         self._fraction = max(0, min(2, float(val)))
         self.update()
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         self.animation.start()
-        return QWidget.showEvent(self, ev)
+        return QWidget.showEvent(self, a0)
 
-    def hideEvent(self, ev):
+    def hideEvent(self, a0):
         self.animation.stop()
-        return QWidget.hideEvent(self, ev)
+        return QWidget.hideEvent(self, a0)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -88,7 +88,7 @@ class Icon(QWidget):
     def sizeHint(self):
         return QSize(64, 64)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
         p.setOpacity(min(1, abs(1 - self._fraction)))
         p.drawPixmap(self.rect(), self.icon)
@@ -183,8 +183,8 @@ class ProceedQuestion(QWidget):
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
-    def eventFilter(self, obj, ev):
-        if ev.type() == QEvent.Type.Resize and self.isVisible():
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.Resize and self.isVisible():
             self.resize_timer.start()
         return False
 
@@ -418,7 +418,7 @@ class ProceedQuestion(QWidget):
             self.log_viewer = ViewLog(q.log_viewer_title, log,
                         parent=self, unique_name=q.log_viewer_unique_name)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)

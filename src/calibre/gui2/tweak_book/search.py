@@ -125,17 +125,17 @@ class HistoryBox(HistoryComboBox):
         self.lineEdit().setClearButtonEnabled(True)
         self.set_uniform_item_sizes(False)
 
-    def event(self, ev):
-        if ev.type() in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
+    def event(self, event):
+        if event.type() in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress) and event.key() == KEY and event.modifiers() & MODIFIER:
             if not self.ignore_snip_expansion:
                 self.ignore_snip_expansion = True
                 expand_template(self.lineEdit())
                 QTimer.singleShot(100, lambda: setattr(self, 'ignore_snip_expansion', False))
-            ev.accept()
+            event.accept()
             return True
-        return HistoryComboBox.event(self, ev)
+        return HistoryComboBox.event(self, event)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, e):
         menu = self.lineEdit().createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(self.clear_msg, self.clear_history)
@@ -144,7 +144,7 @@ class HistoryBox(HistoryComboBox):
         menu.addSeparator()
         menu.addAction(_('Save current search'), self.save_search.emit)
         menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
-        menu.exec(event.globalPos())
+        menu.exec(e.globalPos())
 
     def toggle_popups(self):
         self.disable_popup = not bool(self.disable_popup)
@@ -542,12 +542,12 @@ class SearchPanel(QWidget):  # {{{
             self.widget.where = self.where_before_marked or self.widget.DEFAULT_STATE['where']
             self.where_before_marked = None
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             self.hide_panel()
-            ev.accept()
+            a0.accept()
         else:
-            return QWidget.keyPressEvent(self, ev)
+            return QWidget.keyPressEvent(self, a0)
 # }}}
 
 
@@ -587,10 +587,10 @@ class SearchesModel(QAbstractListModel):
     def mimeTypes(self):
         return ['x-calibre/searches-rows', 'application/vnd.text.list']
 
-    def mimeData(self, indices):
+    def mimeData(self, indexes):
         ans = QMimeData()
         names, rows = [], []
-        for i in indices:
+        for i in indexes:
             if i.isValid():
                 names.append(i.data())
                 rows.append(i.row())
@@ -822,12 +822,12 @@ class EditSearch(QFrame):  # {{{
     def emit_done(self):
         self.done.emit(True)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             self.abort_editing()
-            ev.accept()
+            a0.accept()
             return
-        return QFrame.keyPressEvent(self, ev)
+        return QFrame.keyPressEvent(self, a0)
 
     def abort_editing(self):
         self.done.emit(False)

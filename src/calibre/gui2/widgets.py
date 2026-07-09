@@ -207,10 +207,10 @@ class FormatList(QListWidget):  # {{{
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
 
-    def dragEnterEvent(self, event):
-        md = event.mimeData()
+    def dragEnterEvent(self, e):
+        md = e.mimeData()
         if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True):
-            event.acceptProposedAction()
+            e.acceptProposedAction()
 
     def dropEvent(self, event):
         event.setDropAction(Qt.DropAction.CopyAction)
@@ -231,14 +231,14 @@ class FormatList(QListWidget):  # {{{
             if d.err is None:
                 self.formats_dropped.emit(event, [d.fpath])
 
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
+    def dragMoveEvent(self, e):
+        e.acceptProposedAction()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_Delete:
             self.delete_format.emit()
         else:
-            return QListWidget.keyPressEvent(self, event)
+            return QListWidget.keyPressEvent(self, e)
 
 # }}}
 
@@ -392,8 +392,8 @@ class ImageView(QWidget, ImageDropMixin):
             return self.minimumSize()
         return self._pixmap.size()
 
-    def paintEvent(self, event):
-        QWidget.paintEvent(self, event)
+    def paintEvent(self, a0):
+        QWidget.paintEvent(self, a0)
         pmap = self._pixmap
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
@@ -465,8 +465,8 @@ class CoverView(QGraphicsView, ImageDropMixin):
     def set_background(self, brush=None):
         self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
 
-    def paintEvent(self, ev):
-        QGraphicsView.paintEvent(self, ev)
+    def paintEvent(self, event):
+        QGraphicsView.paintEvent(self, event)
         if self.show_size:
             v = self.viewport()
             p = QPainter(v)
@@ -581,13 +581,13 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
     Includes an extended content menu.
     '''
 
-    def event(self, ev):
+    def event(self, a0):
         # See https://bugreports.qt.io/browse/QTBUG-46911
-        if ev.type() == QEvent.Type.ShortcutOverride and (
-                hasattr(ev, 'key') and ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
-                    ev.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
-            ev.accept()
-        return QLineEdit.event(self, ev)
+        if a0.type() == QEvent.Type.ShortcutOverride and (
+                hasattr(a0, 'key') and a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
+                    a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
+            a0.accept()
+        return QLineEdit.event(self, a0)
 
 # }}}
 
@@ -776,14 +776,14 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.setClearButtonEnabled = self.lineEdit().setClearButtonEnabled
         self.textChanged = self.editTextChanged
 
-    def setPlaceholderText(self, txt):
-        return self.lineEdit().setPlaceholderText(txt)
+    def setPlaceholderText(self, placeholderText):
+        return self.lineEdit().setPlaceholderText(placeholderText)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, e):
         menu = self.lineEdit().createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Clear history'), self.clear_history_default_impl)
-        menu.exec(event.globalPos())
+        menu.exec(e.globalPos())
 
     def clear_history_default_impl(self):
         self.clear()
@@ -873,10 +873,10 @@ class ComboBoxWithHelp(QComboBox):  # {{{
             return ''
         return QComboBox.currentText(self)
 
-    def itemText(self, idx):
-        if idx == 0:
+    def itemText(self, index):
+        if index == 0:
             return ''
-        return QComboBox.itemText(self, idx)
+        return QComboBox.itemText(self, index)
 
     def showPopup(self):
         self.setItemText(0, '')
@@ -1097,7 +1097,7 @@ class SplitterHandle(QSplitterHandle):
         if oh != self.highlight:
             self.update()
 
-    def mouseDoubleClickEvent(self, ev):
+    def mouseDoubleClickEvent(self, a0):
         self.double_clicked.emit(self)
 
 

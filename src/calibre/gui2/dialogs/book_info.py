@@ -72,8 +72,8 @@ class Cover(CoverView):
     def choose_open_with(self):
         self.choose_open_with_requested.emit()
 
-    def mouseDoubleClickEvent(self, ev):
-        ev.accept()
+    def mouseDoubleClickEvent(self, event):
+        event.accept()
         self.open_with_requested.emit(None)
 
     def set_marked(self, marked):
@@ -170,9 +170,9 @@ class Details(HTMLDisplay):
     def sizeHint(self):
         return QSize(350, 350)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, e):
         if self.allow_context_menu:
-            details_context_menu_event(self, ev, self.book_info,
+            details_context_menu_event(self, e, self.book_info,
                            edit_metadata=None if self.is_locked else self.edit_metadata)
 
 
@@ -393,10 +393,10 @@ class BookInfo(QDialog, DropMixin):
         link = str(qurl.toString(NO_URL_FORMATTING))
         self.link_delegate(link, self)
 
-    def done(self, r):
+    def done(self, a0):
         self.save_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
         gprefs[self.geometry_string('book_info_dialog_splitter_state')] = bytearray(self.splitter.saveState())
-        ret = QDialog.done(self, r)
+        ret = QDialog.done(self, a0)
         if self.slave_connected:
             self.view.model().new_bookdisplay_data.disconnect(self.slave)
         self.slave_debounce_timer.stop()  # OK if it isn't running
@@ -434,11 +434,11 @@ class BookInfo(QDialog, DropMixin):
         mi, self._mi_for_debounce = self._mi_for_debounce, None
         self.refresh(mi.row_number, mi)
 
-    def move(self, delta=1):
+    def move(self, a0=1):
         idx = self.view.currentIndex()
         if idx.isValid():
             m = self.view.model()
-            ni = m.index(idx.row() + delta, idx.column())
+            ni = m.index(idx.row() + a0, idx.column())
             if ni.isValid():
                 if self.view.isVisible():
                     self.view.scrollTo(ni)

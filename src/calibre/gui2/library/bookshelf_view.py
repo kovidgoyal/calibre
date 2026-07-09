@@ -1783,9 +1783,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def has_transient_scrollbar(self) -> bool:
         return self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
 
-    def resizeEvent(self, ev: QResizeEvent) -> None:
+    def resizeEvent(self, a0: QResizeEvent) -> None:
         self.resize_debounce_timer.start()
-        return super().resizeEvent(ev)
+        return super().resizeEvent(a0)
 
     def resize_debounced(self) -> None:
         if self.layout_constraints.width != (new_width := self.get_available_width()) and new_width > 20:
@@ -1956,7 +1956,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(bottom, 'bottom')
         return top_size, bottom_size
 
-    def paintEvent(self, ev: QPaintEvent) -> None:
+    def paintEvent(self, a0: QPaintEvent) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
@@ -2398,10 +2398,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         for k, name in iter_all_groups(fm):
             add(k, name)
 
-    def contextMenuEvent(self, ev: QContextMenuEvent):
+    def contextMenuEvent(self, a0: QContextMenuEvent):
         if self.context_menu:
-            self.context_menu.popup(ev.globalPos())
-            ev.accept()
+            self.context_menu.popup(a0.globalPos())
+            a0.accept()
 
     def set_grouping_mode(self, mode: str):
         '''Set the grouping mode and refresh display.'''
@@ -2461,29 +2461,29 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Mouse and keyboard events {{{
 
-    def keyPressEvent(self, ev: QKeyEvent) -> None:
-        if handle_enter_press(self, ev, has_edit_cell=False):
+    def keyPressEvent(self, a0: QKeyEvent) -> None:
+        if handle_enter_press(self, a0, has_edit_cell=False):
             return
-        if ev.matches(QKeySequence.StandardKey.SelectAll):
+        if a0.matches(QKeySequence.StandardKey.SelectAll):
             self.selectAll()
-            ev.accept()
+            a0.accept()
             return
-        if (key := ev.key()) not in (
+        if (key := a0.key()) not in (
             Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageDown,
             Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_Space,
         ):
-            return super().keyPressEvent(ev)
+            return super().keyPressEvent(a0)
         if not self.bookcase.book_ids_in_visual_order or not (m := self.model()):
             return
-        ev.accept()
+        a0.accept()
         target_book_id = 0
         current_row = self.selectionModel().currentIndex().row()
         try:
             current_book_id = self.bookcase.row_to_book_id[current_row]
         except Exception:
             current_book_id = self.bookcase.book_ids_in_visual_order[0]
-        has_ctrl = bool(ev.modifiers() & Qt.KeyboardModifier.ControlModifier)
-        has_shift = bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        has_ctrl = bool(a0.modifiers() & Qt.KeyboardModifier.ControlModifier)
+        has_shift = bool(a0.modifiers() & Qt.KeyboardModifier.ShiftModifier)
         ctrl_action = QItemSelectionModel.SelectionFlag.Toggle
         no_mods_action = QItemSelectionModel.SelectionFlag.ClearAndSelect
         match key:

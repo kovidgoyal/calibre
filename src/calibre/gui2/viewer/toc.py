@@ -34,18 +34,18 @@ from calibre.utils.localization import _
 
 class Delegate(QStyledItemDelegate):
 
-    def helpEvent(self, ev, view, option, index):
+    def helpEvent(self, event, view, option, index):
         # Show a tooltip only if the item is truncated
-        if not ev or not view:
+        if not event or not view:
             return False
-        if ev.type() == QEvent.Type.ToolTip:
+        if event.type() == QEvent.Type.ToolTip:
             rect = view.visualRect(index)
             size = self.sizeHint(option, index)
             if rect.width() < size.width():
                 tooltip = index.data(Qt.ItemDataRole.DisplayRole)
-                QToolTip.showText(ev.globalPos(), tooltip, view)
+                QToolTip.showText(event.globalPos(), tooltip, view)
                 return True
-        return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
+        return QStyledItemDelegate.helpEvent(self, event, view, option, index)
 
 
 class TOCView(QTreeView):
@@ -68,12 +68,12 @@ class TOCView(QTreeView):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
 
-    def viewportEvent(self, ev):
+    def viewportEvent(self, event):
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(ev)
+            ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
-        return super().viewportEvent(ev)
+        return super().viewportEvent(event)
 
     def setModel(self, model):
         QTreeView.setModel(self, model)
@@ -106,12 +106,12 @@ class TOCView(QTreeView):
         ''' + qapplication_or_fail().palette_manager.tree_view_hover_style())
         self.setProperty('hovered_item_is_highlighted', True)
 
-    def mouseMoveEvent(self, ev):
-        if self.indexAt(ev.pos()).isValid():
+    def mouseMoveEvent(self, event):
+        if self.indexAt(event.pos()).isValid():
             self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.unsetCursor()
-        return QTreeView.mouseMoveEvent(self, ev)
+        return QTreeView.mouseMoveEvent(self, event)
 
     def expand_tree(self, index):
         self.expand(index)

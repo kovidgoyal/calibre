@@ -35,3 +35,6 @@ class NullSmarts:
 
     def get_completion_data(self, editor, ev=None):
         return None
+
+    def rename_block_tag(self, editor, new_name):
+        pass

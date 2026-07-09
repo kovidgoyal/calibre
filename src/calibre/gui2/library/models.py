@@ -613,12 +613,12 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.searched.emit(True)
         self.search_done.emit()
 
-    def sort(self, col, order=Qt.SortOrder.AscendingOrder, reset=True):
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder, reset=True):
         if not self.db:
             return
         if not isinstance(order, bool):
             order = order == Qt.SortOrder.AscendingOrder
-        label = self.column_map[col]
+        label = self.column_map[column]
         self._sort(label, order, reset)
 
     def sort_by_named_field(self, field, order, reset=True):
@@ -1713,11 +1713,11 @@ class DeviceBooksModel(BooksModel):  # {{{
     def research(self, reset=True):
         self.search(self.last_search, reset)
 
-    def sort(self, col, order, reset=True):
+    def sort(self, column, order, reset=True):
         if not isinstance(order, Qt.SortOrder):
             order = Qt.SortOrder.AscendingOrder if order else Qt.SortOrder.DescendingOrder
         descending = order != Qt.SortOrder.AscendingOrder
-        cname = self.column_map[col]
+        cname = self.column_map[column]
 
         def author_key(x):
             try:
@@ -1751,7 +1751,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         else:
             self.sorted_map = list(range(len(self.db)))
             self.sorted_map.sort(key=keygen, reverse=descending)
-        self.sorted_on = (self.column_map[col], not descending)
+        self.sorted_on = (self.column_map[column], not descending)
         self.sort_history.insert(0, self.sorted_on)
         if hasattr(keygen, 'db'):
             keygen.db = None
@@ -1784,8 +1784,8 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.resort()
         self.count_changed()
 
-    def cover(self, row):
-        item = self.db[self.map[row]]
+    def cover(self, row_number):
+        item = self.db[self.map[row_number]]
         cdata = item.thumbnail
         img = QImage()
         if cdata is not None:
@@ -1909,8 +1909,8 @@ class DeviceBooksModel(BooksModel):  # {{{
         return [self.map[r.row()] for r in rows]
 
     def data(self, index, role):
-        row, col = index.row(), index.column()
-        cname = self.column_map[col]
+        row, column = index.row(), index.column()
+        cname = self.column_map[column]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if cname == 'title':
                 text = self.db[self.map[row]].title
@@ -1943,7 +1943,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             elif DEBUG and cname == 'inlibrary':
                 return (self.db[self.map[row]].in_library)
         elif role == Qt.ItemDataRole.ToolTipRole and index.isValid():
-            if col == 0 and hasattr(self.db[self.map[row]], 'in_library_waiting'):
+            if column == 0 and hasattr(self.db[self.map[row]], 'in_library_waiting'):
                 return (_('Waiting for metadata to be updated'))
             if self.is_row_marked_for_deletion(row):
                 return (_('Marked for deletion'))
@@ -1990,8 +1990,8 @@ class DeviceBooksModel(BooksModel):  # {{{
             return False
         done = False
         if role == Qt.ItemDataRole.EditRole:
-            row, col = index.row(), index.column()
-            cname = self.column_map[col]
+            row, column = index.row(), index.column()
+            cname = self.column_map[column]
             if cname in ('size', 'timestamp', 'inlibrary'):
                 return False
             val = str(value or '').strip()

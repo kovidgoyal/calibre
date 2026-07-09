@@ -50,16 +50,16 @@ from polyglot.builtins import as_bytes
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
-    def interceptRequest(self, request_info):
-        method = bytes(request_info.requestMethod())
+    def interceptRequest(self, info):
+        method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             default_log.warn(f'Blocking URL request with method: {method}')
-            request_info.block(True)
+            info.block(True)
             return
-        qurl = request_info.requestUrl()
+        qurl = info.requestUrl()
         if qurl.scheme() != FAKE_PROTOCOL:
             default_log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
-            request_info.block(True)
+            info.block(True)
             return
 
 
@@ -78,16 +78,16 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST,)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
         c = current_container()
         if c is None:
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         path = url.path()
         if path.startswith('/book/'):
             name = path[len('/book/'):]
@@ -101,7 +101,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 except FileNotFoundError:
                     print(f'Could not find file {name} in book', file=sys.stderr)
-                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -110,17 +110,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif path.startswith('/mathjax/'):
             try:
                 _ign, _ign, base, rest = path.split('/', 3)
             except ValueError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             try:
                 mime_type = guess_type(rest)
@@ -134,17 +134,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 else:
                     raise FileNotFoundError('')
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except FileNotFoundError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         else:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -198,10 +198,10 @@ class Page(QWebEnginePage):  # {{{
         s.setSourceCode(js)
         self.scripts().insert(s)
 
-    def javaScriptConsoleMessage(self, level, msg, lineno, msgid):
-        self.log('JS:', str(msg))
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        self.log('JS:', str(message))
 
-    def javaScriptAlert(self, origin, msg):
+    def javaScriptAlert(self, securityOrigin, msg):
         self.log(str(msg))
 
     def title_changed(self, title):
@@ -252,7 +252,7 @@ class WebView(QWebEngineView):  # {{{
     def sizeHint(self):
         return QSize(300, 300)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         pass
 # }}}
 
@@ -346,14 +346,14 @@ class ItemEdit(QWidget):
             self.pending_search()
         self.pending_search = None
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.search_text.hasFocus():
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter) and self.search_text.hasFocus():
             # Prevent pressing enter in the search box from triggering the dialog's accept() method
-            ev.accept()
+            a0.accept()
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
-    def find(self, forwards=True):
+    def _find(self, forwards=True):
         text = str(self.search_text.text()).strip()
         flags = QWebEnginePage.FindFlag(0) if forwards else QWebEnginePage.FindFlag.FindBackward
         self.find_data = text, flags, forwards
@@ -380,10 +380,10 @@ class ItemEdit(QWidget):
                 d.setCurrentRow(next_index)
 
     def find_next(self):
-        return self.find()
+        return self._find()
 
     def find_previous(self):
-        return self.find(forwards=False)
+        return self._find(forwards=False)
 
     def load(self, container):
         self.container = container

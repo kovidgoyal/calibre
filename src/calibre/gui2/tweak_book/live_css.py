@@ -63,14 +63,14 @@ class Heading(QWidget):  # {{{
         f.setBold(True)
         self.setFont(f)
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
-            ev.accept()
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            a0.accept()
             self.expanded ^= True
             self.toggled.emit(self)
             self.update()
         else:
-            return QWidget.mousePressEvent(self, ev)
+            return QWidget.mousePressEvent(self, a0)
 
     @property
     def rendered_text(self):
@@ -81,9 +81,9 @@ class Heading(QWidget):  # {{{
         sz = fm.boundingRect(self.rendered_text).size()
         return sz
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         bg = self.palette().color(QPalette.ColorRole.AlternateBase)
         if self.hovering:
             bg = bg.lighter(115)
@@ -93,18 +93,18 @@ class Heading(QWidget):  # {{{
         finally:
             p.end()
 
-    def enterEvent(self, ev):
+    def enterEvent(self, event):
         self.hovering = True
         self.update()
-        return QWidget.enterEvent(self, ev)
+        return QWidget.enterEvent(self, event)
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.hovering = False
         self.update()
-        return QWidget.leaveEvent(self, ev)
+        return QWidget.leaveEvent(self, a0)
 
-    def contextMenuEvent(self, ev):
-        self.context_menu_requested.emit(self, ev)
+    def contextMenuEvent(self, a0):
+        self.context_menu_requested.emit(self, a0)
 # }}}
 
 
@@ -203,9 +203,9 @@ class Declaration(QWidget):
     def sizeHint(self):
         return QSize(self.width_hint, self.height_hint)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         palette = self.palette()
         p.setPen(palette.color(QPalette.ColorRole.WindowText))
         if not self.is_first:
@@ -228,9 +228,9 @@ class Declaration(QWidget):
         finally:
             p.end()
 
-    def mouseMoveEvent(self, ev):
+    def mouseMoveEvent(self, a0):
         if hasattr(self, 'hyperlink_rect'):
-            pos = ev.pos()
+            pos = a0.pos()
             hovering = self.hyperlink_rect.contains(pos)
             self.update_hover(hovering)
             cursor = Qt.CursorShape.ArrowCursor
@@ -243,14 +243,14 @@ class Declaration(QWidget):
                 if cursor != Qt.CursorShape.ArrowCursor:
                     break
             self.setCursor(cursor)
-        return QWidget.mouseMoveEvent(self, ev)
+        return QWidget.mouseMoveEvent(self, a0)
 
-    def mousePressEvent(self, ev):
-        if hasattr(self, 'hyperlink_rect') and ev.button() == Qt.MouseButton.LeftButton:
-            pos = ev.pos()
+    def mousePressEvent(self, a0):
+        if hasattr(self, 'hyperlink_rect') and a0.button() == Qt.MouseButton.LeftButton:
+            pos = a0.pos()
             if self.hyperlink_rect.contains(pos):
                 self.emit_hyperlink_activated()
-        return QWidget.mousePressEvent(self, ev)
+        return QWidget.mousePressEvent(self, a0)
 
     def emit_hyperlink_activated(self):
         dt = self.data['type']
@@ -266,10 +266,10 @@ class Declaration(QWidget):
             data['syntax'] = 'css'
         self.hyperlink_activated.emit(data)
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.update_hover(False)
         self.setCursor(Qt.CursorShape.ArrowCursor)
-        return QWidget.leaveEvent(self, ev)
+        return QWidget.leaveEvent(self, a0)
 
     def update_hover(self, hovering):
         cell = self.rows[0][0]
@@ -278,8 +278,8 @@ class Declaration(QWidget):
             cell.override_color = QColor(Qt.GlobalColor.red) if hovering else None
             self.update()
 
-    def contextMenuEvent(self, ev):
-        self.context_menu_requested.emit(self, ev)
+    def contextMenuEvent(self, a0):
+        self.context_menu_requested.emit(self, a0)
 
 
 class Box(QWidget):
@@ -540,10 +540,10 @@ class LiveCSS(QWidget):
     def is_visible(self):
         return self.isVisible()
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         self.update_timer.start()
         actions['auto-reload-preview'].setEnabled(True)
-        return QWidget.showEvent(self, ev)
+        return QWidget.showEvent(self, a0)
 
     def sync_to_editor(self):
         self.update_data()

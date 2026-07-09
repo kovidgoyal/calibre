@@ -536,17 +536,17 @@ class TagsView(QTreeView):  # {{{
         except Exception:
             pass
 
-    def mousePressEvent(self, event):
-        if event.buttons() & Qt.MouseButton.LeftButton:
+    def mousePressEvent(self, e):
+        if e.buttons() & Qt.MouseButton.LeftButton:
             # Record the press point for processing during the clicked signal
-            self.mouse_clicked_point = event.pos()
+            self.mouse_clicked_point = e.pos()
             # Only remember a possible drag start if the item is drag enabled
-            dex = self.indexAt(event.pos())
+            dex = self.indexAt(e.pos())
             if self._model.flags(dex) & Qt.ItemFlag.ItemIsDragEnabled:
-                self.possible_drag_start = event.pos()
+                self.possible_drag_start = e.pos()
             else:
                 self.possible_drag_start = None
-        return QTreeView.mousePressEvent(self, event)
+        return QTreeView.mousePressEvent(self, e)
 
     def mouseMoveEvent(self, event):
         dex = self.indexAt(event.pos())
@@ -586,7 +586,7 @@ class TagsView(QTreeView):  # {{{
         else:
             drag.exec(Qt.DropAction.CopyAction)
 
-    def mouseDoubleClickEvent(self, event):
+    def mouseDoubleClickEvent(self, e):
         # swallow these to avoid toggling and editing at the same time
         pass
 
@@ -1642,9 +1642,9 @@ class TagsView(QTreeView):  # {{{
         '''
         self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
 
-    def currentChanged(self, idx, prev_idx):
-        self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
-        super().currentChanged(idx, prev_idx)
+    def currentChanged(self, current, previous):
+        self.current_expansion = (self.isExpanded(current), self._model.named_path_for_index(current))
+        super().currentChanged(current, previous)
 
     def restore_expansion(self, expansion):
         self.current_expansion = None

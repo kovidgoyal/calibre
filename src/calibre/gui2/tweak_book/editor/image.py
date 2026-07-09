@@ -258,8 +258,8 @@ class Editor(QMainWindow):
         self.cursor_position_changed.disconnect()
         self.copy_available_state_changed.disconnect()
 
-    def contextMenuEvent(self, ev):
-        ev.ignore()
+    def contextMenuEvent(self, event):
+        event.ignore()
 
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))

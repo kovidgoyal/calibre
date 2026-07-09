@@ -1083,16 +1083,16 @@ class TagsModel(QAbstractItemModel):  # {{{
         ans.setData('application/calibre+from_tag_browser', raw)
         return ans
 
-    def dropMimeData(self, md, action, row, column, parent):
-        fmts = {str(x) for x in md.formats()}
+    def dropMimeData(self, data, action, row, column, parent):
+        fmts = {str(x) for x in data.formats()}
         if not fmts.intersection(set(self.mimeTypes())):
             return False
         if 'application/calibre+from_library' in fmts:
             if action != Qt.DropAction.CopyAction:
                 return False
-            return self.do_drop_from_library(md, action, row, column, parent)
+            return self.do_drop_from_library(data, action, row, column, parent)
         elif 'application/calibre+from_tag_browser' in fmts:
-            return self.do_drop_from_tag_browser(md, action, row, column, parent)
+            return self.do_drop_from_tag_browser(data, action, row, column, parent)
 
     def do_drop_from_tag_browser(self, md, action, row, column, parent):
         if not parent.isValid():
@@ -1494,9 +1494,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         ans = self.node_map.get(idx.internalId(), self.root_item)
         return ans
 
-    def createIndex(self, row, column, internal_pointer=None):
+    def createIndex(self, row, column, object=None):
         idx = QAbstractItemModel.createIndex(self, row, column,
-                id(internal_pointer))
+                id(object))
         return idx
 
     def category_row_map(self):
@@ -1835,11 +1835,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, index):
-        if not index.isValid():
+    def parent(self, child):
+        if not child.isValid():
             return QModelIndex()
 
-        child_item = self.get_node(index)
+        child_item = self.get_node(child)
         parent_item = getattr(child_item, 'parent', None)
 
         if parent_item is self.root_item or parent_item is None:

@@ -1045,11 +1045,11 @@ class RulesView(ListViewWithMoveByKeyPress):  # {{{
         ListViewWithMoveByKeyPress.__init__(self, parent)
         self.enable_convert_buttons_function = enable_convert_buttons_function
 
-    def currentChanged(self, new, prev):
-        if self.model() and new.isValid():
-            _, _, rule = self.model().data(new, Qt.ItemDataRole.UserRole)
+    def currentChanged(self, current, previous):
+        if self.model() and current.isValid():
+            _, _, rule = self.model().data(current, Qt.ItemDataRole.UserRole)
             self.enable_convert_buttons_function(isinstance(rule, Rule))
-        return super().currentChanged(new, prev)
+        return super().currentChanged(current, previous)
 # }}}
 
 

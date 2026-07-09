@@ -63,9 +63,9 @@ class BusyWidget(QWidget):  # {{{
         l.addStretch(10)
         self.text = _('Calculating differences, please wait...')
 
-    def paintEvent(self, ev):
-        br = ev.region().boundingRect()
-        QWidget.paintEvent(self, ev)
+    def paintEvent(self, a0):
+        br = a0.region().boundingRect()
+        QWidget.paintEvent(self, a0)
         p = QPainter(self)
         p.setClipRect(br)
         f = p.font()
@@ -472,24 +472,24 @@ class Diff(Dialog):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 
-    def keyPressEvent(self, ev):
-        if not self.view.handle_key(ev):
-            if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, a0):
+        if not self.view.handle_key(a0):
+            if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
                 return  # The enter key is used by the search box, so prevent it closing the dialog
-            if ev.key() == Qt.Key.Key_Slash:
+            if a0.key() == Qt.Key.Key_Slash:
                 return self.search.setFocus(Qt.FocusReason.OtherFocusReason)
-            if ev.matches(QKeySequence.StandardKey.Copy):
+            if a0.matches(QKeySequence.StandardKey.Copy):
                 text = self.view.view.left.selected_text + self.view.view.right.selected_text
                 if text:
                     QApplication.clipboard().setText(text)
                 return
-            if ev.matches(QKeySequence.StandardKey.FindNext):
+            if a0.matches(QKeySequence.StandardKey.FindNext):
                 self.sbn.click()
                 return
-            if ev.matches(QKeySequence.StandardKey.FindPrevious):
+            if a0.matches(QKeySequence.StandardKey.FindPrevious):
                 self.sbp.click()
                 return
-            return Dialog.keyPressEvent(self, ev)
+            return Dialog.keyPressEvent(self, a0)
 
 
 def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):

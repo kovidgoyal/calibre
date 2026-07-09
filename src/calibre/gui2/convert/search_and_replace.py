@@ -211,8 +211,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     # Options handling
 
-    def connect_gui_obj_handler(self, g, slot):
-        if g is self.opt_search_replace:
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj is self.opt_search_replace:
             self.search_replace.cellChanged.connect(slot)
 
     def get_value_handler(self, g):

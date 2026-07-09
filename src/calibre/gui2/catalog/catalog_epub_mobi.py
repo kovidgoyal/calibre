@@ -877,9 +877,9 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
 class NoWheelComboBox(QComboBox):
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, e):
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
-        event.ignore()
+        e.ignore()
 
 
 class ComboBox(NoWheelComboBox):

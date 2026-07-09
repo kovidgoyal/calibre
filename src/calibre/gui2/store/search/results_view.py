@@ -53,8 +53,8 @@ class ResultsView(QTreeView):
         for i in self._model.IMG_COLS:
             self.setItemDelegateForColumn(i, self.img_delegate)
 
-    def contextMenuEvent(self, event):
-        index = self.indexAt(event.pos())
+    def contextMenuEvent(self, a0):
+        index = self.indexAt(a0.pos())
 
         if not index.isValid():
             return
@@ -67,4 +67,4 @@ class ResultsView(QTreeView):
             da.setEnabled(False)
         menu.addSeparator()
         menu.addAction(_('Show in store'), partial(self.open_requested.emit, result))
-        menu.exec(event.globalPos())
+        menu.exec(a0.globalPos())

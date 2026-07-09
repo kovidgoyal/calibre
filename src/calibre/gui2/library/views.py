@@ -93,18 +93,18 @@ class HeaderView(QHeaderView):  # {{{
             self.hover = -1
         return QHeaderView.event(self, e)
 
-    def sectionSizeFromContents(self, logical_index):
+    def sectionSizeFromContents(self, logicalIndex):
         self.ensurePolished()
         opt = QStyleOptionHeader()
         self.initStyleOption(opt)
-        opt.section = logical_index
+        opt.section = logicalIndex
         opt.orientation = self.orientation()
         opt.fontMetrics = self.fm
         model = self.parent().model()
-        opt.text = str(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
+        opt.text = str(model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
         if opt.orientation == Qt.Orientation.Vertical:
             try:
-                val = model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DecorationRole)
+                val = model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DecorationRole)
                 if val is not None:
                     opt.icon = val
                 opt.iconAlignment = Qt.AlignmentFlag.AlignVCenter
@@ -114,46 +114,46 @@ class HeaderView(QHeaderView):  # {{{
             opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown
         return self.style().sizeFromContents(QStyle.ContentsType.CT_HeaderSection, opt, QSize(), self)
 
-    def paintSection(self, painter, rect, logical_index):
+    def paintSection(self, painter, rect, logicalIndex):
         opt = QStyleOptionHeader()
         self.initStyleOption(opt)
         opt.rect = rect
-        opt.section = logical_index
+        opt.section = logicalIndex
         opt.orientation = self.orientation()
         opt.textAlignment = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
         opt.fontMetrics = self.fm
         model = self.parent().model()
         style = self.style()
         margin = 2 * style.pixelMetric(QStyle.PixelMetric.PM_HeaderMargin, None, self)
-        if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
+        if self.isSortIndicatorShown() and self.sortIndicatorSection() == logicalIndex:
             opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if \
                 self.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder else QStyleOptionHeader.SortIndicator.SortUp
             margin += style.pixelMetric(QStyle.PixelMetric.PM_HeaderMarkSize, None, self)
-        opt.text = str(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
+        opt.text = str(model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
         if self.textElideMode() != Qt.TextElideMode.ElideNone:
             opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, rect.width() - margin)
         if self.isEnabled():
             opt.state |= QStyle.StateFlag.State_Enabled
             if self.window().isActiveWindow():
                 opt.state |= QStyle.StateFlag.State_Active
-                if self.hover == logical_index:
+                if self.hover == logicalIndex:
                     opt.state |= QStyle.StateFlag.State_MouseOver
         sm = self.selectionModel()
         if opt.orientation == Qt.Orientation.Vertical:
             try:
-                val = model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DecorationRole)
+                val = model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DecorationRole)
                 if val is not None:
                     opt.icon = val
                 opt.iconAlignment = Qt.AlignmentFlag.AlignVCenter
             except (IndexError, ValueError, TypeError):
                 pass
-            if sm.isRowSelected(logical_index, QModelIndex()):
+            if sm.isRowSelected(logicalIndex, QModelIndex()):
                 opt.state |= QStyle.StateFlag.State_Sunken
 
         painter.save()
         if (
-                (opt.orientation == Qt.Orientation.Horizontal and sm.currentIndex().column() == logical_index) or (
-                    opt.orientation == Qt.Orientation.Vertical and sm.currentIndex().row() == logical_index)):
+                (opt.orientation == Qt.Orientation.Horizontal and sm.currentIndex().column() == logicalIndex) or (
+                    opt.orientation == Qt.Orientation.Vertical and sm.currentIndex().row() == logicalIndex)):
             painter.setFont(self.current_font)
         self.style().drawControl(QStyle.ControlElement.CE_Header, opt, painter, self)
         painter.restore()
@@ -346,14 +346,14 @@ class BooksView(TableView):  # {{{
     add_column_signal = pyqtSignal()
     is_library_view = True
 
-    def viewportEvent(self, event):
-        if (event.type() == QEvent.Type.ToolTip and not gprefs['book_list_tooltips']):
+    def viewportEvent(self, e):
+        if (e.type() == QEvent.Type.ToolTip and not gprefs['book_list_tooltips']):
             return False
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(event)
+            ret = self.gesture_manager.handle_event(e)
             if ret is not None:
                 return ret
-        return super().viewportEvent(event)
+        return super().viewportEvent(e)
 
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
@@ -1186,8 +1186,8 @@ class BooksView(TableView):  # {{{
         m.popup(event.globalPos())
         event.accept()
 
-    def contextMenuEvent(self, event):
-        self.show_context_menu(self.context_menu, event)
+    def contextMenuEvent(self, a0):
+        self.show_context_menu(self.context_menu, a0)
     # }}}
 
     def handle_mouse_press_event(self, ev):
@@ -1424,11 +1424,11 @@ class BooksView(TableView):  # {{{
                 return ans
             pos -= 5
 
-    def moveCursor(self, action, modifiers):
+    def moveCursor(self, cursorAction, modifiers):
         orig = self.currentIndex()
-        action = QAbstractItemView.CursorAction(action)
-        index = QTableView.moveCursor(self, action, modifiers)
-        if action == QAbstractItemView.CursorAction.MovePageDown:
+        cursorAction = QAbstractItemView.CursorAction(cursorAction)
+        index = QTableView.moveCursor(self, cursorAction, modifiers)
+        if cursorAction == QAbstractItemView.CursorAction.MovePageDown:
             moved = index.row() - orig.row()
             try:
                 rows = self.row_at_bottom() - self.row_at_top()
@@ -1436,7 +1436,7 @@ class BooksView(TableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() + rows, index.column())
-        elif action == QAbstractItemView.CursorAction.MovePageUp:
+        elif cursorAction == QAbstractItemView.CursorAction.MovePageUp:
             moved = orig.row() - index.row()
             try:
                 rows = self.row_at_bottom() - self.row_at_top()
@@ -1444,9 +1444,9 @@ class BooksView(TableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() - rows, index.column())
-        elif action == QAbstractItemView.CursorAction.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
+        elif cursorAction == QAbstractItemView.CursorAction.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(0, orig.column())
-        elif action == QAbstractItemView.CursorAction.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
+        elif cursorAction == QAbstractItemView.CursorAction.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
         return index
 
@@ -1681,14 +1681,14 @@ class DeviceBooksView(BooksView):  # {{{
         drag.setPixmap(cover)
         return drag
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, a0):
         edit_collections = callable(getattr(self._model.db, 'supports_collections', None)) and \
             self._model.db.supports_collections() and \
             prefs['manage_device_metadata'] == 'manual'
 
         self.edit_collections_action.setVisible(edit_collections)
-        self.context_menu.popup(event.globalPos())
-        event.accept()
+        self.context_menu.popup(a0.globalPos())
+        a0.accept()
 
     def get_old_state(self):
         ans = None

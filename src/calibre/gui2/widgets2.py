@@ -209,12 +209,12 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False, use_s
 
 class RightClickButton(QToolButton):
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.RightButton and self.menu() is not None:
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.MouseButton.RightButton and self.menu() is not None:
             self.showMenu()
-            ev.accept()
+            a0.accept()
             return
-        return QToolButton.mousePressEvent(self, ev)
+        return QToolButton.mousePressEvent(self, a0)
 
 
 class CenteredToolButton(RightClickButton):
@@ -227,7 +227,7 @@ class CenteredToolButton(RightClickButton):
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.text_flags = Qt.TextFlag.TextSingleLine | Qt.AlignmentFlag.AlignCenter
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QStylePainter(self)
         opt = QStyleOptionToolButton()
         self.initStyleOption(opt)
@@ -388,18 +388,18 @@ class RatingEditor(QComboBox):
             val //= 2
         self.setCurrentIndex(val)
 
-    def keyPressEvent(self, ev):
-        if ev == QKeySequence.StandardKey.Undo:
+    def keyPressEvent(self, e):
+        if e == QKeySequence.StandardKey.Undo:
             self.undo()
-            return ev.accept()
-        if ev == QKeySequence.StandardKey.Redo:
+            return e.accept()
+        if e == QKeySequence.StandardKey.Redo:
             self.redo()
-            return ev.accept()
-        k = ev.key()
+            return e.accept()
+        k = e.key()
         num = {getattr(Qt, f'Key_{i}'):i for i in range(6)}.get(k)
         if num is None:
-            return QComboBox.keyPressEvent(self, ev)
-        ev.accept()
+            return QComboBox.keyPressEvent(self, e)
+        e.accept()
         if self.is_half_star:
             num *= 2
         self.setCurrentIndex(num)
@@ -423,9 +423,9 @@ class FlowLayout(QLayout):  # {{{
     def clear_caches(self):
         self.height_for_width_cache.clear()
 
-    def addItem(self, item):
+    def addItem(self, a0):
         self.clear_caches()
-        self.items.append(item)
+        self.items.append(a0)
 
     def isEmpty(self):
         return not bool(self.items)
@@ -434,15 +434,15 @@ class FlowLayout(QLayout):  # {{{
         self.clear_caches()
         super().invalidate()
 
-    def itemAt(self, idx):
+    def itemAt(self, index):
         try:
-            return self.items[idx]
+            return self.items[index]
         except IndexError:
             pass
 
-    def takeAt(self, idx):
+    def takeAt(self, index):
         try:
-            return self.items.pop(idx)
+            return self.items.pop(index)
         except IndexError:
             pass
 
@@ -453,14 +453,14 @@ class FlowLayout(QLayout):  # {{{
     def hasHeightForWidth(self):
         return True
 
-    def heightForWidth(self, width):
-        if (ans := self.height_for_width_cache.get(width)) is None:
-            ans = self.height_for_width_cache[width] = self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+    def heightForWidth(self, a0):
+        if (ans := self.height_for_width_cache.get(a0)) is None:
+            ans = self.height_for_width_cache[a0] = self.do_layout(QRect(0, 0, a0, 0), apply_geometry=False)
         return ans
 
-    def setGeometry(self, rect):
-        QLayout.setGeometry(self, rect)
-        self.do_layout(rect, apply_geometry=True)
+    def setGeometry(self, a0):
+        QLayout.setGeometry(self, a0)
+        self.do_layout(a0, apply_geometry=True)
 
     def expandingDirections(self):
         return Qt.Orientation(0)
@@ -584,10 +584,10 @@ class Separator(QWidget):  # {{{
     def sizeHint(self):
         return QSize(1, 1 if self.widget_for_height is None else self.widget_for_height.height())
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QPainter(self)
         # Purely subjective: shorten the line a bit to look 'better'
-        r = ev.rect()
+        r = a0.rect()
         r.setTop(r.top() + 3)
         r.setBottom(r.bottom() - 3)
         painter.fillRect(r, self.brush)
@@ -626,9 +626,9 @@ class HTMLDisplay(QTextBrowser):
     def get_base_qurl(self):
         return None
 
-    def setHtml(self, html):
-        self.last_set_html = html
-        QTextBrowser.setHtml(self, html)
+    def setHtml(self, text):
+        self.last_set_html = text
+        QTextBrowser.setHtml(self, text)
 
     def setDefaultStyleSheet(self, css=''):
         self.external_css = css
@@ -679,27 +679,27 @@ class HTMLDisplay(QTextBrowser):
             return r
         return super().loadResource(rtype, qurl)
 
-    def loadResource(self, rtype, qurl):
-        path = local_path_for_resource(qurl, base_qurl=self.get_base_qurl())
+    def loadResource(self, type, name):
+        path = local_path_for_resource(name, base_qurl=self.get_base_qurl())
         if path:
-            return self.load_local_file_resource(rtype, qurl, path)
-        if qurl.scheme() == 'calibre-icon':
-            r = QIcon.icon_as_png(qurl.path().lstrip('/'), as_bytearray=True)
-            self.document().addResource(rtype, qurl, r)
+            return self.load_local_file_resource(type, name, path)
+        if name.scheme() == 'calibre-icon':
+            r = QIcon.icon_as_png(name.path().lstrip('/'), as_bytearray=True)
+            self.document().addResource(type, name, r)
             return r
-        if self.notes_resource_scheme and qurl.scheme() == self.notes_resource_scheme and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
+        if self.notes_resource_scheme and name.scheme() == self.notes_resource_scheme and int(type) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
             gui = get_gui()
             if gui is not None:
                 db = gui.current_db.new_api
-                resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
+                resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
                 if resource is not None:
                     r = QByteArray(resource['data'])
                     if self.save_resources_in_document:
-                        self.document().addResource(rtype, qurl, r)
+                        self.document().addResource(type, name, r)
                     return r
         else:
-            return super().loadResource(rtype, qurl)
+            return super().loadResource(type, name)
 
     def anchorAt(self, pos):
         # Anchors in a document can be "focused" with the tab key.
@@ -743,18 +743,18 @@ class ScrollingTabWidget(QTabWidget):
         for i in range(self.count()):
             yield self.widget(i).widget()
 
-    def indexOf(self, page):
+    def indexOf(self, widget):
         for i in range(self.count()):
             t = self.widget(i)
-            if t.widget() is page:
+            if t.widget() is widget:
                 return i
         return -1
 
     def currentWidget(self):
         return QTabWidget.currentWidget(self).widget()
 
-    def addTab(self, page, *args):
-        return QTabWidget.addTab(self, self.wrap_widget(page), *args)
+    def addTab(self, widget, *args):
+        return QTabWidget.addTab(self, self.wrap_widget(widget), *args)
 
 
 PARAGRAPH_SEPARATOR = '\u2029'
@@ -776,7 +776,7 @@ def to_plain_text(self):
 
 class CalendarWidget(QCalendarWidget):
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         if self.selectedDate().year() == UNDEFINED_DATE.year:
             self.setSelectedDate(QDate.currentDate())
 
@@ -833,9 +833,9 @@ class DateTimeEdit(QDateTimeEdit):
         populate_standard_spinbox_context_menu(self, m, use_self_for_copy_actions=True)
         return m
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, e):
         m = self.create_context_menu()
-        m.popup(ev.globalPos())
+        m.popup(e.globalPos())
 
     def today_date(self):
         self.setDateTime(QDateTime.currentDateTime())
@@ -843,24 +843,24 @@ class DateTimeEdit(QDateTimeEdit):
     def clear_date(self):
         self.setDateTime(UNDEFINED_QDATETIME)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Minus:
-            ev.accept()
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_Minus:
+            e.accept()
             self.clear_date()
-        elif ev.key() == Qt.Key.Key_Equal:
+        elif e.key() == Qt.Key.Key_Equal:
             self.today_date()
-            ev.accept()
-        elif ev.matches(QKeySequence.StandardKey.Copy):
+            e.accept()
+        elif e.matches(QKeySequence.StandardKey.Copy):
             self.copy()
-            ev.accept()
-        elif ev.matches(QKeySequence.StandardKey.Cut):
+            e.accept()
+        elif e.matches(QKeySequence.StandardKey.Cut):
             self.cut()
-            ev.accept()
-        elif ev.matches(QKeySequence.StandardKey.Paste):
+            e.accept()
+        elif e.matches(QKeySequence.StandardKey.Paste):
             self.paste()
-            ev.accept()
+            e.accept()
         else:
-            return QDateTimeEdit.keyPressEvent(self, ev)
+            return QDateTimeEdit.keyPressEvent(self, e)
 
 
 class MessagePopup(QLabel):

@@ -399,11 +399,11 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, index):
-        if not index.isValid():
+    def parent(self, child):
+        if not child.isValid():
             return QModelIndex()
 
-        child_item = index.internalPointer()
+        child_item = child.internalPointer()
         parent_item = child_item.parent
 
         if parent_item is self.root or parent_item is None:

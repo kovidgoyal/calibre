@@ -80,7 +80,7 @@ class Pointer(QWidget):
             self.animation.setKeyValueAt(i, self.rect_at(i))
         self.animation.start()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing)
         p.setBrush(self.brush)

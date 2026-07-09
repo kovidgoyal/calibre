@@ -476,13 +476,13 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     tester_closed = pyqtSignal(object, object)
 
-    def setWindowTitle(self, title, dialog_number=None):
+    def setWindowTitle(self, a0, dialog_number=None):
         if dialog_number is None:
-            title = _('{title} (only one template dialog allowed)').format(title=title)
+            a0 = _('{a0} (only one template dialog allowed)').format(a0=a0)
         else:
-            title = _('{title} dialog number {number} (multiple template dialogs allowed)').format(
-                    title=title, number=dialog_number)
-        super().setWindowTitle(title)
+            a0 = _('{a0} dialog number {number} (multiple template dialogs allowed)').format(
+                    a0=a0, number=dialog_number)
+        super().setWindowTitle(a0)
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
@@ -1181,15 +1181,15 @@ def evaluate(book, context):
         gprefs[self.geometry_string('template_editor_table_widths')] = self.table_column_widths
         super().save_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             # Check about ESC to avoid killing the dialog by mistake
             if self.textbox.toPlainText() != self.original_text:
                 r = question_dialog(self, _('Discard changes?'),
                       _('Do you really want to close this dialog, discarding any changes?'))
                 if not r:
                     return
-        QDialog.keyPressEvent(self, ev)
+        QDialog.keyPressEvent(self, a0)
 
     def accept(self):
         txt = str(self.textbox.toPlainText()).rstrip()
@@ -1352,12 +1352,12 @@ class BreakReporter(BreakReporterBase):
         self.table.item(0,0).setToolTip(_('The name of the template language operation'))
         self.table.setItem(0, 1, BreakReporterItem(op_value))
 
-    def setup_locals(self, locals):
-        local_names = sorted(locals.keys())
+    def setup_locals(self, locals_):
+        local_names = sorted(locals_.keys())
         rows = len(local_names)
         self.table.setRowCount(rows+2)
         for i,k in enumerate(local_names, start=2):
-            self.add_local_line(locals, i, k)
+            self.add_local_line(locals_, i, k)
 
     def displayable_field_value(self, mi, field):
         return self.mi.format_field('timestamp' if field == 'date' else field)[1]
@@ -1372,16 +1372,16 @@ class PythonBreakReporter(BreakReporterBase):
         locals = frame.f_locals
         self.setup_ui(mi, line_number, locals, leading_rows=1)
 
-    def setup_locals(self, locals):
-        locals = self.frame.f_locals
-        local_names = sorted(k for k in locals.keys() if k not in ('book', 'context'))
+    def setup_locals(self, locals_):
+        locals_ = self.frame.f_locals
+        local_names = sorted(k for k in locals_.keys() if k not in ('book', 'context'))
         rows = len(local_names)
         self.table.setRowCount(rows+1)
 
         for i,k in enumerate(local_names, start=1):
             if k in ('book', 'context'):
                 continue
-            self.add_local_line(locals, i, k)
+            self.add_local_line(locals_, i, k)
 
     def displayable_field_value(self, mi, field):
         return repr(self.mi.get('timestamp' if field == 'date' else field))

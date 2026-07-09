@@ -1458,11 +1458,11 @@ class Application(QApplication):
     def load_translations(self):
         install_qt_translator()
 
-    def event(self, e):
-        etype = e.type()
+    def event(self, a0):
+        etype = a0.type()
         if etype == QEvent.Type.FileOpen:
             added_event = False
-            qurl = e.url()
+            qurl = a0.url()
             if qurl.isLocalFile():
                 with self._file_open_lock:
                     path = qurl.toLocalFile()
@@ -1478,7 +1478,7 @@ class Application(QApplication):
         else:
             if etype == QEvent.Type.ApplicationPaletteChange:
                 self.palette_manager.on_qt_palette_change()
-            return QApplication.event(self, e)
+            return QApplication.event(self, a0)
 
     @pyqtSlot(QUrl)
     def handle_calibre_url(self, qurl):

@@ -517,7 +517,7 @@ class DevicePlugin(Plugin):
         raise NotImplementedError()
 
     @classmethod
-    def save_settings(cls, settings_widget):
+    def save_settings(cls, config_widget):
         '''
         Should save settings to disk. Takes the widget created in
         :meth:`config_widget` and saves all settings to disk.

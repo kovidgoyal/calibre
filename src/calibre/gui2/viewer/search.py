@@ -640,12 +640,12 @@ class Results(QTreeWidget):  # {{{
         self.context_menu.popup(self.mapToGlobal(point))
         return True
 
-    def viewportEvent(self, ev):
+    def viewportEvent(self, event):
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(ev)
+            ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
-        return super().viewportEvent(ev)
+        return super().viewportEvent(event)
 
     def current_item_changed(self, current, previous):
         if current is not None:
@@ -943,12 +943,12 @@ class SearchPanel(QWidget):  # {{{
         msg = _('No matches were found for:')
         warning_dialog(self, _('No matches found'), msg + f'  <b>{self.current_search.text}</b>', show=True)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             self.hide_search_panel.emit()
-            ev.accept()
+            a0.accept()
             return
-        return QWidget.keyPressEvent(self, ev)
+        return QWidget.keyPressEvent(self, a0)
 
     def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
         self.search_input.set_tooltips(key_map)

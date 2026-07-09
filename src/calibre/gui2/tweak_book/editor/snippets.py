@@ -471,10 +471,10 @@ class SnippetTextEdit(PlainTextEdit):
             self.setPlainText(text)
         self.snippet_manager = SnippetManager(self)
 
-    def keyPressEvent(self, ev):
-        if self.snippet_manager.handle_key_press(ev):
+    def keyPressEvent(self, e):
+        if self.snippet_manager.handle_key_press(e):
             return
-        PlainTextEdit.keyPressEvent(self, ev)
+        PlainTextEdit.keyPressEvent(self, e)
 
 
 class EditSnippet(QWidget):

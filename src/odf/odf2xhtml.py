@@ -582,28 +582,28 @@ class ODF2XHTML(handler.ContentHandler):
 # --------------------------------------------------
 # Interface to parser
 # --------------------------------------------------
-    def characters(self, data):
+    def characters(self, content):
         if self.processelem and self.processcont:
-            self.data.append(data)
+            self.content.append(content)
 
-    def startElementNS(self, tag, qname, attrs):
+    def startElementNS(self, name, qname, attrs):
         self.pstack.append((self.processelem, self.processcont))
         if self.processelem:
-            method = self.elements.get(tag, (None, None))[0]
+            method = self.elements.get(name, (None, None))[0]
             if method:
-                self.handle_starttag(tag, method, attrs)
+                self.handle_starttag(name, method, attrs)
             else:
-                self.unknown_starttag(tag, attrs)
-        self.tagstack.push(tag, attrs)
+                self.unknown_starttag(name, attrs)
+        self.tagstack.push(name, attrs)
 
-    def endElementNS(self, tag, qname):
+    def endElementNS(self, name, qname):
         stag, attrs = self.tagstack.pop()
         if self.processelem:
-            method = self.elements.get(tag, (None, None))[1]
+            method = self.elements.get(name, (None, None))[1]
             if method:
-                self.handle_endtag(tag, attrs, method)
+                self.handle_endtag(name, attrs, method)
             else:
-                self.unknown_endtag(tag, attrs)
+                self.unknown_endtag(name, attrs)
         self.processelem, self.processcont = self.pstack.pop()
 
 # --------------------------------------------------

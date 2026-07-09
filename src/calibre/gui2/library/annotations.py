@@ -1521,18 +1521,18 @@ class ResultsList(QTreeWidget):
                 ans[key] = x[key]
             yield ans
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Delete):
+    def keyPressEvent(self, event):
+        if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
-            ev.accept()
+            event.accept()
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if event.key() == Qt.Key.Key_F2:
             item = self.currentItem()
             if item:
                 self.edit_notes(item)
-                ev.accept()
+                event.accept()
                 return
-        return QTreeWidget.keyPressEvent(self, ev)
+        return QTreeWidget.keyPressEvent(self, event)
 
     @property
     def tree_state(self):
@@ -2109,9 +2109,9 @@ class AnnotationsBrowser(Dialog):
             x = 2 * (annot['spine_index'] + 1)
             self.open_annotation.emit(book_id, fmt, 'epubcfi(/{}{})'.format(x, annot['start_cfi']))
 
-    def keyPressEvent(self, ev):
-        if ev.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            return Dialog.keyPressEvent(self, ev)
+    def keyPressEvent(self, a0):
+        if a0.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            return Dialog.keyPressEvent(self, a0)
 
     def setup_ui(self):
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))

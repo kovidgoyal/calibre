@@ -97,7 +97,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return base + _('This source needs configuration')
         return None
 
-    def setData(self, index, val, role):
+    def setData(self, index, value, role):
         try:
             plugin = self.plugins[index.row()]
         except Exception:
@@ -105,8 +105,8 @@ class SourcesModel(QAbstractTableModel):  # {{{
         col = index.column()
         ret = False
         if col == 0 and role == Qt.ItemDataRole.CheckStateRole:
-            val = Qt.CheckState(val)
-            if val == Qt.CheckState.Checked and 'Douban' in plugin.name:
+            value = Qt.CheckState(value)
+            if value == Qt.CheckState.Checked and 'Douban' in plugin.name:
                 if not question_dialog(self.gui_parent,
                     _('Are you sure?'), '<p>'+
                     _('This plugin is useful only for <b>Chinese</b>'
@@ -115,11 +115,11 @@ class SourcesModel(QAbstractTableModel):  # {{{
                         ' sure you want to enable it?'),
                     show_copy_button=False):
                     return ret
-            self.enabled_overrides[plugin] = val
+            self.enabled_overrides[plugin] = value
             ret = True
         if col == 1 and role == Qt.ItemDataRole.EditRole:
             try:
-                self.cover_overrides[plugin] = max(1, int(val))
+                self.cover_overrides[plugin] = max(1, int(value))
                 ret = True
             except (ValueError, TypeError):
                 pass
@@ -237,14 +237,14 @@ class FieldsModel(QAbstractListModel):  # {{{
         self.overrides = {f: Qt.CheckState.Unchecked for f in self.fields}
         self.endResetModel()
 
-    def setData(self, index, val, role):
+    def setData(self, index, value, role):
         try:
             field = self.fields[index.row()]
         except Exception:
             return False
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
-            self.overrides[field] = Qt.CheckState(val)
+            self.overrides[field] = Qt.CheckState(value)
             ret = True
         if ret:
             self.dataChanged.emit(index, index)

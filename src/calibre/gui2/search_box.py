@@ -33,15 +33,15 @@ class SearchLineEdit(QLineEdit):  # {{{
     select_on_mouse_press = None
     as_url = None
 
-    def keyPressEvent(self, event):
-        self.key_pressed.emit(event)
-        QLineEdit.keyPressEvent(self, event)
+    def keyPressEvent(self, a0):
+        self.key_pressed.emit(a0)
+        QLineEdit.keyPressEvent(self, a0)
 
-    def dropEvent(self, ev):
+    def dropEvent(self, a0):
         self.parent().normalize_state()
-        return QLineEdit.dropEvent(self, ev)
+        return QLineEdit.dropEvent(self, a0)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         self.parent().normalize_state()
         menu = self.createStandardContextMenu()
         menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -67,7 +67,7 @@ class SearchLineEdit(QLineEdit):  # {{{
             if url:
                 menu.addAction(_('Copy search as URL'), lambda: QApplication.clipboard().setText(url))
         menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
-        menu.exec(ev.globalPos())
+        menu.exec(a0.globalPos())
 
     def invert_search(self):
         q = self.text().strip()
@@ -90,12 +90,12 @@ class SearchLineEdit(QLineEdit):  # {{{
         self.parent().normalize_state()
         return QLineEdit.paste(self)
 
-    def focusInEvent(self, ev):
+    def focusInEvent(self, a0):
         self.select_on_mouse_press = time.time()
-        return QLineEdit.focusInEvent(self, ev)
+        return QLineEdit.focusInEvent(self, a0)
 
-    def mousePressEvent(self, ev):
-        QLineEdit.mousePressEvent(self, ev)
+    def mousePressEvent(self, a0):
+        QLineEdit.mousePressEvent(self, a0)
         if self.select_on_mouse_press is not None and abs(time.time() - self.select_on_mouse_press) < 0.2:
             self.selectAll()
         self.select_on_mouse_press = None
@@ -246,20 +246,20 @@ class SearchBox2(QComboBox):  # {{{
             self.timer.start(1500)
 
     # Comes from the combobox itself
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, e):
         self.show_parse_error_action(False)
-        k = event.key()
+        k = e.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             return self.do_search()
         if k not in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-            return QComboBox.keyPressEvent(self, event)
+            return QComboBox.keyPressEvent(self, e)
         self.blockSignals(True)
         self.normalize_state()
         if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
             self.setCurrentIndex(1), self.setCurrentIndex(0)
-            event.accept()
+            e.accept()
         else:
-            QComboBox.keyPressEvent(self, event)
+            QComboBox.keyPressEvent(self, e)
         self.blockSignals(False)
 
     def completer_used(self, text):

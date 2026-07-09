@@ -98,10 +98,10 @@ class LineNumbers(QWidget):  # {{{
         QWidget.__init__(self, parent)
 
     def sizeHint(self):
-        return QSize(self.parent().line_number_area_width(), 0)
+        return QSize(self.parent().line_number_area_width(), 0)  # type: ignore
 
-    def paintEvent(self, ev):
-        self.parent().paint_line_numbers(ev)
+    def paintEvent(self, a0):
+        self.parent().paint_line_numbers(a0)  # type: ignore
 # }}}
 
 
@@ -158,15 +158,15 @@ class TextEdit(PlainTextEdit):
                 if is_mt_ok(mt):
                     yield path, mt, False
 
-    def canInsertFromMimeData(self, md):
-        if md.hasText() or (md.hasHtml() and self.syntax == 'html') or md.hasImage():
+    def canInsertFromMimeData(self, source):
+        if source.hasText() or (source.hasHtml() and self.syntax == 'html') or source.hasImage():
             return True
-        elif tuple(self.get_droppable_files(md)):
+        elif tuple(self.get_droppable_files(source)):
             return True
         return False
 
-    def insertFromMimeData(self, md):
-        files = tuple(self.get_droppable_files(md))
+    def insertFromMimeData(self, source):
+        files = tuple(self.get_droppable_files(source))
         base = self.highlighter.doc_name or None
 
         def get_name(name):
@@ -213,29 +213,32 @@ class TextEdit(PlainTextEdit):
                     self.insert_hyperlink(href, name)
             self.ensureCursorVisible()
             return
-        if md.hasImage():
-            img = md.imageData()
+        if source.hasImage():
+            img = source.imageData()
             if img is not None and not img.isNull():
                 data = image_to_data(img, fmt='PNG')
                 name = add_file(get_name('dropped_image.png'), data)
                 self.insert_image(get_href(name))
                 self.ensureCursorVisible()
                 return
-        if md.hasText():
-            return insert_text(md.text())
-        if md.hasHtml():
-            insert_text(md.html())
+        if source.hasText():
+            return insert_text(source.text())
+        if source.hasHtml():
+            insert_text(source.html())
             return
 
     @property
     def is_modified(self):
         ''' True if the document has been modified since it was loaded or since
         the last time is_modified was set to False. '''
-        return self.document().isModified()
+        if (d := self.document()) is None:
+            return False
+        return d.isModified()
 
     @is_modified.setter
     def is_modified(self, val):
-        self.document().setModified(bool(val))
+        if (d := self.document()) is not None:
+            d.setModified(bool(val))
 
     def sizeHint(self):
         return self.size_hint
@@ -267,9 +270,11 @@ class TextEdit(PlainTextEdit):
         pal.setColor(QPalette.ColorRole.Highlight, theme_color(theme, 'Visual', 'bg'))
         pal.setColor(QPalette.ColorRole.HighlightedText, theme_color(theme, 'Visual', 'fg'))
         self.setPalette(pal)
-        vpal = self.viewport().palette()
+        vp = self.viewport()
+        assert vp is not None
+        vpal = vp.palette()
         vpal.setColor(QPalette.ColorRole.Base, pal.color(QPalette.ColorRole.Base))
-        self.viewport().setPalette(vpal)
+        vp.setPalette(vpal)
         self.tooltip_palette = pal = QPalette()
         pal.setColor(QPalette.ColorRole.ToolTipBase, theme_color(theme, 'Tooltip', 'bg'))
         pal.setColor(QPalette.ColorRole.ToolTipText, theme_color(theme, 'Tooltip', 'fg'))
@@ -480,10 +485,10 @@ class TextEdit(PlainTextEdit):
             c.endEditBlock()
             self.setTextCursor(c)
 
-    def find(self, pat, wrap=False, marked=False, complete=False, save_match=None):
+    def find(self, exp, wrap=False, marked=False, complete=False, save_match=None):  # ty: ignore[invalid-method-override]
         if marked:
-            return self.find_in_marked(pat, wrap=wrap, save_match=save_match)
-        reverse = pat.flags & regex.REVERSE
+            return self.find_in_marked(exp, wrap=wrap, save_match=save_match)
+        reverse = exp.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
         if complete:
@@ -494,7 +499,7 @@ class TextEdit(PlainTextEdit):
             pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
         c.movePosition(pos, QTextCursor.MoveMode.KeepAnchor)
         raw = str(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
-        m = pat.search(raw)
+        m = exp.search(raw)
         if m is None:
             return False
         start, end = m.span()
@@ -518,10 +523,10 @@ class TextEdit(PlainTextEdit):
         # Center search result on screen
         self.centerCursor()
         if save_match is not None:
-            self.saved_matches[save_match] = (pat, m)
+            self.saved_matches[save_match] = (exp, m)
         return True
 
-    def find_text(self, pat, wrap=False, complete=False):
+    def find_text(self, pat, options=False, complete=False):
         reverse = pat.flags & regex.REVERSE
         c = self.textCursor()
         c.clearSelection()
@@ -529,12 +534,12 @@ class TextEdit(PlainTextEdit):
             # Search the entire text
             c.movePosition(QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start)
         pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
-        if wrap and not complete:
+        if options and not complete:
             pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
         c.movePosition(pos, QTextCursor.MoveMode.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
             self.highlighter.join()
-            found, start, end = self.smarts.find_text(pat, c, reverse)
+            found, start, end = self.smarts.find_text(pat, c, reverse)  # type: ignore
             if not found:
                 return False
         else:
@@ -589,15 +594,15 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.position())
             c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
 
-        return False
-
     def find_next_spell_error(self, from_cursor=True):
         c = self.textCursor()
         if not from_cursor:
             c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
-            for r in block.layout().formats():
+            bl = block.layout()
+            assert bl is not None
+            for r in bl.formats():
                 if r.format.property(SPELL_PROPERTY):
                     if not from_cursor or block.position() + r.start + r.length > c.position():
                         c.setPosition(block.position() + r.start)
@@ -710,11 +715,13 @@ class TextEdit(PlainTextEdit):
             self.line_number_area.scroll(0, dy)
         else:
             self.line_number_area.update(0, rect.y(), self.line_number_area.width(), rect.height())
-        if rect.contains(self.viewport().rect()):
+        vp = self.viewport()
+        assert vp is not None
+        if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, ev):
-        QPlainTextEdit.resizeEvent(self, ev)
+    def resizeEvent(self, e):
+        QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
 
@@ -785,7 +792,9 @@ class TextEdit(PlainTextEdit):
         c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
-            for r in block.layout().formats():
+            bl = block.layout()
+            assert bl is not None
+            for r in bl.formats():
                 if r.format.property(SPELL_PROPERTY) and self.text_for_range(block, r) == word:
                     self.highlighter.reformat_block(block)
                     break
@@ -859,23 +868,23 @@ class TextEdit(PlainTextEdit):
                 tags = self.current_tag(for_position_sync=False, cursor=c)
                 return {'class': class_name, 'sourceline_address': tags}
 
-    def mousePressEvent(self, ev):
-        if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(ev.pos()):
+    def mousePressEvent(self, e):
+        if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(e.pos()):
             # For some reason using eventFilter for this does not work, so we
             # implement it here
             self.completion_popup.abort()
-        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            url = self.link_for_position(ev.pos())
+        if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            url = self.link_for_position(e.pos())
             if url is not None:
-                ev.accept()
+                e.accept()
                 self.link_clicked.emit(url)
                 return
-            class_data = self.class_for_position(ev.pos())
+            class_data = self.class_for_position(e.pos())
             if class_data is not None:
-                ev.accept()
+                e.accept()
                 self.class_clicked.emit(class_data)
                 return
-        return PlainTextEdit.mousePressEvent(self, ev)
+        return PlainTextEdit.mousePressEvent(self, e)
 
     def get_range_inside_tag(self):
         c = self.textCursor()
@@ -911,7 +920,7 @@ class TextEdit(PlainTextEdit):
             if not color.isValid():
                 return
             r, g, b, a = color.getRgb()
-            if a == 255:
+            if a == 255 or a is None:
                 color = f'rgb({r}, {g}, {b})'
             else:
                 color = f'rgba({r}, {g}, {b}, {a / 255:.2g})'
@@ -976,23 +985,23 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         if hasattr(self.smarts, 'split_tag'):
             self.smarts.split_tag(self)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_X and ev.modifiers() == Qt.KeyboardModifier.AltModifier:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_X and e.modifiers() == Qt.KeyboardModifier.AltModifier:
             if self.replace_possible_unicode_sequence():
-                ev.accept()
+                e.accept()
                 return
-        if ev.key() == Qt.Key.Key_Insert:
+        if e.key() == Qt.Key.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
-            ev.accept()
+            e.accept()
             return
-        if self.snippet_manager.handle_key_press(ev):
+        if self.snippet_manager.handle_key_press(e):
             self.completion_popup.hide()
             return
-        if self.smarts.handle_key_press(ev, self):
-            self.handle_keypress_completion(ev)
+        if self.smarts.handle_key_press(e, self):
+            self.handle_keypress_completion(e)
             return
-        QPlainTextEdit.keyPressEvent(self, ev)
-        self.handle_keypress_completion(ev)
+        QPlainTextEdit.keyPressEvent(self, e)
+        self.handle_keypress_completion(e)
 
     def handle_keypress_completion(self, ev):
         if self.request_completion is None:
@@ -1072,11 +1081,14 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
     def goto_css_rule(self, rule_address, sourceline_address=None):
         from calibre.gui2.tweak_book.editor.smarts.css import find_rule
         block = None
+        d = self.document()
+        if d is None:
+            return
         if self.syntax == 'css':
             raw = str(self.toPlainText())
             line, col = find_rule(raw, rule_address)
             if line is not None:
-                block = self.document().findBlockByNumber(line - 1)
+                block = d.findBlockByNumber(line - 1)
         elif sourceline_address is not None:
             sourceline, tags = sourceline_address
             if self.goto_sourceline(sourceline, tags):
@@ -1086,7 +1098,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
                 raw = self.get_tag_contents()
                 line, col = find_rule(raw, rule_address)
                 if line is not None:
-                    block = self.document().findBlockByNumber(c.blockNumber() + line - 1)
+                    block = d.findBlockByNumber(c.blockNumber() + line - 1)
 
         if block is not None and block.isValid():
             c = self.textCursor()

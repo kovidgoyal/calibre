@@ -149,9 +149,9 @@ class Main(MainWindow):
     def sizeHint(self):
         return QSize(1024, 740)
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         self.save_geometry(gprefs, 'store_dialog_main_window_geometry')
-        MainWindow.closeEvent(self, e)
+        MainWindow.closeEvent(self, a0)
 
     @property
     def view(self):

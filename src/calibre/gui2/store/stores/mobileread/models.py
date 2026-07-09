@@ -54,8 +54,8 @@ class BooksModel(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    def parent(self, child):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
@@ -98,13 +98,13 @@ class BooksModel(QAbstractItemModel):
             text = result.formats
         return text
 
-    def sort(self, col, order, reset=True):
-        self.sort_col = col
+    def sort(self, column, order, reset=True):
+        self.sort_col = column
         self.sort_order = order
         if not self.books:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.books.sort(key=lambda x: sort_key(type(u'')(self.data_as_text(x, col))), reverse=descending)
+        self.books.sort(key=lambda x: sort_key(type(u'')(self.data_as_text(x, column))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 

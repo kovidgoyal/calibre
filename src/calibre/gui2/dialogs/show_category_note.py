@@ -28,14 +28,14 @@ class Display(HTMLDisplay):
     def handle_link_click(self, qurl):
         safe_open_url(qurl)
 
-    def loadResource(self, rtype, qurl):
-        if qurl.scheme() == RESOURCE_URL_SCHEME and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
+    def loadResource(self, type, name):
+        if name.scheme() == RESOURCE_URL_SCHEME and int(type) == int(QTextDocument.ResourceType.ImageResource):
             db = self.parent().db
-            resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
+            resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
             if resource is not None:
                 return QByteArray(resource['data'])
             return
-        return super().loadResource(rtype, qurl)
+        return super().loadResource(type, name)
 
 
 class ShowNoteDialog(Dialog):

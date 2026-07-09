@@ -109,10 +109,10 @@ class SplashScreen(QSplashScreen):
         while not self.drawn_once and (monotonic() - st < 0.1):
             qapplication_or_fail().processEvents()
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, a0):
         if not self.develop:
-            return QSplashScreen.keyPressEvent(self, ev)
-        ev.accept()
+            return QSplashScreen.keyPressEvent(self, a0)
+        a0.accept()
         qapplication_or_fail().exit()
 
 

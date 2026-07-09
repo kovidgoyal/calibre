@@ -175,13 +175,13 @@ class LayoutButton(QToolButton):
     def update_state(self, *args):
         self.set_state_to_show() if self.is_visible else self.set_state_to_hide()
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.MouseButton.RightButton:
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.RightButton:
             from calibre.gui2.ui import get_gui
             gui = get_gui()
             if self.name == 'search':
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
-                ev.accept()
+                a0.accept()
                 return
             tab_name = {
                 'book_details':'book_details',
@@ -194,9 +194,9 @@ class LayoutButton(QToolButton):
             if tab_name:
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
-                    ev.accept()
+                    a0.accept()
                     return
-        return QToolButton.mouseReleaseEvent(self, ev)
+        return QToolButton.mouseReleaseEvent(self, a0)
 
 
 class HandleState(Enum):
@@ -234,30 +234,30 @@ class SplitterHandle(QWidget):
                 raise Exception(str(err)) from err
         return HandleState.both_visible
 
-    def mousePressEvent(self, ev):
-        super().mousePressEvent(ev)
-        if ev.button() is Qt.MouseButton.LeftButton:
-            self.drag_start = ev.position()
+    def mousePressEvent(self, a0):
+        super().mousePressEvent(a0)
+        if a0.button() is Qt.MouseButton.LeftButton:
+            self.drag_start = a0.position()
 
-    def mouseReleaseEvent(self, ev):
-        super().mouseReleaseEvent(ev)
-        if ev.button() is Qt.MouseButton.LeftButton:
+    def mouseReleaseEvent(self, a0):
+        super().mouseReleaseEvent(a0)
+        if a0.button() is Qt.MouseButton.LeftButton:
             self.drag_start = None
 
-    def mouseDoubleClickEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
+    def mouseDoubleClickEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
             self.toggle_requested.emit()
-            ev.accept()
+            a0.accept()
             return
-        return super().mouseDoubleClickEvent(ev)
+        return super().mouseDoubleClickEvent(a0)
 
-    def mouseMoveEvent(self, ev):
-        super().mouseMoveEvent(ev)
+    def mouseMoveEvent(self, a0):
+        super().mouseMoveEvent(a0)
         if self.drag_start is not None:
-            pos = ev.position() - self.drag_start
+            pos = a0.position() - self.drag_start
             self.dragged_to.emit(self.mapToParent(pos))
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QStylePainter(self)
         opt = QStyleOption()
         opt.initFrom(self)
@@ -599,8 +599,8 @@ class CentralContainer(QWidget):
                 self.update_button_states_from_visibility()
             self.relayout()
 
-    def resizeEvent(self, ev):
-        super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
         self.relayout()
 
     def relayout(self):
@@ -985,20 +985,20 @@ def develop():
             h.addWidget(self.central.quick_view_button)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
-        def keyPressEvent(self, ev):
-            if ev.key() == Qt.Key.Key_Q:
+        def keyPressEvent(self, a0):
+            if a0.key() == Qt.Key.Key_Q:
                 self.central.toggle_quick_view()
-            elif ev.key() == Qt.Key.Key_T:
+            elif a0.key() == Qt.Key.Key_T:
                 self.central.toggle_tag_browser()
-            elif ev.key() == Qt.Key.Key_C:
+            elif a0.key() == Qt.Key.Key_C:
                 self.central.toggle_cover_browser()
-            elif ev.key() == Qt.Key.Key_D:
+            elif a0.key() == Qt.Key.Key_D:
                 self.central.toggle_book_details()
-            elif ev.key() == Qt.Key.Key_L:
+            elif a0.key() == Qt.Key.Key_L:
                 self.central.toggle_layout()
-            elif ev.key() == Qt.Key.Key_R:
+            elif a0.key() == Qt.Key.Key_R:
                 self.central.reset_to_defaults()
-            elif ev.key() == Qt.Key.Key_Escape:
+            elif a0.key() == Qt.Key.Key_Escape:
                 self.reject()
 
     d = d()

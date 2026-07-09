@@ -545,9 +545,9 @@ class JobsButton(QWidget):  # {{{
         prefix = '<b>' if n > 0 else ''
         self._jobs.setText(prefix + ' ' + _('Jobs:') + f' {n} ')
 
-    def event(self, ev):
+    def event(self, a0):
         m = None
-        et = ev.type()
+        et = a0.type()
         if et == QEvent.Type.Enter:
             m = True
         elif et == QEvent.Type.Leave:
@@ -555,7 +555,7 @@ class JobsButton(QWidget):  # {{{
         if m is not None and m != self.mouse_over:
             self.mouse_over = m
             self.update()
-        return QWidget.event(self, ev)
+        return QWidget.event(self, a0)
 
     def initialize(self, jobs_dialog, job_manager):
         self.jobs_dialog = jobs_dialog
@@ -563,7 +563,7 @@ class JobsButton(QWidget):  # {{{
         job_manager.job_done.connect(self.job_done)
         self.jobs_dialog.addAction(self.action_toggle)
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, a0):
         self.toggle()
 
     def toggle(self, *args):
@@ -616,7 +616,7 @@ class JobsButton(QWidget):  # {{{
             self.stop()
             QCoreApplication.instance().alert(self, 5000)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.mouse_over:
             p = QStylePainter(self)
             tool = QStyleOption()
@@ -625,7 +625,7 @@ class JobsButton(QWidget):  # {{{
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             p.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
             p.end()
-        QWidget.paintEvent(self, ev)
+        QWidget.paintEvent(self, a0)
 
 # }}}
 
@@ -739,9 +739,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model.show_hidden_jobs()
         self.find(self.search.current_text)
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         self.save_state()
-        return QDialog.closeEvent(self, e)
+        return QDialog.closeEvent(self, a0)
 
     def show(self, *args):
         self.restore_state()
@@ -755,7 +755,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.save_state()
         QDialog.reject(self)
 
-    def find(self, query):
-        self.proxy_model.find(query)
+    def find(self, a0):
+        self.proxy_model.find(a0)
 
 # }}}

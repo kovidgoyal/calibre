@@ -110,22 +110,22 @@ class ScrollArea(QScrollArea):
     zoom_requested = pyqtSignal(bool)
     current_wheel_angle_delta = 0
 
-    def mouseDoubleClickEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
+    def mouseDoubleClickEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
             self.toggle_fit.emit()
 
-    def wheelEvent(self, ev):
-        if ev.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            ad = ev.angleDelta().y()
+    def wheelEvent(self, a0):
+        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            ad = a0.angleDelta().y()
             if ad * self.current_wheel_angle_delta < 0:
                 self.current_wheel_angle_delta = 0
             self.current_wheel_angle_delta += ad
             if abs(self.current_wheel_angle_delta) >= 120:
                 self.zoom_requested.emit(self.current_wheel_angle_delta < 0)
                 self.current_wheel_angle_delta = 0
-            ev.accept()
+            a0.accept()
         else:
-            super().wheelEvent(ev)
+            super().wheelEvent(a0)
 
 
 class ImageView(QDialog):
@@ -248,7 +248,7 @@ class ImageView(QDialog):
         img_size.setWidth(nw), img_size.setHeight(nh)
         self.label.resize(img_size)
 
-    def resizeEvent(self, ev):
+    def resizeEvent(self, a0):
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
 
@@ -370,9 +370,9 @@ class ImageView(QDialog):
         else:
             self.show()
 
-    def done(self, e):
+    def done(self, a0):
         self.save_geometry(self.prefs, self.geom_name)
-        return QDialog.done(self, e)
+        return QDialog.done(self, a0)
 
     def toggle_fullscreen(self):
         on = not self.isFullScreen()

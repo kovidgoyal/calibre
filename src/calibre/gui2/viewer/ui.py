@@ -243,9 +243,9 @@ class EbookViewer(MainWindow):
             self.highlights_widget.set_tooltips(rmap)
         self.search_widget.set_tooltips(rmap)
 
-    def resizeEvent(self, ev):
+    def resizeEvent(self, a0):
         self.loading_overlay.resize(self.size())
-        return MainWindow.resizeEvent(self, ev)
+        return MainWindow.resizeEvent(self, a0)
 
     def scrollbar_context_menu(self, x, y, frac):
         m = QMenu(self)
@@ -312,13 +312,13 @@ class EbookViewer(MainWindow):
             else:
                 self.showNormal()
 
-    def changeEvent(self, ev):
-        if ev.type() == QEvent.Type.WindowStateChange:
+    def changeEvent(self, a0):
+        if a0.type() == QEvent.Type.WindowStateChange:
             in_full_screen_mode = self.isFullScreen()
             if self.in_full_screen_mode is None or self.in_full_screen_mode != in_full_screen_mode:
                 self.in_full_screen_mode = in_full_screen_mode
                 self.web_view.notify_full_screen_state_change(self.in_full_screen_mode)
-        return MainWindow.changeEvent(self, ev)
+        return MainWindow.changeEvent(self, a0)
 
     def toggle_full_screen(self):
         self.set_full_screen(not self.isFullScreen())
@@ -838,11 +838,11 @@ class EbookViewer(MainWindow):
     def request_close(self):
         self.close()
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         if self.shutdown_done:
             return
         if self.current_book_data and self.web_view.view_is_ready and not self.close_forced:
-            ev.ignore()
+            a0.ignore()
             if not self.shutting_down:
                 self.shutting_down = True
                 QTimer.singleShot(2000, self.force_close)
@@ -867,7 +867,7 @@ class EbookViewer(MainWindow):
             traceback.print_exc()
         wait_for_worker()
         self.shutdown_done = True
-        return MainWindow.closeEvent(self, ev)
+        return MainWindow.closeEvent(self, a0)
     # }}}
 
     # Auto-hide mouse cursor {{{
@@ -879,15 +879,15 @@ class EbookViewer(MainWindow):
         t.timeout.connect(self.hide_cursor)
         t.start()
 
-    def eventFilter(self, obj, ev):
-        et = ev.type()
+    def eventFilter(self, a0, a1):
+        et = a1.type()
         if et == QEvent.Type.MouseMove:
             if self.cursor_hidden:
                 self.cursor_hidden = False
                 qapplication_or_fail().restoreOverrideCursor()
             self.hide_cursor_timer.start()
         elif et == QEvent.Type.FocusIn:
-            if iswindows and obj and obj.objectName() == 'EbookViewerClassWindow' and self.isFullScreen():
+            if iswindows and a0 and a0.objectName() == 'EbookViewerClassWindow' and self.isFullScreen():
                 self.web_view.repair_after_fullscreen_switch()
         return False
 

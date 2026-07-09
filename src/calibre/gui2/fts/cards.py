@@ -254,34 +254,34 @@ class CardWidget(QWidget):
             title = fmt.toolTip()
         return href, title
 
-    def mouseMoveEvent(self, event):
-        href, title = self._anchor_data(event.pos())
+    def mouseMoveEvent(self, a0):
+        href, title = self._anchor_data(a0.pos())
         if href:
             self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             if title:
-                QToolTip.showText(event.globalPosition().toPoint(), title, self)
+                QToolTip.showText(a0.globalPosition().toPoint(), title, self)
             else:
                 QToolTip.hideText()
         else:
             self.unsetCursor()
             QToolTip.hideText()
-        super().mouseMoveEvent(event)
+        super().mouseMoveEvent(a0)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, a0):
         self.unsetCursor()
         QToolTip.hideText()
-        super().leaveEvent(event)
+        super().leaveEvent(a0)
 
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            href, _ = self._anchor_data(event.pos())
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            href, _ = self._anchor_data(a0.pos())
             if href:
-                event.accept()
+                a0.accept()
                 self.link_activated.emit(QUrl(href))
                 return
-        super().mouseReleaseEvent(event)
+        super().mouseReleaseEvent(a0)
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         doc = self._card.ensure_renderable(self.devicePixelRatioF())
         with QPainter(self) as p:
             p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
@@ -580,8 +580,8 @@ class CardView(QScrollArea):
     def _on_scroll(self):
         self._container.set_viewport(self._viewport_rect())
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
         # Set container width to match viewport width so row count updates
         self._container.setFixedWidth(max(0, self.viewport().width()))
         self._resize_timer.start()
@@ -594,8 +594,8 @@ class CardView(QScrollArea):
     def scroll_to_top(self):
         self.verticalScrollBar().setValue(0)
 
-    def showEvent(self, event):
-        super().showEvent(event)
+    def showEvent(self, a0):
+        super().showEvent(a0)
         self._container.setFixedWidth(max(0, self.viewport().width()))
         self._do_relayout()
 

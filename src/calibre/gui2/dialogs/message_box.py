@@ -51,7 +51,7 @@ class Icon(QWidget):
     def sizeHint(self):
         return QSize(self.size, self.size)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.pixmap is not None:
             x = (self.width() - self.size) // 2
             y = (self.height() - self.size) // 2
@@ -198,8 +198,8 @@ class MessageBox(QDialog):  # {{{
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
-    def showEvent(self, ev):
-        ret = QDialog.showEvent(self, ev)
+    def showEvent(self, a0):
+        ret = QDialog.showEvent(self, a0)
         if self.is_question:
             with suppress(Exception):
                 self.bb.button(QDialogButtonBox.StandardButton.Yes if self.default_yes else QDialogButtonBox.StandardButton.No
@@ -331,9 +331,9 @@ class ProceedNotification(MessageBox):  # {{{
         self.setParent(None)
         _proceed_memory.remove(self)
 
-    def done(self, r):
-        self.do_proceed(r)
-        return MessageBox.done(self, r)
+    def done(self, a0):
+        self.do_proceed(a0)
+        return MessageBox.done(self, a0)
 
 # }}}
 
@@ -510,8 +510,8 @@ class JobError(QDialog):  # {{{
         self.setMaximumHeight(h)
         self.resize(QSize(self.WIDTH, h))
 
-    def showEvent(self, ev):
-        ret = QDialog.showEvent(self, ev)
+    def showEvent(self, a0):
+        ret = QDialog.showEvent(self, a0)
         self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
@@ -539,10 +539,10 @@ class JobError(QDialog):  # {{{
         self.do_resize()
         self.show()
 
-    def done(self, r):
+    def done(self, a0):
         if self.suppress.isChecked():
             self.queue = []
-        QDialog.done(self, r)
+        QDialog.done(self, a0)
         self.do_pop.emit()
 
 # }}}

@@ -69,7 +69,7 @@ class RevealBar(QWidget):  # {{{
         self.setVisible(True)
         self.animation.start()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self._animated_size < 1.0:
             rect = self.rect()
             painter = QPainter(self)
@@ -168,8 +168,8 @@ class ToolBar(QToolBar):  # {{{
         self.setAcceptDrops(True)
         self.showing_donate = False
 
-    def resizeEvent(self, ev):
-        QToolBar.resizeEvent(self, ev)
+    def resizeEvent(self, a0):
+        QToolBar.resizeEvent(self, a0)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
         if self.showing_donate:
@@ -186,14 +186,14 @@ class ToolBar(QToolBar):  # {{{
                 style = Qt.ToolButtonStyle.ToolButtonIconOnly
         return style
 
-    def contextMenuEvent(self, ev):
-        ac = self.actionAt(ev.pos())
+    def contextMenuEvent(self, a0):
+        ac = self.actionAt(a0.pos())
         if ac is None:
             return
         ch = self.widgetForAction(ac)
         sm = getattr(ch, 'showMenu', None)
         if callable(sm):
-            ev.accept()
+            a0.accept()
             sm()
 
     def update_lm_actions(self):
@@ -268,22 +268,22 @@ class ToolBar(QToolBar):  # {{{
                         return True
         return False
 
-    def dragEnterEvent(self, event):
-        md = event.mimeData()
+    def dragEnterEvent(self, a0):
+        md = a0.mimeData()
         if md.hasFormat('application/calibre+from_library') or \
            md.hasFormat('application/calibre+from_device'):
-            event.setDropAction(Qt.DropAction.CopyAction)
-            event.accept()
+            a0.setDropAction(Qt.DropAction.CopyAction)
+            a0.accept()
             return
 
-        if self.check_iactions_for_drag(event, md, 'accept_enter_event'):
-            event.accept()
+        if self.check_iactions_for_drag(a0, md, 'accept_enter_event'):
+            a0.accept()
         else:
-            event.ignore()
+            a0.ignore()
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, a0):
         allowed = False
-        md = event.mimeData()
+        md = a0.mimeData()
         # Drop is only allowed in the location manager widget's different from the selected one
         for ac in self.location_manager.available_actions:
             w = self.widgetForAction(ac)
@@ -291,34 +291,34 @@ class ToolBar(QToolBar):  # {{{
                 if (md.hasFormat(
                     'application/calibre+from_library') or md.hasFormat(
                     'application/calibre+from_device')) and \
-                        w.geometry().contains(event.pos()) and \
+                        w.geometry().contains(a0.pos()) and \
                         isinstance(w, QToolButton) and not w.isChecked():
                     allowed = True
                     break
         if allowed:
-            event.acceptProposedAction()
+            a0.acceptProposedAction()
             return
 
-        if self.check_iactions_for_drag(event, md, 'accept_drag_move_event'):
-            event.acceptProposedAction()
+        if self.check_iactions_for_drag(a0, md, 'accept_drag_move_event'):
+            a0.acceptProposedAction()
         else:
-            event.ignore()
+            a0.ignore()
 
-    def dropEvent(self, event):
-        md = event.mimeData()
+    def dropEvent(self, a0):
+        md = a0.mimeData()
         mime = 'application/calibre+from_library'
         if md.hasFormat(mime):
             ids = list(map(int, md.data(mime).data().split()))
             tgt = None
             for ac in self.location_manager.available_actions:
                 w = self.widgetForAction(ac)
-                if w is not None and w.geometry().contains(event.pos()):
+                if w is not None and w.geometry().contains(a0.pos()):
                     tgt = ac.calibre_name
             if tgt is not None:
                 if tgt == 'main':
                     tgt = None
                 self.gui.sync_to_device(tgt, False, send_ids=ids)
-                event.accept()
+                a0.accept()
                 return
 
         mime = 'application/calibre+from_device'
@@ -327,14 +327,14 @@ class ToolBar(QToolBar):  # {{{
             if paths:
                 self.gui.iactions['Add Books'].add_books_from_device(
                         self.gui.current_view(), paths=paths)
-                event.accept()
+                a0.accept()
                 return
 
-        # Give added_actions an opportunity to process the drag&drop event
-        if self.check_iactions_for_drag(event, md, 'drop_event'):
-            event.accept()
+        # Give added_actions an opportunity to process the drag&drop a0
+        if self.check_iactions_for_drag(a0, md, 'drop_event'):
+            a0.accept()
         else:
-            event.ignore()
+            a0.ignore()
 
 # }}}
 

@@ -608,12 +608,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.setCharFormat(QTextCharFormat())
         self.update_cursor_position_actions()
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, e):
         for sc, ac in self.shortcut_map.items():
-            if isinstance(sc, QKeySequence.StandardKey) and ev.matches(sc):
+            if isinstance(sc, QKeySequence.StandardKey) and e.matches(sc):
                 ac.trigger()
                 return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(e)
 
     def do_copy(self):
         self.copy()
@@ -983,8 +983,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.base_url = qurl
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
-    def loadResource(self, rtype, qurl):
-        path = local_path_for_resource(qurl, base_qurl=self.base_url)
+    def loadResource(self, type, name):
+        path = local_path_for_resource(name, base_qurl=self.base_url)
         if path:
             data = None
             try:
@@ -1000,7 +1000,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                                 '426082')
             if data is not None:
                 r = QByteArray(data)
-                self.document().addResource(rtype, qurl, r)
+                self.document().addResource(type, name, r)
                 return r
 
     def set_html(self, val, allow_undo=True):
@@ -1138,14 +1138,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 return cf
 
     def open_link(self, link: str) -> None:
-        qurl = QUrl(link, QUrl.ParsingMode.TolerantMode)
-        if qurl.isRelative() and self.base_url:
-            qurl = QUrl.fromLocalFile(os.path.join(os.path.dirname(self.base_url.toLocalFile()), qurl.path()))
-        safe_open_url(qurl)
+        name = QUrl(link, QUrl.ParsingMode.TolerantMode)
+        if name.isRelative() and self.base_url:
+            name = QUrl.fromLocalFile(os.path.join(os.path.dirname(self.base_url.toLocalFile()), name.path()))
+        safe_open_url(name)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, e):
         menu = QMenu(self)
-        img_name = self.document().documentLayout().imageAt(QPointF(ev.pos()))
+        img_name = self.document().documentLayout().imageAt(QPointF(e.pos()))
         if img_name:
             pos = self.first_image_replacement_char_position_for(img_name)
             if pos > -1:
@@ -1171,7 +1171,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
                 align_menu.addSeparator()
                 align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image')).triggered.connect(partial(self.remove_image_at, c.position()))
-        link_name = self.document().documentLayout().anchorAt(QPointF(ev.pos()))
+        link_name = self.document().documentLayout().anchorAt(QPointF(e.pos()))
         if link_name:
             menu.addAction(QIcon.ic('insert-link.png'), _('Open link'), partial(self.open_link, link_name))
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
@@ -1207,7 +1207,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         am.addAction(self.action_background)
         am.addAction(self.action_color)
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
-        menu.exec(ev.globalPos())
+        menu.exec(e.globalPos())
 
     def modify_case_operation(self, func):
         cursor: QTextCursor = self.textCursor()

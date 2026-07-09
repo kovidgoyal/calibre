@@ -434,8 +434,8 @@ class ResultsModel(QAbstractItemModel):
             return self.createIndex(row, column, parent.row() + 1)
         return self.createIndex(row, column, 0)
 
-    def parent(self, index):
-        q = index.internalId()
+    def parent(self, child):
+        q = child.internalId()
         if q:
             return self.index(q - 1, 0)
         return ROOT
@@ -503,9 +503,9 @@ class ResultsView(QTreeView):
         self.setItemDelegate(self.delegate)
         self.setUniformRowHeights(True)
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, event):
         i = self.currentIndex()
-        ret = super().keyPressEvent(ev)
+        ret = super().keyPressEvent(event)
         if self.currentIndex() != i:
             self.scrollTo(self.currentIndex())
         return ret
@@ -779,7 +779,7 @@ class ResultDetails(QWidget):
             book_id, result_num = int(book_id), int(result_num)
             self.show_in_viewer.emit(int(book_id), int(result_num), fmt)
 
-    def resizeEvent(self, ev):
+    def resizeEvent(self, a0):
         self.do_layout()
 
     def do_layout(self):

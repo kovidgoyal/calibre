@@ -72,10 +72,10 @@ class NameTableWidgetItem(QTableWidgetItem):
             self.current_value = self.initial_value
         self.is_deleted = to_what
 
-    def setData(self, role, data):
+    def setData(self, role, value):
         if role == Qt.ItemDataRole.EditRole:
-            self.current_value = data
-        QTableWidgetItem.setData(self, role, data)
+            self.current_value = value
+        QTableWidgetItem.setData(self, role, value)
 
     def set_initial_text(self, txt):
         self.initial_value = txt
@@ -89,10 +89,10 @@ class NameTableWidgetItem(QTableWidgetItem):
     def text(self):
         return self.current_value
 
-    def setText(self, txt):
+    def setText(self, atext):
         self.is_placeholder = False
-        self.current_value = txt
-        QTableWidgetItem.setText(self, txt)
+        self.current_value = atext
+        QTableWidgetItem.setText(self, atext)
 
     # Before this method is called, signals should be blocked for the
     # table containing this item

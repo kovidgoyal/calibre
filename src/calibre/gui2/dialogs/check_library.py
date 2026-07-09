@@ -132,11 +132,11 @@ class DBCheck(QDialog):  # {{{
             return
         return QDialog.reject(self)
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         if self.vacuum_started:
-            ev.ignore()
+            a0.ignore()
             return
-        return super().closeEvent(ev)
+        return super().closeEvent(a0)
 
     def break_cycles(self):
         if self.vacuum_started:

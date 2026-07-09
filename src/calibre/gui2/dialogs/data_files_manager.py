@@ -203,17 +203,17 @@ class ListView(QListView):
                         return True
         return False
 
-    def dragEnterEvent(self, ev: QDropEvent):
-        if self.is_drop_event_ok(ev):
-            ev.accept()
+    def dragEnterEvent(self, e: QDropEvent):
+        if self.is_drop_event_ok(e):
+            e.accept()
 
-    def dragMoveEvent(self, ev: QDropEvent):
-        ev.accept()
+    def dragMoveEvent(self, e: QDropEvent):
+        e.accept()
 
-    def dropEvent(self, ev):
+    def dropEvent(self, e):
         files = []
-        if self.is_drop_event_ok(ev):
-            md = ev.mimeData()
+        if self.is_drop_event_ok(e):
+            md = e.mimeData()
             for url in md.urls():
                 if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
                     files.append(url.toLocalFile())
@@ -322,10 +322,10 @@ class DataFilesManager(Dialog):
 
         m.exec(self.fview.mapToGlobal(pos))
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
     def sort_changed(self):
         idx = max(0, self.sort_by.currentIndex())

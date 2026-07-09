@@ -127,11 +127,11 @@ class CSSPage3Parser(CSS21Parser):
         return MarginRule(rule.at_keyword, declarations,
                             rule.line, rule.column)
 
-    def parse_page_selector(self, head):
+    def parse_page_selector(self, tokens):
         """Parse an @page selector.
 
-        :param head:
-            The ``head`` attribute of an unparsed :class:`AtRule`.
+        :param tokens:
+            The ``tokens`` attribute of an unparsed :class:`AtRule`.
         :returns:
             A page selector. For CSS 2.1, this is 'first', 'left', 'right'
             or None. 'blank' is added by GCPM.
@@ -139,25 +139,25 @@ class CSSPage3Parser(CSS21Parser):
             :class`~parsing.ParseError` on invalid selectors
 
         """
-        if not head:
+        if not tokens:
             return (None, None), (0, 0, 0)
-        if head[0].type == 'IDENT':
-            name = head.pop(0).value
-            while head and head[0].type == 'S':
-                head.pop(0)
-            if not head:
+        if tokens[0].type == 'IDENT':
+            name = tokens.pop(0).value
+            while tokens and tokens[0].type == 'S':
+                tokens.pop(0)
+            if not tokens:
                 return (name, None), (1, 0, 0)
             name_specificity = (1,)
         else:
             name = None
             name_specificity = (0,)
-        if (len(head) == 2 and head[0].type == ':'
-                and head[1].type == 'IDENT'):
-            pseudo_class = head[1].value
+        if (len(tokens) == 2 and tokens[0].type == ':'
+                and tokens[1].type == 'IDENT'):
+            pseudo_class = tokens[1].value
             specificity = {
                 'first': (1, 0), 'blank': (1, 0),
                 'left': (0, 1), 'right': (0, 1),
             }.get(pseudo_class)
             if specificity:
                 return (name, pseudo_class), (name_specificity + specificity)
-        raise ParseError(head[0], 'invalid @page selector')
+        raise ParseError(tokens[0], 'invalid @page selector')

@@ -467,10 +467,10 @@ class ManufacturerModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.manufacturers = get_manufacturers()
 
-    def rowCount(self, p):
+    def rowCount(self, parent):
         return len(self.manufacturers)
 
-    def columnCount(self, p):
+    def columnCount(self, parent):
         return 1
 
     def data(self, index, role):
@@ -495,10 +495,10 @@ class DeviceModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.devices = get_devices_of(manufacturer)
 
-    def rowCount(self, p):
+    def rowCount(self, parent):
         return len(self.devices)
 
-    def columnCount(self, p):
+    def columnCount(self, parent):
         return 1
 
     def data(self, index, role):
@@ -563,8 +563,8 @@ class KindlePage(QWizardPage, KindleUI):
     def nextId(self):
         return FinishPage.ID
 
-    def retranslateUi(self, widget):
-        KindleUI.retranslateUi(self, widget)
+    def retranslateUi(self, WizardPage):
+        KindleUI.retranslateUi(self, WizardPage)
         if hasattr(self, 'send_email_widget'):
             self.send_email_widget.retranslateUi(self.send_email_widget)
 
@@ -707,8 +707,8 @@ class LibraryPage(QWizardPage, LibraryUI):
                 localize_user_manual_link(
         'https://manual.calibre-ebook.com/faq.html#how-do-i-move-my-calibre-data-from-one-computer-to-another')))
 
-    def retranslateUi(self, widget):
-        LibraryUI.retranslateUi(self, widget)
+    def retranslateUi(self, WizardPage):
+        LibraryUI.retranslateUi(self, WizardPage)
         self.set_move_lib_label_text()
 
     def init_languages(self):

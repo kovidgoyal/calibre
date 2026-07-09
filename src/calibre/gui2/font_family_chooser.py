@@ -122,7 +122,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         font = QFont(option.font)
         font.setPointSizeF(QFontInfo(font).pointSize() * 1.5)
         m = QFontMetrics(font)
-        return QSize(m.width(text), m.height())
+        return QSize(m.boundingRect(text).width(), m.height())
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -251,12 +251,13 @@ class FontFamilyDialog(QDialog):
         self.bb.rejected.connect(self.reject)
         self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
                 QDialogButtonBox.ButtonRole.ActionRole)
+        assert afb is not None
         afb.setIcon(QIcon.ic('plus.png'))
         afb.clicked.connect(self.add_fonts)
         self.ml = QLabel(_('Choose a font family from the list below:'))
         self.search = QLineEdit(self)
         self.search.setPlaceholderText(_('Search'))
-        self.search.returnPressed.connect(self.find)
+        self.search.returnPressed.connect(self.find_next)
         self.nb = QToolButton(self)
         self.nb.setIcon(QIcon.ic('arrow-down.png'))
         self.nb.setToolTip(_('Find next'))
@@ -280,12 +281,12 @@ class FontFamilyDialog(QDialog):
     def set_current(self, i):
         self.view.setCurrentIndex(self.m.index(i))
 
-    def keyPressEvent(self, e):
-        if e.key() == Qt.Key.Key_Return:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Return:
             return
-        return QDialog.keyPressEvent(self, e)
+        return QDialog.keyPressEvent(self, a0)
 
-    def find(self, backwards=False):
+    def _find(self, backwards=False):
         i = self.view.currentIndex().row()
         i = max(i, 0)
         q = icu_lower(str(self.search.text())).strip()
@@ -300,10 +301,10 @@ class FontFamilyDialog(QDialog):
                 return
 
     def find_next(self):
-        self.find()
+        self._find()
 
     def find_previous(self):
-        self.find(backwards=True)
+        self._find(backwards=True)
 
     def build_font_list(self):
         try:
@@ -368,10 +369,14 @@ class FontFamilyChooser(QWidget):
         self.clear_button.setIcon(QIcon.ic('clear_left.png'))
         self.clear_button.clicked.connect(self.clear_family)
         l.addWidget(self.clear_button)
-        self.setToolTip = self.button.setToolTip
-        self.toolTip = self.button.toolTip
         self.clear_button.setToolTip(_('Clear the font family'))
         l.addStretch(1)
+
+    def toolTip(self) -> str:
+        return self.button.toolTip()
+
+    def setToolTip(self, a0):
+        self.button.setToolTip(a0)
 
     def clear_family(self):
         self.font_family = None
@@ -399,9 +404,9 @@ def test():
     app = Application([])
     app
     d = QDialog()
-    d.setLayout(QVBoxLayout())
-    d.layout().addWidget(FontFamilyChooser(d))
-    d.layout().addWidget(QFontComboBox(d))
+    l = QVBoxLayout(d)
+    l.addWidget(FontFamilyChooser(d))
+    l.addWidget(QFontComboBox(d))
     d.exec()
 
 

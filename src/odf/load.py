@@ -48,15 +48,15 @@ class LoadParser(handler.ContentHandler):
         self.level = 0
         self.parse = False
 
-    def characters(self, data):
+    def characters(self, content):
         if self.parse is False:
             return
-        self.data.append(data)
+        self.content.append(content)
 
-    def startElementNS(self, tag, qname, attrs):
-        if tag in self.triggers:
+    def startElementNS(self, name, qname, attrs):
+        if name in self.triggers:
             self.parse = True
-        if self.doc._parsing != 'styles.xml' and tag == (OFFICENS, 'font-face-decls'):
+        if self.doc._parsing != 'styles.xml' and name == (OFFICENS, 'font-face-decls'):
             self.parse = False
         if self.parse is False:
             return
@@ -72,32 +72,32 @@ class LoadParser(handler.ContentHandler):
         for att,value in attrs.items():
             attrdict[att] = value
         try:
-            e = Element(qname=tag, qattributes=attrdict, check_grammar=False)
+            e = Element(qname=name, qattributes=attrdict, check_grammar=False)
             self.curr = e
         except AttributeError as v:
             print(f'Error: {v}')
 
-        if tag == (OFFICENS, 'automatic-styles'):
+        if name == (OFFICENS, 'automatic-styles'):
             e = self.doc.automaticstyles
-        elif tag == (OFFICENS, 'body'):
+        elif name == (OFFICENS, 'body'):
             e = self.doc.body
-        elif tag == (OFFICENS, 'master-styles'):
+        elif name == (OFFICENS, 'master-styles'):
             e = self.doc.masterstyles
-        elif tag == (OFFICENS, 'meta'):
+        elif name == (OFFICENS, 'meta'):
             e = self.doc.meta
-        elif tag == (OFFICENS,'scripts'):
+        elif name == (OFFICENS,'scripts'):
             e = self.doc.scripts
-        elif tag == (OFFICENS,'settings'):
+        elif name == (OFFICENS,'settings'):
             e = self.doc.settings
-        elif tag == (OFFICENS,'styles'):
+        elif name == (OFFICENS,'styles'):
             e = self.doc.styles
-        elif self.doc._parsing == 'styles.xml' and tag == (OFFICENS, 'font-face-decls'):
+        elif self.doc._parsing == 'styles.xml' and name == (OFFICENS, 'font-face-decls'):
             e = self.doc.fontfacedecls
         elif hasattr(self,'parent'):
             self.parent.addElement(e, check_grammar=False)
         self.parent = e
 
-    def endElementNS(self, tag, qname):
+    def endElementNS(self, name, qname):
         if self.parse is False:
             return
         self.level = self.level - 1
@@ -116,5 +116,5 @@ class LoadParser(handler.ContentHandler):
         self.data = []
         self.curr = self.curr.parentNode
         self.parent = self.curr
-        if tag in self.triggers:
+        if name in self.triggers:
             self.parse = False

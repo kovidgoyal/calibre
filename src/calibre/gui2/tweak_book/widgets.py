@@ -502,23 +502,23 @@ class Results(QWidget):
                 break
         return -1
 
-    def mouseMoveEvent(self, ev):
-        y = ev.pos().y()
+    def mouseMoveEvent(self, a0):
+        y = a0.pos().y()
         prev = self.mouse_hover_result
         self.mouse_hover_result = self.item_from_y(y)
         if prev != self.mouse_hover_result:
             self.update()
 
-    def mousePressEvent(self, ev):
-        if ev.button() == 1:
-            i = self.item_from_y(ev.pos().y())
+    def mousePressEvent(self, a0):
+        if a0.button() == 1:
+            i = self.item_from_y(a0.pos().y())
             if i != -1:
-                ev.accept()
+                a0.accept()
                 self.current_result = i
                 self.update()
                 self.item_selected.emit()
                 return
-        return QWidget.mousePressEvent(self, ev)
+        return QWidget.mousePressEvent(self, a0)
 
     def change_current(self, delta=1):
         if not self.results:
@@ -549,10 +549,10 @@ class Results(QWidget):
         text.setTextFormat(Qt.TextFormat.RichText)
         return text
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         offset = QPoint(0, 0)
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         bottom = self.rect().bottom()
 
         if self.results:
@@ -650,12 +650,12 @@ class QuickOpen(Dialog):
         self.results(matches)
         self.matches = tuple(matches)
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-            ev.accept()
-            self.results.change_current(delta=-1 if ev.key() == Qt.Key.Key_Up else 1)
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
+            a0.accept()
+            self.results.change_current(delta=-1 if a0.key() == Qt.Key.Key_Up else 1)
             return
-        return Dialog.keyPressEvent(self, ev)
+        return Dialog.keyPressEvent(self, a0)
 
     def accept(self):
         self.selected_result = self.results.selected_result
@@ -1281,7 +1281,7 @@ class CoverView(QWidget):
         self.current_pixmap_size = self.pixmap.size()
         self.update()
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         if self.pixmap.isNull():
             return
         canvas_size = self.rect()
@@ -1457,19 +1457,19 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         s = winutil.get_async_key_state(winutil.VK_RMENU)  # VK_RMENU == R_ALT
         return s & 0x8000
 
-    def event(self, ev):
-        et = ev.type()
+    def event(self, e):
+        et = e.type()
         if et == QEvent.Type.ToolTip:
-            self.show_tooltip(ev)
+            self.show_tooltip(e)
             return True
         if et == QEvent.Type.ShortcutOverride:
-            ret = self.override_shortcut(ev)
+            ret = self.override_shortcut(e)
             if ret:
                 return True
-        return QPlainTextEdit.event(self, ev)
+        return QPlainTextEdit.event(self, e)
 
-    def mouseDoubleClickEvent(self, ev):
-        super().mouseDoubleClickEvent(ev)
+    def mouseDoubleClickEvent(self, e):
+        super().mouseDoubleClickEvent(e)
         c = self.textCursor()
         # Workaround for QTextCursor considering smart quotes as word
         # characters https://bugreports.qt.io/browse/QTBUG-101372

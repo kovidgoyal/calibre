@@ -140,11 +140,11 @@ class SavedSearchEditor(Dialog):
             if ans in self.searches:
                 return ans
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Delete:
             self.del_search()
             return
-        return Dialog.keyPressEvent(self, ev)
+        return Dialog.keyPressEvent(self, a0)
 
     def populate_search_list(self):
         self.slist.clear()

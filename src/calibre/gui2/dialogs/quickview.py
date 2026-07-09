@@ -124,8 +124,8 @@ class BooksTableFilter(QObject):
 
     return_pressed_signal = pyqtSignal()
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Return:
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.KeyPress and a1.key() == Qt.Key.Key_Return:
             self.return_pressed_signal.emit()
             return True
         return False
@@ -135,9 +135,9 @@ class WidgetFocusFilter(QObject):
 
     focus_entered_signal = pyqtSignal(object)
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.FocusIn:
-            self.focus_entered_signal.emit(obj)
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.FocusIn:
+            self.focus_entered_signal.emit(a0)
         return False
 
 
@@ -148,12 +148,12 @@ class WidgetTabFilter(QObject):
         self.tab_signal = tab_signal
         self.which_widget = which_widget
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.KeyPress:
-            if event.key() == Qt.Key.Key_Tab:
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.KeyPress:
+            if a1.key() == Qt.Key.Key_Tab:
                 self.tab_signal.emit(self.which_widget, True)
                 return True
-            if event.key() == Qt.Key.Key_Backtab:
+            if a1.key() == Qt.Key.Key_Backtab:
                 self.tab_signal.emit(self.which_widget, False)
                 return True
         return False

@@ -215,19 +215,19 @@ class ResultsModel(QAbstractTableModel):  # {{{
 
         return None
 
-    def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        if col == 0:
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        if column == 0:
             key = attrgetter('gui_rank')
-        elif col == 1:
+        elif column == 1:
             key = attrgetter('title')
-        elif col == 2:
+        elif column == 2:
             def dategetter(x):
                 x = getattr(x, 'pubdate', None)
                 if x is None:
                     x = UNDEFINED_DATE
                 return as_utc(x)
             key = dategetter
-        elif col == 3:
+        elif column == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
             def key(x):
@@ -277,8 +277,8 @@ class ResultsView(QTableView):  # {{{
         self.rt_delegate.max_width = int(self.width()/2.1)
         self.resizeColumnsToContents()
 
-    def resizeEvent(self, ev):
-        ret = super().resizeEvent(ev)
+    def resizeEvent(self, e):
+        ret = super().resizeEvent(e)
         self.resize_delegate()
         return ret
 
@@ -326,17 +326,17 @@ class ResultsView(QTableView):  # {{{
     def get_result(self):
         self.select_index(self.currentIndex())
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
-            ac = QAbstractItemView.CursorAction.MoveDown if ev.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
-            index = self.moveCursor(ac, ev.modifiers())
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+            ac = QAbstractItemView.CursorAction.MoveDown if e.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
+            index = self.moveCursor(ac, e.modifiers())
             if index.isValid() and index != self.currentIndex():
                 m = self.selectionModel()
                 m.select(index, QItemSelectionModel.SelectionFlag.Select|QItemSelectionModel.SelectionFlag.Current|QItemSelectionModel.SelectionFlag.Rows)
                 self.setCurrentIndex(index)
-                ev.accept()
+                e.accept()
                 return
-        return QTableView.keyPressEvent(self, ev)
+        return QTableView.keyPressEvent(self, e)
 
 # }}}
 
@@ -914,12 +914,12 @@ class CoversView(QListView):  # {{{
                     'Could not save cover as there are too many existing covers'), show=True)
                 return
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.chosen.emit()
-            ev.accept()
+            e.accept()
             return
-        return QListView.keyPressEvent(self, ev)
+        return QListView.keyPressEvent(self, e)
 
 # }}}
 

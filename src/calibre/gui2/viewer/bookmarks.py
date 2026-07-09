@@ -50,12 +50,12 @@ class BookmarksList(QListWidget):
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-    def viewportEvent(self, ev):
+    def viewportEvent(self, e):
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(ev)
+            ret = self.gesture_manager.handle_event(e)
             if ret is not None:
                 return ret
-        return super().viewportEvent(ev)
+        return super().viewportEvent(e)
 
     @property
     def current_non_removed_item(self):
@@ -65,20 +65,20 @@ class BookmarksList(QListWidget):
             if not bm.get('removed'):
                 return ans
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             i = self.current_non_removed_item
             if i is not None:
                 self.bookmark_activated.emit(i)
-                ev.accept()
+                e.accept()
                 return
-        if ev.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
+        if e.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             i = self.current_non_removed_item
             if i is not None:
                 self.ac_delete.trigger()
-                ev.accept()
+                e.accept()
                 return
-        return QListWidget.keyPressEvent(self, ev)
+        return QListWidget.keyPressEvent(self, e)
 
     def activate_related_bookmark(self, delta=1):
         if not self.count():
@@ -395,12 +395,12 @@ class BookmarkManager(QWidget):
         self.set_current_bookmark(bm)
         self.edited.emit(bookmarks)
 
-    def keyPressEvent(self, ev):
-        sc = get_shortcut_for(self, ev)
-        if ev.key() == Qt.Key.Key_Escape or sc == 'toggle_bookmarks':
+    def keyPressEvent(self, a0):
+        sc = get_shortcut_for(self, a0)
+        if a0.key() == Qt.Key.Key_Escape or sc == 'toggle_bookmarks':
             self.toggle_requested.emit()
             return
         if sc == 'new_bookmark':
             self.create_requested.emit()
             return
-        return QWidget.keyPressEvent(self, ev)
+        return QWidget.keyPressEvent(self, a0)

@@ -131,7 +131,7 @@ class QProgressIndicator(QWidget):
         'Return the recommended size for the widget'
         pass
 
-    def heightForWidth(self, w: int) -> int:
+    def heightForWidth(self, a0: int) -> int:
         'Return the recommended height for the given width'
         pass
 
@@ -163,5 +163,5 @@ class QProgressIndicator(QWidget):
         'Set the recommended size for the widget'
         pass
 
-    def paintEvent(self, event: QPaintEvent) -> None:
+    def paintEvent(self, a0: QPaintEvent) -> None:
         pass

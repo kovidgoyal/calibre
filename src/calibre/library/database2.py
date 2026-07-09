@@ -1104,8 +1104,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
-    def has_id(self, id_):
-        return self.data._data[id_] is not None
+    def has_id(self, id):
+        return self.data._data[id] is not None
 
     def books_with_same_title(self, mi, all_matches=True):
         title = mi.title
@@ -1550,20 +1550,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         run_plugins_on_postimport(self, id, format)
         return retval
 
-    def add_format(self, index, format, stream, index_is_id=False, path=None,
+    def add_format(self, index, ext, stream, index_is_id=False, path=None,
             notify=True, replace=True, copy_function=None):
         id = index if index_is_id else self.id(index)
-        if not format:
-            format = ''
-        self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].get(format.upper(), None)
+        if not ext:
+            ext = ''
+        self.format_metadata_cache[id].pop(ext.upper(), None)
+        name = self.format_filename_cache[id].get(ext.upper(), None)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         if name and not replace:
             return False
         name = self.construct_file_name(id)
-        ext = ('.' + format.lower()) if format else ''
-        dest = os.path.join(path, name+ext)
+        file_ext = ('.' + ext.lower()) if ext else ''
+        dest = os.path.join(path, name+file_ext)
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
@@ -1579,10 +1579,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         elif os.path.exists(dest):
             size = os.path.getsize(dest)
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
-                          (id, format.upper(), size, name))
+                          (id, ext.upper(), size, name))
         self.update_last_modified([id], commit=False)
         self.conn.commit()
-        self.format_filename_cache[id][format.upper()] = name
+        self.format_filename_cache[id][ext.upper()] = name
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
@@ -1638,23 +1638,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True,
+    def remove_format(self, index, ext, index_is_id=False, notify=True,
                       commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
-        if not format:
-            format = ''
-        self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].get(format.upper(), None)
+        if not ext:
+            ext = ''
+        self.format_metadata_cache[id].pop(ext.upper(), None)
+        name = self.format_filename_cache[id].get(ext.upper(), None)
         if name:
             if not db_only:
                 try:
-                    path = self.format_abspath(id, format, index_is_id=True)
+                    path = self.format_abspath(id, ext, index_is_id=True)
                     if path:
                         delete_file(path)
                 except Exception:
                     traceback.print_exc()
-            self.format_filename_cache[id].pop(format.upper(), None)
-            self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
+            self.format_filename_cache[id].pop(ext.upper(), None)
+            self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, ext.upper()))
             if commit:
                 self.conn.commit()
             self.refresh_ids([id])
@@ -3355,8 +3355,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id_])
 
-    def set_isbn(self, id_, isbn, notify=True, commit=True):
-        self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
+    def set_isbn(self, id, isbn, notify=True, commit=True):
+        self.set_identifier(id, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
         from calibre.ebooks.metadata.meta import get_metadata

@@ -49,8 +49,8 @@ class Browser(QTextBrowser):
     def sizeHint(self) -> QSize:
         return QSize(600, 500)
 
-    def setHtml(self, html: str) -> None:
-        super().setHtml(html)
+    def setHtml(self, text: str) -> None:
+        super().setHtml(text)
         self.document().setDocumentMargin(0)
 
     def scroll_to_bottom(self) -> None:
@@ -110,15 +110,15 @@ class InputEdit(QTextEdit):
         self.maximum_height = val
         self.adjust_height()
 
-    def keyPressEvent(self, event):
-        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            mods = event.modifiers() & (
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            mods = e.modifiers() & (
                 Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |
                 Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
             if mods in (Qt.KeyboardModifier.NoModifier, Qt.KeyboardModifier.ControlModifier):
                 self.returnPressed.emit()
                 return
-        super().keyPressEvent(event)
+        super().keyPressEvent(e)
 
     @property
     def value(self) -> str:
@@ -241,8 +241,8 @@ class ChatWidget(QWidget):
         self.browser.scroll_to_bottom()
     # }}}
 
-    def resizeEvent(self, ev) -> None:
-        super().resizeEvent(ev)
+    def resizeEvent(self, a0) -> None:
+        super().resizeEvent(a0)
         self.input.set_max_height(ceil(self.height() * 0.25))
 
     def re_render(self) -> None:

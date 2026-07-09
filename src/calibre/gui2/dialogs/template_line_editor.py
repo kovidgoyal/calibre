@@ -37,7 +37,7 @@ class TemplateLineEditor(QLineEdit):
     def set_mi(self, mi):
         self.mi = mi
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
@@ -45,7 +45,7 @@ class TemplateLineEditor(QLineEdit):
         action_clear_field.triggered.connect(self.clear_field)
         action_open_editor = menu.addAction(_('Open template editor'))
         action_open_editor.triggered.connect(self.open_editor)
-        menu.exec(event.globalPos())
+        menu.exec(a0.globalPos())
 
     def clear_field(self):
         self.setText('')

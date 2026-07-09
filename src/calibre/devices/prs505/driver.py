@@ -168,13 +168,13 @@ class PRS505(USBMS):
                 self.settings().extra_customization[self.OPT_REFRESH_COVERS]
         self.SCAN_FROM_ROOT = self.settings().extra_customization[self.OPT_SCAN_FROM_ROOT]
 
-    def filename_callback(self, fname, mi):
+    def filename_callback(self, default, mi):
         if getattr(mi, 'application_id', None) is not None:
-            base = fname.rpartition('.')[0]
+            base = default.rpartition('.')[0]
             suffix = f'_{mi.application_id}'
             if not base.endswith(suffix):
-                fname = base + suffix + '.' + fname.rpartition('.')[-1]
-        return fname
+                default = base + suffix + '.' + default.rpartition('.')[-1]
+        return default
 
     def initialize_XML_cache(self):
         from calibre.devices.prs505.sony_cache import XMLCache

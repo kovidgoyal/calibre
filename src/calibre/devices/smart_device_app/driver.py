@@ -2032,12 +2032,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.settings().extra_customization[opt]
         return default
 
-    def set_option(self, opt_string, value):
+    def set_option(self, opt_string, opt_value):
         opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
         if opt is not None:
             config = self._configProxy()
             ec = config['extra_customization']
-            ec[opt] = value
+            ec[opt] = opt_value
             config['extra_customization'] = ec
 
     def is_running(self):

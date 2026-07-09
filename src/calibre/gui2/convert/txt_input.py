@@ -52,7 +52,7 @@ class PluginWidget(Widget, Ui_Form):
             return Widget.get_value_handler(self, g)
         return ', '.join(str(i.data(Qt.ItemDataRole.UserRole) or '') for i in self.md_map.values() if i.checkState() == Qt.CheckState.Checked)
 
-    def connect_gui_obj_handler(self, g, f):
-        if g is not self.opt_markdown_extensions:
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj is not self.opt_markdown_extensions:
             raise NotImplementedError()
-        g.itemChanged.connect(self.changed_signal)
+        gui_obj.itemChanged.connect(self.changed_signal)

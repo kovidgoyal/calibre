@@ -447,13 +447,13 @@ class Connection(apsw.Connection):  # {{{
             ans = as_dict(ans)
         return ans
 
-    def execute(self, sql, bindings=None):
+    def execute(self, statements, bindings=None):
         cursor = self.cursor()
-        return cursor.execute(sql, bindings)
+        return cursor.execute(statements, bindings)
 
-    def executemany(self, sql, sequence_of_bindings):
+    def executemany(self, statements, sequenceofbindings):
         with self:  # Disable autocommit mode, for performance
-            return self.cursor().executemany(sql, sequence_of_bindings)
+            return self.cursor().executemany(statements, sequenceofbindings)
 
 # }}}
 

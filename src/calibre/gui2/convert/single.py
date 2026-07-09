@@ -318,10 +318,10 @@ class Config(QDialog):
         self.break_cycles()
         QDialog.reject(self)
 
-    def done(self, r):
+    def done(self, a0):
         if self.isVisible():
             self.save_geometry(gprefs, 'convert_single_dialog_geom')
-        return QDialog.done(self, r)
+        return QDialog.done(self, a0)
 
     def break_cycles(self):
         for w in self.widgets:

@@ -206,11 +206,11 @@ class MetadataSingleDialogBase(QDialog):
             # Workaround for https://bugreports.qt-project.org/browse/QTBUG-41017
             class Menu(QMenu):
 
-                def mouseReleaseEvent(self, ev):
-                    ac = self.actionAt(ev.pos())
+                def mouseReleaseEvent(self, a0):
+                    ac = self.actionAt(a0.pos())
                     if ac is not None:
                         ac.trigger()
-                    return QMenu.mouseReleaseEvent(self, ev)
+                    return QMenu.mouseReleaseEvent(self, a0)
             b.m = m = Menu(b)
         else:
             b.m = m = QMenu(b)
@@ -827,9 +827,9 @@ class Splitter(QSplitter):
 
     frame_resized = pyqtSignal(object)
 
-    def resizeEvent(self, ev):
-        self.frame_resized.emit(ev)
-        return super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        self.frame_resized.emit(a0)
+        return super().resizeEvent(a0)
 
 
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
@@ -983,7 +983,7 @@ class DragTrackingWidget(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.on_drag_enter = on_drag_enter
 
-    def dragEnterEvent(self, ev):
+    def dragEnterEvent(self, a0):
         self.on_drag_enter.emit()
 
 # }}}

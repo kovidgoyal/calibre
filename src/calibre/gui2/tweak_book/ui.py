@@ -202,15 +202,15 @@ class Central(QStackedWidget):  # {{{
     def pre_fill_search(self, text):
         self.search_panel.pre_fill(text)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, a0, a1):
         base = super()
-        if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
+        if a0 is not self.editor_tabs.tabBar() or a1.type() != QEvent.Type.MouseButtonPress or a1.button() not in (
                 Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton):
-            return base.eventFilter(obj, event)
-        index = self.editor_tabs.tabBar().tabAt(event.pos())
+            return base.eventFilter(a0, a1)
+        index = self.editor_tabs.tabBar().tabAt(a1.pos())
         if index < 0:
-            return base.eventFilter(obj, event)
-        if event.button() == Qt.MouseButton.MiddleButton:
+            return base.eventFilter(a0, a1)
+        if a1.button() == Qt.MouseButton.MiddleButton:
             self._close_requested(index)
         ed = self.editor_tabs.widget(index)
         if ed is not None:
@@ -219,7 +219,7 @@ class Central(QStackedWidget):  # {{{
             menu.addSeparator()
             menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
             menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to the right of this tab'), partial(self.close_to_right, ed))
-            menu.exec(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
+            menu.exec(self.editor_tabs.tabBar().mapToGlobal(a1.pos()))
 
         return True
 # }}}
@@ -852,9 +852,9 @@ class Main(MainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-    def resizeEvent(self, ev):
-        self.blocking_job.resize(ev.size())
-        return super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        self.blocking_job.resize(a0.size())
+        return super().resizeEvent(a0)
 
     def update_window_title(self):
         cc = current_container()
@@ -864,11 +864,11 @@ class Main(MainWindow):
         else:
             self.setWindowTitle(self.APP_NAME)
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         if self.boss.quit():
-            e.accept()
+            a0.accept()
         else:
-            e.ignore()
+            a0.ignore()
 
     def save_state(self):
         self.save_geometry(tprefs, 'main_window_geometry')
@@ -886,5 +886,5 @@ class Main(MainWindow):
         self.central.restore_state()
         self.saved_searches.restore_state()
 
-    def contextMenuEvent(self, ev):
-        ev.ignore()
+    def contextMenuEvent(self, event):
+        event.ignore()

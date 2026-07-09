@@ -169,13 +169,13 @@ class TableView(MomentumScrollMixin, QTableView):
         if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
             self.cc_template_delegate.allow_one_edit()
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, e):
         from calibre.gui2.library.alternate_views import handle_enter_press
-        if handle_enter_press(self, ev):
+        if handle_enter_press(self, e):
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if e.key() == Qt.Key.Key_F2:
             self.allow_one_edit_for_f2()
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(e)
 
 
 class PinTableView(TableView):
@@ -195,8 +195,8 @@ class PinTableView(TableView):
     def set_context_menu(self, menu):
         self.context_menu = menu
 
-    def contextMenuEvent(self, event):
-        self.books_view.show_context_menu(self.context_menu, event)
+    def contextMenuEvent(self, a0):
+        self.books_view.show_context_menu(self.context_menu, a0)
 
     def get_default_state(self):
         old_state = {

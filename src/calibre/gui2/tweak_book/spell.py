@@ -266,11 +266,11 @@ class UserWordList(QListWidget):
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         m = QMenu(self)
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
         m.addAction(_('Select all words'), self.select_all)
-        m.exec(ev.globalPos())
+        m.exec(a0.globalPos())
 
     def select_all(self):
         for item in (self.item(i) for i in range(self.count())):
@@ -284,12 +284,12 @@ class UserWordList(QListWidget):
         if words:
             QApplication.clipboard().setText('\n'.join(words))
 
-    def keyPressEvent(self, ev):
-        if ev == QKeySequence.StandardKey.Copy:
+    def keyPressEvent(self, e):
+        if e == QKeySequence.StandardKey.Copy:
             self.copy_to_clipboard()
-            ev.accept()
+            e.accept()
             return
-        return QListWidget.keyPressEvent(self, ev)
+        return QListWidget.keyPressEvent(self, e)
 
 
 class ManageUserDictionaries(Dialog):
@@ -1009,13 +1009,13 @@ class WordsView(QTableView):
     def previous_word(self):
         self.change_current_word_by(-1)
 
-    def keyPressEvent(self, ev):
-        if ev == QKeySequence.StandardKey.Copy:
+    def keyPressEvent(self, e):
+        if e == QKeySequence.StandardKey.Copy:
             self.copy_to_clipboard()
-            ev.accept()
+            e.accept()
             return
         before = self.currentIndex()
-        ret = QTableView.keyPressEvent(self, ev)
+        ret = QTableView.keyPressEvent(self, e)
         after = self.currentIndex()
         if after.row() != before.row() and after.isValid():
             self.scrollTo(after)
@@ -1028,7 +1028,7 @@ class WordsView(QTableView):
             self.setCurrentIndex(idx)
             self.scrollTo(idx)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         m = QMenu(self)
         w = self.model().word_for_row(self.currentIndex().row())
         if w is not None:
@@ -1049,7 +1049,7 @@ class WordsView(QTableView):
         m.addSeparator()
         m.addAction(_('Copy selected words to clipboard'), self.copy_to_clipboard)
 
-        m.exec(ev.globalPos())
+        m.exec(a0.globalPos())
 
     def copy_to_clipboard(self):
         rows = {i.row() for i in self.selectedIndexes()}
@@ -1059,8 +1059,8 @@ class WordsView(QTableView):
         if words:
             QApplication.clipboard().setText('\n'.join(words))
 
-    def currentChanged(self, cur, prev):
-        self.current_changed.emit(cur, prev)
+    def currentChanged(self, current, previous):
+        self.current_changed.emit(current, previous)
 
     @property
     def current_word(self):
@@ -1323,11 +1323,11 @@ class SpellCheck(Dialog):
         v = self.suggested_list if self.focusWidget() is self.suggested_list else self.words_view
         v.previous_word()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            ev.accept()
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            a0.accept()
             return
-        return Dialog.keyPressEvent(self, ev)
+        return Dialog.keyPressEvent(self, a0)
 
     def save_words(self):
         dest = choose_save_file(self, 'spellcheck-csv-export', _('CSV file'), filters=[(_('CSV file'), ['csv'])],

@@ -494,8 +494,8 @@ class Editor(QMainWindow):
                 'There is no suitable text in the clipboard to paste.'), show=True)
         self.editor.paste()
 
-    def contextMenuEvent(self, ev):
-        ev.ignore()
+    def contextMenuEvent(self, event):
+        event.ignore()
 
     def fix_html(self):
         if self.syntax == 'html':

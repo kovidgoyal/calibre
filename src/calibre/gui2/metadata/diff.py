@@ -349,7 +349,7 @@ class CoverView(QWidget):
         self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.MinimumExpanding)
         self.sizePolicy().setHeightForWidth(True)
 
-    def mouseDoubleClickEvent(self, ev):
+    def mouseDoubleClickEvent(self, a0):
         if self.pixmap and not self.pixmap.isNull():
             self.zoom_requested.emit(self.pixmap)
 
@@ -404,7 +404,7 @@ class CoverView(QWidget):
     def sizeHint(self):
         return QSize(225, 300)
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         pmap = self.blank if self.pixmap is None or self.pixmap.isNull() else self.pixmap
         target = self.rect()
         scaled, width, height = fit_image(pmap.width(), pmap.height(), target.width(), target.height())
@@ -600,7 +600,7 @@ class CompareSingle(QWidget):
 class ZoomedCover(QWidget):
     pixmap = None
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         pmap = self.pixmap
         if pmap is None:
             return
@@ -864,11 +864,11 @@ class CompareMany(QDialog):
         self.ids = []
         self.accept()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            ev.accept()
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            a0.accept()
             return
-        return QDialog.keyPressEvent(self, ev)
+        return QDialog.keyPressEvent(self, a0)
 
 
 if __name__ == '__main__':

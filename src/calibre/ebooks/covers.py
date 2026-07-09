@@ -265,8 +265,8 @@ def unescape_formatting(val):
 
 class Formatter(SafeFormat):
 
-    def get_value(self, orig_key, args, kwargs):
-        ans = SafeFormat.get_value(self, orig_key, args, kwargs)
+    def get_value(self, key, args, kwargs):
+        ans = SafeFormat.get_value(self, key, args, kwargs)
         return escape_formatting(ans)
 
 

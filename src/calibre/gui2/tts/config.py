@@ -209,11 +209,11 @@ class Voices(QTreeWidget):
     def is_voice_item(self, item):
         return item is not None and isinstance(item.data(0, Qt.ItemDataRole.UserRole), Voice)
 
-    def mousePressEvent(self, event):
-        item = self.itemAt(event.pos())
+    def mousePressEvent(self, e):
+        item = self.itemAt(e.pos())
         if self.for_embedding and self.is_voice_item(item):
             rect = self.visualItemRect(item)
-            x = event.pos().x() - (rect.x() + self.frameWidth())
+            x = e.pos().x() - (rect.x() + self.frameWidth())
             option = QStyleOptionViewItem()
             self.initViewItemOption(option)
             option.rect = rect
@@ -221,7 +221,7 @@ class Voices(QTreeWidget):
             checkbox_rect = self.style().subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
             if x > checkbox_rect.width():
                 item.setCheckState(0, Qt.CheckState.Checked if item.checkState(0) != Qt.CheckState.Checked else Qt.CheckState.Unchecked)
-        super().mousePressEvent(event)
+        super().mousePressEvent(e)
 
     def sizeHint(self) -> QSize:
         return QSize(400, 500)

@@ -178,8 +178,8 @@ class SHINEBOOK(EB600):
     STORAGE_CARD_VOLUME_LABEL = 'ShineBook Storage Card'
 
     @classmethod
-    def can_handle(cls, dev, debug=False):
-        return dev[4] == 'ShineBook'
+    def can_handle(cls, device_info, debug=False):
+        return device_info[4] == 'ShineBook'
 
 
 class POCKETBOOK360(EB600):
@@ -204,8 +204,8 @@ class POCKETBOOK360(EB600):
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
 
     @classmethod
-    def can_handle(cls, dev, debug=False):
-        return dev[-1] == '1.00' and not dev[-2] and not dev[-3]
+    def can_handle(cls, device_info, debug=False):
+        return device_info[-1] == '1.00' and not device_info[-2] and not device_info[-3]
 
 
 class POCKETBOOKHD(EB600):
@@ -324,8 +324,8 @@ class ELONEX(EB600):
     WINDOWS_CARD_A_MEM = 'EBOOK'
 
     @classmethod
-    def can_handle(cls, dev, debug=False):
-        return dev[3] == 'Elonex' and dev[4] == 'eBook'
+    def can_handle(cls, device_info, debug=False):
+        return device_info[3] == 'Elonex' and device_info[4] == 'eBook'
 
 
 class POCKETBOOK301(USBMS):

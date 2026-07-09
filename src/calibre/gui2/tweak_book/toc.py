@@ -249,10 +249,10 @@ class TOCViewer(QWidget):
         self.view.clear()
         process_node(toc, self.view.invisibleRootItem())
 
-    def showEvent(self, ev):
-        if self.toc_name is None or not ev.spontaneous():
+    def showEvent(self, a0):
+        if self.toc_name is None or not a0.spontaneous():
             self.build()
-        return super().showEvent(ev)
+        return super().showEvent(a0)
 
     def update_if_visible(self):
         if self.isVisible():

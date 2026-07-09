@@ -184,27 +184,27 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.requests = defaultdict(list)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            rq.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            a0.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
             return
-        url = rq.requestUrl()
+        url = a0.requestUrl()
         if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
-            rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
             return
         name = url.path()[1:]
         try:
             if name.startswith('calibre_internal-mathjax/'):
-                handle_mathjax_request(rq, name.partition('-')[-1])
+                handle_mathjax_request(a0, name.partition('-')[-1])
                 return
             c = current_container()
             if not c.has_name(name):
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             mime_type = c.mime_map.get(name, 'application/octet-stream')
             if mime_type in OEB_DOCS:
                 mime_type = XHTML_MIME
-                self.requests[name].append((mime_type, rq))
+                self.requests[name].append((mime_type, a0))
                 QTimer.singleShot(0, self.check_for_parse)
             else:
                 data = get_data(name)
@@ -216,11 +216,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
         except Exception:
             import traceback
             traceback.print_exc()
-            rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
+            a0.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
     def check_for_parse(self):
         remove = []
@@ -351,15 +351,15 @@ class WebPage(QWebEnginePage):
         secure_webengine(self, for_viewer=True)
         self.bridge = PreviewBridge(self)
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prints(f'{source_id}:{linenumber}: {msg}')
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        prints(f'{sourceID}:{lineNumber}: {message}')
 
-    def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             safe_open_url(url)
         prints('Blocking navigation request to:', url.toString())
         return False
@@ -476,7 +476,7 @@ class WebView(QWebEngineView, OpenWithHandler):
         self.inspector.parent().raise_and_focus()
         self.pageAction(QWebEnginePage.WebAction.InspectElement).trigger()
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         menu = QMenu(self)
         data = self.lastContextMenuRequest()
         url = data.linkUrl()
@@ -505,7 +505,7 @@ class WebView(QWebEngineView, OpenWithHandler):
                             mime = c.mime_map[resource_name]
                             if mime.startswith('image/'):
                                 menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
-        menu.exec(ev.globalPos())
+        menu.exec(a0.globalPos())
 
     def open_with(self, file_name, fmt, entry):
         self.parent().open_file_with.emit(file_name, fmt, entry)
@@ -614,10 +614,10 @@ class Preview(QWidget):
     def clear_clicked(self):
         self.view._page.findText('')
 
-    def find(self, direction):
+    def find(self, a0):
         text = str(self.search.text())
         self.view._page.findText(text, (
-            QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlag(0)))
+            QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
 
     def find_next(self):
         self.find('next')

@@ -53,10 +53,10 @@ def intelligent_strip(action, val):
 
 class QueryEdit(QLineEdit):
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
         self.parent().specialise_context_menu(menu)
-        menu.exec(ev.globalPos())
+        menu.exec(a0.globalPos())
 
 
 class SingleTagEdit(EditWithComplete):

@@ -296,8 +296,8 @@ class DateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         if self.format is None:
             self.format = default_format
 
-    def displayText(self, val, locale):
-        d = qt_to_dt(val)
+    def displayText(self, value, locale):
+        d = qt_to_dt(value)
         if is_date_undefined(d):
             return ''
         return format_date(d, self.format)
@@ -329,8 +329,8 @@ class PubDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         if self.format is None:
             self.format = 'MMM yyyy'
 
-    def displayText(self, val, locale):
-        d = qt_to_dt(val)
+    def displayText(self, value, locale):
+        d = qt_to_dt(value)
         if is_date_undefined(d):
             return ''
         return format_date(d, self.format)
@@ -493,8 +493,8 @@ class CcDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         else:
             self.format = _format
 
-    def displayText(self, val, locale):
-        d = qt_to_dt(val)
+    def displayText(self, value, locale):
+        d = qt_to_dt(value)
         if is_date_undefined(d):
             return ''
         return format_date(d, self.format)
@@ -806,10 +806,10 @@ class DelegateCB(QComboBox):  # {{{
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
 
-    def event(self, e):
-        if e.type() == QEvent.Type.ShortcutOverride:
-            e.accept()
-        return QComboBox.event(self, e)
+    def event(self, event):
+        if event.type() == QEvent.Type.ShortcutOverride:
+            event.accept()
+        return QComboBox.event(self, event)
 # }}}
 
 

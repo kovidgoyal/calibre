@@ -264,8 +264,8 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             pass
         return ROOT
 
-    def parent(self, index):
-        ip = index.internalPointer()
+    def parent(self, child):
+        ip = child.internalPointer()
         if ip is None or not ip.is_shortcut:
             return ROOT
         group = ip.data['group']
@@ -518,16 +518,16 @@ class Editor(QFrame):  # {{{
         button.setText(_('None'))
         button.setObjectName(_('None'))
 
-    def eventFilter(self, obj, event):
-        if self.capture and obj in (self.button1, self.button2):
-            t = event.type()
+    def eventFilter(self, a0, a1):
+        if self.capture and a0 in (self.button1, self.button2):
+            t = a1.type()
             if t == QEvent.Type.ShortcutOverride:
-                event.accept()
+                a1.accept()
                 return True
-            if t == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
-                self.key_press_event(event, 1 if obj is self.button1 else 2)
+            if t == QEvent.Type.KeyPress and isinstance(a1, QKeyEvent):
+                self.key_press_event(a1, 1 if a0 is self.button1 else 2)
                 return True
-        return QFrame.eventFilter(self, obj, event)
+        return QFrame.eventFilter(self, a0, a1)
 
     def key_press_event(self, ev, which=0):
         if self.capture == 0:
@@ -743,18 +743,18 @@ class ShortcutConfig(QWidget):  # {{{
     def is_editing(self):
         return self.view.state() == QAbstractItemView.State.EditingState
 
-    def find(self, query):
-        if not query:
+    def find(self, a0):
+        if not a0:
             return
         try:
-            idx = self._model.find(query)
+            idx = self._model.find(a0)
         except ParseException:
             self.search.search_done(False)
             return
         self.search.search_done(True)
         if not idx.isValid():
             info_dialog(self, _('No matches'),
-                    _('Could not find any shortcuts matching <i>{}</i>').format(prepare_string_for_xml(query)),
+                    _('Could not find any shortcuts matching <i>{}</i>').format(prepare_string_for_xml(a0)),
                     show=True, show_copy_button=False)
             return
         self.highlight_index(idx)

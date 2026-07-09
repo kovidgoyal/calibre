@@ -165,18 +165,18 @@ class ResultsList(QTreeWidget):
             if d.exec() == QDialog.DialogCode.Accepted:
                 self.note_edited.emit(r['field'], r['item_id'])
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Delete):
+    def keyPressEvent(self, event):
+        if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
-            ev.accept()
+            event.accept()
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if event.key() == Qt.Key.Key_F2:
             item = self.currentItem()
             if item:
                 self.edit_note(item)
-                ev.accept()
+                event.accept()
                 return
-        return QTreeWidget.keyPressEvent(self, ev)
+        return QTreeWidget.keyPressEvent(self, event)
 
     @property
     def tree_state(self):
@@ -543,12 +543,12 @@ class NotesBrowser(Dialog):
                     err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
                 det_msg=str(err), show=True)
 
-    def keyPressEvent(self, ev):
-        k = ev.key()
+    def keyPressEvent(self, a0):
+        k = a0.key()
         if k in (Qt.Key.Key_Enter, Qt.Key.Key_Return):  # prevent enter from closing dialog
-            ev.ignore()
+            a0.ignore()
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
 
 if __name__ == '__main__':

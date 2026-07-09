@@ -172,8 +172,8 @@ class AllFonts(QAbstractTableModel):
             else:
                 return name
 
-    def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        sorted_on = (('name' if column == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
         if sorted_on != self.sorted_on:
             self.sorted_on = sorted_on
             self.beginResetModel()

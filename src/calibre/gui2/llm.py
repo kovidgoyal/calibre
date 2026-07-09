@@ -585,16 +585,16 @@ class ActionEditDialog(QDialog):
         ans.setWidth(max(500, ans.width()))
         return ans
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.KeyPress:
-            if obj is self.name_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.KeyPress:
+            if a0 is self.name_edit and a1.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
                 self.prompt_edit.setFocus()
                 return True
-            if obj is self.prompt_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0 is self.prompt_edit and a1.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                if a1.modifiers() & Qt.KeyboardModifier.ControlModifier:
                     self.accept()
                     return True
-        return super().eventFilter(obj, event)
+        return super().eventFilter(a0, a1)
 
     def get_action(self) -> ActionData:
         title = self.name_edit.text().strip()

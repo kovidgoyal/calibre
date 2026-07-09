@@ -47,10 +47,10 @@ class JETBOOK(USBMS):
             r'(?P<authors>.+)#(?P<title>.+)'
             )
 
-    def filename_callback(self, fname, mi):
-        fileext = os.path.splitext(os.path.basename(fname))[1]
+    def filename_callback(self, default, mi):
+        fileext = os.path.splitext(os.path.basename(default))[1]
         if fileext.lower() not in ('txt', 'pdf', 'fb2'):
-            return fname
+            return default
         title = mi.title or 'Unknown'
         title = title.replace(' ', '_')
         au = mi.format_authors()

@@ -558,8 +558,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('Could not start the Content server. Error:\n\n%s')%msg,
                 show=True)
 
-    def resizeEvent(self, ev):
-        MainWindow.resizeEvent(self, ev)
+    def resizeEvent(self, a0):
+        MainWindow.resizeEvent(self, a0)
         self.search.setMaximumWidth(self.width()-150)
 
     def create_spare_pool(self, *args):
@@ -625,16 +625,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 setattr(window, '__systray_minimized', False)
         self.update_toggle_to_tray_action()
 
-    def changeEvent(self, ev):
+    def changeEvent(self, a0):
         # Handle bug in Qt 6 that causes the window to be shown as blank if it was first
         # maximized and then closed to system tray, when remote desktop is
         # reconnected: https://bugreports.qt.io/browse/QTBUG-124177
         if (
-                iswindows and ev.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
+                iswindows and a0.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
                 self.isActiveWindow() and not self.isVisible()
         ):
             QTimer.singleShot(0, self.show_windows)
-        return super().changeEvent(ev)
+        return super().changeEvent(a0)
 
     def test_server(self, *args):
         if self.content_server is not None and \
@@ -1415,7 +1415,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
             qapplication_or_fail().quit()
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         if self.shutting_down:
             return
         self.write_settings()
@@ -1427,15 +1427,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         'system tray.'), show_copy_button=False).exec()
                 dynamic['systray_msg'] = True
             self.hide_windows()
-            e.ignore()
+            a0.ignore()
         elif self.confirm_quit():
             try:
                 self.shutdown(write_settings=False)
             except Exception:
                 import traceback
                 traceback.print_exc()
-            e.accept()
+            a0.accept()
         else:
-            e.ignore()
+            a0.ignore()
 
     # }}}

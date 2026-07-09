@@ -193,8 +193,8 @@ class OCFDirReader(OCFReader):
     def open(self, path):
         return open(os.path.join(self.root, path), 'rb')
 
-    def read_bytes(self, path):
-        with self.open(path) as f:
+    def read_bytes(self, name):
+        with self.open(name) as f:
             return f.read()
 
 

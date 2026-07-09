@@ -360,12 +360,12 @@ class Highlights(QTreeWidget):
         self.gesture_manager = GestureManager(self)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
-    def viewportEvent(self, ev):
+    def viewportEvent(self, event):
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(ev)
+            ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
-        return super().viewportEvent(ev)
+        return super().viewportEvent(event)
 
     def show_context_menu(self, point):
         index = self.indexAt(point)
@@ -603,16 +603,16 @@ class Highlights(QTreeWidget):
             else:
                 sec.setHidden(True)
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Delete):
+    def keyPressEvent(self, event):
+        if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
-            ev.accept()
+            event.accept()
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if event.key() == Qt.Key.Key_F2:
             self.edit_requested.emit()
-            ev.accept()
+            event.accept()
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(event)
 
 
 class NotesEditDialog(Dialog):
@@ -817,8 +817,8 @@ class HighlightsPanel(QWidget):
         if annot_id:
             self.highlights.find_annot_id(annot_id)
 
-    def keyPressEvent(self, ev):
-        sc = get_shortcut_for(self, ev)
-        if sc == 'toggle_highlights' or ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        sc = get_shortcut_for(self, a0)
+        if sc == 'toggle_highlights' or a0.key() == Qt.Key.Key_Escape:
             self.toggle_requested.emit()
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)

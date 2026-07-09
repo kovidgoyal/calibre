@@ -152,12 +152,12 @@ class CHMReader(CHMFile):
         # print(toc)
         return toc
 
-    def ResolveObject(self, path):
+    def ResolveObject(self, document):
         # filenames are utf-8 encoded in the chm index as far as I can
         # determine, see https://tika.apache.org/1.11/api/org/apache/tika/parser/chm/accessor/ChmPmgiHeader.html
-        if not isinstance(path, bytes):
-            path = path.encode('utf-8')
-        return CHMFile.ResolveObject(self, path)
+        if not isinstance(document, bytes):
+            document = document.encode('utf-8')
+        return CHMFile.ResolveObject(self, document)
 
     def file_exists(self, path):
         res, ui = self.ResolveObject(path)

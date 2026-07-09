@@ -35,8 +35,8 @@ class ResultsView(QTreeView):
         self.model().sort(1, Qt.SortOrder.AscendingOrder)
         self.header().setSortIndicator(self.model().sort_col, self.model().sort_order)
 
-    def contextMenuEvent(self, event):
-        index = self.indexAt(event.pos())
+    def contextMenuEvent(self, a0):
+        index = self.indexAt(a0.pos())
 
         if not index.isValid():
             return
@@ -47,7 +47,7 @@ class ResultsView(QTreeView):
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
         if not plugin.is_customizable():
             ca.setEnabled(False)
-        menu.exec(event.globalPos())
+        menu.exec(a0.globalPos())
 
     def configure_plugin(self, plugin):
         plugin.do_user_config(self)

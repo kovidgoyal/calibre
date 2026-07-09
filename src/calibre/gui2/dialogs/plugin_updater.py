@@ -333,8 +333,8 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.filter_text = ''
         self.filter_by_category = ''
 
-    def filterAcceptsRow(self, sourceRow, sourceParent):
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)
+    def filterAcceptsRow(self, source_row, source_parent):
+        index = self.sourceModel().index(source_row, 0, source_parent)
         display_plugin = self.sourceModel().display_plugins[index.row()]
         matches_filters = display_plugin.name_matches_filter(self.filter_text) and display_plugin.category_matches_filter(self.filter_by_category)
         if self.filter_criteria == FILTER_ALL:

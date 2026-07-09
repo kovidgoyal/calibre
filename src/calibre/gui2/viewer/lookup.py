@@ -265,13 +265,13 @@ def create_profile():
 
 class Page(QWebEnginePage):
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
         }.get(level, 'ERROR')
-        if source_id == 'userscript:lookup.js':
-            prints(f'{prefix}: {source_id}:{linenumber}: {msg}', file=sys.stderr)
+        if sourceID == 'userscript:lookup.js':
+            prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
             sys.stderr.flush()
 
     def zoom_in(self):
@@ -299,14 +299,14 @@ class View(QWebEngineView):
 
     inspect_element = pyqtSignal()
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
         menu.addAction(_('Zoom in'), self.page().zoom_in)
         menu.addAction(_('Zoom out'), self.page().zoom_out)
         menu.addAction(_('Default zoom'), self.page().default_zoom)
         menu.addAction(_('Inspect'), self.do_inspect_element)
-        menu.exec(ev.globalPos())
+        menu.exec(a0.globalPos())
 
     def do_inspect_element(self):
         self.inspect_element.emit()

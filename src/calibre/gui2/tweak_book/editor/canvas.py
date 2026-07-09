@@ -255,19 +255,19 @@ class Canvas(QWidget):
 
     # Drag 'n drop {{{
 
-    def dragEnterEvent(self, event):
-        md = event.mimeData()
+    def dragEnterEvent(self, a0):
+        md = a0.mimeData()
         if dnd_has_extension(md, image_extensions()) or dnd_has_image(md):
-            event.acceptProposedAction()
+            a0.acceptProposedAction()
 
-    def dropEvent(self, event):
-        event.setDropAction(Qt.DropAction.CopyAction)
-        md = event.mimeData()
+    def dropEvent(self, a0):
+        a0.setDropAction(Qt.DropAction.CopyAction)
+        md = a0.mimeData()
 
         x, y = dnd_get_image(md)
         if x is not None:
             # We have an image, set cover
-            event.accept()
+            a0.accept()
             if y is None:
                 # Local image
                 self.undo_stack.push(Replace(x.toImage(), _('Drop image'), self))
@@ -281,10 +281,10 @@ class Canvas(QWidget):
                     if not img.isNull():
                         self.undo_stack.push(Replace(img, _('Drop image'), self))
 
-        event.accept()
+        a0.accept()
 
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
+    def dragMoveEvent(self, a0):
+        a0.acceptProposedAction()
     # }}}
 
     def __init__(self, parent=None):
@@ -577,9 +577,9 @@ class Canvas(QWidget):
         sr = self.selection_state.rect
         return get_selection_rect(img, sr, target)
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton and self.target.contains(ev.position()):
-            pos = ev.position()
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton and self.target.contains(a0.position()):
+            pos = a0.position()
             self.selection_state.last_press_point = pos
             if self.selection_state.current_mode is None:
                 self.selection_state.current_mode = 'select'
@@ -609,16 +609,16 @@ class Canvas(QWidget):
         self.update()
         self.selection_state_changed.emit(self.has_selection)
 
-    def mouseMoveEvent(self, ev):
+    def mouseMoveEvent(self, a0):
         changed = False
         if self.selection_state.in_selection:
             changed = True
         self.selection_state.in_selection = False
         self.selection_state.drag_corner = None
-        pos = ev.position()
+        pos = a0.position()
         cursor = Qt.CursorShape.ArrowCursor
         try:
-            if ev.buttons() & Qt.MouseButton.LeftButton:
+            if a0.buttons() & Qt.MouseButton.LeftButton:
                 if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
                     if self.selection_state.current_mode == 'select':
                         r = QRectF(self.selection_state.last_press_point, pos).normalized()
@@ -630,7 +630,7 @@ class Canvas(QWidget):
                         self.selection_state.drag_corner = self.selection_state.dragging
                         dp = pos - self.selection_state.last_drag_pos
                         self.selection_state.last_drag_pos = pos
-                        self.move_selection(dp, preserve_aspect_ratio=ev.modifiers() & Qt.KeyboardModifier.AltModifier == Qt.KeyboardModifier.AltModifier)
+                        self.move_selection(dp, preserve_aspect_ratio=a0.modifiers() & Qt.KeyboardModifier.AltModifier == Qt.KeyboardModifier.AltModifier)
                         cursor = self.get_cursor()
                         changed = True
             else:
@@ -647,8 +647,8 @@ class Canvas(QWidget):
                 self.update()
             self.setCursor(cursor)
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
             self.selection_state.dragging = self.selection_state.last_drag_pos = None
             if self.selection_state.current_mode == 'select':
                 r = self.selection_state.rect
@@ -658,15 +658,15 @@ class Canvas(QWidget):
                     self.selection_state.current_mode = 'selected'
                 self.selection_state_changed.emit(self.has_selection)
             elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(
-                    ev.position()):
+                    a0.position()):
                 self.setCursor(self.get_cursor())
             self.update()
 
-    def keyPressEvent(self, ev):
-        k = ev.key()
+    def keyPressEvent(self, a0):
+        k = a0.key()
         if k in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down) and self.selection_state.rect is not None and self.has_selection:
-            ev.accept()
-            delta = 10 if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1
+            a0.accept()
+            delta = 10 if a0.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1
             x = y = 0
             if k in (Qt.Key.Key_Left, Qt.Key.Key_Right):
                 x = delta * (-1 if k == Qt.Key.Key_Left else 1)
@@ -675,7 +675,7 @@ class Canvas(QWidget):
             self.move_selection_rect(x, y)
             self.update()
         else:
-            return QWidget.keyPressEvent(self, ev)
+            return QWidget.keyPressEvent(self, a0)
     # }}}
 
     # Painting {{{
@@ -756,8 +756,8 @@ class Canvas(QWidget):
         painter.setCompositionMode(QPainter.CompositionMode.RasterOp_SourceAndNotDestination)
         painter.drawRect(sr)
 
-    def paintEvent(self, event):
-        QWidget.paintEvent(self, event)
+    def paintEvent(self, a0):
+        QWidget.paintEvent(self, a0)
         p = QPainter(self)
         p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         try:

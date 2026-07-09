@@ -21,6 +21,7 @@ from qt.core import (
     QLineEdit,
     QListView,
     QListWidget,
+    QPushButton,
     QRadioButton,
     Qt,
     QTableWidget,
@@ -116,7 +117,7 @@ class ConfigWidgetInterface:
 
     def do_on_child_tabs(self, method, *args):
         r = False
-        for t in self.child_tabs:
+        for t in self.child_tabs:  # type: ignore
             lazy_init_called = getattr(t, 'lazy_init_called', True)
             if method in ('commit', 'refresh_gui') and not lazy_init_called:
                 continue
@@ -145,12 +146,10 @@ class Setting:
 
     def __init__(self, name, config_obj, widget, gui_name=None,
             empty_string_is_None=True, choices=None, restart_required=False):
-        self.name, self.gui_name = name, gui_name
+        self.name, self.gui_name = name, ('opt_' + name) if gui_name is None else gui_name
         self.empty_string_is_None = empty_string_is_None
         self.restart_required = restart_required
         self.choices = choices
-        if gui_name is None:
-            self.gui_name = 'opt_'+name
         self.config_obj = config_obj
         self.gui_obj = getattr(widget, self.gui_name)
         self.widget = widget
@@ -303,7 +302,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         if hasattr(self, 'setupUi'):
-            self.setupUi(self)
+            self.setupUi(self)  # type: ignore
         self.settings = {}
         self.child_tabs = []
         for v in self.__dict__.values():
@@ -377,23 +376,23 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
     def ensure_lazy_initialized(self):
         if not self.lazy_init_called:
             if hasattr(self, 'lazy_initialize'):
-                self.lazy_initialize()
+                self.lazy_initialize()  # type: ignore
             self.lazy_init_called = True
 
     def set_changed_signal(self, changed_signal):
         self.changed_signal.connect(changed_signal)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         self.ensure_lazy_initialized()
         super().restore_defaults()
 
-    def showEvent(self, event):
+    def showEvent(self, a0):
         # called when the widget is actually displays. We can't do something like
         # lazy_genesis because Qt does "things" before showEvent() is called. In
         # particular, the register function doesn't work with combo boxes if
         # genesis isn't called before everything else. Why is a mystery.
         self.ensure_lazy_initialized()
-        super().showEvent(event)
+        super().showEvent(a0)
 
 
 class ConfigDialog(QDialog):
@@ -448,18 +447,22 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     bb.rejected.connect(d.reject)
     w = pl.create_widget(d)
     d.set_widget(w)
-    bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(w.restore_defaults)
-    bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
-    bb.button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
-    bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(d.accept)
+    def button(which) -> QPushButton:
+        ans = bb.button(which)
+        assert ans is not None
+        return ans
+    button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(w.restore_defaults)
+    button(QDialogButtonBox.StandardButton.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
+    button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
+    button(QDialogButtonBox.StandardButton.Apply).clicked.connect(d.accept)
 
     def onchange():
-        b = bb.button(QDialogButtonBox.StandardButton.Apply)
+        b = button(QDialogButtonBox.StandardButton.Apply)
         b.setEnabled(True)
         b.setDefault(True)
         b.setAutoDefault(True)
     w.changed_signal.connect(onchange)
-    bb.button(QDialogButtonBox.StandardButton.Cancel).setFocus(Qt.FocusReason.OtherFocusReason)
+    button(QDialogButtonBox.StandardButton.Cancel).setFocus(Qt.FocusReason.OtherFocusReason)
     l = QVBoxLayout()
     d.setLayout(l)
     l.addWidget(w)
@@ -492,15 +495,15 @@ class ListViewWithMoveByKeyPress(QListView):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, event):
-        if (event.type() == QEvent.KeyPress and
+    def event(self, e):
+        if (e.type() == QEvent.Type.KeyPress and
             QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
-            if event.key() == Qt.Key.Key_Up:
+            if e.key() == Qt.Key.Key_Up:
                 self.up_function()
-            elif event.key() == Qt.Key.Key_Down:
+            elif e.key() == Qt.Key.Key_Down:
                 self.down_function()
             return True
-        return QListView.event(self, event)
+        return QListView.event(self, e)
 
 
 class ListWidgetWithMoveByKeyPress(QListWidget):
@@ -509,15 +512,15 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, event):
-        if (event.type() == QEvent.KeyPress and
+    def event(self, e):
+        if (e.type() == QEvent.Type.KeyPress and
             QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
-            if event.key() == Qt.Key.Key_Up:
+            if e.key() == Qt.Key.Key_Up:
                 self.up_function()
-            elif event.key() == Qt.Key.Key_Down:
+            elif e.key() == Qt.Key.Key_Down:
                 self.down_function()
             return True
-        return QListWidget.event(self, event)
+        return QListWidget.event(self, e)
 
 
 class TableWidgetWithMoveByKeyPress(QTableWidget):
@@ -526,15 +529,15 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
-    def event(self, event):
-        if (event.type() == QEvent.KeyPress and
+    def event(self, e):
+        if (e.type() == QEvent.Type.KeyPress and
             QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
-            if event.key() == Qt.Key.Key_Up:
+            if e.key() == Qt.Key.Key_Up:
                 self.up_function()
-            elif event.key() == Qt.Key.Key_Down:
+            elif e.key() == Qt.Key.Key_Down:
                 self.down_function()
             return True
-        return QTableWidget.event(self, event)
+        return QTableWidget.event(self, e)
 
 
 def get_move_count(row_count):

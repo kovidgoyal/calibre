@@ -31,16 +31,16 @@ PRINT_TIMEOUT = 10
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
-    def interceptRequest(self, request_info):
-        method = bytes(request_info.requestMethod())
+    def interceptRequest(self, info):
+        method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             default_log.warn(f'Blocking URL request with method: {method}')
-            request_info.block(True)
+            info.block(True)
             return
-        qurl = request_info.requestUrl()
+        qurl = info.requestUrl()
         if qurl.scheme() != FAKE_PROTOCOL:
             default_log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource related to the HTML file being rendered')
-            request_info.block(True)
+            info.block(True)
             return
 
 
@@ -51,29 +51,29 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         super().__init__(parent)
         self.allowed_hosts = (FAKE_HOST,)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         path = url.path()
         rp = path[1:]
         if not rp:
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.UrlNotFound)
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.UrlNotFound)
         resolved_path = os.path.abspath(os.path.join(self.root, rp.replace('/', os.sep)))
         if not resolved_path.startswith(self.root):
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.UrlNotFound)
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.UrlNotFound)
 
         try:
             with open(resolved_path, 'rb') as f:
                 data = f.read()
         except OSError as err:
             default_log(f'Failed to read file: {rp} with error: {err}')
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
 
-        send_reply(rq, guess_type(os.path.basename(resolved_path)), data)
+        send_reply(a0, guess_type(os.path.basename(resolved_path)), data)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -116,7 +116,7 @@ class Render(QWebEnginePage):
             self.hang_timer.stop()
             QApplication.instance().exit(1)
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         pass
 
     def start_load(self, path_to_html, root):

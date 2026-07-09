@@ -124,10 +124,10 @@ class Worker(QWebEnginePage):
         elif new_title == 'checked':
             self.runJavaScript('window.get_css_results()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
-    def javaScriptConsoleMessage(self, level, msg, lineno, source_id):
-        msg = f'{source_id}:{lineno}:{msg}'
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        message = f'{sourceID}:{lineNumber}:{message}'
         try:
-            print(msg)
+            print(message)
         except Exception:
             pass
 

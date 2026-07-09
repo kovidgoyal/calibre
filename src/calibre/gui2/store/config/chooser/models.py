@@ -95,8 +95,8 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    def parent(self, child):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
@@ -165,12 +165,12 @@ class Matches(QAbstractItemModel):
                 return ('<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>')
         return None
 
-    def setData(self, index, data, role):
+    def setData(self, index, value, role):
         if not index.isValid():
             return False
         col = index.column()
         if col == 0:
-            if data in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
+            if value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
                 enable_plugin(self.get_plugin(index))
             else:
                 disable_plugin(self.get_plugin(index))
@@ -196,13 +196,13 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
-    def sort(self, col, order, reset=True):
-        self.sort_col = col
+    def sort(self, column, order, reset=True):
+        self.sort_col = column
         self.sort_order = order
         if not self.matches:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.matches.sort(key=lambda x: sort_key(str(self.data_as_text(x, col))), reverse=descending)
+        self.matches.sort(key=lambda x: sort_key(str(self.data_as_text(x, column))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 

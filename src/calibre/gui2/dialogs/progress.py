@@ -129,12 +129,12 @@ class ProgressDialog(QDialog):
             return
         QDialog.reject(self)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             if self.cancelable:
                 self._canceled()
         else:
-            QDialog.keyPressEvent(self, ev)
+            QDialog.keyPressEvent(self, a0)
 
 
 class BlockingBusy(QDialog):

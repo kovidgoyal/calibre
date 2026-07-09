@@ -154,13 +154,13 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         self.allowed_hosts = (FAKE_HOST,)
         self.container = container
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         path = url.path()
         if path.startswith('/book/'):
             name = path[len('/book/'):]
@@ -174,7 +174,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 except FileNotFoundError:
                     print(f'Could not find file {name} in book', file=sys.stderr)
-                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -183,17 +183,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif path.startswith('/mathjax/'):
             try:
                 _ign, _ign, base, rest = path.split('/', 3)
             except ValueError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             try:
                 mime_type = guess_type(rest)
@@ -207,17 +207,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 else:
                     raise FileNotFoundError('')
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except FileNotFoundError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         else:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -303,9 +303,9 @@ class Renderer(QWebEnginePage):
             return
         QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
 
-    def javaScriptConsoleMessage(self, level, message, linenum, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         try:
-            self.log(f'{source_id}:{linenum}:{message}')
+            self.log(f'{sourceID}:{lineNumber}:{message}')
         except Exception:
             pass
 
@@ -335,16 +335,16 @@ class Renderer(QWebEnginePage):
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
-    def interceptRequest(self, request_info):
-        method = bytes(request_info.requestMethod())
+    def interceptRequest(self, info):
+        method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             self.log.warn(f'Blocking URL request with method: {method}')
-            request_info.block(True)
+            info.block(True)
             return
-        qurl = request_info.requestUrl()
+        qurl = info.requestUrl()
         if qurl.scheme() != FAKE_PROTOCOL:
             self.log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
-            request_info.block(True)
+            info.block(True)
             return
 
 

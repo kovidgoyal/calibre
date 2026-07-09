@@ -378,9 +378,9 @@ class TweaksView(QListView):
         self.setStyleSheet('QListView::item { padding-top: 0.75ex; padding-bottom: 0.75ex; }')
         self.setWordWrap(True)
 
-    def currentChanged(self, cur, prev):
-        QListView.currentChanged(self, cur, prev)
-        self.current_changed.emit(cur, prev)
+    def currentChanged(self, current, previous):
+        QListView.currentChanged(self, current, previous)
+        self.current_changed.emit(current, previous)
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -567,18 +567,18 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.commit(self)
         return True
 
-    def find(self, query):
-        if not query:
+    def find(self, a0):
+        if not a0:
             return
         try:
-            idx = self._model.find(query)
+            idx = self._model.find(a0)
         except ParseException:
             self.search.search_done(False)
             return
         self.search.search_done(True)
         if not idx.isValid():
             info_dialog(self, _('No matches'),
-                    _('Could not find any tweaks matching <i>{}</i>').format(prepare_string_for_xml(query)),
+                    _('Could not find any tweaks matching <i>{}</i>').format(prepare_string_for_xml(a0)),
                     show=True, show_copy_button=False)
             return
         self.highlight_index(idx)

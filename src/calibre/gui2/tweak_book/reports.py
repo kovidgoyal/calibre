@@ -109,11 +109,11 @@ class ProxyModel(QSortFilterProxyModel):
         self._filter_text = text
         self.setFilterFixedString(text)
 
-    def filterAcceptsRow(self, row, parent):
+    def filterAcceptsRow(self, source_row, source_parent):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        for item in (sm.data(sm.index(row, c, parent)) or '' for c in range(sm.columnCount())):
+        for item in (sm.data(sm.index(source_row, c, source_parent)) or '' for c in range(sm.columnCount())):
             if item and primary_contains(self._filter_text, item):
                 return True
         return False
@@ -199,17 +199,17 @@ class FilesView(QTableView):
         if index.isValid():
             self.double_clicked.emit(index)
 
-    def keyPressEvent(self, ev):
-        if self.DELETE_POSSIBLE and ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, e):
+        if self.DELETE_POSSIBLE and e.key() == Qt.Key.Key_Delete:
             self.delete_selected()
-            ev.accept()
+            e.accept()
             return
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+        if e.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             if (index := self.currentIndex()).isValid():
-                ev.accept()
+                e.accept()
                 self._double_clicked(index)
                 return
-        return QTableView.keyPressEvent(self, ev)
+        return QTableView.keyPressEvent(self, e)
 
     @property
     def selected_locations(self):
@@ -998,10 +998,10 @@ class CSSRulesModel(QAbstractItemModel):
             except IndexError:
                 pass
 
-    def parent(self, index):
-        if not index.isValid():
+    def parent(self, child):
+        if not child.isValid():
             return ROOT
-        parent = index.internalPointer()
+        parent = child.internalPointer()
         if parent is self.rules or parent is None:
             return ROOT
         try:
@@ -1071,11 +1071,11 @@ class CSSProxyModel(QSortFilterProxyModel):
         self._filter_text = text
         self.setFilterFixedString(text)
 
-    def filterAcceptsRow(self, row, parent):
+    def filterAcceptsRow(self, source_row, source_parent):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        entry = sm.index_to_entry(sm.index(row, 0, parent))
+        entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, CSSEntry):
             return True
         return primary_contains(self._filter_text, entry.rule.selector)
@@ -1287,11 +1287,11 @@ class ClassesModel(CSSRulesModel):
 
 class ClassProxyModel(CSSProxyModel):
 
-    def filterAcceptsRow(self, row, parent):
+    def filterAcceptsRow(self, source_row, source_parent):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        entry = sm.index_to_entry(sm.index(row, 0, parent))
+        entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, ClassEntry):
             return True
         return primary_contains(self._filter_text, entry.cls)

@@ -206,13 +206,13 @@ class FunctionBox(EditWithComplete):
     def refresh(self):
         self.update_items_cache(set(functions()))
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, e):
         menu = self.lineEdit().createStandardContextMenu()
         if self.show_saved_search_actions:
             menu.addSeparator()
             menu.addAction(_('Save current search'), self.save_search.emit)
             menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
-        menu.exec(event.globalPos())
+        menu.exec(e.globalPos())
 
 
 class FunctionEditor(Dialog):

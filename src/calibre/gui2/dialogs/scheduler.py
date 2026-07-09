@@ -417,9 +417,9 @@ class SchedulerDialog(QDialog):
                 self.schedule_stack.setCurrentIndex(i)
                 break
 
-    def keyPressEvent(self, ev):
-        if ev.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            return QDialog.keyPressEvent(self, ev)
+    def keyPressEvent(self, a0):
+        if a0.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            return QDialog.keyPressEvent(self, a0)
 
     def break_cycles(self):
         try:

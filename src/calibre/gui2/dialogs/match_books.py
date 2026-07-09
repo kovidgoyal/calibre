@@ -123,11 +123,11 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.ignore_next_key = True
         self.do_search()
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, a0):
         if self.ignore_next_key:
             self.ignore_next_key = False
         else:
-            QDialog.keyPressEvent(self, e)
+            QDialog.keyPressEvent(self, a0)
 
     def do_search(self):
         query = str(self.search_text.text())

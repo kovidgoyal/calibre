@@ -260,37 +260,37 @@ class Completer(QListView):  # {{{
         if ev.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride, QEvent.Type.KeyRelease):
             print('\tkey:', QKeySequence(ev.key()).toString())
 
-    def mouseMoveEvent(self, ev):
-        idx = self.indexAt(ev.pos())
+    def mouseMoveEvent(self, e):
+        idx = self.indexAt(e.pos())
         if idx.isValid():
             ci = self.currentIndex()
             if idx.row() != ci.row():
                 self.setCurrentIndex(idx)
-        return QListView.mouseMoveEvent(self, ev)
+        return QListView.mouseMoveEvent(self, e)
 
-    def eventFilter(self, obj, e):
+    def eventFilter(self, object, event):
         'Redirect key presses from the popup to the widget'
         widget = self.parent()
         if widget is None or sip.isdeleted(widget):
             return False
-        etype = e.type()
-        if obj is not self:
-            return QObject.eventFilter(self, obj, e)
+        etype = event.type()
+        if object is not self:
+            return QObject.eventFilter(self, object, event)
 
-        # self.debug_event(e)
+        # self.debug_event(event)
 
         if etype == QEvent.Type.KeyPress:
             try:
-                key = e.key()
+                key = event.key()
             except AttributeError:
-                return QObject.eventFilter(self, obj, e)
+                return QObject.eventFilter(self, object, event)
             if key == Qt.Key.Key_Escape:
                 self.hide()
-                e.accept()
+                event.accept()
                 return True
-            if key == Qt.Key.Key_F4 and e.modifiers() & Qt.KeyboardModifier.AltModifier:
+            if key == Qt.Key.Key_F4 and event.modifiers() & Qt.KeyboardModifier.AltModifier:
                 self.hide()
-                e.accept()
+                event.accept()
                 return True
             if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
                 # We handle this explicitly because on OS X activated() is
@@ -299,7 +299,7 @@ class Completer(QListView):  # {{{
                 if idx.isValid():
                     self.item_chosen(idx)
                 self.hide()
-                e.accept()
+                event.accept()
                 return True
             if key == Qt.Key.Key_Tab:
                 idx = self.currentIndex()
@@ -311,48 +311,48 @@ class Completer(QListView):  # {{{
                     self.apply_current_text.emit()
                 elif self.model().rowCount() > 0:
                     self.next_match()
-                e.accept()
+                event.accept()
                 return True
             if key in (Qt.Key.Key_PageUp, Qt.Key.Key_PageDown):
                 # Let the list view handle these keys
                 return False
             if key in (Qt.Key.Key_Up, Qt.Key.Key_Down):
                 self.next_match(previous=key == Qt.Key.Key_Up)
-                e.accept()
+                event.accept()
                 return True
             # Send to widget
             widget.eat_focus_out = False
-            widget.keyPressEvent(e)
+            widget.keyPressEvent(event)
             widget.eat_focus_out = True
             if not widget.hasFocus():
                 # Widget lost focus hide the popup
                 self.hide()
-            if e.isAccepted():
+            if event.isAccepted():
                 return True
-        elif ismacos and etype == QEvent.Type.InputMethodQuery and e.queries() == (
+        elif ismacos and etype == QEvent.Type.InputMethodQuery and event.queries() == (
             Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled) and self.isVisible():
             # In Qt 5 the Esc key causes this event and the line edit does not
             # handle it, which causes the parent dialog to be closed
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
-            e.accept()
+            event.accept()
             return True
-        elif etype == QEvent.Type.MouseButtonPress and hasattr(e, 'globalPos') and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
+        elif etype == QEvent.Type.MouseButtonPress and hasattr(event, 'globalPos') and not self.rect().contains(self.mapFromGlobal(event.globalPos())):
             # A click outside the popup, close it
             if isinstance(widget, QComboBox):
                 # This workaround is needed to ensure clicking on the drop down
                 # arrow of the combobox closes the popup
                 opt = QStyleOptionComboBox()
                 widget.initStyleOption(opt)
-                sc = widget.style().hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(e.globalPos()), widget)
+                sc = widget.style().hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(event.globalPos()), widget)
                 if sc == QStyle.SubControl.SC_ComboBoxArrow:
                     QTimer.singleShot(0, self.hide)
-                    e.accept()
+                    event.accept()
                     return True
             self.hide()
-            e.accept()
+            event.accept()
             return True
         elif etype in (QEvent.Type.InputMethod, QEvent.Type.ShortcutOverride):
-            QApplication.sendEvent(widget, e)
+            QApplication.sendEvent(widget, event)
         return False
 # }}}
 
@@ -434,16 +434,16 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.setTextElideMode(val)
     # }}}
 
-    def event(self, ev):
+    def event(self, a0):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         try:
-            if ev.type() == QEvent.Type.ShortcutOverride and (
-                    ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
-                        ev.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
-                ev.accept()
+            if a0.type() == QEvent.Type.ShortcutOverride and (
+                    a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
+                        a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
+                a0.accept()
         except AttributeError:
             pass
-        return QLineEdit.event(self, ev)
+        return QLineEdit.event(self, a0)
 
     def complete(self, show_all=False, select_first=True):
         orig = None
@@ -625,10 +625,10 @@ class EditWithComplete(EnComboBox):
     def selectAll(self):
         self.lineEdit().selectAll()
 
-    def setText(self, val):
+    def setText(self, text):
         le = self.lineEdit()
         le.no_popup = True
-        le.setText(val)
+        le.setText(text)
         le.no_popup = False
 
     def home(self, mark=False):
@@ -645,16 +645,16 @@ class EditWithComplete(EnComboBox):
         self.lineEdit().clear()
         EnComboBox.clear(self)
 
-    def eventFilter(self, obj, e):
+    def eventFilter(self, a0, a1):
         try:
             c = self.lineEdit().mcompleter
         except AttributeError:
             return False
-        etype = e.type()
-        if self.eat_focus_out and self is obj and etype == QEvent.Type.FocusOut:
+        etype = a1.type()
+        if self.eat_focus_out and self is a0 and etype == QEvent.Type.FocusOut:
             if c.isVisible():
                 return True
-        return EnComboBox.eventFilter(self, obj, e)
+        return EnComboBox.eventFilter(self, a0, a1)
 
 
 if __name__ == '__main__':

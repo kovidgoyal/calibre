@@ -600,16 +600,16 @@ class TagBrowserMixin:  # {{{
 
 class FindBox(HistoryLineEdit):  # {{{
 
-    def keyPressEvent(self, event):
-        k = event.key()
+    def keyPressEvent(self, e):
+        k = e.key()
         if k not in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-            return HistoryLineEdit.keyPressEvent(self, event)
+            return HistoryLineEdit.keyPressEvent(self, e)
         self.blockSignals(True)
         if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
             self.setCurrentIndex(1), self.setCurrentIndex(0)
-            event.accept()
+            e.accept()
         else:
-            HistoryLineEdit.keyPressEvent(self, event)
+            HistoryLineEdit.keyPressEvent(self, e)
         self.blockSignals(False)
 # }}}
 
@@ -1086,11 +1086,11 @@ class TagBrowserWidget(QFrame):  # {{{
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and self.item_search.hasFocus():
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and self.item_search.hasFocus():
             self.find()
-            ev.accept()
+            a0.accept()
             return
-        return QFrame.keyPressEvent(self, ev)
+        return QFrame.keyPressEvent(self, a0)
 
 # }}}

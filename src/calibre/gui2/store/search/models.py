@@ -173,8 +173,8 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    def parent(self, child):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
@@ -286,14 +286,14 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, col, order, reset=True):
-        self.sort_col = col
+    def sort(self, column, order, reset=True):
+        self.sort_col = column
         self.sort_order = order
         if not self.matches:
             return
         descending = order == Qt.SortOrder.DescendingOrder
         self.all_matches.sort(
-            key=lambda x: sort_key(str(self.data_as_text(x, col))),
+            key=lambda x: sort_key(str(self.data_as_text(x, column))),
             reverse=descending)
         self.reorder_matches()
         if reset:

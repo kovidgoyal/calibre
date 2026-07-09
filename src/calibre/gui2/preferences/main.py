@@ -90,7 +90,7 @@ class Message(QWidget):
             height += line.height()
         ly.endLayout()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.last_layout_rect != self.rect():
             self.do_layout()
         p = QPainter(self)
@@ -135,7 +135,7 @@ class SectionSeparator(QWidget):
     def sizeHint(self):
         return QSize(1, 1)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
         p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Midlight))
 
@@ -344,11 +344,11 @@ class Preferences(QDialog):
     def sizeHint(self):
         return QSize(930, 720)
 
-    def event(self, ev):
-        if isinstance(ev, QStatusTipEvent):
-            msg = re.sub(r'</?[a-z1-6]+>', ' ', ev.tip())
+    def event(self, a0):
+        if isinstance(a0, QStatusTipEvent):
+            msg = re.sub(r'</?[a-z1-6]+>', ' ', a0.tip())
             self.title_bar.show_msg(msg)
-        return QDialog.event(self, ev)
+        return QDialog.event(self, a0)
 
     def run_wizard(self):
         self.run_wizard_requested.emit()

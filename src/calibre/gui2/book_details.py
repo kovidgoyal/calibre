@@ -868,7 +868,7 @@ class CoverView(QWidget):  # {{{
                 self.isVisible()):
             self.animation.start()
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         canvas_size = self.rect()
         width = self.current_pixmap_size.width()
         extrax = canvas_size.width() - width
@@ -907,7 +907,7 @@ class CoverView(QWidget):  # {{{
             fset=setCurrentPixmapSize
             )
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
         download = cm.addAction(QIcon.ic('download-metadata.png'), _('Download cover from internet'))
@@ -936,7 +936,7 @@ class CoverView(QWidget):  # {{{
         create_open_cover_with_menu(self, cm)
         cm.si = m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
-        cm.exec(ev.globalPos())
+        cm.exec(a0.globalPos())
 
     def trim_cover(self):
         book_id = self.data.get('id')
@@ -1201,15 +1201,15 @@ class BookInfo(HTMLDisplay):
     def process_external_css(self, css):
         return resolve_colors(css)
 
-    def mouseDoubleClickEvent(self, ev):
+    def mouseDoubleClickEvent(self, e):
         v = self.viewport()
-        if v.rect().contains(self.mapFromGlobal(ev.globalPos())):
-            ev.ignore()
+        if v.rect().contains(self.mapFromGlobal(e.globalPos())):
+            e.ignore()
         else:
-            return HTMLDisplay.mouseDoubleClickEvent(self, ev)
+            return HTMLDisplay.mouseDoubleClickEvent(self, e)
 
-    def contextMenuEvent(self, ev):
-        details_context_menu_event(self, ev, self, True)
+    def contextMenuEvent(self, e):
+        details_context_menu_event(self, e, self, True)
 
     def open_with(self, book_id, fmt, entry):
         self.open_fmt_with.emit(book_id, fmt, entry)
@@ -1278,19 +1278,19 @@ class DetailsLayout(QSplitter):  # {{{
         super().resizeEvent(self._resize_ev)
         self.do_layout(self.rect())
 
-    def resizeEvent(self, ev):
+    def resizeEvent(self, a0):
         if self.resize_timer.isActive():
             self.resize_timer.stop()
-        self._resize_ev = ev
+        self._resize_ev = a0
         self.resize_timer.start()
 
     def minimumSize(self):
         return QSize(190, 200) if self.vertical else QSize(120, 120)
 
-    def addWidget(self, child):
+    def addWidget(self, widget):
         if len(self._children) > 2:
             raise ValueError('This layout can only manage two children')
-        self._children.append(child)
+        self._children.append(widget)
 
     def count(self):
         return len(self._children)
@@ -1589,8 +1589,8 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         from calibre.gui2.ui import get_gui
         ShowNoteDialog(field, item_id, get_gui().current_db.new_api, parent=parent or self).show()
 
-    def mouseDoubleClickEvent(self, ev):
-        ev.accept()
+    def mouseDoubleClickEvent(self, a0):
+        a0.accept()
         self.show_book_info.emit()
 
     def show_data(self, data):

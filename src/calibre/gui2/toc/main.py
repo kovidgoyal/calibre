@@ -806,24 +806,25 @@ class TreeWidget(QTreeWidget):  # {{{
             for i, item in enumerate(items):
                 item.setData(0, Qt.ItemDataRole.DisplayRole, fmt % (num + i))
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Left and ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Left and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.move_left()
-            ev.accept()
-        elif ev.key() == Qt.Key.Key_Right and ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            event.accept()
+        elif event.key() == Qt.Key.Key_Right and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.move_right()
-            ev.accept()
-        elif ev.key() == Qt.Key.Key_Up and (ev.modifiers() & Qt.KeyboardModifier.ControlModifier or ev.modifiers() & Qt.KeyboardModifier.AltModifier):
+            event.accept()
+        elif event.key() == Qt.Key.Key_Up and (event.modifiers() & Qt.KeyboardModifier.ControlModifier or event.modifiers() & Qt.KeyboardModifier.AltModifier):
             self.move_up()
-            ev.accept()
-        elif ev.key() == Qt.Key.Key_Down and (ev.modifiers() & Qt.KeyboardModifier.ControlModifier or ev.modifiers() & Qt.KeyboardModifier.AltModifier):
+            event.accept()
+        elif event.key() == Qt.Key.Key_Down and (
+                event.modifiers() & Qt.KeyboardModifier.ControlModifier or event.modifiers() & Qt.KeyboardModifier.AltModifier):
             self.move_down()
-            ev.accept()
-        elif ev.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
+            event.accept()
+        elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.del_items()
-            ev.accept()
+            event.accept()
         else:
-            return super().keyPressEvent(ev)
+            return super().keyPressEvent(event)
 
     def show_context_menu(self, point):
         item = self.currentItem()
@@ -937,11 +938,11 @@ class TOCView(QWidget):  # {{{
     def edit_item(self):
         self.item_view.edit_item()
 
-    def event(self, e):
-        if e.type() == QEvent.Type.StatusTip:
-            txt = str(e.tip()) or self.default_msg
+    def event(self, a0):
+        if a0.type() == QEvent.Type.StatusTip:
+            txt = str(a0.tip()) or self.default_msg
             self.hl.setText(txt)
-        return super().event(e)
+        return super().event(a0)
 
     def item_title(self, item):
         return str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')

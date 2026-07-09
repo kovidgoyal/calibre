@@ -64,14 +64,14 @@ class StateTableWidgetItem(QTableWidgetItem):
         self.setIcon(QIcon.cached_icon('blank.png'))
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
 
-    def setText(self, txt):
-        if txt == 'deleted':
+    def setText(self, atext):
+        if atext == 'deleted':
             super().setText(_('Deleted'))
             self.setIcon(QIcon.cached_icon('trash.png'))
-        elif txt == 'new':
+        elif atext == 'new':
             super().setText(_('New'))
             self.setIcon(QIcon.cached_icon('plus.png'))
-        elif txt == 'modified':
+        elif atext == 'modified':
             super().setText(_('Modified'))
             self.setIcon(QIcon.cached_icon('modified.png'))
         else:
@@ -91,12 +91,12 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         self._original_in_library = lookup_name in self._field_metadata
         self.setText(lookup_name)
 
-    def setText(self, lookup_name):
-        self._lookup_name = lookup_name
+    def setText(self, atext):
+        self._lookup_name = atext
         if in_library := (self._lookup_name in self._field_metadata):
-            txt = f"{self._field_metadata[self.lookup_name]['name']} ({self._lookup_name})"
+            txt = f"{self._field_metadata[self.atext]['name']} ({self._lookup_name})"
         else:
-            txt =  f"{lookup_name} ({_('Not in library')})"
+            txt =  f"{atext} ({_('Not in library')})"
         super().setText(txt)
         self.setToolTip(txt)
         if in_library:
@@ -664,12 +664,12 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.undo_modification()
         self.changed_signal.emit()
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Delete:
             self.delete_rule()
-            ev.accept()
+            a0.accept()
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
     def check_button_state(self, item):
         if item is None:

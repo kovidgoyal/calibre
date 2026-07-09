@@ -249,14 +249,14 @@ class NoteEditorWidget(EditorWidget):
         return digest
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
-    def loadResource(self, rtype, qurl):
-        if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
+    def loadResource(self, type, name):
+        if self.db is None or self.images is None or name.scheme() != RESOURCE_URL_SCHEME or int(type) != int(QTextDocument.ResourceType.ImageResource):
             return
-        digest = self.resource_digest_from_qurl(qurl)
+        digest = self.resource_digest_from_qurl(name)
         ans = self.get_resource(digest)
         if ans is not None:
             r = QByteArray(ans['data'])
-            self.document().addResource(rtype, qurl, r)  # cache the resource
+            self.document().addResource(type, name, r)  # cache the resource
             return r
 
     def commit_downloaded_image(self, data, suggested_filename):
@@ -273,9 +273,9 @@ class NoteEditorWidget(EditorWidget):
         self.referenced_resources = set()
         for fmt in self.document().allFormats():
             if fmt.isImageFormat():
-                qurl = QUrl(fmt.toImageFormat().name())
-                if qurl.scheme() == RESOURCE_URL_SCHEME:
-                    digest = self.resource_digest_from_qurl(qurl)
+                name = QUrl(fmt.toImageFormat().name())
+                if name.scheme() == RESOURCE_URL_SCHEME:
+                    digest = self.resource_digest_from_qurl(name)
                     self.referenced_resources.add(digest)
 
     def ask_link(self):

@@ -51,20 +51,20 @@ class CommentsDialog(QDialog):
         self.save_geometry(gprefs, 'comments_dialog_geom')
         QDialog.reject(self)
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         self.save_geometry(gprefs, 'comments_dialog_geom')
-        return QDialog.closeEvent(self, ev)
+        return QDialog.closeEvent(self, a0)
 
 
 class PlainTextEdit(QPlainTextEdit):
     ctrl_enter_pushed = pyqtSignal()
 
-    def keyPressEvent(self, event):
-        if event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_Return:
-            event.accept()
+    def keyPressEvent(self, e):
+        if e.modifiers() & Qt.KeyboardModifier.ControlModifier and e.key() == Qt.Key.Key_Return:
+            e.accept()
             self.ctrl_enter_pushed.emit()
         else:
-            super().keyPressEvent(event)
+            super().keyPressEvent(e)
 
 
 class PlainTextDialog(Dialog):

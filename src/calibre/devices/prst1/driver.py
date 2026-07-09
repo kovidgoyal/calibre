@@ -137,9 +137,9 @@ class PRST1(USBMS):
             return self.EBOOK_DIR_MAIN
         return ''
 
-    def can_handle(self, devinfo, debug=False):
+    def can_handle(self, device_info, debug=False):
         if islinux:
-            dev = USBDevice(devinfo)
+            dev = USBDevice(device_info)
             main, carda, cardb = self.find_device_nodes(detected_device=dev)
             if main is None and carda is None and cardb is None:
                 if debug:

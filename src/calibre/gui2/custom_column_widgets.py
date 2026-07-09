@@ -366,13 +366,13 @@ class Rating(Base):
 
 class DateTimeEdit(DateTimeEditBase):
 
-    def focusInEvent(self, x):
+    def focusInEvent(self, e):
         self.setSpecialValueText('')
-        DateTimeEditBase.focusInEvent(self, x)
+        DateTimeEditBase.focusInEvent(self, e)
 
-    def focusOutEvent(self, x):
+    def focusOutEvent(self, e):
         self.setSpecialValueText(_('Undefined'))
-        DateTimeEditBase.focusOutEvent(self, x)
+        DateTimeEditBase.focusOutEvent(self, e)
 
     def set_to_today(self):
         self.setDateTime(qt_from_dt(now()))
@@ -585,8 +585,8 @@ class MultipleWidget(QWidget):
     def set_space_before_sep(self, v):
         self.edit_widget.set_space_before_sep(v)
 
-    def setSizePolicy(self, v1, v2):
-        self.edit_widget.setSizePolicy(v1, v2)
+    def setSizePolicy(self, a0, v2):
+        self.edit_widget.setSizePolicy(a0, v2)
 
     def setText(self, v):
         self.edit_widget.setText(v)
@@ -1055,16 +1055,16 @@ class BulkBase(Base):
             ans = list(ans)
         return ans
 
-    def finish_ui_setup(self, parent, is_bool=False, add_edit_tags_button=(False,)):
+    def finish_ui_setup(self, parent, edit_widget=False, add_edit_tags_button=(False,)):
         self.was_none = False
         l = self.widgets[1].layout()
-        if not is_bool or self.bools_are_tristate:
+        if not edit_widget or self.bools_are_tristate:
             self.clear_button = QToolButton(parent)
             self.clear_button.setIcon(QIcon.ic('trash.png'))
             self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
             self.clear_button.clicked.connect(self.set_to_undefined)
             l.insertWidget(1, self.clear_button)
-        if is_bool:
+        if edit_widget:
             self.set_no_button = QToolButton(parent)
             self.set_no_button.setIcon(QIcon.ic('list_remove.png'))
             self.set_no_button.clicked.connect(lambda: self.main_widget.setCurrentIndex(1))
@@ -1083,17 +1083,17 @@ class BulkBase(Base):
             l.insertWidget(1, self.edit_tags_button)
         l.insertStretch(2)
 
-    def initialize(self, book_ids):
-        self.initial_val = val = self.get_initial_value(book_ids)
+    def initialize(self, book_id):
+        self.initial_val = val = self.get_initial_value(book_id)
         val = self.normalize_db_val(val)
         self.setter(val)
 
-    def commit(self, book_ids, notify=False):
+    def commit(self, book_id, notify=False):
         if not self.a_c_checkbox.isChecked():
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+        self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def make_widgets(self, parent, main_widget_class):
         w = QWidget(parent)
@@ -1177,14 +1177,14 @@ class BulkBool(BulkBase, Bool):
         self.main_widget.setCurrentIndex(val)
         self.ignore_change_signals = False
 
-    def commit(self, book_ids, notify=False):
+    def commit(self, book_id, notify=False):
         if not self.a_c_checkbox.isChecked():
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
         if not self.bools_are_tristate and val is None:
             val = False
-        self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+        self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
@@ -1422,14 +1422,14 @@ class BulkSeries(BulkBase):
         increment = self.series_increment.value()
         return n, autonumber, force, start, remove, increment
 
-    def commit(self, book_ids, notify=False):
+    def commit(self, book_id, notify=False):
         if not self.a_c_checkbox.isChecked():
             return
         val, update_indices, force_start, at_value, clear, increment = self.gui_val
         val = None if clear else self.normalize_ui_val(val)
         if clear or val != '':
             extras = []
-            for book_id in book_ids:
+            for bid in book_id:
                 if clear:
                     extras.append(None)
                     continue
@@ -1442,10 +1442,10 @@ class BulkSeries(BulkBase):
                     else:
                         s_index = 1.0
                 else:
-                    s_index = self.db.get_custom_extra(book_id, num=self.col_id,
+                    s_index = self.db.get_custom_extra(bid, num=self.col_id,
                                                        index_is_id=True)
                 extras.append(s_index)
-            self.db.set_custom_bulk(book_ids, val, extras=extras,
+            self.db.set_custom_bulk(book_id, val, extras=extras,
                                    num=self.col_id, notify=notify)
 
 
@@ -1571,10 +1571,10 @@ class BulkText(BulkBase):
     def set_to_undefined(self):
         self.main_widget.clearEditText()
 
-    def initialize(self, book_ids):
+    def initialize(self, book_id):
         self.main_widget.update_items_cache(self.all_values)
         if not self.col_metadata['is_multiple']:
-            val = self.get_initial_value(book_ids)
+            val = self.get_initial_value(book_id)
             self.initial_val = val = self.normalize_db_val(val)
             self.ignore_change_signals = True
             self.main_widget.blockSignals(True)
@@ -1582,7 +1582,7 @@ class BulkText(BulkBase):
             self.main_widget.blockSignals(False)
             self.ignore_change_signals = False
 
-    def commit(self, book_ids, notify=False):
+    def commit(self, book_id, notify=False):
         if not self.a_c_checkbox.isChecked():
             return
         if self.col_metadata['is_multiple']:
@@ -1590,7 +1590,7 @@ class BulkText(BulkBase):
             if self.col_metadata['display'].get('is_names', False):
                 val = self.gui_val
                 add = [v.strip() for v in val.split(ism['ui_to_list']) if v.strip()]
-                self.db.set_custom_bulk(book_ids, add, num=self.col_id)
+                self.db.set_custom_bulk(book_id, add, num=self.col_id)
             else:
                 remove_all, adding, rtext = self.gui_val
                 remove = set()
@@ -1605,12 +1605,12 @@ class BulkText(BulkBase):
                     add = {v.strip() for v in txt.split(ism['ui_to_list'])}
                 else:
                     add = set()
-                self.db.set_custom_bulk_multiple(book_ids, add=add,
+                self.db.set_custom_bulk_multiple(book_id, add=add,
                                             remove=remove, num=self.col_id)
         else:
             val = self.gui_val
             val = self.normalize_ui_val(val)
-            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+            self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def getter(self):
         if self.col_metadata['is_multiple']:

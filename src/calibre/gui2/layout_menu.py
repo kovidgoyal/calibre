@@ -45,14 +45,14 @@ class LayoutItem(QWidget):
     def dull_icon(self, height):
         return self.button.icon().pixmap(height, height, mode=QIcon.Mode.Disabled)
 
-    def enterEvent(self, ev):
-        super().enterEvent(ev)
+    def enterEvent(self, event):
+        super().enterEvent(event)
         if not self.mouse_over:
             self.mouse_over = True
             self.update()
 
-    def leaveEvent(self, ev):
-        super().leaveEvent(ev)
+    def leaveEvent(self, a0):
+        super().leaveEvent(a0)
         if self.mouse_over:
             self.mouse_over = False
             self.update()
@@ -64,7 +64,7 @@ class LayoutItem(QWidget):
         h = 2 * self.fm.lineSpacing() + ICON_SZ + 2 * self.VMARGIN
         return QSize(w, h)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         shown = self.button.isChecked()
         ls = self.fm.lineSpacing()
         painter = QStylePainter(self)
@@ -124,35 +124,35 @@ class LayoutMenuInner(QWidget):
             x.update_tips()
         self.resize(self.sizeHint())
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QPainter(self)
         col = self.palette().window().color()
         col.setAlphaF(0.9)
         painter.fillRect(self.rect(), col)
-        super().paintEvent(ev)
+        super().paintEvent(a0)
 
     def item_for_ev(self, ev):
         for item in self.items:
             if item.geometry().contains(ev.pos()):
                 return item
 
-    def mousePressEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mousePressEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        self.current_item = self.item_for_ev(ev)
+        self.current_item = self.item_for_ev(a0)
         if self.current_item is not None:
-            ev.accept()
+            a0.accept()
         else:
-            ev.ignore()
+            a0.ignore()
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mouseReleaseEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        item = self.item_for_ev(ev)
+        item = self.item_for_ev(a0)
         if item is not None and item is self.current_item:
-            ev.accept()
+            a0.accept()
             self.parent().hide()
             item.button.click()
 
@@ -200,23 +200,23 @@ class LayoutMenu(QWidget):
         self.raise_()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def event(self, ev):
-        if ev.type() == QEvent.Type.ShortcutOverride and self.isVisible():
-            ev.accept()
-        return super().event(ev)
+    def event(self, a0):
+        if a0.type() == QEvent.Type.ShortcutOverride and self.isVisible():
+            a0.accept()
+        return super().event(a0)
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Cancel):
+    def keyPressEvent(self, a0):
+        if a0.matches(QKeySequence.StandardKey.Cancel):
             self.hide()
         else:
-            self.inner.handle_key_press(ev)
+            self.inner.handle_key_press(a0)
 
-    def mousePressEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mousePressEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        if self.inner.rect().contains(ev.pos()):
-            ev.ignore()
+        if self.inner.rect().contains(a0.pos()):
+            a0.ignore()
         else:
             self.hide()
 

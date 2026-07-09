@@ -453,17 +453,17 @@ class KOBO(USBMS):
         self.report_progress(1.0, _('Getting list of books on device...'))
         return bl
 
-    def filename_callback(self, path, mi):
-        # debug_print("Kobo:filename_callback:Path - {0}".format(path))
-        if mi.uuid in self.files_to_rename_to_kepub and path.endswith(EPUB_EXT):
-            path = path[:-len(EPUB_EXT)] + KEPUB_EXT + EPUB_EXT
+    def filename_callback(self, default, mi):
+        # debug_print("Kobo:filename_callback:Path - {0}".format(default))
+        if mi.uuid in self.files_to_rename_to_kepub and default.endswith(EPUB_EXT):
+            default = default[:-len(EPUB_EXT)] + KEPUB_EXT + EPUB_EXT
         else:
-            idx = path.rfind('.')
-            ext = path[idx:]
+            idx = default.rfind('.')
+            ext = default[idx:]
             if ext == KEPUB_EXT:
-                path = path + EPUB_EXT
-        # debug_print("Kobo:filename_callback:New path - {0}".format(path))
-        return path
+                default = default + EPUB_EXT
+        # debug_print("Kobo:filename_callback:New default - {0}".format(default))
+        return default
 
     def delete_via_sql(self, ContentID, ContentType):
         # Delete Order:
@@ -2916,13 +2916,13 @@ class KOBOTOUCH(KOBO):
         return data
 
     def _upload_cover(
-            self, path, filename, metadata, filepath, upload_grayscale,
+            self, path, filename, metadata, filepath, uploadgrayscale,
             dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False,
             letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
             ):
         from calibre.utils.img import optimize_png
         from calibre.utils.imghdr import identify
-        debug_print(f"KoboTouch:_upload_cover - filename='{filename}' upload_grayscale='{upload_grayscale}' dithered_covers='{dithered_covers}' ")
+        debug_print(f"KoboTouch:_upload_cover - filename='{filename}' uploadgrayscale='{uploadgrayscale}' dithered_covers='{dithered_covers}' ")
 
         if not metadata.cover:
             return
@@ -3016,7 +3016,7 @@ class KOBOTOUCH(KOBO):
 
                         # Return the data resized and properly grayscaled/dithered/letterboxed if requested
                         data = self._create_cover_data(
-                            cover_data, resize_to, expand_to, kobo_size, upload_grayscale,
+                            cover_data, resize_to, expand_to, kobo_size, uploadgrayscale,
                             dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality,
                             letterbox_color=letterbox_color)
 
@@ -4242,9 +4242,9 @@ class KOBOTOUCH(KOBO):
         return self.fwversion[:2] > self.max_supported_fwversion
 
     @classmethod
-    def migrate_old_settings(cls, settings):
+    def migrate_old_settings(cls, old_settings):
         debug_print('KoboTouch::migrate_old_settings - start')
-        debug_print('KoboTouch::migrate_old_settings - settings.extra_customization=', settings.extra_customization)
+        debug_print('KoboTouch::migrate_old_settings - old_settings.extra_customization=', old_settings.extra_customization)
         debug_print('KoboTouch::migrate_old_settings - For class=', cls.name)
 
         count_options = 0
@@ -4277,23 +4277,23 @@ class KOBOTOUCH(KOBO):
         # Always migrate options if for the KoboTouch class.
         # For a subclass, only migrate the KoboTouch options if they haven't already been migrated. This is based on
         # the total number of options.
-        if cls == KOBOTOUCH or len(settings.extra_customization) >= count_options:
+        if cls == KOBOTOUCH or len(old_settings.extra_customization) >= count_options:
             config = cls._config()
             debug_print('KoboTouch::migrate_old_settings - config.preferences=', config.preferences)
-            debug_print('KoboTouch::migrate_old_settings - settings need to be migrated')
-            settings.manage_collections = True
-            settings.collections_columns = settings.extra_customization[OPT_COLLECTIONS]
-            debug_print('KoboTouch::migrate_old_settings - settings.collections_columns=', settings.collections_columns)
-            settings.create_collections = settings.extra_customization[OPT_CREATE_BOOKSHELVES]
-            settings.delete_empty_collections = settings.extra_customization[OPT_DELETE_BOOKSHELVES]
+            debug_print('KoboTouch::migrate_old_settings - old_settings need to be migrated')
+            old_settings.manage_collections = True
+            old_settings.collections_columns = old_settings.extra_customization[OPT_COLLECTIONS]
+            debug_print('KoboTouch::migrate_old_settings - old_settings.collections_columns=', old_settings.collections_columns)
+            old_settings.create_collections = old_settings.extra_customization[OPT_CREATE_BOOKSHELVES]
+            old_settings.delete_empty_collections = old_settings.extra_customization[OPT_DELETE_BOOKSHELVES]
 
-            settings.upload_covers = settings.extra_customization[OPT_UPLOAD_COVERS]
-            settings.keep_cover_aspect = settings.extra_customization[OPT_KEEP_COVER_ASPECT_RATIO]
-            settings.upload_grayscale = settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
+            old_settings.upload_covers = old_settings.extra_customization[OPT_UPLOAD_COVERS]
+            old_settings.keep_cover_aspect = old_settings.extra_customization[OPT_KEEP_COVER_ASPECT_RATIO]
+            old_settings.upload_grayscale = old_settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
 
-            settings.show_archived_books = settings.extra_customization[OPT_SHOW_ARCHIVED_BOOK_RECORDS]
-            settings.show_previews = settings.extra_customization[OPT_SHOW_PREVIEWS]
-            settings.show_recommendations = settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
+            old_settings.show_archived_books = old_settings.extra_customization[OPT_SHOW_ARCHIVED_BOOK_RECORDS]
+            old_settings.show_previews = old_settings.extra_customization[OPT_SHOW_PREVIEWS]
+            old_settings.show_recommendations = old_settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
 
             # If the configuration hasn't been change for a long time, the last few option will be out
             # of sync. The last two options are always the support newer firmware and the debugging
@@ -4301,33 +4301,33 @@ class KOBOTOUCH(KOBO):
             # a string, so looking for that.
             start_subclass_extra_options = OPT_MODIFY_CSS
             debugging_title = ''
-            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], (str, bytes)):
+            if isinstance(old_settings.extra_customization[OPT_MODIFY_CSS], (str, bytes)):
                 debug_print("KoboTouch::migrate_old_settings - Don't have update_series option")
-                settings.update_series = config.get_option('update_series').default
-                settings.modify_css = config.get_option('modify_css').default
-                settings.support_newer_firmware = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
-                debugging_title = settings.extra_customization[OPT_MODIFY_CSS]
+                old_settings.update_series = config.get_option('update_series').default
+                old_settings.modify_css = config.get_option('modify_css').default
+                old_settings.support_newer_firmware = old_settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+                debugging_title = old_settings.extra_customization[OPT_MODIFY_CSS]
                 start_subclass_extra_options = OPT_MODIFY_CSS + 1
-            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], (str, bytes)):
+            elif isinstance(old_settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], (str, bytes)):
                 debug_print("KoboTouch::migrate_old_settings - Don't have modify_css option")
-                settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
-                settings.modify_css = config.get_option('modify_css').default
-                settings.support_newer_firmware = settings.extra_customization[OPT_MODIFY_CSS]
-                debugging_title = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+                old_settings.update_series = old_settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+                old_settings.modify_css = config.get_option('modify_css').default
+                old_settings.support_newer_firmware = old_settings.extra_customization[OPT_MODIFY_CSS]
+                debugging_title = old_settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
                 start_subclass_extra_options = OPT_SUPPORT_NEWER_FIRMWARE + 1
             else:
                 debug_print('KoboTouch::migrate_old_settings - Have all options')
-                settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
-                settings.modify_css = settings.extra_customization[OPT_MODIFY_CSS]
-                settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
-                debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
+                old_settings.update_series = old_settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+                old_settings.modify_css = old_settings.extra_customization[OPT_MODIFY_CSS]
+                old_settings.support_newer_firmware = old_settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+                debugging_title = old_settings.extra_customization[OPT_DEBUGGING_TITLE]
                 start_subclass_extra_options = OPT_DEBUGGING_TITLE + 1
 
-            settings.debugging_title = debugging_title if isinstance(debugging_title, (str, bytes)) else ''
-            settings.update_device_metadata = settings.update_series
-            settings.extra_customization = settings.extra_customization[start_subclass_extra_options:]
+            old_settings.debugging_title = debugging_title if isinstance(debugging_title, (str, bytes)) else ''
+            old_settings.update_device_metadata = old_settings.update_series
+            old_settings.extra_customization = old_settings.extra_customization[start_subclass_extra_options:]
 
-        return settings
+        return old_settings
 
     def is_debugging_title(self, title):
         if not DEBUG:

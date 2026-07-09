@@ -75,12 +75,12 @@ class List(QListWidget):
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_Delete:
             self.delete_selected()
-            ev.accept()
+            e.accept()
             return
-        return QListWidget.keyPressEvent(self, ev)
+        return QListWidget.keyPressEvent(self, e)
 
     def addItem(self, *args):
         try:
@@ -114,12 +114,12 @@ class Edit(EditWithComplete):
 
     returnPressed = pyqtSignal()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            ev.accept()
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            e.accept()
             self.returnPressed.emit()
             return
-        return EditWithComplete.keyPressEvent(self, ev)
+        return EditWithComplete.keyPressEvent(self, e)
 
 
 def init_line_edit(a, all_authors):

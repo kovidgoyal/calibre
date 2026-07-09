@@ -103,9 +103,9 @@ class ChoosePopupWidget(QWidget):
             if top <= y < top + height:
                 return idx
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QPainter(self)
-        painter.setClipRect(ev.rect())
+        painter.setClipRect(a0.rect())
         pal = self.palette()
         painter.fillRect(self.rect(), pal.color(QPalette.ColorRole.Text))
         crect = self.rect().adjusted(1, 1, -1, -1)
@@ -190,33 +190,33 @@ class ChoosePopupWidget(QWidget):
             return True
         return False
 
-    def eventFilter(self, obj, ev):
-        if obj is self.parent() and self.isVisible():
-            etype = ev.type()
+    def eventFilter(self, a0, a1):
+        if a0 is self.parent() and self.isVisible():
+            etype = a1.type()
             if etype == QEvent.Type.KeyPress:
-                ret = self.handle_keypress(ev)
+                ret = self.handle_keypress(a1)
                 if ret:
-                    ev.accept()
+                    a1.accept()
                 return ret
             elif etype == QEvent.Type.Resize:
                 self.relayout_timer.start()
         return False
 
-    def mouseMoveEvent(self, ev):
-        y = ev.pos().y()
+    def mouseMoveEvent(self, a0):
+        y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None and idx != self.current_index:
             self.current_index = idx
             self.update()
-            ev.accept()
+            a0.accept()
 
-    def mouseReleaseEvent(self, ev):
-        y = ev.pos().y()
+    def mouseReleaseEvent(self, a0):
+        y = a0.pos().y()
         idx = self.index_for_y(y)
         if idx is not None:
             self.activate_current_result()
             self.hide()
-        ev.accept()
+        a0.accept()
 
     def choose_next_result(self, previous=False):
         if self.current_results:

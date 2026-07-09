@@ -44,9 +44,9 @@ class TableItem(QTableWidgetItem):
         QTableWidgetItem.__init__(self, txt)
         self.sort_key = sort_key(str(txt)) if skey is None else skey
 
-    def setText(self, txt):
-        self.sort_key = sort_key(str(txt))
-        QTableWidgetItem.setText(self, txt)
+    def setText(self, atext):
+        self.sort_key = sort_key(str(atext))
+        QTableWidgetItem.setText(self, atext)
 
     def set_sort_key(self):
         self.sort_key = sort_key(str(self.text()))
@@ -66,9 +66,9 @@ class CountTableItem(QTableWidgetItem):
         self.setTextAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
 
-    def setText(self, val):
-        self.val = val
-        QTableWidgetItem.setText(self, str(val))
+    def setText(self, atext):
+        self.atext = atext
+        QTableWidgetItem.setText(self, str(atext))
 
     def set_sort_key(self):
         pass

@@ -1908,86 +1908,86 @@ class TemplateFormatter(string.Formatter):
     def get_value(self, key, args, kwargs):
         raise Exception('get_value must be implemented in the subclass')
 
-    def format_field(self, val, fmt):
+    def format_field(self, value, format_spec):
         # ensure we are dealing with a string.
-        if isinstance(val, numbers.Number):
-            if val:
-                val = str(val)
+        if isinstance(value, numbers.Number):
+            if value:
+                value = str(value)
             else:
-                val = ''
+                value = ''
         # Handle conditional text
-        fmt, prefix, suffix = self._explode_format_string(fmt)
+        format_spec, prefix, suffix = self._explode_format_string(format_spec)
 
         # Handle functions
         # First see if we have a functional-style expression
-        if fmt.startswith("'"):
+        if format_spec.startswith("'"):
             p = 0
         else:
-            p = fmt.find(":'")
+            p = format_spec.find(":'")
             if p >= 0:
                 p += 1
-        if p >= 0 and fmt[-1] == "'":
-            val = self._eval_program(val, fmt[p+1:-1], None, self.global_vars, None)
-            colon = fmt[0:p].find(':')
+        if p >= 0 and format_spec[-1] == "'":
+            value = self._eval_program(value, format_spec[p+1:-1], None, self.global_vars, None)
+            colon = format_spec[0:p].find(':')
             if colon < 0:
                 dispfmt = ''
             else:
-                dispfmt = fmt[0:colon]
+                dispfmt = format_spec[0:colon]
         else:
             # check for old-style function references
-            p = fmt.find('(')
-            dispfmt = fmt
-            if p >= 0 and fmt[-1] == ')':
-                colon = fmt[0:p].find(':')
+            p = format_spec.find('(')
+            dispfmt = format_spec
+            if p >= 0 and format_spec[-1] == ')':
+                colon = format_spec[0:p].find(':')
                 if colon < 0:
                     dispfmt = ''
                     colon = 0
                 else:
-                    dispfmt = fmt[0:colon]
+                    dispfmt = format_spec[0:colon]
                     colon += 1
 
-                fname = fmt[colon:p].strip()
+                fname = format_spec[colon:p].strip()
                 if fname in self.funcs:
                     func = self.funcs[fname]
                     if func.arg_count == 2:
                         # only one arg expected. Don't bother to scan. Avoids need
                         # for escaping characters
-                        args = [fmt[p+1:-1]]
+                        args = [format_spec[p+1:-1]]
                     else:
-                        args = self.arg_parser.scan(fmt[p+1:])[0]
+                        args = self.arg_parser.scan(format_spec[p+1:])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                     if func.object_type is not StoredObjectType.PythonFunction:
-                        args.insert(0, val)
-                        val = self._eval_sfm_call(fname, args, self.global_vars)
+                        args.insert(0, value)
+                        value = self._eval_sfm_call(fname, args, self.global_vars)
                     else:
                         if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
                                 (func.arg_count > 1 and func.arg_count != len(args)+1):
                             raise ValueError(
                                 _('Incorrect number of arguments for function {0}').format(fname))
                         if func.arg_count == 1:
-                            val = func.eval_(self, self.kwargs, self.book, self.locals, val)
+                            value = func.eval_(self, self.kwargs, self.book, self.locals, value)
                             if self.strip_results:
-                                val = val.strip()
+                                value = value.strip()
                         else:
-                            val = func.eval_(self, self.kwargs, self.book, self.locals, val, *args)
+                            value = func.eval_(self, self.kwargs, self.book, self.locals, value, *args)
                             if self.strip_results:
-                                val = val.strip()
+                                value = value.strip()
                 else:
                     return _('%s: unknown function')%fname
-        if val:
-            val = self._do_format(val, dispfmt)
-        if not val:
+        if value:
+            value = self._do_format(value, dispfmt)
+        if not value:
             return ''
-        return prefix + val + suffix
+        return prefix + value + suffix
 
-    def evaluate(self, fmt, args, kwargs, global_vars, break_reporter=None):
-        if fmt.startswith('program:'):
-            ans = self._eval_program(kwargs.get('$', None), fmt[8:],
+    def evaluate(self, format_spec, args, kwargs, global_vars, break_reporter=None):
+        if format_spec.startswith('program:'):
+            ans = self._eval_program(kwargs.get('$', None), format_spec[8:],
                                      self.column_name, global_vars, break_reporter)
-        elif fmt.startswith('python:'):
-            ans = self._eval_python_template(fmt[7:], self.column_name)
+        elif format_spec.startswith('python:'):
+            ans = self._eval_python_template(format_spec[7:], self.column_name)
         else:
-            ans = self.vformat(fmt, args, kwargs)
+            ans = self.vformat(format_spec, args, kwargs)
             if self.strip_results:
                 ans = self.compress_spaces.sub(' ', ans)
         if self.strip_results:
@@ -2056,7 +2056,7 @@ class TemplateFormatter(string.Formatter):
 
     # ######### a formatter that throws exceptions ############
 
-    def unsafe_format(self, fmt, kwargs, book, strip_results=True, global_vars=None,
+    def unsafe_format(self, format_spec, kwargs, book, strip_results=True, global_vars=None,
                       python_context_object=None):
         state = self.save_state()
         try:
@@ -2072,13 +2072,13 @@ class TemplateFormatter(string.Formatter):
                 self.python_context_object = python_context_object
             else:
                 self.python_context_object = PythonTemplateContext()
-            return self.evaluate(fmt, [], kwargs, self.global_vars)
+            return self.evaluate(format_spec, [], kwargs, self.global_vars)
         finally:
             self.restore_state(state)
 
     # ######### a formatter guaranteed not to throw an exception ############
 
-    def safe_format(self, fmt, kwargs, error_value, book,
+    def safe_format(self, format_spec, kwargs, error_value, book,
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
                     global_vars=None, break_reporter=None,
@@ -2107,11 +2107,11 @@ class TemplateFormatter(string.Formatter):
                 self.funcs = formatter_functions().get_functions()
             self.locals = {}
             try:
-                ans = self.evaluate(fmt, [], kwargs, self.global_vars, break_reporter=break_reporter)
+                ans = self.evaluate(format_spec, [], kwargs, self.global_vars, break_reporter=break_reporter)
             except StopException as e:
                 ans = error_message(e)
             except Exception as e:
-                template_error_reporter(e, fmt, kwargs, book, column_name)
+                template_error_reporter(e, format_spec, kwargs, book, column_name)
                 ans = error_value + ' ' + error_message(e)
             return ans
         finally:

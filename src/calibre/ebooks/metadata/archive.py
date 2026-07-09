@@ -49,13 +49,13 @@ class KPFExtract(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, archive):
+    def run(self, path_to_ebook):
         from calibre.utils.zipfile import ZipFile
-        with ZipFile(archive, 'r') as zf:
+        with ZipFile(path_to_ebook, 'r') as zf:
             fnames = zf.namelist()
             candidates = [x for x in fnames if x.lower().endswith('.docx')]
             if not candidates:
-                return archive
+                return path_to_ebook
             of = self.temporary_file('_kpf_extract.docx')
             with closing(of):
                 of.write(zf.read(candidates[0]))
@@ -119,18 +119,18 @@ class ArchiveExtract(FileTypePlugin):
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def run(self, archive):
+    def run(self, path_to_ebook):
         import shutil
-        q = archive.lower()
+        q = path_to_ebook.lower()
         if q.endswith('.rar'):
             comic_ext = 'cbr'
-            zf = RAR(archive)
+            zf = RAR(path_to_ebook)
         elif q.endswith('.7z'):
             comic_ext = 'cb7'
-            zf = SevenZip(archive)
+            zf = SevenZip(path_to_ebook)
         else:
             from calibre.utils.zipfile import ZipFile
-            zf = ZipFile(archive, 'r')
+            zf = ZipFile(path_to_ebook, 'r')
             comic_ext = 'cbz'
 
         with closing(zf):
@@ -138,17 +138,17 @@ class ArchiveExtract(FileTypePlugin):
             fnames = list(filter(fname_ok, fnames))
             if is_comic(fnames):
                 of = self.temporary_file('_archive_extract.'+comic_ext)
-                with closing(of), open(archive, 'rb') as f:
+                with closing(of), open(path_to_ebook, 'rb') as f:
                     shutil.copyfileobj(f, of)
                 return of.name
             if len(fnames) > 1 or not fnames:
-                return archive
+                return path_to_ebook
             fname = fnames[0]
             ext = os.path.splitext(fname)[1][1:]
             if ext.lower() not in {
                     'lit', 'epub', 'mobi', 'prc', 'rtf', 'pdf', 'mp3', 'pdb',
                     'azw', 'azw1', 'azw3', 'fb2', 'docx', 'doc', 'odt'}:
-                return archive
+                return path_to_ebook
 
             of = self.temporary_file('_archive_extract.'+ext)
             with closing(of):

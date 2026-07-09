@@ -152,25 +152,25 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         name = url.path()[1:]
         if host == SANDBOX_HOST and name.partition('/')[0] not in ('book', 'mathjax'):
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         if name.startswith('book/'):
             name = name.partition('/')[2]
             if name in ('__index__', '__popup__'):
-                send_reply(rq, 'text/html', b'<div>\xa0</div>')
+                send_reply(a0, 'text/html', b'<div>\xa0</div>')
                 return
             try:
                 data, mime_type = get_data(name)
                 if data is None:
-                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -181,27 +181,27 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 }.get(mime_type, mime_type)
                 if mime_type == 'text/css':
                     mime_type += '; charset=utf-8'
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
             data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
-            send_reply(rq, set_book_path.manifest_mime, data)
+            send_reply(a0, set_book_path.manifest_mime, data)
         elif name == 'reader-background':
             mt, data = background_image()
-            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('reader-background-'):
             encoded_fname = name[len('reader-background-'):]
             mt, data = background_image(encoded_fname)
-            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
-            handle_mathjax_request(rq, name)
+            handle_mathjax_request(a0, name)
         elif not name:
-            send_reply(rq, 'text/html', viewer_html())
+            send_reply(a0, 'text/html', viewer_html())
         else:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -379,23 +379,23 @@ class WebPage(QWebEnginePage):
                 md.setHtml(html)
             qapplication_or_fail().clipboard().setMimeData(md)
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
         }.get(level, 'ERROR')
-        prints(f'{prefix}: {source_id}:{linenumber}: {msg}', file=sys.stderr)
+        prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
         try:
             sys.stderr.flush()
         except OSError:
             pass
 
-    def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             if DEBUG:
                 prints('Open URL from book:', url.toString())
             safe_open_url(url)
@@ -590,20 +590,20 @@ class WebView(QWebEngineView):
             parent.inspector_dock.setWidget(self.inspector)
         self.focusProxy().installEventFilter(self)
 
-    def eventFilter(self, obj, event):
-        match event.type():
+    def eventFilter(self, a0, a1):
+        match a1.type():
             case QEvent.Type.NativeGesture:
-                match event.gestureType():
+                match a1.gestureType():
                     case Qt.NativeGestureType.BeginNativeGesture:
                         self.pinch_accumulated_value = 0
                     case Qt.NativeGestureType.ZoomNativeGesture:
-                        self.pinch_accumulated_value += event.value()
+                        self.pinch_accumulated_value += a1.value()
                         return True
                     case Qt.NativeGestureType.EndNativeGesture:
                         if abs(self.pinch_accumulated_value) > 0.05:
                             out = self.pinch_accumulated_value > 0
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
-        return super().eventFilter(obj, event)
+        return super().eventFilter(a0, a1)
 
     def html_input_focusin(self):
         # Programmatic focus of HTML editors in Qt WebEngine can leave the

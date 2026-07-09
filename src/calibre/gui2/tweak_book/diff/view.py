@@ -206,12 +206,12 @@ class TextBrowser(PlainTextEdit):  # {{{
         if len(m.actions()) > 0:
             m.exec(self.mapToGlobal(pos))
 
-    def mouseDoubleClickEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
-            b = self.cursorForPosition(ev.pos()).block()
+    def mouseDoubleClickEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton:
+            b = self.cursorForPosition(e.pos()).block()
             if b.isValid():
                 self.generate_sync_request(b.blockNumber())
-        return PlainTextEdit.mouseDoubleClickEvent(self, ev)
+        return PlainTextEdit.mouseDoubleClickEvent(self, e)
 
     def generate_sync_request(self, block_number):
         if not self.headers:
@@ -307,8 +307,8 @@ class TextBrowser(PlainTextEdit):  # {{{
         if rect.contains(self.viewport().rect()):
             self.update_line_number_area_width()
 
-    def resizeEvent(self, ev):
-        PlainTextEdit.resizeEvent(self, ev)
+    def resizeEvent(self, e):
+        PlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
         if self.right:
             self.line_number_area.setGeometry(QRect(cr.right() - self.line_number_area_width(), cr.top(), cr.right(), cr.height()))
@@ -316,9 +316,9 @@ class TextBrowser(PlainTextEdit):  # {{{
             self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
         self.resized.emit()
 
-    def paint_line_numbers(self, ev):
+    def paint_line_numbers(self, e):
         painter = QPainter(self.line_number_area)
-        painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
+        painter.fillRect(e.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
 
         block = self.firstVisibleBlock()
         num = block.blockNumber()
@@ -327,8 +327,8 @@ class TextBrowser(PlainTextEdit):  # {{{
         painter.setPen(self.line_number_palette.color(QPalette.ColorRole.Text))
         change_starts = {x[0] for x in self.changes}
 
-        while block.isValid() and top <= ev.rect().bottom():
-            r = ev.rect()
+        while block.isValid() and top <= e.rect().bottom():
+            r = e.rect()
             if block.isVisible() and bottom >= r.top():
                 text = str(self.line_number_map.get(num, ''))
                 is_start = text != '-' and num in change_starts
@@ -353,13 +353,13 @@ class TextBrowser(PlainTextEdit):  # {{{
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
 
-    def paintEvent(self, event):
+    def paintEvent(self, e):
         w = self.viewport().rect().width()
         painter = QPainter(self.viewport())
-        painter.setClipRect(event.rect())
+        painter.setClipRect(e.rect())
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
-        floor = event.rect().bottom()
-        ceiling = event.rect().top()
+        floor = e.rect().bottom()
+        ceiling = e.rect().top()
         fv = self.firstVisibleBlock().blockNumber()
         origin = self.contentOffset()
         doc = self.document()
@@ -401,19 +401,19 @@ class TextBrowser(PlainTextEdit):  # {{{
                     painter.drawPixmap(QRect(3, int(y_top), int(imgw), int(imgh)), img)
 
         painter.end()
-        PlainTextEdit.paintEvent(self, event)
+        PlainTextEdit.paintEvent(self, e)
         painter = QPainter(self.viewport())
-        painter.setClipRect(event.rect())
+        painter.setClipRect(e.rect())
         for top, bottom, kind in sorted(lines, key=lambda t_b_k:{'replace':0}.get(t_b_k[2], 1)):
             painter.setPen(QPen(self.diff_foregrounds[kind], 1))
             painter.drawLine(0, int(top), int(w), int(top))
             painter.drawLine(0, int(bottom - 1), int(w), int(bottom - 1))
 
-    def wheelEvent(self, ev):
-        if ev.angleDelta().x() == 0:
-            self.wheel_event.emit(ev)
+    def wheelEvent(self, e):
+        if e.angleDelta().x() == 0:
+            self.wheel_event.emit(e)
         else:
-            return PlainTextEdit.wheelEvent(self, ev)
+            return PlainTextEdit.wheelEvent(self, e)
 
 # }}}
 
@@ -423,16 +423,16 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
     WIDTH = 30  # px
     wheel_event = pyqtSignal(object)
 
-    def event(self, ev):
-        if ev.type() in (QEvent.Type.HoverEnter, QEvent.Type.HoverLeave):
-            self.hover = ev.type() == QEvent.Type.HoverEnter
-        return QSplitterHandle.event(self, ev)
+    def event(self, a0):
+        if a0.type() in (QEvent.Type.HoverEnter, QEvent.Type.HoverLeave):
+            self.hover = a0.type() == QEvent.Type.HoverEnter
+        return QSplitterHandle.event(self, a0)
 
-    def paintEvent(self, event):
-        QSplitterHandle.paintEvent(self, event)
+    def paintEvent(self, a0):
+        QSplitterHandle.paintEvent(self, a0)
         left, right = self.parent().left, self.parent().right
         painter = QPainter(self)
-        painter.setClipRect(event.rect())
+        painter.setClipRect(a0.rect())
         w = self.width()
         h = self.height()
         painter.setRenderHints(QPainter.RenderHint.Antialiasing, True)
@@ -510,18 +510,18 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         # Paint the splitter without the change lines if the mouse is over the
         # splitter
         if getattr(self, 'hover', False):
-            QSplitterHandle.paintEvent(self, event)
+            QSplitterHandle.paintEvent(self, a0)
 
     def sizeHint(self):
         ans = QSplitterHandle.sizeHint(self)
         ans.setWidth(self.WIDTH)
         return ans
 
-    def wheelEvent(self, ev):
-        if ev.angleDelta().x() == 0:
-            self.wheel_event.emit(ev)
+    def wheelEvent(self, a0):
+        if a0.angleDelta().x() == 0:
+            self.wheel_event.emit(a0)
         else:
-            return QSplitterHandle.wheelEvent(self, ev)
+            return QSplitterHandle.wheelEvent(self, a0)
 # }}}
 
 

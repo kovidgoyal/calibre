@@ -53,10 +53,10 @@ class ThrobbingButton(QToolButton):
     def animation_finished(self):
         self.icon_size = self.iconSize().width()
 
-    def enterEvent(self, ev):
+    def enterEvent(self, a0):
         self.start_animation()
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.stop_animation()
 
     def value_changed(self, val):
@@ -79,7 +79,7 @@ class ThrobbingButton(QToolButton):
         self.animation.stop()
         self.animation_finished()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         size = self._icon_size if self._icon_size > 10 else self.iconSize().width()
         size = size or max(0, self.width() - 4)
         p = QPainter(self)

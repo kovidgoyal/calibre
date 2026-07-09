@@ -146,11 +146,11 @@ document.title = 'compiler initialized';
         def spin_loop(self):
             QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
-        def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
+        def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
             if level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
-                self.errors.append(msg)
+                self.errors.append(message)
             else:
-                print(f'{source_id}:{line_num}:{msg}')
+                print(f'{sourceID}:{lineNumber}:{message}')
 
         def __call__(self, src, options):
             self.compiler_result = null = object()
@@ -376,19 +376,19 @@ def run_rapydscript_tests():
             self.allowed_hosts = (FAKE_HOST,)
             self.registered_data = {}
 
-        def requestStarted(self, rq):
-            if bytes(rq.requestMethod()) != b'GET':
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-            url = rq.requestUrl()
+        def requestStarted(self, a0):
+            if bytes(a0.requestMethod()) != b'GET':
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+            url = a0.requestUrl()
             host = url.host()
             if host not in self.allowed_hosts:
-                return self.fail_request(rq)
+                return self.fail_request(a0)
             q = parse_qs(url.query())
             if not q:
-                return self.fail_request(rq)
+                return self.fail_request(a0)
             mt = q.get('mime-type', ('text/plain',))[0]
             data = q.get('data', ('',))[0].encode('utf-8')
-            send_reply(rq, mt, data)
+            send_reply(a0, mt, data)
 
         def fail_request(self, rq, fail_code=None):
             if fail_code is None:
@@ -425,8 +425,8 @@ def run_rapydscript_tests():
             self.result = result
             self.working = False
 
-        def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
-            print(msg, file=sys.stdout if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel else sys.stderr)
+        def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+            print(message, file=sys.stdout if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel else sys.stderr)
 
     tester = Tester()
     result = tester.spin_loop()

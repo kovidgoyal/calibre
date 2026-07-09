@@ -417,10 +417,10 @@ class CategoryModel(QAbstractItemModel):
         except IndexError:
             return ROOT
 
-    def parent(self, index):
-        if not index.isValid():
+    def parent(self, child):
+        if not child.isValid():
             return ROOT
-        pid = index.internalId()
+        pid = child.internalId()
         if pid == 0:
             return ROOT
         return self.index(pid - 1, 0)
@@ -545,10 +545,10 @@ class CharModel(QAbstractListModel):
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md
 
-    def dropMimeData(self, md, action, row, column, parent):
-        if action != Qt.DropAction.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
+    def dropMimeData(self, data, action, row, column, parent):
+        if action != Qt.DropAction.MoveAction or not data.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
-        indices = list(map(int, bytes(md.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
+        indices = list(map(int, bytes(data.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
         codes = [self.chars[x] for x in indices]
         for x in indices:
             self.chars[x] = None
@@ -653,8 +653,8 @@ class CharView(QListView):
         self._model.endResetModel()
         self.scrollToTop()
 
-    def mouseMoveEvent(self, ev):
-        index = self.indexAt(ev.pos())
+    def mouseMoveEvent(self, e):
+        index = self.indexAt(e.pos())
         if index.isValid():
             row = index.row()
             if row != self.last_mouse_idx:
@@ -670,7 +670,7 @@ class CharView(QListView):
             self.setCursor(Qt.CursorShape.ArrowCursor)
             self.show_name.emit(-1)
             self.last_mouse_idx = -1
-        return QListView.mouseMoveEvent(self, ev)
+        return QListView.mouseMoveEvent(self, e)
 
     def context_menu(self, pos):
         index = self.indexAt(pos)

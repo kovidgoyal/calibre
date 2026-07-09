@@ -16,10 +16,10 @@ class SafeFormat(TemplateFormatter):
     def __init__(self):
         TemplateFormatter.__init__(self)
 
-    def get_value(self, orig_key, args, kwargs):
-        if not orig_key or isinstance(orig_key, Number):
+    def get_value(self, key, args, kwargs):
+        if not key or isinstance(key, Number):
             return ''
-        key = orig_key = orig_key.lower()
+        orig_key = key = key.lower()
         if (key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and
                 key not in ALL_METADATA_FIELDS):
             from calibre.ebooks.metadata.book.base import field_metadata
@@ -30,6 +30,8 @@ class SafeFormat(TemplateFormatter):
                     key = orig_key
                 else:
                     raise ValueError(_('Value: unknown field ') + orig_key)
+        if self.book is None:
+            return ''
         try:
             b = self.book.get_user_metadata(key, False)
         except Exception:
@@ -39,7 +41,5 @@ class SafeFormat(TemplateFormatter):
         else:
             v = self.book.format_field(key, series_with_index=False)[1]
         if v is None:
-            return ''
-        if v == '':
             return ''
         return v

@@ -20,10 +20,10 @@ class Preview(HTMLDisplay):
         self.setTabChangesFocus(True)
         self.base_url = None
 
-    def loadResource(self, rtype, qurl):
-        if self.base_url is not None and qurl.isRelative():
-            qurl = self.base_url.resolved(qurl)
-        return super().loadResource(rtype, qurl)
+    def loadResource(self, type, name):
+        if self.base_url is not None and name.isRelative():
+            name = self.base_url.resolved(name)
+        return super().loadResource(type, name)
 
 
 class MarkdownEdit(QPlainTextEdit):
@@ -35,11 +35,11 @@ class MarkdownEdit(QPlainTextEdit):
         from calibre.gui2.markdown_syntax_highlighter import MarkdownHighlighter
         self.highlighter = MarkdownHighlighter(self.document())
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, e):
         m = self.createStandardContextMenu()
         m.addSeparator()
         m.addAction(_('Smarten punctuation'), self.smarten_punctuation.emit)
-        m.exec(ev.globalPos())
+        m.exec(e.globalPos())
 
 
 class MarkdownEditDialog(QDialog):
@@ -79,9 +79,9 @@ class MarkdownEditDialog(QDialog):
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
         QDialog.reject(self)
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
-        return QDialog.closeEvent(self, ev)
+        return QDialog.closeEvent(self, a0)
 
     @property
     def text(self):

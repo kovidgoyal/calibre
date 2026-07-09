@@ -144,7 +144,7 @@ class UpdateLabel(QLabel):  # {{{
         QLabel.__init__(self, *args, **kwargs)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-    def contextMenuEvent(self, e):
+    def contextMenuEvent(self, ev):
         pass
 # }}}
 
@@ -162,9 +162,9 @@ class VersionLabel(QLabel):  # {{{
         ev.accept()
         return QLabel.mouseReleaseEvent(self, ev)
 
-    def event(self, ev):
+    def event(self, e):
         m = None
-        et = ev.type()
+        et = e.type()
         if et == QEvent.Type.Enter:
             m = True
         elif et == QEvent.Type.Leave:
@@ -172,9 +172,9 @@ class VersionLabel(QLabel):  # {{{
         if m is not None and m != self.mouse_over:
             self.mouse_over = m
             self.update()
-        return QLabel.event(self, ev)
+        return QLabel.event(self, e)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.mouse_over:
             p = QStylePainter(self)
             tool = QStyleOption()
@@ -183,7 +183,7 @@ class VersionLabel(QLabel):  # {{{
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             p.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
             p.end()
-        return QLabel.paintEvent(self, ev)
+        return QLabel.paintEvent(self, a0)
 # }}}
 
 
@@ -525,7 +525,7 @@ class VLTabs(QTabBar):  # {{{
     def update_current(self):
         self.rebuild()
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         m = QMenu(self)
         m.addAction(QIcon.ic('sort.png'), _('Sort tabs alphabetically'), self.sort_alphabetically)
         hidden = self.current_db.new_api.pref('virt_libs_hidden')
@@ -538,7 +538,7 @@ class VLTabs(QTabBar):  # {{{
             m.addAction(QIcon.ic('drm-locked.png'), _('Lock Virtual library tabs'), self.lock_tab)
         else:
             m.addAction(QIcon.ic('drm-unlocked.png'), _('Unlock Virtual library tabs'), self.unlock_tab)
-        i = self.tabAt(ev.pos())
+        i = self.tabAt(a0.pos())
         if i > -1:
             vl = str(self.tabData(i) or '')
             if vl:
@@ -546,7 +546,7 @@ class VLTabs(QTabBar):  # {{{
                 m.addSeparator()
                 m.addAction(QIcon.ic('edit_input.png'), _('Edit "%s"') % vln, partial(self.gui.do_create_edit, name=vl))
                 m.addAction(QIcon.ic('trash.png'), _('Delete "%s"') % vln, partial(self.gui.remove_vl_triggered, name=vl))
-        m.exec(ev.globalPos())
+        m.exec(a0.globalPos())
 
     def sort_alphabetically(self):
         self.current_db.new_api.set_pref('virt_libs_order', ())

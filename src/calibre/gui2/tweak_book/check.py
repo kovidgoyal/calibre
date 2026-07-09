@@ -257,10 +257,10 @@ class Check(QSplitter):
         self.help.setText('')
         self.items.clear()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.current_item_activated()
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
     def clear(self):
         self.items.clear()

@@ -54,12 +54,12 @@ class LoadingOverlay(QWidget):
         self.pi.stop()
         return QWidget.hide(self)
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         # import time
         # self.st = time.monotonic()
         self.pi.start()
 
-    def hideEvent(self, ev):
+    def hideEvent(self, a0):
         # import time
         # print(1111111, time.monotonic() - self.st)
         self.pi.stop()

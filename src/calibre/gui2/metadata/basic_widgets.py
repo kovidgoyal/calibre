@@ -697,12 +697,12 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.update_items_cache(db.new_api.all_field_names('series'))
         self.initialize(db, id_)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_F2:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_F2:
             self.editor_requested.emit()
-            ev.accept()
+            e.accept()
             return
-        return EditWithComplete.keyPressEvent(self, ev)
+        return EditWithComplete.keyPressEvent(self, e)
 
 
 class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
@@ -872,7 +872,7 @@ class FormatList(_FormatList):
         sz = self.iconSize()
         return QSize(sz.width() * 7, sz.height() * 3)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, a0):
         from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
         item = self.itemFromIndex(self.currentIndex())
         originals = [self.item(x).ext.upper() for x in range(self.count())]
@@ -903,8 +903,8 @@ class FormatList(_FormatList):
         ac = QAction(QIcon.ic('document_open.png'), _('Open book folder'), cm)
         ac.triggered.connect(self.open_book_folder)
         cm.addAction(ac)
-        cm.popup(event.globalPos())
-        event.accept()
+        cm.popup(a0.globalPos())
+        a0.accept()
 
     def remove_cm_fmt(self):
         self.remove_format(self.sender().objectName())
@@ -1241,12 +1241,12 @@ class Cover(ImageView):  # {{{
         create_open_cover_with_menu(self, m, _('Edit cover with...'))
         return m
 
-    def mouseDoubleClickEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            event.accept()
+    def mouseDoubleClickEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            a0.accept()
             self.view_image()
         else:
-            super().mouseDoubleClickEvent(event)
+            super().mouseDoubleClickEvent(a0)
 
     def view_image(self):
         from calibre.gui2.image_popup import ImageView
@@ -1584,12 +1584,12 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
                     allow_case_change=True)
         return True
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_F2:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_F2:
             self.tag_editor_requested.emit()
-            ev.accept()
+            e.accept()
             return
-        return EditWithComplete.keyPressEvent(self, ev)
+        return EditWithComplete.keyPressEvent(self, e)
 
 # }}}
 
@@ -1702,13 +1702,13 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         self.textChanged.connect(self.validate)
         self.textChanged.connect(self.data_changed)
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         m = self.createStandardContextMenu()
         first = m.actions()[0]
         ac = m.addAction(_('Edit identifiers in a dedicated window'), self.edit_identifiers)
         m.insertAction(first, ac)
         m.insertSeparator(first)
-        m.exec(ev.globalPos())
+        m.exec(a0.globalPos())
 
     def edit_identifiers(self):
         d = Identifiers(self.current_val, self)
@@ -2005,12 +2005,12 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.update_items_cache(db.new_api.all_field_names('publisher'))
         self.initialize(db, id_)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_F2:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_F2:
             self.editor_requested.emit()
-            ev.accept()
+            e.accept()
             return
-        return EditWithComplete.keyPressEvent(self, ev)
+        return EditWithComplete.keyPressEvent(self, e)
 
 # }}}
 
