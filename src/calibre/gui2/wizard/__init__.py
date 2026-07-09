@@ -741,10 +741,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         import builtins
         builtins.__dict__['_'] = lambda x: x
         from calibre.ebooks.metadata.book.base import reset_field_metadata
-        from calibre.gui2 import qt_app
+        from calibre.gui2 import qapplication_or_fail
         from calibre.utils.localization import set_translators
         set_translators()
-        qt_app.load_translations()
+        qapplication_or_fail().load_translations()
         self.retranslate.emit()
         self.init_languages()
         reset_field_metadata()

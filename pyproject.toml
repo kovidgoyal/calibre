@@ -292,4 +292,9 @@ root = ['./src']
 extra-paths = ['./stubs']
 
 [tool.ty.src]
-exclude = ['**/*_ui.py', '**/*_test.py', 'setup/*.py', 'setup.py', '**/tests/**']
+exclude = [
+	'**/*_ui.py', '**/*_test.py',
+	'setup/*.py', 'setup.py',
+	'**/tests/**',
+	'src/calibre/library/database2.py'
+]
