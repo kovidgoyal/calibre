@@ -3,9 +3,18 @@ def create_rsa_keypair(size: int) -> object:
     pass
 
 def create_rsa_cert_req(
-    keypair: object, alt_names: tuple[str, ...], common_name: str, country: str | None, state: str | None,
-    locality: str | None, org: str | None, org_unit: str | None, email_address: str | None,
-    basic_constraints: str | None, digital_key_usage: str | None, ext_key_usage: str | None,
+    keypair: object,
+    alt_names: tuple[str, ...],
+    common_name: str,
+    country: str | None,
+    state: str | None,
+    locality: str | None,
+    org: str | None,
+    org_unit: str | None,
+    email_address: str | None,
+    basic_constraints: str | None,
+    digital_key_usage: str | None,
+    ext_key_usage: str | None,
 ) -> object:
     'create_rsa_cert_req(keypair, alt_names, common_name, country, state, locality, org, org_unit, email_address)\n\nCreate a certificate signing request.'
     pass

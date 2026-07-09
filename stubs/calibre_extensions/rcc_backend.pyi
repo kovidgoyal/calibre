@@ -3,7 +3,7 @@ import enum
 from qt.core import QIODevice
 
 class RCCResourceLibrary:
-    'Wraps Qt\'s rcc tool to compile .qrc resource files into a binary or source resource format'
+    "Wraps Qt's rcc tool to compile .qrc resource files into a binary or source resource format"
 
     class Format(enum.Enum):
         Binary = enum.auto()

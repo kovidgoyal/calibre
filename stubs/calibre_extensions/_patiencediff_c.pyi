@@ -9,7 +9,6 @@ def recurse_matches_c(a: Sequence[str], b: Sequence[str], alo: int, blo: int, ah
     pass
 
 class PatienceSequenceMatcher_c:
-
     def __init__(self, isjunk: Callable[[str], bool] | None, a: Sequence[str], b: Sequence[str]) -> None:
         'C implementation of PatienceSequenceMatcher'
         pass

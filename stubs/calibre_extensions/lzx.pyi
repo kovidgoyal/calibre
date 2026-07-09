@@ -2,7 +2,6 @@ class LZXError(Exception):
     pass
 
 class Compressor:
-
     reset: int
     wbits: int
     blocksize: int

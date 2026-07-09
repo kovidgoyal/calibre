@@ -27,7 +27,19 @@ class State:
     default_lang: str | None
     attribute_name: str | None
 
-    def __init__(self, tag_being_defined: Tag | None = None, tags: list[Tag] | None = None, is_bold: bool = False, is_italic: bool = False, current_lang: str | None = None, parse: int = 0, css_formats: Any = None, sub_parser_state: Any = None, default_lang: str | None = None, attribute_name: str | None = None) -> None:
+    def __init__(
+        self,
+        tag_being_defined: Tag | None = None,
+        tags: list[Tag] | None = None,
+        is_bold: bool = False,
+        is_italic: bool = False,
+        current_lang: str | None = None,
+        parse: int = 0,
+        css_formats: Any = None,
+        sub_parser_state: Any = None,
+        default_lang: str | None = None,
+        attribute_name: str | None = None,
+    ) -> None:
         'State'
         pass
 

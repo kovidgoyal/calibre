@@ -4,7 +4,6 @@ class FreeTypeError(Exception):
     pass
 
 class FreeType:
-
     def __init__(self) -> None:
         'FreeType'
         pass
@@ -14,7 +13,6 @@ class FreeType:
         pass
 
 class Face:
-
     def __init__(self, freetype: FreeType, data: bytes) -> None:
         'Face'
         pass
