@@ -62,6 +62,7 @@ def scan(name):
             if not obj_name.startswith('_') and obj_name not in name_map:
                 if (block := special_case.get(obj_name)) is not None:
                     blocks.append(block)
+                    name_map[obj_name] = full_name
                 else:
                     name_map[obj_name] = full_name
                     types.append(f'{obj_name} = {full_name}.{obj_name}')

@@ -6,6 +6,8 @@
 # our own restore geometry
 
 
+from collections.abc import Callable
+
 from qt.core import QRect, QScreen, QSize, Qt, QWidget
 
 from calibre.constants import is_debugging as _is_debugging
@@ -162,7 +164,7 @@ def _restore_to_new_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
     return _do_restore(self, s, geometry, saved_data)
 
 
-def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: callable = None) -> bool:
+def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: Callable[[], bytes] | None = None) -> bool:
     from calibre.gui2 import qapplication_or_fail
     x = prefs.get(geometry_pref_name(name))
     if not x:
@@ -197,7 +199,7 @@ def _restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_ge
 screen_debug_has_been_output = False
 
 
-def restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: callable = None) -> bool:
+def restore_geometry(self: QWidget, prefs: dict, name: str, get_legacy_saved_geometry: Callable[[], bytes] | None = None) -> bool:
     from calibre.gui2 import qapplication_or_fail
     global screen_debug_has_been_output
     if not screen_debug_has_been_output:
