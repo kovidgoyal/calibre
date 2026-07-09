@@ -96,7 +96,7 @@ dev = [
 [tool.ruff]
 line-length = 160
 builtins = ['_', 'I', 'P']
-include = ['*.py', '*.recipe']
+include = ['*.py', '*.pyi', '*.recipe']
 exclude = [
     "*_ui.py",
     "bypy/*",
@@ -146,6 +146,7 @@ unfixable = ['PIE794', 'ISC001']
 "src/calibre/gui2/store/stores/*" = ['UP', 'FURB188']
 "src/qt/*.py" = ['I', 'E302']
 "src/qt/*.pyi" = ['I']
+"*.pyi" = ['E501']
 
 [tool.ruff.lint.isort]
 detect-same-package = true
