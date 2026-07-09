@@ -34,9 +34,7 @@ module_lists = {
 
 special_case = {
     'QIcon': f'''
-BaseQIcon = {QT_WRAPPER}.QtGui.QIcon
-
-class QIcon(BaseQIcon):
+class QIcon({QT_WRAPPER}.QtGui.QIcon):
 
     @classmethod
     def ic(cls, name: str, fallback: bytes = b'') -> QIcon: ...

@@ -791,9 +791,15 @@ QVoice = PyQt6.QtTextToSpeech.QVoice
 import PyQt6.sip
 sip = PyQt6.sip
 
-BaseQIcon = PyQt6.QtGui.QIcon
-
-class QIcon(BaseQIcon):
+class QIcon(PyQt6.QtGui.QIcon):
 
     @classmethod
     def ic(cls, name: str, fallback: bytes = b'') -> QIcon: ...
+
+    @classmethod
+    def icon_as_png(cls, name: str, as_bytearray: bool = False, compression_level: int = 9) -> QIcon: ...
+
+    @classmethod
+    def cached_icon(cls, name: str) -> QIcon: ...
+
+    def is_ok(self) -> bool: ...
