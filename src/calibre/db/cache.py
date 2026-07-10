@@ -2581,8 +2581,8 @@ class Cache:
             mi.title_sort = title_sort(mi.title, lang=mi.languages[0] if mi.languages else None)
         if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isbytestring(mi.title):
-            mi.title = mi.title.decode(preferred_encoding, 'replace')  # ty: ignore[unresolved-attribute]
+        if isinstance(mi.title, bytes):
+            mi.title = mi.title.decode(preferred_encoding, 'replace')
         if force_id is None:
             self.backend.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',
                          (mi.title, series_index, aus))
@@ -4190,8 +4190,8 @@ def import_library(library_key, importer, library_path, progress=None, abort=Non
             stream.check_hash = False
             with zipfile.ZipFile(stream) as zf:
                 for zi in zf.infolist():
-                    tpath = zf._extract_member(zi, notes_dir, None)  # ty: ignore[unresolved-attribute]
-                    date_time = mktime(zi.date_time + (0, 0, -1))  # ty: ignore[invalid-argument-type]
+                    tpath = zf.extract(zi, notes_dir, None)
+                    date_time = mktime(datetime(*zi.date_time).timetuple())
                     os.utime(tpath, (date_time, date_time))
     if abort is not None and abort.is_set():
         return
