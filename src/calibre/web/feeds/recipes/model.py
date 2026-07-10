@@ -97,7 +97,9 @@ class NewsCategory(NewsTreeItem):
         elif role == Qt.ItemDataRole.FontRole:
             return self.bold_font
         elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):
-            return QApplication.instance().palette().color(QPalette.ColorRole.Link)
+            app = QApplication.instance()
+            assert isinstance(app, QApplication)
+            return app.palette().color(QPalette.ColorRole.Link)
         elif role == Qt.ItemDataRole.UserRole:
             return f'::category::{self.sortq[0]}'
         return None
