@@ -1472,7 +1472,7 @@ class DB:
         with TemporaryFile(suffix='.sql') as fname:
             if sql is None:
                 callback(_('Dumping database to SQL') + '...')
-                with open(fname, 'wb', encoding='utf-8') as buf:
+                with open(fname, 'w', encoding='utf-8') as buf:
                     shell = Shell(db=self.conn, stdout=buf)
                     shell.process_command('.dump')
             else:
