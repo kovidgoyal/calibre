@@ -185,7 +185,9 @@ class AddDictionary(QDialog):  # {{{
         b.clicked.connect(self.choose_file)
         h.addWidget(b)
         l.addRow(_('&Path to OXT file:'), h)
-        l.labelForField(h).setBuddy(p)
+        lw = l.labelForField(h)
+        assert isinstance(lw, QLabel)
+        lw.setBuddy(p)
 
         self.nick = n = QLineEdit(self)
         n.setPlaceholderText(_('Choose a nickname for this dictionary'))
@@ -1214,7 +1216,7 @@ class SpellCheck(Dialog):
 
         self.main = m = QWidget(self)
         s.addWidget(m)
-        m.l = l = QVBoxLayout(m)
+        main_layout = l = QVBoxLayout(m)
         self.filter_text = t = QLineEdit(self)
         t.setPlaceholderText(_('Filter the list of words'))
         t.textChanged.connect(self.do_filter)
@@ -1309,7 +1311,7 @@ class SpellCheck(Dialog):
         self.suggested_list = sl = SuggestedList(self)
         sl.currentItemChanged.connect(self.current_suggestion_changed)
         sl.itemActivated.connect(self.change_word)
-        set_no_activate_on_click(sl)
+        set_no_activate_on_click(sl)  # type: ignore
         l.addWidget(sl)
 
         hh.setSectionHidden(3, self.show_only_misspelt.isChecked())
@@ -1322,7 +1324,7 @@ class SpellCheck(Dialog):
         cs2.setChecked(tprefs['spell_check_case_sensitive_search'])
         cs2.stateChanged.connect(self.search_type_changed)
         self.hb = h = QHBoxLayout()
-        self.main.l.addLayout(h), h.addWidget(cs), h.addWidget(cs2), h.addStretch(11)
+        main_layout.addLayout(h), h.addWidget(cs), h.addWidget(cs2), h.addStretch(11)
         self.action_next_word = a = QAction(self)
         a.setShortcut(QKeySequence(Qt.Key.Key_Down))
         a.triggered.connect(self.next_word)
@@ -1380,7 +1382,7 @@ class SpellCheck(Dialog):
 
     def change_excluded_files(self):
         d = ManageExcludedFiles(self, self.excluded_files)
-        if d.exec_() == QDialog.DialogCode.Accepted:
+        if d.exec() == QDialog.DialogCode.Accepted:
             new = d.excluded_files
             if new != self.excluded_files:
                 self.excluded_files = new
@@ -1588,8 +1590,8 @@ class SpellCheck(Dialog):
         if not self.isVisible():
             return
         self.cancel = True
-        if self.thread is not None:
-            self.thread.join()
+        if (t := self.thread) is not None:
+            t.join()
         self.stack.setCurrentIndex(0)
         self.progress_indicator.startAnimation()
         self.refresh_requested.emit()

@@ -640,7 +640,7 @@ class SearchesModel(QAbstractListModel):
         tprefs['saved_searches'] = self.searches
         return True
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         try:
             if role == Qt.ItemDataRole.DisplayRole:
                 search = self.searches[self.filtered_searches[index.row()]]
@@ -733,7 +733,7 @@ class EditSearch(QFrame):  # {{{
         h.addWidget(la), h.addWidget(n)
         l.addLayout(h)
 
-        self.find = f = SnippetTextEdit('', self)
+        self.find_widget = f = SnippetTextEdit('', self)
         self.la2 = la = QLabel(_('&Find:'))
         la.setBuddy(f)
         l.addWidget(la), l.addWidget(f)
@@ -745,7 +745,7 @@ class EditSearch(QFrame):  # {{{
 
         self.functions_container = w = QWidget()
         l.addWidget(w)
-        w.g = g = QGridLayout(w)
+        g = QGridLayout(w)
         self.la7 = la = QLabel(_('F&unction:'))
         self.function = f = FunctionBox(self)
         g.addWidget(la), g.addWidget(f)
@@ -812,7 +812,7 @@ class EditSearch(QFrame):  # {{{
 
         self.mode_box.mode = self.search.get('mode', 'regex')
         self.search_name.setText(self.search.get('name', ''))
-        self.find.setPlainText(self.search.get('find', ''))
+        self.find_widget.setPlainText(self.search.get('find', ''))
         if self.mode_box.mode == 'function':
             self.function.setText(self.search.get('replace', ''))
         else:
@@ -821,7 +821,7 @@ class EditSearch(QFrame):  # {{{
         self.dot_all.setChecked(self.search.get('dot_all', SearchWidget.DEFAULT_STATE['dot_all']))
 
         if state is not None:
-            self.find.setPlainText(state['find'])
+            self.find_widget.setPlainText(state['find'])
             self.mode_box.mode = state.get('mode')
             if self.mode_box.mode == 'function':
                 self.function.setText(state['replace'])
@@ -846,7 +846,7 @@ class EditSearch(QFrame):  # {{{
     @property
     def current_search(self):
         search = self.search.copy()
-        f = str(self.find.toPlainText())
+        f = str(self.find_widget.toPlainText())
         search['find'] = f
         search['dot_all'] = bool(self.dot_all.isChecked())
         search['case_sensitive'] = bool(self.case_sensitive.isChecked())
@@ -873,7 +873,7 @@ class EditSearch(QFrame):  # {{{
         search = self.search
         search['name'] = n
 
-        f = str(self.find.toPlainText())
+        f = str(self.find_widget.toPlainText())
         if not f:
             error_dialog(self, _('Must specify find'), _(
                 'You must specify a find expression'), show=True)
@@ -906,8 +906,8 @@ class EditSearch(QFrame):  # {{{
 
 class SearchDelegate(QStyledItemDelegate):
 
-    def sizeHint(self, *args):
-        ans = QStyledItemDelegate.sizeHint(self, *args)
+    def sizeHint(self, option, index):
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 4)
         return ans
 

@@ -5,7 +5,7 @@
 import json
 import time
 from collections import defaultdict
-from functools import partial
+from functools import lru_cache, partial
 from queue import Empty, Queue
 from threading import Thread
 from urllib.parse import urlparse
@@ -304,32 +304,30 @@ def create_dark_mode_script():
     injection_point=QWebEngineScript.InjectionPoint.DocumentCreation)
 
 
+@lru_cache(maxsize=2)
 def create_profile():
-    ans = getattr(create_profile, 'ans', None)
-    if ans is None:
-        ans = QWebEngineProfile(QApplication.instance())
-        setup_profile(ans)
-        ua = 'calibre-editor-preview ' + __version__
-        ans.setHttpUserAgent(ua)
-        if is_running_from_develop:
-            from calibre.utils.rapydscript import compile_editor
-            compile_editor()
-        js = P('editor.js', data=True, allow_user_override=False)
-        cparser = P('csscolorparser.js', data=True, allow_user_override=False)
+    ans = QWebEngineProfile(QApplication.instance())
+    setup_profile(ans)
+    ua = 'calibre-editor-preview ' + __version__
+    ans.setHttpUserAgent(ua)
+    if is_running_from_develop:
+        from calibre.utils.rapydscript import compile_editor
+        compile_editor()
+    js = P('editor.js', data=True, allow_user_override=False)
+    cparser = P('csscolorparser.js', data=True, allow_user_override=False)
 
-        insert_scripts(ans,
-            create_script('csscolorparser.js', cparser),
-            create_script('editor.js', js),
-            create_dark_mode_script(),
-        )
-        url_handler = UrlSchemeHandler(ans)
-        ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
-        s = ans.settings()
-        assert s is not None
-        s.setDefaultTextEncoding('utf-8')
-        s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, False)
-        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
-        create_profile.ans = ans
+    insert_scripts(ans,
+        create_script('csscolorparser.js', cparser),
+        create_script('editor.js', js),
+        create_dark_mode_script(),
+    )
+    url_handler = UrlSchemeHandler(ans)
+    ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
+    s = ans.settings()
+    assert s is not None
+    s.setDefaultTextEncoding('utf-8')
+    s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, False)
+    s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
     return ans
 
 
@@ -395,8 +393,8 @@ class Inspector(QWidget):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
 
     def connect_to_dock(self):
         ac = actions['inspector-dock']
@@ -415,7 +413,9 @@ class Inspector(QWidget):
             vtd_page = view_to_debug.page()
             assert vtd_page is not None
             vtd_page.setDevToolsPage(view_page)
-            self.layout.addWidget(self.view)
+            h = self.layout()
+            assert h is not None
+            h.addWidget(self.view)
 
     def sizeHint(self):
         return QSize(1280, 600)
@@ -484,8 +484,10 @@ class WebView(QWebEngineView, OpenWithHandler):
         self.setZoomFactor(1.0)
 
     def inspect(self):
-        self.inspector.parent().show()
-        self.inspector.parent().raise_and_focus()
+        p = self.inspector.parent()
+        assert isinstance(p, QWidget)
+        p.show()
+        p.raise_and_focus()
         inspect_action = self.pageAction(QWebEnginePage.WebAction.InspectElement)
         assert inspect_action is not None
         inspect_action.trigger()
@@ -524,10 +526,14 @@ class WebView(QWebEngineView, OpenWithHandler):
         menu.exec(a0.globalPos())
 
     def open_with(self, file_name, fmt, entry):
-        self.parent().open_file_with.emit(file_name, fmt, entry)
+        p = self.parent()
+        assert isinstance(p, Preview)
+        p.open_file_with.emit(file_name, fmt, entry)
 
     def edit_image(self, resource_name):
-        self.parent().edit_file.emit(resource_name)
+        p = self.parent()
+        assert isinstance(p, Preview)
+        p.edit_file.emit(resource_name)
 
 
 class Preview(QWidget):
@@ -693,12 +699,14 @@ class Preview(QWidget):
                 'Failed to launch the worker process used for rendering the preview'), det_msg=tb, show=True)
 
     def name_to_qurl(self, name=None):
-        name = name or self.current_name
+        name = str(name or self.current_name)
         qurl = QUrl()
         qurl.setScheme(FAKE_PROTOCOL), qurl.setAuthority(FAKE_HOST), qurl.setPath('/' + name)
         return qurl
 
-    def show(self, name):
+    def show(self, name: str = ''):
+        if not name:
+            return
         if name != self.current_name:
             self.refresh_timer.stop()
             self.current_name = name

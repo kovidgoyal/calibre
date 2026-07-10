@@ -45,6 +45,7 @@ from qt.core import (
     QStackedWidget,
     QStyle,
     QStyledItemDelegate,
+    QStyleOptionViewItem,
     Qt,
     QTableView,
     QTextCursor,
@@ -335,7 +336,7 @@ class FilesModel(FileCollection):
                 if ans > -1:
                     return str(ans)
         elif role == Qt.ItemDataRole.TextAlignmentRole:
-            return int(Qt.AlignVCenter | self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
+            return int(Qt.AlignmentFlag.AlignVCenter | self.alignments[index.column()])  # https://bugreports.qt.io/browse/PYSIDE-1974
 
 
 class FilesWidget(QWidget):
@@ -434,16 +435,33 @@ class ImagesDelegate(QStyledItemDelegate):
     def __init__(self, *args):
         QStyledItemDelegate.__init__(self, *args)
 
-    def sizeHint(self, option, index):
-        style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
+    def effective_style(self, option) -> QStyle:
+        if option.styleObject:
+            style = option.styleObject.style()
+        elif (p := self.parent()):
+            assert isinstance(p, QWidget)
+            style = p.style()
+        else:
+            style = qapplication_or_fail().style()
+        assert style is not None
+        return style
+
+    def effective_parent(self) -> ImagesWidget:
+        ans = self.parent()
+        assert isinstance(ans, ImagesWidget)
+        return ans
+
+    def sizeHint(self, option: QStyleOptionViewItem, index):
+        style = self.effective_style(option)
         assert style is not None
         self.initStyleOption(option, index)
-        ans = style.sizeFromContents(QStyle.ContentsType.CT_ItemViewItem, option, QSize(), option.styleObject or self.parent())
+        ans = style.sizeFromContents(QStyle.ContentsType.CT_ItemViewItem, option, QSize(), option.widget or self.effective_parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
         if entry is None:
             return ans
-        th = int(self.parent().thumbnail_height * self.parent().devicePixelRatio())
-        pmap = self.pixmap(th, entry._replace(usage=()), self.parent().devicePixelRatioF())
+        p = self.effective_parent()
+        th = int(p.thumbnail_height * p.devicePixelRatio())
+        pmap = self.pixmap(th, entry._replace(usage=()), p.devicePixelRatioF())
         if pmap.isNull():
             width = height = 0
         else:
@@ -451,17 +469,17 @@ class ImagesDelegate(QStyledItemDelegate):
         m = self.MARGIN * 2
         return QSize(max(width + m, ans.width()), height + m + self.MARGIN + ans.height())
 
-    def paint(self, painter, option, index):
-        style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
-        assert style is not None
+    def paint(self, painter, option: QStyleOptionViewItem, index):
+        style = self.effective_style(option)
         self.initStyleOption(option, index)
         option.text = ''
-        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.styleObject or self.parent())
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.widget or self.effective_parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
         if entry is None:
             return
         painter.save()
-        th = int(self.parent().thumbnail_height * self.parent().devicePixelRatio())
+        p = self.effective_parent()
+        th = int(p.thumbnail_height * p.devicePixelRatio())
         pmap = self.pixmap(th, entry._replace(usage=()), painter.device().devicePixelRatioF())
         if pmap.isNull():
             bottom = option.rect.top()
@@ -472,7 +490,7 @@ class ImagesDelegate(QStyledItemDelegate):
             bottom = m + int(pmap.height() / pmap.devicePixelRatio()) + option.rect.top()
         rect = QRect(option.rect.left(), bottom, option.rect.width(), option.rect.bottom() - bottom)
         if option.state & QStyle.StateFlag.State_Selected:
-            painter.setPen(self.parent().palette().color(QPalette.ColorRole.HighlightedText))
+            painter.setPen(p.palette().color(QPalette.ColorRole.HighlightedText))
         painter.drawText(rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter, entry.basename)
         painter.restore()
 
